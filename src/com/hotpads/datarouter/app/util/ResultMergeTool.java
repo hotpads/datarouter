@@ -18,6 +18,14 @@ public class ResultMergeTool {
 		}
 		return foundValue==true? sum : null;
 	}
+
+	public static <T,C extends Collection<T>> T first(T a, C bs){
+		if(a != null){ return a; }
+		for(T t : CollectionTool.nullSafe(bs)){
+			if(t != null){ return t; }
+		}
+		return null;
+	}
 	
 	public static <T,C extends Collection<T>> List<T> append(C a, Collection<? extends C> bs){
 		int size = CollectionTool.sizeNullSafe(a) + CollectionTool.getTotalSizeOfCollectionOfCollections(bs);
