@@ -1,7 +1,9 @@
 package com.hotpads.datarouter.op;
 
+import java.util.Iterator;
 import java.util.List;
 
+import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 
@@ -9,19 +11,19 @@ import com.hotpads.datarouter.storage.key.Key;
 public interface SortedStorageReadOps<D extends Databean> 
 extends MapStorageReadOps<D>{
 
-	Key<D> getFirstKey();
-	D getFirst();
+//	Key<D> getFirstKey(Config config);
+	D getFirst(Config config);
 	
-	Key<D> getLastKey();
-	D getLast();
-	
-	List<Key<D>> getPrefixedKeys(Key<D> prefix);
-	List<D> getPrefixedList(Key<D> prefix);
-
-	List<Key<D>> getKeyRange(Key<D> start, boolean startInclusive, Key<D> end, boolean endInclusive);
-	List<D> getRange(Key<D> start, boolean startInclusive, Key<D> end, boolean endInclusive);
-	
-	List<Key<D>> getKeyRangeFrom(Key<D> start, boolean startInclusive);
-	List<D> getRangeFrom(Key<D> start, boolean startInclusive);
+//	Key<D> getLastKey(Config config);
+//	D getLast(Config config);
+//	
+//	List<Key<D>> getKeysWithPrefix(Key<D> prefix, Config config);
+//	List<D> getRangeWithPrefix(Key<D> prefix, Config config);
+//
+//	List<Key<D>> getKeysInRange(Key<D> start, boolean startInclusive, Key<D> end, boolean endInclusive, Config config);
+//	List<D> getRange(Key<D> start, boolean startInclusive, Key<D> end, boolean endInclusive, Config config);
+//	
+//	Iterator<Key<D>> scanKeys(Key<D> start, boolean startInclusive, Config config);
+//	Iterator<D> scan(Key<D> start, boolean startInclusive, Config config);
 	
 }

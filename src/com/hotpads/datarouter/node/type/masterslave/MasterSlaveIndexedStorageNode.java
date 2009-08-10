@@ -6,6 +6,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.IndexedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.index.Lookup;
 import com.hotpads.datarouter.storage.key.Key;
 
 public abstract class MasterSlaveIndexedStorageNode<D extends Databean,N extends IndexedStorageNode<D>>
@@ -42,6 +43,11 @@ implements IndexedStorageNode<D>{
 	@Override
 	public void putMulti(Collection<D> databeans, Config config) {
 		this.master.putMulti(databeans, config);
+	}
+
+	@Override
+	public void delete(Lookup<D> lookup, Config config) {
+		this.master.delete(lookup, config);
 	}
 	
 	

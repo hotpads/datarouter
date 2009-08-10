@@ -1,23 +1,20 @@
 package com.hotpads.datarouter.client.imp.hibernate.node;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
-import com.hotpads.datarouter.client.imp.hibernate.JdbcTool;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.type.physical.PhysicalIndexedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.index.Lookup;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.StringTool;
@@ -68,58 +65,10 @@ implements PhysicalIndexedStorageNode<D>
 	/*
 	 * deleting 1000 rows from a table with no indexes takes 200ms when executed as one statement
 	 *  and 600ms when executed as 1000 batch deletes in a transaction
+	 *  
+	 * make sure MySQL's max packet size is big.  it may default to 1MB... set to like 64MB
 	 * 
 	 */
-	
-//	@Override
-//	public void deleteMulti(Collection<? extends Key<D>> keys, Config config) {
-//		//build query
-//		if(CollectionTool.isEmpty(keys)){ return; }
-//		final String tableName = this.getPhysicalName();
-//		String deletePrefix = "delete from "+tableName+" where ";
-//		String[] sqlStatements = new String[keys.size()];
-//		int nextIndex = 0;
-//		for(Key<D> key : CollectionTool.nullSafe(keys)){
-//			List<String> partsOfThisKey = key.getSqlNameValuePairsEscaped();
-//			String whereFields = StringTool.concatenate(partsOfThisKey, " and ");
-//			String sql = deletePrefix + whereFields;
-//			sqlStatements[nextIndex] = sql;
-//			++nextIndex;
-//		}
-//		
-//		//execute
-//		final String[] finalSqlStatements = sqlStatements;
-//		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
-//		executor.executeTask(
-//			new HibernateTask() {
-//				public Object run(Session session) {
-//					Connection conn = null;
-//					try{
-//						conn = session.connection();
-//						conn.setAutoCommit(false);
-//						int[] rowsModified = JdbcTool.bulkUpdate(conn, finalSqlStatements);
-//						conn.commit();
-//						return rowsModified;
-//					}catch(SQLException sqle){
-//						if(conn != null){ 
-//							try {
-//								conn.rollback();
-//							} catch (SQLException rbe) {
-//								throw new HibernateException(rbe);
-//							}
-//						}
-//						throw new HibernateException(sqle);
-//					}finally{
-//						try {
-//							conn.close();
-//						} catch (SQLException e) {
-//							e.printStackTrace();
-//						}
-//					}
-//				}
-//			});
-//	}
-	
 	@Override
 	public void deleteMulti(Collection<? extends Key<D>> keys, Config config) {
 		//build query
@@ -178,10 +127,42 @@ implements PhysicalIndexedStorageNode<D>
 	
 	@Override
 	public void putMulti(Collection<D> databeans, Config config) {
-		for(D databean : CollectionTool.nullSafe(databeans)){
-			put(databean, config);
-		}
+		final String entityName = this.getPackagedPhysicalName();
+		final Collection<D> finalDatabeans = databeans;
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					for(D databean : CollectionTool.nullSafe(finalDatabeans)){
+						session.saveOrUpdate(entityName, databean);
+					}
+					return finalDatabeans;
+				}
+			});
 	}
+
+	@Override
+	public void delete(final Lookup<D> lookup, final Config config) {
+		final String tableName = this.getPhysicalName();
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, null);
+		executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					String prefix = "delete from "+tableName+" where ";
+					List<String> fieldSqls = lookup.getSqlNameValuePairsEscaped();
+					String limit = "";
+					if(config != null && config.getLimit() != null){
+						limit = " "+config.getLimit().toString();
+					}
+					String sql = prefix + StringTool.concatenate(fieldSqls, " and ") + limit;
+					SQLQuery query = session.createSQLQuery(sql);
+					int numDeleted = query.executeUpdate();
+					return numDeleted;
+				}
+			});
+	}
+	
+	
 
 	
 }

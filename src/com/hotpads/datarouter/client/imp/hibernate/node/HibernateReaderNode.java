@@ -7,6 +7,8 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
@@ -16,17 +18,17 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalIndexedStorageReaderNode;
+import com.hotpads.datarouter.node.type.physical.PhysicalSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.index.Lookup;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.StringTool;
 
 public class HibernateReaderNode<D extends Databean> 
 extends BasePhysicalNode<D>
-implements PhysicalIndexedStorageReaderNode<D>
+implements PhysicalIndexedStorageReaderNode<D>,PhysicalSortedStorageReaderNode<D>
 {
 
 	public HibernateReaderNode(Class<D> databeanClass, DataRouter router, String clientName, 
@@ -132,14 +134,14 @@ implements PhysicalIndexedStorageReaderNode<D>
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<D> lookup(final Lookup<D> key, final Config config) {
+	public List<D> lookup(final Lookup<D> lookup, final Config config) {
 		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, null);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
 					Criteria criteria = session.createCriteria(entityName);
-					for(Field field : CollectionTool.nullSafe(key.getFields())){
+					for(Field field : CollectionTool.nullSafe(lookup.getFields())){
 						criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 					}
 					if(config != null && config.getLimit() != null){
@@ -151,5 +153,55 @@ implements PhysicalIndexedStorageReaderNode<D>
 			});
 		return (List<D>)result;
 	}
+	
+	
+	/************************************ SortedStorageReader methods ****************************/
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public D getFirst(final Config config) {
+		final String entityName = this.getPackagedPhysicalName();
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					Criteria criteria = session.createCriteria(entityName);
+					criteria.setMaxResults(1);
+					Object result = criteria.uniqueResult();
+					return result;
+				}
+			});
+		return (D)result;
+	}
+
+//	@Override
+//	public Key<D> getFirstKey(final Config config) {
+//		this.datab
+//		final String entityName = this.getPackagedPhysicalName();
+//		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+//		Object result = executor.executeTask(
+//			new HibernateTask() {
+//				public Object run(Session session) {
+//					Criteria criteria = session.createCriteria(entityName);
+//					ProjectionList projection = Projections.projectionList();
+//					session.
+//					criteria.setMaxResults(1);
+//					Object result = criteria.uniqueResult();
+//					return result;
+//				}
+//			});
+//		return (D)result;
+//	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }

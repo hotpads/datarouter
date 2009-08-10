@@ -15,7 +15,7 @@ implements Key<D>{  //hibernate composite keys must implement serializable
 	private static final long serialVersionUID = -6721881893670645262L;
 	
 	public static final String defaultKeyName = "key";
-	
+		
 	protected Class<D> databeanClass;
 	
 	protected BaseKey(Class<D> databeanClass) {
