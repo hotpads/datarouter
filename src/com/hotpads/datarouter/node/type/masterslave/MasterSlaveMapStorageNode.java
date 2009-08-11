@@ -3,37 +3,25 @@ package com.hotpads.datarouter.node.type.masterslave;
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.IndexedStorageNode;
+import com.hotpads.datarouter.node.op.MapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.index.Lookup;
 import com.hotpads.datarouter.storage.key.Key;
 
-public abstract class MasterSlaveIndexedStorageNode<D extends Databean,N extends IndexedStorageNode<D>>
-extends MasterSlaveIndexedStorageReaderNode<D,N>
-implements IndexedStorageNode<D>{
+public abstract class MasterSlaveMapStorageNode<D extends Databean,N extends MapStorageNode<D>>
+extends MasterSlaveMapStorageReaderNode<D,N>
+implements MapStorageNode<D>{
 	
-	public MasterSlaveIndexedStorageNode(Class<D> databeanClass, DataRouter router) {
+	public MasterSlaveMapStorageNode(Class<D> databeanClass, DataRouter router) {
 		super(databeanClass, router);
 	}
 	
-	/********************** indexed storage write ops ************************/
-
-	/*
-	 * MULTIPLE INHERITANCE... copied to:
-	 *   - MasterSlaveIndexedSortedStorageNode
-	 */
-	
-	@Override
-	public void delete(Lookup<D> lookup, Config config) {
-		this.master.delete(lookup, config);
-	}
-	
-
 	/***************************** MapStorageWriter ****************************/
 
 	/*
-	 * MULTIPLE INHERITANCE... copied from MasterSlaveMapStorageNode
+	 * MULTIPLE INHERITANCE... copied to:
+	 *   - MasterSlaveSortedStorageNode
+	 *   - MasterSlaveIndexedStorageNode
 	 */
 
 	@Override

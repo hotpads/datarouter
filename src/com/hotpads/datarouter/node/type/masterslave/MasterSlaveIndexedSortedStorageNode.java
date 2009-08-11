@@ -3,25 +3,26 @@ package com.hotpads.datarouter.node.type.masterslave;
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.IndexedStorageNode;
+import com.hotpads.datarouter.node.op.IndexedSortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.index.Lookup;
 import com.hotpads.datarouter.storage.key.Key;
 
-public abstract class MasterSlaveIndexedStorageNode<D extends Databean,N extends IndexedStorageNode<D>>
-extends MasterSlaveIndexedStorageReaderNode<D,N>
-implements IndexedStorageNode<D>{
+public abstract class MasterSlaveIndexedSortedStorageNode<D extends Databean,N extends IndexedSortedStorageNode<D>>
+extends MasterSlaveIndexedSortedStorageReaderNode<D,N>
+implements IndexedSortedStorageNode<D>{
 	
-	public MasterSlaveIndexedStorageNode(Class<D> databeanClass, DataRouter router) {
+	public MasterSlaveIndexedSortedStorageNode(Class<D> databeanClass, DataRouter router) {
 		super(databeanClass, router);
 	}
+	
+
 	
 	/********************** indexed storage write ops ************************/
 
 	/*
-	 * MULTIPLE INHERITANCE... copied to:
-	 *   - MasterSlaveIndexedSortedStorageNode
+	 * MULTIPLE INHERITANCE... copied from MasterSlaveIndexedStorageNode
 	 */
 	
 	@Override
@@ -33,7 +34,9 @@ implements IndexedStorageNode<D>{
 	/***************************** MapStorageWriter ****************************/
 
 	/*
-	 * MULTIPLE INHERITANCE... copied from MasterSlaveMapStorageNode
+	 * MULTIPLE INHERITANCE... copied to:
+	 *   - MasterSlaveSortedStorageNode
+	 *   - MasterSlaveIndexedStorageNode
 	 */
 
 	@Override

@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.IndexedStorageNode;
-import com.hotpads.datarouter.node.type.physical.PhysicalIndexedStorageNode;
+import com.hotpads.datarouter.node.op.IndexedSortedStorageNode;
+import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.index.Lookup;
@@ -14,16 +14,20 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.MapTool;
 
-public abstract class PartitionedIndexedStorageNode<D extends Databean,N extends PhysicalIndexedStorageNode<D>>
-extends PartitionedMapStorageReaderNode<D,N>
-implements IndexedStorageNode<D>{
+public abstract class PartitionedIndexedSortedStorageNode<D extends Databean,N extends PhysicalIndexedSortedStorageNode<D>>
+extends PartitionedIndexedSortedStorageReaderNode<D,N>
+implements IndexedSortedStorageNode<D>{
 	
-	public PartitionedIndexedStorageNode(Class<D> persistentClass, DataRouter router) {
+	public PartitionedIndexedSortedStorageNode(Class<D> persistentClass, DataRouter router) {
 		super(persistentClass, router);
 	}
 
 
-	/***************** Indexed Storage Write Methods ************************************/
+	/***************** indexed storage writer methods ************************************/
+
+	/*
+	 * MULTIPLE INHERITANCE... copied from: PartitionedIndexStorageNode
+	 */
 	
 	@Override
 	public void delete(Lookup<D> multiKey, Config config) {
@@ -33,7 +37,7 @@ implements IndexedStorageNode<D>{
 		}
 	}
 	
-	
+
 	/******************* map storage writer methods ***************************/
 	/*
 	 * MULTIPLE INHERITANCE... copied from: PartitionedMapStorage
@@ -83,6 +87,5 @@ implements IndexedStorageNode<D>{
 			}
 		}
 	}
-
 
 }

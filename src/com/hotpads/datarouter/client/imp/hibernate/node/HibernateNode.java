@@ -11,7 +11,7 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.type.physical.PhysicalIndexedStorageNode;
+import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.index.Lookup;
@@ -21,7 +21,7 @@ import com.hotpads.util.core.StringTool;
 
 public class HibernateNode<D extends Databean> 
 extends HibernateReaderNode<D>
-implements PhysicalIndexedStorageNode<D>
+implements PhysicalIndexedSortedStorageNode<D>
 {
 	
 	public HibernateNode(Class<D> databeanClass, DataRouter router, String clientName, 

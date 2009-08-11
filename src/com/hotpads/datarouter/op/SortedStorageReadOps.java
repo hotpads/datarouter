@@ -18,10 +18,10 @@ extends MapStorageReadOps<D>{
 //	D getLast(Config config);
 //	
 //	List<Key<D>> getKeysWithPrefix(Key<D> prefix, Config config);
-//	List<D> getRangeWithPrefix(Key<D> prefix, Config config);
+	List<D> getRangeWithPrefix(Key<D> prefix, Config config);
 //
 //	List<Key<D>> getKeysInRange(Key<D> start, boolean startInclusive, Key<D> end, boolean endInclusive, Config config);
-//	List<D> getRange(Key<D> start, boolean startInclusive, Key<D> end, boolean endInclusive, Config config);
+	List<D> getRange(Key<D> start, boolean startInclusive, Key<D> end, boolean endInclusive, Config config);
 //	
 //	Iterator<Key<D>> scanKeys(Key<D> start, boolean startInclusive, Config config);
 //	Iterator<D> scan(Key<D> start, boolean startInclusive, Config config);

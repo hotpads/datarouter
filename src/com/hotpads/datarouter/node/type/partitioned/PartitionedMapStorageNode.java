@@ -5,38 +5,30 @@ import java.util.List;
 import java.util.Map;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.IndexedStorageNode;
-import com.hotpads.datarouter.node.type.physical.PhysicalIndexedStorageNode;
+import com.hotpads.datarouter.node.op.MapStorageNode;
+import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.index.Lookup;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.MapTool;
 
-public abstract class PartitionedIndexedStorageNode<D extends Databean,N extends PhysicalIndexedStorageNode<D>>
+public abstract class PartitionedMapStorageNode<D extends Databean,N extends PhysicalMapStorageNode<D>>
 extends PartitionedMapStorageReaderNode<D,N>
-implements IndexedStorageNode<D>{
+implements MapStorageNode<D>{
 	
-	public PartitionedIndexedStorageNode(Class<D> persistentClass, DataRouter router) {
+	public PartitionedMapStorageNode(Class<D> persistentClass, DataRouter router) {
 		super(persistentClass, router);
 	}
 
 
-	/***************** Indexed Storage Write Methods ************************************/
+
+	/***************** MapStorageWriter ************************************/
 	
-	@Override
-	public void delete(Lookup<D> multiKey, Config config) {
-		Collection<N> nodes = this.getPhysicalNodes(multiKey);
-		for(N node : CollectionTool.nullSafe(nodes)){
-			node.delete(multiKey, config);
-		}
-	}
-	
-	
-	/******************* map storage writer methods ***************************/
 	/*
-	 * MULTIPLE INHERITANCE... copied from: PartitionedMapStorage
+	 * MULTIPLE INHERITANCE... copied to:
+	 *   - PartitionedSortedStorageNode
+	 *   - PartitionedIndexedStorageNode
 	 */
 	
 	@Override

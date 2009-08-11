@@ -17,7 +17,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
 public abstract class BasePartitionedNode<D extends Databean,N extends PhysicalNode<D>> 
-implements Node<D>, MapStorageReadOps<D>{
+implements Node<D>{
 
 	protected Class<D> persistentClass;
 	protected DataRouter router;

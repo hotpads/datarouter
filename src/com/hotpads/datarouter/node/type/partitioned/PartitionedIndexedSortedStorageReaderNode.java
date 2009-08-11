@@ -5,26 +5,25 @@ import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.IndexedStorageReaderNode;
-import com.hotpads.datarouter.node.type.physical.PhysicalIndexedStorageReaderNode;
+import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.index.Lookup;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
-public abstract class PartitionedIndexedStorageReaderNode<D extends Databean,N extends PhysicalIndexedStorageReaderNode<D>>
-extends PartitionedMapStorageReaderNode<D,N>
+public abstract class PartitionedIndexedSortedStorageReaderNode<D extends Databean,N extends PhysicalIndexedSortedStorageReaderNode<D>>
+extends PartitionedSortedStorageReaderNode<D,N>
 implements IndexedStorageReaderNode<D>{
 	
-	public PartitionedIndexedStorageReaderNode(Class<D> persistentClass, DataRouter router) {
+	public PartitionedIndexedSortedStorageReaderNode(Class<D> persistentClass, DataRouter router) {
 		super(persistentClass, router);
 	}
 
 	/***************** IndexedStorageReader ************************************/
 
 	/*
-	 * MULTIPLE INHERITANCE... copied to:
-	 *   - PartitionedIndexedSortedStorageReaderNode
+	 * MULTIPLE INHERITANCE... copied from: PartitionedIndexedStorageReaderNode
 	 */
 	@Override
 	public List<D> lookup(Lookup<D> multiKey, Config config) {

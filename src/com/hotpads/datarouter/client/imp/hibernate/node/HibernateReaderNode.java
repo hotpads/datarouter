@@ -1,14 +1,14 @@
 package com.hotpads.datarouter.client.imp.hibernate.node;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Disjunction;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
@@ -17,8 +17,7 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
-import com.hotpads.datarouter.node.type.physical.PhysicalIndexedStorageReaderNode;
-import com.hotpads.datarouter.node.type.physical.PhysicalSortedStorageReaderNode;
+import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -28,7 +27,7 @@ import com.hotpads.util.core.CollectionTool;
 
 public class HibernateReaderNode<D extends Databean> 
 extends BasePhysicalNode<D>
-implements PhysicalIndexedStorageReaderNode<D>,PhysicalSortedStorageReaderNode<D>
+implements PhysicalIndexedSortedStorageReaderNode<D>
 {
 
 	public HibernateReaderNode(Class<D> databeanClass, DataRouter router, String clientName, 
@@ -192,8 +191,103 @@ implements PhysicalIndexedStorageReaderNode<D>,PhysicalSortedStorageReaderNode<D
 //			});
 //		return (D)result;
 //	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<D> getRangeWithPrefix(final Key<D> prefix, final Config config) {
+		final String entityName = this.getPackagedPhysicalName();
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					
+					int numNonNullFields = 0;
+					for(Comparable<?> value : CollectionTool.nullSafe(prefix.getFieldValues())){
+						if(value != null){
+							++numNonNullFields;
+						}
+					}
+					
+					Criteria criteria = session.createCriteria(entityName);
+					int numFullFieldsFinished = 0;
+					for(Field field : CollectionTool.nullSafe(prefix.getFields())){
+						if(numFullFieldsFinished < numNonNullFields){
+							boolean lastNonNullField = numFullFieldsFinished == numNonNullFields - 1;
+							boolean stringField = field.getValue() instanceof String;
+							
+							boolean canDoPrefixMatchOnField = lastNonNullField && stringField;
+							
+							if(canDoPrefixMatchOnField){
+								criteria.add(Restrictions.like(field.getPrefixedName(), (String)field.getValue(), MatchMode.START));
+							}else{
+								criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+							}
+							++numFullFieldsFinished;
+						}
+					}
+					if(config != null && config.getLimit() != null){
+						criteria.setMaxResults(config.getLimit());
+					}
+					Object result = criteria.list();
+					return result;
+				}
+			});
+		return (List<D>)result;
+	}
 	
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<D> getRange(
+			final Key<D> start, final boolean startInclusive, 
+			final Key<D> end, final boolean endInclusive, 
+			final Config config) {
+		
+		final String entityName = this.getPackagedPhysicalName();
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					Criteria criteria = session.createCriteria(entityName);
+					int numFields = start.getFields().size();
+					Iterator<Field> startFields = start.getFields().iterator();
+					Iterator<Field> endFields = end.getFields().iterator();
+					
+					int fieldNum = 0;
+					Conjunction interFieldConjunction = Restrictions.conjunction();
+					while(startFields.hasNext()){
+						++fieldNum;//one based
+						Field startField = startFields.next();
+						Field endField = endFields.next();
+						Conjunction intraFieldConjunction = Restrictions.conjunction();
+						if(numFields==fieldNum){//last field
+							if(startInclusive){
+								intraFieldConjunction.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue()));
+							}else{
+								intraFieldConjunction.add(Restrictions.gt(startField.getPrefixedName(), startField.getValue()));
+							}
+							if(endInclusive){
+								intraFieldConjunction.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));
+							}else{
+								intraFieldConjunction.add(Restrictions.lt(endField.getPrefixedName(), endField.getValue()));
+							}
+						}else{
+							intraFieldConjunction.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue()));
+							intraFieldConjunction.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));
+						}
+						interFieldConjunction.add(intraFieldConjunction);
+					}
+					criteria.add(interFieldConjunction);
+					
+					if(config != null && config.getLimit() != null){
+						criteria.setMaxResults(config.getLimit());
+					}
+					Object result = criteria.list();
+					return result;
+				}
+			});
+		return (List<D>)result;
+	}
 	
 	
 	
