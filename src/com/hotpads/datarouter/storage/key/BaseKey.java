@@ -3,11 +3,20 @@ package com.hotpads.datarouter.storage.key;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.persistence.Transient;
+
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+import net.sf.json.JsonConfig;
+import net.sf.json.util.CycleDetectionStrategy;
+
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 
 public abstract class BaseKey<D extends Databean> 
 implements Key<D>{  //hibernate composite keys must implement serializable
@@ -167,7 +176,24 @@ implements Key<D>{  //hibernate composite keys must implement serializable
 		return sb.toString();
 	}
 	
-
+	/**************************** serializable ******************/
+	
+	@Override
+	public JSON getJson() {
+		JSONObject j = new JSONObject();
+		for(Field f : getFields()){
+			j.element(f.getName(), f.getValue());
+		}
+		return j;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static Key<? extends Databean> fromJsonString(Class<?> clazz, String jsonString) {
+		JSONObject jsonObject = (JSONObject)JSONSerializer.toJSON(jsonString);
+		JsonConfig jsonConfig = new JsonConfig();  
+		jsonConfig.setRootClass(clazz);  
+		return (Key<? extends Databean>)JSONObject.toBean(jsonObject, jsonConfig );
+	}
 	
 	
 }

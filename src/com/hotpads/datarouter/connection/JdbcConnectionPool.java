@@ -26,6 +26,7 @@ public class JdbcConnectionPool{
 		paramMinPoolSize = ".minPoolSize",
 		paramMaxPoolSize = ".maxPoolSize",
 		paramReadOnly = ".readOnly",
+		paramLogging = ".logging",
 		nestedParamDataSource = ".param.dataSource";
 	
 	public JdbcConnectionPool(String name, Properties properties, Map<String, Object> params) 
@@ -44,27 +45,36 @@ public class JdbcConnectionPool{
 	{
 		this.name = name;
 
+		
+		//get defaults
 		String defaultUser = properties.getProperty(prefix+poolDefault+paramUser);
 		String defaultPassword = properties.getProperty(prefix+poolDefault+paramPassword);
 		String defaultMinPoolSizeString = properties.getProperty(prefix+poolDefault+paramMinPoolSize);
 		String defaultMaxPoolSizeString = properties.getProperty(prefix+poolDefault+paramMaxPoolSize);
+		String defaultLoggingString = properties.getProperty(prefix+poolDefault+paramLogging);
 
 		if(defaultUser==null){ defaultUser = "root"; }
 		if(defaultPassword==null){ defaultPassword = ""; }
 		if(defaultMinPoolSizeString==null){ defaultMinPoolSizeString = "1"; }
 		if(defaultMaxPoolSizeString==null){ defaultMaxPoolSizeString = "20"; }
+		if(defaultLoggingString==null){ defaultLoggingString = "false"; }
 		
+		
+		//get values and substitute defaults if not present
 		String url = properties.getProperty(prefix+name+paramUrl);
 		String user = properties.getProperty(prefix+name+paramUser);
 		String password = properties.getProperty(prefix+name+paramPassword);
 		String minPoolSizeString = properties.getProperty(prefix+name+paramMinPoolSize);
 		String maxPoolSizeString = properties.getProperty(prefix+name+paramMaxPoolSize);
 		String readOnlyString = properties.getProperty(prefix+name+paramReadOnly);
+		String loggingString = properties.getProperty(prefix+name+paramLogging);
 
 		if(user==null){ user = defaultUser; }
 		if(password==null){ password = defaultPassword; }
 		if(minPoolSizeString==null){ minPoolSizeString = defaultMinPoolSizeString; }
 		if(maxPoolSizeString==null){ maxPoolSizeString = defaultMaxPoolSizeString; }
+		if(loggingString==null){ loggingString = defaultLoggingString; }
+		
 		
 		//configurable props
 		this.pool = new ComboPooledDataSource();
@@ -83,14 +93,17 @@ public class JdbcConnectionPool{
 		
 		this.readOnly = BooleanTool.isTrue(readOnlyString);
 		
+		boolean logging = BooleanTool.isTrue(loggingString);
 		
-		//normal jdbc
-		this.pool.setJdbcUrl("jdbc:mysql://"+url);
-		this.pool.setDriverClass("com.mysql.jdbc.Driver");
-		
-		//log4jdbc - see http://code.google.com/p/log4jdbc/
-//		this.pool.setJdbcUrl("jdbc:log4jdbc:mysql://"+url);
-//		this.pool.setDriverClass(net.sf.log4jdbc.DriverSpy.class.getName());
+		if(logging){
+			//log4jdbc - see http://code.google.com/p/log4jdbc/
+			this.pool.setJdbcUrl("jdbc:log4jdbc:mysql://"+url);
+			this.pool.setDriverClass(net.sf.log4jdbc.DriverSpy.class.getName());
+		}else{
+			//normal jdbc
+			this.pool.setJdbcUrl("jdbc:mysql://"+url);
+			this.pool.setDriverClass("com.mysql.jdbc.Driver");
+		}
 		
 		this.pool.setUser(user);
 		this.pool.setPassword(password);

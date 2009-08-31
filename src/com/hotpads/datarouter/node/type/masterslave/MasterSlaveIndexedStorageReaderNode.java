@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.masterslave;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
@@ -17,12 +18,25 @@ implements IndexedStorageReaderNode<D>{
 	}
 
 	/***************** IndexedStorageReader ************************************/
-	
+
+	/*
+	 * MULTIPLE INHERITANCE... copied to: MasterSlaveIndexedSortedStorageReaderNode
+	 */
 	@Override
 	public List<D> lookup(Lookup<D> lookup, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;
 		return node.lookup(lookup, config);
+	}
+	
+	/*
+	 * MULTIPLE INHERITANCE... copied to: MasterSlaveIndexedSortedStorageReaderNode
+	 */
+	@Override
+	public List<D> lookup(Collection<? extends Lookup<D>> lookups, Config config) {
+		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
+		N node = slaveOk ? this.chooseSlave(config) : this.master;
+		return node.lookup(lookups, config);
 	}
 	
 }

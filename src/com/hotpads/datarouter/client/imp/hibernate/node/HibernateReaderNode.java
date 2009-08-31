@@ -153,6 +153,33 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 		return (List<D>)result;
 	}
 	
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<D> lookup(final Collection<? extends Lookup<D>> lookups, final Config config) {
+		if(CollectionTool.isEmpty(lookups)){ return null; }
+		final String entityName = this.getPackagedPhysicalName();
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, null);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					Criteria criteria = session.createCriteria(entityName);
+					for (Lookup<D> lookup : lookups) {
+						Disjunction or = Restrictions.disjunction();
+						for(Field field : CollectionTool.nullSafe(lookup.getFields())){
+							or.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+						}
+						criteria.add(or);
+					}
+					if(config != null && config.getLimit() != null){
+						criteria.setMaxResults(config.getLimit());
+					}
+					Object result = criteria.list();
+					return result;
+				}
+			});
+		return (List<D>)result;
+	}
+	
 	
 	/************************************ SortedStorageReader methods ****************************/
 
@@ -249,35 +276,44 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 			new HibernateTask() {
 				public Object run(Session session) {
 					Criteria criteria = session.createCriteria(entityName);
-					int numFields = start.getFields().size();
-					Iterator<Field> startFields = start.getFields().iterator();
-					Iterator<Field> endFields = end.getFields().iterator();
-					
-					int fieldNum = 0;
-					Conjunction interFieldConjunction = Restrictions.conjunction();
-					while(startFields.hasNext()){
-						++fieldNum;//one based
-						Field startField = startFields.next();
-						Field endField = endFields.next();
-						Conjunction intraFieldConjunction = Restrictions.conjunction();
-						if(numFields==fieldNum){//last field
-							if(startInclusive){
-								intraFieldConjunction.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue()));
-							}else{
-								intraFieldConjunction.add(Restrictions.gt(startField.getPrefixedName(), startField.getValue()));
+					if(start != null || end != null){
+						int numFields = start.getFields().size();
+						Iterator<Field> startFields = start==null?null:start.getFields().iterator();
+						Iterator<Field> endFields = end==null?null:end.getFields().iterator();
+						int fieldNum = 0;
+						Conjunction interFieldConjunction = Restrictions.conjunction();
+						while(startFields.hasNext()){
+							++fieldNum;//one based
+							Field startField = startFields==null?null:startFields.next();
+							Field endField = endFields==null?null:endFields.next();
+							Conjunction intraFieldConjunction = Restrictions.conjunction();
+							if(fieldNum<numFields){
+								if(startField!=null){ 
+									intraFieldConjunction.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue())); 
+								}
+								if(endField!=null){ 
+									intraFieldConjunction.add(Restrictions.le(endField.getPrefixedName(), endField.getValue())); 
+								}
+							}else{//last field
+								if(startField!=null){ 
+									if(startInclusive){
+										intraFieldConjunction.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue())); 
+									}else{
+										intraFieldConjunction.add(Restrictions.gt(startField.getPrefixedName(), startField.getValue()));
+									}
+								}
+								if(endField!=null){ 
+									if(endInclusive){
+										intraFieldConjunction.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));
+									}else{
+										intraFieldConjunction.add(Restrictions.lt(endField.getPrefixedName(), endField.getValue()));
+									}
+								}
 							}
-							if(endInclusive){
-								intraFieldConjunction.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));
-							}else{
-								intraFieldConjunction.add(Restrictions.lt(endField.getPrefixedName(), endField.getValue()));
-							}
-						}else{
-							intraFieldConjunction.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue()));
-							intraFieldConjunction.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));
+							interFieldConjunction.add(intraFieldConjunction);
 						}
-						interFieldConjunction.add(intraFieldConjunction);
+						criteria.add(interFieldConjunction);
 					}
-					criteria.add(interFieldConjunction);
 					
 					if(config != null && config.getLimit() != null){
 						criteria.setMaxResults(config.getLimit());

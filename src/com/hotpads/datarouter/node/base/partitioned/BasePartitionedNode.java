@@ -4,17 +4,18 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.physical.PhysicalNodes;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.op.MapStorageReadOps;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.SetTool;
 
 public abstract class BasePartitionedNode<D extends Databean,N extends PhysicalNode<D>> 
 implements Node<D>{
@@ -89,6 +90,14 @@ implements Node<D>{
 	public abstract boolean isPartitionAware(Key<D> key);
 	
 	public abstract List<N> getPhysicalNodes(Key<D> key);
+	
+	public List<N> getPhysicalNodes(Collection<? extends Key<D>> keys){
+		Set<N> nodes = SetTool.createHashSet();
+		for(Key<D> key : CollectionTool.nullSafe(keys)){
+			nodes.addAll(this.getPhysicalNodes(key));
+		}
+		return ListTool.createArrayList(nodes);
+	}
 	
 	public Map<N,List<Key<D>>> getKeysByPhysicalNode(Collection<? extends Key<D>> keys){
 		Map<N,List<Key<D>>> keysByPhysicalNode = MapTool.createHashMap();

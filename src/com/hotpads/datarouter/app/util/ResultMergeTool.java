@@ -3,9 +3,11 @@ package com.hotpads.datarouter.app.util;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 
 public class ResultMergeTool {
 

@@ -27,11 +27,29 @@ implements IndexedStorageReaderNode<D>{
 	 *   - PartitionedIndexedSortedStorageReaderNode
 	 */
 	@Override
-	public List<D> lookup(Lookup<D> multiKey, Config config) {
+	public List<D> lookup(Lookup<D> lookup, Config config) {
+		if(lookup==null){ return null; }
 		List<D> all = ListTool.createLinkedList();
-		Collection<N> nodes = this.getPhysicalNodes(multiKey);
+		Collection<N> nodes = this.getPhysicalNodes(lookup);
 		for(N node : CollectionTool.nullSafe(nodes)){
-			all.addAll(node.lookup(multiKey, config));
+			all.addAll(node.lookup(lookup, config));
+		}
+		return all;
+	}
+	
+	/*
+	 * MULTIPLE INHERITANCE... copied to:
+	 *   - PartitionedIndexedSortedStorageReaderNode
+	 */
+	@Override
+	public List<D> lookup(Collection<? extends Lookup<D>> lookups, Config config) {
+		if(CollectionTool.isEmpty(lookups)){ return null; }
+		List<D> all = ListTool.createLinkedList();
+		Collection<N> nodes = this.getPhysicalNodes(lookups);
+		for(N node : CollectionTool.nullSafe(nodes)){
+			for(Lookup<D> lookup : lookups){
+				all.addAll(node.lookup(lookup, config));
+			}
 		}
 		return all;
 	}
