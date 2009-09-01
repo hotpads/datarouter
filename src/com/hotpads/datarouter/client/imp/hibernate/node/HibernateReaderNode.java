@@ -163,13 +163,15 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 			new HibernateTask() {
 				public Object run(Session session) {
 					Criteria criteria = session.createCriteria(entityName);
-					for (Lookup<D> lookup : lookups) {
-						Disjunction or = Restrictions.disjunction();
+					Disjunction or = Restrictions.disjunction();
+					for(Lookup<D> lookup : lookups){
+						Conjunction and = Restrictions.conjunction();
 						for(Field field : CollectionTool.nullSafe(lookup.getFields())){
-							or.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+							and.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 						}
-						criteria.add(or);
+						or.add(and);
 					}
+					criteria.add(or);
 					if(config != null && config.getLimit() != null){
 						criteria.setMaxResults(config.getLimit());
 					}
