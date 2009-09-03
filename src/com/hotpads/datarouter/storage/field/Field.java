@@ -1,5 +1,8 @@
 package com.hotpads.datarouter.storage.field;
 
+import java.util.Collection;
+
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.StringTool;
 
 public class Field {
@@ -35,6 +38,11 @@ public class Field {
 		return value;
 	}
 	
+	@Override
+	public String toString() {
+		return this.getPrefixedName()+":"+this.getValue();
+	}
+	
 	public String getSqlEscaped(){
 		if(value==null){
 			return "null";
@@ -53,5 +61,17 @@ public class Field {
 		return this.name+"="+this.getSqlEscaped();
 	}
 	
+	public static int countNonNullLeadingFields(Collection<Field> fields){
+		if(CollectionTool.isEmpty(fields)){ return 0; }
+		int count = 0;
+		for(Field field : fields){
+			if(field.getValue() != null){
+				++count;
+			}else{
+				break;
+			}
+		}
+		return count;
+	}
 	
 }

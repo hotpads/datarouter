@@ -24,6 +24,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.index.Lookup;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ListTool;
 
 public class HibernateReaderNode<D extends Databean> 
 extends BasePhysicalNode<D>
@@ -278,43 +279,51 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 			new HibernateTask() {
 				public Object run(Session session) {
 					Criteria criteria = session.createCriteria(entityName);
-					if(start != null || end != null){
-						int numFields = start.getFields().size();
-						Iterator<Field> startFields = start==null?null:start.getFields().iterator();
-						Iterator<Field> endFields = end==null?null:end.getFields().iterator();
-						int fieldNum = 0;
-						Conjunction interFieldConjunction = Restrictions.conjunction();
-						while(startFields.hasNext()){
-							++fieldNum;//one based
-							Field startField = startFields==null?null:startFields.next();
-							Field endField = endFields==null?null:endFields.next();
-							Conjunction intraFieldConjunction = Restrictions.conjunction();
-							if(fieldNum<numFields){
-								if(startField!=null){ 
-									intraFieldConjunction.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue())); 
-								}
-								if(endField!=null){ 
-									intraFieldConjunction.add(Restrictions.le(endField.getPrefixedName(), endField.getValue())); 
-								}
-							}else{//last field
-								if(startField!=null){ 
+										
+					if(start != null && CollectionTool.notEmpty(start.getFields())){
+						List<Field> startFields = ListTool.createArrayList(start.getFields());
+						int numNonNullStartFields = Field.countNonNullLeadingFields(startFields);
+						Disjunction d = Restrictions.disjunction();
+						for(int i=numNonNullStartFields; i > 0; --i){
+							Conjunction c = Restrictions.conjunction();
+							for(int j=0; j < i; ++j){
+								Field startField = startFields.get(j);
+								if(j < (i-1)){
+									c.add(Restrictions.eq(startField.getPrefixedName(), startField.getValue()));
+								}else{
 									if(startInclusive){
-										intraFieldConjunction.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue())); 
+										c.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue()));
 									}else{
-										intraFieldConjunction.add(Restrictions.gt(startField.getPrefixedName(), startField.getValue()));
-									}
-								}
-								if(endField!=null){ 
-									if(endInclusive){
-										intraFieldConjunction.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));
-									}else{
-										intraFieldConjunction.add(Restrictions.lt(endField.getPrefixedName(), endField.getValue()));
+										c.add(Restrictions.gt(startField.getPrefixedName(), startField.getValue()));
 									}
 								}
 							}
-							interFieldConjunction.add(intraFieldConjunction);
+							d.add(c);
 						}
-						criteria.add(interFieldConjunction);
+						criteria.add(d);
+					}
+					
+					if(end != null && CollectionTool.notEmpty(end.getFields())){
+						List<Field> endFields = ListTool.createArrayList(end.getFields());
+						int numNonNullEndFields = Field.countNonNullLeadingFields(endFields);
+						Disjunction d = Restrictions.disjunction();
+						for(int i=0; i < numNonNullEndFields; ++i){
+							Conjunction c = Restrictions.conjunction();
+							for(int j=0; j < i; ++j){
+								Field endField = endFields.get(j);
+								if(j==i){
+									if(endInclusive){
+										c.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));
+									}else{
+										c.add(Restrictions.lt(endField.getPrefixedName(), endField.getValue()));
+									}
+								}else{
+									c.add(Restrictions.eq(endField.getPrefixedName(), endField.getValue()));
+								}
+							}
+							d.add(c);
+						}
+						criteria.add(d);
 					}
 					
 					if(config != null && config.getLimit() != null){
