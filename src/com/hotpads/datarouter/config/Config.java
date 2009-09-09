@@ -9,10 +9,11 @@ public class Config {
 	protected Integer numAttempts = 1;
 	
 	protected Boolean slaveOk = false;
+	protected Boolean cacheOk = true;
 
 	protected Map<String,String> connectionNameByClientName;
 	protected TxnControl txnControl = TxnControl.support;
-	protected Isolation isolation = Isolation.repeatableRead;
+	protected Isolation isolation = Isolation.readCommitted;
 	protected Boolean useSession = true;
 	
 	protected String forceIndex;
@@ -108,7 +109,7 @@ public class Config {
 
 
 	public Boolean getSlaveOk() {
-		return slaveOk;
+		return this.slaveOk;
 	}
 
 
@@ -118,6 +119,19 @@ public class Config {
 		return this;
 	}
 
+
+
+
+	public Boolean getCacheOk() {
+		return this.cacheOk;
+	}
+
+
+
+	public Config setCacheOk(Boolean cacheOk) {
+		this.cacheOk = cacheOk;
+		return this;
+	}
 
 
 	public Boolean getUseSession() {
