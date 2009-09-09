@@ -6,10 +6,12 @@ import java.util.Map;
 
 public class Config {
 	
+	public static final Boolean defaultCacheOk = true;
+	
 	protected Integer numAttempts = 1;
 	
 	protected Boolean slaveOk = false;
-	protected Boolean cacheOk = true;
+	protected Boolean cacheOk = defaultCacheOk;
 
 	protected Map<String,String> connectionNameByClientName;
 	protected TxnControl txnControl = TxnControl.support;

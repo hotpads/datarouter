@@ -89,4 +89,10 @@ public class Nodes<D extends Databean,K extends Key<D>,N extends Node<D>>{
 	public List<String> getClientNamesForDatabeanType(Class<D> databeanType){
 		return this.clientNamesByDatabeanType.get(databeanType);
 	}
+	
+	public void clearThreadSpecificState(){
+		for(N node : MapTool.nullSafe(nodeByName).values()){
+			node.clearThreadSpecificState();
+		}
+	}
 }

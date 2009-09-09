@@ -93,6 +93,14 @@ implements Node<D>, MapStorageReadOps<D> {
 		return this.master.getClientNamesForKeys(keys);
 	}
 	
+	@Override
+	public void clearThreadSpecificState(){
+		if(this.master!=null){ this.master.clearThreadSpecificState(); }
+		for(N slave : CollectionTool.nullSafe(this.slaves)){
+			slave.clearThreadSpecificState();
+		}
+	}
+	
 	/************************ masterslave node methods ***************************/
 	
 	public N registerMaster(N master){

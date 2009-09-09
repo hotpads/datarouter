@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.op;
 
-import java.util.Iterator;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;

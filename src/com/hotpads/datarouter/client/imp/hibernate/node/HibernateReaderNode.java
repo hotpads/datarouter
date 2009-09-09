@@ -49,6 +49,11 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	public Node<D> getMaster() {
 		return null;
 	}
+	
+	@Override
+	public void clearThreadSpecificState(){
+		//TODO maybe clear the hibernate session here through the client??
+	}
 
 	
 	/************************************ MapStorageReader methods ****************************/

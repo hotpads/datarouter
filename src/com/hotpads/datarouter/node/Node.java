@@ -20,4 +20,6 @@ public interface Node<D extends Databean> {
 	List<? extends PhysicalNode<D>> getPhysicalNodesForClient(String clientName);
 	Node<D> getMaster();
 	
+	void clearThreadSpecificState();
+	
 }

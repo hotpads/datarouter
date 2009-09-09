@@ -70,6 +70,14 @@ implements Node<D>{
 		return clientNames;
 	}
 	
+	@Override
+	public void clearThreadSpecificState(){
+		//TODO physicalNodes can't even have a cache right now... must be a cleaner way to implement cache invalidation
+		for(N physicalNode : this.getPhysicalNodes()){
+			physicalNode.clearThreadSpecificState();  
+		}
+	}
+	
 	/************************ virtual node methods ***************************/
 	
 	public N register(N physicalNode){

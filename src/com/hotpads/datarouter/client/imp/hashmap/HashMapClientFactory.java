@@ -11,7 +11,7 @@ public class HashMapClientFactory implements ClientFactory{
 
 	@Override
 	public HashMapClient createClient(
-			DataRouterFactory<? extends DataRouter> datapus, 
+			DataRouterFactory<? extends DataRouter> datarouter, 
 			String name, 
 			Properties properties, 
 			Map<String,Object> params){

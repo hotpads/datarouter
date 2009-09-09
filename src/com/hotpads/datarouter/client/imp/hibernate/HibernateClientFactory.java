@@ -59,6 +59,7 @@ public class HibernateClientFactory implements ClientFactory{
 		@SuppressWarnings("unchecked")
 		Collection<Class<? extends Databean>> relevantDatabeanTypes = datapus.getRouter().getNodes().getTypesForClient(clientName);
 		for(Class<? extends Databean> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
+//			logger.warn("init node "+databeanClass.getCanonicalName());
 			try{
 				sfConfig.addClass(databeanClass);
 			}catch(org.hibernate.MappingNotFoundException mnfe){

@@ -57,6 +57,12 @@ public abstract class DataRouter {
 		return t;
 	}
 	
+	/************************************** caching ***********************************/
+	
+	public void clearThreadSpecificState(){
+		this.nodes.clearThreadSpecificState();
+	}
+	
 	/************************************** getting clients *************************/
 	
 	public Client getClient(String clientName){
