@@ -12,8 +12,5 @@ public interface View extends Databean {
 	
 	Date getUpdated();
 	Boolean isLatest();
-	
-	@Deprecated
-	String getData();
-	
+		
 }
