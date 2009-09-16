@@ -19,6 +19,7 @@ extends DatabeanAware<D>, Comparable<Key<D>>, Serializable, Jsonable{
 	Comparable<?> getFieldValue(String fieldName);
 	
 	String getPersistentString();  //fuse multi-column field into one string, usually with "_" characters
+	String getTypedPersistentString();  //usually getDatabeanName()+"."+getPersistentString()
 	
 	List<String> getSqlValuesEscaped();
 	List<String> getSqlNameValuePairsEscaped();

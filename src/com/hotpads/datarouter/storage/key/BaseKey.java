@@ -143,6 +143,11 @@ implements Key<D>{  //hibernate composite keys must implement serializable
 		}
 		return sb.toString();
 	}
+	
+	@Override
+	public String getTypedPersistentString(){
+		return this.getDatabeanName()+"."+this.getPersistentString();
+	}
 
 	@Override
 	public List<String> getSqlValuesEscaped(){

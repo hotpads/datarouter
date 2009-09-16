@@ -12,7 +12,7 @@ import com.hotpads.util.core.MapTool;
 
 public class Bundle{
 
-	protected Map<String,SingleTypeBundle<? extends Databean>> bundleByType = MapTool.createTreeMap();
+	protected Map<String,SingleTypeBundle<? extends Databean>> bundleByType = MapTool.createHashMap();
 	
 	protected <D extends Databean> void add(D databean){
 		this.ensureSingleTypeBundleExists(databean);
@@ -44,7 +44,7 @@ public class Bundle{
 	}
 	
 	protected <D extends Databean> void ensureSingleTypeBundleExists(D databean){
-		if(this.bundleByType.get(databean.getClass())==null){
+		if(this.bundleByType.get(databean.getClass().getName())==null){
 			this.bundleByType.put(databean.getClass().getName(), new SingleTypeBundle<D>());
 		}
 	}
