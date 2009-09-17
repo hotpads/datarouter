@@ -11,6 +11,8 @@ public interface MapStorageReadOps<D extends Databean>{
 
 	boolean exists(Key<D> key, Config config);
 	
+
+	//TODO lookup should not extend key because you could pass one in here... or fix that problem somehow
 	D get(Key<D> key, Config config);
 	List<D> getMulti(Collection<? extends Key<D>> keys, Config config);
 	List<D> getAll(Config config);
