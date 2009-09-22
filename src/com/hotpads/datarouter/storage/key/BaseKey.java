@@ -68,9 +68,11 @@ implements Key<D>{  //hibernate composite keys must implement serializable
 		
 		//but order doesn't matter that much for us
 		int hash = 0;
-	  for (Comparable<?> fieldValue : CollectionTool.nullSafe(this.getFieldValues())){
-	  	hash = hash ^ fieldValue.hashCode();
-	  }
+		for (Comparable<?> fieldValue : CollectionTool.nullSafe(this.getFieldValues())){
+			if(fieldValue != null){
+				hash = hash ^ fieldValue.hashCode();
+			}
+		}
 	  return hash;
 		
 	}
