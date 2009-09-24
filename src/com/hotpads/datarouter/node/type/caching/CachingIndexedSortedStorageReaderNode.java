@@ -94,9 +94,9 @@ implements IndexedSortedStorageReaderNode<D>{
 	}
 
 	@Override
-	public List<D> getRangeWithPrefix(Key<D> prefix, Config config) {
+	public List<D> getRangeWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
 		//TODO implement caching
-		return this.backingNode.getRangeWithPrefix(prefix, config);
+		return this.backingNode.getRangeWithPrefix(prefix, wildcardLastField, config);
 	}
 
 	/***************** IndexedStorageReader ************************************/

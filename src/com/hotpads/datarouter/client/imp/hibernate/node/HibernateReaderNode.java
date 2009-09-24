@@ -229,7 +229,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<D> getRangeWithPrefix(final Key<D> prefix, final Config config) {
+	public List<D> getRangeWithPrefix(final Key<D> prefix, final boolean wildcardLastField, final Config config) {
 		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
 		Object result = executor.executeTask(
@@ -250,7 +250,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 							boolean lastNonNullField = numFullFieldsFinished == numNonNullFields - 1;
 							boolean stringField = field.getValue() instanceof String;
 							
-							boolean canDoPrefixMatchOnField = lastNonNullField && stringField;
+							boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
 							
 							if(canDoPrefixMatchOnField){
 								criteria.add(Restrictions.like(field.getPrefixedName(), (String)field.getValue(), MatchMode.START));

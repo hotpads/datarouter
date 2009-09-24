@@ -34,10 +34,10 @@ implements SortedStorageReaderNode<D>{
 	}
 
 	@Override
-	public List<D> getRangeWithPrefix(Key<D> prefix, Config config) {
+	public List<D> getRangeWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;
-		return node.getRangeWithPrefix(prefix, config);
+		return node.getRangeWithPrefix(prefix,wildcardLastField, config);
 	}
 	
 	

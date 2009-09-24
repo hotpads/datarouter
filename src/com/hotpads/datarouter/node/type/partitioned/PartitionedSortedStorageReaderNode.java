@@ -55,11 +55,11 @@ implements SortedStorageReaderNode<D>{
 	}
 
 	@Override
-	public List<D> getRangeWithPrefix(Key<D> prefix, Config config) {
+	public List<D> getRangeWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
 		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
-			all.addAll(node.getRangeWithPrefix(prefix, config));
+			all.addAll(node.getRangeWithPrefix(prefix, wildcardLastField, config));
 		}
 		if(CollectionTool.isEmpty(all)){ 
 			return null; 
