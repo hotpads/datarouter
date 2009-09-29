@@ -2,6 +2,7 @@ package com.hotpads.datarouter.app.util;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,5 +44,16 @@ public class ResultMergeTool {
 		List<T> appended = append(a, bs);
 		Collections.sort(appended);
 		return appended;
+	}
+	
+	public static <K,V> Map<K,V> mergeMaps(Map<K,V> fromOnce, Collection<Map<K,V>> fromEach){
+		Map<K,V> result = new HashMap<K,V>();
+		if(MapTool.notEmpty(fromOnce)){
+			result.putAll(fromOnce);
+		}
+		for(Map<K,V> m : CollectionTool.nullSafe(fromEach)){
+			result.putAll(m);
+		}
+		return result;
 	}
 }
