@@ -76,4 +76,16 @@ implements MapStorageNode<D>, SortedStorageNode<D>{
 		}
 	}
 
+	@Override
+	public void deleteRangeWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
+		// TODO smarter node selection
+		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes())){
+			node.deleteRangeWithPrefix(prefix, wildcardLastField, config);
+		}
+	}
+	
+	
+	
+	
+
 }

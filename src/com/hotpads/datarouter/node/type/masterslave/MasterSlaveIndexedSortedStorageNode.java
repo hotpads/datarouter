@@ -6,8 +6,9 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.IndexedSortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.index.Lookup;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.lookup.Lookup;
+
 
 public abstract class MasterSlaveIndexedSortedStorageNode<D extends Databean,N extends IndexedSortedStorageNode<D>>
 extends MasterSlaveIndexedSortedStorageReaderNode<D,N>
@@ -63,6 +64,12 @@ implements IndexedSortedStorageNode<D>{
 	public void putMulti(Collection<D> databeans, Config config) {
 		this.master.putMulti(databeans, config);
 	}
+
+	@Override
+	public void deleteRangeWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
+		this.master.deleteRangeWithPrefix(prefix, wildcardLastField, config);
+	}
+	
 	
 	
 }

@@ -1,22 +1,14 @@
 package com.hotpads.datarouter.client.imp.hashmap.node;
 
 import java.util.Collection;
-import java.util.List;
 
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
-
-import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.index.Lookup;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.StringTool;
 
 public class HashMapNode<D extends Databean> 
 extends HashMapReaderNode<D>

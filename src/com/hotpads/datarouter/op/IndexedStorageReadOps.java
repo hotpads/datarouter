@@ -5,7 +5,8 @@ import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.index.Lookup;
+import com.hotpads.datarouter.storage.lookup.Lookup;
+
 
 public interface IndexedStorageReadOps<D extends Databean> {
 

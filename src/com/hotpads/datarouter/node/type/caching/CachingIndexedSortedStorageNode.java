@@ -6,8 +6,8 @@ import java.util.Map;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.IndexedSortedStorageNode;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.index.Lookup;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.lookup.Lookup;
 import com.hotpads.util.core.CollectionTool;
 
 public class CachingIndexedSortedStorageNode<D extends Databean,N extends IndexedSortedStorageNode<D>>
@@ -82,6 +82,16 @@ implements IndexedSortedStorageNode<D>{
 			mapCacheForThisThread.put(databean.getKey(), databean);
 		}
 	}
+
+	@Override
+	public void deleteRangeWithPrefix(Key<D> prefix, boolean wildcardLastField,
+			Config config) {
+		this.getMapCacheForThisThread().clear();
+		this.clearNonMapCaches();
+		this.backingNode.deleteRangeWithPrefix(prefix, wildcardLastField, config);
+	}
+	
+	
 	
 	
 }

@@ -9,8 +9,8 @@ import com.hotpads.datarouter.node.op.IndexedSortedStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.index.Lookup;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.lookup.Lookup;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.MapTool;
 
@@ -85,6 +85,14 @@ implements IndexedSortedStorageNode<D>{
 			if(CollectionTool.notEmpty(databeansForNode)){
 				node.putMulti(databeansForNode, config);
 			}
+		}
+	}
+
+	@Override
+	public void deleteRangeWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
+		// TODO smarter node selection
+		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes())){
+			node.deleteRangeWithPrefix(prefix, wildcardLastField, config);
 		}
 	}
 

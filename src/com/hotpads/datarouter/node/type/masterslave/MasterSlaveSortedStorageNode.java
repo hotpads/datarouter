@@ -51,6 +51,11 @@ implements SortedStorageNode<D>{
 	public void putMulti(Collection<D> databeans, Config config) {
 		this.master.putMulti(databeans, config);
 	}
+
+	@Override
+	public void deleteRangeWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
+		this.master.deleteRangeWithPrefix(prefix, wildcardLastField, config);
+	}
 	
 	
 }
