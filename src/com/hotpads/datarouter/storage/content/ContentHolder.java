@@ -1,7 +1,11 @@
 package com.hotpads.datarouter.storage.content;
 
-public interface ContentHolder {
+import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.Key;
 
-	boolean equalsContent(ContentHolder other);
+public interface ContentHolder<D extends Databean> {
+
+	boolean equalsContent(ContentHolder<D> other);
 	
+	Key<D> getKey();
 }
