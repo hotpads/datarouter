@@ -15,6 +15,7 @@ public class Bundle{
 	protected Map<String,SingleTypeBundle<? extends Databean>> bundleByType = MapTool.createHashMap();
 	
 	protected <D extends Databean> void add(D databean){
+		if(databean==null){ return; }
 		this.ensureSingleTypeBundleExists(databean);
 		@SuppressWarnings("unchecked")
 		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(databean.getClass().getName());

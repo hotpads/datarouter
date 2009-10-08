@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.masterslave;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
@@ -34,10 +35,17 @@ implements SortedStorageReaderNode<D>{
 	}
 
 	@Override
-	public List<D> getRangeWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
+	public List<D> getWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;
-		return node.getRangeWithPrefix(prefix,wildcardLastField, config);
+		return node.getWithPrefix(prefix,wildcardLastField, config);
+	}
+
+	@Override
+	public List<D> getWithPrefixes(Collection<? extends Key<D>> prefixes, boolean wildcardLastField, Config config) {
+		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
+		N node = slaveOk ? this.chooseSlave(config) : this.master;
+		return node.getWithPrefixes(prefixes,wildcardLastField, config);
 	}
 	
 	

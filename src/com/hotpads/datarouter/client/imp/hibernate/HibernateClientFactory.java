@@ -17,6 +17,7 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.StringTool;
+import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HibernateClientFactory implements ClientFactory{
 	Logger logger = Logger.getLogger(getClass());
@@ -44,6 +45,8 @@ public class HibernateClientFactory implements ClientFactory{
 	
 	
 	public HibernateClientImp createFromScratch(DataRouterFactory<? extends DataRouter> datapus, String clientName, Properties properties){
+		logger.debug("creating hibernate client "+clientName);
+		PhaseTimer timer = new PhaseTimer(clientName);
 		
 		HibernateClientImp client = new HibernateClientImp();
 		client.name = clientName;
@@ -66,13 +69,14 @@ public class HibernateClientFactory implements ClientFactory{
 				sfConfig.addAnnotatedClass(databeanClass);
 			}
 		}
+		timer.add("parse");
 
 		//connection pool config
 		JdbcConnectionPool connectionPool = this.getConnectionPool(datapus, clientName, properties);
 		client.connectionPool = connectionPool;
 		sfConfig.setProperty(provider_class, HibernateConnectionProvider.class.getName());
 		sfConfig.setProperty(connectionPoolName, connectionPool.getName());
-		
+		timer.add("gotPool");
 		
 		//readOnly?... currently being enforced in the connectionPool, and users should only declare "Reader" nodes
 //		String slaveString = properties.getProperty(Clients.prefixClient+clientName+Clients.paramSlave);
@@ -84,6 +88,9 @@ public class HibernateClientFactory implements ClientFactory{
 		SessionFactory sessionFactory = sfConfig.buildSessionFactory();
 		HibernateConnectionProvider.clearConnectionPoolFromThread();
 		client.sessionFactory = sessionFactory;
+		timer.add("built");
+		
+		logger.info(timer);
 		
 		return client;
 	}

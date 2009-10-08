@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.partitioned;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
@@ -55,11 +56,30 @@ implements SortedStorageReaderNode<D>{
 	}
 
 	@Override
-	public List<D> getRangeWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
+	public List<D> getWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
 		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
-			all.addAll(node.getRangeWithPrefix(prefix, wildcardLastField, config));
+			all.addAll(node.getWithPrefix(prefix, wildcardLastField, config));
+		}
+		if(CollectionTool.isEmpty(all)){ 
+			return null; 
+		}
+		Collections.sort(all);
+		if(config!=null && config.getLimit()!=null && config.getLimit() >= all.size()){
+			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
+			return limited;
+		}else{
+			return all;
+		}
+	}
+
+	@Override
+	public List<D> getWithPrefixes(Collection<? extends Key<D>> prefixes, boolean wildcardLastField, Config config) {
+		//TODO smarter/optional sorting
+		List<D> all = ListTool.createArrayList();
+		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
+			all.addAll(node.getWithPrefixes(prefixes, wildcardLastField, config));
 		}
 		if(CollectionTool.isEmpty(all)){ 
 			return null; 

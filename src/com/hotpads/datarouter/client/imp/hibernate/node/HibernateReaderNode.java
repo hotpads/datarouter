@@ -228,37 +228,15 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<D> getRangeWithPrefix(final Key<D> prefix, final boolean wildcardLastField, final Config config) {
+	public List<D> getWithPrefix(final Key<D> prefix, final boolean wildcardLastField, final Config config) {
 		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					
-					int numNonNullFields = 0;
-					for(Comparable<?> value : CollectionTool.nullSafe(prefix.getFieldValues())){
-						if(value != null){
-							++numNonNullFields;
-						}
-					}
-					
 					Criteria criteria = session.createCriteria(entityName);
-					int numFullFieldsFinished = 0;
-					for(Field field : CollectionTool.nullSafe(prefix.getFields())){
-						if(numFullFieldsFinished < numNonNullFields){
-							boolean lastNonNullField = numFullFieldsFinished == numNonNullFields - 1;
-							boolean stringField = field.getValue() instanceof String;
-							
-							boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
-							
-							if(canDoPrefixMatchOnField){
-								criteria.add(Restrictions.like(field.getPrefixedName(), (String)field.getValue(), MatchMode.START));
-							}else{
-								criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-							}
-							++numFullFieldsFinished;
-						}
-					}
+					Conjunction prefixConjunction = getPrefixConjunction(prefix, wildcardLastField);
+					criteria.add(prefixConjunction);
 					if(config != null && config.getLimit() != null){
 						criteria.setMaxResults(config.getLimit());
 					}
@@ -267,6 +245,59 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 				}
 			});
 		return (List<D>)result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<D> getWithPrefixes(final Collection<? extends Key<D>> prefixes, final boolean wildcardLastField, final Config config) {
+		if(CollectionTool.isEmpty(prefixes)){ return null; }
+		final String entityName = this.getPackagedPhysicalName();
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					Criteria criteria = session.createCriteria(entityName);
+					Disjunction prefixesDisjunction = Restrictions.disjunction();
+					for(Key<D> prefix : prefixes){
+						Conjunction prefixConjunction = getPrefixConjunction(prefix, wildcardLastField);
+						prefixesDisjunction.add(prefixConjunction);
+					}
+					criteria.add(prefixesDisjunction);
+					if(config != null && config.getLimit() != null){
+						criteria.setMaxResults(config.getLimit());
+					}
+					Object result = criteria.list();
+					return result;
+				}
+			});
+		return (List<D>)result;
+	}
+	
+	private Conjunction getPrefixConjunction(Key<D> prefix, final boolean wildcardLastField){
+		int numNonNullFields = 0;
+		for(Comparable<?> value : CollectionTool.nullSafe(prefix.getFieldValues())){
+			if(value != null){
+				++numNonNullFields;
+			}
+		}
+		Conjunction conjunction = Restrictions.conjunction();
+		int numFullFieldsFinished = 0;
+		for(Field field : CollectionTool.nullSafe(prefix.getFields())){
+			if(numFullFieldsFinished < numNonNullFields){
+				boolean lastNonNullField = numFullFieldsFinished == numNonNullFields - 1;
+				boolean stringField = field.getValue() instanceof String;
+				
+				boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
+				
+				if(canDoPrefixMatchOnField){
+					conjunction.add(Restrictions.like(field.getPrefixedName(), (String)field.getValue(), MatchMode.START));
+				}else{
+					conjunction.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+				}
+				++numFullFieldsFinished;
+			}
+		}
+		return conjunction;
 	}
 	
 	
