@@ -38,7 +38,7 @@ public class Bundle{
 	
 	protected <D extends Databean> List<D> getAll(Class<D> clazz){
 		if(clazz==null){ return null; }
-		if(this.bundleByType.get(clazz.getName())==null){ return null; }
+		if(this.bundleByType.get(clazz.getName())==null){ return new ArrayList<D>(); }
 		@SuppressWarnings("unchecked")
 		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(clazz.getName());
 		return new ArrayList<D>(singleTypeBundle.databeanByKey.values());
