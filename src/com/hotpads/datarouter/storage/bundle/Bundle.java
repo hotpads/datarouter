@@ -1,12 +1,15 @@
 package com.hotpads.datarouter.storage.bundle;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
 
@@ -36,12 +39,16 @@ public class Bundle{
 		return singleTypeBundle.getFirst();
 	}
 	
-	protected <D extends Databean> List<D> getAll(Class<D> clazz){
+	protected <D extends Databean> SortedSet<D> getAllSet(Class<D> clazz){
 		if(clazz==null){ return null; }
-		if(this.bundleByType.get(clazz.getName())==null){ return new ArrayList<D>(); }
+		if(this.bundleByType.get(clazz.getName())==null){ return new TreeSet<D>(); }
 		@SuppressWarnings("unchecked")
 		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(clazz.getName());
-		return new ArrayList<D>(singleTypeBundle.databeanByKey.values());
+		return (NavigableSet<D>)singleTypeBundle.getDatabeans();
+	}
+	
+	protected <D extends Databean> List<D> getAllList(Class<D> clazz){
+		return ListTool.createArrayList(getAllSet(clazz));
 	}
 	
 	protected <D extends Databean> void ensureSingleTypeBundleExists(D databean){
