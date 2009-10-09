@@ -33,8 +33,8 @@ public class Nodes<D extends Databean,K extends Key<D>,N extends Node<D>>{
 		this.nodeByDatabeanType.put(databeanType, node);
 		if(this.clientNamesByDatabeanType.get(databeanType)==null){
 			this.clientNamesByDatabeanType.put(databeanType, new LinkedList<String>());
-			this.clientNamesByDatabeanType.get(databeanType).addAll(clientNames);
 		}
+		this.clientNamesByDatabeanType.get(databeanType).addAll(clientNames);
 		return node;
 	}
 	

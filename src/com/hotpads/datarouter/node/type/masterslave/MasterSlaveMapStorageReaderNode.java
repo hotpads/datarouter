@@ -28,6 +28,12 @@ implements MapStorageReaderNode<D>{
 			this.registerSlave(slave);
 		}
 	}
+	
+	public MasterSlaveMapStorageReaderNode(
+			Class<D> databeanClass, DataRouter router) {
+		
+		super(databeanClass, router);
+	}
 
 	/**************************** MapStorageReader ***********************************/
 	

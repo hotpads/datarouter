@@ -22,6 +22,12 @@ implements IndexedSortedStorageNode<D>{
 		super(databeanClass, router, master, slaves);
 	}
 	
+	public MasterSlaveIndexedSortedStorageNode(
+			Class<D> databeanClass, DataRouter router) {
+		
+		super(databeanClass, router);
+	}
+	
 
 	
 	/********************** indexed storage write ops ************************/

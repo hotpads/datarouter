@@ -20,6 +20,12 @@ implements SortedStorageReaderNode<D>{
 		
 		super(databeanClass, router, master, slaves);
 	}
+	
+	public MasterSlaveSortedStorageReaderNode(
+			Class<D> databeanClass, DataRouter router) {
+		
+		super(databeanClass, router);
+	}
 
 	/***************** SortedStorageReader ************************************/
 	

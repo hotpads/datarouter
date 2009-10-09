@@ -21,6 +21,12 @@ implements IndexedStorageReaderNode<D>{
 		
 		super(databeanClass, router, master, slaves);
 	}
+	
+	public MasterSlaveIndexedStorageReaderNode(
+			Class<D> databeanClass, DataRouter router) {
+		
+		super(databeanClass, router);
+	}
 
 	/***************** IndexedStorageReader ************************************/
 

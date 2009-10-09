@@ -18,6 +18,12 @@ implements MapStorageNode<D>{
 		
 		super(databeanClass, router, master, slaves);
 	}
+
+	public MasterSlaveMapStorageNode(
+			Class<D> databeanClass, DataRouter router) {
+		
+		super(databeanClass, router);
+	}
 	
 	/***************************** MapStorageWriter ****************************/
 
