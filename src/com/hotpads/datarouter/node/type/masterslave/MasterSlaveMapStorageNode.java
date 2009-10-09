@@ -8,12 +8,15 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 
-public abstract class MasterSlaveMapStorageNode<D extends Databean,N extends MapStorageNode<D>>
+public class MasterSlaveMapStorageNode<D extends Databean,N extends MapStorageNode<D>>
 extends MasterSlaveMapStorageReaderNode<D,N>
 implements MapStorageNode<D>{
 	
-	public MasterSlaveMapStorageNode(Class<D> databeanClass, DataRouter router) {
-		super(databeanClass, router);
+	public MasterSlaveMapStorageNode(
+			Class<D> databeanClass, DataRouter router,
+			N master, Collection<N> slaves) {
+		
+		super(databeanClass, router, master, slaves);
 	}
 	
 	/***************************** MapStorageWriter ****************************/

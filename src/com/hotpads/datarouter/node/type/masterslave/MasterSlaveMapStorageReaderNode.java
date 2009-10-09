@@ -9,13 +9,24 @@ import com.hotpads.datarouter.node.op.MapStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.util.core.CollectionTool;
 
-public abstract class MasterSlaveMapStorageReaderNode<D extends Databean,N extends MapStorageReaderNode<D>>
+public class MasterSlaveMapStorageReaderNode<D extends Databean,N extends MapStorageReaderNode<D>>
 extends BaseMasterSlaveNode<D,N>
 implements MapStorageReaderNode<D>{
 	
-	public MasterSlaveMapStorageReaderNode(Class<D> databeanClass, DataRouter router) {
+	public MasterSlaveMapStorageReaderNode(
+			Class<D> databeanClass, DataRouter router,
+			N master, Collection<N> slaves) {
+		
 		super(databeanClass, router);
+		
+		if(master!=null){
+			this.registerMaster(master);
+		}
+		for(N slave : CollectionTool.nullSafe(slaves)){
+			this.registerSlave(slave);
+		}
 	}
 
 	/**************************** MapStorageReader ***********************************/

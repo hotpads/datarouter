@@ -8,14 +8,18 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.lookup.Lookup;
+import com.hotpads.util.core.CollectionTool;
 
 
-public abstract class MasterSlaveIndexedSortedStorageNode<D extends Databean,N extends IndexedSortedStorageNode<D>>
+public class MasterSlaveIndexedSortedStorageNode<D extends Databean,N extends IndexedSortedStorageNode<D>>
 extends MasterSlaveIndexedSortedStorageReaderNode<D,N>
 implements IndexedSortedStorageNode<D>{
 	
-	public MasterSlaveIndexedSortedStorageNode(Class<D> databeanClass, DataRouter router) {
-		super(databeanClass, router);
+	public MasterSlaveIndexedSortedStorageNode(
+			Class<D> databeanClass, DataRouter router,
+			N master, Collection<N> slaves) {
+		
+		super(databeanClass, router, master, slaves);
 	}
 	
 
