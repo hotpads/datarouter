@@ -29,7 +29,7 @@ implements Node<D>{
 	public BasePartitionedNode(Class<D> persistentClass, DataRouter router){
 		this.persistentClass = persistentClass;
 		this.router = router;
-		this.name = this.getClass().getSimpleName();
+		this.name = persistentClass.getSimpleName()+"."+this.getClass().getSimpleName();
 	}
 
 	/*************************** node methods *************************/

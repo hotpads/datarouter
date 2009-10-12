@@ -32,7 +32,7 @@ implements Node<D>, MapStorageReadOps<D> {
 	
 	public BaseMasterSlaveNode(Class<D> databeanClass, DataRouter router){
 		this.databeanClass = databeanClass;
-		this.name = this.getClass().getSimpleName();
+		this.name = databeanClass.getSimpleName()+"."+this.getClass().getSimpleName();
 		this.router = router;
 	}
 
