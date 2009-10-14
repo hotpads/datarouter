@@ -11,11 +11,17 @@ implements Databean {
 	public String getDatabeanName() {
 		return this.getClass().getSimpleName();
 	}
+	
+	@Override
+	public boolean equals(Object obj){
+		if(ClassTool.differentClass(this, obj)){ return false; }
+		Databean that = (Databean)obj;
+		return this.getKey().equals(that.getKey());
+	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public int compareTo(Databean obj) {
-		if(ClassTool.differentClass(this, obj)){ return 1; }
 		return this.getKey().compareTo(obj.getKey());
 	}
 	
