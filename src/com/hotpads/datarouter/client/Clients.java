@@ -13,6 +13,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.DataRouterFactory;
+import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
@@ -200,4 +201,10 @@ public class Clients{
 		}
 	}
 	
+	
+	/********************************** access connection pools ******************************/
+	
+	public ConnectionPools getConnectionPools(){
+		return this.datapus.getConnectionPools();
+	}
 }

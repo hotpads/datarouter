@@ -6,6 +6,7 @@ import java.util.List;
 import com.hotpads.datarouter.app.App;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.Clients;
+import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -69,6 +70,10 @@ public abstract class DataRouter {
 		return clients.getClient(clientName);
 	}
 	
+	public List<Client> getAllClients(){
+		return this.clients.getAllClients();
+	}
+	
 	public List<Client> getClients(Collection<String> clientNames){
 		return this.clients.getClients(clientNames);
 	}
@@ -102,6 +107,11 @@ public abstract class DataRouter {
 	
 	public <D extends Databean> List<Client> getClientsForDatabeans(Collection<D> databeans){
 		return this.getClientsForKeys(DatabeanTool.getKeys(databeans));
+	}
+	
+	/***************** overexposed accessors *******************************/
+	public ConnectionPools getConnectionPools(){
+		return this.clients.getConnectionPools();
 	}
 	
 }

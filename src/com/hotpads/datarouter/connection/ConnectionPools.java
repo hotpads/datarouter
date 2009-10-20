@@ -103,6 +103,10 @@ public class ConnectionPools {
 	
 	/******************** getNames **********************************************/
 	
+	public List<String> getExistingConnectionPoolNames(){
+		return this.allConnectionPoolNames;
+	}
+	
 	public static List<String> getAllConnectionPoolNames(Properties properties){
 		String connectionPoolNamesCsv = properties.getProperty(prefixConnectionPools+paramNames);
 		String[] connectionPoolNames = StringTool.isEmpty(connectionPoolNamesCsv)?null:connectionPoolNamesCsv.split(",");
