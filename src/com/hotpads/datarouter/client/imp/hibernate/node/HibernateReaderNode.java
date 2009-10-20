@@ -86,28 +86,6 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<D> getAllLimited(final int offset, final int limit, final Config config) {		
-		final String entityName = this.getPackagedPhysicalName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
-		Object result = executor.executeTask(
-			new HibernateTask() {
-				public Object run(Session session) {
-					Criteria criteria = session.createCriteria(entityName);
-					if(config!=null && config.getLimit()!=null){
-						criteria.setMaxResults(config.getLimit());
-					}
-					criteria.setFirstResult(offset);
-					criteria.setMaxResults(limit);
-					Object listOfDatabeans = criteria.list();
-					return listOfDatabeans;
-				}
-			});
-		return (List<D>)result;
-	}
-	
-	
-	@Override
-	@SuppressWarnings("unchecked")
 	public List<D> getAll(final Config config) {		
 		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
