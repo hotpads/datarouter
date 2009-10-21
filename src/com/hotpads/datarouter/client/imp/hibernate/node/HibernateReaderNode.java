@@ -65,13 +65,12 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public D get(final Key<D> key, Config config) {
-		final String entityName = this.getPackagedPhysicalName();
+	public D get(final Key<D> key, final Config config) {
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					Criteria criteria = session.createCriteria(entityName);
+					Criteria criteria = getCriteriaForConfig(config, session);
 					List<Field> fields = key.getFields();
 					for(Field field : fields){
 						criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
@@ -86,16 +85,12 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<D> getAll(final Config config) {		
-		final String entityName = this.getPackagedPhysicalName();
+	public List<D> getAll(final Config config) {
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					Criteria criteria = session.createCriteria(entityName);
-					if(config!=null && config.getLimit()!=null){
-						criteria.setMaxResults(config.getLimit());
-					}
+					Criteria criteria = getCriteriaForConfig(config, session);
 					Object listOfDatabeans = criteria.list();
 					return listOfDatabeans;
 				}
@@ -106,15 +101,14 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<D> getMulti(final Collection<? extends Key<D>> keys, Config config) {		
-		final String entityName = this.getPackagedPhysicalName();
+	public List<D> getMulti(final Collection<? extends Key<D>> keys, final Config config) {		
 		if(CollectionTool.isEmpty(keys)){ return null; }
 //		final Class<? extends Databean> persistentClass = CollectionTool.getFirst(keys).getDatabeanClass();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					Criteria criteria = session.createCriteria(entityName);
+					Criteria criteria = getCriteriaForConfig(config, session);
 					Disjunction orSeparatedIds = Restrictions.disjunction();
 					for(Key<D> key : CollectionTool.nullSafe(keys)){
 						Conjunction possiblyCompoundId = Restrictions.conjunction();
@@ -139,17 +133,13 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<D> lookup(final Lookup<D> lookup, final Config config) {
-		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, null);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					Criteria criteria = session.createCriteria(entityName);
+					Criteria criteria = getCriteriaForConfig(config, session);
 					for(Field field : CollectionTool.nullSafe(lookup.getFields())){
 						criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-					}
-					if(config != null && config.getLimit() != null){
-						criteria.setMaxResults(config.getLimit());
 					}
 					Object result = criteria.list();
 					return result;
@@ -162,12 +152,11 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@SuppressWarnings("unchecked")
 	public List<D> lookup(final Collection<? extends Lookup<D>> lookups, final Config config) {
 		if(CollectionTool.isEmpty(lookups)){ return null; }
-		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, null);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					Criteria criteria = session.createCriteria(entityName);
+					Criteria criteria = getCriteriaForConfig(config, session);
 					Disjunction or = Restrictions.disjunction();
 					for(Lookup<D> lookup : lookups){
 						Conjunction and = Restrictions.conjunction();
@@ -177,9 +166,6 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 						or.add(and);
 					}
 					criteria.add(or);
-					if(config != null && config.getLimit() != null){
-						criteria.setMaxResults(config.getLimit());
-					}
 					Object result = criteria.list();
 					return result;
 				}
@@ -193,12 +179,11 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@SuppressWarnings("unchecked")
 	@Override
 	public D getFirst(final Config config) {
-		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					Criteria criteria = session.createCriteria(entityName);
+					Criteria criteria = getCriteriaForConfig(config, session);
 					criteria.setMaxResults(1);
 					Object result = criteria.uniqueResult();
 					return result;
@@ -229,17 +214,13 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getWithPrefix(final Key<D> prefix, final boolean wildcardLastField, final Config config) {
-		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					Criteria criteria = session.createCriteria(entityName);
+					Criteria criteria = getCriteriaForConfig(config, session);
 					Conjunction prefixConjunction = getPrefixConjunction(prefix, wildcardLastField);
 					criteria.add(prefixConjunction);
-					if(config != null && config.getLimit() != null){
-						criteria.setMaxResults(config.getLimit());
-					}
 					Object result = criteria.list();
 					return result;
 				}
@@ -251,21 +232,17 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@Override
 	public List<D> getWithPrefixes(final Collection<? extends Key<D>> prefixes, final boolean wildcardLastField, final Config config) {
 		if(CollectionTool.isEmpty(prefixes)){ return null; }
-		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					Criteria criteria = session.createCriteria(entityName);
+					Criteria criteria = getCriteriaForConfig(config, session);
 					Disjunction prefixesDisjunction = Restrictions.disjunction();
 					for(Key<D> prefix : prefixes){
 						Conjunction prefixConjunction = getPrefixConjunction(prefix, wildcardLastField);
 						prefixesDisjunction.add(prefixConjunction);
 					}
 					criteria.add(prefixesDisjunction);
-					if(config != null && config.getLimit() != null){
-						criteria.setMaxResults(config.getLimit());
-					}
 					Object result = criteria.list();
 					return result;
 				}
@@ -308,12 +285,11 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 			final Key<D> end, final boolean endInclusive, 
 			final Config config) {
 		
-		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					Criteria criteria = session.createCriteria(entityName);
+					Criteria criteria = getCriteriaForConfig(config, session);
 										
 					if(start != null && CollectionTool.notEmpty(start.getFields())){
 						List<Field> startFields = ListTool.createArrayList(start.getFields());
@@ -360,10 +336,6 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 						}
 						criteria.add(d);
 					}
-					
-					if(config != null && config.getLimit() != null){
-						criteria.setMaxResults(config.getLimit());
-					}
 					Object result = criteria.list();
 					return result;
 				}
@@ -372,7 +344,25 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	}
 	
 	
-	
+	protected Criteria getCriteriaForConfig(Config config, Session session){
+		final String entityName = this.getPackagedPhysicalName();
+		Criteria criteria = session.createCriteria(entityName);
+		
+		if(config == null){
+			return criteria;
+		}
+		
+		if(config.getLimit()!=null){
+			criteria.setMaxResults(config.getLimit());
+		}
+		
+		if(config.getOffset()!=null){
+			criteria.setFirstResult(config.getOffset());
+		}
+		
+		
+		return criteria;
+	}
 	
 	
 	
