@@ -8,6 +8,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
@@ -24,6 +25,7 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.lookup.Lookup;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.ObjectTool;
 
 public class HibernateReaderNode<D extends Databean> 
 extends BasePhysicalNode<D>
@@ -290,6 +292,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 			new HibernateTask() {
 				public Object run(Session session) {
 					Criteria criteria = getCriteriaForConfig(config, session);
+					addOrderToCriteriaUsingPrimaryKeys(criteria, start, end);
 										
 					if(start != null && CollectionTool.notEmpty(start.getFields())){
 						List<Field> startFields = ListTool.createArrayList(start.getFields());
@@ -341,6 +344,16 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 				}
 			});
 		return (List<D>)result;
+	}
+	
+	protected void addOrderToCriteriaUsingPrimaryKeys(Criteria criteria, Key<D> start, Key<D> end){
+		if(ObjectTool.bothNull(start, end)){
+			return;//can't figure out the order
+		}
+		Key<D> key = start!=null?start:end;
+		for(Field field : key.getFields()){
+			criteria.addOrder(Order.asc(field.getPrefixedName()));
+		}
 	}
 	
 	
