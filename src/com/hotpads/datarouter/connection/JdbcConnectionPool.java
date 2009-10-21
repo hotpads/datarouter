@@ -111,8 +111,8 @@ public class JdbcConnectionPool{
 		this.pool.setAcquireIncrement(1);
 		this.pool.setAcquireRetryAttempts(30);
 		this.pool.setAcquireRetryDelay(500);
-		this.pool.setIdleConnectionTestPeriod(300);
-		this.pool.setMaxIdleTime(3600);
+		this.pool.setIdleConnectionTestPeriod(30);
+		this.pool.setMaxIdleTime(300);
 		
 		if(this.readOnly){
 			this.pool.setConnectionCustomizerClassName(ReadOnlyConnectionCustomizer.class.getName());
