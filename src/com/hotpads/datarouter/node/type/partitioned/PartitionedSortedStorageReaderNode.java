@@ -36,11 +36,35 @@ implements SortedStorageReaderNode<D>{
 	}
 
 	@Override
+	public List<D> getPrefixedRange(Key<D> prefix, boolean wildcardLastField, 
+			final Key<D> start, final boolean startInclusive,
+			Config config) {
+		//TODO smarter/optional sorting
+		List<D> all = ListTool.createArrayList();
+		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes(prefix))){
+			all.addAll(node.getPrefixedRange(
+					prefix, wildcardLastField, 
+					start, startInclusive,
+					config));
+		}
+		if(CollectionTool.isEmpty(all)){ 
+			return null; 
+		}
+		Collections.sort(all);
+		if(config!=null && config.getLimit()!=null && config.getLimit() >= all.size()){
+			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
+			return limited;
+		}else{
+			return all;
+		}
+	}
+
+	@Override
 	public List<D> getRange(final Key<D> start, final boolean startInclusive, 
 			final Key<D> end, final boolean endInclusive, final Config config) {
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
+		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes())){
 			all.addAll(node.getRange(start, startInclusive, end, endInclusive, config));
 		}
 		if(CollectionTool.isEmpty(all)){ 
@@ -59,7 +83,7 @@ implements SortedStorageReaderNode<D>{
 	public List<D> getWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
+		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes(prefix))){
 			all.addAll(node.getWithPrefix(prefix, wildcardLastField, config));
 		}
 		if(CollectionTool.isEmpty(all)){ 
@@ -78,7 +102,8 @@ implements SortedStorageReaderNode<D>{
 	public List<D> getWithPrefixes(Collection<? extends Key<D>> prefixes, boolean wildcardLastField, Config config) {
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
+		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes(prefixes))){
+			//TODO don't send all keys to all nodes in the search
 			all.addAll(node.getWithPrefixes(prefixes, wildcardLastField, config));
 		}
 		if(CollectionTool.isEmpty(all)){ 

@@ -9,6 +9,16 @@ import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 
 public class JdbcTool {
+	
+	public static int tryInsert(Connection conn, String sql) throws SQLException{
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		try{
+			return stmt.executeUpdate();
+		}catch(SQLException e){
+			//System.out.println(e.getMessage());
+			return 0;
+		}
+	}
 
 	public static int[] bulkUpdate(Connection conn, List<String> sql) throws SQLException{
 		if(conn==null || CollectionTool.isEmpty(sql)){ return new int[]{}; }

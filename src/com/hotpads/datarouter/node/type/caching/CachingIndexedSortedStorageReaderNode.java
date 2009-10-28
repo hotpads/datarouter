@@ -88,6 +88,15 @@ implements IndexedSortedStorageReaderNode<D>{
 	}
 
 	@Override
+	public List<D> getPrefixedRange(
+			Key<D> prefix, boolean wildcardLastField,
+			Key<D> start, boolean startInclusive, Config config) {
+		//TODO implement caching
+		return this.backingNode.getPrefixedRange(
+				prefix, wildcardLastField, start, startInclusive, config);
+	}
+
+	@Override
 	public List<D> getRange(Key<D> start, boolean startInclusive, Key<D> end, boolean endInclusive, Config config) {
 		//TODO implement caching
 		return this.backingNode.getRange(start, startInclusive, end, endInclusive, config);

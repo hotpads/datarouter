@@ -37,6 +37,16 @@ implements SortedStorageReaderNode<D>{
 	}
 
 	@Override
+	public List<D> getPrefixedRange(
+			Key<D> prefix, boolean wildcardLastField,
+			Key<D> start, boolean startInclusive, Config config) {
+		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
+		N node = slaveOk ? this.chooseSlave(config) : this.master;
+		return node.getPrefixedRange(
+				prefix, wildcardLastField, start, startInclusive, config);
+	}
+
+	@Override
 	public List<D> getRange(Key<D> start, boolean startInclusive, Key<D> end,
 			boolean endInclusive, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();

@@ -222,7 +222,9 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 				public Object run(Session session) {
 					Criteria criteria = getCriteriaForConfig(config, session);
 					Conjunction prefixConjunction = getPrefixConjunction(prefix, wildcardLastField);
-					criteria.add(prefixConjunction);
+					if(prefixConjunction != null){
+						criteria.add(prefixConjunction);
+					}
 					Object result = criteria.list();
 					return result;
 				}
@@ -240,11 +242,13 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 				public Object run(Session session) {
 					Criteria criteria = getCriteriaForConfig(config, session);
 					Disjunction prefixesDisjunction = Restrictions.disjunction();
-					for(Key<D> prefix : prefixes){
-						Conjunction prefixConjunction = getPrefixConjunction(prefix, wildcardLastField);
-						prefixesDisjunction.add(prefixConjunction);
+					if(prefixesDisjunction != null){
+						for(Key<D> prefix : prefixes){
+							Conjunction prefixConjunction = getPrefixConjunction(prefix, wildcardLastField);
+							prefixesDisjunction.add(prefixConjunction);
+						}
+						criteria.add(prefixesDisjunction);
 					}
-					criteria.add(prefixesDisjunction);
 					Object result = criteria.list();
 					return result;
 				}
@@ -258,6 +262,9 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 			if(value != null){
 				++numNonNullFields;
 			}
+		}
+		if(numNonNullFields==0){
+			return null; 
 		}
 		Conjunction conjunction = Restrictions.conjunction();
 		int numFullFieldsFinished = 0;
@@ -292,6 +299,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 			new HibernateTask() {
 				public Object run(Session session) {
 					Criteria criteria = getCriteriaForConfig(config, session);
+					
 					addOrderToCriteriaUsingPrimaryKeys(criteria, start, end);
 										
 					if(start != null && CollectionTool.notEmpty(start.getFields())){
@@ -305,7 +313,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 								if(j < (i-1)){
 									c.add(Restrictions.eq(startField.getPrefixedName(), startField.getValue()));
 								}else{
-									if(startInclusive){
+									if(startInclusive && i==numNonNullStartFields){
 										c.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue()));
 									}else{
 										c.add(Restrictions.gt(startField.getPrefixedName(), startField.getValue()));
@@ -323,7 +331,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 						Disjunction d = Restrictions.disjunction();
 						for(int i=0; i < numNonNullEndFields; ++i){
 							Conjunction c = Restrictions.conjunction();
-							for(int j=0; j < i; ++j){
+							for(int j=0; j <= i; ++j){
 								Field endField = endFields.get(j);
 								if(j==i){
 									if(endInclusive){
@@ -345,6 +353,60 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 			});
 		return (List<D>)result;
 	}
+	
+
+	
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<D> getPrefixedRange(
+			final Key<D> prefix, final boolean wildcardLastField,
+			final Key<D> start, final boolean startInclusive, 
+			final Config config) {
+		
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					Criteria criteria = getCriteriaForConfig(config, session);
+					
+					addOrderToCriteriaUsingPrimaryKeys(criteria, start, null);
+
+					Conjunction prefixConjunction = getPrefixConjunction(prefix, wildcardLastField);
+					if(prefixConjunction != null){
+						criteria.add(prefixConjunction);
+					}
+										
+					if(start != null && CollectionTool.notEmpty(start.getFields())){
+						List<Field> startFields = ListTool.createArrayList(start.getFields());
+						int numNonNullStartFields = Field.countNonNullLeadingFields(startFields);
+						Disjunction d = Restrictions.disjunction();
+						for(int i=numNonNullStartFields; i > 0; --i){
+							Conjunction c = Restrictions.conjunction();
+							for(int j=0; j < i; ++j){
+								Field startField = startFields.get(j);
+								if(j < (i-1)){
+									c.add(Restrictions.eq(startField.getPrefixedName(), startField.getValue()));
+								}else{
+									if(startInclusive && i==numNonNullStartFields){
+										c.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue()));
+									}else{
+										c.add(Restrictions.gt(startField.getPrefixedName(), startField.getValue()));
+									}
+								}
+							}
+							d.add(c);
+						}
+						criteria.add(d);
+					}
+					Object result = criteria.list();
+					return result;
+				}
+			});
+		return (List<D>)result;
+	}
+	
+	
 	
 	protected void addOrderToCriteriaUsingPrimaryKeys(Criteria criteria, Key<D> start, Key<D> end){
 		if(ObjectTool.bothNull(start, end)){

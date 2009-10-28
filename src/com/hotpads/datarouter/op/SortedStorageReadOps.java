@@ -23,7 +23,12 @@ extends MapStorageReadOps<D>{
 //
 //	List<Key<D>> getKeysInRange(Key<D> start, boolean startInclusive, Key<D> end, boolean endInclusive, Config config);
 	List<D> getRange(Key<D> start, boolean startInclusive, Key<D> end, boolean endInclusive, Config config);
-//	
+
+	List<D> getPrefixedRange(
+			final Key<D> prefix, final boolean wildcardLastField, 
+			final Key<D> start, final boolean startInclusive, 
+			final Config config);
+	
 //	Iterator<Key<D>> scanKeys(Key<D> start, boolean startInclusive, Config config);
 //	Iterator<D> scan(Key<D> start, boolean startInclusive, Config config);
 	
