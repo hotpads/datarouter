@@ -166,6 +166,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 		return (List<D>)result;
 	}
 	
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<D> lookup(final Collection<? extends Lookup<D>> lookups, final Config config) {
@@ -210,6 +211,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 		return (D)result;
 	}
 
+	
 //	@Override
 //	public Key<D> getFirstKey(final Config config) {
 //		this.datab
@@ -229,6 +231,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 //		return (D)result;
 //	}
 
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getWithPrefix(final Key<D> prefix, final boolean wildcardLastField, final Config config) {
@@ -248,6 +251,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 		return (List<D>)result;
 	}
 
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getWithPrefixes(final Collection<? extends Key<D>> prefixes, final boolean wildcardLastField, final Config config) {
@@ -270,36 +274,6 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 				}
 			});
 		return (List<D>)result;
-	}
-	
-	private Conjunction getPrefixConjunction(Key<D> prefix, final boolean wildcardLastField){
-		int numNonNullFields = 0;
-		for(Comparable<?> value : CollectionTool.nullSafe(prefix.getFieldValues())){
-			if(value != null){
-				++numNonNullFields;
-			}
-		}
-		if(numNonNullFields==0){
-			return null; 
-		}
-		Conjunction conjunction = Restrictions.conjunction();
-		int numFullFieldsFinished = 0;
-		for(Field field : CollectionTool.nullSafe(prefix.getFields())){
-			if(numFullFieldsFinished < numNonNullFields){
-				boolean lastNonNullField = numFullFieldsFinished == numNonNullFields - 1;
-				boolean stringField = field.getValue() instanceof String;
-				
-				boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
-				
-				if(canDoPrefixMatchOnField){
-					conjunction.add(Restrictions.like(field.getPrefixedName(), (String)field.getValue(), MatchMode.START));
-				}else{
-					conjunction.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-				}
-				++numFullFieldsFinished;
-			}
-		}
-		return conjunction;
 	}
 	
 	
@@ -424,6 +398,9 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	
 	
 	
+	
+	/********************************* helpers ***********************************************/
+	
 	protected void addOrderToCriteriaUsingPrimaryKeys(Criteria criteria, Key<D> start, Key<D> end){
 		if(ObjectTool.bothNull(start, end)){
 			return;//can't figure out the order
@@ -454,7 +431,37 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 		
 		return criteria;
 	}
+
 	
+	protected Conjunction getPrefixConjunction(Key<D> prefix, final boolean wildcardLastField){
+		int numNonNullFields = 0;
+		for(Comparable<?> value : CollectionTool.nullSafe(prefix.getFieldValues())){
+			if(value != null){
+				++numNonNullFields;
+			}
+		}
+		if(numNonNullFields==0){
+			return null; 
+		}
+		Conjunction conjunction = Restrictions.conjunction();
+		int numFullFieldsFinished = 0;
+		for(Field field : CollectionTool.nullSafe(prefix.getFields())){
+			if(numFullFieldsFinished < numNonNullFields){
+				boolean lastNonNullField = numFullFieldsFinished == numNonNullFields - 1;
+				boolean stringField = field.getValue() instanceof String;
+				
+				boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
+				
+				if(canDoPrefixMatchOnField){
+					conjunction.add(Restrictions.like(field.getPrefixedName(), (String)field.getValue(), MatchMode.START));
+				}else{
+					conjunction.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+				}
+				++numFullFieldsFinished;
+			}
+		}
+		return conjunction;
+	}
 	
 	
 	
