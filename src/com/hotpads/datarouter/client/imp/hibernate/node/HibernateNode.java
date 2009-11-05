@@ -10,6 +10,7 @@ import org.hibernate.Session;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -41,6 +42,8 @@ implements PhysicalIndexedSortedStorageNode<D>
 	
 	
 	/************************************ MapStorageWriter methods ****************************/
+	
+	public static final PutMethod defaultPutMethod = PutMethod.selectThenDecide;
 
 	@Override
 	public void delete(Key<D> key, Config config) {
@@ -114,13 +117,13 @@ implements PhysicalIndexedSortedStorageNode<D>
 
 	
 	@Override
-	public void put(final D databean, Config config) {
+	public void put(final D databean, final Config config) {
 		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					session.saveOrUpdate(entityName, databean);
+					putUsingMethod(session, entityName, databean, config);
 					return databean;
 				}
 			});
@@ -128,7 +131,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 
 	
 	@Override
-	public void putMulti(Collection<D> databeans, Config config) {
+	public void putMulti(Collection<D> databeans, final Config config) {
 		final String entityName = this.getPackagedPhysicalName();
 		final Collection<D> finalDatabeans = databeans;
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
@@ -136,11 +139,37 @@ implements PhysicalIndexedSortedStorageNode<D>
 			new HibernateTask() {
 				public Object run(Session session) {
 					for(D databean : CollectionTool.nullSafe(finalDatabeans)){
-						session.saveOrUpdate(entityName, databean);
+						putUsingMethod(session, entityName, databean, config);
 					}
 					return finalDatabeans;
 				}
 			});
+	}
+	
+	private static void putUsingMethod(Session session, String entityName, Databean databean, final Config config){
+		PutMethod putMethod = defaultPutMethod;
+		if(config!=null && config.getPutMethod()!=null){
+			putMethod = config.getPutMethod();
+		}
+		if(PutMethod.insertOrBust == putMethod){
+			session.save(entityName, databean);
+		}else if(PutMethod.updateOrBust == putMethod){
+			session.update(entityName, databean);
+		}else if(PutMethod.insertOrUpdate == putMethod){
+			try{
+				session.save(entityName, databean);
+			}catch(Exception e){
+				session.update(entityName, databean);
+			}
+		}else if(PutMethod.updateOrInsert == putMethod){
+			try{
+				session.update(entityName, databean);
+			}catch(Exception e){
+				session.save(entityName, databean);
+			}
+		}else{
+			session.saveOrUpdate(entityName, databean);
+		}
 	}
 
 	@Override

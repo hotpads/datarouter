@@ -20,8 +20,9 @@ public class Config {
 	
 	protected String forceIndex;
 	
-	protected Long commitBatchSize;
-	protected Long iterateBatchSize;
+	protected PutMethod putMethod = PutMethod.selectThenDecide;
+	protected Integer commitBatchSize;
+	protected Integer iterateBatchSize;
 
 	protected Object startId;
 	protected Boolean includeStartId = false;
@@ -88,22 +89,22 @@ public class Config {
 	}
 
 
-	public Long getIterateBatchSize() {
+	public Integer getIterateBatchSize() {
 		return iterateBatchSize;
 	}
 
 
-	public Config setIterateBatchSize(Long iterateBatchSize) {
+	public Config setIterateBatchSize(Integer iterateBatchSize) {
 		this.iterateBatchSize = iterateBatchSize;
 		return this;
 	}
 
-	public Long getCommitBatchSize() {
+	public Integer getCommitBatchSize() {
 		return commitBatchSize;
 	}
 
 
-	public Config setCommitBatchSize(Long commitBatchSize) {
+	public Config setCommitBatchSize(Integer commitBatchSize) {
 		this.commitBatchSize = commitBatchSize;
 		return this;
 	}
@@ -205,6 +206,16 @@ public class Config {
 		this.connectionNameByClientName = connectionNameByClientName;
 		return this;
 	}
+
+	public PutMethod getPutMethod() {
+		return putMethod;
+	}
+
+	public Config setPutMethod(PutMethod putMethod) {
+		this.putMethod = putMethod;
+		return this;
+	}
+	
 	
 	
 	

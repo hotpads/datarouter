@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hibernate.node;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -23,6 +24,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.lookup.Lookup;
+import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
@@ -58,6 +60,8 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 
 	
 	/************************************ MapStorageReader methods ****************************/
+	
+	public static final int defaultIterateBatchSize = 25;
 	
 	@Override
 	public boolean exists(Key<D> key, Config config) {
@@ -110,19 +114,31 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					Criteria criteria = getCriteriaForConfig(config, session);
-					Disjunction orSeparatedIds = Restrictions.disjunction();
-					for(Key<D> key : CollectionTool.nullSafe(keys)){
-						Conjunction possiblyCompoundId = Restrictions.conjunction();
-						List<Field> fields = key.getFields();
-						for(Field field : fields){
-							possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-						}
-						orSeparatedIds.add(possiblyCompoundId);
+					int batchSize = defaultIterateBatchSize;
+					if(config!=null && config.getIterateBatchSize()!=null){
+						batchSize = config.getIterateBatchSize();
 					}
-					criteria.add(orSeparatedIds);
-					Object listOfDatabeans = criteria.list();
-					return listOfDatabeans;
+					List<? extends Key<D>> sortedKeys = ListTool.createArrayList(keys);
+					Collections.sort(sortedKeys);
+					int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
+					List<D> all = ListTool.createArrayList(keys.size());
+					for(int batchNum=0; batchNum < numBatches; ++batchNum){
+						List<? extends Key<D>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
+						Criteria criteria = getCriteriaForConfig(config, session);
+						Disjunction orSeparatedIds = Restrictions.disjunction();
+						for(Key<D> key : CollectionTool.nullSafe(keyBatch)){
+							Conjunction possiblyCompoundId = Restrictions.conjunction();
+							List<Field> fields = key.getFields();
+							for(Field field : fields){
+								possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+							}
+							orSeparatedIds.add(possiblyCompoundId);
+						}
+						criteria.add(orSeparatedIds);
+						List<D> batch = criteria.list();
+						ListTool.nullSafeArrayAddAll(all, batch);
+					}
+					return all;
 				}
 			});
 		return (List<D>)result;
