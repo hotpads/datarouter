@@ -20,7 +20,7 @@ public class Config {
 	
 	protected String forceIndex;
 	
-	protected PutMethod putMethod = PutMethod.selectThenDecide;
+	protected PutMethod putMethod = PutMethod.selectFirstOrLookAtPrimaryKey;
 	protected Integer commitBatchSize;
 	protected Integer iterateBatchSize;
 

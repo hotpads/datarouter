@@ -98,7 +98,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 				public Object run(Session session) {
 					Criteria criteria = getCriteriaForConfig(config, session);
 					Object listOfDatabeans = criteria.list();
-					return listOfDatabeans;
+					return listOfDatabeans;//todo, make sure the datastore scans in order so we don't need to sort here
 				}
 			});
 		return (List<D>)result;
@@ -136,6 +136,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 						}
 						criteria.add(orSeparatedIds);
 						List<D> batch = criteria.list();
+						Collections.sort(batch);//can sort here because batches were already sorted
 						ListTool.nullSafeArrayAddAll(all, batch);
 					}
 					return all;
@@ -159,7 +160,8 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 					for(Field field : CollectionTool.nullSafe(lookup.getFields())){
 						criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 					}
-					Object result = criteria.list();
+					List<D> result = criteria.list();
+					Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
 					return result;
 				}
 			});
@@ -185,7 +187,8 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 						or.add(and);
 					}
 					criteria.add(or);
-					Object result = criteria.list();
+					List<D> result = criteria.list();
+					Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
 					return result;
 				}
 			});
@@ -205,7 +208,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 					Criteria criteria = getCriteriaForConfig(config, session);
 					criteria.setMaxResults(1);
 					Object result = criteria.uniqueResult();
-					return result;
+					return result;//TODO this method needs to send sorting order to the datastore!!!!!!!!!!
 				}
 			});
 		return (D)result;
@@ -244,7 +247,8 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 					if(prefixConjunction != null){
 						criteria.add(prefixConjunction);
 					}
-					Object result = criteria.list();
+					List<D> result = criteria.list();
+					Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
 					return result;
 				}
 			});
@@ -269,7 +273,8 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 						}
 						criteria.add(prefixesDisjunction);
 					}
-					Object result = criteria.list();
+					List<D> result = criteria.list();
+					Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
 					return result;
 				}
 			});
@@ -290,7 +295,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 				public Object run(Session session) {
 					Criteria criteria = getCriteriaForConfig(config, session);
 					
-					addOrderToCriteriaUsingPrimaryKeys(criteria, start, end);
+					addOrderToCriteriaUsingPrimaryKeys(criteria, start, end);//TODO may not be sorting on all fields
 										
 					if(start != null && CollectionTool.notEmpty(start.getFields())){
 						List<Field> startFields = ListTool.createArrayList(start.getFields());
@@ -360,7 +365,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 				public Object run(Session session) {
 					Criteria criteria = getCriteriaForConfig(config, session);
 					
-					addOrderToCriteriaUsingPrimaryKeys(criteria, start, null);
+					addOrderToCriteriaUsingPrimaryKeys(criteria, start, null);//TODO may not be sorting on all fields
 
 					Conjunction prefixConjunction = getPrefixConjunction(prefix, wildcardLastField);
 					if(prefixConjunction != null){
@@ -402,6 +407,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	/********************************* helpers ***********************************************/
 	
 	protected void addOrderToCriteriaUsingPrimaryKeys(Criteria criteria, Key<D> start, Key<D> end){
+		//TODO may not be sorting on all fields !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		if(ObjectTool.bothNull(start, end)){
 			return;//can't figure out the order
 		}

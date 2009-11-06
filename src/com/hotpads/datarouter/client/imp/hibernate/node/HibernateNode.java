@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.hibernate.FlushMode;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 
@@ -43,7 +44,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	
 	/************************************ MapStorageWriter methods ****************************/
 	
-	public static final PutMethod defaultPutMethod = PutMethod.selectThenDecide;
+	public static final PutMethod defaultPutMethod = PutMethod.selectFirstOrLookAtPrimaryKey;
 
 	@Override
 	public void delete(Key<D> key, Config config) {
@@ -138,6 +139,13 @@ implements PhysicalIndexedSortedStorageNode<D>
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
+					PutMethod putMethod = defaultPutMethod;
+					if(config!=null && config.getPutMethod()!=null){
+						putMethod = config.getPutMethod();
+					}
+					if(PutMethod.methodsToFlushImmediately.contains(putMethod)){
+						session.setFlushMode(FlushMode.ALWAYS);
+					}
 					for(D databean : CollectionTool.nullSafe(finalDatabeans)){
 						putUsingMethod(session, entityName, databean, config);
 					}
@@ -158,7 +166,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 		}else if(PutMethod.insertOrUpdate == putMethod){
 			try{
 				session.save(entityName, databean);
-			}catch(Exception e){
+			}catch(Exception e){  //not sure if this will actually catch it.  curses on the write-behind thread
 				session.update(entityName, databean);
 			}
 		}else if(PutMethod.updateOrInsert == putMethod){
