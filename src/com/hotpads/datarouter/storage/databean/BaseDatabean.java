@@ -1,6 +1,12 @@
 package com.hotpads.datarouter.storage.databean;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.ClassTool;
+import com.hotpads.util.core.CollectionTool;
 
 
 @SuppressWarnings("serial")
@@ -35,5 +41,21 @@ implements Databean {
 	public String toString(){
 		return this.getClass().getSimpleName()+"."+this.getKey().getPersistentString();
 	}
+	
+//	@Override
+//	public List<Field> getFields(){
+//		List<Field> keyFields = this.getKey().getFields();
+//		List<Field> dataFields = this.getDataFields();
+//		int totalFields = CollectionTool.size(keyFields) + CollectionTool.size(dataFields);
+//		List<Field> fields = new ArrayList<Field>(totalFields);
+//		fields.addAll(keyFields);
+//		fields.addAll(dataFields);
+//		return fields;
+//	}
+//	
+//	@Override
+//	public List<Field> getDataFields(){
+//		return new LinkedList<Field>();
+//	}
 	
 }

@@ -3,20 +3,16 @@ package com.hotpads.datarouter.storage.key;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.persistence.Transient;
-
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import net.sf.json.JsonConfig;
-import net.sf.json.util.CycleDetectionStrategy;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 public abstract class BaseKey<D extends Databean> 
 implements Key<D>{  //hibernate composite keys must implement serializable

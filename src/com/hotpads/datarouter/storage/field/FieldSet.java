@@ -2,7 +2,7 @@ package com.hotpads.datarouter.storage.field;
 
 import java.util.List;
 
-public interface Fields {
+public interface FieldSet {
 
 	List<Field> getFields();
 	List<String> getFieldNames();
