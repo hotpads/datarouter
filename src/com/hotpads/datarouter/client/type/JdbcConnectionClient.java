@@ -6,6 +6,6 @@ import java.sql.SQLException;
 public interface JdbcConnectionClient
 extends ConnectionClient{
 
-	Connection getExistingConnection(String connectionName) throws SQLException;
+	Connection getExistingConnection(String connectionName);
 	
 }

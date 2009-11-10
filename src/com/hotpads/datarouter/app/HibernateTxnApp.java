@@ -8,6 +8,6 @@ import org.hibernate.Session;
 public interface HibernateTxnApp<T> 
 extends TxnApp<T> {
 	
-	Session getSession(String clientName) throws SQLException;
+	Session getSession(String clientName);
 	
 }

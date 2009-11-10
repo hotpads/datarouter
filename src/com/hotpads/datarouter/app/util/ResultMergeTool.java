@@ -5,10 +5,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
 
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.SetTool;
 
 public class ResultMergeTool {
 
@@ -33,6 +36,24 @@ public class ResultMergeTool {
 	public static <T,C extends Collection<T>> List<T> append(C a, Collection<? extends C> bs){
 		int size = CollectionTool.sizeNullSafe(a) + CollectionTool.getTotalSizeOfCollectionOfCollections(bs);
 		List<T> out = ListTool.createArrayList(size);
+		out.addAll(CollectionTool.nullSafe(a));
+		for(C b : CollectionTool.nullSafe(bs)){
+			out.addAll(CollectionTool.nullSafe(b));
+		}
+		return out;
+	}
+	
+	public static <T,C extends Collection<T>> Set<T> addAll(C a, Collection<? extends C> bs){
+		Set<T> out = SetTool.createHashSet();
+		out.addAll(CollectionTool.nullSafe(a));
+		for(C b : CollectionTool.nullSafe(bs)){
+			out.addAll(CollectionTool.nullSafe(b));
+		}
+		return out;
+	}
+	
+	public static <T,C extends Collection<T>> SortedSet<T> addAllSorted(C a, Collection<? extends C> bs){
+		SortedSet<T> out = SetTool.createTreeSet();
 		out.addAll(CollectionTool.nullSafe(a));
 		for(C b : CollectionTool.nullSafe(bs)){
 			out.addAll(CollectionTool.nullSafe(b));

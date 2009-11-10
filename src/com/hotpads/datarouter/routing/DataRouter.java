@@ -53,7 +53,7 @@ public abstract class DataRouter {
 	
 	/************************************** app wrappers **************************************/
 
-	public <T> T run(App<T> app) throws Exception{
+	public <T> T run(App<T> app){
 		T t = app.runInEnvironment();
 		return t;
 	}

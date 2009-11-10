@@ -42,7 +42,7 @@ implements ParallelTxnApp<T>{
 
 	
 	@Override
-	public T runInEnvironment() throws Exception{
+	public T runInEnvironment(){
 		T onceResult = null;
 		Collection<T> clientResults = ListTool.createLinkedList();
 		Collection<Client> clients = this.getClients();
@@ -73,7 +73,7 @@ implements ParallelTxnApp<T>{
 	/********************* txn code **********************************/
 
 	@Override
-	public void beginTxns() throws Exception{
+	public void beginTxns(){
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
@@ -88,7 +88,7 @@ implements ParallelTxnApp<T>{
 	}
 	
 	@Override
-	public void commitTxns() throws Exception{
+	public void commitTxns(){
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
@@ -99,7 +99,7 @@ implements ParallelTxnApp<T>{
 	}
 	
 	@Override
-	public void rollbackTxns() throws Exception{
+	public void rollbackTxns(){
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;

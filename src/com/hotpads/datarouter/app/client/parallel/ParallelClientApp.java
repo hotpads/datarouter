@@ -5,7 +5,7 @@ import com.hotpads.datarouter.app.ClientApp;
 public interface ParallelClientApp<T>
 extends ClientApp<T>{
 
-	void reserveConections() throws Exception;
-	void releaseConnections() throws Exception;
+	void reserveConections();
+	void releaseConnections();
 
 }

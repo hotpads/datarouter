@@ -29,7 +29,7 @@ implements JdbcTxnApp<T> {
 	}
 
 	@Override
-	public Connection getConnection(String clientName) throws SQLException{
+	public Connection getConnection(String clientName){
 		String connectionName = this.connectionNameByClientName.get(clientName);
 		Client client = this.router.getClient(clientName);
 		if(client==null){ return null; }

@@ -29,7 +29,7 @@ implements HibernateTxnApp<T> {
 	}
 
 	@Override
-	public Session getSession(String clientName) throws SQLException{
+	public Session getSession(String clientName){
 		String connectionName = this.connectionNameByClientName.get(clientName);
 		Client client = this.router.getClient(clientName);
 		if(client==null){ return null; }

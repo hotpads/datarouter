@@ -1,33 +1,41 @@
 package com.hotpads.datarouter.client.imp.hibernate;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.hibernate.HibernateException;
 import org.hibernate.connection.ConnectionProvider;
 
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
+import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.exception.UnavailableException;
 
 public class HibernateConnectionProvider implements ConnectionProvider{
 
 	DataSource dataSource;
 
 	@Override
-	public void configure(Properties props) throws HibernateException {
+	public void configure(Properties props){
 		this.dataSource = getConnectionPoolFromThread().getDataSource();
 	}
 
 	@Override
-	public Connection getConnection() throws SQLException {
-		return dataSource.getConnection();		
+	public Connection getConnection(){
+		try{
+			return dataSource.getConnection();		
+		}catch(Exception e){
+			throw new UnavailableException(e);
+		}
 	}
 
 	@Override
-	public void closeConnection(Connection conn) throws SQLException {
-		conn.close();
+	public void closeConnection(Connection conn){
+		try{
+			conn.close();
+		}catch(Exception e){
+			throw new DataAccessException(e);
+		}
 	}
 
 	@Override

@@ -41,7 +41,7 @@ implements ParallelClientApp<T>{
 	}
 	
 	@Override
-	public T runInEnvironment() throws Exception{
+	public T runInEnvironment(){
 		T onceResult = null;
 		Collection<T> clientResults = ListTool.createLinkedList();
 		Collection<Client> clients = this.getClients();
@@ -61,12 +61,12 @@ implements ParallelClientApp<T>{
 	}
 
 	@Override
-	public T runOnce() throws Exception{  //probably used sometimes
+	public T runOnce(){  //probably used sometimes
 		return null;
 	}
 	
 	@Override
-	public T runOncePerClient(Client client) throws Exception{  //probably used always
+	public T runOncePerClient(Client client){  //probably used always
 		return null;
 	}
 	
@@ -81,7 +81,7 @@ implements ParallelClientApp<T>{
 	/********************* txn code **********************************/
 
 	@Override
-	public void reserveConections() throws Exception{
+	public void reserveConections(){
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;
@@ -95,7 +95,7 @@ implements ParallelClientApp<T>{
 	}
 	
 	@Override
-	public void releaseConnections() throws Exception{
+	public void releaseConnections(){
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;

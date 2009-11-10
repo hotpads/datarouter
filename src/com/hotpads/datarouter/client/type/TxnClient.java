@@ -8,8 +8,8 @@ import com.hotpads.datarouter.config.Isolation;
 public interface TxnClient 
 extends Client{
 
-	String beginTxn(String connectionName, Isolation isolation) throws SQLException;
-	void commitTxn(String connectionName) throws SQLException;
-	void rollbackTxn(String connectionName) throws SQLException;
+	String beginTxn(String connectionName, Isolation isolation);
+	void commitTxn(String connectionName);
+	void rollbackTxn(String connectionName);
 	
 }

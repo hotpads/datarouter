@@ -35,7 +35,9 @@ public class HibernateClientFactory implements ClientFactory{
 		configLocationDefault = "hib-default.cfg.xml";
 	
 	@Override
-	public Client createClient(DataRouterFactory<? extends DataRouter> datapus, String clientName, Properties properties, Map<String,Object> params){
+	public Client createClient(
+			DataRouterFactory<? extends DataRouter> datapus, String clientName, 
+			Properties properties, Map<String,Object> params){
 		String source = properties.getProperty(Clients.prefixClient+clientName+Clients.paramSource);
 		if("params".equals(source)){
 			return createFromParams(datapus, clientName, properties, params);
@@ -44,7 +46,8 @@ public class HibernateClientFactory implements ClientFactory{
 	}
 	
 	
-	public HibernateClientImp createFromScratch(DataRouterFactory<? extends DataRouter> datapus, String clientName, Properties properties){
+	public HibernateClientImp createFromScratch(
+			DataRouterFactory<? extends DataRouter> datapus, String clientName, Properties properties){
 		logger.debug("creating hibernate client "+clientName);
 		PhaseTimer timer = new PhaseTimer(clientName);
 		
@@ -97,7 +100,8 @@ public class HibernateClientFactory implements ClientFactory{
 
 	
 	public HibernateClientImp createFromParams(
-			DataRouterFactory<? extends DataRouter> datapus, String clientName, Properties properties, Map<String,Object> params){
+			DataRouterFactory<? extends DataRouter> datapus, String clientName, 
+			Properties properties, Map<String,Object> params){
 		
 		String sessionFactoryParamKey = properties.getProperty(Clients.prefixClient+clientName+nestedParamSessionFactory);
 		SessionFactory sessionFactory = (SessionFactory)params.get(sessionFactoryParamKey);
@@ -111,7 +115,8 @@ public class HibernateClientFactory implements ClientFactory{
 		return client;
 	}
 	
-	protected JdbcConnectionPool getConnectionPool(DataRouterFactory<? extends DataRouter> datapus, String clientName, Properties properties){
+	protected JdbcConnectionPool getConnectionPool(
+			DataRouterFactory<? extends DataRouter> datapus, String clientName, Properties properties){
 		String connectionPoolName = properties.getProperty(Clients.prefixClient+clientName+Clients.paramConnectionPool);
 		if(StringTool.isEmpty(connectionPoolName)){ connectionPoolName = clientName; }
 		JdbcConnectionPool connectionPool = datapus.getConnectionPools().getConnectionPool(connectionPoolName);

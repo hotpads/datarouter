@@ -7,6 +7,6 @@ import java.sql.SQLException;
 public interface JdbcTxnApp<T> 
 extends TxnApp<T> {
 	
-	Connection getConnection(String clientName) throws SQLException;
+	Connection getConnection(String clientName);
 	
 }

@@ -10,8 +10,8 @@ extends App<T> {
 
 	List<Client> getClients();
 
-	T runOnce() throws Exception;
-	T runOncePerClient(Client client) throws Exception;
+	T runOnce();
+	T runOncePerClient(Client client);
 	
 	T mergeResults(T fromOnce, Collection<T> fromEachClient);
 	

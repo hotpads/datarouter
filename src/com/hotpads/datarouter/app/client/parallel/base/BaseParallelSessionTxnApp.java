@@ -41,7 +41,7 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 
 	
 	@Override
-	public T runInEnvironment() throws Exception{
+	public T runInEnvironment(){
 		T onceResult = null;
 		Collection<T> clientResults = ListTool.createLinkedList();
 		Collection<Client> clients = this.getClients();
@@ -61,10 +61,21 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 			commitTxns();
 		}catch(Exception e){
 			logger.warn(ExceptionTool.getStackTraceAsString(e));
-			rollbackTxns();
+			try{
+				rollbackTxns();
+			}catch(Exception rollbackException){
+				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				throw new RuntimeException("Could not roll-back txn", e);
+			}
 			throw new RollbackException(e);
 		}finally{
-			this.releaseConnections();
+			try{
+				this.releaseConnections();
+			}catch(Exception e){
+				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				throw new RuntimeException("COULD NOT CLOSE CONNECTIONS FOR "
+						+this.connectionNameByClientName.toString(), e);
+			}
 		}
 		T mergedResult = mergeResults(onceResult, clientResults);
 		return mergedResult;
@@ -75,7 +86,7 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 	/********************* session code **********************************/
 	
 	@Override
-	public void openSessions() throws Exception{
+	public void openSessions(){
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof HibernateClient) ){ continue; }
 			HibernateClient sessionClient = (HibernateClient)client;
@@ -85,7 +96,7 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 	}
 	
 	@Override
-	public void closeSessions() throws Exception{
+	public void closeSessions(){
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof HibernateClient) ){ continue; }
 			HibernateClient sessionClient = (HibernateClient)client;

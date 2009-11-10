@@ -16,10 +16,10 @@ implements App<T> {
 		this.router = router;
 	}
 
-	protected abstract T runOnce() throws Exception;
+	protected abstract T runOnce();
 
 	@Override
-	public T runInEnvironment() throws Exception{
+	public T runInEnvironment(){
 		return runOnce();
 	}
 	
