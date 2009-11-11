@@ -9,8 +9,10 @@ import com.hotpads.datarouter.app.client.parallel.ParallelClientApp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.ConnectionClient;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
@@ -100,7 +102,13 @@ implements ParallelClientApp<T>{
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;
 			String connectionName = this.connectionNameByClientName.get(client.getName());
-			connectionClient.releaseConnection(connectionName);
+			try{
+				connectionClient.releaseConnection(connectionName);
+			}catch(Exception e){
+				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF SINGLE CONNECTION:"
+						+connectionName, e);
+			}
 		}
 	}
 

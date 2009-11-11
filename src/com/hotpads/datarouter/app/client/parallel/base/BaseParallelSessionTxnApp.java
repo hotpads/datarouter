@@ -10,6 +10,7 @@ import com.hotpads.datarouter.app.client.parallel.ParallelTxnApp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.config.Isolation;
+import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
@@ -63,17 +64,18 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 			logger.warn(ExceptionTool.getStackTraceAsString(e));
 			try{
 				rollbackTxns();
+				throw new RollbackException(e);
 			}catch(Exception rollbackException){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
-				throw new RuntimeException("Could not roll-back txn", e);
+				throw new DataAccessException("EXCEPTION THROWN DURING TXN ROLL-BACK", e);
 			}
-			throw new RollbackException(e);
 		}finally{
 			try{
 				this.releaseConnections();
 			}catch(Exception e){
+				//This is an unexpected exception because each individual release is done in a try/catch block
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
-				throw new RuntimeException("COULD NOT CLOSE CONNECTIONS FOR "
+				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS:"
 						+this.connectionNameByClientName.toString(), e);
 			}
 		}
