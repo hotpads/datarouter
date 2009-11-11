@@ -15,5 +15,4 @@ extends Serializable, /*FieldSet,*/ Comparable<Databean>{
 	@SuppressWarnings("unchecked")
 	Key getKey();  //can't figure out how to keep checked
 	
-//	List<Field> getDataFields();
 }

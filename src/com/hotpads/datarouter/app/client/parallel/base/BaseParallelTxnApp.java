@@ -9,6 +9,7 @@ import com.hotpads.datarouter.app.client.parallel.ParallelTxnApp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.TxnClient;
 import com.hotpads.datarouter.config.Isolation;
+import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
@@ -105,7 +106,13 @@ implements ParallelTxnApp<T>{
 			TxnClient txnClient = (TxnClient)client;
 			String clientName = client.getName();
 			String connectionName = this.connectionNameByClientName.get(clientName);
-			txnClient.rollbackTxn(connectionName);
+			try{
+				txnClient.rollbackTxn(connectionName);
+			}catch(Exception e){
+				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:"
+						+connectionName, e);
+			}
 		}
 	}
 	

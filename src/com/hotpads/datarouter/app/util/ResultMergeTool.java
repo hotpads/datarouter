@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.Map.Entry;
 
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -61,7 +62,8 @@ public class ResultMergeTool {
 		return out;
 	}
 	
-	public static <T extends Comparable<T>,C extends Collection<T>> List<T> appendAndSort(C a, Collection<? extends C> bs){
+	public static <T extends Comparable<T>,C extends Collection<T>> List<T> 
+	appendAndSort(C a, Collection<? extends C> bs){
 		List<T> appended = append(a, bs);
 		Collections.sort(appended);
 		return appended;
@@ -74,6 +76,25 @@ public class ResultMergeTool {
 		}
 		for(Map<K,V> m : CollectionTool.nullSafe(fromEach)){
 			result.putAll(m);
+		}
+		return result;
+	}
+	
+	public static <K> Map<K,Integer> mergeIntegerValueMaps(Map<K,Integer> fromOnce, Collection<Map<K,Integer>> fromEach){
+		Map<K,Integer> result = new HashMap<K,Integer>();
+		if(MapTool.notEmpty(fromOnce)){
+			result.putAll(fromOnce);
+		}
+		for(Map<K,Integer> m : CollectionTool.nullSafe(fromEach)){
+			for(Entry<K,Integer> e : m.entrySet()){
+				if(result.get(e.getKey())==null){
+					result.put(e.getKey(), e.getValue());
+				}else{
+					Integer currentSum = result.get(e.getKey());
+					Integer newSum = currentSum + e.getValue();
+					result.put(e.getKey(), newSum);
+				}
+			}
 		}
 		return result;
 	}

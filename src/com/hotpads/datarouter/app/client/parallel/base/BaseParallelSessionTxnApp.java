@@ -64,11 +64,11 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 			logger.warn(ExceptionTool.getStackTraceAsString(e));
 			try{
 				rollbackTxns();
-				throw new RollbackException(e);
-			}catch(Exception rollbackException){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+			}catch(Exception exceptionDuringRollback){
+				logger.warn(ExceptionTool.getStackTraceAsString(exceptionDuringRollback));
 				throw new DataAccessException("EXCEPTION THROWN DURING TXN ROLL-BACK", e);
 			}
+			throw new RollbackException(e);
 		}finally{
 			try{
 				this.releaseConnections();
@@ -103,7 +103,13 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 			if( ! (client instanceof HibernateClient) ){ continue; }
 			HibernateClient sessionClient = (HibernateClient)client;
 			String connectionName = this.connectionNameByClientName.get(client.getName());
-			sessionClient.closeSession(connectionName);
+			try{
+				sessionClient.closeSession(connectionName);
+			}catch(Exception e){
+				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				throw new DataAccessException("EXCEPTION THROWN DURING CLOSE OF SINGLE SESSION:"
+						+connectionName, e);
+			}
 		}
 	}
 	
