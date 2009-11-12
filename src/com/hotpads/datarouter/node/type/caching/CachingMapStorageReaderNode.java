@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.base.caching.BaseCachingNode;
 import com.hotpads.datarouter.node.op.MapStorageReaderNode;

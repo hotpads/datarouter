@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.app.client.parallel.jdbc.base;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 import org.hibernate.Session;

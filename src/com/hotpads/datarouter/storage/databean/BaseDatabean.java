@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.storage.databean;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.field.Field;

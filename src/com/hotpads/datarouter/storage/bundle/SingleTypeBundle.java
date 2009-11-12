@@ -11,7 +11,6 @@ public class SingleTypeBundle<D extends Databean> {
 
 	protected NavigableSet<D> databeans = new TreeSet<D>();
 	
-	@SuppressWarnings("unchecked")
 	public void add(D databean){
 		if(databean==null){ return; }
 		this.databeans.add(databean);

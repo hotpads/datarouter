@@ -8,7 +8,6 @@ import com.hotpads.datarouter.node.op.SortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
-import com.hotpads.util.core.CollectionTool;
 
 public class MasterSlaveSortedStorageReaderNode<D extends Databean,N extends SortedStorageReaderNode<D>>
 extends MasterSlaveMapStorageReaderNode<D,N>

@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.app;
 
-import java.sql.SQLException;
-
 import org.hibernate.Session;
 
 

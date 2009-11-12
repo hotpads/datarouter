@@ -207,7 +207,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	public void deleteRangeWithPrefix(final Key<D> prefix, final boolean wildcardLastField, final Config config) {
 		final String tableName = this.getPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
-		Object numDeletedInteger = executor.executeTask(
+		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
 					
