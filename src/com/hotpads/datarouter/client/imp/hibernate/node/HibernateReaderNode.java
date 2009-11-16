@@ -244,9 +244,10 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 				public Object run(Session session) {
 					Criteria criteria = getCriteriaForConfig(config, session);
 					Conjunction prefixConjunction = getPrefixConjunction(prefix, wildcardLastField);
-					if(prefixConjunction != null){
-						criteria.add(prefixConjunction);
+					if(prefixConjunction == null){
+						throw new IllegalArgumentException("cannot do a null prefix match.  Use getAll() instead");
 					}
+					criteria.add(prefixConjunction);
 					List<D> result = criteria.list();
 					Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
 					return result;
