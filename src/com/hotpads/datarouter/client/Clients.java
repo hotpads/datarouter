@@ -109,7 +109,7 @@ public class Clients{
 				//have we waited enough for it?
 				long elapsedWaitTime = System.currentTimeMillis() - waitStartTimeMs;
 				if(elapsedWaitTime > MAX_INIT_WAIT_TIME_MS){
-					throw new UnavailableException("Could not acquire client after "+MAX_INIT_WAIT_TIME_MS+"ms");
+					throw new UnavailableException("Could not acquire client '"+name+"' after "+MAX_INIT_WAIT_TIME_MS+"ms");
 				}
 				//try again in 1 second
 				try {

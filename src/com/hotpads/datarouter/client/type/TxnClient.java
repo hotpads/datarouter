@@ -2,12 +2,13 @@ package com.hotpads.datarouter.client.type;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.config.Isolation;
+import com.hotpads.datarouter.connection.ConnectionHandle;
 
 public interface TxnClient 
-extends Client{
+extends ConnectionClient{
 
-	String beginTxn(String connectionName, Isolation isolation);
-	void commitTxn(String connectionName);
-	void rollbackTxn(String connectionName);
+	ConnectionHandle beginTxn(Isolation isolation);
+	ConnectionHandle commitTxn();
+	ConnectionHandle rollbackTxn();
 	
 }

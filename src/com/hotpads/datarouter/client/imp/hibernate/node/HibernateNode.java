@@ -10,6 +10,7 @@ import org.hibernate.Session;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
+import com.hotpads.datarouter.client.imp.hibernate.SessionTool;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.Node;
@@ -44,7 +45,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	
 	/************************************ MapStorageWriter methods ****************************/
 	
-	public static final PutMethod defaultPutMethod = PutMethod.selectFirstOrLookAtPrimaryKey;
+	public static final PutMethod DEFAULT_PUT_METHOD = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
 
 	@Override
 	public void delete(Key<D> key, Config config) {
@@ -124,7 +125,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					putUsingMethod(session, entityName, databean, config);
+					SessionTool.putUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
 					return databean;
 				}
 			});
@@ -139,45 +140,19 @@ implements PhysicalIndexedSortedStorageNode<D>
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					PutMethod putMethod = defaultPutMethod;
+					PutMethod putMethod = DEFAULT_PUT_METHOD;
 					if(config!=null && config.getPutMethod()!=null){
 						putMethod = config.getPutMethod();
 					}
-					if(PutMethod.methodsToFlushImmediately.contains(putMethod)){
+					if(PutMethod.METHODS_TO_FLUSH_IMMEDIATELY.contains(putMethod)){
 						session.setFlushMode(FlushMode.ALWAYS);
 					}
 					for(D databean : CollectionTool.nullSafe(finalDatabeans)){
-						putUsingMethod(session, entityName, databean, config);
+						SessionTool.putUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
 					}
 					return finalDatabeans;
 				}
 			});
-	}
-	
-	private static void putUsingMethod(Session session, String entityName, Databean databean, final Config config){
-		PutMethod putMethod = defaultPutMethod;
-		if(config!=null && config.getPutMethod()!=null){
-			putMethod = config.getPutMethod();
-		}
-		if(PutMethod.insertOrBust == putMethod){
-			session.save(entityName, databean);
-		}else if(PutMethod.updateOrBust == putMethod){
-			session.update(entityName, databean);
-		}else if(PutMethod.insertOrUpdate == putMethod){
-			try{
-				session.save(entityName, databean);
-			}catch(Exception e){  //not sure if this will actually catch it.  curses on the write-behind thread
-				session.update(entityName, databean);
-			}
-		}else if(PutMethod.updateOrInsert == putMethod){
-			try{
-				session.update(entityName, databean);
-			}catch(Exception e){
-				session.save(entityName, databean);
-			}
-		}else{
-			session.saveOrUpdate(entityName, databean);
-		}
 	}
 
 	@Override

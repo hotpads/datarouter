@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.app.client.parallel.jdbc.base;
 
-import java.util.Map;
-
 import org.hibernate.Session;
 
 import com.hotpads.datarouter.app.HibernateTxnApp;
@@ -19,22 +17,17 @@ implements HibernateTxnApp<T> {
 		super(router);
 	}
 	
-	public BaseParallelHibernateTxnApp(DataRouter router, Map<String,String> existingConnectionNameByClientName) {
-		super(router, existingConnectionNameByClientName);
-	}
-	
-	public BaseParallelHibernateTxnApp(DataRouter router, Map<String,String> existingConnectionNameByClientName, Isolation isolation) {
-		super(router, existingConnectionNameByClientName, isolation);
+	public BaseParallelHibernateTxnApp(DataRouter router, Isolation isolation) {
+		super(router, isolation);
 	}
 
 	@Override
 	public Session getSession(String clientName){
-		String connectionName = this.connectionNameByClientName.get(clientName);
 		Client client = this.router.getClient(clientName);
 		if(client==null){ return null; }
 		if(client instanceof HibernateClient){
 			HibernateClient hibernateSessionClient = (HibernateClient)client;
-			Session session = hibernateSessionClient.getExistingSession(connectionName);
+			Session session = hibernateSessionClient.getExistingSession();
 			return session;
 		}
 		return null;

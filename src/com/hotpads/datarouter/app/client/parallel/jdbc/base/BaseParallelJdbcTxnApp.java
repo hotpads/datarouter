@@ -19,22 +19,17 @@ implements JdbcTxnApp<T> {
 		this.router = router;
 	}
 	
-	public BaseParallelJdbcTxnApp(DataRouter router, Map<String,String> existingConnectionNameByClientName) {
-		super(router, existingConnectionNameByClientName);
-	}
-	
-	public BaseParallelJdbcTxnApp(DataRouter router, Map<String,String> existingConnectionNameByClientName, Isolation isolation) {
-		super(router, existingConnectionNameByClientName, isolation);
+	public BaseParallelJdbcTxnApp(DataRouter router, Isolation isolation) {
+		super(router, isolation);
 	}
 
 	@Override
 	public Connection getConnection(String clientName){
-		String connectionName = this.connectionNameByClientName.get(clientName);
 		Client client = this.router.getClient(clientName);
 		if(client==null){ return null; }
 		if(client instanceof JdbcConnectionClient){
 			JdbcConnectionClient jdbcConnectionClient = (JdbcConnectionClient)client;
-			Connection connection = jdbcConnectionClient.getExistingConnection(connectionName);
+			Connection connection = jdbcConnectionClient.getExistingConnection();
 			return connection;
 		}
 		return null;

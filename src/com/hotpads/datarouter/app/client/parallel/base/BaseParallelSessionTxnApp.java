@@ -10,6 +10,7 @@ import com.hotpads.datarouter.app.client.parallel.ParallelTxnApp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.config.Isolation;
+import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
@@ -25,15 +26,9 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 	public BaseParallelSessionTxnApp(DataRouter router) {
 		super(router);
 	}
-
-	public BaseParallelSessionTxnApp(DataRouter router, Map<String,String> existingConnectionNameByClientName) {
-		super(router);
-		this.connectionNameByClientName.putAll(MapTool.nullSafe(existingConnectionNameByClientName));
-	}
 	
-	public BaseParallelSessionTxnApp(DataRouter router, Map<String,String> existingConnectionNameByClientName, Isolation isolation) {
+	public BaseParallelSessionTxnApp(DataRouter router, Isolation isolation) {
 		super(router);
-		this.connectionNameByClientName.putAll(MapTool.nullSafe(existingConnectionNameByClientName));
 		this.isolation = isolation;
 	}
 
@@ -47,6 +42,7 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 		Collection<T> clientResults = ListTool.createLinkedList();
 		Collection<Client> clients = this.getClients();
 		try{
+			reserveConections();
 			beginTxns();
 			openSessions();
 			
@@ -71,12 +67,11 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 			throw new RollbackException(e);
 		}finally{
 			try{
-				this.releaseConnections();
+				releaseConnections();
 			}catch(Exception e){
 				//This is an unexpected exception because each individual release is done in a try/catch block
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
-				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS:"
-						+this.connectionNameByClientName.toString(), e);
+				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
 			}
 		}
 		T mergedResult = mergeResults(onceResult, clientResults);
@@ -92,8 +87,8 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof HibernateClient) ){ continue; }
 			HibernateClient sessionClient = (HibernateClient)client;
-			String connectionName = this.connectionNameByClientName.get(client.getName());
-			sessionClient.openSession(connectionName);
+			sessionClient.openSession();
+			logger.debug("opened session on "+sessionClient.getExistingHandle());
 		}
 	}
 	
@@ -102,13 +97,13 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof HibernateClient) ){ continue; }
 			HibernateClient sessionClient = (HibernateClient)client;
-			String connectionName = this.connectionNameByClientName.get(client.getName());
 			try{
-				sessionClient.closeSession(connectionName);
+				ConnectionHandle handle = sessionClient.closeSession();
+				logger.debug("closed session on "+handle);
 			}catch(Exception e){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				throw new DataAccessException("EXCEPTION THROWN DURING CLOSE OF SINGLE SESSION:"
-						+connectionName, e);
+						+sessionClient.getExistingHandle(), e);
 			}
 		}
 	}

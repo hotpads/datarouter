@@ -1,11 +1,13 @@
 package com.hotpads.datarouter.client.type;
 
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.connection.ConnectionHandle;
 
 public interface ConnectionClient 
 extends Client{
-
-	String reserveConnection(String tryConnectionName);
-	void releaseConnection(String connectionName);
+	
+	ConnectionHandle getExistingHandle();
+	ConnectionHandle reserveConnection();
+	ConnectionHandle releaseConnection();
 	
 }

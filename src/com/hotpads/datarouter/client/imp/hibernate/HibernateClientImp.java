@@ -13,10 +13,11 @@ import org.hibernate.SessionFactory;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;
 import com.hotpads.datarouter.client.type.TxnClient;
-import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
+import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.util.core.ExceptionTool;
 
 public class HibernateClientImp 
 implements JdbcConnectionClient, TxnClient, HibernateClient{
@@ -35,55 +36,74 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	
 	protected JdbcConnectionPool connectionPool;
 	protected SessionFactory sessionFactory;
-	protected Map<String,Connection> connectionByName = Collections.synchronizedMap(new HashMap<String,Connection>());
-	protected Map<String,Session> sessionByConnectionName = Collections.synchronizedMap(new HashMap<String,Session>());
-
+	
+	protected Map<Long,ConnectionHandle> handleByThread = 
+		Collections.synchronizedMap(new HashMap<Long,ConnectionHandle>());
+	
+	protected Map<ConnectionHandle,Connection> connectionByHandle = 
+		Collections.synchronizedMap(new HashMap<ConnectionHandle,Connection>());
+	
+	protected Map<ConnectionHandle,Session> sessionByConnectionHandle = 
+		Collections.synchronizedMap(new HashMap<ConnectionHandle,Session>());
+	
 	long connectionCounter = -1;
 	
 	
-	/**************************** private methods **********************************/
+	/**************************** constructor **********************************/
 	
-	String getConnectionNameForThisClient(Config config){
-		if(config==null){ return null; }
-		if(config.getConnectionNameByClientName()==null){ return null; }
-		return config.getConnectionNameByClientName().get(this.name);
+	HibernateClientImp(String name){
+		this.name = name;
 	}
 	
-	Connection getConnection(Config config){
-		String connectionNameForThisClient = this.getConnectionNameForThisClient(config);
-		if(connectionNameForThisClient==null){ return null; }
-		return this.connectionByName.get(connectionNameForThisClient);
-	}
-
+	/******************************** methods **********************************/
 	
 	/****************************** ConnectionClient methods *************************/
+	
+	@Override
+	public ConnectionHandle getExistingHandle(){
+		Thread currentThread = Thread.currentThread();
+		return this.handleByThread.get(currentThread.getId());
+	}
 
 	@Override
-	public String reserveConnection(String tryConnectionName){
+	public ConnectionHandle reserveConnection(){
 		try {
-			Connection connection = this.connectionByName.get(tryConnectionName);
-			String connName = tryConnectionName;
-			if(connection != null){
-				logger.debug("got existing connection:"+connName+":"+this.connectionByName.keySet());
-				return connName;
+			ConnectionHandle existingHandle = this.getExistingHandle();
+			if(existingHandle != null){
+				logger.debug("got existing connection:"+existingHandle);
+				//Assert connection exists for handle
+				existingHandle.incrementNumTickets();
+				return existingHandle;
 			}
-			connection = this.connectionPool.getDataSource().getConnection();
+			Connection newConnection = this.connectionPool.getDataSource().getConnection();
+			long threadId = Thread.currentThread().getId();
 			long connNumber = ++this.connectionCounter;
-			connName = tryConnectionName + "-" + connNumber;
-			this.connectionByName.put(connName, connection);
-			logger.debug("new connection:"+connName/*+":"+this.connectionByName.keySet()*/);
-			return connName;
+			ConnectionHandle handle = new ConnectionHandle(Thread.currentThread(), this.name, connNumber, 1);
+			if(this.handleByThread.get(threadId)==null){
+				this.handleByThread.put(threadId, handle);
+			}
+			this.connectionByHandle.put(handle, newConnection);
+			logger.debug("new connection:"+handle);
+			return handle;
 		} catch (SQLException e) {
 			throw new DataAccessException(e);
 		}
 	}
 
 	@Override
-	public void releaseConnection(String connectionName){
+	public ConnectionHandle releaseConnection(){
 		try {
-			Connection connection = this.connectionByName.get(connectionName);
-			this.connectionByName.remove(connectionName);
+			Thread currentThread = Thread.currentThread();
+			ConnectionHandle handle = this.getExistingHandle();
+			handle.decrementNumTickets();
+			if(handle.getNumTickets() > 0){
+				return handle;  //others are still using this connection
+			}
+			Connection connection = this.connectionByHandle.get(handle);
 			connection.close();
+			this.handleByThread.remove(currentThread.getId());
+			this.connectionByHandle.remove(handle);
+			return handle;
 		} catch (SQLException e) {
 			throw new DataAccessException(e);
 		}
@@ -91,48 +111,58 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 
 	
 	/****************************** JdbcConnectionClient methods *************************/
+
 	
 	@Override
-	public Connection getExistingConnection(String connectionName){
-		return this.connectionByName.get(connectionName);
+	public Connection getExistingConnection(){
+		ConnectionHandle handle = this.getExistingHandle();
+		if(handle==null){ return null; }
+		return this.connectionByHandle.get(handle);
+	}
+	
+	@Override
+	public Connection acquireConnection(){
+		this.reserveConnection();
+		return this.getExistingConnection();
 	}
 
 	
 	/****************************** JdbcTxnClient methods *************************/
 
 	@Override
-	public String beginTxn(String tryConnectionName, Isolation isolation){
+	public ConnectionHandle beginTxn(Isolation isolation){
 		try {
-			String connectionName = this.reserveConnection(tryConnectionName);
-			Connection connection = this.connectionByName.get(connectionName);
+			Connection connection = this.getExistingConnection();
 			connection.setTransactionIsolation(isolation.getJdbcVal());
-			logger.debug("setTransactionIsolation="+isolation.getJdbcVal()+" on "+connectionName);
+			logger.debug("setTransactionIsolation="+isolation.getJdbcVal()+" on "+this.getExistingHandle());
 			connection.setAutoCommit(false);
-			logger.debug("setAutoCommit=false on "+connectionName);
-			logger.debug("began txn on:"+connectionName);
-			return connectionName;
+			logger.debug("setAutoCommit=false on "+this.getExistingHandle());
+			logger.debug("began txn on:"+this.getExistingHandle());
+			return this.getExistingHandle();
 		} catch (SQLException e) {
 			throw new DataAccessException(e);
 		}
 	}
 
 	@Override
-	public void commitTxn(String connectionName){
+	public ConnectionHandle commitTxn(){
 		try{
-			Connection connection = this.connectionByName.get(connectionName);
+			Connection connection = this.getExistingConnection();
 			connection.commit();
-			logger.debug("committed txn on:"+connectionName);
+			logger.debug("committed txn on:"+this.getExistingHandle());
+			return this.getExistingHandle();
 		} catch (SQLException e) {
 			throw new DataAccessException(e);
 		}
 	}
 
 	@Override
-	public void rollbackTxn(String connectionName){
+	public ConnectionHandle rollbackTxn(){
 		try{
-			Connection connection = this.connectionByName.get(connectionName);
+			Connection connection = this.getExistingConnection();
 			connection.rollback();
-			logger.debug("rolled-back txn on:"+connectionName);
+			logger.debug("rolled-back txn on:"+this.getExistingHandle());
+			return this.getExistingHandle();
 		} catch (SQLException e) {
 			throw new DataAccessException(e);
 		}
@@ -142,29 +172,42 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	/****************************** SessionClient methods *************************/
 	
 	@Override
-	public String openSession(String tryConnectionName){
-		String connectionName = this.reserveConnection(tryConnectionName);
-		Connection connection = this.connectionByName.get(connectionName);
+	public ConnectionHandle openSession(){
+		Connection connection = this.getExistingConnection();
 		Session session = this.sessionFactory.openSession(connection);
-		this.sessionByConnectionName.put(connectionName, session);
-		return connectionName;
+		this.sessionByConnectionHandle.put(this.getExistingHandle(), session);
+		return this.getExistingHandle();
 	}
 	
 	@Override
-	public void closeSession(String connectionName){
-		Session session = this.sessionByConnectionName.get(connectionName);
+	public ConnectionHandle closeSession(){
+		ConnectionHandle handle = this.getExistingHandle();
+		if(handle==null){ return handle; }
+		Session session = this.sessionByConnectionHandle.get(handle);
 		if(session != null){
-			session.close();
+			try{
+				session.flush();
+			}catch(Exception e){
+				logger.warn("problem closing session.  flush() threw exception.");
+				logger.warn(ExceptionTool.getStackTraceAsString(e));
+			}
+			try{
+				session.disconnect();
+			}catch(Exception e){
+				logger.warn("problem closing session.  disconnect() threw exception.");
+				logger.warn(ExceptionTool.getStackTraceAsString(e));
+			}
 		}
-		this.sessionByConnectionName.remove(connectionName);
+		this.sessionByConnectionHandle.remove(handle);
+		return handle;
 	}
 
 	
 	/****************************** HibernateClient methods *************************/
 	
 	@Override
-	public Session getExistingSession(String connectionName){
-		return this.sessionByConnectionName.get(connectionName);
+	public Session getExistingSession(){
+		return this.sessionByConnectionHandle.get(this.getExistingHandle());
 	}
 
 	@Override

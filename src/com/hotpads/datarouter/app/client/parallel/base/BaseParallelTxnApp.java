@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.app.client.parallel.base;
 
 import java.util.Collection;
-import java.util.Map;
 
 import javax.persistence.RollbackException;
 
@@ -9,12 +8,12 @@ import com.hotpads.datarouter.app.client.parallel.ParallelTxnApp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.TxnClient;
 import com.hotpads.datarouter.config.Isolation;
+import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 public abstract class BaseParallelTxnApp<T>
 extends BaseParallelClientApp<T>
@@ -26,15 +25,9 @@ implements ParallelTxnApp<T>{
 	public BaseParallelTxnApp(DataRouter router) {
 		super(router);
 	}
-
-	public BaseParallelTxnApp(DataRouter router, Map<String,String> existingConnectionNameByClientName) {
-		super(router);
-		this.connectionNameByClientName.putAll(MapTool.nullSafe(existingConnectionNameByClientName));
-	}
 	
-	public BaseParallelTxnApp(DataRouter router, Map<String,String> existingConnectionNameByClientName, Isolation isolation) {
+	public BaseParallelTxnApp(DataRouter router, Isolation isolation) {
 		super(router);
-		this.connectionNameByClientName.putAll(MapTool.nullSafe(existingConnectionNameByClientName));
 		this.isolation = isolation;
 	}
 
@@ -48,6 +41,7 @@ implements ParallelTxnApp<T>{
 		Collection<T> clientResults = ListTool.createLinkedList();
 		Collection<Client> clients = this.getClients();
 		try{
+			reserveConections();
 			beginTxns();
 			onceResult = runOnce();
 			for(Client client : CollectionTool.nullSafe(clients)){  //TODO threading
@@ -60,7 +54,7 @@ implements ParallelTxnApp<T>{
 			rollbackTxns();
 			throw new RollbackException(e);
 		}finally{
-			this.releaseConnections();
+			releaseConnections();
 		}
 		T mergedResult = mergeResults(onceResult, clientResults);
 		return mergedResult;
@@ -78,13 +72,8 @@ implements ParallelTxnApp<T>{
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
-			String clientName = client.getName();
-			String parentConnectionName = this.parentConnectionNameByClientName.get(client.getName());
-			if(parentConnectionName==null){
-				parentConnectionName = this.getClass().getSimpleName();
-			}
-			String connectionName = txnClient.beginTxn(parentConnectionName, this.getIsolation());
-			this.connectionNameByClientName.put(clientName, connectionName);
+			txnClient.beginTxn(this.getIsolation());
+			logger.debug("began txn for "+txnClient.getExistingHandle());
 		}
 	}
 	
@@ -93,9 +82,8 @@ implements ParallelTxnApp<T>{
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
-			String clientName = client.getName();
-			String connectionName = this.connectionNameByClientName.get(clientName);
-			txnClient.commitTxn(connectionName);
+			txnClient.commitTxn();
+			logger.debug("committed txn for "+txnClient.getExistingHandle());
 		}
 	}
 	
@@ -104,14 +92,13 @@ implements ParallelTxnApp<T>{
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
-			String clientName = client.getName();
-			String connectionName = this.connectionNameByClientName.get(clientName);
 			try{
-				txnClient.rollbackTxn(connectionName);
+				txnClient.rollbackTxn();
+				logger.debug("rolled-back txn for "+txnClient.getExistingHandle());
 			}catch(Exception e){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:"
-						+connectionName, e);
+						+txnClient.getExistingHandle(), e);
 			}
 		}
 	}

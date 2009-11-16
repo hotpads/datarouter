@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.connection.ConnectionHandle;
 
 public class HibernateExecutor {
 	Logger logger = Logger.getLogger(HibernateExecutor.class);
@@ -34,21 +35,19 @@ public class HibernateExecutor {
 		boolean newSession = session==null;
 		try{
 			if(newSession){
-				Connection connectionSpecifiedByConfig = this.client.getConnection(config);
-				if(connectionSpecifiedByConfig==null){	
-					session = this.client.sessionFactory.openSession();
-				}else{
-					session = this.client.sessionFactory.openSession(connectionSpecifiedByConfig);
-					logger.debug("found connection "+this.client.getConnectionNameForThisClient(config));
-				}
+				this.client.reserveConnection();
+				this.client.openSession();
+				session = this.client.getExistingSession();
+				logger.debug("found connection "+this.client.getExistingHandle());
 			}
 		
 			return task.run(session);
 			
 		}finally{
 			if(newSession){
-				session.flush();
-				session.close();
+				this.client.closeSession();
+				ConnectionHandle handle = this.client.releaseConnection();
+				logger.debug("released connection "+handle);
 			}
 		}
 	}

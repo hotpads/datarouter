@@ -2,35 +2,25 @@ package com.hotpads.datarouter.app.client.parallel.base;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import com.hotpads.datarouter.app.base.BaseApp;
 import com.hotpads.datarouter.app.client.parallel.ParallelClientApp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.ConnectionClient;
-import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 public abstract class BaseParallelClientApp<T>
 extends BaseApp<T>
 implements ParallelClientApp<T>{
-
-	protected Map<String,String> parentConnectionNameByClientName = MapTool.createHashMap();
-	protected Map<String,String> connectionNameByClientName = MapTool.createHashMap();
 	
 	
 	public BaseParallelClientApp(DataRouter router) {
 		super(router);
-	}
-	
-	public BaseParallelClientApp(DataRouter router, Map<String,String> parentConnectionNameByClientName){
-		this(router);
-		this.parentConnectionNameByClientName = parentConnectionNameByClientName;
 	}
 	
 	/************* app ******************************************************/
@@ -54,9 +44,8 @@ implements ParallelClientApp<T>{
 				T clientResult = runOncePerClient(client);
 				clientResults.add(clientResult);
 			}
-			releaseConnections();
 		}finally{
-			this.releaseConnections();
+			releaseConnections();
 		}
 		T mergedResult = mergeResults(onceResult, clientResults);
 		return mergedResult;
@@ -87,12 +76,8 @@ implements ParallelClientApp<T>{
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;
-			String parentConnectionName = this.parentConnectionNameByClientName.get(client.getName());
-			if(parentConnectionName==null){
-				parentConnectionName = this.getClass().getSimpleName();
-			}
-			String connectionName = connectionClient.reserveConnection(parentConnectionName);
-			this.connectionNameByClientName.put(connectionName, client.getName());
+			ConnectionHandle handle = connectionClient.reserveConnection();
+			logger.debug("reserved "+handle);
 		}
 	}
 	
@@ -101,21 +86,21 @@ implements ParallelClientApp<T>{
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;
-			String connectionName = this.connectionNameByClientName.get(client.getName());
 			try{
-				connectionClient.releaseConnection(connectionName);
+				ConnectionHandle handle = connectionClient.releaseConnection();
+				logger.debug("released "+handle);
 			}catch(Exception e){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
-				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF SINGLE CONNECTION:"
-						+connectionName, e);
+				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF SINGLE CONNECTION, handle now=:"
+						+connectionClient.getExistingHandle(), e);
 			}
 		}
 	}
 
 	
-	/********************* config **********************************/
-	
-	public Config getConfigWithConnectionByName(){
-		return new Config().setConnectionNameByClientName(this.connectionNameByClientName);
-	}
+//	/********************* config **********************************/
+//	
+//	public Config getConfigWithConnectionByName(){
+//		return new Config().setConnectionNameByClientName(this.connectionNameByClientName);
+//	}
 }

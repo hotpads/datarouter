@@ -2,6 +2,8 @@ package com.hotpads.datarouter.config;
 
 import java.util.Map;
 
+import com.hotpads.datarouter.connection.ConnectionHandle;
+
 
 
 public class Config {
@@ -13,14 +15,14 @@ public class Config {
 	protected Boolean slaveOk = false;
 	protected Boolean cacheOk = defaultCacheOk;
 
-	protected Map<String,String> connectionNameByClientName;
-	protected TxnControl txnControl = TxnControl.support;
+	protected Map<String,ConnectionHandle> connectionHandleByClientName;
+	protected ConnectMethod connectMethod = ConnectMethod.tryExisting;
 	protected Isolation isolation = Isolation.readCommitted;
 	protected Boolean useSession = true;
 	
 	protected String forceIndex;
 	
-	protected PutMethod putMethod = PutMethod.selectFirstOrLookAtPrimaryKey;
+	protected PutMethod putMethod = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
 	protected Integer commitBatchSize;
 	protected Integer iterateBatchSize;
 
@@ -56,13 +58,13 @@ public class Config {
 	}
 
 
-	public TxnControl getTxnControl() {
-		return txnControl;
+	public ConnectMethod getConnectMethod() {
+		return connectMethod;
 	}
 
 
-	public Config setTxnControl(TxnControl txnControl) {
-		this.txnControl = txnControl;
+	public Config setConnectMethod(ConnectMethod connectMethod) {
+		this.connectMethod = connectMethod;
 		return this;
 	}
 
@@ -197,13 +199,13 @@ public class Config {
 		return this;
 	}
 
-	public Map<String, String> getConnectionNameByClientName() {
-		return connectionNameByClientName;
+	public Map<String, ConnectionHandle> getConnectionHandleByClientName() {
+		return connectionHandleByClientName;
 	}
 
 	public Config setConnectionNameByClientName(
-			Map<String, String> connectionNameByClientName) {
-		this.connectionNameByClientName = connectionNameByClientName;
+			Map<String, ConnectionHandle> connectionHandleByClientName) {
+		this.connectionHandleByClientName = connectionHandleByClientName;
 		return this;
 	}
 

@@ -51,8 +51,7 @@ public class HibernateClientFactory implements ClientFactory{
 		logger.debug("creating hibernate client "+clientName);
 		PhaseTimer timer = new PhaseTimer(clientName);
 		
-		HibernateClientImp client = new HibernateClientImp();
-		client.name = clientName;
+		HibernateClientImp client = new HibernateClientImp(clientName);
 		
 		AnnotationConfiguration sfConfig = new AnnotationConfiguration();
 		
@@ -106,8 +105,7 @@ public class HibernateClientFactory implements ClientFactory{
 		String sessionFactoryParamKey = properties.getProperty(Clients.prefixClient+clientName+nestedParamSessionFactory);
 		SessionFactory sessionFactory = (SessionFactory)params.get(sessionFactoryParamKey);
 
-		HibernateClientImp client = new HibernateClientImp();
-		client.name = clientName;
+		HibernateClientImp client = new HibernateClientImp(clientName);
 		client.sessionFactory = sessionFactory;
 		
 		client.connectionPool = this.getConnectionPool(datapus, clientName, properties);
