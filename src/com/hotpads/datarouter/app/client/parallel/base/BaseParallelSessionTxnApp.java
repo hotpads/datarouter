@@ -88,7 +88,7 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 			if( ! (client instanceof HibernateClient) ){ continue; }
 			HibernateClient sessionClient = (HibernateClient)client;
 			sessionClient.openSession();
-			logger.debug("opened session on "+sessionClient.getExistingHandle());
+//			logger.debug("opened session on "+sessionClient.getExistingHandle());
 		}
 	}
 	
@@ -99,7 +99,7 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 			HibernateClient sessionClient = (HibernateClient)client;
 			try{
 				ConnectionHandle handle = sessionClient.closeSession();
-				logger.debug("closed session on "+handle);
+//				logger.debug("closed session on "+handle);
 			}catch(Exception e){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				throw new DataAccessException("EXCEPTION THROWN DURING CLOSE OF SINGLE SESSION:"

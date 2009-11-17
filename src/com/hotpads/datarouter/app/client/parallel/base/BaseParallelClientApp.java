@@ -77,7 +77,7 @@ implements ParallelClientApp<T>{
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;
 			ConnectionHandle handle = connectionClient.reserveConnection();
-			logger.debug("reserved "+handle);
+//			logger.debug("reserved "+handle);
 		}
 	}
 	
@@ -88,7 +88,7 @@ implements ParallelClientApp<T>{
 			ConnectionClient connectionClient = (ConnectionClient)client;
 			try{
 				ConnectionHandle handle = connectionClient.releaseConnection();
-				logger.debug("released "+handle);
+//				logger.debug("released "+handle);
 			}catch(Exception e){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF SINGLE CONNECTION, handle now=:"

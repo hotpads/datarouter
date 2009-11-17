@@ -73,7 +73,7 @@ implements ParallelTxnApp<T>{
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
 			txnClient.beginTxn(this.getIsolation());
-			logger.debug("began txn for "+txnClient.getExistingHandle());
+//			logger.debug("began txn for "+txnClient.getExistingHandle());
 		}
 	}
 	
@@ -83,7 +83,7 @@ implements ParallelTxnApp<T>{
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
 			txnClient.commitTxn();
-			logger.debug("committed txn for "+txnClient.getExistingHandle());
+//			logger.debug("committed txn for "+txnClient.getExistingHandle());
 		}
 	}
 	
@@ -94,7 +94,7 @@ implements ParallelTxnApp<T>{
 			TxnClient txnClient = (TxnClient)client;
 			try{
 				txnClient.rollbackTxn();
-				logger.debug("rolled-back txn for "+txnClient.getExistingHandle());
+//				logger.debug("rolled-back txn for "+txnClient.getExistingHandle());
 			}catch(Exception e){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:"
