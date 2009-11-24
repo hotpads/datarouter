@@ -22,12 +22,14 @@ public class SessionTool {
 		}else if(PutMethod.INSERT_OR_UPDATE == putMethod){
 			try{
 				session.save(entityName, databean);
+				session.flush();
 			}catch(Exception e){  //not sure if this will actually catch it.  curses on the write-behind thread
 				session.update(entityName, databean);
 			}
 		}else if(PutMethod.UPDATE_OR_INSERT == putMethod){
 			try{
 				session.update(entityName, databean);
+				session.flush();
 			}catch(Exception e){
 				session.save(entityName, databean);
 			}
