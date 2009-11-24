@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.hibernate.node;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -108,7 +109,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<D> getMulti(final Collection<? extends Key<D>> keys, final Config config) {		
-		if(CollectionTool.isEmpty(keys)){ return null; }
+		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 //		final Class<? extends Databean> persistentClass = CollectionTool.getFirst(keys).getDatabeanClass();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
 		Object result = executor.executeTask(
@@ -172,7 +173,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<D> lookup(final Collection<? extends Lookup<D>> lookups, final Config config) {
-		if(CollectionTool.isEmpty(lookups)){ return null; }
+		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, null);
 		Object result = executor.executeTask(
 			new HibernateTask() {
@@ -260,7 +261,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getWithPrefixes(final Collection<? extends Key<D>> prefixes, final boolean wildcardLastField, final Config config) {
-		if(CollectionTool.isEmpty(prefixes)){ return null; }
+		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
 		Object result = executor.executeTask(
 			new HibernateTask() {
