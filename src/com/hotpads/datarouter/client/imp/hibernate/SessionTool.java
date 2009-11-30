@@ -22,8 +22,9 @@ public class SessionTool {
 		}else if(PutMethod.INSERT_OR_UPDATE == putMethod){
 			try{
 				session.save(entityName, databean);
-				session.flush();
-			}catch(Exception e){  //not sure if this will actually catch it.  curses on the write-behind thread
+				session.flush();//seems like it tries to save 3 times before throwing an exception
+			}catch(Exception e){  
+				session.evict(databean);  //must evict or it will ignore future actions for the databean?
 				session.update(entityName, databean);
 			}
 		}else if(PutMethod.UPDATE_OR_INSERT == putMethod){
@@ -31,6 +32,7 @@ public class SessionTool {
 				session.update(entityName, databean);
 				session.flush();
 			}catch(Exception e){
+				session.evict(databean);  //must evict or it will ignore future actions for the databean?
 				session.save(entityName, databean);
 			}
 		}else{
