@@ -73,7 +73,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@Override
 	@SuppressWarnings("unchecked")
 	public D get(final Key<D> key, final Config config) {
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -93,7 +93,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<D> getAll(final Config config) {
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -111,7 +111,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	public List<D> getMulti(final Collection<? extends Key<D>> keys, final Config config) {		
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 //		final Class<? extends Databean> persistentClass = CollectionTool.getFirst(keys).getDatabeanClass();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -153,7 +153,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<D> lookup(final Lookup<D> lookup, final Config config) {
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -174,7 +174,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@SuppressWarnings("unchecked")
 	public List<D> lookup(final Collection<? extends Lookup<D>> lookups, final Config config) {
 		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -202,7 +202,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@SuppressWarnings("unchecked")
 	@Override
 	public D getFirst(final Config config) {
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -239,7 +239,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getWithPrefix(final Key<D> prefix, final boolean wildcardLastField, final Config config) {
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -262,7 +262,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 	@Override
 	public List<D> getWithPrefixes(final Collection<? extends Key<D>> prefixes, final boolean wildcardLastField, final Config config) {
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -291,7 +291,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 			final Key<D> end, final boolean endInclusive, 
 			final Config config) {
 		
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -361,7 +361,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>
 			final Key<D> start, final boolean startInclusive, 
 			final Config config) {
 		
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {

@@ -17,12 +17,11 @@ public class HibernateExecutor {
 	
 	public static HibernateExecutor create(
 			HibernateClientImp client,
-			Config config,
-			Session existingSession){
+			Config config){
 		HibernateExecutor executor = new HibernateExecutor();
 		executor.client = client;
 		executor.config = config;
-		executor.existingSession = existingSession;
+		executor.existingSession = client.getExistingSession();
 		return executor;
 	}
 	

@@ -58,7 +58,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	
 	protected void delete(final D databean, Config config){
 		final String entityName = this.getPackagedPhysicalName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -93,7 +93,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 		
 		//execute
 		final String finalQuery = sb.toString();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -107,7 +107,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	@Override
 	public void deleteAll(Config config) {
 		final String tableName = this.getPhysicalName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -121,7 +121,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	@Override
 	public void put(final D databean, final Config config) {
 		final String entityName = this.getPackagedPhysicalName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -136,7 +136,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	public void putMulti(Collection<D> databeans, final Config config) {
 		final String entityName = this.getPackagedPhysicalName();
 		final Collection<D> finalDatabeans = databeans;
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -158,7 +158,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	@Override
 	public void delete(final Lookup<D> lookup, final Config config) {
 		final String tableName = this.getPhysicalName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -181,7 +181,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	@Override
 	public void deleteRangeWithPrefix(final Key<D> prefix, final boolean wildcardLastField, final Config config) {
 		final String tableName = this.getPhysicalName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, null);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
