@@ -201,6 +201,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 				logger.warn("problem closing session.  disconnect() threw exception.");
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 			}
+			session.close();//should not be necessary, but best to be safe
 		}
 		this.sessionByConnectionHandle.remove(handle);
 		return handle;
