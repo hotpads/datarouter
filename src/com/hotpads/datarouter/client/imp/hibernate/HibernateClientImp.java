@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -176,6 +177,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	public ConnectionHandle openSession(){
 		Connection connection = this.getExistingConnection();
 		Session session = this.sessionFactory.openSession(connection);
+		session.setCacheMode(CacheMode.GET);
 		session.setFlushMode(FlushMode.MANUAL);
 		this.sessionByConnectionHandle.put(this.getExistingHandle(), session);
 		return this.getExistingHandle();

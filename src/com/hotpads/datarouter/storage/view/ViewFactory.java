@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.key.Key;
  */
 
 public abstract class ViewFactory<K extends Key<V>,V extends View>{
-	protected static final Logger logger = Logger.getLogger(ViewFactory.class);
+	protected final Logger logger = Logger.getLogger(this.getClass());
 		
 	public ViewFactory(){
 	}

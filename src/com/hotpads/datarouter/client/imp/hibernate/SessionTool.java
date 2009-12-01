@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client.imp.hibernate;
 
+import org.hibernate.LockMode;
+import org.hibernate.ReplicationMode;
 import org.hibernate.Session;
 
 import com.hotpads.datarouter.config.Config;
@@ -35,6 +37,8 @@ public class SessionTool {
 				session.evict(databean);  //must evict or it will ignore future actions for the databean?
 				session.save(entityName, databean);
 			}
+		}else if(PutMethod.MERGE == putMethod){
+			session.merge(entityName, databean);
 		}else{
 			session.saveOrUpdate(entityName, databean);
 		}

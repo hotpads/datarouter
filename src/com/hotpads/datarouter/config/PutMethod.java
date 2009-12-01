@@ -10,7 +10,8 @@ public enum PutMethod {
 	UPDATE_OR_INSERT,  //"optimistic" when rows are usually there (Events use this)
 	INSERT_OR_UPDATE,  // will overwrite whatever's there 
 	INSERT_OR_BUST,
-	UPDATE_OR_BUST;
+	UPDATE_OR_BUST,
+	MERGE;//use when the object could be on the session already in a different instance with the same identifier
 	
 	//need to flush immediately so we can catch insert/update exceptions if they are thrown, otherwise
 	//   the exception will ruin the whole batch

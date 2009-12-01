@@ -16,4 +16,6 @@ public interface ContentHolder<D extends Databean> {
 	boolean equalsContent(ContentHolder<D> other);
 	
 	Key<D> getKey();
+	
+//	void copyContent(ContentHolder<D> other);
 }
