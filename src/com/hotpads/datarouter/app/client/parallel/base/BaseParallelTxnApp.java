@@ -36,29 +36,46 @@ implements ParallelTxnApp<T>{
 
 	
 	@Override
-	public T runInEnvironment(){
-		T onceResult = null;
-		Collection<T> clientResults = ListTool.createLinkedList();
-		Collection<Client> clients = this.getClients();
-		try{
-			reserveConections();
-			beginTxns();
-			onceResult = runOnce();
-			for(Client client : CollectionTool.nullSafe(clients)){  //TODO threading
-				T clientResult = runOncePerClient(client);
-				clientResults.add(clientResult);
-			}
-			commitTxns();
-		}catch(Exception e){
-			logger.warn(ExceptionTool.getStackTraceAsString(e));
-			rollbackTxns();
-			throw new RollbackException(e);
-		}finally{
-			releaseConnections();
-		}
-		T mergedResult = mergeResults(onceResult, clientResults);
-		return mergedResult;
-	}
+	public abstract T runInEnvironment();
+//	{
+//		T onceResult = null;
+//		Collection<T> clientResults = ListTool.createLinkedList();
+//		Collection<Client> clients = this.getClients();
+//		try{
+//			reserveConections();
+//			beginTxns();
+//			
+//			//begin abstract user methods
+//			onceResult = runOnce();
+//			for(Client client : CollectionTool.nullSafe(clients)){  //TODO threading
+//				T clientResult = runOncePerClient(client);
+//				clientResults.add(clientResult);
+//			}
+//			//end abstract user methods 
+//			
+//		}catch(Exception e){
+//			logger.warn(ExceptionTool.getStackTraceAsString(e));
+//			rollbackTxns();
+//			throw new RollbackException(e);
+//		}finally{
+//			try{
+//				commitTxns();
+//			}catch(Exception e){
+//				//This is an unexpected exception because each individual release is done in a try/catch block
+//				logger.warn(ExceptionTool.getStackTraceAsString(e));
+//				throw new DataAccessException("EXCEPTION THROWN WHILE COMMITTING TXNS", e);
+//			}
+//			try{
+//				releaseConnections();
+//			}catch(Exception e){
+//				//This is an unexpected exception because each individual release is done in a try/catch block
+//				logger.warn(ExceptionTool.getStackTraceAsString(e));
+//				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
+//			}
+//		}
+//		T mergedResult = mergeResults(onceResult, clientResults);
+//		return mergedResult;
+//	}
 	
 	@Override
 	public Isolation getIsolation() {
@@ -94,7 +111,6 @@ implements ParallelTxnApp<T>{
 			TxnClient txnClient = (TxnClient)client;
 			try{
 				txnClient.rollbackTxn();
-//				logger.debug("rolled-back txn for "+txnClient.getExistingHandle());
 			}catch(Exception e){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:"

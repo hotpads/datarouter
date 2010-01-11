@@ -18,6 +18,7 @@ import com.hotpads.util.core.ListTool;
 public abstract class DataRouter {
 	
 	/********************************* fields **********************************/
+	protected String name;
 	
 	protected Clients clients;
 	
@@ -27,7 +28,8 @@ public abstract class DataRouter {
 	
 	/**************************** constructor ****************************************/
 	
-	public DataRouter(){
+	public DataRouter(String name){
+		this.name = name;
 	}
 	
 	
@@ -112,6 +114,14 @@ public abstract class DataRouter {
 	/***************** overexposed accessors *******************************/
 	public ConnectionPools getConnectionPools(){
 		return this.clients.getConnectionPools();
+	}
+
+	
+	/********************* get/set ******************************/
+
+
+	public String getName() {
+		return name;
 	}
 	
 }

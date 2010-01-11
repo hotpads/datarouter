@@ -8,16 +8,17 @@ import com.hotpads.datarouter.connection.ConnectionHandle;
 
 public class Config {
 	
-	public static final Boolean defaultCacheOk = true;
+	public static final Boolean DEFAULT_CACHE_OK = true;
+	public static final Isolation DEFAULT_ISOLATION = Isolation.readCommitted;
 	
 	protected Integer numAttempts = 1;
 	
 	protected Boolean slaveOk = false;
-	protected Boolean cacheOk = defaultCacheOk;
+	protected Boolean cacheOk = DEFAULT_CACHE_OK;
 
 	protected Map<String,ConnectionHandle> connectionHandleByClientName;
 	protected ConnectMethod connectMethod = ConnectMethod.tryExisting;
-	protected Isolation isolation = Isolation.readCommitted;
+	protected Isolation isolation = DEFAULT_ISOLATION;
 	protected Boolean useSession = true;
 	
 	protected String forceIndex;

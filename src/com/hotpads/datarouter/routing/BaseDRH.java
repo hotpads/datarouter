@@ -33,6 +33,15 @@ public abstract class BaseDRH{
 		return router;
 	}
 	
+	public DataRouter getRouter(String name){
+		for(DataRouter router : CollectionTool.nullSafe(this.routers)){
+			if(name.equals(router.getName())){
+				return router;
+			}
+		}
+		return null;
+	}
+	
 	public List<DataRouter> getRouters(){
 		return this.routers;
 	}

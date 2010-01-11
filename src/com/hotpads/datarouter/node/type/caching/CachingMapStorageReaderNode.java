@@ -102,7 +102,7 @@ implements MapStorageReaderNode<D>{
 	/************************* util ***************************/
 	
 	public static boolean useCache(final Config config){
-		if(config==null){ return Config.defaultCacheOk; }
+		if(config==null){ return Config.DEFAULT_CACHE_OK; }
 		return config.getCacheOk();
 	}
 	

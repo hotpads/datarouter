@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.type;
 
-import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 

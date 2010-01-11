@@ -6,6 +6,7 @@ public interface ParallelSessionApp<T>
 extends SessionApp<T> {
 	
 	void openSessions();
-	void closeSessions();
+	void flushSessions();
+	void cleanupSessions();
 	
 }

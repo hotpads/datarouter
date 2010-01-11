@@ -144,9 +144,6 @@ implements PhysicalIndexedSortedStorageNode<D>
 					if(config!=null && config.getPutMethod()!=null){
 						putMethod = config.getPutMethod();
 					}
-					if(PutMethod.METHODS_TO_FLUSH_IMMEDIATELY.contains(putMethod)){
-						session.setFlushMode(FlushMode.ALWAYS);
-					}
 					for(D databean : CollectionTool.nullSafe(finalDatabeans)){
 						SessionTool.putUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
 					}

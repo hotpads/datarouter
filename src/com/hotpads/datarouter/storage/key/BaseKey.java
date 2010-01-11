@@ -144,7 +144,7 @@ implements Key<D>{  //hibernate composite keys must implement serializable
 	
 	@Override
 	public String getTypedPersistentString(){
-		return this.getDatabeanName()+"."+this.getPersistentString();
+		return this.getDatabeanName()+"_"+this.getPersistentString();
 	}
 
 	@Override

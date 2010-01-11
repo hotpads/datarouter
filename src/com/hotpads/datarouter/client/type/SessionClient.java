@@ -6,6 +6,7 @@ public interface SessionClient
 extends ConnectionClient{
 
 	ConnectionHandle openSession();
-	ConnectionHandle closeSession();
+	ConnectionHandle flushSession();
+	ConnectionHandle cleanupSession();
 
 }

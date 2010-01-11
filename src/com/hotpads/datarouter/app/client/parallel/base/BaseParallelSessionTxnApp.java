@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.app.client.parallel.base;
 
 import java.util.Collection;
-import java.util.Map;
 
 import javax.persistence.RollbackException;
 
@@ -10,13 +9,11 @@ import com.hotpads.datarouter.app.client.parallel.ParallelTxnApp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.config.Isolation;
-import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 public abstract class BaseParallelSessionTxnApp<T>
 extends BaseParallelTxnApp<T>
@@ -54,24 +51,32 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 			}
 			//end user code
 			
-			closeSessions();
+			flushSessions();
 			commitTxns();
+			
 		}catch(Exception e){
 			logger.warn(ExceptionTool.getStackTraceAsString(e));
 			try{
 				rollbackTxns();
 			}catch(Exception exceptionDuringRollback){
+				logger.warn("EXCEPTION THROWN DURING TXN ROLL-BACK");
 				logger.warn(ExceptionTool.getStackTraceAsString(exceptionDuringRollback));
-				throw new DataAccessException("EXCEPTION THROWN DURING TXN ROLL-BACK", e);
+				throw new DataAccessException(e);
 			}
-			throw new RollbackException(e);
+			throw new RollbackException(e);//don't throw in the try block because it will get caught immediately
 		}finally{
+//			try{
+//				cleanupSessions();
+//			}catch(Exception e){
+//				logger.warn("EXCEPTION THROWN DURING CLEANUP OF SESSIONS", e);
+//				logger.warn(ExceptionTool.getStackTraceAsString(e));
+//			}
 			try{
 				releaseConnections();
 			}catch(Exception e){
 				//This is an unexpected exception because each individual release is done in a try/catch block
+				logger.warn("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
-				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
 			}
 		}
 		T mergedResult = mergeResults(onceResult, clientResults);
@@ -93,18 +98,20 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 	}
 	
 	@Override
-	public void closeSessions(){
+	public void flushSessions(){
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof HibernateClient) ){ continue; }
 			HibernateClient sessionClient = (HibernateClient)client;
-			try{
-				ConnectionHandle handle = sessionClient.closeSession();
-//				logger.debug("closed session on "+handle);
-			}catch(Exception e){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
-				throw new DataAccessException("EXCEPTION THROWN DURING CLOSE OF SINGLE SESSION:"
-						+sessionClient.getExistingHandle(), e);
-			}
+			sessionClient.flushSession();
+		}
+	}
+	
+	@Override
+	public void cleanupSessions(){
+		for(Client client : CollectionTool.nullSafe(this.getClients())){
+			if( ! (client instanceof HibernateClient) ){ continue; }
+			HibernateClient sessionClient = (HibernateClient)client;
+			sessionClient.cleanupSession();
 		}
 	}
 	
