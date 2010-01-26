@@ -51,15 +51,16 @@ public class Clients{
 	
 	/******************************* constructors **********************************/
 
-	public Clients(String configFileLocation, DataRouterFactory<? extends DataRouter> datapus, Map<String,Object> params)
-			throws FileNotFoundException, IOException {
+	public Clients(String configFileLocation, 
+			DataRouterFactory<? extends DataRouter> datapus, 
+			Map<String,Object> params)
+	throws IOException {
 
 		this.configFileLocation = configFileLocation;
 		this.datapus = datapus;
 		this.params = params;
 
-		Properties properties = PropertiesTool
-				.fromFile(this.configFileLocation);
+		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
 		this.allClientNames = getAllClientNames(properties);
 
 		this.initializeEagerClients();
@@ -179,7 +180,7 @@ public class Clients{
 	/********************************** initialize ******************************/
 	
 	public void initializeEagerClients() throws IOException{	
-		Properties properties = PropertiesTool.fromFile(this.configFileLocation);
+		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
 		List<String> clientNames = getClientNamesRequiringEagerInitialization(properties);
 		for(String name : CollectionTool.nullSafe(clientNames)){
 			this.initializeClient(name);
@@ -188,7 +189,7 @@ public class Clients{
 	
 	
 	public void initializeClient(String clientName) throws IOException{	
-		Properties properties = PropertiesTool.fromFile(this.configFileLocation);
+		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
 		try{
 			String typeString = properties.getProperty(prefixClient+clientName+paramType);
 			ClientType clientType = ClientType.fromString(typeString);

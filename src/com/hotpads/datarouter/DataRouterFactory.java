@@ -65,6 +65,8 @@ public class DataRouterFactory<R extends DataRouter> {
 	/********************************* sample config file ***********************************/
 	/*
 	 * 
+implementation=development
+
 # connectionPools
 connectionPoolNames=animal0,pets0,pets1,pets0_slave0,pets1_slave0
 

@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client;
 
-import com.hotpads.datarouter.client.imp.hashmap.HashMapClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientFactory;
 import com.hotpads.datarouter.storage.StorageType;
 
@@ -11,8 +10,9 @@ public enum ClientType {
 	ehcache(StorageType.map),
 	
 	treeMap(StorageType.sortedMap),
-	bdb(StorageType.sortedMap),
-	bdbJe(StorageType.sortedMap),
+	
+	bdb(StorageType.indexed),
+	bdbJe(StorageType.indexed),
 	
 	jdbc(StorageType.column),
 	hibernate(StorageType.column),
@@ -38,7 +38,6 @@ public enum ClientType {
 	}
 	
 	public ClientFactory getClientFactory(){
-		if(hashMap.equals(this)){ return new HashMapClientFactory(); }
 		if(hibernate.equals(this)){ return new HibernateClientFactory(); }
 		return null;
 		
