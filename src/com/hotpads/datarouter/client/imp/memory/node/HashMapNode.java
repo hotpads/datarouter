@@ -1,8 +1,4 @@
-<<<<<<< HEAD:src/com/hotpads/datarouter/client/imp/hashmap/node/HashMapNode.java
-package com.hotpads.datarouter.client.imp.hashmap.node;
-=======
 package com.hotpads.datarouter.client.imp.memory.node;
->>>>>>> origin/master:src/com/hotpads/datarouter/client/imp/memory/node/HashMapNode.java
 
 import java.util.Collection;
 
