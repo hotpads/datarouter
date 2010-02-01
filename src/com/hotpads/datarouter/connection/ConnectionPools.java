@@ -46,14 +46,16 @@ public class ConnectionPools {
 	
 	/******************************* constructors **********************************/
 	
-	public ConnectionPools(String configFileLocation, DataRouterFactory<? extends DataRouter> datapus, Map<String, Object> params) 
-	throws FileNotFoundException, IOException {
+	public ConnectionPools(String configFileLocation, 
+			DataRouterFactory<? extends DataRouter> datapus, 
+			Map<String, Object> params) 
+	throws IOException {
 	
 		this.configFileLocation = configFileLocation;
 		this.datapus = datapus;
 		this.params = params;
 		
-		Properties properties = PropertiesTool.fromFile(this.configFileLocation);
+		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
 		this.allConnectionPoolNames = getAllConnectionPoolNames(properties);
 		
 		this.initializeEagerConnectionPools();
@@ -145,7 +147,7 @@ public class ConnectionPools {
 	/********************************** initialize ******************************/
 	
 	public void initializeEagerConnectionPools() throws IOException{	
-		Properties properties = PropertiesTool.fromFile(this.configFileLocation);
+		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
 		List<String> connectionPoolNames = getConnectionPoolNamesRequiringEagerInitialization(properties);
 		for(String name : CollectionTool.nullSafe(connectionPoolNames)){
 			this.initializeConnectionPool(name);
@@ -156,7 +158,7 @@ public class ConnectionPools {
 	public void initializeConnectionPool(String connectionPoolName) throws IOException{	
 		PhaseTimer timer = new PhaseTimer("initializeConnectionPool:"+connectionPoolName);
 		
-		Properties properties = PropertiesTool.fromFile(this.configFileLocation);
+		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
 		
 		try{
 			JdbcConnectionPool connectionPool = new JdbcConnectionPool(connectionPoolName, properties, params);

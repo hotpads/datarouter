@@ -1,6 +1,13 @@
+<<<<<<< HEAD:src/com/hotpads/datarouter/client/imp/hashmap/node/HashMapReaderNode.java
 package com.hotpads.datarouter.client.imp.hashmap.node;
 
 import java.util.Collection;
+=======
+package com.hotpads.datarouter.client.imp.memory.node;
+
+import java.util.Collection;
+import java.util.HashMap;
+>>>>>>> origin/master:src/com/hotpads/datarouter/client/imp/memory/node/HashMapReaderNode.java
 import java.util.List;
 import java.util.Map;
 
@@ -14,14 +21,21 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
+<<<<<<< HEAD:src/com/hotpads/datarouter/client/imp/hashmap/node/HashMapReaderNode.java
 import com.hotpads.util.core.MapTool;
+=======
+>>>>>>> origin/master:src/com/hotpads/datarouter/client/imp/memory/node/HashMapReaderNode.java
 
 public class HashMapReaderNode<D extends Databean> 
 extends BasePhysicalNode<D>
 implements PhysicalMapStorageReaderNode<D>
 {
 	
+<<<<<<< HEAD:src/com/hotpads/datarouter/client/imp/hashmap/node/HashMapReaderNode.java
 	protected Map<Key<D>,D> backingMap = MapTool.createHashMap();
+=======
+	protected Map<Key<D>,D> backingMap = new HashMap<Key<D>,D>();
+>>>>>>> origin/master:src/com/hotpads/datarouter/client/imp/memory/node/HashMapReaderNode.java
 
 	public HashMapReaderNode(Class<D> databeanClass, DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {

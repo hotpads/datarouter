@@ -76,12 +76,6 @@ public class HibernateExecutor {
 		}finally{
 			if(newSession){
 				ConnectionHandle handle = null;
-//				try{
-//					handle = this.client.cleanupSession();
-//				}catch(Exception e){
-//					logger.warn("EXCEPTION THROWN DURING CLEANUP SESSION");
-//					logger.warn(ExceptionTool.getStackTraceAsString(e));
-//				}
 				try{
 					handle = this.client.releaseConnection();
 				}catch(Exception e){
