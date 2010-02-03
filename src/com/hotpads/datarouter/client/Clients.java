@@ -27,7 +27,7 @@ public class Clients{
 	private static Logger logger = Logger.getLogger(Clients.class);
 
 	protected String configFileLocation;
-	protected DataRouterFactory<? extends DataRouter> datapus;
+	protected DataRouter router;
 	protected Map<String, Object> params;
 	
 	protected List<String> allClientNames = ListTool.createLinkedList();
@@ -51,14 +51,11 @@ public class Clients{
 	
 	/******************************* constructors **********************************/
 
-	public Clients(String configFileLocation, 
-			DataRouterFactory<? extends DataRouter> datapus, 
-			Map<String,Object> params)
+	public Clients(String configFileLocation, DataRouter router)
 	throws IOException {
 
 		this.configFileLocation = configFileLocation;
-		this.datapus = datapus;
-		this.params = params;
+		this.router = router;
 
 		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
 		this.allClientNames = getAllClientNames(properties);
@@ -193,7 +190,7 @@ public class Clients{
 		try{
 			String typeString = properties.getProperty(prefixClient+clientName+paramType);
 			ClientType clientType = ClientType.fromString(typeString);
-			Client client = clientType.getClientFactory().createClient(datapus, clientName, properties, params);
+			Client client = clientType.getClientFactory().createClient(router, clientName, properties, params);
 			this.add(client);
 			logger.info("added client("+clientType.toString()+"):"+client.getName());
 		}catch(Exception e){
@@ -206,6 +203,6 @@ public class Clients{
 	/********************************** access connection pools ******************************/
 	
 	public ConnectionPools getConnectionPools(){
-		return this.datapus.getConnectionPools();
+		return this.router.getConnectionPools();
 	}
 }

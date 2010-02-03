@@ -26,8 +26,6 @@ public class ConnectionPools {
 	private static Logger logger = Logger.getLogger(ConnectionPools.class);
 
 	protected String configFileLocation;
-	protected DataRouterFactory<? extends DataRouter> datapus;
-	protected Map<String, Object> params;
 	
 	protected List<String> allConnectionPoolNames = ListTool.createLinkedList();
 
@@ -46,14 +44,10 @@ public class ConnectionPools {
 	
 	/******************************* constructors **********************************/
 	
-	public ConnectionPools(String configFileLocation, 
-			DataRouterFactory<? extends DataRouter> datapus, 
-			Map<String, Object> params) 
+	public ConnectionPools(String configFileLocation) 
 	throws IOException {
 	
 		this.configFileLocation = configFileLocation;
-		this.datapus = datapus;
-		this.params = params;
 		
 		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
 		this.allConnectionPoolNames = getAllConnectionPoolNames(properties);
@@ -161,7 +155,7 @@ public class ConnectionPools {
 		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
 		
 		try{
-			JdbcConnectionPool connectionPool = new JdbcConnectionPool(connectionPoolName, properties, params);
+			JdbcConnectionPool connectionPool = new JdbcConnectionPool(connectionPoolName, properties);
 			timer.add("initialized");
 			
 			this.add(connectionPool);

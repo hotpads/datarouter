@@ -36,18 +36,18 @@ public class HibernateClientFactory implements ClientFactory{
 	
 	@Override
 	public Client createClient(
-			DataRouterFactory<? extends DataRouter> datapus, String clientName, 
+			DataRouter router, String clientName, 
 			Properties properties, Map<String,Object> params){
 		String source = properties.getProperty(Clients.prefixClient+clientName+Clients.paramSource);
 		if("params".equals(source)){
-			return createFromParams(datapus, clientName, properties, params);
+			return createFromParams(router, clientName, properties, params);
 		}
-		return createFromScratch(datapus, clientName, properties);
+		return createFromScratch(router, clientName, properties);
 	}
 	
 	
 	public HibernateClientImp createFromScratch(
-			DataRouterFactory<? extends DataRouter> datapus, String clientName, Properties properties){
+			DataRouter router, String clientName, Properties properties){
 		logger.debug("creating hibernate client "+clientName);
 		PhaseTimer timer = new PhaseTimer(clientName);
 		
@@ -62,7 +62,7 @@ public class HibernateClientFactory implements ClientFactory{
 		
 		//databean config
 		@SuppressWarnings("unchecked")
-		Collection<Class<? extends Databean>> relevantDatabeanTypes = datapus.getRouter().getNodes().getTypesForClient(clientName);
+		Collection<Class<? extends Databean>> relevantDatabeanTypes = router.getNodes().getTypesForClient(clientName);
 		for(Class<? extends Databean> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
 //			logger.warn("init node "+databeanClass.getCanonicalName());
 			try{
@@ -74,7 +74,7 @@ public class HibernateClientFactory implements ClientFactory{
 		timer.add("parse");
 
 		//connection pool config
-		JdbcConnectionPool connectionPool = this.getConnectionPool(datapus, clientName, properties);
+		JdbcConnectionPool connectionPool = this.getConnectionPool(router, clientName, properties);
 		client.connectionPool = connectionPool;
 		sfConfig.setProperty(provider_class, HibernateConnectionProvider.class.getName());
 		sfConfig.setProperty(connectionPoolName, connectionPool.getName());
@@ -99,7 +99,7 @@ public class HibernateClientFactory implements ClientFactory{
 
 	
 	public HibernateClientImp createFromParams(
-			DataRouterFactory<? extends DataRouter> datapus, String clientName, 
+			DataRouter router, String clientName, 
 			Properties properties, Map<String,Object> params){
 		
 		String sessionFactoryParamKey = properties.getProperty(Clients.prefixClient+clientName+nestedParamSessionFactory);
@@ -108,16 +108,16 @@ public class HibernateClientFactory implements ClientFactory{
 		HibernateClientImp client = new HibernateClientImp(clientName);
 		client.sessionFactory = sessionFactory;
 		
-		client.connectionPool = this.getConnectionPool(datapus, clientName, properties);
+		client.connectionPool = this.getConnectionPool(router, clientName, properties);
 		
 		return client;
 	}
 	
 	protected JdbcConnectionPool getConnectionPool(
-			DataRouterFactory<? extends DataRouter> datapus, String clientName, Properties properties){
+			DataRouter router, String clientName, Properties properties){
 		String connectionPoolName = properties.getProperty(Clients.prefixClient+clientName+Clients.paramConnectionPool);
 		if(StringTool.isEmpty(connectionPoolName)){ connectionPoolName = clientName; }
-		JdbcConnectionPool connectionPool = datapus.getConnectionPools().getConnectionPool(connectionPoolName);
+		JdbcConnectionPool connectionPool = router.getConnectionPools().getConnectionPool(connectionPoolName);
 		return connectionPool;
 	}
 	

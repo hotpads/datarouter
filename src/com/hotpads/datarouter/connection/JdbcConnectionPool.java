@@ -29,15 +29,15 @@ public class JdbcConnectionPool{
 		paramLogging = ".logging",
 		nestedParamDataSource = ".param.dataSource";
 	
-	public JdbcConnectionPool(String name, Properties properties, Map<String, Object> params) 
+	public JdbcConnectionPool(String name, Properties properties) 
 			throws PropertyVetoException, NamingException
 	{
 		String source = properties.getProperty(prefix+name+ConnectionPools.paramSource);
-		if("params".equals(source)){
-			createFromParams(name, properties, params);
-		}else{
+//		if("params".equals(source)){
+//			createFromParams(name, properties);
+//		}else{
 			createFromScratch(name, properties);
-		}
+//		}
 	}
 	
 	public void createFromScratch(String name, Properties properties)
@@ -121,12 +121,12 @@ public class JdbcConnectionPool{
 	}
 	
 	
-	public void createFromParams(String name, Properties properties, Map<String, Object> params){
-		this.name = name;
-
-		String poolParamKey = properties.getProperty(prefix+name+nestedParamDataSource);
-		this.pool = (ComboPooledDataSource)params.get(poolParamKey);
-	}
+//	public void createFromParams(String name, Properties properties, Map<String, Object> params){
+//		this.name = name;
+//
+//		String poolParamKey = properties.getProperty(prefix+name+nestedParamDataSource);
+//		this.pool = (ComboPooledDataSource)params.get(poolParamKey);
+//	}
 	
 	
 	public void shutdown(){
