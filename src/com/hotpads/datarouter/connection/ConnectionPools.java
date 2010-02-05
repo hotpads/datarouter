@@ -159,7 +159,8 @@ public class ConnectionPools {
 			timer.add("initialized");
 			
 			this.add(connectionPool);
-			logger.info(timer);
+			logger.warn(connectionPool.toString());
+			logger.warn(timer);
 		}catch(Exception e){
 			logger.error("error instantiating ConnectionPool:"+connectionPoolName);
 			logger.error(ThrowableTool.getStackTraceAsString(e));

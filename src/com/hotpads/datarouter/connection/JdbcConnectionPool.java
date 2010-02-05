@@ -40,6 +40,11 @@ public class JdbcConnectionPool{
 //		}
 	}
 	
+	@Override
+	public String toString(){
+		return this.name+"@"+this.pool.getJdbcUrl();
+	}
+	
 	public void createFromScratch(String name, Properties properties)
 			throws PropertyVetoException, NamingException
 	{

@@ -8,11 +8,11 @@ import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 
-import com.hotpads.datarouter.DataRouterFactory;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
+import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.util.core.CollectionTool;
@@ -59,12 +59,14 @@ public class HibernateClientFactory implements ClientFactory{
 		String configFileLocation = properties.getProperty(Clients.prefixClient+clientName+paramConfigLocation);
 		if(StringTool.isEmpty(configFileLocation)){ configFileLocation = configLocationDefault; }
 		sfConfig.configure(configFileLocation);
-		
+
 		//databean config
 		@SuppressWarnings("unchecked")
-		Collection<Class<? extends Databean>> relevantDatabeanTypes = router.getNodes().getTypesForClient(clientName);
+		Nodes nodes = router.getNodes();
+		@SuppressWarnings("unchecked")
+		Collection<Class<? extends Databean>> relevantDatabeanTypes = nodes.getTypesForClient(clientName);
 		for(Class<? extends Databean> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
-//			logger.warn("init node "+databeanClass.getCanonicalName());
+			logger.warn(clientName+":"+databeanClass);
 			try{
 				sfConfig.addClass(databeanClass);
 			}catch(org.hibernate.MappingNotFoundException mnfe){
@@ -90,9 +92,9 @@ public class HibernateClientFactory implements ClientFactory{
 		SessionFactory sessionFactory = sfConfig.buildSessionFactory();
 		HibernateConnectionProvider.clearConnectionPoolFromThread();
 		client.sessionFactory = sessionFactory;
-		timer.add("built");
+		timer.add("built "+connectionPool);
 		
-		logger.info(timer);
+		logger.warn(timer);
 		
 		return client;
 	}

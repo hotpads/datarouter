@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.routing;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,6 +23,8 @@ public interface DataRouter {
 
 	@SuppressWarnings("unchecked")
 	<D extends Databean, N extends Node<D>> N register(N node);
+	
+	void activate() throws IOException;
 
 	@SuppressWarnings("unchecked")
 	Nodes getNodes();

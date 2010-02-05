@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
@@ -32,8 +33,8 @@ import com.hotpads.util.core.ObjectTool;
 
 public class HibernateReaderNode<D extends Databean> 
 extends BasePhysicalNode<D>
-implements PhysicalIndexedSortedStorageReaderNode<D>
-{
+implements PhysicalIndexedSortedStorageReaderNode<D>{
+	protected Logger logger = Logger.getLogger(getClass());
 
 	public HibernateReaderNode(Class<D> databeanClass, DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {

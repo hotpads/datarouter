@@ -33,27 +33,39 @@ public abstract class BaseDataRouter implements DataRouter {
 	
 	public BaseDataRouter(String name) throws IOException{
 		this.name = name;
-		this.connectionPools = new ConnectionPools(this.getConfigLocation());
-		this.clients = new Clients(this.getConfigLocation(), this);
 	}
 	
 	
 	/********************************* methods *************************************/
-	
+
+	@Override
 	public String getConfigLocation(){
 		return null;
 	}
-	
+
+	@Override
 	public void setClients(Clients clients){  //called by DataRouterFactory during init
 		this.clients = clients;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <D extends Databean,N extends Node<D>> N register(N node){
 		this.nodes.register(node);
 		return node;
 	}
 	
+	/*
+	 * be careful that this gets called after the nodes are registered, otherwise you get SessionFactories
+	 *  without databean configs, and Hibernate will silently return empty results (when called with entityName instead of class)
+	 */
+	@Override
+	public void activate() throws IOException{
+		this.connectionPools = new ConnectionPools(this.getConfigLocation());
+		this.clients = new Clients(this.getConfigLocation(), this);
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public Nodes getNodes() {
 		return nodes;
@@ -62,41 +74,49 @@ public abstract class BaseDataRouter implements DataRouter {
 	
 	/************************************** app wrappers **************************************/
 
+	@Override
 	public <T> T run(App<T> app){
 		T t = app.runInEnvironment();
 		return t;
 	}
 	
 	/************************************** caching ***********************************/
-	
+
+	@Override
 	public void clearThreadSpecificState(){
 		this.nodes.clearThreadSpecificState();
 	}
 	
 	/************************************** getting clients *************************/
-	
+
+	@Override
 	public Client getClient(String clientName){
 		return clients.getClient(clientName);
 	}
-	
+
+	@Override
 	public List<Client> getAllClients(){
 		return this.clients.getAllClients();
 	}
-	
+
+	@Override
 	public List<Client> getClients(Collection<String> clientNames){
 		return this.clients.getClients(clientNames);
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <D extends Databean> List<String> getClientNamesForKeys(Collection<Key<D>> keys){
 		List<String> clientNames = this.nodes.getClientNamesForKeys(keys);
 		return clientNames;
 	}
-	
+
+	@Override
 	public <D extends Databean> List<String> getClientNamesForDatabeans(Collection<D> databeans){
 		return this.getClientNamesForKeys(DatabeanTool.getKeys(databeans));
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <D extends Databean> List<Client> getClientsForDatabeanType(Class<D> databeanType){
 		List<String> clientNames = this.nodes.getClientNamesForDatabeanType(databeanType);
@@ -104,6 +124,7 @@ public abstract class BaseDataRouter implements DataRouter {
 		return this.clients.getClients(clientNames);
 	}
 
+	@Override
 	public <D extends Databean> List<Client> getClientsForKeys(Collection<Key<D>> keys){
 		List<Client> clientsForKeys = ListTool.createLinkedList();
 		List<String> clientNames = this.getClientNamesForKeys(keys);
@@ -113,12 +134,15 @@ public abstract class BaseDataRouter implements DataRouter {
 		}
 		return clientsForKeys;
 	}
-	
+
+	@Override
 	public <D extends Databean> List<Client> getClientsForDatabeans(Collection<D> databeans){
 		return this.getClientsForKeys(DatabeanTool.getKeys(databeans));
 	}
 	
 	/***************** overexposed accessors *******************************/
+	
+	@Override
 	public ConnectionPools getConnectionPools(){
 		return this.connectionPools;
 	}
@@ -126,7 +150,7 @@ public abstract class BaseDataRouter implements DataRouter {
 	
 	/********************* get/set ******************************/
 
-
+	@Override
 	public String getName() {
 		return name;
 	}

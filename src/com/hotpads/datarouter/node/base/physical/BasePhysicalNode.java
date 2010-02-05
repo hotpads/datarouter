@@ -17,7 +17,7 @@ import com.hotpads.util.core.SetTool;
 
 public abstract class BasePhysicalNode<D extends Databean> 
 implements Node<D>, PhysicalNode<D>{
-	Logger logger = Logger.getLogger(getClass());
+	protected Logger logger = Logger.getLogger(getClass());
 	
 	protected Class<D> databeanClass;
 	protected String clientName;
