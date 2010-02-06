@@ -166,6 +166,8 @@ public class Clients{
 					properties.getProperty(prefixClient+name+paramInitMode), defaultInitMode);
 			if(ClientInitMode.eager.equals(mode)){
 				clientNamesRequiringEagerInitialization.add(name);
+			}else{
+				logger.warn("lazy-init registered for client "+name);
 			}
 		}
 		return clientNamesRequiringEagerInitialization;
