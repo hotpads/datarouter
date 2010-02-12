@@ -30,7 +30,7 @@ public abstract class BaseDRH{
 	protected List<DataRouter> routers = ListTool.createArrayList();
 	
 	public <R extends DataRouter> R register(R router) throws IOException{
-		router.activate();//caution: make sure nodes are registered before activating
+//		router.activate();//caution: make sure nodes are registered before activating
 		this.routers.add(router);
 		return router;
 	}
