@@ -1,27 +1,25 @@
 package com.hotpads.datarouter.config;
 
-import java.util.Map;
-
-import com.hotpads.datarouter.connection.ConnectionHandle;
 
 
 
 public class Config {
 	
+	/****************** static vars *******************************/
+	
 	public static final Boolean DEFAULT_CACHE_OK = true;
 	public static final Isolation DEFAULT_ISOLATION = Isolation.readCommitted;
+	
+	/*************** fields ********************************/
 	
 	protected Integer numAttempts = 1;
 	
 	protected Boolean slaveOk = false;
 	protected Boolean cacheOk = DEFAULT_CACHE_OK;
 
-	protected Map<String,ConnectionHandle> connectionHandleByClientName;
 	protected ConnectMethod connectMethod = ConnectMethod.tryExisting;
 	protected Isolation isolation = DEFAULT_ISOLATION;
 	protected Boolean useSession = true;
-	
-	protected String forceIndex;
 	
 	protected PutMethod putMethod = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
 	protected Integer commitBatchSize;
@@ -186,27 +184,6 @@ public class Config {
 
 	public Config setNumAttempts(Integer numAttempts) {
 		this.numAttempts = numAttempts;
-		return this;
-	}
-
-
-	public String getForceIndex() {
-		return forceIndex;
-	}
-
-
-	public Config setForceIndex(String forceIndex) {
-		this.forceIndex = forceIndex;
-		return this;
-	}
-
-	public Map<String, ConnectionHandle> getConnectionHandleByClientName() {
-		return connectionHandleByClientName;
-	}
-
-	public Config setConnectionNameByClientName(
-			Map<String, ConnectionHandle> connectionHandleByClientName) {
-		this.connectionHandleByClientName = connectionHandleByClientName;
 		return this;
 	}
 
