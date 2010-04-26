@@ -140,10 +140,6 @@ implements PhysicalIndexedSortedStorageNode<D>
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					PutMethod putMethod = DEFAULT_PUT_METHOD;
-					if(config!=null && config.getPutMethod()!=null){
-						putMethod = config.getPutMethod();
-					}
 					for(D databean : CollectionTool.nullSafe(finalDatabeans)){
 						SessionTool.putUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
 					}
