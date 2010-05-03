@@ -26,6 +26,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.lookup.Lookup;
+import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -74,6 +75,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	@Override
 	@SuppressWarnings("unchecked")
 	public D get(final Key<D> key, final Config config) {
+		TraceContext.startSpan("get "+this.getClient()+" "+key.getDatabeanName());
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
@@ -87,6 +89,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 					return result;
 				}
 			});
+		TraceContext.finishSpan();
 		return (D)result;
 	}
 	

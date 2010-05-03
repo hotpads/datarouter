@@ -4,10 +4,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.hibernate.FlushMode;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 
+import com.google.inject.internal.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
 import com.hotpads.datarouter.client.imp.hibernate.SessionTool;
@@ -57,6 +57,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	
 	
 	protected void delete(final D databean, Config config){
+		if(databean==null){ return; }
 		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config);
 		executor.executeTask(
@@ -83,6 +84,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 		StringBuilder sb = new StringBuilder("delete from "+tableName+" where ");
 		int numAppended = 0;
 		for(Key<D> key : CollectionTool.nullSafe(keys)){
+			if(key==null){ continue; }
 			if(numAppended > 0){ sb.append(" or "); }
 			//TODO SQL injection prevention
 			List<String> partsOfThisKey = key.getSqlNameValuePairsEscaped();
@@ -120,6 +122,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	
 	@Override
 	public void put(final D databean, final Config config) {
+		if(databean==null){ return; }
 		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		executor.executeTask(
@@ -141,6 +144,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 			new HibernateTask() {
 				public Object run(Session session) {
 					for(D databean : CollectionTool.nullSafe(finalDatabeans)){
+						if(databean==null){ continue; }
 						SessionTool.putUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
 					}
 					return finalDatabeans;
@@ -150,6 +154,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 
 	@Override
 	public void delete(final Lookup<D> lookup, final Config config) {
+		if(lookup==null){ return; }
 		final String tableName = this.getPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config);
 		executor.executeTask(
@@ -173,6 +178,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 
 	@Override
 	public void deleteRangeWithPrefix(final Key<D> prefix, final boolean wildcardLastField, final Config config) {
+		if(prefix==null){ return; }
 		final String tableName = this.getPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		executor.executeTask(
