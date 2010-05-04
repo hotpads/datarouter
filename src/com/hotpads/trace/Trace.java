@@ -143,6 +143,10 @@ public class Trace extends BaseDatabean{
 		return new Date(this.created);
 	}
 	
+	public Long getMsSinceCreated(){
+		return System.currentTimeMillis() - this.created;
+	}
+	
 	/******************** validate *****************************************/
 	
 	public void trimStringsToFit(){

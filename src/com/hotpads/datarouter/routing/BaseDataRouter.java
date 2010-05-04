@@ -13,6 +13,7 @@ import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
@@ -76,7 +77,9 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	public <T> T run(App<T> app){
+		TraceContext.startSpan(app.getClass().getSimpleName());
 		T t = app.runInEnvironment();
+		TraceContext.finishSpan();
 		return t;
 	}
 	

@@ -20,6 +20,7 @@ import com.hotpads.trace.TraceThread.TraceThreadKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.NumberTool;
 
 @Entity
 @AccessType("field")
@@ -136,6 +137,14 @@ public class TraceSpan extends BaseDatabean{
 			out.get(threadKey).add(s);
 		}
 		return out;
+	}
+	
+	public static Long totalDuration(Iterable<TraceSpan> spans){
+		Long sum = 0L;
+		for(TraceSpan s : IterableTool.nullSafe(spans)){
+			sum += NumberTool.nullSafeLong(s.getDuration(), 0L);
+		}
+		return sum;
 	}
 	
 	/******************************** methods *************************************/

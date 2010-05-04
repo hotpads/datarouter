@@ -20,6 +20,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.lookup.Lookup;
+import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.StringTool;
 
@@ -49,14 +50,17 @@ implements PhysicalIndexedSortedStorageNode<D>
 
 	@Override
 	public void delete(Key<D> key, Config config) {
+		TraceContext.startSpan("delete "+getName());
 		//this will not clear the databean from the hibernate session
 		List<Key<D>> keys = new LinkedList<Key<D>>();
 		keys.add(key);
 		deleteMulti(keys, config);
+		TraceContext.finishSpan();
 	}
 	
 	
 	protected void delete(final D databean, Config config){
+		TraceContext.startSpan("deleteDatabean "+getName());
 		if(databean==null){ return; }
 		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config);
@@ -67,6 +71,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 					return databean;
 				}
 			});
+		TraceContext.finishSpan();
 	}
 
 	/*
@@ -78,6 +83,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	 */
 	@Override
 	public void deleteMulti(Collection<? extends Key<D>> keys, Config config) {
+		TraceContext.startSpan("deleteMulti "+getName());
 		//build query
 		if(CollectionTool.isEmpty(keys)){ return; }
 		final String tableName = this.getPhysicalName();
@@ -103,11 +109,13 @@ implements PhysicalIndexedSortedStorageNode<D>
 					return query.executeUpdate();
 				}
 			});
+		TraceContext.finishSpan();
 	}
 	
 	
 	@Override
 	public void deleteAll(Config config) {
+		TraceContext.startSpan("deleteAll "+getName());
 		final String tableName = this.getPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		executor.executeTask(
@@ -117,11 +125,13 @@ implements PhysicalIndexedSortedStorageNode<D>
 					return query.executeUpdate();
 				}
 			});
+		TraceContext.finishSpan();
 	}
 
 	
 	@Override
 	public void put(final D databean, final Config config) {
+		TraceContext.startSpan("put "+getName());
 		if(databean==null){ return; }
 		final String entityName = this.getPackagedPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
@@ -132,11 +142,13 @@ implements PhysicalIndexedSortedStorageNode<D>
 					return databean;
 				}
 			});
+		TraceContext.finishSpan();
 	}
 
 	
 	@Override
 	public void putMulti(Collection<D> databeans, final Config config) {
+		TraceContext.startSpan("putMulti "+getName());
 		final String entityName = this.getPackagedPhysicalName();
 		final Collection<D> finalDatabeans = databeans;
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
@@ -150,10 +162,12 @@ implements PhysicalIndexedSortedStorageNode<D>
 					return finalDatabeans;
 				}
 			});
+		TraceContext.finishSpan();
 	}
 
 	@Override
 	public void delete(final Lookup<D> lookup, final Config config) {
+		TraceContext.startSpan("delete "+getName());
 		if(lookup==null){ return; }
 		final String tableName = this.getPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config);
@@ -173,11 +187,13 @@ implements PhysicalIndexedSortedStorageNode<D>
 					return numDeleted;
 				}
 			});
+		TraceContext.finishSpan();
 	}
 
 
 	@Override
 	public void deleteRangeWithPrefix(final Key<D> prefix, final boolean wildcardLastField, final Config config) {
+		TraceContext.startSpan("deleteRangeWithPrefix "+getName());
 		if(prefix==null){ return; }
 		final String tableName = this.getPhysicalName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
@@ -226,6 +242,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 					return numDeleted;
 				}
 			});
+		TraceContext.finishSpan();
 	}
 	
 	

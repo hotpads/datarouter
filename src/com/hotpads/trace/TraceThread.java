@@ -2,6 +2,7 @@ package com.hotpads.trace;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.persistence.Column;
@@ -15,7 +16,9 @@ import org.hibernate.annotations.AccessType;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.BaseKey;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 
 @Entity
 @AccessType("field")
@@ -131,6 +134,16 @@ public class TraceThread extends BaseDatabean{
 			this.id = id;
 		}
 		
+	}
+	
+	/*************************** static ***************************************/
+	
+	public static Map<TraceThreadKey,TraceThread> getByKey(Iterable<TraceThread> ins){
+		Map<TraceThreadKey,TraceThread> outs = MapTool.createHashMap();
+		for(TraceThread t : IterableTool.nullSafe(ins)){
+			outs.put(t.getKey(), t);
+		}
+		return outs;
 	}
 	
 	/************************** methods ****************************************/
