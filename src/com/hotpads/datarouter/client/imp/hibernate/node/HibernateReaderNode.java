@@ -26,6 +26,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.lookup.Lookup;
+import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -74,6 +75,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	@Override
 	@SuppressWarnings("unchecked")
 	public D get(final Key<D> key, final Config config) {
+		TraceContext.startSpan("get "+getName());
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
@@ -87,6 +89,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 					return result;
 				}
 			});
+		TraceContext.finishSpan();
 		return (D)result;
 	}
 	
@@ -94,6 +97,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<D> getAll(final Config config) {
+		TraceContext.startSpan("getAll "+getName());
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
@@ -103,13 +107,15 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 					return listOfDatabeans;//todo, make sure the datastore scans in order so we don't need to sort here
 				}
 			});
+		TraceContext.finishSpan();
 		return (List<D>)result;
 	}
 
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<D> getMulti(final Collection<? extends Key<D>> keys, final Config config) {		
+	public List<D> getMulti(final Collection<? extends Key<D>> keys, final Config config) {	
+		TraceContext.startSpan("getMulti "+getName());	
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 //		final Class<? extends Databean> persistentClass = CollectionTool.getFirst(keys).getDatabeanClass();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
@@ -144,6 +150,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 					return all;
 				}
 			});
+		TraceContext.finishSpan();
 		return (List<D>)result;
 	}
 
@@ -154,6 +161,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<D> lookup(final Lookup<D> lookup, final Config config) {
+		TraceContext.startSpan("lookup "+getName());
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
@@ -167,6 +175,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 					return result;
 				}
 			});
+		TraceContext.finishSpan();
 		return (List<D>)result;
 	}
 	
@@ -174,6 +183,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<D> lookup(final Collection<? extends Lookup<D>> lookups, final Config config) {
+		TraceContext.startSpan("multiLookup "+getName());
 		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config);
 		Object result = executor.executeTask(
@@ -194,6 +204,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 					return result;
 				}
 			});
+		TraceContext.finishSpan();
 		return (List<D>)result;
 	}
 	
@@ -203,6 +214,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	@SuppressWarnings("unchecked")
 	@Override
 	public D getFirst(final Config config) {
+		TraceContext.startSpan("getFirst "+getName());
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
@@ -213,6 +225,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 					return result;//TODO this method needs to send sorting order to the datastore!!!!!!!!!!
 				}
 			});
+		TraceContext.finishSpan();
 		return (D)result;
 	}
 
@@ -240,6 +253,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getWithPrefix(final Key<D> prefix, final boolean wildcardLastField, final Config config) {
+		TraceContext.startSpan("getWithPrefix "+getName());
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
@@ -255,6 +269,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 					return result;
 				}
 			});
+		TraceContext.finishSpan();
 		return (List<D>)result;
 	}
 
@@ -262,6 +277,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getWithPrefixes(final Collection<? extends Key<D>> prefixes, final boolean wildcardLastField, final Config config) {
+		TraceContext.startSpan("getWithPrefixes "+getName());
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
@@ -281,6 +297,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 					return result;
 				}
 			});
+		TraceContext.finishSpan();
 		return (List<D>)result;
 	}
 	
@@ -291,7 +308,8 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 			final Key<D> start, final boolean startInclusive, 
 			final Key<D> end, final boolean endInclusive, 
 			final Config config) {
-		
+
+		TraceContext.startSpan("getRange "+getName());
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
@@ -349,6 +367,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 					return result;
 				}
 			});
+		TraceContext.finishSpan();
 		return (List<D>)result;
 	}
 	
@@ -361,7 +380,8 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 			final Key<D> prefix, final boolean wildcardLastField,
 			final Key<D> start, final boolean startInclusive, 
 			final Config config) {
-		
+
+		TraceContext.startSpan("getPrefixedRange "+getName());
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
 		Object result = executor.executeTask(
 			new HibernateTask() {
@@ -401,6 +421,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 					return result;
 				}
 			});
+		TraceContext.finishSpan();
 		return (List<D>)result;
 	}
 	
