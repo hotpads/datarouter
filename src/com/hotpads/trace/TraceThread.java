@@ -1,5 +1,6 @@
 package com.hotpads.trace;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -55,10 +56,12 @@ public class TraceThread extends BaseDatabean{
 	
 	/*********************** constructor **********************************/
 	
-	public TraceThread(Long traceId, Long parentId){
-		this.key = new TraceThreadKey(traceId, parentId);
+	TraceThread(){
+	}
+	
+	public TraceThread(Long traceId, boolean hasParent){
+		this.key = new TraceThreadKey(traceId, hasParent);
 		this.created = System.currentTimeMillis();
-		this.parentId = parentId;
 		this.nanoStart = System.nanoTime();
 	}
 	
@@ -72,7 +75,7 @@ public class TraceThread extends BaseDatabean{
 	
 	
 	@Embeddable
-	public static class TraceThreadKey extends BaseKey<TraceSpan>{
+	public static class TraceThreadKey extends BaseKey<TraceThread>{
 		
 		private static Random random = new Random();
 		
@@ -83,16 +86,26 @@ public class TraceThread extends BaseDatabean{
 			COL_traceId = "traceId",
 			COL_id = "id";
 		
-		public TraceThreadKey(Long traceId, Long parentId){
-			super(TraceSpan.class);
+		TraceThreadKey(){
+			super(TraceThread.class);
+		}
+		
+		public TraceThreadKey(Long traceId, boolean hasParent){
+			super(TraceThread.class);
 			this.traceId = traceId;
-			if(parentId==null){
+			if( ! hasParent){
 				this.id = 0L;
 			}else{
 				long r = Math.abs(random.nextLong());
 				if(Long.MIN_VALUE==r || 0==r){ r = 1; }
 				this.id = r;
 			}
+		}
+		
+		public TraceThreadKey(Long traceId, Long threadId){
+			super(TraceThread.class);
+			this.traceId = traceId;
+			this.id = threadId;
 		}
 		
 		@Override
@@ -130,6 +143,10 @@ public class TraceThread extends BaseDatabean{
 	public void markFinish(){
 		this.runningDuration = System.currentTimeMillis() - this.queuedDuration - this.created;
 		this.runningDurationNano = System.nanoTime() - this.queuedDurationNano - this.nanoStart;
+	}
+	
+	public Date getTime(){
+		return new Date(this.created);
 	}
 	
 	/********************************* get/set ****************************************/

@@ -57,7 +57,9 @@ public class TraceContext {
 		if(ctx==null){ return; }
 		Long traceId = ctx.getTraceId();
 		if(traceId==null){ return; }
-		TraceThread thread = new TraceThread(traceId, ctx.getTraceThreadParentId());
+		boolean hasParent = ctx.getTraceThreadParentId()!=null;
+		TraceThread thread = new TraceThread(traceId, hasParent);
+		thread.setParentId(ctx.getTraceThreadParentId());
 		thread.setServerId(ctx.getServerId());
 		thread.setName(name);
 		ctx.setCurrentThread(thread);

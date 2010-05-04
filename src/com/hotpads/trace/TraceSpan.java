@@ -1,6 +1,9 @@
 package com.hotpads.trace;
 
 import java.util.List;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -13,7 +16,10 @@ import org.hibernate.annotations.AccessType;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.BaseKey;
+import com.hotpads.trace.TraceThread.TraceThreadKey;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 
 @Entity
 @AccessType("field")
@@ -21,7 +27,7 @@ import com.hotpads.util.core.ListTool;
 public class TraceSpan extends BaseDatabean{
 
 	@Id
-	protected TraceCallKey key;
+	protected TraceSpanKey key;
 	@Column(length=255)
 	protected String name;
 	protected Long created;
@@ -43,8 +49,11 @@ public class TraceSpan extends BaseDatabean{
 	
 	/*********************** constructor **********************************/
 	
+	TraceSpan(){
+	}
+	
 	public TraceSpan(Long traceId, Long threadId, Integer sequence){
-		this.key = new TraceCallKey(traceId, threadId, sequence);
+		this.key = new TraceSpanKey(traceId, threadId, sequence);
 		this.created = System.currentTimeMillis();
 		this.nanoStart = System.nanoTime();
 	}
@@ -53,13 +62,17 @@ public class TraceSpan extends BaseDatabean{
 	/************************** databean **************************************/
 	
 	@Override
-	public TraceCallKey getKey() {
+	public TraceSpanKey getKey() {
 		return key;
+	}
+	
+	public TraceThreadKey getThreadKey(){
+		return new TraceThreadKey(this.getTraceId(), this.getThreadId());
 	}
 	
 	
 	@Embeddable
-	public static class TraceCallKey extends BaseKey<TraceSpan>{
+	public static class TraceSpanKey extends BaseKey<TraceSpan>{
 		
 		//hibernate will create these in the wrong order
 		protected Long traceId;
@@ -71,7 +84,11 @@ public class TraceSpan extends BaseDatabean{
 			COL_threadId = "threadId",
 			COL_sequence = "sequence";
 		
-		public TraceCallKey(Long traceId, Long threadId, Integer sequence){
+		TraceSpanKey(){
+			super(TraceSpan.class);
+		}
+		
+		public TraceSpanKey(Long traceId, Long threadId, Integer sequence){
 			super(TraceSpan.class);
 			this.traceId = traceId;
 			this.threadId = threadId;
@@ -85,6 +102,40 @@ public class TraceSpan extends BaseDatabean{
 					new Field(KEY_key, COL_threadId, threadId),
 					new Field(KEY_key, COL_sequence, sequence));
 		}
+
+		public Long getTraceId() {
+			return traceId;
+		}
+		public void setTraceId(Long traceId) {
+			this.traceId = traceId;
+		}
+		public Long getThreadId() {
+			return threadId;
+		}
+		public void setThreadId(Long threadId) {
+			this.threadId = threadId;
+		}
+		public Integer getSequence() {
+			return sequence;
+		}
+		public void setSequence(Integer sequence) {
+			this.sequence = sequence;
+		}
+		
+		
+	}
+	
+	/****************************** static ****************************************/
+	
+	public static SortedMap<TraceThreadKey,SortedSet<TraceSpan>> getByThreadKey(
+			Iterable<TraceSpan> spans){
+		SortedMap<TraceThreadKey,SortedSet<TraceSpan>> out = MapTool.createTreeMap();
+		for(TraceSpan s : IterableTool.nullSafe(spans)){
+			TraceThreadKey threadKey = s.getThreadKey();
+			if(out.get(threadKey)==null){ out.put(threadKey, new TreeSet<TraceSpan>()); }
+			out.get(threadKey).add(s);
+		}
+		return out;
 	}
 	
 	/******************************** methods *************************************/
@@ -97,7 +148,7 @@ public class TraceSpan extends BaseDatabean{
 	/********************************* get/set ****************************************/
 
 
-	public void setKey(TraceCallKey key) {
+	public void setKey(TraceSpanKey key) {
 		this.key = key;
 	}
 
@@ -121,20 +172,47 @@ public class TraceSpan extends BaseDatabean{
 	}
 
 
-	public Long getDuration() {
-		return durationNano;
+
+	public Integer getSequence() {
+		return key.getSequence();
 	}
 
+
+	public Long getThreadId() {
+		return key.getThreadId();
+	}
+
+
+	public Long getTraceId() {
+		return key.getTraceId();
+	}
+
+
+	public void setSequence(Integer sequence) {
+		key.setSequence(sequence);
+	}
+
+
+	public void setThreadId(Long threadId) {
+		key.setThreadId(threadId);
+	}
+
+
+	public void setTraceId(Long traceId) {
+		key.setTraceId(traceId);
+	}
+
+	public Long getDuration() {
+		return duration;
+	}
 
 	public void setDuration(Long duration) {
-		this.durationNano = duration;
+		this.duration = duration;
 	}
-
 
 	public Long getDurationNano() {
 		return durationNano;
 	}
-
 
 	public void setDurationNano(Long durationNano) {
 		this.durationNano = durationNano;

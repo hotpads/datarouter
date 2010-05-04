@@ -1,5 +1,6 @@
 package com.hotpads.trace;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -94,7 +95,11 @@ public class Trace extends BaseDatabean{
 			long r = Math.abs(random.nextLong());
 			if(Long.MIN_VALUE==r){ r = 0; }
 			this.id = r;
-			
+		}
+		
+		public TraceKey(Long id){
+			super(Trace.class);
+			this.id = id;
 		}
 		
 		@Override
@@ -132,6 +137,10 @@ public class Trace extends BaseDatabean{
 	
 	public String getRequestString(){
 		return this.context+"/"+this.type+"?"+StringTool.nullSafe(this.params);
+	}
+	
+	public Date getTime(){
+		return new Date(this.created);
 	}
 	
 	/******************** validate *****************************************/
