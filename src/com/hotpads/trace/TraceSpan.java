@@ -29,6 +29,7 @@ public class TraceSpan extends BaseDatabean{
 
 	@Id
 	protected TraceSpanKey key;
+	protected Integer parentSequence;
 	@Column(length=255)
 	protected String name;
 	protected Long created;
@@ -43,6 +44,7 @@ public class TraceSpan extends BaseDatabean{
 	
 	public static final String
 		KEY_key = "key",
+		COL_parentSequence = "parentSequence",
 		COL_name = "name",
 		COL_created = "created",
 		COL_duration = "duration";
@@ -53,8 +55,9 @@ public class TraceSpan extends BaseDatabean{
 	TraceSpan(){
 	}
 	
-	public TraceSpan(Long traceId, Long threadId, Integer sequence){
+	public TraceSpan(Long traceId, Long threadId, Integer sequence, Integer parentSequence){
 		this.key = new TraceSpanKey(traceId, threadId, sequence);
+		this.parentSequence = parentSequence;
 		this.created = System.currentTimeMillis();
 		this.nanoStart = System.nanoTime();
 	}
@@ -191,42 +194,45 @@ public class TraceSpan extends BaseDatabean{
 		return key.getThreadId();
 	}
 
-
-	public Long getTraceId() {
+	public Long getTraceId(){
 		return key.getTraceId();
 	}
 
-
-	public void setSequence(Integer sequence) {
+	public void setSequence(Integer sequence){
 		key.setSequence(sequence);
 	}
 
-
-	public void setThreadId(Long threadId) {
+	public void setThreadId(Long threadId){
 		key.setThreadId(threadId);
 	}
 
-
-	public void setTraceId(Long traceId) {
+	public void setTraceId(Long traceId){
 		key.setTraceId(traceId);
 	}
 
-	public Long getDuration() {
+	public Long getDuration(){
 		return duration;
 	}
 
-	public void setDuration(Long duration) {
+	public void setDuration(Long duration){
 		this.duration = duration;
 	}
 
-	public Long getDurationNano() {
+	public Long getDurationNano(){
 		return durationNano;
 	}
 
-	public void setDurationNano(Long durationNano) {
+	public void setDurationNano(Long durationNano){
 		this.durationNano = durationNano;
 	}
 
+	public Integer getParentSequence(){
+		return parentSequence;
+	}
+
+	public void setParentSequence(Integer parentSequence){
+		this.parentSequence = parentSequence;
+	}
 
 	
 }

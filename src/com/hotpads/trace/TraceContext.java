@@ -1,11 +1,13 @@
 package com.hotpads.trace;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.StringTool;
 
 
 public class TraceContext {
@@ -19,7 +21,7 @@ public class TraceContext {
 	protected TraceThread currentThread;//should we be holding a map of current threads?  not sure yet
 	protected List<TraceThread> threads = ListTool.createLinkedList();
 	
-	protected TraceSpan currentSpan;
+	protected ArrayList<TraceSpan> spanStack = new ArrayList<TraceSpan>();
 	protected List<TraceSpan> spans = ListTool.createLinkedList();
 	
 	
@@ -87,13 +89,26 @@ public class TraceContext {
 	public static void startSpan(String name){
 		TraceContext ctx = get();
 		if(ctx==null || ctx.currentThread==null){ return; }
+		Integer parentSequence = null;
+		if(CollectionTool.notEmpty(ctx.getSpanStack())){
+			TraceSpan parent = ctx.getSpanStack().get(ctx.getSpanStack().size()-1);
+			parentSequence = parent.getSequence();
+		}
 		TraceSpan span = new TraceSpan(
 				ctx.currentThread.getTraceId(), 
 				ctx.currentThread.getId(), 
-				ctx.nextSpanSequence);
+				ctx.nextSpanSequence,
+				parentSequence);
 		span.setName(name);
-		ctx.setCurrentSpan(span);
+		ctx.getSpanStack().add(span);
 		++ctx.nextSpanSequence;
+	}
+	
+	public static void appendToSpanName(String text){
+		TraceContext ctx = get();
+		if(ctx==null || ctx.getCurrentSpan()==null){ return; }
+		TraceSpan span = ctx.getCurrentSpan();
+		span.setName(StringTool.nullSafe(span.getName())+text);
 	}
 	
 	public static void finishSpan(){
@@ -101,7 +116,29 @@ public class TraceContext {
 		if(ctx==null || ctx.getCurrentSpan()==null){ return; }
 		ctx.getCurrentSpan().markFinish();
 		ctx.getSpans().add(ctx.getCurrentSpan());
-		ctx.setCurrentSpan(null);
+		ctx.popSpanFromStack();
+	}
+	
+	
+	/*************** trace span methods ***************************************/
+	
+	protected TraceSpan pushSpanOntoStack(TraceSpan span){
+		if(span==null){ return null; }
+		this.spanStack.add(span);
+		return span;
+	}
+	
+	protected TraceSpan getCurrentSpan(){
+		TraceContext ctx = get();
+		if(ctx==null || CollectionTool.isEmpty(ctx.spanStack)){ return null; }
+		return ctx.getSpanStack().get(this.spanStack.size()-1);
+	}
+	
+	protected TraceSpan popSpanFromStack(){
+		if(CollectionTool.isEmpty(this.spanStack)){ return null; }
+		TraceSpan span = this.getCurrentSpan();
+		this.spanStack.remove(this.spanStack.size()-1);
+		return span;
 	}
 	
 	
@@ -137,83 +174,69 @@ public class TraceContext {
 
 	
 	/*********************** get/set *********************************************/
-	
-	public TraceThread getCurrentThread() {
+
+	public TraceThread getCurrentThread(){
 		return currentThread;
 	}
 
-	public void setCurrentThread(TraceThread currentThread) {
+	public void setCurrentThread(TraceThread currentThread){
 		this.currentThread = currentThread;
 	}
 
-	public List<TraceThread> getThreads() {
+	public List<TraceThread> getThreads(){
 		return threads;
 	}
 
-	public void setThreads(List<TraceThread> threads) {
+	public void setThreads(List<TraceThread> threads){
 		this.threads = threads;
 	}
 
-	public void setTraceId(Long traceId) {
+	public void setTraceId(Long traceId){
 		this.traceId = traceId;
 	}
 
-	public void setTraceThreadParentId(Long traceThreadParentId) {
+	public void setTraceThreadParentId(Long traceThreadParentId){
 		this.traceThreadParentId = traceThreadParentId;
 	}
 
-
-
-
-	public Integer getNextSpanSequence() {
+	public Integer getNextSpanSequence(){
 		return nextSpanSequence;
 	}
 
-
-	public void setNextSpanSequence(Integer nextSpanSequence) {
+	public void setNextSpanSequence(Integer nextSpanSequence){
 		this.nextSpanSequence = nextSpanSequence;
 	}
 
-
-	public TraceSpan getCurrentSpan() {
-		return currentSpan;
-	}
-
-
-	public void setCurrentSpan(TraceSpan currentSpan) {
-		this.currentSpan = currentSpan;
-	}
-
-
-	public List<TraceSpan> getSpans() {
+	public List<TraceSpan> getSpans(){
 		return spans;
 	}
 
-
-	public void setSpans(List<TraceSpan> spans) {
+	public void setSpans(List<TraceSpan> spans){
 		this.spans = spans;
 	}
 
-
-	public String getServerId() {
+	public String getServerId(){
 		return serverId;
 	}
 
-
-	public void setServerId(String serverId) {
+	public void setServerId(String serverId){
 		this.serverId = serverId;
 	}
 
-
-	public Long getTraceId() {
+	public Long getTraceId(){
 		return traceId;
 	}
 
-
-	public Long getTraceThreadParentId() {
+	public Long getTraceThreadParentId(){
 		return traceThreadParentId;
 	}
-	
-	
-	
+
+	public ArrayList<TraceSpan> getSpanStack(){
+		return spanStack;
+	}
+
+	public void setSpanStack(ArrayList<TraceSpan> spanStack){
+		this.spanStack = spanStack;
+	}
+
 }
