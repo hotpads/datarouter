@@ -142,10 +142,12 @@ public class TraceSpan extends BaseDatabean{
 		return out;
 	}
 	
-	public static Long totalDuration(Iterable<TraceSpan> spans){
+	public static Long totalDurationOfNonChildren(Iterable<TraceSpan> spans){
 		Long sum = 0L;
 		for(TraceSpan s : IterableTool.nullSafe(spans)){
-			sum += NumberTool.nullSafeLong(s.getDuration(), 0L);
+			if(s.isTopLevel()){
+				sum += NumberTool.nullSafeLong(s.getDuration(), 0L);
+			}
 		}
 		return sum;
 	}
@@ -155,6 +157,10 @@ public class TraceSpan extends BaseDatabean{
 	public void markFinish(){
 		this.duration = System.currentTimeMillis() - this.created;
 		this.durationNano = System.nanoTime() - this.nanoStart;
+	}
+	
+	public boolean isTopLevel(){
+		return this.parentSequence==null;
 	}
 	
 	/********************************* get/set ****************************************/
