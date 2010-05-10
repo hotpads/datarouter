@@ -102,7 +102,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 			ConnectionHandle handle = this.getExistingHandle();
 			handle.decrementNumTickets();
 			if(handle.getNumTickets() > 0){
-				logger.warn("KEEPING CONNECTION OPEN for "+handle+", "+this.getStats());
+//				logger.warn("KEEPING CONNECTION OPEN for "+handle+", "+this.getStats());
 				return handle;  //others are still using this connection
 			}
 			if(this.sessionByConnectionHandle.containsKey(handle)){
