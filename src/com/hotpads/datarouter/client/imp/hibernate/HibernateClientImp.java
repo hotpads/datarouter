@@ -148,14 +148,19 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	/****************************** JdbcTxnClient methods *************************/
 
 	@Override
-	public ConnectionHandle beginTxn(Isolation isolation){
+	public ConnectionHandle beginTxn(Isolation isolation, boolean autoCommit){
 		try {
 			Connection connection = this.getExistingConnection();
-			connection.setTransactionIsolation(isolation.getJdbcVal());
-			logger.debug("setTransactionIsolation="+isolation.getJdbcVal()+" on "+this.getExistingHandle());
-			connection.setAutoCommit(false);
-			logger.debug("setAutoCommit=false on "+this.getExistingHandle());
-			logger.debug("began txn on:"+this.getExistingHandle());
+			if(connection.getTransactionIsolation() != isolation.getJdbcVal()){
+				connection.setTransactionIsolation(isolation.getJdbcVal());
+				logger.debug("setTransactionIsolation="+isolation.getJdbcVal()+" on "+this.getExistingHandle());
+			}
+			if(connection.getAutoCommit() != autoCommit){
+				connection.setAutoCommit(autoCommit);
+				logger.debug("setAutoCommit="+autoCommit+" on "+this.getExistingHandle());
+			}else{
+				logger.debug("began txn on:"+this.getExistingHandle());
+			}
 			return this.getExistingHandle();
 		} catch (SQLException e) {
 			throw new DataAccessException(e);
@@ -167,8 +172,10 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 		try{
 			Connection connection = this.getExistingConnection();
 			if(connection != null){
-				connection.commit();
-				logger.debug("committed txn on:"+this.getExistingHandle());
+				if( ! connection.getAutoCommit()){
+					connection.commit();
+					logger.debug("committed txn on:"+this.getExistingHandle());
+				}
 			}else{
 				logger.warn("couldn't commit txn because connection was null.  handle="+this.getExistingHandle());
 			}

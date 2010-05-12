@@ -9,6 +9,7 @@ public class Config {
 	
 	public static final Boolean DEFAULT_CACHE_OK = true;
 	public static final Isolation DEFAULT_ISOLATION = Isolation.readCommitted;
+	public static final Boolean DEFAULT_AUTO_COMMIT = false;
 	
 	/*************** fields ********************************/
 	
@@ -19,6 +20,7 @@ public class Config {
 
 	protected ConnectMethod connectMethod = ConnectMethod.tryExisting;
 	protected Isolation isolation = DEFAULT_ISOLATION;
+	protected Boolean autoCommit;//HibernateExecutor assumes this to be null unless explicitly set to false
 	protected Boolean useSession = true;
 	
 	protected PutMethod putMethod = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
@@ -47,7 +49,11 @@ public class Config {
 	
 	/********************* accessors **************************************/
 	
-	
+
+	public Isolation getIsolationOrUse(Isolation theDefault) {
+		if(isolation==null){ return theDefault; }
+		return isolation;
+	}
 	public Isolation getIsolation() {
 		return isolation;
 	}
@@ -56,6 +62,18 @@ public class Config {
 		return this;
 	}
 
+
+	public Boolean getAutoCommitOrUse(Boolean theDefault){
+		if(autoCommit==null){ return theDefault; }
+		return autoCommit;
+	}
+	public Boolean getAutoCommit(){
+		return autoCommit;
+	}
+	public Config setAutoCommit(Boolean autoCommit){
+		this.autoCommit = autoCommit;
+		return this;
+	}
 
 	public ConnectMethod getConnectMethod() {
 		return connectMethod;

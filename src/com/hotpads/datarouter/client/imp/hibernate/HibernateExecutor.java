@@ -22,7 +22,7 @@ public class HibernateExecutor {
 			Config config){
 		HibernateExecutor executor = new HibernateExecutor();
 		executor.client = client;
-		executor.config = config;
+		executor.config = Config.nullSafe(config);
 		executor.existingSession = client.getExistingSession();
 		return executor;
 	}
@@ -39,11 +39,9 @@ public class HibernateExecutor {
 		try{
 			if(newSession){
 				this.client.reserveConnection();
-				if(config != null && config.getIsolation() != null){
-					this.client.beginTxn(config.getIsolation());
-				}else{
-					this.client.beginTxn(Config.DEFAULT_ISOLATION);
-				}
+				this.client.beginTxn(
+						config.getIsolationOrUse(Config.DEFAULT_ISOLATION), 
+						config.getAutoCommitOrUse(true));
 				this.client.openSession();
 				session = this.client.getExistingSession();
 				logger.debug("found connection "+this.client.getExistingHandle());

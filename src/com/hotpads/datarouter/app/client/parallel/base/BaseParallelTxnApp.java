@@ -89,7 +89,7 @@ implements ParallelTxnApp<T>{
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
-			txnClient.beginTxn(this.getIsolation());
+			txnClient.beginTxn(this.getIsolation(), false);
 //			logger.debug("began txn for "+txnClient.getExistingHandle());
 		}
 	}
