@@ -25,8 +25,7 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 	}
 	
 	public BaseParallelSessionTxnApp(DataRouter router, Isolation isolation) {
-		super(router);
-		this.isolation = isolation;
+		super(router, isolation);
 	}
 
 

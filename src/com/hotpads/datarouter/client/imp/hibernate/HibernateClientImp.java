@@ -80,6 +80,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 				existingHandle.incrementNumTickets();
 				return existingHandle;
 			}
+			//jdbc triggers network round trip when getting connection to set autocommit=true
 			Connection newConnection = this.connectionPool.getDataSource().getConnection();
 			long threadId = Thread.currentThread().getId();
 			long connNumber = ++this.connectionCounter;
@@ -118,6 +119,8 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 				}
 			}
 			Connection connection = this.connectionByHandle.get(handle);
+			//on close, there will be a network round trip if isolation needs to be set back to default
+			//on close, there will be another network round trip if autocommit needs to be disabled
 			connection.close();
 			this.connectionByHandle.remove(handle);
 			this.handleByThread.remove(currentThread.getId());
@@ -148,18 +151,17 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	/****************************** JdbcTxnClient methods *************************/
 
 	@Override
-	public ConnectionHandle beginTxn(Isolation isolation, boolean autoCommit){
+	public ConnectionHandle beginTxn(Isolation isolation, boolean disableAutoCommit){
 		try {
 			Connection connection = this.getExistingConnection();
-			if(connection.getTransactionIsolation() != isolation.getJdbcVal()){
-				connection.setTransactionIsolation(isolation.getJdbcVal());
-				logger.debug("setTransactionIsolation="+isolation.getJdbcVal()+" on "+this.getExistingHandle());
-			}
-			if(connection.getAutoCommit() != autoCommit){
-				connection.setAutoCommit(autoCommit);
-				logger.debug("setAutoCommit="+autoCommit+" on "+this.getExistingHandle());
-			}else{
-				logger.debug("began txn on:"+this.getExistingHandle());
+			//jdbc standard says that autoCommit=true by default on each new connection
+			if(disableAutoCommit){
+				connection.setAutoCommit(false);
+				logger.debug("setAutoCommit="+false+" on "+this.getExistingHandle());
+				if(connection.getTransactionIsolation() != isolation.getJdbcVal().intValue()){
+					connection.setTransactionIsolation(isolation.getJdbcVal());
+					logger.debug("setTransactionIsolation="+isolation.toString()+" on "+this.getExistingHandle());
+				}
 			}
 			return this.getExistingHandle();
 		} catch (SQLException e) {

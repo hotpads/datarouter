@@ -5,14 +5,11 @@
 <hibernate-configuration>
     <!-- a SessionFactory instance listed as /jndi/name -->
     <session-factory>
-    
         <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
         <property name="show_sql">false</property>
         <property name="use_outer_join">false</property>
         <property name="max_fetch_depth">0</property>
-        <property name="jta.UserTransaction">java:comp/UserTransaction/</property>
         <property name="hibernate.hbm2ddl.auto">update</property>  <!-- set to "update" if needed -->
 		<property name="hibernate.generate_statistics">true</property>
-		        
     </session-factory>
 </hibernate-configuration>

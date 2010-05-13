@@ -16,14 +16,17 @@ public class HibernateExecutor {
 	private HibernateClientImp client;
 	private Config config;
 	private Session existingSession;
+	private boolean disableAutoCommit = true;  //default to true to be safe
 	
 	public static HibernateExecutor create(
 			HibernateClientImp client,
-			Config config){
+			Config config,
+			boolean disableAutoCommit){
 		HibernateExecutor executor = new HibernateExecutor();
 		executor.client = client;
 		executor.config = Config.nullSafe(config);
 		executor.existingSession = client.getExistingSession();
+		executor.disableAutoCommit = disableAutoCommit;
 		return executor;
 	}
 	
@@ -41,7 +44,7 @@ public class HibernateExecutor {
 				this.client.reserveConnection();
 				this.client.beginTxn(
 						config.getIsolationOrUse(Config.DEFAULT_ISOLATION), 
-						config.getAutoCommitOrUse(true));
+						this.disableAutoCommit);
 				this.client.openSession();
 				session = this.client.getExistingSession();
 				logger.debug("found connection "+this.client.getExistingHandle());

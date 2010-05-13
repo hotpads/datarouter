@@ -59,20 +59,20 @@ implements PhysicalIndexedSortedStorageNode<D>
 	}
 	
 	
-	protected void delete(final D databean, Config config){
-		TraceContext.startSpan(getName()+" deleteDatabean");
-		if(databean==null){ return; }
-		final String entityName = this.getPackagedPhysicalName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config);
-		executor.executeTask(
-			new HibernateTask() {
-				public Object run(Session session) {
-					session.delete(entityName, databean);
-					return databean;
-				}
-			});
-		TraceContext.finishSpan();
-	}
+//	private void delete(final D databean, Config config){
+//		TraceContext.startSpan(getName()+" deleteDatabean");
+//		if(databean==null){ return; }
+//		final String entityName = this.getPackagedPhysicalName();
+//		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
+//		executor.executeTask(
+//			new HibernateTask() {
+//				public Object run(Session session) {
+//					session.delete(entityName, databean);
+//					return databean;
+//				}
+//			});
+//		TraceContext.finishSpan();
+//	}
 
 	/*
 	 * deleting 1000 rows by PK from a table with no indexes takes 200ms when executed as one statement
@@ -101,7 +101,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 		
 		//execute
 		final String finalQuery = sb.toString();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -117,7 +117,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	public void deleteAll(Config config) {
 		TraceContext.startSpan(getName()+" deleteAll");
 		final String tableName = this.getPhysicalName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -134,7 +134,8 @@ implements PhysicalIndexedSortedStorageNode<D>
 		TraceContext.startSpan(getName()+" put");
 		if(databean==null){ return; }
 		final String entityName = this.getPackagedPhysicalName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
+		boolean disableAutoCommit = this.shouldDisableAutoCommit(config, DEFAULT_PUT_METHOD);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, disableAutoCommit);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -151,7 +152,9 @@ implements PhysicalIndexedSortedStorageNode<D>
 		TraceContext.startSpan(getName()+" putMulti");
 		final String entityName = this.getPackagedPhysicalName();
 		final Collection<D> finalDatabeans = databeans;
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
+		boolean disableAutoCommit = CollectionTool.size(databeans) > 1
+				|| this.shouldDisableAutoCommit(config, DEFAULT_PUT_METHOD);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, disableAutoCommit);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -170,7 +173,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 		TraceContext.startSpan(getName()+" delete");
 		if(lookup==null){ return; }
 		final String tableName = this.getPhysicalName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -196,7 +199,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 		TraceContext.startSpan(getName()+" deleteRangeWithPrefix");
 		if(prefix==null){ return; }
 		final String tableName = this.getPhysicalName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config);
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -246,7 +249,64 @@ implements PhysicalIndexedSortedStorageNode<D>
 	}
 	
 	
+	/******************** private **********************************************/
 	
-
+	protected void putUsingMethod(Session session, String entityName, Databean databean, 
+			final Config config, PutMethod defaultPutMethod){
+		
+		PutMethod putMethod = defaultPutMethod;
+		if(config!=null && config.getPutMethod()!=null){
+			putMethod = config.getPutMethod();
+		}
+		if(PutMethod.INSERT_OR_BUST == putMethod){
+			session.save(entityName, databean);
+		}else if(PutMethod.UPDATE_OR_BUST == putMethod){
+			session.update(entityName, databean);
+		}else if(PutMethod.INSERT_OR_UPDATE == putMethod){
+			try{
+				session.save(entityName, databean);
+				session.flush();//seems like it tries to save 3 times before throwing an exception
+			}catch(Exception e){  
+				session.evict(databean);  //must evict or it will ignore future actions for the databean?
+				session.update(entityName, databean);
+			}
+		}else if(PutMethod.UPDATE_OR_INSERT == putMethod){
+			try{
+				session.update(entityName, databean);
+				session.flush();
+			}catch(Exception e){
+				session.evict(databean);  //must evict or it will ignore future actions for the databean?
+				session.save(entityName, databean);
+			}
+		}else if(PutMethod.MERGE == putMethod){
+			session.merge(entityName, databean);
+		}else{
+			session.saveOrUpdate(entityName, databean);
+		}
+	}
+	
+	/*
+	 * mirrof of above "putUsingMethod" above
+	 */
+	protected boolean shouldDisableAutoCommit(final Config config, PutMethod defaultPutMethod){
+		
+		PutMethod putMethod = defaultPutMethod;
+		if(config!=null && config.getPutMethod()!=null){
+			putMethod = config.getPutMethod();
+		}
+		if(PutMethod.INSERT_OR_BUST == putMethod){
+			return false;
+		}else if(PutMethod.UPDATE_OR_BUST == putMethod){
+			return false;
+		}else if(PutMethod.INSERT_OR_UPDATE == putMethod){
+			return true;
+		}else if(PutMethod.UPDATE_OR_INSERT == putMethod){
+			return true;
+		}else if(PutMethod.MERGE == putMethod){
+			return true;
+		}else{
+			return true;
+		}
+	}
 	
 }

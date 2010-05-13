@@ -1,25 +1,20 @@
 package com.hotpads.datarouter.app.client.parallel.base;
 
-import java.util.Collection;
-
-import javax.persistence.RollbackException;
-
 import com.hotpads.datarouter.app.client.parallel.ParallelTxnApp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.TxnClient;
+import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
-import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
-import com.hotpads.util.core.ListTool;
 
 public abstract class BaseParallelTxnApp<T>
 extends BaseParallelClientApp<T>
 implements ParallelTxnApp<T>{
 
-	Isolation isolation = Isolation.repeatableRead;
+	protected Isolation isolation = Config.DEFAULT_ISOLATION;
 	
 	
 	public BaseParallelTxnApp(DataRouter router) {
@@ -79,7 +74,7 @@ implements ParallelTxnApp<T>{
 	
 	@Override
 	public Isolation getIsolation() {
-		return Isolation.repeatableRead;
+		return isolation;
 	}
 	
 	/********************* txn code **********************************/
@@ -89,7 +84,7 @@ implements ParallelTxnApp<T>{
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
-			txnClient.beginTxn(this.getIsolation(), false);
+			txnClient.beginTxn(this.getIsolation(), true);
 //			logger.debug("began txn for "+txnClient.getExistingHandle());
 		}
 	}
