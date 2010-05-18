@@ -2,7 +2,6 @@ package com.hotpads.datarouter.connection;
 
 import java.beans.PropertyVetoException;
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.naming.NamingException;
@@ -32,7 +31,7 @@ public class JdbcConnectionPool{
 	public JdbcConnectionPool(String name, Properties properties) 
 			throws PropertyVetoException, NamingException
 	{
-		String source = properties.getProperty(prefix+name+ConnectionPools.paramSource);
+//		String source = properties.getProperty(prefix+name+ConnectionPools.paramSource);
 //		if("params".equals(source)){
 //			createFromParams(name, properties);
 //		}else{

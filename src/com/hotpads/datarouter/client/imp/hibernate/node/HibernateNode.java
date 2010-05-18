@@ -7,10 +7,8 @@ import java.util.List;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 
-import com.google.inject.internal.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
-import com.hotpads.datarouter.client.imp.hibernate.SessionTool;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.Node;
@@ -139,7 +137,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					SessionTool.putUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
+					putUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
 					return databean;
 				}
 			});
@@ -160,7 +158,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 				public Object run(Session session) {
 					for(D databean : CollectionTool.nullSafe(finalDatabeans)){
 						if(databean==null){ continue; }
-						SessionTool.putUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
+						putUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
 					}
 					return finalDatabeans;
 				}

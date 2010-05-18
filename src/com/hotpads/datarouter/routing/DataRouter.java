@@ -21,7 +21,6 @@ public interface DataRouter {
 
 	void setClients(Clients clients);
 
-	@SuppressWarnings("unchecked")
 	<D extends Databean, N extends Node<D>> N register(N node);
 	
 	void activate() throws IOException;
@@ -45,14 +44,12 @@ public interface DataRouter {
 
 	List<Client> getClients(Collection<String> clientNames);
 
-	@SuppressWarnings("unchecked")
 	<D extends Databean> List<String> getClientNamesForKeys(
 			Collection<Key<D>> keys);
 
 	<D extends Databean> List<String> getClientNamesForDatabeans(
 			Collection<D> databeans);
 
-	@SuppressWarnings("unchecked")
 	<D extends Databean> List<Client> getClientsForDatabeanType(
 			Class<D> databeanType);
 
