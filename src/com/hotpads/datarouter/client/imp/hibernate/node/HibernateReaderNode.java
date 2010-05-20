@@ -24,6 +24,7 @@ import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageRea
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.PrimitiveField;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.lookup.Lookup;
 import com.hotpads.trace.TraceContext;
@@ -479,12 +480,12 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 		for(Field<?> field : CollectionTool.nullSafe(prefix.getFields())){
 			if(numFullFieldsFinished < numNonNullFields){
 				boolean lastNonNullField = numFullFieldsFinished == numNonNullFields - 1;
-				boolean stringField = field.getValue() instanceof String;
+				boolean stringField = !(field instanceof PrimitiveField<?>);
 				
 				boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
 				
 				if(canDoPrefixMatchOnField){
-					conjunction.add(Restrictions.like(field.getPrefixedName(), (String)field.getValue(), MatchMode.START));
+					conjunction.add(Restrictions.like(field.getPrefixedName(), field.getValue().toString(), MatchMode.START));
 				}else{
 					conjunction.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 				}
