@@ -9,7 +9,7 @@ extends Serializable, /*FieldSet,*/ Comparable<Databean>{
 
 	String getDatabeanName();
 	
-	@SuppressWarnings("unchecked")
-	Key getKey();  //can't figure out how to keep checked
+	@SuppressWarnings("unchecked")  //can't figure out how to keep checked
+	Key getKey();  
 	
 }

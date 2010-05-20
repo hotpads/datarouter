@@ -8,10 +8,10 @@ import com.hotpads.datarouter.storage.key.Key;
 
 public interface ContentHolder<D extends Databean> {
 
-	List<Field> getKeyFields();
-//	List<Field> getDataFields();
-	List<Field> getMetaFields();
-	List<Field> getContentFields();
+	List<Field<?>> getKeyFields();
+//	List<Field<?>> getDataFields();
+	List<Field<?>> getMetaFields();
+	List<Field<?>> getContentFields();
 	
 	boolean equalsContent(ContentHolder<D> other);
 	

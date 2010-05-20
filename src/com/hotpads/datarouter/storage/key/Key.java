@@ -2,14 +2,15 @@ package com.hotpads.datarouter.storage.key;
 
 import java.io.Serializable;
 
-import com.hotpads.datarouter.serialize.Jsonable;
+import com.hotpads.datarouter.serialize.JsonAware;
+import com.hotpads.datarouter.serialize.SqlAware;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanAware;
 import com.hotpads.datarouter.storage.field.FieldSet;
 
 
 public interface Key<D extends Databean>
-extends FieldSet, DatabeanAware<D>, Comparable<Key<D>>, Serializable, Jsonable{
+extends FieldSet, DatabeanAware<D>, Comparable<Key<D>>, Serializable, JsonAware, SqlAware{
 	
 	
 	String getPersistentString();  //fuse multi-column field into one string, usually with "_" characters

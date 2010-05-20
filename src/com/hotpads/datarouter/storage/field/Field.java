@@ -1,22 +1,23 @@
 package com.hotpads.datarouter.storage.field;
 
-import java.util.Collection;
+import java.util.List;
 
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
-public class Field {
+public abstract class Field<T extends Comparable<T>>{
 
 	protected String prefix;
 	protected String name;
-	protected Comparable<?> value;
+	protected T value;
 
 	
-	public Field(String name, Comparable<?> value) {
+	public Field(String name, T value) {
 		this(null, name, value);
 	}
 	
-	public Field(String prefix, String name, Comparable<?> value) {
+	public Field(String prefix, String name, T value) {
 		this.prefix = prefix;
 		this.name = name;
 		this.value = value;
@@ -34,7 +35,7 @@ public class Field {
 		return name;
 	}
 
-	public Comparable<?> getValue() {
+	public T getValue() {
 		return value;
 	}
 	
@@ -61,10 +62,13 @@ public class Field {
 		return this.name+"="+this.getSqlEscaped();
 	}
 	
-	public static int countNonNullLeadingFields(Collection<Field> fields){
-		if(CollectionTool.isEmpty(fields)){ return 0; }
+	public static List<Field<?>> createList(Field<?>... fields){
+		return ListTool.createArrayList(fields);
+	}
+	
+	public static int countNonNullLeadingFields(Iterable<Field<?>> fields){
 		int count = 0;
-		for(Field field : fields){
+		for(Field<?> field : IterableTool.nullSafe(fields)){
 			if(field.getValue() != null){
 				++count;
 			}else{

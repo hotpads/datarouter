@@ -11,8 +11,8 @@ import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -116,7 +116,7 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	public <D extends Databean> List<String> getClientNamesForDatabeans(Collection<D> databeans){
-		return this.getClientNamesForKeys(DatabeanTool.getKeys(databeans));
+		return this.getClientNamesForKeys(KeyTool.getKeys(databeans));
 	}
 
 	@Override
@@ -140,7 +140,7 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	public <D extends Databean> List<Client> getClientsForDatabeans(Collection<D> databeans){
-		return this.getClientsForKeys(DatabeanTool.getKeys(databeans));
+		return this.getClientsForKeys(KeyTool.getKeys(databeans));
 	}
 	
 	/***************** overexposed accessors *******************************/

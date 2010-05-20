@@ -3,16 +3,12 @@ package com.hotpads.datarouter.storage.key;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import net.sf.json.JsonConfig;
-
+import com.hotpads.datarouter.serialize.JsonTool;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.ListTool;
 
 public abstract class BaseKey<D extends Databean> 
 implements Key<D>{  //hibernate composite keys must implement serializable
@@ -97,42 +93,13 @@ implements Key<D>{  //hibernate composite keys must implement serializable
 		return this.getClass().getSimpleName()+"."+this.getPersistentString();
 	}
 	
-	
-	/****************** fields ************************/
-
-	@Override
-	public List<String> getFieldNames(){
-		List<String> fieldNames = ListTool.createLinkedList();
-		for(Field field : this.getFields()){
-			fieldNames.add(field.getName());
-		}
-		return fieldNames;
-	}
-
-	@Override
-	public List<Comparable<?>> getFieldValues(){
-		List<Comparable<?>> fieldValues = ListTool.createLinkedList();
-		for(Field field : this.getFields()){
-			fieldValues.add(field.getValue());
-		}
-		return fieldValues;
-	}
-
-	@Override
-	public Comparable<?> getFieldValue(String fieldName){
-		for(Field field : this.getFields()){
-			if(field.getName().equals(fieldName)){
-				return field.getValue();
-			}
-		}
-		return null;
-	}
+	/**************************** serialize ******************/
 
 	@Override
 	public String getPersistentString(){
 		StringBuilder sb = new StringBuilder();
 		boolean doneOne = false;
-		for(Field field : this.getFields()){
+		for(Field<?> field : this.getFields()){
 			if(doneOne){ 
 				sb.append("_");
 			}
@@ -145,57 +112,47 @@ implements Key<D>{  //hibernate composite keys must implement serializable
 	@Override
 	public String getTypedPersistentString(){
 		return this.getDatabeanName()+"_"+this.getPersistentString();
+	}	
+	
+	/****************** fields ************************/
+
+	@Override
+	public List<String> getFieldNames(){
+		return FieldTool.getFieldNames(this.getFields());
 	}
 
 	@Override
+	public List<Comparable<?>> getFieldValues(){
+		return FieldTool.getFieldValues(this.getFields());
+	}
+
+	@Override
+	public Comparable<?> getFieldValue(String fieldName){
+		return FieldTool.getFieldValue(this.getFields(), fieldName);
+	}
+	
+	/**************************** json ******************/
+	
+	@Override
+	public String getJson() {
+		return JsonTool.getJson(this.getFields()).toString();
+	}
+	
+	/**************************** sql ******************/
+
+	@Override
 	public List<String> getSqlValuesEscaped(){
-		List<String> sql = ListTool.createLinkedList();
-		for(Field field : this.getFields()){
-			sql.add(field.getSqlEscaped());
-		}
-		return sql;
+		return FieldTool.getSqlValuesEscaped(this.getFields());
 	}
 
 	@Override
 	public List<String> getSqlNameValuePairsEscaped(){
-		List<String> sql = ListTool.createLinkedList();
-		for(Field field : this.getFields()){
-			sql.add(field.getSqlNameValuePairEscaped());
-		}
-		return sql;
+		return FieldTool.getSqlNameValuePairsEscaped(this.getFields());
 	}
 
 	@Override
 	public String getSqlNameValuePairsEscapedConjunction(){
-		List<String> nameValuePairs = getSqlNameValuePairsEscaped();
-		if(CollectionTool.sizeNullSafe(nameValuePairs) < 1){ return null; }
-		StringBuilder sb = new StringBuilder();
-		int numAppended = 0;
-		for(String nameValuePair : nameValuePairs){
-			if(numAppended > 0){ sb.append(" and "); }
-			sb.append(nameValuePair);
-			++numAppended;
-		}
-		return sb.toString();
-	}
-	
-	/**************************** serializable ******************/
-	
-	@Override
-	public JSON getJson() {
-		JSONObject j = new JSONObject();
-		for(Field f : getFields()){
-			j.element(f.getName(), f.getValue());
-		}
-		return j;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public static Key<? extends Databean> fromJsonString(Class<?> clazz, String jsonString) {
-		JSONObject jsonObject = (JSONObject)JSONSerializer.toJSON(jsonString);
-		JsonConfig jsonConfig = new JsonConfig();  
-		jsonConfig.setRootClass(clazz);  
-		return (Key<? extends Databean>)JSONObject.toBean(jsonObject, jsonConfig );
+		return FieldTool.getSqlNameValuePairsEscapedConjunction(this.getFields());
 	}
 	
 	

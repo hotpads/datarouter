@@ -14,6 +14,7 @@ import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.imp.LongField;
 import com.hotpads.datarouter.storage.key.BaseKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -103,9 +104,10 @@ public class Trace extends BaseDatabean{
 		}
 		
 		@Override
-		public List<Field> getFields(){
-			return ListTool.create(
-					new Field(KEY_key, COL_id, id));
+		public List<Field<?>> getFields(){
+			List<Field<?>> fields = ListTool.create();
+			fields.add(new LongField(KEY_key, COL_id, id));
+			return fields;
 		}
 
 		public Long getId() {
@@ -115,7 +117,6 @@ public class Trace extends BaseDatabean{
 		public void setId(Long id) {
 			this.id = id;
 		}
-		
 		
 	}
 	
