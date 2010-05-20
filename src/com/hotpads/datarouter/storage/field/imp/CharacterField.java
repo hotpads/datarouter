@@ -1,8 +1,8 @@
 package com.hotpads.datarouter.storage.field.imp;
 
-import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.PrimitiveField;
 
-public class CharacterField extends Field<Character>{
+public class CharacterField extends PrimitiveField<Character>{
 
 	public CharacterField(String name, Character value){
 		super(name, value);

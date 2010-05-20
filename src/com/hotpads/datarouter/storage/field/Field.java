@@ -44,16 +44,7 @@ public abstract class Field<T extends Comparable<T>>{
 		return this.getPrefixedName()+":"+this.getValue();
 	}
 	
-	public String getSqlEscaped(){
-		if(value==null){
-			return "null";
-		}
-		if(value instanceof String){
-			String stringValue = (String)value;
-			return "'" + stringValue.replaceAll("'", "''") + "'";
-		}
-		return value.toString();
-	}
+	public abstract String getSqlEscaped();
 	
 	public String getSqlNameValuePairEscaped(){
 		if(value==null){

@@ -1,8 +1,8 @@
 package com.hotpads.datarouter.storage.field.imp;
 
-import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.PrimitiveField;
 
-public class FloatField extends Field<Float>{
+public class FloatField extends PrimitiveField<Float>{
 
 	public FloatField(String name, Float value){
 		super(name, value);

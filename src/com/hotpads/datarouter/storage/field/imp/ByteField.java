@@ -1,8 +1,8 @@
 package com.hotpads.datarouter.storage.field.imp;
 
-import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.PrimitiveField;
 
-public class ByteField extends Field<Byte>{
+public class ByteField extends PrimitiveField<Byte>{
 
 	public ByteField(String name, Byte value){
 		super(name, value);

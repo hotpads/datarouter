@@ -1,8 +1,8 @@
 package com.hotpads.datarouter.storage.field.imp;
 
-import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.PrimitiveField;
 
-public class DoubleField extends Field<Double>{
+public class DoubleField extends PrimitiveField<Double>{
 
 	public DoubleField(String name, Double value){
 		super(name, value);

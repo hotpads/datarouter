@@ -2,9 +2,9 @@ package com.hotpads.datarouter.storage.field.imp;
 
 import java.util.Date;
 
-import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.PrimitiveField;
 
-public class DateField extends Field<Date>{
+public class DateField extends PrimitiveField<Date>{
 
 	public DateField(String name, Date value){
 		super(name, value);

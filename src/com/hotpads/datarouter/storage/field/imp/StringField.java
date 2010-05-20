@@ -12,4 +12,11 @@ public class StringField extends Field<String>{
 		super(prefix, name, value);
 	}
 
+	public String getSqlEscaped(){
+		if(value==null){
+			return "null";
+		}
+		String stringValue = (String)value;
+		return "'" + stringValue.replaceAll("'", "''") + "'";
+	}
 }

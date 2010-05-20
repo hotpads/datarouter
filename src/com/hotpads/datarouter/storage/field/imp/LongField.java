@@ -1,8 +1,8 @@
 package com.hotpads.datarouter.storage.field.imp;
 
-import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.PrimitiveField;
 
-public class LongField extends Field<Long>{
+public class LongField extends PrimitiveField<Long>{
 
 	public LongField(String name, Long value){
 		super(name, value);

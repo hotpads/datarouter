@@ -1,8 +1,8 @@
 package com.hotpads.datarouter.storage.field.imp;
 
-import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.PrimitiveField;
 
-public class IntegerField extends Field<Integer>{
+public class IntegerField extends PrimitiveField<Integer>{
 
 	public IntegerField(String name, Integer value){
 		super(name, value);
