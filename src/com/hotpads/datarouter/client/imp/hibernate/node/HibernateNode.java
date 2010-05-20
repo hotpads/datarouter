@@ -16,6 +16,8 @@ import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageNod
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
@@ -219,7 +221,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 								sql.append(" and ");
 							}
 							boolean lastNonNullField = numFullFieldsFinished == numNonNullFields - 1;
-							boolean stringField = field.getValue() instanceof String;
+							boolean stringField = !(field instanceof PrimitiveField<?>);
 							
 							boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
 							
