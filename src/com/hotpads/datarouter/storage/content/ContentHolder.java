@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 
 public interface ContentHolder<D extends Databean> {
 
@@ -15,7 +15,7 @@ public interface ContentHolder<D extends Databean> {
 	
 	boolean equalsContent(ContentHolder<D> other);
 	
-	Key<D> getKey();
+	PrimaryKey<D> getKey();
 	
 //	void copyContent(ContentHolder<D> other);
 }
