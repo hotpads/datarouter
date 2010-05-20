@@ -1,8 +1,7 @@
-package com.hotpads.datarouter.storage.lookup.base;
+package com.hotpads.datarouter.storage.key.multi;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.BaseKey;
-import com.hotpads.datarouter.storage.lookup.Lookup;
 
 
 @SuppressWarnings("serial")

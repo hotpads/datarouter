@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.SortedMap;
 
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -13,8 +14,8 @@ public class KeyTool {
 
 
 	@SuppressWarnings("unchecked")
-	public static <D extends Databean> List<Key<D>> getKeys(Collection<D> databeans){
-		List<Key<D>> keys = ListTool.createLinkedList();
+	public static <D extends Databean> List<PrimaryKey<D>> getKeys(Collection<D> databeans){
+		List<PrimaryKey<D>> keys = ListTool.createLinkedList();
 		for(D databean : CollectionTool.nullSafe(databeans)){
 			keys.add(databean.getKey());
 		}
@@ -22,8 +23,8 @@ public class KeyTool {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <D extends Databean> SortedMap<Key<D>,D> getByKeySorted(Collection<D> databeans){
-		SortedMap<Key<D>,D> map = MapTool.createTreeMap();
+	public static <D extends Databean> SortedMap<PrimaryKey<D>,D> getByKeySorted(Collection<D> databeans){
+		SortedMap<PrimaryKey<D>,D> map = MapTool.createTreeMap();
 		for(D databean : CollectionTool.nullSafe(databeans)){
 			map.put(databean.getKey(), databean);
 		}

@@ -26,7 +26,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
 import com.hotpads.datarouter.storage.key.Key;
-import com.hotpads.datarouter.storage.lookup.Lookup;
+import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
@@ -68,14 +69,14 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	public static final int defaultIterateBatchSize = 25;
 	
 	@Override
-	public boolean exists(Key<D> key, Config config) {
+	public boolean exists(UniqueKey<D> key, Config config) {
 		return this.get(key, config) != null;
 	}
 
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public D get(final Key<D> key, final Config config) {
+	public D get(final UniqueKey<D> key, final Config config) {
 		TraceContext.startSpan(getName()+" get");
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		Object result = executor.executeTask(
@@ -115,7 +116,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<D> getMulti(final Collection<? extends Key<D>> keys, final Config config) {	
+	public List<D> getMulti(final Collection<? extends UniqueKey<D>> keys, final Config config) {	
 		TraceContext.startSpan(getName()+" getMulti");	
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 //		final Class<? extends Databean> persistentClass = CollectionTool.getFirst(keys).getDatabeanClass();

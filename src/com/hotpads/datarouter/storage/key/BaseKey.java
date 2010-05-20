@@ -134,7 +134,7 @@ implements Key<D>{  //hibernate composite keys must implement serializable
 	/**************************** json ******************/
 	
 	@Override
-	public String getJson() {
+	public String getJson(){
 		return JsonTool.getJson(this.getFields()).toString();
 	}
 	

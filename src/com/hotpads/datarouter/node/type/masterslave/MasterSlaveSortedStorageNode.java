@@ -7,6 +7,7 @@ import com.hotpads.datarouter.node.op.SortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
 public class MasterSlaveSortedStorageNode<D extends Databean,N extends SortedStorageNode<D>>
 extends MasterSlaveSortedStorageReaderNode<D,N>
@@ -37,7 +38,7 @@ implements SortedStorageNode<D>{
 	 */
 
 	@Override
-	public void delete(Key<D> key, Config config) {
+	public void delete(UniqueKey<D> key, Config config) {
 		this.master.delete(key, config);
 	}
 
@@ -47,7 +48,7 @@ implements SortedStorageNode<D>{
 	}
 
 	@Override
-	public void deleteMulti(Collection<? extends Key<D>> keys, Config config) {
+	public void deleteMulti(Collection<? extends UniqueKey<D>> keys, Config config) {
 		this.master.deleteMulti(keys, config);
 	}
 

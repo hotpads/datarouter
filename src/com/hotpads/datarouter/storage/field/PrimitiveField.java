@@ -10,6 +10,7 @@ public abstract class PrimitiveField<T extends Comparable<T>> extends Field<T> {
 		super(prefix,name,value);
 	}
 
+	@Override
 	public String getSqlEscaped(){
 		if(value==null){
 			return "null";

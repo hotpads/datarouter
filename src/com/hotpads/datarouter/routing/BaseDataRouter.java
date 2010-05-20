@@ -109,7 +109,7 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <D extends Databean> List<String> getClientNamesForKeys(Collection<Key<D>> keys){
+	public <D extends Databean> List<String> getClientNamesForKeys(Collection<? extends Key<D>> keys){
 		List<String> clientNames = this.nodes.getClientNamesForKeys(keys);
 		return clientNames;
 	}
@@ -128,7 +128,7 @@ public abstract class BaseDataRouter implements DataRouter {
 	}
 
 	@Override
-	public <D extends Databean> List<Client> getClientsForKeys(Collection<Key<D>> keys){
+	public <D extends Databean> List<Client> getClientsForKeys(Collection<? extends Key<D>> keys){
 		List<Client> clientsForKeys = ListTool.createLinkedList();
 		List<String> clientNames = this.getClientNamesForKeys(keys);
 		for(String clientName : CollectionTool.nullSafe(clientNames)){

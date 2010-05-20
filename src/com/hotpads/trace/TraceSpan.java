@@ -17,7 +17,7 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.LongField;
-import com.hotpads.datarouter.storage.key.BaseKey;
+import com.hotpads.datarouter.storage.key.unique.primary.BasePrimaryKey;
 import com.hotpads.trace.TraceThread.TraceThreadKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -76,9 +76,9 @@ public class TraceSpan extends BaseDatabean{
 		return new TraceThreadKey(this.getTraceId(), this.getThreadId());
 	}
 	
-	
+
 	@Embeddable
-	public static class TraceSpanKey extends BaseKey<TraceSpan>{
+	public static class TraceSpanKey extends BasePrimaryKey<TraceSpan>{
 		
 		//hibernate will create these in the wrong order
 		protected Long traceId;

@@ -45,7 +45,7 @@ public interface DataRouter {
 	List<Client> getClients(Collection<String> clientNames);
 
 	<D extends Databean> List<String> getClientNamesForKeys(
-			Collection<Key<D>> keys);
+			Collection<? extends Key<D>> keys);
 
 	<D extends Databean> List<String> getClientNamesForDatabeans(
 			Collection<D> databeans);
@@ -53,7 +53,7 @@ public interface DataRouter {
 	<D extends Databean> List<Client> getClientsForDatabeanType(
 			Class<D> databeanType);
 
-	<D extends Databean> List<Client> getClientsForKeys(Collection<Key<D>> keys);
+	<D extends Databean> List<Client> getClientsForKeys(Collection<? extends Key<D>> keys);
 
 	<D extends Databean> List<Client> getClientsForDatabeans(
 			Collection<D> databeans);

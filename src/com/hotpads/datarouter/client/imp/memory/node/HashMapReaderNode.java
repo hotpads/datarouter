@@ -13,6 +13,7 @@ import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
@@ -51,13 +52,13 @@ implements PhysicalMapStorageReaderNode<D>
 	/************************************ MapStorageReader methods ****************************/
 	
 	@Override
-	public boolean exists(Key<D> key, Config config) {
+	public boolean exists(UniqueKey<D> key, Config config) {
 		return this.backingMap.containsKey(key);
 	}
 
 	
 	@Override
-	public D get(final Key<D> key, Config config) {
+	public D get(final UniqueKey<D> key, Config config) {
 		return this.backingMap.get(key);
 	}
 	
@@ -73,7 +74,7 @@ implements PhysicalMapStorageReaderNode<D>
 
 	
 	@Override
-	public List<D> getMulti(final Collection<? extends Key<D>> keys, Config config) {		
+	public List<D> getMulti(final Collection<? extends UniqueKey<D>> keys, Config config) {		
 		List<D> result = ListTool.createLinkedList();
 		for(Key<D> key : CollectionTool.nullSafe(keys)){
 			D value = this.backingMap.get(key);

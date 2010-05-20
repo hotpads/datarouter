@@ -17,7 +17,8 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.Key;
-import com.hotpads.datarouter.storage.lookup.Lookup;
+import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.StringTool;
@@ -47,10 +48,10 @@ implements PhysicalIndexedSortedStorageNode<D>
 	public static final PutMethod DEFAULT_PUT_METHOD = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
 
 	@Override
-	public void delete(Key<D> key, Config config) {
+	public void delete(UniqueKey<D> key, Config config) {
 		TraceContext.startSpan(getName()+" delete");
 		//this will not clear the databean from the hibernate session
-		List<Key<D>> keys = new LinkedList<Key<D>>();
+		List<UniqueKey<D>> keys = new LinkedList<UniqueKey<D>>();
 		keys.add(key);
 		deleteMulti(keys, config);
 		TraceContext.finishSpan();
@@ -80,7 +81,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 	 * 
 	 */
 	@Override
-	public void deleteMulti(Collection<? extends Key<D>> keys, Config config) {
+	public void deleteMulti(Collection<? extends UniqueKey<D>> keys, Config config) {
 		TraceContext.startSpan(getName()+" deleteMulti");
 		//build query
 		if(CollectionTool.isEmpty(keys)){ return; }
@@ -212,7 +213,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 					StringBuilder sql = new StringBuilder();
 					sql.append("delete from "+tableName+" where ");
 					int numFullFieldsFinished = 0;
-					for(Field field : CollectionTool.nullSafe(prefix.getFields())){
+					for(Field<?> field : CollectionTool.nullSafe(prefix.getFields())){
 						if(numFullFieldsFinished < numNonNullFields){
 							if(numFullFieldsFinished > 0){
 								sql.append(" and ");
