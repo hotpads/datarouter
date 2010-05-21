@@ -12,12 +12,14 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public class Nodes<D extends Databean,K extends Key<D>,N extends Node<D>>{
+public class Nodes<D extends Databean,K extends PrimaryKey<D>,N extends Node<D,K>>{
 	Logger logger = Logger.getLogger(getClass());
 
 	protected Map<String,N> nodeByName = MapTool.createHashMap();
@@ -69,13 +71,13 @@ public class Nodes<D extends Databean,K extends Key<D>,N extends Node<D>>{
 		return this.nodeByDatabeanType.get(databean.getClass());
 	}
 	
-	public List<String> getClientNamesForKeys(Collection<Key<D>> keys){
+	public List<String> getClientNamesForKeys(Collection<PrimaryKey<D>> keys){
 		SortedSet<String> clientNames = SetTool.createTreeSet();
-		Map<N,LinkedList<Key<D>>> keysByNode = MapTool.createHashMap();
-		for(Key<D> key : CollectionTool.nullSafe(keys)){
+		Map<N,LinkedList<PrimaryKey<D>>> keysByNode = MapTool.createHashMap();
+		for(PrimaryKey<D> key : CollectionTool.nullSafe(keys)){
 			N node = this.getNode(key);
 			if(keysByNode.get(node)==null){
-				keysByNode.put(node, new LinkedList<Key<D>>());
+				keysByNode.put(node, new LinkedList<PrimaryKey<D>>());
 			}
 			keysByNode.get(node).add(key);
 		}

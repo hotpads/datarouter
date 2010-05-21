@@ -12,6 +12,8 @@ import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
@@ -230,24 +232,24 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	}
 
 	
-//	@Override
-//	public Key<D> getFirstKey(final Config config) {
-//		this.datab
-//		final String entityName = this.getPackagedPhysicalName();
-//		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
-//		Object result = executor.executeTask(
-//			new HibernateTask() {
-//				public Object run(Session session) {
-//					Criteria criteria = session.createCriteria(entityName);
-//					ProjectionList projection = Projections.projectionList();
-//					session.
-//					criteria.setMaxResults(1);
-//					Object result = criteria.uniqueResult();
-//					return result;
-//				}
-//			});
-//		return (D)result;
-//	}
+	@Override
+	public Key<D> getFirstKey(final Config config) {
+		this.datab
+		final String entityName = this.getPackagedPhysicalName();
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					Criteria criteria = session.createCriteria(entityName);
+					ProjectionList projection = Projections.projectionList();
+					session.
+					criteria.setMaxResults(1);
+					Object result = criteria.uniqueResult();
+					return result;
+				}
+			});
+		return (D)result;
+	}
 
 	
 	@SuppressWarnings("unchecked")

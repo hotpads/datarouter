@@ -14,12 +14,11 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
 
+@SuppressWarnings("serial")
 public abstract class BaseKey<D extends Databean> 
 implements Key<D>{  //hibernate composite keys must implement serializable
-
-	private static final long serialVersionUID = -6721881893670645262L;
 	
-	public static final String defaultKeyName = "key";
+	public static final String DEFAULT_KEY_NAME = "key";
 		
 	protected Class<D> databeanClass;
 	

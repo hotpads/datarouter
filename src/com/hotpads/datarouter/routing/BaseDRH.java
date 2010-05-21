@@ -8,7 +8,7 @@ import com.hotpads.util.core.ListTool;
 
 
 /*
- * DRF=DataRouterFinder, selectively abbreviated because of frequent access
+ * DRH=DataRouterHolder, selectively abbreviated because of frequent access
  * 
  * Class for accessing Routers.  Currently supports binding itself to threads.  
  * 
@@ -22,7 +22,7 @@ import com.hotpads.util.core.ListTool;
  *   - in the setup of a Test
  *   - at the beginning of a normal application thread
  *   
- *   Then access it in your code by calling the static DRF.asdf()...
+ *   Then access it in your code by calling the static DRH.asdf()...
  */
 
 public abstract class BaseDRH{
