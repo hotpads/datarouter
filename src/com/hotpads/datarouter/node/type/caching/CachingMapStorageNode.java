@@ -7,6 +7,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.MapStorageNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 
 public abstract class CachingMapStorageNode<D extends Databean,N extends MapStorageNode<D>>
@@ -21,7 +22,7 @@ implements MapStorageNode<D>{
 	/***************************** MapStorageWriter ****************************/
 
 	@Override
-	public void delete(Key<D> key, Config config) {
+	public void delete(UniqueKey<D> key, Config config) {
 		this.getMapCacheForThisThread().remove(key);
 		this.backingNode.delete(key, config);
 	}
@@ -33,7 +34,7 @@ implements MapStorageNode<D>{
 	}
 
 	@Override
-	public void deleteMulti(Collection<? extends Key<D>> keys, Config config) {
+	public void deleteMulti(Collection<? extends UniqueKey<D>> keys, Config config) {
 		for(Key<D> key : CollectionTool.nullSafe(keys)){
 			this.getMapCacheForThisThread().remove(key);
 		}
@@ -54,7 +55,7 @@ implements MapStorageNode<D>{
 	@Override
 	public void putMulti(Collection<D> databeans, Config config) {
 		this.backingNode.putMulti(databeans, config);
-		Map<Key<D>,D> cacheForThisThread = this.getMapCacheForThisThread();
+		Map<UniqueKey<D>,D> cacheForThisThread = this.getMapCacheForThisThread();
 		for(D databean : CollectionTool.nullSafe(databeans)){
 			cacheForThisThread.put(databean.getKey(), databean);
 		}

@@ -7,7 +7,8 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.IndexedSortedStorageNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
-import com.hotpads.datarouter.storage.lookup.Lookup;
+import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 
 public class CachingIndexedSortedStorageNode<D extends Databean,N extends IndexedSortedStorageNode<D>>
@@ -38,7 +39,7 @@ implements IndexedSortedStorageNode<D>{
 	 */
 
 	@Override
-	public void delete(Key<D> key, Config config) {
+	public void delete(UniqueKey<D> key, Config config) {
 		this.clearNonMapCaches();
 		this.getMapCacheForThisThread().remove(key);
 		this.backingNode.delete(key, config);
@@ -52,9 +53,9 @@ implements IndexedSortedStorageNode<D>{
 	}
 
 	@Override
-	public void deleteMulti(Collection<? extends Key<D>> keys, Config config) {
+	public void deleteMulti(Collection<? extends UniqueKey<D>> keys, Config config) {
 		this.clearNonMapCaches();
-		Map<Key<D>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		Map<UniqueKey<D>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
 		for(Key<D> key : CollectionTool.nullSafe(keys)){
 			mapCacheForThisThread.remove(key);
 		}
@@ -77,7 +78,7 @@ implements IndexedSortedStorageNode<D>{
 	public void putMulti(Collection<D> databeans, Config config) {
 		this.clearNonMapCaches();
 		this.backingNode.putMulti(databeans, config);
-		Map<Key<D>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		Map<UniqueKey<D>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
 		for(D databean : CollectionTool.nullSafe(databeans)){
 			mapCacheForThisThread.put(databean.getKey(), databean);
 		}

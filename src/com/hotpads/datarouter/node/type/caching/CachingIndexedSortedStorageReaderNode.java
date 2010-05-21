@@ -10,7 +10,8 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.IndexedSortedStorageReaderNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
-import com.hotpads.datarouter.storage.lookup.Lookup;
+import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -125,7 +126,7 @@ implements IndexedSortedStorageReaderNode<D>{
 		List<D> fromLookupCache = this.getLookupCacheForThisThread().get(lookup);
 		if(fromLookupCache != null){ return fromLookupCache; }
 		List<D> fromBackingNode = this.backingNode.lookup(lookup, config);
-		Map<Key<D>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		Map<UniqueKey<D>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
 		for(D databean : CollectionTool.nullSafe(fromBackingNode)){
 			mapCacheForThisThread.put(databean.getKey(), databean);
 		}
@@ -149,7 +150,7 @@ implements IndexedSortedStorageReaderNode<D>{
 		List<D> fromBackingNode = this.backingNode.lookup(lookupMisses, config);
 		SetTool.nullSafeHashAddAll(resultBuilder, fromBackingNode);
 		List<D> result = ListTool.createArrayList(resultBuilder);
-		Map<Key<D>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		Map<UniqueKey<D>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
 		for(D databean : CollectionTool.nullSafe(result)){
 			mapCacheForThisThread.put(databean.getKey(), databean);
 		}

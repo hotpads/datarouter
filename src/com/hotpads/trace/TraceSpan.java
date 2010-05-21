@@ -15,7 +15,9 @@ import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.key.BaseKey;
+import com.hotpads.datarouter.storage.field.imp.IntegerField;
+import com.hotpads.datarouter.storage.field.imp.LongField;
+import com.hotpads.datarouter.storage.key.unique.primary.BasePrimaryKey;
 import com.hotpads.trace.TraceThread.TraceThreadKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -74,9 +76,9 @@ public class TraceSpan extends BaseDatabean{
 		return new TraceThreadKey(this.getTraceId(), this.getThreadId());
 	}
 	
-	
+
 	@Embeddable
-	public static class TraceSpanKey extends BaseKey<TraceSpan>{
+	public static class TraceSpanKey extends BasePrimaryKey<TraceSpan>{
 		
 		//hibernate will create these in the wrong order
 		protected Long traceId;
@@ -100,11 +102,12 @@ public class TraceSpan extends BaseDatabean{
 		}
 		
 		@Override
-		public List<Field> getFields(){
-			return ListTool.create(
-					new Field(KEY_key, COL_traceId, traceId),
-					new Field(KEY_key, COL_threadId, threadId),
-					new Field(KEY_key, COL_sequence, sequence));
+		public List<Field<?>> getFields(){
+			List<Field<?>> fields = ListTool.create();
+			fields.add(new LongField(KEY_key, COL_traceId, traceId));
+			fields.add(new LongField(KEY_key, COL_threadId, threadId));
+			fields.add(new IntegerField(KEY_key, COL_sequence, sequence));
+			return fields;
 		}
 
 		public Long getTraceId() {

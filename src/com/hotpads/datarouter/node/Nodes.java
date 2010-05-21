@@ -19,7 +19,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public class Nodes<D extends Databean,K extends PrimaryKey<D>,N extends Node<D,K>>{
+public class Nodes<D extends Databean,K extends PrimaryKey<D>,N extends Node<D>>{
 	Logger logger = Logger.getLogger(getClass());
 
 	protected Map<String,N> nodeByName = MapTool.createHashMap();
@@ -71,13 +71,13 @@ public class Nodes<D extends Databean,K extends PrimaryKey<D>,N extends Node<D,K
 		return this.nodeByDatabeanType.get(databean.getClass());
 	}
 	
-	public List<String> getClientNamesForKeys(Collection<PrimaryKey<D>> keys){
+	public List<String> getClientNamesForKeys(Collection<UniqueKey<D>> keys){
 		SortedSet<String> clientNames = SetTool.createTreeSet();
-		Map<N,LinkedList<PrimaryKey<D>>> keysByNode = MapTool.createHashMap();
-		for(PrimaryKey<D> key : CollectionTool.nullSafe(keys)){
+		Map<N,LinkedList<UniqueKey<D>>> keysByNode = MapTool.createHashMap();
+		for(UniqueKey<D> key : CollectionTool.nullSafe(keys)){
 			N node = this.getNode(key);
 			if(keysByNode.get(node)==null){
-				keysByNode.put(node, new LinkedList<PrimaryKey<D>>());
+				keysByNode.put(node, new LinkedList<UniqueKey<D>>());
 			}
 			keysByNode.get(node).add(key);
 		}

@@ -11,6 +11,7 @@ import com.hotpads.datarouter.node.base.caching.BaseCachingNode;
 import com.hotpads.datarouter.node.op.MapStorageReaderNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -28,12 +29,12 @@ implements MapStorageReaderNode<D>{
 	
 	/************************* cache access *******************************/
 
-	protected Map<String,Map<Key<D>,D>> mapCacheByThreadName = MapTool.createHashMap();
+	protected Map<String,Map<UniqueKey<D>,D>> mapCacheByThreadName = MapTool.createHashMap();
 
-	protected Map<Key<D>,D> getMapCacheForThisThread(){
+	protected Map<UniqueKey<D>,D> getMapCacheForThisThread(){
 		String threadName = Thread.currentThread().getName();
 		if(mapCacheByThreadName.get(threadName)==null){
-			mapCacheByThreadName.put(threadName, new HashMap<Key<D>,D>());
+			mapCacheByThreadName.put(threadName, new HashMap<UniqueKey<D>,D>());
 		}
 		return mapCacheByThreadName.get(threadName);
 	}
@@ -51,7 +52,7 @@ implements MapStorageReaderNode<D>{
 	/**************************** MapStorageReader ***********************************/
 	
 	@Override
-	public boolean exists(Key<D> key, Config config){
+	public boolean exists(UniqueKey<D> key, Config config){
 		if(!useCache(config)){ return this.backingNode.exists(key, config); }
 		if(this.getMapCacheForThisThread().containsKey(key)){ return true; }
 		return this.backingNode.exists(key, config);
@@ -59,7 +60,7 @@ implements MapStorageReaderNode<D>{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public D get(Key<D> key, Config config) {
+	public D get(UniqueKey<D> key, Config config) {
 		if(!useCache(config)){ return this.backingNode.get(key, config); }
 		D cachedObject = this.getMapCacheForThisThread().get(key);
 		if(cachedObject != null){ return cachedObject; }
@@ -78,12 +79,12 @@ implements MapStorageReaderNode<D>{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<D> getMulti(Collection<? extends Key<D>> keys, Config config) {
+	public List<D> getMulti(Collection<? extends UniqueKey<D>> keys, Config config) {
 		if(!useCache(config)){ return this.backingNode.getMulti(keys, config); }
 		List<D> resultBuilder = ListTool.createArrayList();
-		Set<Key<D>> uncachedKeys = SetTool.createHashSet();
-		Map<Key<D>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
-		for(Key<D> key : CollectionTool.nullSafe(keys)){
+		Set<UniqueKey<D>> uncachedKeys = SetTool.createHashSet();
+		Map<UniqueKey<D>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		for(UniqueKey<D> key : CollectionTool.nullSafe(keys)){
 			D databean = mapCacheForThisThread.get(key);
 			if(databean != null){
 				resultBuilder.add(databean);

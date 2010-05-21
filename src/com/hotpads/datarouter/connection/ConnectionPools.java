@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.connection;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,9 +9,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.DataRouterFactory;
 import com.hotpads.datarouter.client.ClientInitMode;
-import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;

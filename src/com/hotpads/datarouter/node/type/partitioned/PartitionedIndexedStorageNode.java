@@ -9,8 +9,8 @@ import com.hotpads.datarouter.node.op.IndexedStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalIndexedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.Key;
-import com.hotpads.datarouter.storage.lookup.Lookup;
+import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.MapTool;
 
@@ -40,17 +40,17 @@ implements IndexedStorageNode<D>{
 	 */
 	
 	@Override
-	public void delete(Key<D> key, Config config) {
+	public void delete(UniqueKey<D> key, Config config) {
 		for(N node : CollectionTool.nullSafe(getPhysicalNodes(key))){
 			node.delete(key, config);
 		}
 	}
 
 	@Override
-	public void deleteMulti(Collection<? extends Key<D>> keys, Config config) {
-		Map<N,List<Key<D>>> keysByNode = this.getKeysByPhysicalNode(keys);
+	public void deleteMulti(Collection<? extends UniqueKey<D>> keys, Config config) {
+		Map<N,List<UniqueKey<D>>> keysByNode = this.getKeysByPhysicalNode(keys);
 		for(N node : MapTool.nullSafe(keysByNode).keySet()){
-			Collection<Key<D>> keysForNode = keysByNode.get(node);
+			Collection<UniqueKey<D>> keysForNode = keysByNode.get(node);
 			if(CollectionTool.notEmpty(keysForNode)){
 				node.deleteMulti(keysForNode, config);
 			}

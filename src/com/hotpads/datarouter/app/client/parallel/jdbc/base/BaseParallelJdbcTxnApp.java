@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.app.client.parallel.jdbc.base;
 
 import java.sql.Connection;
-import java.util.Map;
 
 import com.hotpads.datarouter.app.JdbcTxnApp;
 import com.hotpads.datarouter.app.client.parallel.base.BaseParallelTxnApp;

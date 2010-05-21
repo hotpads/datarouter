@@ -5,20 +5,20 @@ import java.util.List;
 
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
 
-public interface Node<D extends Databean,K extends PrimaryKey<D>> {
+public interface Node<D extends Databean> {
 
 	String getName();
 	Class<D> getDatabeanType();
 	
 	List<String> getClientNames();
 	boolean usesClient(String clientName);
-	List<String> getClientNamesForKeys(Collection<K> keys);
+	<K extends UniqueKey<D>> List<String> getClientNamesForKeys(Collection<K> keys);
 	List<? extends PhysicalNode<D>> getPhysicalNodes();
 	List<? extends PhysicalNode<D>> getPhysicalNodesForClient(String clientName);
-	Node<D,K> getMaster();
+	Node<D> getMaster();
 	
 	void clearThreadSpecificState();
 	

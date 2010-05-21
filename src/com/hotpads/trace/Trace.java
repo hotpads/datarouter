@@ -14,7 +14,8 @@ import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.key.BaseKey;
+import com.hotpads.datarouter.storage.field.imp.LongField;
+import com.hotpads.datarouter.storage.key.unique.primary.base.BaseLongPrimaryKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
@@ -81,31 +82,29 @@ public class Trace extends BaseDatabean{
 	
 	
 	@Embeddable
-	public static class TraceKey extends BaseKey<Trace>{
+	public static class TraceKey extends BaseLongPrimaryKey<Trace>{
 		
 		private static Random random = new Random();
-		
-		protected Long id;
 
 		public static final String
 			COL_id = "id";
 		
 		public TraceKey(){
-			super(Trace.class);
+			super(Trace.class, null);
 			long r = Math.abs(random.nextLong());
 			if(Long.MIN_VALUE==r){ r = 0; }
 			this.id = r;
 		}
 		
 		public TraceKey(Long id){
-			super(Trace.class);
-			this.id = id;
+			super(Trace.class, id);
 		}
 		
 		@Override
-		public List<Field> getFields(){
-			return ListTool.create(
-					new Field(KEY_key, COL_id, id));
+		public List<Field<?>> getFields(){
+			List<Field<?>> fields = ListTool.create();
+			fields.add(new LongField(KEY_key, COL_id, id));
+			return fields;
 		}
 
 		public Long getId() {
@@ -115,7 +114,6 @@ public class Trace extends BaseDatabean{
 		public void setId(Long id) {
 			this.id = id;
 		}
-		
 		
 	}
 	

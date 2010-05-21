@@ -7,12 +7,10 @@ import com.hotpads.datarouter.app.base.BaseApp;
 import com.hotpads.datarouter.app.client.parallel.ParallelClientApp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.ConnectionClient;
-import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
-import com.hotpads.util.core.ListTool;
 
 public abstract class BaseParallelClientApp<T>
 extends BaseApp<T>
@@ -87,7 +85,7 @@ implements ParallelClientApp<T>{
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;
-			ConnectionHandle handle = connectionClient.reserveConnection();
+			connectionClient.reserveConnection();
 //			logger.debug("reserved "+handle);
 		}
 	}
@@ -98,7 +96,7 @@ implements ParallelClientApp<T>{
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;
 			try{
-				ConnectionHandle handle = connectionClient.releaseConnection();
+				connectionClient.releaseConnection();
 //				logger.debug("released "+handle);
 			}catch(Exception e){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));

@@ -12,7 +12,7 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.op.MapStorageReadOps;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
@@ -89,7 +89,7 @@ implements Node<D>, MapStorageReadOps<D> {
 	}
 
 	@Override
-	public <K extends Key<D>> List<String> getClientNamesForKeys(Collection<K> keys) {
+	public <K extends UniqueKey<D>> List<String> getClientNamesForKeys(Collection<K> keys) {
 		return this.master.getClientNamesForKeys(keys);
 	}
 	

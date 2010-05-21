@@ -39,25 +39,9 @@ implements Databean {
 		return this.getClass().getSimpleName()+"."+this.getKey().getPersistentString();
 	}
 	
-	public List<Field> getKeyFields(){
+	public List<Field<?>> getKeyFields(){
 		return this.getKey().getFields();
 	}
-	
-//	@Override
-//	public List<Field> getFields(){
-//		List<Field> keyFields = this.getKey().getFields();
-//		List<Field> dataFields = this.getDataFields();
-//		int totalFields = CollectionTool.size(keyFields) + CollectionTool.size(dataFields);
-//		List<Field> fields = new ArrayList<Field>(totalFields);
-//		fields.addAll(keyFields);
-//		fields.addAll(dataFields);
-//		return fields;
-//	}
-//	
-//	@Override
-//	public List<Field> getDataFields(){
-//		return new LinkedList<Field>();
-//	}
 	
 	
 }
