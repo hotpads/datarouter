@@ -19,7 +19,6 @@ implements Key<D>{  //hibernate composite keys must implement serializable
 	protected Class<D> databeanClass;
 	
 	protected BaseKey(Class<D> databeanClass) {
-		super();
 		this.databeanClass = databeanClass;
 	}
 

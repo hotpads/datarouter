@@ -19,7 +19,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public class Nodes<D extends Databean,K extends PrimaryKey<D>,N extends Node<D>>{
+public class Nodes<D extends Databean,PK extends PrimaryKey<D>,N extends Node<D,PK>>{
 	Logger logger = Logger.getLogger(getClass());
 
 	protected Map<String,N> nodeByName = MapTool.createHashMap();
@@ -50,11 +50,11 @@ public class Nodes<D extends Databean,K extends PrimaryKey<D>,N extends Node<D>>
 		return types;
 	}
 	
-	public List<? extends PhysicalNode<D>> getPhysicalNodesForClient(String clientName){
-		List<PhysicalNode<D>> physicalNodesForClient = ListTool.createLinkedList();
+	public List<? extends PhysicalNode<D,PK>> getPhysicalNodesForClient(String clientName){
+		List<PhysicalNode<D,PK>> physicalNodesForClient = ListTool.createLinkedList();
 		for(N node : MapTool.nullSafe(nodeByName).values()){
-			List<? extends PhysicalNode<D>> physicalNodesForNode = node.getPhysicalNodesForClient(clientName);
-			for(PhysicalNode<D> physicalNode : CollectionTool.nullSafe(physicalNodesForNode)){
+			List<? extends PhysicalNode<D,PK>> physicalNodesForNode = node.getPhysicalNodesForClient(clientName);
+			for(PhysicalNode<D,PK> physicalNode : CollectionTool.nullSafe(physicalNodesForNode)){
 //				if(physicalNode.usesClient(clientName)){  //nodes do the filtering now
 					physicalNodesForClient.add(physicalNode);
 //				}

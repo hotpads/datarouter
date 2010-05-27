@@ -6,24 +6,23 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.SortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 
-public class MasterSlaveSortedStorageNode<D extends Databean,N extends SortedStorageNode<D>>
-extends MasterSlaveSortedStorageReaderNode<D,N>
-implements SortedStorageNode<D>{
+public class MasterSlaveSortedStorageNode<D extends Databean,
+PK extends PrimaryKey<D>,N extends SortedStorageNode<D,PK>>
+extends MasterSlaveSortedStorageReaderNode<D,PK,N>
+implements SortedStorageNode<D,PK>{
 	
 	public MasterSlaveSortedStorageNode(
-			Class<D> databeanClass, DataRouter router,
+			Class<PK> primaryKeyClass, DataRouter router,
 			N master, Collection<N> slaves) {
-		
-		super(databeanClass, router, master, slaves);
+		super(primaryKeyClass, router, master, slaves);
 	}
 	
 	public MasterSlaveSortedStorageNode(
-			Class<D> databeanClass, DataRouter router) {
-		
-		super(databeanClass, router);
+			Class<PK> primaryKeyClass, DataRouter router) {
+		super(primaryKeyClass, router);
 	}
 	
 	/********************** sorted storate write ops ************************/
@@ -63,7 +62,7 @@ implements SortedStorageNode<D>{
 	}
 
 	@Override
-	public void deleteRangeWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
+	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
 		this.master.deleteRangeWithPrefix(prefix, wildcardLastField, config);
 	}
 	

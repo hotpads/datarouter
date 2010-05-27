@@ -90,6 +90,9 @@ public class TraceSpan extends BaseDatabean{
 			COL_threadId = "threadId",
 			COL_sequence = "sequence";
 		
+
+		/****************************** constructor ********************************/
+		
 		TraceSpanKey(){
 			super(TraceSpan.class);
 		}

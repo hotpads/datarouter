@@ -26,28 +26,33 @@ import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageRea
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldSet;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.ObjectTool;
 
-public class HibernateReaderNode<D extends Databean> 
-extends BasePhysicalNode<D>
-implements PhysicalIndexedSortedStorageReaderNode<D>{
+public class HibernateReaderNode<D extends Databean,PK extends PrimaryKey<D>> 
+extends BasePhysicalNode<D,PK>
+implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 	protected Logger logger = Logger.getLogger(getClass());
 
-	public HibernateReaderNode(Class<D> databeanClass, DataRouter router, String clientName, 
+	public HibernateReaderNode(Class<PK> primaryKeyClass, 
+			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
-		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
+		super(primaryKeyClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HibernateReaderNode(Class<D> databeanClass, DataRouter router, String clientName) {
-		super(databeanClass, router, clientName);
+	public HibernateReaderNode(Class<PK> primaryKeyClass, 
+			DataRouter router, String clientName) {
+		super(primaryKeyClass, router, clientName);
 	}
 
 	@Override
@@ -56,7 +61,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	}
 	
 	@Override
-	public Node<D> getMaster() {
+	public Node<D,PK> getMaster() {
 		return null;
 	}
 	
@@ -79,6 +84,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	@Override
 	@SuppressWarnings("unchecked")
 	public D get(final UniqueKey<D> key, final Config config) {
+		if(key==null){ return null; }
 		TraceContext.startSpan(getName()+" get");
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		Object result = executor.executeTask(
@@ -234,29 +240,42 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	}
 
 	
-//	@Override
-//	public Key<D> getFirstKey(final Config config) {
-//		this.datab
-//		final String entityName = this.getPackagedPhysicalName();
-//		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
-//		Object result = executor.executeTask(
-//			new HibernateTask() {
-//				public Object run(Session session) {
-//					Criteria criteria = session.createCriteria(entityName);
-//					ProjectionList projection = Projections.projectionList();
-//					session.
-//					criteria.setMaxResults(1);
-//					Object result = criteria.uniqueResult();
-//					return result;
-//				}
-//			});
-//		return (D)result;
-//	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public PK getFirstKey(final Config config) {
+		TraceContext.startSpan(getName()+" getFirstKey");
+		final String entityName = this.getPackagedPhysicalName();
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					Criteria criteria = session.createCriteria(entityName);
+					ProjectionList projectionList = Projections.projectionList();
+					int numFields = 0;
+					for(Field<?> field : primaryKeyFields){
+						projectionList.add(Projections.property(field.getPrefixedName()));
+						++numFields;
+					}
+					criteria.setProjection(projectionList);
+					addPrimaryKeyOrderToCriteria(criteria);
+					criteria.setMaxResults(1);
+					Object rows = criteria.uniqueResult();
+					if(rows==null){ return null; }
+					if(numFields==1){
+						rows = new Object[]{rows};
+					}
+					PK pk = (PK)FieldTool.fieldSetFromSqlUsingReflection(primaryKeyClass, primaryKeyFields, rows);
+					return pk;
+				}
+			});
+		TraceContext.finishSpan();
+		return (PK)result;
+	}
 
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<D> getWithPrefix(final Key<D> prefix, final boolean wildcardLastField, final Config config) {
+	public List<D> getWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
 		TraceContext.startSpan(getName()+" getWithPrefix");
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		Object result = executor.executeTask(
@@ -280,7 +299,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<D> getWithPrefixes(final Collection<? extends Key<D>> prefixes, final boolean wildcardLastField, final Config config) {
+	public List<D> getWithPrefixes(final Collection<? extends PK> prefixes, final boolean wildcardLastField, final Config config) {
 		TraceContext.startSpan(getName()+" getWithPrefixes");
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
@@ -305,12 +324,62 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 		return (List<D>)result;
 	}
 	
+	protected void addRangesToCriteria(Criteria criteria, 
+			final PK start, final boolean startInclusive, 
+			final PK end, final boolean endInclusive){
+
+		if(start != null && CollectionTool.notEmpty(start.getFields())){
+			List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
+			int numNonNullStartFields = Field.countNonNullLeadingFields(startFields);
+			Disjunction d = Restrictions.disjunction();
+			for(int i=numNonNullStartFields; i > 0; --i){
+				Conjunction c = Restrictions.conjunction();
+				for(int j=0; j < i; ++j){
+					Field<?> startField = startFields.get(j);
+					if(j < (i-1)){
+						c.add(Restrictions.eq(startField.getPrefixedName(), startField.getValue()));
+					}else{
+						if(startInclusive && i==numNonNullStartFields){
+							c.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue()));
+						}else{
+							c.add(Restrictions.gt(startField.getPrefixedName(), startField.getValue()));
+						}
+					}
+				}
+				d.add(c);
+			}
+			criteria.add(d);
+		}
+		
+		if(end != null && CollectionTool.notEmpty(end.getFields())){
+			List<Field<?>> endFields = ListTool.createArrayList(end.getFields());
+			int numNonNullEndFields = Field.countNonNullLeadingFields(endFields);
+			Disjunction d = Restrictions.disjunction();
+			for(int i=0; i < numNonNullEndFields; ++i){
+				Conjunction c = Restrictions.conjunction();
+				for(int j=0; j <= i; ++j){
+					Field<?> endField = endFields.get(j);
+					if(j==i){
+						if(endInclusive){
+							c.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));
+						}else{
+							c.add(Restrictions.lt(endField.getPrefixedName(), endField.getValue()));
+						}
+					}else{
+						c.add(Restrictions.eq(endField.getPrefixedName(), endField.getValue()));
+					}
+				}
+				d.add(c);
+			}
+			criteria.add(d);
+		}
+	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<D> getRange(
-			final Key<D> start, final boolean startInclusive, 
-			final Key<D> end, final boolean endInclusive, 
+	public List<PK> getKeysInRange(
+			final PK start, final boolean startInclusive, 
+			final PK end, final boolean endInclusive, 
 			final Config config) {
 
 		TraceContext.startSpan(getName()+" getRange");
@@ -319,54 +388,44 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 			new HibernateTask() {
 				public Object run(Session session) {
 					Criteria criteria = getCriteriaForConfig(config, session);
-					
-					addOrderToCriteriaUsingPrimaryKeys(criteria, start, end);//TODO may not be sorting on all fields
-										
-					if(start != null && CollectionTool.notEmpty(start.getFields())){
-						List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
-						int numNonNullStartFields = Field.countNonNullLeadingFields(startFields);
-						Disjunction d = Restrictions.disjunction();
-						for(int i=numNonNullStartFields; i > 0; --i){
-							Conjunction c = Restrictions.conjunction();
-							for(int j=0; j < i; ++j){
-								Field<?> startField = startFields.get(j);
-								if(j < (i-1)){
-									c.add(Restrictions.eq(startField.getPrefixedName(), startField.getValue()));
-								}else{
-									if(startInclusive && i==numNonNullStartFields){
-										c.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue()));
-									}else{
-										c.add(Restrictions.gt(startField.getPrefixedName(), startField.getValue()));
-									}
-								}
-							}
-							d.add(c);
-						}
-						criteria.add(d);
+					ProjectionList projectionList = Projections.projectionList();
+					int numFields = 0;
+					for(Field<?> field : primaryKeyFields){
+						projectionList.add(Projections.property(field.getPrefixedName()));
+						++numFields;
 					}
-					
-					if(end != null && CollectionTool.notEmpty(end.getFields())){
-						List<Field<?>> endFields = ListTool.createArrayList(end.getFields());
-						int numNonNullEndFields = Field.countNonNullLeadingFields(endFields);
-						Disjunction d = Restrictions.disjunction();
-						for(int i=0; i < numNonNullEndFields; ++i){
-							Conjunction c = Restrictions.conjunction();
-							for(int j=0; j <= i; ++j){
-								Field<?> endField = endFields.get(j);
-								if(j==i){
-									if(endInclusive){
-										c.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));
-									}else{
-										c.add(Restrictions.lt(endField.getPrefixedName(), endField.getValue()));
-									}
-								}else{
-									c.add(Restrictions.eq(endField.getPrefixedName(), endField.getValue()));
-								}
-							}
-							d.add(c);
-						}
-						criteria.add(d);
+					criteria.setProjection(projectionList);
+					addPrimaryKeyOrderToCriteria(criteria);
+					addRangesToCriteria(criteria, start, startInclusive, end, endInclusive);
+					List<Object[]> rows = criteria.list();
+					List<FieldSet> result = ListTool.createArrayList(CollectionTool.size(rows));
+					for(Object[] row : IterableTool.nullSafe(rows)){
+						result.add(FieldTool.fieldSetFromSqlUsingReflection(primaryKeyClass, primaryKeyFields, row));
 					}
+					return (List<PK>)result;
+				}
+			});
+		TraceContext.finishSpan();
+		
+		return (List<PK>)result;
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<D> getRange(
+			final PK start, final boolean startInclusive, 
+			final PK end, final boolean endInclusive, 
+			final Config config) {
+
+		TraceContext.startSpan(getName()+" getRange");
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					Criteria criteria = getCriteriaForConfig(config, session);
+					addPrimaryKeyOrderToCriteria(criteria);
+					addRangesToCriteria(criteria, start, startInclusive, end, endInclusive);
 					Object result = criteria.list();
 					return result;
 				}
@@ -382,8 +441,8 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getPrefixedRange(
-			final Key<D> prefix, final boolean wildcardLastField,
-			final Key<D> start, final boolean startInclusive, 
+			final PK prefix, final boolean wildcardLastField,
+			final PK start, final boolean startInclusive, 
 			final Config config) {
 
 		TraceContext.startSpan(getName()+" getPrefixedRange");
@@ -393,7 +452,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 				public Object run(Session session) {
 					Criteria criteria = getCriteriaForConfig(config, session);
 					
-					addOrderToCriteriaUsingPrimaryKeys(criteria, start, null);//TODO may not be sorting on all fields
+					addPrimaryKeyOrderToCriteria(criteria);
 
 					Conjunction prefixConjunction = getPrefixConjunction(prefix, wildcardLastField);
 					if(prefixConjunction != null){
@@ -435,13 +494,8 @@ implements PhysicalIndexedSortedStorageReaderNode<D>{
 	
 	/********************************* helpers ***********************************************/
 	
-	protected void addOrderToCriteriaUsingPrimaryKeys(Criteria criteria, Key<D> start, Key<D> end){
-		//TODO may not be sorting on all fields !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		if(ObjectTool.bothNull(start, end)){
-			return;//can't figure out the order
-		}
-		Key<D> key = start!=null?start:end;
-		for(Field<?> field : key.getFields()){
+	protected void addPrimaryKeyOrderToCriteria(Criteria criteria){
+		for(Field<?> field : this.primaryKeyFields){
 			criteria.addOrder(Order.asc(field.getPrefixedName()));
 		}
 	}

@@ -17,30 +17,32 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
-import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.StringTool;
 
-public class HibernateNode<D extends Databean> 
-extends HibernateReaderNode<D>
-implements PhysicalIndexedSortedStorageNode<D>
+public class HibernateNode<D extends Databean,PK extends PrimaryKey<D>> 
+extends HibernateReaderNode<D,PK>
+implements PhysicalIndexedSortedStorageNode<D,PK>
 {
 	
-	public HibernateNode(Class<D> databeanClass, DataRouter router, String clientName, 
+	public HibernateNode(Class<PK> primaryKeyClass, 
+			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
-		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
+		super(primaryKeyClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HibernateNode(Class<D> databeanClass, DataRouter router, String clientName) {
-		super(databeanClass, router, clientName);
+	public HibernateNode(Class<PK> primaryKeyClass, 
+			DataRouter router, String clientName) {
+		super(primaryKeyClass, router, clientName);
 	}
 	
 	@Override
-	public Node<D> getMaster() {
+	public Node<D,PK> getMaster() {
 		return this;
 	}
 	
@@ -196,7 +198,7 @@ implements PhysicalIndexedSortedStorageNode<D>
 
 
 	@Override
-	public void deleteRangeWithPrefix(final Key<D> prefix, final boolean wildcardLastField, final Config config) {
+	public void deleteRangeWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
 		TraceContext.startSpan(getName()+" deleteRangeWithPrefix");
 		if(prefix==null){ return; }
 		final String tableName = this.getPhysicalName();

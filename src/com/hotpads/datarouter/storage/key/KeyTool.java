@@ -1,16 +1,33 @@
 package com.hotpads.datarouter.storage.key;
 
+import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 
+import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
 public class KeyTool {
+	
+	public static <D extends Databean> Class<D> getDatabeanClass(Class<? extends PrimaryKey<D>> primaryKeyClass){
+		try{
+			//use getDeclaredConstructor to access non-public constructors
+			Constructor<?> constructor = primaryKeyClass.getDeclaredConstructor();
+			constructor.setAccessible(true);
+			@SuppressWarnings("unchecked")
+			PrimaryKey<D> primaryKeyInstance = (PrimaryKey<D>)constructor.newInstance();
+			return primaryKeyInstance.getDatabeanClass();
+		}catch(Exception e){
+			throw new DataAccessException(e.getClass().getSimpleName()+" on "+primaryKeyClass.getSimpleName()
+					+".  Is there a no-arg constructor?");
+		}
+	}
 
 
 	@SuppressWarnings("unchecked")

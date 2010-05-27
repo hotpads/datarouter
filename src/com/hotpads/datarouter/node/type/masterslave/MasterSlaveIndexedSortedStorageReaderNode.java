@@ -8,23 +8,23 @@ import com.hotpads.datarouter.node.op.IndexedSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 
 
-public class MasterSlaveIndexedSortedStorageReaderNode<D extends Databean,N extends IndexedSortedStorageReaderNode<D>>
-extends MasterSlaveSortedStorageReaderNode<D,N>
-implements IndexedSortedStorageReaderNode<D>{
+public class MasterSlaveIndexedSortedStorageReaderNode<D extends Databean,
+PK extends PrimaryKey<D>,N extends IndexedSortedStorageReaderNode<D,PK>>
+extends MasterSlaveSortedStorageReaderNode<D,PK,N>
+implements IndexedSortedStorageReaderNode<D,PK>{
 	
 	public MasterSlaveIndexedSortedStorageReaderNode(
-			Class<D> databeanClass, DataRouter router,
+			Class<PK> primaryKeyClass, DataRouter router,
 			N master, Collection<N> slaves) {
-		
-		super(databeanClass, router, master, slaves);
+		super(primaryKeyClass, router, master, slaves);
 	}
 	
 	public MasterSlaveIndexedSortedStorageReaderNode(
-			Class<D> databeanClass, DataRouter router) {
-		
-		super(databeanClass, router);
+			Class<PK> primaryKeyClass, DataRouter router) {
+		super(primaryKeyClass, router);
 	}
 
 	/***************** IndexedStorageReader ************************************/

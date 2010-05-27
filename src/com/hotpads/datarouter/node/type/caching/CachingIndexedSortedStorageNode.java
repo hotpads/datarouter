@@ -9,11 +9,13 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 
-public class CachingIndexedSortedStorageNode<D extends Databean,N extends IndexedSortedStorageNode<D>>
-extends CachingIndexedSortedStorageReaderNode<D,N>
-implements IndexedSortedStorageNode<D>{
+public class CachingIndexedSortedStorageNode<D extends Databean,
+PK extends PrimaryKey<D>,N extends IndexedSortedStorageNode<D,PK>>
+extends CachingIndexedSortedStorageReaderNode<D,PK,N>
+implements IndexedSortedStorageNode<D,PK>{
 
 	
 	public CachingIndexedSortedStorageNode(N backingNode) {
@@ -85,7 +87,7 @@ implements IndexedSortedStorageNode<D>{
 	}
 
 	@Override
-	public void deleteRangeWithPrefix(Key<D> prefix, boolean wildcardLastField,
+	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField,
 			Config config) {
 		this.getMapCacheForThisThread().clear();
 		this.clearNonMapCaches();

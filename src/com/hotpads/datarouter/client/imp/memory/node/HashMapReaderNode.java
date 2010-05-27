@@ -14,23 +14,26 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
-public class HashMapReaderNode<D extends Databean> 
-extends BasePhysicalNode<D>
-implements PhysicalMapStorageReaderNode<D>
+public class HashMapReaderNode<D extends Databean,PK extends PrimaryKey<D>> 
+extends BasePhysicalNode<D,PK>
+implements PhysicalMapStorageReaderNode<D,PK>
 {
 	
-	protected Map<Key<D>,D> backingMap = new HashMap<Key<D>,D>();
+	protected Map<UniqueKey<D>,D> backingMap = new HashMap<UniqueKey<D>,D>();
 
-	public HashMapReaderNode(Class<D> databeanClass, DataRouter router, String clientName, 
+	public HashMapReaderNode(Class<PK> primaryKeyClass, 
+			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
-		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
+		super(primaryKeyClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HashMapReaderNode(Class<D> databeanClass, DataRouter router, String clientName) {
-		super(databeanClass, router, clientName);
+	public HashMapReaderNode(Class<PK> primaryKeyClass, 
+			DataRouter router, String clientName) {
+		super(primaryKeyClass, router, clientName);
 	}
 
 	@Override
@@ -39,7 +42,7 @@ implements PhysicalMapStorageReaderNode<D>
 	}
 	
 	@Override
-	public Node<D> getMaster() {
+	public Node<D,PK> getMaster() {
 		return null;
 	}
 	

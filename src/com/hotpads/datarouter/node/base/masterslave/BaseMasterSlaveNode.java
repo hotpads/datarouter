@@ -12,15 +12,17 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.op.MapStorageReadOps;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BaseMasterSlaveNode<D extends Databean,N extends Node<D>> 
-implements Node<D>, MapStorageReadOps<D> {
+public abstract class BaseMasterSlaveNode<D extends Databean,PK extends PrimaryKey<D>,N extends Node<D,PK>> 
+implements Node<D,PK>, MapStorageReadOps<D,PK> {
 
-
+	protected Class<PK> primaryKeyClass;
 	protected Class<D> databeanClass;
 	protected N master;
 	protected List<N> slaves = new ArrayList<N>();
@@ -30,8 +32,9 @@ implements Node<D>, MapStorageReadOps<D> {
 	
 	protected AtomicInteger slaveRequestCounter = new AtomicInteger(0);
 	
-	public BaseMasterSlaveNode(Class<D> databeanClass, DataRouter router){
-		this.databeanClass = databeanClass;
+	public BaseMasterSlaveNode(Class<PK> primaryKeyClass, DataRouter router){
+		this.databeanClass = KeyTool.getDatabeanClass(primaryKeyClass);
+		this.primaryKeyClass = primaryKeyClass;
 		this.name = databeanClass.getSimpleName()+"."+this.getClass().getSimpleName();
 		this.router = router;
 	}
@@ -49,8 +52,8 @@ implements Node<D>, MapStorageReadOps<D> {
 	}
 
 	@Override
-	public List<PhysicalNode<D>> getPhysicalNodes() {
-		List<PhysicalNode<D>> all = ListTool.createLinkedList();
+	public List<PhysicalNode<D,PK>> getPhysicalNodes() {
+		List<PhysicalNode<D,PK>> all = ListTool.createLinkedList();
 		all.addAll(this.master.getPhysicalNodes());
 		for(N slave : CollectionTool.nullSafe(this.slaves)){
 			all.addAll(ListTool.nullSafe(slave.getPhysicalNodes()));
@@ -59,8 +62,8 @@ implements Node<D>, MapStorageReadOps<D> {
 	}
 
 	@Override
-	public List<PhysicalNode<D>> getPhysicalNodesForClient(String clientName) {
-		List<PhysicalNode<D>> all = ListTool.createLinkedList();
+	public List<PhysicalNode<D,PK>> getPhysicalNodesForClient(String clientName) {
+		List<PhysicalNode<D,PK>> all = ListTool.createLinkedList();
 		all.addAll(this.master.getPhysicalNodesForClient(clientName));
 		for(N slave : CollectionTool.nullSafe(this.slaves)){
 			all.addAll(ListTool.nullSafe(slave.getPhysicalNodesForClient(clientName)));

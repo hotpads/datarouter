@@ -89,7 +89,7 @@ public class Trace extends BaseDatabean{
 		public static final String
 			COL_id = "id";
 		
-		public TraceKey(){
+		public TraceKey(){//remember no-arg is required
 			super(Trace.class, null);
 			long r = Math.abs(random.nextLong());
 			if(Long.MIN_VALUE==r){ r = 0; }

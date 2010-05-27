@@ -19,4 +19,9 @@ public class StringField extends Field<String>{
 		String stringValue = (String)value;
 		return "'" + stringValue.replaceAll("'", "''") + "'";
 	}
+
+	@Override
+	public String parseJdbcValueButDoNotSet(Object obj){
+		return obj==null?null:(String)obj;
+	}
 }

@@ -17,11 +17,11 @@ extends BaseParallelHibernateTxnApp<Integer>{
 	Logger logger = Logger.getLogger(getClass());
 
 	private Functor<?,Void> func;
-	private Node<?> node;
+	private Node<?,?> node;
 	
 
 	public FunctorParallelHibernateTransactionWrapper(
-			Functor<?,Void> func, DataRouter router, Node<?> node) {
+			Functor<?,Void> func, DataRouter router, Node<?,?> node) {
 		super(router);
 		this.node = node;
 		this.func = func;

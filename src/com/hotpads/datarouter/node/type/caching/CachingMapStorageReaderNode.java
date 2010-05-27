@@ -10,16 +10,17 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.base.caching.BaseCachingNode;
 import com.hotpads.datarouter.node.op.MapStorageReaderNode;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class CachingMapStorageReaderNode<D extends Databean,N extends MapStorageReaderNode<D>>
-extends BaseCachingNode<D,N>
-implements MapStorageReaderNode<D>{
+public abstract class CachingMapStorageReaderNode<D extends Databean,
+PK extends PrimaryKey<D>,N extends MapStorageReaderNode<D,PK>>
+extends BaseCachingNode<D,PK,N>
+implements MapStorageReaderNode<D,PK>{
 	
 	
 	public CachingMapStorageReaderNode(N backingNode) {

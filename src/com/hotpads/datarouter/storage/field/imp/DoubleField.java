@@ -12,4 +12,9 @@ public class DoubleField extends PrimitiveField<Double>{
 		super(prefix, name, value);
 	}
 
+	@Override
+	public Double parseJdbcValueButDoNotSet(Object obj){
+		return obj==null?null:(Double)obj;
+	}
+
 }

@@ -12,4 +12,9 @@ public class CharacterField extends PrimitiveField<Character>{
 		super(prefix, name, value);
 	}
 
+	@Override
+	public Character parseJdbcValueButDoNotSet(Object obj){
+		return obj==null?null:(Character)obj;
+	}
+
 }

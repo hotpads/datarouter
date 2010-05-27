@@ -10,14 +10,15 @@ import com.hotpads.datarouter.node.op.SortedStorageReaderNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class PartitionedSortedStorageReaderNode<D extends Databean,N extends PhysicalSortedStorageReaderNode<D>>
-extends PartitionedMapStorageReaderNode<D,N>
-implements SortedStorageReaderNode<D>{
+public abstract class PartitionedSortedStorageReaderNode<D extends Databean,
+PK extends PrimaryKey<D>,N extends PhysicalSortedStorageReaderNode<D,PK>>
+extends PartitionedMapStorageReaderNode<D,PK,N>
+implements SortedStorageReaderNode<D,PK>{
 	
 	public PartitionedSortedStorageReaderNode(Class<D> persistentClass, DataRouter router) {
 		super(persistentClass, router);
@@ -30,14 +31,26 @@ implements SortedStorageReaderNode<D>{
 		SortedSet<D> firstFromEachNode = SetTool.createTreeSet();
 		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
 			D databean = node.getFirst(config);
+			if(databean==null){ continue; }
 			firstFromEachNode.add(databean);
 		}
 		return CollectionTool.getFirst(firstFromEachNode);
 	}
 
 	@Override
-	public List<D> getPrefixedRange(Key<D> prefix, boolean wildcardLastField, 
-			final Key<D> start, final boolean startInclusive,
+	public PK getFirstKey(Config config) {
+		SortedSet<PK> firstFromEachNode = SetTool.createTreeSet();
+		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
+			PK key = node.getFirstKey(config);
+			if(key==null){ continue; }
+			firstFromEachNode.add(key);
+		}
+		return CollectionTool.getFirst(firstFromEachNode);
+	}
+
+	@Override
+	public List<D> getPrefixedRange(PK prefix, boolean wildcardLastField, 
+			final PK start, final boolean startInclusive,
 			Config config) {
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
@@ -60,8 +73,28 @@ implements SortedStorageReaderNode<D>{
 	}
 
 	@Override
-	public List<D> getRange(final Key<D> start, final boolean startInclusive, 
-			final Key<D> end, final boolean endInclusive, final Config config) {
+	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, 
+			final PK end, final boolean endInclusive, final Config config) {
+		//TODO smarter/optional sorting
+		List<PK> all = ListTool.createArrayList();
+		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes())){
+			all.addAll(node.getKeysInRange(start, startInclusive, end, endInclusive, config));
+		}
+		if(CollectionTool.isEmpty(all)){ 
+			return null; 
+		}
+		Collections.sort(all);
+		if(config!=null && config.getLimit()!=null && config.getLimit() >= all.size()){
+			List<PK> limited = ListTool.copyOfRange(all, 0, config.getLimit());
+			return limited;
+		}else{
+			return all;
+		}
+	}
+
+	@Override
+	public List<D> getRange(final PK start, final boolean startInclusive, 
+			final PK end, final boolean endInclusive, final Config config) {
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
 		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes())){
@@ -80,7 +113,7 @@ implements SortedStorageReaderNode<D>{
 	}
 
 	@Override
-	public List<D> getWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
+	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
 		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes(prefix))){
@@ -99,7 +132,7 @@ implements SortedStorageReaderNode<D>{
 	}
 
 	@Override
-	public List<D> getWithPrefixes(Collection<? extends Key<D>> prefixes, boolean wildcardLastField, Config config) {
+	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config) {
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
 		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes(prefixes))){

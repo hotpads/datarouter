@@ -12,6 +12,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 
 public interface DataRouter {
 
@@ -21,7 +22,7 @@ public interface DataRouter {
 
 	void setClients(Clients clients);
 
-	<D extends Databean, N extends Node<D>> N register(N node);
+	<D extends Databean,PK extends PrimaryKey<D>, N extends Node<D,PK>> N register(N node);
 	
 	void activate() throws IOException;
 

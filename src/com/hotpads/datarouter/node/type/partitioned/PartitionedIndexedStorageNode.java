@@ -11,12 +11,14 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.MapTool;
 
-public abstract class PartitionedIndexedStorageNode<D extends Databean,N extends PhysicalIndexedStorageNode<D>>
-extends PartitionedMapStorageReaderNode<D,N>
-implements IndexedStorageNode<D>{
+public abstract class PartitionedIndexedStorageNode<D extends Databean,
+PK extends PrimaryKey<D>,N extends PhysicalIndexedStorageNode<D,PK>>
+extends PartitionedMapStorageReaderNode<D,PK,N>
+implements IndexedStorageNode<D,PK>{
 	
 	public PartitionedIndexedStorageNode(Class<D> persistentClass, DataRouter router) {
 		super(persistentClass, router);

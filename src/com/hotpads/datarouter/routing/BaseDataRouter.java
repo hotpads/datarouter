@@ -13,6 +13,7 @@ import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.KeyTool;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -51,7 +52,7 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <D extends Databean,N extends Node<D>> N register(N node){
+	public <D extends Databean,PK extends PrimaryKey<D>,N extends Node<D,PK>> N register(N node){
 		this.nodes.register(node);
 		return node;
 	}

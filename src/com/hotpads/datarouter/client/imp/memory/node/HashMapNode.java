@@ -9,24 +9,27 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 
-public class HashMapNode<D extends Databean> 
-extends HashMapReaderNode<D>
-implements PhysicalMapStorageNode<D>
+public class HashMapNode<D extends Databean,PK extends PrimaryKey<D>> 
+extends HashMapReaderNode<D,PK>
+implements PhysicalMapStorageNode<D,PK>
 {
 	
-	public HashMapNode(Class<D> databeanClass, DataRouter router, String clientName, 
+	public HashMapNode(Class<PK> primaryKeyClass, 
+			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
-		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
+		super(primaryKeyClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HashMapNode(Class<D> databeanClass, DataRouter router, String clientName) {
-		super(databeanClass, router, clientName);
+	public HashMapNode(Class<PK> primaryKeyClass, 
+			DataRouter router, String clientName) {
+		super(primaryKeyClass, router, clientName);
 	}
 	
 	@Override
-	public Node<D> getMaster() {
+	public Node<D,PK> getMaster() {
 		return this;
 	}
 	

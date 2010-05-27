@@ -9,17 +9,18 @@ import java.util.Set;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.IndexedSortedStorageReaderNode;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class CachingIndexedSortedStorageReaderNode<D extends Databean,N extends IndexedSortedStorageReaderNode<D>>
-extends CachingMapStorageReaderNode<D,N>
-implements IndexedSortedStorageReaderNode<D>{	
+public abstract class CachingIndexedSortedStorageReaderNode<D extends Databean,
+PK extends PrimaryKey<D>,N extends IndexedSortedStorageReaderNode<D,PK>>
+extends CachingMapStorageReaderNode<D,PK,N>
+implements IndexedSortedStorageReaderNode<D,PK>{	
 	
 	public CachingIndexedSortedStorageReaderNode(N backingNode) {
 		super(backingNode);
@@ -89,28 +90,40 @@ implements IndexedSortedStorageReaderNode<D>{
 	}
 
 	@Override
+	public PK getFirstKey(Config config) {
+		//TODO implement caching
+		return this.backingNode.getFirstKey(config);
+	}
+
+	@Override
 	public List<D> getPrefixedRange(
-			Key<D> prefix, boolean wildcardLastField,
-			Key<D> start, boolean startInclusive, Config config) {
+			PK prefix, boolean wildcardLastField,
+			PK start, boolean startInclusive, Config config) {
 		//TODO implement caching
 		return this.backingNode.getPrefixedRange(
 				prefix, wildcardLastField, start, startInclusive, config);
 	}
 
 	@Override
-	public List<D> getRange(Key<D> start, boolean startInclusive, Key<D> end, boolean endInclusive, Config config) {
+	public List<PK> getKeysInRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config) {
+		//TODO implement caching
+		return this.backingNode.getKeysInRange(start, startInclusive, end, endInclusive, config);
+	}
+
+	@Override
+	public List<D> getRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config) {
 		//TODO implement caching
 		return this.backingNode.getRange(start, startInclusive, end, endInclusive, config);
 	}
 
 	@Override
-	public List<D> getWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
+	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
 		//TODO implement caching
 		return this.backingNode.getWithPrefix(prefix, wildcardLastField, config);
 	}
 
 	@Override
-	public List<D> getWithPrefixes(Collection<? extends Key<D>> prefixes, boolean wildcardLastField, Config config) {
+	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config) {
 		//TODO implement caching
 		return this.backingNode.getWithPrefixes(prefixes, wildcardLastField, config);
 	}

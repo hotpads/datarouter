@@ -7,23 +7,21 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.SortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 
-public class MasterSlaveSortedStorageReaderNode<D extends Databean,N extends SortedStorageReaderNode<D>>
-extends MasterSlaveMapStorageReaderNode<D,N>
-implements SortedStorageReaderNode<D>{
+public class MasterSlaveSortedStorageReaderNode<D extends Databean,PK extends PrimaryKey<D>,N extends SortedStorageReaderNode<D,PK>>
+extends MasterSlaveMapStorageReaderNode<D,PK,N>
+implements SortedStorageReaderNode<D,PK>{
 	
 	public MasterSlaveSortedStorageReaderNode(
-			Class<D> databeanClass, DataRouter router,
+			Class<PK> primaryKeyClass, DataRouter router,
 			N master, Collection<N> slaves) {
-		
-		super(databeanClass, router, master, slaves);
+		super(primaryKeyClass, router, master, slaves);
 	}
 	
 	public MasterSlaveSortedStorageReaderNode(
-			Class<D> databeanClass, DataRouter router) {
-		
-		super(databeanClass, router);
+			Class<PK> primaryKeyClass, DataRouter router) {
+		super(primaryKeyClass, router);
 	}
 
 	/***************** SortedStorageReader ************************************/
@@ -36,9 +34,16 @@ implements SortedStorageReaderNode<D>{
 	}
 
 	@Override
+	public PK getFirstKey(Config config) {
+		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
+		N node = slaveOk ? this.chooseSlave(config) : this.master;
+		return node.getFirstKey(config);
+	}
+	
+	@Override
 	public List<D> getPrefixedRange(
-			Key<D> prefix, boolean wildcardLastField,
-			Key<D> start, boolean startInclusive, Config config) {
+			PK prefix, boolean wildcardLastField,
+			PK start, boolean startInclusive, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;
 		return node.getPrefixedRange(
@@ -46,7 +51,15 @@ implements SortedStorageReaderNode<D>{
 	}
 
 	@Override
-	public List<D> getRange(Key<D> start, boolean startInclusive, Key<D> end,
+	public List<PK> getKeysInRange(PK start, boolean startInclusive, PK end,
+			boolean endInclusive, Config config) {
+		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
+		N node = slaveOk ? this.chooseSlave(config) : this.master;
+		return node.getKeysInRange(start, startInclusive, end, endInclusive, config);
+	}
+
+	@Override
+	public List<D> getRange(PK start, boolean startInclusive, PK end,
 			boolean endInclusive, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;
@@ -54,14 +67,14 @@ implements SortedStorageReaderNode<D>{
 	}
 
 	@Override
-	public List<D> getWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
+	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;
 		return node.getWithPrefix(prefix,wildcardLastField, config);
 	}
 
 	@Override
-	public List<D> getWithPrefixes(Collection<? extends Key<D>> prefixes, boolean wildcardLastField, Config config) {
+	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;
 		return node.getWithPrefixes(prefixes,wildcardLastField, config);

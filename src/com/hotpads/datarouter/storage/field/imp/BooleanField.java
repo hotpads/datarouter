@@ -12,4 +12,9 @@ public class BooleanField extends PrimitiveField<Boolean>{
 		super(prefix, name, value);
 	}
 
+	@Override
+	public Boolean parseJdbcValueButDoNotSet(Object obj){
+		return obj==null?null:(Boolean)obj;
+	}
+
 }

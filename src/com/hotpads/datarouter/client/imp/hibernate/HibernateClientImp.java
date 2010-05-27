@@ -191,11 +191,11 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	public ConnectionHandle rollbackTxn(){
 		try{
 			Connection connection = this.getExistingConnection();
-			if(connection != null){
+			if(connection == null){
+				logger.warn("couldn't rollback txn because connection was null.  handle="+this.getExistingHandle());
+			}else if( ! connection.getAutoCommit()){
 				logger.warn("ROLLING BACK TXN "+this.getExistingHandle());
 				connection.rollback();
-			}else{
-				logger.warn("couldn't rollback txn because connection was null.  handle="+this.getExistingHandle());
 			}
 			return this.getExistingHandle();
 		} catch (SQLException e) {

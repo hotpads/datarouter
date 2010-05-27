@@ -1,7 +1,9 @@
 package com.hotpads.datarouter.storage.field;
 
+import java.lang.reflect.Constructor;
 import java.util.List;
 
+import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -31,6 +33,20 @@ public class FieldTool{
 			}
 		}
 		return null;
+	}
+	
+	/************************* reflection *************************/
+	
+	public static List<Field<?>> getFieldsUsingReflection(Class<? extends FieldSet> cls){
+		try{
+			//use getDeclaredConstructor to access non-public constructors
+			Constructor<?> constructor = cls.getDeclaredConstructor();
+			constructor.setAccessible(true);
+			FieldSet targetFieldSet = (FieldSet)constructor.newInstance();
+			return targetFieldSet.getFields();
+		}catch(Exception e){
+			throw new DataAccessException(e.getClass().getSimpleName()+" on "+cls.getName());
+		}
 	}
 	
 
@@ -63,6 +79,42 @@ public class FieldTool{
 			++numAppended;
 		}
 		return sb.toString();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static FieldSet fieldSetFromSqlUsingBeanUtils(Class<? extends FieldSet> cls, List<Field<?>> fields, Object sqlObject){
+		FieldSet targetFieldSet = null;
+		try{
+			Object[] cols = (Object[])sqlObject;
+			targetFieldSet = cls.newInstance();
+			int counter = 0;
+			for(Field field : fields){
+				field.setFieldUsingBeanUtils(targetFieldSet, cols[counter]);
+				++counter;
+			}
+		}catch(Exception e){
+			throw new DataAccessException(e.getClass().getSimpleName()+" on "+cls.getName());
+		}
+		return targetFieldSet;
+	}
+	
+	public static FieldSet fieldSetFromSqlUsingReflection(Class<? extends FieldSet> cls, List<Field<?>> fields, Object sqlObject){
+		FieldSet targetFieldSet = null;
+		try{
+			Object[] cols = (Object[])sqlObject;
+			//use getDeclaredConstructor to access non-public constructors
+			Constructor<?> constructor = cls.getDeclaredConstructor();
+			constructor.setAccessible(true);
+			targetFieldSet = (FieldSet)constructor.newInstance();
+			int counter = 0;
+			for(Field<?> field : fields){
+				field.setFieldUsingReflection(targetFieldSet, cols[counter]);
+				++counter;
+			}
+		}catch(Exception e){
+			throw new DataAccessException(e.getClass().getSimpleName()+" on "+cls.getName());
+		}
+		return targetFieldSet;
 	}
 
 }

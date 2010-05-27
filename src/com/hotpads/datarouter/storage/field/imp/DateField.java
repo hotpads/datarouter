@@ -14,4 +14,8 @@ public class DateField extends PrimitiveField<Date>{
 		super(prefix, name, value);
 	}
 
+	@Override
+	public Date parseJdbcValueButDoNotSet(Object obj){
+		return obj==null?null:(Date)obj;
+	}
 }

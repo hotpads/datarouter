@@ -90,6 +90,9 @@ public class TraceThread extends BaseDatabean{
 			COL_traceId = "traceId",
 			COL_id = "id";
 		
+
+		/****************************** constructor ********************************/
+		
 		TraceThreadKey(){
 			super(TraceThread.class);
 		}

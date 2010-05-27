@@ -12,4 +12,9 @@ public class ByteField extends PrimitiveField<Byte>{
 		super(prefix, name, value);
 	}
 
+	@Override
+	public Byte parseJdbcValueButDoNotSet(Object obj){
+		return obj==null?null:(Byte)obj;
+	}
+
 }

@@ -6,8 +6,9 @@ import java.util.List;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 
-public interface MapStorageReadOps<D extends Databean>{
+public interface MapStorageReadOps<D extends Databean,PK extends PrimaryKey<D>>{
 
 	boolean exists(UniqueKey<D> key, Config config);
 	

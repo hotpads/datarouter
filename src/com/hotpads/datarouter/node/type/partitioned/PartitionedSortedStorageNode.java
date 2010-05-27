@@ -12,12 +12,14 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.MapTool;
 
-public abstract class PartitionedSortedStorageNode<D extends Databean,N extends PhysicalSortedStorageNode<D>>
-extends PartitionedSortedStorageReaderNode<D,N>
-implements MapStorageNode<D>, SortedStorageNode<D>{
+public abstract class PartitionedSortedStorageNode<D extends Databean,
+PK extends PrimaryKey<D>,N extends PhysicalSortedStorageNode<D,PK>>
+extends PartitionedSortedStorageReaderNode<D,PK,N>
+implements MapStorageNode<D,PK>, SortedStorageNode<D,PK>{
 	
 	public PartitionedSortedStorageNode(Class<D> persistentClass, DataRouter router) {
 		super(persistentClass, router);
@@ -78,7 +80,7 @@ implements MapStorageNode<D>, SortedStorageNode<D>{
 	}
 
 	@Override
-	public void deleteRangeWithPrefix(Key<D> prefix, boolean wildcardLastField, Config config) {
+	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
 		// TODO smarter node selection
 		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes())){
 			node.deleteRangeWithPrefix(prefix, wildcardLastField, config);

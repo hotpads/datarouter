@@ -12,4 +12,8 @@ public class FloatField extends PrimitiveField<Float>{
 		super(prefix, name, value);
 	}
 
+	@Override
+	public Float parseJdbcValueButDoNotSet(Object obj){
+		return obj==null?null:(Float)obj;
+	}
 }

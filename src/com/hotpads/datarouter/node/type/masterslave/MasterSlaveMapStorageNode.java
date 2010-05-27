@@ -6,24 +6,23 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.MapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 
-public class MasterSlaveMapStorageNode<D extends Databean,N extends MapStorageNode<D>>
-extends MasterSlaveMapStorageReaderNode<D,N>
-implements MapStorageNode<D>{
+public class MasterSlaveMapStorageNode<D extends Databean,
+PK extends PrimaryKey<D>,N extends MapStorageNode<D,PK>>
+extends MasterSlaveMapStorageReaderNode<D,PK,N>
+implements MapStorageNode<D,PK>{
 	
 	public MasterSlaveMapStorageNode(
-			Class<D> databeanClass, DataRouter router,
+			Class<PK> primaryKeyClass, DataRouter router,
 			N master, Collection<N> slaves) {
-		
-		super(databeanClass, router, master, slaves);
+		super(primaryKeyClass, router, master, slaves);
 	}
 
 	public MasterSlaveMapStorageNode(
-			Class<D> databeanClass, DataRouter router) {
-		
-		super(databeanClass, router);
+			Class<PK> primaryKeyClass, DataRouter router) {
+		super(primaryKeyClass, router);
 	}
 	
 	/***************************** MapStorageWriter ****************************/

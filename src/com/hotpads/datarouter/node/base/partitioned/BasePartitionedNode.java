@@ -13,17 +13,18 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BasePartitionedNode<D extends Databean,N extends PhysicalNode<D>> 
-implements Node<D>{
+public abstract class BasePartitionedNode<D extends Databean,PK extends PrimaryKey<D>,N extends PhysicalNode<D,PK>> 
+implements Node<D,PK>{
 
 	protected Class<D> persistentClass;
 	protected DataRouter router;
-	protected PhysicalNodes<D,N> physicalNodes = new PhysicalNodes<D,N>();
+	protected PhysicalNodes<D,PK,N> physicalNodes = new PhysicalNodes<D,PK,N>();
 	
 	protected String name;
 	
@@ -46,7 +47,7 @@ implements Node<D>{
 	}
 	
 	@Override
-	public Node<D> getMaster() {
+	public Node<D,PK> getMaster() {
 		return this;
 	}
 
@@ -64,7 +65,7 @@ implements Node<D>{
 	public <K extends UniqueKey<D>> List<String> getClientNamesForKeys(Collection<K> keys) {
 		Map<N,List<UniqueKey<D>>> keysByPhysicalNode = this.getKeysByPhysicalNode(keys);
 		List<String> clientNames = ListTool.createLinkedList();
-		for(PhysicalNode<D> node : MapTool.nullSafe(keysByPhysicalNode).keySet()){
+		for(PhysicalNode<D,PK> node : MapTool.nullSafe(keysByPhysicalNode).keySet()){
 			String clientName = node.getClientName();
 			clientNames.add(clientName);
 		}

@@ -12,4 +12,8 @@ public class IntegerField extends PrimitiveField<Integer>{
 		super(prefix, name, value);
 	}
 
+	@Override
+	public Integer parseJdbcValueButDoNotSet(Object obj){
+		return obj==null?null:(Integer)obj;
+	}
 }

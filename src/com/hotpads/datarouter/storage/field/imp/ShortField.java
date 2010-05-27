@@ -12,4 +12,9 @@ public class ShortField extends PrimitiveField<Short>{
 		super(prefix, name, value);
 	}
 
+	@Override
+	public Short parseJdbcValueButDoNotSet(Object obj){
+		return obj==null?null:(Short)obj;
+	}
+
 }

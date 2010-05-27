@@ -8,6 +8,7 @@ public interface Databean
 extends Serializable, /*FieldSet,*/ Comparable<Databean>{
 
 	String getDatabeanName();
+//	Class<? extends PrimaryKey<? extends Databean>> getKeyClass();
 	
 	@SuppressWarnings("unchecked")  //can't figure out how to keep checked
 	PrimaryKey getKey();  
