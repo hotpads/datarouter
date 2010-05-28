@@ -38,7 +38,7 @@ implements Node<D,PK>, PhysicalNode<D,PK>{
 	
 	public BasePhysicalNode(Class<PK> primaryKeyClass, 
 			DataRouter router, String clientName){
-		this.databeanClass = KeyTool.getDatabeanClass(primaryKeyClass);
+		this.databeanClass = (Class<D>)KeyTool.getDatabeanClass(primaryKeyClass);
 		this.primaryKeyClass = primaryKeyClass;
 		this.clientName = clientName;
 		this.router = router;

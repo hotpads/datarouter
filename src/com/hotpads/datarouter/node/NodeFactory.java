@@ -25,8 +25,8 @@ public class NodeFactory {
 	newHibernate(String clientName, 
 			String physicalName, String qualifiedPhysicalName,
 			Class<PK> primaryKeyClass, 
-			DataRouter router
-			){
+			DataRouter router){
+		
 		HibernateNode<D,PK> node = new HibernateNode<D,PK>(primaryKeyClass, router, clientName,
 				physicalName, qualifiedPhysicalName);
 		return node;
@@ -36,8 +36,8 @@ public class NodeFactory {
 	HibernateNode<D,PK> 
 	newHibernate(String clientName, 
 			Class<PK> primaryKeyClass, 
-			DataRouter router
-			){
+			DataRouter router){
+		
 		return new HibernateNode<D,PK>(primaryKeyClass, router, clientName);
 	}
 
