@@ -36,9 +36,21 @@ implements Node<D,PK>, PhysicalNode<D,PK>{
 	
 	/****************************** constructors ********************************/
 	
+	public BasePhysicalNode(Class<D> databeanClass, Class<PK> primaryKeyClass, 
+			DataRouter router, String clientName){
+		this.databeanClass = databeanClass;
+		this.primaryKeyClass = primaryKeyClass;
+		this.clientName = clientName;
+		this.router = router;
+		this.primaryKeyFields = FieldTool.getFieldsUsingReflection(primaryKeyClass);
+		this.physicalName = databeanClass.getSimpleName();
+		this.packagedPhysicalName = databeanClass.getName();
+		this.name = clientName+"."+physicalName;
+	}
+	
 	public BasePhysicalNode(Class<PK> primaryKeyClass, 
 			DataRouter router, String clientName){
-		this.databeanClass = (Class<D>)KeyTool.getDatabeanClass(primaryKeyClass);
+		this.databeanClass = KeyTool.getDatabeanClass(primaryKeyClass);
 		this.primaryKeyClass = primaryKeyClass;
 		this.clientName = clientName;
 		this.router = router;

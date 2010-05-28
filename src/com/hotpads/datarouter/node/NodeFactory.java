@@ -23,13 +23,10 @@ public class NodeFactory {
 	public static <D extends Databean,PK extends PrimaryKey<D>> 
 	HibernateNode<D,PK> 
 	newHibernate(String clientName, 
-			String physicalName, String qualifiedPhysicalName,
-			Class<PK> primaryKeyClass, 
+			Class<D> databeanClass, Class<PK> primaryKeyClass, 
 			DataRouter router){
 		
-		HibernateNode<D,PK> node = new HibernateNode<D,PK>(primaryKeyClass, router, clientName,
-				physicalName, qualifiedPhysicalName);
-		return node;
+		return new HibernateNode<D,PK>(databeanClass, primaryKeyClass, router, clientName);
 	}
 
 	public static <D extends Databean,PK extends PrimaryKey<D>> 
@@ -39,6 +36,18 @@ public class NodeFactory {
 			DataRouter router){
 		
 		return new HibernateNode<D,PK>(primaryKeyClass, router, clientName);
+	}
+
+	public static <D extends Databean,PK extends PrimaryKey<D>> 
+	HibernateNode<D,PK> 
+	newHibernate(String clientName, 
+			String physicalName, String qualifiedPhysicalName,
+			Class<PK> primaryKeyClass, 
+			DataRouter router){
+		
+		HibernateNode<D,PK> node = new HibernateNode<D,PK>(primaryKeyClass, router, clientName,
+				physicalName, qualifiedPhysicalName);
+		return node;
 	}
 
 	public static <D extends Databean,PK extends PrimaryKey<D>> 
