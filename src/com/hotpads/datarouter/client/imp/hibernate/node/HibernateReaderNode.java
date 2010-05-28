@@ -398,11 +398,11 @@ implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 					addPrimaryKeyOrderToCriteria(criteria);
 					addRangesToCriteria(criteria, start, startInclusive, end, endInclusive);
 					List<Object[]> rows = criteria.list();
-					List<FieldSet> result = ListTool.createArrayList(CollectionTool.size(rows));
+					List<PK> result = ListTool.createArrayList(CollectionTool.size(rows));
 					for(Object[] row : IterableTool.nullSafe(rows)){
 						result.add(FieldTool.fieldSetFromSqlUsingReflection(primaryKeyClass, primaryKeyFields, row));
 					}
-					return (List<PK>)result;
+					return result;
 				}
 			});
 		TraceContext.finishSpan();
