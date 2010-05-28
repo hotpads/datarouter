@@ -98,14 +98,14 @@ public class FieldTool{
 		return targetFieldSet;
 	}
 	
-	public static FieldSet fieldSetFromSqlUsingReflection(Class<? extends FieldSet> cls, List<Field<?>> fields, Object sqlObject){
-		FieldSet targetFieldSet = null;
+	public static <D extends FieldSet> D fieldSetFromSqlUsingReflection(Class<D> cls, List<Field<?>> fields, Object sqlObject){
+		D targetFieldSet = null;
 		try{
 			Object[] cols = (Object[])sqlObject;
 			//use getDeclaredConstructor to access non-public constructors
-			Constructor<?> constructor = cls.getDeclaredConstructor();
+			Constructor<D> constructor = cls.getDeclaredConstructor();
 			constructor.setAccessible(true);
-			targetFieldSet = (FieldSet)constructor.newInstance();
+			targetFieldSet = constructor.newInstance();
 			int counter = 0;
 			for(Field<?> field : fields){
 				field.setFieldUsingReflection(targetFieldSet, cols[counter]);
