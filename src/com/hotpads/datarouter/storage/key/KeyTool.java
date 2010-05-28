@@ -7,7 +7,6 @@ import java.util.SortedMap;
 
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -15,20 +14,18 @@ import com.hotpads.util.core.MapTool;
 
 public class KeyTool {
 	
-	public static <D extends Databean> Class<D> getDatabeanClass(Class<? extends PrimaryKey<D>> primaryKeyClass){
+	public static <D extends Databean, PK extends PrimaryKey<D>> Class<D> getDatabeanClass(Class<PK> primaryKeyClass){
 		try{
 			//use getDeclaredConstructor to access non-public constructors
-			Constructor<?> constructor = primaryKeyClass.getDeclaredConstructor();
+			Constructor<PK> constructor = primaryKeyClass.getDeclaredConstructor();
 			constructor.setAccessible(true);
-			@SuppressWarnings("unchecked")
-			PrimaryKey<D> primaryKeyInstance = (PrimaryKey<D>)constructor.newInstance();
+			PrimaryKey<D> primaryKeyInstance = constructor.newInstance();
 			return primaryKeyInstance.getDatabeanClass();
 		}catch(Exception e){
 			throw new DataAccessException(e.getClass().getSimpleName()+" on "+primaryKeyClass.getSimpleName()
 					+".  Is there a no-arg constructor?");
 		}
 	}
-
 
 	@SuppressWarnings("unchecked")
 	public static <D extends Databean> List<PrimaryKey<D>> getKeys(Collection<D> databeans){
