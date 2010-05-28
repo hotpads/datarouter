@@ -52,7 +52,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 	
 	public HibernateReaderNode(Class<D> databeanClass, Class<PK> primaryKeyClass, 
 			DataRouter router, String clientName) {
-		super(primaryKeyClass, router, clientName);
+		super(databeanClass, primaryKeyClass, router, clientName);
 	}
 	
 	public HibernateReaderNode(Class<PK> primaryKeyClass, 

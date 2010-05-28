@@ -38,7 +38,7 @@ implements PhysicalIndexedSortedStorageNode<D,PK>
 	
 	public HibernateNode(Class<D> databeanClass, Class<PK> primaryKeyClass, 
 			DataRouter router, String clientName) {
-		super(primaryKeyClass, router, clientName);
+		super(databeanClass, primaryKeyClass, router, clientName);
 	}
 	
 	public HibernateNode(Class<PK> primaryKeyClass, 
