@@ -2,6 +2,7 @@
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -22,5 +23,7 @@ public interface Node<D extends Databean<PK>,PK extends PrimaryKey<PK>> {
 	Node<D,PK> getMaster();
 	
 	void clearThreadSpecificState();
-	
+
+
+	Map<PK,D> getByKey(Iterable<D> databaeans);
 }

@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.op.MapStorageReadOps;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -21,36 +22,19 @@ import com.hotpads.util.core.SetTool;
 
 public abstract class BaseMasterSlaveNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
 		N extends Node<D,PK>> 
-implements Node<D,PK>, MapStorageReadOps<D,PK>{
-
-	protected Class<PK> primaryKeyClass;
-	protected Class<D> databeanClass;
+extends BaseNode<D,PK>
+implements MapStorageReadOps<D,PK>{
+	
 	protected N master;
 	protected List<N> slaves = new ArrayList<N>();
-	protected String name;
-	
-	protected DataRouter router;
 	
 	protected AtomicInteger slaveRequestCounter = new AtomicInteger(0);
 	
 	public BaseMasterSlaveNode(Class<D> databeanClass, DataRouter router){
-		this.databeanClass = databeanClass;
-		this.primaryKeyClass = DatabeanTool.getPrimaryKeyClass(databeanClass);
-		this.name = databeanClass.getSimpleName()+"."+this.getClass().getSimpleName();
-		this.router = router;
+		super(databeanClass);
 	}
 
 	/*************************** node methods *************************/
-	
-	@Override
-	public Class<D> getDatabeanType() {
-		return this.databeanClass;
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
-	}
 
 	@Override
 	public List<PhysicalNode<D,PK>> getPhysicalNodes() {

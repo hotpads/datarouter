@@ -80,8 +80,8 @@ implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 	}
 
 	
-	@Override
 	@SuppressWarnings("unchecked")
+	@Override
 	public D get(final UniqueKey<PK> key, final Config config) {
 		if(key==null){ return null; }
 		TraceContext.startSpan(getName()+" get");
@@ -94,7 +94,8 @@ implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 					for(Field<?> field : fields){
 						criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 					}
-					Object result = criteria.uniqueResult();
+					@SuppressWarnings("unchecked")
+					D result = (D)criteria.uniqueResult();
 					return result;
 				}
 			});

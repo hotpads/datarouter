@@ -6,12 +6,10 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.databean.DatabeanTool;
-import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.ListTool;
@@ -19,13 +17,13 @@ import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
 
 public abstract class BasePhysicalNode<D extends Databean<PK>,PK extends PrimaryKey<PK>>
+extends BaseNode<D,PK>
 implements PhysicalNode<D,PK>
 {
 	protected Logger logger = Logger.getLogger(getClass());
 	
 	protected Class<D> databeanClass;
 	protected Class<PK> primaryKeyClass;
-	protected List<Field<?>> primaryKeyFields;
 	protected String clientName;
 	protected String name;
 	protected String physicalName;
@@ -38,11 +36,9 @@ implements PhysicalNode<D,PK>
 	
 	public BasePhysicalNode(Class<D> databeanClass, 
 			DataRouter router, String clientName){
-		this.databeanClass = databeanClass;
-		this.primaryKeyClass = DatabeanTool.getPrimaryKeyClass(databeanClass);
-		this.clientName = clientName;
+		super(databeanClass);
 		this.router = router;
-		this.primaryKeyFields = FieldTool.getFieldsUsingReflection(primaryKeyClass);
+		this.clientName = clientName;
 		this.physicalName = databeanClass.getSimpleName();
 		this.packagedPhysicalName = databeanClass.getName();
 		this.name = clientName+"."+physicalName;
@@ -60,16 +56,6 @@ implements PhysicalNode<D,PK>
 	
 
 	/****************************** node methods ********************************/
-
-	@Override
-	public Class<D> getDatabeanType() {
-		return this.databeanClass;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
 	
 	@Override
 	public <K extends UniqueKey<PK>> List<String> getClientNamesForKeys(Collection<K> keys) {
@@ -126,5 +112,5 @@ implements PhysicalNode<D,PK>
 	}
 
 //	public abstract Client getClient();
-	
+
 }

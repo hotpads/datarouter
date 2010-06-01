@@ -12,8 +12,8 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
-import com.hotpads.trace.TraceThread.TraceThreadKey;
 import com.hotpads.trace.key.TraceSpanKey;
+import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.NumberTool;

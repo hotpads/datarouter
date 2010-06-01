@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.base.physical.PhysicalNodes;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -21,31 +22,22 @@ import com.hotpads.util.core.SetTool;
 
 public abstract class BasePartitionedNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
 		N extends PhysicalNode<D,PK>> 
-implements Node<D,PK>{
+extends BaseNode<D,PK>{
 
-	protected Class<D> persistentClass;
+	protected Class<D> databeanClass;
 	protected DataRouter router;
 	protected PhysicalNodes<D,PK,N> physicalNodes = new PhysicalNodes<D,PK,N>();
 	
 	protected String name;
 	
-	public BasePartitionedNode(Class<D> persistentClass, DataRouter router){
-		this.persistentClass = persistentClass;
+	public BasePartitionedNode(Class<D> databeanClass, DataRouter router){
+		super(databeanClass);
 		this.router = router;
-		this.name = persistentClass.getSimpleName()+"."+this.getClass().getSimpleName();
+		this.name = databeanClass.getSimpleName()+"."+this.getClass().getSimpleName();
 	}
 
 	/*************************** node methods *************************/
 	
-	@Override
-	public Class<D> getDatabeanType() {
-		return this.persistentClass;
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
-	}
 	
 	@Override
 	public Node<D,PK> getMaster() {

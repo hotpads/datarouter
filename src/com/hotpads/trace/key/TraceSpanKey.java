@@ -17,16 +17,29 @@ import com.hotpads.util.core.ListTool;
 @SuppressWarnings("serial")
 @Embeddable
 public class TraceSpanKey extends BasePrimaryKey<TraceSpanKey>{
+
+	/****************************** fields ********************************/
 	
 	//hibernate will create these in the wrong order
 	protected Long traceId;
 	protected Long threadId;
 	protected Integer sequence;
-
+	
+	
 	public static final String
 		COL_traceId = "traceId",
 		COL_threadId = "threadId",
 		COL_sequence = "sequence";
+	
+	
+	@Override
+	public List<Field<?>> getFields(){
+		List<Field<?>> fields = ListTool.create();
+		fields.add(new LongField(TraceSpan.KEY_key, COL_traceId, traceId));
+		fields.add(new LongField(TraceSpan.KEY_key, COL_threadId, threadId));
+		fields.add(new IntegerField(TraceSpan.KEY_key, COL_sequence, sequence));
+		return fields;
+	}
 	
 
 	/****************************** constructor ********************************/
@@ -41,20 +54,9 @@ public class TraceSpanKey extends BasePrimaryKey<TraceSpanKey>{
 		this.sequence = sequence;
 	}
 	
-	@Override
-	public TraceSpanKey getKey() {
-		return this;
-	}
-	
-	@Override
-	public List<Field<?>> getFields(){
-		List<Field<?>> fields = ListTool.create();
-		fields.add(new LongField(TraceSpan.KEY_key, COL_traceId, traceId));
-		fields.add(new LongField(TraceSpan.KEY_key, COL_threadId, threadId));
-		fields.add(new IntegerField(TraceSpan.KEY_key, COL_sequence, sequence));
-		return fields;
-	}
 
+	/****************************** get/set ********************************/
+	
 	public Long getTraceId() {
 		return traceId;
 	}

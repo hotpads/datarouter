@@ -1,12 +1,9 @@
 package com.hotpads.trace;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
@@ -14,11 +11,8 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
-import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.imp.LongField;
-import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
 @Entity
@@ -78,87 +72,11 @@ public class TraceThread extends BaseDatabean<TraceThreadKey>{
 	}
 	
 	@Override
-	public TraceThread.TraceThreadKey getKey() {
+	public TraceThreadKey getKey() {
 		return key;
 	}
 	
 
-	@Embeddable
-	public static class TraceThreadKey extends BasePrimaryKey<TraceThreadKey>{
-		
-		private static Random random = new Random();
-		
-		protected Long traceId;
-		protected Long id;
-		
-		public static final String
-			COL_traceId = "traceId",
-			COL_id = "id";
-		
-
-		/****************************** constructor ********************************/
-		
-		TraceThreadKey(){
-			super();
-		}
-		
-		public TraceThreadKey(Long traceId, boolean hasParent){
-			this.traceId = traceId;
-			if( ! hasParent){
-				this.id = 0L;
-			}else{
-				long r = Math.abs(random.nextLong());
-				if(Long.MIN_VALUE==r || 0==r){ r = 1; }
-				this.id = r;
-			}
-		}
-		
-		public TraceThreadKey(Long traceId, Long threadId){
-			this.traceId = traceId;
-			this.id = threadId;
-		}
-		
-		@Override
-		public TraceThreadKey getKey() {
-			return this;
-		}
-		
-		@Override
-		public List<Field<?>> getFields(){
-			List<Field<?>> fields = ListTool.create();
-			fields.add(new LongField(KEY_NAME, COL_traceId, traceId));
-			fields.add(new LongField(KEY_NAME, COL_id, id));
-			return fields;
-		}
-
-		public Long getTraceId() {
-			return traceId;
-		}
-
-		public void setTraceId(Long traceId) {
-			this.traceId = traceId;
-		}
-
-		public Long getId() {
-			return id;
-		}
-
-		public void setId(Long id) {
-			this.id = id;
-		}
-		
-	}
-	
-	/*************************** static ***************************************/
-	
-	public static Map<TraceThreadKey,TraceThread> getByKey(Iterable<TraceThread> ins){
-		Map<TraceThreadKey,TraceThread> outs = MapTool.createHashMap();
-		for(TraceThread t : IterableTool.nullSafe(ins)){
-			outs.put(t.getKey(), t);
-		}
-		return outs;
-	}
-	
 	/************************** methods ****************************************/
 	
 	public void markStart(){

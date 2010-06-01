@@ -4,14 +4,15 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
 public abstract class BaseCachingNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-N extends Node<D,PK>> 
-implements Node<D,PK> {
+		N extends Node<D,PK>> 
+extends BaseNode<D,PK>{
 	
 	
 	/***************************** Node pass-through stuff **********************************/
@@ -19,6 +20,7 @@ implements Node<D,PK> {
 	protected N backingNode;
 	
 	public BaseCachingNode(N backingNode){
+		super(backingNode.getDatabeanType());
 		this.backingNode = backingNode;
 	}
 	

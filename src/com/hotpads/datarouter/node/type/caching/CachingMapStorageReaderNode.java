@@ -60,7 +60,6 @@ implements MapStorageReaderNode<D,PK>{
 		return this.backingNode.exists(key, config);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public D get(UniqueKey<PK> key, Config config) {
 		if(!useCache(config)){ return this.backingNode.get(key, config); }
@@ -79,7 +78,6 @@ implements MapStorageReaderNode<D,PK>{
 		return this.backingNode.getAll(config);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
 		if(!useCache(config)){ return this.backingNode.getMulti(keys, config); }
