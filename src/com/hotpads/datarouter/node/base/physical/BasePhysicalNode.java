@@ -6,21 +6,21 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.key.KeyTool;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BasePhysicalNode<D extends Databean,PK extends PrimaryKey<D>> 
-implements Node<D,PK>, PhysicalNode<D,PK>{
+public abstract class BasePhysicalNode<D extends Databean<PK>,PK extends PrimaryKey<PK>>
+implements PhysicalNode<D,PK>
+{
 	protected Logger logger = Logger.getLogger(getClass());
 	
 	protected Class<D> databeanClass;
@@ -36,10 +36,10 @@ implements Node<D,PK>, PhysicalNode<D,PK>{
 	
 	/****************************** constructors ********************************/
 	
-	public BasePhysicalNode(Class<D> databeanClass, Class<PK> primaryKeyClass, 
+	public BasePhysicalNode(Class<D> databeanClass, 
 			DataRouter router, String clientName){
 		this.databeanClass = databeanClass;
-		this.primaryKeyClass = primaryKeyClass;
+		this.primaryKeyClass = DatabeanTool.getPrimaryKeyClass(databeanClass);
 		this.clientName = clientName;
 		this.router = router;
 		this.primaryKeyFields = FieldTool.getFieldsUsingReflection(primaryKeyClass);
@@ -48,22 +48,10 @@ implements Node<D,PK>, PhysicalNode<D,PK>{
 		this.name = clientName+"."+physicalName;
 	}
 	
-	public BasePhysicalNode(Class<PK> primaryKeyClass, 
-			DataRouter router, String clientName){
-		this.databeanClass = KeyTool.getDatabeanClass(primaryKeyClass);
-		this.primaryKeyClass = primaryKeyClass;
-		this.clientName = clientName;
-		this.router = router;
-		this.primaryKeyFields = FieldTool.getFieldsUsingReflection(primaryKeyClass);
-		this.physicalName = databeanClass.getSimpleName();
-		this.packagedPhysicalName = databeanClass.getName();
-		this.name = clientName+"."+physicalName;
-	}
-	
-	public BasePhysicalNode(Class<PK> primaryKeyClass, 
+	public BasePhysicalNode(Class<D> databeanClass,
 			DataRouter router, String clientName, 
 			String physicalName, String packagedPhysicalName){
-		this(primaryKeyClass, router, clientName);
+		this(databeanClass, router, clientName);
 		//overwrite the default values
 		this.physicalName = physicalName;
 		this.packagedPhysicalName = packagedPhysicalName;
@@ -84,7 +72,7 @@ implements Node<D,PK>, PhysicalNode<D,PK>{
 	}
 	
 	@Override
-	public <K extends UniqueKey<D>> List<String> getClientNamesForKeys(Collection<K> keys) {
+	public <K extends UniqueKey<PK>> List<String> getClientNamesForKeys(Collection<K> keys) {
 		return ListTool.createLinkedList(this.clientName);
 	}
 

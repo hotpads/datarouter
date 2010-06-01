@@ -7,21 +7,22 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.SortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public class MasterSlaveSortedStorageReaderNode<D extends Databean,PK extends PrimaryKey<D>,N extends SortedStorageReaderNode<D,PK>>
+public class MasterSlaveSortedStorageReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
+		N extends SortedStorageReaderNode<D,PK>>
 extends MasterSlaveMapStorageReaderNode<D,PK,N>
 implements SortedStorageReaderNode<D,PK>{
 	
 	public MasterSlaveSortedStorageReaderNode(
-			Class<PK> primaryKeyClass, DataRouter router,
+			Class<D> databeanClass, DataRouter router,
 			N master, Collection<N> slaves) {
-		super(primaryKeyClass, router, master, slaves);
+		super(databeanClass, router, master, slaves);
 	}
 	
 	public MasterSlaveSortedStorageReaderNode(
-			Class<PK> primaryKeyClass, DataRouter router) {
-		super(primaryKeyClass, router);
+			Class<D> databeanClass, DataRouter router) {
+		super(databeanClass, router);
 	}
 
 	/***************** SortedStorageReader ************************************/

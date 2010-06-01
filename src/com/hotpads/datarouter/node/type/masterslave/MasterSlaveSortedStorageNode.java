@@ -6,23 +6,23 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.SortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 
-public class MasterSlaveSortedStorageNode<D extends Databean,
-PK extends PrimaryKey<D>,N extends SortedStorageNode<D,PK>>
+public class MasterSlaveSortedStorageNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
+		N extends SortedStorageNode<D,PK>>
 extends MasterSlaveSortedStorageReaderNode<D,PK,N>
 implements SortedStorageNode<D,PK>{
 	
 	public MasterSlaveSortedStorageNode(
-			Class<PK> primaryKeyClass, DataRouter router,
+			Class<D> databeanClass, DataRouter router,
 			N master, Collection<N> slaves) {
-		super(primaryKeyClass, router, master, slaves);
+		super(databeanClass, router, master, slaves);
 	}
 	
 	public MasterSlaveSortedStorageNode(
-			Class<PK> primaryKeyClass, DataRouter router) {
-		super(primaryKeyClass, router);
+			Class<D> databeanClass, DataRouter router) {
+		super(databeanClass, router);
 	}
 	
 	/********************** sorted storate write ops ************************/
@@ -37,7 +37,7 @@ implements SortedStorageNode<D,PK>{
 	 */
 
 	@Override
-	public void delete(UniqueKey<D> key, Config config) {
+	public void delete(UniqueKey<PK> key, Config config) {
 		this.master.delete(key, config);
 	}
 
@@ -47,7 +47,7 @@ implements SortedStorageNode<D,PK>{
 	}
 
 	@Override
-	public void deleteMulti(Collection<? extends UniqueKey<D>> keys, Config config) {
+	public void deleteMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
 		this.master.deleteMulti(keys, config);
 	}
 

@@ -1,15 +1,11 @@
 package com.hotpads.datarouter.storage.key.unique;
 
-import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.BaseKey;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 @SuppressWarnings("serial")
-public abstract class BaseUniqueKey<D extends Databean> 
-extends BaseKey<D> 
-implements UniqueKey<D>{
-
-	public BaseUniqueKey(Class<D> databeanClass){
-		super(databeanClass);
-	}
-
+public abstract class BaseUniqueKey<PK extends PrimaryKey<PK>> 
+extends BaseKey<PK> 
+implements UniqueKey<PK>{
+	
 }

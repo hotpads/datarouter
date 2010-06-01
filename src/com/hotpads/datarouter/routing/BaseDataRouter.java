@@ -13,7 +13,7 @@ import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.KeyTool;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -52,7 +52,7 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <D extends Databean,PK extends PrimaryKey<D>,N extends Node<D,PK>> N register(N node){
+	public <D extends Databean<PK>,PK extends PrimaryKey<PK>,N extends Node<D,PK>> N register(N node){
 		this.nodes.register(node);
 		return node;
 	}
@@ -110,26 +110,30 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <D extends Databean> List<String> getClientNamesForKeys(Collection<? extends Key<D>> keys){
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	List<String> getClientNamesForKeys(Collection<? extends Key<PK>> keys){
 		List<String> clientNames = this.nodes.getClientNamesForKeys(keys);
 		return clientNames;
 	}
 
 	@Override
-	public <D extends Databean> List<String> getClientNamesForDatabeans(Collection<D> databeans){
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	List<String> getClientNamesForDatabeans(Collection<D> databeans){
 		return this.getClientNamesForKeys(KeyTool.getKeys(databeans));
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <D extends Databean> List<Client> getClientsForDatabeanType(Class<D> databeanType){
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	List<Client> getClientsForDatabeanType(Class<D> databeanType){
 		List<String> clientNames = this.nodes.getClientNamesForDatabeanType(databeanType);
 		if(CollectionTool.isEmpty(clientNames)){ return null; }
 		return this.clients.getClients(clientNames);
 	}
 
 	@Override
-	public <D extends Databean> List<Client> getClientsForKeys(Collection<? extends Key<D>> keys){
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	List<Client> getClientsForKeys(Collection<? extends Key<PK>> keys){
 		List<Client> clientsForKeys = ListTool.createLinkedList();
 		List<String> clientNames = this.getClientNamesForKeys(keys);
 		for(String clientName : CollectionTool.nullSafe(clientNames)){
@@ -140,7 +144,8 @@ public abstract class BaseDataRouter implements DataRouter {
 	}
 
 	@Override
-	public <D extends Databean> List<Client> getClientsForDatabeans(Collection<D> databeans){
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	List<Client> getClientsForDatabeans(Collection<D> databeans){
 		return this.getClientsForKeys(KeyTool.getKeys(databeans));
 	}
 	

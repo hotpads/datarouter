@@ -16,7 +16,7 @@ import org.hibernate.annotations.AccessType;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.LongField;
-import com.hotpads.datarouter.storage.key.unique.primary.BasePrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -24,7 +24,7 @@ import com.hotpads.util.core.MapTool;
 @Entity
 @AccessType("field")
 @SuppressWarnings("serial")
-public class TraceThread extends BaseDatabean{
+public class TraceThread extends BaseDatabean<TraceThreadKey>{
 
 	@Id
 	protected TraceThreadKey key;
@@ -73,13 +73,18 @@ public class TraceThread extends BaseDatabean{
 	/************************** databean **************************************/
 	
 	@Override
-	public TraceThreadKey getKey() {
+	public Class<TraceThreadKey> getKeyClass() {
+		return TraceThreadKey.class;
+	}
+	
+	@Override
+	public TraceThread.TraceThreadKey getKey() {
 		return key;
 	}
 	
 
 	@Embeddable
-	public static class TraceThreadKey extends BasePrimaryKey<TraceThread>{
+	public static class TraceThreadKey extends BasePrimaryKey<TraceThreadKey>{
 		
 		private static Random random = new Random();
 		
@@ -94,11 +99,10 @@ public class TraceThread extends BaseDatabean{
 		/****************************** constructor ********************************/
 		
 		TraceThreadKey(){
-			super(TraceThread.class);
+			super();
 		}
 		
 		public TraceThreadKey(Long traceId, boolean hasParent){
-			super(TraceThread.class);
 			this.traceId = traceId;
 			if( ! hasParent){
 				this.id = 0L;
@@ -110,9 +114,13 @@ public class TraceThread extends BaseDatabean{
 		}
 		
 		public TraceThreadKey(Long traceId, Long threadId){
-			super(TraceThread.class);
 			this.traceId = traceId;
 			this.id = threadId;
+		}
+		
+		@Override
+		public TraceThreadKey getKey() {
+			return this;
 		}
 		
 		@Override

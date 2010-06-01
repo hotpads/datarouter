@@ -9,18 +9,18 @@ import com.hotpads.datarouter.node.op.MapStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.MapTool;
 
-public abstract class PartitionedMapStorageNode<D extends Databean,
-PK extends PrimaryKey<D>,N extends PhysicalMapStorageNode<D,PK>>
+public abstract class PartitionedMapStorageNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
+N extends PhysicalMapStorageNode<D,PK>>
 extends PartitionedMapStorageReaderNode<D,PK,N>
 implements MapStorageNode<D,PK>{
 	
-	public PartitionedMapStorageNode(Class<D> persistentClass, DataRouter router) {
-		super(persistentClass, router);
+	public PartitionedMapStorageNode(Class<D> databeanClass, DataRouter router) {
+		super(databeanClass, router);
 	}
 
 
@@ -34,17 +34,17 @@ implements MapStorageNode<D,PK>{
 	 */
 	
 	@Override
-	public void delete(UniqueKey<D> key, Config config) {
+	public void delete(UniqueKey<PK> key, Config config) {
 		for(N node : CollectionTool.nullSafe(getPhysicalNodes(key))){
 			node.delete(key, config);
 		}
 	}
 
 	@Override
-	public void deleteMulti(Collection<? extends UniqueKey<D>> keys, Config config) {
-		Map<N,List<UniqueKey<D>>> keysByNode = this.getKeysByPhysicalNode(keys);
+	public void deleteMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
+		Map<N,List<UniqueKey<PK>>> keysByNode = this.getKeysByPhysicalNode(keys);
 		for(N node : MapTool.nullSafe(keysByNode).keySet()){
-			Collection<UniqueKey<D>> keysForNode = keysByNode.get(node);
+			Collection<UniqueKey<PK>> keysForNode = keysByNode.get(node);
 			if(CollectionTool.notEmpty(keysForNode)){
 				node.deleteMulti(keysForNode, config);
 			}

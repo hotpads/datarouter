@@ -12,15 +12,16 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.op.MapStorageReadOps;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.KeyTool;
+import com.hotpads.datarouter.storage.databean.DatabeanTool;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BaseMasterSlaveNode<D extends Databean,PK extends PrimaryKey<D>,N extends Node<D,PK>> 
-implements Node<D,PK>, MapStorageReadOps<D,PK> {
+public abstract class BaseMasterSlaveNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
+		N extends Node<D,PK>> 
+implements Node<D,PK>, MapStorageReadOps<D,PK>{
 
 	protected Class<PK> primaryKeyClass;
 	protected Class<D> databeanClass;
@@ -32,9 +33,9 @@ implements Node<D,PK>, MapStorageReadOps<D,PK> {
 	
 	protected AtomicInteger slaveRequestCounter = new AtomicInteger(0);
 	
-	public BaseMasterSlaveNode(Class<PK> primaryKeyClass, DataRouter router){
-		this.databeanClass = KeyTool.getDatabeanClass(primaryKeyClass);
-		this.primaryKeyClass = primaryKeyClass;
+	public BaseMasterSlaveNode(Class<D> databeanClass, DataRouter router){
+		this.databeanClass = databeanClass;
+		this.primaryKeyClass = DatabeanTool.getPrimaryKeyClass(databeanClass);
 		this.name = databeanClass.getSimpleName()+"."+this.getClass().getSimpleName();
 		this.router = router;
 	}
@@ -92,7 +93,7 @@ implements Node<D,PK>, MapStorageReadOps<D,PK> {
 	}
 
 	@Override
-	public <K extends UniqueKey<D>> List<String> getClientNamesForKeys(Collection<K> keys) {
+	public <K extends UniqueKey<PK>> List<String> getClientNamesForKeys(Collection<K> keys) {
 		return this.master.getClientNamesForKeys(keys);
 	}
 	

@@ -5,7 +5,6 @@ import java.util.List;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;

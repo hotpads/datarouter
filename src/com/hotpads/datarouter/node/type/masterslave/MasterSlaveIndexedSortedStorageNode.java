@@ -7,24 +7,24 @@ import com.hotpads.datarouter.node.op.IndexedSortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 
 
-public class MasterSlaveIndexedSortedStorageNode<D extends Databean,
-PK extends PrimaryKey<D>,N extends IndexedSortedStorageNode<D,PK>>
+public class MasterSlaveIndexedSortedStorageNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
+N extends IndexedSortedStorageNode<D,PK>>
 extends MasterSlaveIndexedSortedStorageReaderNode<D,PK,N>
 implements IndexedSortedStorageNode<D,PK>{
 	
 	public MasterSlaveIndexedSortedStorageNode(
-			Class<PK> primaryKeyClass, DataRouter router,
+			Class<D> databeanClass, DataRouter router,
 			N master, Collection<N> slaves) {
-		super(primaryKeyClass, router, master, slaves);
+		super(databeanClass, router, master, slaves);
 	}
 	
 	public MasterSlaveIndexedSortedStorageNode(
-			Class<PK> primaryKeyClass, DataRouter router) {
-		super(primaryKeyClass, router);
+			Class<D> databeanClass, DataRouter router) {
+		super(databeanClass, router);
 	}
 	
 
@@ -36,7 +36,7 @@ implements IndexedSortedStorageNode<D,PK>{
 	 */
 	
 	@Override
-	public void delete(Lookup<D> lookup, Config config) {
+	public void delete(Lookup<PK> lookup, Config config) {
 		this.master.delete(lookup, config);
 	}
 	
@@ -50,7 +50,7 @@ implements IndexedSortedStorageNode<D,PK>{
 	 */
 
 	@Override
-	public void delete(UniqueKey<D> key, Config config) {
+	public void delete(UniqueKey<PK> key, Config config) {
 		this.master.delete(key, config);
 	}
 
@@ -60,7 +60,7 @@ implements IndexedSortedStorageNode<D,PK>{
 	}
 
 	@Override
-	public void deleteMulti(Collection<? extends UniqueKey<D>> keys, Config config) {
+	public void deleteMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
 		this.master.deleteMulti(keys, config);
 	}
 

@@ -12,14 +12,15 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BasePartitionedNode<D extends Databean,PK extends PrimaryKey<D>,N extends PhysicalNode<D,PK>> 
+public abstract class BasePartitionedNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
+		N extends PhysicalNode<D,PK>> 
 implements Node<D,PK>{
 
 	protected Class<D> persistentClass;
@@ -62,8 +63,8 @@ implements Node<D,PK>{
 	}
 
 	@Override
-	public <K extends UniqueKey<D>> List<String> getClientNamesForKeys(Collection<K> keys) {
-		Map<N,List<UniqueKey<D>>> keysByPhysicalNode = this.getKeysByPhysicalNode(keys);
+	public <K extends UniqueKey<PK>> List<String> getClientNamesForKeys(Collection<K> keys) {
+		Map<N,List<UniqueKey<PK>>> keysByPhysicalNode = this.getKeysByPhysicalNode(keys);
 		List<String> clientNames = ListTool.createLinkedList();
 		for(PhysicalNode<D,PK> node : MapTool.nullSafe(keysByPhysicalNode).keySet()){
 			String clientName = node.getClientName();
@@ -97,25 +98,25 @@ implements Node<D,PK>{
 		return this.physicalNodes.getPhysicalNodesForClient(clientName);
 	}
 
-	public abstract boolean isPartitionAware(Key<D> key);
+	public abstract boolean isPartitionAware(Key<PK> key);
 	
-	public abstract List<N> getPhysicalNodes(Key<D> key);
+	public abstract List<N> getPhysicalNodes(Key<PK> key);
 	
-	public List<N> getPhysicalNodes(Collection<? extends Key<D>> keys){
+	public List<N> getPhysicalNodes(Collection<? extends Key<PK>> keys){
 		Set<N> nodes = SetTool.createHashSet();
-		for(Key<D> key : CollectionTool.nullSafe(keys)){
+		for(Key<PK> key : CollectionTool.nullSafe(keys)){
 			nodes.addAll(this.getPhysicalNodes(key));
 		}
 		return ListTool.createArrayList(nodes);
 	}
 	
-	public Map<N,List<UniqueKey<D>>> getKeysByPhysicalNode(Collection<? extends UniqueKey<D>> keys){
-		Map<N,List<UniqueKey<D>>> keysByPhysicalNode = MapTool.createHashMap();
-		for(UniqueKey<D> key : CollectionTool.nullSafe(keys)){
+	public Map<N,List<UniqueKey<PK>>> getKeysByPhysicalNode(Collection<? extends UniqueKey<PK>> keys){
+		Map<N,List<UniqueKey<PK>>> keysByPhysicalNode = MapTool.createHashMap();
+		for(UniqueKey<PK> key : CollectionTool.nullSafe(keys)){
 			List<N> nodes = this.getPhysicalNodes(key);
 			for(N node : CollectionTool.nullSafe(nodes)){
 				if(keysByPhysicalNode.get(node)==null){
-					keysByPhysicalNode.put(node, new LinkedList<UniqueKey<D>>());
+					keysByPhysicalNode.put(node, new LinkedList<UniqueKey<PK>>());
 				}
 				keysByPhysicalNode.get(node).add(key);
 			}
@@ -123,7 +124,6 @@ implements Node<D,PK>{
 		return keysByPhysicalNode;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Map<N,List<D>> getDatabeansByPhysicalNode(Collection<D> databeans){
 		Map<N,List<D>> databeansByPhysicalNode = MapTool.createHashMap();
 		for(D databean : CollectionTool.nullSafe(databeans)){

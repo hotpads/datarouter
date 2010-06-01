@@ -4,10 +4,9 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.Key;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public interface TableStorageReadOps<D extends Databean,PK extends PrimaryKey<D>> 
+public interface TableStorageReadOps<D extends Databean<PK>,PK extends PrimaryKey<PK>>
 extends SortedStorageReadOps<D,PK>{
 	
 //	Key<D> getKeysWhere(RestrictionSet restrictionSet);

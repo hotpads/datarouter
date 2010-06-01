@@ -3,12 +3,13 @@ package com.hotpads.datarouter.storage.databean;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ClassTool;
 
 
 @SuppressWarnings("serial")
-public abstract class BaseDatabean 
-implements Databean {
+public abstract class BaseDatabean<PK extends PrimaryKey<PK>>
+implements Databean<PK> {
 
 	@Override
 	public String getDatabeanName() {
@@ -16,15 +17,15 @@ implements Databean {
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean equals(Object obj){
 		if(ClassTool.differentClass(this, obj)){ return false; }
-		Databean that = (Databean)obj;
+		Databean<PK> that = (Databean<PK>)obj;
 		return this.getKey().equals(that.getKey());
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public int compareTo(Databean obj) {
+	public int compareTo(Databean<PK> obj) {
 		return this.getKey().compareTo(obj.getKey());
 	}
 	

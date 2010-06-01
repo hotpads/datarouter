@@ -26,38 +26,32 @@ import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageRea
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
-public class HibernateReaderNode<D extends Databean,PK extends PrimaryKey<D>> 
+public class HibernateReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>> 
 extends BasePhysicalNode<D,PK>
 implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 	protected Logger logger = Logger.getLogger(getClass());
 
-	public HibernateReaderNode(Class<PK> primaryKeyClass, 
+	public HibernateReaderNode(Class<D> databeanClass, 
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
-		super(primaryKeyClass, router, clientName, physicalName, qualifiedPhysicalName);
+		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HibernateReaderNode(Class<D> databeanClass, Class<PK> primaryKeyClass, 
+	public HibernateReaderNode(Class<D> databeanClass,
 			DataRouter router, String clientName) {
-		super(databeanClass, primaryKeyClass, router, clientName);
-	}
-	
-	public HibernateReaderNode(Class<PK> primaryKeyClass, 
-			DataRouter router, String clientName) {
-		super(primaryKeyClass, router, clientName);
+		super(databeanClass, router, clientName);
 	}
 
 	@Override
@@ -81,14 +75,14 @@ implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 	public static final int defaultIterateBatchSize = 25;
 	
 	@Override
-	public boolean exists(UniqueKey<D> key, Config config) {
+	public boolean exists(UniqueKey<PK> key, Config config) {
 		return this.get(key, config) != null;
 	}
 
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public D get(final UniqueKey<D> key, final Config config) {
+	public D get(final UniqueKey<PK> key, final Config config) {
 		if(key==null){ return null; }
 		TraceContext.startSpan(getName()+" get");
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
@@ -129,7 +123,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<D> getMulti(final Collection<? extends UniqueKey<D>> keys, final Config config) {	
+	public List<D> getMulti(final Collection<? extends UniqueKey<PK>> keys, final Config config) {	
 		TraceContext.startSpan(getName()+" getMulti");	
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 //		final Class<? extends Databean> persistentClass = CollectionTool.getFirst(keys).getDatabeanClass();
@@ -141,15 +135,15 @@ implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 					if(config!=null && config.getIterateBatchSize()!=null){
 						batchSize = config.getIterateBatchSize();
 					}
-					List<? extends Key<D>> sortedKeys = ListTool.createArrayList(keys);
+					List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
 					Collections.sort(sortedKeys);
 					int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
 					List<D> all = ListTool.createArrayList(keys.size());
 					for(int batchNum=0; batchNum < numBatches; ++batchNum){
-						List<? extends Key<D>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
+						List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
 						Criteria criteria = getCriteriaForConfig(config, session);
 						Disjunction orSeparatedIds = Restrictions.disjunction();
-						for(Key<D> key : CollectionTool.nullSafe(keyBatch)){
+						for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
 							Conjunction possiblyCompoundId = Restrictions.conjunction();
 							List<Field<?>> fields = key.getFields();
 							for(Field<?> field : fields){
@@ -175,7 +169,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<D> lookup(final Lookup<D> lookup, final Config config) {
+	public List<D> lookup(final Lookup<PK> lookup, final Config config) {
 		TraceContext.startSpan(getName()+" lookup");
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
 		Object result = executor.executeTask(
@@ -197,7 +191,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<D> lookup(final Collection<? extends Lookup<D>> lookups, final Config config) {
+	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
 		TraceContext.startSpan(getName()+" multiLookup");
 		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
@@ -206,7 +200,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 				public Object run(Session session) {
 					Criteria criteria = getCriteriaForConfig(config, session);
 					Disjunction or = Restrictions.disjunction();
-					for(Lookup<D> lookup : lookups){
+					for(Lookup<PK> lookup : lookups){
 						Conjunction and = Restrictions.conjunction();
 						for(Field<?> field : CollectionTool.nullSafe(lookup.getFields())){
 							and.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
@@ -314,7 +308,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 					Criteria criteria = getCriteriaForConfig(config, session);
 					Disjunction prefixesDisjunction = Restrictions.disjunction();
 					if(prefixesDisjunction != null){
-						for(Key<D> prefix : prefixes){
+						for(Key<PK> prefix : prefixes){
 							Conjunction prefixConjunction = getPrefixConjunction(prefix, wildcardLastField);
 							prefixesDisjunction.add(prefixConjunction);
 						}
@@ -527,7 +521,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 	}
 
 	
-	protected Conjunction getPrefixConjunction(Key<D> prefix, final boolean wildcardLastField){
+	protected Conjunction getPrefixConjunction(Key<PK> prefix, final boolean wildcardLastField){
 		int numNonNullFields = 0;
 		for(Comparable<?> value : CollectionTool.nullSafe(prefix.getFieldValues())){
 			if(value != null){

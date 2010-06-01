@@ -19,31 +19,26 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.StringTool;
 
-public class HibernateNode<D extends Databean,PK extends PrimaryKey<D>> 
+public class HibernateNode<D extends Databean<PK>,PK extends PrimaryKey<PK>> 
 extends HibernateReaderNode<D,PK>
 implements PhysicalIndexedSortedStorageNode<D,PK>
 {
 	
-	public HibernateNode(Class<PK> primaryKeyClass, 
+	public HibernateNode(Class<D> databeanClass, 
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
-		super(primaryKeyClass, router, clientName, physicalName, qualifiedPhysicalName);
+		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HibernateNode(Class<D> databeanClass, Class<PK> primaryKeyClass, 
+	public HibernateNode(Class<D> databeanClass, 
 			DataRouter router, String clientName) {
-		super(databeanClass, primaryKeyClass, router, clientName);
-	}
-	
-	public HibernateNode(Class<PK> primaryKeyClass, 
-			DataRouter router, String clientName) {
-		super(primaryKeyClass, router, clientName);
+		super(databeanClass, router, clientName);
 	}
 	
 	@Override
@@ -57,10 +52,10 @@ implements PhysicalIndexedSortedStorageNode<D,PK>
 	public static final PutMethod DEFAULT_PUT_METHOD = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
 
 	@Override
-	public void delete(UniqueKey<D> key, Config config) {
+	public void delete(UniqueKey<PK> key, Config config) {
 		TraceContext.startSpan(getName()+" delete");
 		//this will not clear the databean from the hibernate session
-		List<UniqueKey<D>> keys = new LinkedList<UniqueKey<D>>();
+		List<UniqueKey<PK>> keys = new LinkedList<UniqueKey<PK>>();
 		keys.add(key);
 		deleteMulti(keys, config);
 		TraceContext.finishSpan();
@@ -90,14 +85,14 @@ implements PhysicalIndexedSortedStorageNode<D,PK>
 	 * 
 	 */
 	@Override
-	public void deleteMulti(Collection<? extends UniqueKey<D>> keys, Config config) {
+	public void deleteMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
 		TraceContext.startSpan(getName()+" deleteMulti");
 		//build query
 		if(CollectionTool.isEmpty(keys)){ return; }
 		final String tableName = this.getPhysicalName();
 		StringBuilder sb = new StringBuilder("delete from "+tableName+" where ");
 		int numAppended = 0;
-		for(Key<D> key : CollectionTool.nullSafe(keys)){
+		for(Key<PK> key : CollectionTool.nullSafe(keys)){
 			if(key==null){ continue; }
 			if(numAppended > 0){ sb.append(" or "); }
 			//TODO SQL injection prevention
@@ -177,7 +172,7 @@ implements PhysicalIndexedSortedStorageNode<D,PK>
 	}
 
 	@Override
-	public void delete(final Lookup<D> lookup, final Config config) {
+	public void delete(final Lookup<PK> lookup, final Config config) {
 		TraceContext.startSpan(getName()+" delete");
 		if(lookup==null){ return; }
 		final String tableName = this.getPhysicalName();

@@ -10,13 +10,14 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public class PhysicalNodes<D extends Databean,PK extends PrimaryKey<D>,N extends PhysicalNode<D,PK>> {
+public class PhysicalNodes<D extends Databean<PK>,PK extends PrimaryKey<PK>,
+		N extends PhysicalNode<D,PK>> {
 	Logger logger = Logger.getLogger(getClass());
 
 	List<N> nodes = ListTool.createArrayList();

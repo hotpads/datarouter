@@ -9,18 +9,17 @@ import com.hotpads.datarouter.node.type.physical.PhysicalIndexedStorageReaderNod
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
-
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
-public abstract class PartitionedIndexedStorageReaderNode<D extends Databean,
-PK extends PrimaryKey<D>,N extends PhysicalIndexedStorageReaderNode<D,PK>>
+public abstract class PartitionedIndexedStorageReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
+N extends PhysicalIndexedStorageReaderNode<D,PK>>
 extends PartitionedMapStorageReaderNode<D,PK,N>
 implements IndexedStorageReaderNode<D,PK>{
 	
-	public PartitionedIndexedStorageReaderNode(Class<D> persistentClass, DataRouter router) {
-		super(persistentClass, router);
+	public PartitionedIndexedStorageReaderNode(Class<D> databeanClass, DataRouter router) {
+		super(databeanClass, router);
 	}
 
 	/***************** IndexedStorageReader ************************************/
@@ -30,7 +29,7 @@ implements IndexedStorageReaderNode<D,PK>{
 	 *   - PartitionedIndexedSortedStorageReaderNode
 	 */
 	@Override
-	public List<D> lookup(Lookup<D> lookup, Config config) {
+	public List<D> lookup(Lookup<PK> lookup, Config config) {
 		if(lookup==null){ return null; }
 		List<D> all = ListTool.createLinkedList();
 		Collection<N> nodes = this.getPhysicalNodes(lookup);
@@ -45,12 +44,12 @@ implements IndexedStorageReaderNode<D,PK>{
 	 *   - PartitionedIndexedSortedStorageReaderNode
 	 */
 	@Override
-	public List<D> lookup(Collection<? extends Lookup<D>> lookups, Config config) {
+	public List<D> lookup(Collection<? extends Lookup<PK>> lookups, Config config) {
 		if(CollectionTool.isEmpty(lookups)){ return null; }
 		List<D> all = ListTool.createLinkedList();
 		Collection<N> nodes = this.getPhysicalNodes(lookups);
 		for(N node : CollectionTool.nullSafe(nodes)){
-			for(Lookup<D> lookup : lookups){
+			for(Lookup<PK> lookup : lookups){
 				all.addAll(node.lookup(lookup, config));
 			}
 		}

@@ -5,10 +5,10 @@ import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 
-public interface SortedStorageReadOps<D extends Databean,PK extends PrimaryKey<D>> 
+public interface SortedStorageReadOps<D extends Databean<PK>,PK extends PrimaryKey<PK>>
 extends MapStorageReadOps<D,PK>{
 
 	PK getFirstKey(Config config);

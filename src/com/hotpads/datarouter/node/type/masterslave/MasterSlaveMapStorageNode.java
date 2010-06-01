@@ -6,23 +6,23 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.MapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 
-public class MasterSlaveMapStorageNode<D extends Databean,
-PK extends PrimaryKey<D>,N extends MapStorageNode<D,PK>>
+public class MasterSlaveMapStorageNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
+N extends MapStorageNode<D,PK>>
 extends MasterSlaveMapStorageReaderNode<D,PK,N>
 implements MapStorageNode<D,PK>{
 	
 	public MasterSlaveMapStorageNode(
-			Class<PK> primaryKeyClass, DataRouter router,
+			Class<D> databeanClass, DataRouter router,
 			N master, Collection<N> slaves) {
-		super(primaryKeyClass, router, master, slaves);
+		super(databeanClass, router, master, slaves);
 	}
 
 	public MasterSlaveMapStorageNode(
-			Class<PK> primaryKeyClass, DataRouter router) {
-		super(primaryKeyClass, router);
+			Class<D> databeanClass, DataRouter router) {
+		super(databeanClass, router);
 	}
 	
 	/***************************** MapStorageWriter ****************************/
@@ -34,7 +34,7 @@ implements MapStorageNode<D,PK>{
 	 */
 
 	@Override
-	public void delete(UniqueKey<D> key, Config config) {
+	public void delete(UniqueKey<PK> key, Config config) {
 		this.master.delete(key, config);
 	}
 
@@ -44,7 +44,7 @@ implements MapStorageNode<D,PK>{
 	}
 
 	@Override
-	public void deleteMulti(Collection<? extends UniqueKey<D>> keys, Config config) {
+	public void deleteMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
 		this.master.deleteMulti(keys, config);
 	}
 

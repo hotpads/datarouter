@@ -8,24 +8,24 @@ import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 
-public class HashMapNode<D extends Databean,PK extends PrimaryKey<D>> 
+public class HashMapNode<D extends Databean<PK>,PK extends PrimaryKey<PK>> 
 extends HashMapReaderNode<D,PK>
 implements PhysicalMapStorageNode<D,PK>
 {
 	
-	public HashMapNode(Class<PK> primaryKeyClass, 
+	public HashMapNode(Class<D> databeanClass, 
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
-		super(primaryKeyClass, router, clientName, physicalName, qualifiedPhysicalName);
+		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HashMapNode(Class<PK> primaryKeyClass, 
+	public HashMapNode(Class<D> databeanClass, 
 			DataRouter router, String clientName) {
-		super(primaryKeyClass, router, clientName);
+		super(databeanClass, router, clientName);
 	}
 	
 	@Override
@@ -37,14 +37,14 @@ implements PhysicalMapStorageNode<D,PK>
 	/************************************ MapStorageWriter methods ****************************/
 
 	@Override
-	public void delete(UniqueKey<D> key, Config config) {
+	public void delete(UniqueKey<PK> key, Config config) {
 		if(key==null){ return; }
 		this.backingMap.remove(key);
 	}
 	
 	@Override
-	public void deleteMulti(Collection<? extends UniqueKey<D>> keys, Config config) {
-		for(Key<D> key : CollectionTool.nullSafe(keys)){
+	public void deleteMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
+		for(Key<PK> key : CollectionTool.nullSafe(keys)){
 			this.backingMap.remove(key);
 		}
 	}

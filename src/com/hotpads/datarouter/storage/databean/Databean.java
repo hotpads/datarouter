@@ -2,15 +2,14 @@ package com.hotpads.datarouter.storage.databean;
 
 import java.io.Serializable;
 
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public interface Databean
-extends Serializable, /*FieldSet,*/ Comparable<Databean>{
+public interface Databean<PK extends PrimaryKey<PK>>
+extends Comparable<Databean<PK>>,Serializable{
 
 	String getDatabeanName();
-//	Class<? extends PrimaryKey<? extends Databean>> getKeyClass();
 	
-	@SuppressWarnings("unchecked")  //can't figure out how to keep checked
-	PrimaryKey getKey();  
+	Class<PK> getKeyClass();
+	PK getKey();  
 	
 }

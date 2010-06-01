@@ -2,19 +2,19 @@ package com.hotpads.datarouter.storage.key.unique.base;
 
 import javax.persistence.MappedSuperclass;
 
-import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.base.BaseStringKey;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
 
 @SuppressWarnings("serial")
 @MappedSuperclass
-public abstract class BaseStringUniqueKey<D extends Databean>
-extends BaseStringKey<D>
-implements UniqueKey<D>{
+public abstract class BaseStringUniqueKey<PK extends PrimaryKey<PK>>
+extends BaseStringKey<PK>
+implements UniqueKey<PK>{
 
-	public BaseStringUniqueKey(Class<D> databeanClass, String key) {
-		super(databeanClass, key);
+	public BaseStringUniqueKey(String key) {
+		super(key);
 	}
 
 }

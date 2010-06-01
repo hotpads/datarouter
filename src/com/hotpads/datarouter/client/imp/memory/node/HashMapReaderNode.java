@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.memory.node;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,27 +12,28 @@ import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 
-public class HashMapReaderNode<D extends Databean,PK extends PrimaryKey<D>> 
+public class HashMapReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>> 
 extends BasePhysicalNode<D,PK>
 implements PhysicalMapStorageReaderNode<D,PK>
 {
 	
-	protected Map<UniqueKey<D>,D> backingMap = new HashMap<UniqueKey<D>,D>();
+	protected Map<UniqueKey<PK>,D> backingMap = MapTool.createHashMap();
 
-	public HashMapReaderNode(Class<PK> primaryKeyClass, 
+	public HashMapReaderNode(Class<D> databeanClass, 
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
-		super(primaryKeyClass, router, clientName, physicalName, qualifiedPhysicalName);
+		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HashMapReaderNode(Class<PK> primaryKeyClass, 
+	public HashMapReaderNode(Class<D> databeanClass, 
 			DataRouter router, String clientName) {
-		super(primaryKeyClass, router, clientName);
+		super(databeanClass, router, clientName);
 	}
 
 	@Override
@@ -55,13 +55,13 @@ implements PhysicalMapStorageReaderNode<D,PK>
 	/************************************ MapStorageReader methods ****************************/
 	
 	@Override
-	public boolean exists(UniqueKey<D> key, Config config) {
+	public boolean exists(UniqueKey<PK> key, Config config) {
 		return this.backingMap.containsKey(key);
 	}
 
 	
 	@Override
-	public D get(final UniqueKey<D> key, Config config) {
+	public D get(final UniqueKey<PK> key, Config config) {
 		return this.backingMap.get(key);
 	}
 	
@@ -77,9 +77,9 @@ implements PhysicalMapStorageReaderNode<D,PK>
 
 	
 	@Override
-	public List<D> getMulti(final Collection<? extends UniqueKey<D>> keys, Config config) {		
+	public List<D> getMulti(final Collection<? extends UniqueKey<PK>> keys, Config config) {		
 		List<D> result = ListTool.createLinkedList();
-		for(Key<D> key : CollectionTool.nullSafe(keys)){
+		for(Key<PK> key : CollectionTool.nullSafe(keys)){
 			D value = this.backingMap.get(key);
 			if(value != null){
 				result.add(value);

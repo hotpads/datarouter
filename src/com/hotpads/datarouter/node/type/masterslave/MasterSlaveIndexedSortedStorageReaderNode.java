@@ -8,23 +8,23 @@ import com.hotpads.datarouter.node.op.IndexedSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 
-public class MasterSlaveIndexedSortedStorageReaderNode<D extends Databean,
-PK extends PrimaryKey<D>,N extends IndexedSortedStorageReaderNode<D,PK>>
+public class MasterSlaveIndexedSortedStorageReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
+N extends IndexedSortedStorageReaderNode<D,PK>>
 extends MasterSlaveSortedStorageReaderNode<D,PK,N>
 implements IndexedSortedStorageReaderNode<D,PK>{
 	
 	public MasterSlaveIndexedSortedStorageReaderNode(
-			Class<PK> primaryKeyClass, DataRouter router,
+			Class<D> databeanClass, DataRouter router,
 			N master, Collection<N> slaves) {
-		super(primaryKeyClass, router, master, slaves);
+		super(databeanClass, router, master, slaves);
 	}
 	
 	public MasterSlaveIndexedSortedStorageReaderNode(
-			Class<PK> primaryKeyClass, DataRouter router) {
-		super(primaryKeyClass, router);
+			Class<D> databeanClass, DataRouter router) {
+		super(databeanClass, router);
 	}
 
 	/***************** IndexedStorageReader ************************************/
@@ -33,7 +33,7 @@ implements IndexedSortedStorageReaderNode<D,PK>{
 	 * MULTIPLE INHERITANCE... copied from: MasterSlaveIndexedStorageReaderNode
 	 */
 	@Override
-	public List<D> lookup(Lookup<D> lookup, Config config) {
+	public List<D> lookup(Lookup<PK> lookup, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;
 		return node.lookup(lookup, config);
@@ -43,7 +43,7 @@ implements IndexedSortedStorageReaderNode<D,PK>{
 	 * MULTIPLE INHERITANCE... copied from: MasterSlaveIndexedStorageReaderNode
 	 */
 	@Override
-	public List<D> lookup(Collection<? extends Lookup<D>> lookups, Config config) {
+	public List<D> lookup(Collection<? extends Lookup<PK>> lookups, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;
 		return node.lookup(lookups, config);

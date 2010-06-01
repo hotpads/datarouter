@@ -7,18 +7,19 @@ import java.util.Map;
 import java.util.Set;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.op.IndexedSortedStorageNode;
 import com.hotpads.datarouter.node.op.IndexedSortedStorageReaderNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class CachingIndexedSortedStorageReaderNode<D extends Databean,
-PK extends PrimaryKey<D>,N extends IndexedSortedStorageReaderNode<D,PK>>
+public abstract class CachingIndexedSortedStorageReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
+N extends IndexedSortedStorageNode<D,PK>>
 extends CachingMapStorageReaderNode<D,PK,N>
 implements IndexedSortedStorageReaderNode<D,PK>{	
 	
@@ -29,12 +30,12 @@ implements IndexedSortedStorageReaderNode<D,PK>{
 	/************************* cache access *******************************/
 
 	// lookupCache
-	protected Map<String,Map<Lookup<D>,List<D>>> lookupCacheByThreadName = MapTool.createHashMap();
+	protected Map<String,Map<Lookup<PK>,List<D>>> lookupCacheByThreadName = MapTool.createHashMap();
 
-	protected Map<Lookup<D>,List<D>> getLookupCacheForThisThread(){
+	protected Map<Lookup<PK>,List<D>> getLookupCacheForThisThread(){
 		String threadName = Thread.currentThread().getName();
 		if(lookupCacheByThreadName.get(threadName)==null){
-			lookupCacheByThreadName.put(threadName, new HashMap<Lookup<D>,List<D>>());
+			lookupCacheByThreadName.put(threadName, new HashMap<Lookup<PK>,List<D>>());
 		}
 		return lookupCacheByThreadName.get(threadName);
 	}
@@ -132,14 +133,14 @@ implements IndexedSortedStorageReaderNode<D,PK>{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<D> lookup(Lookup<D> lookup, Config config) {
+	public List<D> lookup(Lookup<PK> lookup, Config config) {
 		if( ! CachingMapStorageReaderNode.useCache(config)){
 			return this.backingNode.lookup(lookup, config);
 		}
 		List<D> fromLookupCache = this.getLookupCacheForThisThread().get(lookup);
 		if(fromLookupCache != null){ return fromLookupCache; }
 		List<D> fromBackingNode = this.backingNode.lookup(lookup, config);
-		Map<UniqueKey<D>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		Map<UniqueKey<PK>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
 		for(D databean : CollectionTool.nullSafe(fromBackingNode)){
 			mapCacheForThisThread.put(databean.getKey(), databean);
 		}
@@ -149,13 +150,13 @@ implements IndexedSortedStorageReaderNode<D,PK>{
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<D> lookup(Collection<? extends Lookup<D>> lookups, Config config) {
+	public List<D> lookup(Collection<? extends Lookup<PK>> lookups, Config config) {
 		if( ! CachingMapStorageReaderNode.useCache(config)){
 			return this.backingNode.lookup(lookups, config);
 		}
-		Set<Lookup<D>> lookupMisses = SetTool.createHashSet();
+		Set<Lookup<PK>> lookupMisses = SetTool.createHashSet();
 		Set<D> resultBuilder = SetTool.createHashSet();
-		for(Lookup<D> lookup : CollectionTool.nullSafe(lookups)){
+		for(Lookup<PK> lookup : CollectionTool.nullSafe(lookups)){
 			List<D> fromLookupCache = this.getLookupCacheForThisThread().get(lookup);
 			if(fromLookupCache==null){ lookupMisses.add(lookup); }
 			else{ SetTool.nullSafeHashAddAll(resultBuilder, fromLookupCache); }
@@ -163,7 +164,7 @@ implements IndexedSortedStorageReaderNode<D,PK>{
 		List<D> fromBackingNode = this.backingNode.lookup(lookupMisses, config);
 		SetTool.nullSafeHashAddAll(resultBuilder, fromBackingNode);
 		List<D> result = ListTool.createArrayList(resultBuilder);
-		Map<UniqueKey<D>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		Map<UniqueKey<PK>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
 		for(D databean : CollectionTool.nullSafe(result)){
 			mapCacheForThisThread.put(databean.getKey(), databean);
 		}

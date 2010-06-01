@@ -1,9 +1,11 @@
 package com.hotpads.datarouter.storage.key.multi;
 
-import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public interface Lookup<D extends Databean>
-extends Key<D>{
+public interface Lookup<PK extends PrimaryKey<PK>>
+extends Key<PK>{
+
+	PK getPrimaryKey();
 	
 }

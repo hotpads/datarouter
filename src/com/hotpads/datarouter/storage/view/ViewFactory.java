@@ -5,12 +5,13 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 /*
  * subclasses must provide a visible no-arg constructor as they are sometimes instantiated with Class.newInstance()
  */
 
-public abstract class ViewFactory<K extends Key<V>,V extends View>{
+public abstract class ViewFactory<PK extends PrimaryKey<PK>,K extends Key<PK>,V extends View>{
 	protected final Logger logger = Logger.getLogger(this.getClass());
 		
 	public ViewFactory(){

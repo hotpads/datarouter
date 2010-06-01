@@ -1,12 +1,12 @@
 package com.hotpads.datarouter.op;
 
-import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.View;
 
-public interface ViewOps {
+public interface ViewOps<PK extends PrimaryKey<PK>,K extends Key<PK>> {
 
-	Boolean isLatest(Key<? extends Databean> key);
-	View render(Key<? extends Databean> key);
+	Boolean isLatest(Key<PK> key);
+	View render(Key<PK> key);
 	
 }

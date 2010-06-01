@@ -1,11 +1,8 @@
 package com.hotpads.trace;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Random;
 
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
@@ -13,17 +10,14 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
-import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.imp.LongField;
-import com.hotpads.datarouter.storage.key.unique.primary.base.BaseLongPrimaryKey;
+import com.hotpads.trace.key.TraceKey;
 import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
 @Entity
 @AccessType("field")
 @SuppressWarnings("serial")
-public class Trace extends BaseDatabean{
+public class Trace extends BaseDatabean<TraceKey>{
 
 	@Id
 	protected TraceKey key;
@@ -76,46 +70,15 @@ public class Trace extends BaseDatabean{
 	/************************** databean **************************************/
 	
 	@Override
+	public Class<TraceKey> getKeyClass() {
+		return TraceKey.class;
+	};
+	
+	@Override
 	public TraceKey getKey() {
 		return key;
 	}
 	
-	
-	@Embeddable
-	public static class TraceKey extends BaseLongPrimaryKey<Trace>{
-		
-		private static Random random = new Random();
-
-		public static final String
-			COL_id = "id";
-		
-		public TraceKey(){//remember no-arg is required
-			super(Trace.class, null);
-			long r = Math.abs(random.nextLong());
-			if(Long.MIN_VALUE==r){ r = 0; }
-			this.id = r;
-		}
-		
-		public TraceKey(Long id){
-			super(Trace.class, id);
-		}
-		
-		@Override
-		public List<Field<?>> getFields(){
-			List<Field<?>> fields = ListTool.create();
-			fields.add(new LongField(KEY_key, COL_id, id));
-			return fields;
-		}
-
-		public Long getId() {
-			return id;
-		}
-
-		public void setId(Long id) {
-			this.id = id;
-		}
-		
-	}
 	
 	/******************** static ******************************************/
 	

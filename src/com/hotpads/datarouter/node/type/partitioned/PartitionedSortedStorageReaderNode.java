@@ -10,18 +10,18 @@ import com.hotpads.datarouter.node.op.SortedStorageReaderNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class PartitionedSortedStorageReaderNode<D extends Databean,
-PK extends PrimaryKey<D>,N extends PhysicalSortedStorageReaderNode<D,PK>>
+public abstract class PartitionedSortedStorageReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
+N extends PhysicalSortedStorageReaderNode<D,PK>>
 extends PartitionedMapStorageReaderNode<D,PK,N>
 implements SortedStorageReaderNode<D,PK>{
 	
-	public PartitionedSortedStorageReaderNode(Class<D> persistentClass, DataRouter router) {
-		super(persistentClass, router);
+	public PartitionedSortedStorageReaderNode(Class<D> databeanClass, DataRouter router) {
+		super(databeanClass, router);
 	}
 
 	/************************* sorted storage methods *****************************/

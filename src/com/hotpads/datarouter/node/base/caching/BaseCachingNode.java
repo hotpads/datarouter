@@ -6,10 +6,11 @@ import java.util.List;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.storage.key.unique.primary.PrimaryKey;
 
-public abstract class BaseCachingNode<D extends Databean,PK extends PrimaryKey<D>,N extends Node<D,PK>> 
+public abstract class BaseCachingNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
+N extends Node<D,PK>> 
 implements Node<D,PK> {
 	
 	
@@ -27,7 +28,7 @@ implements Node<D,PK> {
 	}
 
 	@Override
-	public <K extends UniqueKey<D>> List<String> getClientNamesForKeys(Collection<K> keys) {
+	public <K extends UniqueKey<PK>> List<String> getClientNamesForKeys(Collection<K> keys) {
 		return this.backingNode.getClientNamesForKeys(keys);
 	}
 
