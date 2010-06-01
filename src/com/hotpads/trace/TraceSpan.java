@@ -1,10 +1,12 @@
 package com.hotpads.trace;
 
+import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
@@ -12,9 +14,13 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
-import com.hotpads.trace.key.TraceSpanKey;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.imp.IntegerField;
+import com.hotpads.datarouter.storage.field.imp.LongField;
+import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.util.core.IterableTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.NumberTool;
 
@@ -75,6 +81,70 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey>{
 		return new TraceThreadKey(this.getTraceId(), this.getThreadId());
 	}
 	
+	@SuppressWarnings("serial")
+	@Embeddable
+	public static class TraceSpanKey extends BasePrimaryKey<TraceSpanKey>{
+
+		/****************************** fields ********************************/
+		
+		//hibernate will create these in the wrong order
+		protected Long traceId;
+		protected Long threadId;
+		protected Integer sequence;
+		
+		
+		public static final String
+			COL_traceId = "traceId",
+			COL_threadId = "threadId",
+			COL_sequence = "sequence";
+		
+		
+		@Override
+		public List<Field<?>> getFields(){
+			List<Field<?>> fields = ListTool.create();
+			fields.add(new LongField(TraceSpan.KEY_key, COL_traceId, traceId));
+			fields.add(new LongField(TraceSpan.KEY_key, COL_threadId, threadId));
+			fields.add(new IntegerField(TraceSpan.KEY_key, COL_sequence, sequence));
+			return fields;
+		}
+		
+
+		/****************************** constructor ********************************/
+		
+		TraceSpanKey(){
+			super();
+		}
+		
+		public TraceSpanKey(Long traceId, Long threadId, Integer sequence){
+			this.traceId = traceId;
+			this.threadId = threadId;
+			this.sequence = sequence;
+		}
+		
+
+		/****************************** get/set ********************************/
+		
+		public Long getTraceId() {
+			return traceId;
+		}
+		public void setTraceId(Long traceId) {
+			this.traceId = traceId;
+		}
+		public Long getThreadId() {
+			return threadId;
+		}
+		public void setThreadId(Long threadId) {
+			this.threadId = threadId;
+		}
+		public Integer getSequence() {
+			return sequence;
+		}
+		public void setSequence(Integer sequence) {
+			this.sequence = sequence;
+		}
+		
+		
+	}
 
 	/****************************** static ****************************************/
 	
