@@ -6,7 +6,6 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -20,7 +19,7 @@ import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
 
 public abstract class BasePhysicalNode<D extends Databean,PK extends PrimaryKey<D>> 
-implements Node<D,PK>, PhysicalNode<D,PK>{
+implements PhysicalNode<D,PK>{
 	protected Logger logger = Logger.getLogger(getClass());
 	
 	protected Class<D> databeanClass;
