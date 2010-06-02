@@ -14,8 +14,8 @@ extends BaseKey<PK>{
 	@Column(nullable=false)
 	protected Integer id;
 	
-	public BaseIntegerKey(Integer key) {
-		this.id = key;
+	public BaseIntegerKey(Integer id) {
+		this.id = id;
 	}
 
 	public Integer getId(){

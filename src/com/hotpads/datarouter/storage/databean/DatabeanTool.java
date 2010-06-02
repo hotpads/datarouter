@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class DatabeanTool {
 
-	public static <D extends Databean<PK>,PK extends PrimaryKey<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 	SortedMap<PK,D> getByKeySorted(Collection<D> databeans){
 		return KeyTool.getByKeySorted(databeans);
 	}

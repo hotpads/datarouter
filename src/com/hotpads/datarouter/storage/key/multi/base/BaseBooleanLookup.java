@@ -10,8 +10,8 @@ public abstract class BaseBooleanLookup<PK extends PrimaryKey<PK>>
 extends BaseBooleanKey<PK>
 implements Lookup<PK>{
 
-	public BaseBooleanLookup(Boolean key) {
-		super(key);
+	public BaseBooleanLookup(Boolean id) {
+		super(id);
 	}
 
 }

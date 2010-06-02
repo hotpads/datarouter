@@ -22,10 +22,7 @@ implements PhysicalNode<D,PK>
 {
 	protected Logger logger = Logger.getLogger(getClass());
 	
-	protected Class<D> databeanClass;
-	protected Class<PK> primaryKeyClass;
 	protected String clientName;
-	protected String name;
 	protected String physicalName;
 	protected String packagedPhysicalName;
 	

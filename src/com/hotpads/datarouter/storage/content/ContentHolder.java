@@ -6,14 +6,14 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public interface ContentHolder<D extends Databean<PK>,PK extends PrimaryKey<PK>> {
+public interface ContentHolder<PK extends PrimaryKey<PK>,D extends Databean<PK>> {
 
 	List<Field<?>> getKeyFields();
 //	List<Field<?>> getDataFields();
 	List<Field<?>> getMetaFields();
 	List<Field<?>> getContentFields();
 	
-	boolean equalsContent(ContentHolder<D,PK> other);
+	boolean equalsContent(ContentHolder<?,?> other);
 	
 	PK getKey();
 	

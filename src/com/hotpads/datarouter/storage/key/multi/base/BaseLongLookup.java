@@ -10,8 +10,8 @@ public abstract class BaseLongLookup<PK extends PrimaryKey<PK>>
 extends BaseLongKey<PK>
 implements Lookup<PK>{
 
-	public BaseLongLookup(Long key) {
-		super(key);
+	public BaseLongLookup(Long id) {
+		super(id);
 	}
 
 }

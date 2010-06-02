@@ -10,8 +10,8 @@ public abstract class BaseStringLookup<PK extends PrimaryKey<PK>>
 extends BaseStringKey<PK>
 implements Lookup<PK>{
 
-	public BaseStringLookup(String key) {
-		super(key);
+	public BaseStringLookup(String id) {
+		super(id);
 	}
 
 }

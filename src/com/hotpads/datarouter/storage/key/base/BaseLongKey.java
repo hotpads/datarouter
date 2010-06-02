@@ -14,8 +14,8 @@ extends BaseKey<PK>{
 	@Column(nullable=false)
 	protected Long id;
 	
-	public BaseLongKey(Long key) {
-		this.id = key;
+	public BaseLongKey(Long id) {
+		this.id = id;
 	}
 
 	

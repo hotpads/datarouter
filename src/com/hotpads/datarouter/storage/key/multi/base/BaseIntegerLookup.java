@@ -10,8 +10,8 @@ public abstract class BaseIntegerLookup<PK extends PrimaryKey<PK>>
 extends BaseIntegerKey<PK>
 implements Lookup<PK>{
 
-	public BaseIntegerLookup(Integer key) {
-		super(key);
+	public BaseIntegerLookup(Integer id) {
+		super(id);
 	}
 
 }

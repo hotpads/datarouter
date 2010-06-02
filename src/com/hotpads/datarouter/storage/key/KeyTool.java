@@ -1,11 +1,9 @@
 package com.hotpads.datarouter.storage.key;
 
-import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 
-import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -39,7 +37,7 @@ public class KeyTool {
 		return keys;
 	}
 
-	public static <D extends Databean<PK>,PK extends PrimaryKey<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 	SortedMap<PK,D> getByKeySorted(Collection<D> databeans){
 		SortedMap<PK,D> map = MapTool.createTreeMap();
 		for(D databean : CollectionTool.nullSafe(databeans)){
@@ -49,7 +47,7 @@ public class KeyTool {
 	}
 	
 	public static String getWhereClauseDisjunction(
-			Collection<FieldSet> fieldSets){
+			Collection<? extends FieldSet> fieldSets){
 		if(CollectionTool.isEmpty(fieldSets)){ return null; }
 		StringBuilder sb = new StringBuilder();
 		int counter = 0;

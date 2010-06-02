@@ -14,8 +14,8 @@ extends BaseKey<PK>{
 	@Column(nullable=false)
 	protected Boolean id;
 	
-	public BaseBooleanKey(Boolean key){
-		this.id = key;
+	public BaseBooleanKey(Boolean id){
+		this.id = id;
 	}
 
 	public Boolean getId(){

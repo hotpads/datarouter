@@ -14,8 +14,8 @@ extends BaseKey<PK>{
 	@Column(nullable=false)
 	protected String id;
 	
-	public BaseStringKey(String key){
-		this.id = key;
+	public BaseStringKey(String id){
+		this.id = id;
 	}
 
 	public String getId() {
