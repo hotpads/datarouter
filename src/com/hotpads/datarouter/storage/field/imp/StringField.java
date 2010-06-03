@@ -1,8 +1,11 @@
 package com.hotpads.datarouter.storage.field.imp;
 
+import java.nio.charset.Charset;
+
 import com.hotpads.datarouter.storage.field.Field;
 
 public class StringField extends Field<String>{
+	
 
 	public StringField(String name, String value){
 		super(name, value);
@@ -24,4 +27,5 @@ public class StringField extends Field<String>{
 	public String parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:(String)obj;
 	}
+	
 }
