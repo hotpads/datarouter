@@ -12,10 +12,10 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 
-public class MasterSlaveMapStorageReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-N extends MapStorageReaderNode<D,PK>>
-extends BaseMasterSlaveNode<D,PK,N>
-implements MapStorageReaderNode<D,PK>{
+public class MasterSlaveMapStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+N extends MapStorageReaderNode<PK,D>>
+extends BaseMasterSlaveNode<PK,D,N>
+implements MapStorageReaderNode<PK,D>{
 	
 	public MasterSlaveMapStorageReaderNode(Class<D> databeanClass, DataRouter router,
 			N master, Collection<N> slaves) {

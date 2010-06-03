@@ -13,17 +13,16 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.op.MapStorageReadOps;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BaseMasterSlaveNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-		N extends Node<D,PK>> 
-extends BaseNode<D,PK>
-implements MapStorageReadOps<D,PK>{
+public abstract class BaseMasterSlaveNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+		N extends Node<PK,D>> 
+extends BaseNode<PK,D>
+implements MapStorageReadOps<PK,D>{
 	
 	protected N master;
 	protected List<N> slaves = new ArrayList<N>();
@@ -37,8 +36,8 @@ implements MapStorageReadOps<D,PK>{
 	/*************************** node methods *************************/
 
 	@Override
-	public List<PhysicalNode<D,PK>> getPhysicalNodes() {
-		List<PhysicalNode<D,PK>> all = ListTool.createLinkedList();
+	public List<PhysicalNode<PK,D>> getPhysicalNodes() {
+		List<PhysicalNode<PK,D>> all = ListTool.createLinkedList();
 		all.addAll(this.master.getPhysicalNodes());
 		for(N slave : CollectionTool.nullSafe(this.slaves)){
 			all.addAll(ListTool.nullSafe(slave.getPhysicalNodes()));
@@ -47,8 +46,8 @@ implements MapStorageReadOps<D,PK>{
 	}
 
 	@Override
-	public List<PhysicalNode<D,PK>> getPhysicalNodesForClient(String clientName) {
-		List<PhysicalNode<D,PK>> all = ListTool.createLinkedList();
+	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
+		List<PhysicalNode<PK,D>> all = ListTool.createLinkedList();
 		all.addAll(this.master.getPhysicalNodesForClient(clientName));
 		for(N slave : CollectionTool.nullSafe(this.slaves)){
 			all.addAll(ListTool.nullSafe(slave.getPhysicalNodesForClient(clientName)));

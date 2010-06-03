@@ -13,10 +13,10 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
-public abstract class PartitionedIndexedStorageReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-N extends PhysicalIndexedStorageReaderNode<D,PK>>
-extends PartitionedMapStorageReaderNode<D,PK,N>
-implements IndexedStorageReaderNode<D,PK>{
+public abstract class PartitionedIndexedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+N extends PhysicalIndexedStorageReaderNode<PK,D>>
+extends PartitionedMapStorageReaderNode<PK,D,N>
+implements IndexedStorageReaderNode<PK,D>{
 	
 	public PartitionedIndexedStorageReaderNode(Class<D> databeanClass, DataRouter router) {
 		super(databeanClass, router);

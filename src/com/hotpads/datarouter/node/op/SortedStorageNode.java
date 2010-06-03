@@ -4,8 +4,8 @@ import com.hotpads.datarouter.op.SortedStorageWriteOps;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public interface SortedStorageNode<D extends Databean<PK>,PK extends PrimaryKey<PK>>
-extends SortedStorageReaderNode<D,PK>, MapStorageNode<D,PK>, SortedStorageWriteOps<D,PK>
+public interface SortedStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+extends SortedStorageReaderNode<PK,D>, MapStorageNode<PK,D>, SortedStorageWriteOps<PK,D>
 {
 
 }

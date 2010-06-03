@@ -15,10 +15,10 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class PartitionedSortedStorageReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-N extends PhysicalSortedStorageReaderNode<D,PK>>
-extends PartitionedMapStorageReaderNode<D,PK,N>
-implements SortedStorageReaderNode<D,PK>{
+public abstract class PartitionedSortedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+N extends PhysicalSortedStorageReaderNode<PK,D>>
+extends PartitionedMapStorageReaderNode<PK,D,N>
+implements SortedStorageReaderNode<PK,D>{
 	
 	public PartitionedSortedStorageReaderNode(Class<D> databeanClass, DataRouter router) {
 		super(databeanClass, router);

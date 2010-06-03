@@ -25,9 +25,9 @@ import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.StringTool;
 
-public class HibernateNode<D extends Databean<PK>,PK extends PrimaryKey<PK>> 
-extends HibernateReaderNode<D,PK>
-implements PhysicalIndexedSortedStorageNode<D,PK>
+public class HibernateNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+extends HibernateReaderNode<PK,D>
+implements PhysicalIndexedSortedStorageNode<PK,D>
 {
 	
 	public HibernateNode(Class<D> databeanClass, 
@@ -42,7 +42,7 @@ implements PhysicalIndexedSortedStorageNode<D,PK>
 	}
 	
 	@Override
-	public Node<D,PK> getMaster() {
+	public Node<PK,D> getMaster() {
 		return this;
 	}
 	

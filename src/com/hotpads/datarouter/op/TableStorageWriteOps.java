@@ -6,8 +6,8 @@ import java.util.Map;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public interface TableStorageWriteOps<D extends Databean<PK>,PK extends PrimaryKey<PK>>
-extends SortedStorageWriteOps<D,PK>{
+public interface TableStorageWriteOps<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+extends SortedStorageWriteOps<PK,D>{
 
 	void updateField(String field, Object newValue, Collection<? extends PK> keys);
 	void updateFields(Map<String,Object> newValueByFieldName, Collection<? extends PK> keys);

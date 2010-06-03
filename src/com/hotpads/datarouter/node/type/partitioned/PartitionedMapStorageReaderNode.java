@@ -16,10 +16,10 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
-public abstract class PartitionedMapStorageReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-N extends PhysicalMapStorageReaderNode<D,PK>>
-extends BasePartitionedNode<D,PK,N>
-implements MapStorageReaderNode<D,PK>{
+public abstract class PartitionedMapStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+N extends PhysicalMapStorageReaderNode<PK,D>>
+extends BasePartitionedNode<PK,D,N>
+implements MapStorageReaderNode<PK,D>{
 	
 	public PartitionedMapStorageReaderNode(Class<D> databeanClass, DataRouter router) {
 		super(databeanClass, router);

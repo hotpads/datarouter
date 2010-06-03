@@ -18,10 +18,10 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class CachingIndexedSortedStorageReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-N extends IndexedSortedStorageNode<D,PK>>
-extends CachingMapStorageReaderNode<D,PK,N>
-implements IndexedSortedStorageReaderNode<D,PK>{	
+public abstract class CachingIndexedSortedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+N extends IndexedSortedStorageNode<PK,D>>
+extends CachingMapStorageReaderNode<PK,D,N>
+implements IndexedSortedStorageReaderNode<PK,D>{	
 	
 	public CachingIndexedSortedStorageReaderNode(N backingNode) {
 		super(backingNode);
@@ -131,7 +131,6 @@ implements IndexedSortedStorageReaderNode<D,PK>{
 
 	/***************** IndexedStorageReader ************************************/
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> lookup(Lookup<PK> lookup, Config config) {
 		if( ! CachingMapStorageReaderNode.useCache(config)){
@@ -148,7 +147,6 @@ implements IndexedSortedStorageReaderNode<D,PK>{
 		return fromBackingNode;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> lookup(Collection<? extends Lookup<PK>> lookups, Config config) {
 		if( ! CachingMapStorageReaderNode.useCache(config)){

@@ -11,10 +11,10 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
 
-public class MasterSlaveIndexedSortedStorageNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-N extends IndexedSortedStorageNode<D,PK>>
-extends MasterSlaveIndexedSortedStorageReaderNode<D,PK,N>
-implements IndexedSortedStorageNode<D,PK>{
+public class MasterSlaveIndexedSortedStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+N extends IndexedSortedStorageNode<PK,D>>
+extends MasterSlaveIndexedSortedStorageReaderNode<PK,D,N>
+implements IndexedSortedStorageNode<PK,D>{
 	
 	public MasterSlaveIndexedSortedStorageNode(
 			Class<D> databeanClass, DataRouter router,

@@ -18,9 +18,9 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
-public class HashMapReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>> 
-extends BasePhysicalNode<D,PK>
-implements PhysicalMapStorageReaderNode<D,PK>
+public class HashMapReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+extends BasePhysicalNode<PK,D>
+implements PhysicalMapStorageReaderNode<PK,D>
 {
 	
 	protected Map<UniqueKey<PK>,D> backingMap = MapTool.createHashMap();
@@ -42,7 +42,7 @@ implements PhysicalMapStorageReaderNode<D,PK>
 	}
 	
 	@Override
-	public Node<D,PK> getMaster() {
+	public Node<PK,D> getMaster() {
 		return null;
 	}
 	

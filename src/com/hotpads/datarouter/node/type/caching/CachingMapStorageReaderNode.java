@@ -18,10 +18,10 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class CachingMapStorageReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-N extends IndexedSortedStorageNode<D,PK>>
-extends BaseCachingNode<D,PK,N>
-implements MapStorageReaderNode<D,PK>{
+public abstract class CachingMapStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+N extends IndexedSortedStorageNode<PK,D>>
+extends BaseCachingNode<PK,D,N>
+implements MapStorageReaderNode<PK,D>{
 	
 	
 	public CachingMapStorageReaderNode(N backingNode) {

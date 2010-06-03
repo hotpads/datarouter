@@ -52,7 +52,7 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <D extends Databean<PK>,PK extends PrimaryKey<PK>,N extends Node<D,PK>> N register(N node){
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends Node<PK,D>> N register(N node){
 		this.nodes.register(node);
 		return node;
 	}

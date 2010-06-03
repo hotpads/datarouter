@@ -14,10 +14,10 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.MapTool;
 
-public abstract class PartitionedMapStorageNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-N extends PhysicalMapStorageNode<D,PK>>
-extends PartitionedMapStorageReaderNode<D,PK,N>
-implements MapStorageNode<D,PK>{
+public abstract class PartitionedMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+N extends PhysicalMapStorageNode<PK,D>>
+extends PartitionedMapStorageReaderNode<PK,D,N>
+implements MapStorageNode<PK,D>{
 	
 	public PartitionedMapStorageNode(Class<D> databeanClass, DataRouter router) {
 		super(databeanClass, router);
@@ -59,7 +59,6 @@ implements MapStorageNode<D,PK>{
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void put(D databean, Config config) {
 		Collection<N> nodes = this.getPhysicalNodes(databean.getKey());
 		for(N node : CollectionTool.nullSafe(nodes)){

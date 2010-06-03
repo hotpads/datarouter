@@ -12,10 +12,10 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 
-public abstract class CachingMapStorageNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-N extends IndexedSortedStorageNode<D,PK>>
-extends CachingMapStorageReaderNode<D,PK,N>
-implements MapStorageNode<D,PK>{
+public abstract class CachingMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+N extends IndexedSortedStorageNode<PK,D>>
+extends CachingMapStorageReaderNode<PK,D,N>
+implements MapStorageNode<PK,D>{
 
 	
 	public CachingMapStorageNode(N backingNode) {
@@ -44,7 +44,6 @@ implements MapStorageNode<D,PK>{
 		this.backingNode.deleteMulti(keys, config);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void put(D databean, Config config) {
 		if(databean==null || databean.getKey()==null){ return; }
@@ -54,7 +53,6 @@ implements MapStorageNode<D,PK>{
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void putMulti(Collection<D> databeans, Config config) {
 		this.backingNode.putMulti(databeans, config);

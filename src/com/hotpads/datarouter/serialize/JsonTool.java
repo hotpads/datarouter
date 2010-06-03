@@ -2,14 +2,14 @@ package com.hotpads.datarouter.serialize;
 
 import java.util.List;
 
-import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.util.core.IterableTool;
-
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import net.sf.json.JsonConfig;
+
+import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.util.core.IterableTool;
 
 public class JsonTool{
 
@@ -21,7 +21,7 @@ public class JsonTool{
 		return j;
 	}
 
-	public static <J extends Databean> J fromJsonString(Class<J> clazz, String jsonString) {
+	public static <J extends Databean<?>> J fromJsonString(Class<J> clazz, String jsonString) {
 		JSONObject jsonObject = (JSONObject)JSONSerializer.toJSON(jsonString);
 		JsonConfig jsonConfig = new JsonConfig();  
 		jsonConfig.setRootClass(clazz);  

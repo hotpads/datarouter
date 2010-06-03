@@ -10,7 +10,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
 
-public interface Node<D extends Databean<PK>,PK extends PrimaryKey<PK>> {
+public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK>> {
 
 	String getName();
 	Class<D> getDatabeanType();
@@ -18,9 +18,9 @@ public interface Node<D extends Databean<PK>,PK extends PrimaryKey<PK>> {
 	List<String> getClientNames();
 	boolean usesClient(String clientName);
 	<K extends UniqueKey<PK>> List<String> getClientNamesForKeys(Collection<K> keys);
-	List<? extends PhysicalNode<D,PK>> getPhysicalNodes();
-	List<? extends PhysicalNode<D,PK>> getPhysicalNodesForClient(String clientName);
-	Node<D,PK> getMaster();
+	List<? extends PhysicalNode<PK,D>> getPhysicalNodes();
+	List<? extends PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName);
+	Node<PK,D> getMaster();
 	
 	void clearThreadSpecificState();
 

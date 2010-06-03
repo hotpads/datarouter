@@ -14,7 +14,7 @@ import com.hotpads.util.core.MapTool;
 
 public class KeyTool {
 	
-//	public static <D extends Databean<PK>,PK extends PrimaryKey<PK>> 
+//	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 //	Class<D> getDatabeanClass(Class<PK> primaryKeyClass){
 //		try{
 //			//use getDeclaredConstructor to access non-public constructors
@@ -28,7 +28,7 @@ public class KeyTool {
 //		}
 //	}
 
-	public static <D extends Databean<PK>,PK extends PrimaryKey<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 	List<PK> getKeys(Collection<D> databeans){
 		List<PK> keys = ListTool.createLinkedList();
 		for(D databean : CollectionTool.nullSafe(databeans)){

@@ -6,7 +6,7 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 
-public interface IndexedStorageWriteOps<D extends Databean<PK>,PK extends PrimaryKey<PK>>{
+public interface IndexedStorageWriteOps<PK extends PrimaryKey<PK>,D extends Databean<PK>>{
 
 	void delete(Lookup<PK> lookup, Config config);
 

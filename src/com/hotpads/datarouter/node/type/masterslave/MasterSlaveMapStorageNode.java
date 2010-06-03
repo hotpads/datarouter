@@ -9,10 +9,10 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
-public class MasterSlaveMapStorageNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-N extends MapStorageNode<D,PK>>
-extends MasterSlaveMapStorageReaderNode<D,PK,N>
-implements MapStorageNode<D,PK>{
+public class MasterSlaveMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+N extends MapStorageNode<PK,D>>
+extends MasterSlaveMapStorageReaderNode<PK,D,N>
+implements MapStorageNode<PK,D>{
 	
 	public MasterSlaveMapStorageNode(
 			Class<D> databeanClass, DataRouter router,

@@ -8,8 +8,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 
-public interface SortedStorageReadOps<D extends Databean<PK>,PK extends PrimaryKey<PK>>
-extends MapStorageReadOps<D,PK>{
+public interface SortedStorageReadOps<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+extends MapStorageReadOps<PK,D>{
 
 	PK getFirstKey(Config config);
 	D getFirst(Config config);

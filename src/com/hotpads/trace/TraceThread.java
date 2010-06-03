@@ -1,7 +1,6 @@
 package com.hotpads.trace;
 
 import java.util.Date;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,8 +11,6 @@ import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.trace.key.TraceThreadKey;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.MapTool;
 
 @Entity
 @AccessType("field")

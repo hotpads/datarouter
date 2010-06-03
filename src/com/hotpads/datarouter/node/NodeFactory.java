@@ -20,107 +20,107 @@ import com.hotpads.util.core.ListTool;
 
 public class NodeFactory {
 
-	public static <D extends Databean<PK>,PK extends PrimaryKey<PK>> 
-	HibernateNode<D,PK> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	HibernateNode<PK,D> 
 	newHibernate(String clientName, 
 			Class<D> databeanClass, 
 			DataRouter router){
 		
-		return new HibernateNode<D,PK>(databeanClass, router, clientName);
+		return new HibernateNode<PK,D>(databeanClass, router, clientName);
 	}
 
 	public static <D extends Databean<PK>,PK extends PrimaryKey<PK>> 
-	HibernateNode<D,PK> 
+	HibernateNode<PK,D> 
 	newHibernate(String clientName, 
 			String physicalName, String qualifiedPhysicalName,
 			Class<D> databeanClass, 
 			DataRouter router){
 		
-		HibernateNode<D,PK> node = new HibernateNode<D,PK>(databeanClass, router, clientName,
+		HibernateNode<PK,D> node = new HibernateNode<PK,D>(databeanClass, router, clientName,
 				physicalName, qualifiedPhysicalName);
 		return node;
 	}
 
-	public static <D extends Databean<PK>,PK extends PrimaryKey<PK>> 
-	MasterSlaveMapStorageNode<D,PK,MapStorageNode<D,PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	MasterSlaveMapStorageNode<PK,D,MapStorageNode<PK,D>> 
 	newMasterSlaveMap(
 			DataRouter router, Class<D> databeanClass, 
 			String masterClientName, Collection<String> slaveClientNames){
 		
-		MapStorageNode<D,PK> master = null;
+		MapStorageNode<PK,D> master = null;
 		if(masterClientName != null){
-			master = new HibernateNode<D,PK>(databeanClass, router, masterClientName);
+			master = new HibernateNode<PK,D>(databeanClass, router, masterClientName);
 		}
 		
-		List<MapStorageNode<D,PK>> slaves = ListTool.createLinkedList();
+		List<MapStorageNode<PK,D>> slaves = ListTool.createLinkedList();
 		for(String slaveClientName : CollectionTool.nullSafe(slaveClientNames)){
-			slaves.add(new HibernateNode<D,PK>(databeanClass, router, slaveClientName));
+			slaves.add(new HibernateNode<PK,D>(databeanClass, router, slaveClientName));
 		}
 		
-		return new MasterSlaveMapStorageNode<D,PK,MapStorageNode<D,PK>>(
+		return new MasterSlaveMapStorageNode<PK,D,MapStorageNode<PK,D>>(
 				databeanClass, router, master, slaves);
 		
 	}
 
-	public static <D extends Databean<PK>,PK extends PrimaryKey<PK>> 
-	MasterSlaveSortedStorageNode<D,PK,SortedStorageNode<D,PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	MasterSlaveSortedStorageNode<PK,D,SortedStorageNode<PK,D>> 
 	newMasterSlaveSorted(
 			DataRouter router, Class<D> databeanClass, 
 			String masterClientName, Collection<String> slaveClientNames){
 		
-		SortedStorageNode<D,PK> master = null;
+		SortedStorageNode<PK,D> master = null;
 		if(masterClientName != null){
-			master = new HibernateNode<D,PK>(databeanClass, router, masterClientName);
+			master = new HibernateNode<PK,D>(databeanClass, router, masterClientName);
 		}
 		
-		List<SortedStorageNode<D,PK>> slaves = ListTool.createLinkedList();
+		List<SortedStorageNode<PK,D>> slaves = ListTool.createLinkedList();
 		for(String slaveClientName : CollectionTool.nullSafe(slaveClientNames)){
-			slaves.add(new HibernateNode<D,PK>(databeanClass, router, slaveClientName));
+			slaves.add(new HibernateNode<PK,D>(databeanClass, router, slaveClientName));
 		}
 		
-		return new MasterSlaveSortedStorageNode<D,PK,SortedStorageNode<D,PK>>(
+		return new MasterSlaveSortedStorageNode<PK,D,SortedStorageNode<PK,D>>(
 				databeanClass, router, master, slaves);
 		
 	}
 
-	public static <D extends Databean<PK>,PK extends PrimaryKey<PK>> 
-	MasterSlaveIndexedStorageNode<D,PK,IndexedStorageNode<D,PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	MasterSlaveIndexedStorageNode<PK,D,IndexedStorageNode<PK,D>> 
 	newMasterSlaveIndexed(
 			DataRouter router, Class<D> databeanClass, 
 			String masterClientName, Collection<String> slaveClientNames){
 		
-		IndexedStorageNode<D,PK> master = null;
+		IndexedStorageNode<PK,D> master = null;
 		if(masterClientName != null){
-			master = new HibernateNode<D,PK>(databeanClass, router, masterClientName);
+			master = new HibernateNode<PK,D>(databeanClass, router, masterClientName);
 		}
 		
-		List<IndexedStorageNode<D,PK>> slaves = ListTool.createLinkedList();
+		List<IndexedStorageNode<PK,D>> slaves = ListTool.createLinkedList();
 		for(String slaveClientName : CollectionTool.nullSafe(slaveClientNames)){
-			slaves.add(new HibernateNode<D,PK>(databeanClass, router, slaveClientName));
+			slaves.add(new HibernateNode<PK,D>(databeanClass, router, slaveClientName));
 		}
 		
-		return new MasterSlaveIndexedStorageNode<D,PK,IndexedStorageNode<D,PK>>(
+		return new MasterSlaveIndexedStorageNode<PK,D,IndexedStorageNode<PK,D>>(
 				databeanClass, router, master, slaves);
 		
 	}
 
-	public static <D extends Databean<PK>,PK extends PrimaryKey<PK>> 
-	MasterSlaveIndexedSortedStorageNode<D,PK,IndexedSortedStorageNode<D,PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	MasterSlaveIndexedSortedStorageNode<PK,D,IndexedSortedStorageNode<PK,D>> 
 	newMasterSlaveIndexedSorted(
 			DataRouter router, Class<D> databeanClass, 
 			String masterClientName, Collection<String> slaveClientNames){
 		
-		IndexedSortedStorageNode<D,PK> master = null;
+		IndexedSortedStorageNode<PK,D> master = null;
 		if(masterClientName != null){
-			master = new HibernateNode<D,PK>(databeanClass, router, masterClientName);
+			master = new HibernateNode<PK,D>(databeanClass, router, masterClientName);
 		}
 		
-		List<IndexedSortedStorageNode<D,PK>> slaves = ListTool.createLinkedList();
+		List<IndexedSortedStorageNode<PK,D>> slaves = ListTool.createLinkedList();
 		for(String slaveClientName : CollectionTool.nullSafe(slaveClientNames)){
-			slaves.add(new HibernateNode<D,PK>(databeanClass, router, slaveClientName));
+			slaves.add(new HibernateNode<PK,D>(databeanClass, router, slaveClientName));
 		}
 		
-		return new MasterSlaveIndexedSortedStorageNode<D,PK,IndexedSortedStorageNode<D,PK>>(
+		return new MasterSlaveIndexedSortedStorageNode<PK,D,IndexedSortedStorageNode<PK,D>>(
 				databeanClass, router, master, slaves);
 		
 	}

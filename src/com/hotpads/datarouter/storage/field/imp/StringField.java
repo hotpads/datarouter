@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.storage.field.imp;
 
-import java.nio.charset.Charset;
-
 import com.hotpads.datarouter.storage.field.Field;
 
 public class StringField extends Field<String>{

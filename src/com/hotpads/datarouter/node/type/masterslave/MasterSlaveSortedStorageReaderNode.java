@@ -9,10 +9,10 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public class MasterSlaveSortedStorageReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-		N extends SortedStorageReaderNode<D,PK>>
-extends MasterSlaveMapStorageReaderNode<D,PK,N>
-implements SortedStorageReaderNode<D,PK>{
+public class MasterSlaveSortedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+		N extends SortedStorageReaderNode<PK,D>>
+extends MasterSlaveMapStorageReaderNode<PK,D,N>
+implements SortedStorageReaderNode<PK,D>{
 	
 	public MasterSlaveSortedStorageReaderNode(
 			Class<D> databeanClass, DataRouter router,

@@ -5,8 +5,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 
-public interface SortedStorageWriteOps<D extends Databean<PK>,PK extends PrimaryKey<PK>>
-extends MapStorageWriteOps<D,PK>{
+public interface SortedStorageWriteOps<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+extends MapStorageWriteOps<PK,D>{
 
 	void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config);
 

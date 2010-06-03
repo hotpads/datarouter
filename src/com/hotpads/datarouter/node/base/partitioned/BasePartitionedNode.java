@@ -20,13 +20,13 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BasePartitionedNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-		N extends PhysicalNode<D,PK>> 
-extends BaseNode<D,PK>{
+public abstract class BasePartitionedNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+		N extends PhysicalNode<PK,D>> 
+extends BaseNode<PK,D>{
 
 	protected Class<D> databeanClass;
 	protected DataRouter router;
-	protected PhysicalNodes<D,PK,N> physicalNodes = new PhysicalNodes<D,PK,N>();
+	protected PhysicalNodes<PK,D,N> physicalNodes = new PhysicalNodes<PK,D,N>();
 	
 	protected String name;
 	
@@ -40,7 +40,7 @@ extends BaseNode<D,PK>{
 	
 	
 	@Override
-	public Node<D,PK> getMaster() {
+	public Node<PK,D> getMaster() {
 		return this;
 	}
 
@@ -58,7 +58,7 @@ extends BaseNode<D,PK>{
 	public <K extends UniqueKey<PK>> List<String> getClientNamesForKeys(Collection<K> keys) {
 		Map<N,List<UniqueKey<PK>>> keysByPhysicalNode = this.getKeysByPhysicalNode(keys);
 		List<String> clientNames = ListTool.createLinkedList();
-		for(PhysicalNode<D,PK> node : MapTool.nullSafe(keysByPhysicalNode).keySet()){
+		for(PhysicalNode<PK,D> node : MapTool.nullSafe(keysByPhysicalNode).keySet()){
 			String clientName = node.getClientName();
 			clientNames.add(clientName);
 		}

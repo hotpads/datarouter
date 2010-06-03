@@ -63,9 +63,8 @@ public class HibernateClientFactory implements ClientFactory{
 		//databean config
 		@SuppressWarnings("unchecked")
 		Nodes nodes = router.getNodes();
-		@SuppressWarnings("unchecked")
-		Collection<Class<? extends Databean>> relevantDatabeanTypes = nodes.getTypesForClient(clientName);
-		for(Class<? extends Databean> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
+		Collection<Class<? extends Databean<?>>> relevantDatabeanTypes = nodes.getTypesForClient(clientName);
+		for(Class<? extends Databean<?>> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
 //			logger.warn(clientName+":"+databeanClass);
 			try{
 				sfConfig.addClass(databeanClass);

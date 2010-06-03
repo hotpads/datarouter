@@ -22,7 +22,7 @@ public interface DataRouter {
 
 	void setClients(Clients clients);
 
-	<D extends Databean<PK>,PK extends PrimaryKey<PK>, N extends Node<D,PK>> N register(N node);
+	<PK extends PrimaryKey<PK>,D extends Databean<PK>, N extends Node<PK,D>> N register(N node);
 	
 	void activate() throws IOException;
 

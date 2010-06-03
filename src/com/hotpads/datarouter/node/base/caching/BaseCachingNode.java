@@ -10,9 +10,9 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
-public abstract class BaseCachingNode<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-		N extends Node<D,PK>> 
-extends BaseNode<D,PK>{
+public abstract class BaseCachingNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+		N extends Node<PK,D>> 
+extends BaseNode<PK,D>{
 	
 	
 	/***************************** Node pass-through stuff **********************************/
@@ -40,7 +40,7 @@ extends BaseNode<D,PK>{
 	}
 
 	@Override
-	public Node<D,PK> getMaster() {
+	public Node<PK,D> getMaster() {
 		return this.backingNode.getMaster();
 	}
 
@@ -50,12 +50,12 @@ extends BaseNode<D,PK>{
 	}
 
 	@Override
-	public List<? extends PhysicalNode<D,PK>> getPhysicalNodes() {
+	public List<? extends PhysicalNode<PK,D>> getPhysicalNodes() {
 		return this.backingNode.getPhysicalNodes();
 	}
 
 	@Override
-	public List<? extends PhysicalNode<D,PK>> getPhysicalNodesForClient(String clientName) {
+	public List<? extends PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
 		return this.backingNode.getPhysicalNodesForClient(clientName);
 	}
 

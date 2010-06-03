@@ -16,9 +16,9 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BasePhysicalNode<D extends Databean<PK>,PK extends PrimaryKey<PK>>
-extends BaseNode<D,PK>
-implements PhysicalNode<D,PK>
+public abstract class BasePhysicalNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+extends BaseNode<PK,D>
+implements PhysicalNode<PK,D>
 {
 	protected Logger logger = Logger.getLogger(getClass());
 	
@@ -78,15 +78,15 @@ implements PhysicalNode<D,PK>
 	}
 		
 	@Override
-	public List<? extends PhysicalNode<D,PK>> getPhysicalNodes() {
-		List<PhysicalNode<D,PK>> physicalNodes = ListTool.createLinkedList();
+	public List<? extends PhysicalNode<PK,D>> getPhysicalNodes() {
+		List<PhysicalNode<PK,D>> physicalNodes = ListTool.createLinkedList();
 		physicalNodes.add(this);
 		return physicalNodes;
 	}
 
 	@Override
-	public List<PhysicalNode<D,PK>> getPhysicalNodesForClient(String clientName) {
-		List<PhysicalNode<D,PK>> physicalNodes = ListTool.createLinkedList();
+	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
+		List<PhysicalNode<PK,D>> physicalNodes = ListTool.createLinkedList();
 		if(clientName.equals(this.clientName)){
 			physicalNodes.add(this);
 		}

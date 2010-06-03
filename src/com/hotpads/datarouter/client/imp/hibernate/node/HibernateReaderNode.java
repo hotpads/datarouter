@@ -38,9 +38,9 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
-public class HibernateReaderNode<D extends Databean<PK>,PK extends PrimaryKey<PK>> 
-extends BasePhysicalNode<D,PK>
-implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
+public class HibernateReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+extends BasePhysicalNode<PK,D>
+implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	protected Logger logger = Logger.getLogger(getClass());
 
 	public HibernateReaderNode(Class<D> databeanClass, 
@@ -60,7 +60,7 @@ implements PhysicalIndexedSortedStorageReaderNode<D,PK>{
 	}
 	
 	@Override
-	public Node<D,PK> getMaster() {
+	public Node<PK,D> getMaster() {
 		return null;
 	}
 	

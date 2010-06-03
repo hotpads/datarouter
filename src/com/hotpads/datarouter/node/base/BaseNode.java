@@ -12,8 +12,8 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.MapTool;
 
-public abstract class BaseNode<D extends Databean<PK>,PK extends PrimaryKey<PK>> 
-implements Node<D,PK>{
+public abstract class BaseNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+implements Node<PK,D>{
 
 	protected Class<PK> primaryKeyClass;
 	protected Class<D> databeanClass;

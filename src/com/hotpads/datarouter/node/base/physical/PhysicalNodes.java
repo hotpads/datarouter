@@ -16,8 +16,8 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public class PhysicalNodes<D extends Databean<PK>,PK extends PrimaryKey<PK>,
-		N extends PhysicalNode<D,PK>> {
+public class PhysicalNodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+		N extends PhysicalNode<PK,D>> {
 	Logger logger = Logger.getLogger(getClass());
 
 	List<N> nodes = ListTool.createArrayList();
@@ -54,7 +54,7 @@ public class PhysicalNodes<D extends Databean<PK>,PK extends PrimaryKey<PK>,
 		this.clientNames.add(node.getClientName());
 	}
 
-	public void add(PhysicalNodes<D,PK,N> nodes){
+	public void add(PhysicalNodes<PK,D,N> nodes){
 		for(N node : nodes.nodeByName.values()){
 			this.add(node);
 		}
