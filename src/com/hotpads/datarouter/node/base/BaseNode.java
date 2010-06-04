@@ -25,7 +25,7 @@ implements Node<PK,D>{
 	public BaseNode(Class<D> databeanClass){
 		this.databeanClass = databeanClass;
 		this.primaryKeyClass = DatabeanTool.getPrimaryKeyClass(databeanClass);
-		this.name = databeanClass.getSimpleName()+"."+this.getClass().getSimpleName();
+		this.name = databeanClass.getSimpleName()+"."+this.getClass().getSimpleName();//probably never used
 		this.primaryKeyFields = FieldTool.getFieldsUsingReflection(primaryKeyClass);
 	}
 

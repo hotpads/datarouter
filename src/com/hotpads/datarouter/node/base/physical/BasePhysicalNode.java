@@ -38,7 +38,7 @@ implements PhysicalNode<PK,D>
 		this.clientName = clientName;
 		this.physicalName = databeanClass.getSimpleName();
 		this.packagedPhysicalName = databeanClass.getName();
-		this.name = clientName+"."+physicalName;
+		this.name = clientName+"."+databeanClass.getSimpleName();//watch out for name collisions on subclasses, etc..
 	}
 	
 	public BasePhysicalNode(Class<D> databeanClass,
@@ -48,7 +48,6 @@ implements PhysicalNode<PK,D>
 		//overwrite the default values
 		this.physicalName = physicalName;
 		this.packagedPhysicalName = packagedPhysicalName;
-		this.name = clientName+"."+physicalName;
 	}
 	
 

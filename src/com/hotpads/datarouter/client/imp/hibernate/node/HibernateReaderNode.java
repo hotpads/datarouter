@@ -94,7 +94,6 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 					for(Field<?> field : fields){
 						criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 					}
-					@SuppressWarnings("unchecked")
 					D result = (D)criteria.uniqueResult();
 					return result;
 				}
@@ -324,57 +323,6 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 		return (List<D>)result;
 	}
 	
-	protected void addRangesToCriteria(Criteria criteria, 
-			final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive){
-
-		if(start != null && CollectionTool.notEmpty(start.getFields())){
-			List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
-			int numNonNullStartFields = Field.countNonNullLeadingFields(startFields);
-			Disjunction d = Restrictions.disjunction();
-			for(int i=numNonNullStartFields; i > 0; --i){
-				Conjunction c = Restrictions.conjunction();
-				for(int j=0; j < i; ++j){
-					Field<?> startField = startFields.get(j);
-					if(j < (i-1)){
-						c.add(Restrictions.eq(startField.getPrefixedName(), startField.getValue()));
-					}else{
-						if(startInclusive && i==numNonNullStartFields){
-							c.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue()));
-						}else{
-							c.add(Restrictions.gt(startField.getPrefixedName(), startField.getValue()));
-						}
-					}
-				}
-				d.add(c);
-			}
-			criteria.add(d);
-		}
-		
-		if(end != null && CollectionTool.notEmpty(end.getFields())){
-			List<Field<?>> endFields = ListTool.createArrayList(end.getFields());
-			int numNonNullEndFields = Field.countNonNullLeadingFields(endFields);
-			Disjunction d = Restrictions.disjunction();
-			for(int i=0; i < numNonNullEndFields; ++i){
-				Conjunction c = Restrictions.conjunction();
-				for(int j=0; j <= i; ++j){
-					Field<?> endField = endFields.get(j);
-					if(j==i){
-						if(endInclusive){
-							c.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));
-						}else{
-							c.add(Restrictions.lt(endField.getPrefixedName(), endField.getValue()));
-						}
-					}else{
-						c.add(Restrictions.eq(endField.getPrefixedName(), endField.getValue()));
-					}
-				}
-				d.add(c);
-			}
-			criteria.add(d);
-		}
-	}
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<PK> getKeysInRange(
@@ -551,7 +499,58 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 		}
 		return conjunction;
 	}
+
 	
+	protected void addRangesToCriteria(Criteria criteria, 
+			final PK start, final boolean startInclusive, 
+			final PK end, final boolean endInclusive){
+
+		if(start != null && CollectionTool.notEmpty(start.getFields())){
+			List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
+			int numNonNullStartFields = Field.countNonNullLeadingFields(startFields);
+			Disjunction d = Restrictions.disjunction();
+			for(int i=numNonNullStartFields; i > 0; --i){
+				Conjunction c = Restrictions.conjunction();
+				for(int j=0; j < i; ++j){
+					Field<?> startField = startFields.get(j);
+					if(j < (i-1)){
+						c.add(Restrictions.eq(startField.getPrefixedName(), startField.getValue()));
+					}else{
+						if(startInclusive && i==numNonNullStartFields){
+							c.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue()));
+						}else{
+							c.add(Restrictions.gt(startField.getPrefixedName(), startField.getValue()));
+						}
+					}
+				}
+				d.add(c);
+			}
+			criteria.add(d);
+		}
+		
+		if(end != null && CollectionTool.notEmpty(end.getFields())){
+			List<Field<?>> endFields = ListTool.createArrayList(end.getFields());
+			int numNonNullEndFields = Field.countNonNullLeadingFields(endFields);
+			Disjunction d = Restrictions.disjunction();
+			for(int i=0; i < numNonNullEndFields; ++i){
+				Conjunction c = Restrictions.conjunction();
+				for(int j=0; j <= i; ++j){
+					Field<?> endField = endFields.get(j);
+					if(j==i){
+						if(endInclusive){
+							c.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));
+						}else{
+							c.add(Restrictions.lt(endField.getPrefixedName(), endField.getValue()));
+						}
+					}else{
+						c.add(Restrictions.eq(endField.getPrefixedName(), endField.getValue()));
+					}
+				}
+				d.add(c);
+			}
+			criteria.add(d);
+		}
+	}
 	
 	
 	
