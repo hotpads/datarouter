@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.op;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
@@ -27,6 +28,6 @@ extends MapStorageReadOps<PK,D>{
 			final Config config);
 	
 //	Iterator<Key<D>> scanKeys(Key<D> start, boolean startInclusive, Config config);
-//	Iterator<D> scan(Key<D> start, boolean startInclusive, Config config);
+	Iterator<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config);
 	
 }

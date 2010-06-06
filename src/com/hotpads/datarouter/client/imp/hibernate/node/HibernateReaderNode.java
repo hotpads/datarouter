@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.hibernate.node;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.Scanner;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -79,7 +81,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 		return this.get(key, config) != null;
 	}
 
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public D get(final UniqueKey<PK> key, final Config config) {
@@ -220,7 +222,6 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	
 	/************************************ SortedStorageReader methods ****************************/
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public D getFirst(final Config config) {
 		TraceContext.startSpan(getName()+" getFirst");
@@ -235,11 +236,12 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 				}
 			});
 		TraceContext.finishSpan();
-		return (D)result;
+		@SuppressWarnings("unchecked")
+		D databean = (D)result;
+		return databean;
 	}
 
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public PK getFirstKey(final Config config) {
 		TraceContext.startSpan(getName()+" getFirstKey");
@@ -268,7 +270,9 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 				}
 			});
 		TraceContext.finishSpan();
-		return (PK)result;
+		@SuppressWarnings("unchecked")
+		PK pk = (PK)result;
+		return pk;
 	}
 
 	
@@ -437,8 +441,14 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 		return (List<D>)result;
 	}
 	
-	
-	
+	@Override
+	public Iterator<D> scan(
+			PK start, boolean startInclusive, 
+			PK end, boolean endInclusive, 
+			Config config){
+		return new Scanner<PK,D>(this, start, startInclusive, end, endInclusive, config, 1000);
+	}
+
 	
 	/********************************* helpers ***********************************************/
 	
@@ -456,16 +466,12 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 		if(config == null){
 			return criteria;
 		}
-		
 		if(config.getLimit()!=null){
 			criteria.setMaxResults(config.getLimit());
 		}
-		
 		if(config.getOffset()!=null){
 			criteria.setFirstResult(config.getOffset());
 		}
-		
-		
 		return criteria;
 	}
 
