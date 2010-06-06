@@ -11,6 +11,7 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.iterable.PeekableIterator;
 
 public class CachingIndexedSortedStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
 N extends IndexedSortedStorageNode<PK,D>>
@@ -92,7 +93,10 @@ implements IndexedSortedStorageNode<PK,D>{
 		this.backingNode.deleteRangeWithPrefix(prefix, wildcardLastField, config);
 	}
 	
-	
+	@Override
+	public PeekableIterator<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
+		return this.backingNode.scan(startKey,startInclusive, end, endInclusive, config);
+	};
 	
 	
 }

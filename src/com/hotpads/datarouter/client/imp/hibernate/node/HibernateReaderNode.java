@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.hibernate.node;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,8 +21,8 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.Scanner;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
+import com.hotpads.datarouter.node.scanner.Scanner;
 import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -39,6 +38,7 @@ import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.iterable.PeekableIterator;
 
 public class HibernateReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 extends BasePhysicalNode<PK,D>
@@ -442,7 +442,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	}
 	
 	@Override
-	public Iterator<D> scan(
+	public PeekableIterator<D> scan(
 			PK start, boolean startInclusive, 
 			PK end, boolean endInclusive, 
 			Config config){

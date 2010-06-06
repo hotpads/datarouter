@@ -7,13 +7,16 @@ import java.util.SortedSet;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.SortedStorageReaderNode;
+import com.hotpads.datarouter.node.scanner.MergeScanner;
 import com.hotpads.datarouter.node.type.physical.PhysicalSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.iterable.PeekableIterator;
 
 public abstract class PartitionedSortedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
 N extends PhysicalSortedStorageReaderNode<PK,D>>
@@ -47,6 +50,8 @@ implements SortedStorageReaderNode<PK,D>{
 		}
 		return CollectionTool.getFirst(firstFromEachNode);
 	}
+	
+	//TODO optimize with merge sort
 
 	@Override
 	public List<D> getPrefixedRange(PK prefix, boolean wildcardLastField, 
@@ -150,7 +155,14 @@ implements SortedStorageReaderNode<PK,D>{
 			return all;
 		}
 	}
-
 	
+	@Override
+	public PeekableIterator<D> scan(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
+		List<PeekableIterator<D>> subScanners = ListTool.createArrayList();
+		for(N node : IterableTool.nullSafe(this.getPhysicalNodes())){
+			subScanners.add(node.scan(start, startInclusive, end, endInclusive, config));
+		}
+		return new MergeScanner<PK,D>(subScanners);
+	};
 	
 }

@@ -8,6 +8,7 @@ import com.hotpads.datarouter.node.op.SortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.iterable.PeekableIterator;
 
 public class MasterSlaveSortedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
 		N extends SortedStorageReaderNode<PK,D>>
@@ -78,9 +79,14 @@ implements SortedStorageReaderNode<PK,D>{
 	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;
-		return node.getWithPrefixes(prefixes,wildcardLastField, config);
+		return node.getWithPrefixes(prefixes, wildcardLastField, config);
 	}
 	
-	
+	@Override
+	public PeekableIterator<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
+		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
+		N node = slaveOk ? this.chooseSlave(config) : this.master;
+		return node.scan(startKey,startInclusive, end, endInclusive, config);
+	};
 	
 }
