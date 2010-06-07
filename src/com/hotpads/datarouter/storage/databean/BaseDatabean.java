@@ -70,10 +70,9 @@ implements Databean<PK> {
 	public String getTypedPersistentString(){  //usually getDatabeanName()+"."+getPersistentString()
 		return this.getClass().getSimpleName()+"."+this.getPersistentString();
 	}
-
-
-	@Override
-	public <D extends Databean<PK>> Map<PK,D> getByKey(Iterable<D> databeans){
+	
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> Map<PK,D> 
+	getByKey(Iterable<D> databeans){
 		Map<PK,D> map = MapTool.createHashMap();
 		for(D databean : IterableTool.nullSafe(databeans)){
 			map.put(databean.getKey(), databean);

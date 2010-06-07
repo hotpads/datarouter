@@ -17,6 +17,4 @@ extends FieldSet{
 	
 	List<Field<?>> getKeyFields();
 	List<Field<?>> getNonKeyFields();
-	
-	<D extends Databean<PK>> Map<PK,D> getByKey(Iterable<D> databeans);
 }

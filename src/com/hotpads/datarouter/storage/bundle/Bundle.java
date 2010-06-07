@@ -21,7 +21,8 @@ public class Bundle{
 		if(databean==null){ return; }
 		this.ensureSingleTypeBundleExists(databean);
 		@SuppressWarnings("unchecked")
-		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(databean.getClass().getName());
+		SingleTypeBundle<D> singleTypeBundle = 
+			(SingleTypeBundle<D>)this.bundleByType.get(databean.getClass().getName());
 		singleTypeBundle.add(databean);
 	}
 	
@@ -35,14 +36,17 @@ public class Bundle{
 		if(clazz==null){ return null; }
 		if(this.bundleByType.get(clazz.getName())==null){ return null; }
 		@SuppressWarnings("unchecked")
-		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(clazz.getName());
+		SingleTypeBundle<D> singleTypeBundle = 
+				(SingleTypeBundle<D>)this.bundleByType.get(clazz.getName());
 		return singleTypeBundle.getFirst();
 	}
 	
 	protected <D extends Databean<?>> SortedSet<D> getAllSet(Class<D> clazz){
 		if(clazz==null){ return null; }
 		if(this.bundleByType.get(clazz.getName())==null){ return new TreeSet<D>(); }
-		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(clazz.getName());
+		@SuppressWarnings("unchecked")
+		SingleTypeBundle<D> singleTypeBundle = 
+			(SingleTypeBundle<D>)this.bundleByType.get(clazz.getName());
 		return (NavigableSet<D>)singleTypeBundle.getDatabeans();
 	}
 	
@@ -56,6 +60,20 @@ public class Bundle{
 		}
 	}
 	
+	protected <D extends Databean<?>> void removeAll(Class<D> clazz){
+		this.bundleByType.put(clazz.getName(), new SingleTypeBundle<D>());
+	}
+	
+	/**
+	 * @param <D>
+	 * @param clazz needed to allow setting empty
+	 * @param databeans
+	 */
+	protected <D extends Databean<?>> void set(
+			Class<D> clazz, Collection<D> databeans){
+		this.removeAll(clazz);
+		this.add(databeans);
+	}
 	
 	
 	public static void main(String... args){
