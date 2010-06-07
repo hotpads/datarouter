@@ -11,7 +11,6 @@ import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -28,7 +27,7 @@ implements MapStorageReaderNode<PK,D>{
 	/**************************** MapStorageReader ***********************************/
 	
 	@Override
-	public boolean exists(UniqueKey<PK> key, Config config){
+	public boolean exists(PK key, Config config){
 		for(N node : CollectionTool.nullSafe(getPhysicalNodes(key))){
 			if(node.exists(key, config)){
 				return true;
@@ -38,7 +37,7 @@ implements MapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public D get(UniqueKey<PK> key, Config config) {
+	public D get(PK key, Config config) {
 		for(N node : CollectionTool.nullSafe(getPhysicalNodes(key))){
 			D databean = node.get(key,config);
 			if(databean != null){
@@ -58,11 +57,11 @@ implements MapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
-		Map<N,List<UniqueKey<PK>>> keysByNode = this.getKeysByPhysicalNode(keys);
+	public List<D> getMulti(Collection<PK> keys, Config config) {
+		Map<N,List<PK>> keysByNode = this.getPrimaryKeysByPhysicalNode(keys);
 		List<D> all = ListTool.createLinkedList();
 		for(N node : MapTool.nullSafe(keysByNode).keySet()){
-			Collection<UniqueKey<PK>> keysForNode = keysByNode.get(node);
+			Collection<PK> keysForNode = keysByNode.get(node);
 			if(CollectionTool.notEmpty(keysForNode)){
 				all.addAll(node.getMulti(keysForNode, config));
 			}
@@ -70,5 +69,17 @@ implements MapStorageReaderNode<PK,D>{
 		return all;
 	}
 
+	@Override
+	public List<PK> getKeys(Collection<PK> keys, Config config) {
+		Map<N,List<PK>> keysByNode = this.getPrimaryKeysByPhysicalNode(keys);
+		List<PK> all = ListTool.createLinkedList();
+		for(N node : MapTool.nullSafe(keysByNode).keySet()){
+			Collection<PK> keysForNode = keysByNode.get(node);
+			if(CollectionTool.notEmpty(keysForNode)){
+				all.addAll(node.getKeys(keysForNode, config));
+			}
+		}
+		return all;
+	}
 
 }

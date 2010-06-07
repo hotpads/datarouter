@@ -14,7 +14,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -31,6 +30,10 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends No
 	
 	public N register(N node){
 		String nodeName = node.getName();
+//		logger.warn("registering:"+nodeName+":"+node.getAllNames());
+		if(CollectionTool.containsAny(this.getAllNames(), node.getAllNames())){//enforce global node name uniqueness
+			throw new IllegalArgumentException("node already exists:"+nodeName);
+		}
 		Class<D> databeanType = node.getDatabeanType();
 		List<String> clientNames = node.getClientNames();
 		this.nodeByName.put(nodeName, node);
@@ -41,6 +44,14 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends No
 		}
 		this.clientNamesByDatabeanType.get(databeanType).addAll(clientNames);
 		return node;
+	}
+	
+	public Set<String> getAllNames(){
+		Set<String> names = SetTool.createHashSet();
+		for(Map.Entry<String,N> entry : MapTool.nullSafe(this.nodeByName).entrySet()){
+			names.addAll(entry.getValue().getAllNames());
+		}
+		return names;
 	}
 	
 	public Set<Class<D>> getTypesForClient(String clientName){
@@ -74,18 +85,18 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends No
 		return this.nodeByDatabeanType.get(databean.getClass());
 	}
 	
-	public List<String> getClientNamesForKeys(Collection<UniqueKey<PK>> keys){
+	public List<String> getClientNamesForKeys(Collection<PK> keys){
 		SortedSet<String> clientNames = SetTool.createTreeSet();
-		Map<N,LinkedList<UniqueKey<PK>>> keysByNode = MapTool.createHashMap();
-		for(UniqueKey<PK> key : CollectionTool.nullSafe(keys)){
+		Map<N,LinkedList<PK>> keysByNode = MapTool.createHashMap();
+		for(PK key : CollectionTool.nullSafe(keys)){
 			N node = this.getNode(key);
 			if(keysByNode.get(node)==null){
-				keysByNode.put(node, new LinkedList<UniqueKey<PK>>());
+				keysByNode.put(node, new LinkedList<PK>());
 			}
 			keysByNode.get(node).add(key);
 		}
 		for(N node : MapTool.nullSafe(keysByNode).keySet()){
-			Collection<String> nodeClientNames = node.getClientNamesForKeys(keysByNode.get(node));
+			Collection<String> nodeClientNames = node.getClientNamesForPrimaryKeys(keysByNode.get(node));
 			clientNames.addAll(nodeClientNames);
 		}
 		return ListTool.createArrayList(clientNames);

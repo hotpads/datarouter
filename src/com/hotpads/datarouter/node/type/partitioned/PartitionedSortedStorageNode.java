@@ -11,7 +11,6 @@ import com.hotpads.datarouter.node.type.physical.PhysicalSortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.MapTool;
 
@@ -29,28 +28,34 @@ implements MapStorageNode<PK,D>, SortedStorageNode<PK,D>{
 	
 	
 	/******************* map storage writer methods ***************************/
+	
 	/*
 	 * MULTIPLE INHERITANCE... copied from: PartitionedMapStorage
 	 */
-	
 	@Override
-	public void delete(UniqueKey<PK> key, Config config) {
+	public void delete(PK key, Config config) {
 		for(N node : CollectionTool.nullSafe(getPhysicalNodes(key))){
 			node.delete(key, config);
 		}
 	}
-
+	
+	/*
+	 * MULTIPLE INHERITANCE... copied from: PartitionedMapStorage
+	 */
 	@Override
-	public void deleteMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
-		Map<N,List<UniqueKey<PK>>> keysByNode = this.getKeysByPhysicalNode(keys);
+	public void deleteMulti(Collection<PK> keys, Config config) {
+		Map<N,List<PK>> keysByNode = this.getPrimaryKeysByPhysicalNode(keys);
 		for(N node : MapTool.nullSafe(keysByNode).keySet()){
-			Collection<UniqueKey<PK>> keysForNode = keysByNode.get(node);
+			Collection<PK> keysForNode = keysByNode.get(node);
 			if(CollectionTool.notEmpty(keysForNode)){
 				node.deleteMulti(keysForNode, config);
 			}
 		}
 	}
-	
+
+	/*
+	 * MULTIPLE INHERITANCE... copied from: PartitionedMapStorage
+	 */
 	@Override
 	public void deleteAll(Config config) {
 		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes())){
@@ -58,6 +63,9 @@ implements MapStorageNode<PK,D>, SortedStorageNode<PK,D>{
 		}
 	}
 
+	/*
+	 * MULTIPLE INHERITANCE... copied from: PartitionedMapStorage
+	 */
 	@Override
 	public void put(D databean, Config config) {
 		Collection<N> nodes = this.getPhysicalNodes(databean.getKey());
@@ -66,6 +74,9 @@ implements MapStorageNode<PK,D>, SortedStorageNode<PK,D>{
 		}
 	}
 
+	/*
+	 * MULTIPLE INHERITANCE... copied from: PartitionedMapStorage
+	 */
 	@Override
 	public void putMulti(Collection<D> databeans, Config config) {
 		Map<N,? extends Collection<D>> databeansByNode = this.getDatabeansByPhysicalNode(databeans);
@@ -77,6 +88,9 @@ implements MapStorageNode<PK,D>, SortedStorageNode<PK,D>{
 		}
 	}
 
+	/*
+	 * MULTIPLE INHERITANCE... copied from: PartitionedMapStorage
+	 */
 	@Override
 	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
 		// TODO smarter node selection

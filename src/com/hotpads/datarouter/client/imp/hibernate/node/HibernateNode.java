@@ -23,6 +23,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
 public class HibernateNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
@@ -41,6 +42,11 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 		super(databeanClass, router, clientName);
 	}
 	
+	public HibernateNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
+			DataRouter router, String clientName){
+		super(baseDatabeanClass, databeanClass, router, clientName);
+	}
+	
 	@Override
 	public Node<PK,D> getMaster() {
 		return this;
@@ -52,12 +58,18 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 	public static final PutMethod DEFAULT_PUT_METHOD = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
 
 	@Override
-	public void delete(UniqueKey<PK> key, Config config) {
+	public void delete(PK key, Config config) {
 		TraceContext.startSpan(getName()+" delete");
 		//this will not clear the databean from the hibernate session
-		List<UniqueKey<PK>> keys = new LinkedList<UniqueKey<PK>>();
-		keys.add(key);
-		deleteMulti(keys, config);
+		deleteMulti(ListTool.wrap(key), config);
+		TraceContext.finishSpan();
+	}
+
+	@Override
+	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config) {
+		TraceContext.startSpan(getName()+" deleteUnique");
+		//this will not clear the databean from the hibernate session
+		deleteMultiUnique(ListTool.wrap(uniqueKey), config);
 		TraceContext.finishSpan();
 	}
 	
@@ -85,14 +97,44 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 	 * 
 	 */
 	@Override
-	public void deleteMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
+	public void deleteMulti(Collection<PK> keys, Config config){
 		TraceContext.startSpan(getName()+" deleteMulti");
 		//build query
 		if(CollectionTool.isEmpty(keys)){ return; }
-		final String tableName = this.getPhysicalName();
+		final String tableName = this.getTableName();
 		StringBuilder sb = new StringBuilder("delete from "+tableName+" where ");
 		int numAppended = 0;
 		for(Key<PK> key : CollectionTool.nullSafe(keys)){
+			if(key==null){ continue; }
+			if(numAppended > 0){ sb.append(" or "); }
+			//TODO SQL injection prevention
+			List<String> partsOfThisKey = key.getSqlNameValuePairsEscaped();
+			String keyString = "(" + StringTool.concatenate(partsOfThisKey, " and ") + ")";
+			sb.append(keyString);
+			++numAppended;
+		}
+		
+		//execute
+		final String finalQuery = sb.toString();
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					SQLQuery query = session.createSQLQuery(finalQuery);
+					return query.executeUpdate();
+				}
+			});
+		TraceContext.finishSpan();
+	}
+	@Override
+	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+		TraceContext.startSpan(getName()+" deleteMultiUnique");
+		//build query
+		if(CollectionTool.isEmpty(uniqueKeys)){ return; }
+		final String tableName = this.getTableName();
+		StringBuilder sb = new StringBuilder("delete from "+tableName+" where ");
+		int numAppended = 0;
+		for(Key<PK> key : CollectionTool.nullSafe(uniqueKeys)){
 			if(key==null){ continue; }
 			if(numAppended > 0){ sb.append(" or "); }
 			//TODO SQL injection prevention
@@ -119,7 +161,7 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 	@Override
 	public void deleteAll(Config config) {
 		TraceContext.startSpan(getName()+" deleteAll");
-		final String tableName = this.getPhysicalName();
+		final String tableName = this.getTableName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		executor.executeTask(
 			new HibernateTask() {
@@ -136,7 +178,7 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 	public void put(final D databean, final Config config) {
 		TraceContext.startSpan(getName()+" put");
 		if(databean==null){ return; }
-		final String entityName = this.getPackagedPhysicalName();
+		final String entityName = this.getPackagedTableName();
 		boolean disableAutoCommit = this.shouldDisableAutoCommit(config, DEFAULT_PUT_METHOD);
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, disableAutoCommit);
 		executor.executeTask(
@@ -153,7 +195,7 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 	@Override
 	public void putMulti(Collection<D> databeans, final Config config) {
 		TraceContext.startSpan(getName()+" putMulti");
-		final String entityName = this.getPackagedPhysicalName();
+		final String entityName = this.getPackagedTableName();
 		final Collection<D> finalDatabeans = databeans;
 		boolean disableAutoCommit = CollectionTool.size(databeans) > 1
 				|| this.shouldDisableAutoCommit(config, DEFAULT_PUT_METHOD);
@@ -175,7 +217,7 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 	public void delete(final Lookup<PK> lookup, final Config config) {
 		TraceContext.startSpan(getName()+" delete");
 		if(lookup==null){ return; }
-		final String tableName = this.getPhysicalName();
+		final String tableName = this.getTableName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
 		executor.executeTask(
 			new HibernateTask() {
@@ -201,7 +243,7 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 	public void deleteRangeWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
 		TraceContext.startSpan(getName()+" deleteRangeWithPrefix");
 		if(prefix==null){ return; }
-		final String tableName = this.getPhysicalName();
+		final String tableName = this.getTableName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		executor.executeTask(
 			new HibernateTask() {

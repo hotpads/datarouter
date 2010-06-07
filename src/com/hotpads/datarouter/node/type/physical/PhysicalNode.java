@@ -11,6 +11,6 @@ extends Node<PK,D>{
 	public String getClientName();
 	Client getClient();
 	
-	String getPhysicalName();
-	String getPackagedPhysicalName();
+	String getTableName();
+	String getPackagedTableName();
 }

@@ -38,7 +38,7 @@ import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.iterable.PeekableIterator;
+import com.hotpads.util.core.iterable.PeekableIterable;
 
 public class HibernateReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 extends BasePhysicalNode<PK,D>
@@ -54,6 +54,11 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	public HibernateReaderNode(Class<D> databeanClass,
 			DataRouter router, String clientName) {
 		super(databeanClass, router, clientName);
+	}
+
+	public HibernateReaderNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
+			DataRouter router, String clientName){
+		super(baseDatabeanClass, databeanClass, router, clientName);
 	}
 
 	@Override
@@ -74,17 +79,17 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	
 	/************************************ MapStorageReader methods ****************************/
 	
-	public static final int defaultIterateBatchSize = 25;
+	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
 	
 	@Override
-	public boolean exists(UniqueKey<PK> key, Config config) {
+	public boolean exists(PK key, Config config) {
 		return this.get(key, config) != null;
 	}
 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public D get(final UniqueKey<PK> key, final Config config) {
+	public D get(final PK key, final Config config) {
 		if(key==null){ return null; }
 		TraceContext.startSpan(getName()+" get");
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
@@ -125,7 +130,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<D> getMulti(final Collection<? extends UniqueKey<PK>> keys, final Config config) {	
+	public List<D> getMulti(final Collection<PK> keys, final Config config) {	
 		TraceContext.startSpan(getName()+" getMulti");	
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 //		final Class<? extends Databean> persistentClass = CollectionTool.getFirst(keys).getDatabeanClass();
@@ -133,7 +138,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					int batchSize = defaultIterateBatchSize;
+					int batchSize = DEFAULT_ITERATE_BATCH_SIZE;
 					if(config!=null && config.getIterateBatchSize()!=null){
 						batchSize = config.getIterateBatchSize();
 					}
@@ -164,10 +169,124 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 		TraceContext.finishSpan();
 		return (List<D>)result;
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
+		TraceContext.startSpan(getName()+" getKeys");
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		Object result = executor.executeTask(			
+			new HibernateTask() {
+				public Object run(Session session) {
+					int batchSize = DEFAULT_ITERATE_BATCH_SIZE;
+					if(config!=null && config.getIterateBatchSize()!=null){
+						batchSize = config.getIterateBatchSize();
+					}
+					List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
+					Collections.sort(sortedKeys);
+					int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
+					List<PK> all = ListTool.createArrayList(keys.size());
+					for(int batchNum=0; batchNum < numBatches; ++batchNum){
+						List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
+						Criteria criteria = getCriteriaForConfig(config, session);
+						//projection list
+						ProjectionList projectionList = Projections.projectionList();
+						int numFields = 0;
+						for(Field<?> field : primaryKeyFields){
+							projectionList.add(Projections.property(field.getPrefixedName()));
+							++numFields;
+						}
+						//where clause
+						Disjunction orSeparatedIds = Restrictions.disjunction();
+						for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
+							Conjunction possiblyCompoundId = Restrictions.conjunction();
+							List<Field<?>> fields = key.getFields();
+							for(Field<?> field : fields){
+								possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+							}
+							orSeparatedIds.add(possiblyCompoundId);
+						}
+						criteria.add(orSeparatedIds);
+						List<Object[]> rows = criteria.list();
+						for(Object[] row : IterableTool.nullSafe(rows)){
+							all.add(FieldTool.fieldSetFromSqlUsingReflection(primaryKeyClass, primaryKeyFields, row));
+						}
+					}
+					return all;
+				}
+			});
+		TraceContext.finishSpan();
+		
+		return (List<PK>)result;
+	}
 
 	
 	
 	/************************************ IndexedStorageReader methods ****************************/
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
+		//basically copied from "get" for HibernateNode
+		if(uniqueKey==null){ return null; }
+		TraceContext.startSpan(getName()+" lookupUnique");
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					Criteria criteria = getCriteriaForConfig(config, session);
+					List<Field<?>> fields = uniqueKey.getFields();
+					for(Field<?> field : fields){
+						criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+					}
+					D result = (D)criteria.uniqueResult();
+					return result;
+				}
+			});
+		TraceContext.finishSpan();
+		return (D)result;
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<D> lookupMultiUnique( final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
+		//basically copied from "getMulti" for HibernateNode
+		TraceContext.startSpan(getName()+" lookupMultiUnique");	
+		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					int batchSize = DEFAULT_ITERATE_BATCH_SIZE;
+					if(config!=null && config.getIterateBatchSize()!=null){
+						batchSize = config.getIterateBatchSize();
+					}
+					List<? extends UniqueKey<PK>> sortedKeys = ListTool.createArrayList(uniqueKeys);
+					Collections.sort(sortedKeys);
+					int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
+					List<D> all = ListTool.createArrayList(uniqueKeys.size());
+					for(int batchNum=0; batchNum < numBatches; ++batchNum){
+						List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
+						Criteria criteria = getCriteriaForConfig(config, session);
+						Disjunction orSeparatedIds = Restrictions.disjunction();
+						for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
+							Conjunction possiblyCompoundId = Restrictions.conjunction();
+							List<Field<?>> fields = key.getFields();
+							for(Field<?> field : fields){
+								possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+							}
+							orSeparatedIds.add(possiblyCompoundId);
+						}
+						criteria.add(orSeparatedIds);
+						List<D> batch = criteria.list();
+						ListTool.nullSafeArrayAddAll(all, batch);
+					}
+					return all;
+				}
+			});
+		TraceContext.finishSpan();
+		return (List<D>)result;
+	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -245,7 +364,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	@Override
 	public PK getFirstKey(final Config config) {
 		TraceContext.startSpan(getName()+" getFirstKey");
-		final String entityName = this.getPackagedPhysicalName();
+		final String entityName = this.getPackagedTableName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		Object result = executor.executeTask(
 			new HibernateTask() {
@@ -442,11 +561,12 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	}
 	
 	@Override
-	public PeekableIterator<D> scan(
+	public PeekableIterable<D> scan(
 			PK start, boolean startInclusive, 
 			PK end, boolean endInclusive, 
 			Config config){
-		return new Scanner<PK,D>(this, start, startInclusive, end, endInclusive, config, 1000);
+		return new Scanner<PK,D>(this, start, startInclusive, end, endInclusive, 
+				config, DEFAULT_ITERATE_BATCH_SIZE);
 	}
 
 	
@@ -460,7 +580,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	
 	
 	protected Criteria getCriteriaForConfig(Config config, Session session){
-		final String entityName = this.getPackagedPhysicalName();
+		final String entityName = this.getPackagedTableName();
 		Criteria criteria = session.createCriteria(entityName);
 		
 		if(config == null){

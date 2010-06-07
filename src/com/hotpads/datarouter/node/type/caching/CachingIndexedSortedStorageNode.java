@@ -35,6 +35,18 @@ implements IndexedSortedStorageNode<PK,D>{
 		this.backingNode.delete(lookup, config);
 	}
 
+	@Override
+	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config) {
+		this.clearNonMapCaches();
+		this.backingNode.deleteUnique(uniqueKey, config);
+	}
+
+	@Override
+	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
+		this.clearNonMapCaches();
+		this.backingNode.deleteMultiUnique(uniqueKeys, config);
+	}
+
 	/***************************** MapStorageWriter ****************************/
 
 	/*
@@ -42,7 +54,7 @@ implements IndexedSortedStorageNode<PK,D>{
 	 */
 
 	@Override
-	public void delete(UniqueKey<PK> key, Config config) {
+	public void delete(PK key, Config config) {
 		this.clearNonMapCaches();
 		this.getMapCacheForThisThread().remove(key);
 		this.backingNode.delete(key, config);
@@ -56,9 +68,9 @@ implements IndexedSortedStorageNode<PK,D>{
 	}
 
 	@Override
-	public void deleteMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
+	public void deleteMulti(Collection<PK> keys, Config config) {
 		this.clearNonMapCaches();
-		Map<UniqueKey<PK>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		Map<PK,D> mapCacheForThisThread = this.getMapCacheForThisThread();
 		for(Key<PK> key : CollectionTool.nullSafe(keys)){
 			mapCacheForThisThread.remove(key);
 		}
@@ -79,7 +91,7 @@ implements IndexedSortedStorageNode<PK,D>{
 	public void putMulti(Collection<D> databeans, Config config) {
 		this.clearNonMapCaches();
 		this.backingNode.putMulti(databeans, config);
-		Map<UniqueKey<PK>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		Map<PK,D> mapCacheForThisThread = this.getMapCacheForThisThread();
 		for(D databean : CollectionTool.nullSafe(databeans)){
 			mapCacheForThisThread.put(databean.getKey(), databean);
 		}
@@ -92,11 +104,6 @@ implements IndexedSortedStorageNode<PK,D>{
 		this.clearNonMapCaches();
 		this.backingNode.deleteRangeWithPrefix(prefix, wildcardLastField, config);
 	}
-	
-	@Override
-	public PeekableIterator<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
-		return this.backingNode.scan(startKey,startInclusive, end, endInclusive, config);
-	};
 	
 	
 }

@@ -39,6 +39,16 @@ implements IndexedSortedStorageNode<PK,D>{
 	public void delete(Lookup<PK> lookup, Config config) {
 		this.master.delete(lookup, config);
 	}
+
+	@Override
+	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config) {
+		this.master.deleteUnique(uniqueKey, config);
+	}
+
+	@Override
+	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
+		this.master.deleteMultiUnique(uniqueKeys, config);
+	}
 	
 
 	/***************************** MapStorageWriter ****************************/
@@ -50,7 +60,7 @@ implements IndexedSortedStorageNode<PK,D>{
 	 */
 
 	@Override
-	public void delete(UniqueKey<PK> key, Config config) {
+	public void delete(PK key, Config config) {
 		this.master.delete(key, config);
 	}
 
@@ -60,7 +70,7 @@ implements IndexedSortedStorageNode<PK,D>{
 	}
 
 	@Override
-	public void deleteMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
+	public void deleteMulti(Collection<PK> keys, Config config) {
 		this.master.deleteMulti(keys, config);
 	}
 

@@ -31,6 +31,9 @@ public class PhysicalNodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,
 	
 	public void add(N node){		
 		String nodeName = node.getName();
+		if(nodeByName.keySet().contains(nodeName)){//enforce global node name uniqueness
+			throw new IllegalArgumentException("node already exists:"+nodeName);
+		}
 		String clientName = node.getClientName();
 		
 		//array list

@@ -17,6 +17,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.iterable.PeekableIterable;
 
 public abstract class CachingIndexedSortedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
 N extends IndexedSortedStorageNode<PK,D>>
@@ -128,9 +129,41 @@ implements IndexedSortedStorageReaderNode<PK,D>{
 		//TODO implement caching
 		return this.backingNode.getWithPrefixes(prefixes, wildcardLastField, config);
 	}
+	
+	@Override
+	public PeekableIterable<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
+		return this.backingNode.scan(startKey,startInclusive, end, endInclusive, config);
+	};
 
 	/***************** IndexedStorageReader ************************************/
 
+	@Override
+	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
+		D realObject = this.backingNode.lookupUnique(uniqueKey, config);
+		if( ! CachingMapStorageReaderNode.useCache(config)){
+			return realObject;
+		}
+		if(realObject != null){
+			//TODO add a secondary key cache
+			this.getMapCacheForThisThread().put(realObject.getKey(), realObject);
+		}
+		return realObject;
+	};
+
+	@Override
+	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+		List<D> realObjects = this.backingNode.lookupMultiUnique(uniqueKeys, config);
+		if( ! CachingMapStorageReaderNode.useCache(config)){
+			return realObjects;
+		}
+		Map<PK,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		//TODO add a secondary key cache
+		for(D databean : CollectionTool.nullSafe(realObjects)){
+			mapCacheForThisThread.put(databean.getKey(), databean);
+		}
+		return realObjects;
+	};
+	
 	@Override
 	public List<D> lookup(Lookup<PK> lookup, Config config) {
 		if( ! CachingMapStorageReaderNode.useCache(config)){
@@ -139,7 +172,7 @@ implements IndexedSortedStorageReaderNode<PK,D>{
 		List<D> fromLookupCache = this.getLookupCacheForThisThread().get(lookup);
 		if(fromLookupCache != null){ return fromLookupCache; }
 		List<D> fromBackingNode = this.backingNode.lookup(lookup, config);
-		Map<UniqueKey<PK>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		Map<PK,D> mapCacheForThisThread = this.getMapCacheForThisThread();
 		for(D databean : CollectionTool.nullSafe(fromBackingNode)){
 			mapCacheForThisThread.put(databean.getKey(), databean);
 		}
@@ -162,7 +195,7 @@ implements IndexedSortedStorageReaderNode<PK,D>{
 		List<D> fromBackingNode = this.backingNode.lookup(lookupMisses, config);
 		SetTool.nullSafeHashAddAll(resultBuilder, fromBackingNode);
 		List<D> result = ListTool.createArrayList(resultBuilder);
-		Map<UniqueKey<PK>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		Map<PK,D> mapCacheForThisThread = this.getMapCacheForThisThread();
 		for(D databean : CollectionTool.nullSafe(result)){
 			mapCacheForThisThread.put(databean.getKey(), databean);
 		}

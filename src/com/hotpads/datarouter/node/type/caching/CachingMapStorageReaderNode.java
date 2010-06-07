@@ -12,7 +12,6 @@ import com.hotpads.datarouter.node.op.IndexedSortedStorageNode;
 import com.hotpads.datarouter.node.op.MapStorageReaderNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -31,12 +30,12 @@ implements MapStorageReaderNode<PK,D>{
 	
 	/************************* cache access *******************************/
 
-	protected Map<String,Map<UniqueKey<PK>,D>> mapCacheByThreadName = MapTool.createHashMap();
+	protected Map<String,Map<PK,D>> mapCacheByThreadName = MapTool.createHashMap();
 
-	protected Map<UniqueKey<PK>,D> getMapCacheForThisThread(){
+	protected Map<PK,D> getMapCacheForThisThread(){
 		String threadName = Thread.currentThread().getName();
 		if(mapCacheByThreadName.get(threadName)==null){
-			mapCacheByThreadName.put(threadName, new HashMap<UniqueKey<PK>,D>());
+			mapCacheByThreadName.put(threadName, new HashMap<PK,D>());
 		}
 		return mapCacheByThreadName.get(threadName);
 	}
@@ -54,14 +53,14 @@ implements MapStorageReaderNode<PK,D>{
 	/**************************** MapStorageReader ***********************************/
 	
 	@Override
-	public boolean exists(UniqueKey<PK> key, Config config){
+	public boolean exists(PK key, Config config){
 		if(!useCache(config)){ return this.backingNode.exists(key, config); }
 		if(this.getMapCacheForThisThread().containsKey(key)){ return true; }
 		return this.backingNode.exists(key, config);
 	}
 
 	@Override
-	public D get(UniqueKey<PK> key, Config config) {
+	public D get(PK key, Config config) {
 		if(!useCache(config)){ return this.backingNode.get(key, config); }
 		D cachedObject = this.getMapCacheForThisThread().get(key);
 		if(cachedObject != null){ return cachedObject; }
@@ -79,12 +78,12 @@ implements MapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
+	public List<D> getMulti(Collection<PK> keys, Config config) {
 		if(!useCache(config)){ return this.backingNode.getMulti(keys, config); }
 		List<D> resultBuilder = ListTool.createArrayList();
-		Set<UniqueKey<PK>> uncachedKeys = SetTool.createHashSet();
-		Map<UniqueKey<PK>,D> mapCacheForThisThread = this.getMapCacheForThisThread();
-		for(UniqueKey<PK> key : CollectionTool.nullSafe(keys)){
+		Set<PK> uncachedKeys = SetTool.createHashSet();
+		Map<PK,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		for(PK key : CollectionTool.nullSafe(keys)){
 			D databean = mapCacheForThisThread.get(key);
 			if(databean != null){
 				resultBuilder.add(databean);
@@ -97,6 +96,25 @@ implements MapStorageReaderNode<PK,D>{
 		for(D databean : CollectionTool.nullSafe(resultBuilder)){
 			mapCacheForThisThread.put(databean.getKey(), databean);
 		}
+		return resultBuilder;
+	}
+
+	@Override
+	public List<PK> getKeys(Collection<PK> keys, Config config) {
+		if(!useCache(config)){ return this.backingNode.getKeys(keys, config); }
+		List<PK> resultBuilder = ListTool.createArrayList();
+		Set<PK> uncachedKeys = SetTool.createHashSet();
+		Map<PK,D> mapCacheForThisThread = this.getMapCacheForThisThread();
+		for(PK key : CollectionTool.nullSafe(keys)){
+			D databean = mapCacheForThisThread.get(key);
+			if(databean != null){
+				resultBuilder.add(databean.getKey());
+			}else{
+				uncachedKeys.add(key);
+			}
+		}
+		List<PK> fromBackingNode = this.backingNode.getKeys(uncachedKeys, config);
+		ListTool.nullSafeArrayAddAll(resultBuilder, fromBackingNode);
 		return resultBuilder;
 	}
 

@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.storage.databean;
 
 import java.util.List;
-import java.util.Map;
 
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
@@ -17,4 +16,5 @@ extends FieldSet{
 	
 	List<Field<?>> getKeyFields();
 	List<Field<?>> getNonKeyFields();
+	
 }

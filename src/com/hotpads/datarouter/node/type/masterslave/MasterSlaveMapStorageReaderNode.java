@@ -9,7 +9,6 @@ import com.hotpads.datarouter.node.op.MapStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 
 public class MasterSlaveMapStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
@@ -35,14 +34,14 @@ implements MapStorageReaderNode<PK,D>{
 	/**************************** MapStorageReader ***********************************/
 	
 	@Override
-	public boolean exists(UniqueKey<PK> key, Config config){
+	public boolean exists(PK key, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;
 		return node.exists(key, config);
 	}
 
 	@Override
-	public D get(UniqueKey<PK> key, Config config) {
+	public D get(PK key, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;
 		return node.get(key, config);
@@ -56,10 +55,17 @@ implements MapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
+	public List<D> getMulti(Collection<PK> keys, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;
 		return node.getMulti(keys, config);
+	}
+
+	@Override
+	public List<PK> getKeys(Collection<PK> keys, Config config) {
+		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
+		N node = slaveOk ? this.chooseSlave(config) : this.master;
+		return node.getKeys(keys, config);
 	}
 
 	

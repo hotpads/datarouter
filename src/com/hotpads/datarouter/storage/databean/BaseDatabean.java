@@ -2,15 +2,12 @@ package com.hotpads.datarouter.storage.databean;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import com.hotpads.datarouter.storage.field.BaseFieldSet;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 
 @SuppressWarnings("serial")
@@ -71,14 +68,6 @@ implements Databean<PK> {
 		return this.getClass().getSimpleName()+"."+this.getPersistentString();
 	}
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> Map<PK,D> 
-	getByKey(Iterable<D> databeans){
-		Map<PK,D> map = MapTool.createHashMap();
-		for(D databean : IterableTool.nullSafe(databeans)){
-			map.put(databean.getKey(), databean);
-		}
-		return map;
-	}
 	
 	/************************ standard java *************************/
 	

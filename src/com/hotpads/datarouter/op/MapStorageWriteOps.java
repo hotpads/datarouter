@@ -5,14 +5,13 @@ import java.util.Collection;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
 public interface MapStorageWriteOps<PK extends PrimaryKey<PK>,D extends Databean<PK>>{
 
 	void put(D databean, Config config);
 	void putMulti(Collection<D> databeans, Config config);
 	
-	void delete(UniqueKey<PK> key, Config config);
-	void deleteMulti(Collection<? extends UniqueKey<PK>> keys, Config config);
+	void delete(PK key, Config config);
+	void deleteMulti(Collection<PK> keys, Config config);
 	void deleteAll(Config config);
 }

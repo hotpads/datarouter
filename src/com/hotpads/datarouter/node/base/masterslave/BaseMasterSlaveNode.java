@@ -3,6 +3,7 @@ package com.hotpads.datarouter.node.base.masterslave;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,8 +15,8 @@ import com.hotpads.datarouter.op.MapStorageReadOps;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 
@@ -35,6 +36,16 @@ implements MapStorageReadOps<PK,D>{
 
 	/*************************** node methods *************************/
 
+	@Override
+	public Set<String> getAllNames(){
+		Set<String> names = SetTool.wrap(this.name);
+		names.addAll(this.master.getAllNames());
+		for(N slave : IterableTool.nullSafe(this.slaves)){
+			names.addAll(slave.getAllNames());
+		}
+		return names;
+	}
+	
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodes() {
 		List<PhysicalNode<PK,D>> all = ListTool.createLinkedList();
@@ -76,8 +87,8 @@ implements MapStorageReadOps<PK,D>{
 	}
 
 	@Override
-	public <K extends UniqueKey<PK>> List<String> getClientNamesForKeys(Collection<K> keys) {
-		return this.master.getClientNamesForKeys(keys);
+	public List<String> getClientNamesForPrimaryKeys(Collection<PK> keys) {
+		return this.master.getClientNamesForPrimaryKeys(keys);
 	}
 	
 	@Override

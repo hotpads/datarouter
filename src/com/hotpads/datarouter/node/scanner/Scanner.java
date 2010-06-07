@@ -9,13 +9,14 @@ import com.hotpads.datarouter.op.SortedStorageReadOps;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.PeekableIterator;
 
 /*
  * Iterator that maintains state between calls to get the next batch of Databeans in the range
  */
 public class Scanner<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
-implements PeekableIterator<D>{
+implements PeekableIterable<D>, PeekableIterator<D>{
 	SortedStorageReadOps<PK,D> node;
 	
 	boolean startInclusive; 
@@ -38,10 +39,18 @@ implements PeekableIterator<D>{
 		this.startInclusive = startInclusive;
 		this.end = end;
 		this.endInclusive = endInclusive;
-		if(config.getLimit()==null){ config.setLimit(defaultRowsPerBatch); }
+		this.config = config;
+		if(this.config.getIterateBatchSize()==null){ 
+			this.config.setIterateBatchSize(defaultRowsPerBatch); 
+		}
 		loadNextBatch();
 	}
-	
+		
+	@Override
+	public PeekableIterator<D> iterator(){
+		return this;
+	}
+
 	@Override
 	public D peek(){
 		if(peeked!=null){
@@ -81,6 +90,7 @@ implements PeekableIterator<D>{
 	}
 
 	protected void loadNextBatch(){
+		config.setLimit(config.getIterateBatchSize());
 		List<D> currentBatch = node.getRange(lastKey, startInclusive, end, endInclusive, config);
 		currentBatchIterator = currentBatch.iterator();
 		++numBatchesLoaded;

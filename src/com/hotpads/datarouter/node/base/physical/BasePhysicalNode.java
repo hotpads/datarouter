@@ -2,6 +2,7 @@ package com.hotpads.datarouter.node.base.physical;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
@@ -11,7 +12,6 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
@@ -23,8 +23,8 @@ implements PhysicalNode<PK,D>
 	protected Logger logger = Logger.getLogger(getClass());
 	
 	protected String clientName;
-	protected String physicalName;
-	protected String packagedPhysicalName;
+	protected String tableName;
+	protected String packagedTableName;
 	
 	protected DataRouter router;
 
@@ -36,25 +36,36 @@ implements PhysicalNode<PK,D>
 		super(databeanClass);
 		this.router = router;
 		this.clientName = clientName;
-		this.physicalName = databeanClass.getSimpleName();
-		this.packagedPhysicalName = databeanClass.getName();
-		this.name = clientName+"."+databeanClass.getSimpleName();//watch out for name collisions on subclasses, etc..
+		this.tableName = databeanClass.getSimpleName();
+		this.packagedTableName = databeanClass.getName();
+		this.name = clientName+"."+databeanClass.getSimpleName();
 	}
 	
+	//for things like the event.Event monthly partitioned tables
 	public BasePhysicalNode(Class<D> databeanClass,
 			DataRouter router, String clientName, 
-			String physicalName, String packagedPhysicalName){
+			String tableName, String packagedtableName){
 		this(databeanClass, router, clientName);
 		//overwrite the default values
-		this.physicalName = physicalName;
-		this.packagedPhysicalName = packagedPhysicalName;
+		this.tableName = tableName;
+		this.packagedTableName = packagedtableName;
+		this.name = clientName+"."+tableName;
+	}
+	
+	//for table-per-class hierarchy like the property.Photo hierarchy
+	public BasePhysicalNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass,
+			DataRouter router, String clientName){
+		this(databeanClass, router, clientName);
+		//overwrite the default values
+		this.baseDatabeanClass = baseDatabeanClass;
+		this.tableName = baseDatabeanClass.getSimpleName();
 	}
 	
 
 	/****************************** node methods ********************************/
 	
 	@Override
-	public <K extends UniqueKey<PK>> List<String> getClientNamesForKeys(Collection<K> keys) {
+	public List<String> getClientNamesForPrimaryKeys(Collection<PK> keys) {
 		return ListTool.createLinkedList(this.clientName);
 	}
 
@@ -62,6 +73,11 @@ implements PhysicalNode<PK,D>
 	
 	public String getClientName() {
 		return clientName;
+	}
+
+	@Override
+	public Set<String> getAllNames(){
+		return SetTool.wrap(this.name);
 	}
 
 	@Override
@@ -93,13 +109,13 @@ implements PhysicalNode<PK,D>
 	}
 
 	@Override
-	public String getPhysicalName() {
-		return this.physicalName;
+	public String getTableName() {
+		return this.tableName;
 	}
 	
 	@Override
-	public String getPackagedPhysicalName(){
-		return this.packagedPhysicalName;
+	public String getPackagedTableName(){
+		return this.packagedTableName;
 	}
 	
 	@Override

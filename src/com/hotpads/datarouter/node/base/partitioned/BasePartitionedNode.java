@@ -14,8 +14,8 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
@@ -37,7 +37,15 @@ extends BaseNode<PK,D>{
 	}
 
 	/*************************** node methods *************************/
-	
+
+	@Override
+	public Set<String> getAllNames(){
+		Set<String> names = SetTool.wrap(this.name);
+		for(N physicalNode : IterableTool.nullSafe(this.physicalNodes.getAll())){
+			names.addAll(physicalNode.getAllNames());
+		}
+		return names;
+	}
 	
 	@Override
 	public Node<PK,D> getMaster() {
@@ -55,8 +63,8 @@ extends BaseNode<PK,D>{
 	}
 
 	@Override
-	public <K extends UniqueKey<PK>> List<String> getClientNamesForKeys(Collection<K> keys) {
-		Map<N,List<UniqueKey<PK>>> keysByPhysicalNode = this.getKeysByPhysicalNode(keys);
+	public List<String> getClientNamesForPrimaryKeys(Collection<PK> keys) {
+		Map<N,List<PK>> keysByPhysicalNode = this.getPrimaryKeysByPhysicalNode(keys);
 		List<String> clientNames = ListTool.createLinkedList();
 		for(PhysicalNode<PK,D> node : MapTool.nullSafe(keysByPhysicalNode).keySet()){
 			String clientName = node.getClientName();
@@ -102,13 +110,13 @@ extends BaseNode<PK,D>{
 		return ListTool.createArrayList(nodes);
 	}
 	
-	public Map<N,List<UniqueKey<PK>>> getKeysByPhysicalNode(Collection<? extends UniqueKey<PK>> keys){
-		Map<N,List<UniqueKey<PK>>> keysByPhysicalNode = MapTool.createHashMap();
-		for(UniqueKey<PK> key : CollectionTool.nullSafe(keys)){
+	public Map<N,List<PK>> getPrimaryKeysByPhysicalNode(Collection<PK> keys){
+		Map<N,List<PK>> keysByPhysicalNode = MapTool.createHashMap();
+		for(PK key : CollectionTool.nullSafe(keys)){
 			List<N> nodes = this.getPhysicalNodes(key);
 			for(N node : CollectionTool.nullSafe(nodes)){
 				if(keysByPhysicalNode.get(node)==null){
-					keysByPhysicalNode.put(node, new LinkedList<UniqueKey<PK>>());
+					keysByPhysicalNode.put(node, new LinkedList<PK>());
 				}
 				keysByPhysicalNode.get(node).add(key);
 			}

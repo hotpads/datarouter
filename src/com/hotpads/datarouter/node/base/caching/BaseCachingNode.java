@@ -2,13 +2,14 @@ package com.hotpads.datarouter.node.base.caching;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.util.core.SetTool;
 
 public abstract class BaseCachingNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
 		N extends Node<PK,D>> 
@@ -30,8 +31,8 @@ extends BaseNode<PK,D>{
 	}
 
 	@Override
-	public <K extends UniqueKey<PK>> List<String> getClientNamesForKeys(Collection<K> keys) {
-		return this.backingNode.getClientNamesForKeys(keys);
+	public List<String> getClientNamesForPrimaryKeys(Collection<PK> keys) {
+		return this.backingNode.getClientNamesForPrimaryKeys(keys);
 	}
 
 	@Override
@@ -47,6 +48,13 @@ extends BaseNode<PK,D>{
 	@Override
 	public String getName() {
 		return this.backingNode.getName();
+	}
+
+	@Override
+	public Set<String> getAllNames(){
+		Set<String> names = SetTool.wrap(this.name);
+		names.addAll(this.backingNode.getAllNames());
+		return names;
 	}
 
 	@Override

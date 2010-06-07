@@ -9,6 +9,7 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
 
 public class MasterSlaveIndexedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
@@ -28,6 +29,26 @@ implements IndexedStorageReaderNode<PK,D>{
 	}
 
 	/***************** IndexedStorageReader ************************************/
+
+	/*
+	 * MULTIPLE INHERITANCE... copied to: MasterSlaveIndexedSortedStorageReaderNode
+	 */
+	@Override
+	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
+		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
+		N node = slaveOk ? this.chooseSlave(config) : this.master;
+		return node.lookupUnique(uniqueKey, config);
+	}
+	
+	/*
+	 * MULTIPLE INHERITANCE... copied from: MasterSlaveIndexedStorageReaderNode
+	 */
+	@Override
+	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
+		N node = slaveOk ? this.chooseSlave(config) : this.master;
+		return node.lookupMultiUnique(uniqueKeys, config);
+	}
 
 	/*
 	 * MULTIPLE INHERITANCE... copied to: MasterSlaveIndexedSortedStorageReaderNode

@@ -8,24 +8,32 @@ import java.util.Map;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.PeekableIterator;
 
 public class MergeScanner<PK extends PrimaryKey<PK>,D extends Databean<PK>>
-implements PeekableIterator<D>{
+implements PeekableIterable<D>,PeekableIterator<D>{
 
 	ArrayList<PeekableIterator<D>> scanners;
 	Map<Scanner<PK,D>,D> nextByScanner;
 	
 	D peeked;
 	
-	public MergeScanner(Collection<PeekableIterator<D>> scanners){
+	public MergeScanner(Collection<PeekableIterable<D>> scanners){
 		this.scanners = ListTool.createArrayListWithSize(scanners);
-		this.scanners.addAll(CollectionTool.nullSafe(scanners));
+		for(PeekableIterable<D> scannerIterable : IterableTool.nullSafe(scanners)){
+			this.scanners.add(scannerIterable.iterator());
+		}
 		this.nextByScanner = MapTool.createHashMap();
 	}
+	
+	@Override
+	public PeekableIterator<D> iterator(){
+		return this;
+	};
 	
 	@Override
 	public D peek(){

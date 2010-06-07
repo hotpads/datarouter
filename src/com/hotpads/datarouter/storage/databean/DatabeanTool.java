@@ -1,21 +1,12 @@
 package com.hotpads.datarouter.storage.databean;
 
 import java.lang.reflect.Constructor;
-import java.util.Collection;
-import java.util.SortedMap;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 
-public class DatabeanTool {
-
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
-	SortedMap<PK,D> getByKeySorted(Collection<D> databeans){
-		return KeyTool.getByKeySorted(databeans);
-	}
-	
+public class DatabeanTool {	
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 	Class<PK> getPrimaryKeyClass(Class<D> databeanClass){
@@ -30,4 +21,5 @@ public class DatabeanTool {
 					+".  Is there a no-arg constructor?");
 		}
 	}
+	
 }

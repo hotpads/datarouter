@@ -9,7 +9,6 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 
 public class HashMapNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
@@ -37,13 +36,13 @@ implements PhysicalMapStorageNode<PK,D>
 	/************************************ MapStorageWriter methods ****************************/
 
 	@Override
-	public void delete(UniqueKey<PK> key, Config config) {
+	public void delete(PK key, Config config) {
 		if(key==null){ return; }
 		this.backingMap.remove(key);
 	}
 	
 	@Override
-	public void deleteMulti(Collection<? extends UniqueKey<PK>> keys, Config config) {
+	public void deleteMulti(Collection<PK> keys, Config config) {
 		for(Key<PK> key : CollectionTool.nullSafe(keys)){
 			this.backingMap.remove(key);
 		}

@@ -16,6 +16,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.PeekableIterator;
 
 public abstract class PartitionedSortedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
@@ -157,8 +158,8 @@ implements SortedStorageReaderNode<PK,D>{
 	}
 	
 	@Override
-	public PeekableIterator<D> scan(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
-		List<PeekableIterator<D>> subScanners = ListTool.createArrayList();
+	public PeekableIterable<D> scan(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
+		List<PeekableIterable<D>> subScanners = ListTool.createArrayList();
 		for(N node : IterableTool.nullSafe(this.getPhysicalNodes())){
 			subScanners.add(node.scan(start, startInclusive, end, endInclusive, config));
 		}

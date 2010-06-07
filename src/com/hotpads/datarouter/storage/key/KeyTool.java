@@ -1,7 +1,9 @@
 package com.hotpads.datarouter.storage.key;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -29,18 +31,27 @@ public class KeyTool {
 //	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
-	List<PK> getKeys(Collection<D> databeans){
+	List<PK> getKeys(Iterable<D> databeans){
 		List<PK> keys = ListTool.createLinkedList();
-		for(D databean : CollectionTool.nullSafe(databeans)){
+		for(D databean : IterableTool.nullSafe(databeans)){
 			keys.add(databean.getKey());
 		}
 		return keys;
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
-	SortedMap<PK,D> getByKeySorted(Collection<D> databeans){
+	Map<PK,D> getByKey(Iterable<D> databeans){
+		Map<PK,D> map = MapTool.createHashMap();
+		for(D databean : IterableTool.nullSafe(databeans)){
+			map.put(databean.getKey(), databean);
+		}
+		return map;
+	}
+
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	SortedMap<PK,D> getByKeySorted(Iterable<D> databeans){
 		SortedMap<PK,D> map = MapTool.createTreeMap();
-		for(D databean : CollectionTool.nullSafe(databeans)){
+		for(D databean : IterableTool.nullSafe(databeans)){
 			map.put(databean.getKey(), databean);
 		}
 		return map;

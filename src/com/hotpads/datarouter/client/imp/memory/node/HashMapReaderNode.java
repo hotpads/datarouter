@@ -55,13 +55,13 @@ implements PhysicalMapStorageReaderNode<PK,D>
 	/************************************ MapStorageReader methods ****************************/
 	
 	@Override
-	public boolean exists(UniqueKey<PK> key, Config config) {
+	public boolean exists(PK key, Config config) {
 		return this.backingMap.containsKey(key);
 	}
 
 	
 	@Override
-	public D get(final UniqueKey<PK> key, Config config) {
+	public D get(final PK key, Config config) {
 		return this.backingMap.get(key);
 	}
 	
@@ -77,12 +77,25 @@ implements PhysicalMapStorageReaderNode<PK,D>
 
 	
 	@Override
-	public List<D> getMulti(final Collection<? extends UniqueKey<PK>> keys, Config config) {		
+	public List<D> getMulti(final Collection<PK> keys, Config config) {		
 		List<D> result = ListTool.createLinkedList();
 		for(Key<PK> key : CollectionTool.nullSafe(keys)){
 			D value = this.backingMap.get(key);
 			if(value != null){
 				result.add(value);
+			}
+		}
+		return result;
+	}
+
+	
+	@Override
+	public List<PK> getKeys(final Collection<PK> keys, Config config) {		
+		List<PK> result = ListTool.createLinkedList();
+		for(Key<PK> key : CollectionTool.nullSafe(keys)){
+			D value = this.backingMap.get(key);
+			if(value != null){
+				result.add(value.getKey());
 			}
 		}
 		return result;
