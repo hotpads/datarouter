@@ -28,6 +28,7 @@ implements PeekableIterable<D>, PeekableIterator<D>{
 	PK lastKey;
 	Iterator<D> currentBatchIterator;
 	int numBatchesLoaded = 0;
+	boolean foundEndOfData;
 	
 	D peeked;
 	
@@ -43,6 +44,7 @@ implements PeekableIterable<D>, PeekableIterator<D>{
 		if(this.config.getIterateBatchSize()==null){ 
 			this.config.setIterateBatchSize(defaultRowsPerBatch); 
 		}
+		foundEndOfData = false;
 		loadNextBatch();
 	}
 		
@@ -90,11 +92,15 @@ implements PeekableIterable<D>, PeekableIterator<D>{
 	}
 
 	protected void loadNextBatch(){
+		if(foundEndOfData){ return; }
 		config.setLimit(config.getIterateBatchSize());
 		List<D> currentBatch = node.getRange(lastKey, startInclusive, end, endInclusive, config);
 		currentBatchIterator = currentBatch.iterator();
 		++numBatchesLoaded;
-		if(CollectionTool.isEmpty(currentBatch)){ return; }
+		if(CollectionTool.size(currentBatch) < config.getLimit()){
+			foundEndOfData = true;
+			return; 
+		}
 		lastKey = CollectionTool.getLast(currentBatch).getKey();
 		startInclusive = false;//always false after first batch
 	}
