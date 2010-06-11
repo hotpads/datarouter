@@ -2,11 +2,8 @@ package com.hotpads.datarouter.storage.field.imp;
 
 import java.math.BigInteger;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.hotpads.datarouter.storage.field.PrimitiveField;
-import com.hotpads.util.core.LongTool;
+import com.hotpads.util.core.bytes.LongByteTool;
 
 public class LongField extends PrimitiveField<Long>{
 
@@ -36,7 +33,7 @@ public class LongField extends PrimitiveField<Long>{
 	
 	
 	public byte[] getComparableByteArray(){
-		return LongTool.getComparableByteArray(value);
+		return LongByteTool.getComparableByteArray(value);
 	}
 
 }
