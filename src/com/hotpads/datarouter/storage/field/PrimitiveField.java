@@ -1,6 +1,8 @@
 package com.hotpads.datarouter.storage.field;
 
-public abstract class PrimitiveField<T extends Comparable<T>> extends Field<T> {
+import com.hotpads.util.core.ComparableTool;
+
+public abstract class PrimitiveField<T extends Comparable<T>> extends Field<T>{
 
 	public PrimitiveField(String name, T value) {
 		super(null, name, value);
@@ -9,6 +11,12 @@ public abstract class PrimitiveField<T extends Comparable<T>> extends Field<T> {
 	public PrimitiveField(String prefix, String name, T value) {
 		super(prefix,name,value);
 	}
+	
+	@Override
+	public int compareTo(Field<T> other){
+		if(other==null){ return 1; }
+		return ComparableTool.nullFirstCompareTo(this.getValue(), other.getValue());
+	};
 
 	@Override
 	public String getSqlEscaped(){

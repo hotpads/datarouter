@@ -18,15 +18,15 @@ public class FieldTool{
 		return fieldNames;
 	}
 
-	public static List<Comparable<?>> getFieldValues(List<Field<?>> fields){
-		List<Comparable<?>> fieldValues = ListTool.createLinkedList();
+	public static List<?> getFieldValues(List<Field<?>> fields){
+		List<Object> fieldValues = ListTool.createLinkedList();
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			fieldValues.add(field.getValue());
 		}
 		return fieldValues;
 	}
 	
-	public static Comparable<?> getFieldValue(List<Field<?>> fields, String fieldName){
+	public static Object getFieldValue(List<Field<?>> fields, String fieldName){
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			if(field.getName().equals(fieldName)){
 				return field.getValue();

@@ -49,12 +49,12 @@ implements Databean<PK> {
 	}
 
 	@Override
-	public List<Comparable<?>> getFieldValues(){
+	public List<?> getFieldValues(){
 		return this.getKey().getFieldValues();
 	}
 
 	@Override
-	public Comparable<?> getFieldValue(String fieldName){
+	public Object getFieldValue(String fieldName){
 		return this.getKey().getFieldValue(fieldName);
 	}
 

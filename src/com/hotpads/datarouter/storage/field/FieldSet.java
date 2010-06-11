@@ -11,8 +11,8 @@ public interface FieldSet extends Comparable<FieldSet>,
 
 	List<Field<?>> getFields();
 	List<String> getFieldNames();
-	List<Comparable<?>> getFieldValues();
-	Comparable<?> getFieldValue(String fieldName);
+	List<?> getFieldValues();
+	Object getFieldValue(String fieldName);
 
 	String getPersistentString();  //fuse multi-column field into one string, usually with "_" characters
 	String getTypedPersistentString();  //usually getDatabeanName()+"."+getPersistentString()

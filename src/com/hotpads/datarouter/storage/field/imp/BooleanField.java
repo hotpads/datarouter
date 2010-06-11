@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.storage.field.imp;
 
 import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.util.core.bytes.BooleanByteTool;
 
 public class BooleanField extends PrimitiveField<Boolean>{
 
@@ -17,4 +18,8 @@ public class BooleanField extends PrimitiveField<Boolean>{
 		return obj==null?null:(Boolean)obj;
 	}
 
+	@Override
+	public byte[] getBytes(){
+		return BooleanByteTool.getBytes(this.value);
+	}
 }

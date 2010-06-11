@@ -8,8 +8,9 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
+import com.hotpads.util.core.exception.NotImplementedException;
 
-public abstract class Field<T extends Comparable<T>>{
+public abstract class Field<T> implements Comparable<Field<T>>{
 
 	protected String prefix;
 	protected String name;
@@ -40,6 +41,12 @@ public abstract class Field<T extends Comparable<T>>{
 	}
 	
 	public abstract String getSqlEscaped();
+	
+	@Deprecated
+	public byte[] getBytes(){
+		throw new NotImplementedException("still waiting on float and double serialization");	
+	};
+	
 	
 	public String getSqlNameValuePairEscaped(){
 		if(value==null){

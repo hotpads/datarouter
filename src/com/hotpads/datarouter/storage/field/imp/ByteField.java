@@ -18,8 +18,8 @@ public class ByteField extends PrimitiveField<Byte>{
 		return obj==null?null:(Byte)obj;
 	}
 	
-	
-	public byte[] getComparableByteArray(){
+	@Override
+	public byte[] getBytes(){
 		return ByteTool.getComparableByteArray(value);
 	}
 	

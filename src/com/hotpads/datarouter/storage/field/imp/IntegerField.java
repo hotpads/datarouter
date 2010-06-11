@@ -1,7 +1,7 @@
 package com.hotpads.datarouter.storage.field.imp;
 
 import com.hotpads.datarouter.storage.field.PrimitiveField;
-import com.hotpads.util.core.number.IntegerTool;
+import com.hotpads.util.core.bytes.IntegerByteTool;
 
 public class IntegerField extends PrimitiveField<Integer>{
 
@@ -17,11 +17,10 @@ public class IntegerField extends PrimitiveField<Integer>{
 	public Integer parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:(Integer)obj;
 	}
-	
-	
 
-	public byte[] getComparableByteArray(){
-		return IntegerTool.getComparableByteArray(value);
+	@Override
+	public byte[] getBytes(){
+		return IntegerByteTool.getComparableByteArray(value);
 	}
 	
 	

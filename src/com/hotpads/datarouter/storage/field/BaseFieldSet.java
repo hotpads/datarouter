@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.hotpads.datarouter.serialize.JsonTool;
+import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ComparableTool;
 
 @SuppressWarnings("serial")
 public abstract class BaseFieldSet implements FieldSet{
@@ -31,7 +31,7 @@ public abstract class BaseFieldSet implements FieldSet{
 		
 		//but order doesn't matter that much for us
 		int hash = 0;
-		for (Comparable<?> fieldValue : CollectionTool.nullSafe(this.getFieldValues())){
+		for (Object fieldValue : CollectionTool.nullSafe(this.getFieldValues())){
 			if(fieldValue != null){
 				hash = hash ^ fieldValue.hashCode();
 			}
@@ -44,16 +44,21 @@ public abstract class BaseFieldSet implements FieldSet{
 	public int compareTo(FieldSet that){
 		//sort classes alphabetically
 		if(that==null){ return 1; }
-		int classDiff = this.getClass().getName().compareTo(that.getClass().getName());
-		if(classDiff != 0){ return classDiff; }
+		if(ClassTool.differentClass(this, that)){
+			return this.getClass().getName().compareTo(that.getClass().getName());
+		}
 		
 		//field by field comparison
-		Iterator<Comparable<?>> thisIterator = this.getFieldValues().iterator();
-		Iterator<Comparable<?>> thatIterator = that.getFieldValues().iterator();
-		while(thisIterator.hasNext()){
-			Comparable<?> thisFieldVal = thisIterator.next();
-			Comparable<?> thatFieldVal = thatIterator.next();
-			int diff = ComparableTool.nullFirstCompareTo(thisFieldVal, thatFieldVal);
+		Iterator<Field<?>> thisIterator = this.getFields().iterator();
+		Iterator<Field<?>> thatIterator = that.getFields().iterator();
+		while(thisIterator.hasNext()){//they will have the same number of fields
+			//if we got past the class checks above, then fields should be the same and arrive in the same order
+			@SuppressWarnings("unchecked")
+			Field thisField = thisIterator.next();
+			@SuppressWarnings("unchecked")
+			Field thatField = thatIterator.next();
+			@SuppressWarnings("unchecked")
+			int diff = thisField.compareTo(thatField);
 			if(diff != 0){ return diff; }
 		}
 		return 0;
@@ -93,12 +98,12 @@ public abstract class BaseFieldSet implements FieldSet{
 	}
 
 	@Override
-	public List<Comparable<?>> getFieldValues(){
+	public List<?> getFieldValues(){
 		return FieldTool.getFieldValues(this.getFields());
 	}
 
 	@Override
-	public Comparable<?> getFieldValue(String fieldName){
+	public Object getFieldValue(String fieldName){
 		return FieldTool.getFieldValue(this.getFields(), fieldName);
 	}
 	

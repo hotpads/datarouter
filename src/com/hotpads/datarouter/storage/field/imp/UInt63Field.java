@@ -5,13 +5,13 @@ import java.math.BigInteger;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
 import com.hotpads.util.core.bytes.LongByteTool;
 
-public class LongField extends PrimitiveField<Long>{
+public class UInt63Field extends PrimitiveField<Long>{
 
-	public LongField(String name, Long value){
+	public UInt63Field(String name, Long value){
 		super(name, value);
 	}
 
-	public LongField(String prefix, String name, Long value){
+	public UInt63Field(String prefix, String name, Long value){
 		super(prefix, name, value);
 	}
 
@@ -30,10 +30,10 @@ public class LongField extends PrimitiveField<Long>{
 //			throw new DataAccessException(e.getClass().getSimpleName()+" on "+fieldSet.getClass().getSimpleName()+"."+fieldName);
 //		}
 //	}
-	
+
 	@Override
 	public byte[] getBytes(){
-		return LongByteTool.getComparableByteArray(value);
+		return LongByteTool.getUInt63Bytes(value);
 	}
 
 }

@@ -3,6 +3,7 @@ package com.hotpads.datarouter.storage.field.imp;
 import java.util.Date;
 
 import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.util.core.bytes.LongByteTool;
 
 public class DateField extends PrimitiveField<Date>{
 
@@ -17,5 +18,10 @@ public class DateField extends PrimitiveField<Date>{
 	@Override
 	public Date parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:(Date)obj;
+	}
+	
+	@Override
+	public byte[] getBytes(){
+		return LongByteTool.getUInt63Bytes(this.value.getTime());
 	}
 }

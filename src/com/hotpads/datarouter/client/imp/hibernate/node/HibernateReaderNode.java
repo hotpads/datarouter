@@ -598,7 +598,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	
 	protected Conjunction getPrefixConjunction(Key<PK> prefix, final boolean wildcardLastField){
 		int numNonNullFields = 0;
-		for(Comparable<?> value : CollectionTool.nullSafe(prefix.getFieldValues())){
+		for(Object value : CollectionTool.nullSafe(prefix.getFieldValues())){
 			if(value != null){
 				++numNonNullFields;
 			}
