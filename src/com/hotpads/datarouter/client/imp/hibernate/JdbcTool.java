@@ -72,4 +72,10 @@ public class JdbcTool {
 		}
 	}
 	
+	public static void appendCsvQuestionMarks(StringBuilder sb, int num){
+		for(int i=0; i < num; ++i){
+			if(i>0){ sb.append(","); }
+			sb.append("?");
+		}
+	}
 }

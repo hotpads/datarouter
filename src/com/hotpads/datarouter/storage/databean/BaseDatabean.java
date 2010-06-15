@@ -1,19 +1,19 @@
 package com.hotpads.datarouter.storage.databean;
 
-import java.util.LinkedList;
 import java.util.List;
 
+import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.BaseFieldSet;
-import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.exception.NotImplementedException;
 
 
 @SuppressWarnings("serial")
 public abstract class BaseDatabean<PK extends PrimaryKey<PK>>
 extends BaseFieldSet
-implements Databean<PK> {
+implements Databean<PK>{
 
 	/********************** databean *********************************/
 	
@@ -26,18 +26,18 @@ implements Databean<PK> {
 	/*************************** fields ****************************/
 	
 	@Override
-	public List<Field<?>> getKeyFields(){
+	public List<BaseField<?>> getKeyFields(){
 		return this.getKey().getFields();
 	}
 
 	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return new LinkedList<Field<?>>();
+	public List<BaseField<?>> getNonKeyFields(){
+		throw new NotImplementedException("not implemented");
 	}
 
 	@Override
-	public List<Field<?>> getFields(){
-		List<Field<?>> allFields = ListTool.createLinkedList();
+	public List<BaseField<?>> getFields(){
+		List<BaseField<?>> allFields = ListTool.createLinkedList();
 		allFields.addAll(getKeyFields());
 		allFields.addAll(getNonKeyFields());
 		return allFields;
@@ -77,13 +77,7 @@ implements Databean<PK> {
 		if(ClassTool.differentClass(this, obj)){ return false; }
 		Databean<PK> that = (Databean<PK>)obj;
 		return this.getKey().equals(that.getKey());
-	}
-
-//	@Override
-//	public int compareTo(Databean<PK> obj) {
-//		return this.getKey().compareTo(obj.getKey());
-//	}
-	
+	}	
 	
 	@Override
 	public int hashCode(){

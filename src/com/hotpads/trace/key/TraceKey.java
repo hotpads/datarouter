@@ -8,7 +8,7 @@ import java.util.Random;
 
 import javax.persistence.Embeddable;
 
-import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.imp.LongField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.trace.Trace;
@@ -34,8 +34,8 @@ public class TraceKey extends BasePrimaryKey<TraceKey>{
 	}
 	
 	@Override
-	public List<Field<?>> getFields(){
-		List<Field<?>> fields = ListTool.create();
+	public List<BaseField<?>> getFields(){
+		List<BaseField<?>> fields = ListTool.create();
 		fields.add(new LongField(Trace.KEY_key, COL_id, id));
 		return fields;
 	}

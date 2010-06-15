@@ -1,7 +1,9 @@
 package com.hotpads.datarouter.client.imp.hibernate.node;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.hibernate.SQLQuery;
@@ -9,13 +11,16 @@ import org.hibernate.Session;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
+import com.hotpads.datarouter.client.imp.hibernate.JdbcTool;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
+import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
@@ -183,8 +188,13 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, disableAutoCommit);
 		executor.executeTask(
 			new HibernateTask() {
+				@SuppressWarnings("deprecation")
 				public Object run(Session session) {
-					putUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
+					if(fieldAware){
+						jdbcPutUsingMethod(session.connection(), entityName, databean, config, DEFAULT_PUT_METHOD);
+					}else{
+						hibernatePutUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
+					}
 					return databean;
 				}
 			});
@@ -205,7 +215,7 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 				public Object run(Session session) {
 					for(D databean : CollectionTool.nullSafe(finalDatabeans)){
 						if(databean==null){ continue; }
-						putUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
+						hibernatePutUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
 					}
 					return finalDatabeans;
 				}
@@ -259,7 +269,7 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 					StringBuilder sql = new StringBuilder();
 					sql.append("delete from "+tableName+" where ");
 					int numFullFieldsFinished = 0;
-					for(Field<?> field : CollectionTool.nullSafe(prefix.getFields())){
+					for(BaseField<?> field : CollectionTool.nullSafe(prefix.getFields())){
 						if(numFullFieldsFinished < numNonNullFields){
 							if(numFullFieldsFinished > 0){
 								sql.append(" and ");
@@ -296,7 +306,7 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 	
 	/******************** private **********************************************/
 	
-	protected void putUsingMethod(Session session, String entityName, Databean databean, 
+	protected void hibernatePutUsingMethod(Session session, String entityName, Databean<PK> databean, 
 			final Config config, PutMethod defaultPutMethod){
 		
 		PutMethod putMethod = defaultPutMethod;
@@ -330,8 +340,89 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 		}
 	}
 	
+	protected void jdbcPutUsingMethod(Connection connection, String entityName, Databean<PK> databean,
+			final Config config, PutMethod defaultPutMethod){
+		PutMethod putMethod = defaultPutMethod;
+		if(config!=null && config.getPutMethod()!=null){
+			putMethod = config.getPutMethod();
+		}
+		if(PutMethod.INSERT_OR_BUST == putMethod){
+			jdbcInsert(connection, entityName, databean);
+		}else if(PutMethod.UPDATE_OR_BUST == putMethod){
+			jdbcUpdate(connection, entityName, databean);
+		}else if(PutMethod.INSERT_OR_UPDATE == putMethod){
+			try{
+				jdbcInsert(connection, entityName, databean);
+			}catch(Exception e){  
+				jdbcUpdate(connection, entityName, databean);
+			}
+		}else if(PutMethod.UPDATE_OR_INSERT == putMethod){
+			try{
+				jdbcUpdate(connection, entityName, databean);
+			}catch(Exception e){
+				jdbcInsert(connection, entityName, databean);
+			}
+		}else if(PutMethod.MERGE == putMethod){
+			//not really a jdbc concept, but usually an update (?)
+			try{
+				jdbcUpdate(connection, entityName, databean);
+			}catch(Exception e){
+				jdbcInsert(connection, entityName, databean);
+			}
+		}else{
+			//TODO handle server-generated primary keys
+			if(this.exists(databean.getKey(), null)){//select before update like hibernate's saveOrUpdate
+				jdbcUpdate(connection, entityName, databean);
+			}else{
+				jdbcInsert(connection, entityName, databean);
+			}
+		}
+	}
+	
+	protected void jdbcInsert(Connection connection, String entityName, Databean<PK> databean){
+//		logger.warn("JDBC Insert");
+		StringBuilder sb = new StringBuilder();
+		sb.append("insert into "+tableName+" (");
+		//TODO handle server-generated primary keys
+		FieldTool.appendCsvNames(sb, fields);
+		sb.append(") values (");
+		JdbcTool.appendCsvQuestionMarks(sb, CollectionTool.size(fields));
+		sb.append(")");
+		try{
+			PreparedStatement ps = connection.prepareStatement(sb.toString());
+			int parameterIndex = 1;//one based
+			for(BaseField<?> field : databean.getFields()){
+				field.setPreparedStatementValue(ps, parameterIndex);
+				++parameterIndex;
+			}
+			ps.execute();
+		}catch(Exception e){
+			throw new DataAccessException(e);
+		}
+	}
+	
+	protected void jdbcUpdate(Connection connection, String entityName, Databean<PK> databean){
+//		logger.warn("JDBC update");
+		StringBuilder sb = new StringBuilder();
+		sb.append("update "+tableName+" set ");
+		FieldTool.appendSqlUpdateClauses(sb, nonKeyFields);
+		sb.append(" where ");
+		sb.append(FieldTool.getSqlNameValuePairsEscapedConjunction(databean.getKeyFields()));
+		try{
+			PreparedStatement ps = connection.prepareStatement(sb.toString());
+			int parameterIndex = 1;
+			for(BaseField<?> field : databean.getNonKeyFields()){
+				field.setPreparedStatementValue(ps, parameterIndex);
+				++parameterIndex;
+			}
+			ps.execute();
+		}catch(Exception e){
+			throw new DataAccessException(e);
+		}
+	}
+	
 	/*
-	 * mirrof of above "putUsingMethod" above
+	 * mirror of of above "putUsingMethod" above
 	 */
 	protected boolean shouldDisableAutoCommit(final Config config, PutMethod defaultPutMethod){
 		

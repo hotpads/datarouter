@@ -10,8 +10,10 @@ implements PrimaryKey<PK>{
 	public BasePrimaryKey(){
 		super();
 	}
+	
 	@Override
 	public PrimaryKey<PK> getPrimaryKey(){
 		return this;
 	}
+	
 }

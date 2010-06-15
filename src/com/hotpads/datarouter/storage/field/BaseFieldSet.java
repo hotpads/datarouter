@@ -40,6 +40,9 @@ public abstract class BaseFieldSet implements FieldSet{
 		
 	}
 	
+	/*
+	 * WARNING - FieldSets are compared based only on their key fields.  Content is not compared by default
+	 */
 	@Override
 	public int compareTo(FieldSet that){
 		//sort classes alphabetically
@@ -49,14 +52,14 @@ public abstract class BaseFieldSet implements FieldSet{
 		}
 		
 		//field by field comparison
-		Iterator<Field<?>> thisIterator = this.getFields().iterator();
-		Iterator<Field<?>> thatIterator = that.getFields().iterator();
+		Iterator<BaseField<?>> thisIterator = this.getKeyFields().iterator();
+		Iterator<BaseField<?>> thatIterator = that.getKeyFields().iterator();
 		while(thisIterator.hasNext()){//they will have the same number of fields
 			//if we got past the class checks above, then fields should be the same and arrive in the same order
 			@SuppressWarnings("unchecked")
-			Field thisField = thisIterator.next();
+			BaseField thisField = thisIterator.next();
 			@SuppressWarnings("unchecked")
-			Field thatField = thatIterator.next();
+			BaseField thatField = thatIterator.next();
 			@SuppressWarnings("unchecked")
 			int diff = thisField.compareTo(thatField);
 			if(diff != 0){ return diff; }
@@ -75,7 +78,7 @@ public abstract class BaseFieldSet implements FieldSet{
 	public String getPersistentString(){
 		StringBuilder sb = new StringBuilder();
 		boolean doneOne = false;
-		for(Field<?> field : this.getFields()){
+		for(BaseField<?> field : this.getFields()){
 			if(doneOne){ 
 				sb.append("_");
 			}

@@ -9,10 +9,12 @@ import com.hotpads.datarouter.serialize.SqlAware;
 public interface FieldSet extends Comparable<FieldSet>, 
 		Serializable, JsonAware, SqlAware{  //hibernate composite keys must implement serializable
 
-	List<Field<?>> getFields();
+	List<BaseField<?>> getFields();
 	List<String> getFieldNames();
 	List<?> getFieldValues();
 	Object getFieldValue(String fieldName);
+
+	List<BaseField<?>> getKeyFields();
 
 	String getPersistentString();  //fuse multi-column field into one string, usually with "_" characters
 	String getTypedPersistentString();  //usually getDatabeanName()+"."+getPersistentString()

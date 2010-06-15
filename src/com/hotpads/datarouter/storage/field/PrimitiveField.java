@@ -2,7 +2,7 @@ package com.hotpads.datarouter.storage.field;
 
 import com.hotpads.util.core.ComparableTool;
 
-public abstract class PrimitiveField<T extends Comparable<T>> extends Field<T>{
+public abstract class PrimitiveField<T extends Comparable<T>> extends BaseField<T>{
 
 	public PrimitiveField(String name, T value) {
 		super(null, name, value);
@@ -13,7 +13,7 @@ public abstract class PrimitiveField<T extends Comparable<T>> extends Field<T>{
 	}
 	
 	@Override
-	public int compareTo(Field<T> other){
+	public int compareTo(BaseField<T> other){
 		if(other==null){ return 1; }
 		return ComparableTool.nullFirstCompareTo(this.getValue(), other.getValue());
 	};

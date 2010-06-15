@@ -11,13 +11,13 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.java.ReflectionTool;
 
 public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends Node<PK,D>>{
 	Logger logger = Logger.getLogger(getClass());
@@ -35,9 +35,10 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends No
 			throw new IllegalArgumentException("node already exists:"+nodeName);
 		}
 		Class<D> databeanType = node.getDatabeanType();
+		D sampleDatabean = ReflectionTool.create(databeanType);
 		List<String> clientNames = node.getClientNames();
 		this.nodeByName.put(nodeName, node);
-		this.nodeByPrimaryKeyType.put(DatabeanTool.getPrimaryKeyClass(databeanType), node);
+		this.nodeByPrimaryKeyType.put(sampleDatabean.getKeyClass(), node);
 		this.nodeByDatabeanType.put(databeanType, node);
 		if(this.clientNamesByDatabeanType.get(databeanType)==null){
 			this.clientNamesByDatabeanType.put(databeanType, new LinkedList<String>());
