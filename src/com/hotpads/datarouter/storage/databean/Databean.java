@@ -2,7 +2,7 @@ package com.hotpads.datarouter.storage.databean;
 
 import java.util.List;
 
-import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -14,7 +14,7 @@ extends FieldSet{
 	Class<PK> getKeyClass();
 	PK getKey();  
 	
-	List<BaseField<?>> getKeyFields();
-	List<BaseField<?>> getNonKeyFields();
+	List<Field<?>> getKeyFields();
+	List<Field<?>> getNonKeyFields();
 	
 }

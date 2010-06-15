@@ -2,7 +2,7 @@ package com.hotpads.datarouter.storage.key;
 
 import java.util.List;
 
-import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.BaseFieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -12,7 +12,7 @@ extends BaseFieldSet
 implements Key<PK>{
 
 	@Override
-	public List<BaseField<?>> getKeyFields(){
+	public List<Field<?>> getKeyFields(){
 		return this.getFields();
 	}
 	

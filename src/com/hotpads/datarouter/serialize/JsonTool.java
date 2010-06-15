@@ -8,14 +8,14 @@ import net.sf.json.JSONSerializer;
 import net.sf.json.JsonConfig;
 
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.IterableTool;
 
 public class JsonTool{
 
-	public static JSON getJson(List<BaseField<?>> fields) {
+	public static JSON getJson(List<Field<?>> fields) {
 		JSONObject j = new JSONObject();
-		for(BaseField<?> f : IterableTool.nullSafe(fields)){
+		for(Field<?> f : IterableTool.nullSafe(fields)){
 			j.element(f.getName(), f.getValue());
 		}
 		return j;

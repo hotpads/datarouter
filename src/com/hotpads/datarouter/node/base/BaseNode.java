@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ListTool;
@@ -25,9 +25,9 @@ implements Node<PK,D>{
 	protected String name;
 
 	protected boolean fieldAware;
-	protected List<BaseField<?>> primaryKeyFields;
-	protected List<BaseField<?>> fields;
-	protected List<BaseField<?>> nonKeyFields;
+	protected List<Field<?>> primaryKeyFields;
+	protected List<Field<?>> fields;
+	protected List<Field<?>> nonKeyFields;
 	
 	public BaseNode(Class<D> databeanClass){
 		this.baseDatabeanClass = databeanClass;

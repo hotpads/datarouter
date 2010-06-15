@@ -29,7 +29,7 @@ import com.hotpads.datarouter.node.scanner.Scanner;
 import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
 import com.hotpads.datarouter.storage.key.Key;
@@ -110,7 +110,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 						sql.append("select ");
 						FieldTool.appendCsvNames(sql, fields);
 						sql.append(" from "+tableName+" where ");
-						for(BaseField<?> field : key.getFields()){
+						for(Field<?> field : key.getFields()){
 							sql.append(field.getSqlNameValuePairEscaped());
 						}
 						try{
@@ -125,8 +125,8 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 						}
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
-						List<BaseField<?>> fields = key.getFields();
-						for(BaseField<?> field : fields){
+						List<Field<?>> fields = key.getFields();
+						for(Field<?> field : fields){
 							criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 						}
 						D result = (D)criteria.uniqueResult();
@@ -181,8 +181,8 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 						Disjunction orSeparatedIds = Restrictions.disjunction();
 						for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
 							Conjunction possiblyCompoundId = Restrictions.conjunction();
-							List<BaseField<?>> fields = key.getFields();
-							for(BaseField<?> field : fields){
+							List<Field<?>> fields = key.getFields();
+							for(Field<?> field : fields){
 								possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 							}
 							orSeparatedIds.add(possiblyCompoundId);
@@ -221,7 +221,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 						//projection list
 						ProjectionList projectionList = Projections.projectionList();
 						int numFields = 0;
-						for(BaseField<?> field : primaryKeyFields){
+						for(Field<?> field : primaryKeyFields){
 							projectionList.add(Projections.property(field.getPrefixedName()));
 							++numFields;
 						}
@@ -229,8 +229,8 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 						Disjunction orSeparatedIds = Restrictions.disjunction();
 						for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
 							Conjunction possiblyCompoundId = Restrictions.conjunction();
-							List<BaseField<?>> fields = key.getFields();
-							for(BaseField<?> field : fields){
+							List<Field<?>> fields = key.getFields();
+							for(Field<?> field : fields){
 								possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 							}
 							orSeparatedIds.add(possiblyCompoundId);
@@ -264,8 +264,8 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 			new HibernateTask() {
 				public Object run(Session session) {
 					Criteria criteria = getCriteriaForConfig(config, session);
-					List<BaseField<?>> fields = uniqueKey.getFields();
-					for(BaseField<?> field : fields){
+					List<Field<?>> fields = uniqueKey.getFields();
+					for(Field<?> field : fields){
 						criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 					}
 					D result = (D)criteria.uniqueResult();
@@ -300,8 +300,8 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 						Disjunction orSeparatedIds = Restrictions.disjunction();
 						for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
 							Conjunction possiblyCompoundId = Restrictions.conjunction();
-							List<BaseField<?>> fields = key.getFields();
-							for(BaseField<?> field : fields){
+							List<Field<?>> fields = key.getFields();
+							for(Field<?> field : fields){
 								possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 							}
 							orSeparatedIds.add(possiblyCompoundId);
@@ -326,7 +326,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 			new HibernateTask() {
 				public Object run(Session session) {
 					Criteria criteria = getCriteriaForConfig(config, session);
-					for(BaseField<?> field : CollectionTool.nullSafe(lookup.getFields())){
+					for(Field<?> field : CollectionTool.nullSafe(lookup.getFields())){
 						criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 					}
 					List<D> result = criteria.list();
@@ -352,7 +352,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 					Disjunction or = Restrictions.disjunction();
 					for(Lookup<PK> lookup : lookups){
 						Conjunction and = Restrictions.conjunction();
-						for(BaseField<?> field : CollectionTool.nullSafe(lookup.getFields())){
+						for(Field<?> field : CollectionTool.nullSafe(lookup.getFields())){
 							and.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 						}
 						or.add(and);
@@ -401,7 +401,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 					Criteria criteria = session.createCriteria(entityName);
 					ProjectionList projectionList = Projections.projectionList();
 					int numFields = 0;
-					for(BaseField<?> field : primaryKeyFields){
+					for(Field<?> field : primaryKeyFields){
 						projectionList.add(Projections.property(field.getPrefixedName()));
 						++numFields;
 					}
@@ -490,7 +490,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 					Criteria criteria = getCriteriaForConfig(config, session);
 					ProjectionList projectionList = Projections.projectionList();
 					int numFields = 0;
-					for(BaseField<?> field : primaryKeyFields){
+					for(Field<?> field : primaryKeyFields){
 						projectionList.add(Projections.property(field.getPrefixedName()));
 						++numFields;
 					}
@@ -560,13 +560,13 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 					}
 										
 					if(start != null && CollectionTool.notEmpty(start.getFields())){
-						List<BaseField<?>> startFields = ListTool.createArrayList(start.getFields());
-						int numNonNullStartFields = BaseField.countNonNullLeadingFields(startFields);
+						List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
+						int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 						Disjunction d = Restrictions.disjunction();
 						for(int i=numNonNullStartFields; i > 0; --i){
 							Conjunction c = Restrictions.conjunction();
 							for(int j=0; j < i; ++j){
-								BaseField<?> startField = startFields.get(j);
+								Field<?> startField = startFields.get(j);
 								if(j < (i-1)){
 									c.add(Restrictions.eq(startField.getPrefixedName(), startField.getValue()));
 								}else{
@@ -602,7 +602,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	/********************************* helpers ***********************************************/
 	
 	protected void addPrimaryKeyOrderToCriteria(Criteria criteria){
-		for(BaseField<?> field : this.primaryKeyFields){
+		for(Field<?> field : this.primaryKeyFields){
 			criteria.addOrder(Order.asc(field.getPrefixedName()));
 		}
 	}
@@ -637,7 +637,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 		}
 		Conjunction conjunction = Restrictions.conjunction();
 		int numFullFieldsFinished = 0;
-		for(BaseField<?> field : CollectionTool.nullSafe(prefix.getFields())){
+		for(Field<?> field : CollectionTool.nullSafe(prefix.getFields())){
 			if(numFullFieldsFinished < numNonNullFields){
 				boolean lastNonNullField = numFullFieldsFinished == numNonNullFields - 1;
 				boolean stringField = !(field instanceof PrimitiveField<?>);
@@ -661,13 +661,13 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 			final PK end, final boolean endInclusive){
 
 		if(start != null && CollectionTool.notEmpty(start.getFields())){
-			List<BaseField<?>> startFields = ListTool.createArrayList(start.getFields());
-			int numNonNullStartFields = BaseField.countNonNullLeadingFields(startFields);
+			List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
+			int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 			Disjunction d = Restrictions.disjunction();
 			for(int i=numNonNullStartFields; i > 0; --i){
 				Conjunction c = Restrictions.conjunction();
 				for(int j=0; j < i; ++j){
-					BaseField<?> startField = startFields.get(j);
+					Field<?> startField = startFields.get(j);
 					if(j < (i-1)){
 						c.add(Restrictions.eq(startField.getPrefixedName(), startField.getValue()));
 					}else{
@@ -684,13 +684,13 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 		}
 		
 		if(end != null && CollectionTool.notEmpty(end.getFields())){
-			List<BaseField<?>> endFields = ListTool.createArrayList(end.getFields());
-			int numNonNullEndFields = BaseField.countNonNullLeadingFields(endFields);
+			List<Field<?>> endFields = ListTool.createArrayList(end.getFields());
+			int numNonNullEndFields = FieldTool.countNonNullLeadingFields(endFields);
 			Disjunction d = Restrictions.disjunction();
 			for(int i=0; i < numNonNullEndFields; ++i){
 				Conjunction c = Restrictions.conjunction();
 				for(int j=0; j <= i; ++j){
-					BaseField<?> endField = endFields.get(j);
+					Field<?> endField = endFields.get(j);
 					if(j==i){
 						if(endInclusive){
 							c.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));

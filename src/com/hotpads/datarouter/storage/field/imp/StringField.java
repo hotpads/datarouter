@@ -7,6 +7,7 @@ import java.sql.Types;
 
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
@@ -22,7 +23,7 @@ public class StringField extends BaseField<String>{
 	}
 	
 	@Override
-	public int compareTo(BaseField<String> other){
+	public int compareTo(Field<String> other){
 		if(other==null){ return -1; }
 		return ComparableTool.nullFirstCompareTo(this.getValue(), other.getValue());
 	};

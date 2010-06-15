@@ -11,7 +11,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
-public abstract class BaseField<T> implements Comparable<BaseField<T>>, SqlField<T>{
+public abstract class BaseField<T> implements Field<T>{
 
 	protected String prefix;
 	protected String name;
@@ -38,28 +38,13 @@ public abstract class BaseField<T> implements Comparable<BaseField<T>>, SqlField
 		return this.getPrefixedName()+":"+this.getValue();
 	}
 	
+	@Override
 	public String getPrefixedName(){
 		if(StringTool.isEmpty(prefix)){
 			return name;
 		}else{
 			return prefix + "." + name;
 		}
-	}
-
-	public static List<BaseField<?>> createList(BaseField<?>... fields){
-		return ListTool.createArrayList(fields);
-	}
-	
-	public static int countNonNullLeadingFields(Iterable<BaseField<?>> fields){
-		int count = 0;
-		for(BaseField<?> field : IterableTool.nullSafe(fields)){
-			if(field.getValue() != null){
-				++count;
-			}else{
-				break;
-			}
-		}
-		return count;
 	}
 	
 	

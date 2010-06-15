@@ -2,7 +2,7 @@ package com.hotpads.datarouter.storage.databean;
 
 import java.util.List;
 
-import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.BaseFieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ClassTool;
@@ -26,18 +26,18 @@ implements Databean<PK>{
 	/*************************** fields ****************************/
 	
 	@Override
-	public List<BaseField<?>> getKeyFields(){
+	public List<Field<?>> getKeyFields(){
 		return this.getKey().getFields();
 	}
 
 	@Override
-	public List<BaseField<?>> getNonKeyFields(){
+	public List<Field<?>> getNonKeyFields(){
 		throw new NotImplementedException("not implemented");
 	}
 
 	@Override
-	public List<BaseField<?>> getFields(){
-		List<BaseField<?>> allFields = ListTool.createLinkedList();
+	public List<Field<?>> getFields(){
+		List<Field<?>> allFields = ListTool.createLinkedList();
 		allFields.addAll(getKeyFields());
 		allFields.addAll(getNonKeyFields());
 		return allFields;

@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.persistence.Embeddable;
 
-import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.LongField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
@@ -33,8 +33,8 @@ public class TraceSpanKey extends BasePrimaryKey<TraceSpanKey>{
 	
 	
 	@Override
-	public List<BaseField<?>> getFields(){
-		List<BaseField<?>> fields = ListTool.create();
+	public List<Field<?>> getFields(){
+		List<Field<?>> fields = ListTool.create();
 		fields.add(new LongField(TraceSpan.KEY_key, COL_traceId, traceId));
 		fields.add(new LongField(TraceSpan.KEY_key, COL_threadId, threadId));
 		fields.add(new IntegerField(TraceSpan.KEY_key, COL_sequence, sequence));

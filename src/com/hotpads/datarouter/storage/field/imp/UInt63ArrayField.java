@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
@@ -23,7 +24,7 @@ public class UInt63ArrayField extends BaseField<List<Long>>{
 	}
 	
 	@Override
-	public int compareTo(BaseField<List<Long>> other){
+	public int compareTo(Field<List<Long>> other){
 		return ListTool.compare(this.value, other.getValue());
 	}
 	

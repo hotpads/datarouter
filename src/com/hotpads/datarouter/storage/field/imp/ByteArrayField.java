@@ -6,8 +6,8 @@ import java.sql.SQLException;
 
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 public class ByteArrayField extends BaseField<byte[]>{
@@ -21,7 +21,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	}
 	
 	@Override
-	public int compareTo(BaseField<byte[]> other){
+	public int compareTo(Field<byte[]> other){
 		return ByteTool.bitwiseCompare(this.value, other.getValue());
 	}
 	

@@ -52,14 +52,14 @@ public abstract class BaseFieldSet implements FieldSet{
 		}
 		
 		//field by field comparison
-		Iterator<BaseField<?>> thisIterator = this.getKeyFields().iterator();
-		Iterator<BaseField<?>> thatIterator = that.getKeyFields().iterator();
+		Iterator<Field<?>> thisIterator = this.getKeyFields().iterator();
+		Iterator<Field<?>> thatIterator = that.getKeyFields().iterator();
 		while(thisIterator.hasNext()){//they will have the same number of fields
 			//if we got past the class checks above, then fields should be the same and arrive in the same order
 			@SuppressWarnings("unchecked")
-			BaseField thisField = thisIterator.next();
+			Field thisField = thisIterator.next();
 			@SuppressWarnings("unchecked")
-			BaseField thatField = thatIterator.next();
+			Field thatField = thatIterator.next();
 			@SuppressWarnings("unchecked")
 			int diff = thisField.compareTo(thatField);
 			if(diff != 0){ return diff; }
@@ -78,7 +78,7 @@ public abstract class BaseFieldSet implements FieldSet{
 	public String getPersistentString(){
 		StringBuilder sb = new StringBuilder();
 		boolean doneOne = false;
-		for(BaseField<?> field : this.getFields()){
+		for(Field<?> field : this.getFields()){
 			if(doneOne){ 
 				sb.append("_");
 			}

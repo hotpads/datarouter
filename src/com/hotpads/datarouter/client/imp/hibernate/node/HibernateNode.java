@@ -19,7 +19,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
 import com.hotpads.datarouter.storage.key.Key;
@@ -269,7 +269,7 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 					StringBuilder sql = new StringBuilder();
 					sql.append("delete from "+tableName+" where ");
 					int numFullFieldsFinished = 0;
-					for(BaseField<?> field : CollectionTool.nullSafe(prefix.getFields())){
+					for(Field<?> field : CollectionTool.nullSafe(prefix.getFields())){
 						if(numFullFieldsFinished < numNonNullFields){
 							if(numFullFieldsFinished > 0){
 								sql.append(" and ");
@@ -391,7 +391,7 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 		try{
 			PreparedStatement ps = connection.prepareStatement(sb.toString());
 			int parameterIndex = 1;//one based
-			for(BaseField<?> field : databean.getFields()){
+			for(Field<?> field : databean.getFields()){
 				field.setPreparedStatementValue(ps, parameterIndex);
 				++parameterIndex;
 			}
@@ -411,7 +411,7 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 		try{
 			PreparedStatement ps = connection.prepareStatement(sb.toString());
 			int parameterIndex = 1;
-			for(BaseField<?> field : databean.getNonKeyFields()){
+			for(Field<?> field : databean.getNonKeyFields()){
 				field.setPreparedStatementValue(ps, parameterIndex);
 				++parameterIndex;
 			}

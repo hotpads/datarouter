@@ -13,7 +13,7 @@ public abstract class PrimitiveField<T extends Comparable<T>> extends BaseField<
 	}
 	
 	@Override
-	public int compareTo(BaseField<T> other){
+	public int compareTo(Field<T> other){
 		if(other==null){ return 1; }
 		return ComparableTool.nullFirstCompareTo(this.getValue(), other.getValue());
 	};
