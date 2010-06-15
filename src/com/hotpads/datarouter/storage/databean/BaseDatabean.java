@@ -1,13 +1,13 @@
 package com.hotpads.datarouter.storage.databean;
 
+import java.util.LinkedList;
 import java.util.List;
 
-import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.BaseFieldSet;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 
 @SuppressWarnings("serial")
@@ -32,7 +32,8 @@ implements Databean<PK>{
 
 	@Override
 	public List<Field<?>> getNonKeyFields(){
-		throw new NotImplementedException("not implemented");
+		return new LinkedList<Field<?>>();
+//		throw new NotImplementedException("not implemented");
 	}
 
 	@Override
