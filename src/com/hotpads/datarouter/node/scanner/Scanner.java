@@ -40,7 +40,7 @@ implements PeekableIterable<D>, PeekableIterator<D>{
 		this.startInclusive = startInclusive;
 		this.end = end;
 		this.endInclusive = endInclusive;
-		this.config = config;
+		this.config = Config.nullSafe(config);
 		if(this.config.getIterateBatchSize()==null){ 
 			this.config.setIterateBatchSize(defaultRowsPerBatch); 
 		}
