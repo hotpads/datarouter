@@ -656,10 +656,11 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	}
 
 	
-	protected void addRangesToCriteria(Criteria criteria, 
+	public static <PK extends PrimaryKey<PK>> void addRangesToCriteria(
+			Criteria criteria, 
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive){
-
+		
 		if(start != null && CollectionTool.notEmpty(start.getFields())){
 			List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
 			int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
@@ -692,7 +693,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 				for(int j=0; j <= i; ++j){
 					Field<?> endField = endFields.get(j);
 					if(j==i){
-						if(endInclusive){
+						if(endInclusive && i==(numNonNullEndFields-1)){
 							c.add(Restrictions.le(endField.getPrefixedName(), endField.getValue()));
 						}else{
 							c.add(Restrictions.lt(endField.getPrefixedName(), endField.getValue()));
