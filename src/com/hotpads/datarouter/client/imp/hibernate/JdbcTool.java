@@ -2,17 +2,73 @@ package com.hotpads.datarouter.client.imp.hibernate;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.hibernate.Session;
+
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldSetTool;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
 public class JdbcTool {
 	
+	public static <PK extends PrimaryKey<PK>> 
+	List<PK> selectPrimaryKeys(Session session, Class<PK> primaryKeyClass, List<Field<?>> fields, String sql){
+		System.out.println(sql);
+		try{
+			PreparedStatement ps = session.connection().prepareStatement(sql.toString());
+			ps.execute();
+			ResultSet rs = ps.getResultSet();
+			List<PK> databeans = ListTool.createArrayList();
+			while(rs.next()){
+				PK databean = (PK)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(primaryKeyClass, fields, rs, true);
+				databeans.add(databean);
+			}
+			return databeans;
+		}catch(Exception e){
+			throw new DataAccessException(e);
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	List<D> selectDatabeans(Session session, Class<D> databeanClass, List<Field<?>> fields, String sql){
+		System.out.println(sql);
+		try{
+			PreparedStatement ps = session.connection().prepareStatement(sql.toString());
+			ps.execute();
+			ResultSet rs = ps.getResultSet();
+			List<D> databeans = ListTool.createArrayList();
+			while(rs.next()){
+				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(databeanClass, fields, rs, false);
+				databeans.add(databean);
+			}
+			return databeans;
+		}catch(Exception e){
+			throw new DataAccessException(e);
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	public static int update(Session session, String sql){
+		System.out.println(sql);
+		try{
+			PreparedStatement stmt = session.connection().prepareStatement(sql);
+			return stmt.executeUpdate();
+		}catch(SQLException e){
+			throw new DataAccessException(e);
+		}
+	}
+	
 	public static int update(Connection conn, String sql){
+		System.out.println(sql);
 		try{
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			return stmt.executeUpdate();

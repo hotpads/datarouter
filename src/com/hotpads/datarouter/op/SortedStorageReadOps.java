@@ -23,7 +23,7 @@ extends MapStorageReadOps<PK,D>{
 	List<D> getRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config);
 
 	List<D> getPrefixedRange(
-			final PK start, final boolean startInclusive, 
+			final PK prefix, final boolean wildcardLastField, 
 			final PK end, final boolean endInclusive, 
 			final Config config);
 	

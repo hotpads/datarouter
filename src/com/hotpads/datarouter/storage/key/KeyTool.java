@@ -1,15 +1,12 @@
 package com.hotpads.datarouter.storage.key;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -55,21 +52,6 @@ public class KeyTool {
 			map.put(databean.getKey(), databean);
 		}
 		return map;
-	}
-	
-	public static String getWhereClauseDisjunction(
-			Collection<? extends FieldSet> fieldSets){
-		if(CollectionTool.isEmpty(fieldSets)){ return null; }
-		StringBuilder sb = new StringBuilder();
-		int counter = 0;
-		for(FieldSet fieldSet : IterableTool.nullSafe(fieldSets)){
-			if(counter > 0){
-				sb.append(" or ");
-			}
-			sb.append("("+fieldSet.getSqlNameValuePairsEscapedConjunction()+")");
-			++counter;
-		}
-		return sb.toString();
 	}
 	
 }

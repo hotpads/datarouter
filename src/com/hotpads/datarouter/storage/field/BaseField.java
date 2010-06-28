@@ -1,13 +1,8 @@
 package com.hotpads.datarouter.storage.field;
 
 import java.sql.ResultSet;
-import java.util.List;
-
-import org.apache.commons.beanutils.PropertyUtils;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
@@ -65,49 +60,30 @@ public abstract class BaseField<T> implements Field<T>{
 		}
 		return this.name+"="+this.getSqlEscaped();
 	}
+	
+	
+	/******************************* reflective setters *******************************/
 
 	@Override
-	public void setFieldUsingBeanUtils(FieldSet targetFieldSet, Object col){
-		try{
-			T value = this.parseJdbcValueButDoNotSet(col);
-			PropertyUtils.setProperty(targetFieldSet, this.getName(), value);
-		}catch(Exception e){
-			throw new DataAccessException(e.getClass().getSimpleName()
-					+" on "+targetFieldSet.getClass().getSimpleName()+"."+this.getName());
-		}
+	public void fromHibernateResultUsingReflection(FieldSet targetFieldSet, Object col, boolean ignorePrefix){
+		T v = this.parseJdbcValueButDoNotSet(col);
+		this.setUsingReflection(targetFieldSet, v, ignorePrefix);
 	}
 
 	@Override
-	public void fromJdbcResultSetUsingReflection(FieldSet targetFieldSet, ResultSet resultSet){
+	public void fromJdbcResultSetUsingReflection(FieldSet targetFieldSet, ResultSet resultSet, boolean ignorePrefix){
+		T v = this.fromJdbcResultSetButDoNotSet(resultSet);
+		this.setUsingReflection(targetFieldSet, v, ignorePrefix);
+	}
+
+	@Override
+	public void setUsingReflection(FieldSet targetFieldSet, T value, boolean ignorePrefix){
 		try{
-			T value = this.fromJdbcResultSetButDoNotSet(resultSet);
 			//method Field.getDeclaredField(String) allows access to non-public fields
-			if(this.getPrefix()!=null){
+			if( ! ignorePrefix && this.getPrefix()!=null){
 				java.lang.reflect.Field parentField = targetFieldSet.getClass().getDeclaredField(this.getPrefix());
 				parentField.setAccessible(true);
 				java.lang.reflect.Field childField = parentField.getType().getDeclaredField(this.getName());
-				childField.setAccessible(true);
-				childField.set(parentField.get(targetFieldSet), value);
-			}else{
-				java.lang.reflect.Field fld = targetFieldSet.getClass().getDeclaredField(this.getName());
-				fld.setAccessible(true);
-				fld.set(targetFieldSet, value);
-			}
-		}catch(Exception e){
-			throw new DataAccessException(e.getClass().getSimpleName()
-					+" on "+targetFieldSet.getClass().getSimpleName()+"."+this.getName());
-		}
-	}
-
-	@Override
-	public void setFieldUsingReflection(FieldSet targetFieldSet, Object col){
-		try{
-			T value = this.parseJdbcValueButDoNotSet(col);
-			//method Field.getDeclaredField(String) allows access to non-public fields
-			if(this.getPrefix()!=null){
-				java.lang.reflect.Field parentField = targetFieldSet.getClass().getDeclaredField(this.getPrefix());
-				parentField.setAccessible(true);
-				java.lang.reflect.Field childField = parentField.getClass().getDeclaredField(this.getName());
 				childField.setAccessible(true);
 				childField.set(parentField.get(targetFieldSet), value);
 			}else{
