@@ -21,7 +21,7 @@ public class JdbcTool {
 	
 	public static <PK extends PrimaryKey<PK>> 
 	List<PK> selectPrimaryKeys(Session session, Class<PK> primaryKeyClass, List<Field<?>> fields, String sql){
-		System.out.println(sql);
+//		System.out.println(sql);
 		try{
 			PreparedStatement ps = session.connection().prepareStatement(sql.toString());
 			ps.execute();
@@ -40,7 +40,7 @@ public class JdbcTool {
 	@SuppressWarnings("deprecation")
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 	List<D> selectDatabeans(Session session, Class<D> databeanClass, List<Field<?>> fields, String sql){
-		System.out.println(sql);
+//		System.out.println(sql);
 		try{
 			PreparedStatement ps = session.connection().prepareStatement(sql.toString());
 			ps.execute();
@@ -58,7 +58,7 @@ public class JdbcTool {
 	
 	@SuppressWarnings("deprecation")
 	public static int update(Session session, String sql){
-		System.out.println(sql);
+//		System.out.println(sql);
 		try{
 			PreparedStatement stmt = session.connection().prepareStatement(sql);
 			return stmt.executeUpdate();
@@ -68,7 +68,7 @@ public class JdbcTool {
 	}
 	
 	public static int update(Connection conn, String sql){
-		System.out.println(sql);
+//		System.out.println(sql);
 		try{
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			return stmt.executeUpdate();
