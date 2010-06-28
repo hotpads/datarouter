@@ -73,20 +73,10 @@ public class IndexedSortedNodeIntegrationTests{
 	
 	public static final int TOTAL_RECORDS = NUM_ELEMENTS*NUM_ELEMENTS*NUM_ELEMENTS*NUM_ELEMENTS;
 	
-	public static int remainingElements;
-	
-	
-	@BeforeClass
-	public static void init() throws IOException{
-		Injector injector = Guice.createInjector();
-		router = injector.getInstance(BasicNodeTestRouter.class);
-		
+	public static void resetTable(){
 		router.sortedBean().deleteAll(null);
 		Assert.assertEquals(0, CollectionTool.size(router.sortedBean().getAll(null)));
-	}
-	
-	@Test
-	public void testRandomInserts(){//create every permutation
+		
 		List<String> as = ListTool.createArrayList(STRINGS);
 		List<String> bs = ListTool.createArrayList(STRINGS);
 		List<Integer> cs = ListTool.createArrayList(INTEGERS);
@@ -109,6 +99,14 @@ public class IndexedSortedNodeIntegrationTests{
 				}
 			}
 		}
+	}
+	
+	@BeforeClass
+	public static void init() throws IOException{
+		Injector injector = Guice.createInjector();
+		router = injector.getInstance(BasicNodeTestRouter.class);
+		
+		resetTable();
 	}
 	
 	@Test
@@ -253,16 +251,18 @@ public class IndexedSortedNodeIntegrationTests{
 
 	@Test
 	public void testDelete(){
-		remainingElements = TOTAL_RECORDS;
+		resetTable();
+		
+		int remainingElements = TOTAL_RECORDS;
+		
+		//delete
 		Assert.assertEquals(remainingElements, CollectionTool.size(router.sortedBean().getAll(null)));
 		SortedBeanKey key = new SortedBeanKey(STRINGS.last(), STRINGS.last(), 0, STRINGS.last());
 		router.sortedBean().delete(key, null);
 		--remainingElements;
 		Assert.assertEquals(remainingElements, CollectionTool.size(router.sortedBean().getAll(null)));
-	}
 
-	@Test
-	public void testDeleteMulti(){
+		//deleteMulti
 		Assert.assertEquals(remainingElements, CollectionTool.size(router.sortedBean().getAll(null)));
 		List<SortedBeanKey> keys = ListTool.create(
 				new SortedBeanKey(STRINGS.last(), STRINGS.last(), 1, STRINGS.last()),
@@ -271,19 +271,17 @@ public class IndexedSortedNodeIntegrationTests{
 		router.sortedBean().deleteMulti(keys, null);
 		remainingElements -= 3;
 		Assert.assertEquals(remainingElements, CollectionTool.size(router.sortedBean().getAll(null)));
-	}
-
-	@Test
-	public void testDeleteWithPrefix(){
+		
+		
+		//deleteWithPrefix
 		Assert.assertEquals(remainingElements, CollectionTool.size(router.sortedBean().getAll(null)));
 		SortedBeanKey prefix = new SortedBeanKey(PREFIX_a, null, null, null);
 		router.sortedBean().deleteRangeWithPrefix(prefix, true, null);
 		remainingElements -= NUM_PREFIX_a * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(remainingElements, CollectionTool.size(router.sortedBean().getAll(null)));
-	}
-
-	@Test
-	public void testDeleteViaLookup(){
+		
+		
+		//delete via lookup
 		Assert.assertEquals(remainingElements, CollectionTool.size(router.sortedBean().getAll(null)));
 		SortedBeanByDCBLookup lookup = new SortedBeanByDCBLookup(S_gopher, 0, S_gopher);
 		router.sortedBean().delete(lookup, null);
