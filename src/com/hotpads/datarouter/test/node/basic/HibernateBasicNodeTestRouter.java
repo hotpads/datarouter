@@ -17,7 +17,7 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 public class HibernateBasicNodeTestRouter
 extends BaseDataRouter implements BasicNodeTestRouter{
 
-	public static final String name = "dummy";
+	public static final String name = "basicNodeTest";
 	
 	public HibernateBasicNodeTestRouter() throws IOException{
 		super(name);
@@ -34,7 +34,7 @@ extends BaseDataRouter implements BasicNodeTestRouter{
 	/********************************** client names **********************************/
 	
 	public static final String 
-		client_drTest0 = "drTest0";
+		client_drTest0 = DRTestConstants.CLIENT_drTest0;
 
 	
 	/********************************** nodes **********************************/

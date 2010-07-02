@@ -89,7 +89,7 @@ public class SqlBuilder{
 			FieldSet end, boolean endInclusive){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
-		sql.append(" where ");
+		if(needsRangeWhereClause(start,end)){ sql.append(" where "); }
 		addRangeWhereClause(sql, start, startInclusive, end, endInclusive);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
@@ -155,6 +155,10 @@ public class SqlBuilder{
 				++numFullFieldsFinished;
 			}
 		}
+	}
+	
+	public static boolean needsRangeWhereClause(FieldSet start, FieldSet end){
+		return start!=null || end!=null;
 	}
 	
 	public static void addRangeWhereClause(StringBuilder sql,

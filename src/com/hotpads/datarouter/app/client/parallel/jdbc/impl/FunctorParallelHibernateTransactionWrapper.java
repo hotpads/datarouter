@@ -16,12 +16,12 @@ public class FunctorParallelHibernateTransactionWrapper
 extends BaseParallelHibernateTxnApp<Integer>{
 	Logger logger = Logger.getLogger(getClass());
 
-	private Functor<?,Void> func;
+	private Functor<?,Client> func;
 	private Node<?,?> node;
 	
 
 	public FunctorParallelHibernateTransactionWrapper(
-			Functor<?,Void> func, DataRouter router, Node<?,?> node) {
+			Functor<?,Client> func, DataRouter router, Node<?,?> node) {
 		super(router);
 		this.node = node;
 		this.func = func;
@@ -41,7 +41,7 @@ extends BaseParallelHibernateTxnApp<Integer>{
 	@Override
 	public Integer runOncePerClient(Client client){
 		
-		func.invoke(null);
+		func.invoke(client);
 			
 		return 0;
 	}
