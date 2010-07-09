@@ -12,17 +12,17 @@ import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.imp.ByteArrayField;
-import com.hotpads.datarouter.storage.field.imp.ByteField;
-import com.hotpads.datarouter.storage.field.imp.CharacterField;
-import com.hotpads.datarouter.storage.field.imp.DoubleField;
-import com.hotpads.datarouter.storage.field.imp.FloatField;
-import com.hotpads.datarouter.storage.field.imp.IntegerField;
-import com.hotpads.datarouter.storage.field.imp.LongDateField;
-import com.hotpads.datarouter.storage.field.imp.LongField;
-import com.hotpads.datarouter.storage.field.imp.ShortField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.datarouter.storage.field.imp.UInt63ArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.UInt63ArrayField;
+import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
+import com.hotpads.datarouter.storage.field.imp.comparable.CharacterField;
+import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.comparable.ShortField;
+import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
+import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
+import com.hotpads.datarouter.storage.field.imp.dumb.DumbFloatField;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
@@ -84,8 +84,8 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey>{
 		fields.add(new ShortField(COL_shortField, this.shortField));
 		fields.add(new IntegerField(COL_integerField, this.integerField));
 		fields.add(new LongField(COL_longField, this.longField));
-		fields.add(new FloatField(COL_floatField, this.floatField));
-		fields.add(new DoubleField(COL_doubleField, this.doubleField));
+		fields.add(new DumbFloatField(COL_floatField, this.floatField));
+		fields.add(new DumbDoubleField(COL_doubleField, this.doubleField));
 		fields.add(new LongDateField(COL_longDateField, this.longDateField));
 		fields.add(new CharacterField(COL_characterField, this.characterField));
 		fields.add(new StringField(COL_stringField, this.stringField));

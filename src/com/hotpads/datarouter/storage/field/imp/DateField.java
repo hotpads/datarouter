@@ -51,4 +51,14 @@ public class DateField extends PrimitiveField<Date>{
 	public byte[] getBytes(){
 		return LongByteTool.getUInt63Bytes(this.value.getTime());
 	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 8;
+	}
+	
+	@Override
+	public Date fromBytesButDoNotSet(byte[] bytes, int offset){
+		return new Date(LongByteTool.fromUInt63Bytes(bytes, offset));
+	}
 }

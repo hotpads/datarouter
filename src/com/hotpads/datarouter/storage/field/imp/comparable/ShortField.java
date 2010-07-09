@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.storage.field.imp;
+package com.hotpads.datarouter.storage.field.imp.comparable;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -48,7 +48,17 @@ public class ShortField extends PrimitiveField<Short>{
 	
 	@Override
 	public byte[] getBytes(){
-		return ShortByteTool.getComparableByteArray(this.value);
+		return ShortByteTool.getComparableBytes(this.value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 2;
+	}
+	
+	@Override
+	public Short fromBytesButDoNotSet(byte[] bytes, int offset){
+		return ShortByteTool.fromComparableBytes(bytes, offset);
 	}
 
 }

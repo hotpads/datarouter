@@ -3,11 +3,12 @@ package com.hotpads.datarouter.storage.field;
 import java.io.Serializable;
 import java.util.List;
 
+import com.hotpads.datarouter.serialize.ByteAware;
 import com.hotpads.datarouter.serialize.JsonAware;
 import com.hotpads.datarouter.serialize.SqlAware;
 
 public interface FieldSet extends Comparable<FieldSet>, 
-		Serializable, JsonAware, SqlAware{  //hibernate composite keys must implement serializable
+		Serializable, JsonAware, SqlAware, ByteAware{  //hibernate composite keys must implement serializable
 
 	List<Field<?>> getFields();
 	List<String> getFieldNames();

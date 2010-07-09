@@ -8,6 +8,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.util.core.ArrayTool;
+import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.IterableTool;
@@ -78,5 +80,20 @@ public class FieldSetTool{
 		}
 		return targetFieldSet;
 	}
+	
 
+	/**************************** bytes ******************/
+	
+	public static byte[] getBytes(Collection<Field<?>> fields){
+		if(CollectionTool.size(fields)==1){ return CollectionTool.getFirst(fields).getBytes(); }
+		if(CollectionTool.isEmpty(fields)){ return new byte[0]; }
+		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.size(fields)][];
+		int fieldIdx=-1;
+		for(Field<?> field : IterableTool.nullSafe(fields)){
+			++fieldIdx;
+			fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
+		}
+		return ByteTool.concatenate(fieldArraysWithSeparators);
+	}
+	
 }

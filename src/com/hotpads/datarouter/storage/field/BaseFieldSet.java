@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.storage.field;
 
+import java.sql.ResultSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -133,7 +134,25 @@ public abstract class BaseFieldSet implements FieldSet{
 	public String getSqlNameValuePairsEscapedConjunction(){
 		return FieldTool.getSqlNameValuePairsEscapedConjunction(this.getFields());
 	}
+	
+	/**************************** bytes ******************/
+	
+	@Override
+	public byte[] getBytes(){
+		return FieldSetTool.getBytes(this.getFields());
+	}
+	
+	
 }
+
+
+
+
+
+
+
+
+
 
 
 

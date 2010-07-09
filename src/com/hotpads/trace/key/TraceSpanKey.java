@@ -8,8 +8,8 @@ import java.util.List;
 import javax.persistence.Embeddable;
 
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.imp.IntegerField;
-import com.hotpads.datarouter.storage.field.imp.LongField;
+import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.trace.TraceSpan;
 import com.hotpads.util.core.ListTool;

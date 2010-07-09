@@ -1,29 +1,28 @@
-package com.hotpads.datarouter.storage.field.imp;
+package com.hotpads.datarouter.storage.field.imp.comparable;
 
 import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Date;
 
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
 import com.hotpads.util.core.bytes.LongByteTool;
 
-public class LongDateField extends PrimitiveField<Date>{
+public class LongField extends PrimitiveField<Long>{
 
-	public LongDateField(String name, Date value){
+	public LongField(String name, Long value){
 		super(name, value);
 	}
 
-	public LongDateField(String prefix, String name, Date value){
+	public LongField(String prefix, String name, Long value){
 		super(prefix, name, value);
 	}
 
 	@Override
-	public Date parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:new Date(((BigInteger)obj).longValue());
+	public Long parseJdbcValueButDoNotSet(Object obj){
+		return obj==null?null:((BigInteger)obj).longValue();
 	}
 	
 	@Override
@@ -32,7 +31,7 @@ public class LongDateField extends PrimitiveField<Date>{
 			if(value==null){
 				ps.setNull(parameterIndex, Types.BIGINT);
 			}else{
-				ps.setLong(parameterIndex, this.value.getTime());
+				ps.setLong(parameterIndex, this.value);
 			}
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -40,10 +39,9 @@ public class LongDateField extends PrimitiveField<Date>{
 	}
 	
 	@Override
-	public Date fromJdbcResultSetButDoNotSet(ResultSet rs){
+	public Long fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			Long value = rs.getLong(this.name);
-			return value==null?null:new Date(value);
+			return rs.getLong(this.name);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
@@ -62,7 +60,16 @@ public class LongDateField extends PrimitiveField<Date>{
 	
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:LongByteTool.getComparableByteArray(value.getTime());
+		return LongByteTool.getComparableBytes(value);
 	}
-
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 8;
+	}
+	
+	@Override
+	public Long fromBytesButDoNotSet(byte[] bytes, int offset){
+		return LongByteTool.fromComparableBytes(bytes, offset);
+	}
 }

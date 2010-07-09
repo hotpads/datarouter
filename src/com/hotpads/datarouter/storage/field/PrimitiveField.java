@@ -2,7 +2,9 @@ package com.hotpads.datarouter.storage.field;
 
 import com.hotpads.util.core.ComparableTool;
 
-public abstract class PrimitiveField<T extends Comparable<T>> extends BaseField<T>{
+public abstract class PrimitiveField<T extends Comparable<T>> 
+extends BaseField<T>
+implements ByteAwareField<T>{
 
 	public PrimitiveField(String name, T value) {
 		super(null, name, value);

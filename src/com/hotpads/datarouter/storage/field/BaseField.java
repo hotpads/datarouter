@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.util.core.StringTool;
+import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 public abstract class BaseField<T> implements Field<T>{
@@ -45,11 +46,24 @@ public abstract class BaseField<T> implements Field<T>{
 	
 	/****************************** ByteField ***********************************/
 	
-	@Deprecated
+	public byte[] getMicroNameBytes(){
+		return StringByteTool.getUtf8Bytes(this.getName());//TODO get micro name
+	}
+	
+	@Override
 	public byte[] getBytes(){
 		throw new NotImplementedException("still waiting on float and double serialization");	
 	};
 	
+	@Override
+	public boolean isFixedLength(){
+		return true;//override if false
+	}
+	
+	@Override
+	public byte[] getBytesWithSeparator(){
+		return getBytes();
+	}
 	
 	/**************************** SqlField ****************************************/
 	
@@ -77,7 +91,7 @@ public abstract class BaseField<T> implements Field<T>{
 	}
 
 	@Override
-	public void setUsingReflection(FieldSet targetFieldSet, T value, boolean ignorePrefix){
+	public void setUsingReflection(FieldSet targetFieldSet, Object value, boolean ignorePrefix){
 		try{
 			//method Field.getDeclaredField(String) allows access to non-public fields
 			if( ! ignorePrefix && this.getPrefix()!=null){

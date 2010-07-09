@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.storage.field.imp;
+package com.hotpads.datarouter.storage.field.imp.comparable;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -48,8 +48,18 @@ public class ByteField extends PrimitiveField<Byte>{
 	
 	@Override
 	public byte[] getBytes(){
-		return ByteTool.getComparableByteArray(value);
+		return ByteTool.getComparableBytes(value);
 	}
 	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 1;
+	}
+	
+	@Override
+	public Byte fromBytesButDoNotSet(byte[] bytes, int offset){
+		return ByteTool.getComparableByte(bytes[offset]);
+	}
+
 
 }

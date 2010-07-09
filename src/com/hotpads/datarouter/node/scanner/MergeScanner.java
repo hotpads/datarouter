@@ -58,6 +58,7 @@ implements PeekableIterable<D>,PeekableIterator<D>{
 
 	@Override
 	public D next() {
+		//TODO use CollatedIterator code from commons-collections, or if google-guava ever releases it
 		if(peeked!=null){
 			D next = peeked;
 			peeked = null;

@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.storage.field.imp;
+package com.hotpads.datarouter.storage.field.imp.comparable;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,6 +7,8 @@ import java.sql.Types;
 
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class CharacterField extends PrimitiveField<Character>{
@@ -49,7 +51,33 @@ public class CharacterField extends PrimitiveField<Character>{
 	
 	@Override
 	public byte[] getBytes(){
-		return StringByteTool.getByteArray(this.value.toString(), StringByteTool.CHARSET_UTF8);
+		return StringByteTool.getUtf8Bytes(this.value.toString());
+	}
+	
+	@Override
+	public byte[] getBytesWithSeparator(){
+		byte[] dataBytes = getBytes();
+		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{StringField.SEPARATOR}; }
+		byte[] allBytes = new byte[dataBytes.length+1];
+		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
+		allBytes[allBytes.length-1] = 0;//Ascii "null" will compare first in lexicographical bytes comparison
+		return allBytes;
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		for(int i=offset; i < bytes.length; ++i){
+			if(bytes[i]==StringField.SEPARATOR){
+				return i - offset + 1;//plus 1 for the separator
+			}
+		}
+		throw new IllegalArgumentException("separator not found");
+	}
+	
+	@Override
+	public Character fromBytesButDoNotSet(byte[] bytes, int offset){
+		int length = numBytesWithSeparator(bytes, offset) - 1;
+		return new String(bytes, offset + 1, length, StringByteTool.CHARSET_UTF8).charAt(0);
 	}
 
 }

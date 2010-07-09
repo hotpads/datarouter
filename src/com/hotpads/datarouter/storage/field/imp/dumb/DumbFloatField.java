@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.storage.field.imp;
+package com.hotpads.datarouter.storage.field.imp.dumb;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,14 +7,15 @@ import java.sql.Types;
 
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.util.core.bytes.FloatByteTool;
 
-public class FloatField extends PrimitiveField<Float>{
+public class DumbFloatField extends PrimitiveField<Float>{
 
-	public FloatField(String name, Float value){
+	public DumbFloatField(String name, Float value){
 		super(name, value);
 	}
 
-	public FloatField(String prefix, String name, Float value){
+	public DumbFloatField(String prefix, String name, Float value){
 		super(prefix, name, value);
 	}
 
@@ -44,5 +45,19 @@ public class FloatField extends PrimitiveField<Float>{
 			throw new DataAccessException(e);
 		}
 	}
+
+	@Override
+	public byte[] getBytes(){
+		return FloatByteTool.getBytes(value);
+	}
 	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 4;
+	}
+	
+	@Override
+	public Float fromBytesButDoNotSet(byte[] bytes, int offset){
+		return FloatByteTool.fromBytes(bytes, offset);
+	}
 }

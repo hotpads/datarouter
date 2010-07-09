@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.storage.field.imp;
+package com.hotpads.datarouter.storage.field.imp.dumb;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,14 +7,15 @@ import java.sql.Types;
 
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.util.core.bytes.DoubleByteTool;
 
-public class DoubleField extends PrimitiveField<Double>{
+public class DumbDoubleField extends PrimitiveField<Double>{
 
-	public DoubleField(String name, Double value){
+	public DumbDoubleField(String name, Double value){
 		super(name, value);
 	}
 
-	public DoubleField(String prefix, String name, Double value){
+	public DumbDoubleField(String prefix, String name, Double value){
 		super(prefix, name, value);
 	}
 
@@ -44,5 +45,21 @@ public class DoubleField extends PrimitiveField<Double>{
 			throw new DataAccessException(e);
 		}
 	}
+
+	@Override
+	public byte[] getBytes(){
+		return DoubleByteTool.getBytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 8;
+	}
+	
+	@Override
+	public Double fromBytesButDoNotSet(byte[] bytes, int offset){
+		return DoubleByteTool.fromBytes(bytes, offset);
+	}
+	
 
 }

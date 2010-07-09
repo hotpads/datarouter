@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.storage.field.imp;
+package com.hotpads.datarouter.storage.field.imp.comparable;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,6 +8,7 @@ import java.sql.Types;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.PrimitiveField;
 import com.hotpads.util.core.bytes.IntegerByteTool;
+import com.hotpads.util.core.bytes.LongByteTool;
 
 public class IntegerField extends PrimitiveField<Integer>{
 
@@ -48,7 +49,17 @@ public class IntegerField extends PrimitiveField<Integer>{
 
 	@Override
 	public byte[] getBytes(){
-		return IntegerByteTool.getComparableByteArray(value);
+		return IntegerByteTool.getComparableBytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 4;
+	}
+	
+	@Override
+	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
+		return IntegerByteTool.fromComparableBytes(bytes, offset);
 	}
 	
 	

@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.storage.field.imp;
+package com.hotpads.datarouter.storage.field.imp.comparable;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -50,4 +50,15 @@ public class BooleanField extends PrimitiveField<Boolean>{
 	public byte[] getBytes(){
 		return BooleanByteTool.getBytes(this.value);
 	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 1;
+	}
+	
+	@Override
+	public Boolean fromBytesButDoNotSet(byte[] bytes, int offset){
+		return BooleanByteTool.fromBytes(bytes, offset);
+	}
+
 }

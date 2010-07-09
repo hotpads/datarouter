@@ -8,6 +8,7 @@ import java.sql.Types;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
@@ -63,9 +64,44 @@ public class StringField extends BaseField<String>{
 		}
 	}
 	
+	/******************** bytes *****************************/
+	
+	public static final byte SEPARATOR = 0;
+	
+	@Override
+	public boolean isFixedLength(){
+		return false;
+	}
+	
 	@Override
 	public byte[] getBytes(){
-		return StringByteTool.getByteArray(this.value, StringByteTool.CHARSET_UTF8);
+		return StringByteTool.getUtf8Bytes(this.value);
+	}
+	
+	@Override
+	public byte[] getBytesWithSeparator(){
+		byte[] dataBytes = getBytes();
+		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{SEPARATOR}; }
+		byte[] allBytes = new byte[dataBytes.length+1];
+		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
+		allBytes[allBytes.length-1] = 0;//Ascii "null" will compare first in lexicographical bytes comparison
+		return allBytes;
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		for(int i=offset; i < bytes.length; ++i){
+			if(bytes[i]==SEPARATOR){
+				return i - offset + 1;//plus 1 for the separator
+			}
+		}
+		throw new IllegalArgumentException("separator not found");
+	}
+	
+	@Override
+	public String fromBytesButDoNotSet(byte[] bytes, int offset){
+		int length = numBytesWithSeparator(bytes, offset) - 1;
+		return new String(bytes, offset + 1, length, StringByteTool.CHARSET_UTF8);
 	}
 	
 }

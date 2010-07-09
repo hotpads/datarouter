@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.storage.field.imp;
+package com.hotpads.datarouter.storage.field.imp.positive;
 
 import java.math.BigInteger;
 import java.sql.PreparedStatement;
@@ -76,6 +76,16 @@ public class UInt63Field extends PrimitiveField<Long>{
 	@Override
 	public byte[] getBytes(){
 		return LongByteTool.getUInt63Bytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 8;
+	}
+	
+	@Override
+	public Long fromBytesButDoNotSet(byte[] bytes, int offset){
+		return LongByteTool.fromUInt63Bytes(bytes, offset);
 	}
 
 }

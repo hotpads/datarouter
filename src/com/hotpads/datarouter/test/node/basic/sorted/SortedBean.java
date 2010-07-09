@@ -10,10 +10,10 @@ import org.hibernate.annotations.AccessType;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.imp.DoubleField;
-import com.hotpads.datarouter.storage.field.imp.LongField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.datarouter.storage.field.imp.UInt31Field;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 
 
@@ -45,7 +45,7 @@ public class SortedBean extends BaseDatabean<SortedBeanKey>{
 				new StringField(COL_f1, this.f1),
 				new LongField(COL_f2, this.f2),
 				new StringField(COL_f3, this.f3),
-				new DoubleField(COL_f4, this.f4));
+				new DumbDoubleField(COL_f4, this.f4));
 	}
 	
 
