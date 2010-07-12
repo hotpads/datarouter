@@ -9,19 +9,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 
+import com.hotpads.util.core.bytes.StringByteTool;
+
 public class HTablePool{
 	
 	protected HBaseConfiguration hBaseConfiguration;
-	protected Map<byte[],Stack<HTable>> tablesByName;
+	protected Map<String,Stack<HTable>> tablesByName;//cannot key by byte[] because .equals checks identity?
 	
-	public HTablePool(HBaseConfiguration hBaseConfiguration, Collection<byte[]> names, int startingSize){
+	public HTablePool(HBaseConfiguration hBaseConfiguration, Collection<String> names, int startingSize){
 		this.hBaseConfiguration = hBaseConfiguration;
-		tablesByName = new ConcurrentHashMap<byte[],Stack<HTable>>();
-		for(byte[] name : names){
+		tablesByName = new ConcurrentHashMap<String,Stack<HTable>>();
+		for(String name : names){
 			tablesByName.put(name, new Stack<HTable>());
 			for(int i=0; i < startingSize; ++i){
 				try{
-					tablesByName.get(name).add(new HTable(this.hBaseConfiguration, name));
+					tablesByName.get(name).add(
+							new HTable(this.hBaseConfiguration, StringByteTool.getUtf8Bytes(name)));
 				}catch(IOException e){
 					throw new RuntimeException(e);
 				}
@@ -29,7 +32,7 @@ public class HTablePool{
 		}
 	}
 	
-	public HTable checkOut(byte[] name){
+	public HTable checkOut(String name){
 		HTable hTable = tablesByName.get(name).pop();
 		if(hTable!=null){ return hTable; }
 		try{
@@ -40,7 +43,8 @@ public class HTablePool{
 	}
 	
 	public void checkIn(HTable hTable){
-		tablesByName.get(hTable.getTableName()).push(hTable);
+		String name = StringByteTool.fromUtf8Bytes(hTable.getTableName());
+		tablesByName.get(name).push(hTable);
 	}
 	
 }

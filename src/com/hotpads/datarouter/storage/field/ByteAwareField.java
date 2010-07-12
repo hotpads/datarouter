@@ -12,5 +12,6 @@ public interface ByteAwareField<T>{
 
 	int numBytesWithSeparator(byte[] bytes, int byteOffset);
 	T fromBytesButDoNotSet(byte[] bytes, int byteOffset);
+	T fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset);
 	
 }

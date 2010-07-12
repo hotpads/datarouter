@@ -11,8 +11,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BaseCachingNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
-		N extends Node<PK,D>> 
+public abstract class BaseCachingNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends Node<PK,D>> 
 extends BaseNode<PK,D>{
 	
 	

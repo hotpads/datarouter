@@ -65,6 +65,11 @@ public abstract class BaseField<T> implements Field<T>{
 		return getBytes();
 	}
 	
+	@Override
+	public T fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
+		return fromBytesButDoNotSet(bytes, byteOffset);
+	}
+	
 	/**************************** SqlField ****************************************/
 	
 	@Override

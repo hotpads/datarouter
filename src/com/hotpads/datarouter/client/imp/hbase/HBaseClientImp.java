@@ -39,7 +39,7 @@ implements HBaseClient{
 	/****************************** HBaseClient methods *************************/
 	
 	@Override
-	public HTable checkOutHTable(byte[] name){
+	public HTable checkOutHTable(String name){
 		return hTablePool.checkOut(name);
 	}
 	

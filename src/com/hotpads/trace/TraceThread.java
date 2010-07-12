@@ -1,6 +1,7 @@
 package com.hotpads.trace;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +11,10 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
+import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.trace.key.TraceThreadKey;
 
 @Entity
@@ -46,7 +51,22 @@ public class TraceThread extends BaseDatabean<TraceThreadKey>{
 		COL_serverId = "serverId",
 		COL_created = "created",
 		COL_queuedDuration = "queuedDuration",
-		COL_runningDuration = "runningDuration";
+		COL_runningDuration = "runningDuration",
+		COL_queuedDurationNano = "queuedDurationNano",
+		COL_runningDurationNano = "runningDurationNano";
+
+	@Override
+	public List<Field<?>> getNonKeyFields(){
+		return FieldTool.createList(
+				new UInt63Field(COL_parentId, this.parentId),
+				new StringField(COL_name, this.name),
+				new StringField(COL_serverId, this.serverId),
+				new UInt63Field(COL_created, this.created),
+				new UInt63Field(COL_queuedDuration, this.queuedDuration),
+				new UInt63Field(COL_runningDuration, this.runningDuration),
+				new UInt63Field(COL_queuedDurationNano, this.queuedDurationNano),
+				new UInt63Field(COL_runningDurationNano, this.runningDurationNano));
+	}
 	
 	
 	/*********************** constructor **********************************/

@@ -100,6 +100,12 @@ public class StringField extends BaseField<String>{
 	
 	@Override
 	public String fromBytesButDoNotSet(byte[] bytes, int offset){
+		int length = bytes.length - offset;
+		return new String(bytes, offset, length, StringByteTool.CHARSET_UTF8);
+	}
+	
+	@Override
+	public String fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
 		int length = numBytesWithSeparator(bytes, offset) - 1;
 		return new String(bytes, offset + 1, length, StringByteTool.CHARSET_UTF8);
 	}

@@ -7,7 +7,7 @@ import com.hotpads.datarouter.client.Client;
 public interface HBaseClient
 extends Client{
 	
-	HTable checkOutHTable(byte[] name);
+	HTable checkOutHTable(String name);
 	void checkInHTable(HTable hTable);
 	
 }

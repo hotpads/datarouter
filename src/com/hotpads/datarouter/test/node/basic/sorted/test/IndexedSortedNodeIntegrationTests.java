@@ -101,6 +101,8 @@ public class IndexedSortedNodeIntegrationTests{
 		}
 	}
 	
+	/********************** junit methods *********************************************/
+	
 	@BeforeClass
 	public static void init() throws IOException{
 		Injector injector = Guice.createInjector();

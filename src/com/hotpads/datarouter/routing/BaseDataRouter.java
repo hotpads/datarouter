@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.app.App;
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Node;
@@ -18,13 +19,16 @@ import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
+/**
+ * @author mcorgan
+ *
+ */
 public abstract class BaseDataRouter implements DataRouter {
 	
 	/********************************* fields **********************************/
 	protected String name;
-
+	protected RouterOptions clientOptions;
 	protected ConnectionPools connectionPools;
-	
 	protected Clients clients;
 	
 	@SuppressWarnings("unchecked")
@@ -35,6 +39,7 @@ public abstract class BaseDataRouter implements DataRouter {
 	
 	public BaseDataRouter(String name) throws IOException{
 		this.name = name;
+		this.clientOptions = new RouterOptions(getConfigLocation());
 	}
 	
 	
@@ -52,7 +57,8 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends Node<PK,D>> N register(N node){
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends Node<PK,D>> 
+	N register(N node){
 		this.nodes.register(node);
 		return node;
 	}
@@ -162,6 +168,11 @@ public abstract class BaseDataRouter implements DataRouter {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public RouterOptions getClientOptions(){
+		return clientOptions;
 	}
 	
 	

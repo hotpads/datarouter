@@ -1,6 +1,7 @@
 package com.hotpads.trace;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +11,10 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
+import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.trace.key.TraceKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.StringTool;
@@ -56,6 +61,17 @@ public class Trace extends BaseDatabean<TraceKey>{
 		COL_params = "params",
 		COL_created = "created",
 		COL_duration = "duration";
+
+	@Override
+	public List<Field<?>> getNonKeyFields(){
+		return FieldTool.createList(
+				new StringField(COL_sessionId, this.sessionId),
+				new StringField(COL_context, this.context),
+				new StringField(COL_type, this.type),
+				new StringField(COL_params, this.params),
+				new UInt63Field(COL_created, this.created),
+				new UInt63Field(COL_duration, this.duration));
+	}
 	
 	
 	/*********************** constructor **********************************/

@@ -2,7 +2,7 @@ package com.hotpads.datarouter.test.node.basic;
 import java.io.IOException;
 
 import com.google.inject.Singleton;
-import com.hotpads.datarouter.node.NodeFactory;
+import com.hotpads.datarouter.node.HibernateNodeFactory;
 import com.hotpads.datarouter.node.op.IndexedSortedStorageNode;
 import com.hotpads.datarouter.node.op.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
@@ -40,10 +40,10 @@ extends BaseDataRouter implements BasicNodeTestRouter{
 	/********************************** nodes **********************************/
 	
 	private MapStorageNode<ManyFieldTypeBeanKey,ManyFieldTypeBean> manyFieldTypeBean = register(
-			NodeFactory.newHibernate(client_drTest0, ManyFieldTypeBean.class, this));
+			HibernateNodeFactory.newHibernate(client_drTest0, ManyFieldTypeBean.class, this));
 
 	private IndexedSortedStorageNode<SortedBeanKey,SortedBean> sortedBean = register(
-			NodeFactory.newHibernate(client_drTest0, SortedBean.class, this));
+			HibernateNodeFactory.newHibernate(client_drTest0, SortedBean.class, this));
 	
 	
 	

@@ -55,7 +55,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	
 	@Override
 	public String getSqlEscaped(){
-		throw new NotImplementedException("and probably never will be");
+		throw new NotImplementedException();
 	};
 	
 
@@ -87,9 +87,15 @@ public class ByteArrayField extends BaseField<byte[]>{
 	}
 	
 	@Override
-	public byte[] fromBytesButDoNotSet(byte[] bytes, int offset){
+	public byte[] fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
 		int numBytes = numBytesWithSeparator(bytes, offset) - 4;
 		return ByteTool.flipToAndFromComparableByteArray(bytes, offset + 4, numBytes);
+	}
+	
+	@Override
+	public byte[] fromBytesButDoNotSet(byte[] bytes, int byteOffset){
+		int length = numBytesWithSeparator(bytes, byteOffset) - 1;
+		return ByteTool.flipToAndFromComparableByteArray(bytes, byteOffset, length);
 	}
 
 }

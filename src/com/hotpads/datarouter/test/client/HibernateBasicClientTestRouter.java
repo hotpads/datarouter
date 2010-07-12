@@ -2,7 +2,7 @@ package com.hotpads.datarouter.test.client;
 import java.io.IOException;
 
 import com.google.inject.Singleton;
-import com.hotpads.datarouter.node.NodeFactory;
+import com.hotpads.datarouter.node.HibernateNodeFactory;
 import com.hotpads.datarouter.node.op.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -37,7 +37,7 @@ extends BaseDataRouter implements BasicClientTestRouter{
 	/********************************** nodes **********************************/
 	
 	private MapStorageNode<TxnBeanKey,TxnBean> txnBean = register(
-			NodeFactory.newHibernate(client_drTest0, TxnBean.class, this));
+			HibernateNodeFactory.newHibernate(client_drTest0, TxnBean.class, this));
 	
 	
 	

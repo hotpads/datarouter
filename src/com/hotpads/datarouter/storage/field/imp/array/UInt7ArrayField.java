@@ -8,6 +8,7 @@ import java.util.List;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
@@ -67,14 +68,20 @@ public class UInt7ArrayField extends BaseField<List<Byte>>{
 	}
 	
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return IntegerByteTool.fromUInt31Bytes(bytes, offset);
+	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
+		return IntegerByteTool.fromUInt31Bytes(bytes, byteOffset);
 	}
 	
 	@Override
-	public List<Byte> fromBytesButDoNotSet(byte[] bytes, int offset){
-		int numBytes = numBytesWithSeparator(bytes, offset) - 4;
-		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, offset + 4, numBytes));
+	public List<Byte> fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
+		int numBytes = numBytesWithSeparator(bytes, byteOffset) - 4;
+		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset + 4, numBytes));
+	}
+	
+	@Override
+	public List<Byte> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
+		int numBytes = ArrayTool.length(bytes) - byteOffset;
+		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset, numBytes));
 	}
 
 }

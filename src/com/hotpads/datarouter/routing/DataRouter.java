@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.app.App;
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Node;
@@ -19,6 +20,7 @@ public interface DataRouter {
 	/********************************* methods *************************************/
 
 	String getConfigLocation();
+	RouterOptions getClientOptions();
 
 	void setClients(Clients clients);
 

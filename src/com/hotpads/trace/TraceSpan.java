@@ -1,5 +1,6 @@
 package com.hotpads.trace;
 
+import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -12,6 +13,11 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
+import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.trace.key.TraceSpanKey;
 import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.util.core.IterableTool;
@@ -43,7 +49,18 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey>{
 		COL_parentSequence = "parentSequence",
 		COL_name = "name",
 		COL_created = "created",
-		COL_duration = "duration";
+		COL_duration = "duration",
+		COL_durationNano = "durationNano";
+
+	@Override
+	public List<Field<?>> getNonKeyFields(){
+		return FieldTool.createList(
+				new UInt31Field(COL_parentSequence, this.parentSequence),
+				new StringField(COL_name, this.name),
+				new UInt63Field(COL_created, this.created),
+				new UInt63Field(COL_duration, this.duration),
+				new UInt63Field(COL_durationNano, this.durationNano));
+	}
 	
 	
 	/*********************** constructor **********************************/

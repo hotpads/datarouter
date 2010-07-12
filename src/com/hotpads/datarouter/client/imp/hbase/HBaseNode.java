@@ -51,6 +51,9 @@ implements MapStorageNode<PK,D>
 	
 	/************************************ MapStorageWriter methods ****************************/
 	
+	public static final byte[] FAM = HBaseClientFactory.DEFAULT_FAMILY_QUALIFIER;
+	
+	
 	@Override
 	public void put(final D databean, final Config config) {
 		if(databean==null){ return; }
@@ -58,7 +61,7 @@ implements MapStorageNode<PK,D>
 		Put put = new Put(databean.getKey().getBytes());
 		for(Field<?> field : databean.getNonKeyFields()){
 			//TODO only put modified fields
-			put.add(new byte[0], field.getMicroNameBytes(), field.getBytes());
+			put.add(FAM, field.getMicroNameBytes(), field.getBytes());
 		}
 		HTable hTable = checkOutHTable();
 		try{
@@ -81,7 +84,7 @@ implements MapStorageNode<PK,D>
 			Put put = new Put(databean.getKey().getBytes());
 			for(Field<?> field : databean.getNonKeyFields()){
 				//TODO only put modified fields
-				put.add(new byte[0], field.getMicroNameBytes(), field.getBytes());
+				put.add(FAM, field.getMicroNameBytes(), field.getBytes());
 			}
 			puts.add(put);
 		}

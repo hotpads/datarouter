@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client;
 
+import com.hotpads.datarouter.client.imp.hbase.HBaseClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientFactory;
 import com.hotpads.datarouter.storage.StorageType;
 
@@ -13,6 +14,10 @@ public enum ClientType {
 	
 	bdb(StorageType.indexed),
 	bdbJe(StorageType.indexed),
+	
+	hbase(StorageType.sortedMap),
+	cassandra(StorageType.sortedMap),
+	hypertable(StorageType.sortedMap),
 	
 	jdbc(StorageType.column),
 	hibernate(StorageType.column),
@@ -38,7 +43,8 @@ public enum ClientType {
 	}
 	
 	public ClientFactory getClientFactory(){
-		if(hibernate.equals(this)){ return new HibernateClientFactory(); }
+		if(hbase==this){ return new HBaseClientFactory(); }
+		if(hibernate==this){ return new HibernateClientFactory(); }
 		return null;
 		
 	}

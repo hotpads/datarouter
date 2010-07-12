@@ -26,12 +26,12 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.bytes.StringByteTool;
 
 public class HBaseReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 extends BasePhysicalNode<PK,D>
 implements PhysicalNode<PK,D>
 			,MapStorageReaderNode<PK,D>
+//			,SortedStorageReadOps<PK,D>
 {
 	protected Logger logger = Logger.getLogger(getClass());
 	
@@ -71,7 +71,7 @@ implements PhysicalNode<PK,D>
 	}
 
 	public HTable checkOutHTable(){
-		return this.getClient().checkOutHTable(StringByteTool.getUtf8Bytes(this.getTableName()));
+		return this.getClient().checkOutHTable(this.getTableName());
 	}
 	
 	public void checkInHTable(HTable hTable){
