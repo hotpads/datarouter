@@ -8,10 +8,10 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
+import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
@@ -21,16 +21,27 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
+import com.hotpads.util.core.exception.NotImplementedException;
 
 public class ManyFieldTypeIntegrationTests {
 	
+	static ClientType clientType;
 	static BasicNodeTestRouter router;
 	static List<ManyFieldTypeBeanKey> keys = ListTool.create();
 	
 	@BeforeClass
 	public static void init() throws IOException{
-		Injector injector = Guice.createInjector();
-		router = injector.getInstance(BasicNodeTestRouter.class);
+		
+		clientType = ClientType.hbase;
+		
+		String manyFieldClient = null;
+		if(clientType==ClientType.hibernate){ manyFieldClient = DRTestConstants.CLIENT_drTestHibernate0; }
+		else if(clientType==ClientType.hbase){ manyFieldClient = DRTestConstants.CLIENT_drTestHBase; }
+		else{ throw new IllegalArgumentException("manyField clientType="+clientType+" not found"); }
+		
+		router = new BasicNodeTestRouter(
+				manyFieldClient, 
+				DRTestConstants.CLIENT_drTestHibernate0);
 		
 		router.manyFieldTypeBean().deleteAll(null);
 		Assert.assertEquals(0, CollectionTool.size(router.manyFieldTypeBean().getAll(null)));
@@ -82,7 +93,15 @@ public class ManyFieldTypeIntegrationTests {
 			++exceptions;
 			router.manyFieldTypeBean().put(bean, new Config().setPutMethod(PutMethod.INSERT_OR_UPDATE));
 		}
-		Assert.assertEquals(1, exceptions);
+		int expectedExceptions;
+		if(clientType==ClientType.hibernate){
+			expectedExceptions = 1;
+		}else if(clientType==ClientType.hbase){
+			expectedExceptions = 0;
+		}else{
+			throw new NotImplementedException("test needs a case for this clientType="+clientType); 
+		}
+		Assert.assertEquals(expectedExceptions, exceptions);
 		roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertEquals(bean.getIntegerField(), roundTripped.getIntegerField());
 		Assert.assertTrue(roundTripped.getIntegerField().equals(-77));
@@ -162,8 +181,13 @@ public class ManyFieldTypeIntegrationTests {
 		router.manyFieldTypeBean().put(bean, null);
 		
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
-		Assert.assertFalse(bean.getStringField().equals(roundTripped.getStringField()));
-		Assert.assertFalse(val.equals(roundTripped.getCharacterField()));//false if MySQL set to latin-1
+		if(ClientType.hibernate==clientType){//we're expecting the db to be in ASCII mode and strip out that weird character
+			Assert.assertFalse(bean.getStringField().equals(roundTripped.getStringField()));
+		}else if(ClientType.hbase==clientType){//byte arrays should handle any string
+			Assert.assertTrue(bean.getStringField().equals(roundTripped.getStringField()));
+		}else{
+			throw new NotImplementedException("test needs a case for this clientType="+clientType); 
+		}
 		String roundTrippedByteString = new String(roundTripped.getStringByteField(), StringByteTool.CHARSET_UTF8);
 		Assert.assertEquals(val, roundTrippedByteString);
 		keys.add(bean.getKey());

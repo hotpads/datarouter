@@ -16,10 +16,8 @@ import com.hotpads.datarouter.node.op.MapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
@@ -58,21 +56,7 @@ implements MapStorageNode<PK,D>
 	@Override
 	public void put(final D databean, final Config config) {
 		if(databean==null){ return; }
-		TraceContext.startSpan(getName()+" put");
-		Put put = new Put(databean.getKey().getBytes());
-		for(Field<?> field : databean.getNonKeyFields()){
-			//TODO only put modified fields
-			put.add(FAM, field.getMicroNameBytes(), field.getBytes());
-		}
-		HTable hTable = checkOutHTable();
-		try{
-			hTable.put(put);
-		}catch(IOException e){
-			throw new DataAccessException(e);
-		}finally{
-			checkInHTable(hTable);//TODO wrap in executor to handle plumbing
-			TraceContext.finishSpan();
-		}
+		putMulti(ListTool.wrap(databean), config);
 	}
 
 	
@@ -80,20 +64,29 @@ implements MapStorageNode<PK,D>
 	public void putMulti(Collection<D> databeans, final Config config) {
 		if(CollectionTool.isEmpty(databeans)){ return; }
 		TraceContext.startSpan(getName()+" putMulti");
-		List<Put> puts = ListTool.createArrayListWithSize(databeans);
+		List<Put> puts = ListTool.createLinkedList();
+		ArrayList<Delete> deletes = ListTool.createArrayList();//api requires ArrayList
 		for(D databean : databeans){
-			byte[] keyBytes = databean.getKey().getBytes();
+			byte[] keyBytes = databean.getKey().getBytes(false);
 //			logger.warn(this.getTableName()+" "+ByteTool.getBinaryStringBigEndian(keyBytes));
 			Put put = new Put(keyBytes);
+			Delete delete = new Delete(keyBytes);
 			for(Field<?> field : databean.getNonKeyFields()){
 				//TODO only put modified fields
-				put.add(FAM, field.getMicroNameBytes(), field.getBytes());
+				byte[] fieldBytes = field.getBytes();
+				if(fieldBytes==null){
+					delete.deleteColumn(FAM, field.getMicroNameBytes());
+				}else{
+					put.add(FAM, field.getMicroNameBytes(), field.getBytes());
+				}
 			}
-			puts.add(put);
+			if(!put.isEmpty()){ puts.add(put); }
+			if(!delete.isEmpty()){ deletes.add(delete); }
 		}
 		HTable hTable = checkOutHTable();
 		try{
-			hTable.put(puts);
+			if(CollectionTool.notEmpty(puts)){ hTable.put(puts); }
+			if(CollectionTool.notEmpty(deletes)){ hTable.delete(deletes); }
 		}catch(IOException e){
 			throw new DataAccessException(e);
 		}finally{
@@ -106,9 +99,10 @@ implements MapStorageNode<PK,D>
 	public void deleteAll(final Config config) {
 		TraceContext.startSpan(getName()+" deleteAll");
 		try{
-			//TODO make this reasonable... use an iterator
-			List<D> all = this.getAll(null);
-			this.deleteMulti(KeyTool.getKeys(all), null);
+			Iterable<D> iterable = this.scan(null, true, null, true, null);
+			for(D d : iterable){
+				this.delete(d.getKey(), null);
+			}
 		}finally{
 			TraceContext.finishSpan();
 		}
@@ -126,9 +120,9 @@ implements MapStorageNode<PK,D>
 	public void deleteMulti(final Collection<PK> keys, final Config config){
 		if(CollectionTool.isEmpty(keys)){ return; }
 		TraceContext.startSpan(getName()+" deleteMulti");
-		ArrayList<Delete> deletes = ListTool.createArrayListWithSize(keys);
+		ArrayList<Delete> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList
 		for(PK key : keys){
-			Delete delete = new Delete(key.getBytes());
+			Delete delete = new Delete(key.getBytes(false));
 			deletes.add(delete);
 		}
 		HTable hTable = checkOutHTable();

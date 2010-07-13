@@ -24,7 +24,7 @@ public class MultiInsertRollback extends BaseParallelHibernateTxnApp<Void>{
 	}
 	@Override
 	public List<String> getClientNames() {
-		return ListTool.wrap(DRTestConstants.CLIENT_drTest0);
+		return ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0);
 	}
 	@Override
 	public Void runOncePerClient(Client client){

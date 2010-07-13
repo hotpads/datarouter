@@ -31,7 +31,7 @@ extends BaseDataRouter implements BasicClientTestRouter{
 	/********************************** client names **********************************/
 	
 	public static final String 
-		client_drTest0 = DRTestConstants.CLIENT_drTest0;
+		client_drTest0 = DRTestConstants.CLIENT_drTestHibernate0;
 
 	
 	/********************************** nodes **********************************/

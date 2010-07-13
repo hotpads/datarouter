@@ -3,7 +3,6 @@ package com.hotpads.datarouter.serialize;
 
 public interface ByteAware{
 
-	byte[] getBytes();
-	
+	byte[] getBytes(boolean allowNulls); //mostly for compound keys
 	
 }

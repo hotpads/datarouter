@@ -84,13 +84,16 @@ public class FieldSetTool{
 
 	/**************************** bytes ******************/
 	
-	public static byte[] getBytes(Collection<Field<?>> fields){
+	public static byte[] getBytes(Collection<Field<?>> fields, boolean allowNulls){
 		if(CollectionTool.size(fields)==1){ return CollectionTool.getFirst(fields).getBytes(); }
-		if(CollectionTool.isEmpty(fields)){ return new byte[0]; }
+		if(CollectionTool.isEmpty(fields)){ return null; }
 		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.size(fields)][];
 		int fieldIdx=-1;
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			++fieldIdx;
+			if(!allowNulls && field.getValue()==null){
+				throw new IllegalArgumentException("field:"+field.getName()+" cannot be null in");
+			}
 			fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
 		}
 		return ByteTool.concatenate(fieldArraysWithSeparators);

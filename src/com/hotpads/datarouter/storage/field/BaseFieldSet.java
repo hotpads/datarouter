@@ -137,8 +137,12 @@ public abstract class BaseFieldSet implements FieldSet{
 	/**************************** bytes ******************/
 	
 	@Override
-	public byte[] getBytes(){
-		return FieldSetTool.getBytes(this.getFields());
+	public byte[] getBytes(boolean allowNulls){
+		try{
+			return FieldSetTool.getBytes(this.getFields(), allowNulls);
+		}catch(IllegalArgumentException e){
+			throw new IllegalArgumentException("error on getBytes(allowNulls="+allowNulls+") for "+this.toString());
+		}
 	}
 	
 	

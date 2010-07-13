@@ -60,7 +60,7 @@ public class CharacterField extends PrimitiveField<Character>{
 		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{StringField.SEPARATOR}; }
 		byte[] allBytes = new byte[dataBytes.length+1];
 		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
-		allBytes[allBytes.length-1] = 0;//Ascii "null" will compare first in lexicographical bytes comparison
+		allBytes[allBytes.length-1] = StringField.SEPARATOR;
 		return allBytes;
 	}
 	
@@ -76,8 +76,8 @@ public class CharacterField extends PrimitiveField<Character>{
 	
 	@Override
 	public Character fromBytesButDoNotSet(byte[] bytes, int offset){
-		int length = numBytesWithSeparator(bytes, offset) - 1;
-		return new String(bytes, offset + 1, length, StringByteTool.CHARSET_UTF8).charAt(0);
+		int length = bytes.length - offset;
+		return new String(bytes, offset, length, StringByteTool.CHARSET_UTF8).charAt(0);
 	}
 
 }

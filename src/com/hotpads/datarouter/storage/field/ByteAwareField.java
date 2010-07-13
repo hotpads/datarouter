@@ -8,10 +8,10 @@ public interface ByteAwareField<T>{
 	boolean isFixedLength();
 	
 	byte[] getBytes();
-	byte[] getBytesWithSeparator();
-
-	int numBytesWithSeparator(byte[] bytes, int byteOffset);
 	T fromBytesButDoNotSet(byte[] bytes, int byteOffset);
+	
+	int numBytesWithSeparator(byte[] bytes, int byteOffset);
+	byte[] getBytesWithSeparator();
 	T fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset);
 	
 }

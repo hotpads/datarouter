@@ -20,6 +20,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
 import com.hotpads.datarouter.node.op.MapStorageReaderNode;
 import com.hotpads.datarouter.node.op.SortedStorageReaderNode;
+import com.hotpads.datarouter.node.scanner.Scanner;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -37,6 +38,8 @@ implements PhysicalNode<PK,D>
 			,SortedStorageReaderNode<PK,D>
 {
 	protected Logger logger = Logger.getLogger(getClass());
+	
+	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
 	
 	/******************************* constructors ************************************/
 
@@ -95,7 +98,7 @@ implements PhysicalNode<PK,D>
 		TraceContext.startSpan(getName()+" get");
 		HTable hTable = checkOutHTable();
 		try{
-			Result row = hTable.get(new Get(key.getBytes()));
+			Result row = hTable.get(new Get(key.getBytes(false)));
 			if(row.isEmpty()){ return null; }
 			D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
 			return result;
@@ -140,7 +143,7 @@ implements PhysicalNode<PK,D>
 		try{
 			List<D> results = ListTool.createArrayListWithSize(keys);
 			for(PK key : keys){
-				Result row = hTable.get(new Get(key.getBytes()));
+				Result row = hTable.get(new Get(key.getBytes(false)));
 				if(row.isEmpty()){ continue; }
 				D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
 				results.add(result);
@@ -162,7 +165,7 @@ implements PhysicalNode<PK,D>
 		try{
 			List<PK> results = ListTool.createArrayListWithSize(keys);
 			for(PK key : keys){
-				Get get = new Get(key.getBytes());
+				Get get = new Get(key.getBytes(false));
 				get.setFilter(new FirstKeyOnlyFilter());//make sure first column in row is not something big
 				Result row = hTable.get(get);
 				if(row.isEmpty()){ continue; }
@@ -225,7 +228,24 @@ implements PhysicalNode<PK,D>
 
 	@Override
 	public List<D> getRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
-		throw new NotImplementedException();
+		TraceContext.startSpan(getName()+" getRange");
+		HTable hTable = checkOutHTable();
+		try{
+			Scan scan = HBaseQueryBuilder.getRangeScanner(start, startInclusive, end, endInclusive, config);
+			List<D> results = ListTool.createArrayList(scan.getCaching());
+			ResultScanner scanner = hTable.getScanner(scan);
+			for(Result row : scanner){
+				if(row.isEmpty()){ continue; }
+				D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
+				results.add(result);
+			}
+			return results;
+		}catch(IOException e){
+			throw new DataAccessException(e);
+		}finally{
+			checkInHTable(hTable);//TODO wrap in executor to handle plumbing
+			TraceContext.finishSpan();
+		}
 	}
 	
 	@Override
@@ -241,7 +261,8 @@ implements PhysicalNode<PK,D>
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config config){
-		throw new NotImplementedException();
+		return new Scanner<PK,D>(this, start, startInclusive, end, endInclusive, 
+				config, DEFAULT_ITERATE_BATCH_SIZE);
 	}
 			
 	

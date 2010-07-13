@@ -50,10 +50,10 @@ public abstract class BaseField<T> implements Field<T>{
 		return StringByteTool.getUtf8Bytes(this.getName());//TODO get micro name
 	}
 	
-	@Override
-	public byte[] getBytes(){
-		throw new NotImplementedException("still waiting on float and double serialization");	
-	};
+//	@Override
+//	public byte[] getBytes(){
+//		throw new NotImplementedException("still waiting on float and double serialization");	
+//	};
 	
 	@Override
 	public boolean isFixedLength(){

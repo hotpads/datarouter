@@ -61,7 +61,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 
 	@Override
 	public byte[] getBytes(){
-		return this.value;
+		return value==null?null:ByteTool.flipToAndFromComparableByteArray(this.value);
 	}
 	
 	@Override
@@ -94,7 +94,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	
 	@Override
 	public byte[] fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		int length = numBytesWithSeparator(bytes, byteOffset) - 1;
+		int length = bytes.length - byteOffset;
 		return ByteTool.flipToAndFromComparableByteArray(bytes, byteOffset, length);
 	}
 
