@@ -62,6 +62,7 @@ public class HBaseResultTool{
 				Field<?> field = fieldByName.get(fieldName);
 				if(field==null){ continue; }
 				//someListener.handleUnmappedColumn(.....
+				if(ArrayTool.isEmpty(latestValue)){ continue; }
 				Object value = field.fromBytesButDoNotSet(latestValue, 0);
 				field.setUsingReflection(databean, value, false);
 			}

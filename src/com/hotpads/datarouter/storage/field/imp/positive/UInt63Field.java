@@ -75,7 +75,7 @@ public class UInt63Field extends PrimitiveField<Long>{
 
 	@Override
 	public byte[] getBytes(){
-		return LongByteTool.getUInt63Bytes(value);
+		return value==null?null:LongByteTool.getUInt63Bytes(value);
 	}
 	
 	@Override

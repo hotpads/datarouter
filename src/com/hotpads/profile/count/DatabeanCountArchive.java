@@ -11,10 +11,14 @@ import com.hotpads.util.core.MapTool;
 
 public class DatabeanCountArchive implements CountArchive{
 	
+	String serverName;
+	
 	protected SortedStorageNode<CountKey,Count> node;
 	
-	public DatabeanCountArchive(SortedStorageNode<CountKey,Count> node){
+	public DatabeanCountArchive(SortedStorageNode<CountKey,Count> node,
+			String serverName){
 		this.node = node;
+		this.serverName = serverName;
 	}
 
 	@Override
@@ -34,7 +38,7 @@ public class DatabeanCountArchive implements CountArchive{
 		List<Count> toSave = ListTool.create();
 		for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(countByKey).entrySet()){
 			if(entry.getValue()==null || entry.getValue().equals(0L)){ continue; }
-			toSave.add(new Count(entry.getKey(), periodMs, startTimeMs, entry.getValue().get()));
+			toSave.add(new Count("server", serverName, entry.getKey(), periodMs, startTimeMs, entry.getValue().get()));
 		}
 		node.putMulti(toSave, null);
 	}

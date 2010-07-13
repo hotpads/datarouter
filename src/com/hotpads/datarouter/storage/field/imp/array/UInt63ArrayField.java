@@ -77,7 +77,7 @@ public class UInt63ArrayField extends BaseField<List<Long>>{
 	
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		return IntegerByteTool.fromUInt31Bytes(bytes, byteOffset);
+		return value==null?null:IntegerByteTool.fromUInt31Bytes(bytes, byteOffset);
 	}
 	
 	@Override

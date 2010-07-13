@@ -48,7 +48,7 @@ public class ShortField extends PrimitiveField<Short>{
 	
 	@Override
 	public byte[] getBytes(){
-		return ShortByteTool.getComparableBytes(this.value);
+		return value==null?null:ShortByteTool.getComparableBytes(this.value);
 	}
 	
 	@Override

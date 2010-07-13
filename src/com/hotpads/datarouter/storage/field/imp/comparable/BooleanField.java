@@ -48,7 +48,7 @@ public class BooleanField extends PrimitiveField<Boolean>{
 
 	@Override
 	public byte[] getBytes(){
-		return BooleanByteTool.getBytes(this.value);
+		return value==null?null:BooleanByteTool.getBytes(this.value);
 	}
 	
 	@Override

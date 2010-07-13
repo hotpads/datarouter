@@ -48,7 +48,7 @@ public class DumbDoubleField extends PrimitiveField<Double>{
 
 	@Override
 	public byte[] getBytes(){
-		return DoubleByteTool.getBytes(value);
+		return value==null?null:DoubleByteTool.getBytes(value);
 	}
 	
 	@Override

@@ -45,7 +45,6 @@ public class TraceSpanKey extends BasePrimaryKey<TraceSpanKey>{
 	/****************************** constructor ********************************/
 	
 	TraceSpanKey(){
-		super();
 	}
 	
 	public TraceSpanKey(Long traceId, Long threadId, Integer sequence){

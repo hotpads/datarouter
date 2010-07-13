@@ -62,7 +62,7 @@ public class UInt31Field extends PrimitiveField<Integer>{
 
 	@Override
 	public byte[] getBytes(){
-		return IntegerByteTool.getUInt31Bytes(value);
+		return value==null?null:IntegerByteTool.getUInt31Bytes(value);
 	}
 	
 	@Override

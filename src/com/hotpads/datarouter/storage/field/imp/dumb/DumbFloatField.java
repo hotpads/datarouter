@@ -48,7 +48,7 @@ public class DumbFloatField extends PrimitiveField<Float>{
 
 	@Override
 	public byte[] getBytes(){
-		return FloatByteTool.getBytes(value);
+		return value==null?null:FloatByteTool.getBytes(value);
 	}
 	
 	@Override

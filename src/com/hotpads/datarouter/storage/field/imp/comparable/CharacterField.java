@@ -51,7 +51,7 @@ public class CharacterField extends PrimitiveField<Character>{
 	
 	@Override
 	public byte[] getBytes(){
-		return StringByteTool.getUtf8Bytes(this.value.toString());
+		return value==null?null:StringByteTool.getUtf8Bytes(this.value.toString());
 	}
 	
 	@Override

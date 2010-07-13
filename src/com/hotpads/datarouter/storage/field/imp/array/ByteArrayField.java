@@ -71,7 +71,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	
 	@Override
 	public byte[] getBytesWithSeparator(){
-		if(this.value==null){ return IntegerByteTool.getUInt31Bytes(0); }
+		if(this.value==null){ return null; }
 		//prepend the length as a positive integer (not bitwise comparable =( )
 		//TODO replace with varint
 		byte[] dataBytes = ByteTool.flipToAndFromComparableByteArray(this.value);//TODO write directly to the allBytes array

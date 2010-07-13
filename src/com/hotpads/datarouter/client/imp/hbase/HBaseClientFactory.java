@@ -72,14 +72,18 @@ public class HBaseClientFactory implements ClientFactory{
 		    HBaseAdmin admin = new HBaseAdmin(hbConfig);
 		    
 			//manually delete tables here
+//		    if(admin.tableExists("Trace")){
+//		    	admin.disableTable("Trace");
+//		    	admin.deleteTable("Trace");
+//		    }
 //		    if(admin.tableExists("TraceThread")){
 //		    	admin.disableTable("TraceThread");
 //		    	admin.deleteTable("TraceThread");
 //		    }
-		    if(admin.tableExists("InsertTest3")){
-		    	admin.disableTable("InsertTest3");
-		    	admin.deleteTable("InsertTest3");
-		    }
+//		    if(admin.tableExists("TraceSpan")){
+//		    	admin.disableTable("TraceSpan");
+//		    	admin.deleteTable("TraceSpan");
+//		    }
 		
 			boolean checkTables = options.checkTables();
 			boolean createTables = options.createTables();

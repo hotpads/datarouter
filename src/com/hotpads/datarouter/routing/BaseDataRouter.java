@@ -79,6 +79,11 @@ public abstract class BaseDataRouter implements DataRouter {
 		return nodes;
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends Node<PK,D>> 
+	N cast(Node<PK,D> in){
+		return (N)in;
+	}
 	
 	/************************************** app wrappers **************************************/
 

@@ -72,6 +72,7 @@ public class TraceThread extends BaseDatabean<TraceThreadKey>{
 	/*********************** constructor **********************************/
 	
 	TraceThread(){
+		this.key = new TraceThreadKey(null, null);
 	}
 	
 	public TraceThread(Long traceId, boolean hasParent){
@@ -217,6 +218,16 @@ public class TraceThread extends BaseDatabean<TraceThreadKey>{
 
 	public void setRunningDurationNano(Long runningDurationNano) {
 		this.runningDurationNano = runningDurationNano;
+	}
+
+
+	public Long getNanoStart(){
+		return nanoStart;
+	}
+
+
+	public void setNanoStart(Long nanoStart){
+		this.nanoStart = nanoStart;
 	}
 	
 }

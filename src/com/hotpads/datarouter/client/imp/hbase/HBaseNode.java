@@ -19,6 +19,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
+import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
@@ -81,7 +82,9 @@ implements MapStorageNode<PK,D>
 		TraceContext.startSpan(getName()+" putMulti");
 		List<Put> puts = ListTool.createArrayListWithSize(databeans);
 		for(D databean : databeans){
-			Put put = new Put(databean.getKey().getBytes());
+			byte[] keyBytes = databean.getKey().getBytes();
+//			logger.warn(this.getTableName()+" "+ByteTool.getBinaryStringBigEndian(keyBytes));
+			Put put = new Put(keyBytes);
 			for(Field<?> field : databean.getNonKeyFields()){
 				//TODO only put modified fields
 				put.add(FAM, field.getMicroNameBytes(), field.getBytes());
@@ -119,13 +122,6 @@ implements MapStorageNode<PK,D>
 		TraceContext.finishSpan();
 	}
 
-	/*
-	 * deleting 1000 rows by PK from a table with no indexes takes 200ms when executed as one statement
-	 *  and 600ms when executed as 1000 batch deletes in a transaction
-	 *  
-	 * make sure MySQL's max packet size is big.  it may default to 1MB... set to like 64MB
-	 * 
-	 */
 	@Override
 	public void deleteMulti(final Collection<PK> keys, final Config config){
 		if(CollectionTool.isEmpty(keys)){ return; }
@@ -146,5 +142,4 @@ implements MapStorageNode<PK,D>
 		}
 	}
 
-	
 }

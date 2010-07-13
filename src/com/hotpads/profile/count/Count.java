@@ -21,7 +21,7 @@ public class Count extends BaseDatabean<CountKey>{
 	/**************************** columns *******************************/
 	
 	public static final String
-		KEY_key = "key",
+		KEY_NAME = "key",
 		COL_value = "value";
 	
 	
@@ -30,8 +30,8 @@ public class Count extends BaseDatabean<CountKey>{
 	Count(){
 	}
 	
-	public Count(String name, Long periodMs, Long startTimeMs, Long value){
-		this.key = new CountKey(name, periodMs, startTimeMs);
+	public Count(String group, String source, String name, Long periodMs, Long startTimeMs, Long value){
+		this.key = new CountKey(group, source, name, periodMs, startTimeMs);
 		this.value = value;
 	}
 	
@@ -86,6 +86,22 @@ public class Count extends BaseDatabean<CountKey>{
 
 	public void setName(String name){
 		key.setName(name);
+	}
+
+	public String getGroup(){
+		return key.getGroup();
+	}
+
+	public String getSource(){
+		return key.getSource();
+	}
+
+	public void setGroup(String group){
+		key.setGroup(group);
+	}
+
+	public void setSource(String source){
+		key.setSource(source);
 	}
 
 	

@@ -75,12 +75,16 @@ public class StringField extends BaseField<String>{
 	
 	@Override
 	public byte[] getBytes(){
-		return StringByteTool.getUtf8Bytes(this.value);
+		byte[] bytes = StringByteTool.getUtf8Bytes(this.value);
+		return bytes;
 	}
 	
 	@Override
 	public byte[] getBytesWithSeparator(){
 		byte[] dataBytes = getBytes();
+		if(ArrayTool.containsUnsorted(dataBytes, SEPARATOR)){
+			throw new IllegalArgumentException("String cannot contain separator byteVal="+SEPARATOR);
+		}
 		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{SEPARATOR}; }
 		byte[] allBytes = new byte[dataBytes.length+1];
 		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);

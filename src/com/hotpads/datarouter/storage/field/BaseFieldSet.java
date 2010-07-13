@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.storage.field;
 
-import java.sql.ResultSet;
 import java.util.Iterator;
 import java.util.List;
 

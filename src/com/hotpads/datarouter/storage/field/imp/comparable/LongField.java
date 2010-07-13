@@ -60,7 +60,7 @@ public class LongField extends PrimitiveField<Long>{
 	
 	@Override
 	public byte[] getBytes(){
-		return LongByteTool.getComparableBytes(value);
+		return value==null?null:LongByteTool.getComparableBytes(value);
 	}
 	
 	@Override

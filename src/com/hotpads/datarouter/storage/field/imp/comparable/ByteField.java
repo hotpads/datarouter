@@ -48,7 +48,7 @@ public class ByteField extends PrimitiveField<Byte>{
 	
 	@Override
 	public byte[] getBytes(){
-		return ByteTool.getComparableBytes(value);
+		return value==null?null:ByteTool.getComparableBytes(value);
 	}
 	
 	@Override
