@@ -4,8 +4,9 @@ import java.io.IOException;
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeFactory;
-import com.hotpads.datarouter.node.op.IndexedSortedStorageNode;
+import com.hotpads.datarouter.node.op.IndexedStorageNode;
 import com.hotpads.datarouter.node.op.MapStorageNode;
+import com.hotpads.datarouter.node.op.SortedStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
@@ -20,14 +21,11 @@ extends BaseDataRouter{
 
 	public static final String name = "basicNodeTest";
 	
-	public BasicNodeTestRouter(String manyFieldTypeBeanClient, String sortedBeanClient) throws IOException{
+	public BasicNodeTestRouter(String client) throws IOException{
 		super(name);
 		
-		manyFieldTypeBeanNode = register(NodeFactory.create(manyFieldTypeBeanClient, ManyFieldTypeBean.class, this));
-		manyFieldTypeBean = cast(manyFieldTypeBeanNode);
-
-		sortedBeanNode = register(NodeFactory.create(sortedBeanClient, SortedBean.class, this));
-		sortedBean = cast(sortedBeanNode);
+		manyFieldTypeBeanNode = register(NodeFactory.create(client, ManyFieldTypeBean.class, this));
+		sortedBeanNode = register(NodeFactory.create(client, SortedBean.class, this));
 		
 		activate();//do after field inits
 	}
@@ -44,10 +42,7 @@ extends BaseDataRouter{
 	/********************************** nodes **********************************/
 	
 	protected Node<ManyFieldTypeBeanKey,ManyFieldTypeBean> manyFieldTypeBeanNode;
-	protected MapStorageNode<ManyFieldTypeBeanKey,ManyFieldTypeBean> manyFieldTypeBean;
-
 	protected Node<SortedBeanKey,SortedBean> sortedBeanNode;
-	protected IndexedSortedStorageNode<SortedBeanKey,SortedBean> sortedBean;
 	
 	
 	
@@ -56,12 +51,33 @@ extends BaseDataRouter{
 
 
 	public MapStorageNode<ManyFieldTypeBeanKey,ManyFieldTypeBean> manyFieldTypeBean() {
-		return manyFieldTypeBean;
+		return cast(manyFieldTypeBeanNode);
 	}
 
-	public IndexedSortedStorageNode<SortedBeanKey,SortedBean> sortedBean(){
-		return sortedBean;
+	public MapStorageNode<SortedBeanKey,SortedBean> sortedBean(){
+		return cast(sortedBeanNode);
 	}
+	
+	public static class SortedBasicNodeTestRouter extends BasicNodeTestRouter{
+		public SortedBasicNodeTestRouter(String client) throws IOException{
+			super(client);
+		}
+		public SortedStorageNode<SortedBeanKey,SortedBean> sortedBeanSorted(){
+			return cast(sortedBeanNode);
+		}
+	}
+	
+	public static class IndexedBasicNodeTestRouter extends BasicNodeTestRouter{
+		public IndexedBasicNodeTestRouter(String client) throws IOException{
+			super(client);
+		}
+		public IndexedStorageNode<SortedBeanKey,SortedBean> sortedBeanIndexed(){
+			return cast(sortedBeanNode);
+		}
+	}
+
+	
+
 	
 
 }

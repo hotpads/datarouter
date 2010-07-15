@@ -1,12 +1,19 @@
 package com.hotpads.datarouter.test.node.basic.manyfield.test;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.config.Config;
@@ -18,34 +25,65 @@ import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 import com.hotpads.util.core.exception.NotImplementedException;
 
+@RunWith(Parameterized.class)
 public class ManyFieldTypeIntegrationTests {
+	static Logger logger = Logger.getLogger(ManyFieldTypeIntegrationTests.class);
 	
-	static ClientType clientType;
-	static BasicNodeTestRouter router;
-	static List<ManyFieldTypeBeanKey> keys = ListTool.create();
+	/****************************** static ***********************************/
+
+	static Map<ClientType,BasicNodeTestRouter> routerByClientType = MapTool.create();
+	static Map<ClientType,List<ManyFieldTypeBeanKey>> keysByClientType = MapTool.create();
 	
-	@BeforeClass
-	public static void init() throws IOException{
-		
-		clientType = ClientType.hbase;
-		
-		String manyFieldClient = null;
-		if(clientType==ClientType.hibernate){ manyFieldClient = DRTestConstants.CLIENT_drTestHibernate0; }
-		else if(clientType==ClientType.hbase){ manyFieldClient = DRTestConstants.CLIENT_drTestHBase; }
-		else{ throw new IllegalArgumentException("manyField clientType="+clientType+" not found"); }
-		
-		router = new BasicNodeTestRouter(
-				manyFieldClient, 
-				DRTestConstants.CLIENT_drTestHibernate0);
-		
-		router.manyFieldTypeBean().deleteAll(null);
-		Assert.assertEquals(0, CollectionTool.size(router.manyFieldTypeBean().getAll(null)));
+	@Parameters
+	public static Collection<Object[]> parameters(){
+		List<Object[]> clientTypes = ListTool.create();
+		clientTypes.add(new Object[]{ClientType.hibernate});
+//		clientTypes.add(new Object[]{ClientType.hbase});
+		return clientTypes;
 	}
+	
+	/**
+	 * @throws IOException
+	 */
+	@BeforeClass
+	public static void init() throws IOException{	
+
+		BasicNodeTestRouter hibernateRouter = new BasicNodeTestRouter(
+				DRTestConstants.CLIENT_drTestHibernate0);
+		routerByClientType.put(ClientType.hibernate, hibernateRouter);
+		
+		BasicNodeTestRouter hbaseRouter = new BasicNodeTestRouter(
+				DRTestConstants.CLIENT_drTestHBase);
+		routerByClientType.put(ClientType.hbase, hbaseRouter);
+		
+		for(BasicNodeTestRouter router : routerByClientType.values()){
+			router.manyFieldTypeBean().deleteAll(null);
+			Assert.assertEquals(0, CollectionTool.size(router.manyFieldTypeBean().getAll(null)));
+		}
+	}
+	
+	/***************************** fields **************************************/
+	
+	protected ClientType clientType;
+	protected BasicNodeTestRouter router;
+
+	/***************************** constructors **************************************/
+	
+	public ManyFieldTypeIntegrationTests(ClientType clientType){
+		this.clientType = clientType;
+		this.router = routerByClientType.get(clientType);
+		if( ! keysByClientType.containsKey(clientType)){
+			keysByClientType.put(clientType, new LinkedList<ManyFieldTypeBeanKey>());
+		}
+	}
+
+	/***************************** tests **************************************/
 	
 	@Test 
 	public void testByte(){		
@@ -56,7 +94,7 @@ public class ManyFieldTypeIntegrationTests {
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertNotSame(bean, roundTripped);
 		Assert.assertEquals(bean.getByteField(), roundTripped.getByteField());
-		keys.add(bean.getKey());
+		recordKey(bean.getKey());
 	}
 	
 	@Test 
@@ -68,7 +106,7 @@ public class ManyFieldTypeIntegrationTests {
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertNotSame(bean, roundTripped);
 		Assert.assertEquals(bean.getShortField(), roundTripped.getShortField());
-		keys.add(bean.getKey());
+		recordKey(bean.getKey());
 	}
 	
 	@Test 
@@ -105,7 +143,7 @@ public class ManyFieldTypeIntegrationTests {
 		roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertEquals(bean.getIntegerField(), roundTripped.getIntegerField());
 		Assert.assertTrue(roundTripped.getIntegerField().equals(-77));
-		keys.add(bean.getKey());
+		recordKey(bean.getKey());
 	}
 	
 	@Test 
@@ -118,7 +156,7 @@ public class ManyFieldTypeIntegrationTests {
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertEquals(bean.getLongField(), roundTripped.getLongField());
 		Assert.assertTrue(negative6Billion==roundTripped.getLongField());
-		keys.add(bean.getKey());
+		recordKey(bean.getKey());
 	}
 	
 	@Test 
@@ -131,7 +169,7 @@ public class ManyFieldTypeIntegrationTests {
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertEquals(bean.getFloatField(), roundTripped.getFloatField());
 		Assert.assertTrue(val==roundTripped.getFloatField());
-		keys.add(bean.getKey());
+		recordKey(bean.getKey());
 	}
 	
 	@Test 
@@ -144,7 +182,7 @@ public class ManyFieldTypeIntegrationTests {
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertEquals(bean.getDoubleField(), roundTripped.getDoubleField());
 		Assert.assertTrue(val==roundTripped.getDoubleField());
-		keys.add(bean.getKey());
+		recordKey(bean.getKey());
 	}
 	
 	@Test 
@@ -157,7 +195,7 @@ public class ManyFieldTypeIntegrationTests {
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertEquals(bean.getLongDateField(), roundTripped.getLongDateField());
 		Assert.assertTrue(val.equals(roundTripped.getLongDateField()));
-		keys.add(bean.getKey());
+		recordKey(bean.getKey());
 	}
 	
 	@Test 
@@ -169,7 +207,7 @@ public class ManyFieldTypeIntegrationTests {
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertEquals(bean.getCharacterField(), roundTripped.getCharacterField());
 		Assert.assertTrue('Q'==roundTripped.getCharacterField());
-		keys.add(bean.getKey());
+		recordKey(bean.getKey());
 	}
 	
 	@Test 
@@ -190,7 +228,7 @@ public class ManyFieldTypeIntegrationTests {
 		}
 		String roundTrippedByteString = new String(roundTripped.getStringByteField(), StringByteTool.CHARSET_UTF8);
 		Assert.assertEquals(val, roundTrippedByteString);
-		keys.add(bean.getKey());
+		recordKey(bean.getKey());
 	}
 	
 	@Test 
@@ -208,7 +246,7 @@ public class ManyFieldTypeIntegrationTests {
 		
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertArrayEquals(ArrayTool.primitiveLongArray(ids), LongByteTool.fromComparableByteArray(roundTripped.getData()));
-		keys.add(bean.getKey());
+		recordKey(bean.getKey());
 	}
 	
 	@Test 
@@ -220,7 +258,7 @@ public class ManyFieldTypeIntegrationTests {
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertEquals(bean.getIntegerField(), roundTripped.getIntegerField());
 		Assert.assertTrue(7888==roundTripped.getIntegerField());
-		keys.add(bean.getKey());
+		recordKey(bean.getKey());
 	}
 	
 	@Test 
@@ -236,7 +274,7 @@ public class ManyFieldTypeIntegrationTests {
 		
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertTrue(0==ListTool.compare(bean.getLongArrayField(), roundTripped.getLongArrayField()));
-		keys.add(bean.getKey());
+		recordKey(bean.getKey());
 	}
 	
 	@Test 
@@ -249,7 +287,7 @@ public class ManyFieldTypeIntegrationTests {
 		
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertTrue(0==ListTool.compare(bean.getLongArrayField(), roundTripped.getLongArrayField()));
-		keys.add(bean.getKey());
+		recordKey(bean.getKey());
 	}
 	
 	
@@ -258,15 +296,21 @@ public class ManyFieldTypeIntegrationTests {
 	@Test 
 	public void testGetAll(){
 		List<ManyFieldTypeBean> allBeans = router.manyFieldTypeBean().getAll(null);
-		Assert.assertTrue(CollectionTool.sameSize(keys, allBeans));
+		Assert.assertTrue(CollectionTool.sameSize(keysByClientType.get(clientType), allBeans));
 	}
 	
 	@Test
 	public void testGetMulti(){
-		List<ManyFieldTypeBean> allBeans = router.manyFieldTypeBean().getMulti(keys, null);
-		Assert.assertTrue(CollectionTool.sameSize(keys, allBeans));
+		List<ManyFieldTypeBean> allBeans = router.manyFieldTypeBean().getMulti(keysByClientType.get(clientType), null);
+		Assert.assertTrue(CollectionTool.sameSize(keysByClientType.get(clientType), allBeans));
 	}
 	
+	
+	/************************* helpers ********************************************/
+	
+	protected void recordKey(ManyFieldTypeBeanKey key){
+		keysByClientType.get(clientType).add(key);
+	}
 }
 
 

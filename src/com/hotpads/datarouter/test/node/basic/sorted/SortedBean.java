@@ -42,10 +42,10 @@ public class SortedBean extends BaseDatabean<SortedBeanKey>{
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new StringField(COL_f1, this.f1),
-				new LongField(COL_f2, this.f2),
-				new StringField(COL_f3, this.f3),
-				new DumbDoubleField(COL_f4, this.f4));
+				new StringField(COL_f1, f1),
+				new LongField(COL_f2, f2),
+				new StringField(COL_f3, f3),
+				new DumbDoubleField(COL_f4, f4));
 	}
 	
 

@@ -83,16 +83,15 @@ public class HBaseResultTool{
 	}
 
 	public static <PK extends PrimaryKey<PK>> 
-	PK getPrimaryKey(Result row, Class<PK> primaryKeyClass, List<Field<?>> primaryKeyFields){
+	PK getPrimaryKey(byte[] keyBytes, Class<PK> primaryKeyClass, List<Field<?>> primaryKeyFields){
 		PK primaryKey = ReflectionTool.create(primaryKeyClass);
-		byte[] keyBytes = row.getRow();
 		
 		//copied from above
 		int byteOffset = 0;
 		for(Field<?> field : primaryKeyFields){
 			int numBytesWithSeparator = field.numBytesWithSeparator(keyBytes, byteOffset);
 			Object value = field.fromBytesWithSeparatorButDoNotSet(keyBytes, byteOffset);
-			field.setUsingReflection(primaryKey, value, false);
+			field.setUsingReflection(primaryKey, value, true);
 			byteOffset+=numBytesWithSeparator;
 		}
 		

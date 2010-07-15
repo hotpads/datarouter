@@ -39,12 +39,12 @@ public class Count extends BaseDatabean<CountKey>{
 	/************************** databean **************************************/
 	
 	@Override
-	public Class<CountKey> getKeyClass() {
+	public Class<CountKey> getKeyClass(){
 		return CountKey.class;
 	}
 	
 	@Override
-	public CountKey getKey() {
+	public CountKey getKey(){
 		return key;
 	}
 	

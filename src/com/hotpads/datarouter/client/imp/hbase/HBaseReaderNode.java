@@ -28,7 +28,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.PeekableIterable;
 
 public class HBaseReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
@@ -169,7 +168,7 @@ implements PhysicalNode<PK,D>
 				get.setFilter(new FirstKeyOnlyFilter());//make sure first column in row is not something big
 				Result row = hTable.get(get);
 				if(row.isEmpty()){ continue; }
-				PK result = HBaseResultTool.getPrimaryKey(row, primaryKeyClass, primaryKeyFields);
+				PK result = HBaseResultTool.getPrimaryKey(row.getRow(), primaryKeyClass, primaryKeyFields);
 				results.add(result);
 			}
 			return results;
@@ -186,26 +185,38 @@ implements PhysicalNode<PK,D>
 	
 	@Override
 	public PK getFirstKey(Config config){
-		throw new NotImplementedException();
+		Config nsConfig = Config.nullSafe(config).setLimit(1);
+		return CollectionTool.getFirst(
+				getKeysInRange(null, true, null, true, nsConfig));
 	}
 
 	@Override
 	public D getFirst(Config config){
-		throw new NotImplementedException();
+		Config nsConfig = Config.nullSafe(config).setLimit(1);
+		return CollectionTool.getFirst(
+				getRange(null, true, null, true, nsConfig));
 	}
 	
 	@Override
 	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-		TraceContext.startSpan(getName()+" getWithPrefix");
+		return getWithPrefixes(ListTool.wrap(prefix), wildcardLastField, config);
+	}
+
+	@Override
+	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config){
+		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
+		TraceContext.startSpan(getName()+" getWithPrefixes");
 		HTable hTable = checkOutHTable();
 		try{
 			List<D> results = ListTool.createArrayList();
-			Scan scan = HBaseQueryBuilder.getPrefixScanner(prefix, wildcardLastField, config);
-			ResultScanner scanner = hTable.getScanner(scan);
-			for(Result row : scanner){
-				if(row.isEmpty()){ continue; }
-				D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
-				results.add(result);
+			for(PK prefix : prefixes){
+				Scan scan = HBaseQueryBuilder.getPrefixScanner(prefix, wildcardLastField, config);
+				ResultScanner scanner = hTable.getScanner(scan);
+				for(Result row : scanner){
+					if(row.isEmpty()){ continue; }
+					D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
+					results.add(result);
+				}
 			}
 			return results;
 		}catch(IOException e){
@@ -217,13 +228,26 @@ implements PhysicalNode<PK,D>
 	}
 
 	@Override
-	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config){
-		throw new NotImplementedException();
-	}
-
-	@Override
 	public List<PK> getKeysInRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
-		throw new NotImplementedException();
+		TraceContext.startSpan(getName()+" getKeysInRange");
+		HTable hTable = checkOutHTable();
+		try{
+			Scan scan = HBaseQueryBuilder.getRangeScanner(start, startInclusive, end, endInclusive, config);
+			scan.setFilter(new FirstKeyOnlyFilter());
+			List<PK> results = ListTool.createArrayList(scan.getCaching());
+			ResultScanner scanner = hTable.getScanner(scan);
+			for(Result row : scanner){
+				if(row.isEmpty()){ continue; }
+				PK result = HBaseResultTool.getPrimaryKey(row.getRow(), primaryKeyClass, primaryKeyFields);
+				results.add(result);
+			}
+			return results;
+		}catch(IOException e){
+			throw new DataAccessException(e);
+		}finally{
+			checkInHTable(hTable);//TODO wrap in executor to handle plumbing
+			TraceContext.finishSpan();
+		}
 	}
 
 	@Override
@@ -251,9 +275,30 @@ implements PhysicalNode<PK,D>
 	@Override
 	public List<D> getPrefixedRange(
 			final PK prefix, final boolean wildcardLastField, 
-			final PK end, final boolean endInclusive, 
+			final PK start, final boolean startInclusive, 
 			final Config config){
-		throw new NotImplementedException();
+		TraceContext.startSpan(getName()+" getPrefixedRange");
+		HTable hTable = checkOutHTable();
+		try{
+			Scan scan = HBaseQueryBuilder.getPrefixedRangeScanner(
+					prefix, wildcardLastField, 
+					start, startInclusive, 
+					null, true, 
+					config);
+			List<D> results = ListTool.createArrayList(scan.getCaching());
+			ResultScanner scanner = hTable.getScanner(scan);
+			for(Result row : scanner){
+				if(row.isEmpty()){ continue; }
+				D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
+				results.add(result);
+			}
+			return results;
+		}catch(IOException e){
+			throw new DataAccessException(e);
+		}finally{
+			checkInHTable(hTable);//TODO wrap in executor to handle plumbing
+			TraceContext.finishSpan();
+		}
 	}
 
 	@Override
@@ -264,7 +309,7 @@ implements PhysicalNode<PK,D>
 		return new Scanner<PK,D>(this, start, startInclusive, end, endInclusive, 
 				config, DEFAULT_ITERATE_BATCH_SIZE);
 	}
-			
+		
 	
 	
 }

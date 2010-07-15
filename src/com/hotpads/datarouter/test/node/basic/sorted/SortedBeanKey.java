@@ -42,10 +42,10 @@ public class SortedBeanKey extends BasePrimaryKey<SortedBeanKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(SortedBean.KEY_NAME, SortedBeanKey.COL_a, this.a),
-				new StringField(SortedBean.KEY_NAME, SortedBeanKey.COL_b, this.b),
-				new UInt31Field(SortedBean.KEY_NAME, SortedBeanKey.COL_c, this.c),
-				new StringField(SortedBean.KEY_NAME, SortedBeanKey.COL_d, this.d));
+				new StringField(SortedBean.KEY_NAME, COL_a, a),
+				new StringField(SortedBean.KEY_NAME, COL_b, b),
+				new UInt31Field(SortedBean.KEY_NAME, COL_c, c),
+				new StringField(SortedBean.KEY_NAME, COL_d, d));
 	}
 
 

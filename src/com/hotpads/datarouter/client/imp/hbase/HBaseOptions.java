@@ -11,7 +11,7 @@ public class HBaseOptions extends TypedProperties{
 
 	public HBaseOptions(Properties properties, String clientName){
 		super(ListTool.wrap(properties));
-		this.clientPrefix = "client."+clientName+".";
+		this.clientPrefix = "client."+clientName+".hbase.";
 	}
 	
 	public boolean checkTables(){

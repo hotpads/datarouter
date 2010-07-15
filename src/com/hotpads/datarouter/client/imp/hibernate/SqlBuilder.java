@@ -192,6 +192,8 @@ public class SqlBuilder{
 		
 		if(start!=null && end!=null){ sql.append(" and "); }
 		
+//		select a, b, c, d from SortedBean where ((a>='alp')) and (a<='emu' and b is null and c is null and d is null
+		
 		if(end != null && CollectionTool.notEmpty(end.getFields())){
 			sql.append("(");
 			List<Field<?>> endFields = ListTool.createArrayList(end.getFields());

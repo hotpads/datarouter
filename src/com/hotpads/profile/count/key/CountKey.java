@@ -20,17 +20,17 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 
 	/****************************** fields ********************************/
 
+	protected String name;//eg "get Listing" or "rawSearch"
 	protected String group;//eg, "server" or "indexBranch"
 	protected String source;//eg "webhead93" or "0130221"
-	protected String name;//eg "get Listing" or "rawSearch"
 	protected Long periodMs;
 	protected Long startTimeMs;
 	
 	
 	public static final String
+	COL_name = "name",
 		COL_group = "group",
 		COL_source = "source",
-		COL_name = "name",
 		COL_periodMs = "periodMs",
 		COL_startTimeMs = "startTimeMs";
 	
@@ -38,9 +38,9 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
+				new StringField(Count.KEY_NAME, COL_name, name),
 				new StringField(Count.KEY_NAME, COL_group, group),
 				new StringField(Count.KEY_NAME, COL_source, source),
-				new StringField(Count.KEY_NAME, COL_name, name),
 				new UInt63Field(Count.KEY_NAME, COL_periodMs, periodMs),
 				new UInt63Field(Count.KEY_NAME, COL_startTimeMs, startTimeMs));
 	}
@@ -53,13 +53,13 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	}
 	
 
-	public CountKey(String group, String source, String name, Long periodMs, Long startTimeMs){
+	public CountKey(String name, String group, String source, Long periodMs, Long startTimeMs){
 		super();
 		this.group = group;
 		this.source = source;
-		this.name = name;
 		this.periodMs = periodMs;
 		this.startTimeMs = startTimeMs;
+		this.name = name;
 	}
 
 
