@@ -124,6 +124,7 @@ implements PhysicalNode<PK,D>
 				D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
 				results.add(result);
 			}
+			scanner.close();
 			return results;
 		}catch(IOException e){
 			throw new DataAccessException(e);
@@ -217,6 +218,7 @@ implements PhysicalNode<PK,D>
 					D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
 					results.add(result);
 				}
+				scanner.close();
 			}
 			return results;
 		}catch(IOException e){
@@ -241,6 +243,7 @@ implements PhysicalNode<PK,D>
 				PK result = HBaseResultTool.getPrimaryKey(row.getRow(), primaryKeyClass, primaryKeyFields);
 				results.add(result);
 			}
+			scanner.close();
 			return results;
 		}catch(IOException e){
 			throw new DataAccessException(e);
@@ -263,6 +266,7 @@ implements PhysicalNode<PK,D>
 				D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
 				results.add(result);
 			}
+			scanner.close();
 			return results;
 		}catch(IOException e){
 			throw new DataAccessException(e);
@@ -292,6 +296,7 @@ implements PhysicalNode<PK,D>
 				D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
 				results.add(result);
 			}
+			scanner.close();
 			return results;
 		}catch(IOException e){
 			throw new DataAccessException(e);
