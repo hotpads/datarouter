@@ -155,13 +155,13 @@ public class SortedNodeIntegrationTests{
 	/********************** junit methods *********************************************/
 	
 	@Test
-	public void testGetAll(){
+	public synchronized void testGetAll(){
 		List<SortedBean> allBeans = router.sortedBean().getAll(null);
 		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(allBeans));
 	}
 	
 	@Test
-	public void testGetFirstKey(){
+	public synchronized void testGetFirstKey(){
 		SortedBeanKey firstKey = router.sortedBeanSorted().getFirstKey(null);
 		Assert.assertEquals(STRINGS.first(), firstKey.getA());
 		Assert.assertEquals(STRINGS.first(), firstKey.getB());
@@ -170,7 +170,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public void testGetFirst(){
+	public synchronized void testGetFirst(){
 		SortedBean firstBean = router.sortedBeanSorted().getFirst(null);
 		Assert.assertEquals(STRINGS.first(), firstBean.getKey().getA());
 		Assert.assertEquals(STRINGS.first(), firstBean.getKey().getB());
@@ -179,7 +179,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public void testGetWithPrefix(){
+	public synchronized void testGetWithPrefix(){
 		//first 3 fields fixed
 		SortedBeanKey prefix1 = new SortedBeanKey(STRINGS.first(), STRINGS.last(), 2, null);
 		List<SortedBean> result1 = router.sortedBeanSorted().getWithPrefix(prefix1, false, null);
@@ -201,7 +201,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public void testGetWithPrefixes(){
+	public synchronized void testGetWithPrefixes(){
 		SortedBeanKey prefixA = new SortedBeanKey(STRINGS.first(), PREFIX_a, null, null);
 		SortedBeanKey prefixCh = new SortedBeanKey(STRINGS.first(), PREFIX_ch, null, null);
 		List<SortedBeanKey> prefixes = ListTool.create(prefixA, prefixCh);
@@ -214,7 +214,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public void testGetKeysInRange(){
+	public synchronized void testGetKeysInRange(){
 		SortedBeanKey alp1 = new SortedBeanKey(RANGE_alp, null, null, null);
 		SortedBeanKey emu1 = new SortedBeanKey(RANGE_emu, null, null, null);
 		List<SortedBeanKey> result1 = router.sortedBeanSorted().getKeysInRange(
@@ -239,7 +239,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public void testGetInRange(){
+	public synchronized void testGetInRange(){
 		SortedBeanKey alp1 = new SortedBeanKey(RANGE_alp, null, null, null);
 		SortedBeanKey emu1 = new SortedBeanKey(RANGE_emu, null, null, null);
 		List<SortedBean> result1 = router.sortedBeanSorted().getRange(
@@ -264,7 +264,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public void testPrefixedRange(){
+	public synchronized void testPrefixedRange(){
 		SortedBeanKey prefix = new SortedBeanKey(PREFIX_a, null, null, null);
 		SortedBeanKey al = new SortedBeanKey(RANGE_al, null, null, null);
 		List<SortedBean> result1 = router.sortedBeanSorted().getPrefixedRange(
@@ -275,9 +275,7 @@ public class SortedNodeIntegrationTests{
 	}
 
 	@Test
-	public void testDelete(){
-		resetTable(router);
-		
+	public synchronized void testDelete(){
 		int remainingElements = TOTAL_RECORDS;
 		
 		//delete
@@ -304,7 +302,8 @@ public class SortedNodeIntegrationTests{
 		router.sortedBeanSorted().deleteRangeWithPrefix(prefix, true, null);
 		remainingElements -= NUM_PREFIX_a * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(remainingElements, CollectionTool.size(router.sortedBean().getAll(null)));
-		
+
+		resetTable(router);//in case this one doesn't run last
 	}
 	
 }
