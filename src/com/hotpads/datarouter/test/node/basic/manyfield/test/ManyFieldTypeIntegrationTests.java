@@ -20,6 +20,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
+import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
 import com.hotpads.util.core.ArrayTool;
@@ -39,28 +40,27 @@ public class ManyFieldTypeIntegrationTests {
 
 	static Map<ClientType,BasicNodeTestRouter> routerByClientType = MapTool.create();
 	static Map<ClientType,List<ManyFieldTypeBeanKey>> keysByClientType = MapTool.create();
+
 	
 	@Parameters
 	public static Collection<Object[]> parameters(){
-		List<Object[]> clientTypes = ListTool.create();
-		clientTypes.add(new Object[]{ClientType.hibernate});
-//		clientTypes.add(new Object[]{ClientType.hbase});
-		return clientTypes;
+		return DRTestConstants.clientTypeObjectArrays;
 	}
 	
-	/**
-	 * @throws IOException
-	 */
 	@BeforeClass
 	public static void init() throws IOException{	
 
-		BasicNodeTestRouter hibernateRouter = new BasicNodeTestRouter(
-				DRTestConstants.CLIENT_drTestHibernate0);
-		routerByClientType.put(ClientType.hibernate, hibernateRouter);
-		
-		BasicNodeTestRouter hbaseRouter = new BasicNodeTestRouter(
-				DRTestConstants.CLIENT_drTestHBase);
-		routerByClientType.put(ClientType.hbase, hbaseRouter);
+		if(DRTestConstants.clientTypes.contains(ClientType.hibernate)){
+			routerByClientType.put(
+					ClientType.hibernate, 
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0));
+		}
+
+		if(DRTestConstants.clientTypes.contains(ClientType.hbase)){
+			routerByClientType.put(
+					ClientType.hbase, 
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase));
+		}
 		
 		for(BasicNodeTestRouter router : routerByClientType.values()){
 			router.manyFieldTypeBean().deleteAll(null);

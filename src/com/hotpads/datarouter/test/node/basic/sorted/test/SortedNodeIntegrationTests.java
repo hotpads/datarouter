@@ -38,22 +38,23 @@ public class SortedNodeIntegrationTests{
 	
 	@Parameters
 	public static Collection<Object[]> parameters(){
-		List<Object[]> clientTypes = ListTool.create();
-		clientTypes.add(new Object[]{ClientType.hibernate});
-//		clientTypes.add(new Object[]{ClientType.hbase});
-		return clientTypes;
+		return DRTestConstants.clientTypeObjectArrays;
 	}
 	
 	@BeforeClass
 	public static void init() throws IOException{	
 
-		SortedBasicNodeTestRouter hibernateRouter = new SortedBasicNodeTestRouter(
-				DRTestConstants.CLIENT_drTestHibernate0);
-		routerByClientType.put(ClientType.hibernate, hibernateRouter);
-		
-		SortedBasicNodeTestRouter hbaseRouter = new SortedBasicNodeTestRouter(
-				DRTestConstants.CLIENT_drTestHBase);
-		routerByClientType.put(ClientType.hbase, hbaseRouter);
+		if(DRTestConstants.clientTypes.contains(ClientType.hibernate)){
+			routerByClientType.put(
+					ClientType.hibernate, 
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0));
+		}
+
+		if(DRTestConstants.clientTypes.contains(ClientType.hbase)){
+			routerByClientType.put(
+					ClientType.hbase, 
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase));
+		}
 		
 		for(BasicNodeTestRouter router : routerByClientType.values()){
 			resetTable(router);
