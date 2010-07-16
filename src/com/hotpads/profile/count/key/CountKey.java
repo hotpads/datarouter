@@ -14,6 +14,10 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.profile.count.Count;
 
+/**
+ * @author mcorgan
+ *
+ */
 @SuppressWarnings("serial")
 @Embeddable
 public class CountKey extends BasePrimaryKey<CountKey>{
@@ -21,15 +25,15 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	/****************************** fields ********************************/
 
 	protected String name;//eg "get Listing" or "rawSearch"
-	protected String group;//eg, "server" or "indexBranch"
+	protected String sourceType;//eg, "server" or "indexBranch"
 	protected String source;//eg "webhead93" or "0130221"
 	protected Long periodMs;
 	protected Long startTimeMs;
 	
 	
 	public static final String
-	COL_name = "name",
-		COL_group = "group",
+		COL_name = "name",
+		COL_sourceType = "sourceType",
 		COL_source = "source",
 		COL_periodMs = "periodMs",
 		COL_startTimeMs = "startTimeMs";
@@ -39,7 +43,7 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
 				new StringField(Count.KEY_NAME, COL_name, name),
-				new StringField(Count.KEY_NAME, COL_group, group),
+				new StringField(Count.KEY_NAME, COL_sourceType, sourceType),
 				new StringField(Count.KEY_NAME, COL_source, source),
 				new UInt63Field(Count.KEY_NAME, COL_periodMs, periodMs),
 				new UInt63Field(Count.KEY_NAME, COL_startTimeMs, startTimeMs));
@@ -53,13 +57,13 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	}
 	
 
-	public CountKey(String name, String group, String source, Long periodMs, Long startTimeMs){
+	public CountKey(String name, String sourceType, String source, Long periodMs, Long startTimeMs){
 		super();
-		this.group = group;
+		this.name = name;
+		this.sourceType = sourceType;
 		this.source = source;
 		this.periodMs = periodMs;
 		this.startTimeMs = startTimeMs;
-		this.name = name;
 	}
 
 
@@ -90,13 +94,13 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	}
 
 
-	public String getGroup(){
-		return group;
+	public String getSourceType(){
+		return sourceType;
 	}
 
 
-	public void setGroup(String group){
-		this.group = group;
+	public void setSourceType(String sourceType){
+		this.sourceType = sourceType;
 	}
 
 

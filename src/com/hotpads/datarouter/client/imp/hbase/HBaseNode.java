@@ -99,6 +99,7 @@ implements MapStorageNode<PK,D>
 		try{
 			if(CollectionTool.notEmpty(puts)){ hTable.put(puts); }
 			if(CollectionTool.notEmpty(deletes)){ hTable.delete(deletes); }
+			hTable.flushCommits();
 		}catch(IOException e){
 			throw new DataAccessException(e);
 		}finally{
@@ -125,19 +126,7 @@ implements MapStorageNode<PK,D>
 			if(CollectionTool.notEmpty(batchToDelete)){
 				hTable.delete(batchToDelete);
 			}
-				
-//			List<D> batchToDelete = ListTool.createArrayList(1000);
-//			Iterable<D> iterable = this.scan(null, true, null, true, null);
-//			for(D d : iterable){
-//				batchToDelete.add(d);
-//				if(batchToDelete.size() % 1000 == 0){
-//					this.deleteMulti(KeyTool.getKeys(batchToDelete), null);
-//					batchToDelete.clear();
-//				}
-//			}
-//			if(CollectionTool.notEmpty(batchToDelete)){
-//				this.deleteMulti(KeyTool.getKeys(batchToDelete), null);
-//			}
+			hTable.flushCommits();
 		}catch(IOException e){
 			throw new DataAccessException(e);
 		}finally{
@@ -166,6 +155,7 @@ implements MapStorageNode<PK,D>
 		HTable hTable = checkOutHTable();
 		try{
 			hTable.delete(deletes);
+			hTable.flushCommits();
 		}catch(IOException e){
 			throw new DataAccessException(e);
 		}finally{

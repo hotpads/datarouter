@@ -88,16 +88,17 @@ public class Count extends BaseDatabean<CountKey>{
 		key.setName(name);
 	}
 
-	public String getGroup(){
-		return key.getGroup();
+
+	public String getSourceType(){
+		return key.getSourceType();
+	}
+
+	public void setSourceType(String sourceType){
+		key.setSourceType(sourceType);
 	}
 
 	public String getSource(){
 		return key.getSource();
-	}
-
-	public void setGroup(String group){
-		key.setGroup(group);
 	}
 
 	public void setSource(String source){
