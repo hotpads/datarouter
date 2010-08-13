@@ -1,17 +1,14 @@
-package com.hotpads.profile.count;
+package com.hotpads.profile.count.collection;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-public interface Counter {
+public interface CountMap {
 	
-	public abstract long getStartTimeMs();
-	public abstract long getLengthMs();
 	public abstract Map<String,AtomicLong> getCountByKey();
 
 	public abstract long increment(String key);
 	public abstract long increment(String key, long delta);
-	
-	public abstract void merge(Counter other);
+	public abstract AtomicCounter getCounter();
 
 }

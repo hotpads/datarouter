@@ -14,6 +14,10 @@ public class HBaseOptions extends TypedProperties{
 		this.clientPrefix = "client."+clientName+".hbase.";
 	}
 	
+	public String url(){
+		return getString(clientPrefix+"url", "localhost");
+	}
+	
 	public boolean checkTables(){
 		return getBoolean(clientPrefix+"checkTables", false);
 	}
@@ -22,7 +26,7 @@ public class HBaseOptions extends TypedProperties{
 		return getBoolean(clientPrefix+"createTables", false);
 	}
 	
-	public Integer getMinPoolSize(int def){
+	public Integer minPoolSize(int def){
 		return getInteger(clientPrefix+"minPoolSize", def);
 	}
 	

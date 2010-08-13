@@ -108,7 +108,20 @@ public class TraceContext {
 		TraceContext ctx = get();
 		if(ctx==null || ctx.getCurrentSpan()==null){ return; }
 		TraceSpan span = ctx.getCurrentSpan();
-		span.setName(StringTool.nullSafe(span.getName())+text);
+		boolean addSpace = StringTool.notEmpty(span.getName());
+		span.setName(StringTool.nullSafe(span.getName())
+				+(addSpace?" ":"")
+				+text);
+	}
+	
+	public static void appendToSpanInfo(String text){
+		TraceContext ctx = get();
+		if(ctx==null || ctx.getCurrentSpan()==null){ return; }
+		TraceSpan span = ctx.getCurrentSpan();
+		boolean addSpace = StringTool.notEmpty(span.getInfo());
+		span.setInfo(StringTool.nullSafe(span.getInfo())
+				+(addSpace?" ":"")
+				+text);
 	}
 	
 	public static void finishSpan(){

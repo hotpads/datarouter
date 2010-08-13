@@ -1,4 +1,4 @@
-package com.hotpads.profile.count;
+package com.hotpads.profile.count.databean;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -6,61 +6,52 @@ import javax.persistence.Id;
 import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
-import com.hotpads.profile.count.key.CountKey;
+import com.hotpads.profile.count.databean.key.AvailableCounterKey;
 
 @SuppressWarnings("serial")
 @Entity
 @AccessType("field")
-public class Count extends BaseDatabean<CountKey>{
+public class AvailableCounter extends BaseDatabean<AvailableCounterKey>{
 
 	@Id
-	protected CountKey key;
-	protected Long value;
+	protected AvailableCounterKey key;
+	protected Long lastUpdated;
 		
 	
 	/**************************** columns *******************************/
 	
 	public static final String
 		KEY_NAME = "key",
-		COL_value = "value";
+		COL_lastUpdated = "lastUpdated";
 	
 	
 	/*********************** constructor **********************************/
 	
-	Count(){
+	AvailableCounter(){
 	}
 	
-	public Count(String group, String source, String name, Long periodMs, Long startTimeMs, Long value){
-		this.key = new CountKey(group, source, name, periodMs, startTimeMs);
-		this.value = value;
+	public AvailableCounter(String name, String sourceType, String source, Long periodMs, Long lastUpdated){
+		this.key = new AvailableCounterKey(sourceType, source, periodMs, name);
+		this.lastUpdated = lastUpdated;
 	}
 	
 	
 	/************************** databean **************************************/
 	
 	@Override
-	public Class<CountKey> getKeyClass(){
-		return CountKey.class;
+	public Class<AvailableCounterKey> getKeyClass(){
+		return AvailableCounterKey.class;
 	}
 	
 	@Override
-	public CountKey getKey(){
+	public AvailableCounterKey getKey(){
 		return key;
 	}
 	
 	
 	/********************************* get/set ****************************************/
 
-
-	public Long getValue(){
-		return value;
-	}
-
-	public void setValue(Long value){
-		this.value = value;
-	}
-
-	public void setKey(CountKey key){
+	public void setKey(AvailableCounterKey key){
 		this.key = key;
 	}
 
@@ -68,17 +59,10 @@ public class Count extends BaseDatabean<CountKey>{
 		return key.getPeriodMs();
 	}
 
-	public Long getStartTimeMs(){
-		return key.getStartTimeMs();
-	}
-
 	public void setPeriodMs(Long periodMs){
 		key.setPeriodMs(periodMs);
 	}
 
-	public void setStartTimeMs(Long startTimeMs){
-		key.setStartTimeMs(startTimeMs);
-	}
 
 	public String getName(){
 		return key.getName();
@@ -89,20 +73,28 @@ public class Count extends BaseDatabean<CountKey>{
 	}
 
 
-	public String getSourceType(){
-		return key.getSourceType();
-	}
-
-	public void setSourceType(String sourceType){
-		key.setSourceType(sourceType);
-	}
-
 	public String getSource(){
 		return key.getSource();
 	}
 
 	public void setSource(String source){
 		key.setSource(source);
+	}
+
+	public Long getLastUpdated(){
+		return lastUpdated;
+	}
+
+	public void setLastUpdated(Long lastUpdated){
+		this.lastUpdated = lastUpdated;
+	}
+
+	public String getSourceType(){
+		return key.getSourceType();
+	}
+
+	public void setSourceType(String sourceType){
+		key.setSourceType(sourceType);
 	}
 
 	

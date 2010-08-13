@@ -44,6 +44,7 @@ public class HBaseClientFactory implements ClientFactory{
 		PhaseTimer timer = new PhaseTimer(clientName);
 		
 		HBaseConfiguration hbConfig = new HBaseConfiguration();
+		hbConfig.set("hbase.master", options.url());
 		//TODO add custom variables programatically
 
 		//databean config
@@ -112,7 +113,7 @@ public class HBaseClientFactory implements ClientFactory{
 		
 		HTablePool pool = new HTablePool(hbConfig, 
 				tableNames, 
-				options.getMinPoolSize(DEFAULT_minPoolSize));
+				options.minPoolSize(DEFAULT_minPoolSize));
 		
 		
 		return pool;

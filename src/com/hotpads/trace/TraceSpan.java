@@ -36,6 +36,7 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey>{
 	protected String name;
 	protected Long created;
 	protected Long duration;
+	protected String info;
 
 	@Transient 
 	protected Long nanoStart;
@@ -48,6 +49,7 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey>{
 		KEY_key = "key",
 		COL_parentSequence = "parentSequence",
 		COL_name = "name",
+		COL_info = "info",
 		COL_created = "created",
 		COL_duration = "duration",
 		COL_durationNano = "durationNano";
@@ -57,6 +59,7 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey>{
 		return FieldTool.createList(
 				new UInt31Field(COL_parentSequence, this.parentSequence),
 				new StringField(COL_name, this.name),
+				new StringField(COL_info, this.info),
 				new UInt63Field(COL_created, this.created),
 				new UInt63Field(COL_duration, this.duration),
 				new UInt63Field(COL_durationNano, this.durationNano));
@@ -203,6 +206,16 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey>{
 
 	public void setParentSequence(Integer parentSequence){
 		this.parentSequence = parentSequence;
+	}
+
+
+	public String getInfo(){
+		return info;
+	}
+
+
+	public void setInfo(String info){
+		this.info = info;
 	}
 
 	

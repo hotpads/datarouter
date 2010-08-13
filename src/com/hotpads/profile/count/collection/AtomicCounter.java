@@ -1,11 +1,13 @@
-package com.hotpads.profile.count;
+package com.hotpads.profile.count.collection;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class AtomicCounter implements Counter {
+import com.hotpads.util.core.MapTool;
+
+public class AtomicCounter implements CountMapPeriod{
 	
 	long startTimeMs;
 	long lengthMs;
@@ -20,13 +22,13 @@ public class AtomicCounter implements Counter {
 	}
 	
 	@Override
-	public long getLengthMs(){
-		return startTimeMs;
+	public long getPeriodMs(){
+		return lengthMs;
 	}
 
 	@Override
 	public long getStartTimeMs(){
-		return lengthMs;
+		return startTimeMs;
 	}
 
 	@Override
@@ -44,13 +46,11 @@ public class AtomicCounter implements Counter {
 		return getOrCreate(key).getAndAdd(delta);
 	}
 	
-	@Override
-	public void merge(Counter other){
-		if(other.getStartTimeMs() < startTimeMs || other.getStartTimeMs() > lastMs){
-			throw new IllegalArgumentException(other.getStartTimeMs()+" outside the range of this counter ["+startTimeMs+","+lastMs+"]");
-		}
-		for(Map.Entry<String,AtomicLong> entry : other.getCountByKey().entrySet()){
-			getOrCreate(entry.getKey()).getAndAdd(entry.getValue().get());
+	public void merge(CountMap other){
+		for(Map.Entry<String,AtomicLong> otherEntry : MapTool.nullSafe(other.getCountByKey()).entrySet()){
+			AtomicLong existingValue = countByKey.get(otherEntry.getKey());
+			if(existingValue!=null){ existingValue.addAndGet(otherEntry.getValue().longValue()); }
+			else{ countByKey.put(otherEntry.getKey(), otherEntry.getValue()); }
 		}
 	}
 
@@ -60,6 +60,11 @@ public class AtomicCounter implements Counter {
 		AtomicLong newVal = new AtomicLong(0L);//could be wasted
 		AtomicLong existingVal = countByKey.putIfAbsent(key, newVal);
 		return existingVal==null?newVal:existingVal;
+	}
+	
+	@Override
+	public AtomicCounter getCounter(){
+		return this;
 	}
 	
 }

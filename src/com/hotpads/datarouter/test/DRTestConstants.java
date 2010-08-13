@@ -16,7 +16,7 @@ public class DRTestConstants{
 	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
 	static{
 		clientTypes.add(ClientType.hibernate);
-//		clientTypes.add(ClientType.hbase);
+		clientTypes.add(ClientType.hbase);
 		for(ClientType clientType : clientTypes){
 			clientTypeObjectArrays.add(new Object[]{clientType});
 		}

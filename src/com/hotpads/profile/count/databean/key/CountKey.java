@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.hotpads.profile.count.key;
+package com.hotpads.profile.count.databean.key;
 
 import java.util.List;
 
@@ -12,20 +12,16 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.profile.count.Count;
+import com.hotpads.profile.count.databean.Count;
 
-/**
- * @author mcorgan
- *
- */
 @SuppressWarnings("serial")
 @Embeddable
 public class CountKey extends BasePrimaryKey<CountKey>{
 
 	/****************************** fields ********************************/
-
+	
 	protected String name;//eg "get Listing" or "rawSearch"
-	protected String sourceType;//eg, "server" or "indexBranch"
+	protected String sourceType;
 	protected String source;//eg "webhead93" or "0130221"
 	protected Long periodMs;
 	protected Long startTimeMs;
@@ -94,16 +90,6 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	}
 
 
-	public String getSourceType(){
-		return sourceType;
-	}
-
-
-	public void setSourceType(String sourceType){
-		this.sourceType = sourceType;
-	}
-
-
 	public String getSource(){
 		return source;
 	}
@@ -111,6 +97,16 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 
 	public void setSource(String source){
 		this.source = source;
+	}
+
+
+	public String getSourceType(){
+		return sourceType;
+	}
+
+
+	public void setSourceType(String sourceType){
+		this.sourceType = sourceType;
 	}
 		
 }
