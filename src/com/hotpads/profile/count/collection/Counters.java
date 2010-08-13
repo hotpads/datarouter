@@ -26,8 +26,8 @@ public class Counters implements CountMap{
 //		reset(DateTool.MILLISECONDS_IN_HOUR, null);//default to 5s with no persistence
 //	}
 	
-	public static void reset(long rollPeriodMs){
-		counters = new Counters(rollPeriodMs);
+	public static void reset(CountArchive primaryArchive){
+		counters = new Counters(primaryArchive);
 	}
 	
 	public static void disable(){
@@ -52,8 +52,8 @@ public class Counters implements CountMap{
 
 	protected CounterManager manager;
 
-	public Counters(long rollPeriodMs){
-		this.manager = new CounterManager(rollPeriodMs);
+	public Counters(CountArchive primaryArchive){
+		this.manager = new CounterManager(primaryArchive);
 	}
 	
 	public void addArchive(boolean sync, CountArchive archive){

@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.hotpads.datarouter.node.op.SortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
 import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.profile.count.collection.archive.CountArchive;
@@ -14,6 +15,7 @@ import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
 import com.hotpads.profile.count.databean.key.CountKey;
+import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
@@ -22,6 +24,8 @@ public class DatabeanCountArchive implements CountArchive{
 	protected String sourceType;
 	protected String source;
 	protected Long periodMs;
+	protected AtomicCounter aggregator;
+	
 	protected DataRouter router;
 	protected SortedStorageNode<CountKey,Count> countNode;
 	protected SortedStorageNode<AvailableCounterKey,AvailableCounter> availableCounterNode;
@@ -39,6 +43,7 @@ public class DatabeanCountArchive implements CountArchive{
 		this.sourceType = sourceType;
 		this.source = source;
 		this.periodMs = periodMs;
+		this.aggregator = new AtomicCounter(DateTool.getPeriodStart(periodMs), periodMs);
 	}
 
 	@Override
@@ -79,14 +84,21 @@ public class DatabeanCountArchive implements CountArchive{
 
 	@Override
 	public void saveCounts(CountMapPeriod countMap){
-		List<Count> toSave = ListTool.create();
-		for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(countMap.getCountByKey()).entrySet()){
-			if(entry.getValue()==null || entry.getValue().equals(0L)){ continue; }
-			toSave.add(new Count(entry.getKey(), Counters.SOURCE_TYPE_server, source, 
-					periodMs, countMap.getStartTimeMs(), entry.getValue().get()));
+		if(countMap.getStartTimeMs() >= aggregator.getStartTimeMs() + periodMs){//flush the aggregator
+			Atomic
+			synchronized{
+				
+			}
+			List<Count> toSave = ListTool.create();
+			for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(countMap.getCountByKey()).entrySet()){
+				if(entry.getValue()==null || entry.getValue().equals(0L)){ continue; }
+				toSave.add(new Count(entry.getKey(), Counters.SOURCE_TYPE_server, source, 
+						periodMs, countMap.getStartTimeMs(), entry.getValue().get()));
+			}
+			countNode.putMulti(toSave, null);
+			flushAvailableCounters(countMap.getCountByKey());
 		}
-		countNode.putMulti(toSave, null);
-		flushAvailableCounters(countMap.getCountByKey());
+		
 	}
 
 	

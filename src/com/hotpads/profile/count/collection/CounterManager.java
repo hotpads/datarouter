@@ -24,11 +24,13 @@ public class CounterManager implements CountMap{
 	
 	protected CountMapPeriod liveCounter;
 	
+	protected CountArchive primaryArchive;
 	protected List<CountArchive> archives;
 	protected Queue<CountMapPeriod> flushQueue;
 
-	public CounterManager(long periodMs){
-		this.periodMs = periodMs;
+	public CounterManager(CountArchive primaryArchive){
+		this.primaryArchive = primaryArchive;
+		this.periodMs = primaryArchive.getPeriodMs();
 		long now = System.currentTimeMillis();
 		long startTime = now - (now % periodMs);
 		this.liveCounter = new AtomicCounter(startTime, periodMs);
