@@ -48,7 +48,7 @@ public class CounterManager implements CountMap{
 	
 	//TODO better roll-up logic from short counters to longer ones.  not sure if it even makes any sense right now
 	public synchronized void roll(){
-		logger.warn("rolling "+(liveCounter==null?"null":liveCounter.toString()));
+//		logger.warn("rolling "+(liveCounter==null?"null":liveCounter.toString()));
 		
 		//archive the old one
 		CountMapPeriod oldCounter = liveCounter;
@@ -57,7 +57,7 @@ public class CounterManager implements CountMap{
 		if(oldCounter!=null){
 			if(CollectionTool.notEmpty(archives)){
 				flushQueue.offer(oldCounter);
-				logger.warn("persistentFlushQueue.size:"+CollectionTool.size(flushQueue));
+//				logger.warn("persistentFlushQueue.size:"+CollectionTool.size(flushQueue));
 			}
 		}
 		
@@ -75,6 +75,7 @@ public class CounterManager implements CountMap{
 		while(true){
 			CountMapPeriod toFlush = flushQueue.poll();
 			if(toFlush==null){ break; }
+			primaryArchive.saveCounts(toFlush);
 			for(CountArchive archive : IterableTool.nullSafe(this.archives)){
 				archive.saveCounts(toFlush);
 			}
@@ -102,6 +103,11 @@ public class CounterManager implements CountMap{
 	public Map<String,AtomicLong> getCountByKey(){
 		return liveCounter.getCountByKey();
 	}
+	
+	@Override
+	public AtomicCounter deepCopy(){
+		return liveCounter.deepCopy();
+	}
 
 	public Queue<CountMapPeriod> getAsyncFlushQueue(){
 		return flushQueue;
@@ -117,12 +123,17 @@ public class CounterManager implements CountMap{
 
 
 	public List<CountArchive> getArchives(){
-		return archives;
+		List<CountArchive> archivesWithPrimary = ListTool.createLinkedList();
+		if(primaryArchive!=null){
+			archivesWithPrimary.add(primaryArchive);
+		}
+		archivesWithPrimary.addAll(CollectionTool.nullSafe(archives));
+		return archivesWithPrimary;
 	}
 	
 	public Map<String,CountArchive> getArchiveByName(){
 		Map<String,CountArchive> archiveByName = MapTool.createTreeMap();
-		for(CountArchive ca : IterableTool.nullSafe(this.archives)){
+		for(CountArchive ca : IterableTool.nullSafe(getArchives())){//don't forget the primary
 			archiveByName.put(ca.getName(), ca);
 		}
 		return archiveByName;

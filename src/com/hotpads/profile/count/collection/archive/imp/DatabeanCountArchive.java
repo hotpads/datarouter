@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.log4j.Logger;
+
 import com.hotpads.datarouter.node.op.SortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.profile.count.collection.AtomicCounter;
@@ -20,6 +22,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
 public class DatabeanCountArchive implements CountArchive{
+	static Logger logger = Logger.getLogger(DatabeanCountArchive.class);
 	
 	protected String sourceType;
 	protected String source;
@@ -84,21 +87,22 @@ public class DatabeanCountArchive implements CountArchive{
 
 	@Override
 	public void saveCounts(CountMapPeriod countMap){
-		if(countMap.getStartTimeMs() >= aggregator.getStartTimeMs() + periodMs){//flush the aggregator
-			Atomic
-			synchronized{
-				
-			}
+		if(countMap.getStartTimeMs() >= (aggregator.getStartTimeMs() + periodMs)){//flush the aggregator
+//			logger.warn("flushing "+getName());
+			AtomicCounter oldAggregator = aggregator;
+			long periodStart = DateTool.getPeriodStart(countMap.getStartTimeMs(), periodMs);
+			aggregator = new AtomicCounter(periodStart, periodMs);
 			List<Count> toSave = ListTool.create();
-			for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(countMap.getCountByKey()).entrySet()){
+			for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(oldAggregator.getCountByKey()).entrySet()){
 				if(entry.getValue()==null || entry.getValue().equals(0L)){ continue; }
 				toSave.add(new Count(entry.getKey(), Counters.SOURCE_TYPE_server, source, 
-						periodMs, countMap.getStartTimeMs(), entry.getValue().get()));
+						periodMs, periodStart, entry.getValue().get()));
 			}
 			countNode.putMulti(toSave, null);
 			flushAvailableCounters(countMap.getCountByKey());
 		}
-		
+//		logger.warn("merging new counts into "+getName());
+		aggregator.merge(countMap);
 	}
 
 	

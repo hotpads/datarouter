@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.log4j.Logger;
+
+import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
 import com.hotpads.profile.count.collection.archive.CountArchive;
 import com.hotpads.profile.count.databean.AvailableCounter;
@@ -16,6 +19,7 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 
 public class MemoryCountArchive implements CountArchive{
+	static Logger logger = Logger.getLogger(MemoryCountArchive.class);
 	
 	protected Long startTimeMs;
 	protected String sourceType;
@@ -93,10 +97,17 @@ public class MemoryCountArchive implements CountArchive{
 	@Override
 	public void saveCounts(CountMapPeriod countMap){
 		int index = getIndexForMs(countMap.getStartTimeMs());
-		if(archive[index]==null 
-				|| archive[index].getStartTimeMs() != countMap.getStartTimeMs()){
-			archive[index] = countMap;
+		CountMapPeriod existingPeriod = archive[index];
+		long countMapWindowStartMs = getWindowStartMs(countMap.getStartTimeMs());
+		if(existingPeriod==null 
+				|| existingPeriod.getStartTimeMs() < countMapWindowStartMs
+				|| existingPeriod.getStartTimeMs() >= countMapWindowStartMs + periodMs){
+//			logger.warn("flushing "+getName()+"["+countMap.getStartTimeMs()+"->"+index+"]");
+			AtomicCounter newMap = new AtomicCounter(countMapWindowStartMs, periodMs);
+			newMap.merge(countMap);
+			archive[index] = newMap;
 		}else{
+//			logger.warn("merging new counts into "+getName());
 			archive[index].getCounter().merge(countMap);
 		}
 	}

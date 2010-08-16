@@ -50,7 +50,7 @@ public class AtomicCounter implements CountMapPeriod{
 		for(Map.Entry<String,AtomicLong> otherEntry : MapTool.nullSafe(other.getCountByKey()).entrySet()){
 			AtomicLong existingValue = countByKey.get(otherEntry.getKey());
 			if(existingValue!=null){ existingValue.addAndGet(otherEntry.getValue().longValue()); }
-			else{ countByKey.put(otherEntry.getKey(), otherEntry.getValue()); }
+			else{ countByKey.put(otherEntry.getKey(), new AtomicLong(otherEntry.getValue().longValue())); }
 		}
 	}
 
@@ -67,4 +67,11 @@ public class AtomicCounter implements CountMapPeriod{
 		return this;
 	}
 	
+	public AtomicCounter deepCopy(){
+		AtomicCounter copy = new AtomicCounter(startTimeMs, lengthMs);
+		for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(countByKey).entrySet()){
+			copy.countByKey.put(entry.getKey(), new AtomicLong(entry.getValue().longValue()));
+		}
+		return copy;
+	}
 }

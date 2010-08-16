@@ -62,8 +62,27 @@ public class Count extends BaseDatabean<CountKey>{
 		return s.replace("_", " ");
 	}
 	
+	public double getValuePer(String frequency){
+		if("second".equals(frequency)){
+			return getValuePerSecond();
+		}else if("minute".equals(frequency)){
+			return getValuePerMinute();
+		}else if("hour".equals(frequency)){
+			return getValuePerHour();
+		}
+		throw new IllegalArgumentException("unknown frequency: "+frequency);
+	}
+	
 	public double getValuePerSecond(){
-		return ((double)this.value) / (this.getPeriodMs() / 1000);
+		return ((double)value) * 1000 / getPeriodMs();
+	}
+	
+	public double getValuePerMinute(){
+		return ((double)value) * 60000 / getPeriodMs();
+	}
+	
+	public double getValuePerHour(){
+		return ((double)value) * 3600000 / getPeriodMs();
 	}
 	
 	/********************************** static ******************************************/

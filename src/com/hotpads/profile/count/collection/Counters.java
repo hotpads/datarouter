@@ -80,6 +80,11 @@ public class Counters implements CountMap{
 	}
 	
 	@Override
+	public AtomicCounter deepCopy(){
+		return manager.deepCopy();
+	}
+	
+	@Override
 	public Map<String,AtomicLong> getCountByKey(){
 		return manager.getCountByKey();
 	}
@@ -99,7 +104,7 @@ public class Counters implements CountMap{
 	static{
 		memFlushScheduler = Executors.newSingleThreadScheduledExecutor();
 		memFlushScheduler.scheduleAtFixedRate(new PersistentFlusher(), 0, 1, TimeUnit.SECONDS); 
-		logger.warn("scheduler started");
+		logger.warn("Counters Async Flusher started");
 	}
 	
 	public static class PersistentFlusher implements Runnable{
@@ -108,7 +113,7 @@ public class Counters implements CountMap{
 				Thread.currentThread().setName("Counters - AsyncFlusher");
 				if(counters==null){ return; }
 				if(counters.manager==null){ return; }
-				logger.warn("persistentFlush");
+//				logger.warn("persistentFlush");
 				counters.manager.flushToArchives();
 			}catch(Exception e){
 				logger.error(ExceptionTool.getStackTraceAsString(e));
