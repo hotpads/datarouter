@@ -84,9 +84,17 @@ public class DatabeanCountArchive implements CountArchive{
 		List<Count> counts = countNode.getRange(start, true, end, true, null);
 		return counts;
 	}
+	
+	public static final int DISCARD_IF_OLDER_THAN = 300 * 1000;
 
 	@Override
 	public void saveCounts(CountMapPeriod countMap){
+		if(countMap.getStartTimeMs() < (System.currentTimeMillis() - DISCARD_IF_OLDER_THAN)){
+			//don't let them build up in memory for too long (datastore may hiccup)
+			logger.warn("databean count archive flushing too slowly, discarding countMap older than:"+
+					DISCARD_IF_OLDER_THAN+" ms");
+			return;
+		}
 		if(countMap.getStartTimeMs() >= (aggregator.getStartTimeMs() + periodMs)){//flush the aggregator
 //			logger.warn("flushing "+getName());
 			AtomicCounter oldAggregator = aggregator;
