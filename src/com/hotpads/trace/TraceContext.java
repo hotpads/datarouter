@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
@@ -87,6 +88,7 @@ public class TraceContext {
 	/*************** static TraceSpan methods *************************************/
 		
 	public static void startSpan(String name){
+		Counters.inc(name);
 		TraceContext ctx = get();
 		if(ctx==null || ctx.currentThread==null){ return; }
 		Integer parentSequence = null;

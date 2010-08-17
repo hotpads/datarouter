@@ -10,10 +10,14 @@ import javax.persistence.Id;
 import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.XMLStringTool;
 
 @SuppressWarnings("serial")
 @Entity
@@ -30,11 +34,18 @@ public class Count extends BaseDatabean<CountKey>{
 	public static final String
 		KEY_NAME = "key",
 		COL_value = "value";
+
+	@Override
+	public List<Field<?>> getNonKeyFields(){
+		return FieldTool.createList(
+				new UInt63Field(COL_value, this.value));
+	}
 	
 	
 	/*********************** constructor **********************************/
 	
 	Count(){
+		this(null, null, null, null, null, null);
 	}
 	
 	public Count(String name, String sourceType, String source, Long periodMs, Long startTimeMs, Long value){
@@ -83,6 +94,10 @@ public class Count extends BaseDatabean<CountKey>{
 	
 	public double getValuePerHour(){
 		return ((double)value) * 3600000 / getPeriodMs();
+	}
+	
+	public String getNameHtmlEscaped(){
+		return XMLStringTool.escapeXml(getName());
 	}
 	
 	/********************************** static ******************************************/

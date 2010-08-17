@@ -1,12 +1,18 @@
 package com.hotpads.profile.count.databean;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
+import com.hotpads.util.core.XMLStringTool;
 
 @SuppressWarnings("serial")
 @Entity
@@ -23,11 +29,18 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey>{
 	public static final String
 		KEY_NAME = "key",
 		COL_lastUpdated = "lastUpdated";
+
+	@Override
+	public List<Field<?>> getNonKeyFields(){
+		return FieldTool.createList(
+				new UInt63Field(COL_lastUpdated, this.lastUpdated));
+	}
 	
 	
 	/*********************** constructor **********************************/
 	
 	AvailableCounter(){
+		this(null, null, null, null, null);
 	}
 	
 	public AvailableCounter(String name, String sourceType, String source, Long periodMs, Long lastUpdated){
@@ -46,6 +59,13 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey>{
 	@Override
 	public AvailableCounterKey getKey(){
 		return key;
+	}
+	
+	
+	/********************************* useful ********************************************/
+	
+	public String getNameHtmlEscaped(){
+		return XMLStringTool.escapeXml(getName());
 	}
 	
 	

@@ -11,7 +11,6 @@ import com.hotpads.datarouter.node.op.SortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
-import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.profile.count.collection.archive.CountArchive;
 import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
@@ -103,7 +102,7 @@ public class DatabeanCountArchive implements CountArchive{
 			List<Count> toSave = ListTool.create();
 			for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(oldAggregator.getCountByKey()).entrySet()){
 				if(entry.getValue()==null || entry.getValue().equals(0L)){ continue; }
-				toSave.add(new Count(entry.getKey(), Counters.SOURCE_TYPE_server, source, 
+				toSave.add(new Count(entry.getKey(), sourceType, source, 
 						periodMs, periodStart, entry.getValue().get()));
 			}
 			countNode.putMulti(toSave, null);
@@ -120,7 +119,7 @@ public class DatabeanCountArchive implements CountArchive{
 		List<AvailableCounter> toSave = ListTool.createLinkedList();
 		for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(countByKey).entrySet()){
 			toSave.add(new AvailableCounter(
-					entry.getKey(), Counters.SOURCE_TYPE_server, source, 
+					entry.getKey(), sourceType, source, 
 					periodMs, System.currentTimeMillis()));
 		}
 		availableCounterNode.putMulti(toSave, null);

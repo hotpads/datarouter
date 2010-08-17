@@ -38,16 +38,19 @@ implements Node<PK,D>{
 		this.samplePrimaryKey = ReflectionTool.create(primaryKeyClass);
 		this.name = databeanClass.getSimpleName()+"."+this.getClass().getSimpleName();//probably never used
 		this.primaryKeyFields = this.samplePrimaryKey.getFields();
+		this.fieldAware = false;//mark true if PK and nonPk fields are found
 		try{
-			this.fields = this.sampleDatabean.getFields();
-			this.nonKeyFields = this.sampleDatabean.getNonKeyFields();
+			this.fields = this.sampleDatabean.getFields();//make sure there is a PK or this will NPE
 			this.fieldByMicroName = MapTool.createHashMap();
 			for(Field<?> field : this.fields){
 				this.fieldByMicroName.put(field.getName(), field);
 			}
-		}catch(Exception e){
+			this.nonKeyFields = this.sampleDatabean.getNonKeyFields();//only do these if the previous fields succeeded
+			this.fieldAware = CollectionTool.notEmpty(this.fields)
+					&& CollectionTool.notEmpty(this.nonKeyFields);
+		}catch(NullPointerException probablyNoPkInstantiated){
+			//do nothing... it's just not a FieldAware databean
 		}
-		this.fieldAware = CollectionTool.notEmpty(this.nonKeyFields);
 		if(this.fieldAware){
 			logger.warn("Found fieldAware Databean:"+this.databeanClass.getSimpleName());
 		}

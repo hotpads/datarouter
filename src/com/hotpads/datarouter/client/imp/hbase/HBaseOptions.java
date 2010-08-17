@@ -14,8 +14,8 @@ public class HBaseOptions extends TypedProperties{
 		this.clientPrefix = "client."+clientName+".hbase.";
 	}
 	
-	public String url(){
-		return getString(clientPrefix+"url", "localhost");
+	public String zookeeperQuorum(){
+		return getString(clientPrefix+"zookeeper.quorum", "localhost");
 	}
 	
 	public boolean checkTables(){

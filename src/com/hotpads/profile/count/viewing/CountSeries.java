@@ -5,6 +5,7 @@ import java.util.List;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
+import com.hotpads.util.core.XMLStringTool;
 
 public class CountSeries{
 
@@ -52,6 +53,10 @@ public class CountSeries{
 	public String getName(){
 		if(CollectionTool.isEmpty(counts)){ return null; }
 		return CollectionTool.getFirst(counts).getName();
+	}
+	
+	public String getNameHtmlEscaped(){
+		return XMLStringTool.escapeXml(getName());
 	}
 	
 	public String getSourceType(){

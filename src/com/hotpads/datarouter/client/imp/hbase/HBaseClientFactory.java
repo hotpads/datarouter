@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.log4j.Logger;
@@ -44,7 +45,8 @@ public class HBaseClientFactory implements ClientFactory{
 		PhaseTimer timer = new PhaseTimer(clientName);
 		
 		HBaseConfiguration hbConfig = new HBaseConfiguration();
-		hbConfig.set("hbase.master", options.url());
+		String zkQuorum = options.zookeeperQuorum();
+		hbConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
 		//TODO add custom variables programatically
 
 		//databean config

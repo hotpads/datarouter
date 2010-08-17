@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
-import com.hotpads.util.core.exception.NotImplementedException;
+import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseField<T> implements Field<T>{
 
@@ -102,6 +102,9 @@ public abstract class BaseField<T> implements Field<T>{
 			if( ! ignorePrefix && this.getPrefix()!=null){
 				java.lang.reflect.Field parentField = targetFieldSet.getClass().getDeclaredField(this.getPrefix());
 				parentField.setAccessible(true);
+				if(parentField.get(targetFieldSet)==null){
+					parentField.set(targetFieldSet, ReflectionTool.create(parentField.getType()));
+				}
 				java.lang.reflect.Field childField = parentField.getType().getDeclaredField(this.getName());
 				childField.setAccessible(true);
 				childField.set(parentField.get(targetFieldSet), value);

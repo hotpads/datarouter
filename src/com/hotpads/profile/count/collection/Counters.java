@@ -16,9 +16,6 @@ public class Counters implements CountMap{
 	
 //	public static final long DEFAULT_ROLLOVER_PERIOD = 5000L;
 	
-	public static final String
-			SOURCE_TYPE_server = "server";
-	
 	/****************** static ********************************/
 	
 	protected static Counters counters;

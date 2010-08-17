@@ -24,7 +24,7 @@ implements Databean<PK>{
 	
 	
 	/*************************** fields ****************************/
-	
+
 	@Override
 	public List<Field<?>> getKeyFields(){
 		return this.getKey().getFields();

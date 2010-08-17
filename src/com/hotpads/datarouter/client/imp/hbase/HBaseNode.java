@@ -73,7 +73,9 @@ implements MapStorageNode<PK,D>
 		List<Put> puts = ListTool.createLinkedList();
 		ArrayList<Delete> deletes = ListTool.createArrayList();//api requires ArrayList
 		for(D databean : databeans){
-			byte[] keyBytes = databean.getKey().getBytes(false);
+			if(databean==null){ continue; }
+			PK key = databean.getKey();
+			byte[] keyBytes = key.getBytes(false);
 //			logger.warn(this.getTableName()+" "+ByteTool.getBinaryStringBigEndian(keyBytes));
 			Put put = new Put(keyBytes);
 			Delete delete = new Delete(keyBytes);
