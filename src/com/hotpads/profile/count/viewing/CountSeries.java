@@ -50,6 +50,11 @@ public class CountSeries{
 		return max;
 	}
 	
+	public double getMaxPerSecond(){
+		long max = getMax();
+		return ((double)max) / (periodMs / 1000);
+	}
+	
 	public String getName(){
 		if(CollectionTool.isEmpty(counts)){ return null; }
 		return CollectionTool.getFirst(counts).getName();
