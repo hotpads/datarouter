@@ -3,6 +3,7 @@ package com.hotpads.profile.count.collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.SortedSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
@@ -12,6 +13,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.SetTool;
 
 
 
@@ -122,8 +124,8 @@ public class CounterManager implements CountMap{
 	}
 
 
-	public List<CountArchive> getArchives(){
-		List<CountArchive> archivesWithPrimary = ListTool.createLinkedList();
+	public SortedSet<CountArchive> getArchives(){
+		SortedSet<CountArchive> archivesWithPrimary = SetTool.createTreeSet();
 		if(primaryArchive!=null){
 			archivesWithPrimary.add(primaryArchive);
 		}

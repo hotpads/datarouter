@@ -17,7 +17,6 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.iterable.PeekableIterable;
-import com.hotpads.util.core.iterable.PeekableIterator;
 
 public abstract class PartitionedSortedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
 N extends PhysicalSortedStorageReaderNode<PK,D>>
@@ -67,7 +66,7 @@ implements SortedStorageReaderNode<PK,D>{
 					config));
 		}
 		if(CollectionTool.isEmpty(all)){ 
-			return null; 
+			return all; 
 		}
 		Collections.sort(all);
 		if(config!=null && config.getLimit()!=null && config.getLimit() >= all.size()){
@@ -87,7 +86,7 @@ implements SortedStorageReaderNode<PK,D>{
 			all.addAll(node.getKeysInRange(start, startInclusive, end, endInclusive, config));
 		}
 		if(CollectionTool.isEmpty(all)){ 
-			return null; 
+			return all; 
 		}
 		Collections.sort(all);
 		if(config!=null && config.getLimit()!=null && config.getLimit() >= all.size()){
@@ -107,7 +106,7 @@ implements SortedStorageReaderNode<PK,D>{
 			all.addAll(node.getRange(start, startInclusive, end, endInclusive, config));
 		}
 		if(CollectionTool.isEmpty(all)){ 
-			return null; 
+			return all; 
 		}
 		Collections.sort(all);
 		if(config!=null && config.getLimit()!=null && config.getLimit() >= all.size()){
@@ -126,7 +125,7 @@ implements SortedStorageReaderNode<PK,D>{
 			all.addAll(node.getWithPrefix(prefix, wildcardLastField, config));
 		}
 		if(CollectionTool.isEmpty(all)){ 
-			return null; 
+			return all; 
 		}
 		Collections.sort(all);
 		if(config!=null && config.getLimit()!=null && config.getLimit() >= all.size()){
@@ -146,7 +145,7 @@ implements SortedStorageReaderNode<PK,D>{
 			all.addAll(node.getWithPrefixes(prefixes, wildcardLastField, config));
 		}
 		if(CollectionTool.isEmpty(all)){ 
-			return null; 
+			return all; 
 		}
 		Collections.sort(all);
 		if(config!=null && config.getLimit()!=null && config.getLimit() >= all.size()){

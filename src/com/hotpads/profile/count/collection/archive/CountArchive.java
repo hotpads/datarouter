@@ -6,7 +6,7 @@ import com.hotpads.profile.count.collection.CountMapPeriod;
 import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
 
-public interface CountArchive{
+public interface CountArchive extends Comparable<CountArchive>{
 
 	void saveCounts(CountMapPeriod countMap);
 
@@ -17,4 +17,6 @@ public interface CountArchive{
 	
 	List<AvailableCounter> getAvailableCounters(String nameLike);
 	List<Count> getCounts(String name, Long startMs, Long endMs);
+	
+	String getPeriodAbbreviation();
 }

@@ -53,7 +53,7 @@ public class HBaseClientFactory implements ClientFactory{
 		HTablePool pool = initTables(hbConfig);
 		timer.add("init HTables");
 		
-		HBaseClientImp client = new HBaseClientImp(clientName, pool);
+		HBaseClientImp client = new HBaseClientImp(clientName, options, hbConfig, pool);
 		
 		logger.warn(timer);
 		

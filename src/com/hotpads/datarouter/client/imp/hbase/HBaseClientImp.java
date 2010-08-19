@@ -12,15 +12,18 @@ implements HBaseClient{
 	protected Logger logger = Logger.getLogger(this.getClass());
 
 	protected String name;
-	protected HBaseConfiguration hBaseConfiguration;//looks for "hbase-default.xml", and "hbase-site.xml" in the classpath
+	protected HBaseOptions options;
+	protected HBaseConfiguration hBaseConfiguration;
 	protected HTablePool hTablePool;
 	
 	
 	/**************************** constructor **********************************/
 	
-	public HBaseClientImp(String name, HTablePool pool){
+	public HBaseClientImp(String name, HBaseOptions options, 
+			HBaseConfiguration hBaseConfiguration, HTablePool pool){
 		this.name = name;
-		this.hBaseConfiguration = new HBaseConfiguration();
+		this.options = options;
+		this.hBaseConfiguration = hBaseConfiguration;
 		this.hTablePool = pool;
 	}
 	
@@ -48,5 +51,8 @@ implements HBaseClient{
 		hTablePool.checkIn(hTable);
 	}
 	
+	public HBaseConfiguration getHBaseConfiguration(){
+		return hBaseConfiguration;
+	}
 	
 }

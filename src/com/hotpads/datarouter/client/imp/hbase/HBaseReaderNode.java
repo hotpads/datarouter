@@ -18,10 +18,10 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
-import com.hotpads.datarouter.node.op.MapStorageReaderNode;
-import com.hotpads.datarouter.node.op.SortedStorageReaderNode;
 import com.hotpads.datarouter.node.scanner.Scanner;
+import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageReaderNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
+import com.hotpads.datarouter.node.type.physical.PhysicalSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -33,8 +33,8 @@ import com.hotpads.util.core.iterable.PeekableIterable;
 public class HBaseReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 extends BasePhysicalNode<PK,D>
 implements PhysicalNode<PK,D>
-			,MapStorageReaderNode<PK,D>
-			,SortedStorageReaderNode<PK,D>
+			,PhysicalMapStorageReaderNode<PK,D>
+			,PhysicalSortedStorageReaderNode<PK,D>
 {
 	protected Logger logger = Logger.getLogger(getClass());
 	

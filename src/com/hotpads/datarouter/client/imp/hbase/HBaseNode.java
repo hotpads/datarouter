@@ -15,8 +15,8 @@ import org.apache.hadoop.hbase.client.Scan;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.op.MapStorageNode;
-import com.hotpads.datarouter.node.op.SortedStorageNode;
+import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageNode;
+import com.hotpads.datarouter.node.type.physical.PhysicalSortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -28,8 +28,8 @@ import com.hotpads.util.core.ListTool;
 
 public class HBaseNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 extends HBaseReaderNode<PK,D>
-implements MapStorageNode<PK,D>
-			,SortedStorageNode<PK,D>
+implements PhysicalMapStorageNode<PK,D>
+			,PhysicalSortedStorageNode<PK,D>
 {
 	
 	public HBaseNode(Class<D> databeanClass, 

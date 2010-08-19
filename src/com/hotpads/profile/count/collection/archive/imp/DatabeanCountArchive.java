@@ -12,10 +12,13 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
 import com.hotpads.profile.count.collection.archive.CountArchive;
+import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
 import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
 import com.hotpads.profile.count.databean.key.CountKey;
+import com.hotpads.util.core.ClassTool;
+import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -47,6 +50,15 @@ public class DatabeanCountArchive implements CountArchive{
 		this.periodMs = periodMs;
 		this.aggregator = new AtomicCounter(DateTool.getPeriodStart(periodMs), periodMs);
 	}
+	
+	//copied from MemoryCountArchive
+	@Override
+	public int compareTo(CountArchive that){
+		if(ClassTool.differentClass(this, that)){ 
+			return ComparableTool.nullFirstCompareTo(this.getClass().getName(), that.getClass().getName()); 
+		}
+		return (int)(this.getPeriodMs() - that.getPeriodMs());
+	}
 
 	@Override
 	public String getSourceType(){
@@ -66,6 +78,11 @@ public class DatabeanCountArchive implements CountArchive{
 	@Override
 	public long getPeriodMs(){
 		return this.periodMs;
+	}
+
+	@Override
+	public String getPeriodAbbreviation(){
+		return CountPartitionedNode.getSuffix(getPeriodMs());
 	}
 
 	@Override

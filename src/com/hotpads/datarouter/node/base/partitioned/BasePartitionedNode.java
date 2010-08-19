@@ -20,7 +20,9 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BasePartitionedNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
+public abstract class BasePartitionedNode<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK>,
 		N extends PhysicalNode<PK,D>> 
 extends BaseNode<PK,D>{
 
@@ -91,6 +93,10 @@ extends BaseNode<PK,D>{
 	@Override
 	public List<N> getPhysicalNodes() {
 		return this.physicalNodes.getAll();
+	}
+	
+	public N getPhysicalNode(String name){
+		return this.physicalNodes.get(name);
 	}
 	
 	@Override

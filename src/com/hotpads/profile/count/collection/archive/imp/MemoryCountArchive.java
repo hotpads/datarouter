@@ -11,8 +11,11 @@ import org.apache.log4j.Logger;
 import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
 import com.hotpads.profile.count.collection.archive.CountArchive;
+import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
 import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
+import com.hotpads.util.core.ClassTool;
+import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
@@ -44,6 +47,14 @@ public class MemoryCountArchive implements CountArchive{
 		this.retainForMs = retainForMs;
 		this.numToRetain = (int)(retainForMs / periodMs);
 		this.archive = new CountMapPeriod[this.numToRetain];
+	}
+	
+	@Override
+	public int compareTo(CountArchive that){
+		if(ClassTool.differentClass(this, that)){ 
+			return ComparableTool.nullFirstCompareTo(this.getClass().getName(), that.getClass().getName()); 
+		}
+		return (int)(this.getPeriodMs() - that.getPeriodMs());
 	}
 
 	@Override
@@ -144,6 +155,11 @@ public class MemoryCountArchive implements CountArchive{
 			return 0;
 		}
 		return i+1;
+	}
+	
+	@Override
+	public String getPeriodAbbreviation(){
+		return CountPartitionedNode.getSuffix(getPeriodMs());
 	}
 
 	/******************************** getters ******************************************/
