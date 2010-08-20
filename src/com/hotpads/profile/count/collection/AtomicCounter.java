@@ -18,7 +18,7 @@ public class AtomicCounter implements CountMapPeriod{
 		this.startTimeMs = startTimeMs;
 		this.lengthMs = lengthMs;
 		this.lastMs = startTimeMs + lengthMs - 1;
-		this.countByKey = new ConcurrentHashMap<String,AtomicLong>();
+		this.countByKey = new ConcurrentHashMap<String,AtomicLong>(512);//estimate the number of counters
 	}
 	
 	@Override

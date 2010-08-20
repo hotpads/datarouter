@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.SortedSet;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
@@ -36,38 +37,44 @@ public class CounterManager implements CountMap{
 		long now = System.currentTimeMillis();
 		long startTime = now - (now % periodMs);
 		this.liveCounter = new AtomicCounter(startTime, periodMs);
-		this.flushQueue = ListTool.createLinkedList();
+		this.flushQueue = new ConcurrentLinkedQueue<CountMapPeriod>();
 		this.archives = ListTool.createArrayList();
 		this.roll();//init
 	}
 	
 	
-	public synchronized void rollIfNecessary(){
+	public void rollIfNecessary(){
 		if(System.currentTimeMillis() >= nextStartMs){
 			roll();
 		}
 	}
 	
 	//TODO better roll-up logic from short counters to longer ones.  not sure if it even makes any sense right now
-	public synchronized void roll(){
-//		logger.warn("rolling "+(liveCounter==null?"null":liveCounter.toString()));
+	public void roll(){
 		
-		//archive the old one
-		CountMapPeriod oldCounter = liveCounter;
+		//a few threads may slip past the rollIfNecessary call and pile up here
 		
-		//flush it
-		if(oldCounter!=null){
-			if(CollectionTool.notEmpty(archives)){
-				flushQueue.offer(oldCounter);
-//				logger.warn("persistentFlushQueue.size:"+CollectionTool.size(flushQueue));
+		synchronized(this){
+			long now = System.currentTimeMillis();
+			latestStartMs = now - (now % periodMs);
+			nextStartMs = latestStartMs + periodMs;//now other threads should return rollIfNecessary=false
+			if(liveCounter!=null && latestStartMs==liveCounter.getStartTimeMs()){
+				return; //another thread already rolled it
 			}
 		}
 		
-		//init the new one
-		long now = System.currentTimeMillis();
-		latestStartMs = now - (now % periodMs);
-		nextStartMs = latestStartMs + periodMs;
+		//only one thread should get to this point because of the logical check above
+		
+		//swap in the new counter
+		CountMapPeriod oldCounter = liveCounter;
 		liveCounter = new AtomicCounter(nextStartMs, periodMs);
+		
+		//add previous counter to flush queue
+		if(oldCounter!=null){
+			if(CollectionTool.notEmpty(archives)){
+				flushQueue.offer(oldCounter);
+			}
+		}
 	}
 	
 	
@@ -78,7 +85,7 @@ public class CounterManager implements CountMap{
 			CountMapPeriod toFlush = flushQueue.poll();
 			if(toFlush==null){ break; }
 			primaryArchive.saveCounts(toFlush);
-			for(CountArchive archive : IterableTool.nullSafe(this.archives)){
+			for(CountArchive archive : IterableTool.nullSafe(archives)){
 				archive.saveCounts(toFlush);
 			}
 		}
