@@ -79,6 +79,11 @@ public class DatabeanCountArchive implements CountArchive{
 	public long getPeriodMs(){
 		return this.periodMs;
 	}
+	
+	@Override
+	public Integer getNumToRetain(){
+		return Integer.MAX_VALUE;//probably should remove this method from the CountArchive interface
+	}
 
 	@Override
 	public String getPeriodAbbreviation(){

@@ -28,8 +28,8 @@ public class MemoryCountArchive implements CountArchive{
 	protected String sourceType;
 	protected String source;
 	protected Long periodMs;
-	protected Long retainForMs;
 	protected Integer numToRetain;
+	protected Long retainForMs;
 	
 	//storage
 	protected CountMapPeriod[] archive;//caution - currently nothing to make sure there are no old values in the holes
@@ -39,13 +39,13 @@ public class MemoryCountArchive implements CountArchive{
 			String sourceType,
 			String source,
 			Long periodMs,
-			Long retainForMs){
+			Integer numToRetain){
 		this.startTimeMs = System.currentTimeMillis();
 		this.sourceType = sourceType;
 		this.source = source;
 		this.periodMs = periodMs;
-		this.retainForMs = retainForMs;
-		this.numToRetain = (int)(retainForMs / periodMs);
+		this.numToRetain = numToRetain;
+		this.retainForMs = periodMs * numToRetain;
 		this.archive = new CountMapPeriod[this.numToRetain];
 	}
 	
@@ -184,4 +184,8 @@ public class MemoryCountArchive implements CountArchive{
 		return "memory "+periodMs;
 	}
 	
+	@Override
+	public Integer getNumToRetain(){
+		return this.numToRetain;
+	}
 }

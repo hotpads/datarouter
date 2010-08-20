@@ -55,6 +55,10 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends No
 		return names;
 	}
 	
+	public N getNode(String nodeName){
+		return nodeByName.get(nodeName);
+	}
+	
 	public Set<Class<D>> getTypesForClient(String clientName){
 		Set<Class<D>> types = SetTool.createHashSet();
 		for(N node : MapTool.nullSafe(nodeByName).values()){
@@ -78,12 +82,27 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends No
 		return physicalNodesForClient;
 	}
 	
+//	public N getNode(Class<D> cls){
+//		return this.nodeByDatabeanType.get(cls);
+//	}
+//	
+//	@SuppressWarnings("unchecked")
+//	public N getNode(String className){
+//		Class<D> cls;
+//		try{
+//			cls = (Class<D>)Class.forName(className);
+//		}catch(ClassNotFoundException e){
+//			throw new IllegalArgumentException(e);//, "databean class not found:"+className);
+//		}
+//		return getNode(cls);
+//	}
+	
 	public N getNode(Key<PK> key){
 		return this.nodeByPrimaryKeyType.get(key.getClass());
 	}
 	
 	public N getNode(D databean){
-		return this.nodeByDatabeanType.get(databean.getClass());
+		return this.nodeByDatabeanType.get(databean.getClass());//should just call getNode
 	}
 	
 	public List<String> getClientNamesForKeys(Collection<PK> keys){
