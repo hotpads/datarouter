@@ -3,9 +3,11 @@
  */
 package com.hotpads.profile.count.databean.key;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -25,6 +27,9 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	protected String source;//eg "webhead93" or "0130221"
 	protected Long periodMs;
 	protected Long startTimeMs;
+	
+	@Transient 
+	protected Date humanReadableStartTime;
 	
 	
 	public static final String
@@ -60,6 +65,7 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 		this.source = source;
 		this.periodMs = periodMs;
 		this.startTimeMs = startTimeMs;
+		this.humanReadableStartTime = startTimeMs==null?null:new Date(startTimeMs);
 	}
 
 

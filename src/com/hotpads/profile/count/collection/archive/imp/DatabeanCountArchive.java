@@ -89,6 +89,21 @@ public class DatabeanCountArchive implements CountArchive{
 	public String getPeriodAbbreviation(){
 		return CountPartitionedNode.getSuffix(getPeriodMs());
 	}
+	
+	@Override
+	public Long getNumCounters(){
+		return null;
+	}
+	
+	@Override
+	public Long getNumCounts(){
+		return null;
+	}
+	
+	@Override
+	public Long getNumBytes(){
+		return null;
+	}
 
 	@Override
 	public List<AvailableCounter> getAvailableCounters(String nameLike){

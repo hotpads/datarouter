@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import org.apache.log4j.Logger;
 import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -23,6 +24,7 @@ import com.hotpads.util.core.XMLStringTool;
 @Entity
 @AccessType("field")
 public class Count extends BaseDatabean<CountKey>{
+	static Logger logger = Logger.getLogger(Count.class);
 
 	@Id
 	protected CountKey key;
@@ -117,9 +119,11 @@ public class Count extends BaseDatabean<CountKey>{
 		Count next = IterableTool.next(i);
 		while(intervalStart <= endTime){
 			if(next != null && next.getStartTimeMs().equals(intervalStart)){
+//				logger.warn("match:"+new Date(intervalStart)+" "+new Date(next.getStartTimeMs()));
 				outs.add(next);
 				next = IterableTool.next(i);
 			}else{
+//				logger.warn("miss:"+new Date(intervalStart));
 				Count zero = new Count(otherName, otherSourceType, otherSource, 
 						periodMs, intervalStart, 0L);
 				outs.add(zero);

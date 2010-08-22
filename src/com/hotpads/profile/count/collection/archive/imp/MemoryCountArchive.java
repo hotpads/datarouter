@@ -14,12 +14,14 @@ import com.hotpads.profile.count.collection.archive.CountArchive;
 import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
 import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
+import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
+import com.hotpads.util.core.bytes.StringByteTool;
 
 public class MemoryCountArchive implements CountArchive{
 	static Logger logger = Logger.getLogger(MemoryCountArchive.class);
@@ -160,6 +162,46 @@ public class MemoryCountArchive implements CountArchive{
 	@Override
 	public String getPeriodAbbreviation(){
 		return CountPartitionedNode.getSuffix(getPeriodMs());
+	}
+	
+	@Override
+	public Long getNumCounters(){
+		long n=0;
+		for(int i=0; i < archive.length; ++i){
+			if(archive[i]!=null){
+				++n;
+			}
+		}
+		return n;
+	}
+	
+	@Override
+	public Long getNumCounts(){
+		long n=0;
+		for(int i=0; i < archive.length; ++i){
+			if(archive[i]!=null){
+				n+=MapTool.size(archive[i].getCountByKey());
+			}
+		}
+		return n;
+	}
+	
+	@Override
+	public Long getNumBytes(){
+		long n=0;
+		for(int i=0; i < archive.length; ++i){
+			if(archive[i]==null){ continue; }
+			Map<String,AtomicLong> countByKey = archive[i].getCountByKey();
+			if(countByKey==null){ continue; }
+			//should add capacity * BYTES_PER_POINTER, but can't access capacity
+			n += AtomicCounter.INITIAL_CAPACITY;
+			for(Map.Entry<String,AtomicLong> entry : archive[i].getCountByKey().entrySet()){
+				n += ByteTool.BYTES_PER_HASH_MAP_ENTRY;
+				n += StringByteTool.getNumBytesInMemoryWithPointers(entry.getKey());
+				n += ByteTool.BYTES_PER_LONG_WITH_POINTER;
+			}
+		}
+		return n;
 	}
 
 	/******************************** getters ******************************************/

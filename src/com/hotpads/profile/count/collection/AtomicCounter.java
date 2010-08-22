@@ -1,5 +1,6 @@
 package com.hotpads.profile.count.collection;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -9,16 +10,21 @@ import com.hotpads.util.core.MapTool;
 
 public class AtomicCounter implements CountMapPeriod{
 	
-	long startTimeMs;
-	long lengthMs;
-	long lastMs;
+	public static final Integer INITIAL_CAPACITY = 512;//try to set higher than est num counters
+	
+	protected long startTimeMs;
+	protected long lengthMs;
+	protected long lastMs;
 	protected ConcurrentMap<String,AtomicLong> countByKey;
+	
+	protected Date humanReadableStartTime;
 	
 	public AtomicCounter(long startTimeMs, long lengthMs){
 		this.startTimeMs = startTimeMs;
 		this.lengthMs = lengthMs;
 		this.lastMs = startTimeMs + lengthMs - 1;
-		this.countByKey = new ConcurrentHashMap<String,AtomicLong>(512);//estimate the number of counters
+		this.countByKey = new ConcurrentHashMap<String,AtomicLong>(INITIAL_CAPACITY);
+		this.humanReadableStartTime = new Date(startTimeMs);
 	}
 	
 	@Override

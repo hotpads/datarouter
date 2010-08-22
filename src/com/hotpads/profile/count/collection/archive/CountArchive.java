@@ -16,6 +16,10 @@ public interface CountArchive extends Comparable<CountArchive>{
 	String getSource();
 	Integer getNumToRetain();
 	
+	Long getNumCounters();
+	Long getNumCounts();
+	Long getNumBytes();
+	
 	List<AvailableCounter> getAvailableCounters(String nameLike);
 	List<Count> getCounts(String name, Long startMs, Long endMs);
 	

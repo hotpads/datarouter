@@ -14,7 +14,9 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.QueueTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.profile.PhaseTimer;
 
 
 
@@ -30,6 +32,8 @@ public class CounterManager implements CountMap{
 	protected CountArchive primaryArchive;
 	protected List<CountArchive> archives;
 	protected Queue<CountMapPeriod> flushQueue;
+	
+	private Runtime runtime = Runtime.getRuntime();
 
 	public CounterManager(CountArchive primaryArchive){
 		this.primaryArchive = primaryArchive;
@@ -37,7 +41,7 @@ public class CounterManager implements CountMap{
 		long now = System.currentTimeMillis();
 		long startTime = now - (now % periodMs);
 		this.liveCounter = new AtomicCounter(startTime, periodMs);
-		this.flushQueue = new ConcurrentLinkedQueue<CountMapPeriod>();
+		this.flushQueue = new ConcurrentLinkedQueue<CountMapPeriod>();//careful, size() must iterate every element
 		this.archives = ListTool.createArrayList();
 		this.roll();//init
 	}
@@ -49,38 +53,69 @@ public class CounterManager implements CountMap{
 		}
 	}
 	
+	protected Object rollCheckLock = new Object();
+	protected Object rollLock = new Object();
+	
 	//TODO better roll-up logic from short counters to longer ones.  not sure if it even makes any sense right now
 	public void roll(){
 		
 		//a few threads may slip past the rollIfNecessary call and pile up here
+
+		long now = System.currentTimeMillis();
+		long nowPeriodStart = now - (now % periodMs);
 		
-		synchronized(this){
-			long now = System.currentTimeMillis();
-			latestStartMs = now - (now % periodMs);
-			nextStartMs = latestStartMs + periodMs;//now other threads should return rollIfNecessary=false
-			if(liveCounter!=null && latestStartMs==liveCounter.getStartTimeMs()){
+		synchronized(rollCheckLock){//essentially an atomicCheckAndPut on latestStartMs
+			if(liveCounter!=null && nowPeriodStart==liveCounter.getStartTimeMs()){
+//				logger.warn("aborting roll "+new Date(latestStartMs));
 				return; //another thread already rolled it
 			}
+			latestStartMs = nowPeriodStart;
+			nextStartMs = latestStartMs + periodMs;//now other threads should return rollIfNecessary=false
 		}
 		
-		//only one thread should get to this point because of the logical check above
+		//only one thread (per period) should get to this point because of the logical check above
 		
-		//swap in the new counter
-		CountMapPeriod oldCounter = liveCounter;
-		liveCounter = new AtomicCounter(nextStartMs, periodMs);
-		
-		//add previous counter to flush queue
-		if(oldCounter!=null){
-			if(CollectionTool.notEmpty(archives)){
-				flushQueue.offer(oldCounter);
+		synchronized(rollLock){ //protect against multiple periods overlapping?  we may get count skew here if things get backed up
+			//swap in the new counter
+			CountMapPeriod oldCounter = liveCounter;
+			liveCounter = new AtomicCounter(latestStartMs, periodMs);
+			
+			
+			addSpecialCounts(liveCounter);
+			
+			//add previous counter to flush queue
+			if(oldCounter!=null){
+				if(CollectionTool.notEmpty(archives)){
+					flushQueue.offer(oldCounter);
+				}
 			}
 		}
 	}
 	
 	
+	protected void addSpecialCounts(CountMapPeriod counter){
+		long startNs = System.nanoTime();
+		//get the actual values
+		//not sure if these are slow
+		PhaseTimer timer = new PhaseTimer("memOps");
+		long freeMemory = timer.time(runtime.freeMemory(), "freeMemory()");
+		long maxMemory = timer.time(runtime.maxMemory(), "maxMemory()");
+		long totalMemory = timer.time(runtime.totalMemory(), "totalMemory()");
+		long ns = System.nanoTime() - startNs;
+		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 1){
+			logger.warn(ns+"ns "+timer);
+		}
+		
+		long usedMemory = totalMemory - freeMemory;
+		counter.increment("memory free MB", freeMemory >> 20);
+		counter.increment("memory max MB", maxMemory >> 20);
+		counter.increment("memory total MB", runtime.totalMemory() >> 20);
+		counter.increment("memory used MB", usedMemory >> 20);
+	}
+	
 	public void flushToArchives(){
 		if(CollectionTool.isEmpty(archives)
-				|| CollectionTool.isEmpty(flushQueue)){ return; }
+				|| QueueTool.empty(flushQueue)){ return; }
 		while(true){
 			CountMapPeriod toFlush = flushQueue.poll();
 			if(toFlush==null){ break; }
