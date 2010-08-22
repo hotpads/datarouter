@@ -51,9 +51,6 @@ implements Node<PK,D>{
 		}catch(NullPointerException probablyNoPkInstantiated){
 			//do nothing... it's just not a FieldAware databean
 		}
-		if(this.fieldAware){
-			logger.warn("Found fieldAware Databean:"+this.databeanClass.getSimpleName());
-		}
 	}
 	
 	@Override
@@ -66,4 +63,8 @@ implements Node<PK,D>{
 		return this.name;
 	}
 	
+	@Override
+	public List<Field<?>> getFields(){
+		return this.fields;
+	}
 }

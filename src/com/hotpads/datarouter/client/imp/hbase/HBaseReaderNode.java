@@ -111,8 +111,9 @@ implements PhysicalNode<PK,D>
 	
 	
 	@Override
-	public List<D> getAll(final Config config){
+	public List<D> getAll(final Config pConfig){
 		TraceContext.startSpan(getName()+" getAll");
+		Config config = Config.nullSafe(pConfig);
 		HTable hTable = checkOutHTable();
 		try{
 			List<D> results = ListTool.createArrayList();
@@ -123,6 +124,7 @@ implements PhysicalNode<PK,D>
 				if(row.isEmpty()){ continue; }
 				D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
 				results.add(result);
+				if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 			}
 			scanner.close();
 			return results;

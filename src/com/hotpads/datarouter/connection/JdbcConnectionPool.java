@@ -85,7 +85,7 @@ public class JdbcConnectionPool{
 		
 		try{
 			Integer minPoolSize = Integer.valueOf(minPoolSizeString);
-			this.pool.setMaxPoolSize(minPoolSize);
+			this.pool.setMinPoolSize(minPoolSize);
 		}catch(Exception e){
 		}
 		
@@ -111,7 +111,6 @@ public class JdbcConnectionPool{
 		
 		this.pool.setUser(user);
 		this.pool.setPassword(password);
-		this.pool.setMinPoolSize(1);
 		this.pool.setAcquireIncrement(1);
 		this.pool.setAcquireRetryAttempts(30);
 		this.pool.setAcquireRetryDelay(500);

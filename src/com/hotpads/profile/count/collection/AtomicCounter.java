@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.MapTool;
 
 public class AtomicCounter implements CountMapPeriod{
@@ -25,6 +26,12 @@ public class AtomicCounter implements CountMapPeriod{
 		this.lastMs = startTimeMs + lengthMs - 1;
 		this.countByKey = new ConcurrentHashMap<String,AtomicLong>(INITIAL_CAPACITY);
 		this.humanReadableStartTime = new Date(startTimeMs);
+	}
+
+	@Override
+	public String toString(){
+		String time = DateTool.getYYYYMMDDHHMMSSWithPunctuationNoSpaces(startTimeMs);
+		return getClass().getSimpleName()+"["+time+","+lengthMs+"]";
 	}
 	
 	@Override

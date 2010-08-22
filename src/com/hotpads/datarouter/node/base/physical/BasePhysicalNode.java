@@ -39,17 +39,21 @@ implements PhysicalNode<PK,D>
 		this.tableName = databeanClass.getSimpleName();
 		this.packagedTableName = databeanClass.getName();
 		this.name = clientName+"."+databeanClass.getSimpleName();
+		if(this.fieldAware){
+			logger.warn("Found fieldAware Databean:"+this.getName());
+		}
 	}
 	
 	//for things like the event.Event monthly partitioned tables
 	public BasePhysicalNode(Class<D> databeanClass,
 			DataRouter router, String clientName, 
-			String tableName, String packagedtableName){
+			String tableName, String packagedTableName){
 		this(databeanClass, router, clientName);
 		//overwrite the default values
 		this.tableName = tableName;
-		this.packagedTableName = packagedtableName;
+		this.packagedTableName = packagedTableName;
 		this.name = clientName+"."+tableName;
+		logger.info("client:"+this.clientName+" databean "+databeanClass.getSimpleName()+" -> "+tableName);
 	}
 	
 	//for table-per-class hierarchy like the property.Photo hierarchy
@@ -59,6 +63,7 @@ implements PhysicalNode<PK,D>
 		//overwrite the default values
 		this.baseDatabeanClass = baseDatabeanClass;
 		this.tableName = baseDatabeanClass.getSimpleName();
+		logger.info("client:"+this.clientName+" databean "+databeanClass.getSimpleName()+" -> "+tableName);
 	}
 	
 

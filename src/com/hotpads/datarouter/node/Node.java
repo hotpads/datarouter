@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 
@@ -13,6 +14,8 @@ public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK>> {
 
 	String getName();
 	Class<D> getDatabeanType();
+	
+	List<Field<?>> getFields();
 	
 	Set<String> getAllNames();
 	List<String> getClientNames();

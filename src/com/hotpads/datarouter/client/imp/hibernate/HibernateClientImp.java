@@ -3,8 +3,9 @@ package com.hotpads.datarouter.client.imp.hibernate;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.persistence.RollbackException;
 
@@ -44,15 +45,18 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	protected SessionFactory sessionFactory;
 	
 	protected Map<Long,ConnectionHandle> handleByThread = 
-		Collections.synchronizedMap(new HashMap<Long,ConnectionHandle>());
+		Collections.synchronizedMap(new ConcurrentHashMap<Long,ConnectionHandle>());
+//		new ConcurrentHashMap<Long,ConnectionHandle>();
 	
 	protected Map<ConnectionHandle,Connection> connectionByHandle = 
-		Collections.synchronizedMap(new HashMap<ConnectionHandle,Connection>());
+		Collections.synchronizedMap(new ConcurrentHashMap<ConnectionHandle,Connection>());
+//		new ConcurrentHashMap<ConnectionHandle,Connection>();
 	
 	protected Map<ConnectionHandle,Session> sessionByConnectionHandle = 
-		Collections.synchronizedMap(new HashMap<ConnectionHandle,Session>());
+		Collections.synchronizedMap(new ConcurrentHashMap<ConnectionHandle,Session>());
+//		new ConcurrentHashMap<ConnectionHandle,Session>();
 	
-	long connectionCounter = -1;
+	protected AtomicLong connectionCounter = new AtomicLong(-1L);
 	
 	
 	/**************************** constructor **********************************/
@@ -73,6 +77,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 
 	@Override
 	public ConnectionHandle reserveConnection(){
+		Counters.inc("connection open "+getName());
 		try {
 			ConnectionHandle existingHandle = this.getExistingHandle();
 			if(existingHandle != null){
@@ -84,11 +89,14 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 			//jdbc triggers network round trip when getting connection to set autocommit=true
 			long requestTimeMs = System.currentTimeMillis();
 			Connection newConnection = this.connectionPool.getDataSource().getConnection();
-			if(System.currentTimeMillis() - requestTimeMs > 1){
-				Counters.inc("connection open > 1ms on "+this.getName());
+			long elapsedTime = System.currentTimeMillis() - requestTimeMs;
+			if(elapsedTime > 1){
+				Counters.inc("connection open > 1ms on "+getName());
+				logger.warn("slow reserveConnection:"+elapsedTime+"ms on "+getName());
 			}
+			
 			long threadId = Thread.currentThread().getId();
-			long connNumber = ++this.connectionCounter;
+			long connNumber = connectionCounter.incrementAndGet();
 			ConnectionHandle handle = new ConnectionHandle(Thread.currentThread(), this.name, connNumber, 1);
 			if(this.handleByThread.get(threadId)==null){
 				this.handleByThread.put(threadId, handle);
@@ -96,7 +104,8 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 			this.connectionByHandle.put(handle, newConnection);
 			logger.debug("new connection:"+handle);
 			return handle;
-		} catch (SQLException e) {
+		}catch(SQLException e){
+			Counters.inc("connection open "+e.getClass().getSimpleName()+" on "+getName());
 			throw new DataAccessException(e);
 		}
 	}
@@ -106,6 +115,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 		try {
 			Thread currentThread = Thread.currentThread();
 			ConnectionHandle handle = this.getExistingHandle();
+			if(handle==null){ return null; }//the connection probably was never opened successfully
 			handle.decrementNumTickets();
 			if(handle.getNumTickets() > 0){
 //				logger.warn("KEEPING CONNECTION OPEN for "+handle+", "+this.getStats());
@@ -281,6 +291,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	
 	@Override
 	public Session getExistingSession(){
+		if(this.getExistingHandle()==null){ return null; }
 		return this.sessionByConnectionHandle.get(this.getExistingHandle());
 	}
 

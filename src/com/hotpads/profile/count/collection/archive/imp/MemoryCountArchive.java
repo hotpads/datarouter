@@ -50,6 +50,19 @@ public class MemoryCountArchive implements CountArchive{
 		this.retainForMs = periodMs * numToRetain;
 		this.archive = new CountMapPeriod[this.numToRetain];
 	}
+
+	@Override
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		for(int i=0; i < archive.length; ++i){
+			sb.append(i+":");
+			if(archive[i]!=null){
+				sb.append(archive[i]);
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
 	
 	@Override
 	public int compareTo(CountArchive that){
@@ -91,7 +104,8 @@ public class MemoryCountArchive implements CountArchive{
 			CountMapPeriod period = archive[i];
 			if(period==null
 					|| period.getStartTimeMs() < startMs 
-					|| period.getStartTimeMs() > endMs){
+					|| period.getStartTimeMs() > endMs
+					|| period.getStartTimeMs() < getEarliestAvailableTime()){//old values that haven't been overwritten
 				//do nothing
 			}else{
 				AtomicLong atomicLong = period.getCountByKey().get(name);
@@ -148,8 +162,11 @@ public class MemoryCountArchive implements CountArchive{
 	}
 	
 	protected int getEarliestIndex(){
-		int latestIndex = getIndexForMs(System.currentTimeMillis());
-		return getIndexAfter(latestIndex);//prob need a check here
+		long earliestTime = getEarliestAvailableTime();
+		int index = getIndexForMs(earliestTime);
+		return index;
+//		int latestIndex = getIndexForMs(System.currentTimeMillis());
+//		return getIndexAfter(latestIndex);//prob need a check here
 	}
 	
 	protected int getIndexAfter(int i){

@@ -117,19 +117,24 @@ public class Count extends BaseDatabean<CountKey>{
 		long intervalStart = startTime;
 		Iterator<Count> i = IterableTool.nullSafe(ins).iterator();
 		Count next = IterableTool.next(i);
+		int numMatches=0, numNull=0, numOutOfRange=0;
 		while(intervalStart <= endTime){
 			if(next != null && next.getStartTimeMs().equals(intervalStart)){
 //				logger.warn("match:"+new Date(intervalStart)+" "+new Date(next.getStartTimeMs()));
 				outs.add(next);
 				next = IterableTool.next(i);
+				++numMatches;
 			}else{
 //				logger.warn("miss:"+new Date(intervalStart));
+				if(next==null){ ++numNull; }
+				else{ ++numOutOfRange; }
 				Count zero = new Count(otherName, otherSourceType, otherSource, 
 						periodMs, intervalStart, 0L);
 				outs.add(zero);
 			}
 			intervalStart += periodMs;
 		}
+//		logger.warn("numMatches="+numMatches);
 		return outs;
 	}
 	
