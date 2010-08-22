@@ -21,6 +21,7 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.MapTool;
 
@@ -81,7 +82,11 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 				return existingHandle;
 			}
 			//jdbc triggers network round trip when getting connection to set autocommit=true
+			long requestTimeMs = System.currentTimeMillis();
 			Connection newConnection = this.connectionPool.getDataSource().getConnection();
+			if(System.currentTimeMillis() - requestTimeMs > 1){
+				Counters.inc("connection open > 1ms on "+this.getName());
+			}
 			long threadId = Thread.currentThread().getId();
 			long connNumber = ++this.connectionCounter;
 			ConnectionHandle handle = new ConnectionHandle(Thread.currentThread(), this.name, connNumber, 1);
