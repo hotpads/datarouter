@@ -95,6 +95,10 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey>{
 		return fields;
 	}
 	
+	@Override
+	public boolean isFieldAware(){
+		return true;
+	}
 
 	/***************************** constructor **************************************/
 		

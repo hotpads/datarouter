@@ -48,6 +48,11 @@ public class SortedBean extends BaseDatabean<SortedBeanKey>{
 				new DumbDoubleField(COL_f4, f4));
 	}
 	
+	@Override
+	public boolean isFieldAware(){
+		return true;
+	}
+	
 
 	/***************************** constructor **************************************/
 		
