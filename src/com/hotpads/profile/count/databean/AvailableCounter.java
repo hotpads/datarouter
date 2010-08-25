@@ -36,6 +36,11 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey>{
 				new UInt63Field(COL_lastUpdated, this.lastUpdated));
 	}
 	
+	@Override
+	public boolean isFieldAware(){
+		return true;
+	}
+	
 	
 	/*********************** constructor **********************************/
 	

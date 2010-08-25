@@ -6,10 +6,10 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.bytes.DoubleByteTool;
 
-public class DumbDoubleField extends PrimitiveField<Double>{
+public class DumbDoubleField extends BasePrimitiveField<Double>{
 
 	public DumbDoubleField(String name, Double value){
 		super(name, value);
@@ -17,6 +17,11 @@ public class DumbDoubleField extends PrimitiveField<Double>{
 
 	public DumbDoubleField(String prefix, String name, Double value){
 		super(prefix, name, value);
+	}
+	
+	@Override
+	public void fromString(String s){
+		this.value = s==null?null:Double.valueOf(s);
 	}
 
 	@Override

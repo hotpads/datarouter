@@ -73,6 +73,10 @@ public class Trace extends BaseDatabean<TraceKey>{
 				new UInt63Field(COL_duration, this.duration));
 	}
 	
+	@Override
+	public boolean isFieldAware(){
+		return true;
+	}
 	
 	/*********************** constructor **********************************/
 	

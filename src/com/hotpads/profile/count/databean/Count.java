@@ -43,6 +43,11 @@ public class Count extends BaseDatabean<CountKey>{
 				new UInt63Field(COL_value, this.value));
 	}
 	
+	@Override
+	public boolean isFieldAware(){
+		return true;
+	}
+	
 	
 	/*********************** constructor **********************************/
 	

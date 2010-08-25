@@ -9,6 +9,7 @@ import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 
 public abstract class BaseCachingNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends Node<PK,D>> 
@@ -42,6 +43,12 @@ extends BaseNode<PK,D>{
 	@Override
 	public Node<PK,D> getMaster() {
 		return this.backingNode.getMaster();
+	}
+	
+	@Override
+	public List<? extends Node<PK,D>> getChildNodes(){
+		if(backingNode==null){ return ListTool.create(); }
+		return ListTool.wrap(backingNode);
 	}
 
 	@Override

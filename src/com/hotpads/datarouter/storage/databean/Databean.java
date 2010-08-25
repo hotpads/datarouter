@@ -14,6 +14,8 @@ extends FieldSet{
 	Class<PK> getKeyClass();
 	PK getKey();  
 	
+	boolean isFieldAware();
+	
 	List<Field<?>> getKeyFields();
 	List<Field<?>> getNonKeyFields();
 	

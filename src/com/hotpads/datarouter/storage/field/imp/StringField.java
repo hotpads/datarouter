@@ -28,6 +28,16 @@ public class StringField extends BaseField<String>{
 		if(other==null){ return -1; }
 		return ComparableTool.nullFirstCompareTo(this.getValue(), other.getValue());
 	};
+	
+	@Override
+	public void fromString(String s){
+		this.value = s;
+	}
+	
+	@Override
+	public String getValueString(){
+		return value;
+	}
 
 	public String getSqlEscaped(){
 		if(value==null){

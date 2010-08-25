@@ -15,6 +15,7 @@ import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;
 import com.hotpads.datarouter.client.type.TxnClient;
@@ -34,6 +35,11 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	String name;
 	public String getName(){
 		return name;
+	}
+	
+	@Override
+	public ClientType getType(){
+		return ClientType.hibernate;
 	}
 	
 	@Override

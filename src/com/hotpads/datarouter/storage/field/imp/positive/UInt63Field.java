@@ -8,10 +8,10 @@ import java.sql.Types;
 import java.util.Random;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.bytes.LongByteTool;
 
-public class UInt63Field extends PrimitiveField<Long>{
+public class UInt63Field extends BasePrimitiveField<Long>{
 
 	public UInt63Field(String name, Long value){
 		super(name, value);
@@ -35,6 +35,11 @@ public class UInt63Field extends PrimitiveField<Long>{
 	
 	/*********************** override *******************************/
 
+	@Override
+	public void fromString(String s){
+		this.value = s==null?null:Long.valueOf(s);
+	}
+	
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{

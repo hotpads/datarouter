@@ -65,6 +65,11 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey>{
 				new UInt63Field(COL_durationNano, this.durationNano));
 	}
 	
+	@Override
+	public boolean isFieldAware(){
+		return true;
+	}
+	
 	
 	/*********************** constructor **********************************/
 	

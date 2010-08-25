@@ -23,7 +23,6 @@ import com.hotpads.datarouter.client.imp.hibernate.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
 import com.hotpads.datarouter.node.scanner.Scanner;
 import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageReaderNode;
@@ -32,7 +31,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -73,11 +72,6 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	@Override
 	public HibernateClientImp getClient(){
 		return (HibernateClientImp)this.router.getClient(getClientName());
-	}
-	
-	@Override
-	public Node<PK,D> getMaster() {
-		return null;
 	}
 	
 	@Override
@@ -713,7 +707,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 		for(Field<?> field : CollectionTool.nullSafe(prefix.getFields())){
 			if(numFullFieldsFinished < numNonNullFields){
 				boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
-				boolean stringField = !(field instanceof PrimitiveField<?>);
+				boolean stringField = !(field instanceof BasePrimitiveField<?>);
 				
 				boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
 				

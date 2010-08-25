@@ -9,7 +9,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -46,11 +46,17 @@ implements Node<PK,D>{
 				this.fieldByMicroName.put(field.getName(), field);
 			}
 			this.nonKeyFields = this.sampleDatabean.getNonKeyFields();//only do these if the previous fields succeeded
-			this.fieldAware = CollectionTool.notEmpty(this.fields)
-					&& CollectionTool.notEmpty(this.nonKeyFields);
+//			this.fieldAware = CollectionTool.notEmpty(this.fields)
+//					&& CollectionTool.notEmpty(this.nonKeyFields);
+			this.fieldAware = this.sampleDatabean.isFieldAware();
 		}catch(NullPointerException probablyNoPkInstantiated){
 			//do nothing... it's just not a FieldAware databean
 		}
+	}
+
+	@Override
+	public Class<PK> getPrimaryKeyType(){
+		return this.primaryKeyClass;
 	}
 	
 	@Override
@@ -64,7 +70,17 @@ implements Node<PK,D>{
 	}
 	
 	@Override
+	public String toString(){
+		return getName();
+	}
+	
+	@Override
 	public List<Field<?>> getFields(){
 		return this.fields;
+	}
+	
+	@Override
+	public int compareTo(Node<PK,D> o){
+		return ComparableTool.nullFirstCompareTo(getName(), o.getName());
 	}
 }

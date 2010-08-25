@@ -8,7 +8,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -143,7 +143,7 @@ public class SqlBuilder{
 			if(numFullFieldsFinished < numNonNullFields){
 				if(numFullFieldsFinished > 0){ sql.append(" and "); }
 				boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
-				boolean stringField = !(field instanceof PrimitiveField<?>);
+				boolean stringField = !(field instanceof BasePrimitiveField<?>);
 				boolean doPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
 				if(doPrefixMatchOnField){
 					String s = field.getSqlEscaped();

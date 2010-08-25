@@ -6,11 +6,10 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.bytes.IntegerByteTool;
-import com.hotpads.util.core.bytes.LongByteTool;
 
-public class UInt31Field extends PrimitiveField<Integer>{
+public class UInt31Field extends BasePrimitiveField<Integer>{
 
 	public UInt31Field(String name, Integer value){
 		super(name, value);
@@ -22,6 +21,11 @@ public class UInt31Field extends PrimitiveField<Integer>{
 	
 	/*********************** override *******************************/
 
+	@Override
+	public void fromString(String s){
+		this.value = s==null?null:Integer.valueOf(s);
+	}
+	
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{

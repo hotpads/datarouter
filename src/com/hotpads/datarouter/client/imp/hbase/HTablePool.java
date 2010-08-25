@@ -33,7 +33,8 @@ public class HTablePool{
 	}
 	
 	public HTable checkOut(String name){
-		HTable hTable = tablesByName.get(name).pop();
+		Stack<HTable> stack = tablesByName.get(name);
+		HTable hTable = stack.pop();
 		if(hTable!=null){ return hTable; }
 		try{
 			return new HTable(this.hBaseConfiguration, name);

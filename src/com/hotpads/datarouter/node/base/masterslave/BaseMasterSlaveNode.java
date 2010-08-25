@@ -28,6 +28,8 @@ implements MapStorageReadOps<PK,D>{
 	protected N master;
 	protected List<N> slaves = new ArrayList<N>();
 	
+	protected List<N> masterAndSlaves = new ArrayList<N>();
+	
 	protected AtomicInteger slaveRequestCounter = new AtomicInteger(0);
 	
 	public BaseMasterSlaveNode(Class<D> databeanClass, DataRouter router){
@@ -103,11 +105,13 @@ implements MapStorageReadOps<PK,D>{
 	
 	public N registerMaster(N master){
 		this.master = master;
+		this.masterAndSlaves.add(master);
 		return master;
 	}
 	
 	public N registerSlave(N slave){
 		this.slaves.add(slave);
+		this.masterAndSlaves.add(slave);
 		return slave;
 	}
 	
@@ -116,6 +120,11 @@ implements MapStorageReadOps<PK,D>{
 	@Override
 	public N getMaster() {
 		return this.master;
+	}
+	
+	@Override
+	public List<N> getChildNodes(){
+		return masterAndSlaves;
 	}
 
 	public N chooseSlave(Config config){

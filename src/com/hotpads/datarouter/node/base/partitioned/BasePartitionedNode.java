@@ -53,6 +53,11 @@ extends BaseNode<PK,D>{
 	public Node<PK,D> getMaster() {
 		return this;
 	}
+	
+	@Override
+	public List<? extends Node<PK,D>> getChildNodes(){
+		return this.physicalNodes.getAll();
+	}
 
 	@Override
 	public List<String> getClientNames() {

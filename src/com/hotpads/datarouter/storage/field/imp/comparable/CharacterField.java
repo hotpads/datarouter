@@ -6,12 +6,13 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.util.core.ArrayTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
-public class CharacterField extends PrimitiveField<Character>{
+public class CharacterField extends BasePrimitiveField<Character>{
 
 	public CharacterField(String name, Character value){
 		super(name, value);
@@ -19,6 +20,11 @@ public class CharacterField extends PrimitiveField<Character>{
 
 	public CharacterField(String prefix, String name, Character value){
 		super(prefix, name, value);
+	}
+	
+	@Override
+	public void fromString(String s){
+		this.value = StringTool.isEmpty(s)?null:s.charAt(0);
 	}
 
 	@Override

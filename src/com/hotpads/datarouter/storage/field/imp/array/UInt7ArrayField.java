@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
@@ -14,7 +14,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
-public class UInt7ArrayField extends BaseField<List<Byte>>{
+public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 
 	public UInt7ArrayField(String name, List<Byte> value){
 		super(name, value);
@@ -22,6 +22,11 @@ public class UInt7ArrayField extends BaseField<List<Byte>>{
 
 	public UInt7ArrayField(String prefix, String name, List<Byte> value){
 		super(prefix, name, value);
+	}
+	
+	@Override
+	public void fromString(String s){
+		throw new NotImplementedException();
 	}
 	
 	@Override

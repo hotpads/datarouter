@@ -10,7 +10,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.BaseField;
+import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
@@ -20,7 +20,7 @@ import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 import com.hotpads.util.core.exception.NotImplementedException;
 
-public class UInt63ArrayField extends BaseField<List<Long>>{
+public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 
 	public UInt63ArrayField(String name, List<Long> value){
 		super(name, value);
@@ -28,6 +28,11 @@ public class UInt63ArrayField extends BaseField<List<Long>>{
 
 	public UInt63ArrayField(String prefix, String name, List<Long> value){
 		super(prefix, name, value);
+	}
+	
+	@Override
+	public void fromString(String s){
+		throw new NotImplementedException();
 	}
 	
 	@Override

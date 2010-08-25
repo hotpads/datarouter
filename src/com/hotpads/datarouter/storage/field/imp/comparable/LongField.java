@@ -7,10 +7,10 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.bytes.LongByteTool;
 
-public class LongField extends PrimitiveField<Long>{
+public class LongField extends BasePrimitiveField<Long>{
 
 	public LongField(String name, Long value){
 		super(name, value);
@@ -18,6 +18,11 @@ public class LongField extends PrimitiveField<Long>{
 
 	public LongField(String prefix, String name, Long value){
 		super(prefix, name, value);
+	}
+	
+	@Override
+	public void fromString(String s){
+		this.value = s==null?null:Long.valueOf(s);
 	}
 
 	@Override

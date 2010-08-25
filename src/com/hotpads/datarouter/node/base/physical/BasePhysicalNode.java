@@ -7,6 +7,7 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -95,6 +96,16 @@ implements PhysicalNode<PK,D>
 	@Override
 	public boolean usesClient(String clientName) {
 		return ObjectTool.nullSafeEquals(this.clientName, clientName);
+	}
+	
+	@Override
+	public Node<PK,D> getMaster() {
+		return null;
+	}
+	
+	@Override
+	public List<Node<PK,D>> getChildNodes(){
+		return ListTool.create();
 	}
 		
 	@Override

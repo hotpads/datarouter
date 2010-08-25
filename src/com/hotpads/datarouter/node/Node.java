@@ -10,11 +10,12 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 
-public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK>> {
+public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+extends Comparable<Node<PK,D>>{
 
 	String getName();
+	Class<PK> getPrimaryKeyType();
 	Class<D> getDatabeanType();
-	
 	List<Field<?>> getFields();
 	
 	Set<String> getAllNames();
@@ -24,6 +25,7 @@ public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK>> {
 	List<? extends PhysicalNode<PK,D>> getPhysicalNodes();
 	List<? extends PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName);
 	Node<PK,D> getMaster();
+	List<? extends Node<PK,D>> getChildNodes();
 	
 	void clearThreadSpecificState();
 	

@@ -4,6 +4,7 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.type.HBaseClient;
 
 public class HBaseClientImp 
@@ -27,9 +28,14 @@ implements HBaseClient{
 		this.hTablePool = pool;
 	}
 	
-	
+	@Override
 	public String getName(){
 		return name;
+	}
+	
+	@Override
+	public ClientType getType(){
+		return ClientType.hbase;
 	}
 	
 	@Override

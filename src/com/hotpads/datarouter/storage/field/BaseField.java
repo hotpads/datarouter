@@ -43,6 +43,11 @@ public abstract class BaseField<T> implements Field<T>{
 		}
 	}
 	
+	@Override
+	public boolean isCollection(){
+		return false;
+	}
+	
 	
 	/****************************** ByteField ***********************************/
 	

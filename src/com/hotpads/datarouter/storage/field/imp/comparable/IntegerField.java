@@ -6,11 +6,10 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.bytes.IntegerByteTool;
-import com.hotpads.util.core.bytes.LongByteTool;
 
-public class IntegerField extends PrimitiveField<Integer>{
+public class IntegerField extends BasePrimitiveField<Integer>{
 
 	public IntegerField(String name, Integer value){
 		super(name, value);
@@ -18,6 +17,11 @@ public class IntegerField extends PrimitiveField<Integer>{
 
 	public IntegerField(String prefix, String name, Integer value){
 		super(prefix, name, value);
+	}
+	
+	@Override
+	public void fromString(String s){
+		this.value = s==null?null:Integer.valueOf(s);
 	}
 
 	@Override

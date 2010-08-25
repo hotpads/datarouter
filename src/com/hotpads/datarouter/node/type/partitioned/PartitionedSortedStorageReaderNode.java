@@ -69,7 +69,7 @@ implements SortedStorageReaderNode<PK,D>{
 			return all; 
 		}
 		Collections.sort(all);
-		if(config!=null && config.getLimit()!=null && config.getLimit() >= all.size()){
+		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
 			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
 			return limited;
 		}else{
@@ -89,7 +89,7 @@ implements SortedStorageReaderNode<PK,D>{
 			return all; 
 		}
 		Collections.sort(all);
-		if(config!=null && config.getLimit()!=null && config.getLimit() >= all.size()){
+		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
 			List<PK> limited = ListTool.copyOfRange(all, 0, config.getLimit());
 			return limited;
 		}else{
@@ -109,7 +109,7 @@ implements SortedStorageReaderNode<PK,D>{
 			return all; 
 		}
 		Collections.sort(all);
-		if(config!=null && config.getLimit()!=null && config.getLimit() >= all.size()){
+		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
 			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
 			return limited;
 		}else{
@@ -128,7 +128,7 @@ implements SortedStorageReaderNode<PK,D>{
 			return all; 
 		}
 		Collections.sort(all);
-		if(config!=null && config.getLimit()!=null && config.getLimit() >= all.size()){
+		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
 			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
 			return limited;
 		}else{
@@ -148,7 +148,7 @@ implements SortedStorageReaderNode<PK,D>{
 			return all; 
 		}
 		Collections.sort(all);
-		if(config!=null && config.getLimit()!=null && config.getLimit() >= all.size()){
+		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
 			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
 			return limited;
 		}else{

@@ -8,10 +8,11 @@ import java.sql.Types;
 import java.util.Date;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
+import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 
-public class LongDateField extends PrimitiveField<Date>{
+public class LongDateField extends BasePrimitiveField<Date>{
 
 	public LongDateField(String name, Date value){
 		super(name, value);
@@ -19,6 +20,17 @@ public class LongDateField extends PrimitiveField<Date>{
 
 	public LongDateField(String prefix, String name, Date value){
 		super(prefix, name, value);
+	}
+	
+	@Override
+	public void fromString(String s){
+		this.value = s==null?null:DateTool.parseCommonDate(s);
+	}
+	
+	@Override
+	public String getValueString(){
+		if(value==null){ return ""; }
+		return value.toString();
 	}
 
 	@Override

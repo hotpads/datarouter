@@ -47,6 +47,11 @@ implements PhysicalMapStorageReaderNode<PK,D>
 	}
 	
 	@Override
+	public List<Node<PK,D>> getChildNodes(){
+		return ListTool.create();
+	}
+	
+	@Override
 	public void clearThreadSpecificState(){
 		//do nothing, i think
 	}

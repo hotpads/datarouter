@@ -6,10 +6,10 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.ByteTool;
 
-public class ByteField extends PrimitiveField<Byte>{
+public class ByteField extends BasePrimitiveField<Byte>{
 
 	public ByteField(String name, Byte value){
 		super(name, value);
@@ -17,6 +17,11 @@ public class ByteField extends PrimitiveField<Byte>{
 
 	public ByteField(String prefix, String name, Byte value){
 		super(prefix, name, value);
+	}
+	
+	@Override
+	public void fromString(String s){
+		this.value = s==null?null:Byte.valueOf(s);
 	}
 
 	@Override

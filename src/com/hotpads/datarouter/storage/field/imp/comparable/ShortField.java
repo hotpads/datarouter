@@ -6,10 +6,10 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.bytes.ShortByteTool;
 
-public class ShortField extends PrimitiveField<Short>{
+public class ShortField extends BasePrimitiveField<Short>{
 
 	public ShortField(String name, Short value){
 		super(name, value);
@@ -17,6 +17,11 @@ public class ShortField extends PrimitiveField<Short>{
 
 	public ShortField(String prefix, String name, Short value){
 		super(prefix, name, value);
+	}
+	
+	@Override
+	public void fromString(String s){
+		this.value = s==null?null:Short.valueOf(s);
 	}
 
 	@Override

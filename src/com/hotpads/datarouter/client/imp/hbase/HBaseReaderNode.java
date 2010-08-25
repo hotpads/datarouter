@@ -16,7 +16,6 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
 import com.hotpads.datarouter.node.scanner.Scanner;
 import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageReaderNode;
@@ -64,11 +63,6 @@ implements PhysicalNode<PK,D>
 	@Override
 	public HBaseClient getClient(){
 		return (HBaseClient)this.router.getClient(getClientName());
-	}
-	
-	@Override
-	public Node<PK,D> getMaster() {
-		return null;
 	}
 	
 	@Override
@@ -206,7 +200,8 @@ implements PhysicalNode<PK,D>
 	}
 
 	@Override
-	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config){
+	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config pConfig){
+		Config config = Config.nullSafe(pConfig);
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		TraceContext.startSpan(getName()+" getWithPrefixes");
 		HTable hTable = checkOutHTable();
@@ -219,6 +214,7 @@ implements PhysicalNode<PK,D>
 					if(row.isEmpty()){ continue; }
 					D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
 					results.add(result);
+					if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 				}
 				scanner.close();
 			}
@@ -232,7 +228,8 @@ implements PhysicalNode<PK,D>
 	}
 
 	@Override
-	public List<PK> getKeysInRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
+	public List<PK> getKeysInRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config pConfig){
+		Config config = Config.nullSafe(pConfig);
 		TraceContext.startSpan(getName()+" getKeysInRange");
 		HTable hTable = checkOutHTable();
 		try{
@@ -244,6 +241,7 @@ implements PhysicalNode<PK,D>
 				if(row.isEmpty()){ continue; }
 				PK result = HBaseResultTool.getPrimaryKey(row.getRow(), primaryKeyClass, primaryKeyFields);
 				results.add(result);
+				if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 			}
 			scanner.close();
 			return results;
@@ -256,7 +254,8 @@ implements PhysicalNode<PK,D>
 	}
 
 	@Override
-	public List<D> getRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
+	public List<D> getRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config pConfig){
+		Config config = Config.nullSafe(pConfig);
 		TraceContext.startSpan(getName()+" getRange");
 		HTable hTable = checkOutHTable();
 		try{
@@ -267,6 +266,7 @@ implements PhysicalNode<PK,D>
 				if(row.isEmpty()){ continue; }
 				D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
 				results.add(result);
+				if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 			}
 			scanner.close();
 			return results;
@@ -282,7 +282,8 @@ implements PhysicalNode<PK,D>
 	public List<D> getPrefixedRange(
 			final PK prefix, final boolean wildcardLastField, 
 			final PK start, final boolean startInclusive, 
-			final Config config){
+			final Config pConfig){
+		Config config = Config.nullSafe(pConfig);
 		TraceContext.startSpan(getName()+" getPrefixedRange");
 		HTable hTable = checkOutHTable();
 		try{
@@ -297,6 +298,7 @@ implements PhysicalNode<PK,D>
 				if(row.isEmpty()){ continue; }
 				D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
 				results.add(result);
+				if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 			}
 			scanner.close();
 			return results;

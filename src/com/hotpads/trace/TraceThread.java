@@ -68,6 +68,11 @@ public class TraceThread extends BaseDatabean<TraceThreadKey>{
 				new UInt63Field(COL_runningDurationNano, this.runningDurationNano));
 	}
 	
+	@Override
+	public boolean isFieldAware(){
+		return true;
+	}
+	
 	
 	/*********************** constructor **********************************/
 	

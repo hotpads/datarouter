@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.storage.field.BaseFieldSet;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.ListTool;
@@ -24,6 +25,11 @@ implements Databean<PK>{
 	
 	
 	/*************************** fields ****************************/
+	
+	@Override
+	public boolean isFieldAware(){
+		return false;
+	}
 
 	@Override
 	public List<Field<?>> getKeyFields(){
@@ -45,19 +51,12 @@ implements Databean<PK>{
 	}
 
 	@Override
-	public List<String> getFieldNames(){
-		return this.getKey().getFieldNames();
-	}
-
-	@Override
-	public List<?> getFieldValues(){
-		return this.getKey().getFieldValues();
-	}
-
-	@Override
 	public Object getFieldValue(String fieldName){
-		return this.getKey().getFieldValue(fieldName);
+		return FieldTool.getFieldValue(this.getFields(), fieldName);
 	}
+	
+	
+	/*************************** stringification ******************************/
 
 	@Override
 	public String getPersistentString(){  //fuse multi-column field into one string, usually with "_" characters

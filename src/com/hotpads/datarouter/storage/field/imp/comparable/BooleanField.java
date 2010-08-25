@@ -6,10 +6,10 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.PrimitiveField;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.bytes.BooleanByteTool;
 
-public class BooleanField extends PrimitiveField<Boolean>{
+public class BooleanField extends BasePrimitiveField<Boolean>{
 
 	public BooleanField(String name, Boolean value){
 		super(name, value);
@@ -17,6 +17,11 @@ public class BooleanField extends PrimitiveField<Boolean>{
 
 	public BooleanField(String prefix, String name, Boolean value){
 		super(prefix, name, value);
+	}
+	
+	@Override
+	public void fromString(String s){
+		this.value = s==null?null:Boolean.valueOf(s);
 	}
 
 	@Override

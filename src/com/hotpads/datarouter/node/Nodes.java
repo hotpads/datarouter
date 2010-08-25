@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.node;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
@@ -22,7 +24,10 @@ import com.hotpads.util.core.java.ReflectionTool;
 public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends Node<PK,D>>{
 	Logger logger = Logger.getLogger(getClass());
 
-	protected Map<String,N> nodeByName = MapTool.createHashMap();
+	protected List<N> topLevelNodes = ListTool.createArrayList();
+	protected List<N> allNodes = ListTool.createArrayList();
+	protected List<String> allNames = ListTool.createArrayList();
+	protected Map<String,N> nodeByName = MapTool.createTreeMap();
 	protected Map<Class<PK>,N> nodeByPrimaryKeyType = MapTool.createHashMap();
 	protected Map<Class<D>,N> nodeByDatabeanType = MapTool.createHashMap();
 	protected Map<Class<D>,List<String>> clientNamesByDatabeanType = MapTool.createHashMap();
@@ -37,22 +42,38 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends No
 		Class<D> databeanType = node.getDatabeanType();
 		D sampleDatabean = ReflectionTool.create(databeanType);
 		List<String> clientNames = node.getClientNames();
-		this.nodeByName.put(nodeName, node);
+		@SuppressWarnings("unchecked")
+		List<N> nodeWithDescendants = (List<N>)NodeTool.getNodeAndDescendants(node);
+		this.topLevelNodes.add(node);
+		this.allNodes.addAll(nodeWithDescendants);
+		for(N nodeOrDescendant : IterableTool.nullSafe(nodeWithDescendants)){
+			this.allNames.add(nodeOrDescendant.getName());
+			this.nodeByName.put(nodeOrDescendant.getName(), nodeOrDescendant);
+		}
 		this.nodeByPrimaryKeyType.put(sampleDatabean.getKeyClass(), node);
 		this.nodeByDatabeanType.put(databeanType, node);
 		if(this.clientNamesByDatabeanType.get(databeanType)==null){
 			this.clientNamesByDatabeanType.put(databeanType, new LinkedList<String>());
 		}
 		this.clientNamesByDatabeanType.get(databeanType).addAll(clientNames);
+		
+		Collections.sort(topLevelNodes);
+		Collections.sort(allNodes);
+		Collections.sort(allNames);
+		
 		return node;
 	}
 	
-	public Set<String> getAllNames(){
-		Set<String> names = SetTool.createHashSet();
-		for(Map.Entry<String,N> entry : MapTool.nullSafe(this.nodeByName).entrySet()){
-			names.addAll(entry.getValue().getAllNames());
-		}
-		return names;
+	public List<String> getAllNames(){
+		return allNames;
+	}
+	
+	public List<N> getAllNodes(){
+		return allNodes;
+	}
+	
+	public List<N> getTopLevelNodes(){
+		return topLevelNodes;
 	}
 	
 	public N getNode(String nodeName){
@@ -71,31 +92,15 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends No
 	
 	public List<? extends PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName){
 		List<PhysicalNode<PK,D>> physicalNodesForClient = ListTool.createLinkedList();
-		for(N node : MapTool.nullSafe(nodeByName).values()){
+		for(N node : IterableTool.nullSafe(topLevelNodes)){
 			List<? extends PhysicalNode<PK,D>> physicalNodesForNode = node.getPhysicalNodesForClient(clientName);
 			for(PhysicalNode<PK,D> physicalNode : CollectionTool.nullSafe(physicalNodesForNode)){
-//				if(physicalNode.usesClient(clientName)){  //nodes do the filtering now
-					physicalNodesForClient.add(physicalNode);
-//				}
+				physicalNodesForClient.add(physicalNode);
 			}
 		}
+		Collections.sort(physicalNodesForClient);
 		return physicalNodesForClient;
 	}
-	
-//	public N getNode(Class<D> cls){
-//		return this.nodeByDatabeanType.get(cls);
-//	}
-//	
-//	@SuppressWarnings("unchecked")
-//	public N getNode(String className){
-//		Class<D> cls;
-//		try{
-//			cls = (Class<D>)Class.forName(className);
-//		}catch(ClassNotFoundException e){
-//			throw new IllegalArgumentException(e);//, "databean class not found:"+className);
-//		}
-//		return getNode(cls);
-//	}
 	
 	public N getNode(Key<PK> key){
 		return this.nodeByPrimaryKeyType.get(key.getClass());

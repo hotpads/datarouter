@@ -23,6 +23,16 @@ public class ByteArrayField extends BaseField<byte[]>{
 	}
 	
 	@Override
+	public void fromString(String s){
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	public String getValueString(){
+		return ArrayTool.toCsvString(value);
+	}
+	
+	@Override
 	public int compareTo(Field<byte[]> other){
 		return ByteTool.bitwiseCompare(this.value, other.getValue());
 	}
