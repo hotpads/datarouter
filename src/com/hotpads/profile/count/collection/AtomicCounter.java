@@ -43,6 +43,11 @@ public class AtomicCounter implements CountMapPeriod{
 	public long getStartTimeMs(){
 		return startTimeMs;
 	}
+	
+	@Override
+	public long getNextStartTimeMs(){
+		return startTimeMs + lengthMs;
+	}
 
 	@Override
 	public Map<String,AtomicLong> getCountByKey(){

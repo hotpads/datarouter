@@ -1,15 +1,11 @@
 package com.hotpads.profile.count.collection;
 
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.profile.count.collection.archive.CountArchive;
-import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.profile.count.collection.archive.CountArchiveFlusher;
 
 public class Counters implements CountMap{
 	static Logger logger = Logger.getLogger(Counters.class);
@@ -19,12 +15,9 @@ public class Counters implements CountMap{
 	/****************** static ********************************/
 	
 	protected static Counters counters;
-//	static{
-//		reset(DateTool.MILLISECONDS_IN_HOUR, null);//default to 5s with no persistence
-//	}
 	
-	public static void reset(CountArchive primaryArchive){
-		counters = new Counters(primaryArchive);
+	public static void reset(long rollPeriodMs){
+		counters = new Counters(rollPeriodMs);
 	}
 	
 	public static void disable(){
@@ -49,12 +42,12 @@ public class Counters implements CountMap{
 
 	protected CounterManager manager;
 
-	public Counters(CountArchive primaryArchive){
-		this.manager = new CounterManager(primaryArchive);
+	public Counters(long rollPeriodMs){
+		this.manager = new CounterManager(rollPeriodMs);
 	}
 	
-	public void addArchive(boolean sync, CountArchive archive){
-		manager.addArchive(archive);
+	public void addFlusher(CountArchiveFlusher flusher){
+		manager.addFlusher(flusher);
 	}
 	
 	public CounterManager getManager(){
@@ -91,31 +84,7 @@ public class Counters implements CountMap{
 	@Override
 	public String toString(){
 		if(manager==null){ return "liveManager=null"; }
-		return "Counters[liveManager.startTime="+manager.periodMs+"]";
-	}
-
-	/************************ flushing/rolling ***********************/
-	
-	protected static ScheduledExecutorService memFlushScheduler;
-	
-	static{
-		memFlushScheduler = Executors.newSingleThreadScheduledExecutor();
-		memFlushScheduler.scheduleAtFixedRate(new PersistentFlusher(), 0, 1, TimeUnit.SECONDS); 
-		logger.warn("Counters Async Flusher started");
-	}
-	
-	public static class PersistentFlusher implements Runnable{
-		public void run(){
-			try{
-				Thread.currentThread().setName("Counters - AsyncFlusher");
-				if(counters==null){ return; }
-				if(counters.manager==null){ return; }
-//				logger.warn("persistentFlush");
-				counters.manager.flushToArchives();
-			}catch(Exception e){
-				logger.error(ExceptionTool.getStackTraceAsString(e));
-			}
-		}
+		return "Counters[liveManager.startTime="+manager.rollPeriodMs+"]";
 	}
 	
 }

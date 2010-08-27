@@ -11,24 +11,19 @@ import com.hotpads.datarouter.node.op.SortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
-import com.hotpads.profile.count.collection.archive.CountArchive;
+import com.hotpads.profile.count.collection.archive.BaseCountArchive;
 import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
 import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
 import com.hotpads.profile.count.databean.key.CountKey;
-import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
-public class DatabeanCountArchive implements CountArchive{
+public class DatabeanCountArchive extends BaseCountArchive{
 	static Logger logger = Logger.getLogger(DatabeanCountArchive.class);
 	
-	protected String sourceType;
-	protected String source;
-	protected Long periodMs;
 	protected AtomicCounter aggregator;
 	
 	protected DataRouter router;
@@ -42,67 +37,11 @@ public class DatabeanCountArchive implements CountArchive{
 			String sourceType,
 			String source,
 			Long periodMs){
+		super(sourceType, source, periodMs);
 		this.router = router;
 		this.countNode = countNode;
 		this.availableCounterNode = availableCounterNode;
-		this.sourceType = sourceType;
-		this.source = source;
-		this.periodMs = periodMs;
 		this.aggregator = new AtomicCounter(DateTool.getPeriodStart(periodMs), periodMs);
-	}
-	
-	//copied from MemoryCountArchive
-	@Override
-	public int compareTo(CountArchive that){
-		if(ClassTool.differentClass(this, that)){ 
-			return ComparableTool.nullFirstCompareTo(this.getClass().getName(), that.getClass().getName()); 
-		}
-		return (int)(this.getPeriodMs() - that.getPeriodMs());
-	}
-
-	@Override
-	public String getSourceType(){
-		return sourceType;
-	}
-
-	@Override
-	public String getSource(){
-		return source;
-	}
-	
-	@Override
-	public String getName(){
-		return "databean "+periodMs;
-	}
-
-	@Override
-	public long getPeriodMs(){
-		return this.periodMs;
-	}
-	
-	@Override
-	public Integer getNumToRetain(){
-		return Integer.MAX_VALUE;//probably should remove this method from the CountArchive interface
-	}
-
-	@Override
-	public String getPeriodAbbreviation(){
-		return CountPartitionedNode.getSuffix(getPeriodMs());
-	}
-	
-	@Override
-	public Long getNumCounters(){
-		return null;
-	}
-	
-	@Override
-	public Long getNumCounts(){
-		return null;
-	}
-	
-	@Override
-	public Long getNumBytes(){
-		return null;
 	}
 
 	@Override
@@ -123,6 +62,7 @@ public class DatabeanCountArchive implements CountArchive{
 	
 	public static final int DISCARD_IF_OLDER_THAN = 300 * 1000;
 
+	
 	@Override
 	public void saveCounts(CountMapPeriod countMap){
 		if(countMap.getStartTimeMs() < (System.currentTimeMillis() - DISCARD_IF_OLDER_THAN)){
@@ -150,8 +90,6 @@ public class DatabeanCountArchive implements CountArchive{
 	}
 
 	
-
-	
 	protected void flushAvailableCounters(Map<String,AtomicLong> countByKey){
 		List<AvailableCounter> toSave = ListTool.createLinkedList();
 		for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(countByKey).entrySet()){
@@ -161,6 +99,36 @@ public class DatabeanCountArchive implements CountArchive{
 		}
 		availableCounterNode.putMulti(toSave, null);
 	}
+
 	
+	@Override
+	public String getName(){
+		return "databean "+periodMs;
+	}
+	
+	@Override
+	public Integer getNumToRetain(){
+		return Integer.MAX_VALUE;//probably should remove this method from the CountArchive interface
+	}
+
+	@Override
+	public String getPeriodAbbreviation(){
+		return CountPartitionedNode.getSuffix(getPeriodMs());
+	}
+	
+	@Override
+	public Long getNumCounters(){
+		return null;
+	}
+	
+	@Override
+	public Long getNumCounts(){
+		return null;
+	}
+	
+	@Override
+	public Long getNumBytes(){
+		return null;
+	}
 	
 }

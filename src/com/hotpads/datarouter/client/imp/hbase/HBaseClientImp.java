@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.type.HBaseClient;
+import com.hotpads.profile.count.collection.Counters;
 
 public class HBaseClientImp 
 implements HBaseClient{
@@ -49,6 +50,7 @@ implements HBaseClient{
 	
 	@Override
 	public HTable checkOutHTable(String name){
+		Counters.inc("connection getHTable "+this.name);
 		return hTablePool.checkOut(name);
 	}
 	

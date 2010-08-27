@@ -2,19 +2,17 @@ package com.hotpads.profile.count.collection;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.SortedSet;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
 import com.hotpads.profile.count.collection.archive.CountArchive;
+import com.hotpads.profile.count.collection.archive.CountArchiveFlusher;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.QueueTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
@@ -25,24 +23,19 @@ public class CounterManager implements CountMap{
 
 	protected long latestStartMs;
 	protected long nextStartMs;
-	protected long periodMs;
+	protected long rollPeriodMs;
 	
 	protected CountMapPeriod liveCounter;
-	
-	protected CountArchive primaryArchive;
-	protected List<CountArchive> archives;
-	protected Queue<CountMapPeriod> flushQueue;
+	protected List<CountArchiveFlusher> flushers;
 	
 	private Runtime runtime = Runtime.getRuntime();
 
-	public CounterManager(CountArchive primaryArchive){
-		this.primaryArchive = primaryArchive;
-		this.periodMs = primaryArchive.getPeriodMs();
+	public CounterManager(long rollPeriodMs){
+		this.rollPeriodMs = rollPeriodMs;
 		long now = System.currentTimeMillis();
-		long startTime = now - (now % periodMs);
-		this.liveCounter = new AtomicCounter(startTime, periodMs);
-		this.flushQueue = new ConcurrentLinkedQueue<CountMapPeriod>();//careful, size() must iterate every element
-		this.archives = ListTool.createArrayList();
+		long startTime = now - (now % rollPeriodMs);
+		this.liveCounter = new AtomicCounter(startTime, rollPeriodMs);
+		this.flushers = ListTool.createArrayList();
 		this.roll();//init
 	}
 	
@@ -62,7 +55,7 @@ public class CounterManager implements CountMap{
 		//a few threads may slip past the rollIfNecessary call and pile up here
 
 		long now = System.currentTimeMillis();
-		long nowPeriodStart = now - (now % periodMs);
+		long nowPeriodStart = now - (now % rollPeriodMs);
 		
 		synchronized(rollCheckLock){//essentially an atomicCheckAndPut on latestStartMs
 			if(liveCounter!=null && nowPeriodStart==liveCounter.getStartTimeMs()){
@@ -70,7 +63,7 @@ public class CounterManager implements CountMap{
 				return; //another thread already rolled it
 			}
 			latestStartMs = nowPeriodStart;
-			nextStartMs = latestStartMs + periodMs;//now other threads should return rollIfNecessary=false
+			nextStartMs = latestStartMs + rollPeriodMs;//now other threads should return rollIfNecessary=false
 		}
 		
 		//only one thread (per period) should get to this point because of the logical check above
@@ -78,18 +71,17 @@ public class CounterManager implements CountMap{
 		synchronized(rollLock){ //protect against multiple periods overlapping?  we may get count skew here if things get backed up
 			//swap in the new counter
 			CountMapPeriod oldCounter = liveCounter;
-			liveCounter = new AtomicCounter(latestStartMs, periodMs);
-			
-			
-			addSpecialCounts(liveCounter);
+			liveCounter = new AtomicCounter(latestStartMs, rollPeriodMs);
 			
 			//add previous counter to flush queue
 			if(oldCounter!=null){
-				if(CollectionTool.notEmpty(archives)){
-					flushQueue.offer(oldCounter);
+				for(CountArchiveFlusher flusher : IterableTool.nullSafe(flushers)){
+					flusher.offer(oldCounter);
 				}
 			}
 		}
+		
+		addSpecialCounts(liveCounter);
 	}
 	
 	
@@ -112,21 +104,6 @@ public class CounterManager implements CountMap{
 		counter.increment("memory total MB", runtime.totalMemory() >> 20);
 		counter.increment("memory used MB", usedMemory >> 20);
 	}
-	
-	public void flushToArchives(){
-		if(CollectionTool.isEmpty(archives)
-				|| QueueTool.empty(flushQueue)){ return; }
-		while(true){
-			CountMapPeriod toFlush = flushQueue.poll();
-			if(toFlush==null){ break; }
-			primaryArchive.saveCounts(toFlush);
-			for(CountArchive archive : IterableTool.nullSafe(archives)){
-				archive.saveCounts(toFlush);
-			}
-		}
-	}
-	
-	
 
 	@Override
 	public long increment(String key){
@@ -153,26 +130,21 @@ public class CounterManager implements CountMap{
 		return liveCounter.deepCopy();
 	}
 
-	public Queue<CountMapPeriod> getAsyncFlushQueue(){
-		return flushQueue;
-	}
-
 	public AtomicCounter getCounter(){
 		return liveCounter.getCounter();
 	}
 	
-	public void addArchive(CountArchive archive){
-		archives.add(archive);
+	public void addFlusher(CountArchiveFlusher flusher){
+		flushers.add(flusher);
 	}
 
 
 	public SortedSet<CountArchive> getArchives(){
-		SortedSet<CountArchive> archivesWithPrimary = SetTool.createTreeSet();
-		if(primaryArchive!=null){
-			archivesWithPrimary.add(primaryArchive);
+		SortedSet<CountArchive> archives = SetTool.createTreeSet();
+		for(CountArchiveFlusher flusher : IterableTool.nullSafe(flushers)){
+			archives.addAll(CollectionTool.nullSafe(flusher.getArchives()));
 		}
-		archivesWithPrimary.addAll(CollectionTool.nullSafe(archives));
-		return archivesWithPrimary;
+		return archives;
 	}
 	
 	public Map<String,CountArchive> getArchiveByName(){

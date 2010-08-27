@@ -10,26 +10,21 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
-import com.hotpads.profile.count.collection.archive.CountArchive;
+import com.hotpads.profile.count.collection.archive.BaseCountArchive;
 import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
 import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
-public class MemoryCountArchive implements CountArchive{
+public class MemoryCountArchive extends BaseCountArchive{
 	static Logger logger = Logger.getLogger(MemoryCountArchive.class);
 	
 	protected Long startTimeMs;
-	protected String sourceType;
-	protected String source;
-	protected Long periodMs;
 	protected Integer numToRetain;
 	protected Long retainForMs;
 	
@@ -42,10 +37,8 @@ public class MemoryCountArchive implements CountArchive{
 			String source,
 			Long periodMs,
 			Integer numToRetain){
+		super(sourceType, source, periodMs);
 		this.startTimeMs = System.currentTimeMillis();
-		this.sourceType = sourceType;
-		this.source = source;
-		this.periodMs = periodMs;
 		this.numToRetain = numToRetain;
 		this.retainForMs = periodMs * numToRetain;
 		this.archive = new CountMapPeriod[this.numToRetain];
@@ -62,14 +55,6 @@ public class MemoryCountArchive implements CountArchive{
 			sb.append("\n");
 		}
 		return sb.toString();
-	}
-	
-	@Override
-	public int compareTo(CountArchive that){
-		if(ClassTool.differentClass(this, that)){ 
-			return ComparableTool.nullFirstCompareTo(this.getClass().getName(), that.getClass().getName()); 
-		}
-		return (int)(this.getPeriodMs() - that.getPeriodMs());
 	}
 
 	@Override
@@ -223,20 +208,6 @@ public class MemoryCountArchive implements CountArchive{
 
 	/******************************** getters ******************************************/
 	
-	@Override
-	public String getSourceType(){
-		return sourceType;
-	}
-
-	@Override
-	public String getSource(){
-		return source;
-	}
-
-	@Override
-	public long getPeriodMs(){
-		return this.periodMs;
-	}
 	
 	@Override
 	public String getName(){
