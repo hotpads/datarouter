@@ -66,6 +66,7 @@ public class CountArchiveFlusher{
 					long discardCutOff = System.currentTimeMillis() - DISCARD_COUNTS_OLDER_THAN_MS;
 					if(countMap.getNextStartTimeMs() < discardCutOff){ 
 						logger.warn(flusher.name+" discarded CountMapPeriod starting at "+new Date(countMap.getStartTimeMs()));
+						flusher.flushQueue.poll();//remove it
 						continue; 
 					}
 					Future<?> future = flusher.flushExecutor.submit(
