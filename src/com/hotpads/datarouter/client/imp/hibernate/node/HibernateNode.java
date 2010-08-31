@@ -203,7 +203,7 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 	
 	@Override
 	public void delete(final Lookup<PK> lookup, final Config config) {
-		TraceContext.startSpan(getName()+" delete");
+		TraceContext.startSpan(getName()+" deleteLookup");
 		if(lookup==null){ return; }
 		final String tableName = this.getTableName();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
