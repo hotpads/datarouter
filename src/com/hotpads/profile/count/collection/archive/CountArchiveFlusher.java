@@ -59,8 +59,12 @@ public class CountArchiveFlusher{
 		@Override
 		public void run(){
 			try{
+				if(flusher.flushQueue==null){ return; }
+				if(!flusher.shouldRun()){ 
+					flusher.flushQueue.clear();
+					return; 
+				}
 				while(true){
-					if(flusher.flushQueue==null){ break; }
 					final CountMapPeriod countMap = flusher.flushQueue.peek();//don't remove yet
 					if(countMap==null){ break; }
 					long discardCutOff = System.currentTimeMillis() - DISCARD_COUNTS_OLDER_THAN_MS;

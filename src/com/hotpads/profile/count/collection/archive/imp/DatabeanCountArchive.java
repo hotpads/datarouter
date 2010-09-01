@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.node.op.SortedStorageNode;
-import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
 import com.hotpads.profile.count.collection.archive.BaseCountArchive;
@@ -26,19 +25,16 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	
 	protected AtomicCounter aggregator;
 	
-	protected DataRouter router;
 	protected SortedStorageNode<CountKey,Count> countNode;
 	protected SortedStorageNode<AvailableCounterKey,AvailableCounter> availableCounterNode;
 	
 	public DatabeanCountArchive(
-			DataRouter router,
 			SortedStorageNode<CountKey,Count> countNode,
 			SortedStorageNode<AvailableCounterKey,AvailableCounter> availableCounterNode,
 			String sourceType,
 			String source,
 			Long periodMs){
 		super(sourceType, source, periodMs);
-		this.router = router;
 		this.countNode = countNode;
 		this.availableCounterNode = availableCounterNode;
 		this.aggregator = new AtomicCounter(DateTool.getPeriodStart(periodMs), periodMs);
@@ -54,8 +50,8 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	
 	@Override
 	public List<Count> getCounts(String name, Long startMs, Long endMs){
-		CountKey start = new CountKey(name, sourceType, source, periodMs, startMs);
-		CountKey end = new CountKey(name, sourceType, source, periodMs, System.currentTimeMillis());
+		CountKey start = new CountKey(name, sourceType, source, periodMs, startMs, 0L);
+		CountKey end = new CountKey(name, sourceType, source, periodMs, System.currentTimeMillis(), Long.MAX_VALUE);
 		List<Count> counts = countNode.getRange(start, true, end, true, null);
 		return counts;
 	}
@@ -80,7 +76,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 			for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(oldAggregator.getCountByKey()).entrySet()){
 				if(entry.getValue()==null || entry.getValue().equals(0L)){ continue; }
 				toSave.add(new Count(entry.getKey(), sourceType, source, 
-						periodMs, periodStart, entry.getValue().get()));
+						periodMs, periodStart, System.currentTimeMillis(), entry.getValue().get()));
 			}
 			countNode.putMulti(toSave, null);
 			flushAvailableCounters(countMap.getCountByKey());

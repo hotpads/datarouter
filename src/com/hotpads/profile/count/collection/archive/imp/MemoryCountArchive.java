@@ -96,7 +96,7 @@ public class MemoryCountArchive extends BaseCountArchive{
 				AtomicLong atomicLong = period.getCountByKey().get(name);
 				if(atomicLong!=null){
 					Count count = new Count(name, sourceType, source, 
-							periodMs, period.getStartTimeMs(), atomicLong.longValue());
+							periodMs, period.getStartTimeMs(), System.currentTimeMillis(), atomicLong.longValue());
 					counts.add(count);
 				}
 			}

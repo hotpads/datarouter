@@ -52,11 +52,12 @@ public class Count extends BaseDatabean<CountKey>{
 	/*********************** constructor **********************************/
 	
 	Count(){
-		this(null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null);
 	}
 	
-	public Count(String name, String sourceType, String source, Long periodMs, Long startTimeMs, Long value){
-		this.key = new CountKey(name, sourceType, source, periodMs, startTimeMs);
+	public Count(String name, String sourceType, String source, 
+			Long periodMs, Long startTimeMs, Long flushTimeMs, Long value){
+		this.key = new CountKey(name, sourceType, source, periodMs, startTimeMs, flushTimeMs);
 		this.value = value;
 	}
 	
@@ -107,6 +108,12 @@ public class Count extends BaseDatabean<CountKey>{
 		return XMLStringTool.escapeXml(getName());
 	}
 	
+	public Long increment(Long value){
+		if(value==null){ return value; }
+		this.value += value;
+		return value;
+	}
+	
 	/********************************** static ******************************************/
 	
 	public static long getIntervalStart(long periodMs, long timeMs){
@@ -126,7 +133,16 @@ public class Count extends BaseDatabean<CountKey>{
 		while(intervalStart <= endTime){
 			if(next != null && next.getStartTimeMs().equals(intervalStart)){
 //				logger.warn("match:"+new Date(intervalStart)+" "+new Date(next.getStartTimeMs()));
-				outs.add(next);
+				if(outs.size()>0){
+					Count last = outs.get(outs.size()-1);
+					if(last.getStartTimeMs().equals(next.getStartTimeMs())){
+						last.increment(next.value);
+					}else{
+						outs.add(next);
+					}
+				}else{
+					outs.add(next);
+				}
 				next = IterableTool.next(i);
 				++numMatches;
 			}else{
@@ -134,7 +150,7 @@ public class Count extends BaseDatabean<CountKey>{
 				if(next==null){ ++numNull; }
 				else{ ++numOutOfRange; }
 				Count zero = new Count(otherName, otherSourceType, otherSource, 
-						periodMs, intervalStart, 0L);
+						periodMs, intervalStart, System.currentTimeMillis(), 0L);
 				outs.add(zero);
 			}
 			intervalStart += periodMs;
@@ -197,6 +213,14 @@ public class Count extends BaseDatabean<CountKey>{
 
 	public void setSourceType(String sourceType){
 		key.setSourceType(sourceType);
+	}
+
+	public Long getFlushTimeMs(){
+		return key.getFlushTimeMs();
+	}
+
+	public void setFlushTimeMs(Long flushTimeMs){
+		key.setFlushTimeMs(flushTimeMs);
 	}
 
 	

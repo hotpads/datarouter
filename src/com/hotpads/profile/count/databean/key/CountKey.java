@@ -26,6 +26,7 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	protected String source;//eg "webhead93" or "0130221"
 	protected Long periodMs;
 	protected Long startTimeMs;
+	protected Long flushTimeMs;
 	
 	
 	public static final String
@@ -33,7 +34,8 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 		COL_sourceType = "sourceType",
 		COL_source = "source",
 		COL_periodMs = "periodMs",
-		COL_startTimeMs = "startTimeMs";
+		COL_startTimeMs = "startTimeMs",
+		COL_flushTimeMs = "flushTimeMs";
 	
 	
 	@Override
@@ -43,7 +45,8 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 				new StringField(Count.KEY_NAME, COL_sourceType, sourceType),
 				new StringField(Count.KEY_NAME, COL_source, source),
 				new UInt63Field(Count.KEY_NAME, COL_periodMs, periodMs),
-				new UInt63Field(Count.KEY_NAME, COL_startTimeMs, startTimeMs));
+				new UInt63Field(Count.KEY_NAME, COL_startTimeMs, startTimeMs),
+				new UInt63Field(Count.KEY_NAME, COL_flushTimeMs, flushTimeMs));
 	}
 	
 
@@ -54,13 +57,15 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	}
 	
 
-	public CountKey(String name, String sourceType, String source, Long periodMs, Long startTimeMs){
+	public CountKey(String name, String sourceType, String source, 
+			Long periodMs, Long startTimeMs, Long flushTimeMs){
 		super();
 		this.name = name;
 		this.sourceType = sourceType;
 		this.source = source;
 		this.periodMs = periodMs;
 		this.startTimeMs = startTimeMs;
+		this.flushTimeMs = flushTimeMs;
 	}
 	
 	/****************************** standard ********************************/
@@ -68,7 +73,8 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	@Override
 	public String toString(){
 		String time = startTimeMs==null?"":DateTool.getYYYYMMDDHHMMSSWithPunctuationNoSpaces(startTimeMs);
-		return super.toString()+"["+time+"]";
+		String flushDelaySeconds = (flushTimeMs - startTimeMs) / 1000 + "";
+		return super.toString()+"["+time+"+"+flushDelaySeconds+"s]";
 	}
 
 	/****************************** get/set ********************************/
@@ -115,6 +121,16 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 
 	public void setSourceType(String sourceType){
 		this.sourceType = sourceType;
+	}
+
+
+	public Long getFlushTimeMs(){
+		return flushTimeMs;
+	}
+
+
+	public void setFlushTimeMs(Long flushTimeMs){
+		this.flushTimeMs = flushTimeMs;
 	}
 		
 }
