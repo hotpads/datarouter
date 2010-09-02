@@ -21,21 +21,27 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 
 	/****************************** fields ********************************/
 	
+	/*
+	 * note: this field ordering is geared towards scanning through all the counts of a given sourceType.
+	 *   To look at a single source, you will still have to scan through all sources in that source type which is wasteful for
+	 *   a large number of sources.  You can investigate a single source via it's memory counters, 
+	 *   or if you need persistent counts, then a separate table with a different CountKey could be created.
+	 */
+	
 	protected String name;//eg "get Listing" or "rawSearch"
-	protected String sourceType;
-	protected String source;//eg "webhead93" or "0130221"
+	protected String sourceType;//eg "site" or "modelIndex"
 	protected Long periodMs;
 	protected Long startTimeMs;
-	protected Long flushTimeMs;
-	
+	protected Long created;//needed to distinguish between separate counts in the same period
+	protected String source;//usually a machine name, eg "webhead93"
 	
 	public static final String
 		COL_name = "name",
 		COL_sourceType = "sourceType",
-		COL_source = "source",
 		COL_periodMs = "periodMs",
 		COL_startTimeMs = "startTimeMs",
-		COL_flushTimeMs = "flushTimeMs";
+		COL_created = "created",
+		COL_source = "source";
 	
 	
 	@Override
@@ -43,10 +49,10 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 		return FieldTool.createList(
 				new StringField(Count.KEY_NAME, COL_name, name),
 				new StringField(Count.KEY_NAME, COL_sourceType, sourceType),
-				new StringField(Count.KEY_NAME, COL_source, source),
 				new UInt63Field(Count.KEY_NAME, COL_periodMs, periodMs),
 				new UInt63Field(Count.KEY_NAME, COL_startTimeMs, startTimeMs),
-				new UInt63Field(Count.KEY_NAME, COL_flushTimeMs, flushTimeMs));
+				new UInt63Field(Count.KEY_NAME, COL_created, created),
+				new StringField(Count.KEY_NAME, COL_source, source));
 	}
 	
 
@@ -57,15 +63,15 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	}
 	
 
-	public CountKey(String name, String sourceType, String source, 
-			Long periodMs, Long startTimeMs, Long flushTimeMs){
+	public CountKey(String name, String sourceType, Long periodMs, 
+			Long startTimeMs, Long created, String source){
 		super();
 		this.name = name;
 		this.sourceType = sourceType;
-		this.source = source;
 		this.periodMs = periodMs;
 		this.startTimeMs = startTimeMs;
-		this.flushTimeMs = flushTimeMs;
+		this.created = created;
+		this.source = source;
 	}
 	
 	/****************************** standard ********************************/
@@ -73,7 +79,7 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	@Override
 	public String toString(){
 		String time = startTimeMs==null?"":DateTool.getYYYYMMDDHHMMSSWithPunctuationNoSpaces(startTimeMs);
-		String flushDelaySeconds = (flushTimeMs - startTimeMs) / 1000 + "";
+		String flushDelaySeconds = (created - startTimeMs) / 1000 + "";
 		return super.toString()+"["+time+"+"+flushDelaySeconds+"s]";
 	}
 
@@ -124,14 +130,16 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	}
 
 
-	public Long getFlushTimeMs(){
-		return flushTimeMs;
+	public Long getCreated(){
+		return created;
 	}
 
 
-	public void setFlushTimeMs(Long flushTimeMs){
-		this.flushTimeMs = flushTimeMs;
+	public void setCreated(Long created){
+		this.created = created;
 	}
+
+
 		
 }
 

@@ -28,18 +28,18 @@ public class AvailableCounterKey extends BasePrimaryKey<AvailableCounterKey>{
 	
 	public static final String
 		COL_sourceType = "sourceType",
-		COL_source = "source",
 		COL_periodMs = "periodMs",
-		COL_name = "name";
+		COL_name = "name",
+		COL_source = "source";
 	
 	
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
 				new StringField(AvailableCounter.KEY_NAME, COL_sourceType, sourceType),
-				new StringField(AvailableCounter.KEY_NAME, COL_source, source),
 				new UInt63Field(AvailableCounter.KEY_NAME, COL_periodMs, periodMs),
-				new StringField(AvailableCounter.KEY_NAME, COL_name, name));
+				new StringField(AvailableCounter.KEY_NAME, COL_name, name),
+				new StringField(AvailableCounter.KEY_NAME, COL_source, source));
 	}
 	
 
@@ -50,12 +50,12 @@ public class AvailableCounterKey extends BasePrimaryKey<AvailableCounterKey>{
 	}
 	
 
-	public AvailableCounterKey(String sourceType, String source, Long periodMs, String name){
+	public AvailableCounterKey(String sourceType, Long periodMs, String name, String source){
 		super();
 		this.sourceType = sourceType;
-		this.source = source;
 		this.periodMs = periodMs;
 		this.name = name;
+		this.source = source;
 	}
 
 

@@ -67,8 +67,8 @@ public class MemoryCountArchive extends BaseCountArchive{
 					if(StringTool.notEmpty(nameLike) && ! entry.getKey().startsWith(nameLike)){
 						continue; 
 					}
-					unsorted.add(new AvailableCounter(entry.getKey(), sourceType, source, 
-							periodMs, archive[i].getStartTimeMs()));
+					unsorted.add(new AvailableCounter(entry.getKey(), sourceType, 
+							periodMs, source, archive[i].getStartTimeMs()));
 				}
 			}
 		}
@@ -95,13 +95,13 @@ public class MemoryCountArchive extends BaseCountArchive{
 			}else{
 				AtomicLong atomicLong = period.getCountByKey().get(name);
 				if(atomicLong!=null){
-					Count count = new Count(name, sourceType, source, 
-							periodMs, period.getStartTimeMs(), System.currentTimeMillis(), atomicLong.longValue());
+					Count count = new Count(name, sourceType, 
+							periodMs, period.getStartTimeMs(), System.currentTimeMillis(), source, atomicLong.longValue());
 					counts.add(count);
 				}
 			}
 			i = getIndexAfter(i);
-			if(i==startIndex){ break; }//looped all the way aroud
+			if(i==startIndex){ break; }//looped all the way around
 		}
 		return counts;
 	}

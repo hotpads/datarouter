@@ -55,9 +55,9 @@ public class Count extends BaseDatabean<CountKey>{
 		this(null, null, null, null, null, null, null);
 	}
 	
-	public Count(String name, String sourceType, String source, 
-			Long periodMs, Long startTimeMs, Long flushTimeMs, Long value){
-		this.key = new CountKey(name, sourceType, source, periodMs, startTimeMs, flushTimeMs);
+	public Count(String name, String sourceType, Long periodMs, 
+			Long startTimeMs, Long created, String source, Long value){
+		this.key = new CountKey(name, sourceType, periodMs, startTimeMs, created, source);
 		this.value = value;
 	}
 	
@@ -149,8 +149,8 @@ public class Count extends BaseDatabean<CountKey>{
 //				logger.warn("miss:"+new Date(intervalStart));
 				if(next==null){ ++numNull; }
 				else{ ++numOutOfRange; }
-				Count zero = new Count(otherName, otherSourceType, otherSource, 
-						periodMs, intervalStart, System.currentTimeMillis(), 0L);
+				Count zero = new Count(otherName, otherSourceType, periodMs, 
+						intervalStart, System.currentTimeMillis(), otherSource, 0L);
 				outs.add(zero);
 			}
 			intervalStart += periodMs;
@@ -215,12 +215,12 @@ public class Count extends BaseDatabean<CountKey>{
 		key.setSourceType(sourceType);
 	}
 
-	public Long getFlushTimeMs(){
-		return key.getFlushTimeMs();
+	public Long getCreated(){
+		return key.getCreated();
 	}
 
-	public void setFlushTimeMs(Long flushTimeMs){
-		key.setFlushTimeMs(flushTimeMs);
+	public void setCreated(Long created){
+		key.setCreated(created);
 	}
 
 	

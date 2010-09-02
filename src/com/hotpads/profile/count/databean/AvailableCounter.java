@@ -48,8 +48,8 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey>{
 		this(null, null, null, null, null);
 	}
 	
-	public AvailableCounter(String name, String sourceType, String source, Long periodMs, Long lastUpdated){
-		this.key = new AvailableCounterKey(sourceType, source, periodMs, name);
+	public AvailableCounter(String name, String sourceType, Long periodMs, String source, Long lastUpdated){
+		this.key = new AvailableCounterKey(sourceType, periodMs, name, source);
 		this.lastUpdated = lastUpdated;
 	}
 	

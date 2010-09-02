@@ -42,7 +42,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 
 	@Override
 	public List<AvailableCounter> getAvailableCounters(String nameLike){
-		AvailableCounterKey prefix = new AvailableCounterKey(sourceType, source, periodMs, nameLike);
+		AvailableCounterKey prefix = new AvailableCounterKey(sourceType, periodMs, nameLike, source);
 		List<AvailableCounter> counters = availableCounterNode.getWithPrefix(prefix, true, null);
 		Collections.sort(counters);
 		return counters;
@@ -50,8 +50,8 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	
 	@Override
 	public List<Count> getCounts(String name, Long startMs, Long endMs){
-		CountKey start = new CountKey(name, sourceType, source, periodMs, startMs, 0L);
-		CountKey end = new CountKey(name, sourceType, source, periodMs, System.currentTimeMillis(), Long.MAX_VALUE);
+		CountKey start = new CountKey(name, sourceType, periodMs, startMs, 0L, source);
+		CountKey end = new CountKey(name, sourceType, periodMs, System.currentTimeMillis(), Long.MAX_VALUE, source);
 		List<Count> counts = countNode.getRange(start, true, end, true, null);
 		return counts;
 	}
@@ -75,8 +75,8 @@ public class DatabeanCountArchive extends BaseCountArchive{
 			List<Count> toSave = ListTool.create();
 			for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(oldAggregator.getCountByKey()).entrySet()){
 				if(entry.getValue()==null || entry.getValue().equals(0L)){ continue; }
-				toSave.add(new Count(entry.getKey(), sourceType, source, 
-						periodMs, periodStart, System.currentTimeMillis(), entry.getValue().get()));
+				toSave.add(new Count(entry.getKey(), sourceType, 
+						periodMs, periodStart, System.currentTimeMillis(), source, entry.getValue().get()));
 			}
 			countNode.putMulti(toSave, null);
 			flushAvailableCounters(countMap.getCountByKey());
@@ -89,9 +89,8 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	protected void flushAvailableCounters(Map<String,AtomicLong> countByKey){
 		List<AvailableCounter> toSave = ListTool.createLinkedList();
 		for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(countByKey).entrySet()){
-			toSave.add(new AvailableCounter(
-					entry.getKey(), sourceType, source, 
-					periodMs, System.currentTimeMillis()));
+			toSave.add(new AvailableCounter(entry.getKey(), sourceType, 
+					periodMs, source, System.currentTimeMillis()));
 		}
 		availableCounterNode.putMulti(toSave, null);
 	}
