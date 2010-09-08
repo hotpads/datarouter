@@ -2,7 +2,7 @@ package com.hotpads.datarouter.client.imp.hbase;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Map;
+import java.util.EmptyStackException;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,7 +14,7 @@ import com.hotpads.util.core.bytes.StringByteTool;
 public class HTablePool{
 	
 	protected HBaseConfiguration hBaseConfiguration;
-	protected Map<String,Stack<HTable>> tablesByName;//cannot key by byte[] because .equals checks identity?
+	protected ConcurrentHashMap<String,Stack<HTable>> tablesByName;//cannot key by byte[] because .equals checks identity?
 	
 	public HTablePool(HBaseConfiguration hBaseConfiguration, Collection<String> names, int startingSize){
 		this.hBaseConfiguration = hBaseConfiguration;
@@ -34,12 +34,15 @@ public class HTablePool{
 	
 	public HTable checkOut(String name){
 		Stack<HTable> stack = tablesByName.get(name);
-		HTable hTable = stack.pop();
-		if(hTable!=null){ return hTable; }
 		try{
-			return new HTable(this.hBaseConfiguration, name);
-		}catch(IOException e){
-			throw new RuntimeException(e);
+			HTable hTable = stack.pop();
+			return hTable;
+		}catch(EmptyStackException ese){
+			try{
+				return new HTable(this.hBaseConfiguration, name);
+			}catch(IOException ioe){
+				throw new RuntimeException(ioe);
+			}
 		}
 	}
 	

@@ -21,9 +21,9 @@ public class AvailableCounterKey extends BasePrimaryKey<AvailableCounterKey>{
 	/****************************** fields ********************************/
 	
 	protected String sourceType;
-	protected String source;//eg "webhead93" or "0130221"
 	protected Long periodMs;
 	protected String name;//eg "get Listing" or "rawSearch"
+	protected String source;//eg "webhead93" or "0130221"
 	
 	
 	public static final String

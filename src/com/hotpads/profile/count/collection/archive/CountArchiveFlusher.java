@@ -104,6 +104,12 @@ public class CountArchiveFlusher{
 	}
 	
 	
+	public void shutdownAndFlushAll(){
+		logger.warn("shutting down CountArchiveFlusher "+name);
+		flushScheduler.shutdown();
+		new CountArchiveFlushUntilEmpty(this).run();
+	}
+	
 	
 	public void addArchive(CountArchive archive){
 		this.archives.add(archive);

@@ -15,7 +15,7 @@ public class HBaseOptions extends TypedProperties{
 	}
 	
 	public String zookeeperQuorum(){
-		return getString(clientPrefix+"zookeeper.quorum", "localhost");
+		return getString(clientPrefix+"zookeeper.quorum");
 	}
 	
 	public boolean checkTables(){

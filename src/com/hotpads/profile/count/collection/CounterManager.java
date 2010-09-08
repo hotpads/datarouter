@@ -138,6 +138,11 @@ public class CounterManager implements CountMap{
 		flushers.add(flusher);
 	}
 
+	public void stopAndFlushAll(){
+		for(CountArchiveFlusher flusher : flushers){
+			flusher.shutdownAndFlushAll();
+		}
+	}
 
 	public SortedSet<CountArchive> getArchives(){
 		SortedSet<CountArchive> archives = SetTool.createTreeSet();

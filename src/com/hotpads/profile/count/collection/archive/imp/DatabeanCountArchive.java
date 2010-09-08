@@ -24,6 +24,8 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	static Logger logger = Logger.getLogger(DatabeanCountArchive.class);
 	
 	protected AtomicCounter aggregator;
+	protected Long flushPeriodMs;
+	protected Long lastFlushMs;//need to anchor this to the period... currently floating
 	
 	protected SortedStorageNode<CountKey,Count> countNode;
 	protected SortedStorageNode<AvailableCounterKey,AvailableCounter> availableCounterNode;
@@ -33,16 +35,19 @@ public class DatabeanCountArchive extends BaseCountArchive{
 			SortedStorageNode<AvailableCounterKey,AvailableCounter> availableCounterNode,
 			String sourceType,
 			String source,
-			Long periodMs){
+			Long periodMs,
+			Long flushPeriodMs){
 		super(sourceType, source, periodMs);
 		this.countNode = countNode;
 		this.availableCounterNode = availableCounterNode;
 		this.aggregator = new AtomicCounter(DateTool.getPeriodStart(periodMs), periodMs);
+		this.flushPeriodMs = flushPeriodMs;
+		this.lastFlushMs = System.currentTimeMillis();
 	}
 
 	@Override
 	public List<AvailableCounter> getAvailableCounters(String nameLike){
-		AvailableCounterKey prefix = new AvailableCounterKey(sourceType, periodMs, nameLike, source);
+		AvailableCounterKey prefix = new AvailableCounterKey(sourceType, periodMs, nameLike, null);
 		List<AvailableCounter> counters = availableCounterNode.getWithPrefix(prefix, true, null);
 		Collections.sort(counters);
 		return counters;
@@ -50,8 +55,8 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	
 	@Override
 	public List<Count> getCounts(String name, Long startMs, Long endMs){
-		CountKey start = new CountKey(name, sourceType, periodMs, startMs, 0L, source);
-		CountKey end = new CountKey(name, sourceType, periodMs, System.currentTimeMillis(), Long.MAX_VALUE, source);
+		CountKey start = new CountKey(name, sourceType, periodMs, startMs, source, 0L);
+		CountKey end = new CountKey(name, sourceType, periodMs, System.currentTimeMillis(), source, Long.MAX_VALUE);
 		List<Count> counts = countNode.getRange(start, true, end, true, null);
 		return counts;
 	}
@@ -67,32 +72,51 @@ public class DatabeanCountArchive extends BaseCountArchive{
 					DISCARD_IF_OLDER_THAN+" ms");
 			return;
 		}
-		if(countMap.getStartTimeMs() >= (aggregator.getStartTimeMs() + periodMs)){//flush the aggregator
-//			logger.warn("flushing "+getName());
-			AtomicCounter oldAggregator = aggregator;
-			long periodStart = DateTool.getPeriodStart(countMap.getStartTimeMs(), periodMs);
-			aggregator = new AtomicCounter(periodStart, periodMs);
-			List<Count> toSave = ListTool.create();
-			for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(oldAggregator.getCountByKey()).entrySet()){
-				if(entry.getValue()==null || entry.getValue().equals(0L)){ continue; }
-				toSave.add(new Count(entry.getKey(), sourceType, 
-						periodMs, periodStart, System.currentTimeMillis(), source, entry.getValue().get()));
-			}
-			countNode.putMulti(toSave, null);
-			flushAvailableCounters(countMap.getCountByKey());
+		if(!shouldFlush(countMap)){
+	//		logger.warn("merging new counts into "+getName());
+			aggregator.merge(countMap);
+			return;
 		}
-//		logger.warn("merging new counts into "+getName());
-		aggregator.merge(countMap);
+		
+//		logger.warn("flushing "+getName());
+		AtomicCounter oldAggregator = aggregator;
+		long periodStart = DateTool.getPeriodStart(countMap.getStartTimeMs(), periodMs);
+		aggregator = new AtomicCounter(periodStart, periodMs);
+		List<Count> toSave = ListTool.create();
+		for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(oldAggregator.getCountByKey()).entrySet()){
+			if(entry.getValue()==null || entry.getValue().equals(0L)){ continue; }
+			toSave.add(new Count(entry.getKey(), sourceType, 
+					periodMs, periodStart, source, System.currentTimeMillis(), entry.getValue().get()));
+		}
+		countNode.putMulti(toSave, null);
+		flushAvailableCounters(countMap.getCountByKey());
+		lastFlushMs = System.currentTimeMillis();
+		
 	}
 
 	
 	protected void flushAvailableCounters(Map<String,AtomicLong> countByKey){
 		List<AvailableCounter> toSave = ListTool.createLinkedList();
 		for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(countByKey).entrySet()){
-			toSave.add(new AvailableCounter(entry.getKey(), sourceType, 
-					periodMs, source, System.currentTimeMillis()));
+			toSave.add(new AvailableCounter(sourceType, periodMs, entry.getKey(), 
+					source, System.currentTimeMillis()));
 		}
 		availableCounterNode.putMulti(toSave, null);
+	}
+	
+	protected boolean shouldFlush(CountMapPeriod countMap){
+		long periodEndsMs = aggregator.getStartTimeMs() + periodMs;
+		boolean newPeriod = countMap.getStartTimeMs() >= periodEndsMs;
+		if(newPeriod){ return true; }
+		
+		long nextFlushMs = lastFlushMs + flushPeriodMs;
+		long now = System.currentTimeMillis();
+		if(now > nextFlushMs){ 
+//			logger.warn("early flush of "+this.getName());
+			return true; 
+		}
+		
+		return false;
 	}
 
 	

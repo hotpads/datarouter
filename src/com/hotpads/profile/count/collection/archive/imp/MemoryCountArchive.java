@@ -67,8 +67,8 @@ public class MemoryCountArchive extends BaseCountArchive{
 					if(StringTool.notEmpty(nameLike) && ! entry.getKey().startsWith(nameLike)){
 						continue; 
 					}
-					unsorted.add(new AvailableCounter(entry.getKey(), sourceType, 
-							periodMs, source, archive[i].getStartTimeMs()));
+					unsorted.add(new AvailableCounter(sourceType, 
+							periodMs, entry.getKey(), source, archive[i].getStartTimeMs()));
 				}
 			}
 		}
@@ -96,7 +96,8 @@ public class MemoryCountArchive extends BaseCountArchive{
 				AtomicLong atomicLong = period.getCountByKey().get(name);
 				if(atomicLong!=null){
 					Count count = new Count(name, sourceType, 
-							periodMs, period.getStartTimeMs(), System.currentTimeMillis(), source, atomicLong.longValue());
+							periodMs, period.getStartTimeMs(), source, 
+							System.currentTimeMillis(), atomicLong.longValue());
 					counts.add(count);
 				}
 			}

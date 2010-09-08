@@ -56,8 +56,8 @@ public class Count extends BaseDatabean<CountKey>{
 	}
 	
 	public Count(String name, String sourceType, Long periodMs, 
-			Long startTimeMs, Long created, String source, Long value){
-		this.key = new CountKey(name, sourceType, periodMs, startTimeMs, created, source);
+			Long startTimeMs, String source, Long created, Long value){
+		this.key = new CountKey(name, sourceType, periodMs, startTimeMs, source, created);
 		this.value = value;
 	}
 	
@@ -150,7 +150,7 @@ public class Count extends BaseDatabean<CountKey>{
 				if(next==null){ ++numNull; }
 				else{ ++numOutOfRange; }
 				Count zero = new Count(otherName, otherSourceType, periodMs, 
-						intervalStart, System.currentTimeMillis(), otherSource, 0L);
+						intervalStart, otherSource, System.currentTimeMillis(), 0L);
 				outs.add(zero);
 			}
 			intervalStart += periodMs;

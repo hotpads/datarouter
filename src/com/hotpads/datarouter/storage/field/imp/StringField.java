@@ -109,7 +109,9 @@ public class StringField extends BaseField<String>{
 				return i - offset + 1;//plus 1 for the separator
 			}
 		}
-		throw new IllegalArgumentException("separator not found");
+		int numBytes = bytes.length - offset;
+		return numBytes >= 0 ? numBytes : 0; //not sure where the separator went.  schema change or corruption?
+//		throw new IllegalArgumentException("separator not found for bytes:"+new String(bytes));
 	}
 	
 	@Override

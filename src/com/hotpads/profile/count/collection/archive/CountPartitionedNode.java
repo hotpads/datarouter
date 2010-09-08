@@ -12,7 +12,6 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.profile.count.databean.key.CountKey;
-import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.StringTool;
@@ -51,14 +50,19 @@ extends PartitionedSortedStorageNode<CountKey,Count,PhysicalSortedStorageNode<Co
 		return this.getName() + getSuffix(periodMs);
 	}
 	
-	public static final List<String> suffixes = ListTool.create("5s", "20s", "1m", "5m", "20m", "1h", "4h", "1d");
+	public static final List<String> suffixes =     ListTool.create("5s", "20s", "1m", "5m",   "20m", "1h", "4h", "1d");
+	public static final List<String> flushPeriods = ListTool.create("5s", "10s", "20s", "30s", "1m",  "1m", "1m", "1m");
 	
 	public static Map<String,Long> msBySuffix = MapTool.createHashMap();
 	public static Map<Long,String> suffixByMs = MapTool.createHashMap();
+	public static Map<Long,Long> flushPeriodByPeriod = MapTool.createHashMap();
 	static{
-		for(String suffix : IterableTool.nullSafe(suffixes)){
+		for(int i=0; i < suffixes.size(); ++i){
+			String suffix = suffixes.get(i);
 			msBySuffix.put(suffix, getMs(suffix));
 			suffixByMs.put(getMs(suffix), suffix);
+			String flushPeriod = flushPeriods.get(i);
+			flushPeriodByPeriod.put(getMs(suffix), getMs(flushPeriod));
 		}
 	}
 	

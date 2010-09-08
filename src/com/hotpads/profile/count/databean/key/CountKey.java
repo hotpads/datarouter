@@ -32,16 +32,16 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	protected String sourceType;//eg "site" or "modelIndex"
 	protected Long periodMs;
 	protected Long startTimeMs;
-	protected Long created;//needed to distinguish between separate counts in the same period
 	protected String source;//usually a machine name, eg "webhead93"
+	protected Long created;//needed to distinguish between separate counts in the same period
 	
 	public static final String
 		COL_name = "name",
 		COL_sourceType = "sourceType",
 		COL_periodMs = "periodMs",
 		COL_startTimeMs = "startTimeMs",
-		COL_created = "created",
-		COL_source = "source";
+		COL_source = "source",
+		COL_created = "created";
 	
 	
 	@Override
@@ -51,8 +51,8 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 				new StringField(Count.KEY_NAME, COL_sourceType, sourceType),
 				new UInt63Field(Count.KEY_NAME, COL_periodMs, periodMs),
 				new UInt63Field(Count.KEY_NAME, COL_startTimeMs, startTimeMs),
-				new UInt63Field(Count.KEY_NAME, COL_created, created),
-				new StringField(Count.KEY_NAME, COL_source, source));
+				new StringField(Count.KEY_NAME, COL_source, source),
+				new UInt63Field(Count.KEY_NAME, COL_created, created));
 	}
 	
 
@@ -64,14 +64,14 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	
 
 	public CountKey(String name, String sourceType, Long periodMs, 
-			Long startTimeMs, Long created, String source){
+			Long startTimeMs, String source, Long created){
 		super();
 		this.name = name;
 		this.sourceType = sourceType;
 		this.periodMs = periodMs;
 		this.startTimeMs = startTimeMs;
-		this.created = created;
 		this.source = source;
+		this.created = created;
 	}
 	
 	/****************************** standard ********************************/
