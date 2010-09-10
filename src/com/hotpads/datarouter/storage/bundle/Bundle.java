@@ -15,7 +15,8 @@ import com.hotpads.util.core.MapTool;
 
 public class Bundle{
 
-	protected Map<String,SingleTypeBundle<? extends Databean<?>>> bundleByType = MapTool.createHashMap();
+	protected Map<String,SingleTypeBundle<? extends Databean<?>>> bundleByType 
+		= MapTool.createHashMap();
 	
 	protected <D extends Databean<?>> void add(D databean){
 		if(databean==null){ return; }
@@ -73,6 +74,11 @@ public class Bundle{
 			Class<D> clazz, Collection<D> databeans){
 		this.removeAll(clazz);
 		this.add(databeans);
+	}
+	
+	protected <D extends Databean<?>> void set(D databean){
+		this.removeAll(databean.getClass());
+		this.add(databean);
 	}
 	
 	
