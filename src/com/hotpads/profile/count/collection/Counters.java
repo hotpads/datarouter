@@ -36,6 +36,12 @@ public class Counters implements CountMap{
 		return counters;
 	}
 	
+	public static void stopAndFlushAll(){
+		if(counters!=null && counters.getManager()!=null){
+			counters.getManager().stopAndFlushAll();
+		}
+	}
+	
 	
 	
 	/******************* instance *****************************/

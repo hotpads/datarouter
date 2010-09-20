@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.app.App;
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.connection.ConnectionPools;
@@ -24,10 +25,16 @@ import com.hotpads.util.core.ListTool;
  *
  */
 public abstract class BaseDataRouter implements DataRouter {
+
+	public static final String
+		MODE_dev = "dev",
+		MODE_production = "production";
 	
 	/********************************* fields **********************************/
 	protected String name;
-	protected RouterOptions clientOptions;
+	protected List<ClientId> clientIds;
+	protected List<String> clientNames;
+	protected RouterOptions routerOptions;
 	protected ConnectionPools connectionPools;
 	protected Clients clients;
 	
@@ -37,9 +44,11 @@ public abstract class BaseDataRouter implements DataRouter {
 	
 	/**************************** constructor  ****************************************/
 	
-	public BaseDataRouter(String name) throws IOException{
+	public BaseDataRouter(String name, List<ClientId> clientIds) throws IOException{
 		this.name = name;
-		this.clientOptions = new RouterOptions(getConfigLocation());
+		this.clientIds = clientIds;
+		this.clientNames = ClientId.getNames(clientIds);
+		this.routerOptions = new RouterOptions(getConfigLocation());
 	}
 	
 	
@@ -69,7 +78,7 @@ public abstract class BaseDataRouter implements DataRouter {
 	 */
 	@Override
 	public void activate() throws IOException{
-		this.connectionPools = new ConnectionPools(this.getConfigLocation());
+		this.connectionPools = new ConnectionPools(this);
 		this.clients = new Clients(this.getConfigLocation(), this);
 	}
 
@@ -104,6 +113,16 @@ public abstract class BaseDataRouter implements DataRouter {
 	
 	/************************************** getting clients *************************/
 
+	@Override
+	public List<ClientId> getClientIds(){
+		return clientIds;
+	}
+	
+	@Override
+	public List<String> getClientNames(){
+		return clientNames;
+	}
+	
 	@Override
 	public Client getClient(String clientName){
 		return clients.getClient(clientName);
@@ -177,7 +196,7 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	public RouterOptions getClientOptions(){
-		return clientOptions;
+		return routerOptions;
 	}
 	
 	

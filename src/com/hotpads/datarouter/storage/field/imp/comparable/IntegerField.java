@@ -45,7 +45,8 @@ public class IntegerField extends BasePrimitiveField<Integer>{
 	@Override
 	public Integer fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			return rs.getInt(this.name);
+			int value = rs.getInt(this.name);
+			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

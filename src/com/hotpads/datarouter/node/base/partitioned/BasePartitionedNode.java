@@ -70,7 +70,7 @@ extends BaseNode<PK,D>{
 	}
 
 	@Override
-	public List<String> getClientNamesForPrimaryKeys(Collection<PK> keys) {
+	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
 		Map<N,List<PK>> keysByPhysicalNode = this.getPrimaryKeysByPhysicalNode(keys);
 		List<String> clientNames = ListTool.createLinkedList();
 		for(PhysicalNode<PK,D> node : MapTool.nullSafe(keysByPhysicalNode).keySet()){

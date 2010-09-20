@@ -21,7 +21,7 @@ extends Comparable<Node<PK,D>>{
 	Set<String> getAllNames();
 	List<String> getClientNames();
 	boolean usesClient(String clientName);
-	List<String> getClientNamesForPrimaryKeys(Collection<PK> keys);
+	List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys);
 	List<? extends PhysicalNode<PK,D>> getPhysicalNodes();
 	List<? extends PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName);
 	Node<PK,D> getMaster();

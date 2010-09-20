@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.app.App;
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.connection.ConnectionPools;
@@ -41,10 +42,10 @@ public interface DataRouter {
 
 	/************************************** getting clients *************************/
 
+	List<ClientId> getClientIds();
+	List<String> getClientNames();
 	Client getClient(String clientName);
-
 	List<Client> getAllClients();
-
 	List<Client> getClients(Collection<String> clientNames);
 
 	<PK extends PrimaryKey<PK>,D extends Databean<PK>> List<String> 

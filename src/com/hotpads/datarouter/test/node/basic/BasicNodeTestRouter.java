@@ -2,6 +2,7 @@ package com.hotpads.datarouter.test.node.basic;
 import java.io.IOException;
 
 import com.google.inject.Singleton;
+import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeFactory;
 import com.hotpads.datarouter.node.op.IndexedStorageNode;
@@ -13,6 +14,7 @@ import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
+import com.hotpads.util.core.ListTool;
 
 
 @Singleton
@@ -22,7 +24,7 @@ extends BaseDataRouter{
 	public static final String name = "basicNodeTest";
 	
 	public BasicNodeTestRouter(String client) throws IOException{
-		super(name);
+		super(name, ListTool.create(new ClientId(client, true)));
 		
 		manyFieldTypeBeanNode = register(NodeFactory.create(client, ManyFieldTypeBean.class, this));
 		sortedBeanNode = register(NodeFactory.create(client, SortedBean.class, this));

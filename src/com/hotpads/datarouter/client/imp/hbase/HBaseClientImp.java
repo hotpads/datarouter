@@ -5,6 +5,7 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.imp.hbase.factory.HBaseOptions;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.profile.count.collection.Counters;
 

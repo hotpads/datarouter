@@ -2,20 +2,19 @@ package com.hotpads.datarouter.client;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.connection.ConnectionPools;
-import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.StringTool;
@@ -25,15 +24,16 @@ public class Clients{
 	private static Logger logger = Logger.getLogger(Clients.class);
 
 	protected String configFileLocation;
+	protected Properties properties;
 	protected DataRouter router;
 	protected Map<String, Object> params;
 	
 	protected List<String> allClientNames = ListTool.createLinkedList();
-	
-	protected Map<String,Client> clientByName = new HashMap<String,Client>();
-	
-	protected Set<String> initializingClients = new HashSet<String>();
 
+	protected Map<String,ClientFactory> clientFactoryByName = new ConcurrentHashMap<String,ClientFactory>();
+
+	public static final ClientType DEFAULT_CLIENT_TYPE = ClientType.hibernate;
+	
 	public static final String
 		prefixClients = "clients",
 		paramForceInitMode = ".forceInitMode",
@@ -43,115 +43,29 @@ public class Clients{
 		clientDefault = "default",
 		paramConnectionPool = ".connectionPool",
 		paramInitMode = ".initMode",
-		paramSource = ".source",
 		paramType = ".type",
 		paramSlave = ".slave";
 	
 	/******************************* constructors **********************************/
 
-	public Clients(String configFileLocation, DataRouter router)
-	throws IOException {
-
+	public Clients(String configFileLocation, DataRouter router) throws IOException {
 		this.configFileLocation = configFileLocation;
 		this.router = router;
-
-		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
-		this.allClientNames = getAllClientNames(properties);
-
-		this.initializeEagerClients();
-	}
-	
-	
-	/******************* add clients **********************************************/
-	
-	public void add(Client client){
-		this.clientByName.put(client.getName(), client);
-	}
-	
-	
-	/*************************** getClients 
-	 * @throws InterruptedException ****************************************/
-	
-	long MAX_INIT_WAIT_TIME_MS = 30000;
-	
-	/*
-	 * - Prevent multiple versions of the same client from instantiating (would be a very bad resource leak)
-	 * - Allow clients to instantiate in parallel
-	 */
-	public Client getClient(String name){
-		if( ! this.clientByName.containsKey(name)){ 
-			boolean initializeVsWait = false;
-			synchronized(this.initializingClients){
-				if(!this.initializingClients.contains(name)){
-					this.initializingClients.add(name);
-					initializeVsWait = true;
-				}
-			}
-			if(initializeVsWait){
-				try {
-					this.initializeClient(name);
-				} catch (Exception e) {
-					logger.error(ExceptionTool.getStackTraceAsString(e));
-				}finally{
-					this.initializingClients.remove(name);
-				}
-			}
-			long waitStartTimeMs = System.currentTimeMillis();
-			while(true){
-				//see if it finished initializing
-				if(!this.initializingClients.contains(name)){
-					break;
-				}
-				//have we waited enough for it?
-				long elapsedWaitTime = System.currentTimeMillis() - waitStartTimeMs;
-				if(elapsedWaitTime > MAX_INIT_WAIT_TIME_MS){
-					throw new UnavailableException("Could not acquire client '"+name+"' after "+MAX_INIT_WAIT_TIME_MS+"ms");
-				}
-				//try again in 1 second
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return this.clientByName.get(name);
-	}
-	
-	public List<Client> getClients(Collection<String> clientNames){
-		List<Client> clients = ListTool.createLinkedList();
-		for(String clientName : CollectionTool.nullSafe(clientNames)){
-			clients.add(this.getClient(clientName));
-		}
-		return clients;
-	}
-	
-	public List<Client> getAllClients(){
-		return this.getClients(this.allClientNames);
+		this.properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
+		this.initializeClients();
 	}
 	
 	
 	/******************** getNames **********************************************/
-	
-	public static List<String> getAllClientNames(Properties properties){
-		String clientNamesCsv = properties.getProperty(prefixClients+paramNames);
-		String[] clientNames = StringTool.isEmpty(clientNamesCsv)?null:clientNamesCsv.split(",");
-		return ListTool.createArrayList(clientNames);
-	}
-
-	
-	public static final String clientInitModeEager = "eager";
-	public static final String clientInitModeLazy = "lazy";
 		
-	public static List<String> getClientNamesRequiringEagerInitialization(Properties properties){
-		List<String> clientNames = getAllClientNames(properties);
+	public List<String> getClientNamesRequiringEagerInitialization(Properties properties){
 		
 		ClientInitMode forceInitMode = ClientInitMode.fromString(
 				properties.getProperty(prefixClients+paramForceInitMode), null);
 		
 		if(forceInitMode != null){
 			if(ClientInitMode.eager.equals(forceInitMode)){
-				return clientNames;
+				return router.getClientNames();
 			}else{
 				return null;
 			}
@@ -161,13 +75,11 @@ public class Clients{
 				properties.getProperty(prefixClient+clientDefault+paramInitMode), ClientInitMode.lazy);
 		
 		List<String> clientNamesRequiringEagerInitialization = ListTool.createLinkedList();
-		for(String name : CollectionTool.nullSafe(clientNames)){
+		for(String name : CollectionTool.nullSafe(router.getClientNames())){
 			ClientInitMode mode = ClientInitMode.fromString(
 					properties.getProperty(prefixClient+name+paramInitMode), defaultInitMode);
 			if(ClientInitMode.eager.equals(mode)){
 				clientNamesRequiringEagerInitialization.add(name);
-			}else{
-				logger.warn("lazy-init registered for client "+name);
 			}
 		}
 		return clientNamesRequiringEagerInitialization;
@@ -176,27 +88,40 @@ public class Clients{
 	
 	/********************************** initialize ******************************/
 	
-	public void initializeEagerClients() throws IOException{	
-		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
-		List<String> clientNames = getClientNamesRequiringEagerInitialization(properties);
-		for(String name : CollectionTool.nullSafe(clientNames)){
-			this.initializeClient(name);
-		}
-	}
 	
-	
-	public void initializeClient(String clientName) throws IOException{	
-		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
-		try{
+	public void initializeClients() throws IOException{	
+		String defaultTypeString = properties.getProperty(prefixClient+clientDefault+paramType);
+		if(StringTool.isEmpty(defaultTypeString)){ defaultTypeString = DEFAULT_CLIENT_TYPE.toString(); }
+		allClientNames = router.getClientNames();
+		if(CollectionTool.isEmpty(allClientNames)){ return; }
+		final List<String> eagerClientNames = getClientNamesRequiringEagerInitialization(properties);
+		ExecutorService executor = Executors.newFixedThreadPool(CollectionTool.size(allClientNames));
+		for(final String clientName : CollectionTool.nullSafe(allClientNames)){
 			String typeString = properties.getProperty(prefixClient+clientName+paramType);
+			if(StringTool.isEmpty(typeString)){ typeString = defaultTypeString; }
 			ClientType clientType = ClientType.fromString(typeString);
-			Client client = clientType.getClientFactory().createClient(router, clientName, properties, params);
-			this.add(client);
-			logger.info("added client("+clientType.toString()+"):"+client.getName());
-		}catch(Exception e){
-			logger.error("error instantiating client:"+clientName);
-			logger.error(ThrowableTool.getStackTraceAsString(e));
+			ClientFactory clientFactory = clientType.createClientFactory(router, clientName, configFileLocation);
+			clientFactoryByName.put(clientName, clientFactory);
+			boolean eager = CollectionTool.contains(eagerClientNames, clientName);
+			if(!eager){
+//				logger.warn("registered:"+clientName+" ("+clientType.toString()+")");
+			}
 		}
+		for(final String clientName : CollectionTool.nullSafe(eagerClientNames)){
+			executor.submit(new Callable<Void>(){
+				public Void call(){
+					try{
+						clientFactoryByName.get(clientName).getClient();
+					}catch(Exception e){
+						logger.error("error activating client:"+clientName);
+						logger.error(ThrowableTool.getStackTraceAsString(e));
+					}
+					return null;
+				}
+			});
+		}
+		//TODO handle problems
+		executor.shutdown();//i don't think this call blocks.  the invokeAll call does blcok
 	}
 	
 	
@@ -205,4 +130,34 @@ public class Clients{
 	public ConnectionPools getConnectionPools(){
 		return this.router.getConnectionPools();
 	}
+	
+	public List<Client> getClients(Collection<String> clientNames){
+		List<Client> clients = ListTool.createLinkedList();
+		for(String clientName : CollectionTool.nullSafe(clientNames)){
+			clients.add(clientFactoryByName.get(clientName).getClient());
+		}
+		return clients;
+	}
+	
+	public List<Client> getAllClients(){
+		return getClients(allClientNames);
+	}
+	
+	public Client getClient(String clientName){
+		ClientFactory clientFactory = clientFactoryByName.get(clientName);
+		return clientFactory==null?null:clientFactory.getClient();
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

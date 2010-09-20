@@ -89,8 +89,8 @@ implements MapStorageReadOps<PK,D>{
 	}
 
 	@Override
-	public List<String> getClientNamesForPrimaryKeys(Collection<PK> keys) {
-		return this.master.getClientNamesForPrimaryKeys(keys);
+	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
+		return this.master.getClientNamesForPrimaryKeysForSchemaUpdate(keys);
 	}
 	
 	@Override

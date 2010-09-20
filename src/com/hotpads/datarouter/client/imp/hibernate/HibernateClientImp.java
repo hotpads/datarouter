@@ -67,7 +67,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	
 	/**************************** constructor **********************************/
 	
-	HibernateClientImp(String name){
+	public HibernateClientImp(String name){
 		this.name = name;
 	}
 	
@@ -316,6 +316,16 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 		+MapTool.size(sessionByConnectionHandle)+" sessionHandles";
 	}
 	
+	
+	/**************************** get/set ***************************************/
+
+	public void setConnectionPool(JdbcConnectionPool connectionPool){
+		this.connectionPool = connectionPool;
+	}
+
+	public void setSessionFactory(SessionFactory sessionFactory){
+		this.sessionFactory = sessionFactory;
+	}
 	
 	
 }

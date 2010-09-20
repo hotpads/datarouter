@@ -1,7 +1,7 @@
 package com.hotpads.datarouter.node;
 
 import com.hotpads.datarouter.client.ClientType;
-import com.hotpads.datarouter.client.imp.hbase.HBaseNode;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;

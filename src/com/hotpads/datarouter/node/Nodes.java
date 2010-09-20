@@ -121,7 +121,7 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends No
 			keysByNode.get(node).add(key);
 		}
 		for(N node : MapTool.nullSafe(keysByNode).keySet()){
-			Collection<String> nodeClientNames = node.getClientNamesForPrimaryKeys(keysByNode.get(node));
+			Collection<String> nodeClientNames = node.getClientNamesForPrimaryKeysForSchemaUpdate(keysByNode.get(node));
 			clientNames.addAll(nodeClientNames);
 		}
 		return ListTool.createArrayList(clientNames);

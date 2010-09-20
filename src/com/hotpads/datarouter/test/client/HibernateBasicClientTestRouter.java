@@ -1,23 +1,27 @@
 package com.hotpads.datarouter.test.client;
 import java.io.IOException;
+import java.util.List;
 
 import com.google.inject.Singleton;
+import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.HibernateNodeFactory;
 import com.hotpads.datarouter.node.op.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
+import com.hotpads.util.core.ListTool;
 
 
 @Singleton
 public class HibernateBasicClientTestRouter
-extends BaseDataRouter implements BasicClientTestRouter{
+extends BaseDataRouter 
+implements BasicClientTestRouter{
 
 	public static final String name = "basicClientTest";
 	
 	public HibernateBasicClientTestRouter() throws IOException{
-		super(name);
+		super(name, CLIENT_IDS);
 		activate();//do after field inits
 	}
 
@@ -31,13 +35,16 @@ extends BaseDataRouter implements BasicClientTestRouter{
 	/********************************** client names **********************************/
 	
 	public static final String 
-		client_drTest0 = DRTestConstants.CLIENT_drTestHibernate0;
+		CLIENT_drTest0 = DRTestConstants.CLIENT_drTestHibernate0;
 
+	public static final List<ClientId>
+		CLIENT_IDS = ListTool.create(new ClientId(CLIENT_drTest0, true));
+	
 	
 	/********************************** nodes **********************************/
 	
 	private MapStorageNode<TxnBeanKey,TxnBean> txnBean = register(
-			HibernateNodeFactory.newHibernate(client_drTest0, TxnBean.class, this));
+			HibernateNodeFactory.newHibernate(CLIENT_drTest0, TxnBean.class, this));
 	
 	
 	

@@ -173,6 +173,19 @@ public class ManyFieldTypeIntegrationTests {
 	}
 	
 	@Test 
+	public void testNullPrimitive(){		
+		ManyFieldTypeBean bean = new ManyFieldTypeBean();
+		Float val = null;
+		bean.setFloatField(val);
+		router.manyFieldTypeBean().put(bean, null);
+		
+		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
+		Assert.assertEquals(bean.getFloatField(), roundTripped.getFloatField());
+		Assert.assertTrue(val==roundTripped.getFloatField());
+		recordKey(bean.getKey());
+	}
+	
+	@Test 
 	public void testDouble(){		
 		ManyFieldTypeBean bean = new ManyFieldTypeBean();
 		double val = -100057.3456f;

@@ -45,7 +45,8 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 	@Override
 	public Boolean fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			return rs.getBoolean(this.name);
+			boolean value = rs.getBoolean(this.name);
+			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

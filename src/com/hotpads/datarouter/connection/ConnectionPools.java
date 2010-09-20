@@ -2,54 +2,40 @@ package com.hotpads.datarouter.connection;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.ClientInitMode;
+import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.client.Clients;
+import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.PropertiesTool;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.ThrowableTool;
-import com.hotpads.util.core.profile.PhaseTimer;
 
 public class ConnectionPools {
 	private static Logger logger = Logger.getLogger(ConnectionPools.class);
 
+	protected DataRouter router;
 	protected String configFileLocation;
-	
-	protected List<String> allConnectionPoolNames = ListTool.createLinkedList();
+	protected Properties properties;
+	protected Map<String,JdbcConnectionPool> connectionPoolByName = MapTool.createConcurrentHashMap();
 
-	protected Map<String,JdbcConnectionPool> connectionPoolByName = new HashMap<String,JdbcConnectionPool>();
-
-	
-	public static final String
-		prefixConnectionPools = "connectionPools",
-		paramForceInitMode = ".forceInitMode",
-		paramNames = ".names",
-		
-		prefixConnectionPool = "connectionPool.",
-		connectionPoolDefault = "default",
-		paramInitMode = ".initMode",
-		paramSource = ".source";
+	public static final String		
+		prefixPool = Clients.prefixClient,//"pool.",
+		poolDefault = "default";
 	
 	/******************************* constructors **********************************/
 	
-	public ConnectionPools(String configFileLocation) 
-	throws IOException {
-	
-		this.configFileLocation = configFileLocation;
-		
-		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
-		this.allConnectionPoolNames = getAllConnectionPoolNames(properties);
-		
-		this.initializeEagerConnectionPools();
+	public ConnectionPools(DataRouter router) throws IOException {
+		this.router = router;
+		this.configFileLocation = router.getConfigLocation();
+		this.properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
 	}
 
 	/****************** shutdown ************************************/
@@ -59,13 +45,6 @@ public class ConnectionPools {
 			pool.shutdown();
 		}
 	}
-	
-	
-	/******************* add pools **********************************************/
-
-	public void add(JdbcConnectionPool connectionPool){
-		this.connectionPoolByName.put(connectionPool.getName(), connectionPool);
-	} 
 
 	
 	/*************************** getConnectionPools ****************************************/
@@ -89,78 +68,24 @@ public class ConnectionPools {
 		return connectionPools;
 	}
 	
-	public List<JdbcConnectionPool> getAllConnectionPools(){
-		return this.getConnectionPools(this.allConnectionPoolNames);
+	public Collection<JdbcConnectionPool> getAllConnectionPools(){
+		return connectionPoolByName.values();//won't return uninitialized pools
 	}
 	
 	
-	/******************** getNames **********************************************/
-	
-	public List<String> getExistingConnectionPoolNames(){
-		return this.allConnectionPoolNames;
-	}
-	
-	public static List<String> getAllConnectionPoolNames(Properties properties){
-		String connectionPoolNamesCsv = properties.getProperty(prefixConnectionPools+paramNames);
-		String[] connectionPoolNames = StringTool.isEmpty(connectionPoolNamesCsv)?null:connectionPoolNamesCsv.split(",");
-		return ListTool.createArrayList(connectionPoolNames);
-	}
-		
-	public static List<String> getConnectionPoolNamesRequiringEagerInitialization(Properties properties){
-		List<String> connectionPoolNames = getAllConnectionPoolNames(properties);
-		
-		ClientInitMode forceInitMode = ClientInitMode.fromString(
-				properties.getProperty(prefixConnectionPool+paramForceInitMode), null);
-		
-		if(forceInitMode != null){
-			if(ClientInitMode.eager.equals(forceInitMode)){
-				return connectionPoolNames;
-			}else{
-				return null;
-			}
-		}
-		
-		ClientInitMode defaultInitMode = ClientInitMode.fromString(
-				properties.getProperty(prefixConnectionPool+connectionPoolDefault+paramInitMode), ClientInitMode.lazy);
-		
-		List<String> connectionPoolNamesRequiringEagerInitialization = ListTool.createLinkedList();
-		for(String name : CollectionTool.nullSafe(connectionPoolNames)){
-			ClientInitMode mode = ClientInitMode.fromString(
-					properties.getProperty(prefixConnectionPool+name+paramInitMode), defaultInitMode);
-			if(ClientInitMode.eager.equals(mode)){
-				connectionPoolNamesRequiringEagerInitialization.add(name);
-			}
-		}
-		return connectionPoolNamesRequiringEagerInitialization;
-	}
-	
-
-	/********************************** initialize ******************************/
-	
-	public void initializeEagerConnectionPools() throws IOException{	
-		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
-		List<String> connectionPoolNames = getConnectionPoolNamesRequiringEagerInitialization(properties);
-		for(String name : CollectionTool.nullSafe(connectionPoolNames)){
-			this.initializeConnectionPool(name);
-		}
-	}
-	
-	
-	public void initializeConnectionPool(String connectionPoolName) throws IOException{	
-		PhaseTimer timer = new PhaseTimer("initializeConnectionPool:"+connectionPoolName);
-		
-		Properties properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
-		
+	public void initializeConnectionPool(String connectionPoolName) throws IOException{		
 		try{
-			JdbcConnectionPool connectionPool = new JdbcConnectionPool(connectionPoolName, properties);
-			timer.add("initialized");
-			
-			this.add(connectionPool);
-//			logger.warn(connectionPool.toString());
-//			logger.warn(timer);
+			boolean writable = ClientId.getWritableNames(router.getClientIds()).contains(connectionPoolName);
+			JdbcConnectionPool connectionPool = new JdbcConnectionPool(connectionPoolName, properties, writable);
+			connectionPoolByName.put(connectionPool.getName(), connectionPool);
 		}catch(Exception e){
 			logger.error("error instantiating ConnectionPool:"+connectionPoolName);
 			logger.error(ThrowableTool.getStackTraceAsString(e));
 		}
 	}
 }
+
+
+
+
+

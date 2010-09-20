@@ -40,9 +40,9 @@ implements PhysicalNode<PK,D>
 		this.tableName = databeanClass.getSimpleName();
 		this.packagedTableName = databeanClass.getName();
 		this.name = clientName+"."+databeanClass.getSimpleName();
-		if(this.fieldAware){
-			logger.warn("Found fieldAware Databean:"+this.getName());
-		}
+//		if(this.fieldAware){
+//			logger.warn("Found fieldAware Databean:"+this.getName());
+//		}
 	}
 	
 	//for things like the event.Event monthly partitioned tables
@@ -71,7 +71,7 @@ implements PhysicalNode<PK,D>
 	/****************************** node methods ********************************/
 	
 	@Override
-	public List<String> getClientNamesForPrimaryKeys(Collection<PK> keys) {
+	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
 		return ListTool.createLinkedList(this.clientName);
 	}
 

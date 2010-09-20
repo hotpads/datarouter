@@ -45,7 +45,8 @@ public class DumbFloatField extends BasePrimitiveField<Float>{
 	@Override
 	public Float fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			return rs.getFloat(this.name);
+			float value = rs.getFloat(this.name);
+			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

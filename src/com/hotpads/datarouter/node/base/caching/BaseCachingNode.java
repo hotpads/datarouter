@@ -31,8 +31,8 @@ extends BaseNode<PK,D>{
 	}
 
 	@Override
-	public List<String> getClientNamesForPrimaryKeys(Collection<PK> keys) {
-		return this.backingNode.getClientNamesForPrimaryKeys(keys);
+	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
+		return this.backingNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys);
 	}
 
 	@Override

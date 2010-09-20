@@ -45,7 +45,8 @@ public class ShortField extends BasePrimitiveField<Short>{
 	@Override
 	public Short fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			return rs.getShort(this.name);
+			short value = rs.getShort(this.name);
+			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

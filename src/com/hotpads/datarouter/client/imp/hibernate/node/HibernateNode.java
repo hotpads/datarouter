@@ -8,8 +8,8 @@ import org.hibernate.Session;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
-import com.hotpads.datarouter.client.imp.hibernate.JdbcTool;
-import com.hotpads.datarouter.client.imp.hibernate.SqlBuilder;
+import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
+import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -324,6 +324,7 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 		FieldTool.appendSqlUpdateClauses(sb, nonKeyFields);
 		sb.append(" where ");
 		sb.append(FieldTool.getSqlNameValuePairsEscapedConjunction(databean.getKeyFields()));
+		int numUpdated;
 		try{
 			PreparedStatement ps = connection.prepareStatement(sb.toString());
 			int parameterIndex = 1;
@@ -331,9 +332,12 @@ implements PhysicalIndexedSortedStorageNode<PK,D>
 				field.setPreparedStatementValue(ps, parameterIndex);
 				++parameterIndex;
 			}
-			ps.execute();
+			numUpdated = ps.executeUpdate();
 		}catch(Exception e){
 			throw new DataAccessException(e);
+		}
+		if(numUpdated!=1){
+			throw new DataAccessException("row "+databean.getKey().toString()+" not found so could not be updated");
 		}
 	}
 	

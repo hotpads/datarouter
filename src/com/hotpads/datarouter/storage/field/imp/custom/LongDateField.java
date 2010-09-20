@@ -54,8 +54,8 @@ public class LongDateField extends BasePrimitiveField<Date>{
 	@Override
 	public Date fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			Long value = rs.getLong(this.name);
-			return value==null?null:new Date(value);
+			long value = rs.getLong(this.name);
+			return rs.wasNull()?null:new Date(value);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

@@ -50,7 +50,9 @@ implements Node<PK,D>{
 //					&& CollectionTool.notEmpty(this.nonKeyFields);
 			this.fieldAware = this.sampleDatabean.isFieldAware();
 		}catch(NullPointerException probablyNoPkInstantiated){
-			//do nothing... it's just not a FieldAware databean
+			if(this.sampleDatabean.isFieldAware()){
+				throw new IllegalArgumentException("could not instantiate "+name, probablyNoPkInstantiated);
+			}
 		}
 	}
 

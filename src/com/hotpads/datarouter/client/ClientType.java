@@ -1,7 +1,8 @@
 package com.hotpads.datarouter.client;
 
-import com.hotpads.datarouter.client.imp.hbase.HBaseClientFactory;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientFactory;
+import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
+import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateSimpleClientFactory;
+import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.StorageType;
 
 public enum ClientType {
@@ -42,9 +43,11 @@ public enum ClientType {
 		return null;
 	}
 	
-	public ClientFactory getClientFactory(){
-		if(hbase==this){ return new HBaseClientFactory(); }
-		if(hibernate==this){ return new HibernateClientFactory(); }
+	public ClientFactory createClientFactory(
+			DataRouter router, String clientName, 
+			String configFileLocation){
+		if(hbase==this){ return new HBaseSimpleClientFactory(router, clientName, configFileLocation); }
+		if(hibernate==this){ return new HibernateSimpleClientFactory(router, clientName, configFileLocation); }
 		return null;
 		
 	}

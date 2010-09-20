@@ -45,7 +45,8 @@ public class ByteField extends BasePrimitiveField<Byte>{
 	@Override
 	public Byte fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			return rs.getByte(this.name);
+			byte value = rs.getByte(this.name);
+			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

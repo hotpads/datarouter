@@ -48,8 +48,8 @@ public class CharacterField extends BasePrimitiveField<Character>{
 	@Override
 	public Character fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			String s = rs.getString(this.name);
-			return s==null?null:s.charAt(0);
+			String value = rs.getString(this.name);
+			return rs.wasNull()?null:value.charAt(0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
