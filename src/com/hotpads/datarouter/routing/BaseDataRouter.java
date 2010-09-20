@@ -27,7 +27,7 @@ import com.hotpads.util.core.ListTool;
 public abstract class BaseDataRouter implements DataRouter {
 
 	public static final String
-		MODE_dev = "dev",
+		MODE_development = "development",
 		MODE_production = "production";
 	
 	/********************************* fields **********************************/
