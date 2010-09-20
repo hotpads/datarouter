@@ -15,6 +15,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.profile.count.databean.key.CountKey;
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -131,10 +132,11 @@ public class Count extends BaseDatabean<CountKey>{
 		Count next = IterableTool.next(i);
 		int numMatches=0, numNull=0, numOutOfRange=0;
 		while(intervalStart <= endTime){
+//			logger.warn("interval:"+new Date(intervalStart)+" "+new Date(next.getStartTimeMs()));
 			if(next != null && next.getStartTimeMs().equals(intervalStart)){
 //				logger.warn("match:"+new Date(intervalStart)+" "+new Date(next.getStartTimeMs()));
-				if(outs.size()>0){
-					Count last = outs.get(outs.size()-1);
+				if(CollectionTool.notEmpty(outs)){
+					Count last = CollectionTool.getLast(outs);
 					if(last.getStartTimeMs().equals(next.getStartTimeMs())){
 						last.increment(next.value);
 					}else{
@@ -153,7 +155,9 @@ public class Count extends BaseDatabean<CountKey>{
 						intervalStart, otherSource, System.currentTimeMillis(), 0L);
 				outs.add(zero);
 			}
-			intervalStart += periodMs;
+			if(next==null || next.getStartTimeMs() > intervalStart){
+				intervalStart += periodMs;
+			}
 		}
 //		logger.warn("numMatches="+numMatches);
 		return outs;
