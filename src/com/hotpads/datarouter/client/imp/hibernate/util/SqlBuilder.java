@@ -105,9 +105,12 @@ public class SqlBuilder{
 		sql.append(" where ");
 		sql.append("(");
 		addPrefixWhereClause(sql, prefix, wildcardLastField);
-		sql.append(") and (");
-		addRangeWhereClause(sql, start, startInclusive, end, endInclusive);
 		sql.append(")");
+		if(needsRangeWhereClause(start,end)){ 
+			sql.append(" and (");
+			addRangeWhereClause(sql, start, startInclusive, end, endInclusive);
+			sql.append(")");
+		}
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
