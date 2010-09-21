@@ -28,10 +28,10 @@ import com.hotpads.datarouter.node.scanner.Scanner;
 import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -167,7 +167,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 						List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
 						List<D> batch;
 						if(fieldAware){
-							String sql = SqlBuilder.getMulti(config, tableName, fields, keys);
+							String sql = SqlBuilder.getMulti(config, tableName, fields, keyBatch);
 							List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
 							return result;
 						}else{
