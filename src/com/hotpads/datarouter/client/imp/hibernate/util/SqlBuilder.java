@@ -4,11 +4,11 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -158,36 +158,43 @@ public class SqlBuilder{
 	}
 	
 	public static boolean needsRangeWhereClause(FieldSet start, FieldSet end){
-		return start!=null || end!=null;
+		if(start==null && end==null){ return false; }
+		if(end!=null){ return true; }
+		List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
+		int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
+		if(numNonNullStartFields > 0){ return true; }
+		return false; 
 	}
 	
 	public static void addRangeWhereClause(StringBuilder sql,
 			FieldSet start, boolean startInclusive, 
 			FieldSet end, boolean endInclusive){
-		
+				
 		if(start != null && CollectionTool.notEmpty(start.getFields())){
-			sql.append("(");
 			List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
 			int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
-			for(int i=numNonNullStartFields; i > 0; --i){
-				if(i<numNonNullStartFields){ sql.append(" or "); }
+			if(numNonNullStartFields > 0){
 				sql.append("(");
-				for(int j=0; j < i; ++j){
-					if(j>0){ sql.append(" and "); }
-					Field<?> startField = startFields.get(j);
-					if(j < (i-1)){
-						sql.append(startField.getSqlNameValuePairEscaped());
-					}else{
-						if(startInclusive && i==numNonNullStartFields){
-							sql.append(startField.getName()+">="+startField.getSqlEscaped());
+				for(int i=numNonNullStartFields; i > 0; --i){
+					if(i<numNonNullStartFields){ sql.append(" or "); }
+					sql.append("(");
+					for(int j=0; j < i; ++j){
+						if(j>0){ sql.append(" and "); }
+						Field<?> startField = startFields.get(j);
+						if(j < (i-1)){
+							sql.append(startField.getSqlNameValuePairEscaped());
 						}else{
-							sql.append(startField.getName()+">"+startField.getSqlEscaped());
+							if(startInclusive && i==numNonNullStartFields){
+								sql.append(startField.getName()+">="+startField.getSqlEscaped());
+							}else{
+								sql.append(startField.getName()+">"+startField.getSqlEscaped());
+							}
 						}
 					}
+					sql.append(")");
 				}
 				sql.append(")");
 			}
-			sql.append(")");
 		}
 		
 		if(start!=null && end!=null){ sql.append(" and "); }
@@ -195,28 +202,30 @@ public class SqlBuilder{
 //		select a, b, c, d from SortedBean where ((a>='alp')) and (a<='emu' and b is null and c is null and d is null
 		
 		if(end != null && CollectionTool.notEmpty(end.getFields())){
-			sql.append("(");
 			List<Field<?>> endFields = ListTool.createArrayList(end.getFields());
 			int numNonNullEndFields = FieldTool.countNonNullLeadingFields(endFields);
-			for(int i=0; i < numNonNullEndFields; ++i){
-				if(i>0){ sql.append(" or "); }
+			if(numNonNullEndFields > 0){
 				sql.append("(");
-				for(int j=0; j <= i; ++j){
-					if(j>0){ sql.append(" and "); }
-					Field<?> endField = endFields.get(j);
-					if(j==i){
-						if(endInclusive && i==(numNonNullEndFields-1)){
-							sql.append(endField.getName()+"<="+endField.getSqlEscaped());
+				for(int i=0; i < numNonNullEndFields; ++i){
+					if(i>0){ sql.append(" or "); }
+					sql.append("(");
+					for(int j=0; j <= i; ++j){
+						if(j>0){ sql.append(" and "); }
+						Field<?> endField = endFields.get(j);
+						if(j==i){
+							if(endInclusive && i==(numNonNullEndFields-1)){
+								sql.append(endField.getName()+"<="+endField.getSqlEscaped());
+							}else{
+								sql.append(endField.getName()+"<"+endField.getSqlEscaped());
+							}
 						}else{
-							sql.append(endField.getName()+"<"+endField.getSqlEscaped());
+							sql.append(endField.getSqlNameValuePairEscaped());
 						}
-					}else{
-						sql.append(endField.getSqlNameValuePairEscaped());
 					}
+					sql.append(")");
 				}
 				sql.append(")");
 			}
-			sql.append(")");
 		}
 	}
 	

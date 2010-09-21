@@ -41,6 +41,7 @@ import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.PeekableIterable;
 
 public class HibernateReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
@@ -168,8 +169,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 						List<D> batch;
 						if(fieldAware){
 							String sql = SqlBuilder.getMulti(config, tableName, fields, keyBatch);
-							List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
-							return result;
+							batch = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
 						}else{
 							Criteria criteria = getCriteriaForConfig(config, session);
 							Disjunction orSeparatedIds = Restrictions.disjunction();
@@ -197,6 +197,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
+		if(fieldAware){ throw new NotImplementedException(); }
 		TraceContext.startSpan(getName()+" getKeys");
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		Object result = executor.executeTask(			

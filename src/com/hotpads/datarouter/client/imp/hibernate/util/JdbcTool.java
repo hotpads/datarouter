@@ -52,7 +52,8 @@ public class JdbcTool {
 			}
 			return databeans;
 		}catch(Exception e){
-			throw new DataAccessException(e);
+			String message = "error executing sql:"+sql.toString();
+			throw new DataAccessException(message, e);
 		}
 	}
 	
