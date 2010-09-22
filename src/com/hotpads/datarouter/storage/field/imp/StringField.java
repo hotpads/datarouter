@@ -4,12 +4,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ComparableTool;
+import com.hotpads.util.core.RegexTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class StringField extends BaseField<String>{
@@ -44,7 +50,13 @@ public class StringField extends BaseField<String>{
 			return "null";
 		}
 		String stringValue = (String)value;
-		return "'" + stringValue.replaceAll("'", "''") + "'";
+		//replace \ with \\
+		stringValue = RegexTool.BACKSLASH_PATTERN.matcher(stringValue)
+						.replaceAll(Matcher.quoteReplacement("\\\\"));
+		//replace ' with \'
+		stringValue = RegexTool.APOSTROPHE_PATTERN.matcher(stringValue)
+						.replaceAll(Matcher.quoteReplacement("\\'"));
+		return "'" + stringValue + "'";
 	}
 	
 	@Override
@@ -126,4 +138,19 @@ public class StringField extends BaseField<String>{
 		return new String(bytes, offset, length, StringByteTool.CHARSET_UTF8);
 	}
 	
+	public static class Tests{
+		@Test public void testGetSqlEscaped(){
+			Assert.assertEquals("'bill\\'s'",
+					new StringField("tag","bill's").getSqlEscaped());
+			
+			//actual case encountered
+			Assert.assertEquals("'Renter\\\\\\\\\\\\\\'s Assurance Program'", 
+					new StringField("tag","Renter\\\\\\'s Assurance Program").getSqlEscaped());
+
+
+			Assert.assertEquals("'no apostrophes'",
+					new StringField("tag","no apostrophes").getSqlEscaped());
+			
+		}
+	}
 }
