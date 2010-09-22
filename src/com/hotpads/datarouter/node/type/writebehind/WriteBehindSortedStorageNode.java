@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.base.writebehind.OutstandingWriteWrapper;
 import com.hotpads.datarouter.node.op.SortedStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -30,8 +31,9 @@ implements SortedStorageNode<PK,D>{
 
 	@Override
 	public void deleteRangeWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
-		outstandingWriteStartTimes.add(System.currentTimeMillis());
-		outstandingWrites.add(writeExecutor.submit(new Callable<Void>(){
+		outstandingWrites.add(new OutstandingWriteWrapper(
+				System.currentTimeMillis(), 
+				writeExecutor.submit(new Callable<Void>(){
 			public Void call(){
 				try{
 					backingNode.deleteRangeWithPrefix(prefix, wildcardLastField, config);
@@ -41,7 +43,7 @@ implements SortedStorageNode<PK,D>{
 				}
 				return null; 
 			}
-		}));
+		})));
 	}
 	
 
@@ -54,8 +56,9 @@ implements SortedStorageNode<PK,D>{
 
 	@Override
 	public void delete(final PK key, final Config config) {
-		outstandingWriteStartTimes.add(System.currentTimeMillis());
-		outstandingWrites.add(writeExecutor.submit(new Callable<Void>(){
+		outstandingWrites.add(new OutstandingWriteWrapper(
+				System.currentTimeMillis(), 
+				writeExecutor.submit(new Callable<Void>(){
 			public Void call(){
 				try{
 					backingNode.delete(key, config);
@@ -65,13 +68,14 @@ implements SortedStorageNode<PK,D>{
 				}
 				return null; 
 			}
-		}));
+		})));
 	}
 
 	@Override
 	public void deleteAll(final Config config) {
-		outstandingWriteStartTimes.add(System.currentTimeMillis());
-		outstandingWrites.add(writeExecutor.submit(new Callable<Void>(){
+		outstandingWrites.add(new OutstandingWriteWrapper(
+				System.currentTimeMillis(), 
+				writeExecutor.submit(new Callable<Void>(){
 			public Void call(){
 				try{
 					backingNode.deleteAll(config);
@@ -81,13 +85,14 @@ implements SortedStorageNode<PK,D>{
 				}
 				return null; 
 			}
-		}));
+		})));
 	}
 
 	@Override
 	public void deleteMulti(final Collection<PK> keys, final Config config) {
-		outstandingWriteStartTimes.add(System.currentTimeMillis());
-		outstandingWrites.add(writeExecutor.submit(new Callable<Void>(){
+		outstandingWrites.add(new OutstandingWriteWrapper(
+				System.currentTimeMillis(), 
+				writeExecutor.submit(new Callable<Void>(){
 			public Void call(){
 				try{
 					backingNode.deleteMulti(keys, config);
@@ -97,13 +102,14 @@ implements SortedStorageNode<PK,D>{
 				}
 				return null; 
 			}
-		}));
+		})));
 	}
 
 	@Override
 	public void put(final D databean, final Config config) {
-		outstandingWriteStartTimes.add(System.currentTimeMillis());
-		outstandingWrites.add(writeExecutor.submit(new Callable<Void>(){
+		outstandingWrites.add(new OutstandingWriteWrapper(
+				System.currentTimeMillis(), 
+				writeExecutor.submit(new Callable<Void>(){
 			public Void call(){
 				try{
 					backingNode.put(databean, config);
@@ -113,13 +119,14 @@ implements SortedStorageNode<PK,D>{
 				}
 				return null; 
 			}
-		}));
+		})));
 	}
 
 	@Override
 	public void putMulti(final Collection<D> databeans, final Config config) {
-		outstandingWriteStartTimes.add(System.currentTimeMillis());
-		outstandingWrites.add(writeExecutor.submit(new Callable<Void>(){
+		outstandingWrites.add(new OutstandingWriteWrapper(
+				System.currentTimeMillis(), 
+				writeExecutor.submit(new Callable<Void>(){
 			public Void call(){
 				try{
 					backingNode.putMulti(databeans, config);
@@ -129,7 +136,7 @@ implements SortedStorageNode<PK,D>{
 				}
 				return null; 
 			}
-		}));
+		})));
 	}
 	
 	

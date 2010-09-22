@@ -9,11 +9,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.BaseNode;
@@ -22,12 +20,8 @@ import com.hotpads.datarouter.op.MapStorageReadOps;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.profile.count.collection.Counters;
-import com.hotpads.profile.count.collection.archive.CountArchiveFlusher;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
 
 public abstract class BaseWriteBehindNode<
@@ -43,8 +37,7 @@ implements MapStorageReadOps<PK,D>{
 	protected N backingNode;
 	protected ExecutorService writeExecutor;
 	protected long timeoutMs;//TODO also limit by queue length
-	protected Queue<Future<?>> outstandingWrites;
-	protected Queue<Long> outstandingWriteStartTimes;
+	protected Queue<OutstandingWriteWrapper> outstandingWrites;
 	protected ScheduledExecutorService cancelExecutor;
 	
 	public BaseWriteBehindNode(Class<D> databeanClass, DataRouter router,
@@ -66,8 +59,7 @@ implements MapStorageReadOps<PK,D>{
 		}
 		
 		this.timeoutMs = DEFAULT_TIMEOUT_MS;//1 min default
-		this.outstandingWrites = new ConcurrentLinkedQueue<Future<?>>();
-		this.outstandingWriteStartTimes = new ConcurrentLinkedQueue<Long>();
+		this.outstandingWrites = new ConcurrentLinkedQueue<OutstandingWriteWrapper>();
 		
 		if(cancelExecutor!=null){
 			this.cancelExecutor = cancelExecutor;
@@ -85,48 +77,6 @@ implements MapStorageReadOps<PK,D>{
 	}
 	
 	
-	protected static class OverdueWriteCanceller implements Runnable{
-		static Logger logger = Logger.getLogger(CountArchiveFlusher.class);
-		
-		protected final BaseWriteBehindNode<?,?,?> node;
-		
-		public OverdueWriteCanceller(BaseWriteBehindNode<?,?,?> node){
-			this.node = node;
-		}
-
-		@Override
-		public void run(){
-			try{
-				if(node.outstandingWrites==null){ return; }
-				while(true){
-					Future<?> outstandingWrite = node.outstandingWrites.peek();//don't remove yet
-					Long writeStartMs = node.outstandingWriteStartTimes.peek();
-					if(ObjectTool.bothNull(outstandingWrite, writeStartMs)){ break; }
-					if(ObjectTool.isOneNullButNotTheOther(outstandingWrite, writeStartMs)){//fix out of sync queues
-						if(outstandingWrite==null){ node.outstandingWrites.poll(); }
-						if(writeStartMs==null){ node.outstandingWriteStartTimes.poll(); }
-					}
-					long elapsedMs = System.currentTimeMillis() - writeStartMs;
-					boolean overdue = elapsedMs > node.timeoutMs;
-					if(outstandingWrite.isDone() || overdue){ 
-						if(overdue){
-							logger.warn("cancelling overdue write on "+node.name);
-							Counters.inc("writeBehind timeout on "+node.name);
-						}
-						node.outstandingWrites.poll(); 
-						node.outstandingWriteStartTimes.poll();
-						continue;
-					}
-					break;//wait to be triggered again
-				}
-			}catch(Exception e){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
-			}
-		}
-	}
-	
-	
-
 	/*************************** node methods *************************/
 
 	@Override
