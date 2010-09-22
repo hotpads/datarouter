@@ -3,7 +3,6 @@ package com.hotpads.datarouter.storage.field;
 import java.util.Collection;
 import java.util.List;
 
-import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
