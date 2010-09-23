@@ -6,6 +6,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
+import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
@@ -21,18 +22,13 @@ public class HBaseQueryBuilder{
 			final FieldSet startKey, final boolean startInclusive, 
 			final FieldSet endKey, final boolean endInclusive, Config config){
 		Pair<byte[],byte[]> byteRange = getStartEndBytesForRange(startKey, startInclusive, endKey, endInclusive);
-		Scan scan = getScanForRange(byteRange.getLeft(), byteRange.getRight());
-		scan.setCaching(getIterateBatchSize(config));
+		Scan scan = getScanForRange(byteRange.getLeft(), byteRange.getRight(), config);
 		return scan;
 	}
 
 	public static Scan getPrefixScanner(FieldSet prefix, boolean wildcardLastField, Config config){
 		Pair<byte[],byte[]> byteRange = getStartEndBytesForPrefix(prefix, wildcardLastField);
-//		byte[] start = byteRange.getLeft()==null?new byte[0]:byteRange.getLeft();
-//		byte[] end = byteRange.getRight()==null?new byte[0]:byteRange.getRight();
-//		Scan scan = getScanForRange(start, end);
-		Scan scan = getScanForRange(byteRange.getLeft(), byteRange.getRight());
-		scan.setCaching(getIterateBatchSize(config));
+		Scan scan = getScanForRange(byteRange.getLeft(), byteRange.getRight(), config);
 		return scan;
 	}
 
@@ -44,14 +40,13 @@ public class HBaseQueryBuilder{
 		Pair<byte[],byte[]> prefixBounds = getStartEndBytesForPrefix(prefix, wildcardLastField);
 		Pair<byte[],byte[]> rangeBounds = getStartEndBytesForRange(startKey, startInclusive, endKey, endInclusive);
 		Pair<byte[],byte[]> intersection = getRangeIntersection(prefixBounds, rangeBounds);
-		Scan scan = getScanForRange(intersection.getLeft(), intersection.getRight());
-		scan.setCaching(getIterateBatchSize(config));
+		Scan scan = getScanForRange(intersection.getLeft(), intersection.getRight(), config);
 		return scan;
 	}
 	
 	/****************************** scan helpers ************************************/
 
-	protected static Scan getScanForRange(byte[] startInclusive, byte[] endExclusive){
+	protected static Scan getScanForRange(byte[] startInclusive, byte[] endExclusive, Config config){
 		Scan scan;
 		if(startInclusive!=null && endExclusive!=null){
 			scan = new Scan(startInclusive, endExclusive);
@@ -62,6 +57,8 @@ public class HBaseQueryBuilder{
 		}else{
 			scan = new Scan();//whole table
 		}
+		scan.setCaching(getIterateBatchSize(config));
+		scan.setCacheBlocks(BooleanTool.isTrue(config.getScannerCaching()));
 		return scan;
 	}
 	

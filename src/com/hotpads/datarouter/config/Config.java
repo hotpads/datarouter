@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.config;
 
+import java.util.concurrent.TimeUnit;
+
 
 
 
@@ -13,7 +15,6 @@ public class Config {
 	
 	/*************** fields ********************************/
 	
-	protected Integer numAttempts = 1;
 	
 	protected Boolean slaveOk = false;
 	protected Boolean cacheOk = DEFAULT_CACHE_OK;
@@ -25,7 +26,11 @@ public class Config {
 	
 	protected PutMethod putMethod = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
 	protected Integer commitBatchSize;
+
+	protected Boolean scannerCaching = true;
 	protected Integer iterateBatchSize;
+	protected Long timeoutMs = Long.MAX_VALUE;
+	protected Integer numAttempts = 1;
 
 	protected Object startId;
 	protected Boolean includeStartId = false;
@@ -205,6 +210,20 @@ public class Config {
 		return this;
 	}
 
+	public Long getTimeoutMs() {
+		return timeoutMs;
+	}
+
+	public Config setTimeoutMs(Long timeoutMs) {
+		this.timeoutMs = timeoutMs;
+		return this;
+	}
+	
+	public Config setTimeout(Integer timeout, TimeUnit timeUnit){
+		timeUnit.toMillis(timeout);
+		return this;
+	}
+
 	public PutMethod getPutMethod() {
 		return putMethod;
 	}
@@ -213,7 +232,16 @@ public class Config {
 		this.putMethod = putMethod;
 		return this;
 	}
-	
+
+
+	public Boolean getScannerCaching() {
+		return scannerCaching;
+	}
+
+	public Config setScannerCaching(Boolean scannerCaching) {
+		this.scannerCaching = scannerCaching;
+		return this;
+	}
 	
 	
 	

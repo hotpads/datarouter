@@ -12,6 +12,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.imp.hbase.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
@@ -76,48 +77,6 @@ implements HBasePhysicalNode<PK,D>
 		this.getClient().checkInHTable(hTable);
 	}
 	
-	/*
-	 * need to handle
-	 * 
-	 * 2010-09-15 11:07:13,050  WARN org.apache.hadoop.hbase.zookeeper.ZooKeeperWrapper:418 - Failed to create /hbase -- check quorum servers, currently=hammer:2181
-org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = ConnectionLoss for /hbase
-	at org.apache.zookeeper.KeeperException.create(KeeperException.java:90)
-	at org.apache.zookeeper.KeeperException.create(KeeperException.java:42)
-	at org.apache.zookeeper.ZooKeeper.exists(ZooKeeper.java:809)
-	at org.apache.zookeeper.ZooKeeper.exists(ZooKeeper.java:837)
-	at org.apache.hadoop.hbase.zookeeper.ZooKeeperWrapper.ensureExists(ZooKeeperWrapper.java:405)
-	at org.apache.hadoop.hbase.zookeeper.ZooKeeperWrapper.ensureParentExists(ZooKeeperWrapper.java:432)
-	at org.apache.hadoop.hbase.zookeeper.ZooKeeperWrapper.checkOutOfSafeMode(ZooKeeperWrapper.java:545)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers.locateRootRegion(HConnectionManager.java:956)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers.locateRegion(HConnectionManager.java:625)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers.relocateRegion(HConnectionManager.java:607)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers.locateRegionInMeta(HConnectionManager.java:758)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers.locateRegion(HConnectionManager.java:630)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers.locateRegion(HConnectionManager.java:601)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers.locateRegionInMeta(HConnectionManager.java:670)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers.locateRegion(HConnectionManager.java:634)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers.relocateRegion(HConnectionManager.java:607)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers.getRegionLocation(HConnectionManager.java:428)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers.getRegionLocationForRowWithRetries(HConnectionManager.java:1071)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers.access$200(HConnectionManager.java:240)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers$Batch.getRegionName(HConnectionManager.java:1183)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers$Batch.process(HConnectionManager.java:1128)
-	at org.apache.hadoop.hbase.client.HConnectionManager$TableServers.processBatchOfRows(HConnectionManager.java:1230)
-	at org.apache.hadoop.hbase.client.HTable.flushCommits(HTable.java:666)
-	at org.apache.hadoop.hbase.client.HTable.put(HTable.java:535)
-	at com.hotpads.datarouter.client.imp.hbase.HBaseNode.putMulti(HBaseNode.java:104)
-	at com.hotpads.datarouter.node.type.partitioned.PartitionedSortedStorageNode.putMulti(PartitionedSortedStorageNode.java:86)
-	at com.hotpads.profile.count.collection.archive.imp.DatabeanCountArchive.saveCounts(DatabeanCountArchive.java:91)
-	at com.hotpads.profile.count.collection.archive.CountArchiveFlusher$CountArchiveFlushAttempt.run(CountArchiveFlusher.java:100)
-	at java.util.concurrent.Executors$RunnableAdapter.call(Unknown Source)
-	at java.util.concurrent.FutureTask$Sync.innerRun(Unknown Source)
-	at java.util.concurrent.FutureTask.run(Unknown Source)
-	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(Unknown Source)
-	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(Unknown Source)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
-	at java.lang.Thread.run(Unknown Source)
-	 */
 	
 	/************************************ MapStorageReader methods ****************************/
 	
@@ -130,21 +89,22 @@ org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = 
 	@Override
 	public D get(final PK key, final Config pConfig){
 		if(key==null){ return null; }
-		return new HBaseTask<D>("get", this){
+		final Config config = Config.nullSafe(pConfig);
+		return new HBaseMultiAttemptTask<D>(new HBaseTask<D>("get", this, config){
 				public D wrappedCall() throws Exception{
 					Result row = hTable.get(new Get(key.getBytes(false)));
 					if(row.isEmpty()){ return null; }
 					D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
 					return result;
 				}
-			}.call();
+			}).call();
 	}
 	
 	
 	@Override
 	public List<D> getAll(final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseTask<List<D>>("getAll", this){
+		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getAll", this, config){
 				public List<D> wrappedCall() throws Exception{
 					List<D> results = ListTool.createArrayList();
 					Scan scan = new Scan();
@@ -159,14 +119,15 @@ org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = 
 					scanner.close();
 					return results;
 				}
-			}.call();
+			}).call();
 	}
 
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){	
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
-		return new HBaseTask<List<D>>("getMulti", this){
+		final Config config = Config.nullSafe(pConfig);
+		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getMulti", this, config){
 				public List<D> wrappedCall() throws Exception{
 					List<D> results = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
@@ -177,14 +138,15 @@ org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = 
 					}
 					return results;
 				}
-			}.call();
+			}).call();
 	}
 	
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig) {	
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
-		return new HBaseTask<List<PK>>("getKeys", this){
+		final Config config = Config.nullSafe(pConfig);
+		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>("getKeys", this, config){
 				public List<PK> wrappedCall() throws Exception{
 					List<PK> results = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
@@ -197,7 +159,7 @@ org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = 
 					}
 					return results;
 				}
-			}.call();
+			}).call();
 	}
 
 	
@@ -230,7 +192,7 @@ org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = 
 			final boolean wildcardLastField, final Config pConfig){
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseTask<List<D>>("getWithPrefixes", this){
+		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getWithPrefixes", this, config){
 				public List<D> wrappedCall() throws Exception{
 					List<D> results = ListTool.createArrayList();
 					for(PK prefix : prefixes){
@@ -246,7 +208,7 @@ org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = 
 					}
 					return results;
 				}
-			}.call();
+			}).call();
 	}
 	
 
@@ -254,7 +216,7 @@ org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = 
 	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseTask<List<PK>>("getKeysInRange", this){
+		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>("getKeysInRange", this, config){
 				public List<PK> wrappedCall() throws Exception{
 					Scan scan = HBaseQueryBuilder.getRangeScanner(start, startInclusive, end, endInclusive, config);
 					scan.setFilter(new FirstKeyOnlyFilter());
@@ -269,7 +231,7 @@ org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = 
 					scanner.close();
 					return results;
 				}
-			}.call();
+			}).call();
 	}
 	
 
@@ -278,7 +240,7 @@ org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = 
 	public List<D> getRange(final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseTask<List<D>>("getRange", this){
+		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getRange", this, config){
 				public List<D> wrappedCall() throws Exception{
 					Scan scan = HBaseQueryBuilder.getRangeScanner(start, startInclusive, end, endInclusive, config);
 					List<D> results = ListTool.createArrayList(scan.getCaching());
@@ -292,7 +254,8 @@ org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = 
 					scanner.close();
 					return results;
 				}
-			}.call();
+			}).call();
+		
 	}
 	
 	
@@ -302,7 +265,7 @@ org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = 
 			final PK start, final boolean startInclusive, 
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseTask<List<D>>("getPrefixedRange", this){
+		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getPrefixedRange", this, config){
 				public List<D> wrappedCall() throws Exception{
 					Scan scan = HBaseQueryBuilder.getPrefixedRangeScanner(
 							prefix, wildcardLastField, 
@@ -320,7 +283,7 @@ org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = 
 					scanner.close();
 					return results;
 				}
-			}.call();
+			}).call();
 	}
 
 	

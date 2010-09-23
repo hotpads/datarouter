@@ -69,7 +69,8 @@ implements PhysicalMapStorageNode<PK,D>
 	@Override
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
 		if(CollectionTool.isEmpty(databeans)){ return; }
-		new HBaseTask<Void>("putMulti", this){
+		final Config config = Config.nullSafe(pConfig);
+		new HBaseTask<Void>("putMulti", this, config){
 				public Void wrappedCall() throws Exception{
 					List<Put> puts = ListTool.createLinkedList();
 					ArrayList<Delete> deletes = ListTool.createArrayList();//api requires ArrayList
@@ -106,7 +107,8 @@ implements PhysicalMapStorageNode<PK,D>
 	
 	@Override
 	public void deleteAll(final Config pConfig) {
-		new HBaseTask<Void>("deleteAll", this){
+		final Config config = Config.nullSafe(pConfig);
+		new HBaseTask<Void>("deleteAll", this, config){
 				public Void wrappedCall() throws Exception{
 					ResultScanner scanner = hTable.getScanner(new Scan());
 					ArrayList<Delete> batchToDelete = ListTool.createArrayList(1000);
@@ -137,7 +139,8 @@ implements PhysicalMapStorageNode<PK,D>
 	@Override
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
 		if(CollectionTool.isEmpty(keys)){ return; }
-		new HBaseTask<Void>("deleteMulti", this){
+		final Config config = Config.nullSafe(pConfig);
+		new HBaseTask<Void>("deleteMulti", this, config){
 				public Void wrappedCall() throws Exception{
 					ArrayList<Delete> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList
 					for(PK key : keys){
