@@ -98,9 +98,14 @@ implements PhysicalMapStorageNode<PK,D>
 						if(!delete.isEmpty()){ deletes.add(delete); }
 					}
 					if(!config.getPersistentPut()){ disableWalForPuts(puts); }
-					if(CollectionTool.notEmpty(puts)){ hTable.put(puts); }
-					if(CollectionTool.notEmpty(deletes)){ hTable.delete(deletes); }
-					hTable.flushCommits();
+					if(CollectionTool.notEmpty(puts)){ 
+						hTable.put(puts); 
+						hTable.flushCommits(); 
+					}
+					if(CollectionTool.notEmpty(deletes)){ 
+						hTable.delete(deletes);
+						hTable.flushCommits();
+					}
 					return null;
 				}
 			}.call();
