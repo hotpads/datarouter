@@ -66,6 +66,11 @@ implements SortedStorageReaderNode<PK,D>{
 	}
 	
 	@Override
+	public PeekableIterable<PK> scanKeys(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
+		return backingNode.scanKeys(startKey,startInclusive, end, endInclusive, config);
+	};
+	
+	@Override
 	public PeekableIterable<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
 		return backingNode.scan(startKey,startInclusive, end, endInclusive, config);
 	};

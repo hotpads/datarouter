@@ -8,6 +8,7 @@ import java.util.SortedSet;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.SortedStorageReaderNode;
 import com.hotpads.datarouter.node.scanner.MergeScanner;
+import com.hotpads.datarouter.node.scanner.primarykey.PrimaryKeyMergeScanner;
 import com.hotpads.datarouter.node.type.physical.PhysicalSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -155,6 +156,15 @@ implements SortedStorageReaderNode<PK,D>{
 			return all;
 		}
 	}
+	
+	@Override
+	public PeekableIterable<PK> scanKeys(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
+		List<PeekableIterable<PK>> subScanners = ListTool.createArrayList();
+		for(N node : IterableTool.nullSafe(this.getPhysicalNodes())){
+			subScanners.add(node.scanKeys(start, startInclusive, end, endInclusive, config));
+		}
+		return new PrimaryKeyMergeScanner<PK,D>(subScanners);
+	};
 	
 	@Override
 	public PeekableIterable<D> scan(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){

@@ -131,6 +131,11 @@ implements IndexedSortedStorageReaderNode<PK,D>{
 	}
 	
 	@Override
+	public PeekableIterable<PK> scanKeys(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
+		return this.backingNode.scanKeys(startKey,startInclusive, end, endInclusive, config);
+	};
+	
+	@Override
 	public PeekableIterable<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
 		return this.backingNode.scan(startKey,startInclusive, end, endInclusive, config);
 	};

@@ -83,6 +83,13 @@ implements SortedStorageReaderNode<PK,D>{
 	}
 	
 	@Override
+	public PeekableIterable<PK> scanKeys(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
+		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
+		N node = slaveOk ? this.chooseSlave(config) : this.master;
+		return node.scanKeys(startKey,startInclusive, end, endInclusive, config);
+	};
+	
+	@Override
 	public PeekableIterable<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;

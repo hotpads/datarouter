@@ -25,6 +25,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
 import com.hotpads.datarouter.node.scanner.Scanner;
+import com.hotpads.datarouter.node.scanner.primarykey.PrimaryKeyScanner;
 import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -538,7 +539,7 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 			final PK end, final boolean endInclusive, 
 			final Config config) {
 
-		TraceContext.startSpan(getName()+" getRange");
+		TraceContext.startSpan(getName()+" getKeysInRange");
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		Object result = executor.executeTask(
 			new HibernateTask() {
@@ -661,6 +662,15 @@ implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
 			});
 		TraceContext.finishSpan();
 		return (List<D>)result;
+	}
+	
+	@Override
+	public PeekableIterable<PK> scanKeys(
+			PK start, boolean startInclusive, 
+			PK end, boolean endInclusive, 
+			Config config){
+		return new PrimaryKeyScanner<PK,D>(this, start, startInclusive, end, endInclusive, 
+				config, DEFAULT_ITERATE_BATCH_SIZE);
 	}
 	
 	@Override

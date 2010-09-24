@@ -26,6 +26,7 @@ public class Config {
 	
 	protected PutMethod putMethod = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
 	protected Integer commitBatchSize;
+	protected Boolean persistentPut = true;
 
 	protected Boolean scannerCaching = true;
 	protected Integer iterateBatchSize;
@@ -240,6 +241,15 @@ public class Config {
 
 	public Config setScannerCaching(Boolean scannerCaching) {
 		this.scannerCaching = scannerCaching;
+		return this;
+	}
+
+	public Boolean getPersistentPut(){
+		return persistentPut;
+	}
+
+	public Config setPersistentPut(Boolean persistentPut){
+		this.persistentPut = persistentPut;
 		return this;
 	}
 	

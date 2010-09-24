@@ -20,6 +20,7 @@ import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
 import com.hotpads.datarouter.node.scanner.Scanner;
+import com.hotpads.datarouter.node.scanner.primarykey.PrimaryKeyScanner;
 import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageReaderNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -284,6 +285,16 @@ implements HBasePhysicalNode<PK,D>
 					return results;
 				}
 			}).call();
+	}
+
+	
+	@Override
+	public PeekableIterable<PK> scanKeys(
+			final PK start, final boolean startInclusive, 
+			final PK end, final boolean endInclusive, 
+			final Config config){
+		return new PrimaryKeyScanner<PK,D>(this, start, startInclusive, end, endInclusive, 
+				config, DEFAULT_ITERATE_BATCH_SIZE);
 	}
 
 	

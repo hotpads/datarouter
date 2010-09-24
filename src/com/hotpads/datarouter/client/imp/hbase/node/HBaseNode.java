@@ -72,6 +72,7 @@ implements PhysicalMapStorageNode<PK,D>
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseTask<Void>("putMulti", this, config){
 				public Void wrappedCall() throws Exception{
+					hTable.setAutoFlush(false);
 					List<Put> puts = ListTool.createLinkedList();
 					ArrayList<Delete> deletes = ListTool.createArrayList();//api requires ArrayList
 					for(D databean : databeans){
@@ -96,6 +97,7 @@ implements PhysicalMapStorageNode<PK,D>
 						puts.add(put);
 						if(!delete.isEmpty()){ deletes.add(delete); }
 					}
+					if(!config.getPersistentPut()){ disableWalForPuts(puts); }
 					if(CollectionTool.notEmpty(puts)){ hTable.put(puts); }
 					if(CollectionTool.notEmpty(deletes)){ hTable.delete(deletes); }
 					hTable.flushCommits();
@@ -110,6 +112,7 @@ implements PhysicalMapStorageNode<PK,D>
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseTask<Void>("deleteAll", this, config){
 				public Void wrappedCall() throws Exception{
+					hTable.setAutoFlush(false);
 					ResultScanner scanner = hTable.getScanner(new Scan());
 					ArrayList<Delete> batchToDelete = ListTool.createArrayList(1000);
 					for(Result row : scanner){
@@ -117,6 +120,7 @@ implements PhysicalMapStorageNode<PK,D>
 						batchToDelete.add(new Delete(row.getRow()));
 						if(batchToDelete.size() % 1000 == 0){
 							hTable.delete(batchToDelete);
+							hTable.flushCommits();
 							batchToDelete.clear();
 						}
 					}
@@ -142,6 +146,7 @@ implements PhysicalMapStorageNode<PK,D>
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseTask<Void>("deleteMulti", this, config){
 				public Void wrappedCall() throws Exception{
+					hTable.setAutoFlush(false);
 					ArrayList<Delete> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList
 					for(PK key : keys){
 						Delete delete = new Delete(key.getBytes(false));
@@ -167,6 +172,12 @@ implements PhysicalMapStorageNode<PK,D>
 	}
 	
 	
+	/*************************** util **************************************/
 	
+	public static void disableWalForPuts(Collection<Put> puts){
+		for(Put put : CollectionTool.nullSafe(puts)){
+			put.setWriteToWAL(false);
+		}
+	}
 
 }
