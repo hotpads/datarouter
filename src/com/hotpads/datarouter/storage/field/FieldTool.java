@@ -3,9 +3,11 @@ package com.hotpads.datarouter.storage.field;
 import java.util.Collection;
 import java.util.List;
 
+import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.java.ReflectionTool;
 
 public class FieldTool{
 
@@ -57,6 +59,30 @@ public class FieldTool{
 			}
 		}
 		return null;
+	}
+	
+	
+	/************************** reflection ***********************/
+	
+	public static java.lang.reflect.Field getReflectionFieldForField(Databean<?> sampleDatabean, Field<?> field){
+		try{
+			if(field.getPrefix()!=null){
+				java.lang.reflect.Field parentField = sampleDatabean.getClass().getDeclaredField(field.getPrefix());
+				parentField.setAccessible(true);
+				if(parentField.get(sampleDatabean)==null){
+					parentField.set(sampleDatabean, ReflectionTool.create(parentField.getType()));
+				}
+				java.lang.reflect.Field childField = parentField.getType().getDeclaredField(field.getName());
+				childField.setAccessible(true);
+				return childField;
+			}else{
+				java.lang.reflect.Field fld = sampleDatabean.getClass().getDeclaredField(field.getName());
+				fld.setAccessible(true);
+				return fld;
+			}
+		}catch(Exception e){
+			throw new RuntimeException(e);
+		}
 	}
 	
 

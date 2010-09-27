@@ -8,10 +8,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.log4j.Logger;
 
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class HTablePool{
+	protected Logger logger = Logger.getLogger(getClass());
+	
+	public static final Integer MAX_HTABLES_PER_TABLE = 10;
+	protected Long lastLoggedWarning = 0L;
 	
 	protected HBaseConfiguration hBaseConfiguration;
 	protected ConcurrentHashMap<String,Stack<HTable>> tablesByName;//cannot key by byte[] because .equals checks identity?
@@ -32,6 +38,7 @@ public class HTablePool{
 		}
 	}
 	
+	
 	public HTable checkOut(String name){
 		Stack<HTable> stack = tablesByName.get(name);
 		try{
@@ -46,9 +53,18 @@ public class HTablePool{
 		}
 	}
 	
+	
 	public void checkIn(HTable hTable){
 		String name = StringByteTool.fromUtf8Bytes(hTable.getTableName());
 		tablesByName.get(name).push(hTable);
 	}
 	
+	
+	protected void logIfManyHTables(String name, Stack<HTable> stack){
+		if(CollectionTool.size(stack) > MAX_HTABLES_PER_TABLE 
+				&& System.currentTimeMillis() - lastLoggedWarning > 1000){
+			logger.warn("hTables for "+name+"="+CollectionTool.size(stack));
+			lastLoggedWarning = System.currentTimeMillis();
+		}
+	}
 }

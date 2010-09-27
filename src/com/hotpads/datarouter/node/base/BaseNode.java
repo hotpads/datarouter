@@ -8,8 +8,10 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ComparableTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -26,9 +28,14 @@ implements Node<PK,D>{
 
 	protected boolean fieldAware;
 	protected List<Field<?>> primaryKeyFields;
-	protected List<Field<?>> fields;
 	protected List<Field<?>> nonKeyFields;
-	protected Map<String,Field<?>> fieldByMicroName;
+	protected List<Field<?>> fields;
+	
+	protected Map<String,Field<?>> fieldByMicroName = MapTool.createHashMap();
+	
+	protected List<String> fieldNames = ListTool.createArrayList();
+	protected List<java.lang.reflect.Field> reflectionFields = ListTool.createArrayList();
+	protected Map<String,java.lang.reflect.Field> reflectionFieldByName = MapTool.createHashMap();
 	
 	public BaseNode(Class<D> databeanClass){
 		this.baseDatabeanClass = databeanClass;
@@ -41,15 +48,16 @@ implements Node<PK,D>{
 		this.fieldAware = false;//mark true if PK and nonPk fields are found
 		try{
 			this.fields = this.sampleDatabean.getFields();//make sure there is a PK or this will NPE
-			this.fieldByMicroName = MapTool.createHashMap();
 			for(Field<?> field : this.fields){
 				this.fieldByMicroName.put(field.getName(), field);
+				this.fieldNames.add(field.getName());
+				java.lang.reflect.Field reflectionField = FieldTool.getReflectionFieldForField(sampleDatabean, field);
+				this.reflectionFields.add(reflectionField);
+				this.reflectionFieldByName.put(field.getName(), reflectionField);
 			}
-			this.nonKeyFields = this.sampleDatabean.getNonKeyFields();//only do these if the previous fields succeeded
-//			this.fieldAware = CollectionTool.notEmpty(this.fields)
-//					&& CollectionTool.notEmpty(this.nonKeyFields);
-			this.fieldAware = this.sampleDatabean.isFieldAware();
-		}catch(NullPointerException probablyNoPkInstantiated){
+			this.nonKeyFields = this.sampleDatabean.getNonKeyFields();//only do these if the previous fields succeeded			
+			this.fieldAware = this.sampleDatabean.isFieldAware();//only set this if all fields were setup properly
+		}catch(Exception probablyNoPkInstantiated){
 			if(this.sampleDatabean.isFieldAware()){
 				throw new IllegalArgumentException("could not instantiate "+name, probablyNoPkInstantiated);
 			}
