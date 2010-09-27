@@ -5,7 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.log4j.Logger;
 
@@ -21,7 +21,7 @@ implements HBaseClient{
 
 	protected String name;
 	protected HBaseOptions options;
-	protected HBaseConfiguration hBaseConfiguration;
+	protected Configuration hBaseConfiguration;
 	protected HTablePool hTablePool;
 	protected ExecutorService executorService;
 	
@@ -29,7 +29,7 @@ implements HBaseClient{
 	/**************************** constructor **********************************/
 	
 	public HBaseClientImp(String name, HBaseOptions options, 
-			HBaseConfiguration hBaseConfiguration, HTablePool pool){
+			Configuration hBaseConfiguration, HTablePool pool){
 		this.name = name;
 		this.options = options;
 		this.hBaseConfiguration = hBaseConfiguration;
@@ -78,7 +78,7 @@ implements HBaseClient{
 		return executorService;
 	}
 	
-	public HBaseConfiguration getHBaseConfiguration(){
+	public Configuration getHBaseConfiguration(){
 		return hBaseConfiguration;
 	}
 	

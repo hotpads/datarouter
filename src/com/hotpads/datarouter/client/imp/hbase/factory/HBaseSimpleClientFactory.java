@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
@@ -34,7 +35,7 @@ public class HBaseSimpleClientFactory implements HBaseClientFactory{
 	protected Properties properties;
 	protected HBaseOptions options;
 	protected HBaseClient client;
-	protected HBaseConfiguration hbConfig;
+	protected Configuration hbConfig;
 
 	
 	public HBaseSimpleClientFactory(
@@ -53,7 +54,7 @@ public class HBaseSimpleClientFactory implements HBaseClientFactory{
 		logger.warn("activating HBase client "+clientName);
 		PhaseTimer timer = new PhaseTimer(clientName);
 		
-		hbConfig = new HBaseConfiguration();
+		hbConfig = HBaseConfiguration.create();
 		String zkQuorum = options.zookeeperQuorum();
 		hbConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
 		//TODO add custom variables programatically

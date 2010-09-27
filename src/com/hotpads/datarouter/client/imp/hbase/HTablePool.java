@@ -6,7 +6,7 @@ import java.util.EmptyStackException;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.log4j.Logger;
 
@@ -19,10 +19,10 @@ public class HTablePool{
 	public static final Integer MAX_HTABLES_PER_TABLE = 10;
 	protected Long lastLoggedWarning = 0L;
 	
-	protected HBaseConfiguration hBaseConfiguration;
+	protected Configuration hBaseConfiguration;
 	protected ConcurrentHashMap<String,Stack<HTable>> tablesByName;//cannot key by byte[] because .equals checks identity?
 	
-	public HTablePool(HBaseConfiguration hBaseConfiguration, Collection<String> names, int startingSize){
+	public HTablePool(Configuration hBaseConfiguration, Collection<String> names, int startingSize){
 		this.hBaseConfiguration = hBaseConfiguration;
 		tablesByName = new ConcurrentHashMap<String,Stack<HTable>>();
 		for(String name : names){
