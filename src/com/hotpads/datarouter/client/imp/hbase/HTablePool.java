@@ -8,9 +8,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.NoServerForRegionException;
 import org.apache.log4j.Logger;
 
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class HTablePool{
@@ -31,6 +33,8 @@ public class HTablePool{
 				try{
 					tablesByName.get(name).add(
 							new HTable(this.hBaseConfiguration, StringByteTool.getUtf8Bytes(name)));
+				}catch(NoServerForRegionException nsfre){
+					logger.error(ExceptionTool.getStackTraceAsString(nsfre));
 				}catch(IOException e){
 					throw new RuntimeException(e);
 				}

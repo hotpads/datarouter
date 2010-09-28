@@ -88,8 +88,10 @@ public class DatabeanCountArchive extends BaseCountArchive{
 			toSave.add(new Count(entry.getKey(), sourceType, 
 					periodMs, periodStart, source, System.currentTimeMillis(), entry.getValue().get()));
 		}
-		countNode.putMulti(toSave, null);
-		flushAvailableCounters(countMap.getCountByKey());
+		if(countNode!=null){
+			countNode.putMulti(toSave, null);
+			flushAvailableCounters(countMap.getCountByKey());
+		}
 		lastFlushMs = System.currentTimeMillis();
 		
 	}
