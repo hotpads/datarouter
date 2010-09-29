@@ -93,7 +93,6 @@ public class DatabeanCountArchive extends BaseCountArchive{
 			flushAvailableCounters(countMap.getCountByKey());
 		}
 		lastFlushMs = System.currentTimeMillis();
-		
 	}
 
 	
