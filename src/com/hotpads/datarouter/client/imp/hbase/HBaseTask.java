@@ -38,10 +38,10 @@ public abstract class HBaseTask<V> implements Callable<V>{
 		}catch(Exception e){
 			throw new DataAccessException(e);
 		}finally{
-			TraceContext.finishSpan();
 			if(hTable!=null){
 				client.checkInHTable(hTable);
 			}
+			TraceContext.finishSpan();
 		}
 	}
 	

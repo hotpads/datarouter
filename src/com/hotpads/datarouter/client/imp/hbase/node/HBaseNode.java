@@ -10,6 +10,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 
+import com.hotpads.datarouter.client.imp.hbase.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.config.Config;
@@ -70,9 +71,8 @@ implements PhysicalMapStorageNode<PK,D>
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
 		if(CollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseTask<Void>("putMulti", this, config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>("putMulti", this, config){
 				public Void wrappedCall() throws Exception{
-					hTable.setAutoFlush(false);
 					List<Put> puts = ListTool.createLinkedList();
 					ArrayList<Delete> deletes = ListTool.createArrayList();//api requires ArrayList
 					for(D databean : databeans){
@@ -100,24 +100,24 @@ implements PhysicalMapStorageNode<PK,D>
 					if(!config.getPersistentPut()){ disableWalForPuts(puts); }
 					if(CollectionTool.notEmpty(puts)){ 
 						hTable.put(puts); 
-						hTable.flushCommits(); 
 					}
 					if(CollectionTool.notEmpty(deletes)){ 
 						hTable.delete(deletes);
+					}
+					if(CollectionTool.notEmpty(puts) && CollectionTool.notEmpty(deletes)){
 						hTable.flushCommits();
 					}
 					return null;
 				}
-			}.call();
+			}).call();
 	}
 	
 	
 	@Override
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseTask<Void>("deleteAll", this, config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>("deleteAll", this, config){
 				public Void wrappedCall() throws Exception{
-					hTable.setAutoFlush(false);
 					ResultScanner scanner = hTable.getScanner(new Scan());
 					ArrayList<Delete> batchToDelete = ListTool.createArrayList(1000);
 					for(Result row : scanner){
@@ -135,7 +135,7 @@ implements PhysicalMapStorageNode<PK,D>
 					hTable.flushCommits();
 					return null;
 				}
-			}.call();
+			}).call();
 	}
 
 	
@@ -149,7 +149,7 @@ implements PhysicalMapStorageNode<PK,D>
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
 		if(CollectionTool.isEmpty(keys)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseTask<Void>("deleteMulti", this, config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>("deleteMulti", this, config){
 				public Void wrappedCall() throws Exception{
 					hTable.setAutoFlush(false);
 					ArrayList<Delete> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList
@@ -161,7 +161,7 @@ implements PhysicalMapStorageNode<PK,D>
 					hTable.flushCommits();
 					return null;
 				}
-			}.call();
+			}).call();
 	}
 	
 	

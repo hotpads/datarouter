@@ -47,6 +47,8 @@ public class HTablePool{
 		Stack<HTable> stack = tablesByName.get(name);
 		try{
 			HTable hTable = stack.pop();
+			hTable.getWriteBuffer().clear();
+			hTable.setAutoFlush(false);
 			return hTable;
 		}catch(EmptyStackException ese){
 			try{
@@ -59,6 +61,7 @@ public class HTablePool{
 	
 	
 	public void checkIn(HTable hTable){
+		hTable.getWriteBuffer().clear();
 		String name = StringByteTool.fromUtf8Bytes(hTable.getTableName());
 		tablesByName.get(name).push(hTable);
 	}

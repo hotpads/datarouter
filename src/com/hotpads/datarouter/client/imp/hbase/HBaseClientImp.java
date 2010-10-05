@@ -1,9 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTable;
@@ -34,13 +32,14 @@ implements HBaseClient{
 		this.options = options;
 		this.hBaseConfiguration = hBaseConfiguration;
 		this.hTablePool = pool;
-		this.executorService = new ThreadPoolExecutor(
-				10,
-				100,
-				60, //irrelevant because our coreSize=maxSize
-				TimeUnit.SECONDS,  //irrelevant because our coreSize=maxSize
-				new LinkedBlockingQueue<Runnable>(1<<10),
-				new ThreadPoolExecutor.AbortPolicy());
+		this.executorService = Executors.newCachedThreadPool();
+//			new ThreadPoolExecutor(
+//				100,
+//				100,
+//				60, //irrelevant because our coreSize=maxSize
+//				TimeUnit.SECONDS,  //irrelevant because our coreSize=maxSize
+//				new LinkedBlockingQueue<Runnable>(1<<10),
+//				new ThreadPoolExecutor.AbortPolicy());
 	}
 	
 	@Override

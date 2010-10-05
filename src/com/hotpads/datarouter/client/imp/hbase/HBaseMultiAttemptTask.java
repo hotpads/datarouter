@@ -32,7 +32,7 @@ public class HBaseMultiAttemptTask<V> implements Callable<V>{
 	}
 	
 	public V call(){
-		for(int i=0; i < numAttempts; ++i){
+		for(int i=1; i <= numAttempts; ++i){
 			try{
 				Future<V> future = executorService.submit(task);
 				try{
