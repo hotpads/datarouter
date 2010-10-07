@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseOptions;
 import com.hotpads.datarouter.client.type.HBaseClient;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.profile.count.collection.Counters;
 
 public class HBaseClientImp 
@@ -75,6 +76,11 @@ implements HBaseClient{
 	@Override
 	public ExecutorService getExecutorService(){
 		return executorService;
+	}
+
+	@Override
+	public Class<PrimaryKey<?>> getPrimaryKeyClass(String tableName){
+		return hTablePool.getPrimaryKeyClass(tableName);
 	}
 	
 	public Configuration getHBaseConfiguration(){

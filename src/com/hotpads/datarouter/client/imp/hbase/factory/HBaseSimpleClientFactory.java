@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.hbase.factory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
@@ -17,8 +18,10 @@ import com.hotpads.datarouter.client.imp.hbase.HTablePool;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -75,10 +78,12 @@ public class HBaseSimpleClientFactory implements HBaseClientFactory{
 	
 	protected HTablePool initTables(){
 		List<String> tableNames = ListTool.create();
+		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = MapTool.create();
 		@SuppressWarnings("unchecked")
 		List<PhysicalNode<?,?>> physicalNodes = router.getNodes().getPhysicalNodesForClient(clientName);
 		for(PhysicalNode<?,?> node : physicalNodes){
 			tableNames.add(node.getTableName());
+			primaryKeyClassByName.put(node.getTableName(), (Class<PrimaryKey<?>>)node.getPrimaryKeyType());
 		}
 
 		try{
@@ -125,7 +130,8 @@ public class HBaseSimpleClientFactory implements HBaseClientFactory{
 		
 		HTablePool pool = new HTablePool(hbConfig, 
 				tableNames, 
-				options.minPoolSize(DEFAULT_minPoolSize));
+				options.minPoolSize(DEFAULT_minPoolSize),
+				primaryKeyClassByName);
 		
 		
 		return pool;

@@ -4,6 +4,7 @@ import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.StorageType;
+import com.hotpads.util.core.StringTool;
 
 public enum ClientType {
 
@@ -36,7 +37,7 @@ public enum ClientType {
 	
 	public static ClientType fromString(String input){
 		for(ClientType t : values()){
-			if(t.toString().equals(input)){
+			if(StringTool.equalsCaseInsensitive(t.toString(), input)){
 				return t;
 			}
 		}

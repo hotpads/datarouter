@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.EmptyStackException;
+import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,6 +12,7 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.NoServerForRegionException;
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.bytes.StringByteTool;
@@ -23,8 +25,10 @@ public class HTablePool{
 	
 	protected Configuration hBaseConfiguration;
 	protected ConcurrentHashMap<String,Stack<HTable>> tablesByName;//cannot key by byte[] because .equals checks identity?
+	protected Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
 	
-	public HTablePool(Configuration hBaseConfiguration, Collection<String> names, int startingSize){
+	public HTablePool(Configuration hBaseConfiguration, Collection<String> names, int startingSize,
+			Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName){
 		this.hBaseConfiguration = hBaseConfiguration;
 		tablesByName = new ConcurrentHashMap<String,Stack<HTable>>();
 		for(String name : names){
@@ -40,6 +44,7 @@ public class HTablePool{
 				}
 			}
 		}
+		this.primaryKeyClassByName = primaryKeyClassByName;
 	}
 	
 	
@@ -73,5 +78,9 @@ public class HTablePool{
 			logger.warn("hTables for "+name+"="+CollectionTool.size(stack));
 			lastLoggedWarning = System.currentTimeMillis();
 		}
+	}
+	
+	public Class<PrimaryKey<?>> getPrimaryKeyClass(String tableName){
+		return primaryKeyClassByName.get(tableName);
 	}
 }
