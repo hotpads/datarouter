@@ -102,6 +102,15 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends No
 		return physicalNodesForClient;
 	}
 	
+	public List<String> getTableNamesForClient(String clientName){
+		List<? extends PhysicalNode<PK,D>> physicalNodesForClient = getPhysicalNodesForClient(clientName);
+		List<String> tableNames = ListTool.create();
+		for(PhysicalNode<PK,D> physicalNode : IterableTool.nullSafe(physicalNodesForClient)){
+			tableNames.add(physicalNode.getTableName());
+		}
+		return tableNames;
+	}
+	
 	public N getNode(Key<PK> key){
 		return this.nodeByPrimaryKeyType.get(key.getClass());
 	}

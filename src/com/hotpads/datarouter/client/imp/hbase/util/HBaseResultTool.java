@@ -84,23 +84,9 @@ public class HBaseResultTool{
 
 	public static <PK extends PrimaryKey<PK>> 
 	PK getPrimaryKey(byte[] keyBytes, Class<PK> primaryKeyClass, List<Field<?>> primaryKeyFields){
-		PK primaryKey = ReflectionTool.create(primaryKeyClass);
-		
-		//copied from above
-		int byteOffset = 0;
-		for(Field<?> field : primaryKeyFields){
-			int numBytesWithSeparator = field.numBytesWithSeparator(keyBytes, byteOffset);
-			Object value = field.fromBytesWithSeparatorButDoNotSet(keyBytes, byteOffset);
-			field.setUsingReflection(primaryKey, value, true);
-			byteOffset+=numBytesWithSeparator;
-		}
-		
-		return primaryKey;
+		return getPrimaryKeyUnchecked(keyBytes, primaryKeyClass, primaryKeyFields);
 	}
-
-	/*
-	 * copied from getPrimaryKey so that DataRouterController can pass in arbitrary PK classes
-	 */
+	
 	public static <PK extends PrimaryKey<?>> 
 	PK getPrimaryKeyUnchecked(byte[] keyBytes, Class<PK> primaryKeyClass, List<Field<?>> primaryKeyFields){
 		PK primaryKey = ReflectionTool.create(primaryKeyClass);
