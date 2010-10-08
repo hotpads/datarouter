@@ -104,7 +104,7 @@ implements PhysicalMapStorageNode<PK,D>
 					if(CollectionTool.notEmpty(deletes)){ 
 						hTable.delete(deletes);
 					}
-					if(CollectionTool.notEmpty(puts) && CollectionTool.notEmpty(deletes)){
+					if(CollectionTool.notEmpty(puts) || CollectionTool.notEmpty(deletes)){
 						hTable.flushCommits();
 					}
 					return null;
@@ -131,8 +131,8 @@ implements PhysicalMapStorageNode<PK,D>
 					}
 					if(CollectionTool.notEmpty(batchToDelete)){
 						hTable.delete(batchToDelete);
+						hTable.flushCommits();
 					}
-					hTable.flushCommits();
 					return null;
 				}
 			}).call();
