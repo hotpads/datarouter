@@ -11,6 +11,8 @@ public abstract class BaseKey<PK extends PrimaryKey<PK>>
 extends BaseFieldSet
 implements Key<PK>{
 
+	public static final String NAME = "key";
+
 	@Override
 	public List<Field<?>> getKeyFields(){
 		return this.getFields();

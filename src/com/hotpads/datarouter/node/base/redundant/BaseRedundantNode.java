@@ -9,7 +9,6 @@ import java.util.SortedSet;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.op.MapStorageReadOps;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -22,8 +21,7 @@ public abstract class BaseRedundantNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK>,
 		N extends Node<PK,D>> 
-extends BaseNode<PK,D>
-implements MapStorageReadOps<PK,D>{
+extends BaseNode<PK,D>{
 	
 	protected List<N> writeNodes = new ArrayList<N>();
 	protected N readNode;//needs to be one of the write nodes
@@ -114,4 +112,10 @@ implements MapStorageReadOps<PK,D>{
 	public Node<PK,D> getMaster() {
 		return this;
 	}
+
+	public List<N> getWriteNodes(){
+		return writeNodes;
+	}
+	
+	
 }

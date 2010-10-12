@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.op.SortedStorageReadOps;
+import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
@@ -17,7 +17,7 @@ import com.hotpads.util.core.iterable.PeekableIterator;
  */
 public class Scanner<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 implements PeekableIterable<D>, PeekableIterator<D>{
-	SortedStorageReadOps<PK,D> node;
+	SortedStorageReader<PK,D> node;
 	
 	boolean startInclusive; 
 	PK end;
@@ -32,7 +32,7 @@ implements PeekableIterable<D>, PeekableIterator<D>{
 	
 	D peeked;
 	
-	public Scanner(SortedStorageReadOps<PK,D> node, 
+	public Scanner(SortedStorageReader<PK,D> node, 
 			PK start, boolean startInclusive, PK end, boolean endInclusive, 
 			Config config, int defaultRowsPerBatch){
 		this.node = node;

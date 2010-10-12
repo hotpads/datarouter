@@ -61,22 +61,33 @@ public class FieldTool{
 		return null;
 	}
 	
+	public static List<Field<?>> setPrefixes(String prefix, List<Field<?>> fields){
+		for(Field<?> field : IterableTool.nullSafe(fields)){
+			field.setPrefix(prefix);
+		}
+		return fields;
+	}
+	
 	
 	/************************** reflection ***********************/
 	
 	public static java.lang.reflect.Field getReflectionFieldForField(Databean<?> sampleDatabean, Field<?> field){
 		try{
 			if(field.getPrefix()!=null){
-				java.lang.reflect.Field parentField = sampleDatabean.getClass().getDeclaredField(field.getPrefix());
+				java.lang.reflect.Field parentField = ReflectionTool.getDeclaredFieldFromHierarchy(
+						sampleDatabean.getClass(), field.getPrefix());
 				parentField.setAccessible(true);
 				if(parentField.get(sampleDatabean)==null){
 					parentField.set(sampleDatabean, ReflectionTool.create(parentField.getType()));
 				}
-				java.lang.reflect.Field childField = parentField.getType().getDeclaredField(field.getName());
+				Class<?> parentFieldClass = parentField.getType();
+				java.lang.reflect.Field childField = ReflectionTool.getDeclaredFieldFromHierarchy(
+						parentFieldClass, field.getName());
 				childField.setAccessible(true);
 				return childField;
 			}else{
-				java.lang.reflect.Field fld = sampleDatabean.getClass().getDeclaredField(field.getName());
+				java.lang.reflect.Field fld = ReflectionTool.getDeclaredFieldFromHierarchy(
+						sampleDatabean.getClass(), field.getName());
 				fld.setAccessible(true);
 				return fld;
 			}

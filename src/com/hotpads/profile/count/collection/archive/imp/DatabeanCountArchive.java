@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.node.op.SortedStorageNode;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
 import com.hotpads.profile.count.collection.archive.BaseCountArchive;
@@ -27,12 +27,12 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	protected Long flushPeriodMs;
 	protected Long lastFlushMs;//need to anchor this to the period... currently floating
 	
-	protected SortedStorageNode<CountKey,Count> countNode;
-	protected SortedStorageNode<AvailableCounterKey,AvailableCounter> availableCounterNode;
+	protected SortedMapStorage<CountKey,Count> countNode;
+	protected SortedMapStorage<AvailableCounterKey,AvailableCounter> availableCounterNode;
 	
 	public DatabeanCountArchive(
-			SortedStorageNode<CountKey,Count> countNode,
-			SortedStorageNode<AvailableCounterKey,AvailableCounter> availableCounterNode,
+			SortedMapStorage<CountKey,Count> countNode,
+			SortedMapStorage<AvailableCounterKey,AvailableCounter> availableCounterNode,
 			String sourceType,
 			String source,
 			Long periodMs,

@@ -7,7 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.base.writebehind.BaseWriteBehindNode;
-import com.hotpads.datarouter.node.op.MapStorageReaderNode;
+import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -24,8 +24,6 @@ implements MapStorageReaderNode<PK,D>{
 		super(databeanClass, router, backingNode, writeExecutor, cancelExecutor);
 	}
 
-	
-	/**************************** MapStorageReader ***********************************/
 	
 	@Override
 	public boolean exists(PK key, Config config){

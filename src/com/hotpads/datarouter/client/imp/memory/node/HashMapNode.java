@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageNode;
+import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
@@ -13,7 +13,7 @@ import com.hotpads.util.core.CollectionTool;
 
 public class HashMapNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 extends HashMapReaderNode<PK,D>
-implements PhysicalMapStorageNode<PK,D>
+implements MapStorage<PK,D>
 {
 	
 	public HashMapNode(Class<D> databeanClass, 

@@ -14,7 +14,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageNode;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -28,7 +28,7 @@ import com.hotpads.util.core.ListTool;
 
 public class HibernateNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 extends HibernateReaderNode<PK,D>
-implements PhysicalIndexedSortedStorageNode<PK,D>
+implements PhysicalIndexedSortedMapStorageNode<PK,D>
 {
 	
 	public HibernateNode(Class<D> databeanClass, 

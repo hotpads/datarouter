@@ -5,9 +5,9 @@ import com.google.inject.Singleton;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeFactory;
-import com.hotpads.datarouter.node.op.IndexedStorageNode;
-import com.hotpads.datarouter.node.op.MapStorageNode;
-import com.hotpads.datarouter.node.op.SortedStorageNode;
+import com.hotpads.datarouter.node.op.raw.IndexedStorage;
+import com.hotpads.datarouter.node.op.raw.MapStorage;
+import com.hotpads.datarouter.node.op.raw.SortedStorage;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
@@ -52,11 +52,11 @@ extends BaseDataRouter{
 	/*************************** get/set ***********************************/
 
 
-	public MapStorageNode<ManyFieldTypeBeanKey,ManyFieldTypeBean> manyFieldTypeBean() {
+	public MapStorage<ManyFieldTypeBeanKey,ManyFieldTypeBean> manyFieldTypeBean() {
 		return cast(manyFieldTypeBeanNode);
 	}
 
-	public MapStorageNode<SortedBeanKey,SortedBean> sortedBean(){
+	public MapStorage<SortedBeanKey,SortedBean> sortedBean(){
 		return cast(sortedBeanNode);
 	}
 	
@@ -64,7 +64,7 @@ extends BaseDataRouter{
 		public SortedBasicNodeTestRouter(String client) throws IOException{
 			super(client);
 		}
-		public SortedStorageNode<SortedBeanKey,SortedBean> sortedBeanSorted(){
+		public SortedStorage<SortedBeanKey,SortedBean> sortedBeanSorted(){
 			return cast(sortedBeanNode);
 		}
 	}
@@ -73,7 +73,7 @@ extends BaseDataRouter{
 		public IndexedBasicNodeTestRouter(String client) throws IOException{
 			super(client);
 		}
-		public IndexedStorageNode<SortedBeanKey,SortedBean> sortedBeanIndexed(){
+		public IndexedStorage<SortedBeanKey,SortedBean> sortedBeanIndexed(){
 			return cast(sortedBeanNode);
 		}
 	}

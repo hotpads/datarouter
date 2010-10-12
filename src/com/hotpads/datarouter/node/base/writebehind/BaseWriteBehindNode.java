@@ -12,11 +12,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.op.MapStorageReadOps;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -28,8 +26,7 @@ public abstract class BaseWriteBehindNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK>,
 		N extends Node<PK,D>> 
-extends BaseNode<PK,D>
-implements MapStorageReadOps<PK,D>{
+extends BaseNode<PK,D>{
 	
 	public static final int DEFAULT_WRITE_BEHIND_THREADS = 1;
 	public static final long DEFAULT_TIMEOUT_MS = 60*1000;
@@ -135,4 +132,21 @@ implements MapStorageReadOps<PK,D>{
 	public Node<PK,D> getMaster() {
 		return this;
 	}
+
+
+	public ExecutorService getWriteExecutor(){
+		return writeExecutor;
+	}
+
+
+	public Queue<OutstandingWriteWrapper> getOutstandingWrites(){
+		return outstandingWrites;
+	}
+
+
+	public N getBackingNode(){
+		return backingNode;
+	}
+	
+	
 }

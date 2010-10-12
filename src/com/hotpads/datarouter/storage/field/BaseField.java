@@ -105,16 +105,19 @@ public abstract class BaseField<T> implements Field<T>{
 		try{
 			//method Field.getDeclaredField(String) allows access to non-public fields
 			if( ! ignorePrefix && this.getPrefix()!=null){
-				java.lang.reflect.Field parentField = targetFieldSet.getClass().getDeclaredField(this.getPrefix());
+				java.lang.reflect.Field parentField = ReflectionTool.getDeclaredFieldFromHierarchy(
+						targetFieldSet.getClass(), this.getPrefix());
 				parentField.setAccessible(true);
 				if(parentField.get(targetFieldSet)==null){
 					parentField.set(targetFieldSet, ReflectionTool.create(parentField.getType()));
 				}
-				java.lang.reflect.Field childField = parentField.getType().getDeclaredField(this.getName());
+				java.lang.reflect.Field childField = ReflectionTool.getDeclaredFieldFromHierarchy(
+						parentField.getType(), this.getName());
 				childField.setAccessible(true);
 				childField.set(parentField.get(targetFieldSet), value);
 			}else{
-				java.lang.reflect.Field fld = targetFieldSet.getClass().getDeclaredField(this.getName());
+				java.lang.reflect.Field fld = ReflectionTool.getDeclaredFieldFromHierarchy(
+						targetFieldSet.getClass(), this.getName());
 				fld.setAccessible(true);
 				fld.set(targetFieldSet, value);
 			}

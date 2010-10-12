@@ -17,7 +17,9 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BasePhysicalNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+public abstract class BasePhysicalNode<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK>>
 extends BaseNode<PK,D>
 implements PhysicalNode<PK,D>
 {

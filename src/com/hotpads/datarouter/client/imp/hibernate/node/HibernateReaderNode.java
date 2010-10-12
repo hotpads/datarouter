@@ -24,9 +24,11 @@ import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
+import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
+import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
+import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.scanner.Scanner;
 import com.hotpads.datarouter.node.scanner.primarykey.PrimaryKeyScanner;
-import com.hotpads.datarouter.node.type.physical.PhysicalIndexedSortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
@@ -47,7 +49,10 @@ import com.hotpads.util.core.iterable.PeekableIterable;
 
 public class HibernateReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 extends BasePhysicalNode<PK,D>
-implements PhysicalIndexedSortedStorageReaderNode<PK,D>{
+implements MapStorageReader<PK,D>,
+		SortedStorageReader<PK,D>,
+		IndexedStorageReader<PK,D>{
+	
 	protected Logger logger = Logger.getLogger(getClass());
 	
 	/******************************* constructors ************************************/

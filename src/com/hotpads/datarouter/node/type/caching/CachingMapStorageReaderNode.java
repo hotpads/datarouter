@@ -1,53 +1,37 @@
 package com.hotpads.datarouter.node.type.caching;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.base.caching.BaseCachingNode;
-import com.hotpads.datarouter.node.op.IndexedSortedStorageNode;
-import com.hotpads.datarouter.node.op.MapStorageReaderNode;
+import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.IndexedMapStorageNode;
+import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class CachingMapStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
-N extends IndexedSortedStorageNode<PK,D>>
+public abstract class CachingMapStorageReaderNode<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK>,
+		N extends IndexedMapStorageNode<PK,D>>
 extends BaseCachingNode<PK,D,N>
 implements MapStorageReaderNode<PK,D>{
-	
 	
 	public CachingMapStorageReaderNode(N backingNode) {
 		super(backingNode);
 	}
 
-	
-	/************************* cache access *******************************/
 
-	protected Map<String,Map<PK,D>> mapCacheByThreadName = MapTool.createHashMap();
-
-	protected Map<PK,D> getMapCacheForThisThread(){
-		String threadName = Thread.currentThread().getName();
-		if(mapCacheByThreadName.get(threadName)==null){
-			mapCacheByThreadName.put(threadName, new HashMap<PK,D>());
-		}
-		return mapCacheByThreadName.get(threadName);
-	}
+	/************************* util ***************************/
 	
-	protected void clearMapCacheForThisThread(){
-		String threadName = Thread.currentThread().getName();
-		this.mapCacheByThreadName.remove(threadName);
-	}
-	
-	@Override
-	public void clearThreadSpecificState(){
-		this.clearMapCacheForThisThread();
+	public static boolean useCache(final Config config){
+		if(config==null){ return Config.DEFAULT_CACHE_OK; }
+		return config.getCacheOk();
 	}
 
 	/**************************** MapStorageReader ***********************************/
@@ -116,13 +100,6 @@ implements MapStorageReaderNode<PK,D>{
 		List<PK> fromBackingNode = this.backingNode.getKeys(uncachedKeys, config);
 		ListTool.nullSafeArrayAddAll(resultBuilder, fromBackingNode);
 		return resultBuilder;
-	}
-
-	/************************* util ***************************/
-	
-	public static boolean useCache(final Config config){
-		if(config==null){ return Config.DEFAULT_CACHE_OK; }
-		return config.getCacheOk();
 	}
 	
 }

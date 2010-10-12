@@ -6,8 +6,8 @@ import java.util.Map;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.base.partitioned.BasePartitionedNode;
-import com.hotpads.datarouter.node.op.MapStorageReaderNode;
-import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageReaderNode;
+import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
+import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.PhysicalMapStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -15,8 +15,10 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
-public abstract class PartitionedMapStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
-N extends PhysicalMapStorageReaderNode<PK,D>>
+public abstract class PartitionedMapStorageReaderNode<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK>,
+		N extends PhysicalMapStorageReaderNode<PK,D>>
 extends BasePartitionedNode<PK,D,N>
 implements MapStorageReaderNode<PK,D>{
 	

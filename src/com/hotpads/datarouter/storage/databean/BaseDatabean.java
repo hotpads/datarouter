@@ -20,11 +20,15 @@ implements Databean<PK>{
 	
 	@Override
 	public String getDatabeanName() {
-		return this.getClass().getSimpleName();
+		return getClass().getSimpleName();
 	}
 	
 	
 	/*************************** fields ****************************/
+	
+	public String getKeyFieldName(){
+		return "key";
+	}
 	
 	@Override
 	public boolean isFieldAware(){
@@ -33,7 +37,7 @@ implements Databean<PK>{
 
 	@Override
 	public List<Field<?>> getKeyFields(){
-		return this.getKey().getFields();
+		return FieldTool.setPrefixes(getKeyFieldName(), getKey().getFields());
 	}
 
 	@Override
@@ -52,7 +56,7 @@ implements Databean<PK>{
 
 	@Override
 	public Object getFieldValue(String fieldName){
-		return FieldTool.getFieldValue(this.getFields(), fieldName);
+		return FieldTool.getFieldValue(getFields(), fieldName);
 	}
 	
 	
@@ -60,12 +64,12 @@ implements Databean<PK>{
 
 	@Override
 	public String getPersistentString(){  //fuse multi-column field into one string, usually with "_" characters
-		return this.getKey().getPersistentString();
+		return getKey().getPersistentString();
 	}
 	
 	@Override
 	public String getTypedPersistentString(){  //usually getDatabeanName()+"."+getPersistentString()
-		return this.getClass().getSimpleName()+"."+this.getPersistentString();
+		return getClass().getSimpleName()+"."+getPersistentString();
 	}
 	
 	
@@ -81,11 +85,11 @@ implements Databean<PK>{
 	
 	@Override
 	public int hashCode(){
-		return this.getKey().hashCode();
+		return getKey().hashCode();
 	}
 
 	@Override
 	public String toString(){
-		return this.getClass().getSimpleName()+"."+this.getKey().getPersistentString();
+		return getClass().getSimpleName()+"."+getKey().getPersistentString();
 	}
 }

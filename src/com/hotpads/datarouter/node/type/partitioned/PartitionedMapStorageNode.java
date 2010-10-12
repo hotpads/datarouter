@@ -1,99 +1,61 @@
 package com.hotpads.datarouter.node.type.partitioned;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.MapStorageNode;
-import com.hotpads.datarouter.node.type.physical.PhysicalMapStorageNode;
+import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
+import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
+import com.hotpads.datarouter.node.type.partitioned.mixin.PartitionedMapStorageWriterMixin;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.MapTool;
 
-public abstract class PartitionedMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
-N extends PhysicalMapStorageNode<PK,D>>
+public abstract class PartitionedMapStorageNode<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK>,
+		N extends PhysicalMapStorageNode<PK,D>>
 extends PartitionedMapStorageReaderNode<PK,D,N>
 implements MapStorageNode<PK,D>{
+
+	protected PartitionedMapStorageWriterMixin<PK,D,N> mixinMapWriteOps;
 	
 	public PartitionedMapStorageNode(Class<D> databeanClass, DataRouter router) {
 		super(databeanClass, router);
+		this.mixinMapWriteOps = new PartitionedMapStorageWriterMixin<PK,D,N>(this);
 	}
 
-
-
-	/***************** MapStorageWriter ************************************/
 	
-	/*
-	 * MULTIPLE INHERITANCE... copied to:
-	 *   - PartitionedSortedStorageNode
-	 *   - PartitionedIndexedStorageNode
-	 */
 	@Override
-	public void delete(PK key, Config config) {
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes(key))){
-			node.delete(key, config);
-		}
+	public void delete(PK key, Config config){
+		mixinMapWriteOps.delete(key, config);
 	}
 
-	/*
-	 * MULTIPLE INHERITANCE... copied to:
-	 *   - PartitionedSortedStorageNode
-	 *   - PartitionedIndexedStorageNode
-	 */
+	
 	@Override
-	public void deleteMulti(Collection<PK> keys, Config config) {
-		Map<N,List<PK>> keysByNode = this.getPrimaryKeysByPhysicalNode(keys);
-		for(N node : MapTool.nullSafe(keysByNode).keySet()){
-			Collection<PK> keysForNode = keysByNode.get(node);
-			if(CollectionTool.notEmpty(keysForNode)){
-				node.deleteMulti(keysForNode, config);
-			}
-		}
+	public void deleteAll(Config config){
+		mixinMapWriteOps.deleteAll(config);
 	}
 
-	/*
-	 * MULTIPLE INHERITANCE... copied to:
-	 *   - PartitionedSortedStorageNode
-	 *   - PartitionedIndexedStorageNode
-	 */
+	
 	@Override
-	public void deleteAll(Config config) {
-		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes())){
-			node.deleteAll(config);
-		}
+	public void deleteMulti(Collection<PK> keys, Config config){
+		mixinMapWriteOps.deleteMulti(keys, config);
 	}
 
-	/*
-	 * MULTIPLE INHERITANCE... copied to:
-	 *   - PartitionedSortedStorageNode
-	 *   - PartitionedIndexedStorageNode
-	 */
+	
 	@Override
-	public void put(D databean, Config config) {
-		Collection<N> nodes = this.getPhysicalNodes(databean.getKey());
-		for(N node : CollectionTool.nullSafe(nodes)){
-			node.put(databean, config);
-		}
+	public void put(D databean, Config config){
+		mixinMapWriteOps.put(databean, config);
 	}
 
-	/*
-	 * MULTIPLE INHERITANCE... copied to:
-	 *   - PartitionedSortedStorageNode
-	 *   - PartitionedIndexedStorageNode
-	 */
+	
 	@Override
-	public void putMulti(Collection<D> databeans, Config config) {
-		Map<N,? extends Collection<D>> databeansByNode = this.getDatabeansByPhysicalNode(databeans);
-		for(N node : MapTool.nullSafe(databeansByNode).keySet()){
-			Collection<D> databeansForNode = databeansByNode.get(node);
-			if(CollectionTool.notEmpty(databeansForNode)){
-				node.putMulti(databeansForNode, config);
-			}
-		}
+	public void putMulti(Collection<D> databeans, Config config){
+		mixinMapWriteOps.putMulti(databeans, config);
 	}
+
+	
+	
 
 
 }

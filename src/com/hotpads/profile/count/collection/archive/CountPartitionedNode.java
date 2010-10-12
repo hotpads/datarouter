@@ -5,8 +5,8 @@ import java.util.Map;
 
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeFactory;
-import com.hotpads.datarouter.node.type.partitioned.PartitionedSortedStorageNode;
-import com.hotpads.datarouter.node.type.physical.PhysicalSortedStorageNode;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
+import com.hotpads.datarouter.node.type.partitioned.PartitionedSortedMapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.key.Key;
@@ -17,7 +17,7 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.StringTool;
 
 public class CountPartitionedNode
-extends PartitionedSortedStorageNode<CountKey,Count,PhysicalSortedStorageNode<CountKey,Count>>{
+extends PartitionedSortedMapStorageNode<CountKey,Count,PhysicalSortedMapStorageNode<CountKey,Count>>{
 
 	public static final String table_prefix = Count.class.getSimpleName();
 	public static final String entity_prefix = Count.class.getName();
@@ -82,7 +82,7 @@ extends PartitionedSortedStorageNode<CountKey,Count,PhysicalSortedStorageNode<Co
 			String entityName = entity_prefix + suffix;
 			Node<CountKey,Count> node = NodeFactory.create(
 					clientName, tableName, entityName, Count.class, router);
-			PhysicalSortedStorageNode<CountKey,Count> sortedNode = BaseDataRouter.cast(node);
+			PhysicalSortedMapStorageNode<CountKey,Count> sortedNode = BaseDataRouter.cast(node);
 			this.register(sortedNode);
 		}
 	}
@@ -100,11 +100,11 @@ extends PartitionedSortedStorageNode<CountKey,Count,PhysicalSortedStorageNode<Co
 	}
 	
 	@Override
-	public List<PhysicalSortedStorageNode<CountKey,Count>> getPhysicalNodes(Key<CountKey> key) {
+	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodes(Key<CountKey> key) {
 		if(!isPartitionAware(key)){ return this.getPhysicalNodes(); }
 		CountKey countKey = (CountKey)key;
 		Integer index = indexByMs.get(countKey.getPeriodMs());
-		PhysicalSortedStorageNode<CountKey,Count> node = this.physicalNodes.get(index);
+		PhysicalSortedMapStorageNode<CountKey,Count> node = this.physicalNodes.get(index);
 		if(node==null){ return ListTool.createLinkedList(); }
 		return ListTool.wrap(node);
 	}

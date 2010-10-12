@@ -12,6 +12,7 @@ extends FieldSet{
 	String getDatabeanName();
 	
 	Class<PK> getKeyClass();
+	String getKeyFieldName();
 	PK getKey();  
 	
 	boolean isFieldAware();

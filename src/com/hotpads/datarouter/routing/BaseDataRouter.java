@@ -12,6 +12,7 @@ import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.Nodes;
+import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.KeyTool;
@@ -89,7 +90,7 @@ public abstract class BaseDataRouter implements DataRouter {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends Node<PK,D>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends NodeOps<PK,D>> 
 	N cast(Node<PK,D> in){
 		return (N)in;
 	}
