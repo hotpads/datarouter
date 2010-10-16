@@ -87,4 +87,10 @@ public class LongDateField extends BasePrimitiveField<Date>{
 		return new Date(LongByteTool.fromUInt63Bytes(bytes, offset));
 	}
 
+	@Override
+	public String getSqlEscaped(){
+		if(value==null){ return "null"; }
+		return value.getTime()+"";
+	}
+
 }

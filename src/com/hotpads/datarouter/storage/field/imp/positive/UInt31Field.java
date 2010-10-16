@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Random;
 
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
@@ -17,6 +18,17 @@ public class UInt31Field extends BasePrimitiveField<Integer>{
 
 	public UInt31Field(String prefix, String name, Integer value){
 		super(prefix, name, value);
+	}
+	
+	/************************ static *********************************/
+
+	private static final Random random = new Random();
+
+	public static int nextRandom(){
+		while(true){
+			int possible = random.nextInt();
+			if(possible >= 0){ return possible; }
+		}
 	}
 	
 	/*********************** override *******************************/
