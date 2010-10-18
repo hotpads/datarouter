@@ -200,7 +200,6 @@ implements MapStorageReader<PK,D>,
 		return (List<D>)result;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
 		if(fieldAware){ throw new NotImplementedException(); }
@@ -227,6 +226,7 @@ implements MapStorageReader<PK,D>,
 							projectionList.add(Projections.property(field.getPrefixedName()));
 							++numFields;
 						}
+						criteria.setProjection(projectionList);
 						//where clause
 						Disjunction orSeparatedIds = Restrictions.disjunction();
 						for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
