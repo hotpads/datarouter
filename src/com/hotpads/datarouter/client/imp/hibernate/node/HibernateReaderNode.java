@@ -159,7 +159,7 @@ implements MapStorageReader<PK,D>,
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 //		final Class<? extends Databean> persistentClass = CollectionTool.getFirst(keys).getDatabeanClass();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
-		Object result = executor.executeTask(
+		List<D> result = (List<D>)executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
 					int batchSize = DEFAULT_ITERATE_BATCH_SIZE;
@@ -196,8 +196,9 @@ implements MapStorageReader<PK,D>,
 					return all;
 				}
 			});
+		TraceContext.appendToSpanInfo(CollectionTool.size(result)+"/"+CollectionTool.size(keys));
 		TraceContext.finishSpan();
-		return (List<D>)result;
+		return result;
 	}
 	
 	@Override
@@ -247,7 +248,6 @@ implements MapStorageReader<PK,D>,
 				}
 			});
 		TraceContext.finishSpan();
-		
 		return (List<PK>)result;
 	}
 
