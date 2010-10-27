@@ -106,6 +106,11 @@ public class TraceContext {
 		++ctx.nextSpanSequence;
 	}
 	
+	/*
+	 * Use this method carefully, because span names become Counter entries.  We do not want to
+	 * create new counter entries for an unbounded set of names.  Use "appendToSpanInfo" to add
+	 * things like the number of results returned from a method.
+	 */
 	public static void appendToSpanName(String text){
 		TraceContext ctx = get();
 		if(ctx==null || ctx.getCurrentSpan()==null){ return; }
