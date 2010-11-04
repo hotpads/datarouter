@@ -5,6 +5,7 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.TxnClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
+import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
@@ -84,7 +85,10 @@ implements ParallelTxnApp<T>{
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
-			txnClient.beginTxn(this.getIsolation(), true);
+			ConnectionHandle connectionHandle = txnClient.getExistingHandle();
+			if(connectionHandle.isOutermostHandle()){
+				txnClient.beginTxn(this.getIsolation(), true);
+			}
 //			logger.debug("began txn for "+txnClient.getExistingHandle());
 		}
 	}
@@ -94,7 +98,10 @@ implements ParallelTxnApp<T>{
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
-			txnClient.commitTxn();
+			ConnectionHandle connectionHandle = txnClient.getExistingHandle();
+			if(connectionHandle.isOutermostHandle()){
+				txnClient.commitTxn();
+			}
 //			logger.debug("committed txn for "+txnClient.getExistingHandle());
 		}
 	}

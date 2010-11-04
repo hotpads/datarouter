@@ -13,6 +13,8 @@ import com.hotpads.util.core.ExceptionTool;
 public class HibernateExecutor {
 	Logger logger = Logger.getLogger(HibernateExecutor.class);
 
+	public static final boolean EAGER_SESSION_FLUSH = true;
+
 	private HibernateClientImp client;
 	private Config config;
 	private Session existingSession;
@@ -41,26 +43,29 @@ public class HibernateExecutor {
 		
 		try{
 			if(newSession){
-				this.client.reserveConnection();
-				this.client.beginTxn(
+				client.reserveConnection();
+				client.beginTxn(
 						config.getIsolationOrUse(Config.DEFAULT_ISOLATION), 
-						this.disableAutoCommit);
-				this.client.openSession();
-				session = this.client.getExistingSession();
-				logger.debug("found connection "+this.client.getExistingHandle());
+						disableAutoCommit);
+				client.openSession();
+				session = client.getExistingSession();
+				logger.debug("found connection "+client.getExistingHandle());
 			}
 		
 			try{
 				///////////////
 				//the main purpose of this class, hidden in resource management code
 				result = task.run(session);  
+				if(EAGER_SESSION_FLUSH){
+					client.flushSession();
+				}
 				/////////////////
 				
 			}catch(Exception e){
 				try{
-					this.client.rollbackTxn();
+					client.rollbackTxn();
 				}catch(Exception er){
-					logger.warn("EXCEPTION DURING ROLLBACK for connection:"+this.client.getExistingHandle());
+					logger.warn("EXCEPTION DURING ROLLBACK for connection:"+client.getExistingHandle());
 					logger.warn(ExceptionTool.getStackTraceAsString(er));
 					throw new DataAccessException(e);
 				}
@@ -68,8 +73,10 @@ public class HibernateExecutor {
 			}
 
 			if(newSession){
-				this.client.flushSession();
-				this.client.commitTxn();
+				if(!EAGER_SESSION_FLUSH){
+					client.flushSession();
+				}
+				client.commitTxn();
 			}
 			
 			return result;
@@ -78,7 +85,7 @@ public class HibernateExecutor {
 			if(newSession){
 				ConnectionHandle handle = null;
 				try{
-					handle = this.client.releaseConnection();
+					handle = client.releaseConnection();
 				}catch(Exception e){
 					logger.warn("EXCEPTION THROWN DURING RELEASE CONNECTION");
 					logger.warn(ExceptionTool.getStackTraceAsString(e));

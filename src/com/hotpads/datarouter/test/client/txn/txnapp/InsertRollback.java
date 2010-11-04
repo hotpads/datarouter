@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.hotpads.datarouter.test.client.txn;
+package com.hotpads.datarouter.test.client.txn.txnapp;
 
 import java.util.List;
 
@@ -9,10 +9,12 @@ import org.junit.Assert;
 
 import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
+import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
@@ -37,7 +39,11 @@ public class InsertRollback extends BaseParallelHibernateTxnApp<Void>{
 			this.getSession(client.getName()).clear();
 			Assert.assertEquals(1, CollectionTool.size(router.txnBean().getAll(null)));
 		}else{
-			Assert.assertEquals(0, CollectionTool.size(router.txnBean().getAll(null)));
+			if(a.isFieldAware() || HibernateExecutor.EAGER_SESSION_FLUSH){
+				Assert.assertEquals(1, CollectionTool.size(router.txnBean().getAll(null)));
+			}else{
+				Assert.assertEquals(0, CollectionTool.size(router.txnBean().getAll(null)));
+			}
 		}
 		TxnBean a2 = new TxnBean("a2");
 		a2.setId(a.getId());

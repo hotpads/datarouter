@@ -1,6 +1,8 @@
 package com.hotpads.datarouter.connection;
 
 public class ConnectionHandle {
+	
+	public static final int OUTERMOST_TICKET_NUMBER = 1;
 
 	private Thread thread; //for debugging
 	
@@ -32,12 +34,16 @@ public class ConnectionHandle {
 		return --this.numTickets;
 	}
 	
+	public boolean isOutermostHandle(){
+		return numTickets == OUTERMOST_TICKET_NUMBER;
+	}
+	
 	
 	/**************************** from Object ************************/
 	
 	@Override
 	public String toString(){
-		return "["+threadId+","+clientName+","+handleNum+","+numTickets+"]-"+thread.getName();
+		return "["+threadId+","+clientName+","+handleNum+"]#"+numTickets+"-"+thread.getName();
 	}
 
 	@Override
@@ -51,6 +57,14 @@ public class ConnectionHandle {
 		return result;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 * 
+	 * Important:
+	 *   - must include: threadId, clientName, handleNum
+	 *   - most NOT include: numTickets
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

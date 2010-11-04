@@ -29,9 +29,8 @@ import com.hotpads.util.core.MapTool;
 
 public class HibernateClientImp 
 implements JdbcConnectionClient, TxnClient, HibernateClient{
-
 	protected Logger logger = Logger.getLogger(this.getClass());
-
+	
 	String name;
 	public String getName(){
 		return name;
@@ -85,7 +84,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	public ConnectionHandle reserveConnection(){
 		Counters.inc("connection open "+getName());
 		try {
-			ConnectionHandle existingHandle = this.getExistingHandle();
+			ConnectionHandle existingHandle = getExistingHandle();
 			if(existingHandle != null){
 				logger.debug("got existing connection:"+existingHandle);
 				//Assert connection exists for handle
@@ -94,20 +93,17 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 			}
 			//jdbc triggers network round trip when getting connection to set autocommit=true
 			long requestTimeMs = System.currentTimeMillis();
-			Connection newConnection = this.connectionPool.getDataSource().getConnection();
-			long elapsedTime = System.currentTimeMillis() - requestTimeMs;
-			if(elapsedTime > 1){
-				Counters.inc("connection open > 1ms on "+getName());
-				logger.warn("slow reserveConnection:"+elapsedTime+"ms on "+getName());
-			}
+			Connection newConnection = connectionPool.getDataSource().getConnection();
+			logIfSlowReserveConnection(requestTimeMs);
 			
 			long threadId = Thread.currentThread().getId();
 			long connNumber = connectionCounter.incrementAndGet();
-			ConnectionHandle handle = new ConnectionHandle(Thread.currentThread(), this.name, connNumber, 1);
-			if(this.handleByThread.get(threadId)==null){
-				this.handleByThread.put(threadId, handle);
+			ConnectionHandle handle = new ConnectionHandle(Thread.currentThread(), name, 
+					connNumber, ConnectionHandle.OUTERMOST_TICKET_NUMBER);
+			if(handleByThread.get(threadId)==null){
+				handleByThread.put(threadId, handle);
 			}
-			this.connectionByHandle.put(handle, newConnection);
+			connectionByHandle.put(handle, newConnection);
 			logger.debug("new connection:"+handle);
 			return handle;
 		}catch(SQLException e){
@@ -115,19 +111,27 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 			throw new DataAccessException(e);
 		}
 	}
+	
+	protected void logIfSlowReserveConnection(long requestTimeMs){
+		long elapsedTime = System.currentTimeMillis() - requestTimeMs;
+		if(elapsedTime > 1){
+			Counters.inc("connection open > 1ms on "+getName());
+			logger.warn("slow reserveConnection:"+elapsedTime+"ms on "+getName());
+		}
+	}
 
 	@Override
 	public ConnectionHandle releaseConnection(){
 		try {
 			Thread currentThread = Thread.currentThread();
-			ConnectionHandle handle = this.getExistingHandle();
+			ConnectionHandle handle = getExistingHandle();
 			if(handle==null){ return null; }//the connection probably was never opened successfully
 			handle.decrementNumTickets();
 			if(handle.getNumTickets() > 0){
 //				logger.warn("KEEPING CONNECTION OPEN for "+handle+", "+this.getStats());
 				return handle;  //others are still using this connection
 			}
-			if(this.sessionByConnectionHandle.containsKey(handle)){
+			if(sessionByConnectionHandle.containsKey(handle)){
 				try{
 //					logger.warn("*************************************************************************************************");
 //					logger.warn("SESSION STILL EXISTS for "+handle+".  CLEANING UP");
@@ -139,12 +143,12 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 					logger.warn("*************************************************************************************************");
 				}
 			}
-			Connection connection = this.connectionByHandle.get(handle);
+			Connection connection = connectionByHandle.get(handle);
 			//on close, there will be a network round trip if isolation needs to be set back to default
 			//on close, there will be another network round trip if autocommit needs to be disabled
 			connection.close();
-			this.connectionByHandle.remove(handle);
-			this.handleByThread.remove(currentThread.getId());
+			connectionByHandle.remove(handle);
+			handleByThread.remove(currentThread.getId());
 			return handle;
 		} catch (SQLException e) {
 			throw new DataAccessException(e);
@@ -157,15 +161,15 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	
 	@Override
 	public Connection acquireConnection(){
-		this.reserveConnection();
-		return this.getExistingConnection();
+		reserveConnection();
+		return getExistingConnection();
 	}
 	
 	@Override
 	public Connection getExistingConnection(){
-		ConnectionHandle handle = this.getExistingHandle();
+		ConnectionHandle handle = getExistingHandle();
 		if(handle==null){ return null; }
-		return this.connectionByHandle.get(handle);
+		return connectionByHandle.get(handle);
 	}
 
 	
@@ -174,7 +178,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	@Override
 	public ConnectionHandle beginTxn(Isolation isolation, boolean disableAutoCommit){
 		try {
-			Connection connection = this.getExistingConnection();
+			Connection connection = getExistingConnection();
 			//jdbc standard says that autoCommit=true by default on each new connection
 			if(disableAutoCommit){
 				connection.setAutoCommit(false);
@@ -184,7 +188,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 					logger.debug("setTransactionIsolation="+isolation.toString()+" on "+this.getExistingHandle());
 				}
 			}
-			return this.getExistingHandle();
+			return getExistingHandle();
 		} catch (SQLException e) {
 			throw new DataAccessException(e);
 		}
@@ -193,16 +197,16 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	@Override
 	public ConnectionHandle commitTxn(){
 		try{
-			Connection connection = this.getExistingConnection();
+			Connection connection = getExistingConnection();
 			if(connection != null){
 				if( ! connection.getAutoCommit()){
 					connection.commit();
-					logger.debug("committed txn on:"+this.getExistingHandle());
+					logger.debug("committed txn on:"+getExistingHandle());
 				}
 			}else{
-				logger.warn("couldn't commit txn because connection was null.  handle="+this.getExistingHandle());
+				logger.warn("couldn't commit txn because connection was null.  handle="+getExistingHandle());
 			}
-			return this.getExistingHandle();
+			return getExistingHandle();
 		} catch (SQLException e) {
 			throw new DataAccessException(e);
 		}
@@ -211,14 +215,14 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	@Override
 	public ConnectionHandle rollbackTxn(){
 		try{
-			Connection connection = this.getExistingConnection();
+			Connection connection = getExistingConnection();
 			if(connection == null){
-				logger.warn("couldn't rollback txn because connection was null.  handle="+this.getExistingHandle());
+				logger.warn("couldn't rollback txn because connection was null.  handle="+getExistingHandle());
 			}else if( ! connection.getAutoCommit()){
-				logger.warn("ROLLING BACK TXN "+this.getExistingHandle());
+				logger.warn("ROLLING BACK TXN "+getExistingHandle());
 				connection.rollback();
 			}
-			return this.getExistingHandle();
+			return getExistingHandle();
 		} catch (SQLException e) {
 			throw new DataAccessException(e);
 		}
@@ -229,31 +233,31 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	
 	@Override
 	public ConnectionHandle openSession(){
-		Connection connection = this.getExistingConnection();
-		Session session = this.sessionFactory.openSession(connection);
+		Connection connection = getExistingConnection();
+		Session session = sessionFactory.openSession(connection);
 		session.setCacheMode(CacheMode.GET);
 		session.setFlushMode(FlushMode.MANUAL);
-		this.sessionByConnectionHandle.put(this.getExistingHandle(), session);
+		sessionByConnectionHandle.put(getExistingHandle(), session);
 		return this.getExistingHandle();
 	}
 	
 	@Override
 	public ConnectionHandle flushSession(){
-		ConnectionHandle handle = this.getExistingHandle();
+		ConnectionHandle handle = getExistingHandle();
 		if(handle==null){ return handle; }
-		Session session = this.sessionByConnectionHandle.get(handle);
+		Session session = sessionByConnectionHandle.get(handle);
 		if(session!=null){
 			try{
 				session.flush();
 			}catch(Exception e){
-				logger.warn("problem closing session.  flush() threw exception.  handle="+this.getExistingHandle());
-				logger.warn(this.getStats());
+				logger.warn("problem closing session.  flush() threw exception.  handle="+getExistingHandle());
+				logger.warn(getStats());
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				try{
-					logger.warn("ROLLING BACK TXN after failed flush().  handle="+this.getExistingHandle());
-					this.rollbackTxn();
+					logger.warn("ROLLING BACK TXN after failed flush().  handle="+getExistingHandle());
+					rollbackTxn();
 				}catch(Exception e2){
-					logger.warn("TXN ROLLBACK FAILED after flush() threw exception.  handle="+this.getExistingHandle());
+					logger.warn("TXN ROLLBACK FAILED after flush() threw exception.  handle="+getExistingHandle());
 					logger.warn(name+" has "+MapTool.size(sessionByConnectionHandle)+" sessions");
 					logger.warn(ExceptionTool.getStackTraceAsString(e));
 				}
@@ -265,30 +269,30 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	
 	@Override
 	public ConnectionHandle cleanupSession(){
-		ConnectionHandle handle = this.getExistingHandle();
+		ConnectionHandle handle = getExistingHandle();
 		if(handle==null){ return handle; }
-		Session session = this.sessionByConnectionHandle.get(handle);
+		Session session = sessionByConnectionHandle.get(handle);
 		if(session != null){
 			try{
 				session.clear();//otherwise things get left in the session factory??
 			}catch(Exception e){
-				logger.warn("problem clearing session.  clear() threw exception.  handle="+this.getExistingHandle());
+				logger.warn("problem clearing session.  clear() threw exception.  handle="+getExistingHandle());
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 			}
 			try{
 				session.disconnect();
 			}catch(Exception e){
-				logger.warn("problem closing session.  disconnect() threw exception.  handle="+this.getExistingHandle());
+				logger.warn("problem closing session.  disconnect() threw exception.  handle="+getExistingHandle());
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 			}
 			try{
 				session.close();//should not be necessary, but best to be safe
 			}catch(Exception e){
-				logger.warn("problem closing session.  close() threw exception.  handle="+this.getExistingHandle());
+				logger.warn("problem closing session.  close() threw exception.  handle="+getExistingHandle());
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 			}
 		}
-		this.sessionByConnectionHandle.remove(handle);
+		sessionByConnectionHandle.remove(handle);
 		return handle;
 	}
 
@@ -297,13 +301,13 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	
 	@Override
 	public Session getExistingSession(){
-		if(this.getExistingHandle()==null){ return null; }
-		return this.sessionByConnectionHandle.get(this.getExistingHandle());
+		if(getExistingHandle()==null){ return null; }
+		return this.sessionByConnectionHandle.get(getExistingHandle());
 	}
 
 	@Override
 	public SessionFactory getSessionFactory() {
-		return this.sessionFactory;
+		return sessionFactory;
 	}
 	
 	

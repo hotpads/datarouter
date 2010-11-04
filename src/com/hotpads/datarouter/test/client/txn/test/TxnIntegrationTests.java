@@ -2,6 +2,7 @@ package com.hotpads.datarouter.test.client.txn.test;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -9,12 +10,14 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
-import com.hotpads.datarouter.test.client.txn.InsertRollback;
-import com.hotpads.datarouter.test.client.txn.MultiInsertRollback;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
+import com.hotpads.datarouter.test.client.txn.txnapp.InsertRollback;
+import com.hotpads.datarouter.test.client.txn.txnapp.MultiInsertRollback;
+import com.hotpads.datarouter.test.client.txn.txnapp.NestedTxn;
 import com.hotpads.util.core.CollectionTool;
 
 public class TxnIntegrationTests {
+	Logger logger = Logger.getLogger(TxnIntegrationTests.class);
 	
 	static BasicClientTestRouter router;
 
@@ -31,7 +34,8 @@ public class TxnIntegrationTests {
 		resetTable();
 	}
 	
-	
+
+	/************ InsertRollback *********************/
 	
 	@Test 
 	public void testInsertRollbackNoFlush(){	
@@ -42,7 +46,7 @@ public class TxnIntegrationTests {
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
-		Assert.assertTrue(1==numExceptions);
+		Assert.assertEquals(1, numExceptions);
 		Assert.assertEquals(0, CollectionTool.size(router.txnBean().getAll(null)));
 	}
 	
@@ -55,13 +59,12 @@ public class TxnIntegrationTests {
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
-		Assert.assertTrue(1==numExceptions);
+		Assert.assertEquals(1, numExceptions);
 		Assert.assertEquals(0, CollectionTool.size(router.txnBean().getAll(null)));
 	}
 
 	
-
-	
+	/************ MultiInsertRollback *********************/
 	
 	@Test 
 	public void testMoreComplexInsertRollbackNoFlush(){		
@@ -75,10 +78,9 @@ public class TxnIntegrationTests {
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
-		Assert.assertTrue(1==numExceptions);
+		Assert.assertEquals(1, numExceptions);
 		Assert.assertEquals(1, CollectionTool.size(router.txnBean().getAll(null)));
 	}
-	
 	
 	@Test 
 	public void testMoreComplexInsertRollbackWithFlush(){		
@@ -92,10 +94,26 @@ public class TxnIntegrationTests {
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
-		Assert.assertTrue(1==numExceptions);
+		Assert.assertEquals(1, numExceptions);
 		Assert.assertEquals(1, CollectionTool.size(router.txnBean().getAll(null)));
 	}
+
 	
+	/************ NestedTxn *********************/
+	
+	@Test 
+	public void testNestedTxn(){
+		logger.warn("testNestedTxn()");
+		resetTable();	
+		int numExceptions = 0;
+		try{
+			router.run(new NestedTxn(router, false));
+		}catch(RuntimeException re){
+			++numExceptions;
+		}
+		Assert.assertEquals(1, numExceptions);
+		Assert.assertEquals(0, CollectionTool.size(router.txnBean().getAll(null)));
+	}
 }
 
 

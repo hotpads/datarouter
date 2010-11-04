@@ -10,8 +10,6 @@ import org.hibernate.annotations.AccessType;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 
 
 @SuppressWarnings("serial")
@@ -22,35 +20,31 @@ public class TxnBean extends BaseDatabean<TxnBeanKey>{
 	@Id
 	private TxnBeanKey key;
 	
-	private Long version;
-	
-	private String f0;
-	
 	/***************************** columns ******************************/
 	
 	public static final String
 		KEY_NAME = "key",
-		COL_id = "id",
-		COL_version = "version",
-		COL_f0 = "f0";
+		COL_id = "id";
 	
 	@Override
 	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new UInt63Field(COL_version, this.version),
-				new StringField(COL_f0, this.f0));
+		return FieldTool.createList();
+	}
+	
+	@Override
+	public boolean isFieldAware(){
+		return true;
 	}
 	
 
 	/***************************** constructor **************************************/
 		
 	TxnBean(){
+		this.key = new TxnBeanKey(null);
 	}
 	
-	public TxnBean(String f0) {
-		this.key = new TxnBeanKey();
-		this.version = 0L;
-		this.f0 = f0;
+	public TxnBean(String id) {
+		this.key = new TxnBeanKey(id);
 	}
 	
 	
@@ -69,36 +63,20 @@ public class TxnBean extends BaseDatabean<TxnBeanKey>{
 	
 	/***************************** get/set **************************************/
 
-	public String getF0(){
-		return f0;
-	}
-
-
-	public void setF0(String f0){
-		this.f0 = f0;
-	}
 
 	public void setKey(TxnBeanKey key){
 		this.key = key;
 	}
 
 
-	public Long getVersion(){
-		return version;
-	}
 
 
-	public void setVersion(Long version){
-		this.version = version;
-	}
-
-
-	public Long getId(){
+	public String getId(){
 		return key.getId();
 	}
 
 
-	public void setId(Long id){
+	public void setId(String id){
 		key.setId(id);
 	}
 	

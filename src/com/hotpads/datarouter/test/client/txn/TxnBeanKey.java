@@ -6,7 +6,7 @@ import javax.persistence.Embeddable;
 
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 /********************************* indexes ***********************************/
@@ -15,29 +15,30 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 @Embeddable
 public class TxnBeanKey extends BasePrimaryKey<TxnBeanKey>{
 	
-	protected Long id;
+	protected String id;
 	
-	public TxnBeanKey(){//for hibernate
-		this.id = UInt63Field.nextRandom();
+	TxnBeanKey(){
 	}
 	
-	public TxnBeanKey(Long id) {
+	public TxnBeanKey(String id) {
 		this.id = id;
 	}
 	
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new UInt63Field(TxnBean.KEY_NAME, TxnBean.COL_id, this.id));
+				new StringField(TxnBean.KEY_NAME, TxnBean.COL_id, this.id));
 	}
 
-	public Long getId(){
+	public String getId(){
 		return id;
 	}
 
-	public void setId(Long id){
+	public void setId(String id){
 		this.id = id;
 	}
+
+	
 	
 	
 }
