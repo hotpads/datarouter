@@ -83,9 +83,11 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	@Override
 	public void putMulti(Collection<D> databeans, final Config config) {
 		TraceContext.startSpan(getName()+" putMulti");
+		int numDatabeans =  CollectionTool.size(databeans);
+		if(numDatabeans < 1) return;
 		final String entityName = this.getPackagedTableName();
 		final Collection<D> finalDatabeans = databeans;
-		boolean disableAutoCommit = CollectionTool.size(databeans) > 1
+		boolean disableAutoCommit = numDatabeans > 1
 				|| this.shouldDisableAutoCommit(config, DEFAULT_PUT_METHOD);
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, disableAutoCommit);
 		executor.executeTask(
