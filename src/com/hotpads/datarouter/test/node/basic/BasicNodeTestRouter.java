@@ -4,7 +4,7 @@ import java.io.IOException;
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.NodeFactory;
+import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.IndexedStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.SortedStorage;

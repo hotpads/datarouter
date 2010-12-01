@@ -19,4 +19,5 @@ public interface FieldSet extends Comparable<FieldSet>,
 
 	String getPersistentString();  //fuse multi-column field into one string, usually with "_" characters
 	String getTypedPersistentString();  //usually getDatabeanName()+"."+getPersistentString()
+	void fromPersistentString(String s);  //currently separated by "_"... need escaping
 }

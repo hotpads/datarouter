@@ -93,6 +93,19 @@ public abstract class BaseFieldSet implements FieldSet{
 		return this.getClass().getSimpleName()+"_"+this.getPersistentString();
 	}	
 	
+	@Override
+	public void fromPersistentString(String in){
+		String[] tokens = in.split("_");
+		int i=0;
+		for(Field<?> field : this.getFields()){
+			if(i>tokens.length-1){ break; }
+			field.fromString(tokens[i]);
+			field.setUsingReflection(this, field.getValue(), true);
+			field.setValue(null);//to be safe until Field logic is cleaned up
+			++i;
+		}
+	}
+	
 	/****************** fields ************************/
 
 	@Override

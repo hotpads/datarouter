@@ -8,6 +8,7 @@ import java.sql.Types;
 
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 
 public class LongField extends BasePrimitiveField<Long>{
@@ -22,7 +23,11 @@ public class LongField extends BasePrimitiveField<Long>{
 	
 	@Override
 	public void fromString(String s){
-		this.value = s==null?null:Long.valueOf(s);
+		if(StringTool.isEmpty(s) || s.equals("null")){ 
+			this.value = null; 
+			return; 
+		}
+		this.value = Long.valueOf(s);
 	}
 
 	@Override

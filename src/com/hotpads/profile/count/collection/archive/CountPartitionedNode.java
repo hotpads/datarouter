@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.NodeFactory;
+import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.node.type.partitioned.PartitionedSortedMapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;

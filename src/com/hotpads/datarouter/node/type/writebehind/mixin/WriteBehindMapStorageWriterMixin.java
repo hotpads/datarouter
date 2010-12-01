@@ -15,6 +15,12 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 
+/*
+ * currently implements queuing functionality by wrapping each call into a "Callable" and 
+ *  putting it into the ExecutorService's queue.  
+ *  
+ * a more efficient version might batch writes together, requiring a customized queuing system
+ */
 public class WriteBehindMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK>,

@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.client.ClientId;
-import com.hotpads.datarouter.node.HibernateNodeFactory;
+import com.hotpads.datarouter.node.factory.HibernateNodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.test.DRTestConstants;

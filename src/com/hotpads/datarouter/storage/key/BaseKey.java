@@ -18,17 +18,17 @@ implements Key<PK>{
 		return this.getFields();
 	}
 	
-	@Override
-	public void fromPersistentString(String in){
-		String[] tokens = in.split("_");
-		int i=0;
-		for(Field<?> field : this.getFields()){
-			if(i>tokens.length-1){ break; }
-			field.fromString(tokens[i]);
-			field.setUsingReflection(this, field.getValue(), true);
-			field.setValue(null);//to be safe until Field logic is cleaned up
-			++i;
-		}
-	}
+//	@Override
+//	public void fromPersistentString(String in){
+//		String[] tokens = in.split("_");
+//		int i=0;
+//		for(Field<?> field : this.getFields()){
+//			if(i>tokens.length-1){ break; }
+//			field.fromString(tokens[i]);
+//			field.setUsingReflection(this, field.getValue(), true);
+//			field.setValue(null);//to be safe until Field logic is cleaned up
+//			++i;
+//		}
+//	}
 	
 }

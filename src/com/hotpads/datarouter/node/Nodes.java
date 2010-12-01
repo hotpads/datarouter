@@ -34,11 +34,12 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends No
 	
 	
 	public N register(N node){
-		String nodeName = node.getName();
+//		String nodeName = node.getName();
 //		logger.warn("registering:"+nodeName+":"+node.getAllNames());
-		if(CollectionTool.containsAny(this.getAllNames(), node.getAllNames())){//enforce global node name uniqueness
-			throw new IllegalArgumentException("node already exists:"+nodeName);
-		}
+//		if(CollectionTool.containsAny(this.getAllNames(), node.getAllNames())){//enforce global node name uniqueness
+//			throw new IllegalArgumentException("node already exists:"+nodeName);
+//		}
+		ensureDuplicateNamesReferToSameNode(node);
 		Class<D> databeanType = node.getDatabeanType();
 		D sampleDatabean = ReflectionTool.create(databeanType);
 		List<String> clientNames = node.getClientNames();
@@ -144,5 +145,14 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends No
 		for(N node : MapTool.nullSafe(nodeByName).values()){
 			node.clearThreadSpecificState();
 		}
+	}
+	
+	protected void ensureDuplicateNamesReferToSameNode(N node){
+		String thisName = node.getName();
+		N existingNode = nodeByName.get(thisName);
+		if(existingNode == null || existingNode == node){ return; }
+		Class<?> existingNodeClass = existingNode.getClass();
+		throw new IllegalArgumentException("different node with this name already exists:"+thisName+"["
+				+existingNodeClass.getSimpleName()+"]");
 	}
 }
