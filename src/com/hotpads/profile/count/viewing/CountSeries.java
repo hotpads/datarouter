@@ -3,7 +3,6 @@ package com.hotpads.profile.count.viewing;
 import java.util.List;
 
 import com.hotpads.profile.count.databean.Count;
-import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.XMLStringTool;
 
@@ -28,17 +27,17 @@ public class CountSeries{
 		this.source = source;
 	}
 
-	public CountSeries(Long startMs, Long endMs, Long periodMs, List<Count> counts){
-		this.startMs = startMs;
-		this.endMs = endMs;
-		this.periodMs = periodMs;
-		this.counts = counts;
-		for(Count count : IterableTool.nullSafe(counts)){
-			if(count.getName()!=null){ this.name = count.getName(); }
-			if(count.getSourceType()!=null){ this.sourceType = count.getSourceType(); }
-			if(count.getSource()!=null){ this.source = count.getSource(); }
-		}
-	}
+//	public CountSeries(Long startMs, Long endMs, Long periodMs, List<Count> counts){
+//		this.startMs = startMs;
+//		this.endMs = endMs;
+//		this.periodMs = periodMs;
+//		this.counts = counts;
+//		for(Count count : IterableTool.nullSafe(counts)){
+//			if(count.getName()!=null){ this.name = count.getName(); }
+//			if(count.getSourceType()!=null){ this.sourceType = count.getSourceType(); }
+//			if(count.getSource()!=null){ this.source = count.getSource(); }
+//		}
+//	}
 
 	public long getMax(){
 		long max = 0L;
@@ -56,8 +55,9 @@ public class CountSeries{
 	}
 	
 	public String getName(){
-		if(CollectionTool.isEmpty(counts)){ return null; }
-		return CollectionTool.getFirst(counts).getName();
+		return name;
+//		if(CollectionTool.isEmpty(counts)){ return null; }
+//		return CollectionTool.getFirst(counts).getName();
 	}
 	
 	public String getNameHtmlEscaped(){
@@ -65,18 +65,21 @@ public class CountSeries{
 	}
 	
 	public String getSourceType(){
-		if(CollectionTool.isEmpty(counts)){ return null; }
-		return CollectionTool.getFirst(counts).getSourceType();
+		return sourceType;
+//		if(CollectionTool.isEmpty(counts)){ return null; }
+//		return CollectionTool.getFirst(counts).getSourceType();
 	}
 	
 	public String getSource(){
-		if(CollectionTool.isEmpty(counts)){ return null; }
-		return CollectionTool.getFirst(counts).getSource();
+		return source;
+//		if(CollectionTool.isEmpty(counts)){ return null; }
+//		return CollectionTool.getFirst(counts).getSource();
 	}
 	
 	public Long getPeriodMs(){
-		if(CollectionTool.isEmpty(counts)){ return null; }
-		return CollectionTool.getFirst(counts).getPeriodMs();
+		return periodMs;
+//		if(CollectionTool.isEmpty(counts)){ return null; }
+//		return CollectionTool.getFirst(counts).getPeriodMs();
 	}
 	
 	public List<Count> getPaddedCounts(){

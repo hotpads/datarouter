@@ -53,13 +53,25 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		return counters;
 	}
 	
+	/*
+	 * remember that sources are interleaved, so a range query will return all sources
+	 */
 	@Override
-	public List<Count> getCounts(String name, Long startMs, Long endMs){
-		CountKey start = new CountKey(name, sourceType, periodMs, startMs, source, 0L);
-		CountKey end = new CountKey(name, sourceType, periodMs, System.currentTimeMillis(), source, Long.MAX_VALUE);
+	public List<Count> getCountsForAllSources(String name, Long startMs, Long endMs){
+		CountKey start = new CountKey(name, sourceType, periodMs, startMs, null, null);
+		CountKey end = new CountKey(name, sourceType, periodMs, System.currentTimeMillis(), null, null);
 		List<Count> counts = countNode.getRange(start, true, end, true, null);
 		return counts;
 	}
+	
+//	@Override
+//	public List<Count> getCountsForSource(String name, String filterForSource, Long startMs, Long endMs){
+//		CountKey start = new CountKey(name, sourceType, periodMs, startMs, null, 0L);
+//		CountKey end = new CountKey(name, sourceType, periodMs, System.currentTimeMillis(), null, Long.MAX_VALUE);
+//		List<Count> counts = countNode.getRange(start, true, end, true, null);
+//		List<Count> countsForSource = Count.filterForSource(counts, filterForSource);
+//		return countsForSource;
+//	}
 	
 	public static final int DISCARD_IF_OLDER_THAN = 300 * 1000;
 

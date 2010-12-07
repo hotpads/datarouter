@@ -1,6 +1,8 @@
 package com.hotpads.profile.count.databean;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.SortedSet;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -12,6 +14,8 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
+import com.hotpads.util.core.IterableTool;
+import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.XMLStringTool;
 
 @SuppressWarnings("serial")
@@ -71,6 +75,17 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey>{
 	
 	public String getNameHtmlEscaped(){
 		return XMLStringTool.escapeXml(getName());
+	}
+	
+	
+	/********************************** static *****************************************/
+	
+	public static SortedSet<String> getAllSources(Collection<AvailableCounter> counters){
+		SortedSet<String> outs = SetTool.createTreeSet();
+		for(AvailableCounter counter : IterableTool.nullSafe(counters)){
+			outs.add(counter.getSource());
+		}
+		return outs;
 	}
 	
 	

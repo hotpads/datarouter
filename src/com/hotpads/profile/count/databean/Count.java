@@ -1,5 +1,6 @@
 package com.hotpads.profile.count.databean;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +20,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.XMLStringTool;
 
 @SuppressWarnings("serial")
@@ -120,6 +122,14 @@ public class Count extends BaseDatabean<CountKey>{
 	public static long getIntervalStart(long periodMs, long timeMs){
 		long msToSubtract = timeMs % periodMs;
 		return timeMs - msToSubtract;
+	}
+	
+	public static List<Count> filterForSource(Collection<Count> ins, String source){
+		List<Count> outs = ListTool.createArrayList();
+		for(Count in : IterableTool.nullSafe(ins)){
+			if(ObjectTool.equals(source, in.getSource())){ outs.add(in); }
+		}
+		return outs;
 	}
 	
 	public static List<Count> getListWithGapsFilled(

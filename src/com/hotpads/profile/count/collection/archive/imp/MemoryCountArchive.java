@@ -78,7 +78,7 @@ public class MemoryCountArchive extends BaseCountArchive{
 	}
 	
 	@Override
-	public List<Count> getCounts(String name, Long startMs, Long endMs){
+	public List<Count> getCountsForAllSources(String name, Long startMs, Long endMs){
 		int startIndex = getIndexForMs(startMs);
 		if(getEarliestAvailableTime() > startMs){
 			startIndex = getIndexForMs(getEarliestAvailableTime());

@@ -21,7 +21,8 @@ public interface CountArchive extends Comparable<CountArchive>{
 	Long getNumBytes();
 	
 	List<AvailableCounter> getAvailableCounters(String nameLike);
-	List<Count> getCounts(String name, Long startMs, Long endMs);
+	List<Count> getCountsForAllSources(String name, Long startMs, Long endMs);
+//	List<Count> getCountsForSource(String name, String source, Long startMs, Long endMs);
 	
 	String getPeriodAbbreviation();
 }
