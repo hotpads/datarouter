@@ -12,6 +12,7 @@ extends Comparable<Field<T>>, ByteAwareField<T>, SqlField<T>{//TODO remove SqlFr
 	String getPrefix();
 
 	String getName();
+	byte[] getNameBytes();
 
 	boolean isCollection();
 	

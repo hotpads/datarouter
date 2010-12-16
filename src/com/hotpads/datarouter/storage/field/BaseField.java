@@ -43,6 +43,16 @@ public abstract class BaseField<T> implements Field<T>{
 		}
 	}
 	
+//	public void setPrefixAndName(String prefixAndName){
+//		String[] tokens = prefixAndName.split(".");
+//		if(tokens.length > 1){
+//			setPrefix(tokens[0]);
+//			setName(tokens[1]);
+//		}else{
+//			setName(tokens[0]);
+//		}
+//	}
+	
 	@Override
 	public boolean isCollection(){
 		return false;
@@ -50,6 +60,11 @@ public abstract class BaseField<T> implements Field<T>{
 	
 	
 	/****************************** ByteField ***********************************/
+
+	@Override
+	public byte[] getNameBytes(){
+		return StringByteTool.getUtf8Bytes(this.getName());//TODO get micro name
+	}
 	
 	public byte[] getMicroNameBytes(){
 		return StringByteTool.getUtf8Bytes(this.getName());//TODO get micro name

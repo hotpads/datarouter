@@ -152,7 +152,7 @@ public abstract class BaseFieldSet implements FieldSet{
 	@Override
 	public byte[] getBytes(boolean allowNulls){
 		try{
-			return FieldSetTool.getBytes(this.getFields(), allowNulls);
+			return FieldSetTool.getConcatenatedValueBytes(this.getFields(), allowNulls);
 		}catch(Exception e){
 			throw new IllegalArgumentException("error on getBytes(allowNulls="+allowNulls+") for "+this.toString());
 		}

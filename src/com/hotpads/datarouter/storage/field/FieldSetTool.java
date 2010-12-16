@@ -1,17 +1,25 @@
 package com.hotpads.datarouter.storage.field;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.IterableTool;
+import com.hotpads.util.core.bytes.StringByteTool;
+import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.util.core.number.VarLong;
 
 public class FieldSetTool{
 	static Logger logger = Logger.getLogger(FieldSetTool.class);
@@ -79,11 +87,39 @@ public class FieldSetTool{
 		}
 		return targetFieldSet;
 	}
+
+	public static <D extends FieldSet> D fieldSetFromBytes(Class<D> cls, 
+			Map<String,Field<?>> fieldByPrefixedName, InputStream is) throws IOException{
+		D targetFieldSet = ReflectionTool.create(cls);
+		int databeanLength = (int)new VarLong(is).getValue();
+		int numBytesThroughDatabean = 0;
+		while(true){
+			VarLong nameLength = new VarLong(is);//will throw IllegalArgumentException at the end of the stream
+			byte[] nameBytes = new byte[nameLength.getValueInt()];
+			is.read(nameBytes);
+			numBytesThroughDatabean += nameLength.getNumBytes() + nameLength.getValueInt();
+			String prefixedName = StringByteTool.fromUtf8Bytes(nameBytes);
+			Field<?> field = fieldByPrefixedName.get(prefixedName);
+			if(field==null){ continue; }
+			VarLong valueLength = new VarLong(is);
+			if(valueLength.getValue() > 0){
+				byte[] valueBytes = new byte[valueLength.getValueInt()];
+				is.read(valueBytes);
+				numBytesThroughDatabean += valueLength.getNumBytes() + valueLength.getValueInt();
+				Object value = field.fromBytesButDoNotSet(valueBytes, 0);
+				field.setUsingReflection(targetFieldSet, value, false);
+			}
+			if(numBytesThroughDatabean >= databeanLength){
+				break;
+			}
+		}
+		return targetFieldSet;
+	}
 	
 
 	/**************************** bytes ******************/
 	
-	public static byte[] getBytes(Collection<Field<?>> fields, boolean allowNulls){
+	public static byte[] getConcatenatedValueBytes(Collection<Field<?>> fields, boolean allowNulls){
 		if(CollectionTool.size(fields)==1){ return CollectionTool.getFirst(fields).getBytes(); }
 		if(CollectionTool.isEmpty(fields)){ return null; }
 		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.size(fields)][];
@@ -96,6 +132,31 @@ public class FieldSetTool{
 			fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
 		}
 		return ByteTool.concatenate(fieldArraysWithSeparators);
+	}
+	
+	public static byte[] getSerializedKeyValues(Collection<Field<?>> fields, boolean includePrefix){
+		if(CollectionTool.isEmpty(fields)){ return new byte[0]; }
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		for(Field<?> field : IterableTool.nullSafe(fields)){
+			//prep the values
+			byte[] keyBytes = includePrefix ? 
+					StringByteTool.getUtf8Bytes(field.getPrefixedName()) : field.getNameBytes();
+			VarLong keyLength = new VarLong(ArrayTool.length(keyBytes));
+			byte[] valueBytes = field.getBytes();
+			VarLong valueLength = new VarLong(ArrayTool.length(valueBytes));
+			//abort if value is 0 bytes
+			if(ArrayTool.isEmpty(valueBytes)){ continue; }
+			try{
+				//write out the bytes
+				baos.write(keyLength.getBytes());
+				baos.write(keyBytes);
+				baos.write(valueLength.getBytes());
+				baos.write(valueBytes);
+			}catch(IOException e){
+				throw new RuntimeException("a ByteArrayOutputStream threw an IOException... not sure how that could happen");
+			}
+		}
+		return baos.toByteArray();
 	}
 	
 }

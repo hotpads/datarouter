@@ -72,7 +72,7 @@ public class DRHRegionInfo{
 	
 	public String getServerName(){
 		String name = server.getHostname();
-		if("manimal".equals(name)){ name += random.nextInt(3); }
+//		if("manimal".equals(name)){ name += random.nextInt(3); }
 		return name;
 	}
 	
