@@ -66,25 +66,15 @@ public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean
 					}
 					if(toSave.size() >= 100){
 						timer.add("parsed "+toSave.size());
-						try{
-							node.putMulti(toSave, null);
-						}catch(RuntimeException debug){
-							int breakpoint = 1;
-							throw debug;
-						}
+						node.putMulti(toSave, null);
 						timer.add("saved "+toSave.size());
-						logger.warn(timer);
+//						logger.warn(timer);
 						timer = new PhaseTimer();
 						toSave.clear();
 					}
 				}catch(IllegalArgumentException iac){
 					if(toSave.size() >= 0){//don't forget these
-						try{
-							node.putMulti(toSave, null);
-						}catch(RuntimeException debug){
-							int breakpoint = 1;
-							throw debug;
-						}
+						node.putMulti(toSave, null);
 					}
 					break;//VarLong throws this at the end of the InputStream
 				}

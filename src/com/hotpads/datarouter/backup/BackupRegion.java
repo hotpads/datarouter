@@ -59,7 +59,9 @@ public abstract class BackupRegion<PK extends PrimaryKey<PK>,D extends Databean<
 			++numRecords;
 			rawBytes += length.getValue() + length.getNumBytes();
 			if(numRecords % 10000 == 0){
-				logger.warn("exported "+NumberFormatter.addCommas(numRecords)+" from "+databean.getKey());
+				String numRecordsString = NumberFormatter.addCommas(numRecords);
+				String numBytesString = NumberFormatter.addCommas(rawBytes)+"b";
+				logger.warn("exported "+numRecordsString+", "+numBytesString+" from "+databean.getKey());
 			}
 		}
 	}
