@@ -57,7 +57,7 @@ extends BackupRegion<PK,D>{
 			}finally{
 				try{
 					if(os!=null){ 
-						if(os instanceof GZIPOutputStream){
+						if(os instanceof GZIPOutputStream){//these may not be necessary
 							((GZIPOutputStream)os).finish();
 							((GZIPOutputStream)os).flush();
 						}
