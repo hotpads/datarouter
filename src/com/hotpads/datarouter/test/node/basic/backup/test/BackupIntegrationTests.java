@@ -37,6 +37,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.profile.PhaseTimer;
 
 @RunWith(Parameterized.class)
 public class BackupIntegrationTests{
@@ -276,7 +277,7 @@ public class BackupIntegrationTests{
 		boolean gzip = true;
 		new BackupRegionToS3<BackupBeanKey,BackupBean>(
 				BackupRegionToS3.DEFAULT_BUCKET, "test", router, node, null, null, gzip, true,
-				router.backupRecordNode()).execute();
+				router.backupRecordNode(), new PhaseTimer()).execute();
 		//clear table
 		clearTable(router);
 		

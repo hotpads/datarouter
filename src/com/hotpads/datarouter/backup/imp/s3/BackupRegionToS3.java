@@ -17,7 +17,9 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.FileUtils;
+import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.io.FileIOFactory;
+import com.hotpads.util.core.profile.PhaseTimer;
 
 public class BackupRegionToS3<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
 extends BackupRegion<PK,D>{
@@ -29,12 +31,14 @@ extends BackupRegion<PK,D>{
 	protected String localPath;
 	protected boolean gzip;
 	protected boolean deleteLocalFile;
+	protected PhaseTimer timer;
 
 	public BackupRegionToS3(String s3Bucket, String sourceName,
 			DataRouter router, SortedStorageNode<PK,D> node, 
 			PK startKeyInclusive, PK endKeyExclusive,
 			boolean gzip, boolean deleteLocalFile,
-			MapStorage<BackupRecordKey,BackupRecord> backupRecordNode){
+			MapStorage<BackupRecordKey,BackupRecord> backupRecordNode,
+			PhaseTimer timer){
 		super(router, node, startKeyInclusive, endKeyExclusive, backupRecordNode);
 		this.s3Bucket = s3Bucket;
 		this.sourceName = sourceName;
@@ -42,6 +46,7 @@ extends BackupRegion<PK,D>{
 		this.localPath = getLocalPath(this.s3Key);
 		this.gzip = gzip;
 		this.deleteLocalFile = deleteLocalFile;
+		this.timer = timer;
 	}
 	
 	@Override
@@ -54,6 +59,7 @@ extends BackupRegion<PK,D>{
 			}
 			try{
 				exportWithoutClosingOutputStream();
+				timer.add("exported "+NumberFormatter.addCommas(numRecords)+", "+NumberFormatter.addCommas(rawBytes)+"b");
 			}finally{
 				try{
 					if(os!=null){ 
@@ -81,6 +87,7 @@ extends BackupRegion<PK,D>{
 		File localFile = new File(localPath);
 		S3PutTool.putFile(false, s3Bucket, localFile, s3Key, CannedAccessControlList.Private,
 				S3Headers.CONTENT_TYPE_GZIP, S3Headers.CACHE_CONTROL_NO_CACHE);
+		timer.add("uploaded to s3");
 	}
 	
 	public static String getS3Key(String sourceName, DataRouter router, Node<?,?> node){
