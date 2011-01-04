@@ -16,7 +16,7 @@ public class JsonTool{
 	public static JSON getJson(List<Field<?>> fields) {
 		JSONObject j = new JSONObject();
 		for(Field<?> f : IterableTool.nullSafe(fields)){
-			j.element(f.getName(), f.getValue());
+			j.element(f.getColumnName(), f.getValue());
 		}
 		return j;
 	}

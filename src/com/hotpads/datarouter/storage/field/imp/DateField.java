@@ -47,7 +47,7 @@ public class DateField extends BasePrimitiveField<Date>{
 	@Override
 	public Date fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			Date value = rs.getDate(this.name);
+			Date value = rs.getDate(columnName);
 			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);

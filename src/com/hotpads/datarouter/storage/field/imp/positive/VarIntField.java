@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.storage.field.imp.positive;
 
-import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,46 +8,41 @@ import java.util.Random;
 
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.util.core.StringTool;
-import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.number.RandomTool;
+import com.hotpads.util.core.number.VarInt;
 
-public class UInt63Field extends BasePrimitiveField<Long>{
+public class VarIntField extends BasePrimitiveField<Integer>{
 
-	public UInt63Field(String name, Long value){
-		super(name, value);
+	public VarIntField(String name, Integer value){
+		super(name, assertInRange(value));
 	}
 
-	public UInt63Field(String prefix, String name, Long value){
-		super(prefix, name, value);
+	public VarIntField(String prefix, String name, Integer value){
+		super(prefix, name, assertInRange(value));
 	}
 	
 	/************************ static *********************************/
 
 	private static final Random random = new Random();
 
-	public static long nextPositiveRandom(){
-		return RandomTool.nextPositiveLong(random);
+	public static int nextRandom(){
+		return RandomTool.nextPositiveInt(random);
 	}
 	
 	/*********************** override *******************************/
 
 	@Override
 	public void fromString(String s){
-		if(StringTool.isEmpty(s) || s.equals("null")){ 
-			this.value = null; 
-			return; 
-		}
-		this.value = Long.valueOf(s);
+		this.value = assertInRange(s==null?null:Integer.valueOf(s));
 	}
 	
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
 			if(value==null){
-				ps.setNull(parameterIndex, Types.BIGINT);
+				ps.setNull(parameterIndex, Types.INTEGER);
 			}else{
-				ps.setLong(parameterIndex, this.value);
+				ps.setInt(parameterIndex, this.value);
 			}
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -56,15 +50,15 @@ public class UInt63Field extends BasePrimitiveField<Long>{
 	}
 	
 	@Override
-	public Long parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:((BigInteger)obj).longValue();
+	public Integer parseJdbcValueButDoNotSet(Object obj){
+		return assertInRange(obj==null?null:(Integer)obj);
 	}
 	
 	@Override
-	public Long fromJdbcResultSetButDoNotSet(ResultSet rs){
+	public Integer fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			long value = rs.getLong(columnName);
-			return rs.wasNull()?null:value;
+			int value = rs.getInt(columnName);
+			return assertInRange(rs.wasNull()?null:value);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
@@ -83,17 +77,25 @@ public class UInt63Field extends BasePrimitiveField<Long>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:LongByteTool.getUInt63Bytes(value);
+		return value==null?null:new VarInt(value).getBytes();
 	}
 	
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 8;
+		return new VarInt(bytes, offset).getNumBytes();
 	}
 	
 	@Override
-	public Long fromBytesButDoNotSet(byte[] bytes, int offset){
-		return LongByteTool.fromUInt63Bytes(bytes, offset);
+	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
+		return new VarInt(bytes, offset).getValue();
+	}
+	
+	/***************************** validate *****************************************/
+	
+	public static Integer assertInRange(Integer i){
+		if(i==null){ return i; }
+		if(i >= 0){ return i; }
+		throw new IllegalArgumentException("VarIntField must be null or positive integer");
 	}
 
 }

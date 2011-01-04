@@ -221,7 +221,7 @@ public class Config {
 	}
 	
 	public Config setTimeout(Integer timeout, TimeUnit timeUnit){
-		timeUnit.toMillis(timeout);
+		setTimeoutMs(timeUnit.toMillis(timeout));
 		return this;
 	}
 

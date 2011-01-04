@@ -57,7 +57,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	@Override
 	public byte[] fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			return rs.getBytes(this.name);
+			return rs.getBytes(columnName);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

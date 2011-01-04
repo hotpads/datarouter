@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -80,7 +79,7 @@ public class StringField extends BaseField<String>{
 	@Override
 	public String fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			return rs.getString(this.name);
+			return rs.getString(columnName);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
@@ -138,7 +137,10 @@ public class StringField extends BaseField<String>{
 		return new String(bytes, offset, length, StringByteTool.CHARSET_UTF8);
 	}
 	
-	public static class Tests{
+	
+	/********************************* tests **********************************************/
+	
+	public static class StringFieldTests{
 		@Test public void testGetSqlEscaped(){
 			Assert.assertEquals("'bill\\'s'",
 					new StringField("tag","bill's").getSqlEscaped());

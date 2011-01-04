@@ -245,6 +245,39 @@ public class ManyFieldTypeIntegrationTests {
 	}
 	
 	@Test 
+	public void testVarInt(){	
+		//0
+		ManyFieldTypeBean bean0 = new ManyFieldTypeBean();
+		bean0.setVarIntField(0);
+		router.manyFieldTypeBean().put(bean0, null);
+		
+		ManyFieldTypeBean roundTripped0 = router.manyFieldTypeBean().get(bean0.getKey(), null);
+		Assert.assertNotSame(bean0, roundTripped0);
+		Assert.assertEquals(bean0.getVarIntField(), roundTripped0.getVarIntField());
+		recordKey(bean0.getKey());
+		
+		//1234567
+		ManyFieldTypeBean bean1234567 = new ManyFieldTypeBean();
+		bean1234567.setVarIntField(1234567);
+		router.manyFieldTypeBean().put(bean1234567, null);
+		
+		ManyFieldTypeBean roundTripped1234567 = router.manyFieldTypeBean().get(bean1234567.getKey(), null);
+		Assert.assertNotSame(bean1234567, roundTripped1234567);
+		Assert.assertEquals(bean1234567.getVarIntField(), roundTripped1234567.getVarIntField());
+		recordKey(bean1234567.getKey());
+		
+		//Integer.MAX_VALUE
+		ManyFieldTypeBean beanMax = new ManyFieldTypeBean();
+		beanMax.setVarIntField(Integer.MAX_VALUE);
+		router.manyFieldTypeBean().put(beanMax, null);
+		
+		ManyFieldTypeBean roundTrippedMax = router.manyFieldTypeBean().get(beanMax.getKey(), null);
+		Assert.assertNotSame(beanMax, roundTrippedMax);
+		Assert.assertEquals(beanMax.getVarIntField(), roundTrippedMax.getVarIntField());
+		recordKey(beanMax.getKey());
+	}
+	
+	@Test 
 	public void testBlob(){
 		LongArray ids = new LongArray();
 		ids.add(5L);

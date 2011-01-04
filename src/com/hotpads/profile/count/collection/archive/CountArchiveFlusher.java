@@ -75,7 +75,7 @@ public class CountArchiveFlusher{
 					}
 					Future<?> future = flusher.flushExecutor.submit(
 							new CountArchiveFlushAttempt(flusher, countMap));
-					future.get(1, TimeUnit.MINUTES);
+					future.get(10, TimeUnit.SECONDS);
 				}
 			}catch(Exception e){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));

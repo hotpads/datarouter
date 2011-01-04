@@ -2,6 +2,7 @@ package com.hotpads.datarouter.backup;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -50,7 +51,7 @@ public abstract class BackupRegion<PK extends PrimaryKey<PK>,D extends Databean<
 	
 	protected void exportWithoutClosingOutputStream() throws IOException{
 		Iterable<D> iterable = node.scan(startKeyInclusive, true, endKeyExclusive, false, 
-				new Config().setIterateBatchSize(1000));
+				new Config().setIterateBatchSize(1000).setNumAttempts(30).setTimeout(1, TimeUnit.MINUTES));
 		for(D databean : IterableTool.nullSafe(iterable)){
 			if( ! databean.isFieldAware()){ throw new IllegalArgumentException("databeans must be field aware"); }
 			byte[] fieldSetBytes = FieldSetTool.getSerializedKeyValues(databean.getFields(), true);

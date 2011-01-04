@@ -11,6 +11,7 @@ public abstract class BaseField<T> implements Field<T>{
 
 	protected String prefix;
 	protected String name;
+	protected String columnName;
 	protected T value;
 
 	
@@ -23,6 +24,7 @@ public abstract class BaseField<T> implements Field<T>{
 	public BaseField(String prefix, String name, T value) {
 		this.prefix = prefix;
 		this.name = name;
+		this.columnName = name;
 		this.value = value;
 	}
 	
@@ -62,12 +64,12 @@ public abstract class BaseField<T> implements Field<T>{
 	/****************************** ByteField ***********************************/
 
 	@Override
-	public byte[] getNameBytes(){
-		return StringByteTool.getUtf8Bytes(this.getName());//TODO get micro name
+	public byte[] getColumnNameBytes(){
+		return StringByteTool.getUtf8Bytes(columnName);//TODO get micro name
 	}
 	
-	public byte[] getMicroNameBytes(){
-		return StringByteTool.getUtf8Bytes(this.getName());//TODO get micro name
+	public byte[] getMicroColumnNameBytes(){
+		return StringByteTool.getUtf8Bytes(columnName);//TODO get micro name
 	}
 	
 //	@Override
@@ -95,9 +97,9 @@ public abstract class BaseField<T> implements Field<T>{
 	@Override
 	public String getSqlNameValuePairEscaped(){
 		if(value==null){
-			return this.name+" is null";
+			return columnName+" is null";
 		}
-		return this.name+"="+this.getSqlEscaped();
+		return columnName+"="+this.getSqlEscaped();
 	}
 	
 	
@@ -105,13 +107,13 @@ public abstract class BaseField<T> implements Field<T>{
 
 	@Override
 	public void fromHibernateResultUsingReflection(FieldSet targetFieldSet, Object col, boolean ignorePrefix){
-		T v = this.parseJdbcValueButDoNotSet(col);
+		T v = parseJdbcValueButDoNotSet(col);
 		this.setUsingReflection(targetFieldSet, v, ignorePrefix);
 	}
 
 	@Override
 	public void fromJdbcResultSetUsingReflection(FieldSet targetFieldSet, ResultSet resultSet, boolean ignorePrefix){
-		T v = this.fromJdbcResultSetButDoNotSet(resultSet);
+		T v = fromJdbcResultSetButDoNotSet(resultSet);
 		this.setUsingReflection(targetFieldSet, v, ignorePrefix);
 	}
 
@@ -121,54 +123,73 @@ public abstract class BaseField<T> implements Field<T>{
 			//method Field.getDeclaredField(String) allows access to non-public fields
 			if( ! ignorePrefix && this.getPrefix()!=null){
 				java.lang.reflect.Field parentField = ReflectionTool.getDeclaredFieldFromHierarchy(
-						targetFieldSet.getClass(), this.getPrefix());
+						targetFieldSet.getClass(), getPrefix());
 				parentField.setAccessible(true);
 				if(parentField.get(targetFieldSet)==null){
 					parentField.set(targetFieldSet, ReflectionTool.create(parentField.getType()));
 				}
 				java.lang.reflect.Field childField = ReflectionTool.getDeclaredFieldFromHierarchy(
-						parentField.getType(), this.getName());
+						parentField.getType(), getName());
 				childField.setAccessible(true);
 				childField.set(parentField.get(targetFieldSet), value);
 			}else{
 				java.lang.reflect.Field fld = ReflectionTool.getDeclaredFieldFromHierarchy(
-						targetFieldSet.getClass(), this.getName());
+						targetFieldSet.getClass(), getName());
 				fld.setAccessible(true);
 				fld.set(targetFieldSet, value);
 			}
 		}catch(Exception e){
 			throw new DataAccessException(e.getClass().getSimpleName()
-					+" on "+targetFieldSet.getClass().getSimpleName()+"."+this.getName());
+					+" on "+targetFieldSet.getClass().getSimpleName()+"."+getName());
 		}
 	}
 
 	
 	/********************************** get/set ******************************************/
 
-	public void setPrefix(String prefix){
+	@Override
+	public Field<T> setPrefix(String prefix){
 		this.prefix = prefix;
+		return this;
 	}
-	
+
+	@Override
 	public String getPrefix(){
 		return prefix;
 	}
 
+	@Override
+	public Field<T> setName(String name){
+		this.name = name;
+		return this;
+	}
+
+	@Override
 	public String getName() {
 		return name;
 	}
 
+	@Override
+	public Field<T> setValue(T value){
+		this.value = value;
+		return this;
+	}
+
+	@Override
 	public T getValue() {
 		return value;
 	}
 
-	public void setName(String name){
-		this.name = name;
+	@Override
+	public Field<T> setColumnName(String columnName){
+		this.columnName = columnName;
+		return this;
 	}
 
-	public void setValue(T value){
-		this.value = value;
+	@Override
+	public String getColumnName(){
+		return columnName;
 	}
-	
 	
 }
 

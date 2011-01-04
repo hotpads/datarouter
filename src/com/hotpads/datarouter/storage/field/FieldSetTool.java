@@ -140,7 +140,7 @@ public class FieldSetTool{
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			//prep the values
 			byte[] keyBytes = includePrefix ? 
-					StringByteTool.getUtf8Bytes(field.getPrefixedName()) : field.getNameBytes();
+					StringByteTool.getUtf8Bytes(field.getPrefixedName()) : field.getColumnNameBytes();
 			VarLong keyLength = new VarLong(ArrayTool.length(keyBytes));
 			byte[] valueBytes = field.getBytes();
 			VarLong valueLength = new VarLong(ArrayTool.length(valueBytes));

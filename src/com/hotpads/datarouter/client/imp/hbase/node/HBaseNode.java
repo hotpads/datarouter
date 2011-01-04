@@ -83,14 +83,14 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						for(Field<?> field : fields){//TODO only put modified fields
 							byte[] fieldBytes = field.getBytes();
 							if(fieldBytes==null){
-								delete.deleteColumn(FAM, field.getMicroNameBytes());
+								delete.deleteColumn(FAM, field.getMicroColumnNameBytes());
 							}else{
-								put.add(FAM, field.getMicroNameBytes(), field.getBytes());
+								put.add(FAM, field.getMicroColumnNameBytes(), field.getBytes());
 							}
 						}
 						if(put.isEmpty()){ 
 							Field<?> dummyField = new ByteField(DUMMY, (byte)0);
-							put.add(FAM, dummyField.getMicroNameBytes(), dummyField.getBytes());
+							put.add(FAM, dummyField.getMicroColumnNameBytes(), dummyField.getBytes());
 						}
 						puts.add(put);
 						if(!delete.isEmpty()){ deletes.add(delete); }

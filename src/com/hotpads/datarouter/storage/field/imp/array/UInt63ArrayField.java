@@ -60,7 +60,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 	@Override
 	public List<Long> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			byte[] bytes = rs.getBytes(this.name);
+			byte[] bytes = rs.getBytes(columnName);
 			return new LongArray(LongByteTool.fromUInt63ByteArray(bytes));
 		}catch(SQLException e){
 			throw new DataAccessException(e);

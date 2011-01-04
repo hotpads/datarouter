@@ -27,11 +27,11 @@ public class FieldTool{
 		return count;
 	}
 	
-	public static void appendCsvNames(StringBuilder sb, Iterable<Field<?>> fields){
+	public static void appendCsvColumnNames(StringBuilder sb, Iterable<Field<?>> fields){
 		int appended = 0;
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			if(appended > 0){ sb.append(", "); }
-			sb.append(field.getName());
+			sb.append(field.getColumnName());
 			++appended;
 		}
 	}
@@ -92,7 +92,8 @@ public class FieldTool{
 				return fld;
 			}
 		}catch(Exception e){
-			throw new RuntimeException(e);
+			String message = "could not set field: "+sampleDatabean.getDatabeanName()+"."+field.getPrefixedName();
+			throw new RuntimeException(message, e);
 		}
 	}
 	
@@ -132,7 +133,7 @@ public class FieldTool{
 		int appended = 0;
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			if(appended > 0){ sb.append(","); }
-			sb.append(field.getName()+"=?");
+			sb.append(field.getColumnName()+"=?");
 			++appended;
 		}
 	}

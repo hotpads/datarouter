@@ -120,7 +120,7 @@ public class SqlBuilder{
 
 	public static void addSelectFromClause(StringBuilder sql, String tableName, List<Field<?>> selectFields){
 		sql.append("select ");
-		FieldTool.appendCsvNames(sql, selectFields);
+		FieldTool.appendCsvColumnNames(sql, selectFields);
 		sql.append(" from "+tableName);
 	}
 
@@ -151,7 +151,7 @@ public class SqlBuilder{
 				if(doPrefixMatchOnField){
 					String s = field.getSqlEscaped();
 					String sqlEscapedWithWildcard = s.substring(0, s.length()-1) + "%'";
-					sql.append(field.getName()+" like "+sqlEscapedWithWildcard);
+					sql.append(field.getColumnName()+" like "+sqlEscapedWithWildcard);
 				}else{
 					sql.append(field.getSqlNameValuePairEscaped());
 				}
@@ -188,9 +188,9 @@ public class SqlBuilder{
 							sql.append(startField.getSqlNameValuePairEscaped());
 						}else{
 							if(startInclusive && i==numNonNullStartFields){
-								sql.append(startField.getName()+">="+startField.getSqlEscaped());
+								sql.append(startField.getColumnName()+">="+startField.getSqlEscaped());
 							}else{
-								sql.append(startField.getName()+">"+startField.getSqlEscaped());
+								sql.append(startField.getColumnName()+">"+startField.getSqlEscaped());
 							}
 						}
 					}
@@ -217,9 +217,9 @@ public class SqlBuilder{
 						Field<?> endField = endFields.get(j);
 						if(j==i){
 							if(endInclusive && i==(numNonNullEndFields-1)){
-								sql.append(endField.getName()+"<="+endField.getSqlEscaped());
+								sql.append(endField.getColumnName()+"<="+endField.getSqlEscaped());
 							}else{
-								sql.append(endField.getName()+"<"+endField.getSqlEscaped());
+								sql.append(endField.getColumnName()+"<"+endField.getSqlEscaped());
 							}
 						}else{
 							sql.append(endField.getSqlNameValuePairEscaped());

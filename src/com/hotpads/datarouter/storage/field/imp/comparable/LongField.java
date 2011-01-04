@@ -51,7 +51,7 @@ public class LongField extends BasePrimitiveField<Long>{
 	@Override
 	public Long fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			long value = rs.getLong(this.name);
+			long value = rs.getLong(columnName);
 			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);

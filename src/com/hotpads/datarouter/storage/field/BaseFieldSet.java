@@ -11,13 +11,13 @@ import com.hotpads.util.core.CollectionTool;
 public abstract class BaseFieldSet implements FieldSet{
 	
 	
-	/******** comparable *************************/
+	/******** standard *************************/
 	
 	@Override
 	public boolean equals(Object that){
 		if(that==null){ return false; }
-		if( ! (this.getClass().equals(that.getClass()))){ return false; }
-		return 0 == this.compareTo((FieldSet)that);
+		if( ! (getClass().equals(that.getClass()))){ return false; }
+		return 0 == compareTo((FieldSet)that);
 	}
 	
 	@Override
@@ -31,7 +31,7 @@ public abstract class BaseFieldSet implements FieldSet{
 		
 		//but order doesn't matter that much for us
 		int hash = 0;
-		for (Object fieldValue : CollectionTool.nullSafe(this.getFieldValues())){
+		for (Object fieldValue : CollectionTool.nullSafe(getFieldValues())){
 			if(fieldValue != null){
 				hash = hash ^ fieldValue.hashCode();
 			}
@@ -48,7 +48,7 @@ public abstract class BaseFieldSet implements FieldSet{
 		//sort classes alphabetically
 		if(that==null){ return 1; }
 		if(ClassTool.differentClass(this, that)){
-			return this.getClass().getName().compareTo(that.getClass().getName());
+			return getClass().getName().compareTo(that.getClass().getName());
 		}
 		
 		//field by field comparison
@@ -78,7 +78,7 @@ public abstract class BaseFieldSet implements FieldSet{
 	public String getPersistentString(){
 		StringBuilder sb = new StringBuilder();
 		boolean doneOne = false;
-		for(Field<?> field : this.getFields()){
+		for(Field<?> field : getFields()){
 			if(doneOne){ 
 				sb.append("_");
 			}
@@ -90,14 +90,14 @@ public abstract class BaseFieldSet implements FieldSet{
 	
 	@Override
 	public String getTypedPersistentString(){
-		return this.getClass().getSimpleName()+"_"+this.getPersistentString();
+		return this.getClass().getSimpleName()+"_"+getPersistentString();
 	}	
 	
 	@Override
 	public void fromPersistentString(String in){
 		String[] tokens = in.split("_");
 		int i=0;
-		for(Field<?> field : this.getFields()){
+		for(Field<?> field : getFields()){
 			if(i>tokens.length-1){ break; }
 			field.fromString(tokens[i]);
 			field.setUsingReflection(this, field.getValue(), true);
@@ -110,41 +110,41 @@ public abstract class BaseFieldSet implements FieldSet{
 
 	@Override
 	public List<String> getFieldNames(){
-		return FieldTool.getFieldNames(this.getFields());
+		return FieldTool.getFieldNames(getFields());
 	}
 
 	@Override
 	public List<?> getFieldValues(){
-		return FieldTool.getFieldValues(this.getFields());
+		return FieldTool.getFieldValues(getFields());
 	}
 
 	@Override
 	public Object getFieldValue(String fieldName){
-		return FieldTool.getFieldValue(this.getFields(), fieldName);
+		return FieldTool.getFieldValue(getFields(), fieldName);
 	}
 	
 	/**************************** json ******************/
 	
 	@Override
 	public String getJson(){
-		return JsonTool.getJson(this.getFields()).toString();
+		return JsonTool.getJson(getFields()).toString();
 	}
 	
 	/**************************** sql ******************/
 
 	@Override
 	public List<String> getSqlValuesEscaped(){
-		return FieldTool.getSqlValuesEscaped(this.getFields());
+		return FieldTool.getSqlValuesEscaped(getFields());
 	}
 
 	@Override
 	public List<String> getSqlNameValuePairsEscaped(){
-		return FieldTool.getSqlNameValuePairsEscaped(this.getFields());
+		return FieldTool.getSqlNameValuePairsEscaped(getFields());
 	}
 
 	@Override
 	public String getSqlNameValuePairsEscapedConjunction(){
-		return FieldTool.getSqlNameValuePairsEscapedConjunction(this.getFields());
+		return FieldTool.getSqlNameValuePairsEscapedConjunction(getFields());
 	}
 	
 	/**************************** bytes ******************/
@@ -152,7 +152,7 @@ public abstract class BaseFieldSet implements FieldSet{
 	@Override
 	public byte[] getBytes(boolean allowNulls){
 		try{
-			return FieldSetTool.getConcatenatedValueBytes(this.getFields(), allowNulls);
+			return FieldSetTool.getConcatenatedValueBytes(getFields(), allowNulls);
 		}catch(Exception e){
 			throw new IllegalArgumentException("error on getBytes(allowNulls="+allowNulls+") for "+this.toString());
 		}

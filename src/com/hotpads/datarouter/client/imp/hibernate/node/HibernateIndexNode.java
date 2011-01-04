@@ -21,7 +21,7 @@ import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
-import com.hotpads.datarouter.node.op.index.UniqueIndexReader;
+import com.hotpads.datarouter.node.op.index.IndexReader;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -31,31 +31,29 @@ import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
-public class HibernateUniqueIndexNode<
+public class HibernateIndexNode<
 				PK extends PrimaryKey<PK>,
 				D extends Databean<PK>,
 				IK extends PrimaryKey<IK>> 
 extends BasePhysicalNode<PK,D>
-implements //MapStorageReader<IK,IE>,
-//		SortedStorageReader<IK,IE>,
-		UniqueIndexReader<PK,D,IK>{
+implements IndexReader<PK,D,IK>{
 	
 	protected Logger logger = Logger.getLogger(getClass());
 	
 	/******************************* constructors ************************************/
 
-	public HibernateUniqueIndexNode(Class<D> databeanClass, 
+	public HibernateIndexNode(Class<D> databeanClass, 
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
 		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HibernateUniqueIndexNode(Class<D> databeanClass,
+	public HibernateIndexNode(Class<D> databeanClass,
 			DataRouter router, String clientName) {
 		super(databeanClass, router, clientName);
 	}
 
-	public HibernateUniqueIndexNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
+	public HibernateIndexNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
 			DataRouter router, String clientName){
 		super(baseDatabeanClass, databeanClass, router, clientName);
 	}
@@ -161,8 +159,33 @@ implements //MapStorageReader<IK,IE>,
 		TraceContext.finishSpan();
 		return (List<D>)result;
 	}
-	
-	
+
+	public List<D> lookupMulti(final IK indexKey, final Config config){
+		if(indexKey==null){ return new LinkedList<D>(); }
+		TraceContext.startSpan(getName()+" lookupMulti");
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					//TODO undefined behavior on trailing nulls
+					if(fieldAware){
+						String sql = SqlBuilder.getMulti(config, tableName, fields, ListTool.wrap(indexKey));
+						List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+						return result;
+					}else{
+						Criteria criteria = getCriteriaForConfig(config, session);
+						for(Field<?> field : CollectionTool.nullSafe(indexKey.getFields())){
+							criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+						}
+						List<D> result = criteria.list();
+						Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
+						return result;
+					}
+				}
+			});
+		TraceContext.finishSpan();
+		return (List<D>)result;
+	};
 	
 	/********************************* hibernate helpers ***********************************************/
 	

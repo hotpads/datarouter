@@ -54,7 +54,7 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 	@Override
 	public List<Byte> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			byte[] bytes = rs.getBytes(this.name);
+			byte[] bytes = rs.getBytes(columnName);
 			return ByteTool.getArrayList(bytes);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

@@ -12,6 +12,7 @@ public interface UniqueIndexWriter<
 		D extends Databean<PK>,
 		IK extends PrimaryKey<IK>>{
 
+	//TODO bad copy/paste from UniqueIndexReader
 	D lookupUnique(IK indexKey, Config config);
 	List<D> lookupMultiUnique( final Collection<IK> uniqueKeys, final Config config);
 	

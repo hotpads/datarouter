@@ -18,7 +18,7 @@ public class ManyFieldTypeBeanKey extends BasePrimaryKey<ManyFieldTypeBeanKey>{
 	protected Long id;
 	
 	public ManyFieldTypeBeanKey(){//for hibernate
-		this.id = UInt63Field.nextRandom();
+		this.id = UInt63Field.nextPositiveRandom();
 	}
 	
 	public ManyFieldTypeBeanKey(Long id) {

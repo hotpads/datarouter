@@ -9,6 +9,7 @@ import java.util.Random;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.bytes.IntegerByteTool;
+import com.hotpads.util.core.number.RandomTool;
 
 public class UInt31Field extends BasePrimitiveField<Integer>{
 
@@ -24,11 +25,8 @@ public class UInt31Field extends BasePrimitiveField<Integer>{
 
 	private static final Random random = new Random();
 
-	public static int nextRandom(){
-		while(true){
-			int possible = random.nextInt();
-			if(possible >= 0){ return possible; }
-		}
+	public static int nextPositiveRandom(){
+		return RandomTool.nextPositiveInt(random);
 	}
 	
 	/*********************** override *******************************/
@@ -59,7 +57,7 @@ public class UInt31Field extends BasePrimitiveField<Integer>{
 	@Override
 	public Integer fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			int value = rs.getInt(this.name);
+			int value = rs.getInt(columnName);
 			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);

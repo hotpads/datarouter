@@ -3,28 +3,27 @@ package com.hotpads.datarouter.storage.field;
 public interface Field<T>
 extends Comparable<Field<T>>, ByteAwareField<T>, SqlField<T>{//TODO remove SqlFrom standard field
 
-	String getPrefixedName();
-
-	/********************************** get/set ******************************************/
-
-	void setPrefix(String prefix);
-
+	/******************* get/set ********************************/
+	
+	Field<T> setPrefix(String prefix);
 	String getPrefix();
 
+	Field<T> setName(String name);
 	String getName();
-	byte[] getNameBytes();
+
+	Field<T> setValue(T value);
+	T getValue();
+	
+	Field<T> setColumnName(String columnName);
+	String getColumnName();
+
+	
+	/*************** useful methods *************************/
 
 	boolean isCollection();
-	
-	T getValue();
+	String getPrefixedName();
 	String getValueString();
-
-	void setName(String name);
-
-	void setValue(T value);
-	
 	void fromString(String s);
-	
 	void setUsingReflection(FieldSet targetFieldSet, Object value, boolean ignorePrefix);
 
 }

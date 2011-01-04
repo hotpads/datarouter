@@ -302,7 +302,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 		StringBuilder sb = new StringBuilder();
 		sb.append("insert into "+tableName+" (");
 		//TODO handle server-generated primary keys
-		FieldTool.appendCsvNames(sb, fields);
+		FieldTool.appendCsvColumnNames(sb, fields);
 		sb.append(") values (");
 		JdbcTool.appendCsvQuestionMarks(sb, CollectionTool.size(fields));
 		sb.append(")");

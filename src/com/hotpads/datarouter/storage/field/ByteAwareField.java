@@ -2,10 +2,11 @@ package com.hotpads.datarouter.storage.field;
 
 
 public interface ByteAwareField<T>{
-	
-	byte[] getMicroNameBytes();
 
 	boolean isFixedLength();
+
+	byte[] getColumnNameBytes();
+	byte[] getMicroColumnNameBytes();
 	
 	byte[] getBytes();
 	T fromBytesButDoNotSet(byte[] bytes, int byteOffset);

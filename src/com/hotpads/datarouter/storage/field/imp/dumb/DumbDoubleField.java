@@ -45,7 +45,7 @@ public class DumbDoubleField extends BasePrimitiveField<Double>{
 	@Override
 	public Double fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			double value = rs.getDouble(this.name);
+			double value = rs.getDouble(columnName);
 			return rs.wasNull()?null:value;
 		}catch(SQLException e){
 			throw new DataAccessException(e);

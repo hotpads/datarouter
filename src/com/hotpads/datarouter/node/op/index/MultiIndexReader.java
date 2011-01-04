@@ -12,5 +12,11 @@ public interface MultiIndexReader<
 		IK extends PrimaryKey<IK>>{
 
 	List<D> lookupMulti(IK indexKey, Config config);
+
+	//should probably take an IE as the start key, and maybe for the prefix too
+//	List<D> getPrefixedRange(
+//			final IK prefix, final boolean wildcardLastField, 
+//			final IK start, final boolean startInclusive, 
+//			final Config config);
 	
 }

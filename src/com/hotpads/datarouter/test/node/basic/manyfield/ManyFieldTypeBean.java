@@ -23,6 +23,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.ShortField;
 import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbFloatField;
+import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
@@ -49,6 +50,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey>{
 	private Date longDateField;
 	private Character characterField;
 	private String stringField;
+	private Integer varIntField;
 
 	@Lob @Column(length=1024)
 	private byte[] stringByteField;
@@ -73,6 +75,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey>{
 		COL_longDateField = "longDateField",
 		COL_characterField = "characterField",
 		COL_stringField = "stringField",
+		COL_varIntField = "varIntField",
 		COL_stringByteField = "stringByteField",
 		COL_data = "data",
 		COL_longArrayField = "longArrayField";
@@ -89,6 +92,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey>{
 		fields.add(new LongDateField(COL_longDateField, this.longDateField));
 		fields.add(new CharacterField(COL_characterField, this.characterField));
 		fields.add(new StringField(COL_stringField, this.stringField));
+		fields.add(new VarIntField(COL_varIntField, this.varIntField));
 		fields.add(new ByteArrayField(COL_stringByteField, this.stringByteField));
 		fields.add(new ByteArrayField(COL_data, this.data));
 		fields.add(new UInt63ArrayField(COL_longArrayField, this.longArrayField));
@@ -236,6 +240,14 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey>{
 
 	public void setLongDateField(Date longDateField){
 		this.longDateField = longDateField;
+	}
+
+	public Integer getVarIntField(){
+		return varIntField;
+	}
+
+	public void setVarIntField(Integer varIntField){
+		this.varIntField = varIntField;
 	}
 
 
