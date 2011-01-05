@@ -10,7 +10,7 @@ import com.hotpads.datarouter.node.op.raw.index.IndexListener;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.view.index.key.UniqueKeyIndexEntry;
+import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 

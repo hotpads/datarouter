@@ -12,7 +12,7 @@ import com.hotpads.datarouter.node.op.index.UniqueIndexWriter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntryTool;
-import com.hotpads.datarouter.storage.view.index.key.UniqueIndexEntry;
+import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
 import com.hotpads.util.core.CollectionTool;
 
 public class ManualUniqueIndexNode<

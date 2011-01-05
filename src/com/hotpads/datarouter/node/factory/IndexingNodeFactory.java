@@ -9,8 +9,8 @@ import com.hotpads.datarouter.node.type.index.ManualUniqueIndexNode;
 import com.hotpads.datarouter.node.type.indexing.IndexingMapStorageNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.view.index.key.UniqueIndexEntry;
-import com.hotpads.datarouter.storage.view.index.key.UniqueKeyIndexEntry;
+import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
+import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
 
 public class IndexingNodeFactory {
 

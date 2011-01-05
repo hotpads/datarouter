@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.storage.view.index.key;
+package com.hotpads.datarouter.storage.view.index.unique;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
