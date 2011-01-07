@@ -22,6 +22,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
@@ -105,6 +106,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					if(CollectionTool.notEmpty(puts) || CollectionTool.notEmpty(deletes)){
 						hTable.flushCommits();
 					}
+					Counters.inc(node.getName()+" num cells put+delete", CollectionTool.size(puts)+CollectionTool.size(deletes));
 					return null;
 				}
 			}).call();

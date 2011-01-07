@@ -10,14 +10,13 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.ClusterStatus;
 import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.HServerAddress;
 import org.apache.hadoop.hbase.HServerInfo;
 import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -29,6 +28,7 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
 public class DRHRegionList{
+	Logger logger = Logger.getLogger(DRHRegionList.class);
 
 	protected List<String> tableNames;
 	protected List<DRHRegionInfo> regions;
@@ -40,13 +40,13 @@ public class DRHRegionList{
 			for(String tableName : IterableTool.nullSafe(tableNames)){
 				HTable hTable = new HTable(config, tableName);
 				Class<PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
-				Map<HRegionInfo, HServerAddress> regionsInfo = hTable.getRegionsInfo();
-				HBaseAdmin admin = new HBaseAdmin(config);
-				ClusterStatus clusterStatus = admin.getClusterStatus();
-				Collection<HServerInfo> servers = clusterStatus.getServerInfo();
+				Map<HRegionInfo, HServerAddress> hServerAddressByHRegionInfo = hTable.getRegionsInfo();
+				
+				DRHServerList servers = new DRHServerList(config);
+				
 				Map<String,RegionLoad> regionLoadByName = MapTool.createTreeMap();
-				for(HServerInfo server : IterableTool.nullSafe(servers)){
-					HServerLoad serverLoad = server.getLoad();
+				for(DRHServerInfo server : IterableTool.nullSafe(servers.getServers())){
+					HServerLoad serverLoad = server.getHserverInfo().getLoad();
 					Collection<RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
 					for(RegionLoad regionLoad : regionsLoad){
 						String name = new String(regionLoad.getName());
@@ -54,11 +54,13 @@ public class DRHRegionList{
 					}
 				}
 				int regionNum = 0;
-				for(HRegionInfo info : MapTool.nullSafe(regionsInfo).keySet()){
+				for(HRegionInfo info : MapTool.nullSafe(hServerAddressByHRegionInfo).keySet()){
 					String name = new String(info.getRegionName());
 					RegionLoad load = regionLoadByName.get(name);
+					HServerAddress hServerAddress = hServerAddressByHRegionInfo.get(info);
+					HServerInfo hServerInfo = servers.getHServerInfo(hServerAddress);
 					regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, 
-							info, regionsInfo.get(info), load));
+							info, hServerInfo, hServerAddress, load));
 				}
 			}
 		}catch(IOException e){
@@ -84,6 +86,15 @@ public class DRHRegionList{
 
 	public List<DRHRegionInfo> getRegions(){
 		return regions;
+	}
+	
+	public DRHRegionInfo getRegionByEncodedName(String encodedName){
+		for(DRHRegionInfo region : regions){
+			if(region.getRegion().getEncodedName().equals(encodedName)){
+				return region;
+			}
+		}
+		return null;
 	}
 	
 	public SortedMap<String,List<DRHRegionInfo>> getRegionsByServerName(){

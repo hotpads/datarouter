@@ -97,4 +97,14 @@ extends BackupRegion<PK,D>{
 	public static String getLocalPath(String s3Key){
 		return "/hotpads/backup/"+s3Key;
 	}
+
+	public String getS3Key(){
+		return s3Key;
+	}
+
+	public void setS3Key(String s3Key){
+		this.s3Key = s3Key;
+	}
+	
+	
 }
