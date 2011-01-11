@@ -2,9 +2,15 @@ package com.hotpads.datarouter.routing;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
 
+import com.hotpads.datarouter.client.Client;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.SetTool;
 
 
 /*
@@ -28,10 +34,14 @@ import com.hotpads.util.core.ListTool;
 public abstract class BaseDRH{
 	
 	protected List<DataRouter> routers = ListTool.createArrayList();
+	protected Map<Client,DataRouter> routerByClient = MapTool.createHashMap();
 	
 	public <R extends DataRouter> R register(R router) throws IOException{
 //		router.activate();//caution: make sure nodes are registered before activating
 		this.routers.add(router);
+		for(Client client : router.getAllClients()){
+			routerByClient.put(client, router);
+		}
 		return router;
 	}
 	
@@ -46,6 +56,20 @@ public abstract class BaseDRH{
 	
 	public List<DataRouter> getRouters(){
 		return this.routers;
+	}
+	
+	public List<Client> getClients(){
+		SortedSet<Client> clients = SetTool.createTreeSet();
+		for(DataRouter router : IterableTool.nullSafe(getRouters())){
+			for(Client client : IterableTool.nullSafe(router.getAllClients())){
+				clients.add(client);
+			}
+		}
+		return ListTool.createArrayList(clients);
+	}
+	
+	public DataRouter getRouterForClient(Client client){
+		return routerByClient.get(client);
 	}
 
 	public void clearThreadSpecificState(){

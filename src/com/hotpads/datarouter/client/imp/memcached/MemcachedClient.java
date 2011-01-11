@@ -1,9 +1,10 @@
 package com.hotpads.datarouter.client.imp.memcached;
 
-import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.imp.BaseClient;
 
-public class MemcachedClient implements Client{
+public class MemcachedClient 
+extends BaseClient{
 
 	String name;
 	public String getName(){

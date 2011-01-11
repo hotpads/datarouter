@@ -16,6 +16,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;
 import com.hotpads.datarouter.client.type.TxnClient;
@@ -28,6 +29,7 @@ import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.MapTool;
 
 public class HibernateClientImp 
+extends BaseClient
 implements JdbcConnectionClient, TxnClient, HibernateClient{
 	protected Logger logger = Logger.getLogger(this.getClass());
 	
