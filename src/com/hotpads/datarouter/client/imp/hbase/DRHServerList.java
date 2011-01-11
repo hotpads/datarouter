@@ -24,6 +24,7 @@ public class DRHServerList{
 	protected List<DRHServerInfo> servers;
 	protected Map<HServerAddress,HServerInfo> hServerInfoByHServerAddress;
 	
+	
 	public DRHServerList(Configuration config){
 		
 		try{

@@ -13,9 +13,14 @@ import org.junit.Test;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
+import com.hotpads.util.core.ByteTool;
+import com.hotpads.util.core.ObjectTool;
+import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class DRHRegionInfo{
+	
+	public static final Integer NUM_VNODES = 1 << 16;
 
 	protected Integer regionNum;
 	protected String tableName;
@@ -24,11 +29,14 @@ public class DRHRegionInfo{
 	protected HRegionInfo hRegionInfo;
 	protected HServerInfo hServerInfo;
 	@Deprecated HServerAddress hServerAddress;//should get from hServerInfo, but workaround for DNS issues - mcorgan 20110106
+	protected DRHServerInfo consistentHashHServer;
 	protected RegionLoad load;
+	protected byte[] consistentHashInput;
 	
 	
 	public DRHRegionInfo(Integer regionNum, String tableName, Class<PrimaryKey<?>> primaryKeyClass, 
-			HRegionInfo hRegionInfo, HServerInfo hServerInfo, HServerAddress hServerAddress, RegionLoad load){
+			HRegionInfo hRegionInfo, HServerInfo hServerInfo, HServerAddress hServerAddress, 
+			DRHRegionList regionList, RegionLoad load){
 		this.regionNum = regionNum;
 		this.tableName = tableName;
 		this.name = new String(hRegionInfo.getRegionName());
@@ -38,6 +46,9 @@ public class DRHRegionInfo{
 		this.startKey = getKey(primaryKeyClass, hRegionInfo.getStartKey());
 		this.endKey = getKey(primaryKeyClass, hRegionInfo.getEndKey());
 		this.load = load;
+		this.consistentHashInput = ByteTool.concatenate(
+				new byte[][]{StringByteTool.getUtf8Bytes(tableName), hRegionInfo.getStartKey()});
+		this.consistentHashHServer = regionList.getServerForRegion(consistentHashInput);
 	}
 	
 	
@@ -49,8 +60,21 @@ public class DRHRegionInfo{
 		return HBaseResultTool.getPrimaryKeyUnchecked(bytes, primaryKeyClass, sampleKey.getFields());
 	}
 
-	public HServerAddress getServer(){
+	public HServerAddress getServerAddress(){
 		return hServerInfo.getServerAddress();
+	}
+	
+	public DRHServerInfo getConsistentHashServer(){
+		return consistentHashHServer;
+	}
+	
+	public HServerAddress getConsistentHashServerAddress(){
+		return consistentHashHServer.getHserverInfo().getServerAddress();
+	}
+	
+	public boolean isOnCorrectServer(){
+		return ObjectTool.equals(hServerInfo.getHostnamePort(), 
+				consistentHashHServer.getHserverInfo().getHostnamePort());
 	}
 	
 	protected static Random random = new Random();
@@ -64,6 +88,11 @@ public class DRHRegionInfo{
 	public String getDisplayServerName(){
 		//doesn't account for multiple servers per node
 		return getDisplayServerName(hServerAddress.getHostname());//hServerInfo.getHostname();
+	}
+	
+	public String getConsistentHashDisplayServerName(){
+		//doesn't account for multiple servers per node
+		return getDisplayServerName(consistentHashHServer.getHostname());//hServerInfo.getHostname();
 	}
 
 	
@@ -96,8 +125,12 @@ public class DRHRegionInfo{
 	public RegionLoad getLoad(){
 		return load;
 	}
-	
-	
+
+	public byte[] getConsistentHashInput(){
+		return consistentHashInput;
+	}
+
+
 	/********************************* static *************************************/
 	
 	public static String getDisplayServerName(String name){

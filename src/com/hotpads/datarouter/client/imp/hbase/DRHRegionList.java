@@ -22,6 +22,7 @@ import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.HashMethods;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -30,9 +31,12 @@ import com.hotpads.util.core.SetTool;
 public class DRHRegionList{
 	Logger logger = Logger.getLogger(DRHRegionList.class);
 
+	public static final Integer BUCKETS_PER_NODE = 200;
+
 	protected List<String> tableNames;
 	protected List<DRHRegionInfo> regions;
-	
+	protected SortedMap<Long,DRHServerInfo> consistentHashRing;
+
 	public DRHRegionList(HBaseClient client, List<String> tableNames, Configuration config){
 		this.tableNames = ListTool.nullSafe(tableNames);
 		this.regions = ListTool.create();
@@ -40,10 +44,18 @@ public class DRHRegionList{
 			for(String tableName : IterableTool.nullSafe(tableNames)){
 				HTable hTable = new HTable(config, tableName);
 				Class<PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
-				Map<HRegionInfo, HServerAddress> hServerAddressByHRegionInfo = hTable.getRegionsInfo();
-				
+				Map<HRegionInfo,HServerAddress> hServerAddressByHRegionInfo = hTable.getRegionsInfo();
+
 				DRHServerList servers = new DRHServerList(config);
-				
+				this.consistentHashRing = MapTool.createTreeMap();
+				for(DRHServerInfo server : servers.getServers()){
+					for(int i = 0; i < BUCKETS_PER_NODE; ++i){
+						long bucketPosition = HashMethods.longMD5Hash(
+								server.getHserverInfo().getHostnamePort() + i);
+						consistentHashRing.put(bucketPosition, server);
+					}
+				}
+
 				Map<String,RegionLoad> regionLoadByName = MapTool.createTreeMap();
 				for(DRHServerInfo server : IterableTool.nullSafe(servers.getServers())){
 					HServerLoad serverLoad = server.getHserverInfo().getLoad();
@@ -59,19 +71,19 @@ public class DRHRegionList{
 					RegionLoad load = regionLoadByName.get(name);
 					HServerAddress hServerAddress = hServerAddressByHRegionInfo.get(info);
 					HServerInfo hServerInfo = servers.getHServerInfo(hServerAddress);
-					regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, 
-							info, hServerInfo, hServerAddress, load));
+					regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, info, hServerInfo,
+							hServerAddress, this, load));
 				}
 			}
 		}catch(IOException e){
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	public boolean getHasMultipleTables(){
 		return CollectionTool.size(tableNames) > 1;
 	}
-	
+
 	public SortedSet<String> getServerNames(){
 		SortedSet<String> serverNames = SetTool.createTreeSet();
 		for(DRHRegionInfo region : regions){
@@ -87,29 +99,29 @@ public class DRHRegionList{
 	public List<DRHRegionInfo> getRegions(){
 		return regions;
 	}
-	
+
 	public DRHRegionInfo getRegionByEncodedName(String encodedName){
 		for(DRHRegionInfo region : regions){
-			if(region.getRegion().getEncodedName().equals(encodedName)){
-				return region;
-			}
+			if(region.getRegion().getEncodedName().equals(encodedName)){ return region; }
 		}
 		return null;
 	}
-	
+
 	public SortedMap<String,List<DRHRegionInfo>> getRegionsByServerName(){
 		SortedMap<String,List<DRHRegionInfo>> out = MapTool.createTreeMap();
 		for(DRHRegionInfo region : regions){
 			String serverName = region.getServerName();
-			if(out.get(serverName)==null){ out.put(serverName, new LinkedList<DRHRegionInfo>()); }
+			if(out.get(serverName) == null){
+				out.put(serverName, new LinkedList<DRHRegionInfo>());
+			}
 			out.get(serverName).add(region);
 		}
 		return out;
 	}
-	
+
 	public LinkedHashMap<String,List<DRHRegionInfo>> getRegionsGroupedBy(String groupBy){
 		LinkedHashMap<String,List<DRHRegionInfo>> regionsByGroup = new LinkedHashMap<String,List<DRHRegionInfo>>();
-		if(null==groupBy){
+		if(null == groupBy){
 			regionsByGroup.put("all", regions);
 		}else if("serverName".equals(groupBy)){
 			for(Map.Entry<String,List<DRHRegionInfo>> entry : getRegionsByServerName().entrySet()){
@@ -117,6 +129,15 @@ public class DRHRegionList{
 			}
 		}
 		return regionsByGroup;
-		
+	}
+
+	public DRHServerInfo getServerForRegion(byte[] regionConsistentHashInput){
+		long hash = HashMethods.longMD5Hash(regionConsistentHashInput);
+		if(consistentHashRing.isEmpty()){ return null; }
+		if(!consistentHashRing.containsKey(hash)){
+			SortedMap<Long,DRHServerInfo> tail = consistentHashRing.tailMap(hash);
+			hash = tail.isEmpty() ? consistentHashRing.firstKey() : tail.firstKey();
+		}
+		return consistentHashRing.get(hash);
 	}
 }
