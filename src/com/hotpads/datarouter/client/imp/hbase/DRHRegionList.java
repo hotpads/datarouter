@@ -27,6 +27,7 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.StringTool;
 
 public class DRHRegionList{
 	Logger logger = Logger.getLogger(DRHRegionList.class);
@@ -50,8 +51,9 @@ public class DRHRegionList{
 				this.consistentHashRing = MapTool.createTreeMap();
 				for(DRHServerInfo server : servers.getServers()){
 					for(int i = 0; i < BUCKETS_PER_NODE; ++i){
-						long bucketPosition = HashMethods.longMD5Hash(
-								server.getHserverInfo().getHostnamePort() + i);
+						String hashableString = StringTool.repeat(
+								server.getHserverInfo().getHostnamePort()+ StringTool.repeat(i+"", 10), 10);
+						long bucketPosition = HashMethods.longMD5Hash(hashableString);
 						consistentHashRing.put(bucketPosition, server);
 					}
 				}

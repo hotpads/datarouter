@@ -46,8 +46,12 @@ public class DRHRegionInfo{
 		this.startKey = getKey(primaryKeyClass, hRegionInfo.getStartKey());
 		this.endKey = getKey(primaryKeyClass, hRegionInfo.getEndKey());
 		this.load = load;
-		this.consistentHashInput = ByteTool.concatenate(
-				new byte[][]{StringByteTool.getUtf8Bytes(tableName), hRegionInfo.getStartKey()});
+		byte[][] hashInputBuilder = new byte[20][];
+		for(int i=0; i < 20;){
+			hashInputBuilder[i++] = StringByteTool.getUtf8Bytes(tableName);
+			hashInputBuilder[i++] = hRegionInfo.getStartKey();
+		}
+		this.consistentHashInput = ByteTool.concatenate(hashInputBuilder);
 		this.consistentHashHServer = regionList.getServerForRegion(consistentHashInput);
 	}
 	
