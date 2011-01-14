@@ -59,6 +59,7 @@ public class DRHServerList{
 	}
 	
 	public HServerInfo getHServerInfo(HServerAddress server){
+		if(server==null || server.getInetSocketAddress()==null){ return null; }
 		return hServerInfoByHServerAddress.get(server);
 	}
 

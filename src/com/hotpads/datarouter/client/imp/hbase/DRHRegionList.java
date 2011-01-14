@@ -27,12 +27,11 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.StringTool;
 
 public class DRHRegionList{
 	Logger logger = Logger.getLogger(DRHRegionList.class);
 
-	public static final Integer BUCKETS_PER_NODE = 200;
+	public static final Integer BUCKETS_PER_NODE = 1000;
 
 	protected List<String> tableNames;
 	protected List<DRHRegionInfo> regions;
@@ -51,9 +50,8 @@ public class DRHRegionList{
 				this.consistentHashRing = MapTool.createTreeMap();
 				for(DRHServerInfo server : servers.getServers()){
 					for(int i = 0; i < BUCKETS_PER_NODE; ++i){
-						String hashableString = StringTool.repeat(
-								server.getHserverInfo().getHostnamePort()+ StringTool.repeat(i+"", 10), 10);
-						long bucketPosition = HashMethods.longMD5Hash(hashableString);
+						long bucketPosition = HashMethods.longMD5DJBHash(
+								server.getHserverInfo().getHostnamePort()+i);
 						consistentHashRing.put(bucketPosition, server);
 					}
 				}
@@ -109,6 +107,15 @@ public class DRHRegionList{
 		return null;
 	}
 
+	public DRHRegionInfo getRegionAfter(String encodedName){
+		boolean foundFirstRegion = false;
+		for(DRHRegionInfo region : regions){
+			if(foundFirstRegion){ return region; }
+			if(region.getRegion().getEncodedName().equals(encodedName)){ foundFirstRegion = true; }
+		}
+		return null;
+	}
+
 	public SortedMap<String,List<DRHRegionInfo>> getRegionsByServerName(){
 		SortedMap<String,List<DRHRegionInfo>> out = MapTool.createTreeMap();
 		for(DRHRegionInfo region : regions){
@@ -134,7 +141,7 @@ public class DRHRegionList{
 	}
 
 	public DRHServerInfo getServerForRegion(byte[] regionConsistentHashInput){
-		long hash = HashMethods.longMD5Hash(regionConsistentHashInput);
+		long hash = HashMethods.longMD5DJBHash(regionConsistentHashInput);
 		if(consistentHashRing.isEmpty()){ return null; }
 		if(!consistentHashRing.containsKey(hash)){
 			SortedMap<Long,DRHServerInfo> tail = consistentHashRing.tailMap(hash);
