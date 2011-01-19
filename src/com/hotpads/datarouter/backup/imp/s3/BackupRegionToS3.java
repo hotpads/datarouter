@@ -105,6 +105,14 @@ extends BackupRegion<PK,D>{
 	public void setS3Key(String s3Key){
 		this.s3Key = s3Key;
 	}
+
+	public void setLocalPath(String localPath){
+		this.localPath = localPath;
+	}
+
+	public String getLocalPath(){
+		return localPath;
+	}
 	
 	
 }
