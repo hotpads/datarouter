@@ -23,6 +23,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.profile.count.collection.Counters;
+import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
@@ -85,7 +86,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						for(Field<?> field : fields){//TODO only put modified fields
 							byte[] fieldBytes = field.getBytes();
 							if(fieldBytes==null){
-								if(!pConfig.getIgnoreNullFields()){
+								if(BooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
 									delete.deleteColumn(FAM, field.getMicroColumnNameBytes(), batchStartTime);
 								}
 							}else{
