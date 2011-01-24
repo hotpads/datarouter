@@ -284,7 +284,7 @@ public class BackupIntegrationTests{
 		//now read back in
 		String s3Key = BackupRegionToS3.getS3Key("test", router, node);
 		new RestoreRegionFromS3<BackupBeanKey,BackupBean>(
-				BackupRegionToS3.DEFAULT_BUCKET, s3Key, BackupBean.class, router, node, gzip, true).execute();
+				BackupRegionToS3.DEFAULT_BUCKET, s3Key, BackupBean.class, router, node, 100, false, true, gzip, true).execute();
 		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(node.getAll(null)));
 	}
 	

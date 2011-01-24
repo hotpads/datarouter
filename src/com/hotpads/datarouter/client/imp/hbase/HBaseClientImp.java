@@ -12,7 +12,6 @@ import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseOptions;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.profile.count.collection.Counters;
 
 public class HBaseClientImp 
 extends BaseClient
@@ -66,7 +65,6 @@ implements HBaseClient{
 	
 	@Override
 	public HTable checkOutHTable(String name){
-		Counters.inc("connection getHTable "+this.name);
 		return hTablePool.checkOut(name);
 	}
 	

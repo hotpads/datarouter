@@ -20,7 +20,7 @@ extends RestoreRegion<PK,D>{
 	
 	public RestoreRegionFromMemory(byte[] bytes, Class<D> cls, 
 			DataRouter router, SortedMapStorageNode<PK,D> node, boolean gzip) throws IOException{
-		super(cls, router, node);
+		super(cls, router, node, 1000, false);
 		this.is = new ByteArrayInputStream(bytes);
 		if(gzip){
 			this.is = new BufferedInputStream(new GZIPInputStream(is, BackupRegion.GZIP_BUFFER_BYTES));

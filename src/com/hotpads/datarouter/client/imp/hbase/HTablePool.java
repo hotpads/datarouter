@@ -2,9 +2,8 @@ package com.hotpads.datarouter.client.imp.hbase;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.EmptyStackException;
+import java.util.LinkedList;
 import java.util.Map;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hadoop.conf.Configuration;
@@ -13,26 +12,26 @@ import org.apache.hadoop.hbase.client.NoServerForRegionException;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class HTablePool{
 	protected Logger logger = Logger.getLogger(getClass());
 	
-	public static final Integer MAX_HTABLES_PER_TABLE = 10;
+	public static final Integer NUM_HTABLES_PER_TABLE_TO_STORE = 100;
 	protected Long lastLoggedWarning = 0L;
 	
 	protected Configuration hBaseConfiguration;
-	protected ConcurrentHashMap<String,Stack<HTable>> tablesByName;//cannot key by byte[] because .equals checks identity?
+	protected ConcurrentHashMap<String,LinkedList<HTable>> tablesByName;//cannot key by byte[] because .equals checks identity?
 	protected Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
 	
 	public HTablePool(Configuration hBaseConfiguration, Collection<String> names, int startingSize,
 			Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName){
 		this.hBaseConfiguration = hBaseConfiguration;
-		tablesByName = new ConcurrentHashMap<String,Stack<HTable>>();
+		tablesByName = new ConcurrentHashMap<String,LinkedList<HTable>>();
 		for(String name : names){
-			tablesByName.put(name, new Stack<HTable>());
+			tablesByName.put(name, new LinkedList<HTable>());
 			for(int i=0; i < startingSize; ++i){
 				try{
 					tablesByName.get(name).add(
@@ -49,34 +48,34 @@ public class HTablePool{
 	
 	
 	public HTable checkOut(String name){
-		Stack<HTable> stack = tablesByName.get(name);
-		try{
-			HTable hTable = stack.pop();
+		Counters.inc("connection getHTable "+name);
+		LinkedList<HTable> queue = tablesByName.get(name);
+			HTable hTable;
+			synchronized(queue){
+				hTable = queue.poll();
+			}
+			if(hTable==null){
+				try{
+					hTable = new HTable(this.hBaseConfiguration, name);
+					Counters.inc("connection create HTable "+name);
+				}catch(IOException ioe){
+					throw new RuntimeException(ioe);
+				}
+			}
 			hTable.getWriteBuffer().clear();
 			hTable.setAutoFlush(false);
 			return hTable;
-		}catch(EmptyStackException ese){
-			try{
-				return new HTable(this.hBaseConfiguration, name);
-			}catch(IOException ioe){
-				throw new RuntimeException(ioe);
-			}
-		}
 	}
 	
 	
 	public void checkIn(HTable hTable){
 		hTable.getWriteBuffer().clear();
 		String name = StringByteTool.fromUtf8Bytes(hTable.getTableName());
-		tablesByName.get(name).push(hTable);
-	}
-	
-	
-	protected void logIfManyHTables(String name, Stack<HTable> stack){
-		if(CollectionTool.size(stack) > MAX_HTABLES_PER_TABLE 
-				&& System.currentTimeMillis() - lastLoggedWarning > 1000){
-			logger.warn("hTables for "+name+"="+CollectionTool.size(stack));
-			lastLoggedWarning = System.currentTimeMillis();
+		LinkedList<HTable> queue = tablesByName.get(name);
+		synchronized(queue){
+			if(queue.size() < NUM_HTABLES_PER_TABLE_TO_STORE){
+				queue.push(hTable);
+			}
 		}
 	}
 	

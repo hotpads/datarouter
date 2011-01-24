@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
@@ -21,7 +22,10 @@ import com.hotpads.util.core.ListTool;
 public class CountArchiveFlusher{
 	static Logger logger = Logger.getLogger(CountArchiveFlusher.class);
 	
-	public static long DISCARD_COUNTS_OLDER_THAN_MS = 5 * DateTool.MILLISECONDS_IN_MINUTE;
+	public static long 
+		INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS = 10,
+		DISCARD_COUNTS_OLDER_THAN_MS = 5 * DateTool.MILLISECONDS_IN_MINUTE;
+	
 	
 	protected String name;
 	protected long flushPeriodMs;
@@ -75,8 +79,10 @@ public class CountArchiveFlusher{
 					}
 					Future<?> future = flusher.flushExecutor.submit(
 							new CountArchiveFlushAttempt(flusher, countMap));
-					future.get(10, TimeUnit.SECONDS);
+					future.get(INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 				}
+			}catch(TimeoutException te){
+				logger.warn("TimeoutException after "+INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS+" seconds");
 			}catch(Exception e){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 			}

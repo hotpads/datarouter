@@ -25,6 +25,7 @@ public class Config {
 	protected Boolean useSession = true;
 	
 	protected PutMethod putMethod = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
+	protected Boolean ignoreNullFields = false;
 	protected Integer commitBatchSize;
 	protected Boolean persistentPut = true;
 
@@ -231,6 +232,16 @@ public class Config {
 
 	public Config setPutMethod(PutMethod putMethod) {
 		this.putMethod = putMethod;
+		return this;
+	}
+
+
+	public Boolean getIgnoreNullFields() {
+		return ignoreNullFields;
+	}
+
+	public Config setIgnoreNullFields(Boolean ignoreNullFields) {
+		this.ignoreNullFields = ignoreNullFields;
 		return this;
 	}
 

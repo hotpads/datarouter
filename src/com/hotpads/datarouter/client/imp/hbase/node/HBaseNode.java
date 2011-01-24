@@ -72,8 +72,9 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>("putMulti", this, config){
 				public Void wrappedCall() throws Exception{
-					List<Put> puts = ListTool.createLinkedList();
-					ArrayList<Delete> deletes = ListTool.createArrayList();//api requires ArrayList
+					List<Put> puts = ListTool.createArrayList();
+					List<Delete> deletes = ListTool.createArrayList();
+					long batchStartTime = System.currentTimeMillis();
 					for(D databean : databeans){
 						if(databean==null){ continue; }
 						PK key = databean.getKey();
@@ -84,7 +85,9 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						for(Field<?> field : fields){//TODO only put modified fields
 							byte[] fieldBytes = field.getBytes();
 							if(fieldBytes==null){
-								delete.deleteColumn(FAM, field.getMicroColumnNameBytes());
+								if(!pConfig.getIgnoreNullFields()){
+									delete.deleteColumn(FAM, field.getMicroColumnNameBytes(), batchStartTime);
+								}
 							}else{
 								put.add(FAM, field.getMicroColumnNameBytes(), field.getBytes());
 							}
@@ -96,6 +99,9 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						puts.add(put);
 						if(!delete.isEmpty()){ deletes.add(delete); }
 					}
+					Counters.inc(node.getName()+" num cells put", CollectionTool.size(puts));
+					Counters.inc(node.getName()+" num cells delete", CollectionTool.size(deletes));//deletes gets emptied by the hbase client, so count before flushing
+					Counters.inc(node.getName()+" num cells put+delete", CollectionTool.size(puts)+CollectionTool.size(deletes));
 					if(!config.getPersistentPut()){ disableWalForPuts(puts); }
 					if(CollectionTool.notEmpty(puts)){ 
 						hTable.put(puts); 
@@ -106,7 +112,6 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					if(CollectionTool.notEmpty(puts) || CollectionTool.notEmpty(deletes)){
 						hTable.flushCommits();
 					}
-					Counters.inc(node.getName()+" num cells put+delete", CollectionTool.size(puts)+CollectionTool.size(deletes));
 					return null;
 				}
 			}).call();

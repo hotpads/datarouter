@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -25,6 +27,8 @@ public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean
 	protected DataRouter router;
 	protected Class<D> cls;
 	protected MapStorageNode<PK,D> node;
+	protected Integer putBatchSize;
+	protected Boolean ignoreNullFields;
 	protected Map<String,Field<?>> fieldByPrefixedName;
 	
 	protected InputStream is;
@@ -33,11 +37,16 @@ public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean
 	protected Long compressedBytes = 0L;
 	protected Long numRecords = 0L;
 	
-	public RestoreRegion(Class<D> cls, 
-			DataRouter router, MapStorageNode<PK,D> node){
+	protected Integer logEvery;
+	
+	public RestoreRegion(Class<D> cls, DataRouter router, MapStorageNode<PK,D> node, 
+			Integer putBatchSize, Boolean ignoreNullFields){
 		this.cls = cls;
 		this.router = router;
 		this.node = node;
+		this.putBatchSize = putBatchSize;
+		this.ignoreNullFields = ignoreNullFields;
+		this.logEvery = 10 * putBatchSize;
 		this.fieldByPrefixedName = MapTool.createHashMap();
 		for(Field<?> field : IterableTool.nullSafe(node.getFields())){
 			this.fieldByPrefixedName.put(field.getPrefixedName(), field);
@@ -46,35 +55,36 @@ public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean
 	
 	public abstract void execute();
 	
-	public static final int PUT_BATCH_SIZE = 100;
-	
 	protected void importAndCloseInputStream(){
 		try{
 			List<D> toSave = ListTool.createLinkedList();
-			PhaseTimer timer = new PhaseTimer();
+			PhaseTimer putBatchTimer = new PhaseTimer();
+			PhaseTimer logBatchTimer = new PhaseTimer();
 			while(true){
 				try{
-//					int databeanLength = (int)new VarLong(is).getValue();
-//					byte[] databeanBytes = new byte[databeanLength];
-//					is.read(databeanBytes);
-//					ByteArrayInputStream databeanInputStream = new ByteArrayInputStream(databeanBytes);
 					D databean = FieldSetTool.fieldSetFromBytes(cls, fieldByPrefixedName, is);
 					toSave.add(databean);
 					++numRecords;
-					if(numRecords % 10000 == 0){
-						logger.warn("imported "+NumberFormatter.addCommas(numRecords)+" from "+toSave.get(0).getKey());
+					if(numRecords % logEvery == 0){
+						logBatchTimer.add("imported "+logEvery+" rows");
+						logger.warn("imported "+NumberFormatter.addCommas(numRecords)+" from "+toSave.get(0).getKey()
+								+", batchSize:"+putBatchSize+", rps:"+logBatchTimer.getItemsPerSecond(logEvery));
+						logBatchTimer = new PhaseTimer();
 					}
-					if(toSave.size() >= 100){
-						timer.add("parsed "+toSave.size());
-						node.putMulti(toSave, null);
-						timer.add("saved "+toSave.size());
+					if(toSave.size() >= putBatchSize){
+						putBatchTimer.add("parsed "+toSave.size());
+						node.putMulti(toSave, new Config().setNumAttempts(20).setTimeout(30, TimeUnit.SECONDS)
+								.setPersistentPut(false).setIgnoreNullFields(ignoreNullFields));
+						putBatchTimer.add("saved "+toSave.size());
 //						logger.warn(timer);
-						timer = new PhaseTimer();
+						putBatchTimer = new PhaseTimer();
 						toSave.clear();
 					}
 				}catch(IllegalArgumentException iac){
 					if(toSave.size() >= 0){//don't forget these
-						node.putMulti(toSave, null);
+						node.putMulti(toSave, new Config().setNumAttempts(20).setTimeout(30, TimeUnit.SECONDS)
+								.setPersistentPut(false).setIgnoreNullFields(ignoreNullFields));
+						logger.warn("imported "+NumberFormatter.addCommas(numRecords)+" from "+toSave.get(0).getKey());
 					}
 					break;//VarLong throws this at the end of the InputStream
 				}
