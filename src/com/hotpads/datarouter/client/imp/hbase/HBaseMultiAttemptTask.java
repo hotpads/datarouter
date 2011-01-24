@@ -1,9 +1,11 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
@@ -37,8 +39,12 @@ public class HBaseMultiAttemptTask<V> implements Callable<V>{
 				Future<V> future = executorService.submit(task);
 				try{
 					return future.get(timeoutMs, TimeUnit.MILLISECONDS);
-				}catch(Exception e){
+				}catch(TimeoutException e){
 					future.cancel(CANCEL_THREAD_IF_RUNNING);
+					throw new DataAccessException(e);
+				}catch(InterruptedException e){
+					throw new DataAccessException(e);
+				}catch(ExecutionException e){
 					throw new DataAccessException(e);
 				}
 			}catch(DataAccessException attemptException){
