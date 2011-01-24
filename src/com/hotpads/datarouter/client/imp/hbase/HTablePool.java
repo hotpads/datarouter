@@ -50,21 +50,21 @@ public class HTablePool{
 	public HTable checkOut(String name){
 		Counters.inc("connection getHTable "+name);
 		LinkedList<HTable> queue = tablesByName.get(name);
-			HTable hTable;
-			synchronized(queue){
-				hTable = queue.poll();
+		HTable hTable;
+		synchronized(queue){
+			hTable = queue.poll();
+		}
+		if(hTable==null){
+			try{
+				hTable = new HTable(this.hBaseConfiguration, name);
+				Counters.inc("connection create HTable "+name);
+			}catch(IOException ioe){
+				throw new RuntimeException(ioe);
 			}
-			if(hTable==null){
-				try{
-					hTable = new HTable(this.hBaseConfiguration, name);
-					Counters.inc("connection create HTable "+name);
-				}catch(IOException ioe){
-					throw new RuntimeException(ioe);
-				}
-			}
-			hTable.getWriteBuffer().clear();
-			hTable.setAutoFlush(false);
-			return hTable;
+		}
+		hTable.getWriteBuffer().clear();
+		hTable.setAutoFlush(false);
+		return hTable;
 	}
 	
 	
@@ -74,7 +74,7 @@ public class HTablePool{
 		LinkedList<HTable> queue = tablesByName.get(name);
 		synchronized(queue){
 			if(queue.size() < NUM_HTABLES_PER_TABLE_TO_STORE){
-				queue.push(hTable);
+				queue.add(hTable);
 			}
 		}
 	}
