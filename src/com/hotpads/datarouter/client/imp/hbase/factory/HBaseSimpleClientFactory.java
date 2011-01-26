@@ -136,7 +136,12 @@ public class HBaseSimpleClientFactory implements HBaseClientFactory{
 		
 		return pool;
 	}
+
 	
+	@Override
+	public boolean isInitialized(){
+		return client!=null;
+	}
 	
 }
 

@@ -133,6 +133,11 @@ public abstract class BaseDataRouter implements DataRouter {
 	public List<Client> getAllClients(){
 		return this.clients.getAllClients();
 	}
+	
+	@Override
+	public List<Client> getAllInstantiatedClients(){
+		return this.clients.getAllInstantiatedClients();
+	}
 
 	@Override
 	public List<Client> getClients(Collection<String> clientNames){

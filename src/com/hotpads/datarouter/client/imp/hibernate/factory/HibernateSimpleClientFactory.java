@@ -116,6 +116,11 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		return client;
 	}
 	
+	@Override
+	public boolean isInitialized(){
+		return client!=null;
+	}
+	
 	protected JdbcConnectionPool getConnectionPool(
 			DataRouter router, String clientName, Properties properties){
 		String connectionPoolName = properties.getProperty(Clients.prefixClient+clientName+Clients.paramConnectionPool);

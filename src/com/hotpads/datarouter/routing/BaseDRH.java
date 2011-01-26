@@ -2,14 +2,12 @@ package com.hotpads.datarouter.routing;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedSet;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
 
@@ -34,14 +32,10 @@ import com.hotpads.util.core.SetTool;
 public abstract class BaseDRH{
 	
 	protected List<DataRouter> routers = ListTool.createArrayList();
-	protected Map<Client,DataRouter> routerByClient = MapTool.createHashMap();
 	
 	public <R extends DataRouter> R register(R router) throws IOException{
 //		router.activate();//caution: make sure nodes are registered before activating
 		this.routers.add(router);
-		for(Client client : router.getAllClients()){
-			routerByClient.put(client, router);
-		}
 		return router;
 	}
 	
@@ -69,7 +63,12 @@ public abstract class BaseDRH{
 	}
 	
 	public DataRouter getRouterForClient(Client client){
-		return routerByClient.get(client);
+		for(DataRouter router : routers){
+			for(Client c : router.getAllClients()){
+				if(c==client){ return router; }
+			}
+		}
+		return null;
 	}
 
 	public void clearThreadSpecificState(){

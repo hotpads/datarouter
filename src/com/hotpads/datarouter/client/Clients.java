@@ -143,6 +143,16 @@ public class Clients{
 		return getClients(allClientNames);
 	}
 	
+	public List<Client> getAllInstantiatedClients(){
+		List<Client> clients = ListTool.createLinkedList();
+		for(String clientName : CollectionTool.nullSafe(allClientNames)){
+			if(clientFactoryByName.get(clientName).isInitialized()){
+				clients.add(clientFactoryByName.get(clientName).getClient());
+			}
+		}
+		return clients;
+	}
+	
 	public Client getClient(String clientName){
 		ClientFactory clientFactory = clientFactoryByName.get(clientName);
 		return clientFactory==null?null:clientFactory.getClient();

@@ -46,6 +46,7 @@ public interface DataRouter {
 	List<String> getClientNames();
 	Client getClient(String clientName);
 	List<Client> getAllClients();
+	List<Client> getAllInstantiatedClients();
 	List<Client> getClients(Collection<String> clientNames);
 
 	<PK extends PrimaryKey<PK>,D extends Databean<PK>> List<String> 
