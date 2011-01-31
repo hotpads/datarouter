@@ -37,7 +37,7 @@ public class DateField extends BasePrimitiveField<Date>{
 			if(value==null){
 				ps.setNull(parameterIndex, Types.DATE);
 			}else{
-				ps.setDate(parameterIndex, new java.sql.Date(this.value.getTime()));
+				ps.setTimestamp(parameterIndex, new java.sql.Timestamp(this.value.getTime())); //sql timestamp is MySQL's datetime
 			}
 		}catch(SQLException e){
 			throw new DataAccessException(e);
