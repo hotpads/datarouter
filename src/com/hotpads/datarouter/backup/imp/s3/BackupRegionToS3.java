@@ -12,7 +12,7 @@ import com.hotpads.datarouter.client.imp.s3.S3Headers;
 import com.hotpads.datarouter.client.imp.s3.S3PutTool;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
-import com.hotpads.datarouter.node.op.raw.SortedStorage.SortedStorageNode;
+import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -34,7 +34,7 @@ extends BackupRegion<PK,D>{
 	protected PhaseTimer timer;
 
 	public BackupRegionToS3(String s3Bucket, String sourceName,
-			DataRouter router, SortedStorageNode<PK,D> node, 
+			DataRouter router, SortedStorageReaderNode<PK,D> node, 
 			PK startKeyInclusive, PK endKeyExclusive,
 			boolean gzip, boolean deleteLocalFile,
 			MapStorage<BackupRecordKey,BackupRecord> backupRecordNode,

@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -8,6 +7,7 @@ import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseMultiAttemptTask;
@@ -73,8 +73,8 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>("putMulti", this, config){
 				public Void wrappedCall() throws Exception{
-					List<Put> puts = ListTool.createArrayList();
-					List<Delete> deletes = ListTool.createArrayList();
+					List<Row> actions = ListTool.createArrayList();
+					int numPuts = 0, numDeletes = 0;
 					long batchStartTime = System.currentTimeMillis();
 					for(D databean : databeans){
 						if(databean==null){ continue; }
@@ -97,20 +97,16 @@ implements PhysicalSortedMapStorageNode<PK,D>
 							Field<?> dummyField = new ByteField(DUMMY, (byte)0);
 							put.add(FAM, dummyField.getMicroColumnNameBytes(), dummyField.getBytes());
 						}
-						puts.add(put);
-						if(!delete.isEmpty()){ deletes.add(delete); }
+						put.setWriteToWAL(config.getPersistentPut());
+						actions.add(put);
+						++numPuts;
+						if(!delete.isEmpty()){ actions.add(delete); ++numDeletes; }
 					}
-					Counters.inc(node.getName()+" num cells put", CollectionTool.size(puts));
-					Counters.inc(node.getName()+" num cells delete", CollectionTool.size(deletes));//deletes gets emptied by the hbase client, so count before flushing
-					Counters.inc(node.getName()+" num cells put+delete", CollectionTool.size(puts)+CollectionTool.size(deletes));
-					if(!config.getPersistentPut()){ disableWalForPuts(puts); }
-					if(CollectionTool.notEmpty(puts)){ 
-						hTable.put(puts); 
-					}
-					if(CollectionTool.notEmpty(deletes)){ 
-						hTable.delete(deletes);
-					}
-					if(CollectionTool.notEmpty(puts) || CollectionTool.notEmpty(deletes)){
+					Counters.inc(node.getName()+" num cells put", numPuts);
+					Counters.inc(node.getName()+" num cells delete", numDeletes);//deletes gets emptied by the hbase client, so count before flushing
+					Counters.inc(node.getName()+" num cells put+delete", numPuts + numDeletes);
+					if(CollectionTool.notEmpty(actions)){
+						hTable.batch(actions);
 						hTable.flushCommits();
 					}
 					return null;
@@ -125,18 +121,18 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>("deleteAll", this, config){
 				public Void wrappedCall() throws Exception{
 					ResultScanner scanner = hTable.getScanner(new Scan());
-					ArrayList<Delete> batchToDelete = ListTool.createArrayList(1000);
+					List<Row> batchToDelete = ListTool.createArrayList(1000);
 					for(Result row : scanner){
 						if(row.isEmpty()){ continue; }
 						batchToDelete.add(new Delete(row.getRow()));
 						if(batchToDelete.size() % 1000 == 0){
-							hTable.delete(batchToDelete);
+							hTable.batch(batchToDelete);
 							hTable.flushCommits();
 							batchToDelete.clear();
 						}
 					}
 					if(CollectionTool.notEmpty(batchToDelete)){
-						hTable.delete(batchToDelete);
+						hTable.batch(batchToDelete);
 						hTable.flushCommits();
 					}
 					return null;
@@ -158,12 +154,12 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>("deleteMulti", this, config){
 				public Void wrappedCall() throws Exception{
 					hTable.setAutoFlush(false);
-					ArrayList<Delete> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList
+					List<Row> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList
 					for(PK key : keys){
 						Delete delete = new Delete(key.getBytes(false));
 						deletes.add(delete);
 					}
-					hTable.delete(deletes);
+					hTable.batch(deletes);
 					hTable.flushCommits();
 					return null;
 				}
@@ -185,10 +181,10 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	
 	/*************************** util **************************************/
 	
-	public static void disableWalForPuts(Collection<Put> puts){
-		for(Put put : CollectionTool.nullSafe(puts)){
-			put.setWriteToWAL(false);
-		}
-	}
+//	public static void disableWal(Collection<Put> puts){
+//		for(Put put : CollectionTool.nullSafe(puts)){
+//			put.setWriteToWAL(false);
+//		}
+//	}
 
 }
