@@ -120,7 +120,7 @@ public class FieldSetTool{
 	/**************************** bytes ******************/
 	
 	public static byte[] getConcatenatedValueBytes(Collection<Field<?>> fields, boolean allowNulls){
-		if(CollectionTool.size(fields)==1){ return CollectionTool.getFirst(fields).getBytes(); }
+		if(CollectionTool.size(fields)==1){ return CollectionTool.getFirst(fields).getBytesWithSeparator(); }
 		if(CollectionTool.isEmpty(fields)){ return null; }
 		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.size(fields)][];
 		int fieldIdx=-1;
