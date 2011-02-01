@@ -129,6 +129,7 @@ public class FieldSetTool{
 			if(!allowNulls && field.getValue()==null){
 				throw new IllegalArgumentException("field:"+field.getName()+" cannot be null in");
 			}
+			//TODO don't append a separator after the last field, but that will break all currently persisted entities
 			fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
 		}
 		return ByteTool.concatenate(fieldArraysWithSeparators);

@@ -102,6 +102,7 @@ public class StringField extends BaseField<String>{
 	
 	@Override
 	public byte[] getBytesWithSeparator(){
+		//TODO someday don't put the separator after the last field, but that would break all currently persisted keys
 		byte[] dataBytes = getBytes();
 		if(ArrayTool.containsUnsorted(dataBytes, SEPARATOR)){
 			throw new IllegalArgumentException("String cannot contain separator byteVal="+SEPARATOR);
