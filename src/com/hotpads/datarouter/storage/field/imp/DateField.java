@@ -56,6 +56,7 @@ public class DateField extends BasePrimitiveField<Date>{
 	
 	@Override
 	public byte[] getBytes(){
+		//TODO handle nulls?
 		return LongByteTool.getUInt63Bytes(this.value.getTime());
 	}
 	

@@ -84,7 +84,7 @@ public class ManyFieldTypeIntegrationTests {
 	}
 
 	/***************************** tests **************************************/
-	
+		
 	@Test 
 	public void testByte(){		
 		ManyFieldTypeBean bean = new ManyFieldTypeBean();
