@@ -96,7 +96,7 @@ public class StringField extends BaseField<String>{
 	
 	@Override
 	public byte[] getBytes(){
-		byte[] bytes = StringByteTool.getUtf8Bytes(this.value);
+		byte[] bytes = StringByteTool.getUtf8Bytes(value);
 		return bytes;
 	}
 	
@@ -142,14 +142,6 @@ public class StringField extends BaseField<String>{
 	/********************************* tests **********************************************/
 	
 	public static class StringFieldTests{
-		@Test public void testColons(){
-			String s = "a:b";
-			StringField f = new StringField("f", s);
-			byte[] bytes = f.getBytesWithSeparator();
-			Assert.assertEquals(4, bytes.length);
-			String roundTripped = new StringField(null, null).fromBytesWithSeparatorButDoNotSet(bytes, 0);
-			Assert.assertEquals(s, roundTripped);
-		}
 		@Test public void testGetSqlEscaped(){
 			Assert.assertEquals("'bill\\'s'",
 					new StringField("tag","bill's").getSqlEscaped());

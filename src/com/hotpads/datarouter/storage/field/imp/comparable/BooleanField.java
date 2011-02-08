@@ -21,7 +21,7 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 	
 	@Override
 	public void fromString(String s){
-		this.value = s==null?null:Boolean.valueOf(s);
+		value = s==null?null:Boolean.valueOf(s);
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 			if(value==null){
 				ps.setNull(parameterIndex, Types.BIT);
 			}else{
-				ps.setBoolean(parameterIndex, this.value);
+				ps.setBoolean(parameterIndex, value);
 			}
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -54,7 +54,7 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:BooleanByteTool.getBytes(this.value);
+		return value==null?null:BooleanByteTool.getBytes(value);
 	}
 	
 	@Override
