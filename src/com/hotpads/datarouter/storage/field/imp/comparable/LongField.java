@@ -32,7 +32,10 @@ public class LongField extends BasePrimitiveField<Long>{
 
 	@Override
 	public Long parseJdbcValueButDoNotSet(Object obj){
-		return obj==null?null:((BigInteger)obj).longValue();
+		if(obj==null){ return null; }
+		//currently handling jdbc and hibernate return types.  hibernate returns all sorts of different things
+		if(obj instanceof BigInteger){ return ((BigInteger)obj).longValue(); }
+		return (Long)obj;
 	}
 	
 	@Override

@@ -567,8 +567,12 @@ implements MapStorageReader<PK,D>,
 						addRangesToCriteria(criteria, start, startInclusive, end, endInclusive);
 						List<Object[]> rows = criteria.list();
 						List<PK> result = ListTool.createArrayList(CollectionTool.size(rows));
-						for(Object[] row : IterableTool.nullSafe(rows)){
-							result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(primaryKeyClass, primaryKeyFields, row, true));
+						for(Object row : IterableTool.nullSafe(rows)){
+							//hibernate will return a plain Object if it's a single col PK
+							Object[] rowCells;
+							if(row instanceof Object[]){ rowCells = (Object[])row; }
+							else{ rowCells = new Object[]{row}; }
+							result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(primaryKeyClass, primaryKeyFields, rowCells, true));
 						}
 						return result;
 					}
