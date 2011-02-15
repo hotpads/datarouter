@@ -50,7 +50,17 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,PhysicalSortedMapStorageN
 		return this.getName() + getSuffix(periodMs);
 	}
 	
-	public static final List<String> suffixes =     ListTool.create("5s", "20s", "1m", "5m",   "20m", "1h", "4h", "1d");
+	//recommended Time-to-live's in the comments.  hbase ttl's are ints.  Integer.MAX_VALUE is 63 years
+	public static final List<String> suffixes = ListTool.create(
+			"5s",  //    2764800 - that is 552960 records - ttl of 32 days
+			"20s", //   11059200 - same 552960 records
+			"1m",  //   33177600 - etc
+			"5m",  //  165888000
+			"20m", //  663552000 - something like 15 years
+			"1h",  // 
+			"4h",  // 
+			"1d"); // no ttl
+	
 	public static final List<String> flushPeriods = ListTool.create("5s", "10s", "20s", "30s", "1m",  "1m", "1m", "1m");
 	
 	public static Map<String,Long> msBySuffix = MapTool.createHashMap();
