@@ -57,7 +57,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,PhysicalSortedMapStorageN
 			"1m",  //   33177600 - etc
 			"5m",  //  165888000
 			"20m", //  663552000 - something like 15 years
-			"1h",  // 
+			"1h",  //
 			"4h",  // 
 			"1d"); // no ttl
 	
