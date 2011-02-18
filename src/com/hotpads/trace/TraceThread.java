@@ -1,5 +1,6 @@
 package com.hotpads.trace;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.trace.key.TraceThreadKey;
+import com.hotpads.util.core.ComparableTool;
 
 @Entity
 @AccessType("field")
@@ -97,6 +99,16 @@ public class TraceThread extends BaseDatabean<TraceThreadKey>{
 	@Override
 	public TraceThreadKey getKey() {
 		return key;
+	}
+	
+	
+	/***************************** compare ************************************/
+	
+	public static class TraceThreadNameComparator implements Comparator<TraceThread>{
+		@Override
+		public int compare(TraceThread a, TraceThread b){
+			return ComparableTool.nullFirstCompareTo(a.getName(), b.getName());
+		}
 	}
 	
 
