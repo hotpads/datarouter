@@ -65,12 +65,12 @@ public class Trace extends BaseDatabean<TraceKey>{
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new StringField(COL_sessionId, this.sessionId),
-				new StringField(COL_context, this.context),
-				new StringField(COL_type, this.type),
-				new StringField(COL_params, this.params),
-				new UInt63Field(COL_created, this.created),
-				new UInt63Field(COL_duration, this.duration));
+				new StringField(COL_sessionId, sessionId),
+				new StringField(COL_context, context),
+				new StringField(COL_type, type),
+				new StringField(COL_params, params),
+				new UInt63Field(COL_created, created),
+				new UInt63Field(COL_duration, duration));
 	}
 	
 	@Override
@@ -112,36 +112,36 @@ public class Trace extends BaseDatabean<TraceKey>{
 	/******************** methods ********************************************/
 	
 	public void markFinished(){
-		this.duration = System.currentTimeMillis() - this.created;
-		this.durationNano = System.nanoTime() - this.nanoStart;
+		duration = System.currentTimeMillis() - created;
+		durationNano = System.nanoTime() - nanoStart;
 	}
 	
 	public String getRequestString(){
-		return this.context+"/"+this.type+"?"+StringTool.nullSafe(this.params);
+		return StringTool.nullSafe(context)+"/"+type+"?"+StringTool.nullSafe(params);
 	}
 	
 	public Date getTime(){
-		return new Date(this.created);
+		return new Date(created);
 	}
 	
 	public Long getMsSinceCreated(){
-		return System.currentTimeMillis() - this.created;
+		return System.currentTimeMillis() - created;
 	}
 	
 	/******************** validate *****************************************/
 	
 	public void trimStringsToFit(){
-		if(StringTool.exceedsLength(this.sessionId, LEN_sessionId)){
-			this.sessionId = this.sessionId.substring(0, LEN_sessionId);
+		if(StringTool.exceedsLength(sessionId, LEN_sessionId)){
+			sessionId = sessionId.substring(0, LEN_sessionId);
 		}
-		if(StringTool.exceedsLength(this.context, LEN_context)){
-			this.context = this.context.substring(0, LEN_context);
+		if(StringTool.exceedsLength(context, LEN_context)){
+			context = context.substring(0, LEN_context);
 		}
-		if(StringTool.exceedsLength(this.type, LEN_type)){
-			this.type = this.type.substring(0, LEN_type);
+		if(StringTool.exceedsLength(type, LEN_type)){
+			type = type.substring(0, LEN_type);
 		}
-		if(StringTool.exceedsLength(this.params, LEN_params)){
-			this.params = this.params.substring(0, LEN_params);
+		if(StringTool.exceedsLength(params, LEN_params)){
+			params = params.substring(0, LEN_params);
 		}
 	}
 

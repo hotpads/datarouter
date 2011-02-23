@@ -141,6 +141,10 @@ public class TraceThread extends BaseDatabean<TraceThreadKey>{
 		return new Date(this.created);
 	}
 	
+	public Long getTotalDuration(){
+		return getQueuedDuration() + getRunningDuration();
+	}
+	
 	/********************************* get/set ****************************************/
 
 

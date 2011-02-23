@@ -1,17 +1,21 @@
 package com.hotpads.trace;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.SortedSet;
 
 import com.google.common.collect.Sets;
-import com.hotpads.trace.TraceThread.TraceThreadComparator;
 import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
@@ -20,10 +24,16 @@ import com.hotpads.util.core.StringTool;
 public class TraceThreadGroup{
 	TraceThread thread;
 	TraceThreadGroup parent;
-	SortedSet<TraceThreadGroup> children = Sets.newTreeSet(new TraceThreadGroupComparator());
-
+	SortedSet<TraceThreadGroup> children = Sets.newTreeSet(
+			Collections.reverseOrder(new TraceThreadGroupSlownessComparator()));
+	SortedMap<TraceThreadKey,SortedSet<TraceSpan>> spansByThreadKey;
+	
 	public TraceThreadGroup(TraceThread thread){
 		this.thread = thread;
+	}
+	
+	public void setSpans(Collection<TraceSpan> spans){
+		spansByThreadKey = TraceSpan.getByThreadKey(spans);
 	}
 	
 	public boolean attemptToAddThread(TraceThread newThread){
@@ -41,6 +51,15 @@ public class TraceThreadGroup{
 	
 	public boolean isRoot(){
 		return thread.getParentId()==null;
+	}
+	
+	public Integer getNumThreads(){
+		int numThreads = 0;
+		++numThreads;
+		for(TraceThreadGroup child : children){
+			numThreads += child.getNumThreads();
+		}
+		return numThreads;
 	}
 	
 	//1 means insert 1 tab
@@ -80,13 +99,58 @@ public class TraceThreadGroup{
 		return sb.toString();
 	}
 	
+	/***************************** rendering *****************************/
+	
+	public String getHtml(){
+		StringBuilder sb = new StringBuilder();
+		appendThreadGroupHtml(sb, this, 0);
+		return sb.toString();
+	}
+	
+	public void appendThreadGroupHtml(StringBuilder sb, TraceThreadGroup group, int leafNum){
+		String divStyle = "margin:3px 6px 3px 40px;border:1px solid #aaa;";
+		sb.append("<div style=\""+divStyle+"\">");
+		appendLeafThreadHtml(sb, group.thread, leafNum);
+		int childNumZeroBased = 0;
+		for(TraceThreadGroup child : group.children){
+			appendThreadGroupHtml(sb, child, childNumZeroBased);
+			++childNumZeroBased;
+		}
+		sb.append("</div>");
+	}
+	
+	public void appendLeafThreadHtml(StringBuilder sb, TraceThread thread, int leafNum){
+		sb.append("<div style=\"font-weight:bold;margin:5px;\"");
+		sb.append("<span>"+leafNum+") "+thread.getName()+"</span>");
+		String floatingDivStyle = "float:right;";
+		sb.append("<div style=\""+floatingDivStyle+"\">");
+		String spanStyle = "float:right;text-align:right;width:100px;";
+		sb.append("<span style=\""+spanStyle+"\">"+NumberFormatter.addCommas(thread.getRunningDuration())+"ms</span>");
+		sb.append("<span style=\""+spanStyle+"\">"+NumberFormatter.addCommas(thread.getQueuedDuration())+"ms</span>");
+		sb.append("</div>");
+		sb.append("</div>");
+		String divStyle = "margin:0px 0px 5px 80px;";
+		sb.append("<div style=\""+divStyle+"\">");
+		sb.append("<table class=\"data sortable\">");
+		for(TraceSpan span : IterableTool.nullSafe(MapTool.nullSafe(spansByThreadKey).get(thread.getKey()))){
+			sb.append("<tr>");
+			sb.append("<td>"+span.getSequence()+"</td>");
+			sb.append("<td>"+span.getParentSequence()+"</td>");
+			sb.append("<td>"+span.getName()+"</td>");
+			sb.append("<td>"+span.getDuration()+"</td>");
+			sb.append("</tr>");
+		}
+		sb.append("</table>");
+		sb.append("</div>");
+	}
 	
 	/*************************** static **********************************/
 	
-	public static class TraceThreadGroupComparator implements Comparator<TraceThreadGroup>{
+	public static class TraceThreadGroupSlownessComparator implements Comparator<TraceThreadGroup>{
 		@Override
 		public int compare(TraceThreadGroup a, TraceThreadGroup b){
-			return new TraceThreadComparator().compare(a.thread, b.thread);
+			return ComparableTool.nullFirstCompareTo(a.thread.getTotalDuration(), b.thread.getTotalDuration());
+//			return new TraceThreadComparator().compare(a.thread, b.thread);
 		}
 	}
 	
