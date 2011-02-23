@@ -101,7 +101,15 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey>{
 		return new TraceThreadKey(this.getTraceId(), this.getThreadId());
 	}
 	
+	
+	/**************************** standard *****************************************/
+	
+	@Override
+	public String toString(){
+		return super.toString()+"["+name+"]";
+	}
 
+	
 	/****************************** static ****************************************/
 	
 	public static SortedMap<TraceThreadKey,SortedSet<TraceSpan>> getByThreadKey(

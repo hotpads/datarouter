@@ -42,13 +42,13 @@ public class TraceContext {
 	/*************** static TraceThread methods *************************************/
 	
 	public Long getCurrentThreadId(){
-		TraceContext ctx = get();
-		if(ctx==null){ return null; }
-		if(ctx.getCurrentThread()==null){ return null; }
-		return ctx.getCurrentThread().getId();
+//		TraceContext ctx = get();
+//		if(ctx==null){ return null; }
+		if(getCurrentThread()==null){ return null; }
+		return getCurrentThread().getId();
 	}
 	
-	public static void createAndStartThread(String name, Long parentId){
+	public static void createAndStartThread(String name){
 		TraceContext ctx = get();
 		if(ctx==null){ return; }
 		createThread(name);
@@ -191,6 +191,13 @@ public class TraceContext {
 		traceContext.set(null);
 	}
 
+	
+	/*********************** standard *********************************************/
+	
+	@Override
+	public String toString(){
+		return getClass().getSimpleName()+"["+currentThread.getName()+"]";
+	}
 
 	
 	/*********************** get/set *********************************************/

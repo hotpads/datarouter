@@ -104,11 +104,24 @@ public class TraceThread extends BaseDatabean<TraceThreadKey>{
 	
 	/***************************** compare ************************************/
 	
-	public static class TraceThreadNameComparator implements Comparator<TraceThread>{
+	//not sure this is useful, but TraceThreadGroupComparator extends it
+	public static class TraceThreadComparator implements Comparator<TraceThread>{
 		@Override
 		public int compare(TraceThread a, TraceThread b){
+			int d0 = ComparableTool.nullFirstCompareTo(a.getParentId(), b.getParentId());
+			if(d0 != 0){ return d0; }
+			int d1 = ComparableTool.nullFirstCompareTo(a.getCreated(), b.getCreated());
+			if(d1 != 0){ return d1; }
 			return ComparableTool.nullFirstCompareTo(a.getName(), b.getName());
 		}
+	}
+	
+	
+	/**************************** standard *****************************************/
+	
+	@Override
+	public String toString(){
+		return super.toString()+"["+name+"]";
 	}
 	
 

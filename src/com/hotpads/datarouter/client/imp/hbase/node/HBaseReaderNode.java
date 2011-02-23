@@ -83,7 +83,7 @@ implements HBasePhysicalNode<PK,D>,
 	
 	@Override
 	public boolean exists(PK key, Config config) {
-		return this.get(key, config) != null;
+		return get(key, config) != null;
 	}
 
 	
@@ -92,7 +92,7 @@ implements HBasePhysicalNode<PK,D>,
 		if(key==null){ return null; }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<D>(new HBaseTask<D>("get", this, config){
-				public D wrappedCall() throws Exception{
+				public D hbaseCall() throws Exception{
 					Result row = hTable.get(new Get(key.getBytes(false)));
 					if(row.isEmpty()){ return null; }
 					D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
@@ -106,7 +106,7 @@ implements HBasePhysicalNode<PK,D>,
 	public List<D> getAll(final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getAll", this, config){
-				public List<D> wrappedCall() throws Exception{
+				public List<D> hbaseCall() throws Exception{
 					List<D> results = ListTool.createArrayList();
 					Scan scan = new Scan();
 					scan.setCaching(HBaseQueryBuilder.getIterateBatchSize(config));
@@ -129,7 +129,7 @@ implements HBasePhysicalNode<PK,D>,
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getMulti", this, config){
-				public List<D> wrappedCall() throws Exception{
+				public List<D> hbaseCall() throws Exception{
 					List<D> results = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
 						Result row = hTable.get(new Get(key.getBytes(false)));
@@ -148,7 +148,7 @@ implements HBasePhysicalNode<PK,D>,
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>("getKeys", this, config){
-				public List<PK> wrappedCall() throws Exception{
+				public List<PK> hbaseCall() throws Exception{
 					List<PK> results = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
 						Get get = new Get(key.getBytes(false));
@@ -194,7 +194,7 @@ implements HBasePhysicalNode<PK,D>,
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getWithPrefixes", this, config){
-				public List<D> wrappedCall() throws Exception{
+				public List<D> hbaseCall() throws Exception{
 					List<D> results = ListTool.createArrayList();
 					for(PK prefix : prefixes){
 						Scan scan = HBaseQueryBuilder.getPrefixScanner(prefix, wildcardLastField, config);
@@ -218,7 +218,7 @@ implements HBasePhysicalNode<PK,D>,
 			final PK end, final boolean endInclusive, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>("getKeysInRange", this, config){
-				public List<PK> wrappedCall() throws Exception{
+				public List<PK> hbaseCall() throws Exception{
 					Scan scan = HBaseQueryBuilder.getRangeScanner(start, startInclusive, end, endInclusive, config);
 					scan.setFilter(new FirstKeyOnlyFilter());
 					List<PK> results = ListTool.createArrayList(scan.getCaching());
@@ -242,7 +242,7 @@ implements HBasePhysicalNode<PK,D>,
 			final PK end, final boolean endInclusive, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getRange", this, config){
-				public List<D> wrappedCall() throws Exception{
+				public List<D> hbaseCall() throws Exception{
 					Scan scan = HBaseQueryBuilder.getRangeScanner(start, startInclusive, end, endInclusive, config);
 					List<D> results = ListTool.createArrayList(scan.getCaching());
 					ResultScanner scanner = hTable.getScanner(scan);
@@ -267,7 +267,7 @@ implements HBasePhysicalNode<PK,D>,
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getPrefixedRange", this, config){
-				public List<D> wrappedCall() throws Exception{
+				public List<D> hbaseCall() throws Exception{
 					Scan scan = HBaseQueryBuilder.getPrefixedRangeScanner(
 							prefix, wildcardLastField, 
 							start, startInclusive, 
