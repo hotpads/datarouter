@@ -196,7 +196,7 @@ implements MapStorageReader<PK,D>,
 					return all;
 				}
 			});
-		TraceContext.appendToSpanInfo(CollectionTool.size(result)+"/"+CollectionTool.size(keys));
+		TraceContext.appendToSpanInfo("[got "+CollectionTool.size(result)+"/"+CollectionTool.size(keys)+"]");
 		TraceContext.finishSpan();
 		return result;
 	}

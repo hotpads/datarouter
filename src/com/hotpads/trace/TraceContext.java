@@ -75,6 +75,22 @@ public class TraceContext {
 		ctx.getCurrentThread().markStart();
 	}
 	
+	public static void appendToThreadName(String text){
+		TraceContext ctx = get();
+		if(ctx==null || ctx.getCurrentThread()==null){ return; }
+		TraceThread thread = ctx.getCurrentThread();
+		boolean addSpace = StringTool.notEmpty(thread.getName());
+		thread.setName(StringTool.nullSafe(thread.getName()) + (addSpace ? " " : "") + text);
+	}
+	
+	public static void appendToThreadInfo(String text){
+		TraceContext ctx = get();
+		if(ctx==null || ctx.getCurrentThread()==null){ return; }
+		TraceThread thread = ctx.getCurrentThread();
+		boolean addSpace = StringTool.notEmpty(thread.getInfo());
+		thread.setInfo(StringTool.nullSafe(thread.getInfo()) + (addSpace ? " " : "") + text);
+	}
+	
 	public static void finishThread(){
 		TraceContext ctx = get();
 		if(ctx==null){ return; }
@@ -116,9 +132,7 @@ public class TraceContext {
 		if(ctx==null || ctx.getCurrentSpan()==null){ return; }
 		TraceSpan span = ctx.getCurrentSpan();
 		boolean addSpace = StringTool.notEmpty(span.getName());
-		span.setName(StringTool.nullSafe(span.getName())
-				+(addSpace?" ":"")
-				+text);
+		span.setName(StringTool.nullSafe(span.getName()) + (addSpace ? " " : "") + text);
 	}
 	
 	public static void appendToSpanInfo(String text){
@@ -126,9 +140,7 @@ public class TraceContext {
 		if(ctx==null || ctx.getCurrentSpan()==null){ return; }
 		TraceSpan span = ctx.getCurrentSpan();
 		boolean addSpace = StringTool.notEmpty(span.getInfo());
-		span.setInfo(StringTool.nullSafe(span.getInfo())
-				+(addSpace?" ":"")
-				+text);
+		span.setInfo(StringTool.nullSafe(span.getInfo()) + (addSpace ? " " : "") + text);
 	}
 	
 	public static void finishSpan(){

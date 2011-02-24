@@ -30,6 +30,7 @@ public class TraceThread extends BaseDatabean<TraceThreadKey>{
 	protected Long parentId;
 	@Column(length=255)
 	protected String name;
+	protected String info;
 	@Column(length=20)
 	protected String serverId;
 	protected Long created;
@@ -50,6 +51,7 @@ public class TraceThread extends BaseDatabean<TraceThreadKey>{
 		COL_id = "id",
 		COL_parentId = "parentId",
 		COL_name = "name",
+		COL_info = "info",
 		COL_serverId = "serverId",
 		COL_created = "created",
 		COL_queuedDuration = "queuedDuration",
@@ -60,14 +62,15 @@ public class TraceThread extends BaseDatabean<TraceThreadKey>{
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new UInt63Field(COL_parentId, this.parentId),
-				new StringField(COL_name, this.name),
-				new StringField(COL_serverId, this.serverId),
-				new UInt63Field(COL_created, this.created),
-				new UInt63Field(COL_queuedDuration, this.queuedDuration),
-				new UInt63Field(COL_runningDuration, this.runningDuration),
-				new UInt63Field(COL_queuedDurationNano, this.queuedDurationNano),
-				new UInt63Field(COL_runningDurationNano, this.runningDurationNano));
+				new UInt63Field(COL_parentId, parentId),
+				new StringField(COL_name, name),
+				new StringField(COL_info, info),
+				new StringField(COL_serverId, serverId),
+				new UInt63Field(COL_created, created),
+				new UInt63Field(COL_queuedDuration, queuedDuration),
+				new UInt63Field(COL_runningDuration, runningDuration),
+				new UInt63Field(COL_queuedDurationNano, queuedDurationNano),
+				new UInt63Field(COL_runningDurationNano, runningDurationNano));
 	}
 	
 	@Override
@@ -262,6 +265,14 @@ public class TraceThread extends BaseDatabean<TraceThreadKey>{
 
 	public void setNanoStart(Long nanoStart){
 		this.nanoStart = nanoStart;
+	}
+
+	public String getInfo(){
+		return info;
+	}
+
+	public void setInfo(String info){
+		this.info = info;
 	}
 	
 }

@@ -128,6 +128,10 @@ public class TraceThreadGroup{
 		sb.append("<span style=\""+spanStyle+"\">"+NumberFormatter.addCommas(thread.getRunningDuration())+"ms</span>");
 		sb.append("<span style=\""+spanStyle+"\">"+NumberFormatter.addCommas(thread.getQueuedDuration())+"ms</span>");
 		sb.append("</div>");
+		String threadInfoStyle = "margin:0px 0px 0px 40px;font-weight:normal;";
+		if(StringTool.notEmpty(thread.getInfo())){
+			sb.append("<div class=\"threadInfo\" style=\""+threadInfoStyle+"\">"+thread.getInfo()+"</div>");
+		}
 		sb.append("</div>");
 		String divStyle = "margin:0px 0px 5px 80px;";
 		sb.append("<div style=\""+divStyle+"\">");
@@ -136,8 +140,9 @@ public class TraceThreadGroup{
 			sb.append("<tr>");
 			sb.append("<td>"+span.getSequence()+"</td>");
 			sb.append("<td>"+span.getParentSequence()+"</td>");
+			sb.append("<td>"+span.getDuration()+" ms</td>");
 			sb.append("<td>"+span.getName()+"</td>");
-			sb.append("<td>"+span.getDuration()+"</td>");
+			sb.append("<td>"+span.getInfo()+"</td>");
 			sb.append("</tr>");
 		}
 		sb.append("</table>");
@@ -176,7 +181,8 @@ public class TraceThreadGroup{
 				}
 			}
 			if(!placedAtLeastOneThreadInThisLoop){
-				throw new RuntimeException("could not construct thread hierarchy");
+				return rootGroup;//won't be complete, but might as well display what we have
+//				throw new RuntimeException("placedAtLeastOneThreadInThisLoop was false");
 			}
 		}
 		return rootGroup;

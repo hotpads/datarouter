@@ -9,11 +9,18 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
+import com.hotpads.util.core.NumberTool;
 
 public abstract class HBaseTask<V> extends TracedCallable<V>{
 	static Logger logger = Logger.getLogger(HBaseTask.class);
 
+	//variables for TraceThreads and TraceSpans
+	// breaking encapsulation in favor of tracing
 	protected String taskName;
+	protected Integer attemptNumOneBased;
+	protected Integer numAttempts;
+	protected Long timeoutMs;
+	
 	protected HBasePhysicalNode<?,?> node;
 	protected String tableName;
 	protected HBaseClient client;
@@ -34,6 +41,12 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	public V wrappedCall(){
 		try{
 			TraceContext.startSpan(node.getName()+" "+taskName);
+			if(NumberTool.nullSafe(numAttempts) > 1){ 
+				TraceContext.appendToThreadInfo("[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
+			}
+			if( ! NumberTool.isMax(timeoutMs)){ 
+				TraceContext.appendToThreadInfo("[timeoutMs="+timeoutMs+"]"); 
+			}
 			hTable = client.checkOutHTable(tableName);
 			return hbaseCall();
 		}catch(Exception e){
@@ -61,6 +74,30 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 
 	public String getTableName(){
 		return tableName;
+	}
+
+	public Integer getAttemptNumOneBased(){
+		return attemptNumOneBased;
+	}
+
+	public void setAttemptNumOneBased(Integer attemptNumOneBased){
+		this.attemptNumOneBased = attemptNumOneBased;
+	}
+
+	public Integer getNumAttempts(){
+		return numAttempts;
+	}
+
+	public void setNumAttempts(Integer numAttempts){
+		this.numAttempts = numAttempts;
+	}
+
+	public Long getTimeoutMs(){
+		return timeoutMs;
+	}
+
+	public void setTimeoutMs(Long timeoutMs){
+		this.timeoutMs = timeoutMs;
 	}
 	
 	

@@ -38,6 +38,9 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	public V wrappedCall(){
 		for(int i=1; i <= numAttempts; ++i){
 			try{
+				task.setAttemptNumOneBased(i);//pass these in for Tracing purposes
+				task.setNumAttempts(numAttempts);//Tracing
+				task.setTimeoutMs(timeoutMs);//Tracing
 				Future<V> future = executorService.submit(task);
 				try{
 					return future.get(timeoutMs, TimeUnit.MILLISECONDS);
