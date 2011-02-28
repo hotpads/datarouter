@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -35,6 +39,7 @@ public class HBaseSimpleClientFactory implements HBaseClientFactory{
 	protected DataRouter router;
 	protected String clientName;
 	protected String configFileLocation;
+	protected ExecutorService executorService;
 	protected Properties properties;
 	protected HBaseOptions options;
 	protected HBaseClient client;
@@ -43,10 +48,12 @@ public class HBaseSimpleClientFactory implements HBaseClientFactory{
 	
 	public HBaseSimpleClientFactory(
 			DataRouter router, String clientName, 
-			String configFileLocation){
+			String configFileLocation, 
+			ExecutorService executorService){
 		this.router = router;
 		this.clientName = clientName;
 		this.configFileLocation = configFileLocation;
+		this.executorService = executorService;
 		this.properties = PropertiesTool.ioAndNullSafeFromFile(configFileLocation);
 		this.options = new HBaseOptions(properties, clientName);
 	}
@@ -54,22 +61,36 @@ public class HBaseSimpleClientFactory implements HBaseClientFactory{
 	@Override
 	public synchronized HBaseClient getClient(){
 		if(client!=null){ return client; }
-		logger.warn("activating HBase client "+clientName);
-		PhaseTimer timer = new PhaseTimer(clientName);
-		
-		hbConfig = HBaseConfiguration.create();
-		String zkQuorum = options.zookeeperQuorum();
-		hbConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
-		//TODO add custom variables programatically
-
-		//databean config
-		HTablePool pool = initTables();
-		timer.add("init HTables");
-		
-		HBaseClientImp newClient = new HBaseClientImp(clientName, options, hbConfig, pool);
-		this.client = newClient;
-		logger.warn(timer);
-		return this.client;
+		synchronized(this){
+			Future<HBaseClient> future = executorService.submit(new Callable<HBaseClient>(){
+				@Override public HBaseClient call(){
+					if(client!=null){ return client; }
+					logger.warn("activating HBase client "+clientName);
+					PhaseTimer timer = new PhaseTimer(clientName);
+					
+					hbConfig = HBaseConfiguration.create();
+					String zkQuorum = options.zookeeperQuorum();
+					hbConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
+					//TODO add custom variables programatically
+			
+					//databean config
+					HTablePool pool = initTables();
+					timer.add("init HTables");
+					
+					HBaseClientImp newClient = new HBaseClientImp(clientName, options, hbConfig, pool);
+					logger.warn(timer);
+					return newClient;
+				}
+			});
+			try{
+				this.client = future.get();
+			}catch(InterruptedException e){
+				throw new RuntimeException(e);
+			}catch(ExecutionException e){
+				throw new RuntimeException(e);
+			}
+		}
+		return client;
 	}
 	
 	public static final int DEFAULT_minPoolSize = 3;

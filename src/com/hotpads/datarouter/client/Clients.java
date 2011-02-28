@@ -9,6 +9,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -19,6 +23,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.ThrowableTool;
+import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 public class Clients{
 	private static Logger logger = Logger.getLogger(Clients.class);
@@ -33,6 +38,9 @@ public class Clients{
 	protected Map<String,ClientFactory> clientFactoryByName = new ConcurrentHashMap<String,ClientFactory>();
 
 	public static final ClientType DEFAULT_CLIENT_TYPE = ClientType.hibernate;
+	
+	protected ThreadFactory threadFactory;
+	protected ThreadPoolExecutor executorService;//for async client init and monitoring
 	
 	public static final String
 		prefixClients = "clients",
@@ -52,7 +60,11 @@ public class Clients{
 		this.configFileLocation = configFileLocation;
 		this.router = router;
 		this.properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
-		this.initializeClients();
+		this.threadFactory = new NamedThreadFactory("DataRouter-"+router.getName()+"-clients");
+		this.executorService = new ThreadPoolExecutor(
+				0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+	            new SynchronousQueue<Runnable>(), threadFactory);
+		initializeClients();
 	}
 	
 	
@@ -95,12 +107,14 @@ public class Clients{
 		allClientNames = router.getClientNames();
 		if(CollectionTool.isEmpty(allClientNames)){ return; }
 		final List<String> eagerClientNames = getClientNamesRequiringEagerInitialization(properties);
-		ExecutorService executor = Executors.newFixedThreadPool(CollectionTool.size(allClientNames));
 		for(final String clientName : CollectionTool.nullSafe(allClientNames)){
+			ExecutorService exec = Executors.newSingleThreadExecutor(
+					new NamedThreadFactory("DataRouterClient-"+clientName));
 			String typeString = properties.getProperty(prefixClient+clientName+paramType);
 			if(StringTool.isEmpty(typeString)){ typeString = defaultTypeString; }
 			ClientType clientType = ClientType.fromString(typeString);
-			ClientFactory clientFactory = clientType.createClientFactory(router, clientName, configFileLocation);
+			ClientFactory clientFactory = clientType.createClientFactory(
+					router, clientName, configFileLocation, exec);
 			clientFactoryByName.put(clientName, clientFactory);
 			boolean eager = CollectionTool.contains(eagerClientNames, clientName);
 			if(!eager){
@@ -108,7 +122,7 @@ public class Clients{
 			}
 		}
 		for(final String clientName : CollectionTool.nullSafe(eagerClientNames)){
-			executor.submit(new Callable<Void>(){
+			executorService.submit(new Callable<Void>(){
 				public Void call(){
 					try{
 						clientFactoryByName.get(clientName).getClient();
@@ -119,9 +133,10 @@ public class Clients{
 					return null;
 				}
 			});
+//			executorService.setThreadFactory(threadFactory);//set it back to the default name
 		}
 		//TODO handle problems
-		executor.shutdown();//i don't think this call blocks.  the invokeAll call does blcok
+//		executor.shutdown();//i don't think this call blocks.  the invokeAll call does blcok
 	}
 	
 	

@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client;
 
+import java.util.concurrent.ExecutorService;
+
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -46,9 +48,11 @@ public enum ClientType {
 	
 	public ClientFactory createClientFactory(
 			DataRouter router, String clientName, 
-			String configFileLocation){
-		if(hbase==this){ return new HBaseSimpleClientFactory(router, clientName, configFileLocation); }
-		if(hibernate==this){ return new HibernateSimpleClientFactory(router, clientName, configFileLocation); }
+			String configFileLocation, ExecutorService executorService){
+		if(hbase==this){ return new HBaseSimpleClientFactory(router, clientName, 
+				configFileLocation, executorService); }
+		if(hibernate==this){ return new HibernateSimpleClientFactory(router, clientName, 
+				configFileLocation, executorService); }
 		return null;
 		
 	}

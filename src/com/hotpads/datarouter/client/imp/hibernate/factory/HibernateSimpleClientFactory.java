@@ -2,6 +2,10 @@ package com.hotpads.datarouter.client.imp.hibernate.factory;
 
 import java.util.Collection;
 import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
@@ -39,27 +43,41 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	protected DataRouter router;
 	protected String clientName;
 	protected String configFileLocation;
+	protected ExecutorService executorService;
 	protected Properties properties;
 	protected HibernateClient client;
 	
 	
 	public HibernateSimpleClientFactory(
 			DataRouter router, String clientName, 
-			String configFileLocation){
+			String configFileLocation, 
+			ExecutorService executorService){
 		this.router = router;
 		this.clientName = clientName;
 		this.configFileLocation = configFileLocation;
+		this.executorService = executorService;
 		this.properties = PropertiesTool.ioAndNullSafeFromFile(configFileLocation);
 	}
 	
 	
 	@Override
 	public HibernateClient getClient(){
-		if(client!=null){ return client; }//avoid the synchronization... not sure how costly that is
+		if(client!=null){ return client; }
 		synchronized(this){
-			if(client!=null){ return client; }
-			logger.warn("activating Hibernate client "+clientName);
-			this.client = createFromScratch(router, clientName, properties);
+			Future<HibernateClient> future = executorService.submit(new Callable<HibernateClient>(){
+				@Override public HibernateClient call(){
+					if(client!=null){ return client; }
+					logger.warn("activating Hibernate client "+clientName);
+					return createFromScratch(router, clientName, properties);
+				}
+			});
+			try{
+				this.client = future.get();
+			}catch(InterruptedException e){
+				throw new RuntimeException(e);
+			}catch(ExecutionException e){
+				throw new RuntimeException(e);
+			}
 		}
 		return this.client;
 	}

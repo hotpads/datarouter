@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.factory;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -19,8 +20,9 @@ implements DynamicClientFactory{
 
 	public HBaseDynamicClientFactory(
 			DataRouter router, String clientName, 
-			String configFileLocation){
-		super(router, clientName, configFileLocation);
+			String configFileLocation, 
+			ExecutorService executorService){
+		super(router, clientName, configFileLocation, executorService);
 		this.keepAliveExecutor = Executors.newSingleThreadScheduledExecutor();
 		this.keepAliveExecutor.scheduleWithFixedDelay(
 				new HBaseClientKeepAliveTester(), 0, KEEP_ALIVE_TEST_PERIOD_MS, TimeUnit.MILLISECONDS); 
