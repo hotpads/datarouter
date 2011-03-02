@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +17,7 @@ import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.concurrent.Provider;
 
 public class CountArchiveFlusher{
 	static Logger logger = Logger.getLogger(CountArchiveFlusher.class);
@@ -31,18 +31,20 @@ public class CountArchiveFlusher{
 	protected long flushPeriodMs;
 	protected Queue<CountMapPeriod> flushQueue;
 	protected List<CountArchive> archives;
-	protected ScheduledExecutorService flushScheduler;
-	protected ExecutorService flushExecutor;
+	protected Provider<ScheduledExecutorService> flushScheduler;
+	protected Provider<ScheduledExecutorService> flushExecutor;//not sure why this has to be a ScheduledExecutor, but it won't work otherwise
 
-	public CountArchiveFlusher(String name, long flushPeriodMs){
+	public CountArchiveFlusher(String name, long flushPeriodMs, 
+			Provider<ScheduledExecutorService> flushScheduler,
+			Provider<ScheduledExecutorService> flushExecutor){
 		this.name = name;
 		this.flushPeriodMs = flushPeriodMs;
 		this.flushQueue = new ConcurrentLinkedQueue<CountMapPeriod>();//careful, size() must iterate every element
 		this.archives = ListTool.createArrayList();
-		this.flushScheduler = Executors.newSingleThreadScheduledExecutor();
-		this.flushScheduler.scheduleWithFixedDelay(
+		this.flushExecutor = flushExecutor;
+		this.flushScheduler = flushScheduler;
+		this.flushScheduler.get().scheduleWithFixedDelay(
 				new CountArchiveFlushUntilEmpty(this), 0, flushPeriodMs, TimeUnit.MILLISECONDS); 
-		this.flushExecutor = Executors.newSingleThreadScheduledExecutor();
 		logger.warn("CountArchiveFlusher:"+name+" started");
 	}
 	
@@ -77,12 +79,14 @@ public class CountArchiveFlusher{
 						flusher.flushQueue.poll();//remove it
 						continue; 
 					}
-					Future<?> future = flusher.flushExecutor.submit(
+					ExecutorService flushExecutorDebug = flusher.flushExecutor.get();
+					Future<?> future = flushExecutorDebug.submit(
 							new CountArchiveFlushAttempt(flusher, countMap));
 					future.get(INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 				}
 			}catch(TimeoutException te){
 				logger.warn("TimeoutException after "+INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS+" seconds");
+				logger.warn(ExceptionTool.getStackTraceAsString(te));
 			}catch(Exception e){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 			}
@@ -112,7 +116,7 @@ public class CountArchiveFlusher{
 	
 	public void shutdownAndFlushAll(){
 		logger.warn("shutting down CountArchiveFlusher "+name);
-		flushScheduler.shutdown();
+		flushScheduler.get().shutdown();
 		new CountArchiveFlushUntilEmpty(this).run();
 	}
 	

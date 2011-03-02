@@ -60,7 +60,7 @@ public class Clients{
 		this.configFileLocation = configFileLocation;
 		this.router = router;
 		this.properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
-		this.threadFactory = new NamedThreadFactory("DataRouter-"+router.getName()+"-clients");
+		this.threadFactory = new NamedThreadFactory("DataRouter-"+router.getName()+"-clients", true);
 		this.executorService = new ThreadPoolExecutor(
 				0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
 	            new SynchronousQueue<Runnable>(), threadFactory);
@@ -109,7 +109,7 @@ public class Clients{
 		final List<String> eagerClientNames = getClientNamesRequiringEagerInitialization(properties);
 		for(final String clientName : CollectionTool.nullSafe(allClientNames)){
 			ExecutorService exec = Executors.newSingleThreadExecutor(
-					new NamedThreadFactory("DataRouterClient-"+clientName));
+					new NamedThreadFactory("DataRouterClient-"+clientName, true));
 			String typeString = properties.getProperty(prefixClient+clientName+paramType);
 			if(StringTool.isEmpty(typeString)){ typeString = defaultTypeString; }
 			ClientType clientType = ClientType.fromString(typeString);
