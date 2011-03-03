@@ -39,6 +39,7 @@ public class Clients{
 
 	public static final ClientType DEFAULT_CLIENT_TYPE = ClientType.hibernate;
 	
+	protected ThreadGroup parentThreadGroup;
 	protected ThreadFactory threadFactory;
 	protected ThreadPoolExecutor executorService;//for async client init and monitoring
 	
@@ -60,7 +61,8 @@ public class Clients{
 		this.configFileLocation = configFileLocation;
 		this.router = router;
 		this.properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
-		this.threadFactory = new NamedThreadFactory("DataRouter-"+router.getName()+"-clients", true);
+		this.parentThreadGroup = new ThreadGroup("DataRouter-"+router.getName());
+		this.threadFactory = new NamedThreadFactory(parentThreadGroup, "DataRouter-"+router.getName()+"-clients", true);
 		this.executorService = new ThreadPoolExecutor(
 				0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
 	            new SynchronousQueue<Runnable>(), threadFactory);
@@ -109,7 +111,7 @@ public class Clients{
 		final List<String> eagerClientNames = getClientNamesRequiringEagerInitialization(properties);
 		for(final String clientName : CollectionTool.nullSafe(allClientNames)){
 			ExecutorService exec = Executors.newSingleThreadExecutor(
-					new NamedThreadFactory("DataRouterClient-"+clientName, true));
+					new NamedThreadFactory(parentThreadGroup, "Client-"+clientName, true));
 			String typeString = properties.getProperty(prefixClient+clientName+paramType);
 			if(StringTool.isEmpty(typeString)){ typeString = defaultTypeString; }
 			ClientType clientType = ClientType.fromString(typeString);
