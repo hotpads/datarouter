@@ -25,34 +25,37 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 		
 		Thread currentThread = Thread.currentThread();
 		String originalThreadName = currentThread.getName();
-		currentThread.setName(threadName);
-		
-		boolean hasParent = parentCtx!=null;//no use tracing if there's no parent to give them to.
-		boolean isParent = parentThread.getId()==Thread.currentThread().getId();//for cases when the parent just runs the callable
-		boolean shouldStartNestedTrace = hasParent && !isParent;
-//		logger.warn(threadName+", shouldTrace:"+hasParent+","+isParent+","+shouldStartNestedTrace);
-		
-		TraceContext ctx = null;
-		if(shouldStartNestedTrace){
-			ctx = new TraceContext(parentCtx.getServerId(), 
-					parentCtx.getTraceId(), parentCtx.getCurrentThreadId());
-			TraceContext.bindToThread(ctx);
-			TraceContext.createAndStartThread(threadName);
+		try{
+			currentThread.setName(threadName);
+			
+			boolean hasParent = parentCtx!=null;//no use tracing if there's no parent to give them to.
+			boolean isParent = parentThread.getId()==Thread.currentThread().getId();//for cases when the parent just runs the callable
+			boolean shouldStartNestedTrace = hasParent && !isParent;
+	//		logger.warn(threadName+", shouldTrace:"+hasParent+","+isParent+","+shouldStartNestedTrace);
+			
+			TraceContext ctx = null;
+			if(shouldStartNestedTrace){
+				ctx = new TraceContext(parentCtx.getServerId(), 
+						parentCtx.getTraceId(), parentCtx.getCurrentThreadId());
+				TraceContext.bindToThread(ctx);
+				TraceContext.createAndStartThread(threadName);
+			}
+			
+			V v = wrappedCall();
+			
+			if(shouldStartNestedTrace){
+				TraceContext.finishThread();
+				parentCtx.getThreads().addAll(ctx.getThreads());
+	//			logger.warn("got threads:"+ctx.getThreads());
+				parentCtx.getSpans().addAll(ctx.getSpans());
+				TraceContext.clearFromThread();
+			}
+			
+	//		logger.warn(threadName+" generated "+CollectionTool.size(spans)+" spans");
+			return v;
+		}finally{
+			Thread.currentThread().setName(originalThreadName);
 		}
-		
-		V v = wrappedCall();
-		
-		if(shouldStartNestedTrace){
-			TraceContext.finishThread();
-			parentCtx.getThreads().addAll(ctx.getThreads());
-//			logger.warn("got threads:"+ctx.getThreads());
-			parentCtx.getSpans().addAll(ctx.getSpans());
-			TraceContext.clearFromThread();
-		}
-		
-//		logger.warn(threadName+" generated "+CollectionTool.size(spans)+" spans");
-		Thread.currentThread().setName(originalThreadName);
-		return v;
 	}
 
 
