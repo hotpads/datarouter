@@ -32,6 +32,7 @@ public abstract class BaseDataRouter implements DataRouter {
 		MODE_production = "production";
 	
 	/********************************* fields **********************************/
+	protected ThreadGroup parentThreadGroup;
 	protected String name;
 	protected List<ClientId> clientIds;
 	protected List<String> clientNames;
@@ -45,7 +46,8 @@ public abstract class BaseDataRouter implements DataRouter {
 	
 	/**************************** constructor  ****************************************/
 	
-	public BaseDataRouter(String name, List<ClientId> clientIds) throws IOException{
+	public BaseDataRouter(ThreadGroup parentThradGroup, String name, List<ClientId> clientIds) throws IOException{
+		this.parentThreadGroup = parentThradGroup;
 		this.name = name;
 		this.clientIds = clientIds;
 		this.clientNames = ClientId.getNames(clientIds);
@@ -80,7 +82,7 @@ public abstract class BaseDataRouter implements DataRouter {
 	@Override
 	public void activate() throws IOException{
 		this.connectionPools = new ConnectionPools(this);
-		this.clients = new Clients(this.getConfigLocation(), this);
+		this.clients = new Clients(parentThreadGroup, getConfigLocation(), this);
 	}
 
 	@Override

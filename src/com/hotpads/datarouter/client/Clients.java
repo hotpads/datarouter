@@ -57,11 +57,11 @@ public class Clients{
 	
 	/******************************* constructors **********************************/
 
-	public Clients(String configFileLocation, DataRouter router) throws IOException {
+	public Clients(ThreadGroup parentThreadGroup, String configFileLocation, DataRouter router) throws IOException {
 		this.configFileLocation = configFileLocation;
 		this.router = router;
 		this.properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
-		this.parentThreadGroup = new ThreadGroup("DataRouter-"+router.getName());
+		this.parentThreadGroup = parentThreadGroup;//new ThreadGroup("DataRouter-"+router.getName());
 		this.threadFactory = new NamedThreadFactory(parentThreadGroup, "DataRouter-"+router.getName()+"-clients", true);
 		this.executorService = new ThreadPoolExecutor(
 				0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,

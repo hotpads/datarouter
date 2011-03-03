@@ -29,7 +29,7 @@ extends BaseDataRouter{
 	public static final String name = "basicNodeTest";
 	
 	public BasicNodeTestRouter(String client) throws IOException{
-		super(name, ListTool.create(new ClientId(client, true)));
+		super(null, name, ListTool.create(new ClientId(client, true)));
 		
 		manyFieldTypeBeanNode = register(NodeFactory.create(client, ManyFieldTypeBean.class, this));
 		sortedBeanNode = register(NodeFactory.create(client, SortedBean.class, this));

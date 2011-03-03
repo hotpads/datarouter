@@ -21,7 +21,7 @@ implements BasicClientTestRouter{
 	public static final String name = "basicClientTest";
 	
 	public HibernateBasicClientTestRouter() throws IOException{
-		super(name, CLIENT_IDS);
+		super(null, name, CLIENT_IDS);
 		activate();//do after field inits
 	}
 
