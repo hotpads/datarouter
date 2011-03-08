@@ -10,6 +10,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -19,7 +20,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
 public class HashMapReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
-extends BasePhysicalNode<PK,D>
+extends BasePhysicalNode<PK,D,DatabeanFielder<PK,D>>
 implements MapStorageReader<PK,D>
 {
 	
@@ -28,12 +29,12 @@ implements MapStorageReader<PK,D>
 	public HashMapReaderNode(Class<D> databeanClass, 
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
-		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
+		super(databeanClass, null, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
 	public HashMapReaderNode(Class<D> databeanClass, 
 			DataRouter router, String clientName) {
-		super(databeanClass, router, clientName);
+		super(databeanClass, null, router, clientName);
 	}
 
 	@Override

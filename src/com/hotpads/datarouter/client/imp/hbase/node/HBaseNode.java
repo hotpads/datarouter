@@ -17,6 +17,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
@@ -27,25 +28,25 @@ import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
-public class HBaseNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
-extends HBaseReaderNode<PK,D>
+public class HBaseNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>> 
+extends HBaseReaderNode<PK,D,F>
 implements PhysicalSortedMapStorageNode<PK,D>
 {
 	
-	public HBaseNode(Class<D> databeanClass, 
+	public HBaseNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
-		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
+		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HBaseNode(Class<D> databeanClass, 
+	public HBaseNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName) {
-		super(databeanClass, router, clientName);
+		super(databeanClass, fielderClass, router, clientName);
 	}
 	
 	public HBaseNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
-			DataRouter router, String clientName){
-		super(baseDatabeanClass, databeanClass, router, clientName);
+			Class<F> fielderClass, DataRouter router, String clientName){
+		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);
 	}
 	
 	@Override
@@ -82,7 +83,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						byte[] keyBytes = key.getBytes(false);
 						Put put = new Put(keyBytes);
 						Delete delete = new Delete(keyBytes);
-						List<Field<?>> fields = ListTool.nullSafeArray(databean.getNonKeyFields());
+						List<Field<?>> fields = getFields(databean);
 						for(Field<?> field : fields){//TODO only put modified fields
 							byte[] fieldBytes = field.getBytes();
 							if(fieldBytes==null){

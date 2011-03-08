@@ -9,6 +9,7 @@ import java.util.Set;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -17,7 +18,7 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
 public abstract class BaseCachingNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends Node<PK,D>> 
-extends BaseNode<PK,D>{
+extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	
 	
 	/***************************** Node pass-through stuff **********************************/

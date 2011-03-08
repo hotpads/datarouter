@@ -30,6 +30,7 @@ import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.scanner.Scanner;
 import com.hotpads.datarouter.node.scanner.primarykey.PrimaryKeyScanner;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.field.Field;
@@ -47,8 +48,8 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.PeekableIterable;
 
-public class HibernateReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
-extends BasePhysicalNode<PK,D>
+public class HibernateReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>> 
+extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>,
 		SortedStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
@@ -57,20 +58,21 @@ implements MapStorageReader<PK,D>,
 	
 	/******************************* constructors ************************************/
 
-	public HibernateReaderNode(Class<D> databeanClass, 
+	public HibernateReaderNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
-		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
+		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HibernateReaderNode(Class<D> databeanClass,
+	public HibernateReaderNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName) {
-		super(databeanClass, router, clientName);
+		super(databeanClass, fielderClass, router, clientName);
 	}
 
 	public HibernateReaderNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
+			Class<F> fielderClass,
 			DataRouter router, String clientName){
-		super(baseDatabeanClass, databeanClass, router, clientName);
+		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);
 	}
 	
 	

@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.client.ClientId;
-import com.hotpads.datarouter.node.factory.HibernateNodeFactory;
+import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -43,8 +43,8 @@ implements BasicClientTestRouter{
 	
 	/********************************** nodes **********************************/
 	
-	private MapStorage<TxnBeanKey,TxnBean> txnBean = register(
-			HibernateNodeFactory.newHibernate(CLIENT_drTest0, TxnBean.class, this));
+	private MapStorage<TxnBeanKey,TxnBean> txnBean = cast(register(
+			NodeFactory.create(CLIENT_drTest0, TxnBean.class, this)));
 	
 	
 	

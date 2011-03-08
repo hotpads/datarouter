@@ -11,6 +11,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ListTool;
@@ -19,8 +20,9 @@ import com.hotpads.util.core.SetTool;
 
 public abstract class BasePhysicalNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>>
-extends BaseNode<PK,D>
+		D extends Databean<PK>,
+		F extends DatabeanFielder<PK,D>>
+extends BaseNode<PK,D,F>
 implements PhysicalNode<PK,D>
 {
 	protected Logger logger = Logger.getLogger(getClass());
@@ -34,9 +36,9 @@ implements PhysicalNode<PK,D>
 	
 	/****************************** constructors ********************************/
 	
-	public BasePhysicalNode(Class<D> databeanClass, 
+	public BasePhysicalNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName){
-		super(databeanClass);
+		super(databeanClass, fielderClass);
 		this.router = router;
 		this.clientName = clientName;
 		this.tableName = databeanClass.getSimpleName();
@@ -48,10 +50,10 @@ implements PhysicalNode<PK,D>
 	}
 	
 	//for things like the event.Event monthly partitioned tables
-	public BasePhysicalNode(Class<D> databeanClass,
+	public BasePhysicalNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName, 
 			String tableName, String packagedTableName){
-		this(databeanClass, router, clientName);
+		this(databeanClass, fielderClass, router, clientName);
 		//overwrite the default values
 		this.tableName = tableName;
 		this.packagedTableName = packagedTableName;
@@ -60,9 +62,10 @@ implements PhysicalNode<PK,D>
 	}
 	
 	//for table-per-class hierarchy like the property.Photo hierarchy
-	public BasePhysicalNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass,
+	public BasePhysicalNode(Class<? super D> baseDatabeanClass, 
+			Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName){
-		this(databeanClass, router, clientName);
+		this(databeanClass, fielderClass, router, clientName);
 		//overwrite the default values
 		this.baseDatabeanClass = baseDatabeanClass;
 		this.tableName = baseDatabeanClass.getSimpleName();

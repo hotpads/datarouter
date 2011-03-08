@@ -16,6 +16,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
@@ -26,7 +27,7 @@ public abstract class BaseWriteBehindNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK>,
 		N extends Node<PK,D>> 
-extends BaseNode<PK,D>{
+extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	
 	public static final int DEFAULT_WRITE_BEHIND_THREADS = 1;
 	public static final long DEFAULT_TIMEOUT_MS = 60*1000;

@@ -15,6 +15,8 @@ import com.hotpads.util.core.ListTool;
 public abstract class BaseDatabean<PK extends PrimaryKey<PK>>
 extends BaseFieldSet
 implements Databean<PK>{
+	
+	public static final String DEFAULT_KEY_FIELD_NAME = "key";
 
 	/********************** databean *********************************/
 	
@@ -27,7 +29,7 @@ implements Databean<PK>{
 	/*************************** fields ****************************/
 	
 	public String getKeyFieldName(){
-		return "key";
+		return DEFAULT_KEY_FIELD_NAME;
 	}
 	
 	@Override

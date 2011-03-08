@@ -12,6 +12,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -20,6 +21,7 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.trace.key.TraceSpanKey;
 import com.hotpads.trace.key.TraceThreadKey;
+import com.hotpads.trace.key.TraceSpanKey.TraceSpanKeyFielder;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.NumberTool;
@@ -68,6 +70,25 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey>{
 	@Override
 	public boolean isFieldAware(){
 		return true;
+	}
+	
+	public static class TraceSpanFielder extends BaseDatabeanFielder<
+			TraceSpanKey,TraceSpan>{
+		public TraceSpanFielder(){super();}
+		@Override
+		public Class<TraceSpanKeyFielder> getKeyFielderClass(){
+			return TraceSpanKeyFielder.class;
+		}
+		@Override
+		public List<Field<?>> getNonKeyFields(TraceSpan d){
+			return FieldTool.createList(
+					new UInt31Field(COL_parentSequence, d.parentSequence),
+					new StringField(COL_name, d.name),
+					new StringField(COL_info, d.info),
+					new UInt63Field(COL_created, d.created),
+					new UInt63Field(COL_duration, d.duration),
+					new UInt63Field(COL_durationNano, d.durationNano));
+		}
 	}
 	
 	

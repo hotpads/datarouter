@@ -12,6 +12,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
@@ -21,7 +22,7 @@ import com.hotpads.util.core.SetTool;
 
 public abstract class BaseMasterSlaveNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,
 		N extends Node<PK,D>> 
-extends BaseNode<PK,D>{
+extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	
 	protected N master;
 	protected List<N> slaves = new ArrayList<N>();

@@ -18,6 +18,8 @@ extends Comparable<Node<PK,D>>{
 	Class<D> getDatabeanType();
 	List<Field<?>> getFields();
 	
+	List<Field<?>> getFields(D d);
+	
 	Set<String> getAllNames();
 	List<String> getClientNames();
 	boolean usesClient(String clientName);

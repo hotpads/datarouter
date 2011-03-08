@@ -11,6 +11,7 @@ import com.hotpads.datarouter.node.base.BaseNode;
 import com.hotpads.datarouter.node.base.physical.PhysicalNodes;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -24,7 +25,7 @@ public abstract class BasePartitionedNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK>,
 		N extends PhysicalNode<PK,D>>
-extends BaseNode<PK,D>{
+extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	protected Class<D> databeanClass;
 	protected DataRouter router;

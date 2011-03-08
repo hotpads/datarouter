@@ -16,6 +16,7 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -26,25 +27,25 @@ import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
-public class HibernateNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
-extends HibernateReaderNode<PK,D>
+public class HibernateNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>> 
+extends HibernateReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>
 {
 	
-	public HibernateNode(Class<D> databeanClass, 
+	public HibernateNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
-		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
+		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HibernateNode(Class<D> databeanClass, 
+	public HibernateNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName) {
-		super(databeanClass, router, clientName);
+		super(databeanClass, fielderClass, router, clientName);
 	}
 	
 	public HibernateNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
-			DataRouter router, String clientName){
-		super(baseDatabeanClass, databeanClass, router, clientName);
+			Class<F> fielderClass, DataRouter router, String clientName){
+		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);
 	}
 	
 	@Override

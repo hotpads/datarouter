@@ -23,6 +23,7 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.base.physical.BasePhysicalNode;
 import com.hotpads.datarouter.node.op.index.IndexReader;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -34,28 +35,29 @@ import com.hotpads.util.core.ListTool;
 public class HibernateIndexNode<
 				PK extends PrimaryKey<PK>,
 				D extends Databean<PK>,
-				IK extends PrimaryKey<IK>> 
-extends BasePhysicalNode<PK,D>
+				IK extends PrimaryKey<IK>,
+				F extends DatabeanFielder<PK,D>> 
+extends BasePhysicalNode<PK,D,F>
 implements IndexReader<PK,D,IK>{
 	
 	protected Logger logger = Logger.getLogger(getClass());
 	
 	/******************************* constructors ************************************/
 
-	public HibernateIndexNode(Class<D> databeanClass, 
+	public HibernateIndexNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
-		super(databeanClass, router, clientName, physicalName, qualifiedPhysicalName);
+		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HibernateIndexNode(Class<D> databeanClass,
+	public HibernateIndexNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName) {
-		super(databeanClass, router, clientName);
+		super(databeanClass, fielderClass, router, clientName);
 	}
 
 	public HibernateIndexNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
-			DataRouter router, String clientName){
-		super(baseDatabeanClass, databeanClass, router, clientName);
+			Class<F> fielderClass, DataRouter router, String clientName){
+		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);
 	}
 	
 	
