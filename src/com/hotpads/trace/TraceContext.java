@@ -133,6 +133,7 @@ public class TraceContext {
 		TraceSpan span = ctx.getCurrentSpan();
 		boolean addSpace = StringTool.notEmpty(span.getName());
 		span.setName(StringTool.nullSafe(span.getName()) + (addSpace ? " " : "") + text);
+		Counters.inc(span.getName());//yes, this is double-counting the span
 	}
 	
 	public static void appendToSpanInfo(String text){
