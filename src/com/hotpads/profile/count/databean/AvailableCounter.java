@@ -83,7 +83,9 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey>{
 	public static SortedSet<String> getAllSources(Collection<AvailableCounter> counters){
 		SortedSet<String> outs = SetTool.createTreeSet();
 		for(AvailableCounter counter : IterableTool.nullSafe(counters)){
-			outs.add(counter.getSource());
+			String source = counter.getSource();
+			if(source==null) continue;
+			outs.add(source);
 		}
 		return outs;
 	}
