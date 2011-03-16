@@ -54,15 +54,16 @@ public class NodeFactory{
 			String tableName,
 			String entityName,
 			Class<D> databeanClass, 
+			Class<F> fielderClass,
 			DataRouter router){
 		
 		ClientType clientType = router.getClientOptions().getClientType(clientName);
 		
 		Node<PK,D> node = null;
 		if(ClientType.hibernate==clientType){
-			node = new HibernateNode<PK,D,F>(databeanClass, null, router, clientName, tableName, entityName);
+			node = new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, clientName, tableName, entityName);
 		}else if(ClientType.hbase==clientType){
-			node = new HBaseNode<PK,D,F>(databeanClass, null, router, clientName, tableName, entityName);
+			node = new HBaseNode<PK,D,F>(databeanClass, fielderClass, router, clientName, tableName, entityName);
 		}
 		
 		if(node==null){
@@ -71,6 +72,16 @@ public class NodeFactory{
 		@SuppressWarnings("unchecked")
 		N typedNode = (N)node;
 		return typedNode;
+	}
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
+	N create(
+			String clientName, 
+			String tableName,
+			String entityName,
+			Class<D> databeanClass, 
+			DataRouter router){
+		return create(clientName, tableName, entityName, databeanClass, null, router);
 	}
 	
 }
