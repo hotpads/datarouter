@@ -15,6 +15,8 @@ import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.io.hfile.Compression.Algorithm;
+import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
@@ -134,6 +136,8 @@ public class HBaseSimpleClientFactory implements HBaseClientFactory{
 						HTableDescriptor hTable = new HTableDescriptor(tableName);
 						HColumnDescriptor family = new HColumnDescriptor(DEFAULT_FAMILY_QUALIFIER);
 						family.setMaxVersions(1);
+						family.setBloomFilterType(BloomType.ROW);
+						family.setCompressionType(Algorithm.GZ);
 						hTable.addFamily(family);
 						admin.createTable(hTable);
 						logger.warn("created table " + tableName);
