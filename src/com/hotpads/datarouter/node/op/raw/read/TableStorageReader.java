@@ -9,7 +9,7 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public interface TableStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+public interface TableStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
 	
@@ -27,12 +27,12 @@ extends NodeOps<PK,D>
 	
 	
 
-	public interface TableStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface TableStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends Node<PK,D>, SortedStorageReader<PK,D>
 	{
 	}
 	
-	public interface PhysicalTableStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface PhysicalTableStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends PhysicalNode<PK,D>, TableStorageReaderNode<PK,D>
 	{
 	}

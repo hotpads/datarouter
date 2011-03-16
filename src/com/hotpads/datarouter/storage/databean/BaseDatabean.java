@@ -12,9 +12,9 @@ import com.hotpads.util.core.ListTool;
 
 
 @SuppressWarnings("serial")
-public abstract class BaseDatabean<PK extends PrimaryKey<PK>>
-extends BaseFieldSet
-implements Databean<PK>{
+public abstract class BaseDatabean<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+extends BaseFieldSet<D>
+implements Databean<PK,D>{
 	
 	public static final String DEFAULT_KEY_FIELD_NAME = "key";
 
@@ -81,7 +81,7 @@ implements Databean<PK>{
 	@SuppressWarnings("unchecked")
 	public boolean equals(Object obj){
 		if(ClassTool.differentClass(this, obj)){ return false; }
-		Databean<PK> that = (Databean<PK>)obj;
+		Databean<PK,D> that = (Databean<PK,D>)obj;
 		return this.getKey().equals(that.getKey());
 	}	
 	

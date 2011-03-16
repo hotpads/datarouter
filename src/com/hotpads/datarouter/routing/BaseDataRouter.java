@@ -69,7 +69,7 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends Node<PK,D>> 
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> 
 	N register(N node){
 		this.nodes.register(node);
 		return node;
@@ -92,7 +92,7 @@ public abstract class BaseDataRouter implements DataRouter {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends NodeOps<PK,D>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends NodeOps<PK,D>> 
 	N cast(Node<PK,D> in){
 		return (N)in;
 	}
@@ -111,7 +111,7 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	public void clearThreadSpecificState(){
-		this.nodes.clearThreadSpecificState();
+		nodes.clearThreadSpecificState();
 	}
 	
 	/************************************** getting clients *************************/
@@ -133,65 +133,65 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	public List<Client> getAllClients(){
-		return this.clients.getAllClients();
+		return clients.getAllClients();
 	}
 	
 	@Override
 	public List<Client> getAllInstantiatedClients(){
-		return this.clients.getAllInstantiatedClients();
+		return clients.getAllInstantiatedClients();
 	}
 
 	@Override
 	public List<Client> getClients(Collection<String> clientNames){
-		return this.clients.getClients(clientNames);
+		return clients.getClients(clientNames);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK>> List<String> 
-	getClientNamesForKeys(Collection<? extends Key<PK>> keys){
-		List<String> clientNames = this.nodes.getClientNamesForKeys(keys);
+	public <K extends Key<K>> List<String> 
+	getClientNamesForKeys(Collection<? extends Key<K>> keys){
+		List<String> clientNames = nodes.getClientNamesForKeys(keys);
 		return clientNames;
 	}
 
 	@Override
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK>> List<String> 
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<String> 
 	getClientNamesForDatabeans(Collection<D> databeans){
-		return this.getClientNamesForKeys(KeyTool.getKeys(databeans));
+		return getClientNamesForKeys(KeyTool.getKeys(databeans));
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK>> List<Client> 
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<Client> 
 	getClientsForDatabeanType(Class<D> databeanType){
-		List<String> clientNames = this.nodes.getClientNamesForDatabeanType(databeanType);
+		List<String> clientNames = nodes.getClientNamesForDatabeanType(databeanType);
 		if(CollectionTool.isEmpty(clientNames)){ return null; }
-		return this.clients.getClients(clientNames);
+		return clients.getClients(clientNames);
 	}
 
 	@Override
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK>> List<Client> 
-	getClientsForKeys(Collection<? extends Key<PK>> keys){
+	public <K extends Key<K>> List<Client> 
+	getClientsForKeys(Collection<? extends Key<K>> keys){
 		List<Client> clientsForKeys = ListTool.createLinkedList();
-		List<String> clientNames = this.getClientNamesForKeys(keys);
+		List<String> clientNames = getClientNamesForKeys(keys);
 		for(String clientName : CollectionTool.nullSafe(clientNames)){
-			Client client = this.getClient(clientName);
+			Client client = getClient(clientName);
 			clientsForKeys.add(client);
 		}
 		return clientsForKeys;
 	}
 
 	@Override
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK>> List<Client> 
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<Client> 
 	getClientsForDatabeans(Collection<D> databeans){
-		return this.getClientsForKeys(KeyTool.getKeys(databeans));
+		return getClientsForKeys(KeyTool.getKeys(databeans));
 	}
 	
 	/***************** overexposed accessors *******************************/
 	
 	@Override
 	public ConnectionPools getConnectionPools(){
-		return this.connectionPools;
+		return connectionPools;
 	}
 
 	

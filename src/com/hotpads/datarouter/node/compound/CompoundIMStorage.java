@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
  * 	with the data in Memcached or Cassandra (w/o OPP)... so, yes, an oddity
  * 
  */
-public class CompoundIMStorage<PK extends PrimaryKey<PK>,D extends Databean<PK>>{
+public class CompoundIMStorage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 
 	protected Node<PK,D> node;
 	protected CompoundMapRWStorage<PK,D> map;
@@ -32,7 +32,7 @@ public class CompoundIMStorage<PK extends PrimaryKey<PK>,D extends Databean<PK>>
 	}
 	
 
-	public static class CompoundIMNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public static class CompoundIMNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends CompoundIMStorage<PK,D>{
 		public CompoundIMNode(Node<PK,D> node){
 			super(node);

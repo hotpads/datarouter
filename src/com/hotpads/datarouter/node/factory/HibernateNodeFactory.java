@@ -11,7 +11,7 @@ public class HibernateNodeFactory {
 
 	
 	//String physicalName, String qualifiedPhysicalName,
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 	HibernateNode<PK,D,F> 
 	newHibernate(String clientName, 
 			String physicalName, String qualifiedPhysicalName,
@@ -20,7 +20,7 @@ public class HibernateNodeFactory {
 		return newHibernate(clientName, physicalName, qualifiedPhysicalName, databeanClass, null, router);
 	}
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 	HibernateNode<PK,D,F> 
 	newHibernate(String clientName, 
 			String physicalName, String qualifiedPhysicalName,
@@ -35,7 +35,7 @@ public class HibernateNodeFactory {
 
 	
 	//Class<? super D> baseDatabeanClass,
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 	HibernateNode<PK,D,F> 
 	createSubclass(String clientName, 
 			Class<D> databeanClass, 
@@ -44,7 +44,7 @@ public class HibernateNodeFactory {
 		return createSubclass(clientName, databeanClass, null, baseDatabeanClass, router);
 	}
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 	HibernateNode<PK,D,F> 
 	createSubclass(String clientName, 
 			Class<D> databeanClass, 

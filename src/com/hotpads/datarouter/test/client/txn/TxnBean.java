@@ -15,7 +15,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 @SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
-public class TxnBean extends BaseDatabean<TxnBeanKey>{
+public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 	
 	@Id
 	private TxnBeanKey key;

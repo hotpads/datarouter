@@ -3,16 +3,18 @@ package com.hotpads.datarouter.storage.field;
 import java.sql.ResultSet;
 
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseField<T> implements Field<T>{
 
-	protected String prefix;
+	protected java.lang.reflect.Field jField;//ignore in subclasses if more complex structure needed
+	protected String prefix;//ignore if not needed
 	protected String name;
-	protected String columnName;
-	protected T value;
+	protected String columnName;//defaults to name if not specified
+	protected T value;//TODO move this out of the field descriptor
 
 	
 	/*************************** constructor *********************************/
@@ -58,6 +60,24 @@ public abstract class BaseField<T> implements Field<T>{
 	@Override
 	public boolean isCollection(){
 		return false;
+	}
+	
+	@Override
+	public void cacheReflectionInfo(FieldSet sampleFieldSet){
+		ObjectTool.checkNotNull(sampleFieldSet);
+		if(StringTool.notEmpty(prefix)){
+			java.lang.reflect.Field prefixField = ReflectionTool.getDeclaredFieldFromHierarchy(
+					sampleFieldSet.getClass(), prefix);
+			prefixField.setAccessible(true);
+			if(ReflectionTool.get(prefixField, sampleFieldSet)==null){
+				ReflectionTool.set(prefixField, sampleFieldSet, ReflectionTool.create(prefixField.getType()));
+			}
+			jField = ReflectionTool.getDeclaredFieldFromHierarchy(
+					prefixField.getType(), name);
+		}else{
+			jField = ReflectionTool.getDeclaredFieldFromHierarchy(sampleFieldSet.getClass(), name);
+		}
+		jField.setAccessible(true);
 	}
 	
 	

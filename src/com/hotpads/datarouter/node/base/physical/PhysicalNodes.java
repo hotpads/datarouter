@@ -18,7 +18,7 @@ import com.hotpads.util.core.SetTool;
 
 public class PhysicalNodes<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends PhysicalNode<PK,D>> {
 	Logger logger = Logger.getLogger(getClass());
 

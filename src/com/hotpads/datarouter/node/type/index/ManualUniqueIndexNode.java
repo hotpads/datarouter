@@ -17,9 +17,9 @@ import com.hotpads.util.core.CollectionTool;
 
 public class ManualUniqueIndexNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends UniqueIndexEntry<IK,PK,D>>
+		IE extends UniqueIndexEntry<IK,IE,PK,D>>
 implements UniqueIndexReader<PK,D,IK>,UniqueIndexWriter<PK,D,IK>{
 
 	protected CompoundMapRWStorage<PK,D> mainNode;

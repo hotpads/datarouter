@@ -1,11 +1,10 @@
 package com.hotpads.datarouter.storage.key;
 
 import com.hotpads.datarouter.storage.field.FieldSet;
-import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 
-public interface Key<PK extends PrimaryKey<PK>>
-extends FieldSet{
+public interface Key<K extends Key<K>>//Key should probably not reference PrimaryKey?
+extends FieldSet<K>{
 	
 //	void fromPersistentString(String s);
 	

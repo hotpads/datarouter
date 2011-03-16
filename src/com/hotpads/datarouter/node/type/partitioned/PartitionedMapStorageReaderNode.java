@@ -17,7 +17,7 @@ import com.hotpads.util.core.MapTool;
 
 public abstract class PartitionedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends PhysicalMapStorageReaderNode<PK,D>>
 extends BasePartitionedNode<PK,D,N>
 implements MapStorageReaderNode<PK,D>{

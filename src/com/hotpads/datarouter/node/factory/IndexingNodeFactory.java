@@ -14,7 +14,7 @@ import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
 
 public class IndexingNodeFactory {
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	IndexingMapStorageNode<PK,D,MapStorageNode<PK,D>> 
 	newMap(MapStorageNode<PK,D> mainNode){
 		
@@ -26,9 +26,9 @@ public class IndexingNodeFactory {
 	
 	
 	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK>,
+					D extends Databean<PK,D>,
 					IK extends PrimaryKey<IK>,
-					IE extends UniqueKeyIndexEntry<IK,PK,D>,
+					IE extends UniqueKeyIndexEntry<IK,IE,PK,D>,
 					IN extends SortedMapStorageNode<IK,IE>>
 	IndexListener<PK,D> newListener(Class<IE> indexEntryClass, IN indexNode){
 		return new IndexMapStorageWriterListener<PK,D,IK,IE,SortedMapStorageNode<IK,IE>>(
@@ -37,9 +37,9 @@ public class IndexingNodeFactory {
 	
 	
 	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK>,
+					D extends Databean<PK,D>,
 					IK extends PrimaryKey<IK>,
-					IE extends UniqueIndexEntry<IK,PK,D>>
+					IE extends UniqueIndexEntry<IK,IE,PK,D>>
 	ManualUniqueIndexNode<PK,D,IK,IE> newManualUnique(CompoundMapRWStorage<PK,D> mainNode, 
 			SortedMapStorageNode<IK,IE> indexNode){
 		return new ManualUniqueIndexNode<PK,D,IK,IE>(mainNode, indexNode);

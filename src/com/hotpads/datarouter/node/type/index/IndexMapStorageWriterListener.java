@@ -22,9 +22,9 @@ import com.hotpads.util.core.ListTool;
  */
 public class IndexMapStorageWriterListener<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends UniqueKeyIndexEntry<IK,PK,D>,
+		IE extends UniqueKeyIndexEntry<IK,IE,PK,D>,
 		IN extends SortedMapStorageNode<IK,IE>>
 extends BaseIndexNode<PK,D,IK,IE,IN>
 implements IndexListener<PK,D>{

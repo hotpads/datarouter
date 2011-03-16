@@ -21,7 +21,7 @@ import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.io.FileIOFactory;
 import com.hotpads.util.core.profile.PhaseTimer;
 
-public class BackupRegionToS3<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+public class BackupRegionToS3<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 extends BackupRegion<PK,D>{
 	
 	public static final String DEFAULT_BUCKET = "backup.hotpads.com";

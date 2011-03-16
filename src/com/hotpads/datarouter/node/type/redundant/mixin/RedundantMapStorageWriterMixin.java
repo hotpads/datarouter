@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class RedundantMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends MapStorageWriterNode<PK,D>>
 implements MapStorageWriter<PK,D>{
 	

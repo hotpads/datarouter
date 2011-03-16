@@ -23,7 +23,7 @@ import com.hotpads.util.core.SetTool;
 
 public abstract class BasePartitionedNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends PhysicalNode<PK,D>>
 extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 

@@ -1,11 +1,11 @@
 package com.hotpads.datarouter.storage.key.unique;
 
 import com.hotpads.datarouter.storage.key.BaseKey;
-import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.Key;
 
 @SuppressWarnings("serial")
-public abstract class BaseUniqueKey<PK extends PrimaryKey<PK>> 
-extends BaseKey<PK> 
-implements UniqueKey<PK>{
+public abstract class BaseUniqueKey<K extends Key<K>>
+extends BaseKey<K> 
+implements UniqueKey<K>{
 	
 }

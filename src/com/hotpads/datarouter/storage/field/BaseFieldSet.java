@@ -8,7 +8,8 @@ import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.CollectionTool;
 
 @SuppressWarnings("serial")
-public abstract class BaseFieldSet implements FieldSet{
+public abstract class BaseFieldSet<F extends FieldSet<F>> 
+implements FieldSet<F>{
 	
 	
 	/******** standard *************************/
@@ -52,8 +53,8 @@ public abstract class BaseFieldSet implements FieldSet{
 		}
 		
 		//field by field comparison
-		Iterator<Field<?>> thisIterator = this.getKeyFields().iterator();
-		Iterator<Field<?>> thatIterator = that.getKeyFields().iterator();
+		Iterator<Field<?>> thisIterator = this.getFields().iterator();
+		Iterator<Field<?>> thatIterator = that.getFields().iterator();
 		while(thisIterator.hasNext()){//they will have the same number of fields
 			//if we got past the class checks above, then fields should be the same and arrive in the same order
 			@SuppressWarnings("unchecked")
@@ -121,6 +122,13 @@ public abstract class BaseFieldSet implements FieldSet{
 	@Override
 	public Object getFieldValue(String fieldName){
 		return FieldTool.getFieldValue(getFields(), fieldName);
+	}
+	
+	//allows us to use the databean itself as the default Fielder
+	//  - eliminates the less user-friendly nested class
+	@Override
+	public List<Field<?>> getFields(F f){
+		return f.getFields();
 	}
 	
 	/**************************** json ******************/

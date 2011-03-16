@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class MasterSlaveMapStorageNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends MapStorageNode<PK,D>>//TODO create separate generic type for slaves that is readOnly
 extends MasterSlaveMapStorageReaderNode<PK,D,N>
 implements MapStorageNode<PK,D>{

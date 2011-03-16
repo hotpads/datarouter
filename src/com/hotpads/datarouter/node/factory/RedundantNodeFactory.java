@@ -10,7 +10,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class RedundantNodeFactory {
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	RedundantSortedMapStorageNode<PK,D,SortedMapStorageNode<PK,D>> newSortedMap(Class<D> databeanClass, 
 			DataRouter router, 
 			Collection<SortedMapStorageNode<PK,D>> writeNodes, 

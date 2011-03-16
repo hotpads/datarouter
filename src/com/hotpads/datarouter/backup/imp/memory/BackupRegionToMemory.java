@@ -13,7 +13,7 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public class BackupRegionToMemory<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+public class BackupRegionToMemory<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 extends BackupRegion<PK,D>{
 	
 	protected ByteArrayOutputStream byteArrayOutputStream;

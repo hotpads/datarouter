@@ -7,16 +7,16 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public interface MapStorage<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+public interface MapStorage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends MapStorageReader<PK,D>, MapStorageWriter<PK,D>
 {
-	public interface MapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface MapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends Node<PK,D>, MapStorage<PK,D>, 
 			MapStorageReaderNode<PK,D>, MapStorageWriterNode<PK,D>
 	{
 	}
 	
-	public interface PhysicalMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface PhysicalMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends PhysicalNode<PK,D>, MapStorageNode<PK,D>, 
 			PhysicalMapStorageReaderNode<PK,D>, PhysicalMapStorageWriterNode<PK,D>
 	{

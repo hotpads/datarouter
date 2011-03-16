@@ -8,7 +8,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public interface DatabeanFielder<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>>
+		D extends Databean<PK,D>>
 extends Fielder<D>{
 
 	Class<? extends Fielder<PK>> getKeyFielderClass();

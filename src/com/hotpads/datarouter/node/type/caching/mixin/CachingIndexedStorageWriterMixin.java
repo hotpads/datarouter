@@ -6,7 +6,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class CachingIndexedStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends IndexedStorageWriterNode<PK,D>>
 //implements IndexedStorageWriter<PK,D>
 {

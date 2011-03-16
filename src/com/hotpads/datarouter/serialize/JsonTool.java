@@ -21,7 +21,7 @@ public class JsonTool{
 		return j;
 	}
 
-	public static <J extends Databean<?>> J fromJsonString(Class<J> clazz, String jsonString) {
+	public static <J extends Databean<?,?>> J fromJsonString(Class<J> clazz, String jsonString) {
 		JSONObject jsonObject = (JSONObject)JSONSerializer.toJSON(jsonString);
 		JsonConfig jsonConfig = new JsonConfig();  
 		jsonConfig.setRootClass(clazz);  

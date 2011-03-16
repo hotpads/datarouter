@@ -13,7 +13,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class WriteBehindMapStorageNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends MapStorageNode<PK,D>>
 extends WriteBehindMapStorageReaderNode<PK,D,N>
 implements MapStorageNode<PK,D>{

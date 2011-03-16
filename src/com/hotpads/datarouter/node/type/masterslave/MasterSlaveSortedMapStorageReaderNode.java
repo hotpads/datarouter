@@ -12,7 +12,7 @@ import com.hotpads.util.core.iterable.PeekableIterable;
 
 public class MasterSlaveSortedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends SortedMapStorageReaderNode<PK,D>>
 extends MasterSlaveMapStorageReaderNode<PK,D,N>
 implements SortedMapStorageReaderNode<PK,D>{

@@ -13,7 +13,7 @@ import com.hotpads.util.core.ObjectTool;
 public class ContentTool {
 	
 	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK>,
+					D extends Databean<PK,D>,
 					C extends ContentHolder<PK,D>> 
 	Map<PK,C> getByKey(Collection<C> in){
 		Map<PK,C> out = MapTool.createHashMap();
@@ -25,7 +25,7 @@ public class ContentTool {
 
 	
 	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK>,
+					D extends Databean<PK,D>,
 					C extends ContentHolder<PK,D>> 
 	boolean equalsContent(C a, C b){
 		if(ClassTool.differentClass(a, b)){ return false; }
@@ -35,7 +35,7 @@ public class ContentTool {
 	
 	
 	public static <PK extends PrimaryKey<PK>,
-					D extends Databean<PK>,
+					D extends Databean<PK,D>,
 					C extends ContentHolder<PK,D>> 
 	boolean equalsContent(Collection<C> as, Collection<C> bs){
 		if(CollectionTool.differentSize(as, bs)){ return false; }

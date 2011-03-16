@@ -12,7 +12,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class IndexingMapStorageWriterNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends MapStorageNode<PK,D>>
 extends BaseIndexingNode<PK,D,N>
 implements MapStorageWriterNode<PK,D>{

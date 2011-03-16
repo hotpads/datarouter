@@ -13,8 +13,8 @@ public class IndexEntryTool{
 
 	public static <IK extends PrimaryKey<IK>,
 					PK extends PrimaryKey<PK>,
-					D extends Databean<PK>,
-					IE extends IndexEntry<IK,PK,D>> 
+					D extends Databean<PK,D>,
+					IE extends IndexEntry<IK,IE,PK,D>> 
 	List<PK> getPrimaryKeys(Collection<IE> indexEntries){
 		List<PK> keys = ListTool.createArrayListWithSize(indexEntries);
 		for(IE indexEntry : IterableTool.nullSafe(indexEntries)){

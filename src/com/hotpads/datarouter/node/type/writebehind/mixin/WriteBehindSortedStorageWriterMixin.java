@@ -15,7 +15,7 @@ import com.hotpads.util.core.ExceptionTool;
 
 public class WriteBehindSortedStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends SortedStorageWriterNode<PK,D>>
 implements SortedStorageWriter<PK,D>{
 	Logger logger = Logger.getLogger(getClass());

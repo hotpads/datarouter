@@ -28,7 +28,7 @@ import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
-public class HBaseNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>> 
+public class HBaseNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 extends HBaseReaderNode<PK,D,F>
 implements PhysicalSortedMapStorageNode<PK,D>
 {

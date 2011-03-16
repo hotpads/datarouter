@@ -6,16 +6,16 @@ import java.util.List;
 import com.hotpads.datarouter.serialize.ByteAware;
 import com.hotpads.datarouter.serialize.JsonAware;
 import com.hotpads.datarouter.serialize.SqlAware;
+import com.hotpads.datarouter.serialize.fielder.Fielder;
 
-public interface FieldSet extends Comparable<FieldSet>, 
+public interface FieldSet<F extends FieldSet<F>> 
+extends Comparable<FieldSet<F>>, Fielder<F>, 
 		Serializable, JsonAware, SqlAware, ByteAware{  //hibernate composite keys must implement serializable
 
 	List<Field<?>> getFields();
 	List<String> getFieldNames();
 	List<?> getFieldValues();
 	Object getFieldValue(String fieldName);
-
-	List<Field<?>> getKeyFields();
 
 	String getPersistentString();  //fuse multi-column field into one string, usually with "_" characters
 	String getTypedPersistentString();  //usually getDatabeanName()+"."+getPersistentString()

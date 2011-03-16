@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.storage.key;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -13,7 +12,7 @@ import com.hotpads.util.core.MapTool;
 
 public class KeyTool {
 	
-//	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+//	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 //	Class<D> getDatabeanClass(Class<PK> primaryKeyClass){
 //		try{
 //			//use getDeclaredConstructor to access non-public constructors
@@ -27,7 +26,7 @@ public class KeyTool {
 //		}
 //	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 	List<PK> getKeys(Iterable<D> databeans){
 		List<PK> keys = ListTool.createLinkedList();
 		for(D databean : IterableTool.nullSafe(databeans)){
@@ -36,7 +35,7 @@ public class KeyTool {
 		return keys;
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 	Map<PK,D> getByKey(Iterable<D> databeans){
 		Map<PK,D> map = MapTool.createHashMap();
 		for(D databean : IterableTool.nullSafe(databeans)){
@@ -45,7 +44,7 @@ public class KeyTool {
 		return map;
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 	SortedMap<PK,D> getByKeySorted(Iterable<D> databeans){
 		SortedMap<PK,D> map = MapTool.createTreeMap();
 		for(D databean : IterableTool.nullSafe(databeans)){

@@ -26,7 +26,7 @@ import com.hotpads.util.core.XMLStringTool;
 @SuppressWarnings("serial")
 @Entity
 @AccessType("field")
-public class Count extends BaseDatabean<CountKey>{
+public class Count extends BaseDatabean<CountKey,Count>{
 	static Logger logger = Logger.getLogger(Count.class);
 
 	@Id

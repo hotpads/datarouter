@@ -17,9 +17,9 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseIndexNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends IndexEntry<IK,PK,D>,
+		IE extends IndexEntry<IK,IE,PK,D>,
 		N extends Node<IK,IE>>
 extends BaseNode<IK,IE,DatabeanFielder<IK,IE>>{
 	

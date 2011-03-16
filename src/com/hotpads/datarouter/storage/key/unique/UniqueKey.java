@@ -2,9 +2,8 @@ package com.hotpads.datarouter.storage.key.unique;
 
 
 import com.hotpads.datarouter.storage.key.Key;
-import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public interface UniqueKey<PK extends PrimaryKey<PK>>
-extends Key<PK>{
+public interface UniqueKey<K extends Key<K>>
+extends Key<K>{
 	
 }

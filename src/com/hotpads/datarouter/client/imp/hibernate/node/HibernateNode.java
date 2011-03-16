@@ -27,7 +27,7 @@ import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
-public class HibernateNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>> 
+public class HibernateNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 extends HibernateReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>
 {
@@ -69,7 +69,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 			new HibernateTask() {
 				@SuppressWarnings("deprecation")
 				public Object run(Session session) {
-					if(fieldAware){
+					if(fieldInfo.getFieldAware()){
 						jdbcPutUsingMethod(session.connection(), entityName, databean, config, DEFAULT_PUT_METHOD);
 					}else{
 						hibernatePutUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
@@ -97,7 +97,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 				public Object run(Session session) {
 					for(D databean : CollectionTool.nullSafe(finalDatabeans)){
 						if(databean==null){ continue; }
-						if(fieldAware){
+						if(fieldInfo.getFieldAware()){
 							jdbcPutUsingMethod(session.connection(), entityName, databean, config, DEFAULT_PUT_METHOD);
 						}else{
 							hibernatePutUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
@@ -225,7 +225,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	
 	/******************** private **********************************************/
 	
-	protected void hibernatePutUsingMethod(Session session, String entityName, Databean<PK> databean, 
+	protected void hibernatePutUsingMethod(Session session, String entityName, Databean<PK,D> databean, 
 			final Config config, PutMethod defaultPutMethod){
 		
 		PutMethod putMethod = defaultPutMethod;
@@ -259,7 +259,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 		}
 	}
 	
-	protected void jdbcPutUsingMethod(Connection connection, String entityName, Databean<PK> databean,
+	protected void jdbcPutUsingMethod(Connection connection, String entityName, Databean<PK,D> databean,
 			final Config config, PutMethod defaultPutMethod){
 		PutMethod putMethod = defaultPutMethod;
 		if(config!=null && config.getPutMethod()!=null){
@@ -298,14 +298,14 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 		}
 	}
 	
-	protected void jdbcInsert(Connection connection, String entityName, Databean<PK> databean){
+	protected void jdbcInsert(Connection connection, String entityName, Databean<PK,D> databean){
 //		logger.warn("JDBC Insert");
 		StringBuilder sb = new StringBuilder();
 		sb.append("insert into "+tableName+" (");
 		//TODO handle server-generated primary keys
-		FieldTool.appendCsvColumnNames(sb, fields);
+		FieldTool.appendCsvColumnNames(sb, fieldInfo.getFields());
 		sb.append(") values (");
-		JdbcTool.appendCsvQuestionMarks(sb, CollectionTool.size(fields));
+		JdbcTool.appendCsvQuestionMarks(sb, CollectionTool.size(fieldInfo.getFields()));
 		sb.append(")");
 		try{
 			PreparedStatement ps = connection.prepareStatement(sb.toString());
@@ -320,11 +320,11 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 		}
 	}
 	
-	protected void jdbcUpdate(Connection connection, String entityName, Databean<PK> databean){
+	protected void jdbcUpdate(Connection connection, String entityName, Databean<PK,D> databean){
 //		logger.warn("JDBC update");
 		StringBuilder sb = new StringBuilder();
 		sb.append("update "+tableName+" set ");
-		FieldTool.appendSqlUpdateClauses(sb, nonKeyFields);
+		FieldTool.appendSqlUpdateClauses(sb, fieldInfo.getNonKeyFields());
 		sb.append(" where ");
 		sb.append(FieldTool.getSqlNameValuePairsEscapedConjunction(databean.getKeyFields()));
 		int numUpdated;

@@ -8,7 +8,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public interface MultiIndexReader<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>>{
 
 	List<D> lookupMulti(IK indexKey, Config config);

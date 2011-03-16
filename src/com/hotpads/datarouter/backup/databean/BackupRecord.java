@@ -17,7 +17,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 @SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
-public class BackupRecord extends BaseDatabean<BackupRecordKey>{
+public class BackupRecord extends BaseDatabean<BackupRecordKey,BackupRecord>{
 	
 	@Id
 	protected BackupRecordKey key;

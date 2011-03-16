@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 
-public class HashMapNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+public class HashMapNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 extends HashMapReaderNode<PK,D>
 implements MapStorage<PK,D>
 {

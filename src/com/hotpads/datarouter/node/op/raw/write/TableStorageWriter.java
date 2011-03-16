@@ -9,7 +9,7 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public interface TableStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+public interface TableStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
 	void updateField(String field, Object newValue, Collection<? extends PK> keys);
@@ -21,12 +21,12 @@ extends NodeOps<PK,D>
 //	void deleteWhere(RestrictionSet restrictionSet);
 	
 
-	public interface TableStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface TableStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends Node<PK,D>, SortedStorageWriter<PK,D>
 	{
 	}
 
-	public interface PhysicalTableStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface PhysicalTableStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends PhysicalNode<PK,D>, TableStorageWriterNode<PK,D>
 	{
 	}

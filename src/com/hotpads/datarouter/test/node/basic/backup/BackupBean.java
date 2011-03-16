@@ -20,7 +20,7 @@ import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 @SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
-public class BackupBean extends BaseDatabean<BackupBeanKey>{
+public class BackupBean extends BaseDatabean<BackupBeanKey,BackupBean>{
 	
 	@Id
 	private BackupBeanKey key;

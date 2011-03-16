@@ -20,7 +20,7 @@ import com.hotpads.util.core.SetTool;
 
 public abstract class BaseRedundantNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends Node<PK,D>> 
 extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	

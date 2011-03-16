@@ -12,7 +12,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class MasterSlaveSortedMapStorageNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends SortedMapStorageNode<PK,D>>
 extends MasterSlaveSortedMapStorageReaderNode<PK,D,N>
 implements SortedMapStorageNode<PK,D>{

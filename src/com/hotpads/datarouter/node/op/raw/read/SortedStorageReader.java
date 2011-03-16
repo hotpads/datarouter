@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.iterable.PeekableIterable;
 
-public interface SortedStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+public interface SortedStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
 
@@ -41,12 +41,12 @@ extends NodeOps<PK,D>
 
 	
 	
-	public interface SortedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface SortedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends Node<PK,D>, SortedStorageReader<PK,D>
 	{
 	}
 
-	public interface PhysicalSortedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface PhysicalSortedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends PhysicalNode<PK,D>, SortedStorageReaderNode<PK,D>
 	{
 	}

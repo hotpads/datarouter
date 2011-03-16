@@ -8,7 +8,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class DatabeanTool {	
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 	D create(Class<D> databeanClass){
 		try{
 			//use getDeclaredConstructor to access non-public constructors

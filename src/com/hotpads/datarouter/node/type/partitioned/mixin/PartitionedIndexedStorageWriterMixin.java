@@ -14,7 +14,7 @@ import com.hotpads.util.core.CollectionTool;
 
 public class PartitionedIndexedStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends PhysicalIndexedStorageWriterNode<PK,D>>
 implements IndexedStorageWriter<PK,D>{
 	

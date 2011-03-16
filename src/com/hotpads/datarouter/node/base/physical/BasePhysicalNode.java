@@ -20,7 +20,7 @@ import com.hotpads.util.core.SetTool;
 
 public abstract class BasePhysicalNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends BaseNode<PK,D,F>
 implements PhysicalNode<PK,D>
@@ -67,7 +67,7 @@ implements PhysicalNode<PK,D>
 			DataRouter router, String clientName){
 		this(databeanClass, fielderClass, router, clientName);
 		//overwrite the default values
-		this.baseDatabeanClass = baseDatabeanClass;
+		this.fieldInfo.setBaseDatabeanClass(baseDatabeanClass);
 		this.tableName = baseDatabeanClass.getSimpleName();
 		logger.info("client:"+this.clientName+" databean "+databeanClass.getSimpleName()+" -> "+tableName);
 	}

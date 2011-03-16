@@ -14,7 +14,7 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
 public class MasterSlaveIndexedStorageReaderMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends IndexedStorageReaderNode<PK,D>>
 implements IndexedStorageReader<PK,D>{
 	

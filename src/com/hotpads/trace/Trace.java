@@ -22,7 +22,7 @@ import com.hotpads.util.core.StringTool;
 @Entity
 @AccessType("field")
 @SuppressWarnings("serial")
-public class Trace extends BaseDatabean<TraceKey>{
+public class Trace extends BaseDatabean<TraceKey,Trace>{
 
 	@Id
 	protected TraceKey key;

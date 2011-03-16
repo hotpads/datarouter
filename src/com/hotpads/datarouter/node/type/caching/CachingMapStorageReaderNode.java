@@ -17,7 +17,7 @@ import com.hotpads.util.core.SetTool;
 
 public abstract class CachingMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends IndexedMapStorageNode<PK,D>>
 extends BaseCachingNode<PK,D,N>
 implements MapStorageReaderNode<PK,D>{

@@ -7,9 +7,10 @@ import com.hotpads.datarouter.storage.view.index.IndexEntry;
 //basically a marker interface
 public interface UniqueIndexEntry<
 		IK extends PrimaryKey<IK>,
+		IE extends Databean<IK,IE>,
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>> 
-extends IndexEntry<IK,PK,D>{
+		D extends Databean<PK,D>> 
+extends IndexEntry<IK,IE,PK,D>{
 
 	
 }

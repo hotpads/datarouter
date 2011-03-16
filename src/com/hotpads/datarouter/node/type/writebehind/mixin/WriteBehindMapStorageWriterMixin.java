@@ -23,7 +23,7 @@ import com.hotpads.util.core.ExceptionTool;
  */
 public class WriteBehindMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends MapStorageNode<PK,D>>
 implements MapStorageWriter<PK,D>{
 	Logger logger = Logger.getLogger(getClass());

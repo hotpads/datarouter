@@ -4,12 +4,12 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 
 import com.hotpads.datarouter.storage.key.BaseKey;
-import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.Key;
 
 @SuppressWarnings("serial")
 @MappedSuperclass
-public abstract class BaseIntegerKey<PK extends PrimaryKey<PK>>
-extends BaseKey<PK>{
+public abstract class BaseIntegerKey<K extends Key<K>>
+extends BaseKey<K>{
 
 	@Column(nullable=false)
 	protected Integer id;

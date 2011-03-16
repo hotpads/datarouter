@@ -7,7 +7,7 @@ import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public class CompoundMapRWStorage<PK extends PrimaryKey<PK>,D extends Databean<PK>>{
+public class CompoundMapRWStorage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 
 	protected Node<PK,D> node;
 	protected MapStorageReader<PK,D> reader;
@@ -29,7 +29,7 @@ public class CompoundMapRWStorage<PK extends PrimaryKey<PK>,D extends Databean<P
 	
 	
 	
-	public static class CompoundMapRWNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public static class CompoundMapRWNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends CompoundMapRWStorage<PK,D>{
 		public CompoundMapRWNode(Node<PK,D> node){
 			super(node);

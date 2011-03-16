@@ -9,7 +9,7 @@ import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public class CompoundSMReader<PK extends PrimaryKey<PK>,D extends Databean<PK>>{
+public class CompoundSMReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 
 	protected Node<PK,D> node;
 	
@@ -26,7 +26,7 @@ public class CompoundSMReader<PK extends PrimaryKey<PK>,D extends Databean<PK>>{
 	}
 	
 
-	public static class CompoundSMReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public static class CompoundSMReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends CompoundSMReader<PK,D>{
 		public CompoundSMReaderNode(Node<PK,D> node){
 			super(node);

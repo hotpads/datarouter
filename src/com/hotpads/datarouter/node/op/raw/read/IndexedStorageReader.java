@@ -12,7 +12,7 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
-public interface IndexedStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+public interface IndexedStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
 	D lookupUnique(UniqueKey<PK> uniqueKey, Config config);
@@ -23,12 +23,12 @@ extends NodeOps<PK,D>
 	
 	
 
-	public interface IndexedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface IndexedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends Node<PK,D>, IndexedStorageReader<PK,D>
 	{
 	}
 	
-	public interface PhysicalIndexedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface PhysicalIndexedStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends PhysicalNode<PK,D>, IndexedStorageReaderNode<PK,D>
 	{
 	}

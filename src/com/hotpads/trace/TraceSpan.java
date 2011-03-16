@@ -29,7 +29,7 @@ import com.hotpads.util.core.NumberTool;
 @SuppressWarnings("serial")
 @Entity
 @AccessType("field")
-public class TraceSpan extends BaseDatabean<TraceSpanKey>{
+public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 
 	@Id
 	protected TraceSpanKey key;
@@ -72,8 +72,8 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey>{
 		return true;
 	}
 	
-	public static class TraceSpanFielder extends BaseDatabeanFielder<
-			TraceSpanKey,TraceSpan>{
+	//test implementation.  just repeats the built-in databean fields for now
+	public static class TraceSpanFielder extends BaseDatabeanFielder<TraceSpanKey,TraceSpan>{
 		public TraceSpanFielder(){super();}
 		@Override
 		public Class<TraceSpanKeyFielder> getKeyFielderClass(){

@@ -13,7 +13,7 @@ import com.hotpads.util.core.CollectionTool;
 
 public class MasterSlaveMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends MapStorageReaderNode<PK,D>>
 extends BaseMasterSlaveNode<PK,D,N>
 implements MapStorageReaderNode<PK,D>{

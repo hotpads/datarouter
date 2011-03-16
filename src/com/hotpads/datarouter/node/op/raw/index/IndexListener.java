@@ -8,7 +8,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public interface IndexListener<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>>{
+		D extends Databean<PK,D>>{
 
 	void onPut(D databean, Config config);
 	void onPutMulti(Collection<D> databeans, Config config);

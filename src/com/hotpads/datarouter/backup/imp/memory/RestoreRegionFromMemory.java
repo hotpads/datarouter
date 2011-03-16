@@ -15,7 +15,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.MapTool;
 
-public class RestoreRegionFromMemory<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+public class RestoreRegionFromMemory<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 extends RestoreRegion<PK,D>{
 	
 	public RestoreRegionFromMemory(byte[] bytes, Class<D> cls, 

@@ -15,7 +15,7 @@ import com.hotpads.util.core.MapTool;
 
 public class PartitionedMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends PhysicalMapStorageWriterNode<PK,D>>
 implements MapStorageWriter<PK,D>{
 	

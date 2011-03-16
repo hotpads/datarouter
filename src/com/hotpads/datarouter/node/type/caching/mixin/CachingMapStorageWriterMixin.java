@@ -15,7 +15,7 @@ import com.hotpads.util.core.CollectionTool;
 
 public class CachingMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends MapStorageWriterNode<PK,D>>
 implements MapStorageWriter<PK,D>{
 	

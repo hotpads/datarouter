@@ -20,7 +20,7 @@ import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 @SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
-public class SortedBean extends BaseDatabean<SortedBeanKey>{
+public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 	
 	@Id
 	private SortedBeanKey key;

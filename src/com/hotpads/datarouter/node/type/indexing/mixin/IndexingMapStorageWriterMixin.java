@@ -13,7 +13,7 @@ import com.hotpads.util.core.ListTool;
 
 public class IndexingMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends MapStorageWriterNode<PK,D>>
 implements MapStorageWriter<PK,D>{
 

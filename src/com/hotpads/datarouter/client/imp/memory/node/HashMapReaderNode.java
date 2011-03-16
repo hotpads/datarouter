@@ -19,7 +19,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
-public class HashMapReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+public class HashMapReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 extends BasePhysicalNode<PK,D,DatabeanFielder<PK,D>>
 implements MapStorageReader<PK,D>
 {

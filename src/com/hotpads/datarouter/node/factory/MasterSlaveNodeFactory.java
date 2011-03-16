@@ -22,7 +22,7 @@ import com.hotpads.util.core.ListTool;
 public class MasterSlaveNodeFactory{
 	
 	//Map
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	MasterSlaveMapStorageNode<PK,D,MapStorageNode<PK,D>> 
 	newMasterSlaveMap(
 			DataRouter router, Class<D> databeanClass, 
@@ -30,7 +30,7 @@ public class MasterSlaveNodeFactory{
 		return newMasterSlaveMap(router, databeanClass, null, masterClientName, slaveClientNames);
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>>
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 	MasterSlaveMapStorageNode<PK,D,MapStorageNode<PK,D>> 
 	newMasterSlaveMap(
 			DataRouter router, Class<D> databeanClass, Class<F> fielderClass,
@@ -53,7 +53,7 @@ public class MasterSlaveNodeFactory{
 	
 	
 	//SortedMap
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	MasterSlaveSortedMapStorageNode<PK,D,SortedMapStorageNode<PK,D>> 
 	newMasterSlaveSortedMap(
 			DataRouter router, Class<D> databeanClass,
@@ -61,7 +61,7 @@ public class MasterSlaveNodeFactory{
 		return newMasterSlaveSortedMap(router, databeanClass, null, masterClientName, slaveClientNames);
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>>
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 	MasterSlaveSortedMapStorageNode<PK,D,SortedMapStorageNode<PK,D>> 
 	newMasterSlaveSortedMap(
 			DataRouter router, Class<D> databeanClass, Class<F> fielderClass,
@@ -84,7 +84,7 @@ public class MasterSlaveNodeFactory{
 	
 	
 	//IndexedMap
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	MasterSlaveIndexedMapStorageNode<PK,D,IndexedMapStorageNode<PK,D>> 
 	newMasterSlaveIndexedMap(
 			DataRouter router, Class<D> databeanClass, 
@@ -92,7 +92,7 @@ public class MasterSlaveNodeFactory{
 		return newMasterSlaveIndexedMap(router, databeanClass, null, masterClientName, slaveClientNames);
 	}
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>>
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 	MasterSlaveIndexedMapStorageNode<PK,D,IndexedMapStorageNode<PK,D>> 
 	newMasterSlaveIndexedMap(
 			DataRouter router, Class<D> databeanClass, Class<F> fielderClass,
@@ -115,7 +115,7 @@ public class MasterSlaveNodeFactory{
 
 	
 	//IndexedSorted
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	MasterSlaveIndexedSortedMapStorageNode<PK,D,IndexedSortedMapStorageNode<PK,D>> 
 	newMasterSlaveIndexedSorted(
 			DataRouter router, Class<D> databeanClass, 
@@ -123,7 +123,7 @@ public class MasterSlaveNodeFactory{
 		return newMasterSlaveIndexedSorted(router, databeanClass, null, masterClientName, slaveClientNames);
 	}
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>>
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 	MasterSlaveIndexedSortedMapStorageNode<PK,D,IndexedSortedMapStorageNode<PK,D>> 
 	newMasterSlaveIndexedSorted(
 			DataRouter router, Class<D> databeanClass, Class<F> fielderClass,

@@ -16,7 +16,7 @@ import com.hotpads.util.core.iterable.PeekableIterator;
  * Iterator that maintains state between calls to get the next batch of Databeans in the range
  */
 //TODO should share a base class with Scanner?
-public class PrimaryKeyScanner<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+public class PrimaryKeyScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 implements PeekableIterable<PK>, PeekableIterator<PK>{
 	SortedStorageReader<PK,D> node;
 	

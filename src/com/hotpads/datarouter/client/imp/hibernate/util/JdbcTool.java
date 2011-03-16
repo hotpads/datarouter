@@ -9,8 +9,9 @@ import java.util.List;
 import org.hibernate.Session;
 
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
@@ -19,8 +20,8 @@ import com.hotpads.util.core.ListTool;
 
 public class JdbcTool {
 	
-	public static <PK extends PrimaryKey<PK>> 
-	List<PK> selectPrimaryKeys(Session session, Class<PK> primaryKeyClass, List<Field<?>> fields, String sql){
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
+	List<PK> selectPrimaryKeys(Session session, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
 //		System.out.println(sql);
 		try{
 			PreparedStatement ps = session.connection().prepareStatement(sql.toString());
@@ -28,7 +29,8 @@ public class JdbcTool {
 			ResultSet rs = ps.getResultSet();
 			List<PK> databeans = ListTool.createArrayList();
 			while(rs.next()){
-				PK databean = (PK)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(primaryKeyClass, fields, rs, true);
+				PK databean = (PK)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
+						fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rs, true);
 				databeans.add(databean);
 			}
 			return databeans;
@@ -38,8 +40,8 @@ public class JdbcTool {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
-	List<D> selectDatabeans(Session session, Class<D> databeanClass, List<Field<?>> fields, String sql){
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
+	List<D> selectDatabeans(Session session, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
 //		System.out.println(sql);
 		try{
 			PreparedStatement ps = session.connection().prepareStatement(sql.toString());
@@ -47,7 +49,8 @@ public class JdbcTool {
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = ListTool.createArrayList();
 			while(rs.next()){
-				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(databeanClass, fields, rs, false);
+				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
+						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
 				databeans.add(databean);
 			}
 			return databeans;

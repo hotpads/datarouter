@@ -23,10 +23,10 @@ import com.hotpads.util.core.exception.NotImplementedException;
 
 public class IndexingIndexedStorageReaderMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends MapStorageReaderNode<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends UniqueKeyIndexEntry<IK,PK,D>,
+		IE extends UniqueKeyIndexEntry<IK,IE,PK,D>,
 		IN extends SortedMapStorageNode<IK,IE>>
 implements IndexedStorageReader<PK,D>{
 

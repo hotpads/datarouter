@@ -5,7 +5,7 @@ import com.hotpads.datarouter.node.compound.readwrite.CompoundMapRWStorage;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public class CompoundMStorage<PK extends PrimaryKey<PK>,D extends Databean<PK>>{
+public class CompoundMStorage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 
 	protected Node<PK,D> node;
 	protected CompoundMapRWStorage<PK,D> map;
@@ -20,7 +20,7 @@ public class CompoundMStorage<PK extends PrimaryKey<PK>,D extends Databean<PK>>{
 	}
 	
 
-	public static class CompoundMNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public static class CompoundMNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends CompoundMStorage<PK,D>{
 		public CompoundMNode(Node<PK,D> node){
 			super(node);

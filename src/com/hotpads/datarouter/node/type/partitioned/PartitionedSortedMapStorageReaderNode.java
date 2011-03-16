@@ -21,7 +21,7 @@ import com.hotpads.util.core.iterable.PeekableIterable;
 
 public abstract class PartitionedSortedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends PhysicalSortedMapStorageReaderNode<PK,D>>
 extends PartitionedMapStorageReaderNode<PK,D,N>
 implements SortedMapStorageReaderNode<PK,D>{

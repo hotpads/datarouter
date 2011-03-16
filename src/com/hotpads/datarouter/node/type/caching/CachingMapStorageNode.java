@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public abstract class CachingMapStorageNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends IndexedMapStorageNode<PK,D>>
 extends CachingMapStorageReaderNode<PK,D,N>
 implements MapStorageWriter<PK,D>{

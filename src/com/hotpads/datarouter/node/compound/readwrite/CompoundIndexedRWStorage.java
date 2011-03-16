@@ -8,7 +8,9 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 
-public class CompoundIndexedRWStorage<PK extends PrimaryKey<PK>,D extends Databean<PK>>{
+public class CompoundIndexedRWStorage<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>{
 
 	protected Node<PK,D> node;
 	protected IndexedStorageReader<PK,D> reader;
@@ -29,7 +31,9 @@ public class CompoundIndexedRWStorage<PK extends PrimaryKey<PK>,D extends Databe
 	}
 	
 
-	public static class CompoundIndexedRWNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public static class CompoundIndexedRWNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>>
 	extends CompoundIndexedRWStorage<PK,D>{
 		public CompoundIndexedRWNode(Node<PK,D> node){
 			super(node);

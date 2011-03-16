@@ -17,7 +17,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BaseCachingNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends Node<PK,D>> 
+public abstract class BaseCachingNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> 
 extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	
 	

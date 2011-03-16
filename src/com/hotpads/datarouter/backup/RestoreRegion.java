@@ -21,7 +21,7 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.profile.PhaseTimer;
 
-public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean<PK>>{
+public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 	protected static Logger logger = Logger.getLogger(RestoreRegion.class);
 	
 	protected DataRouter router;

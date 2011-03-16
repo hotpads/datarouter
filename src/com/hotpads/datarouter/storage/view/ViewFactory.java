@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
@@ -11,7 +12,11 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
  * subclasses must provide a visible no-arg constructor as they are sometimes instantiated with Class.newInstance()
  */
 
-public abstract class ViewFactory<PK extends PrimaryKey<PK>,UK extends UniqueKey<PK>,V extends View<PK,UK>>{
+public abstract class ViewFactory<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		UK extends UniqueKey<PK>,
+		V extends View<PK,D,UK>>{
 	protected final Logger logger = Logger.getLogger(this.getClass());
 		
 	public ViewFactory(){

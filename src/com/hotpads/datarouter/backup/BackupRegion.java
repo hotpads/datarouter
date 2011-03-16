@@ -20,7 +20,7 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.number.VarLong;
 
-public abstract class BackupRegion<PK extends PrimaryKey<PK>,D extends Databean<PK>>{
+public abstract class BackupRegion<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 	protected static Logger logger = Logger.getLogger(BackupRegion.class);
 
 	public static final int GZIP_BUFFER_BYTES = 256<<10;

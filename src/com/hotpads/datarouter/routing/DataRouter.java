@@ -25,7 +25,7 @@ public interface DataRouter {
 
 	void setClients(Clients clients);
 
-	<PK extends PrimaryKey<PK>,D extends Databean<PK>, N extends Node<PK,D>> N register(N node);
+	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>, N extends Node<PK,D>> N register(N node);
 	
 	void activate() throws IOException;
 
@@ -49,19 +49,19 @@ public interface DataRouter {
 	List<Client> getAllInstantiatedClients();
 	List<Client> getClients(Collection<String> clientNames);
 
-	<PK extends PrimaryKey<PK>,D extends Databean<PK>> List<String> 
-	getClientNamesForKeys(Collection<? extends Key<PK>> keys);
+	<K extends Key<K>> List<String> 
+	getClientNamesForKeys(Collection<? extends Key<K>> keys);
 
-	<PK extends PrimaryKey<PK>,D extends Databean<PK>> List<String> 
+	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<String> 
 	getClientNamesForDatabeans(Collection<D> databeans);
 
-	<PK extends PrimaryKey<PK>,D extends Databean<PK>> List<Client> 
+	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<Client> 
 	getClientsForDatabeanType(Class<D> databeanType);
 
-	<PK extends PrimaryKey<PK>,D extends Databean<PK>> List<Client> 
-	getClientsForKeys(Collection<? extends Key<PK>> keys);
+	<K extends Key<K>> List<Client> 
+	getClientsForKeys(Collection<? extends Key<K>> keys);
 
-	<PK extends PrimaryKey<PK>,D extends Databean<PK>> List<Client> 
+	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<Client> 
 	getClientsForDatabeans(Collection<D> databeans);
 
 	/***************** overexposed accessors *******************************/

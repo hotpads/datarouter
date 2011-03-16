@@ -9,7 +9,7 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public interface MapStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+public interface MapStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
 	void put(D databean, Config config);
@@ -21,12 +21,12 @@ extends NodeOps<PK,D>
 	
 	
 
-	public interface MapStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface MapStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends Node<PK,D>, MapStorageWriter<PK,D>
 	{
 	}
 
-	public interface PhysicalMapStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface PhysicalMapStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends PhysicalNode<PK,D>, MapStorageWriterNode<PK,D>
 	{
 	}

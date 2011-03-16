@@ -31,7 +31,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.iterable.PeekableIterable;
 
-public class HBaseReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>> 
+public class HBaseReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 extends BasePhysicalNode<PK,D,F>
 implements HBasePhysicalNode<PK,D>,
 		MapStorageReader<PK,D>,
@@ -96,7 +96,7 @@ implements HBasePhysicalNode<PK,D>,
 				public D hbaseCall() throws Exception{
 					Result row = hTable.get(new Get(key.getBytes(false)));
 					if(row.isEmpty()){ return null; }
-					D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
+					D result = HBaseResultTool.getDatabean(row, fieldInfo);
 					return result;
 				}
 			}).call();
@@ -114,7 +114,7 @@ implements HBasePhysicalNode<PK,D>,
 					ResultScanner scanner = hTable.getScanner(scan);
 					for(Result row : scanner){
 						if(row.isEmpty()){ continue; }
-						D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
+						D result = HBaseResultTool.getDatabean(row, fieldInfo);
 						results.add(result);
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}
@@ -135,7 +135,7 @@ implements HBasePhysicalNode<PK,D>,
 					for(PK key : keys){
 						Result row = hTable.get(new Get(key.getBytes(false)));
 						if(row.isEmpty()){ continue; }
-						D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
+						D result = HBaseResultTool.getDatabean(row, fieldInfo);
 						results.add(result);
 					}
 					return results;
@@ -156,7 +156,7 @@ implements HBasePhysicalNode<PK,D>,
 						get.setFilter(new FirstKeyOnlyFilter());//make sure first column in row is not something big
 						Result row = hTable.get(get);
 						if(row.isEmpty()){ continue; }
-						PK result = HBaseResultTool.getPrimaryKey(row.getRow(), primaryKeyClass, primaryKeyFields);
+						PK result = HBaseResultTool.getPrimaryKey(row.getRow(), fieldInfo);
 						results.add(result);
 					}
 					return results;
@@ -202,7 +202,7 @@ implements HBasePhysicalNode<PK,D>,
 						ResultScanner scanner = hTable.getScanner(scan);
 						for(Result row : scanner){
 							if(row.isEmpty()){ continue; }
-							D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
+							D result = HBaseResultTool.getDatabean(row, fieldInfo);
 							results.add(result);
 							if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 						}
@@ -226,7 +226,7 @@ implements HBasePhysicalNode<PK,D>,
 					ResultScanner scanner = hTable.getScanner(scan);
 					for(Result row : scanner){
 						if(row.isEmpty()){ continue; }
-						PK result = HBaseResultTool.getPrimaryKey(row.getRow(), primaryKeyClass, primaryKeyFields);
+						PK result = HBaseResultTool.getPrimaryKey(row.getRow(), fieldInfo);
 						results.add(result);
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}
@@ -249,7 +249,7 @@ implements HBasePhysicalNode<PK,D>,
 					ResultScanner scanner = hTable.getScanner(scan);
 					for(Result row : scanner){
 						if(row.isEmpty()){ continue; }
-						D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
+						D result = HBaseResultTool.getDatabean(row, fieldInfo);
 						results.add(result);
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}
@@ -278,7 +278,7 @@ implements HBasePhysicalNode<PK,D>,
 					ResultScanner scanner = hTable.getScanner(scan);
 					for(Result row : scanner){
 						if(row.isEmpty()){ continue; }
-						D result = HBaseResultTool.getDatabean(row, databeanClass, primaryKeyFields, fieldByMicroName);
+						D result = HBaseResultTool.getDatabean(row, fieldInfo);
 						results.add(result);
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}

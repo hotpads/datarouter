@@ -15,7 +15,7 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
 public abstract class PartitionedIndexedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends PhysicalIndexedMapStorageReaderNode<PK,D>>
 extends PartitionedMapStorageReaderNode<PK,D,N>
 implements IndexedMapStorageReaderNode<PK,D>{

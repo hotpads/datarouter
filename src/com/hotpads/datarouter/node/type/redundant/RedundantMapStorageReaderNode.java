@@ -12,7 +12,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class RedundantMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends MapStorageReaderNode<PK,D>>
 extends BaseRedundantNode<PK,D,N>
 implements MapStorageReaderNode<PK,D>{

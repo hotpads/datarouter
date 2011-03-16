@@ -12,7 +12,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public abstract class PartitionedMapStorageNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends PhysicalMapStorageNode<PK,D>>
 extends PartitionedMapStorageReaderNode<PK,D,N>
 implements MapStorageNode<PK,D>{

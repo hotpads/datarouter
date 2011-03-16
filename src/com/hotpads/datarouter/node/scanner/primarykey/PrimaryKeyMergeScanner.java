@@ -15,7 +15,7 @@ import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.PeekableIterator;
 
 //TODO should share a base class with MergeScanner?
-public class PrimaryKeyMergeScanner<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+public class PrimaryKeyMergeScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 implements PeekableIterable<PK>,PeekableIterator<PK>{
 
 	ArrayList<PeekableIterator<PK>> scanners;

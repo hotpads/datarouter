@@ -11,20 +11,20 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 //TODO who knows (try to clean up)
 
-public interface IndexedSortedMapStorage<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+public interface IndexedSortedMapStorage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends MapStorage<PK,D>, SortedStorage<PK,D>, IndexedStorage<PK,D>, 
 		IndexedMapStorage<PK,D>,
 		SortedMapStorage<PK,D>,
 		IndexedSortedMapStorageReader<PK,D>, IndexedSortedMapStorageWriter<PK,D>
 {
-	public interface IndexedSortedMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface IndexedSortedMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends IndexedSortedMapStorage<PK,D>,
 			IndexedMapStorageNode<PK,D>,
 			SortedMapStorageNode<PK,D>,
 			IndexedSortedMapStorageReaderNode<PK,D>, IndexedSortedMapStorageWriterNode<PK,D>
 	{
 	}
-	public interface PhysicalIndexedSortedMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface PhysicalIndexedSortedMapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends PhysicalNode<PK,D>, IndexedSortedMapStorageNode<PK,D>,
 			PhysicalIndexedMapStorageNode<PK,D>,
 			PhysicalSortedMapStorageNode<PK,D>,

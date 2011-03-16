@@ -9,7 +9,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public interface UniqueIndexReader<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>>{
 
 	D lookupUnique(IK indexKey, Config config);

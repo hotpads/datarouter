@@ -11,7 +11,7 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseDatabeanFielder<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>>
+		D extends Databean<PK,D>>
 extends BaseFielder<D>
 implements DatabeanFielder<PK,D>{
 	

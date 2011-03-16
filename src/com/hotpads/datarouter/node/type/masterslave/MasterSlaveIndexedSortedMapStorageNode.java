@@ -16,7 +16,7 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
 public class MasterSlaveIndexedSortedMapStorageNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends IndexedSortedMapStorageNode<PK,D>>
 extends MasterSlaveIndexedSortedMapStorageReaderNode<PK,D,N>
 implements IndexedSortedMapStorageNode<PK,D>{

@@ -10,7 +10,7 @@ import com.hotpads.util.core.CollectionTool;
 
 public class PartitionedSortedStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends PhysicalSortedStorageWriterNode<PK,D>>
 implements SortedStorageWriter<PK,D>{
 	

@@ -21,7 +21,7 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK>,N extends Node<PK,D>>{
+public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>>{
 	Logger logger = Logger.getLogger(getClass());
 
 	protected List<N> topLevelNodes = ListTool.createArrayList();

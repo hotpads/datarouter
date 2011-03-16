@@ -9,7 +9,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class RedundantSortedStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends SortedStorageWriterNode<PK,D>>
 implements SortedStorageWriter<PK,D>{
 

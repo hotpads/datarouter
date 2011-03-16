@@ -16,7 +16,7 @@ import com.hotpads.util.core.ListTool;
 
 public class PartitionedIndexedStorageReaderMixin<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends PhysicalIndexedStorageReaderNode<PK,D>>
 implements IndexedStorageReader<PK,D>{
 	

@@ -3,7 +3,6 @@ package com.hotpads.datarouter.storage.field;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.List;
@@ -11,11 +10,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -47,43 +44,29 @@ public class FieldSetTool{
 			++counter;
 		}
 	}
+	
+	
+	/***************************** construct fieldsets using reflection ***************************/
 
 	public static <D extends FieldSet> D fieldSetFromHibernateResultUsingReflection(
 			Class<D> cls, List<Field<?>> fields, Object sqlObject, boolean ignorePrefix){
-		D targetFieldSet = null;
-		try{
-			Object[] cols = (Object[])sqlObject;
-			//use getDeclaredConstructor to access non-public constructors
-			Constructor<D> constructor = cls.getDeclaredConstructor();
-			constructor.setAccessible(true);
-			targetFieldSet = constructor.newInstance();
-			int counter = 0;
-			for(Field<?> field : fields){
-				field.fromHibernateResultUsingReflection(targetFieldSet, cols[counter], ignorePrefix);
-				++counter;
-			}
-		}catch(Exception e){
-			logger.warn(ExceptionTool.getStackTraceAsString(e));
-			throw new DataAccessException(e.getClass().getSimpleName()+" on "+cls.getName());
+		D targetFieldSet = ReflectionTool.create(cls);
+		Object[] cols = (Object[])sqlObject;
+		int counter = 0;
+		for(Field<?> field : fields){
+			field.fromHibernateResultUsingReflection(targetFieldSet, cols[counter], ignorePrefix);
+			++counter;
 		}
 		return targetFieldSet;
 	}
 
 	public static <D extends FieldSet> D fieldSetFromJdbcResultSetUsingReflection(
 			Class<D> cls, List<Field<?>> fields, ResultSet rs, boolean ignorePrefix){
-		D targetFieldSet = null;
-		try{
-			//use getDeclaredConstructor to access non-public constructors
-			Constructor<D> constructor = cls.getDeclaredConstructor();
-			constructor.setAccessible(true);
-			targetFieldSet = constructor.newInstance();
-			int counter = 0;
-			for(Field<?> field : fields){
-				field.fromJdbcResultSetUsingReflection(targetFieldSet, rs, ignorePrefix);
-				++counter;
-			}
-		}catch(Exception e){
-			throw new DataAccessException(e.getClass().getSimpleName()+" on "+cls.getName());
+		D targetFieldSet = ReflectionTool.create(cls);
+		int counter = 0;
+		for(Field<?> field : fields){
+			field.fromJdbcResultSetUsingReflection(targetFieldSet, rs, ignorePrefix);
+			++counter;
 		}
 		return targetFieldSet;
 	}

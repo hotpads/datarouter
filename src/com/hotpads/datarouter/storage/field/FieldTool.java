@@ -68,10 +68,17 @@ public class FieldTool{
 		return fields;
 	}
 	
+	public static List<Field<?>> cacheReflectionInfo(List<Field<?>> fields, FieldSet<?> sampleFieldSet){
+		for(Field<?> field : IterableTool.nullSafe(fields)){
+			field.cacheReflectionInfo(sampleFieldSet);
+		}
+		return fields;
+	}
+	
 	
 	/************************** reflection ***********************/
 	
-	public static java.lang.reflect.Field getReflectionFieldForField(Databean<?> sampleDatabean, Field<?> field){
+	public static java.lang.reflect.Field getReflectionFieldForField(Databean<?,?> sampleDatabean, Field<?> field){
 		try{
 			if(field.getPrefix()!=null){
 				java.lang.reflect.Field parentField = ReflectionTool.getDeclaredFieldFromHierarchy(

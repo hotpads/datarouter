@@ -8,7 +8,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class WriteBehindNodeFactory {
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	WriteBehindSortedMapStorageNode<PK,D,SortedMapStorageNode<PK,D>> newSortedMap(Class<D> databeanClass, 
 			DataRouter router, 
 			SortedMapStorageNode<PK,D> backingNode){

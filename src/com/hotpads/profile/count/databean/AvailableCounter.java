@@ -21,7 +21,7 @@ import com.hotpads.util.core.XMLStringTool;
 @SuppressWarnings("serial")
 @Entity
 @AccessType("field")
-public class AvailableCounter extends BaseDatabean<AvailableCounterKey>{
+public class AvailableCounter extends BaseDatabean<AvailableCounterKey,AvailableCounter>{
 
 	@Id
 	protected AvailableCounterKey key;

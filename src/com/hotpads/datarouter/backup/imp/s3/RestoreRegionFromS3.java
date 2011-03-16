@@ -18,7 +18,7 @@ import com.hotpads.util.core.FileUtils;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.MapTool;
 
-public class RestoreRegionFromS3<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+public class RestoreRegionFromS3<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 extends RestoreRegion<PK,D>{
 
 	protected String s3Bucket;

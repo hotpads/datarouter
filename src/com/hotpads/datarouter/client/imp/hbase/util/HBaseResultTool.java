@@ -6,6 +6,8 @@ import java.util.NavigableMap;
 
 import org.apache.hadoop.hbase.client.Result;
 
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -47,19 +49,19 @@ public class HBaseResultTool{
 	}
 	
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
-	D getDatabean(Result row, Class<D> databeanClass, List<Field<?>> primaryKeyFields, Map<String,Field<?>> fieldByName){
-		D databean = ReflectionTool.create(databeanClass);
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
+	D getDatabean(Result row, DatabeanFieldInfo<PK,D,F> fieldInfo){
+		D databean = ReflectionTool.create(fieldInfo.getDatabeanClass());
 		byte[] keyBytes = row.getRow();
 		HBaseRow hBaseRow = new HBaseRow(keyBytes, row.getMap());//so we can see a better toString value
-		setPrimaryKeyFields(databean, keyBytes, primaryKeyFields);
+		setPrimaryKeyFields(databean, keyBytes, fieldInfo.getPrimaryKeyFields());
 		//TODO use row.raw() to avoid building all these TreeMaps
 		for(Map.Entry<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> family : hBaseRow.map.entrySet()){
 			for(Map.Entry<byte[], NavigableMap<Long, byte[]>> column : family.getValue().entrySet()){
 				byte[] latestValue = column.getValue().lastEntry().getValue();
 				//TODO peristent field names vs abbreviated vs java field names
 				String fieldName = StringByteTool.fromUtf8Bytes(column.getKey());
-				Field<?> field = fieldByName.get(fieldName);
+				Field<?> field = fieldInfo.getFieldByMicroName().get(fieldName);
 				if(field==null){ continue; }//skip dummy fields and fields that may have existed in the past
 				//someListener.handleUnmappedColumn(.....
 				if(ArrayTool.isEmpty(latestValue)){ continue; }
@@ -71,7 +73,7 @@ public class HBaseResultTool{
 	}
 	
 	//TODO avoid using the whole databean if the key has its own fields
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 	void setPrimaryKeyFields(D databean, byte[] bytes, List<Field<?>> primaryKeyFields){
 		int byteOffset = 0;
 		for(Field<?> field : primaryKeyFields){
@@ -82,9 +84,9 @@ public class HBaseResultTool{
 		}
 	}
 
-	public static <PK extends PrimaryKey<PK>> 
-	PK getPrimaryKey(byte[] keyBytes, Class<PK> primaryKeyClass, List<Field<?>> primaryKeyFields){
-		return getPrimaryKeyUnchecked(keyBytes, primaryKeyClass, primaryKeyFields);
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>  
+	PK getPrimaryKey(byte[] keyBytes, DatabeanFieldInfo<PK,D,F> fieldInfo){
+		return getPrimaryKeyUnchecked(keyBytes, fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields());
 	}
 	
 	public static <PK extends PrimaryKey<?>> 

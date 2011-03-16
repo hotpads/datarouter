@@ -8,14 +8,20 @@ import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
 @SuppressWarnings("serial")
 public abstract class BaseUniqueKeyIndexEntry<
 		IK extends PrimaryKey<IK>,
+		IE extends Databean<IK,IE>,
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>> 
-extends BaseDatabean<IK>
-implements UniqueKeyIndexEntry<IK,PK,D>{
+		D extends Databean<PK,D>> 
+extends BaseDatabean<IK,IE>
+implements UniqueKeyIndexEntry<IK,IE,PK,D>{
     
 	@Override
 	public void fromDatabean(D target){
 		fromPrimaryKey(target.getKey());
 	}
+	
+//	@Override
+//	public List<Field<?>> getFields(PK pk) {
+//		return pk.getFields();
+//	};
 	
 }

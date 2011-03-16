@@ -22,7 +22,7 @@ import com.hotpads.util.core.ComparableTool;
 @Entity
 @AccessType("field")
 @SuppressWarnings("serial")
-public class TraceThread extends BaseDatabean<TraceThreadKey>{
+public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 
 	@Id
 	protected TraceThreadKey key;

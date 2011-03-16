@@ -6,7 +6,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class CachingIndexedSortedStorageNode<
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>,
+		D extends Databean<PK,D>,
 		N extends IndexedMapStorage<PK,D>>
 //extends CachingIndexedSortedStorageReaderNode<PK,D,N>
 //implements IndexedMapStorage<PK,D>

@@ -35,7 +35,7 @@ public class SqlBuilder{
 	
 	public static String getMulti(
 			Config config, String tableName, List<Field<?>> selectFields, 
-			Collection<? extends FieldSet> keys){
+			Collection<? extends FieldSet<?>> keys){
 		if(CollectionTool.isEmpty(keys)){//getAll() passes null in for keys
 			throw new IllegalArgumentException("no keys provided... use getAll if you want the whole table.");
 		}
@@ -49,7 +49,7 @@ public class SqlBuilder{
 	
 	public static String deleteMulti(
 			Config config, String tableName,
-			Collection<? extends FieldSet> keys){
+			Collection<? extends FieldSet<?>> keys){
 		if(CollectionTool.isEmpty(keys)){//getAll() passes null in for keys
 			throw new IllegalArgumentException("no keys provided... use getAll if you want the whole table.");
 		}
@@ -63,7 +63,7 @@ public class SqlBuilder{
 	
 	public static String getWithPrefixes(
 			Config config, String tableName, List<Field<?>> selectFields, 
-			Collection<? extends FieldSet> keys, boolean wildcardLastField){
+			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
 		sql.append(" where ");
@@ -74,7 +74,7 @@ public class SqlBuilder{
 	
 	public static String deleteWithPrefixes(
 			Config config, String tableName, 
-			Collection<? extends FieldSet> keys, boolean wildcardLastField){
+			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField){
 		StringBuilder sql = new StringBuilder();
 		addDeleteFromClause(sql, tableName);
 		sql.append(" where ");
@@ -85,8 +85,8 @@ public class SqlBuilder{
 	
 	public static String getInRange(
 			Config config, String tableName, List<Field<?>> selectFields, 
-			FieldSet start, boolean startInclusive, 
-			FieldSet end, boolean endInclusive){
+			FieldSet<?> start, boolean startInclusive, 
+			FieldSet<?> end, boolean endInclusive){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
 		if(needsRangeWhereClause(start,end)){ sql.append(" where "); }
@@ -97,9 +97,9 @@ public class SqlBuilder{
 	
 	public static String getWithPrefixInRange(
 			Config config, String tableName, List<Field<?>> selectFields, 
-			FieldSet prefix, boolean wildcardLastField,
-			FieldSet start, boolean startInclusive, 
-			FieldSet end, boolean endInclusive){
+			FieldSet<?> prefix, boolean wildcardLastField,
+			FieldSet<?> start, boolean startInclusive, 
+			FieldSet<?> end, boolean endInclusive){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
 		sql.append(" where ");
@@ -129,16 +129,16 @@ public class SqlBuilder{
 	}
 	
 	public static void addPrefixWhereClauseDisjunction(StringBuilder sql, 
-			Collection<? extends FieldSet> keys, boolean wildcardLastField){
+			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField){
 		int counter = 0;
-		for(FieldSet key : IterableTool.nullSafe(keys)){
+		for(FieldSet<?> key : IterableTool.nullSafe(keys)){
 			if(counter>0){ sql.append(" or "); }
 			addPrefixWhereClause(sql, key, wildcardLastField);
 			++counter;
 		}
 	}
 	
-	public static void addPrefixWhereClause(StringBuilder sql, FieldSet prefix, boolean wildcardLastField){
+	public static void addPrefixWhereClause(StringBuilder sql, FieldSet<?> prefix, boolean wildcardLastField){
 		int numNonNullFields = FieldSetTool.getNumNonNullFields(prefix);
 		if(numNonNullFields==0){ return; }
 		int numFullFieldsFinished = 0;
@@ -160,7 +160,7 @@ public class SqlBuilder{
 		}
 	}
 	
-	public static boolean needsRangeWhereClause(FieldSet start, FieldSet end){
+	public static boolean needsRangeWhereClause(FieldSet<?> start, FieldSet<?> end){
 		if(start==null && end==null){ return false; }
 		if(end!=null){ return true; }
 		List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
@@ -170,8 +170,8 @@ public class SqlBuilder{
 	}
 	
 	public static void addRangeWhereClause(StringBuilder sql,
-			FieldSet start, boolean startInclusive, 
-			FieldSet end, boolean endInclusive){
+			FieldSet<?> start, boolean startInclusive, 
+			FieldSet<?> end, boolean endInclusive){
 				
 		if(start != null && CollectionTool.notEmpty(start.getFields())){
 			List<Field<?>> startFields = ListTool.createArrayList(start.getFields());

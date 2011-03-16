@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
-public interface IndexedStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+public interface IndexedStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
 	void delete(Lookup<PK> lookup, Config config);
@@ -21,12 +21,12 @@ extends NodeOps<PK,D>
 	
 	
 
-	public interface IndexedStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface IndexedStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends Node<PK,D>, IndexedStorageWriter<PK,D>
 	{
 	}
 
-	public interface PhysicalIndexedStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface PhysicalIndexedStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends PhysicalNode<PK,D>, IndexedStorageWriterNode<PK,D>
 	{
 	}

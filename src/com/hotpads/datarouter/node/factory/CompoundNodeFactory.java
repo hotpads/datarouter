@@ -14,7 +14,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class CompoundNodeFactory{
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 	CompoundMNode<PK,D> createAndRegisterMNode(
 			String clientName, 
 			Class<D> databeanClass, 
@@ -24,7 +24,7 @@ public class CompoundNodeFactory{
 		return new CompoundMNode<PK,D>(node);
 	}
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 	CompoundSMNode<PK,D> createAndRegisterSMNode(
 			String clientName, 
 			Class<D> databeanClass, 
@@ -34,7 +34,7 @@ public class CompoundNodeFactory{
 		return new CompoundSMNode<PK,D>(node);
 	}
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 	CompoundIMNode<PK,D> createAndRegisterIMNode(
 			String clientName, 
 			Class<D> databeanClass, 
@@ -44,7 +44,7 @@ public class CompoundNodeFactory{
 		return new CompoundIMNode<PK,D>(node);
 	}
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 	CompoundISMNode<PK,D> createAndRegisterISMNode(
 			String clientName, 
 			Class<D> databeanClass, 
@@ -54,7 +54,7 @@ public class CompoundNodeFactory{
 		return new CompoundISMNode<PK,D>(node);
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 	CompoundMapRWStorage<PK,D> createAndRegisterMap(
 			String clientName, 
 			Class<D> databeanClass, 
@@ -64,7 +64,7 @@ public class CompoundNodeFactory{
 		return new CompoundMapRWStorage<PK,D>(node);
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 	CompoundSortedRWStorage<PK,D> createAndRegisterSorted(
 			String clientName, 
 			Class<D> databeanClass, 
@@ -74,7 +74,7 @@ public class CompoundNodeFactory{
 		return new CompoundSortedRWStorage<PK,D>(node);
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 	CompoundIndexedRWStorage<PK,D> createAndRegisterIndexed(
 			String clientName, 
 			Class<D> databeanClass, 

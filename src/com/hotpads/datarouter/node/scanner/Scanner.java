@@ -15,7 +15,7 @@ import com.hotpads.util.core.iterable.PeekableIterator;
 /*
  * Iterator that maintains state between calls to get the next batch of Databeans in the range
  */
-public class Scanner<PK extends PrimaryKey<PK>,D extends Databean<PK>> 
+public class Scanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 implements PeekableIterable<D>, PeekableIterator<D>{
 	SortedStorageReader<PK,D> node;
 	

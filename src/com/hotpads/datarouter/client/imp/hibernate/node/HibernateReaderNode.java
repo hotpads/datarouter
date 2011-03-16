@@ -48,7 +48,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.PeekableIterable;
 
-public class HibernateReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK>,F extends DatabeanFielder<PK,D>> 
+public class HibernateReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>,
 		SortedStorageReader<PK,D>,
@@ -109,9 +109,9 @@ implements MapStorageReader<PK,D>,
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					if(fieldAware){
-						String sql = SqlBuilder.getMulti(config, tableName, fields, ListTool.wrap(key));
-						List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), ListTool.wrap(key));
+						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						if(CollectionTool.size(result) > 1){ throw new DataAccessException("found >1 databeans with PK="+key); }
 						return CollectionTool.getFirst(result);
 					}else{
@@ -138,9 +138,9 @@ implements MapStorageReader<PK,D>,
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					if(fieldAware){
-						String sql = SqlBuilder.getAll(config, tableName, fields);
-						List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields());
+						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
@@ -175,9 +175,9 @@ implements MapStorageReader<PK,D>,
 					for(int batchNum=0; batchNum < numBatches; ++batchNum){
 						List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
 						List<D> batch;
-						if(fieldAware){
-							String sql = SqlBuilder.getMulti(config, tableName, fields, keyBatch);
-							batch = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+						if(fieldInfo.getFieldAware()){
+							String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), keyBatch);
+							batch = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						}else{
 							Criteria criteria = getCriteriaForConfig(config, session);
 							Disjunction orSeparatedIds = Restrictions.disjunction();
@@ -205,7 +205,7 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
-		if(fieldAware){ throw new NotImplementedException(); }
+		if(fieldInfo.getFieldAware()){ throw new NotImplementedException(); }
 		TraceContext.startSpan(getName()+" getKeys");
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		Object result = executor.executeTask(			
@@ -225,7 +225,7 @@ implements MapStorageReader<PK,D>,
 						//projection list
 						ProjectionList projectionList = Projections.projectionList();
 						int numFields = 0;
-						for(Field<?> field : primaryKeyFields){
+						for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
 							projectionList.add(Projections.property(field.getPrefixedName()));
 							++numFields;
 						}
@@ -243,7 +243,7 @@ implements MapStorageReader<PK,D>,
 						criteria.add(orSeparatedIds);
 						List<Object[]> rows = criteria.list();
 						for(Object[] row : IterableTool.nullSafe(rows)){
-							all.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(primaryKeyClass, primaryKeyFields, row, true));
+							all.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), row, true));
 						}
 					}
 					return all;
@@ -267,9 +267,9 @@ implements MapStorageReader<PK,D>,
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					if(fieldAware){
-						String sql = SqlBuilder.getMulti(config, tableName, fields, ListTool.wrap(uniqueKey));
-						List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), ListTool.wrap(uniqueKey));
+						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						if(CollectionTool.size(result) > 1){ throw new DataAccessException("found >1 databeans with PK="+uniqueKey); }
 						return CollectionTool.getFirst(result);
 					}else{
@@ -308,9 +308,9 @@ implements MapStorageReader<PK,D>,
 					for(int batchNum=0; batchNum < numBatches; ++batchNum){
 						List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
 						List<D> batch;
-						if(fieldAware){
-							String sql = SqlBuilder.getMulti(config, tableName, fields, uniqueKeys);
-							List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+						if(fieldInfo.getFieldAware()){
+							String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), uniqueKeys);
+							List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 							//maybe verify if the keys were in fact unique?
 							return result;
 						}else{
@@ -346,9 +346,9 @@ implements MapStorageReader<PK,D>,
 			new HibernateTask() {
 				public Object run(Session session) {
 					//TODO undefined behavior on trailing nulls
-					if(fieldAware){
-						String sql = SqlBuilder.getMulti(config, tableName, fields, ListTool.wrap(lookup));
-						List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), ListTool.wrap(lookup));
+						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
@@ -376,9 +376,9 @@ implements MapStorageReader<PK,D>,
 			new HibernateTask() {
 				public Object run(Session session) {
 					//TODO undefined behavior on trailing nulls
-					if(fieldAware){
-						String sql = SqlBuilder.getMulti(config, tableName, fields, lookups);
-						List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), lookups);
+						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
@@ -411,11 +411,11 @@ implements MapStorageReader<PK,D>,
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					if(fieldAware){
+					if(fieldInfo.getFieldAware()){
 						Config nullSafeConfig = Config.nullSafe(config);
 						nullSafeConfig.setLimit(1);
-						String sql = SqlBuilder.getAll(config, tableName, fields);
-						List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields());
+						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return CollectionTool.getFirst(result);
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
@@ -440,17 +440,17 @@ implements MapStorageReader<PK,D>,
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					if(fieldAware){
+					if(fieldInfo.getFieldAware()){
 						Config nullSafeConfig = Config.nullSafe(config);
 						nullSafeConfig.setLimit(1);
-						String sql = SqlBuilder.getAll(config, tableName, primaryKeyFields);
-						List<PK> result = JdbcTool.selectPrimaryKeys(session, primaryKeyClass, primaryKeyFields, sql);
+						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getPrimaryKeyFields());
+						List<PK> result = JdbcTool.selectPrimaryKeys(session, fieldInfo, sql);
 						return CollectionTool.getFirst(result);
 					}else{
 						Criteria criteria = session.createCriteria(entityName);
 						ProjectionList projectionList = Projections.projectionList();
 						int numFields = 0;
-						for(Field<?> field : primaryKeyFields){
+						for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
 							projectionList.add(Projections.property(field.getPrefixedName()));
 							++numFields;
 						}
@@ -462,7 +462,7 @@ implements MapStorageReader<PK,D>,
 						if(numFields==1){
 							rows = new Object[]{rows};
 						}
-						PK pk = (PK)FieldSetTool.fieldSetFromHibernateResultUsingReflection(primaryKeyClass, primaryKeyFields, rows, true);
+						PK pk = (PK)FieldSetTool.fieldSetFromHibernateResultUsingReflection(fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rows, true);
 						return pk;
 					}
 				}
@@ -482,10 +482,10 @@ implements MapStorageReader<PK,D>,
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					if(fieldAware){
-						String sql = SqlBuilder.getWithPrefixes(config, tableName, fields, 
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getWithPrefixes(config, tableName, fieldInfo.getFields(), 
 								ListTool.wrap(prefix), wildcardLastField);
-						List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
@@ -514,10 +514,10 @@ implements MapStorageReader<PK,D>,
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					if(fieldAware){
-						String sql = SqlBuilder.getWithPrefixes(config, tableName, fields, 
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getWithPrefixes(config, tableName, fieldInfo.getFields(), 
 								prefixes, wildcardLastField);
-						List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
@@ -551,16 +551,16 @@ implements MapStorageReader<PK,D>,
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					if(fieldAware){
-						String sql = SqlBuilder.getInRange(config, tableName, primaryKeyFields, 
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getInRange(config, tableName, fieldInfo.getPrimaryKeyFields(), 
 								start, startInclusive, end, endInclusive);
-						List<PK> result = JdbcTool.selectPrimaryKeys(session, primaryKeyClass, primaryKeyFields, sql);
+						List<PK> result = JdbcTool.selectPrimaryKeys(session, fieldInfo, sql);
 						return result;
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
 						ProjectionList projectionList = Projections.projectionList();
 						int numFields = 0;
-						for(Field<?> field : primaryKeyFields){
+						for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
 							projectionList.add(Projections.property(field.getPrefixedName()));
 							++numFields;
 						}
@@ -574,7 +574,7 @@ implements MapStorageReader<PK,D>,
 							Object[] rowCells;
 							if(row instanceof Object[]){ rowCells = (Object[])row; }
 							else{ rowCells = new Object[]{row}; }
-							result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(primaryKeyClass, primaryKeyFields, rowCells, true));
+							result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rowCells, true));
 						}
 						return result;
 					}
@@ -598,10 +598,10 @@ implements MapStorageReader<PK,D>,
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					if(fieldAware){
-						String sql = SqlBuilder.getInRange(config, tableName, fields, 
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getInRange(config, tableName, fieldInfo.getFields(), 
 								start, startInclusive, end, endInclusive);
-						List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
@@ -632,10 +632,10 @@ implements MapStorageReader<PK,D>,
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					if(fieldAware){
-						String sql = SqlBuilder.getWithPrefixInRange(config, tableName, fields, 
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getWithPrefixInRange(config, tableName, fieldInfo.getFields(), 
 								prefix, wildcardLastField, start, startInclusive, null, false);
-						List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
@@ -697,7 +697,7 @@ implements MapStorageReader<PK,D>,
 	/********************************* hibernate helpers ***********************************************/
 	
 	protected void addPrimaryKeyOrderToCriteria(Criteria criteria){
-		for(Field<?> field : this.primaryKeyFields){
+		for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
 			criteria.addOrder(Order.asc(field.getPrefixedName()));
 		}
 	}

@@ -19,7 +19,8 @@ extends Comparable<Field<T>>, ByteAwareField<T>, SqlField<T>{//TODO remove SqlFr
 
 	
 	/*************** useful methods *************************/
-
+	void cacheReflectionInfo(FieldSet sampleFieldSet);
+	
 	boolean isCollection();
 	String getPrefixedName();
 	String getValueString();

@@ -14,7 +14,7 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.PeekableIterator;
 
-public class MergeScanner<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+public class MergeScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 implements PeekableIterable<D>,PeekableIterator<D>{
 
 	ArrayList<PeekableIterator<D>> scanners;

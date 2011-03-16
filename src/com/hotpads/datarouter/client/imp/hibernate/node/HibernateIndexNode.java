@@ -34,7 +34,7 @@ import com.hotpads.util.core.ListTool;
 
 public class HibernateIndexNode<
 				PK extends PrimaryKey<PK>,
-				D extends Databean<PK>,
+				D extends Databean<PK,D>,
 				IK extends PrimaryKey<IK>,
 				F extends DatabeanFielder<PK,D>> 
 extends BasePhysicalNode<PK,D,F>
@@ -93,9 +93,9 @@ implements IndexReader<PK,D,IK>{
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					if(fieldAware){
-						String sql = SqlBuilder.getMulti(config, tableName, fields, ListTool.wrap(uniqueKey));
-						List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), ListTool.wrap(uniqueKey));
+						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						if(CollectionTool.size(result) > 1){ throw new DataAccessException("found >1 databeans with PK="+uniqueKey); }
 						return CollectionTool.getFirst(result);
 					}else{
@@ -134,9 +134,9 @@ implements IndexReader<PK,D,IK>{
 					for(int batchNum=0; batchNum < numBatches; ++batchNum){
 						List<IK> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
 						List<D> batch;
-						if(fieldAware){
-							String sql = SqlBuilder.getMulti(config, tableName, fields, uniqueKeys);
-							List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+						if(fieldInfo.getFieldAware()){
+							String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), uniqueKeys);
+							List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 							//maybe verify if the keys were in fact unique?
 							return result;
 						}else{
@@ -170,9 +170,9 @@ implements IndexReader<PK,D,IK>{
 			new HibernateTask() {
 				public Object run(Session session) {
 					//TODO undefined behavior on trailing nulls
-					if(fieldAware){
-						String sql = SqlBuilder.getMulti(config, tableName, fields, ListTool.wrap(indexKey));
-						List<D> result = JdbcTool.selectDatabeans(session, databeanClass, fields, sql);
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), ListTool.wrap(indexKey));
+						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
@@ -192,7 +192,7 @@ implements IndexReader<PK,D,IK>{
 	/********************************* hibernate helpers ***********************************************/
 	
 	protected void addPrimaryKeyOrderToCriteria(Criteria criteria){
-		for(Field<?> field : this.primaryKeyFields){
+		for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
 			criteria.addOrder(Order.asc(field.getPrefixedName()));
 		}
 	}

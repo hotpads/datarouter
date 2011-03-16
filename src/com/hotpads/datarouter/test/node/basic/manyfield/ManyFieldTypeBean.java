@@ -31,7 +31,7 @@ import com.hotpads.util.core.collections.arrays.LongArray;
 @SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
-public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey>{
+public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFieldTypeBean>{
 
 	/*
 	 * alter table ManyFieldTypeBean modify column longDateField bigint(20);

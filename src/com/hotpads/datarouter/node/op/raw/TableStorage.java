@@ -5,15 +5,15 @@ import com.hotpads.datarouter.node.op.raw.write.TableStorageWriter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public interface TableStorage<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+public interface TableStorage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends TableStorageReader<PK,D>, TableStorageWriter<PK,D>
 {
-	public interface TableStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface TableStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends TableStorageReaderNode<PK,D>, TableStorageWriterNode<PK,D>
 	{
 	}
 	
-	public interface PhysicalTableStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+	public interface PhysicalTableStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends PhysicalTableStorageReaderNode<PK,D>, PhysicalTableStorageWriterNode<PK,D>
 	{
 	}

@@ -8,9 +8,10 @@ import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 @SuppressWarnings("serial")
 public abstract class BaseMultiIndexEntry<
 		IK extends PrimaryKey<IK>,
+		IE extends Databean<IK,IE>,
 		PK extends PrimaryKey<PK>,
-		D extends Databean<PK>> 
-extends BaseDatabean<IK>
-implements MultiIndexEntry<IK,PK,D>{
+		D extends Databean<PK,D>> 
+extends BaseDatabean<IK,IE>
+implements MultiIndexEntry<IK,IE,PK,D>{
 	
 }

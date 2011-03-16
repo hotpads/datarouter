@@ -10,7 +10,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 
-public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK>>
+public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends Comparable<Node<PK,D>>{
 
 	String getName();
