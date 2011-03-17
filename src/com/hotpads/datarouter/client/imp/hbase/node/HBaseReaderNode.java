@@ -132,9 +132,13 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getMulti", this, config){
 				public List<D> hbaseCall() throws Exception{
 					List<D> results = ListTool.createArrayListWithSize(keys);
+					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
-						Result row = hTable.get(new Get(key.getBytes(false)));
-						if(row.isEmpty()){ continue; }
+						gets.add(new Get(key.getBytes(false)));
+					}
+					Result[] resultArray = hTable.get(gets);
+					for(Result row : resultArray){
+						if(row==null || row.isEmpty()){ continue; }
 						D result = HBaseResultTool.getDatabean(row, fieldInfo);
 						results.add(result);
 					}
