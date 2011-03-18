@@ -23,6 +23,7 @@ import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
+import com.hotpads.datarouter.test.node.basic.manyfield.TestEnum;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -275,6 +276,18 @@ public class ManyFieldTypeIntegrationTests {
 		Assert.assertNotSame(beanMax, roundTrippedMax);
 		Assert.assertEquals(beanMax.getVarIntField(), roundTrippedMax.getVarIntField());
 		recordKey(beanMax.getKey());
+	}
+	
+	@Test 
+	public void testIntEnum(){		
+		ManyFieldTypeBean bean = new ManyFieldTypeBean();
+		bean.setIntEnumField(TestEnum.beast);
+		router.manyFieldTypeBean().put(bean, null);
+		
+		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
+		Assert.assertEquals(bean.getIntEnumField(), roundTripped.getIntEnumField());
+		Assert.assertTrue(TestEnum.beast==roundTripped.getIntEnumField());
+		recordKey(bean.getKey());
 	}
 	
 	@Test 
