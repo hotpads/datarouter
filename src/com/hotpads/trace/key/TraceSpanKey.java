@@ -37,9 +37,9 @@ public class TraceSpanKey extends BasePrimaryKey<TraceSpanKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		List<Field<?>> fields = ListTool.create();
-		fields.add(new LongField(TraceSpan.KEY_key, COL_traceId, traceId));
-		fields.add(new LongField(TraceSpan.KEY_key, COL_threadId, threadId));
-		fields.add(new IntegerField(TraceSpan.KEY_key, COL_sequence, sequence));
+		fields.add(new LongField(TraceSpan.F.KEY_key, COL_traceId, traceId));
+		fields.add(new LongField(TraceSpan.F.KEY_key, COL_threadId, threadId));
+		fields.add(new IntegerField(TraceSpan.F.KEY_key, COL_sequence, sequence));
 		return fields;
 	}
 	

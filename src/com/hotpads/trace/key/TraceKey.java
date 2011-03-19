@@ -36,7 +36,7 @@ public class TraceKey extends BasePrimaryKey<TraceKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		List<Field<?>> fields = ListTool.create();
-		fields.add(new LongField(Trace.KEY_key, COL_id, id));
+		fields.add(new LongField(Trace.F.KEY_key, COL_id, id));
 		return fields;
 	}
 

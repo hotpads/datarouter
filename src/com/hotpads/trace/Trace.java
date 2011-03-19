@@ -53,24 +53,26 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 		LEN_type = 255,
 		LEN_params = 255;
 	
-	public static final String
-		KEY_key = "key",
-		COL_sessionId = "sessionId",
-		COL_context = "context",
-		COL_type = "type",
-		COL_params = "params",
-		COL_created = "created",
-		COL_duration = "duration";
+	public static class F{
+		public static final String
+			KEY_key = "key",
+			sessionId = "sessionId",
+			context = "context",
+			type = "type",
+			params = "params",
+			created = "created",
+			duration = "duration";
+	}
 
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new StringField(COL_sessionId, sessionId),
-				new StringField(COL_context, context),
-				new StringField(COL_type, type),
-				new StringField(COL_params, params),
-				new UInt63Field(COL_created, created),
-				new UInt63Field(COL_duration, duration));
+				new StringField(F.sessionId, sessionId),
+				new StringField(F.context, context),
+				new StringField(F.type, type),
+				new StringField(F.params, params),
+				new UInt63Field(F.created, created),
+				new UInt63Field(F.duration, duration));
 	}
 	
 	@Override

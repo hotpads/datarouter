@@ -35,8 +35,8 @@ public class TraceThreadKey extends BasePrimaryKey<TraceThreadKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		List<Field<?>> fields = ListTool.create();
-		fields.add(new LongField(TraceThread.KEY_NAME, COL_traceId, traceId));
-		fields.add(new LongField(TraceThread.KEY_NAME, COL_id, id));
+		fields.add(new LongField(TraceThread.F.KEY_NAME, COL_traceId, traceId));
+		fields.add(new LongField(TraceThread.F.KEY_NAME, COL_id, id));
 		return fields;
 	}
 

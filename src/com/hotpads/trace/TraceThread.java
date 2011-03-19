@@ -45,32 +45,34 @@ public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 	
 	/**************************** columns *******************************/
 	
-	public static final String
-		KEY_NAME = "key",
-		COL_traceId = "traceId",
-		COL_id = "id",
-		COL_parentId = "parentId",
-		COL_name = "name",
-		COL_info = "info",
-		COL_serverId = "serverId",
-		COL_created = "created",
-		COL_queuedDuration = "queuedDuration",
-		COL_runningDuration = "runningDuration",
-		COL_queuedDurationNano = "queuedDurationNano",
-		COL_runningDurationNano = "runningDurationNano";
+	public static class F{
+		public static final String
+			KEY_NAME = "key",
+			traceId = "traceId",
+			id = "id",
+			parentId = "parentId",
+			name = "name",
+			info = "info",
+			serverId = "serverId",
+			created = "created",
+			queuedDuration = "queuedDuration",
+			runningDuration = "runningDuration",
+			queuedDurationNano = "queuedDurationNano",
+			runningDurationNano = "runningDurationNano";
+	}
 
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new UInt63Field(COL_parentId, parentId),
-				new StringField(COL_name, name),
-				new StringField(COL_info, info),
-				new StringField(COL_serverId, serverId),
-				new UInt63Field(COL_created, created),
-				new UInt63Field(COL_queuedDuration, queuedDuration),
-				new UInt63Field(COL_runningDuration, runningDuration),
-				new UInt63Field(COL_queuedDurationNano, queuedDurationNano),
-				new UInt63Field(COL_runningDurationNano, runningDurationNano));
+				new UInt63Field(F.parentId, parentId),
+				new StringField(F.name, name),
+				new StringField(F.info, info),
+				new StringField(F.serverId, serverId),
+				new UInt63Field(F.created, created),
+				new UInt63Field(F.queuedDuration, queuedDuration),
+				new UInt63Field(F.runningDuration, runningDuration),
+				new UInt63Field(F.queuedDurationNano, queuedDurationNano),
+				new UInt63Field(F.runningDurationNano, runningDurationNano));
 	}
 	
 	@Override

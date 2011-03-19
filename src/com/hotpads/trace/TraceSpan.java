@@ -47,24 +47,26 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 	
 	/**************************** columns *******************************/
 	
-	public static final String
-		KEY_key = "key",
-		COL_parentSequence = "parentSequence",
-		COL_name = "name",
-		COL_info = "info",
-		COL_created = "created",
-		COL_duration = "duration",
-		COL_durationNano = "durationNano";
-
+	public static class F{
+		public static final String
+			KEY_key = "key",
+			parentSequence = "parentSequence",
+			name = "name",
+			info = "info",
+			created = "created",
+			duration = "duration",
+			durationNano = "durationNano";
+	}
+	
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new UInt31Field(COL_parentSequence, this.parentSequence),
-				new StringField(COL_name, this.name),
-				new StringField(COL_info, this.info),
-				new UInt63Field(COL_created, this.created),
-				new UInt63Field(COL_duration, this.duration),
-				new UInt63Field(COL_durationNano, this.durationNano));
+				new UInt31Field(F.parentSequence, this.parentSequence),
+				new StringField(F.name, this.name),
+				new StringField(F.info, this.info),
+				new UInt63Field(F.created, this.created),
+				new UInt63Field(F.duration, this.duration),
+				new UInt63Field(F.durationNano, this.durationNano));
 	}
 	
 	@Override
@@ -82,12 +84,12 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 		@Override
 		public List<Field<?>> getNonKeyFields(TraceSpan d){
 			return FieldTool.createList(
-					new UInt31Field(COL_parentSequence, d.parentSequence),
-					new StringField(COL_name, d.name),
-					new StringField(COL_info, d.info),
-					new UInt63Field(COL_created, d.created),
-					new UInt63Field(COL_duration, d.duration),
-					new UInt63Field(COL_durationNano, d.durationNano));
+					new UInt31Field(F.parentSequence, d.parentSequence),
+					new StringField(F.name, d.name),
+					new StringField(F.info, d.info),
+					new UInt63Field(F.created, d.created),
+					new UInt63Field(F.duration, d.duration),
+					new UInt63Field(F.durationNano, d.durationNano));
 		}
 	}
 	
