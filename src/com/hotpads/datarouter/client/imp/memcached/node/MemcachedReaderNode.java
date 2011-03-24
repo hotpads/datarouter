@@ -22,6 +22,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -87,7 +88,10 @@ implements MemcachedPhysicalNode<PK,D>,
 				public D memcachedCall() throws Exception{
 					String memcachedKey = new DataRouterMemcachedKey<PK>(name, databeanVersion, key).getVersionedKeyString();
 					byte[] bytes = (byte[])spyClient.get(memcachedKey);
-					if(ArrayTool.isEmpty(bytes)){ return null; }
+					if(ArrayTool.isEmpty(bytes)){ 
+						TraceContext.appendToSpanInfo("miss");
+						return null; 
+					}
 //					System.out.println(StringByteTool.fromUtf8Bytes(bytes));
 					ByteArrayInputStream is = new ByteArrayInputStream(bytes);
 					D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
@@ -121,6 +125,7 @@ implements MemcachedPhysicalNode<PK,D>,
 							fieldInfo.getFieldByPrefixedName(), is, bytes.length);
 					databeans.add(databean);
 				}
+				TraceContext.appendToSpanInfo("[got "+CollectionTool.size(databeans)+"/"+CollectionTool.size(keys)+"]");
 				return databeans;
 			}
 		}).call();

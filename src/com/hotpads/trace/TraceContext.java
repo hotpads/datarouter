@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
@@ -104,7 +104,7 @@ public class TraceContext {
 	/*************** static TraceSpan methods *************************************/
 		
 	public static void startSpan(String name){
-		DRCounters.inc(name);
+		Counters.inc(name);
 		TraceContext ctx = get();
 		if(ctx==null || ctx.currentThread==null){ return; }
 		Integer parentSequence = null;
@@ -133,7 +133,7 @@ public class TraceContext {
 		TraceSpan span = ctx.getCurrentSpan();
 		boolean addSpace = StringTool.notEmpty(span.getName());
 		span.setName(StringTool.nullSafe(span.getName()) + (addSpace ? " " : "") + text);
-		DRCounters.inc(span.getName());//yes, this is double-counting the span
+		Counters.inc(span.getName());//yes, this is double-counting the span
 	}
 	
 	public static void appendToSpanInfo(String text){
