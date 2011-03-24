@@ -9,6 +9,8 @@ import com.hotpads.util.core.ListTool;
 
 public class DataRouterMemcachedKey<PK extends PrimaryKey<PK>>{
 
+	public static final Integer DATAROUTER_VERSION = 1;
+	
 	protected String nodeName;
 	protected Integer databeanVersion;
 	protected PK primaryKey;
@@ -22,7 +24,7 @@ public class DataRouterMemcachedKey<PK extends PrimaryKey<PK>>{
 	
 	
 	public String getVersionedKeyString(){
-		return nodeName+":"+databeanVersion+":"+primaryKey.getPersistentString();
+		return DATAROUTER_VERSION+":"+nodeName+":"+databeanVersion+":"+primaryKey.getPersistentString();
 	}
 
 	
