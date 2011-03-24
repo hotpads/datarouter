@@ -14,6 +14,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
@@ -74,6 +75,7 @@ implements PhysicalMapStorageNode<PK,D>
 					String key = new DataRouterMemcachedKey<PK>(name, databeanVersion, databean.getKey()).getVersionedKeyString();
 					spyClient.set(key, Integer.MAX_VALUE, bytes);
 				}
+				TraceContext.appendToSpanInfo(CollectionTool.size(databeans)+"");
 				return null;
 			}
 		}).call();
@@ -101,6 +103,7 @@ implements PhysicalMapStorageNode<PK,D>
 				for(PK key : keys){
 					spyClient.delete(key.getPersistentString());
 				}
+				TraceContext.appendToSpanInfo(CollectionTool.size(keys)+"");
 				return null;
 			}
 		}).call();

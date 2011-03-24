@@ -158,17 +158,17 @@ implements MapStorageReaderNode<PK,D>{
 	
 	protected void countHits(int num){
 		DRCounters.inc("caching "+name+" hit");
-		logger.warn("hit");
+//		logger.warn("hit");
 	}
 	
 	protected void countMisses(int num){
 		DRCounters.inc("caching "+name+" miss");
-		logger.warn("miss");
+//		logger.warn("miss");
 	}
 	
 	protected void countExceptions(){
 		DRCounters.inc("caching "+name+" exception");
-		logger.warn("exception");
+//		logger.warn("exception");
 	}
 	
 	protected void countHits(Collection<?> c){
