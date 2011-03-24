@@ -24,7 +24,7 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.profile.count.collection.Counters;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.MapTool;
 
@@ -84,7 +84,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 
 	@Override
 	public ConnectionHandle reserveConnection(){
-		Counters.inc("connection open "+getName());
+		DRCounters.inc("connection open "+getName());
 		try {
 			ConnectionHandle existingHandle = getExistingHandle();
 			if(existingHandle != null){
@@ -109,7 +109,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 			logger.debug("new connection:"+handle);
 			return handle;
 		}catch(SQLException e){
-			Counters.inc("connection open "+e.getClass().getSimpleName()+" on "+getName());
+			DRCounters.inc("connection open "+e.getClass().getSimpleName()+" on "+getName());
 			throw new DataAccessException(e);
 		}
 	}
@@ -117,7 +117,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	protected void logIfSlowReserveConnection(long requestTimeMs){
 		long elapsedTime = System.currentTimeMillis() - requestTimeMs;
 		if(elapsedTime > 1){
-			Counters.inc("connection open > 1ms on "+getName());
+			DRCounters.inc("connection open > 1ms on "+getName());
 			logger.warn("slow reserveConnection:"+elapsedTime+"ms on "+getName());
 		}
 	}

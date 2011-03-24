@@ -44,7 +44,7 @@ public class IndexedNodeIntegrationTests{
 	public static void init() throws IOException{	
 
 		IndexedBasicNodeTestRouter hibernateRouter = new IndexedBasicNodeTestRouter(
-				DRTestConstants.CLIENT_drTestHibernate0);
+				DRTestConstants.CLIENT_drTestHibernate0, true);
 		routerByClientType.put(ClientType.hibernate, hibernateRouter);
 		
 //		BasicNodeTestRouter hbaseRouter = new BasicNodeTestRouter(

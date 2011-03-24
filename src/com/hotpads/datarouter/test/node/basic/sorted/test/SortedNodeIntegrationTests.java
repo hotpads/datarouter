@@ -47,13 +47,13 @@ public class SortedNodeIntegrationTests{
 		if(DRTestConstants.clientTypes.contains(ClientType.hibernate)){
 			routerByClientType.put(
 					ClientType.hibernate, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, true));
 		}
 
 		if(DRTestConstants.clientTypes.contains(ClientType.hbase)){
 			routerByClientType.put(
 					ClientType.hbase, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, true));
 		}
 		
 		for(BasicNodeTestRouter router : routerByClientType.values()){

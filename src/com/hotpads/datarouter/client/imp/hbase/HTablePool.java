@@ -12,7 +12,7 @@ import org.apache.hadoop.hbase.client.NoServerForRegionException;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.profile.count.collection.Counters;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
@@ -48,7 +48,7 @@ public class HTablePool{
 	
 	
 	public HTable checkOut(String name){
-		Counters.inc("connection getHTable "+name);
+		DRCounters.inc("connection getHTable "+name);
 		LinkedList<HTable> queue = tablesByName.get(name);
 		HTable hTable;
 		synchronized(queue){
@@ -57,7 +57,7 @@ public class HTablePool{
 		if(hTable==null){
 			try{
 				hTable = new HTable(this.hBaseConfiguration, name);
-				Counters.inc("connection create HTable "+name);
+				DRCounters.inc("connection create HTable "+name);
 			}catch(IOException ioe){
 				throw new RuntimeException(ioe);
 			}

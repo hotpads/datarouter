@@ -11,20 +11,6 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
 public class KeyTool {
-	
-//	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
-//	Class<D> getDatabeanClass(Class<PK> primaryKeyClass){
-//		try{
-//			//use getDeclaredConstructor to access non-public constructors
-//			Constructor<PK> constructor = primaryKeyClass.getDeclaredConstructor();
-//			constructor.setAccessible(true);
-//			PK primaryKeyInstance = constructor.newInstance();
-//			return primaryKeyInstance.getDatabeanClass();
-//		}catch(Exception e){
-//			throw new DataAccessException(e.getClass().getSimpleName()+" on "+primaryKeyClass.getSimpleName()
-//					+".  Is there a no-arg constructor?");
-//		}
-//	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 	List<PK> getKeys(Iterable<D> databeans){

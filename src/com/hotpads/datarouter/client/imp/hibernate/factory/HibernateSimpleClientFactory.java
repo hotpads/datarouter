@@ -64,6 +64,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	public HibernateClient getClient(){
 		if(client!=null){ return client; }
 		synchronized(this){
+			if(client!=null){ return client; }
 			Future<HibernateClient> future = executorService.submit(new Callable<HibernateClient>(){
 				@Override public HibernateClient call(){
 					if(client!=null){ return client; }

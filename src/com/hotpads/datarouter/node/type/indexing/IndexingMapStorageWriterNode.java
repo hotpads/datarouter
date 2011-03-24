@@ -3,9 +3,9 @@ package com.hotpads.datarouter.node.type.indexing;
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.base.indexing.BaseIndexingNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter.MapStorageWriterNode;
+import com.hotpads.datarouter.node.type.indexing.base.BaseIndexingNode;
 import com.hotpads.datarouter.node.type.indexing.mixin.IndexingMapStorageWriterMixin;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;

@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 
 
-public class Config {
+public class Config implements Cloneable{
 	
 	/****************** static vars *******************************/
 	
@@ -14,30 +14,40 @@ public class Config {
 	public static final Boolean DEFAULT_AUTO_COMMIT = false;
 	
 	/*************** fields ********************************/
-	
-	
-	protected Boolean slaveOk = false;
-	protected Boolean cacheOk = DEFAULT_CACHE_OK;
 
 	protected ConnectMethod connectMethod = ConnectMethod.tryExisting;
-	protected Isolation isolation = DEFAULT_ISOLATION;
-//	protected Boolean autoCommit;//HibernateExecutor assumes this to be null unless explicitly set to false
 	protected Boolean useSession = true;
 	
+	//transactions
+	protected Isolation isolation = DEFAULT_ISOLATION;
+//	protected Boolean autoCommit;//HibernateExecutor assumes this to be null unless explicitly set to false
+	
+	//slaves
+	protected Boolean slaveOk = false;
+	
+	//put options
 	protected PutMethod putMethod = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
 	protected Boolean ignoreNullFields = false;
 	protected Integer commitBatchSize;
 	protected Boolean persistentPut = true;
 
+	//table scans
 	protected Boolean scannerCaching = true;
 	protected Integer iterateBatchSize;
+	
+	//retrying
 	protected Long timeoutMs = Long.MAX_VALUE;
 	protected Integer numAttempts = 1;
 
+	//paging
 	protected Object startId;
 	protected Boolean includeStartId = false;
 	protected Integer limit;
 	protected Integer offset;
+	
+	//caching
+	protected Boolean cacheOk = DEFAULT_CACHE_OK;
+	protected Long cacheTimeoutMs = Long.MAX_VALUE;
 	
 	
 	/***************** constructors ********************************/
@@ -52,6 +62,41 @@ public class Config {
 		return new Config();
 	}
 	
+	
+	/******************* clone ******************************************/
+	
+	@Override
+	protected Object clone() throws CloneNotSupportedException{
+		Config clone = new Config();
+		clone
+			.setConnectMethod(connectMethod)
+			.setUseSession(useSession)
+			
+			.setIsolation(isolation)
+			
+			.setSlaveOk(slaveOk)
+			
+			.setPutMethod(putMethod)
+			.setIgnoreNullFields(ignoreNullFields)
+			.setCommitBatchSize(commitBatchSize)
+			.setPersistentPut(persistentPut)
+			
+			.setScannerCaching(scannerCaching)
+			.setIterateBatchSize(iterateBatchSize)
+			
+			.setTimeoutMs(timeoutMs)
+			.setNumAttempts(numAttempts)
+			
+			.setStartId(startId)
+			.setIncludeStartId(includeStartId)
+			.setLimit(limit)
+			.setOffset(offset)
+			
+			.setCacheOk(cacheOk)
+			.setCacheTimeoutMs(cacheTimeoutMs);
+		
+		return clone;
+	}
 	
 	
 	/********************* accessors **************************************/
@@ -261,6 +306,15 @@ public class Config {
 
 	public Config setPersistentPut(Boolean persistentPut){
 		this.persistentPut = persistentPut;
+		return this;
+	}
+
+	public Long getCacheTimeoutMs(){
+		return cacheTimeoutMs;
+	}
+
+	public Config setCacheTimeoutMs(Long cacheTimeoutMs){
+		this.cacheTimeoutMs = cacheTimeoutMs;
 		return this;
 	}
 	

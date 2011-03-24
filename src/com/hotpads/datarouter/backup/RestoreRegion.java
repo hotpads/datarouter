@@ -62,7 +62,7 @@ public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean
 			PhaseTimer logBatchTimer = new PhaseTimer();
 			while(true){
 				try{
-					D databean = FieldSetTool.fieldSetFromBytes(cls, fieldByPrefixedName, is);
+					D databean = FieldSetTool.fieldSetFromByteStream(cls, fieldByPrefixedName, is);
 					toSave.add(databean);
 					++numRecords;
 					if(numRecords % logEvery == 0){

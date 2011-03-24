@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.test.node.basic;
 import java.io.IOException;
+import java.util.Random;
 
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.backup.databean.BackupRecord;
@@ -28,13 +29,16 @@ extends BaseDataRouter{
 
 	public static final String name = "basicNodeTest";
 	
-	public BasicNodeTestRouter(String client) throws IOException{
+	public BasicNodeTestRouter(String client, boolean sorted) throws IOException{
 		super(null, name, ListTool.create(new ClientId(client, true)));
 		
-		manyFieldTypeBeanNode = register(NodeFactory.create(client, ManyFieldTypeBean.class, this));
-		sortedBeanNode = register(NodeFactory.create(client, SortedBean.class, this));
-		backupBeanNode = register(NodeFactory.create(client, BackupBean.class, this));
-		backupRecordNode = register(NodeFactory.create(client, BackupRecord.class, this));
+		manyFieldTypeBeanNode = register(NodeFactory.create(client, ManyFieldTypeBean.class, null,
+				new Random().nextInt(), this));
+		if(sorted){
+			sortedBeanNode = register(NodeFactory.create(client, SortedBean.class, this));
+			backupBeanNode = register(NodeFactory.create(client, BackupBean.class, this));
+			backupRecordNode = register(NodeFactory.create(client, BackupRecord.class, this));
+		}
 		activate();//do after field inits
 	}
 
@@ -77,8 +81,8 @@ extends BaseDataRouter{
 	/************************ sorted and indexed versions of this router *****************/
 	
 	public static class SortedBasicNodeTestRouter extends BasicNodeTestRouter{
-		public SortedBasicNodeTestRouter(String client) throws IOException{
-			super(client);
+		public SortedBasicNodeTestRouter(String client, boolean sorted) throws IOException{
+			super(client, sorted);
 		}
 		public SortedStorage<SortedBeanKey,SortedBean> sortedBeanSorted(){
 			return cast(sortedBeanNode);
@@ -86,8 +90,8 @@ extends BaseDataRouter{
 	}
 	
 	public static class IndexedBasicNodeTestRouter extends BasicNodeTestRouter{
-		public IndexedBasicNodeTestRouter(String client) throws IOException{
-			super(client);
+		public IndexedBasicNodeTestRouter(String client, boolean sorted) throws IOException{
+			super(client, sorted);
 		}
 		public IndexedStorage<SortedBeanKey,SortedBean> sortedBeanIndexed(){
 			return cast(sortedBeanNode);

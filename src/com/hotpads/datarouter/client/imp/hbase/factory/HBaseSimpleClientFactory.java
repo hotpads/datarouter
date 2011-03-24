@@ -32,7 +32,8 @@ import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
-public class HBaseSimpleClientFactory implements HBaseClientFactory{
+public class HBaseSimpleClientFactory 
+implements HBaseClientFactory{
 	Logger logger = Logger.getLogger(getClass());
 	
 	public static final Long KEEP_ALIVE_TEST_PERIOD_MS = 30*1000L;
@@ -61,9 +62,10 @@ public class HBaseSimpleClientFactory implements HBaseClientFactory{
 	}
 	
 	@Override
-	public synchronized HBaseClient getClient(){
+	public HBaseClient getClient(){
 		if(client!=null){ return client; }
 		synchronized(this){
+			if(client!=null){ return client; }
 			Future<HBaseClient> future = executorService.submit(new Callable<HBaseClient>(){
 				@Override public HBaseClient call(){
 					if(client!=null){ return client; }
@@ -80,7 +82,7 @@ public class HBaseSimpleClientFactory implements HBaseClientFactory{
 					timer.add("init HTables");
 					
 					HBaseClientImp newClient = new HBaseClientImp(clientName, options, hbConfig, pool);
-					logger.warn(timer);
+					logger.warn(timer.add("done"));
 					return newClient;
 				}
 			});

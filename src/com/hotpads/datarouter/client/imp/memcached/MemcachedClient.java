@@ -1,25 +1,13 @@
 package com.hotpads.datarouter.client.imp.memcached;
 
-import com.hotpads.datarouter.client.ClientType;
-import com.hotpads.datarouter.client.imp.BaseClient;
+import java.util.concurrent.ExecutorService;
 
-public class MemcachedClient 
-extends BaseClient{
+import com.hotpads.datarouter.client.Client;
 
-	String name;
-	public String getName(){
-		return name;
-	}
+public interface MemcachedClient 
+extends Client{
 	
-	@Override
-	public ClientType getType(){
-		return ClientType.memcached;
-	}
-	
-//	net.spy.memcached.MemcachedClient spyClient;
-	
+	ExecutorService getExecutorService();
+	net.spy.memcached.MemcachedClient getSpyClient();
 
-	
-	
-	
 }

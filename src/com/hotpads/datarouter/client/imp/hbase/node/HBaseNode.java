@@ -23,12 +23,15 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.profile.count.collection.Counters;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
-public class HBaseNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
+public class HBaseNode<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>> 
 extends HBaseReaderNode<PK,D,F>
 implements PhysicalSortedMapStorageNode<PK,D>
 {
@@ -103,9 +106,9 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						++numPuts;
 						if(!delete.isEmpty()){ actions.add(delete); ++numDeletes; }
 					}
-					Counters.inc(node.getName()+" num cells put", numPuts);
-					Counters.inc(node.getName()+" num cells delete", numDeletes);//deletes gets emptied by the hbase client, so count before flushing
-					Counters.inc(node.getName()+" num cells put+delete", numPuts + numDeletes);
+					DRCounters.inc(node.getName()+" hbase cells put", numPuts);
+					DRCounters.inc(node.getName()+" hbase cells delete", numDeletes);//deletes gets emptied by the hbase client, so count before flushing
+					DRCounters.inc(node.getName()+" hbase cells put+delete", numPuts + numDeletes);
 					if(CollectionTool.notEmpty(actions)){
 						hTable.batch(actions);
 						hTable.flushCommits();

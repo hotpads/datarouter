@@ -14,6 +14,7 @@ import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.number.VarLong;
@@ -21,7 +22,7 @@ import com.hotpads.util.core.number.VarLong;
 public class FieldSetTool{
 	static Logger logger = Logger.getLogger(FieldSetTool.class);
 
-	public static int getNumNonNullFields(FieldSet prefix){
+	public static int getNumNonNullFields(FieldSet<?> prefix){
 		int numNonNullFields = 0;
 		for(Object value : CollectionTool.nullSafe(prefix.getFieldValues())){
 			if(value != null){
@@ -32,10 +33,10 @@ public class FieldSetTool{
 	}
 
 	public static void appendWhereClauseDisjunction(StringBuilder sql,
-			Collection<? extends FieldSet> fieldSets){
+			Collection<? extends FieldSet<?>> fieldSets){
 		if(CollectionTool.isEmpty(fieldSets)){ return; }
 		int counter = 0;
-		for(FieldSet fieldSet : IterableTool.nullSafe(fieldSets)){
+		for(FieldSet<?> fieldSet : IterableTool.nullSafe(fieldSets)){
 			if(counter > 0){
 				sql.append(" or ");
 			}
@@ -45,10 +46,18 @@ public class FieldSetTool{
 		}
 	}
 	
+	public static List<String> getPersistentStrings(Collection<? extends FieldSet<?>> keys){
+		List<String> outs = ListTool.createArrayListWithSize(keys);
+		for(FieldSet<?> f : IterableTool.nullSafe(keys)){
+			outs.add(f.getPersistentString());
+		}
+		return outs;
+	}
+	
 	
 	/***************************** construct fieldsets using reflection ***************************/
 
-	public static <D extends FieldSet> D fieldSetFromHibernateResultUsingReflection(
+	public static <D extends FieldSet<?>> D fieldSetFromHibernateResultUsingReflection(
 			Class<D> cls, List<Field<?>> fields, Object sqlObject, boolean ignorePrefix){
 		D targetFieldSet = ReflectionTool.create(cls);
 		Object[] cols = (Object[])sqlObject;
@@ -60,7 +69,7 @@ public class FieldSetTool{
 		return targetFieldSet;
 	}
 
-	public static <D extends FieldSet> D fieldSetFromJdbcResultSetUsingReflection(
+	public static <D extends FieldSet<?>> D fieldSetFromJdbcResultSetUsingReflection(
 			Class<D> cls, List<Field<?>> fields, ResultSet rs, boolean ignorePrefix){
 		D targetFieldSet = ReflectionTool.create(cls);
 		int counter = 0;
@@ -71,10 +80,15 @@ public class FieldSetTool{
 		return targetFieldSet;
 	}
 
-	public static <D extends FieldSet> D fieldSetFromBytes(Class<D> cls, 
+	public static <D extends FieldSet<?>> D fieldSetFromByteStream(Class<D> cls, 
 			Map<String,Field<?>> fieldByPrefixedName, InputStream is) throws IOException{
-		D targetFieldSet = ReflectionTool.create(cls);
 		int databeanLength = (int)new VarLong(is).getValue();
+		return fieldSetFromByteStreamKnownLength(cls, fieldByPrefixedName, is, databeanLength);
+	}
+
+	public static <D extends FieldSet<?>> D fieldSetFromByteStreamKnownLength(Class<D> cls, 
+			Map<String,Field<?>> fieldByPrefixedName, InputStream is, int numBytes) throws IOException{
+		D targetFieldSet = ReflectionTool.create(cls);
 		int numBytesThroughDatabean = 0;
 		while(true){
 			VarLong nameLength = new VarLong(is);//will throw IllegalArgumentException at the end of the stream
@@ -92,7 +106,7 @@ public class FieldSetTool{
 				Object value = field.fromBytesButDoNotSet(valueBytes, 0);
 				field.setUsingReflection(targetFieldSet, value, false);
 			}
-			if(numBytesThroughDatabean >= databeanLength){
+			if(numBytesThroughDatabean >= numBytes){
 				break;
 			}
 		}

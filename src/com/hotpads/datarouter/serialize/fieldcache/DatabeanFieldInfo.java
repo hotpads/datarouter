@@ -33,6 +33,7 @@ public class DatabeanFieldInfo<
 	protected List<Field<?>> fields;
 	
 	protected Map<String,Field<?>> fieldByMicroName = MapTool.createHashMap();
+	protected Map<String,Field<?>> fieldByPrefixedName = MapTool.createHashMap();
 	
 	protected List<String> fieldNames = ListTool.createArrayList();
 	protected List<java.lang.reflect.Field> reflectionFields = ListTool.createArrayList();
@@ -53,6 +54,7 @@ public class DatabeanFieldInfo<
 				this.fields = this.sampleDatabean.getFields();//make sure there is a PK or this will NPE
 				for(Field<?> field : this.fields){
 					this.fieldByMicroName.put(field.getName(), field);
+					this.fieldByPrefixedName.put(field.getPrefixedName(), field);
 					this.fieldNames.add(field.getName());
 					java.lang.reflect.Field reflectionField = FieldTool.getReflectionFieldForField(sampleDatabean, field);
 					this.reflectionFields.add(reflectionField);
@@ -66,6 +68,7 @@ public class DatabeanFieldInfo<
 				this.fields = sampleFielder.getFields(sampleDatabean);//make sure there is a PK or this will NPE
 				for(Field<?> field : this.fields){
 					this.fieldByMicroName.put(field.getName(), field);
+					this.fieldByPrefixedName.put(field.getPrefixedName(), field);
 					this.fieldNames.add(field.getName());
 					java.lang.reflect.Field reflectionField = FieldTool.getReflectionFieldForField(sampleDatabean, field);
 					this.reflectionFields.add(reflectionField);
@@ -175,6 +178,11 @@ public class DatabeanFieldInfo<
 
 	public Map<String,java.lang.reflect.Field> getReflectionFieldByName(){
 		return reflectionFieldByName;
+	}
+
+
+	public Map<String,Field<?>> getFieldByPrefixedName(){
+		return fieldByPrefixedName;
 	}
 	
 	

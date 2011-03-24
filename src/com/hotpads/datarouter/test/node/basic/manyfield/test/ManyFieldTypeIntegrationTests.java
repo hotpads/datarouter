@@ -54,18 +54,27 @@ public class ManyFieldTypeIntegrationTests {
 		if(DRTestConstants.clientTypes.contains(ClientType.hibernate)){
 			routerByClientType.put(
 					ClientType.hibernate, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, true));
 		}
 
 		if(DRTestConstants.clientTypes.contains(ClientType.hbase)){
 			routerByClientType.put(
 					ClientType.hbase, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, true));
+		}
+
+		if(DRTestConstants.clientTypes.contains(ClientType.memcached)){
+			routerByClientType.put(
+					ClientType.memcached, 
+					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemcached, false));
 		}
 		
-		for(BasicNodeTestRouter router : routerByClientType.values()){
-			router.manyFieldTypeBean().deleteAll(null);
-			Assert.assertEquals(0, CollectionTool.size(router.manyFieldTypeBean().getAll(null)));
+		for(ClientType clientType : routerByClientType.keySet()){
+			BasicNodeTestRouter router = routerByClientType.get(clientType);
+			if(ClientType.memcached!=clientType){
+				router.manyFieldTypeBean().deleteAll(null);
+				Assert.assertEquals(0, CollectionTool.size(router.manyFieldTypeBean().getAll(null)));
+			}
 		}
 	}
 	
@@ -135,7 +144,7 @@ public class ManyFieldTypeIntegrationTests {
 		int expectedExceptions;
 		if(clientType==ClientType.hibernate){
 			expectedExceptions = 1;
-		}else if(clientType==ClientType.hbase){
+		}else if(clientType==ClientType.hbase || isMemcached()){
 			expectedExceptions = 0;
 		}else{
 			throw new NotImplementedException("test needs a case for this clientType="+clientType); 
@@ -235,7 +244,7 @@ public class ManyFieldTypeIntegrationTests {
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		if(ClientType.hibernate==clientType){//we're expecting the db to be in ASCII mode and strip out that weird character
 			Assert.assertFalse(bean.getStringField().equals(roundTripped.getStringField()));
-		}else if(ClientType.hbase==clientType){//byte arrays should handle any string
+		}else if(ClientType.hbase==clientType || isMemcached()){//byte arrays should handle any string
 			Assert.assertTrue(bean.getStringField().equals(roundTripped.getStringField()));
 		}else{
 			throw new NotImplementedException("test needs a case for this clientType="+clientType); 
@@ -339,7 +348,9 @@ public class ManyFieldTypeIntegrationTests {
 	@Test 
 	public void testBigLongArray(){		
 		ManyFieldTypeBean bean = new ManyFieldTypeBean();
-		for(int i=0; i < 1000000; ++i){ //8MB
+		int numLongs = 1000000;//8MB
+		if(isMemcached()){ numLongs = 100000; }//800kb (under memcached default 1mb max size)
+		for(int i=0; i < numLongs; ++i){ 
 			bean.appendToLongArrayField(i);
 		}
 		router.manyFieldTypeBean().put(bean, null);
@@ -354,8 +365,10 @@ public class ManyFieldTypeIntegrationTests {
 	
 	@Test 
 	public void testGetAll(){
-		List<ManyFieldTypeBean> allBeans = router.manyFieldTypeBean().getAll(null);
-		Assert.assertTrue(CollectionTool.sameSize(keysByClientType.get(clientType), allBeans));
+		if(!isMemcached()){
+			List<ManyFieldTypeBean> allBeans = router.manyFieldTypeBean().getAll(null);
+			Assert.assertTrue(CollectionTool.sameSize(keysByClientType.get(clientType), allBeans));
+		}
 	}
 	
 	@Test
@@ -369,6 +382,10 @@ public class ManyFieldTypeIntegrationTests {
 	
 	protected void recordKey(ManyFieldTypeBeanKey key){
 		keysByClientType.get(clientType).add(key);
+	}
+	
+	public boolean isMemcached(){
+		return ClientType.memcached==clientType;
 	}
 }
 

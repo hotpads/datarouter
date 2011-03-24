@@ -3,9 +3,9 @@ package com.hotpads.datarouter.node.type.masterslave.mixin;
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.base.masterslave.BaseMasterSlaveNode;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter.MapStorageWriterNode;
+import com.hotpads.datarouter.node.type.masterslave.base.BaseMasterSlaveNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
