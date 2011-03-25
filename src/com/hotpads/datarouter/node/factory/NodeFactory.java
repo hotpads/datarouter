@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.node.factory;
 
+import org.apache.log4j.Logger;
+
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
@@ -11,6 +13,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class NodeFactory{
+	static Logger logger = Logger.getLogger(NodeFactory.class);
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> 
 	N create(//3 args
@@ -40,7 +43,7 @@ public class NodeFactory{
 			DataRouter router){
 		
 		ClientType clientType = router.getClientOptions().getClientType(clientName);
-		
+		logger.warn("clientName:"+clientName+",clientType:"+clientType);
 		Node<PK,D> node = null;
 		if(ClientType.hibernate==clientType){
 			node = new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, clientName);
