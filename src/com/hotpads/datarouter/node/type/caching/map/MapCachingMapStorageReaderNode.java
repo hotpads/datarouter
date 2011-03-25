@@ -176,6 +176,6 @@ implements MapStorageReaderNode<PK,D>{
 	}
 	
 	protected void countMisses(Collection<?> c){
-		countHits(CollectionTool.size(c));
+		countMisses(CollectionTool.size(c));
 	}
 }
