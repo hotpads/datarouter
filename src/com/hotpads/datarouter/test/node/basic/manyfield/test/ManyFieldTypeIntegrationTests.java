@@ -345,6 +345,9 @@ public class ManyFieldTypeIntegrationTests {
 		recordKey(bean.getKey());
 	}
 	
+	/**
+	 * 
+	 */
 	@Test 
 	public void testBigLongArray(){		
 		ManyFieldTypeBean bean = new ManyFieldTypeBean();

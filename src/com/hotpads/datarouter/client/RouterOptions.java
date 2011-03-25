@@ -32,7 +32,9 @@ public class RouterOptions extends TypedProperties{
 	
 	public ClientType getClientType(String clientName){
 		String type = getString(prependClientPrefix(clientName, "type"));
-		return type==null?ClientType.hibernate:ClientType.fromString(type);
+		ClientType clientType = ClientType.fromString(type);
+//		return Preconditions.checkNotNull(clientType, "unknown clientType:"+clientType+" for clientName:"+clientName);
+		return clientType==null?ClientType.hibernate:clientType;
 	}
 	
 	public String getMode(String routerName){
