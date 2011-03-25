@@ -32,25 +32,32 @@ import com.hotpads.util.core.SetTool;
 public class SortedNodeIntegrationTests{
 	static Logger logger = Logger.getLogger(SortedNodeIntegrationTests.class);
 	
+	/****************************** client types ***********************************/
+
+	public static List<ClientType> clientTypes = ListTool.create();
+	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
+	static{
+		clientTypes.add(ClientType.hibernate);
+		clientTypes.add(ClientType.hbase);
+		for(ClientType clientType : clientTypes){
+			clientTypeObjectArrays.add(new Object[]{clientType});
+		}
+	}
+	
 	/****************************** static setup ***********************************/
 
 	static Map<ClientType,SortedBasicNodeTestRouter> routerByClientType = MapTool.create();
 	
-	@Parameters
-	public static Collection<Object[]> parameters(){
-		return DRTestConstants.clientTypeObjectArrays;
-	}
-	
 	@BeforeClass
 	public static void init() throws IOException{	
 
-		if(DRTestConstants.clientTypes.contains(ClientType.hibernate)){
+		if(clientTypes.contains(ClientType.hibernate)){
 			routerByClientType.put(
 					ClientType.hibernate, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, true));
 		}
 
-		if(DRTestConstants.clientTypes.contains(ClientType.hbase)){
+		if(clientTypes.contains(ClientType.hbase)){
 			routerByClientType.put(
 					ClientType.hbase, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, true));
@@ -96,6 +103,11 @@ public class SortedNodeIntegrationTests{
 	protected SortedBasicNodeTestRouter router;
 
 	/***************************** constructors **************************************/
+
+	@Parameters
+	public static Collection<Object[]> parameters(){
+		return clientTypeObjectArrays;
+	}
 	
 	public SortedNodeIntegrationTests(ClientType clientType){
 		this.clientType = clientType;

@@ -43,25 +43,32 @@ import com.hotpads.util.core.profile.PhaseTimer;
 public class BackupIntegrationTests{
 	static Logger logger = Logger.getLogger(BackupIntegrationTests.class);
 	
-	/****************************** static setup ***********************************/
+	/****************************** client types ***********************************/
+
+	public static List<ClientType> clientTypes = ListTool.create();
+	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
+	static{
+		clientTypes.add(ClientType.hibernate);
+		clientTypes.add(ClientType.hbase);
+		for(ClientType clientType : clientTypes){
+			clientTypeObjectArrays.add(new Object[]{clientType});
+		}
+	}
+	
+	/************************************ routers ***************************************/
 
 	static Map<ClientType,SortedBasicNodeTestRouter> routerByClientType = MapTool.create();
-	
-	@Parameters
-	public static Collection<Object[]> parameters(){
-		return DRTestConstants.clientTypeObjectArrays;
-	}
 	
 	@BeforeClass
 	public static void init() throws IOException{	
 
-		if(DRTestConstants.clientTypes.contains(ClientType.hibernate)){
+		if(clientTypes.contains(ClientType.hibernate)){
 			routerByClientType.put(
 					ClientType.hibernate, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, true));
 		}
 
-		if(DRTestConstants.clientTypes.contains(ClientType.hbase)){
+		if(clientTypes.contains(ClientType.hbase)){
 			routerByClientType.put(
 					ClientType.hbase, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, true));
@@ -71,6 +78,8 @@ public class BackupIntegrationTests{
 			resetTable(router);
 		}
 	}
+	
+	/****************************** dummy data *************************************/
 	
 	public static void resetTable(BasicNodeTestRouter routerToReset){	
 		clearTable(routerToReset);
@@ -112,7 +121,12 @@ public class BackupIntegrationTests{
 
 	/***************************** constructors **************************************/
 	
-	public BackupIntegrationTests(ClientType clientType){
+	@Parameters
+	public static Collection<Object[]> parameters(){//tests repeat for each Object[]
+		return clientTypeObjectArrays;
+	}
+	
+	public BackupIntegrationTests(ClientType clientType){//passed in by junit from the "parameters"
 		this.clientType = clientType;
 		this.router = routerByClientType.get(clientType);
 	}

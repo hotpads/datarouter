@@ -13,14 +13,14 @@ public class DRTestConstants{
 		CLIENT_drTestHBase = "drTestHBase",
 		CLIENT_drTestMemcached = "drTestMemcached";
 
-	public static List<ClientType> clientTypes = ListTool.create();
-	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
+	public static List<ClientType> ALL_CLIENT_TYPES = ListTool.create();
+	public static List<Object[]> CLIENT_TYPE_OBJECT_ARRAYS = ListTool.create();
 	static{
-		clientTypes.add(ClientType.hibernate);
-		clientTypes.add(ClientType.hbase);
-		clientTypes.add(ClientType.memcached);
-		for(ClientType clientType : clientTypes){
-			clientTypeObjectArrays.add(new Object[]{clientType});
+		ALL_CLIENT_TYPES.add(ClientType.hibernate);
+		ALL_CLIENT_TYPES.add(ClientType.hbase);
+		ALL_CLIENT_TYPES.add(ClientType.memcached);
+		for(ClientType clientType : ALL_CLIENT_TYPES){
+			CLIENT_TYPE_OBJECT_ARRAYS.add(new Object[]{clientType});
 		}
 	}
 }
