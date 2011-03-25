@@ -43,7 +43,7 @@ public class NodeFactory{
 			DataRouter router){
 		
 		ClientType clientType = router.getClientOptions().getClientType(clientName);
-		logger.warn("clientName:"+clientName+",clientType:"+clientType);
+		
 		Node<PK,D> node = null;
 		if(ClientType.hibernate==clientType){
 			node = new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, clientName);
