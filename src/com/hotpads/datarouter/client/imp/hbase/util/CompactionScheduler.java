@@ -29,7 +29,9 @@ implements CompactionInfo{
 	}
 	
 	public String getNextCompactTimeFormatted(){
-		return DateTool.getYYYYMMDDHHMMSSWithPunctuationNoSpaces(new Date(nextCompactTimeMs));
+		Date date = new Date(nextCompactTimeMs);
+		return DateTool.getYYYYMMDDHHMMWithPunctuation(date) + ", "
+				+ DateTool.getDayAbbreviation(date);
 	}
 	
 	public Long getNextCompactTimeMs(){
@@ -48,14 +50,17 @@ implements CompactionInfo{
 		long regionCompactionPeriodMs = getPeriodMs();
 		long periodStartSeekerMs = COMPACTION_EPOCH;
 		while(true){
-			if(periodStartSeekerMs > now){ break; }
-			periodStartSeekerMs += regionCompactionPeriodMs;
+			long nextPeriodStartMs = periodStartSeekerMs + regionCompactionPeriodMs;
+			if(nextPeriodStartMs > now){ break; }
+			periodStartSeekerMs = nextPeriodStartMs;
 		}
 
 		//calculate an offset into the current period
 		Double offsetIntoCompactionPeriodPct = 1d * (double)regionHash / (double)Integer.MAX_VALUE;
 		Long offsetIntoCompactionPeriodMs = (long)(offsetIntoCompactionPeriodPct * getPeriodMs());
 		nextCompactTimeMs = periodStartSeekerMs + offsetIntoCompactionPeriodMs;
+		if(nextCompactTimeMs < now){ nextCompactTimeMs += regionCompactionPeriodMs; }
+		nextCompactTimeMs = nextCompactTimeMs - (nextCompactTimeMs % getCompactionTriggerPeriodMs());
 	}
 	
 	public Long getPeriodMs(){
