@@ -10,6 +10,8 @@ import org.apache.hadoop.hbase.HServerInfo;
 import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.hbase.util.CompactionInfo;
+import com.hotpads.datarouter.client.imp.hbase.util.CompactionScheduler;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
@@ -32,11 +34,12 @@ public class DRHRegionInfo{
 	protected DRHServerInfo consistentHashHServer;
 	protected RegionLoad load;
 	protected byte[] consistentHashInput;
+	protected CompactionScheduler compactionScheduler;
 	
 	
 	public DRHRegionInfo(Integer regionNum, String tableName, Class<PrimaryKey<?>> primaryKeyClass, 
 			HRegionInfo hRegionInfo, HServerInfo hServerInfo, HServerAddress hServerAddress, 
-			DRHRegionList regionList, RegionLoad load){
+			DRHRegionList regionList, RegionLoad load, CompactionInfo compactionInfo){
 		this.regionNum = regionNum;
 		this.tableName = tableName;
 		this.name = new String(hRegionInfo.getRegionName());
@@ -49,6 +52,7 @@ public class DRHRegionInfo{
 		this.consistentHashInput = ByteTool.concatenate(
 				StringByteTool.getUtf8Bytes(tableName), hRegionInfo.getStartKey());
 		this.consistentHashHServer = regionList.getServerForRegion(consistentHashInput);
+		this.compactionScheduler = new CompactionScheduler(compactionInfo, this);
 	}
 	
 	
@@ -124,6 +128,10 @@ public class DRHRegionInfo{
 
 	public RegionLoad getLoad(){
 		return load;
+	}
+	
+	public CompactionScheduler getCompactionScheduler(){
+		return compactionScheduler;
 	}
 
 	public byte[] getConsistentHashInput(){

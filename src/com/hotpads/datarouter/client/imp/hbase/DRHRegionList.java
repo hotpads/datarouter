@@ -18,6 +18,7 @@ import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.imp.hbase.util.CompactionInfo;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -36,9 +37,12 @@ public class DRHRegionList{
 	protected List<String> tableNames;
 	protected List<DRHRegionInfo> regions;
 	protected SortedMap<Long,DRHServerInfo> consistentHashRing;
+	protected CompactionInfo compactionInfo;
 
-	public DRHRegionList(HBaseClient client, List<String> tableNames, Configuration config){
+	public DRHRegionList(HBaseClient client, List<String> tableNames, Configuration config,
+			CompactionInfo compactionInfo){
 		this.tableNames = ListTool.nullSafe(tableNames);
+		this.compactionInfo = compactionInfo;
 		this.regions = ListTool.create();
 		try{
 			for(String tableName : IterableTool.nullSafe(tableNames)){
@@ -72,7 +76,7 @@ public class DRHRegionList{
 					HServerAddress hServerAddress = hServerAddressByHRegionInfo.get(info);
 					HServerInfo hServerInfo = servers.getHServerInfo(hServerAddress);
 					regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, info, hServerInfo,
-							hServerAddress, this, load));
+							hServerAddress, this, load, compactionInfo));
 				}
 			}
 		}catch(IOException e){
