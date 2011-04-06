@@ -69,4 +69,9 @@ public class DateField extends BasePrimitiveField<Date>{
 	public Date fromBytesButDoNotSet(byte[] bytes, int offset){
 		return new Date(LongByteTool.fromUInt63Bytes(bytes, offset));
 	}
+	
+	@Override
+	public String getSqlEscaped(){
+		return "'"+value.toString()+"'";
+	}
 }
