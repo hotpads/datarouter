@@ -288,7 +288,7 @@ public class ManyFieldTypeIntegrationTests {
 	}
 	
 	@Test 
-	public void testIntEnum(){		
+	public void testIntegerEnum(){		
 		ManyFieldTypeBean bean = new ManyFieldTypeBean();
 		bean.setIntEnumField(TestEnum.beast);
 		router.manyFieldTypeBean().put(bean, null);
@@ -296,6 +296,30 @@ public class ManyFieldTypeIntegrationTests {
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertEquals(bean.getIntEnumField(), roundTripped.getIntEnumField());
 		Assert.assertTrue(TestEnum.beast==roundTripped.getIntEnumField());
+		recordKey(bean.getKey());
+	}
+	
+	@Test 
+	public void testVarIntEnum(){		
+		ManyFieldTypeBean bean = new ManyFieldTypeBean();
+		bean.setVarIntEnumField(TestEnum.fish);
+		router.manyFieldTypeBean().put(bean, null);
+		
+		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
+		Assert.assertEquals(bean.getVarIntEnumField(), roundTripped.getVarIntEnumField());
+		Assert.assertTrue(TestEnum.fish==roundTripped.getVarIntEnumField());
+		recordKey(bean.getKey());
+	}
+	
+	@Test 
+	public void testStringEnum(){		
+		ManyFieldTypeBean bean = new ManyFieldTypeBean();
+		bean.setStringEnumField(TestEnum.cat);
+		router.manyFieldTypeBean().put(bean, null);
+		
+		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
+		Assert.assertEquals(bean.getStringEnumField(), roundTripped.getStringEnumField());
+		Assert.assertTrue(TestEnum.cat==roundTripped.getStringEnumField());
 		recordKey(bean.getKey());
 	}
 	

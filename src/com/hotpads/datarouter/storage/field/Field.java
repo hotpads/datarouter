@@ -19,12 +19,12 @@ extends Comparable<Field<T>>, ByteAwareField<T>, SqlField<T>{//TODO remove SqlFr
 
 	
 	/*************** useful methods *************************/
-	void cacheReflectionInfo(FieldSet sampleFieldSet);
+	void cacheReflectionInfo(FieldSet<?> sampleFieldSet);
 	
 	boolean isCollection();
 	String getPrefixedName();
 	String getValueString();
 	void fromString(String s);
-	void setUsingReflection(FieldSet targetFieldSet, Object value, boolean ignorePrefix);
+	void setUsingReflection(FieldSet<?> targetFieldSet, Object value);
 
 }

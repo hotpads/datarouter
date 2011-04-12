@@ -30,6 +30,7 @@ import com.hotpads.datarouter.node.scanner.Scanner;
 import com.hotpads.datarouter.node.scanner.primarykey.PrimaryKeyScanner;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
@@ -116,7 +117,7 @@ implements MapStorageReader<PK,D>,
 						return CollectionTool.getFirst(result);
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
-						List<Field<?>> fields = key.getFields();
+						List<Field<?>> fields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), key.getFields());
 						for(Field<?> field : fields){
 							criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 						}
@@ -183,7 +184,7 @@ implements MapStorageReader<PK,D>,
 							Disjunction orSeparatedIds = Restrictions.disjunction();
 							for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
 								Conjunction possiblyCompoundId = Restrictions.conjunction();
-								List<Field<?>> fields = key.getFields();
+								List<Field<?>> fields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), key.getFields());
 								for(Field<?> field : fields){
 									possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 								}
@@ -225,7 +226,7 @@ implements MapStorageReader<PK,D>,
 						//projection list
 						ProjectionList projectionList = Projections.projectionList();
 						int numFields = 0;
-						for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
+						for(Field<?> field : FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), fieldInfo.getPrimaryKeyFields())){
 							projectionList.add(Projections.property(field.getPrefixedName()));
 							++numFields;
 						}
@@ -234,7 +235,7 @@ implements MapStorageReader<PK,D>,
 						Disjunction orSeparatedIds = Restrictions.disjunction();
 						for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
 							Conjunction possiblyCompoundId = Restrictions.conjunction();
-							List<Field<?>> fields = key.getFields();
+							List<Field<?>> fields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), key.getFields());
 							for(Field<?> field : fields){
 								possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 							}
@@ -243,7 +244,8 @@ implements MapStorageReader<PK,D>,
 						criteria.add(orSeparatedIds);
 						List<Object[]> rows = criteria.list();
 						for(Object[] row : IterableTool.nullSafe(rows)){
-							all.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), row, true));
+							all.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
+									fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), row));
 						}
 					}
 					return all;
@@ -450,7 +452,7 @@ implements MapStorageReader<PK,D>,
 						Criteria criteria = session.createCriteria(entityName);
 						ProjectionList projectionList = Projections.projectionList();
 						int numFields = 0;
-						for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
+						for(Field<?> field : FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), fieldInfo.getPrimaryKeyFields())){
 							projectionList.add(Projections.property(field.getPrefixedName()));
 							++numFields;
 						}
@@ -462,7 +464,8 @@ implements MapStorageReader<PK,D>,
 						if(numFields==1){
 							rows = new Object[]{rows};
 						}
-						PK pk = (PK)FieldSetTool.fieldSetFromHibernateResultUsingReflection(fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rows, true);
+						PK pk = (PK)FieldSetTool.fieldSetFromHibernateResultUsingReflection(
+								fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rows);
 						return pk;
 					}
 				}
@@ -566,7 +569,7 @@ implements MapStorageReader<PK,D>,
 						}
 						criteria.setProjection(projectionList);
 						addPrimaryKeyOrderToCriteria(criteria);
-						addRangesToCriteria(criteria, start, startInclusive, end, endInclusive);
+						addRangesToCriteria(criteria, start, startInclusive, end, endInclusive, fieldInfo);
 						List<Object[]> rows = criteria.list();
 						List<PK> result = ListTool.createArrayList(CollectionTool.size(rows));
 						for(Object row : IterableTool.nullSafe(rows)){
@@ -574,7 +577,8 @@ implements MapStorageReader<PK,D>,
 							Object[] rowCells;
 							if(row instanceof Object[]){ rowCells = (Object[])row; }
 							else{ rowCells = new Object[]{row}; }
-							result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rowCells, true));
+							result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
+									fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rowCells));
 						}
 						return result;
 					}
@@ -606,7 +610,7 @@ implements MapStorageReader<PK,D>,
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
 						addPrimaryKeyOrderToCriteria(criteria);
-						addRangesToCriteria(criteria, start, startInclusive, end, endInclusive);
+						addRangesToCriteria(criteria, start, startInclusive, end, endInclusive, fieldInfo);
 						Object result = criteria.list();
 						return result;
 					}
@@ -697,7 +701,7 @@ implements MapStorageReader<PK,D>,
 	/********************************* hibernate helpers ***********************************************/
 	
 	protected void addPrimaryKeyOrderToCriteria(Criteria criteria){
-		for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
+		for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
 			criteria.addOrder(Order.asc(field.getPrefixedName()));
 		}
 	}
@@ -720,19 +724,17 @@ implements MapStorageReader<PK,D>,
 	}
 
 	
-	protected static <PK extends PrimaryKey<PK>> Conjunction getPrefixConjunction(
+	protected <PK extends PrimaryKey<PK>> Conjunction getPrefixConjunction(
 			Key<PK> prefix, final boolean wildcardLastField){
 		int numNonNullFields = FieldSetTool.getNumNonNullFields(prefix);
 		if(numNonNullFields==0){ return null; }
 		Conjunction conjunction = Restrictions.conjunction();
 		int numFullFieldsFinished = 0;
-		for(Field<?> field : CollectionTool.nullSafe(prefix.getFields())){
+		for(Field<?> field : FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), prefix.getFields())){
 			if(numFullFieldsFinished < numNonNullFields){
 				boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
 				boolean stringField = !(field instanceof BasePrimitiveField<?>);
-				
 				boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
-				
 				if(canDoPrefixMatchOnField){
 					conjunction.add(Restrictions.like(field.getPrefixedName(), field.getValue().toString(), MatchMode.START));
 				}else{
@@ -745,13 +747,15 @@ implements MapStorageReader<PK,D>,
 	}
 
 	
-	public static <PK extends PrimaryKey<PK>> void addRangesToCriteria(
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> void addRangesToCriteria(
 			Criteria criteria, 
 			final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive){
+			final PK end, final boolean endInclusive,
+			DatabeanFieldInfo<PK,D,?> fieldInfo){
 		
 		if(start != null && CollectionTool.notEmpty(start.getFields())){
-			List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
+			List<Field<?>> startFields = ListTool.createArrayList(
+					FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), start.getFields()));
 			int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 			Disjunction d = Restrictions.disjunction();
 			for(int i=numNonNullStartFields; i > 0; --i){
@@ -774,7 +778,8 @@ implements MapStorageReader<PK,D>,
 		}
 		
 		if(end != null && CollectionTool.notEmpty(end.getFields())){
-			List<Field<?>> endFields = ListTool.createArrayList(end.getFields());
+			List<Field<?>> endFields = ListTool.createArrayList(
+					FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), end.getFields()));
 			int numNonNullEndFields = FieldTool.countNonNullLeadingFields(endFields);
 			Disjunction d = Restrictions.disjunction();
 			for(int i=0; i < numNonNullEndFields; ++i){

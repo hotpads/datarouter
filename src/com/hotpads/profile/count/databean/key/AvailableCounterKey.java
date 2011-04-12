@@ -12,7 +12,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.profile.count.databean.AvailableCounter;
 
 @SuppressWarnings("serial")
 @Embeddable
@@ -36,10 +35,10 @@ public class AvailableCounterKey extends BasePrimaryKey<AvailableCounterKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(AvailableCounter.KEY_NAME, COL_sourceType, sourceType),
-				new UInt63Field(AvailableCounter.KEY_NAME, COL_periodMs, periodMs),
-				new StringField(AvailableCounter.KEY_NAME, COL_name, name),
-				new StringField(AvailableCounter.KEY_NAME, COL_source, source));
+				new StringField(COL_sourceType, sourceType),
+				new UInt63Field(COL_periodMs, periodMs),
+				new StringField(COL_name, name),
+				new StringField(COL_source, source));
 	}
 	
 

@@ -36,6 +36,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	
 	@Override
 	public V wrappedCall(){
+		Exception finalAttempException = null;
 		for(int i=1; i <= numAttempts; ++i){
 			try{
 				task.setAttemptNumOneBased(i);//pass these in for Tracing purposes
@@ -53,10 +54,12 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 					throw new DataAccessException(e);
 				}
 			}catch(Exception attemptException){
+				finalAttempException = attemptException;
 				logger.warn("attempt "+i+"/"+numAttempts+" failed with the following exception");
 				logger.warn(ExceptionTool.getStackTraceAsString(attemptException));
 			}
 		}
-		throw new DataAccessException("timed out "+numAttempts+" times at timeoutMs="+timeoutMs);
+		throw new DataAccessException("timed out "+numAttempts+" times at timeoutMs="+timeoutMs, 
+				finalAttempException);
 	}
 }

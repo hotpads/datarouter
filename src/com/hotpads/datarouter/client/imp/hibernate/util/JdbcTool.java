@@ -27,13 +27,13 @@ public class JdbcTool {
 			PreparedStatement ps = session.connection().prepareStatement(sql.toString());
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
-			List<PK> databeans = ListTool.createArrayList();
+			List<PK> primaryKeys = ListTool.createArrayList();
 			while(rs.next()){
-				PK databean = (PK)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
+				PK primaryKey = (PK)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rs, true);
-				databeans.add(databean);
+				primaryKeys.add(primaryKey);
 			}
-			return databeans;
+			return primaryKeys;
 		}catch(Exception e){
 			throw new DataAccessException(e);
 		}

@@ -43,10 +43,10 @@ public class BackupRecordKey extends BasePrimaryKey<BackupRecordKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(BackupRecord.KEY_NAME, COL_node, node),
-				new ByteArrayField(BackupRecord.KEY_NAME, COL_startKey, startKey),
-				new ByteArrayField(BackupRecord.KEY_NAME, COL_endKey, endKey),
-				new LongDateField(BackupRecord.KEY_NAME, COL_created, created));
+				new StringField(COL_node, node),
+				new ByteArrayField(COL_startKey, startKey),
+				new ByteArrayField(COL_endKey, endKey),
+				new LongDateField(COL_created, created));
 	}
 
 

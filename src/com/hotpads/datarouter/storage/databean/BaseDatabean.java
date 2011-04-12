@@ -3,6 +3,7 @@ package com.hotpads.datarouter.storage.databean;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.field.BaseFieldSet;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -28,6 +29,7 @@ implements Databean<PK,D>{
 	
 	/*************************** fields ****************************/
 	
+	@Override
 	public String getKeyFieldName(){
 		return DEFAULT_KEY_FIELD_NAME;
 	}
@@ -36,16 +38,38 @@ implements Databean<PK,D>{
 	public boolean isFieldAware(){
 		return false;
 	}
+	
+	@Override
+	public Class<? extends Fielder<PK>> getKeyFielderClass(){
+		return getKeyClass();
+	}
+	
+	@Override
+	public Fielder<PK> getKeyFielder(){
+		return getKey();
+	}
 
 	@Override
 	public List<Field<?>> getKeyFields(){
-		return FieldTool.setPrefixes(getKeyFieldName(), getKey().getFields());
+		return FieldTool.prependPrefixes(getKeyFieldName(), getKey().getFields());
 	}
 
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return new LinkedList<Field<?>>();
 //		throw new NotImplementedException("not implemented");
+	}
+	
+	//generally unused method that allows databean to implement the DatabeanFielder interface
+	@Override
+	public List<Field<?>> getKeyFields(D databean){
+		return FieldTool.prependPrefixes(getKeyFieldName(), databean.getKey().getFields());
+	}
+
+	//generally unused method that allows databean to implement the DatabeanFielder interface
+	@Override
+	public List<Field<?>> getNonKeyFields(D databean){
+		return databean.getNonKeyFields();
 	}
 
 	@Override

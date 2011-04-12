@@ -9,15 +9,29 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-/********************************* indexes ***********************************/
-
 @SuppressWarnings("serial")
 @Embeddable
 public class ManyFieldTypeBeanKey extends BasePrimaryKey<ManyFieldTypeBeanKey>{
 	
+	/****************************** fields *******************************************/
+	
 	protected Long id;
 	
-	public ManyFieldTypeBeanKey(){//for hibernate
+	public static class F{
+		public static final String
+			id = "id";
+	}
+	
+	@Override
+	public List<Field<?>> getFields(){
+		return FieldTool.createList(
+				new UInt63Field(F.id, id));
+	}
+	
+	
+	/***************************** constructors *************************************/
+	
+	public ManyFieldTypeBeanKey(){//no-arg and public
 		this.id = UInt63Field.nextPositiveRandom();
 	}
 	
@@ -25,11 +39,8 @@ public class ManyFieldTypeBeanKey extends BasePrimaryKey<ManyFieldTypeBeanKey>{
 		this.id = id;
 	}
 	
-	@Override
-	public List<Field<?>> getFields(){
-		return FieldTool.createList(
-				new UInt63Field(ManyFieldTypeBean.KEY_NAME, ManyFieldTypeBean.COL_id, this.id));
-	}
+	
+	/******************************** get/set *******************************************/
 
 	public Long getId(){
 		return id;

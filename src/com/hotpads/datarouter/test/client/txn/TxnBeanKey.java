@@ -9,13 +9,26 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-/********************************* indexes ***********************************/
 
 @SuppressWarnings("serial")
 @Embeddable
 public class TxnBeanKey extends BasePrimaryKey<TxnBeanKey>{
+
+	/********************************* fields ***********************************/
 	
 	protected String id;
+
+	public static final String
+		COL_id = "id";
+	
+	@Override
+	public List<Field<?>> getFields(){
+		return FieldTool.createList(
+				new StringField(COL_id, id));
+	}
+	
+	
+	/****************************** constructors *******************************/
 	
 	TxnBeanKey(){
 	}
@@ -23,13 +36,10 @@ public class TxnBeanKey extends BasePrimaryKey<TxnBeanKey>{
 	public TxnBeanKey(String id) {
 		this.id = id;
 	}
-	
-	@Override
-	public List<Field<?>> getFields(){
-		return FieldTool.createList(
-				new StringField(TxnBean.KEY_NAME, TxnBean.COL_id, this.id));
-	}
 
+	
+	/******************************* get/set **************************************/
+	
 	public String getId(){
 		return id;
 	}

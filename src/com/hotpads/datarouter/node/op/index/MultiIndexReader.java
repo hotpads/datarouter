@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.op.index;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
@@ -11,7 +12,8 @@ public interface MultiIndexReader<
 		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>>{
 
-	List<D> lookupMulti(IK indexKey, Config config);
+	List<D> lookupMulti(IK indexKey, boolean wildcardLastField, Config config);
+	List<D> lookupMultiMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config);
 
 	//should probably take an IE as the start key, and maybe for the prefix too
 //	List<D> getPrefixedRange(

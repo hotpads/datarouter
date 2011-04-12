@@ -83,7 +83,7 @@ implements FieldSet<F>{
 			if(doneOne){ 
 				sb.append("_");
 			}
-			sb.append(field.getValue());
+			sb.append(field.getValueString());
 			doneOne = true;
 		}
 		return sb.toString();
@@ -101,7 +101,7 @@ implements FieldSet<F>{
 		for(Field<?> field : getFields()){
 			if(i>tokens.length-1){ break; }
 			field.fromString(tokens[i]);
-			field.setUsingReflection(this, field.getValue(), true);
+			field.setUsingReflection(this, field.getValue());
 			field.setValue(null);//to be safe until Field logic is cleaned up
 			++i;
 		}

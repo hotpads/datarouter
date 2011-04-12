@@ -17,6 +17,22 @@ public class DataRouterEnumTool{
 	        		a.getPersistentInteger(), b.getPersistentInteger());
 	    }
 	}
+
+    public static <T extends IntegerEnum<T>>
+    int compareIntegerEnums(T a, T b){
+    	if(ObjectTool.bothNull(a, b)){ return 0; }
+    	if(ObjectTool.isOneNullButNotTheOther(a, b)){ return a==null?-1:1; }
+        return ComparableTool.nullFirstCompareTo(
+        		a.getPersistentInteger(), b.getPersistentInteger());
+    }
+
+    public static <T extends StringEnum<T>>
+    int compareStringEnums(T a, T b){
+    	if(ObjectTool.bothNull(a, b)){ return 0; }
+    	if(ObjectTool.isOneNullButNotTheOther(a, b)){ return a==null?-1:1; }
+        return ComparableTool.nullFirstCompareTo(
+        		a.getPersistentString(), b.getPersistentString());
+    }
     
     
     /********************** methods **************************************/
@@ -29,14 +45,15 @@ public class DataRouterEnumTool{
 		}
 		return defaultEnum;
 	}
-	
 
-    public static <T extends IntegerEnum<T>>
-    int compare(T a, T b){
-    	if(ObjectTool.bothNull(a, b)){ return 0; }
-    	if(ObjectTool.isOneNullButNotTheOther(a, b)){ return a==null?-1:1; }
-        return ComparableTool.nullFirstCompareTo(
-        		a.getPersistentInteger(), b.getPersistentInteger());
-    }
+	public static <T extends StringEnum<T>> 
+	T getEnumFromString(T[] values, String value, T defaultEnum){
+		if(value==null) return defaultEnum;
+		for(T type:values){
+			if(type.getPersistentString().equals(value)) return type;
+		}
+		return defaultEnum;
+	}
+	
 	
 }

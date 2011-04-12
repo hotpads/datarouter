@@ -12,7 +12,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.profile.count.databean.Count;
 import com.hotpads.util.core.DateTool;
 
 @SuppressWarnings("serial")
@@ -47,12 +46,12 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(Count.KEY_NAME, COL_name, name),
-				new StringField(Count.KEY_NAME, COL_sourceType, sourceType),
-				new UInt63Field(Count.KEY_NAME, COL_periodMs, periodMs),
-				new UInt63Field(Count.KEY_NAME, COL_startTimeMs, startTimeMs),
-				new StringField(Count.KEY_NAME, COL_source, source),
-				new UInt63Field(Count.KEY_NAME, COL_created, created));
+				new StringField(COL_name, name),
+				new StringField(COL_sourceType, sourceType),
+				new UInt63Field(COL_periodMs, periodMs),
+				new UInt63Field(COL_startTimeMs, startTimeMs),
+				new StringField(COL_source, source),
+				new UInt63Field(COL_created, created));
 	}
 	
 

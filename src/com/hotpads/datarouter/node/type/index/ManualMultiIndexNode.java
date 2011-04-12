@@ -5,122 +5,58 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.datarouter.node.op.raw.IndexedStorage;
-import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
+import com.hotpads.datarouter.node.compound.readwrite.CompoundMapRWStorage;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
+import com.hotpads.datarouter.node.op.index.MultiIndexReader;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.KeyTool;
-import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.storage.view.index.IndexEntryTool;
-import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 public class ManualMultiIndexNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		N extends MapStorageNode<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends UniqueKeyIndexEntry<IK,IE,PK,D>,
-		IN extends SortedMapStorageNode<IK,IE>>
-implements IndexedStorage<PK,D>{
+		IE extends IndexEntry<IK,IE,PK,D>>
 
-	protected N mainNode;
-	protected IN indexNode;
+implements MultiIndexReader<PK,D,IK>
+//		,IndexWriter<PK,D,IK>
+{
+
+	protected CompoundMapRWStorage<PK,D> mainNode;
+	protected SortedMapStorage<IK,IE> indexNode;
 	
-	public ManualMultiIndexNode(N mainNode, IN indexNode){
+	public ManualMultiIndexNode(CompoundMapRWStorage<PK,D> mainNode, SortedMapStorage<IK,IE> indexNode){
 		this.mainNode = mainNode;
 		this.indexNode = indexNode;
 	}
 
 	//TODO should i be passing config options around blindly?
+	//TODO need to watch out for offset/limit
 	
 	
-	/********************* IndexedStorageReader ******************************/
-	
-	@Override
-	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
-		if(uniqueKey==null){ return null; }
-		IK indexKey = (IK)uniqueKey;
-		IE indexEntry = indexNode.get(indexKey, config);
-		if(indexEntry==null){ return null; }
-		PK primaryKey = indexEntry.getTargetKey();
-		return mainNode.get(primaryKey, config);
-	}
-
-//	@Override
-//	public D lookupUnique(IK indexKey, Config config){
-//		if(indexKey==null){ return null; }
-//		IE indexEntry = indexNode.get(indexKey, config);
-//		if(indexEntry==null){ return null; }
-//		PK primaryKey = indexEntry.getTargetKey();
-//		return mainNode.get(primaryKey, config);
-//	}
-	
+	/********************* IndexReader ******************************/
 	
 	@Override
-	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
-		List<IK> indexPrimaryKeys = ListTool.createArrayListWithSize(uniqueKeys);
-		for(UniqueKey<PK> uniqueKey : uniqueKeys){
-			IK indexKey = (IK)uniqueKey;
-			indexPrimaryKeys.add(indexKey);
-		}
-		if(indexNode==null){ throw new IllegalArgumentException("no index found for type="+CollectionTool.getFirst(indexPrimaryKeys)); }
-		List<IE> indexEntries = indexNode.getMulti(indexPrimaryKeys, config);
+	public List<D> lookupMulti(IK indexKey, boolean wildcardLastField, Config config){
+		if(indexKey==null){ return new LinkedList<D>(); }
+		List<IE> indexEntries = indexNode.getPrefixedRange(indexKey, wildcardLastField, null, false, config);
 		List<PK> primaryKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
-		List<D> databeans = mainNode.getMulti(primaryKeys, config);
+		List<D> databeans = mainNode.reader().getMulti(primaryKeys, config);
 		return databeans;
 	}
-
 	
 	@Override
-	public List<D> lookup(Lookup<PK> lookup, Config config) {
-		throw new NotImplementedException("only unique indexes currently supported");
-	}
-	
-	
-	@Override
-	public List<D> lookup(Collection<? extends Lookup<PK>> lookups, Config config) {
-		throw new NotImplementedException("only unique indexes currently supported");
-	}
-	
-	
-	/********************* IndexedStorageWriter ******************************/
-	
-	@Override
-	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
-		if(uniqueKey==null){ return; }
-		IK indexKey = (IK)uniqueKey;
-		IE indexEntry = indexNode.get(indexKey, config);
-		if(indexEntry==null){ return; }
-		PK primaryKey = indexEntry.getTargetKey();
-		mainNode.delete(primaryKey, config);
-		indexNode.delete(indexEntry.getKey(), config);
-	}
-	
-	
-	@Override
-	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		if(CollectionTool.isEmpty(uniqueKeys)){ return; }
-		List<IK> indexPrimaryKeys = ListTool.createArrayListWithSize(uniqueKeys);
-		for(UniqueKey<PK> uniqueKey : uniqueKeys){
-			IK indexKey = (IK)uniqueKey;
-			indexPrimaryKeys.add(indexKey);
+	public List<D> lookupMultiMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config){
+		if(CollectionTool.isEmpty(indexKeys)){ return new LinkedList<D>(); }
+		List<IE> indexEntries = ListTool.createLinkedList();
+		for(IK indexKey : indexKeys){//TODO fetch all in one call getPrefixedRanges(...
+			indexEntries.addAll(indexNode.getPrefixedRange(indexKey, wildcardLastField, null, false, config));
 		}
-		List<IE> indexEntries = indexNode.getMulti(indexPrimaryKeys, config);
 		List<PK> primaryKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
-		mainNode.deleteMulti(primaryKeys, config);
-		indexNode.deleteMulti(KeyTool.getKeys(indexEntries), config);
+		List<D> databeans = mainNode.reader().getMulti(primaryKeys, config);
+		return databeans;
 	}
-
-	
-	@Override
-	public void delete(Lookup<PK> lookup, Config config) {
-		throw new NotImplementedException("only unique indexes currently supported");
-	}
-	
 }

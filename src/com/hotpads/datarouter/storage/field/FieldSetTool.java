@@ -58,12 +58,12 @@ public class FieldSetTool{
 	/***************************** construct fieldsets using reflection ***************************/
 
 	public static <D extends FieldSet<?>> D fieldSetFromHibernateResultUsingReflection(
-			Class<D> cls, List<Field<?>> fields, Object sqlObject, boolean ignorePrefix){
+			Class<D> cls, List<Field<?>> fields, Object sqlObject){
 		D targetFieldSet = ReflectionTool.create(cls);
 		Object[] cols = (Object[])sqlObject;
 		int counter = 0;
 		for(Field<?> field : fields){
-			field.fromHibernateResultUsingReflection(targetFieldSet, cols[counter], ignorePrefix);
+			field.fromHibernateResultUsingReflection(targetFieldSet, cols[counter]);
 			++counter;
 		}
 		return targetFieldSet;
@@ -74,7 +74,7 @@ public class FieldSetTool{
 		D targetFieldSet = ReflectionTool.create(cls);
 		int counter = 0;
 		for(Field<?> field : fields){
-			field.fromJdbcResultSetUsingReflection(targetFieldSet, rs, ignorePrefix);
+			field.fromJdbcResultSetUsingReflection(targetFieldSet, rs);
 			++counter;
 		}
 		return targetFieldSet;
@@ -104,7 +104,7 @@ public class FieldSetTool{
 				is.read(valueBytes);
 				numBytesThroughDatabean += valueLength.getNumBytes() + valueLength.getValueInt();
 				Object value = field.fromBytesButDoNotSet(valueBytes, 0);
-				field.setUsingReflection(targetFieldSet, value, false);
+				field.setUsingReflection(targetFieldSet, value);
 			}
 			if(numBytesThroughDatabean >= numBytes){
 				break;

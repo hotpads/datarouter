@@ -6,7 +6,6 @@ public interface ByteAwareField<T>{
 	boolean isFixedLength();
 
 	byte[] getColumnNameBytes();
-	byte[] getMicroColumnNameBytes();
 	
 	byte[] getBytes();
 	T fromBytesButDoNotSet(byte[] bytes, int byteOffset);

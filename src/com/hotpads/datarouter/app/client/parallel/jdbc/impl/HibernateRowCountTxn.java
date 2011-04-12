@@ -16,7 +16,7 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.routing.DataRouter;
 
-public class Count extends BaseParallelHibernateTxnApp<Integer>{
+public class HibernateRowCountTxn extends BaseParallelHibernateTxnApp<Integer>{
 	Logger logger = Logger.getLogger(getClass());
 
 	private Class<?> bean;
@@ -24,11 +24,11 @@ public class Count extends BaseParallelHibernateTxnApp<Integer>{
 	private Criterion restriction;
 	private Node<?,?> node;
 	
-	public Count(Class<?> bean, String colToCount, 
+	public HibernateRowCountTxn(Class<?> bean, String colToCount, 
 			DataRouter router, Node<?,?> node) {
 		this(bean,colToCount,null,router,node);
 	}
-	public Count(Class<?> bean, String colToCount,
+	public HibernateRowCountTxn(Class<?> bean, String colToCount,
 			Criterion restriction, DataRouter router, Node<?,?> node) {
 		super(router);
 		this.bean = bean;

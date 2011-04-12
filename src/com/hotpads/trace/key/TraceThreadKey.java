@@ -9,10 +9,9 @@ import java.util.Random;
 import javax.persistence.Embeddable;
 
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.trace.TraceThread;
-import com.hotpads.util.core.ListTool;
 
 @SuppressWarnings("serial")
 @Embeddable
@@ -34,10 +33,9 @@ public class TraceThreadKey extends BasePrimaryKey<TraceThreadKey>{
 	
 	@Override
 	public List<Field<?>> getFields(){
-		List<Field<?>> fields = ListTool.create();
-		fields.add(new LongField(TraceThread.F.KEY_NAME, COL_traceId, traceId));
-		fields.add(new LongField(TraceThread.F.KEY_NAME, COL_id, id));
-		return fields;
+		return FieldTool.createList(
+				new LongField(COL_traceId, traceId),
+				new LongField(COL_id, id));
 	}
 
 	

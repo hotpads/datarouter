@@ -86,20 +86,20 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						byte[] keyBytes = key.getBytes(false);
 						Put put = new Put(keyBytes);
 						Delete delete = new Delete(keyBytes);
-						List<Field<?>> fields = getFields(databean);
+						List<Field<?>> fields = getNonKeyFields(databean);
 						for(Field<?> field : fields){//TODO only put modified fields
 							byte[] fieldBytes = field.getBytes();
 							if(fieldBytes==null){
 								if(BooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
-									delete.deleteColumn(FAM, field.getMicroColumnNameBytes(), batchStartTime);
+									delete.deleteColumn(FAM, field.getColumnNameBytes(), batchStartTime);
 								}
 							}else{
-								put.add(FAM, field.getMicroColumnNameBytes(), field.getBytes());
+								put.add(FAM, field.getColumnNameBytes(), field.getBytes());
 							}
 						}
 						if(put.isEmpty()){ 
 							Field<?> dummyField = new ByteField(DUMMY, (byte)0);
-							put.add(FAM, dummyField.getMicroColumnNameBytes(), dummyField.getBytes());
+							put.add(FAM, dummyField.getColumnNameBytes(), dummyField.getBytes());
 						}
 						put.setWriteToWAL(config.getPersistentPut());
 						actions.add(put);

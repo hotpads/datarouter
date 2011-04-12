@@ -11,7 +11,7 @@ public interface SqlField<T>{
 	T fromJdbcResultSetButDoNotSet(ResultSet rs);
 	void setPreparedStatementValue(PreparedStatement ps, int parameterIndex);
 	
-	void fromJdbcResultSetUsingReflection(FieldSet targetFieldSet, ResultSet resultSet, boolean ignorePrefix);
-	void fromHibernateResultUsingReflection(FieldSet targetFieldSet, Object col, boolean ignorePrefix);
+	void fromJdbcResultSetUsingReflection(FieldSet<?> targetFieldSet, ResultSet resultSet);
+	void fromHibernateResultUsingReflection(FieldSet<?> targetFieldSet, Object col);
 	
 }

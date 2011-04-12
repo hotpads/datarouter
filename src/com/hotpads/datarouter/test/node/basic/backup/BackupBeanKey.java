@@ -42,10 +42,10 @@ public class BackupBeanKey extends BasePrimaryKey<BackupBeanKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(BackupBean.KEY_NAME, COL_a, a),
-				new StringField(BackupBean.KEY_NAME, COL_b, b),
-				new UInt31Field(BackupBean.KEY_NAME, COL_c, c),
-				new StringField(BackupBean.KEY_NAME, COL_d, d));
+				new StringField(COL_a, a),
+				new StringField(COL_b, b),
+				new UInt31Field(COL_c, c),
+				new StringField(COL_d, d));
 	}
 
 

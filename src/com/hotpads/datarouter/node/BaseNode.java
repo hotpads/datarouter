@@ -62,7 +62,12 @@ implements Node<PK,D>{
 	}
 	
 	@Override
-	public List<Field<?>> getFields(D d){
-		return fieldInfo.getFields(d);
+	public List<Field<?>> getNonKeyFields(D d){
+		return fieldInfo.getNonKeyFields(d);
+	}
+	
+	@Override
+	public DatabeanFieldInfo<PK,D,?> getFieldInfo(){
+		return fieldInfo;
 	}
 }

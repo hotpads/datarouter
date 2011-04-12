@@ -30,6 +30,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
 public class HibernateIndexNode<
@@ -162,7 +163,9 @@ implements IndexReader<PK,D,IK>{
 		return (List<D>)result;
 	}
 
-	public List<D> lookupMulti(final IK indexKey, final Config config){
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<D> lookupMulti(final IK indexKey, final boolean wildcardLastField, final Config config){
 		if(indexKey==null){ return new LinkedList<D>(); }
 		TraceContext.startSpan(getName()+" lookupMulti");
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
@@ -188,6 +191,40 @@ implements IndexReader<PK,D,IK>{
 		TraceContext.finishSpan();
 		return (List<D>)result;
 	};
+	
+	@Override
+	public List<D> lookupMultiMulti(final Collection<IK> indexKeys, final boolean wildcardLastField, final Config config){
+		if(CollectionTool.isEmpty(indexKeys)){ return new LinkedList<D>(); }
+		TraceContext.startSpan(getName()+" lookupMultiMulti");
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					//TODO undefined behavior on trailing nulls
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), indexKeys);
+						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
+						return result;
+					}else{
+						Criteria criteria = getCriteriaForConfig(config, session);
+						Disjunction orSeparatedIndexEntries = Restrictions.disjunction();
+						for(IK indexKey : IterableTool.nullSafe(indexKeys)){
+							Conjunction andSeparatedFields = Restrictions.conjunction();
+							for(Field<?> field : CollectionTool.nullSafe(indexKey.getFields())){
+								andSeparatedFields.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+							}
+							orSeparatedIndexEntries.add(andSeparatedFields);
+						}
+						criteria.add(orSeparatedIndexEntries);
+						List<D> result = criteria.list();
+						Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
+						return result;
+					}
+				}
+			});
+		TraceContext.finishSpan();
+		return (List<D>)result;
+	}
 	
 	/********************************* hibernate helpers ***********************************************/
 	

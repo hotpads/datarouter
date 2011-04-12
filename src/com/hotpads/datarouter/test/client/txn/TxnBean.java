@@ -21,11 +21,7 @@ public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 	private TxnBeanKey key;
 	
 	/***************************** columns ******************************/
-	
-	public static final String
-		KEY_NAME = "key",
-		COL_id = "id";
-	
+		
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList();

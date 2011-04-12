@@ -30,14 +30,13 @@ implements DatabeanFielder<PK,D>{
 	
 	@Override
 	public List<Field<?>> getKeyFields(D d){
-		return FieldTool.setPrefixes(d.getKeyFieldName(), 
+		return FieldTool.prependPrefixes(d.getKeyFieldName(), 
 				primaryKeyFielder.getFields(d.getKey()));
 	}
 	
 	@Override
 	public List<Field<?>> getFields(D d){
-		List<Field<?>> allFields = FieldTool.setPrefixes(
-				d.getKeyFieldName(), getKeyFields(d));
+		List<Field<?>> allFields = getKeyFields(d); //getKeyFields already prepends prefixes
 		ListTool.nullSafeArrayAddAll(allFields, getNonKeyFields(d));
 		return allFields;
 	}

@@ -2,6 +2,8 @@ package com.hotpads.datarouter.client.imp.hbase.util;
 
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 import com.hotpads.datarouter.client.imp.hbase.DRHRegionInfo;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.HashMethods;
@@ -9,6 +11,7 @@ import com.hotpads.util.core.date.DailyCalendarTool;
 
 public class CompactionScheduler
 implements CompactionInfo{
+	static Logger logger = Logger.getLogger(CompactionScheduler.class);
 	
 	public static final Long COMPACTION_EPOCH = DailyCalendarTool.parseYYYYMMDD("20110301").getTimeInMillis();
 	
@@ -41,7 +44,14 @@ implements CompactionInfo{
 	public boolean shouldCompact(){
 		boolean inCurrentWindow = nextCompactTimeMs >= windowStartMs
 				&& nextCompactTimeMs < windowEndMs;
+		if(!inCurrentWindow){
+			logger.warn("skipping compaction of "+regionInfo.getStartKey().getPersistentString());
+			logger.warn("windowStart:"+new Date(windowStartMs)+", windowEnd:"+new Date(windowEndMs)+", nextCompactTime"+new Date(nextCompactTimeMs));
+		}
 		boolean moreThanOneStoreFile = regionInfo.getLoad().getStorefiles() > 1;
+		if(!moreThanOneStoreFile){
+			logger.warn("skipping compaction of "+regionInfo.getStartKey().getPersistentString()+" because only one file");
+		}
 		return inCurrentWindow && moreThanOneStoreFile;
 	}
 	

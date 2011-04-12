@@ -43,8 +43,8 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 		TxnBean outer = new TxnBean("outer");
 		router.txnBean().put(outer, null);
 		if(flush){
-			this.getSession(client.getName()).flush();
-			this.getSession(client.getName()).clear();
+			getSession(client.getName()).flush();
+			getSession(client.getName()).clear();
 			List<TxnBean> all = router.txnBean().getAll(null);
 			Assert.assertEquals(1, CollectionTool.size(all));
 		}else{
@@ -91,8 +91,8 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 			TxnBean inner = new TxnBean(name);
 			router.txnBean().put(inner, null);
 			if(flush){
-				this.getSession(client.getName()).flush();
-				this.getSession(client.getName()).clear();
+				getSession(client.getName()).flush();
+				getSession(client.getName()).clear();
 				List<TxnBean> all = router.txnBean().getAll(null);
 				Assert.assertEquals(2, CollectionTool.size(all));//should not include TxnBean.outer
 			}else{

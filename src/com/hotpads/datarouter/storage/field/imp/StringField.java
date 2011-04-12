@@ -110,7 +110,7 @@ public class StringField extends BaseField<String>{
 		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{SEPARATOR}; }
 		byte[] allBytes = new byte[dataBytes.length+1];
 		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
-		allBytes[allBytes.length-1] = 0;//Ascii "null" will compare first in lexicographical bytes comparison
+		allBytes[allBytes.length-1] = SEPARATOR;//Ascii "null" will compare first in lexicographical bytes comparison
 		return allBytes;
 	}
 	

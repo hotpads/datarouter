@@ -13,8 +13,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.trace.TraceSpan;
-import com.hotpads.util.core.ListTool;
 
 @SuppressWarnings("serial")
 @Embeddable
@@ -36,11 +34,10 @@ public class TraceSpanKey extends BasePrimaryKey<TraceSpanKey>{
 	
 	@Override
 	public List<Field<?>> getFields(){
-		List<Field<?>> fields = ListTool.create();
-		fields.add(new LongField(TraceSpan.F.KEY_key, COL_traceId, traceId));
-		fields.add(new LongField(TraceSpan.F.KEY_key, COL_threadId, threadId));
-		fields.add(new IntegerField(TraceSpan.F.KEY_key, COL_sequence, sequence));
-		return fields;
+		return FieldTool.createList(
+				new LongField(COL_traceId, traceId),
+				new LongField(COL_threadId, threadId),
+				new IntegerField(COL_sequence, sequence));
 	}
 	
 	public static class TraceSpanKeyFielder extends BaseFielder<TraceSpanKey>{

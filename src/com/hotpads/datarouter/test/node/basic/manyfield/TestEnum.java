@@ -3,15 +3,21 @@ package com.hotpads.datarouter.test.node.basic.manyfield;
 
 import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
+import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
-public enum TestEnum implements IntegerEnum<TestEnum>{
+public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
 
-	dog(19), cat(20), beast(21), fish(22);
+	dog(19, "dog"), 
+	cat(20, "cat"), 
+	beast(21, "beast"), 
+	fish(22, "fish");
 	
 	int persistentInteger;
+	String persistentString;
 	
-	private TestEnum(int persistentInteger){
+	private TestEnum(int persistentInteger, String persistentString){
 		this.persistentInteger = persistentInteger;
+		this.persistentString = persistentString;
 	}
 	
 	
@@ -25,6 +31,19 @@ public enum TestEnum implements IntegerEnum<TestEnum>{
 	@Override
 	public TestEnum fromPersistentInteger(Integer i){
 		return DataRouterEnumTool.getEnumFromInteger(values(), i, null);
+	}
+	
+	
+	/****************************** StringEnum methods *********************************/
+	
+	@Override
+	public String getPersistentString(){
+		return persistentString;
+	}
+	
+	@Override
+	public TestEnum fromPersistentString(String s){
+		return DataRouterEnumTool.getEnumFromString(values(), s, null);
 	}
 	
 }

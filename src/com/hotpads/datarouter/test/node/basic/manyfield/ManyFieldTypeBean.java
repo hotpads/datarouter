@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.test.node.basic.manyfield;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -24,8 +25,12 @@ import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbFloatField;
 import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
+import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
 
@@ -33,10 +38,8 @@ import com.hotpads.util.core.collections.arrays.LongArray;
 @Entity()
 @AccessType("field")
 public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFieldTypeBean>{
-
-	/*
-	 * alter table ManyFieldTypeBean modify column longDateField bigint(20);
-	 */
+	
+	/***************************** fields ********************************/
 	
 	@Id
 	private ManyFieldTypeBeanKey key;
@@ -54,6 +57,10 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	private Integer varIntField;
 	@Column(columnDefinition="int")
 	private TestEnum intEnumField;
+	@Column(columnDefinition="int")
+	private TestEnum varIntEnumField;
+	@Column(columnDefinition="varchar(20)")
+	private TestEnum stringEnumField;
 
 	@Lob @Column(length=1024)
 	private byte[] stringByteField;
@@ -64,66 +71,60 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	@Lob @Column(length=1<<27)
 	private List<Long> longArrayField;
 	
-	/***************************** columns ******************************/
 	
-	public static final String
-		KEY_NAME = "key",
-		COL_id = "id",
-		COL_byteField = "byteField",
-		COL_shortField = "shortField",
-		COL_integerField = "integerField",
-		COL_longField = "longField",
-		COL_floatField = "floatField",
-		COL_doubleField = "doubleField",
-		COL_longDateField = "longDateField",
-		COL_characterField = "characterField",
-		COL_stringField = "stringField",
-		COL_varIntField = "varIntField",
-		COL_intEnumField = "intEnumField",
-		COL_stringByteField = "stringByteField",
-		COL_data = "data",
-		COL_longArrayField = "longArrayField";
+	public static class F{
+		public static final String
+			KEY_NAME = "key",
+			byteField = "byteField",
+			shortField = "shortField",
+			integerField = "integerField",
+			longField = "longField",
+			floatField = "floatField",
+			doubleField = "doubleField",
+			longDateField = "longDateField",
+			characterField = "characterField",
+			stringField = "stringField",
+			varIntField = "varIntField",
+			intEnumField = "intEnumField",
+			varIntEnumField = "varIntEnumField",
+			stringEnumField = "stringEnumField",
+			stringByteField = "stringByteField",
+			data = "data",
+			longArrayField = "longArrayField";
+	}
+	
 	
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		List<Field<?>> fields = ListTool.createLinkedList();
-		fields.add(new ByteField(COL_byteField, this.byteField));
-		fields.add(new ShortField(COL_shortField, this.shortField));
-		fields.add(new IntegerField(COL_integerField, this.integerField));
-		fields.add(new LongField(COL_longField, this.longField));
-		fields.add(new DumbFloatField(COL_floatField, this.floatField));
-		fields.add(new DumbDoubleField(COL_doubleField, this.doubleField));
-		fields.add(new LongDateField(COL_longDateField, this.longDateField));
-		fields.add(new CharacterField(COL_characterField, this.characterField));
-		fields.add(new StringField(COL_stringField, this.stringField));
-		fields.add(new VarIntField(COL_varIntField, this.varIntField));
-		fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, COL_intEnumField, this.intEnumField));
-		fields.add(new ByteArrayField(COL_stringByteField, this.stringByteField));
-		fields.add(new ByteArrayField(COL_data, this.data));
-		fields.add(new UInt63ArrayField(COL_longArrayField, this.longArrayField));
+		fields.add(new ByteField(F.byteField, byteField));
+		fields.add(new ShortField(F.shortField, shortField));
+		fields.add(new IntegerField(F.integerField, integerField));
+		fields.add(new LongField(F.longField, longField));
+		fields.add(new DumbFloatField(F.floatField, floatField));
+		fields.add(new DumbDoubleField(F.doubleField, doubleField));
+		fields.add(new LongDateField(F.longDateField, longDateField));
+		fields.add(new CharacterField(F.characterField, characterField));
+		fields.add(new StringField(F.stringField, stringField));
+		fields.add(new VarIntField(F.varIntField, varIntField));
+		fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, intEnumField));
+		fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, varIntEnumField));
+		fields.add(new StringEnumField<TestEnum>(TestEnum.class, F.stringEnumField, stringEnumField));
+		fields.add(new ByteArrayField(F.stringByteField, stringByteField));
+		fields.add(new ByteArrayField(F.data, data));
+		fields.add(new UInt63ArrayField(F.longArrayField, longArrayField));
 		return fields;
 	}
-	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
 
+	
 	/***************************** constructor **************************************/
 		
-	public ManyFieldTypeBean() {
+	public ManyFieldTypeBean(){//no-arg and public
 		this.key = new ManyFieldTypeBeanKey();
 	}
 	
-	/***************************** method ************************************/
 	
-	public List<Long> appendToLongArrayField(long val){
-		if(longArrayField==null){ longArrayField = new LongArray(); }
-		longArrayField.add(val);
-		return longArrayField;
-	}
-	
-	/***************************** get/set **************************************/
+	/************************* databean *********************************************/
 	
 	@Override
 	public Class<ManyFieldTypeBeanKey> getKeyClass() {
@@ -131,10 +132,45 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	};
 	
 	@Override
-	public ManyFieldTypeBeanKey getKey() {
+	public ManyFieldTypeBeanKey getKey(){
 		return key;
 	}
+	
+//	@Override
+//	public String getKeyFieldName(){
+//		//same as default, so not necssary to override
+//	}
+	
+	@Override
+	public boolean isFieldAware(){
+		return true;
+	}
+	
+	
+	/***************************** static methods *****************************/
+	
+	public static List<ManyFieldTypeBean> filterForStringValue(Collection<ManyFieldTypeBean> ins, String value){
+		List<ManyFieldTypeBean> outs = ListTool.createLinkedList();
+		for(ManyFieldTypeBean in : IterableTool.nullSafe(ins)){
+			if(ObjectTool.equals(in.getStringField(), value)){
+				outs.add(in);
+			}
+		}
+		return outs;
+	}
+	
+	
+	/***************************** methods ************************************/
+	
+	public List<Long> appendToLongArrayField(long val){
+		if(longArrayField==null){ longArrayField = new LongArray(); }
+		longArrayField.add(val);
+		return longArrayField;
+	}
 
+	
+	/***************************** get/set **************************************/
+	
 	public byte[] getData(){
 		return data;
 	}
@@ -261,6 +297,26 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 
 	public void setIntEnumField(TestEnum intEnumField){
 		this.intEnumField = intEnumField;
+	}
+
+
+	public TestEnum getVarIntEnumField(){
+		return varIntEnumField;
+	}
+
+
+	public void setVarIntEnumField(TestEnum varIntEnumField){
+		this.varIntEnumField = varIntEnumField;
+	}
+
+
+	public TestEnum getStringEnumField(){
+		return stringEnumField;
+	}
+
+
+	public void setStringEnumField(TestEnum stringEnumField){
+		this.stringEnumField = stringEnumField;
 	}
 
 	

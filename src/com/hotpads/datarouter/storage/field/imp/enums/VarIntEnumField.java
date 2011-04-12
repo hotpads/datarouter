@@ -10,19 +10,18 @@ import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
-import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.util.core.number.VarInt;
 
-@Deprecated //should probably use VarIntEnumField instead since most enums are 1 byte ints
-public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
+public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 	
 	protected E sampleValue;
 
-	public IntegerEnumField(Class<E> enumClass, String name, E value){
+	public VarIntEnumField(Class<E> enumClass, String name, E value){
 		this(enumClass, null, name, value);
 	}
 
-	public IntegerEnumField(Class<E> enumClass, String prefix, String name, E value){
+	public VarIntEnumField(Class<E> enumClass, String prefix, String name, E value){
 		super(prefix, name, value);
 		this.sampleValue = ReflectionTool.create(enumClass);
 	}
@@ -79,19 +78,18 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:IntegerByteTool.getComparableBytes(
-				value.getPersistentInteger());
+		return value==null?null:new VarInt(value.getPersistentInteger()).getBytes();
 	}
 	
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 4;
+		return new VarInt(bytes, offset).getNumBytes();
 	}
 	
 	@Override
 	public E fromBytesButDoNotSet(byte[] bytes, int offset){
-		return sampleValue.fromPersistentInteger(
-				IntegerByteTool.fromComparableBytes(bytes, offset));
+		Integer i = new VarInt(bytes, offset).getValue();
+		return i==null?null:sampleValue.fromPersistentInteger(i);
 	}
 	
 	

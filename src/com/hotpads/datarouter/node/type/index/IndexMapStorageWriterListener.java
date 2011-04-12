@@ -10,6 +10,7 @@ import com.hotpads.datarouter.node.type.index.base.BaseIndexNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -19,12 +20,15 @@ import com.hotpads.util.core.ListTool;
  * 
  * originally written for ModelIndexListingView, where the feedId_feedListingId index is known from the 
  *  PK (quad_feedId_feedListingId)... perhaps a rare case, but much easier to implement
+ *  
+ * also fine for cases where you never delete or modify records, like the Event table
+ * 
  */
 public class IndexMapStorageWriterListener<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends UniqueKeyIndexEntry<IK,IE,PK,D>,
+		IE extends IndexEntry<IK,IE,PK,D>,
 		IN extends SortedMapStorageNode<IK,IE>>
 extends BaseIndexNode<PK,D,IK,IE,IN>
 implements IndexListener<PK,D>{
@@ -37,11 +41,21 @@ implements IndexListener<PK,D>{
 	
 	/********************** writing ******************************/
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onDelete(PK key, Config config) {
 		IE indexEntry = createIndexEntry();
-		indexEntry.fromPrimaryKey(key);
-		indexNode.delete(indexEntry.getKey(), config);
+		if(indexEntry instanceof UniqueKeyIndexEntry){
+			((UniqueKeyIndexEntry)indexEntry).fromPrimaryKey(key);
+			indexNode.delete(indexEntry.getKey(), config);
+		}
+		else{
+			//there is currently no way to delete an index entry whose PK can't be calculated from the target PK.
+			// options:
+			//  1) read the databean before deleting
+			//  2) user provides the indexEntry key (maybe he read the whole databean moments earlier)
+			//  3) don't delete it and vacuum the whole table later
+		}
 	}
 
 	@Override
@@ -51,31 +65,46 @@ implements IndexListener<PK,D>{
 
 	@Override
 	public void onDeleteMulti(Collection<PK> keys, Config config) {
-		List<IE> indexEntries = getIndexEntries(keys);
+		List<IE> indexEntries = getIndexEntriesFromPrimaryKeys(keys);
 		indexNode.deleteMulti(KeyTool.getKeys(indexEntries), config);
 	}
 
 	@Override
 	public void onPut(D databean, Config config) {
 		IE indexEntry = createIndexEntry();
-		indexEntry.fromPrimaryKey(databean.getKey());
+		indexEntry.fromDatabean(databean);
 		indexNode.put(indexEntry, config);
 	}
 
 	@Override
 	public void onPutMulti(Collection<D> databeans, Config config) {
-		List<IE> indexEntries = getIndexEntries(KeyTool.getKeys(databeans));
+		List<IE> indexEntries = getIndexEntriesFromDatabeans(databeans);
 		indexNode.putMulti(indexEntries, config);
 	}
 	
 
 	/******************* helper **************************/
 	
-	protected List<IE> getIndexEntries(Collection<PK> primaryKeys){
+	@SuppressWarnings("unchecked")
+	protected List<IE> getIndexEntriesFromPrimaryKeys(Collection<PK> primaryKeys){
 		List<IE> indexEntries = ListTool.createArrayListWithSize(primaryKeys);
 		for(PK key : IterableTool.nullSafe(primaryKeys)){
 			IE indexEntry = createIndexEntry();
-			indexEntry.fromPrimaryKey(key);
+			if(indexEntry instanceof UniqueKeyIndexEntry){
+				((UniqueKeyIndexEntry)indexEntry).fromPrimaryKey(key);
+				indexEntries.add(indexEntry);
+			}else{
+				//we don't know enough.  don't return anything
+			}
+		}
+		return indexEntries;
+	}
+	
+	protected List<IE> getIndexEntriesFromDatabeans(Collection<D> databeans){
+		List<IE> indexEntries = ListTool.createArrayListWithSize(databeans);
+		for(D databean : IterableTool.nullSafe(databeans)){
+			IE indexEntry = createIndexEntry();
+			indexEntry.fromDatabean(databean);
 			indexEntries.add(indexEntry);
 		}
 		return indexEntries;
