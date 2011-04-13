@@ -649,7 +649,7 @@ implements MapStorageReader<PK,D>,
 							criteria.add(prefixConjunction);
 						}		
 						if(start != null && CollectionTool.notEmpty(start.getFields())){
-							List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
+							List<Field<?>> startFields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), start.getFields());
 							int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 							Disjunction d = Restrictions.disjunction();
 							for(int i=numNonNullStartFields; i > 0; --i){
