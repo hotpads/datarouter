@@ -3,10 +3,12 @@ package com.hotpads.profile.count.collection.archive.imp;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
@@ -101,7 +103,11 @@ public class DatabeanCountArchive extends BaseCountArchive{
 					periodMs, periodStart, source, System.currentTimeMillis(), entry.getValue().get()));
 		}
 		if(countNode!=null){
-			countNode.putMulti(toSave, null);
+			countNode.putMulti(toSave, new Config()
+					.setPersistentPut(false)
+					.setIgnoreNullFields(true)
+					.setTimeout(10, TimeUnit.SECONDS)
+					.setNumAttempts(6));
 			flushAvailableCounters(countMap.getCountByKey());
 		}
 		lastFlushMs = System.currentTimeMillis();
@@ -114,7 +120,11 @@ public class DatabeanCountArchive extends BaseCountArchive{
 			toSave.add(new AvailableCounter(sourceType, periodMs, entry.getKey(), 
 					source, System.currentTimeMillis()));
 		}
-		availableCounterNode.putMulti(toSave, null);
+		availableCounterNode.putMulti(toSave, new Config()
+				.setPersistentPut(false)
+				.setIgnoreNullFields(true)
+				.setTimeout(10, TimeUnit.SECONDS)
+				.setNumAttempts(6));
 	}
 	
 	protected boolean shouldFlush(CountMapPeriod countMap){
