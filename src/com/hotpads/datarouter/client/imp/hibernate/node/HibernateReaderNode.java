@@ -226,7 +226,7 @@ implements MapStorageReader<PK,D>,
 						//projection list
 						ProjectionList projectionList = Projections.projectionList();
 						int numFields = 0;
-						for(Field<?> field : FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), fieldInfo.getPrimaryKeyFields())){
+						for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
 							projectionList.add(Projections.property(field.getPrefixedName()));
 							++numFields;
 						}
@@ -452,7 +452,7 @@ implements MapStorageReader<PK,D>,
 						Criteria criteria = session.createCriteria(entityName);
 						ProjectionList projectionList = Projections.projectionList();
 						int numFields = 0;
-						for(Field<?> field : FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), fieldInfo.getPrimaryKeyFields())){
+						for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
 							projectionList.add(Projections.property(field.getPrefixedName()));
 							++numFields;
 						}
@@ -563,7 +563,7 @@ implements MapStorageReader<PK,D>,
 						Criteria criteria = getCriteriaForConfig(config, session);
 						ProjectionList projectionList = Projections.projectionList();
 						int numFields = 0;
-						for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
+						for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
 							projectionList.add(Projections.property(field.getPrefixedName()));
 							++numFields;
 						}

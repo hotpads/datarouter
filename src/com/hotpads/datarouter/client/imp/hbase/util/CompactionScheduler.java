@@ -5,6 +5,7 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.DRHRegionInfo;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.HashMethods;
 import com.hotpads.util.core.date.DailyCalendarTool;
@@ -19,7 +20,7 @@ implements CompactionInfo{
 	protected CompactionInfo compactionInfo;
 	protected Long windowStartMs, windowEndMs;//start inclusive, end exclusive
 	protected DRHRegionInfo regionInfo;
-	protected Integer regionHash;
+	protected Long regionHash;
 	protected Long nextCompactTimeMs;
 	
 	public CompactionScheduler(CompactionInfo compactionInfo, DRHRegionInfo regionInfo){
@@ -27,7 +28,9 @@ implements CompactionInfo{
 		this.windowStartMs = now - (now % compactionInfo.getCompactionTriggerPeriodMs());
 		this.windowEndMs = windowStartMs + compactionInfo.getCompactionTriggerPeriodMs();
 		this.regionInfo = regionInfo;
-		this.regionHash = Math.abs((int)HashMethods.longDJBHash(regionInfo.getStartKey().getPersistentString()));
+		PrimaryKey<?> startKey = regionInfo.getStartKey();
+		String startKeyString = startKey.getPersistentString();
+		this.regionHash = Math.abs(HashMethods.longDJBHash(startKeyString));
 		calculateNextCompactTime();
 	}
 	
@@ -66,7 +69,7 @@ implements CompactionInfo{
 		}
 
 		//calculate an offset into the current period
-		Double offsetIntoCompactionPeriodPct = 1d * (double)regionHash / (double)Integer.MAX_VALUE;
+		Double offsetIntoCompactionPeriodPct = 1d * (double)regionHash / (double)Long.MAX_VALUE;
 		Long offsetIntoCompactionPeriodMs = (long)(offsetIntoCompactionPeriodPct * getPeriodMs());
 		nextCompactTimeMs = periodStartSeekerMs + offsetIntoCompactionPeriodMs;
 		if(nextCompactTimeMs < now){ nextCompactTimeMs += regionCompactionPeriodMs; }
