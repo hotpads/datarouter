@@ -98,6 +98,11 @@ implements HBaseClientFactory{
 	}
 	
 	public static final int DEFAULT_minPoolSize = 3;
+	
+	public static final long 
+			DEFAULT_MAX_FILE_SIZE_BYTES = 256 * 1024 * 1024,
+			DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES = 256 * 1024 * 1024;
+	
 	public static final byte[] DEFAULT_FAMILY_QUALIFIER = new byte[]{(byte)'a'};
 	public static final String DUMMY_COL_NAME = new String(new byte[]{0});
 	
@@ -136,6 +141,8 @@ implements HBaseClientFactory{
 					if(createTables && !admin.tableExists(tableName)){
 						logger.warn("table " + tableName + " not found, creating it");
 						HTableDescriptor hTable = new HTableDescriptor(tableName);
+						hTable.setMaxFileSize(DEFAULT_MAX_FILE_SIZE_BYTES);
+						hTable.setMemStoreFlushSize(DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES);
 						HColumnDescriptor family = new HColumnDescriptor(DEFAULT_FAMILY_QUALIFIER);
 						family.setMaxVersions(1);
 						family.setBloomFilterType(BloomType.ROW);

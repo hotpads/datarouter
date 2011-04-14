@@ -80,7 +80,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					List<Row> actions = ListTool.createArrayList();
 					int numPuts = 0, numDeletes = 0;
 					long batchStartTime = System.currentTimeMillis();
-					for(D databean : databeans){
+					for(D databean : databeans){//TODO obey Config.commitBatchSize
 						if(databean==null){ continue; }
 						PK key = databean.getKey();
 						byte[] keyBytes = key.getBytes(false);

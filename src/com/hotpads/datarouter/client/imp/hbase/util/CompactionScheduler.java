@@ -48,14 +48,17 @@ implements CompactionInfo{
 		boolean inCurrentWindow = nextCompactTimeMs >= windowStartMs
 				&& nextCompactTimeMs < windowEndMs;
 		if(!inCurrentWindow){
-			logger.warn("skipping compaction of "+regionInfo.getStartKey().getPersistentString());
-			logger.warn("windowStart:"+new Date(windowStartMs)+", windowEnd:"+new Date(windowEndMs)+", nextCompactTime"+new Date(nextCompactTimeMs));
+//			logger.warn("skipping compaction of "+regionInfo.getStartKey().getPersistentString());
+//			logger.warn("windowStart:"+new Date(windowStartMs)+", windowEnd:"+new Date(windowEndMs)
+//					+", nextCompactTime"+new Date(nextCompactTimeMs));
+			return false;
 		}
 		boolean moreThanOneStoreFile = regionInfo.getLoad().getStorefiles() > 1;
 		if(!moreThanOneStoreFile){
 			logger.warn("skipping compaction of "+regionInfo.getStartKey().getPersistentString()+" because only one file");
+			return false;
 		}
-		return inCurrentWindow && moreThanOneStoreFile;
+		return true;
 	}
 	
 	public void calculateNextCompactTime(){
