@@ -55,7 +55,8 @@ implements CompactionInfo{
 		}
 		boolean moreThanOneStoreFile = regionInfo.getLoad().getStorefiles() > 1;
 		if(!moreThanOneStoreFile){
-			logger.warn("skipping compaction of "+regionInfo.getStartKey().getPersistentString()+" because only one file");
+			logger.warn("skipping compaction of "+regionInfo.getRegion().getEncodedName()+", "
+					+regionInfo.getStartKey().toString()+" because only one file");
 			return false;
 		}
 		return true;
