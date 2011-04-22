@@ -11,7 +11,10 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ComparableTool;
 
-public abstract class BaseNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
+public abstract class BaseNode<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>> 
 implements Node<PK,D>{
 	protected Logger logger = Logger.getLogger(getClass());
 	
@@ -23,7 +26,8 @@ implements Node<PK,D>{
 	}
 	
 	public BaseNode(Class<D> databeanClass, Class<F> fielderClass){
-		this.name = databeanClass.getSimpleName()+"."+this.getClass().getSimpleName();//probably never used
+		this.name = databeanClass.getSimpleName()
+				+"."+getClass().getSimpleName();//probably never used
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(name, databeanClass, fielderClass);
 		}catch(Exception probablyNoPkInstantiated){
@@ -70,4 +74,6 @@ implements Node<PK,D>{
 	public DatabeanFieldInfo<PK,D,?> getFieldInfo(){
 		return fieldInfo;
 	}
+	
+	
 }

@@ -30,13 +30,11 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	protected Class<D> databeanClass;
 	protected DataRouter router;
 	protected PhysicalNodes<PK,D,N> physicalNodes = new PhysicalNodes<PK,D,N>();
-	
-	protected String name;
-	
+		
 	public BasePartitionedNode(Class<D> databeanClass, DataRouter router){
 		super(databeanClass);
 		this.router = router;
-		this.name = databeanClass.getSimpleName()+"."+this.getClass().getSimpleName();
+		this.name = databeanClass.getSimpleName()+"."+getClass().getSimpleName();
 	}
 
 	/*************************** node methods *************************/
