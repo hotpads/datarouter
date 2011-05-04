@@ -95,7 +95,7 @@ implements MemcachedPhysicalNode<PK,D>,
 
 					Future<Object> f = spyClient.asyncGet(memcachedKey);
 					try {
-						bytes = (byte[])f.get(100, TimeUnit.MILLISECONDS);
+						bytes = (byte[])f.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS); //get result asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
 					} catch (TimeoutException e) {						
 						TraceContext.appendToSpanInfo("memcached timeout");
 					} catch (InterruptedException e) {						
@@ -131,10 +131,10 @@ implements MemcachedPhysicalNode<PK,D>,
 				List<D> databeans = ListTool.createArrayListWithSize(keys);
 				Map<String,Object> bytesByStringKey = null;
 
-				Future<Map<String,Object>> f = spyClient.asyncGetBulk(
+				Future<Map<String,Object>> f = spyClient.asyncGetBulk( //get results asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
 						DataRouterMemcachedKey.getVersionedKeyStrings(name, databeanVersion, keys));
 				try {
-					bytesByStringKey = f.get(100, TimeUnit.MILLISECONDS);
+					bytesByStringKey = f.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS);
 				} catch (TimeoutException e) {										
 					TraceContext.appendToSpanInfo("memcached timeout");	
 				} catch (ExecutionException e) {					
