@@ -95,7 +95,7 @@ implements MemcachedPhysicalNode<PK,D>,
 
 					Future<Object> f = spyClient.asyncGet(memcachedKey);
 					try {
-						bytes = (byte[])f.get(75, TimeUnit.MILLISECONDS);
+						bytes = (byte[])f.get(100, TimeUnit.MILLISECONDS);
 					} catch (TimeoutException e) {						
 						TraceContext.appendToSpanInfo("memcached timeout");
 					} catch (InterruptedException e) {						
