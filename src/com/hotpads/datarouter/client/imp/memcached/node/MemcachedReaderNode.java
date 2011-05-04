@@ -5,6 +5,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
@@ -87,7 +91,17 @@ implements MemcachedPhysicalNode<PK,D>,
 		return new MemcachedMultiAttemptTask<D>(new MemcachedTask<D>("get", this, config){
 				public D memcachedCall() throws Exception{
 					String memcachedKey = new DataRouterMemcachedKey<PK>(name, databeanVersion, key).getVersionedKeyString();
-					byte[] bytes = (byte[])spyClient.get(memcachedKey);
+					byte[] bytes = null;
+
+					Future<Object> f = spyClient.asyncGet(memcachedKey);
+					try {
+						bytes = (byte[])f.get(75, TimeUnit.MILLISECONDS);
+					} catch (TimeoutException e) {						
+						TraceContext.appendToSpanInfo("memcached timeout");
+					} catch (InterruptedException e) {						
+					} catch (ExecutionException e) {						
+					}
+					
 					if(ArrayTool.isEmpty(bytes)){ 
 						TraceContext.appendToSpanInfo("miss");
 						return null; 
@@ -115,8 +129,21 @@ implements MemcachedPhysicalNode<PK,D>,
 		return new MemcachedMultiAttemptTask<List<D>>(new MemcachedTask<List<D>>("getMulti", this, config){
 			public List<D> memcachedCall() throws Exception{
 				List<D> databeans = ListTool.createArrayListWithSize(keys);
-				Map<String,Object> bytesByStringKey = spyClient.getBulk(
+				Map<String,Object> bytesByStringKey = null;
+
+				Future<Map<String,Object>> f = spyClient.asyncGetBulk(
 						DataRouterMemcachedKey.getVersionedKeyStrings(name, databeanVersion, keys));
+				try {
+					bytesByStringKey = f.get(100, TimeUnit.MILLISECONDS);
+				} catch (TimeoutException e) {										
+					TraceContext.appendToSpanInfo("memcached timeout");	
+				} catch (ExecutionException e) {					
+				} catch (InterruptedException e) {					
+				}
+				
+				if (bytesByStringKey == null)
+					return null;
+				
 				for(Map.Entry<String,Object> entry : bytesByStringKey.entrySet()){
 					byte[] bytes = (byte[])entry.getValue();
 					if(ArrayTool.isEmpty(bytes)){ return null; }
