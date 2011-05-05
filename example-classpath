@@ -5,5 +5,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/util"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/lib-base"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/lib-datarouter"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/lib-servlet"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
