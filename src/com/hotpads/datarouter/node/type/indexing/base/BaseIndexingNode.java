@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
-import com.google.inject.internal.Preconditions;
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.index.IndexListener;
