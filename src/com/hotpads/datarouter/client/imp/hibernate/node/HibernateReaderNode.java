@@ -699,7 +699,7 @@ implements MapStorageReader<PK,D>,
 	
 	
 	/********************************* hibernate helpers ***********************************************/
-	
+	//shouldn't need this for innodb.  not sure if it hurts or not though.  see Handler_read_rnd_next (innodb may sort anyway?)
 	protected void addPrimaryKeyOrderToCriteria(Criteria criteria){
 		for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
 			criteria.addOrder(Order.asc(field.getPrefixedName()));
