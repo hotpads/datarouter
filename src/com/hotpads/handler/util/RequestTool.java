@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.Predicate;
 
@@ -37,6 +38,9 @@ public class RequestTool {
 		return uriVars;
 	}
 	
+	
+	/********************** simple param parsers *******************************************/
+	
 	public static String get(HttpServletRequest request, String paramName){
 		String stringVal = request.getParameter(paramName);
 		if(stringVal == null){ throw new NullPointerException(paramName+" was not found in the request."); }
@@ -46,6 +50,13 @@ public class RequestTool {
 	public static String get(HttpServletRequest request, String paramName, String defaultValue){
 		String stringVal = request.getParameter(paramName);
 		return stringVal==null ? defaultValue : stringVal;
+	}
+	
+	public static Boolean getBoolean(HttpServletRequest request, String paramName){
+		String stringVal = request.getParameter(paramName);
+		//checkboxes don't submit anything if unchecked, so assume null is false
+//		if(StringTool.isEmpty(stringVal)){ throw new IllegalArgumentException("missing boolean parameter "+paramName); }
+		return BooleanTool.isTrue(stringVal);
 	}
 	
 		

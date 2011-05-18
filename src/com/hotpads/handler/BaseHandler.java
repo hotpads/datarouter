@@ -8,7 +8,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -18,8 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.handler.mav.ModelAndView;
-import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.handler.mav.Mav;
+import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.util.core.exception.PermissionException;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -35,16 +34,15 @@ public abstract class BaseHandler{
 	protected HttpServletResponse response;
 	protected Params params;
 	protected PrintWriter out;
-	protected ModelAndView mav;
 	
 	//returns url match regex.  dispatcher servlet calls this on container startup to build url mappings
 	//..could also map the url's externally so they're in a centralized place
 //	abstract String handles();
 	
 	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
-	protected void handleDefault(){
-		mav = new ModelAndView("/generic/message");
-		mav.addObject("message", "no default handler method found, please specify "+handlerMethodParamName());
+	@Handler protected Mav handleDefault(){
+		return new MessageMav().addObject("message", "no default handler method found, please specify "
+				+handlerMethodParamName());
 	}
 	
 	
@@ -74,16 +72,18 @@ public abstract class BaseHandler{
 			}catch(SecurityException e){
 				throw new RuntimeException(e);
 			}
+			Mav resultMav;
 			try{
-				method.invoke(this, new Object[]{});
+				resultMav = (Mav)method.invoke(this, new Object[]{});
 			}catch(IllegalAccessException e){
 				throw new RuntimeException(e);
 			}catch(InvocationTargetException e){
-				throw new RuntimeException(e);
+//				throw new RuntimeException(e);
+				throw (RuntimeException)e.getCause();
 			}
-			finishRequest();
+			finishRequest(resultMav);
 		}catch(Exception e){
-			logger.warn(ExceptionTool.getStackTraceAsString(e));
+			if(e instanceof RuntimeException){ throw (RuntimeException)e; }
 			throw new RuntimeException(e);
 		}
 	}
@@ -110,7 +110,7 @@ public abstract class BaseHandler{
 		return 100L; 
 	}
 	
-	void finishRequest() throws ServletException{
+	void finishRequest(Mav mav) throws ServletException{
 		try{
 			if(mav==null){
 				
@@ -137,15 +137,12 @@ public abstract class BaseHandler{
 				dispatcher.include(request, response);
 			}
 			
-			out.flush();
-			out.close();
+			//the container should take care of this...
+//			out.flush();
+//			out.close();
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
-	}
-	
-	protected void redirect(String url, Map<String,String> params){
-		
 	}
 	
 	protected void p(String s){
@@ -157,7 +154,7 @@ public abstract class BaseHandler{
 	}
 
 
-	protected void appendMavToRequest(HttpServletRequest request, ModelAndView mav){
+	protected void appendMavToRequest(HttpServletRequest request, Mav mav){
 		for(String key : mav.getModel().keySet()){
 			request.setAttribute(key, mav.getModel().get(key));
 		}

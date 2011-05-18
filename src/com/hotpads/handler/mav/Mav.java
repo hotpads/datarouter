@@ -6,7 +6,7 @@ import java.util.Map;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.StringTool;
 
-public class ModelAndView {
+public class Mav {
 	
 	public static final String REDIRECT = "redirect:";
 
@@ -21,39 +21,39 @@ public class ModelAndView {
 	
 	/********************** constructors ****************************************/
 	
-	public ModelAndView(){
+	public Mav(){
 	}
 	
-	public ModelAndView(String viewName){
+	public Mav(String viewName){
 		this.setViewName(viewName);
 	}
 	
-	public ModelAndView(String context, String viewName){
+	public Mav(String context, String viewName){
 		this.setContext(context);
 		this.setViewName(viewName);
 	}
 	
-	public ModelAndView(String viewName, String key, Object value){
-		this.setViewName(viewName);
-		this.addObject(key, value);
-	}
+//	public ModelAndView(String viewName, String key, Object value){
+//		this.setViewName(viewName);
+//		this.addObject(key, value);
+//	}
 	
-	public ModelAndView(String context, String viewName, String key, Object value){
-		this.setContext(context);
-		this.setViewName(viewName);
-		this.addObject(key, value);
-	}
+//	public ModelAndView(String context, String viewName, String key, Object value){
+//		this.setContext(context);
+//		this.setViewName(viewName);
+//		this.addObject(key, value);
+//	}
 	
 	
 	/********************** methods *******************************************/
 	
-	public ModelAndView addObject(String key, Object value){
+	public Mav addObject(String key, Object value){
 		model.put(key, value);
 		return this;
 	}
 	
 	public boolean isRedirect(){
-		return this.redirect;
+		return redirect;
 	}
 	
 	public String getRedirectUrl(){
@@ -75,7 +75,7 @@ public class ModelAndView {
 		}
 	}
 	
-	public ModelAndView setViewName(final String viewName){
+	public Mav setViewName(final String viewName){
 		if(StringTool.nullSafe(viewName).startsWith(REDIRECT)){
 			this.redirect = true;
 			this.viewName = viewName.substring(REDIRECT.length());
@@ -89,7 +89,7 @@ public class ModelAndView {
 		return this;
 	}
 	
-	public ModelAndView setViewName(String context, String viewName){
+	public Mav setViewName(String context, String viewName){
 		this.setContext(context);
 		return this.setViewName(viewName);
 	}
