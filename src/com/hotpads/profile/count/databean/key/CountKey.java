@@ -78,7 +78,7 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	@Override
 	public String toString(){
 		String time = startTimeMs==null?"":DateTool.getYYYYMMDDHHMMSSWithPunctuationNoSpaces(startTimeMs);
-		String flushDelaySeconds = (created - startTimeMs) / 1000 + "";
+		String flushDelaySeconds = startTimeMs==null||created==null?"":(created - startTimeMs) / 1000 + "";
 		return super.toString()+"["+time+"+"+flushDelaySeconds+"s]";
 	}
 

@@ -5,7 +5,6 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.DRHRegionInfo;
-import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.HashMethods;
 import com.hotpads.util.core.date.DailyCalendarTool;
@@ -28,8 +27,7 @@ implements CompactionInfo{
 		this.windowStartMs = now - (now % compactionInfo.getCompactionTriggerPeriodMs());
 		this.windowEndMs = windowStartMs + compactionInfo.getCompactionTriggerPeriodMs();
 		this.regionInfo = regionInfo;
-		PrimaryKey<?> startKey = regionInfo.getStartKey();
-		String startKeyString = startKey.getPersistentString();
+		String startKeyString = regionInfo.getRegion().getEncodedName();
 		this.regionHash = Math.abs(HashMethods.longDJBHash(startKeyString));
 		calculateNextCompactTime();
 	}
@@ -49,8 +47,9 @@ implements CompactionInfo{
 				&& nextCompactTimeMs < windowEndMs;
 		if(!inCurrentWindow){
 //			logger.warn("skipping compaction of "+regionInfo.getStartKey().getPersistentString());
-//			logger.warn("windowStart:"+new Date(windowStartMs)+", windowEnd:"+new Date(windowEndMs)
-//					+", nextCompactTime"+new Date(nextCompactTimeMs));
+//			logger.warn("windowStart:"+DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(new Date(windowStartMs))
+//					+", windowEnd:"+DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(new Date(windowEndMs))
+//					+", nextCompactTime"+DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(new Date(nextCompactTimeMs)));
 			return false;
 		}
 		boolean moreThanOneStoreFile = regionInfo.getLoad().getStorefiles() > 1;
@@ -70,7 +69,7 @@ implements CompactionInfo{
 		long periodStartSeekerMs = COMPACTION_EPOCH;
 		while(true){
 			long nextPeriodStartMs = periodStartSeekerMs + regionCompactionPeriodMs;
-			if(nextPeriodStartMs > now){ break; }
+			if(nextPeriodStartMs > windowStartMs){ break; }
 			periodStartSeekerMs = nextPeriodStartMs;
 		}
 
@@ -78,7 +77,7 @@ implements CompactionInfo{
 		Double offsetIntoCompactionPeriodPct = 1d * (double)regionHash / (double)Long.MAX_VALUE;
 		Long offsetIntoCompactionPeriodMs = (long)(offsetIntoCompactionPeriodPct * getPeriodMs());
 		nextCompactTimeMs = periodStartSeekerMs + offsetIntoCompactionPeriodMs;
-		if(nextCompactTimeMs < now){ nextCompactTimeMs += regionCompactionPeriodMs; }
+		if(nextCompactTimeMs < windowStartMs){ nextCompactTimeMs += regionCompactionPeriodMs; }
 		nextCompactTimeMs = nextCompactTimeMs - (nextCompactTimeMs % getCompactionTriggerPeriodMs());
 	}
 	
