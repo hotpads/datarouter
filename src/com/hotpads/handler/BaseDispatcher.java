@@ -11,14 +11,14 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.inject.Injector;
 import com.hotpads.util.core.MapTool;
 
-public abstract class Dispatcher{
+public abstract class BaseDispatcher{
 
 	protected Injector injector;
 	protected String servletContextPath, urlPrefix, combinedPrefix;
 	protected Map<Pattern,Class<? extends BaseHandler>> handlerByClass;
 	protected Class<? extends BaseHandler> defaultHandlerClass;
 	 
-	public Dispatcher(Injector injector, String servletContextPath, String urlPrefix){
+	public BaseDispatcher(Injector injector, String servletContextPath, String urlPrefix){
 		this.injector = injector;
 		this.servletContextPath = servletContextPath;
 		this.urlPrefix = urlPrefix;
@@ -26,13 +26,13 @@ public abstract class Dispatcher{
 		this.handlerByClass = MapTool.createHashMap();
 	}
 	
-	protected Dispatcher handle(String regex, Class<? extends BaseHandler> handlerClass){
+	protected BaseDispatcher handle(String regex, Class<? extends BaseHandler> handlerClass){
 		Pattern pattern = Pattern.compile(regex);
 		handlerByClass.put(pattern, handlerClass);
 		return this;
 	}
 	
-	protected Dispatcher handleOthers(Class<? extends BaseHandler> defaultHandlerClass){
+	protected BaseDispatcher handleOthers(Class<? extends BaseHandler> defaultHandlerClass){
 		this.defaultHandlerClass = defaultHandlerClass;
 		return this;
 	}

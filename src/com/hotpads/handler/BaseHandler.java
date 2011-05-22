@@ -40,6 +40,7 @@ public abstract class BaseHandler{
 //	abstract String handles();
 	
 	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
+	
 	@Handler protected Mav handleDefault(){
 		return new MessageMav().addObject("message", "no default handler method found, please specify "
 				+handlerMethodParamName());
@@ -62,8 +63,15 @@ public abstract class BaseHandler{
 			Method method;
 			try{
 				method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), handlerMethodName());
-				if(method==null || !method.isAnnotationPresent(Handler.class)){
-					throw new PermissionException("no such handler "+handlerMethodParamName()+"="+handlerMethodName());
+				boolean allowed = false;
+				if(method != null){
+					if(method.isAnnotationPresent(Handler.class) || usingDefaultHandlerMethod()){
+						allowed = true;
+					}
+				}
+				if(!allowed){
+					throw new PermissionException("no such handler "
+							+handlerMethodParamName()+"="+handlerMethodName());
 				}
 //			}catch(NoSuchMethodException e){
 //				throw new RuntimeException(e);
@@ -100,6 +108,10 @@ public abstract class BaseHandler{
 	
 	String handlerMethodName(){
 		return params.optional(handlerMethodParamName(), DEFAULT_HANDLER_METHOD_NAME);
+	}
+	
+	boolean usingDefaultHandlerMethod(){
+		return DEFAULT_HANDLER_METHOD_NAME.equals(handlerMethodName());
 	}
 	
 	public String handlerMethodParamName(){

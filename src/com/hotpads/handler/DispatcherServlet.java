@@ -21,7 +21,7 @@ public abstract class DispatcherServlet extends HttpServlet {
 	protected String servletContextPath;
 	protected Injector injector;
 	
-	protected List<Dispatcher> dispatchers = ListTool.createArrayList();;
+	protected List<BaseDispatcher> dispatchers = ListTool.createArrayList();;
 	//...add more dispatchers
 	
 	
@@ -43,7 +43,7 @@ public abstract class DispatcherServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		
 		boolean handled = false;
-		for(Dispatcher dispatcher : dispatchers){
+		for(BaseDispatcher dispatcher : dispatchers){
 			handled = dispatcher.handleRequestIfUrlMatch(getServletContext(), request, response);
 			if(handled){ break; }
 		}
