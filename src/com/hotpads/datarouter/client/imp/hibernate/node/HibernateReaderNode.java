@@ -716,6 +716,7 @@ implements MapStorageReader<PK,D>,
 		}
 		if(config.getLimit()!=null){
 			criteria.setMaxResults(config.getLimit());
+			criteria.setFetchSize(config.getLimit());
 		}
 		if(config.getOffset()!=null){
 			criteria.setFirstResult(config.getOffset());
