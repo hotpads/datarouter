@@ -15,6 +15,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
 import com.hotpads.util.core.IterableTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.XMLStringTool;
 
@@ -86,6 +87,15 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey,Available
 			String source = counter.getSource();
 			if(source==null) continue;
 			outs.add(source);
+		}
+		return outs;
+	}
+	
+	public static List<AvailableCounter> filterOutArrayServers(Collection<AvailableCounter> ins){
+		List<AvailableCounter> outs = ListTool.createArrayList();
+		for(AvailableCounter in : IterableTool.nullSafe(ins)){
+			if(in.getSource().contains("#")){ continue; }
+			outs.add(in);
 		}
 		return outs;
 	}
