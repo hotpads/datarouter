@@ -724,24 +724,27 @@ implements MapStorageReader<PK,D>,
 	}
 
 	
-	protected <PK extends PrimaryKey<PK>> Conjunction getPrefixConjunction(
+	protected Conjunction getPrefixConjunction(
 			Key<PK> prefix, final boolean wildcardLastField){
 		int numNonNullFields = FieldSetTool.getNumNonNullFields(prefix);
 		if(numNonNullFields==0){ return null; }
 		Conjunction conjunction = Restrictions.conjunction();
 		int numFullFieldsFinished = 0;
 		for(Field<?> field : FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), prefix.getFields())){
-			if(numFullFieldsFinished < numNonNullFields){
-				boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
-				boolean stringField = !(field instanceof BasePrimitiveField<?>);
-				boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
-				if(canDoPrefixMatchOnField){
-					conjunction.add(Restrictions.like(field.getPrefixedName(), field.getValue().toString(), MatchMode.START));
-				}else{
-					conjunction.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-				}
-				++numFullFieldsFinished;
+			if(numFullFieldsFinished >= numNonNullFields) break;
+			if(field.getValue()==null) {
+				throw new DataAccessException("Prefix query on "+
+						prefix.getClass()+" cannot contain intermediate nulls.");
 			}
+			boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
+			boolean stringField = !(field instanceof BasePrimitiveField<?>);
+			boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
+			if(canDoPrefixMatchOnField){
+				conjunction.add(Restrictions.like(field.getPrefixedName(), field.getValue().toString(), MatchMode.START));
+			}else{
+				conjunction.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+			}
+			++numFullFieldsFinished;
 		}
 		return conjunction;
 	}
