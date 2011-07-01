@@ -42,10 +42,10 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 	public String getValueString(){
 		return value==null?null:value.getPersistentString();
 	}
-
+	
 	@Override
 	public String getSqlEscaped(){
-		return value==null?"null":value.getPersistentString();
+		return value==null?"null":"'" + value.getPersistentString() + "'";
 	}
 
 	@Override
