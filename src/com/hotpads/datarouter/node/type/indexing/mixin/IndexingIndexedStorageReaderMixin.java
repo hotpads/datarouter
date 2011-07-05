@@ -41,6 +41,10 @@ implements IndexedStorageReader<PK,D>{
 		}
 	}
 
+	@Override
+	public Long count(Lookup<PK> lookup, Config config) {
+		throw new NotImplementedException("only unique indexes currently supported");
+	}
 	
 	@Override
 	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config){

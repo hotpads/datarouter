@@ -15,6 +15,8 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 public interface IndexedStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
+	Long count(Lookup<PK> lookup, Config config);
+	
 	D lookupUnique(UniqueKey<PK> uniqueKey, Config config);
 	List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config);
 	

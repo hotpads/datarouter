@@ -258,7 +258,36 @@ implements MapStorageReader<PK,D>,
 	
 	
 	/************************************ IndexedStorageReader methods ****************************/
+	
+	@Override
+	public Long count(final Lookup<PK> lookup, final Config config) {
+		if(lookup==null){ return 0l; }
+		TraceContext.startSpan(getName()+" count");
+		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
+		Object result = executor.executeTask(
+			new HibernateTask() {
+				public Object run(Session session) {
+					if(fieldInfo.getFieldAware()){
+						String sql = SqlBuilder.getCount(config, tableName, fieldInfo.getFields(), ListTool.wrap(lookup));
+						return JdbcTool.count(session, sql);
+					}else{
+						Criteria criteria = getCriteriaForConfig(config, session);
+						criteria.setProjection(Projections.rowCount());
 
+						for(Field<?> field : CollectionTool.nullSafe(lookup.getFields())){
+							criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+						}
+						
+						Number n = (Number)criteria.uniqueResult();						
+						return n.longValue();
+					}
+				}
+			});
+		TraceContext.finishSpan();
+		return (Long)result;
+	}
+	
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
