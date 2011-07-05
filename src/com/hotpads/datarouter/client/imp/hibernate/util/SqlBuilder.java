@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
@@ -143,20 +144,23 @@ public class SqlBuilder{
 		if(numNonNullFields==0){ return; }
 		int numFullFieldsFinished = 0;
 		for(Field<?> field : CollectionTool.nullSafe(prefix.getFields())){
-			if(numFullFieldsFinished < numNonNullFields){
-				if(numFullFieldsFinished > 0){ sql.append(" and "); }
-				boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
-				boolean stringField = !(field instanceof BasePrimitiveField<?>);
-				boolean doPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
-				if(doPrefixMatchOnField){
-					String s = field.getSqlEscaped();
-					String sqlEscapedWithWildcard = s.substring(0, s.length()-1) + "%'";
-					sql.append(field.getColumnName()+" like "+sqlEscapedWithWildcard);
-				}else{
-					sql.append(field.getSqlNameValuePairEscaped());
-				}
-				++numFullFieldsFinished;
+			if(numFullFieldsFinished >= numNonNullFields) break;
+			if(field.getValue()==null) {
+				throw new DataAccessException("Prefix query on "+
+						prefix.getClass()+" cannot contain intermediate nulls.");
 			}
+			if(numFullFieldsFinished > 0){ sql.append(" and "); }
+			boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
+			boolean stringField = !(field instanceof BasePrimitiveField<?>);
+			boolean doPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
+			if(doPrefixMatchOnField){
+				String s = field.getSqlEscaped();
+				String sqlEscapedWithWildcard = s.substring(0, s.length()-1) + "%'";
+				sql.append(field.getColumnName()+" like "+sqlEscapedWithWildcard);
+			}else{
+				sql.append(field.getSqlNameValuePairEscaped());
+			}
+			++numFullFieldsFinished;
 		}
 	}
 	

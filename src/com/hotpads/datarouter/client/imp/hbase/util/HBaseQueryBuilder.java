@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase.util;
 import org.apache.hadoop.hbase.client.Scan;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
@@ -87,16 +88,20 @@ public class HBaseQueryBuilder{
 		byte[][] fieldBytes = new byte[numNonNullFields][];
 		int numFullFieldsFinished = 0;
 		for(Field<?> field : CollectionTool.nullSafe(prefix.getFields())){
-			if(numFullFieldsFinished < numNonNullFields){
-				boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
-				boolean doPrefixMatchOnField = wildcardLastField && lastNonNullField;
-				if(doPrefixMatchOnField){//TODO not sure you can actually do wildcard matches
-					fieldBytes[numFullFieldsFinished] = field.getBytes();//wildcard
-				}else{
-					fieldBytes[numFullFieldsFinished] = field.getBytesWithSeparator();//no wildcard
-				}
-				++numFullFieldsFinished;
+			if(numFullFieldsFinished >= numNonNullFields) break;
+			if(field.getValue()==null) {
+				throw new DataAccessException("Prefix query on "+
+						prefix.getClass()+" cannot contain intermediate nulls.");
 			}
+			boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
+			boolean doPrefixMatchOnField = wildcardLastField && lastNonNullField;
+			if(doPrefixMatchOnField){//TODO not sure you can actually do wildcard matches
+				fieldBytes[numFullFieldsFinished] = field.getBytes();//wildcard
+			}else{
+				fieldBytes[numFullFieldsFinished] = field.getBytesWithSeparator();//no wildcard
+			}
+			++numFullFieldsFinished;
+			
 		}
 		byte[] startBytes = ByteTool.concatenate(fieldBytes);
 		byte[] endBytes = ByteTool.unsignedIncrementOverflowToNull(startBytes);
