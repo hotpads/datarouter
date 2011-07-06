@@ -23,7 +23,7 @@ public class DateField extends BasePrimitiveField<Date>{
 	
 	@Override
 	public void fromString(String s){
-		this.value = s==null?null:DateTool.parseCommonDate(s);
+		this.value = s==null?null:DateTool.parseUserInputDate(s,null);
 	}
 
 	@Override
