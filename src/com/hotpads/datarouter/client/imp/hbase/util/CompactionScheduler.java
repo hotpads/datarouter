@@ -13,7 +13,8 @@ public class CompactionScheduler
 implements CompactionInfo{
 	static Logger logger = Logger.getLogger(CompactionScheduler.class);
 	
-	public static final Long COMPACTION_EPOCH = DailyCalendarTool.parseYYYYMMDD("20110301").getTimeInMillis();
+	public static final Long COMPACTION_EPOCH = 
+		DailyCalendarTool.parseYYYYMMDDEastern("20110301").getTimeInMillis();
 	
 	protected Long now = System.currentTimeMillis();
 	protected CompactionInfo compactionInfo;
