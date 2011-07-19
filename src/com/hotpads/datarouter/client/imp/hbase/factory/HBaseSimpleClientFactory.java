@@ -89,7 +89,7 @@ implements HBaseClientFactory{
 				}
 			});
 			try{
-				this.client = future.get(2500, TimeUnit.MILLISECONDS);
+				this.client = future.get(5000, TimeUnit.MILLISECONDS);
 			}catch(InterruptedException e){
 				throw new RuntimeException(e);
 			}catch(ExecutionException e){
