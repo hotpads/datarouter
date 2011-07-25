@@ -8,6 +8,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -87,10 +89,13 @@ implements HBaseClientFactory{
 				}
 			});
 			try{
-				this.client = future.get();
+				this.client = future.get(5000, TimeUnit.MILLISECONDS);
 			}catch(InterruptedException e){
 				throw new RuntimeException(e);
 			}catch(ExecutionException e){
+				throw new RuntimeException(e);
+			} catch(TimeoutException e) {
+				future.cancel(false);
 				throw new RuntimeException(e);
 			}
 		}
