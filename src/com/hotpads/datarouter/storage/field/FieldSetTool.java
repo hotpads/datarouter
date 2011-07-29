@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.storage.field;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,6 +85,12 @@ public class FieldSetTool{
 			Map<String,Field<?>> fieldByPrefixedName, InputStream is) throws IOException{
 		int databeanLength = (int)new VarLong(is).getValue();
 		return fieldSetFromByteStreamKnownLength(cls, fieldByPrefixedName, is, databeanLength);
+	}
+
+	public static <D extends FieldSet<?>> D fieldSetFromBytes(Class<D> cls, 
+			Map<String,Field<?>> fieldByPrefixedName, byte[] bytes) throws IOException{
+		return fieldSetFromByteStreamKnownLength(cls, fieldByPrefixedName, 
+				new ByteArrayInputStream(bytes), bytes.length);
 	}
 
 	public static <D extends FieldSet<?>> D fieldSetFromByteStreamKnownLength(Class<D> cls, 
