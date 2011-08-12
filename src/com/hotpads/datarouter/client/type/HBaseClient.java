@@ -12,7 +12,7 @@ extends Client{
 	
 	HTable checkOutHTable(String name);
 	void checkInHTable(HTable hTable);
-	
+	Integer getTotalPoolSize();
 	ExecutorService getExecutorService();
 	
 	Class<PrimaryKey<?>> getPrimaryKeyClass(String tableName);

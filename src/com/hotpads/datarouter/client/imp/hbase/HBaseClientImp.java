@@ -89,8 +89,13 @@ implements HBaseClient{
 		return hBaseConfiguration;
 	}
 	
+	@Override
+	public Integer getTotalPoolSize(){
+		return hTablePool.getTotalPoolSize();
+	}
+	
 	public void shutdown(){
 		logger.warn("shutting down client:"+name);
-		hTablePool.killOutstandingConnections();
+//		hTablePool.killOutstandingConnections();
 	}
 }

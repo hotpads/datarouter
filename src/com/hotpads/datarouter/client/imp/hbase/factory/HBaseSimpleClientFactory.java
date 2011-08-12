@@ -106,7 +106,9 @@ implements HBaseClientFactory{
 		return client;
 	}
 	
-	public static final int DEFAULT_minPoolSize = 3;
+	public static final int 
+		DEFAULT_minPoolSize = 1,//these are per-table
+		DEFAULT_maxPoolSize = 5;
 	
 	public static final long 
 			DEFAULT_MAX_FILE_SIZE_BYTES = 256 * 1024 * 1024,
@@ -174,6 +176,7 @@ implements HBaseClientFactory{
 		HTablePool pool = new HTablePool(hbConfig, 
 				tableNames, 
 				options.minPoolSize(DEFAULT_minPoolSize),
+				DEFAULT_maxPoolSize,
 				primaryKeyClassByName);
 		
 		
