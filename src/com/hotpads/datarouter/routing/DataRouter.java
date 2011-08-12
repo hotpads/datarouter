@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.app.App;
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.RouterOptions;
@@ -25,11 +26,11 @@ public interface DataRouter {
 
 	void setClients(Clients clients);
 
-	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>, N extends Node<PK,D>> N register(N node);
+	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>, N extends Node<PK,D>> 
+			N register(N node);
 	
 	void activate() throws IOException;
 
-	@SuppressWarnings("unchecked")
 	Nodes getNodes();
 
 	/************************************** app wrappers **************************************/
@@ -50,19 +51,19 @@ public interface DataRouter {
 	List<Client> getClients(Collection<String> clientNames);
 
 	<K extends Key<K>> List<String> 
-	getClientNamesForKeys(Collection<? extends Key<K>> keys);
+			getClientNamesForKeys(Collection<? extends Key<K>> keys);
 
 	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<String> 
-	getClientNamesForDatabeans(Collection<D> databeans);
+			getClientNamesForDatabeans(Collection<D> databeans);
 
 	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<Client> 
-	getClientsForDatabeanType(Class<D> databeanType);
+			getClientsForDatabeanType(Class<D> databeanType);
 
 	<K extends Key<K>> List<Client> 
-	getClientsForKeys(Collection<? extends Key<K>> keys);
+			getClientsForKeys(Collection<? extends Key<K>> keys);
 
 	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<Client> 
-	getClientsForDatabeans(Collection<D> databeans);
+			getClientsForDatabeans(Collection<D> databeans);
 
 	/***************** overexposed accessors *******************************/
 	ConnectionPools getConnectionPools();

@@ -7,13 +7,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.HConnection;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.NoServerForRegionException;
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class HTablePool{
@@ -75,6 +79,18 @@ public class HTablePool{
 		synchronized(queue){
 			if(queue.size() < NUM_HTABLES_PER_TABLE_TO_STORE){
 				queue.add(hTable);
+			}
+		}
+	}
+	
+	public void killOutstandingConnections(){
+		for(String tableName : MapTool.nullSafe(tablesByName).keySet()){
+			Collection<HTable> hTables = CollectionTool.nullSafe(tablesByName.get(tableName));
+			for(HTable hTable : hTables){
+//				hTable.close();//flushes buffer, which will probably block indefinitely in this situation
+				HConnection connection = hTable.getConnection();
+				logger.warn("aborting HConnection");
+				connection.abort("scuttling datarouter client", new DataAccessException());
 			}
 		}
 	}

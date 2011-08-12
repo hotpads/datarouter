@@ -17,4 +17,6 @@ extends Client{
 	
 	Class<PrimaryKey<?>> getPrimaryKeyClass(String tableName);
 	
+	void shutdown();
+	
 }

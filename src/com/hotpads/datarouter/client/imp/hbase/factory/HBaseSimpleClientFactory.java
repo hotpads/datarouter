@@ -38,8 +38,7 @@ public class HBaseSimpleClientFactory
 implements HBaseClientFactory{
 	Logger logger = Logger.getLogger(getClass());
 	
-	public static final Long KEEP_ALIVE_TEST_PERIOD_MS = 30*1000L;
-	public static final Integer RECONNECT_AFTER_X_FAILURES = 2;
+	static final Integer TIMEOUT_MS = 5000;
 	
 	protected DataRouter router;
 	protected String clientName;
@@ -49,6 +48,8 @@ implements HBaseClientFactory{
 	protected HBaseOptions options;
 	protected HBaseClient client;
 	protected Configuration hbConfig;
+	
+	protected List<String> historicClientIds = ListTool.createArrayList();
 
 	
 	public HBaseSimpleClientFactory(
@@ -85,16 +86,19 @@ implements HBaseClientFactory{
 					
 					HBaseClientImp newClient = new HBaseClientImp(clientName, options, hbConfig, pool);
 					logger.warn(timer.add("done"));
+//					historicClientIds.add(System.identityHashCode(newClient)+"");
+//					logger.warn("historicClientIds"+historicClientIds);
 					return newClient;
 				}
 			});
 			try{
-				this.client = future.get(5000, TimeUnit.MILLISECONDS);
+				this.client = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
 			}catch(InterruptedException e){
 				throw new RuntimeException(e);
 			}catch(ExecutionException e){
 				throw new RuntimeException(e);
 			} catch(TimeoutException e) {
+				logger.warn("couldn't instantiate client "+clientName+" in "+TIMEOUT_MS+"ms");
 				future.cancel(false);
 				throw new RuntimeException(e);
 			}

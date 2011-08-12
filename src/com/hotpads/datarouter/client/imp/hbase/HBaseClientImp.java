@@ -88,4 +88,9 @@ implements HBaseClient{
 	public Configuration getHBaseConfiguration(){
 		return hBaseConfiguration;
 	}
+	
+	public void shutdown(){
+		logger.warn("shutting down client:"+name);
+		hTablePool.killOutstandingConnections();
+	}
 }

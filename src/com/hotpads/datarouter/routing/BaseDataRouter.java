@@ -40,7 +40,6 @@ public abstract class BaseDataRouter implements DataRouter {
 	protected ConnectionPools connectionPools;
 	protected Clients clients;
 	
-	@SuppressWarnings("unchecked")
 	protected Nodes nodes = new Nodes();
 	
 	
@@ -87,7 +86,7 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Nodes getNodes() {
+	public Nodes<?,?,?> getNodes() {
 		return nodes;
 	}
 

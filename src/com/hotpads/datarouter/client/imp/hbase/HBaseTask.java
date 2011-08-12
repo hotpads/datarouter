@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
+import junit.framework.Assert;
+
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.log4j.Logger;
 
@@ -23,22 +25,21 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	
 	protected HBasePhysicalNode<?,?> node;
 	protected String tableName;
-	protected HBaseClient client;
-	protected HTable hTable;
 	protected Config config;
+	protected HTable hTable;
 	
 	public HBaseTask(String taskName, HBasePhysicalNode<?,?> node, Config config){
 		super("HBaseTask."+taskName);
 		this.taskName = taskName;
 		this.node = node;
-		this.client = node.getClient();
 		this.tableName = node.getTableName();
 		this.config = Config.nullSafe(config);
-		
+		Assert.assertNull(hTable);//previous call should have cleared it in finally block
 	}
 	
 	@Override
 	public V wrappedCall(){
+		HBaseClient client = null;
 		try{
 			TraceContext.startSpan(node.getName()+" "+taskName);
 			if(NumberTool.nullSafe(numAttempts) > 1){ 
@@ -47,12 +48,14 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			if( ! NumberTool.isMax(timeoutMs)){ 
 				TraceContext.appendToThreadInfo("[timeoutMs="+timeoutMs+"]"); 
 			}
+			client = node.getClient();//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
+//			logger.warn("got client "+System.identityHashCode(client));
 			hTable = client.checkOutHTable(tableName);
 			return hbaseCall();
 		}catch(Exception e){
 			throw new DataAccessException(e);
 		}finally{
-			if(hTable!=null){
+			if(hTable!=null && client!=null){
 				client.checkInHTable(hTable);
 			}
 			TraceContext.finishSpan();
