@@ -81,17 +81,22 @@ public class HTablePool{
 		hTable.getWriteBuffer().clear();
 		String name = StringByteTool.fromUtf8Bytes(hTable.getTableName());
 		LinkedList<HTable> queue = hTablesByName.get(name);
+		boolean addedBackToPool = false;
 		synchronized(queue){
 			if(queue.size() < maxPerTableSize){
 				queue.add(hTable);
-			}else{
-				try {
-					logger.warn("checkIn HTable but queue already full, so close and discard, table="+name);
-					hTable.close();
-				} catch (IOException e) {
-					logger.warn(ExceptionTool.getStackTraceAsString(e));
-				}				
+				addedBackToPool = true;
+				DRCounters.inc("connection HTable returned to pool "+name);
 			}
+		}
+		if(!addedBackToPool){
+			try {
+				logger.warn("checkIn HTable but queue already full, so close and discard, table="+name);
+				hTable.close();//flushes write buffer, and calls ExecutorService.shutdown()
+				DRCounters.inc("connection HTable closed "+name);
+			} catch (IOException e) {
+				logger.warn(ExceptionTool.getStackTraceAsString(e));
+			}				
 		}
 	}
 	

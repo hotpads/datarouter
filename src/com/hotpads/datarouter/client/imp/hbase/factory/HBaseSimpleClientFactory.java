@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -16,6 +17,8 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.MasterNotRunningException;
+import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.io.hfile.Compression.Algorithm;
 import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
@@ -24,6 +27,7 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.HTablePool;
 import com.hotpads.datarouter.client.type.HBaseClient;
+import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -38,6 +42,10 @@ public class HBaseSimpleClientFactory
 implements HBaseClientFactory{
 	Logger logger = Logger.getLogger(getClass());
 	
+	//static caches
+	public static Map<String,Configuration> CONFIG_BY_ZK_QUORUM = new ConcurrentHashMap<String,Configuration>();
+	public static Map<Configuration,HBaseAdmin> ADMIN_BY_CONFIG = new ConcurrentHashMap<Configuration,HBaseAdmin>();
+	
 	static final Integer TIMEOUT_MS = 5000;
 	
 	protected DataRouter router;
@@ -47,7 +55,8 @@ implements HBaseClientFactory{
 	protected Properties properties;
 	protected HBaseOptions options;
 	protected HBaseClient client;
-	protected Configuration hbConfig;
+	protected Configuration hBaseConfig;
+	protected HBaseAdmin hBaseAdmin;
 	
 	protected List<String> historicClientIds = ListTool.createArrayList();
 
@@ -72,22 +81,35 @@ implements HBaseClientFactory{
 			Future<HBaseClient> future = executorService.submit(new Callable<HBaseClient>(){
 				@Override public HBaseClient call(){
 					if(client!=null){ return client; }
-					logger.warn("activating HBase client "+clientName);
-					PhaseTimer timer = new PhaseTimer(clientName);
-					
-					hbConfig = HBaseConfiguration.create();
-					String zkQuorum = options.zookeeperQuorum();
-					hbConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
-					//TODO add custom variables programatically
-			
-					//databean config
-					HTablePool pool = initTables();
-					timer.add("init HTables");
-					
-					HBaseClientImp newClient = new HBaseClientImp(clientName, options, hbConfig, pool);
-					logger.warn(timer.add("done"));
-//					historicClientIds.add(System.identityHashCode(newClient)+"");
-//					logger.warn("historicClientIds"+historicClientIds);
+					HBaseClientImp newClient = null;
+					try{
+						logger.warn("activating HBase client "+clientName);
+						PhaseTimer timer = new PhaseTimer(clientName);
+	
+						String zkQuorum = options.zookeeperQuorum();
+						hBaseConfig = CONFIG_BY_ZK_QUORUM.get(zkQuorum);
+						if(hBaseConfig==null){
+							hBaseConfig = HBaseConfiguration.create();
+							hBaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
+							CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
+							hBaseAdmin = new HBaseAdmin(hBaseConfig);
+							ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
+							//TODO add custom variables programatically
+						}
+				
+						//databean config
+						HTablePool pool = initTables();
+						timer.add("init HTables");
+						
+						newClient = new HBaseClientImp(clientName, options, hBaseConfig, hBaseAdmin, pool);
+						logger.warn(timer.add("done"));
+	//					historicClientIds.add(System.identityHashCode(newClient)+"");
+	//					logger.warn("historicClientIds"+historicClientIds);
+					}catch(ZooKeeperConnectionException e){
+						throw new UnavailableException(e);
+					}catch(MasterNotRunningException e){
+						throw new UnavailableException(e);
+					}
 					return newClient;
 				}
 			});
@@ -127,9 +149,7 @@ implements HBaseClientFactory{
 			primaryKeyClassByName.put(node.getTableName(), (Class<PrimaryKey<?>>)node.getPrimaryKeyType());
 		}
 
-		try{
-		    HBaseAdmin admin = new HBaseAdmin(hbConfig);
-		    
+		try{		    
 			//manually delete tables here
 //		    if(admin.tableExists("Trace")){
 //		    	admin.disableTable("Trace");
@@ -149,7 +169,7 @@ implements HBaseClientFactory{
 			if(checkTables || createTables){
 				for(String tableName : IterableTool.nullSafe(tableNames)){
 					byte[] tableNameBytes = StringByteTool.getUtf8Bytes(tableName);
-					if(createTables && !admin.tableExists(tableName)){
+					if(createTables && !hBaseAdmin.tableExists(tableName)){
 						logger.warn("table " + tableName + " not found, creating it");
 						HTableDescriptor hTable = new HTableDescriptor(tableName);
 						hTable.setMaxFileSize(DEFAULT_MAX_FILE_SIZE_BYTES);
@@ -159,10 +179,10 @@ implements HBaseClientFactory{
 						family.setBloomFilterType(BloomType.ROW);
 						family.setCompressionType(Algorithm.GZ);
 						hTable.addFamily(family);
-						admin.createTable(hTable);
+						hBaseAdmin.createTable(hTable);
 						logger.warn("created table " + tableName);
 					}else if(checkTables){
-						if(!admin.tableExists(tableNameBytes)){
+						if(!hBaseAdmin.tableExists(tableNameBytes)){
 							logger.warn("table " + tableName + " not found");
 							break;
 						}
@@ -173,7 +193,7 @@ implements HBaseClientFactory{
 			throw new RuntimeException(e);
 		}
 		
-		HTablePool pool = new HTablePool(hbConfig, 
+		HTablePool pool = new HTablePool(hBaseConfig, 
 				tableNames, 
 				options.minPoolSize(DEFAULT_minPoolSize),
 				DEFAULT_maxPoolSize,

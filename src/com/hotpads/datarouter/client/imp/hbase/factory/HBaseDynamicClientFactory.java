@@ -48,7 +48,6 @@ implements DynamicClientFactory{
 
 	protected class HBaseClientKeepAliveTester implements Runnable{
 		Logger logger = Logger.getLogger(getClass());
-		HBaseAdmin hBaseAdmin = null;
 		
 		public HBaseClientKeepAliveTester() {
 		}
@@ -60,9 +59,6 @@ implements DynamicClientFactory{
 				PhaseTimer timer = new PhaseTimer("keepAliveCheck for HBaseClient "+clientName);
 				timer.add("hTablePoolSize:"+client.getTotalPoolSize());
 				try{
-					if(hBaseAdmin==null){
-						hBaseAdmin = new HBaseAdmin(hbConfig);
-					}
 					hBaseAdmin.isMasterRunning();
 					//?? this seems to succeed even when i shut down hbase ??
 //					HBaseAdmin.checkHBaseAvailable(hbConfig);//leaves 2 new daemon threads running after every call

@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.type;
 
 import java.util.concurrent.ExecutorService;
 
+import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
 
 import com.hotpads.datarouter.client.Client;
@@ -14,6 +15,7 @@ extends Client{
 	void checkInHTable(HTable hTable);
 	Integer getTotalPoolSize();
 	ExecutorService getExecutorService();
+	HBaseAdmin getHBaseAdmin();
 	
 	Class<PrimaryKey<?>> getPrimaryKeyClass(String tableName);
 	

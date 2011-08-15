@@ -4,6 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.log4j.Logger;
 
@@ -23,6 +24,7 @@ implements HBaseClient{
 	protected String name;
 	protected HBaseOptions options;
 	protected Configuration hBaseConfiguration;
+	protected HBaseAdmin hBaseAdmin;
 	protected HTablePool hTablePool;
 	protected ExecutorService executorService;
 	
@@ -30,10 +32,11 @@ implements HBaseClient{
 	/**************************** constructor **********************************/
 	
 	public HBaseClientImp(String name, HBaseOptions options, 
-			Configuration hBaseConfiguration, HTablePool pool){
+			Configuration hBaseConfiguration, HBaseAdmin hBaseAdmin, HTablePool pool){
 		this.name = name;
 		this.options = options;
 		this.hBaseConfiguration = hBaseConfiguration;
+		this.hBaseAdmin = hBaseAdmin;
 		this.hTablePool = pool;
 		NamedThreadFactory threadFactory = new NamedThreadFactory(null, "HTablePool", true);
 		this.executorService = Executors.newCachedThreadPool(threadFactory);
@@ -64,6 +67,10 @@ implements HBaseClient{
 	
 	
 	/****************************** HBaseClient methods *************************/
+	
+	public HBaseAdmin getHBaseAdmin(){
+		return hBaseAdmin;
+	}
 	
 	@Override
 	public HTable checkOutHTable(String name){
