@@ -96,6 +96,7 @@ implements HBaseClientFactory{
 							ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
 							//TODO add custom variables programatically
 						}
+						hBaseAdmin = ADMIN_BY_CONFIG.get(hBaseConfig);
 				
 						//databean config
 						HTablePool pool = initTables();
