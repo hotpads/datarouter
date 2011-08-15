@@ -8,6 +8,7 @@ import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.HServerAddress;
 import org.apache.hadoop.hbase.HServerInfo;
 import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
+import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.hbase.util.CompactionInfo;
@@ -16,11 +17,13 @@ import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
+import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class DRHRegionInfo{
+	static Logger logger = Logger.getLogger(DRHRegionInfo.class);
 	
 	public static final Integer NUM_VNODES = 1 << 16;
 
@@ -77,8 +80,13 @@ public class DRHRegionInfo{
 	}
 	
 	public boolean isOnCorrectServer(){
-		return ObjectTool.equals(hServerInfo.getHostnamePort(), 
-				consistentHashHServer.getHserverInfo().getHostnamePort());
+		try{
+			return ObjectTool.equals(hServerInfo.getHostnamePort(), 
+					consistentHashHServer.getHserverInfo().getHostnamePort());
+		}catch(NullPointerException npe){//not sure where these are coming from yet
+			logger.warn(ExceptionTool.getStackTraceAsString(npe));
+		}
+		return true;//default: leave it where it is
 	}
 	
 	protected static Random random = new Random();
