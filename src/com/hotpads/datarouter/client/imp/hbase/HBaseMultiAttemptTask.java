@@ -27,7 +27,8 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	public HBaseMultiAttemptTask(HBaseTask<V> task){
 		super(HBaseMultiAttemptTask.class.getSimpleName()+"."+task.getTaskName());
 		this.task = task;
-		this.executorService = this.task.client.getExecutorService();
+		//temp hack.  in case of replaced client, we still use old client's exec service
+		this.executorService = this.task.node.getClient().getExecutorService();
 		this.config = Config.nullSafe(task.config);
 		this.timeoutMs = this.config.getTimeoutMs();
 		this.numAttempts = this.config.getNumAttempts();

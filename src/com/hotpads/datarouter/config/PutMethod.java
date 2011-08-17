@@ -13,8 +13,8 @@ public enum PutMethod {
 	UPDATE_OR_BUST,
 	MERGE;//use when the object could be on the session already in a different instance with the same identifier
 	
-	//need to flush immediately so we can catch insert/update exceptions if they are thrown, otherwise
-	//   the exception will ruin the whole batch
+	//need to flush immediately so we can catch insert/update exceptions if they are thrown, 
+	//   otherwise the exception will ruin the whole batch
 	public static Set<PutMethod> METHODS_TO_FLUSH_IMMEDIATELY = SetTool.createHashSet();
 	static{
 		METHODS_TO_FLUSH_IMMEDIATELY.add(UPDATE_OR_INSERT);

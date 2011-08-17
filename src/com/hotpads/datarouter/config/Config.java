@@ -50,23 +50,14 @@ public class Config implements Cloneable{
 	protected Long cacheTimeoutMs = Long.MAX_VALUE;
 	
 	
-	/***************** constructors ********************************/
-	
-	public static Config create(){
-		Config config = new Config();
-		return config;
-	}
-	
-	public static Config nullSafe(Config in){
-		if(in != null){ return in; }
-		return new Config();
-	}
-	
-	
 	/******************* clone ******************************************/
 	
 	@Override
-	protected Object clone() throws CloneNotSupportedException{
+	public Config clone() throws CloneNotSupportedException{
+		return getDeepCopy();
+	}
+	
+	public Config getDeepCopy(){//get rid of the checked exception in the clone method
 		Config clone = new Config();
 		clone
 			.setConnectMethod(connectMethod)
@@ -96,6 +87,19 @@ public class Config implements Cloneable{
 			.setCacheTimeoutMs(cacheTimeoutMs);
 		
 		return clone;
+	}
+	
+	
+	/***************** constructors ********************************/
+	
+	public static Config create(){
+		Config config = new Config();
+		return config;
+	}
+	
+	public static Config nullSafe(Config in){
+		if(in != null){ return in; }
+		return new Config();
 	}
 	
 	

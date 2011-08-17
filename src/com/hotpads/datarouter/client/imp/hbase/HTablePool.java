@@ -3,38 +3,45 @@ package com.hotpads.datarouter.client.imp.hbase;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.HConnection;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.NoServerForRegionException;
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class HTablePool{
 	protected Logger logger = Logger.getLogger(getClass());
 	
-	public static final Integer NUM_HTABLES_PER_TABLE_TO_STORE = 100;
 	protected Long lastLoggedWarning = 0L;
 	
 	protected Configuration hBaseConfiguration;
-	protected ConcurrentHashMap<String,LinkedList<HTable>> tablesByName;//cannot key by byte[] because .equals checks identity?
+	protected Integer maxPerTableSize;
+	protected ConcurrentHashMap<String,LinkedList<HTable>> hTablesByName;//cannot key by byte[] because .equals checks identity?
 	protected Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
 	
-	public HTablePool(Configuration hBaseConfiguration, Collection<String> names, int startingSize,
+	public HTablePool(Configuration hBaseConfiguration, Collection<String> names, 
+			int minPerTableSize, int maxPerTableSize,
 			Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName){
 		this.hBaseConfiguration = hBaseConfiguration;
-		tablesByName = new ConcurrentHashMap<String,LinkedList<HTable>>();
+		this.maxPerTableSize = maxPerTableSize;
+		hTablesByName = new ConcurrentHashMap<String,LinkedList<HTable>>();
 		for(String name : names){
-			tablesByName.put(name, new LinkedList<HTable>());
-			for(int i=0; i < startingSize; ++i){
+			hTablesByName.put(name, new LinkedList<HTable>());
+			for(int i=0; i < minPerTableSize; ++i){
 				try{
-					tablesByName.get(name).add(
+					hTablesByName.get(name).add(
 							new HTable(this.hBaseConfiguration, StringByteTool.getUtf8Bytes(name)));
 				}catch(NoServerForRegionException nsfre){
 					logger.error(ExceptionTool.getStackTraceAsString(nsfre));
@@ -49,15 +56,17 @@ public class HTablePool{
 	
 	public HTable checkOut(String name){
 		DRCounters.inc("connection getHTable "+name);
-		LinkedList<HTable> queue = tablesByName.get(name);
+		LinkedList<HTable> queue = hTablesByName.get(name);
 		HTable hTable;
 		synchronized(queue){
 			hTable = queue.poll();
 		}
 		if(hTable==null){
 			try{
+				String counterName = "connection create HTable "+name;
 				hTable = new HTable(this.hBaseConfiguration, name);
-				DRCounters.inc("connection create HTable "+name);
+				logger.warn(counterName+", size="+queue.size());
+				DRCounters.inc(counterName);
 			}catch(IOException ioe){
 				throw new RuntimeException(ioe);
 			}
@@ -71,15 +80,48 @@ public class HTablePool{
 	public void checkIn(HTable hTable){
 		hTable.getWriteBuffer().clear();
 		String name = StringByteTool.fromUtf8Bytes(hTable.getTableName());
-		LinkedList<HTable> queue = tablesByName.get(name);
+		LinkedList<HTable> queue = hTablesByName.get(name);
+		boolean addedBackToPool = false;
 		synchronized(queue){
-			if(queue.size() < NUM_HTABLES_PER_TABLE_TO_STORE){
+			if(queue.size() < maxPerTableSize){
 				queue.add(hTable);
+				addedBackToPool = true;
+				DRCounters.inc("connection HTable returned to pool "+name);
 			}
+		}
+		if(!addedBackToPool){
+			try {
+				logger.warn("checkIn HTable but queue already full, so close and discard, table="+name);
+				hTable.close();//flushes write buffer, and calls ExecutorService.shutdown()
+				DRCounters.inc("connection HTable closed "+name);
+			} catch (IOException e) {
+				logger.warn(ExceptionTool.getStackTraceAsString(e));
+			}				
 		}
 	}
 	
+//	public void killOutstandingConnections(){
+//		for(String tableName : MapTool.nullSafe(hTablesByName).keySet()){
+//			Collection<HTable> hTables = CollectionTool.nullSafe(hTablesByName.get(tableName));
+//			for(HTable hTable : hTables){
+////				hTable.close();//flushes buffer, which will probably block indefinitely in this situation
+//				HConnection connection = hTable.getConnection();
+//				logger.warn("aborting HConnection");
+//				connection.abort("scuttling datarouter client", new DataAccessException());
+//			}
+//		}
+//	}
+	
 	public Class<PrimaryKey<?>> getPrimaryKeyClass(String tableName){
 		return primaryKeyClassByName.get(tableName);
+	}
+	
+	public Integer getTotalPoolSize(){
+		int totalPoolSize = 0;
+		for(String tableName : MapTool.nullSafe(hTablesByName).keySet()){
+			List<HTable> hTables = hTablesByName.get(tableName);
+			totalPoolSize += CollectionTool.size(hTables);
+		}
+		return totalPoolSize;
 	}
 }
