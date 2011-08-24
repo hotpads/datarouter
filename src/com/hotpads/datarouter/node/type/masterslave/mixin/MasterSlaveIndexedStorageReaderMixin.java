@@ -24,6 +24,12 @@ implements IndexedStorageReader<PK,D>{
 		this.target = target;
 	}
 
+	@Override
+	public Long count(Lookup<PK> lookup, Config config) {
+		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
+		N node = slaveOk ? target.chooseSlave(config) : target.getMaster();
+		return node.count(lookup, config);
+	}	
 	
 	@Override
 	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config){

@@ -42,6 +42,12 @@ implements IndexedSortedMapStorageReaderNode<PK,D>{
 	/***************** IndexedStorageReader ************************************/
 
 	@Override
+	public Long count(Lookup<PK> lookup, Config config) {
+		return mixinIndexedReadOps.count(lookup, config);
+	}
+	
+	
+	@Override
 	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
 		return mixinIndexedReadOps.lookupUnique(uniqueKey, config);
 	}

@@ -26,6 +26,19 @@ implements IndexedStorageReader<PK,D>{
 		this.target = target;
 	}
 
+
+	@Override
+	public Long count(Lookup<PK> lookup, Config config) {
+		if(lookup==null){ return null; }
+		Long total = 0l;
+		Collection<N> nodes = target.getPhysicalNodes(lookup);
+		//TODO randomize node access to avoid drowning first node
+		for(N node : CollectionTool.nullSafe(nodes)){
+			total += node.count(lookup, config);
+		}
+		return total;
+	}
+	
 	@Override
 	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config) {
 		if(uniqueKey==null){ return null; }

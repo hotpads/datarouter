@@ -27,6 +27,10 @@ implements IndexedSortedMapStorageReaderNode<PK,D>{
 		this.mixinIndexedReadOps = new PartitionedIndexedStorageReaderMixin<PK,D,N>(this);
 	}
 
+	@Override
+	public Long count(Lookup<PK> lookup, Config config) {
+		return mixinIndexedReadOps.count(lookup, config);
+	}
 
 	@Override
 	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config) {

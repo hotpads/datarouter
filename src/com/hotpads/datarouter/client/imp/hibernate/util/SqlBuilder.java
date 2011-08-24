@@ -17,6 +17,15 @@ import com.hotpads.util.core.ListTool;
 public class SqlBuilder{
 	
 	/*************************** primary methods ***************************************/
+	public static String getCount(Config config, String tableName, List<Field<?>> fields, Collection<? extends FieldSet<?>> keys) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("select count(*) from " + tableName);
+		if (fields.size() > 0) {
+			sql.append(" where ");
+			FieldSetTool.appendWhereClauseDisjunction(sql, keys);			
+		}
+		return sql.toString();
+	}
 	
 	public static String getAll(
 			Config config, String tableName, List<Field<?>> selectFields){

@@ -60,6 +60,20 @@ public class JdbcTool {
 		}
 	}
 	
+	public static Long count(Session session, String sql) {
+		try {
+			PreparedStatement ps = session.connection().prepareStatement(sql);
+			ps.execute();
+			ResultSet rs = ps.getResultSet();
+			rs.next();
+			Long count = rs.getLong(1);
+			return count;
+		} catch (Exception e) {
+			String message = "error executing sql:"+sql.toString();
+			throw new DataAccessException(message, e);			
+		}
+	}
+	
 	@SuppressWarnings("deprecation")
 	public static int update(Session session, String sql){
 //		System.out.println(sql);

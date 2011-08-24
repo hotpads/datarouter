@@ -13,6 +13,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import com.hotpads.datarouter.client.imp.hbase.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
@@ -184,6 +185,10 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	
 	
 	/*************************** util **************************************/
+	
+	public D getDatabean(Result row) {
+		return HBaseResultTool.getDatabean(row, fieldInfo);
+	}
 	
 //	public static void disableWal(Collection<Put> puts){
 //		for(Put put : CollectionTool.nullSafe(puts)){
