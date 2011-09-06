@@ -20,7 +20,9 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BaseMasterSlaveNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+public abstract class BaseMasterSlaveNode<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
 		N extends Node<PK,D>> 
 extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	

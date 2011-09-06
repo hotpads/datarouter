@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.client.imp.hbase.util.CompactionInfo;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.HashMethods;
@@ -35,13 +36,15 @@ public class DRHRegionList{
 	public static final Integer BUCKETS_PER_NODE = 1000;
 
 	protected List<String> tableNames;
-	protected List<DRHRegionInfo> regions;
+	protected Node<?,?> node;
+	protected List<DRHRegionInfo<?>> regions;
 	protected SortedMap<Long,DRHServerInfo> consistentHashRing;
 	protected CompactionInfo compactionInfo;
 
 	public DRHRegionList(HBaseClient client, List<String> tableNames, Configuration config,
-			CompactionInfo compactionInfo){
+			Node<?,?> node, CompactionInfo compactionInfo){
 		this.tableNames = ListTool.nullSafe(tableNames);
+		this.node = node;
 		this.compactionInfo = compactionInfo;
 		this.regions = ListTool.create();
 		try{
@@ -90,7 +93,7 @@ public class DRHRegionList{
 
 	public SortedSet<String> getServerNames(){
 		SortedSet<String> serverNames = SetTool.createTreeSet();
-		for(DRHRegionInfo region : regions){
+		for(DRHRegionInfo<?> region : regions){
 			serverNames.add(region.getServerName());
 		}
 		return serverNames;
@@ -100,44 +103,44 @@ public class DRHRegionList{
 		return tableNames;
 	}
 
-	public List<DRHRegionInfo> getRegions(){
+	public List<DRHRegionInfo<?>> getRegions(){
 		return regions;
 	}
 
-	public DRHRegionInfo getRegionByEncodedName(String encodedName){
-		for(DRHRegionInfo region : regions){
+	public DRHRegionInfo<?> getRegionByEncodedName(String encodedName){
+		for(DRHRegionInfo<?> region : regions){
 			if(region.getRegion().getEncodedName().equals(encodedName)){ return region; }
 		}
 		return null;
 	}
 
-	public DRHRegionInfo getRegionAfter(String encodedName){
+	public DRHRegionInfo<?> getRegionAfter(String encodedName){
 		boolean foundFirstRegion = false;
-		for(DRHRegionInfo region : regions){
+		for(DRHRegionInfo<?> region : regions){
 			if(foundFirstRegion){ return region; }
 			if(region.getRegion().getEncodedName().equals(encodedName)){ foundFirstRegion = true; }
 		}
 		return null;
 	}
 
-	public SortedMap<String,List<DRHRegionInfo>> getRegionsByServerName(){
-		SortedMap<String,List<DRHRegionInfo>> out = MapTool.createTreeMap();
-		for(DRHRegionInfo region : regions){
+	public SortedMap<String,List<DRHRegionInfo<?>>> getRegionsByServerName(){
+		SortedMap<String,List<DRHRegionInfo<?>>> out = MapTool.createTreeMap();
+		for(DRHRegionInfo<?> region : regions){
 			String serverName = region.getServerName();
 			if(out.get(serverName) == null){
-				out.put(serverName, new LinkedList<DRHRegionInfo>());
+				out.put(serverName, new LinkedList<DRHRegionInfo<?>>());
 			}
 			out.get(serverName).add(region);
 		}
 		return out;
 	}
 
-	public LinkedHashMap<String,List<DRHRegionInfo>> getRegionsGroupedBy(String groupBy){
-		LinkedHashMap<String,List<DRHRegionInfo>> regionsByGroup = new LinkedHashMap<String,List<DRHRegionInfo>>();
+	public LinkedHashMap<String,List<DRHRegionInfo<?>>> getRegionsGroupedBy(String groupBy){
+		LinkedHashMap<String,List<DRHRegionInfo<?>>> regionsByGroup = new LinkedHashMap<String,List<DRHRegionInfo<?>>>();
 		if(null == groupBy){
 			regionsByGroup.put("all", regions);
 		}else if("serverName".equals(groupBy)){
-			for(Map.Entry<String,List<DRHRegionInfo>> entry : getRegionsByServerName().entrySet()){
+			for(Map.Entry<String,List<DRHRegionInfo<?>>> entry : getRegionsByServerName().entrySet()){
 				regionsByGroup.put(entry.getKey(), entry.getValue());
 			}
 		}
@@ -153,4 +156,10 @@ public class DRHRegionList{
 		}
 		return consistentHashRing.get(hash);
 	}
+
+	public Node<?, ?> getNode() {
+		return node;
+	}
+	
+	
 }

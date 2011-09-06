@@ -22,7 +22,7 @@ import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class DRHRegionInfo{
+public class DRHRegionInfo<PK extends PrimaryKey<PK>>{
 	static Logger logger = Logger.getLogger(DRHRegionInfo.class);
 	
 	public static final Integer NUM_VNODES = 1 << 16;
@@ -30,17 +30,18 @@ public class DRHRegionInfo{
 	protected Integer regionNum;
 	protected String tableName;
 	protected String name;
-	protected PrimaryKey<?> startKey, endKey;
+	protected PK startKey, endKey;
 	protected HRegionInfo hRegionInfo;
 	protected HServerInfo hServerInfo;
 	@Deprecated HServerAddress hServerAddress;//should get from hServerInfo, but workaround for DNS issues - mcorgan 20110106
+	protected DRHRegionList regionList;
 	protected DRHServerInfo consistentHashHServer;
 	protected RegionLoad load;
 	protected byte[] consistentHashInput;
 	protected CompactionScheduler compactionScheduler;
 	
 	
-	public DRHRegionInfo(Integer regionNum, String tableName, Class<PrimaryKey<?>> primaryKeyClass, 
+	public DRHRegionInfo(Integer regionNum, String tableName, Class<PK> primaryKeyClass, 
 			HRegionInfo hRegionInfo, HServerInfo hServerInfo, HServerAddress hServerAddress, 
 			DRHRegionList regionList, RegionLoad load, CompactionInfo compactionInfo){
 		this.regionNum = regionNum;
@@ -49,6 +50,7 @@ public class DRHRegionInfo{
 		this.hRegionInfo = hRegionInfo;
 		this.hServerInfo = hServerInfo;
 		this.hServerAddress = hServerAddress;
+		this.regionList = regionList;
 		this.startKey = getKey(primaryKeyClass, hRegionInfo.getStartKey());
 		this.endKey = getKey(primaryKeyClass, hRegionInfo.getEndKey());
 		this.load = load;
@@ -61,10 +63,10 @@ public class DRHRegionInfo{
 	
 	/******************************* methods *****************************************/
 	
-	public static PrimaryKey<?> getKey(Class<PrimaryKey<?>> primaryKeyClass, byte[] bytes){
-		PrimaryKey<?> sampleKey = ReflectionTool.create(primaryKeyClass);
+	public PK getKey(Class<PK> primaryKeyClass, byte[] bytes){
+		PK sampleKey = ReflectionTool.create(primaryKeyClass);
 		if(ArrayTool.isEmpty(bytes)){ return sampleKey; }
-		return HBaseResultTool.getPrimaryKeyUnchecked(bytes, primaryKeyClass, sampleKey.getFields());
+		return HBaseResultTool.getPrimaryKeyUnchecked(bytes, regionList.getNode().getFieldInfo());
 	}
 
 	public HServerAddress getServerAddress(){
@@ -122,11 +124,11 @@ public class DRHRegionInfo{
 		return name;
 	}
 
-	public PrimaryKey<?> getStartKey(){
+	public PK getStartKey(){
 		return startKey;
 	}
 
-	public PrimaryKey<?> getEndKey(){
+	public PK getEndKey(){
 		return endKey;
 	}
 

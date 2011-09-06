@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
@@ -28,6 +29,8 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	protected List<N> allNodes = ListTool.createArrayList();
 	protected List<String> allNames = ListTool.createArrayList();
 	protected Map<String,N> nodeByName = MapTool.createTreeMap();
+//	protected Map<ClientType,List<N>> nodesByClientType = MapTool.createTreeMap();
+	protected Map<String,Map<String,PhysicalNode<PK,D>>> physicalNodeByTableNameByClientName = MapTool.createTreeMap();
 	protected Map<Class<PK>,N> nodeByPrimaryKeyType = MapTool.createHashMap();
 	protected Map<Class<D>,N> nodeByDatabeanType = MapTool.createHashMap();
 	protected Map<Class<D>,List<String>> clientNamesByDatabeanType = MapTool.createHashMap();
@@ -50,6 +53,15 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 		for(N nodeOrDescendant : IterableTool.nullSafe(nodeWithDescendants)){
 			this.allNames.add(nodeOrDescendant.getName());
 			this.nodeByName.put(nodeOrDescendant.getName(), nodeOrDescendant);
+		}
+		if(node instanceof PhysicalNode){
+			PhysicalNode<PK,D> physicalNode = (PhysicalNode<PK,D>)node;
+			String clientName = physicalNode.getClientName();
+			String tableName = physicalNode.getTableName();
+			if(physicalNodeByTableNameByClientName.get(clientName)==null){
+				physicalNodeByTableNameByClientName.put(clientName, new TreeMap<String,PhysicalNode<PK,D>>());
+			}
+			physicalNodeByTableNameByClientName.get(clientName).put(tableName, physicalNode);
 		}
 		this.nodeByPrimaryKeyType.put(sampleDatabean.getKeyClass(), node);
 		this.nodeByDatabeanType.put(databeanType, node);
@@ -154,5 +166,13 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 		Class<?> existingNodeClass = existingNode.getClass();
 		throw new IllegalArgumentException("different node with this name already exists:"+thisName+"["
 				+existingNodeClass.getSimpleName()+"]");
+	}
+	
+	protected PhysicalNode<PK,D> getPhyiscalNodeForClientAndTable(String clientName, String tableName){
+		try{
+			return physicalNodeByTableNameByClientName.get(clientName).get(tableName);
+		}catch(NullPointerException e){
+			return null;
+		}
 	}
 }
