@@ -8,23 +8,25 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNod
 import com.hotpads.datarouter.node.type.partitioned.mixin.PartitionedMapStorageWriterMixin;
 import com.hotpads.datarouter.node.type.partitioned.mixin.PartitionedSortedStorageWriterMixin;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public abstract class PartitionedSortedMapStorageNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends PhysicalSortedMapStorageNode<PK,D>>
-extends PartitionedSortedMapStorageReaderNode<PK,D,N>
+extends PartitionedSortedMapStorageReaderNode<PK,D,F,N>
 implements SortedMapStorageNode<PK,D>{
 
-	protected PartitionedMapStorageWriterMixin<PK,D,N> mixinMapWriteOps;
-	protected PartitionedSortedStorageWriterMixin<PK,D,N> mixinSortedWriteOps;
+	protected PartitionedMapStorageWriterMixin<PK,D,F,N> mixinMapWriteOps;
+	protected PartitionedSortedStorageWriterMixin<PK,D,F,N> mixinSortedWriteOps;
 	
-	public PartitionedSortedMapStorageNode(Class<D> databeanClass, DataRouter router) {
-		super(databeanClass, router);
-		this.mixinMapWriteOps = new PartitionedMapStorageWriterMixin<PK,D,N>(this);
-		this.mixinSortedWriteOps = new PartitionedSortedStorageWriterMixin<PK,D,N>(this);
+	public PartitionedSortedMapStorageNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router) {
+		super(databeanClass, fielderClass, router);
+		this.mixinMapWriteOps = new PartitionedMapStorageWriterMixin<PK,D,F,N>(this);
+		this.mixinSortedWriteOps = new PartitionedSortedStorageWriterMixin<PK,D,F,N>(this);
 	}
 	
 	

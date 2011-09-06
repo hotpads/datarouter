@@ -8,6 +8,7 @@ import com.hotpads.datarouter.node.op.combo.reader.IndexedSortedMapStorageReader
 import com.hotpads.datarouter.node.op.combo.reader.IndexedSortedMapStorageReader.PhysicalIndexedSortedMapStorageReaderNode;
 import com.hotpads.datarouter.node.type.partitioned.mixin.PartitionedIndexedStorageReaderMixin;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -16,15 +17,16 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 public abstract class PartitionedIndexedSortedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends PhysicalIndexedSortedMapStorageReaderNode<PK,D>>
-extends PartitionedSortedMapStorageReaderNode<PK,D,N>
+extends PartitionedSortedMapStorageReaderNode<PK,D,F,N>
 implements IndexedSortedMapStorageReaderNode<PK,D>{
 	
-	protected PartitionedIndexedStorageReaderMixin<PK,D,N> mixinIndexedReadOps;
+	protected PartitionedIndexedStorageReaderMixin<PK,D,F,N> mixinIndexedReadOps;
 	
-	public PartitionedIndexedSortedMapStorageReaderNode(Class<D> databeanClass, DataRouter router) {
-		super(databeanClass, router);
-		this.mixinIndexedReadOps = new PartitionedIndexedStorageReaderMixin<PK,D,N>(this);
+	public PartitionedIndexedSortedMapStorageReaderNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router) {
+		super(databeanClass, fielderClass, router);
+		this.mixinIndexedReadOps = new PartitionedIndexedStorageReaderMixin<PK,D,F,N>(this);
 	}
 
 	@Override

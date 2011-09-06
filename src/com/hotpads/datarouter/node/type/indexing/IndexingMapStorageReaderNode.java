@@ -6,14 +6,16 @@ import java.util.List;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.node.type.indexing.base.BaseIndexingNode;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class IndexingMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageReaderNode<PK,D>>
-extends BaseIndexingNode<PK,D,N>
+extends BaseIndexingNode<PK,D,F,N>
 implements MapStorageReaderNode<PK,D>{
 	
 	public IndexingMapStorageReaderNode(N mainNode) {
