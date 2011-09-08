@@ -9,11 +9,13 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
+import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
@@ -39,6 +41,18 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey,Available
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
 				new UInt63Field(COL_lastUpdated, this.lastUpdated));
+	}
+	
+	public static class AvailableCounterFielder extends BaseDatabeanFielder<AvailableCounterKey,AvailableCounter>{
+		public AvailableCounterFielder(){}
+		@Override
+		public Class<AvailableCounterKey> getKeyFielderClass(){
+			return AvailableCounterKey.class;
+		}
+		@Override
+		public List<Field<?>> getNonKeyFields(AvailableCounter d){
+			return d.getNonKeyFields();
+		}
 	}
 	
 	@Override

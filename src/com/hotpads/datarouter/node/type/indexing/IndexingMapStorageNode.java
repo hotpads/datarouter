@@ -20,7 +20,7 @@ implements MapStorageNode<PK,D>{
 	protected IndexingMapStorageWriterMixin<PK,D,F,N> mixinMapWriteOps;
 	
 	public IndexingMapStorageNode(N mainNode) {
-		super(mainNode);
+		super(mainNode);//mainNode must have explicit Fielder
 		initMixins();
 	}
 

@@ -11,11 +11,14 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.profile.count.databean.Count;
+import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.util.core.ComparableTool;
 
@@ -73,6 +76,18 @@ public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 				new UInt63Field(F.runningDuration, runningDuration),
 				new UInt63Field(F.queuedDurationNano, queuedDurationNano),
 				new UInt63Field(F.runningDurationNano, runningDurationNano));
+	}
+	
+	public static class TraceThreadFielder extends BaseDatabeanFielder<TraceThreadKey,TraceThread>{
+		public TraceThreadFielder(){}
+		@Override
+		public Class<TraceThreadKey> getKeyFielderClass(){
+			return TraceThreadKey.class;
+		}
+		@Override
+		public List<Field<?>> getNonKeyFields(TraceThread d){
+			return d.getNonKeyFields();
+		}
 	}
 	
 	@Override

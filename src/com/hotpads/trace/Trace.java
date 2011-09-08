@@ -10,11 +10,14 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.profile.count.databean.Count;
+import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.trace.key.TraceKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.StringTool;
@@ -73,6 +76,18 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 				new StringField(F.params, params),
 				new UInt63Field(F.created, created),
 				new UInt63Field(F.duration, duration));
+	}
+	
+	public static class TraceFielder extends BaseDatabeanFielder<TraceKey,Trace>{
+		public TraceFielder(){}
+		@Override
+		public Class<TraceKey> getKeyFielderClass(){
+			return TraceKey.class;
+		}
+		@Override
+		public List<Field<?>> getNonKeyFields(Trace d){
+			return d.getNonKeyFields();
+		}
 	}
 	
 	@Override

@@ -47,7 +47,7 @@ public class IndexingNodeFactory {
 					IN extends SortedMapStorageNode<IK,IE>>
 	IndexListener<PK,D> newMultiListener(Class<IE> indexEntryClass, IN indexNode){
 		return new IndexMapStorageWriterListener<PK,D,IK,IE,SortedMapStorageNode<IK,IE>>(
-				indexEntryClass, indexNode);
+				indexEntryClass, indexNode);//indexNode must have explicit Fielder
 	}
 	
 	

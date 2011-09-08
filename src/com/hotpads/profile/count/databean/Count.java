@@ -15,13 +15,8 @@ import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.profile.count.databean.key.CountKey;
-import com.hotpads.trace.TraceSpan;
-import com.hotpads.trace.TraceSpan.F;
-import com.hotpads.trace.key.TraceSpanKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.IterableTool;
@@ -60,7 +55,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(Count d){
-			return d.getFields();
+			return d.getNonKeyFields();
 		}
 	}
 	

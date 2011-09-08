@@ -19,7 +19,7 @@ extends BaseIndexingNode<PK,D,F,N>
 implements MapStorageReaderNode<PK,D>{
 	
 	public IndexingMapStorageReaderNode(N mainNode) {
-		super(mainNode);
+		super(mainNode);//mainNode must have explicit Fielder
 	}
 
 	/**************************** MapStorageReader ***********************************/

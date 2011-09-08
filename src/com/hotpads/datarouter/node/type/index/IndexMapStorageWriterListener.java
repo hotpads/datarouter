@@ -34,7 +34,7 @@ extends BaseIndexNode<PK,D,IK,IE,IN>
 implements IndexListener<PK,D>{
 	
 	public IndexMapStorageWriterListener(Class<IE> indexEntryClass, IN indexNode){
-		super(indexEntryClass, indexNode);
+		super(indexEntryClass, indexNode);//indexNode must have explicit Fielder
 	}
 	
 	//TODO is passing the configs straight through the right thing to do?

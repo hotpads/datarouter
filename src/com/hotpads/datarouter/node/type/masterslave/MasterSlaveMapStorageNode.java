@@ -6,17 +6,19 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.masterslave.mixin.MasterSlaveMapStorageWriterMixin;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class MasterSlaveMapStorageNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageNode<PK,D>>//TODO create separate generic type for slaves that is readOnly
-extends MasterSlaveMapStorageReaderNode<PK,D,N>
+extends MasterSlaveMapStorageReaderNode<PK,D,F,N>
 implements MapStorageNode<PK,D>{
 	
-	protected MasterSlaveMapStorageWriterMixin<PK,D,N> mixinMapWriteOps;
+	protected MasterSlaveMapStorageWriterMixin<PK,D,F,N> mixinMapWriteOps;
 	
 	public MasterSlaveMapStorageNode(
 			Class<D> databeanClass, DataRouter router,
@@ -32,7 +34,7 @@ implements MapStorageNode<PK,D>{
 	}
 
 	protected void initMixins(){
-		this.mixinMapWriteOps = new MasterSlaveMapStorageWriterMixin<PK,D,N>(this);
+		this.mixinMapWriteOps = new MasterSlaveMapStorageWriterMixin<PK,D,F,N>(this);
 	}
 	
 	

@@ -8,6 +8,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.node.type.caching.map.base.BaseMapCachingNode;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -20,8 +21,9 @@ import com.hotpads.util.core.SetTool;
 public class MapCachingMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageNode<PK,D>>
-extends BaseMapCachingNode<PK,D,N>
+extends BaseMapCachingNode<PK,D,F,N>
 implements MapStorageReaderNode<PK,D>{
 	
 	public static final Long CACHE_TIMEOUT_MS = 100L;
