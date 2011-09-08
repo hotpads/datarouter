@@ -8,6 +8,7 @@ import com.hotpads.datarouter.node.op.combo.reader.IndexedMapStorageReader.Index
 import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader.IndexedStorageReaderNode;
 import com.hotpads.datarouter.node.type.masterslave.mixin.MasterSlaveIndexedStorageReaderMixin;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -17,11 +18,12 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 public class MasterSlaveIndexedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends IndexedMapStorageReaderNode<PK,D>>
-extends MasterSlaveMapStorageReaderNode<PK,D,N>
+extends MasterSlaveMapStorageReaderNode<PK,D,F,N>
 implements IndexedStorageReaderNode<PK,D>{
 
-	protected MasterSlaveIndexedStorageReaderMixin<PK,D,N> mixinIndexedReadOps;
+	protected MasterSlaveIndexedStorageReaderMixin<PK,D,F,N> mixinIndexedReadOps;
 
 	public MasterSlaveIndexedMapStorageReaderNode(
 			Class<D> databeanClass, DataRouter router,
@@ -37,7 +39,7 @@ implements IndexedStorageReaderNode<PK,D>{
 	}
 	
 	protected void initMixins(){
-		this.mixinIndexedReadOps = new MasterSlaveIndexedStorageReaderMixin<PK,D,N>(this);
+		this.mixinIndexedReadOps = new MasterSlaveIndexedStorageReaderMixin<PK,D,F,N>(this);
 	}
 
 	/***************** IndexedStorageReader ************************************/

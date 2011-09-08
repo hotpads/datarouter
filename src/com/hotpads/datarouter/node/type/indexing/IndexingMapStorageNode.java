@@ -5,25 +5,27 @@ import java.util.Collection;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.indexing.mixin.IndexingMapStorageWriterMixin;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class IndexingMapStorageNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageNode<PK,D>>
-extends IndexingMapStorageReaderNode<PK,D,N>
+extends IndexingMapStorageReaderNode<PK,D,F,N>
 implements MapStorageNode<PK,D>{
 	
-	protected IndexingMapStorageWriterMixin<PK,D,N> mixinMapWriteOps;
+	protected IndexingMapStorageWriterMixin<PK,D,F,N> mixinMapWriteOps;
 	
 	public IndexingMapStorageNode(N mainNode) {
-		super(mainNode);
+		super(mainNode);//mainNode must have explicit Fielder
 		initMixins();
 	}
 
 	protected void initMixins(){
-		this.mixinMapWriteOps = new IndexingMapStorageWriterMixin<PK,D,N>(mainNode, indexListeners);
+		this.mixinMapWriteOps = new IndexingMapStorageWriterMixin<PK,D,F,N>(mainNode, indexListeners);
 	}
 	
 	

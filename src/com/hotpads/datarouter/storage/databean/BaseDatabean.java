@@ -39,15 +39,15 @@ implements Databean<PK,D>{
 		return false;
 	}
 	
-	@Override
-	public Class<? extends Fielder<PK>> getKeyFielderClass(){
-		return getKeyClass();
-	}
+//	@Override
+//	public Class<? extends Fielder<PK>> getKeyFielderClass(){
+//		return getKeyClass();
+//	}
 	
-	@Override
-	public Fielder<PK> getKeyFielder(){
-		return getKey();
-	}
+//	@Override
+//	public Fielder<PK> getKeyFielder(){
+//		return getKey();
+//	}
 
 	@Override
 	public List<Field<?>> getKeyFields(){
@@ -61,16 +61,16 @@ implements Databean<PK,D>{
 	}
 	
 	//generally unused method that allows databean to implement the DatabeanFielder interface
-	@Override
-	public List<Field<?>> getKeyFields(D databean){
-		return FieldTool.prependPrefixes(getKeyFieldName(), databean.getKey().getFields());
-	}
+//	@Override
+//	public List<Field<?>> getKeyFields(D databean){
+//		return FieldTool.prependPrefixes(getKeyFieldName(), databean.getKey().getFields());
+//	}
 
 	//generally unused method that allows databean to implement the DatabeanFielder interface
-	@Override
-	public List<Field<?>> getNonKeyFields(D databean){
-		return databean.getNonKeyFields();
-	}
+//	@Override
+//	public List<Field<?>> getNonKeyFields(D databean){
+//		return databean.getNonKeyFields();
+//	}
 
 	@Override
 	public List<Field<?>> getFields(){

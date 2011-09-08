@@ -8,6 +8,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter.PhysicalMapStorageWriterNode;
 import com.hotpads.datarouter.node.type.partitioned.base.BasePartitionedNode;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
@@ -16,12 +17,13 @@ import com.hotpads.util.core.MapTool;
 public class PartitionedMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends PhysicalMapStorageWriterNode<PK,D>>
 implements MapStorageWriter<PK,D>{
 	
-	protected BasePartitionedNode<PK,D,N> target;
+	protected BasePartitionedNode<PK,D,F,N> target;
 	
-	public PartitionedMapStorageWriterMixin(BasePartitionedNode<PK,D,N> target){
+	public PartitionedMapStorageWriterMixin(BasePartitionedNode<PK,D,F,N> target){
 		this.target = target;
 	}
 

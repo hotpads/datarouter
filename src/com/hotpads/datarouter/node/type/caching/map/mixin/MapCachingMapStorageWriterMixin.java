@@ -7,6 +7,7 @@ import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter.MapStorageWriterNode;
 import com.hotpads.datarouter.node.type.caching.map.MapCachingMapStorageNode;
 import com.hotpads.datarouter.node.type.caching.map.base.BaseMapCachingNode;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -15,15 +16,16 @@ import com.hotpads.util.core.CollectionTool;
 public class MapCachingMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageWriterNode<PK,D>>
 implements MapStorageWriter<PK,D>{
 	
 	public static Config CACHE_CONFIG = MapCachingMapStorageNode.CACHE_CONFIG;
 	
-	protected BaseMapCachingNode<PK,D,N> target;
+	protected BaseMapCachingNode<PK,D,F,N> target;
 	protected boolean cacheWrites = false;
 	
-	public MapCachingMapStorageWriterMixin(BaseMapCachingNode<PK,D,N> target, boolean cacheWrites){
+	public MapCachingMapStorageWriterMixin(BaseMapCachingNode<PK,D,F,N> target, boolean cacheWrites){
 		this.target = target;
 		this.cacheWrites = cacheWrites;
 	}

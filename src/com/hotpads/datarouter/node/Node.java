@@ -17,7 +17,7 @@ extends Comparable<Node<PK,D>>{
 	String getName();
 	Class<PK> getPrimaryKeyType();
 	Class<D> getDatabeanType();
-	DatabeanFieldInfo<PK,D,?> getFieldInfo();
+	DatabeanFieldInfo<PK,D,?> getFieldInfo();//wildcard the Fielder type so we don't have to put it in the Node's generics (at least for now)
 	List<Field<?>> getFields();
 	
 	List<Field<?>> getNonKeyFields(D d);

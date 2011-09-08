@@ -20,8 +20,8 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.trace.key.TraceSpanKey;
-import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.trace.key.TraceSpanKey.TraceSpanKeyFielder;
+import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.NumberTool;
@@ -78,8 +78,8 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 	public static class TraceSpanFielder extends BaseDatabeanFielder<TraceSpanKey,TraceSpan>{
 		public TraceSpanFielder(){super();}
 		@Override
-		public Class<TraceSpanKeyFielder> getKeyFielderClass(){
-			return TraceSpanKeyFielder.class;
+		public Class<TraceSpanKey> getKeyFielderClass(){
+			return TraceSpanKey.class;
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(TraceSpan d){

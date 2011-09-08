@@ -11,6 +11,7 @@ import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.Sorted
 import com.hotpads.datarouter.node.scanner.MergeScanner;
 import com.hotpads.datarouter.node.scanner.primarykey.PrimaryKeyMergeScanner;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
@@ -22,12 +23,13 @@ import com.hotpads.util.core.iterable.PeekableIterable;
 public abstract class PartitionedSortedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends PhysicalSortedMapStorageReaderNode<PK,D>>
-extends PartitionedMapStorageReaderNode<PK,D,N>
+extends PartitionedMapStorageReaderNode<PK,D,F,N>
 implements SortedMapStorageReaderNode<PK,D>{
 	
-	public PartitionedSortedMapStorageReaderNode(Class<D> databeanClass, DataRouter router) {
-		super(databeanClass, router);
+	public PartitionedSortedMapStorageReaderNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router) {
+		super(databeanClass, fielderClass, router);
 	}
 
 	/************************* sorted storage methods *****************************/

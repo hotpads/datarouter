@@ -23,7 +23,7 @@ public class MasterSlaveNodeFactory{
 	
 	//Map
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	MasterSlaveMapStorageNode<PK,D,MapStorageNode<PK,D>> 
+	MasterSlaveMapStorageNode<PK,D,?,MapStorageNode<PK,D>> 
 	newMasterSlaveMap(
 			DataRouter router, Class<D> databeanClass, 
 			String masterClientName, Collection<String> slaveClientNames){
@@ -31,7 +31,7 @@ public class MasterSlaveNodeFactory{
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-	MasterSlaveMapStorageNode<PK,D,MapStorageNode<PK,D>> 
+	MasterSlaveMapStorageNode<PK,D,F,MapStorageNode<PK,D>> 
 	newMasterSlaveMap(
 			DataRouter router, Class<D> databeanClass, Class<F> fielderClass,
 			String masterClientName, Collection<String> slaveClientNames){
@@ -46,7 +46,7 @@ public class MasterSlaveNodeFactory{
 			slaves.add(new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, slaveClientName));
 		}
 		
-		return new MasterSlaveMapStorageNode<PK,D,MapStorageNode<PK,D>>(
+		return new MasterSlaveMapStorageNode<PK,D,F,MapStorageNode<PK,D>>(
 				databeanClass, router, master, slaves);
 		
 	}
@@ -54,7 +54,7 @@ public class MasterSlaveNodeFactory{
 	
 	//SortedMap
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	MasterSlaveSortedMapStorageNode<PK,D,SortedMapStorageNode<PK,D>> 
+	MasterSlaveSortedMapStorageNode<PK,D,?,SortedMapStorageNode<PK,D>> 
 	newMasterSlaveSortedMap(
 			DataRouter router, Class<D> databeanClass,
 			String masterClientName, Collection<String> slaveClientNames){
@@ -62,7 +62,7 @@ public class MasterSlaveNodeFactory{
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-	MasterSlaveSortedMapStorageNode<PK,D,SortedMapStorageNode<PK,D>> 
+	MasterSlaveSortedMapStorageNode<PK,D,F,SortedMapStorageNode<PK,D>> 
 	newMasterSlaveSortedMap(
 			DataRouter router, Class<D> databeanClass, Class<F> fielderClass,
 			String masterClientName, Collection<String> slaveClientNames){
@@ -77,7 +77,7 @@ public class MasterSlaveNodeFactory{
 			slaves.add(new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, slaveClientName));
 		}
 		
-		return new MasterSlaveSortedMapStorageNode<PK,D,SortedMapStorageNode<PK,D>>(
+		return new MasterSlaveSortedMapStorageNode<PK,D,F,SortedMapStorageNode<PK,D>>(
 				databeanClass, router, master, slaves);
 		
 	}
@@ -85,7 +85,7 @@ public class MasterSlaveNodeFactory{
 	
 	//IndexedMap
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	MasterSlaveIndexedMapStorageNode<PK,D,IndexedMapStorageNode<PK,D>> 
+	MasterSlaveIndexedMapStorageNode<PK,D,?,IndexedMapStorageNode<PK,D>> 
 	newMasterSlaveIndexedMap(
 			DataRouter router, Class<D> databeanClass, 
 			String masterClientName, Collection<String> slaveClientNames){
@@ -93,7 +93,7 @@ public class MasterSlaveNodeFactory{
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-	MasterSlaveIndexedMapStorageNode<PK,D,IndexedMapStorageNode<PK,D>> 
+	MasterSlaveIndexedMapStorageNode<PK,D,F,IndexedMapStorageNode<PK,D>> 
 	newMasterSlaveIndexedMap(
 			DataRouter router, Class<D> databeanClass, Class<F> fielderClass,
 			String masterClientName, Collection<String> slaveClientNames){
@@ -108,7 +108,7 @@ public class MasterSlaveNodeFactory{
 			slaves.add(new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, slaveClientName));
 		}
 		
-		return new MasterSlaveIndexedMapStorageNode<PK,D,IndexedMapStorageNode<PK,D>>(
+		return new MasterSlaveIndexedMapStorageNode<PK,D,F,IndexedMapStorageNode<PK,D>>(
 				databeanClass, router, master, slaves);
 		
 	}
@@ -116,7 +116,7 @@ public class MasterSlaveNodeFactory{
 	
 	//IndexedSorted
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	MasterSlaveIndexedSortedMapStorageNode<PK,D,IndexedSortedMapStorageNode<PK,D>> 
+	MasterSlaveIndexedSortedMapStorageNode<PK,D,?,IndexedSortedMapStorageNode<PK,D>> 
 	newMasterSlaveIndexedSorted(
 			DataRouter router, Class<D> databeanClass, 
 			String masterClientName, Collection<String> slaveClientNames){
@@ -124,7 +124,7 @@ public class MasterSlaveNodeFactory{
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-	MasterSlaveIndexedSortedMapStorageNode<PK,D,IndexedSortedMapStorageNode<PK,D>> 
+	MasterSlaveIndexedSortedMapStorageNode<PK,D,F,IndexedSortedMapStorageNode<PK,D>> 
 	newMasterSlaveIndexedSorted(
 			DataRouter router, Class<D> databeanClass, Class<F> fielderClass,
 			String masterClientName, Collection<String> slaveClientNames){
@@ -139,7 +139,7 @@ public class MasterSlaveNodeFactory{
 			slaves.add(new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, slaveClientName));
 		}
 		
-		return new MasterSlaveIndexedSortedMapStorageNode<PK,D,IndexedSortedMapStorageNode<PK,D>>(
+		return new MasterSlaveIndexedSortedMapStorageNode<PK,D,F,IndexedSortedMapStorageNode<PK,D>>(
 				databeanClass, router, master, slaves);
 		
 	}

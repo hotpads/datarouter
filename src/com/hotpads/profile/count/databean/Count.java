@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import org.apache.log4j.Logger;
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -44,6 +45,18 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
 				new UInt63Field(COL_value, this.value));
+	}
+	
+	public static class CountFielder extends BaseDatabeanFielder<CountKey,Count>{
+		public CountFielder(){}
+		@Override
+		public Class<CountKey> getKeyFielderClass(){
+			return CountKey.class;
+		}
+		@Override
+		public List<Field<?>> getNonKeyFields(Count d){
+			return d.getNonKeyFields();
+		}
 	}
 	
 	@Override

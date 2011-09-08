@@ -11,13 +11,14 @@ import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.profile.count.databean.Count;
+import com.hotpads.profile.count.databean.Count.CountFielder;
 import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.StringTool;
 
 public class CountPartitionedNode
-extends PartitionedSortedMapStorageNode<CountKey,Count,PhysicalSortedMapStorageNode<CountKey,Count>>{
+extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSortedMapStorageNode<CountKey,Count>>{
 
 	public static final String table_prefix = Count.class.getSimpleName();
 	public static final String entity_prefix = Count.class.getName();
@@ -86,12 +87,12 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,PhysicalSortedMapStorageN
 	/********************************* constructor *************************************/
 	
 	public CountPartitionedNode(DataRouter router, String clientName){
-		super(Count.class, router);
+		super(Count.class, CountFielder.class, router);
 		for(String suffix : suffixes){
 			String tableName = table_prefix + suffix;
 			String entityName = entity_prefix + suffix;
 			Node<CountKey,Count> node = NodeFactory.create(
-					clientName, tableName, entityName, Count.class, router);
+					clientName, tableName, entityName, Count.class, CountFielder.class, router);
 			PhysicalSortedMapStorageNode<CountKey,Count> sortedNode = BaseDataRouter.cast(node);
 			this.register(sortedNode);
 		}

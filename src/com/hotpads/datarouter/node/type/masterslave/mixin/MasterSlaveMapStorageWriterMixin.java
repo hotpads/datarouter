@@ -6,18 +6,20 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter.MapStorageWriterNode;
 import com.hotpads.datarouter.node.type.masterslave.base.BaseMasterSlaveNode;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class MasterSlaveMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageWriterNode<PK,D>>
 implements MapStorageWriter<PK,D>{
 	
-	protected BaseMasterSlaveNode<PK,D,N> target;
+	protected BaseMasterSlaveNode<PK,D,F,N> target;
 	
-	public MasterSlaveMapStorageWriterMixin(BaseMasterSlaveNode<PK,D,N> target){
+	public MasterSlaveMapStorageWriterMixin(BaseMasterSlaveNode<PK,D,F,N> target){
 		this.target = target;
 	}
 

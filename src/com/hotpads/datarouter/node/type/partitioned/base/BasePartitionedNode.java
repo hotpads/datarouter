@@ -24,15 +24,16 @@ import com.hotpads.util.core.SetTool;
 public abstract class BasePartitionedNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends PhysicalNode<PK,D>>
-extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
+extends BaseNode<PK,D,F>{
 
 	protected Class<D> databeanClass;
 	protected DataRouter router;
 	protected PhysicalNodes<PK,D,N> physicalNodes = new PhysicalNodes<PK,D,N>();
 		
-	public BasePartitionedNode(Class<D> databeanClass, DataRouter router){
-		super(databeanClass);
+	public BasePartitionedNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router){
+		super(databeanClass, fielderClass);
 		this.router = router;
 		this.name = databeanClass.getSimpleName()+"."+getClass().getSimpleName();
 	}

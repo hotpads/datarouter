@@ -19,8 +19,9 @@ import com.hotpads.util.core.SetTool;
 public abstract class BaseMapCachingNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends Node<PK,D>> 
-extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
+extends BaseNode<PK,D,F>{
 	
 	
 	/***************************** Node pass-through stuff **********************************/
@@ -32,7 +33,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	protected Long lastContact = 0L;
 	
 	public BaseMapCachingNode(N cacheNode, N backingNode){
-		super(backingNode.getDatabeanType());
+		super(backingNode.getDatabeanType(), (Class<F>)backingNode.getFieldInfo().getFielderClass());
 		this.cachingNode = cacheNode;
 		this.backingNode = backingNode;
 		this.name = fieldInfo.getDatabeanClass().getSimpleName()+"."+this.getClass().getSimpleName();

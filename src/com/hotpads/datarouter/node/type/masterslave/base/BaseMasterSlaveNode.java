@@ -20,9 +20,12 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 
-public abstract class BaseMasterSlaveNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
-		N extends Node<PK,D>> 
-extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
+public abstract class BaseMasterSlaveNode<
+				PK extends PrimaryKey<PK>,
+				D extends Databean<PK,D>,
+				F extends DatabeanFielder<PK,D>,
+				N extends Node<PK,D>> 
+extends BaseNode<PK,D,F>{
 	
 	protected N master;
 	protected List<N> slaves = new ArrayList<N>();
@@ -31,8 +34,12 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	
 	protected AtomicInteger slaveRequestCounter = new AtomicInteger(0);
 	
+	public BaseMasterSlaveNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router){
+		super(databeanClass, fielderClass);
+	}
+	
 	public BaseMasterSlaveNode(Class<D> databeanClass, DataRouter router){
-		super(databeanClass);
+		this(databeanClass, null, router);
 	}
 
 	/*************************** node methods *************************/

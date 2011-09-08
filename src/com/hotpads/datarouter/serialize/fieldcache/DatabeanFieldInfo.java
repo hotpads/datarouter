@@ -63,15 +63,16 @@ public class DatabeanFieldInfo<
 			/*
 			 * TODO remove duplicate logic below, but watch out for handling of non fieldAware databeans
 			 */
+			this.primaryKeyFields = samplePrimaryKey.getFields();
+			this.prefixedPrimaryKeyFields = sampleDatabean.getKeyFields();
 			if(fielderClass==null){
-				this.sampleFielder = (F)ReflectionTool.create(databeanClass);
-				this.primaryKeyFields = samplePrimaryKey.getFields();
-				this.prefixedPrimaryKeyFields = sampleDatabean.getKeyFields();
 				if(fieldAware){
-					this.fields = sampleDatabean.getFields();//make sure there is a PK or this will NPE
-					addFieldsToCollections();
-					this.nonKeyFields = sampleDatabean.getNonKeyFields();//only do these if the previous fields succeeded
-					addNonKeyFieldsToCollections();
+					throw new IllegalArgumentException("could not instantiate "+nodeName
+							+", fieldAware databean node must specify fielder class");
+//					this.fields = sampleDatabean.getFields();//make sure there is a PK or this will NPE
+//					addFieldsToCollections();
+//					this.nonKeyFields = sampleDatabean.getNonKeyFields();//only do these if the previous fields succeeded
+//					addNonKeyFieldsToCollections();
 				}
 			}else{
 				this.sampleFielder = ReflectionTool.create(fielderClass);

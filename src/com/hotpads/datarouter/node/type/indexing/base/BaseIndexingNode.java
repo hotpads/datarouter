@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.index.IndexListener;
@@ -20,14 +19,15 @@ import com.hotpads.util.core.SetTool;
 public abstract class BaseIndexingNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
 		N extends Node<PK,D>> 
-extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
+extends BaseNode<PK,D,F>{
 	
 	protected N mainNode;
 	protected List<IndexListener<PK,D>> indexListeners;
 	
 	public BaseIndexingNode(N mainNode) {
-		super(Preconditions.checkNotNull(mainNode).getDatabeanType());
+		super(mainNode.getDatabeanType(), (Class<F>)mainNode.getFieldInfo().getFielderClass());
 		this.mainNode = mainNode;
 		this.indexListeners = ListTool.createArrayList();
 	}

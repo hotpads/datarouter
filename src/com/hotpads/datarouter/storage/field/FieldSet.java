@@ -9,8 +9,10 @@ import com.hotpads.datarouter.serialize.SqlAware;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 
 public interface FieldSet<F extends FieldSet<F>> 
-extends Comparable<FieldSet<F>>, Fielder<F>, 
-		Serializable, JsonAware, SqlAware, ByteAware{  //hibernate composite keys must implement serializable
+extends Comparable<FieldSet<F>>, 
+		Fielder<F>, 
+		Serializable, //hibernate composite keys must implement serializable
+		JsonAware, SqlAware, ByteAware{  
 
 	List<Field<?>> getFields();
 	List<String> getFieldNames();
