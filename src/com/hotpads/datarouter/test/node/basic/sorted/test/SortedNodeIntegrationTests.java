@@ -70,7 +70,8 @@ public class SortedNodeIntegrationTests{
 	
 	public static void resetTable(BasicNodeTestRouter routerToReset){
 		routerToReset.sortedBean().deleteAll(null);
-		Assert.assertEquals(0, CollectionTool.size(routerToReset.sortedBean().getAll(null)));
+		List<SortedBean> remainingAfterDelete = routerToReset.sortedBean().getAll(null);
+		Assert.assertEquals(0, CollectionTool.size(remainingAfterDelete));
 		
 		List<String> as = ListTool.createArrayList(STRINGS);
 		List<String> bs = ListTool.createArrayList(STRINGS);
