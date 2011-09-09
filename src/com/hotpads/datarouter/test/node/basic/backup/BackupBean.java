@@ -7,6 +7,7 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -15,6 +16,8 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
+import com.hotpads.profile.count.databean.Count;
+import com.hotpads.profile.count.databean.key.CountKey;
 
 
 @SuppressWarnings("serial")
@@ -46,6 +49,18 @@ public class BackupBean extends BaseDatabean<BackupBeanKey,BackupBean>{
 				new LongField(COL_f2, f2),
 				new StringField(COL_f3, f3),
 				new DumbDoubleField(COL_f4, f4));
+	}
+	
+	public static class BackupBeanFielder extends BaseDatabeanFielder<BackupBeanKey,BackupBean>{
+		public BackupBeanFielder(){}
+		@Override
+		public Class<BackupBeanKey> getKeyFielderClass(){
+			return BackupBeanKey.class;
+		}
+		@Override
+		public List<Field<?>> getNonKeyFields(BackupBean d){
+			return d.getNonKeyFields();
+		}
 	}
 	
 	@Override

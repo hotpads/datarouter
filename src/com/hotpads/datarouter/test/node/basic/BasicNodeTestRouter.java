@@ -4,6 +4,7 @@ import java.util.Random;
 
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.backup.databean.BackupRecord;
+import com.hotpads.datarouter.backup.databean.BackupRecord.BackupRecordFielder;
 import com.hotpads.datarouter.backup.databean.BackupRecordKey;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.Node;
@@ -15,10 +16,13 @@ import com.hotpads.datarouter.node.op.raw.SortedStorage;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
+import com.hotpads.datarouter.test.node.basic.backup.BackupBean.BackupBeanFielder;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBeanKey;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
+import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean.ManyFieldTypeBeanFielder;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.util.core.ListTool;
 
@@ -32,12 +36,12 @@ extends BaseDataRouter{
 	public BasicNodeTestRouter(String client, boolean sorted) throws IOException{
 		super(null, name, ListTool.create(new ClientId(client, true)));
 		
-		manyFieldTypeBeanNode = register(NodeFactory.create(client, ManyFieldTypeBean.class, null,
+		manyFieldTypeBeanNode = register(NodeFactory.create(client, ManyFieldTypeBean.class, ManyFieldTypeBeanFielder.class, 
 				new Random().nextInt(), this));
 		if(sorted){
-			sortedBeanNode = register(NodeFactory.create(client, SortedBean.class, this));
-			backupBeanNode = register(NodeFactory.create(client, BackupBean.class, this));
-			backupRecordNode = register(NodeFactory.create(client, BackupRecord.class, this));
+			sortedBeanNode = register(NodeFactory.create(client, SortedBean.class, SortedBeanFielder.class, this));
+			backupBeanNode = register(NodeFactory.create(client, BackupBean.class, BackupBeanFielder.class, this));
+			backupRecordNode = register(NodeFactory.create(client, BackupRecord.class, BackupRecordFielder.class, this));
 		}
 		activate();//do after field inits
 	}

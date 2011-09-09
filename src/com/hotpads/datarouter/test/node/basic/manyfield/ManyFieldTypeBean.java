@@ -11,6 +11,7 @@ import javax.persistence.Lob;
 
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
@@ -28,6 +29,8 @@ import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
+import com.hotpads.profile.count.databean.Count;
+import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
@@ -114,6 +117,18 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		fields.add(new ByteArrayField(F.data, data));
 		fields.add(new UInt63ArrayField(F.longArrayField, longArrayField));
 		return fields;
+	}
+	
+	public static class ManyFieldTypeBeanFielder extends BaseDatabeanFielder<ManyFieldTypeBeanKey,ManyFieldTypeBean>{
+		public ManyFieldTypeBeanFielder(){}
+		@Override
+		public Class<ManyFieldTypeBeanKey> getKeyFielderClass(){
+			return ManyFieldTypeBeanKey.class;
+		}
+		@Override
+		public List<Field<?>> getNonKeyFields(ManyFieldTypeBean d){
+			return d.getNonKeyFields();
+		}
 	}
 
 	
