@@ -85,6 +85,8 @@ public class CounterManager implements CountMap{
 	}
 	
 	
+	//caught 4 threads in this method at the same time and then waiting to aquire the logger's lock.
+	//  maybe bail out if the special counts are already in the counter.  or add a lock to the counter
 	protected void addSpecialCounts(CountMapPeriod counter){
 		long startNs = System.nanoTime();
 		//get the actual values
