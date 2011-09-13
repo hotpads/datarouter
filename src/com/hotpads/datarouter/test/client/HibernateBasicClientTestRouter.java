@@ -9,6 +9,7 @@ import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
+import com.hotpads.datarouter.test.client.txn.TxnBean.TxnBeanFielder;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 import com.hotpads.util.core.ListTool;
 
@@ -44,7 +45,7 @@ implements BasicClientTestRouter{
 	/********************************** nodes **********************************/
 	
 	private MapStorage<TxnBeanKey,TxnBean> txnBean = cast(register(
-			NodeFactory.create(CLIENT_drTest0, TxnBean.class, this)));
+			NodeFactory.create(CLIENT_drTest0, TxnBean.class, TxnBeanFielder.class, this)));
 	
 	
 	
