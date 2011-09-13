@@ -168,7 +168,7 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 				+existingNodeClass.getSimpleName()+"]");
 	}
 	
-	protected PhysicalNode<PK,D> getPhyiscalNodeForClientAndTable(String clientName, String tableName){
+	public PhysicalNode<PK,D> getPhyiscalNodeForClientAndTable(String clientName, String tableName){
 		try{
 			return physicalNodeByTableNameByClientName.get(clientName).get(tableName);
 		}catch(NullPointerException e){

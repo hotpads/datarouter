@@ -128,6 +128,9 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>("deleteAll", this, config){
 				public Void hbaseCall() throws Exception{
+					
+					//alternative method would be to truncate the table
+					
 					ResultScanner scanner = hTable.getScanner(new Scan());
 					List<Row> batchToDelete = ListTool.createArrayList(1000);
 					for(Result row : scanner){

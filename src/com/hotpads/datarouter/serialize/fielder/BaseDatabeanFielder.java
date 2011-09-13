@@ -6,6 +6,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.prefix.EmptyScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -25,7 +26,11 @@ implements DatabeanFielder<PK,D>{
 	protected ScatteringPrefix<PK> scatteringPrefix;
 	protected Fielder<PK> primaryKeyFielder;
 	
-	
+	@SuppressWarnings("unchecked")//ease up on type safety to keep the Node<PK,D> declaration shorter
+	@Override
+	public Class<? extends ScatteringPrefix<PK>> getScatteringPrefixClass() {
+		return (Class<? extends ScatteringPrefix<PK>>)EmptyScatteringPrefix.class;
+	}
 	
 	@Override
 	public Fielder<PK> getKeyFielder(){

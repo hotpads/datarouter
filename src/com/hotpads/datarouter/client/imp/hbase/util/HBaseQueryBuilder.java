@@ -1,22 +1,29 @@
 package com.hotpads.datarouter.client.imp.hbase.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.hadoop.hbase.client.Scan;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
+import com.hotpads.datarouter.storage.field.SimpleFieldSet;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.collections.Pair;
 
 
 public class HBaseQueryBuilder{
-	
+		
 	/*********************** primary methods **************************************/
 
 	public static Scan getRangeScanner(
@@ -27,7 +34,8 @@ public class HBaseQueryBuilder{
 		return scan;
 	}
 
-	public static Scan getPrefixScanner(FieldSet<?> prefix, boolean wildcardLastField, Config config){
+	public static Scan getPrefixScanner(FieldSet<?> prefix, 
+			boolean wildcardLastField, Config config){
 		Pair<byte[],byte[]> byteRange = getStartEndBytesForPrefix(prefix, wildcardLastField);
 		Scan scan = getScanForRange(byteRange.getLeft(), byteRange.getRight(), config);
 		return scan;
@@ -108,7 +116,7 @@ public class HBaseQueryBuilder{
 		return new Pair<byte[],byte[]>(startBytes, endBytes);
 	}
 	
-	/************************** byte helpers *****************************************/
+	/************************** field to byte helpers *****************************************/
 	
 	protected static byte[] getBytesForNonNullFieldsWithNoTrailingSeparator(FieldSet<?> fields){
 		int numNonNullFields = FieldSetTool.getNumNonNullFields(fields);
@@ -124,6 +132,8 @@ public class HBaseQueryBuilder{
 		}
 		return ByteTool.concatenate(fieldArraysWithSeparators);
 	}
+	
+	/************************** pure byte helpers *****************************************/
 	
 	protected static Pair<byte[],byte[]> getRangeIntersection(Pair<byte[],byte[]> a, Pair<byte[],byte[]> b){
 		return new Pair<byte[],byte[]>(

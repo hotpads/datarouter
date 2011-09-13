@@ -41,6 +41,7 @@ public class DRHRegionList{
 	protected SortedMap<Long,DRHServerInfo> consistentHashRing;
 	protected CompactionInfo compactionInfo;
 
+	@SuppressWarnings("unchecked")
 	public DRHRegionList(HBaseClient client, List<String> tableNames, Configuration config,
 			Node<?,?> node, CompactionInfo compactionInfo){
 		this.tableNames = ListTool.nullSafe(tableNames);
