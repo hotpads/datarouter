@@ -26,6 +26,8 @@ import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -97,7 +99,8 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<D>(new HBaseTask<D>("get", this, config){
 				public D hbaseCall() throws Exception{
-					Result row = hTable.get(new Get(key.getBytes(false)));
+					byte[] rowBytes = getKeyBytesWithScatteringPrefix(key);
+					Result row = hTable.get(new Get(rowBytes));
 					if(row.isEmpty()){ return null; }
 					D result = HBaseResultTool.getDatabean(row, fieldInfo);
 					return result;
@@ -137,7 +140,8 @@ implements HBasePhysicalNode<PK,D>,
 					List<D> results = ListTool.createArrayListWithSize(keys);
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
-						gets.add(new Get(key.getBytes(false)));
+						byte[] rowBytes = getKeyBytesWithScatteringPrefix(key);
+						gets.add(new Get(rowBytes));
 					}
 					Result[] resultArray = hTable.get(gets);
 					for(Result row : resultArray){
@@ -159,7 +163,8 @@ implements HBasePhysicalNode<PK,D>,
 				public List<PK> hbaseCall() throws Exception{
 					List<PK> results = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
-						Get get = new Get(key.getBytes(false));
+						byte[] rowBytes = getKeyBytesWithScatteringPrefix(key);
+						Get get = new Get(rowBytes);
 						get.setFilter(new FirstKeyOnlyFilter());//make sure first column in row is not something big
 						Result row = hTable.get(get);
 						if(row.isEmpty()){ continue; }
@@ -204,16 +209,21 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getWithPrefixes", this, config){
 				public List<D> hbaseCall() throws Exception{
 					List<D> results = ListTool.createArrayList();
-					for(PK prefix : prefixes){
-						Scan scan = HBaseQueryBuilder.getPrefixScanner(prefix, wildcardLastField, config);
-						ResultScanner scanner = hTable.getScanner(scan);
-						for(Result row : scanner){
-							if(row.isEmpty()){ continue; }
-							D result = HBaseResultTool.getDatabean(row, fieldInfo);
-							results.add(result);
-							if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
+					List<List<Field<?>>> allScatteringPrefixFields = fieldInfo.getSampleFielder()
+							.getScatteringPrefix().getAllPossibleScatteringPrefixes();
+					for(List<Field<?>> scatteringPrefixFields : allScatteringPrefixFields){
+						for(PK prefix : prefixes){
+//							Scan scan = HBaseQueryBuilder.getPrefixScanner(prefix, wildcardLastField, config);
+							Scan scanForSingleScatteringPrefix = 
+							ResultScanner scanner = hTable.getScanner(scan);
+							for(Result row : scanner){
+								if(row.isEmpty()){ continue; }
+								D result = HBaseResultTool.getDatabean(row, fieldInfo);
+								results.add(result);
+								if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
+							}
+							scanner.close();
 						}
-						scanner.close();
 					}
 					return results;
 				}
@@ -316,5 +326,12 @@ implements HBasePhysicalNode<PK,D>,
 	}
 		
 	
+	/************************ helpers ********************************/
+	
+	protected byte[] getKeyBytesWithScatteringPrefix(PK key){
+		List<Field<?>> keyPlusScatteringPrefixFields = fieldInfo.getKeyFieldsWithScatteringPrefix(key);
+		byte[] bytes = FieldSetTool.getConcatenatedValueBytes(keyPlusScatteringPrefixFields, false);
+		return bytes;
+	}
 	
 }

@@ -8,8 +8,11 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldTool;
+import com.hotpads.datarouter.storage.field.SimpleFieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -29,6 +32,10 @@ public class DatabeanFieldInfo<
 	protected Class<D> databeanClass;
 	protected D sampleDatabean;
 	protected String keyFieldName;
+	
+	protected Class<ScatteringPrefix<PK>> scatteringPrefixClass;
+	protected ScatteringPrefix<PK> sampleScatteringPrefix;
+	protected List<Field<?>> scatteringPrefixFields;
 	
 	protected Class<F> fielderClass;
 	protected F sampleFielder;
@@ -60,11 +67,16 @@ public class DatabeanFieldInfo<
 		this.fielderClass = fielderClass;
 		this.fieldAware = this.sampleDatabean.isFieldAware();
 		try{
+			if(scatteringPrefixClass!=null){
+				if(!fieldAware){ throw new IllegalArgumentException("prefixed databeans must be field aware"); }
+				this.sampleScatteringPrefix = ReflectionTool.create(sampleFielder.getScatteringPrefixClass());
+				this.scatteringPrefixFields = sampleScatteringPrefix.getScatteringPrefixFields(samplePrimaryKey);
+			}
 			/*
 			 * TODO remove duplicate logic below, but watch out for handling of non fieldAware databeans
 			 */
 			this.primaryKeyFields = samplePrimaryKey.getFields();
-			this.prefixedPrimaryKeyFields = sampleDatabean.getKeyFields();
+			this.prefixedPrimaryKeyFields = sampleDatabean.getKeyFields();			
 			if(fielderClass==null){
 				if(fieldAware){
 					throw new IllegalArgumentException("could not instantiate "+nodeName
@@ -86,6 +98,7 @@ public class DatabeanFieldInfo<
 				}
 			}
 			if(fieldAware){
+//				FieldTool.cacheReflectionInfo(scatteringPrefixFields, sampleScatterPrefix);
 				FieldTool.cacheReflectionInfo(primaryKeyFields, samplePrimaryKey);
 				FieldTool.cacheReflectionInfo(nonKeyFields, sampleDatabean);
 				FieldTool.cacheReflectionInfo(fields, sampleDatabean);
@@ -98,6 +111,18 @@ public class DatabeanFieldInfo<
 	
 	
 	/***************************** methods **************************************************/
+	
+	public FieldSet<?> getScatteringPrefixPlusPrimaryKey(PK key){
+		return new SimpleFieldSet(getKeyFieldsWithScatteringPrefix(key));
+	}
+	
+	public List<Field<?>> getKeyFieldsWithScatteringPrefix(PK key){
+		List<Field<?>> fields = ListTool.createLinkedList();
+		fields.addAll(sampleScatteringPrefix.getScatteringPrefixFields(key));
+		if(key==null){ return fields; }
+		fields.addAll(key.getFields());
+		return fields;
+	}
 	
 	public List<Field<?>> getNonKeyFields(D d){
 		if(d==null){ return ListTool.createLinkedList(); }
@@ -242,7 +267,16 @@ public class DatabeanFieldInfo<
 	public List<Field<?>> getPrefixedPrimaryKeyFields(){
 		return prefixedPrimaryKeyFields;
 	}
-	
+
+
+	public List<Field<?>> getScatteringPrefixFields() {
+		return scatteringPrefixFields;
+	}
+
+
+	public ScatteringPrefix<PK> getSampleScatteringPrefix() {
+		return sampleScatteringPrefix;
+	}
 	
 	
 }

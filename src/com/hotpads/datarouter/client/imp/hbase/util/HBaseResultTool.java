@@ -86,16 +86,16 @@ public class HBaseResultTool{
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>  
 	PK getPrimaryKey(byte[] keyBytes, DatabeanFieldInfo<PK,D,F> fieldInfo){
-		return getPrimaryKeyUnchecked(keyBytes, fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields());
+		return getPrimaryKeyUnchecked(keyBytes, fieldInfo);
 	}
 	
-	public static <PK extends PrimaryKey<?>> 
-	PK getPrimaryKeyUnchecked(byte[] keyBytes, Class<PK> primaryKeyClass, List<Field<?>> primaryKeyFields){
-		PK primaryKey = ReflectionTool.create(primaryKeyClass);
+	public static <PK extends PrimaryKey<PK>> 
+	PK getPrimaryKeyUnchecked(byte[] keyBytes, DatabeanFieldInfo<PK,?,?> fieldInfo){
+		PK primaryKey = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
 		
 		//copied from above
 		int byteOffset = 0;
-		for(Field<?> field : primaryKeyFields){
+		for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
 			int numBytesWithSeparator = field.numBytesWithSeparator(keyBytes, byteOffset);
 			Object value = field.fromBytesWithSeparatorButDoNotSet(keyBytes, byteOffset);
 			field.setUsingReflection(primaryKey, value);

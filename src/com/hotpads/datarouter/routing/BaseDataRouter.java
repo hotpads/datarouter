@@ -85,7 +85,6 @@ public abstract class BaseDataRouter implements DataRouter {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public Nodes<?,?,?> getNodes() {
 		return nodes;
 	}
