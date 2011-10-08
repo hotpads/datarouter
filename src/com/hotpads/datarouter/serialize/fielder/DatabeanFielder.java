@@ -12,8 +12,7 @@ public interface DatabeanFielder<
 		D extends Databean<PK,D>>
 extends Fielder<D>{
 
-	Class<? extends ScatteringPrefix<PK>> getScatteringPrefixClass();
-//	ScatteringPrefix<PK> getScatteringPrefix();
+	Class<? extends ScatteringPrefix> getScatteringPrefixClass();
 	
 	Class<? extends Fielder<PK>> getKeyFielderClass();
 	Fielder<PK> getKeyFielder();

@@ -50,23 +50,24 @@ public class ManyFieldTypeIntegrationTests {
 	
 	@BeforeClass
 	public static void init() throws IOException{	
-
+		Class<?> cls = ManyFieldTypeIntegrationTests.class;
+		
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.hibernate)){
 			routerByClientType.put(
 					ClientType.hibernate, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, true));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls));
 		}
 
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.hbase)){
 			routerByClientType.put(
 					ClientType.hbase, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, true));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls));
 		}
 
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.memcached)){
 			routerByClientType.put(
 					ClientType.memcached, 
-					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemcached, false));
+					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemcached, cls));
 		}
 		
 		for(ClientType clientType : routerByClientType.keySet()){

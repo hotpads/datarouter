@@ -107,9 +107,13 @@ public class HBaseScatteringPrefixQueryBuilder {
 		ArrayList<FieldSet<?>> outs = ListTool.createArrayList();
 		List<List<Field<?>>> allScatteringPrefixFields = fieldInfo.getSampleScatteringPrefix().getAllPossibleScatteringPrefixes();
 		for(List<Field<?>> scatteringPrefixFields : allScatteringPrefixFields){
-			SimpleFieldSet<?> scatteringPrefixPlusPrefix = new SimpleFieldSet(scatteringPrefixFields);
-			if(pk!=null){ scatteringPrefixPlusPrefix.add(pk.getFields()); }
-			outs.add(scatteringPrefixPlusPrefix);
+			if(CollectionTool.isEmpty(scatteringPrefixFields) && pk==null){ 
+				outs.add(null); 
+			}else{
+				SimpleFieldSet<?> scatteringPrefixPlusPrefix = new SimpleFieldSet(scatteringPrefixFields);
+				if(pk!=null){ scatteringPrefixPlusPrefix.add(pk.getFields()); }
+				outs.add(scatteringPrefixPlusPrefix);
+			}
 		}
 		return outs;
 	}

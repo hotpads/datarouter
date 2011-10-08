@@ -2,15 +2,15 @@ package com.hotpads.datarouter.storage.prefix;
 
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public abstract class BaseScatteringPrefix<PK extends PrimaryKey<PK>>
-implements ScatteringPrefix<PK>{
+public abstract class BaseScatteringPrefix
+implements ScatteringPrefix{
 
-	protected PK key;
-	
-	@Override
-	public void setKey(PK key){
-		this.key = key;
-	}
+//	protected PK key;
+//	
+//	@Override
+//	public void setKey(PK key){
+//		this.key = key;
+//	}
 
 //	@Override
 //	public List<Field<?>> getScatteringPrefixFields(PK primaryKey){

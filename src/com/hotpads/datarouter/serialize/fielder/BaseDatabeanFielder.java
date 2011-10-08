@@ -23,13 +23,12 @@ implements DatabeanFielder<PK,D>{
 	}
 
 //	protected PKF primaryKeyFielder;
-	protected ScatteringPrefix<PK> scatteringPrefix;
+	protected ScatteringPrefix scatteringPrefix;
 	protected Fielder<PK> primaryKeyFielder;
 	
-	@SuppressWarnings("unchecked")//ease up on type safety to keep the Node<PK,D> declaration shorter
 	@Override
-	public Class<? extends ScatteringPrefix<PK>> getScatteringPrefixClass() {
-		return (Class<? extends ScatteringPrefix<PK>>)EmptyScatteringPrefix.class;
+	public Class<? extends ScatteringPrefix> getScatteringPrefixClass() {
+		return EmptyScatteringPrefix.class;
 	}
 	
 	@Override

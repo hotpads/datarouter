@@ -33,6 +33,7 @@ import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBeanKey;
+import com.hotpads.datarouter.test.node.basic.sorted.test.SortedNodeIntegrationTests;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -61,17 +62,18 @@ public class BackupIntegrationTests{
 	
 	@BeforeClass
 	public static void init() throws IOException{	
+		Class<?> cls = BackupIntegrationTests.class;
 
 		if(clientTypes.contains(ClientType.hibernate)){
 			routerByClientType.put(
 					ClientType.hibernate, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, true));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls));
 		}
 
 		if(clientTypes.contains(ClientType.hbase)){
 			routerByClientType.put(
 					ClientType.hbase, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, true));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls));
 		}
 		
 		for(BasicNodeTestRouter router : routerByClientType.values()){

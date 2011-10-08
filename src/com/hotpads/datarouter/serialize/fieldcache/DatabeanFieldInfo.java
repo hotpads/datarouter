@@ -12,6 +12,7 @@ import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.SimpleFieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.prefix.EmptyScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
@@ -33,8 +34,8 @@ public class DatabeanFieldInfo<
 	protected D sampleDatabean;
 	protected String keyFieldName;
 	
-	protected Class<ScatteringPrefix<PK>> scatteringPrefixClass;
-	protected ScatteringPrefix<PK> sampleScatteringPrefix;
+	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
+	protected ScatteringPrefix sampleScatteringPrefix;
 	protected List<Field<?>> scatteringPrefixFields;
 	
 	protected Class<F> fielderClass;
@@ -67,11 +68,6 @@ public class DatabeanFieldInfo<
 		this.fielderClass = fielderClass;
 		this.fieldAware = this.sampleDatabean.isFieldAware();
 		try{
-			if(scatteringPrefixClass!=null){
-				if(!fieldAware){ throw new IllegalArgumentException("prefixed databeans must be field aware"); }
-				this.sampleScatteringPrefix = ReflectionTool.create(sampleFielder.getScatteringPrefixClass());
-				this.scatteringPrefixFields = sampleScatteringPrefix.getScatteringPrefixFields(samplePrimaryKey);
-			}
 			/*
 			 * TODO remove duplicate logic below, but watch out for handling of non fieldAware databeans
 			 */
@@ -81,11 +77,8 @@ public class DatabeanFieldInfo<
 				if(fieldAware){
 					throw new IllegalArgumentException("could not instantiate "+nodeName
 							+", fieldAware databean node must specify fielder class");
-//					this.fields = sampleDatabean.getFields();//make sure there is a PK or this will NPE
-//					addFieldsToCollections();
-//					this.nonKeyFields = sampleDatabean.getNonKeyFields();//only do these if the previous fields succeeded
-//					addNonKeyFieldsToCollections();
 				}
+				this.scatteringPrefixClass = EmptyScatteringPrefix.class;
 			}else{
 				this.sampleFielder = ReflectionTool.create(fielderClass);
 				this.primaryKeyFields = sampleFielder.getKeyFielder().getFields(sampleDatabean.getKey());
@@ -96,6 +89,7 @@ public class DatabeanFieldInfo<
 					this.nonKeyFields = sampleFielder.getNonKeyFields(sampleDatabean);//only do these if the previous fields succeeded	
 					addNonKeyFieldsToCollections();
 				}
+				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
 			}
 			if(fieldAware){
 //				FieldTool.cacheReflectionInfo(scatteringPrefixFields, sampleScatterPrefix);
@@ -103,6 +97,8 @@ public class DatabeanFieldInfo<
 				FieldTool.cacheReflectionInfo(nonKeyFields, sampleDatabean);
 				FieldTool.cacheReflectionInfo(fields, sampleDatabean);
 			}
+			this.sampleScatteringPrefix = ReflectionTool.create(scatteringPrefixClass);
+			this.scatteringPrefixFields = sampleScatteringPrefix.getScatteringPrefixFields(samplePrimaryKey);
 		}catch(Exception probablyNoPkInstantiated){
 			throw new IllegalArgumentException("could not instantiate "+nodeName, probablyNoPkInstantiated);
 		}
@@ -274,7 +270,7 @@ public class DatabeanFieldInfo<
 	}
 
 
-	public ScatteringPrefix<PK> getSampleScatteringPrefix() {
+	public ScatteringPrefix getSampleScatteringPrefix() {
 		return sampleScatteringPrefix;
 	}
 	

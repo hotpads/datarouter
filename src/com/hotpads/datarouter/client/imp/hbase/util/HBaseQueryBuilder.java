@@ -55,7 +55,8 @@ public class HBaseQueryBuilder{
 	
 	/****************************** scan helpers ************************************/
 
-	protected static Scan getScanForRange(byte[] startInclusive, byte[] endExclusive, Config config){
+	protected static Scan getScanForRange(byte[] startInclusive, byte[] endExclusive, Config pConfig){
+		Config config = Config.nullSafe(pConfig);
 		Scan scan;
 		if(startInclusive!=null && endExclusive!=null){
 			scan = new Scan(startInclusive, endExclusive);
