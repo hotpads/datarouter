@@ -237,7 +237,8 @@ public class ManyFieldTypeIntegrationTests {
 	@Test 
 	public void testString(){		
 		ManyFieldTypeBean bean = new ManyFieldTypeBean();
-		String val = "abcdefち";
+		char multiByteUtf8Char = (char)555;
+		String val = "abcdef"+multiByteUtf8Char;
 		bean.setStringField(val);
 		bean.setStringByteField(StringByteTool.getByteArray(val, StringByteTool.CHARSET_UTF8));
 		router.manyFieldTypeBean().put(bean, null);
