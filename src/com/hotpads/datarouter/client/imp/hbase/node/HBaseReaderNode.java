@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -16,7 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.HBaseTask;
-import com.hotpads.datarouter.client.imp.hbase.util.HBasePrimaryKeyScanner;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseManualPrimaryKeyScanner;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseScatteringPrefixQueryBuilder;
@@ -339,10 +338,11 @@ implements HBasePhysicalNode<PK,D>,
 			final PK end, final boolean endInclusive, 
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
+		final HBaseReaderNode<PK,?,?> readerNodeRef = this;
 		return new HBaseTask<PeekableIterable<PK>>("scanKeys", this, config){
 				public PeekableIterable<PK> hbaseCall() throws Exception{
-					ArrayList<HBasePrimaryKeyScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder.getScannerForEachPrefix(
-							fieldInfo, hTable, start, startInclusive, end, endInclusive, config);
+					List<HBaseManualPrimaryKeyScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder.getManualPrimaryKeyScannerForEachPrefix(
+							readerNodeRef, fieldInfo, hTable, start, startInclusive, end, endInclusive, config);
 					return new PrimaryKeyMergeScanner<PK>(scanners);
 				}
 			}.call();
@@ -361,18 +361,18 @@ implements HBasePhysicalNode<PK,D>,
 	
 	/************************ helpers ********************************/
 
-	protected List<PK> getKeysInSubRange(final byte[] startExclusive, final byte[] end, final Config pConfig){
+	public List<Result> getKeysInSubRange(final byte[] startExclusive, final byte[] end, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>("getKeysInSubRange", this, config){
-				public List<PK> hbaseCall() throws Exception{
-					List<PK> results = ListTool.createArrayList();
+		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>("getKeysInSubRange", this, config){
+				public List<Result> hbaseCall() throws Exception{
 					Scan scan = HBaseQueryBuilder.getScanForRange(startExclusive, end, config);
 					scan.setFilter(new FirstKeyOnlyFilter());
 					ResultScanner scanner = hTable.getScanner(scan);
-					for(Result row : scanner){
-						if(row.isEmpty()){ continue; }
-						PK result = HBaseResultTool.getPrimaryKey(row.getRow(), fieldInfo);
-						results.add(result);
+					List<Result> results = ListTool.createArrayList();
+					for(Result rowKey : scanner){
+						if(rowKey.isEmpty()){ continue; }
+						results.add(rowKey);
+						if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){ break; }
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}
 					scanner.close();

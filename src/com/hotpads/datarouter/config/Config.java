@@ -174,6 +174,13 @@ public class Config implements Cloneable{
 		return this;
 	}
 
+
+	public Config setIterateBatchSizeIfNull(Integer iterateBatchSize) {
+		if(this.iterateBatchSize!=null){ return this; }
+		this.iterateBatchSize = iterateBatchSize;
+		return this;
+	}
+
 	public Integer getCommitBatchSize() {
 		return commitBatchSize;
 	}

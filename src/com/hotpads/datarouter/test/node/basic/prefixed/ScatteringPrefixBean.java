@@ -45,9 +45,9 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 	
 	public static class ScatteringPrefixBeanFielder extends BaseDatabeanFielder<ScatteringPrefixBeanKey,ScatteringPrefixBean>{	
 		
-		public static class ScatteringPrefixBeanScatterer8 extends BaseScatteringPrefix{			
+		public static class ScatteringPrefixBeanScatterer extends BaseScatteringPrefix{			
 			public static final Integer 
-				NUM_SHARDS = 8,
+				NUM_SHARDS = 3,
 				NUM_PREFIX_BYTES = 1;
 			
 			public static class F{
@@ -80,7 +80,7 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 		
 		@Override
 		public Class<? extends ScatteringPrefix> getScatteringPrefixClass() {
-			return ScatteringPrefixBeanScatterer8.class;
+			return ScatteringPrefixBeanScatterer.class;
 		}
 		@Override
 		public Class<ScatteringPrefixBeanKey> getKeyFielderClass(){
@@ -106,7 +106,7 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 	
 	public ScatteringPrefixBean(Long id, String f1, Integer f2){
 		this.key = new ScatteringPrefixBeanKey(id);
-		int prefix = (int)(id % ScatteringPrefixBeanFielder.ScatteringPrefixBeanScatterer8.NUM_SHARDS);
+		int prefix = (int)(id % ScatteringPrefixBeanFielder.ScatteringPrefixBeanScatterer.NUM_SHARDS);
 		this.f1 = prefix+"_"+id.toString();
 		
 	}

@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Scan;
 
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
@@ -23,14 +24,11 @@ public class HBaseScatteringPrefixQueryBuilder {
 	public static List<Scan> getRangeScanners(DatabeanFieldInfo<?,?,?> fieldInfo,
 			final FieldSet<?> startKey, final boolean startInclusive, 
 			final FieldSet<?> endKey, final boolean endInclusive, Config config){
-//		return getPrefixedRangeScanner(fieldInfo, null, false, startKey, startInclusive, endKey, endInclusive, config);
 		List<Scan> outs = ListTool.createArrayList();
-		ArrayList<FieldSet<?>> prefixedStartKeys = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, startKey);
-		ArrayList<FieldSet<?>> prefixedEndKeys = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, endKey);
-		for(int i=0; i < prefixedStartKeys.size(); ++i){
-			Pair<byte[],byte[]> byteRange = HBaseQueryBuilder.getStartEndBytesForRange(
-					prefixedStartKeys.get(i), startInclusive, prefixedEndKeys.get(i), endInclusive);
-			Scan scan = HBaseQueryBuilder.getScanForRange(byteRange.getLeft(), byteRange.getRight(), config);
+		List<Pair<byte[],byte[]>> ranges = getRangeForEachScatteringPrefix(fieldInfo,
+				startKey, startInclusive, endKey, endInclusive, config);
+		for(Pair<byte[],byte[]> range : IterableTool.nullSafe(ranges)){
+			Scan scan = HBaseQueryBuilder.getScanForRange(range.getLeft(), range.getRight(), config);
 			outs.add(scan);
 		}
 		return outs;
@@ -119,6 +117,20 @@ public class HBaseScatteringPrefixQueryBuilder {
 		}
 		return outs;
 	}
+
+	public static List<Pair<byte[],byte[]>> getRangeForEachScatteringPrefix(DatabeanFieldInfo<?,?,?> fieldInfo,
+			final FieldSet<?> startKey, final boolean startInclusive, 
+			final FieldSet<?> endKey, final boolean endInclusive, Config config){
+		List<Pair<byte[],byte[]>> ranges = ListTool.createArrayList();
+		ArrayList<FieldSet<?>> prefixedStartKeys = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, startKey);
+		ArrayList<FieldSet<?>> prefixedEndKeys = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, endKey);
+		for(int i=0; i < prefixedStartKeys.size(); ++i){
+			Pair<byte[],byte[]> byteRange = HBaseQueryBuilder.getStartEndBytesForRange(
+					prefixedStartKeys.get(i), startInclusive, prefixedEndKeys.get(i), endInclusive);
+			ranges.add(byteRange);
+		}
+		return ranges;
+	}
 	
 	public static <PK extends PrimaryKey<PK>> ArrayList<HBasePrimaryKeyScanner<PK>> getScannerForEachPrefix(
 			DatabeanFieldInfo<PK,?,?> fieldInfo,
@@ -132,6 +144,25 @@ public class HBaseScatteringPrefixQueryBuilder {
 		ArrayList<HBasePrimaryKeyScanner<PK>> scanners = ListTool.createArrayList();
 		for(Scan scan : scanForEachScatteringPartition){
 			scanners.add(new HBasePrimaryKeyScanner(fieldInfo, hTable, scan));
+		}
+		return scanners;
+	}
+	
+	public static <PK extends PrimaryKey<PK>> 
+	ArrayList<HBaseManualPrimaryKeyScanner<PK>> getManualPrimaryKeyScannerForEachPrefix(
+			HBaseReaderNode<PK,?,?> node,
+			DatabeanFieldInfo<PK,?,?> fieldInfo,
+			HTable hTable,
+			FieldSet<?> start, boolean startInclusive, 
+			FieldSet<?> end, boolean endInclusive,
+			final Config pConfig){
+			Config config = Config.nullSafe(pConfig);
+		List<Pair<byte[],byte[]>> ranges = getRangeForEachScatteringPrefix(
+				fieldInfo, start, startInclusive, end, endInclusive, config);
+		ArrayList<HBaseManualPrimaryKeyScanner<PK>> scanners = ListTool.createArrayList();
+		for(Pair<byte[],byte[]> range : ranges){
+			scanners.add(new HBaseManualPrimaryKeyScanner(node, fieldInfo, hTable, 
+					range.getLeft(), range.getRight(), config));
 		}
 		return scanners;
 	}

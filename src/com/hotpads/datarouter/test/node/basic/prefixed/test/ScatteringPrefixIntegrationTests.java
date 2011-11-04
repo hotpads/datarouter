@@ -68,7 +68,7 @@ public class ScatteringPrefixIntegrationTests{
 	}
 	
 	public static final int 
-		NUM_BATCHES = 20,
+		NUM_BATCHES = 2,
 		BATCH_SIZE = 100;
 	
 	public static final int TOTAL_RECORDS = NUM_BATCHES * BATCH_SIZE;
@@ -114,7 +114,7 @@ public class ScatteringPrefixIntegrationTests{
 	@Test
 	public synchronized void testGetAll(){
 		Iterable<ScatteringPrefixBeanKey> iter = router.scatteringPrefixBean().scanKeys(
-				null, true, null, true, null);
+				null, true, null, true, new Config().setIterateBatchSize(2));
 		Iterable<ScatteringPrefixBeanKey> all = ListTool.createArrayListFromIterable(iter);
 		int count = IterableTool.count(all);
 		Assert.assertTrue(TOTAL_RECORDS == count);
