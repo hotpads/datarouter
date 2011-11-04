@@ -47,24 +47,8 @@ implements HBasePhysicalNode<PK,D>,
 		SortedStorageReader<PK,D>
 {
 	protected Logger logger = Logger.getLogger(getClass());
-	/*
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * set to 10 for debugging.  too small for production
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 */
-	public static final int DEFAULT_ITERATE_BATCH_SIZE = 10;//1000;
+	
+	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
 	
 	/******************************* constructors ************************************/
 
@@ -333,19 +317,35 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	
+//	@Override
+//	public PeekableIterable<PK> scanKeys(
+//			final PK start, final boolean startInclusive, 
+//			final PK end, final boolean endInclusive, 
+//			final Config pConfig){
+//		final Config config = Config.nullSafe(pConfig);
+//		return new HBaseMultiAttemptTask<PeekableIterable<PK>>(new HBaseTask<PeekableIterable<PK>>("scanKeys", this, config){
+//				public PeekableIterable<PK> hbaseCall() throws Exception{
+//					ArrayList<HBasePrimaryKeyScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder.getScannerForEachPrefix(
+//							fieldInfo, hTable, start, startInclusive, end, endInclusive, config);
+//					return new PrimaryKeyMergeScanner<PK>(scanners);
+//				}
+//			}).call();
+//	}
+
+	
 	@Override
 	public PeekableIterable<PK> scanKeys(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<PeekableIterable<PK>>(new HBaseTask<PeekableIterable<PK>>("scanKeys", this, config){
+		return new HBaseTask<PeekableIterable<PK>>("scanKeys", this, config){
 				public PeekableIterable<PK> hbaseCall() throws Exception{
 					ArrayList<HBasePrimaryKeyScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder.getScannerForEachPrefix(
 							fieldInfo, hTable, start, startInclusive, end, endInclusive, config);
 					return new PrimaryKeyMergeScanner<PK>(scanners);
 				}
-			}).call();
+			}.call();
 	}
 
 	
@@ -360,7 +360,27 @@ implements HBasePhysicalNode<PK,D>,
 		
 	
 	/************************ helpers ********************************/
-			
+
+	protected List<PK> getKeysInSubRange(final byte[] startExclusive, final byte[] end, final Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>("getKeysInSubRange", this, config){
+				public List<PK> hbaseCall() throws Exception{
+					List<PK> results = ListTool.createArrayList();
+					Scan scan = HBaseQueryBuilder.getScanForRange(startExclusive, end, config);
+					scan.setFilter(new FirstKeyOnlyFilter());
+					ResultScanner scanner = hTable.getScanner(scan);
+					for(Result row : scanner){
+						if(row.isEmpty()){ continue; }
+						PK result = HBaseResultTool.getPrimaryKey(row.getRow(), fieldInfo);
+						results.add(result);
+						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
+					}
+					scanner.close();
+					return results;
+				}
+			}).call();
+	}
+	
 	protected byte[] getKeyBytesWithScatteringPrefix(PK key){
 		List<Field<?>> keyPlusScatteringPrefixFields = fieldInfo.getKeyFieldsWithScatteringPrefix(key);
 		byte[] bytes = FieldSetTool.getConcatenatedValueBytes(keyPlusScatteringPrefixFields, false);

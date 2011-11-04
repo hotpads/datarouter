@@ -1,23 +1,16 @@
 package com.hotpads.datarouter.client.imp.hbase.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.hadoop.hbase.client.Scan;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
-import com.hotpads.datarouter.storage.field.SimpleFieldSet;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.collections.Pair;
 
@@ -55,7 +48,7 @@ public class HBaseQueryBuilder{
 	
 	/****************************** scan helpers ************************************/
 
-	protected static Scan getScanForRange(byte[] startInclusive, byte[] endExclusive, Config pConfig){
+	public static Scan getScanForRange(byte[] startInclusive, byte[] endExclusive, Config pConfig){
 		Config config = Config.nullSafe(pConfig);
 		Scan scan;
 		if(startInclusive!=null && endExclusive!=null){

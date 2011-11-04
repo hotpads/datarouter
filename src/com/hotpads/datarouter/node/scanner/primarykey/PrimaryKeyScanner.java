@@ -18,6 +18,7 @@ import com.hotpads.util.core.iterable.PeekableIterator;
 //TODO should share a base class with Scanner?
 public class PrimaryKeyScanner<PK extends PrimaryKey<PK>> 
 implements PeekableIterable<PK>, PeekableIterator<PK>{
+	
 	SortedStorageReader<PK,?> node;
 	
 	boolean startInclusive; 

@@ -112,6 +112,9 @@ extends BaseDataRouter{
 		public SortedStorage<SortedBeanKey,SortedBean> sortedBeanSorted(){
 			return cast(sortedBeanNode);
 		}
+		public SortedStorage<ScatteringPrefixBeanKey,ScatteringPrefixBean> scatteringPrefixBeanSorted(){
+			return cast(scatteringPrefixBeanNode);
+		}
 	}
 	
 	public static class IndexedBasicNodeTestRouter extends BasicNodeTestRouter{
