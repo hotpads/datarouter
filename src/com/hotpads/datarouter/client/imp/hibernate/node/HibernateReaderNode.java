@@ -713,7 +713,7 @@ implements MapStorageReader<PK,D>,
 			PK start, boolean startInclusive, 
 			PK end, boolean endInclusive, 
 			Config config){
-		return new PrimaryKeyScanner<PK,D>(this, start, startInclusive, end, endInclusive, 
+		return new PrimaryKeyScanner<PK>(this, start, startInclusive, end, endInclusive, 
 				config, DEFAULT_ITERATE_BATCH_SIZE);
 	}
 	

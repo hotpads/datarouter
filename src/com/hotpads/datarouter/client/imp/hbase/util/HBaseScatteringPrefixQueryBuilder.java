@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Scan;
 
 import com.hotpads.datarouter.config.Config;
@@ -11,6 +12,7 @@ import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.SimpleFieldSet;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -116,5 +118,21 @@ public class HBaseScatteringPrefixQueryBuilder {
 			}
 		}
 		return outs;
+	}
+	
+	public static <PK extends PrimaryKey<PK>> ArrayList<HBasePrimaryKeyScanner<PK>> getScannerForEachPrefix(
+			DatabeanFieldInfo<PK,?,?> fieldInfo,
+			HTable hTable,
+			FieldSet<?> startKey, boolean startInclusive, 
+			FieldSet<?> endKey, boolean endInclusive,
+			final Config pConfig){
+			Config config = Config.nullSafe(pConfig);
+		List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder
+				.getRangeScanners(fieldInfo, startKey, startInclusive, endKey, endInclusive, config);
+		ArrayList<HBasePrimaryKeyScanner<PK>> scanners = ListTool.createArrayList();
+		for(Scan scan : scanForEachScatteringPartition){
+			scanners.add(new HBasePrimaryKeyScanner(fieldInfo, hTable, scan));
+		}
+		return scanners;
 	}
 }

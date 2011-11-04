@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -15,15 +14,15 @@ import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.PeekableIterator;
 
 //TODO should share a base class with MergeScanner?
-public class PrimaryKeyMergeScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+public class PrimaryKeyMergeScanner<PK extends PrimaryKey<PK>>
 implements PeekableIterable<PK>,PeekableIterator<PK>{
 
 	ArrayList<PeekableIterator<PK>> scanners;
-	Map<PrimaryKeyScanner<PK,D>,PK> nextByScanner;
+	Map<PrimaryKeyScanner<PK>,PK> nextByScanner;
 	
 	PK peeked;
 	
-	public PrimaryKeyMergeScanner(Collection<PeekableIterable<PK>> scanners){
+	public PrimaryKeyMergeScanner(Collection<? extends PeekableIterable<PK>> scanners){
 		this.scanners = ListTool.createArrayListWithSize(scanners);
 		for(PeekableIterable<PK> scannerIterable : IterableTool.nullSafe(scanners)){
 			this.scanners.add(scannerIterable.iterator());

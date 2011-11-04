@@ -167,7 +167,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 		for(N node : IterableTool.nullSafe(this.getPhysicalNodes())){
 			subScanners.add(node.scanKeys(start, startInclusive, end, endInclusive, config));
 		}
-		return new PrimaryKeyMergeScanner<PK,D>(subScanners);
+		return new PrimaryKeyMergeScanner<PK>(subScanners);
 	};
 	
 	@Override

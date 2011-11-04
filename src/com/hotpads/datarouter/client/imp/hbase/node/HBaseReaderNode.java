@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -15,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.HBaseTask;
+import com.hotpads.datarouter.client.imp.hbase.util.HBasePrimaryKeyScanner;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseScatteringPrefixQueryBuilder;
@@ -23,13 +25,12 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.scanner.Scanner;
-import com.hotpads.datarouter.node.scanner.primarykey.PrimaryKeyScanner;
+import com.hotpads.datarouter.node.scanner.primarykey.PrimaryKeyMergeScanner;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
@@ -46,8 +47,24 @@ implements HBasePhysicalNode<PK,D>,
 		SortedStorageReader<PK,D>
 {
 	protected Logger logger = Logger.getLogger(getClass());
-	
-	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
+	/*
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * set to 10 for debugging.  too small for production
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
+	public static final int DEFAULT_ITERATE_BATCH_SIZE = 10;//1000;
 	
 	/******************************* constructors ************************************/
 
@@ -225,10 +242,8 @@ implements HBasePhysicalNode<PK,D>,
 						}
 						scanner.close();
 					}
-					if(fieldInfo.getSampleScatteringPrefix().getNumPrefixBytes() > 0){
-						Collections.sort(results);
-					}
-					return results;//should be sorted already because of the order we scanned in
+					sortIfScatteringPrefixExists(results);
+					return results;
 				}
 			}).call();
 	}
@@ -254,6 +269,7 @@ implements HBasePhysicalNode<PK,D>,
 						}
 						scanner.close();
 					}
+					sortIfScatteringPrefixExists(results);
 					return results;
 				}
 			}).call();
@@ -280,9 +296,7 @@ implements HBasePhysicalNode<PK,D>,
 						}
 						scanner.close();
 					}
-					if(fieldInfo.getSampleScatteringPrefix().getNumPrefixBytes() > 0){
-						Collections.sort(results);
-					}
+					sortIfScatteringPrefixExists(results);
 					return results;
 				}
 			}).call();
@@ -323,9 +337,15 @@ implements HBasePhysicalNode<PK,D>,
 	public PeekableIterable<PK> scanKeys(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
-			final Config config){
-		return new PrimaryKeyScanner<PK,D>(this, start, startInclusive, end, endInclusive, 
-				config, DEFAULT_ITERATE_BATCH_SIZE);
+			final Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		return new HBaseMultiAttemptTask<PeekableIterable<PK>>(new HBaseTask<PeekableIterable<PK>>("scanKeys", this, config){
+				public PeekableIterable<PK> hbaseCall() throws Exception{
+					ArrayList<HBasePrimaryKeyScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder.getScannerForEachPrefix(
+							fieldInfo, hTable, start, startInclusive, end, endInclusive, config);
+					return new PrimaryKeyMergeScanner<PK>(scanners);
+				}
+			}).call();
 	}
 
 	
@@ -340,11 +360,17 @@ implements HBasePhysicalNode<PK,D>,
 		
 	
 	/************************ helpers ********************************/
-		
+			
 	protected byte[] getKeyBytesWithScatteringPrefix(PK key){
 		List<Field<?>> keyPlusScatteringPrefixFields = fieldInfo.getKeyFieldsWithScatteringPrefix(key);
 		byte[] bytes = FieldSetTool.getConcatenatedValueBytes(keyPlusScatteringPrefixFields, false);
 		return bytes;
+	}
+	
+	protected <T extends Comparable<? super T>> void sortIfScatteringPrefixExists(List<T> ins){
+		if(fieldInfo.getSampleScatteringPrefix().getNumPrefixBytes() > 0){
+			Collections.sort(ins);
+		}
 	}
 	
 }

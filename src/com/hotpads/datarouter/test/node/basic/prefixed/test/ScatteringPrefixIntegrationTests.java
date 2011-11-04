@@ -20,7 +20,9 @@ import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean;
+import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBeanKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -102,8 +104,11 @@ public class ScatteringPrefixIntegrationTests{
 	
 	@Test
 	public synchronized void testGetAll(){
-		int count = IterableTool.count(router.scatteringPrefixBean().scanKeys(null, true, null, true, null));
-		Assert.assertEquals(TOTAL_RECORDS, count);
+		Iterable<ScatteringPrefixBeanKey> iter = router.scatteringPrefixBean().scanKeys(null, true, null, true, null);
+		Iterable<ScatteringPrefixBeanKey> all = ListTool.createArrayListFromIterable(iter);
+		int count = IterableTool.count(all);
+		Assert.assertTrue(TOTAL_RECORDS == count);
+		Assert.assertTrue(ComparableTool.isSorted(all));
 	}
 //	
 //	@Test
