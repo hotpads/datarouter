@@ -24,7 +24,6 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.scanner.Scanner;
-import com.hotpads.datarouter.node.scanner.primarykey.PrimaryKeyMergeScanner;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -35,6 +34,9 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.iterable.PeekableIterable;
+import com.hotpads.util.core.iterable.scanner.collate.Collator;
+import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
+import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class HBaseReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -343,7 +345,8 @@ implements HBasePhysicalNode<PK,D>,
 				public PeekableIterable<PK> hbaseCall() throws Exception{
 					List<HBaseManualPrimaryKeyScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder.getManualPrimaryKeyScannerForEachPrefix(
 							readerNodeRef, fieldInfo, hTable, start, startInclusive, end, endInclusive, config);
-					return new PrimaryKeyMergeScanner<PK>(scanners);
+					Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
+					return new SortedScannerIterable<PK>(collator);
 				}
 			}.call();
 	}

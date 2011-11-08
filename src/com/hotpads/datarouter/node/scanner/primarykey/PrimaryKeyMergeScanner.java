@@ -13,7 +13,7 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.PeekableIterator;
 
-//TODO should share a base class with MergeScanner?
+@Deprecated//migrate to com.hotpads.util.core.iterable.scanner.SortedScanner
 public class PrimaryKeyMergeScanner<PK extends PrimaryKey<PK>>
 implements PeekableIterable<PK>,PeekableIterator<PK>{
 

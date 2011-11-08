@@ -15,7 +15,7 @@ import com.hotpads.util.core.iterable.PeekableIterator;
 /*
  * Iterator that maintains state between calls to get the next batch of Databeans in the range
  */
-//TODO should share a base class with Scanner?
+@Deprecated//migrate to com.hotpads.util.core.iterable.scanner.SortedScanner
 public class PrimaryKeyScanner<PK extends PrimaryKey<PK>> 
 implements PeekableIterable<PK>, PeekableIterator<PK>{
 	

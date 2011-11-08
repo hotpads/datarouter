@@ -114,7 +114,7 @@ public class ScatteringPrefixIntegrationTests{
 	@Test
 	public synchronized void testGetAll(){
 		Iterable<ScatteringPrefixBeanKey> iter = router.scatteringPrefixBean().scanKeys(
-				null, true, null, true, new Config().setIterateBatchSize(2));
+				null, true, null, true, new Config().setIterateBatchSize(50));
 		Iterable<ScatteringPrefixBeanKey> all = ListTool.createArrayListFromIterable(iter);
 		int count = IterableTool.count(all);
 		Assert.assertTrue(TOTAL_RECORDS == count);
