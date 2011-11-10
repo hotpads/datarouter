@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.config.Config;
@@ -47,11 +46,15 @@ extends BaseSortedScanner<PK>{
 	
 	@Override
 	public PK getCurrent() {
+		if(current==null){
+			int breakpoint = 1;
+		}
 		return current;
 	}
 	
 	@Override
 	public boolean advance() {
+		if(foundEndOfData){ return false; }
 		if(currentBatchIndex == CollectionTool.size(currentBatch)){
 			loadNextBatch();
 		}
@@ -59,12 +62,14 @@ extends BaseSortedScanner<PK>{
 		Result currentResult = currentBatch.get(currentBatchIndex);
 		++currentBatchIndex;
 		current = HBaseResultTool.getPrimaryKey(currentResult.getRow(), fieldInfo);
+//		System.out.println(current);
 		return true;
 	}
 	
 	protected void loadNextBatch(){
 		if(foundEndOfData){ return; }
 		byte[] lastRowOfPreviousBatch = startInclusive;
+		boolean isStartInclusive = true;//only on the first load
 		if(currentBatch != null){
 			Result endOfLastBatch = CollectionTool.getLast(currentBatch);
 			if(endOfLastBatch==null){
@@ -72,12 +77,16 @@ extends BaseSortedScanner<PK>{
 				return;
 			}
 			lastRowOfPreviousBatch = endOfLastBatch.getRow();
+			isStartInclusive = false;
 		}
-		currentBatch = node.getKeysInSubRange(lastRowOfPreviousBatch, endExclusive, config);
-		if(true){
-			current = HBaseResultTool.getPrimaryKey(currentBatch.get(0).getRow(), fieldInfo);
-			System.out.println("got "+CollectionTool.size(currentBatch)+" "+current.getPersistentString());
-		}
+		currentBatch = node.getKeysInSubRange(lastRowOfPreviousBatch, isStartInclusive, endExclusive, config);
+//		if(true){
+//			current = HBaseResultTool.getPrimaryKey(currentBatch.get(0).getRow(), fieldInfo);
+//			if(CollectionTool.notEmpty(currentBatch)){
+//				PK debug = HBaseResultTool.getPrimaryKey(CollectionTool.getLast(currentBatch).getRow(), fieldInfo);
+//				System.out.println("got "+CollectionTool.size(currentBatch)+" "+debug);
+//			}
+//		}
 		currentBatchIndex = 0;
 		if(CollectionTool.size(currentBatch) < config.getIterateBatchSize()){
 			foundEndOfData = true;

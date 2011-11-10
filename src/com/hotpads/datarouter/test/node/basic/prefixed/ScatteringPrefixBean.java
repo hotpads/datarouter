@@ -47,7 +47,7 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 		
 		public static class ScatteringPrefixBeanScatterer extends BaseScatteringPrefix{			
 			public static final Integer 
-				NUM_SHARDS = 3,
+				NUM_SHARDS = 8,
 				NUM_PREFIX_BYTES = 1;
 			
 			public static class F{

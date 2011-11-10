@@ -34,6 +34,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.iterable.PeekableIterable;
+import com.hotpads.util.core.iterable.scanner.ScannerTool;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
@@ -345,6 +346,7 @@ implements HBasePhysicalNode<PK,D>,
 				public PeekableIterable<PK> hbaseCall() throws Exception{
 					List<HBaseManualPrimaryKeyScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder.getManualPrimaryKeyScannerForEachPrefix(
 							readerNodeRef, fieldInfo, hTable, start, startInclusive, end, endInclusive, config);
+					ScannerTool.advanceAll(scanners);
 					Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
 					return new SortedScannerIterable<PK>(collator);
 				}
@@ -364,11 +366,11 @@ implements HBasePhysicalNode<PK,D>,
 	
 	/************************ helpers ********************************/
 
-	public List<Result> getKeysInSubRange(final byte[] startExclusive, final byte[] end, final Config pConfig){
+	public List<Result> getKeysInSubRange(final byte[] start, final boolean startInclusive, final byte[] end, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>("getKeysInSubRange", this, config){
 				public List<Result> hbaseCall() throws Exception{
-					Scan scan = HBaseQueryBuilder.getScanForRange(startExclusive, end, config);
+					Scan scan = HBaseQueryBuilder.getScanForRange(start, startInclusive, end, config);
 					scan.setFilter(new FirstKeyOnlyFilter());
 					ResultScanner scanner = hTable.getScanner(scan);
 					List<Result> results = ListTool.createArrayList();

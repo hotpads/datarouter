@@ -28,7 +28,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 		List<Pair<byte[],byte[]>> ranges = getRangeForEachScatteringPrefix(fieldInfo,
 				startKey, startInclusive, endKey, endInclusive, config);
 		for(Pair<byte[],byte[]> range : IterableTool.nullSafe(ranges)){
-			Scan scan = HBaseQueryBuilder.getScanForRange(range.getLeft(), range.getRight(), config);
+			Scan scan = HBaseQueryBuilder.getScanForRange(range.getLeft(), true, range.getRight(), config);
 			outs.add(scan);
 		}
 		return outs;
@@ -38,11 +38,13 @@ public class HBaseScatteringPrefixQueryBuilder {
 			boolean wildcardLastField, Config config){
 //		return getPrefixedRangeScanner(fieldInfo, prefix, wildcardLastField, null, true, null, true, config);
 		ArrayList<FieldSet<?>> scatteringPrefixesPlusPrefix = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, prefix);
-		if(CollectionTool.isEmpty(scatteringPrefixesPlusPrefix)){ return ListTool.wrap(HBaseQueryBuilder.getScanForRange(null, null, config)); }
+		if(CollectionTool.isEmpty(scatteringPrefixesPlusPrefix)){ 
+			return ListTool.wrap(HBaseQueryBuilder.getScanForRange(null, true, null, config)); 
+		}
 		List<Scan> outs = ListTool.createArrayList();
 		for(FieldSet<?> fieldSet : scatteringPrefixesPlusPrefix){
 			Pair<byte[],byte[]> byteRange = HBaseQueryBuilder.getStartEndBytesForPrefix(fieldSet, wildcardLastField);
-			Scan scan = HBaseQueryBuilder.getScanForRange(byteRange.getLeft(), byteRange.getRight(), config);
+			Scan scan = HBaseQueryBuilder.getScanForRange(byteRange.getLeft(), true, byteRange.getRight(), config);
 			outs.add(scan);
 		}
 		return outs;
@@ -78,7 +80,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 			Pair<byte[],byte[]> rangeBounds = HBaseQueryBuilder.getStartEndBytesForRange(
 					scatteringPrefixPlusStartKey, startInclusive, scatteringPrefixPlusEndKey, endInclusive);
 			Pair<byte[],byte[]> intersection = HBaseQueryBuilder.getRangeIntersection(prefixBounds, rangeBounds);
-			Scan scan = HBaseQueryBuilder.getScanForRange(intersection.getLeft(), intersection.getRight(), config);
+			Scan scan = HBaseQueryBuilder.getScanForRange(intersection.getLeft(), true, intersection.getRight(), config);
 			outs.add(scan);
 		}
 		return outs;
