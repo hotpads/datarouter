@@ -20,6 +20,7 @@ import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean;
+import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean.ScatteringPrefixBeanFielder.ScatteringPrefixBeanScatterer;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBeanKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
@@ -82,7 +83,7 @@ public class ScatteringPrefixIntegrationTests{
 		for(int a=0; a < NUM_BATCHES; ++a){
 			for(int b=0; b < BATCH_SIZE; ++b){
 				long id = a * BATCH_SIZE + b;
-				toSave.add(new ScatteringPrefixBean(id, "abc", (int)id % 64));
+				toSave.add(new ScatteringPrefixBean(id, "abc", (int)id % ScatteringPrefixBeanScatterer.NUM_SHARDS));
 			}
 			//save them every batch to avoid a huge put
 			routerToReset.scatteringPrefixBean().putMulti(toSave, 
@@ -116,7 +117,7 @@ public class ScatteringPrefixIntegrationTests{
 		int iterateBatchSize = 2;
 		Iterable<ScatteringPrefixBeanKey> iter = router.scatteringPrefixBean().scanKeys(
 				null, true, null, true, new Config().setIterateBatchSize(iterateBatchSize));
-		Iterable<ScatteringPrefixBeanKey> all = ListTool.createArrayListFromIterable(iter);
+		Iterable<ScatteringPrefixBeanKey> all = IterableTool.createArrayListFromIterable(iter);
 		int count = IterableTool.count(all);
 		Assert.assertTrue(TOTAL_RECORDS == count);
 		Assert.assertTrue(ComparableTool.isSorted(all));
@@ -124,18 +125,15 @@ public class ScatteringPrefixIntegrationTests{
 	
 	@Test
 	public synchronized void testGetFirstKey(){
-//		ScatteringPrefixBeanKey firstKey = router.scatteringPrefixBean().getFirstKey(null);
-//		Assert.assertTrue(0==firstKey.getId());
+		ScatteringPrefixBeanKey firstKey = router.scatteringPrefixBean().getFirstKey(null);
+		Assert.assertTrue(0==firstKey.getId());
 	}
-//	
-//	@Test
-//	public synchronized void testGetFirst(){
-//		SortedBean firstBean = router.sortedBeanSorted().getFirst(null);
-//		Assert.assertEquals(STRINGS.first(), firstBean.getKey().getA());
-//		Assert.assertEquals(STRINGS.first(), firstBean.getKey().getB());
-//		Assert.assertEquals(new Integer(0), firstBean.getKey().getC());
-//		Assert.assertEquals(STRINGS.first(), firstBean.getKey().getD());
-//	}
+	
+	@Test
+	public synchronized void testGetFirst(){
+		ScatteringPrefixBean firstBean = router.scatteringPrefixBean().getFirst(null);
+		Assert.assertTrue(0==firstBean.getKey().getId());
+	}
 	
 	//need a multi-field PK to test this well
 //	@Test
@@ -175,13 +173,13 @@ public class ScatteringPrefixIntegrationTests{
 	
 	@Test
 	public synchronized void testGetKeysInRange(){
-//		ScatteringPrefixBeanKey s5 = new ScatteringPrefixBeanKey(5L);
-//		ScatteringPrefixBeanKey s11 = new ScatteringPrefixBeanKey(11L);
-//		List<ScatteringPrefixBeanKey> result1 = router.scatteringPrefixBean().getKeysInRange(
-//				s5, true, s11, true, null);
-//		int expectedSize1 = 11 - 5 + 1;//plus 1 for inclusive
-//		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
-//		Assert.assertTrue(ListTool.isSorted(result1));
+		ScatteringPrefixBeanKey s5 = new ScatteringPrefixBeanKey(5L);
+		ScatteringPrefixBeanKey s11 = new ScatteringPrefixBeanKey(11L);
+		List<ScatteringPrefixBeanKey> result1 = router.scatteringPrefixBean().getKeysInRange(
+				s5, true, s11, true, null);
+		int expectedSize1 = 11 - 5 + 1;//plus 1 for inclusive
+		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
+		Assert.assertTrue(ListTool.isSorted(result1));
 	}
 	
 //	@Test
@@ -208,7 +206,7 @@ public class ScatteringPrefixIntegrationTests{
 //		Assert.assertEquals(expectedSize2, CollectionTool.size(result2));
 //		Assert.assertTrue(ListTool.isSorted(result2));
 //	}
-//	
+	
 //	@Test
 //	public synchronized void testPrefixedRange(){
 //		SortedBeanKey prefix = new SortedBeanKey(PREFIX_a, null, null, null);

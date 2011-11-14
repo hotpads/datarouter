@@ -145,6 +145,11 @@ public class Config implements Cloneable{
 	public Integer getLimit() {
 		return limit;
 	}
+	
+	public Integer getLimitOrUse(int pLimit){
+		if(limit==null){ return pLimit; }
+		return limit;
+	}
 
 
 	public Config setLimit(Integer limit) {

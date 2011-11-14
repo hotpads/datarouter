@@ -16,6 +16,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.PeekableIterator;
 
+@Deprecated//use HBaseManualPrimaryKeyScanner
 public class HBasePrimaryKeyScanner<PK extends PrimaryKey<PK>>
 implements PeekableIterable<PK>{
 

@@ -10,6 +10,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
+import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.SimpleFieldSet;
@@ -134,6 +135,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 		return ranges;
 	}
 	
+	@Deprecated
 	public static <PK extends PrimaryKey<PK>> ArrayList<HBasePrimaryKeyScanner<PK>> getScannerForEachPrefix(
 			DatabeanFieldInfo<PK,?,?> fieldInfo,
 			HTable hTable,
@@ -164,6 +166,26 @@ public class HBaseScatteringPrefixQueryBuilder {
 		ArrayList<HBaseManualPrimaryKeyScanner<PK>> scanners = ListTool.createArrayList();
 		for(Pair<byte[],byte[]> range : ranges){
 			scanners.add(new HBaseManualPrimaryKeyScanner(node, fieldInfo, hTable, 
+					range.getLeft(), range.getRight(), config));
+		}
+		return scanners;
+	}
+	
+	//should probably be merged with getManualPrimaryKeyScannerForEachPrefix
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
+	ArrayList<HBaseManualDatabeanScanner<PK,D>> getManualDatabeanScannerForEachPrefix(
+			HBaseReaderNode<PK,D,?> node,
+			DatabeanFieldInfo<PK,D,?> fieldInfo,
+			HTable hTable,
+			FieldSet<?> start, boolean startInclusive, 
+			FieldSet<?> end, boolean endInclusive,
+			final Config pConfig){
+			Config config = Config.nullSafe(pConfig);
+		List<Pair<byte[],byte[]>> ranges = getRangeForEachScatteringPrefix(
+				fieldInfo, start, startInclusive, end, endInclusive, config);
+		ArrayList<HBaseManualDatabeanScanner<PK,D>> scanners = ListTool.createArrayList();
+		for(Pair<byte[],byte[]> range : ranges){
+			scanners.add(new HBaseManualDatabeanScanner(node, fieldInfo, hTable, 
 					range.getLeft(), range.getRight(), config));
 		}
 		return scanners;

@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.HBaseTask;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseManualDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseManualPrimaryKeyScanner;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
@@ -23,7 +24,6 @@ import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
-import com.hotpads.datarouter.node.scanner.Scanner;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -32,6 +32,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.ScannerTool;
@@ -186,18 +187,18 @@ implements HBasePhysicalNode<PK,D>,
 	/******************************* Sorted *************************************/
 	
 	@Override
-	public PK getFirstKey(Config config){
-		Config nsConfig = Config.nullSafe(config).setLimit(1);
+	public PK getFirstKey(Config pConfig){
+		Config config = Config.nullSafe(pConfig).setLimit(1);
 		return CollectionTool.getFirst(
-				getKeysInRange(null, true, null, true, nsConfig));
+				getKeysInRange(null, true, null, true, config));
 	}
 
 	
 	@Override
-	public D getFirst(Config config){
-		Config nsConfig = Config.nullSafe(config).setLimit(1);
+	public D getFirst(Config pConfig){
+		Config config = Config.nullSafe(pConfig).setLimit(1);
 		return CollectionTool.getFirst(
-				getRange(null, true, null, true, nsConfig));
+				getRange(null, true, null, true, config));
 	}
 	
 	
@@ -262,27 +263,29 @@ implements HBasePhysicalNode<PK,D>,
 	}
 	
 
-	//TODO could probably call getPrefixedRange with no prefix
 	@Override
 	public List<D> getRange(final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getRange", this, config){
 				public List<D> hbaseCall() throws Exception{
-					List<D> results = ListTool.createArrayList();
-					List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder
-							.getRangeScanners(fieldInfo, start, startInclusive, end, endInclusive, pConfig);
-					for(Scan scan : scanForEachScatteringPartition){
-						ResultScanner scanner = hTable.getScanner(scan);
-						for(Result row : scanner){
-							if(row.isEmpty()){ continue; }
-							D result = HBaseResultTool.getDatabean(row, fieldInfo);
-							results.add(result);
-							if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
-						}
-						scanner.close();
-					}
-					sortIfScatteringPrefixExists(results);
+//					List<D> results = ListTool.createArrayList();
+//					List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder
+//							.getRangeScanners(fieldInfo, start, startInclusive, end, endInclusive, pConfig);
+//					for(Scan scan : scanForEachScatteringPartition){
+//						ResultScanner scanner = hTable.getScanner(scan);
+//						for(Result row : scanner){
+//							if(row.isEmpty()){ continue; }
+//							D result = HBaseResultTool.getDatabean(row, fieldInfo);
+//							results.add(result);
+//							if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
+//						}
+//						scanner.close();
+//					}
+//					sortIfScatteringPrefixExists(results);
+					PeekableIterable<D> iter = scan(start, startInclusive, end, endInclusive, pConfig);
+					int limit = config.getLimitOrUse(Integer.MAX_VALUE);
+					List<D> results = IterableTool.createArrayListFromIterable(iter, limit);
 					return results;
 				}
 			}).call();
@@ -319,22 +322,6 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	
-//	@Override
-//	public PeekableIterable<PK> scanKeys(
-//			final PK start, final boolean startInclusive, 
-//			final PK end, final boolean endInclusive, 
-//			final Config pConfig){
-//		final Config config = Config.nullSafe(pConfig);
-//		return new HBaseMultiAttemptTask<PeekableIterable<PK>>(new HBaseTask<PeekableIterable<PK>>("scanKeys", this, config){
-//				public PeekableIterable<PK> hbaseCall() throws Exception{
-//					ArrayList<HBasePrimaryKeyScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder.getScannerForEachPrefix(
-//							fieldInfo, hTable, start, startInclusive, end, endInclusive, config);
-//					return new PrimaryKeyMergeScanner<PK>(scanners);
-//				}
-//			}).call();
-//	}
-
-	
 	@Override
 	public PeekableIterable<PK> scanKeys(
 			final PK start, final boolean startInclusive, 
@@ -346,7 +333,7 @@ implements HBasePhysicalNode<PK,D>,
 				public PeekableIterable<PK> hbaseCall() throws Exception{
 					List<HBaseManualPrimaryKeyScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder.getManualPrimaryKeyScannerForEachPrefix(
 							readerNodeRef, fieldInfo, hTable, start, startInclusive, end, endInclusive, config);
-					ScannerTool.advanceAll(scanners);
+					ScannerTool.advanceAll(scanners);//this is a bit messy.  who should be responsible for this?
 					Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
 					return new SortedScannerIterable<PK>(collator);
 				}
@@ -358,20 +345,30 @@ implements HBasePhysicalNode<PK,D>,
 	public PeekableIterable<D> scan(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
-			final Config config){
-		return new Scanner<PK,D>(this, start, startInclusive, end, endInclusive, 
-				config, DEFAULT_ITERATE_BATCH_SIZE);
+			final Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		final HBaseReaderNode<PK,D,?> readerNodeRef = this;
+		return new HBaseTask<PeekableIterable<D>>("scan", this, config){
+				public PeekableIterable<D> hbaseCall() throws Exception{
+					List<HBaseManualDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder.getManualDatabeanScannerForEachPrefix(
+							readerNodeRef, fieldInfo, hTable, start, startInclusive, end, endInclusive, config);
+					ScannerTool.advanceAll(scanners);//this is a bit messy.  who should be responsible for this?
+					Collator<D> collator = new PriorityQueueCollator<D>(scanners);
+					return new SortedScannerIterable<D>(collator);
+				}
+			}.call();
 	}
 		
 	
 	/************************ helpers ********************************/
 
-	public List<Result> getKeysInSubRange(final byte[] start, final boolean startInclusive, final byte[] end, final Config pConfig){
+	public List<Result> getResultsInSubRange(final byte[] start, final boolean startInclusive, final byte[] end, 
+			final boolean keysOnly, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>("getKeysInSubRange", this, config){
 				public List<Result> hbaseCall() throws Exception{
 					Scan scan = HBaseQueryBuilder.getScanForRange(start, startInclusive, end, config);
-					scan.setFilter(new FirstKeyOnlyFilter());
+					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }
 					ResultScanner scanner = hTable.getScanner(scan);
 					List<Result> results = ListTool.createArrayList();
 					for(Result rowKey : scanner){

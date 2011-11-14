@@ -23,10 +23,6 @@ public class HBaseResultTool{
 	D getDatabean(Result row, DatabeanFieldInfo<PK,D,F> fieldInfo){
 		D databean = ReflectionTool.create(fieldInfo.getDatabeanClass());
 		byte[] keyBytes = getKeyBytesWithoutScatteringPrefix(fieldInfo, row.getRow());
-		int numScatteringPrefixBytes = fieldInfo.getSampleScatteringPrefix().getNumPrefixBytes();
-		if(numScatteringPrefixBytes > 0){
-			keyBytes = Arrays.copyOfRange(keyBytes, numScatteringPrefixBytes, keyBytes.length);
-		}
 		HBaseRow hBaseRow = new HBaseRow(keyBytes, row.getMap());//so we can see a better toString value
 		setPrimaryKeyFields(databean.getKey(), keyBytes, fieldInfo.getPrimaryKeyFields());
 		//TODO use row.raw() to avoid building all these TreeMaps
