@@ -53,7 +53,7 @@ extends BaseSortedScanner<D>{
 	
 	@Override
 	public boolean advance() {
-		if(foundEndOfData){ return false; }
+//		if(foundEndOfData){ return false; }
 		if(currentBatchIndex == CollectionTool.size(currentBatch)){
 			loadNextBatch();
 		}
@@ -66,7 +66,11 @@ extends BaseSortedScanner<D>{
 	}
 	
 	protected void loadNextBatch(){
-		if(foundEndOfData){ return; }
+		currentBatchIndex = 0;
+		if(foundEndOfData){ 
+			currentBatch = null;
+			return; 
+		}
 		byte[] lastRowOfPreviousBatch = startInclusive;
 		boolean isStartInclusive = true;//only on the first load
 		if(currentBatch != null){
@@ -80,13 +84,11 @@ extends BaseSortedScanner<D>{
 		}
 		currentBatch = node.getResultsInSubRange(lastRowOfPreviousBatch, isStartInclusive, endExclusive, false, config);
 //		if(true){
-//			current = HBaseResultTool.getPrimaryKey(currentBatch.get(0).getRow(), fieldInfo);
 //			if(CollectionTool.notEmpty(currentBatch)){
 //				PK debug = HBaseResultTool.getPrimaryKey(CollectionTool.getLast(currentBatch).getRow(), fieldInfo);
 //				System.out.println("got "+CollectionTool.size(currentBatch)+" "+debug);
 //			}
 //		}
-		currentBatchIndex = 0;
 		if(CollectionTool.size(currentBatch) < config.getIterateBatchSize()){
 			foundEndOfData = true;
 		}

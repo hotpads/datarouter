@@ -242,21 +242,24 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>("getKeysInRange", this, config){
 				public List<PK> hbaseCall() throws Exception{
-					List<PK> results = ListTool.createArrayList();
-					List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder
-							.getRangeScanners(fieldInfo, start, startInclusive, end, endInclusive, pConfig);
-					for(Scan scan : scanForEachScatteringPartition){
-						scan.setFilter(new FirstKeyOnlyFilter());
-						ResultScanner scanner = hTable.getScanner(scan);
-						for(Result row : scanner){
-							if(row.isEmpty()){ continue; }
-							PK result = HBaseResultTool.getPrimaryKey(row.getRow(), fieldInfo);
-							results.add(result);
-							if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
-						}
-						scanner.close();
-					}
-					sortIfScatteringPrefixExists(results);
+//					List<PK> results = ListTool.createArrayList();
+//					List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder
+//							.getRangeScanners(fieldInfo, start, startInclusive, end, endInclusive, pConfig);
+//					for(Scan scan : scanForEachScatteringPartition){
+//						scan.setFilter(new FirstKeyOnlyFilter());
+//						ResultScanner scanner = hTable.getScanner(scan);
+//						for(Result row : scanner){
+//							if(row.isEmpty()){ continue; }
+//							PK result = HBaseResultTool.getPrimaryKey(row.getRow(), fieldInfo);
+//							results.add(result);
+//							if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
+//						}
+//						scanner.close();
+//					}
+//					sortIfScatteringPrefixExists(results);
+					PeekableIterable<PK> iter = scanKeys(start, startInclusive, end, endInclusive, pConfig);
+					int limit = config.getLimitOrUse(Integer.MAX_VALUE);
+					List<PK> results = IterableTool.createArrayListFromIterable(iter, limit);
 					return results;
 				}
 			}).call();
@@ -365,7 +368,7 @@ implements HBasePhysicalNode<PK,D>,
 	public List<Result> getResultsInSubRange(final byte[] start, final boolean startInclusive, final byte[] end, 
 			final boolean keysOnly, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>("getKeysInSubRange", this, config){
+		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>("getResultsInSubRange", this, config){
 				public List<Result> hbaseCall() throws Exception{
 					Scan scan = HBaseQueryBuilder.getScanForRange(start, startInclusive, end, config);
 					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }

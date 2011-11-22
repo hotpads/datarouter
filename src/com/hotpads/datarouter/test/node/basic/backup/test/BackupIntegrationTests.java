@@ -33,7 +33,6 @@ import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBeanKey;
-import com.hotpads.datarouter.test.node.basic.sorted.test.SortedNodeIntegrationTests;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -95,6 +94,7 @@ public class BackupIntegrationTests{
 		Collections.shuffle(cs);
 		Collections.shuffle(ds);
 		
+		List<BackupBean> toSave = ListTool.createArrayList();
 		for(int a=0; a < NUM_ELEMENTS; ++a){
 			for(int b=0; b < NUM_ELEMENTS; ++b){
 				for(int c=0; c < NUM_ELEMENTS; ++c){
@@ -102,12 +102,13 @@ public class BackupIntegrationTests{
 						BackupBean bean = new BackupBean(
 								as.get(a), bs.get(b), cs.get(c), ds.get(d), 
 								"string so hbase has at least one field", null, null, null);
-						routerToReset.backupBeanNode().put(bean, 
-								new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
+						toSave.add(bean);
 					}
 				}
 			}
 		}
+		routerToReset.backupBeanNode().putMulti(toSave, 
+				new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(routerToReset.backupBeanNode().getAll(null)));
 	}
 	

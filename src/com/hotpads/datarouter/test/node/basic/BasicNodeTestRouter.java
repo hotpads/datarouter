@@ -31,6 +31,7 @@ import com.hotpads.datarouter.test.node.basic.prefixed.test.ScatteringPrefixInte
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
+import com.hotpads.datarouter.test.node.basic.sorted.test.IndexedNodeIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.test.SortedNodeIntegrationTests;
 import com.hotpads.util.core.ListTool;
 
@@ -49,6 +50,9 @@ extends BaseDataRouter{
 					new Random().nextInt(), this));
 		}
 		if(SortedNodeIntegrationTests.class.equals(testType)){
+			sortedBeanNode = register(NodeFactory.create(client, SortedBean.class, SortedBeanFielder.class, this));
+		}
+		if(IndexedNodeIntegrationTests.class.equals(testType)){
 			sortedBeanNode = register(NodeFactory.create(client, SortedBean.class, SortedBeanFielder.class, this));
 		}
 		if(BackupIntegrationTests.class.equals(testType)){
@@ -117,7 +121,7 @@ extends BaseDataRouter{
 		}
 	}
 	
-	public static class IndexedBasicNodeTestRouter extends BasicNodeTestRouter{
+	public static class IndexedBasicNodeTestRouter extends SortedBasicNodeTestRouter{
 		public IndexedBasicNodeTestRouter(String client, Class<?> testType) throws IOException{
 			super(client, testType);
 		}
