@@ -118,23 +118,24 @@ implements HBasePhysicalNode<PK,D>,
 	
 	@Override
 	public List<D> getAll(final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getAll", this, config){
-				public List<D> hbaseCall() throws Exception{
-					List<D> results = ListTool.createArrayList();
-					Scan scan = new Scan();
-					scan.setCaching(HBaseQueryBuilder.getIterateBatchSize(config));
-					ResultScanner scanner = hTable.getScanner(scan);
-					for(Result row : scanner){
-						if(row.isEmpty()){ continue; }
-						D result = HBaseResultTool.getDatabean(row, fieldInfo);
-						results.add(result);
-						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
-					}
-					scanner.close();
-					return results;
-				}
-			}).call();
+//		final Config config = Config.nullSafe(pConfig);
+//		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getAll", this, config){
+//				public List<D> hbaseCall() throws Exception{
+//					List<D> results = ListTool.createArrayList();
+//					Scan scan = new Scan();
+//					scan.setCaching(HBaseQueryBuilder.getIterateBatchSize(config));
+//					ResultScanner scanner = hTable.getScanner(scan);
+//					for(Result row : scanner){
+//						if(row.isEmpty()){ continue; }
+//						D result = HBaseResultTool.getDatabean(row, fieldInfo);
+//						results.add(result);
+//						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
+//					}
+//					scanner.close();
+//					return results;
+//				}
+//			}).call();
+		return getRange(null, true, null, true, pConfig);
 	}
 
 	
@@ -355,7 +356,7 @@ implements HBasePhysicalNode<PK,D>,
 				public PeekableIterable<D> hbaseCall() throws Exception{
 					List<HBaseManualDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder.getManualDatabeanScannerForEachPrefix(
 							readerNodeRef, fieldInfo, hTable, start, startInclusive, end, endInclusive, config);
-					ScannerTool.advanceAll(scanners);//this is a bit messy.  who should be responsible for this?
+//					ScannerTool.advanceAll(scanners);//this is a bit messy.  who should be responsible for this?
 					Collator<D> collator = new PriorityQueueCollator<D>(scanners);
 					return new SortedScannerIterable<D>(collator);
 				}

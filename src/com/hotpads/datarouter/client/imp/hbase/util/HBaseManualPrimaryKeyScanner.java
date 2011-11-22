@@ -46,15 +46,12 @@ extends BaseSortedScanner<PK>{
 	
 	@Override
 	public PK getCurrent() {
-		if(current==null){
-			int breakpoint = 1;
-		}
 		return current;
 	}
 	
 	@Override
 	public boolean advance() {
-		if(foundEndOfData){ return false; }
+//		if(foundEndOfData){ return false; }
 		if(currentBatchIndex == CollectionTool.size(currentBatch)){
 			loadNextBatch();
 		}
@@ -67,7 +64,11 @@ extends BaseSortedScanner<PK>{
 	}
 	
 	protected void loadNextBatch(){
-		if(foundEndOfData){ return; }
+		currentBatchIndex = 0;
+		if(foundEndOfData){ 
+			currentBatch = null;
+			return; 
+		}
 		byte[] lastRowOfPreviousBatch = startInclusive;
 		boolean isStartInclusive = true;//only on the first load
 		if(currentBatch != null){
@@ -87,7 +88,6 @@ extends BaseSortedScanner<PK>{
 //				System.out.println("got "+CollectionTool.size(currentBatch)+" "+debug);
 //			}
 //		}
-		currentBatchIndex = 0;
 		if(CollectionTool.size(currentBatch) < config.getIterateBatchSize()){
 			foundEndOfData = true;
 		}

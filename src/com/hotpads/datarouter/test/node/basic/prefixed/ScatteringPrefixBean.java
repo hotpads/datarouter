@@ -104,8 +104,8 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 		this.key = new ScatteringPrefixBeanKey();
 	}
 	
-	public ScatteringPrefixBean(Long id, String f1, Integer f2){
-		this.key = new ScatteringPrefixBeanKey(id);
+	public ScatteringPrefixBean(String a, Long id, String f1, Integer f2){
+		this.key = new ScatteringPrefixBeanKey(a, id);
 		int prefix = (int)(id % ScatteringPrefixBeanFielder.ScatteringPrefixBeanScatterer.NUM_SHARDS);
 		this.f1 = prefix+"_"+id.toString();
 		
