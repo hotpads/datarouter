@@ -22,9 +22,6 @@ import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNod
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean.ScatteringPrefixBeanFielder.ScatteringPrefixBeanScatterer;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBeanKey;
-import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
-import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
-import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.IterableTool;
@@ -122,7 +119,7 @@ public class ScatteringPrefixIntegrationTests{
 	
 	@Test
 	public synchronized void testGetAll(){
-		int iterateBatchSize = 2;
+		int iterateBatchSize = 2; 
 		Iterable<ScatteringPrefixBeanKey> iter = router.scatteringPrefixBean().scanKeys(
 				null, true, null, true, new Config().setIterateBatchSize(iterateBatchSize));
 		Iterable<ScatteringPrefixBeanKey> all = IterableTool.createArrayListFromIterable(iter);
@@ -185,16 +182,25 @@ public class ScatteringPrefixIntegrationTests{
 		Assert.assertTrue(ListTool.isSorted(result1));
 	}
 	
-//	@Test
-//	public synchronized void testPrefixedRange(){
-//		SortedBeanKey prefix = new SortedBeanKey(PREFIX_a, null, null, null);
-//		SortedBeanKey al = new SortedBeanKey(RANGE_al, null, null, null);
-//		List<SortedBean> result1 = router.sortedBeanSorted().getPrefixedRange(
-//				prefix, true, al, true, null);
-//		int expectedSize1 = RANGE_LENGTH_al_b * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
-//		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
-//		Assert.assertTrue(ListTool.isSorted(result1));
-//	}
+	@Test
+	public synchronized void testPrefixedRange(){
+		ScatteringPrefixBeanKey prefix = new ScatteringPrefixBeanKey("a", null);
+		ScatteringPrefixBeanKey startKey = new ScatteringPrefixBeanKey("a", 173L);
+		int batchSize = 2;
+		List<ScatteringPrefixBean> all = ListTool.create();
+		ScatteringPrefixBeanKey batchStartKey = startKey;
+		while(true){	
+			boolean startInclusive = CollectionTool.isEmpty(all);//only inclusive on first batch
+			List<ScatteringPrefixBean> batch = router.scatteringPrefixBeanSorted().getPrefixedRange(
+					prefix, true, batchStartKey, startInclusive, new Config().setLimit(batchSize));
+			all.addAll(CollectionTool.nullSafe(batch));
+			if(CollectionTool.size(batch) < batchSize){ break; }
+			batchStartKey = CollectionTool.getLast(batch).getKey();
+		}
+		int expectedSize1 = 5;//confusing... just looked at mysql
+		Assert.assertEquals(expectedSize1, CollectionTool.size(all));
+		Assert.assertTrue(ListTool.isSorted(all));
+	}
 
 	@Test
 	public synchronized void testDelete(){
