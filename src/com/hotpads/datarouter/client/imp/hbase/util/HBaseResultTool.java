@@ -67,6 +67,7 @@ public class HBaseResultTool{
 		//copied from above
 		int byteOffset = 0;
 		for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
+			if(byteOffset==keyBytesWithoutScatteringPrefix.length){ break; }//ran out of bytes.  leave remaining fields blank
 			int numBytesWithSeparator = field.numBytesWithSeparator(keyBytesWithoutScatteringPrefix, byteOffset);
 			Object value = field.fromBytesWithSeparatorButDoNotSet(keyBytesWithoutScatteringPrefix, byteOffset);
 			field.setUsingReflection(primaryKey, value);

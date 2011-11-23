@@ -123,6 +123,9 @@ public class HBaseScatteringPrefixQueryBuilder {
 			final FieldSet<?> startKey, final boolean startInclusive, 
 			final FieldSet<?> endKey, final boolean endInclusive, Config config){
 		List<Pair<byte[],byte[]>> ranges = ListTool.createArrayList();
+		
+		need to do something differently based on inclusive/exclusive
+		
 		ArrayList<FieldSet<?>> prefixedStartKeys = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, startKey);
 		ArrayList<FieldSet<?>> prefixedEndKeys = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, endKey);
 		for(int i=0; i < prefixedStartKeys.size(); ++i){
