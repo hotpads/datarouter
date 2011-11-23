@@ -26,16 +26,24 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.HTablePool;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldSet;
+import com.hotpads.datarouter.storage.field.SimpleFieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.bytes.StringByteTool;
+import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HBaseSimpleClientFactory 
@@ -134,7 +142,7 @@ implements HBaseClientFactory{
 		DEFAULT_maxPoolSize = 5;
 	
 	public static final long 
-			DEFAULT_MAX_FILE_SIZE_BYTES = 256 * 1024 * 1024,
+			DEFAULT_MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024,
 			DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES = 256 * 1024 * 1024;
 	
 	public static final byte[] DEFAULT_FAMILY_QUALIFIER = new byte[]{(byte)'a'};
@@ -145,9 +153,11 @@ implements HBaseClientFactory{
 		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = MapTool.create();
 		@SuppressWarnings("unchecked")
 		List<PhysicalNode<?,?>> physicalNodes = router.getNodes().getPhysicalNodesForClient(clientName);
+		Map<String,PhysicalNode<?,?>> nodeByTableName = MapTool.createTreeMap();
 		for(PhysicalNode<?,?> node : physicalNodes){
 			tableNames.add(node.getTableName());
 			primaryKeyClassByName.put(node.getTableName(), (Class<PrimaryKey<?>>)node.getPrimaryKeyType());
+			nodeByTableName.put(node.getTableName(), node);
 		}
 
 		try{		    
@@ -180,7 +190,12 @@ implements HBaseClientFactory{
 						family.setBloomFilterType(BloomType.ROW);
 						family.setCompressionType(Algorithm.GZ);
 						hTable.addFamily(family);
-						hBaseAdmin.createTable(hTable);
+						byte[][] splitPoints = getSplitPoints(nodeByTableName.get(tableName));
+						if(splitPoints==null){
+							hBaseAdmin.createTable(hTable);
+						}else{
+							hBaseAdmin.createTable(hTable, splitPoints);
+						}
 						logger.warn("created table " + tableName);
 					}else if(checkTables){
 						if(!hBaseAdmin.tableExists(tableNameBytes)){
@@ -210,6 +225,40 @@ implements HBaseClientFactory{
 		return client!=null;
 	}
 	
+	
+	/*
+	 * this currently gets ignored on an empty table since there are no regions to split
+	 * 
+	 * 
+	 */
+	protected byte[][] getSplitPoints(PhysicalNode<?,?> node){
+		DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
+		ScatteringPrefix sampleScatteringPrefix = fieldInfo.getSampleScatteringPrefix();
+		if(sampleScatteringPrefix==null){ return null; }
+		List<byte[]> splitPoints = ListTool.create();
+		List<List<Field<?>>> allPrefixes = sampleScatteringPrefix.getAllPossibleScatteringPrefixes();
+		int counter = 0;
+		for(List<Field<?>> prefixFields : allPrefixes){
+			++counter;
+			FieldSet<?> prefixFieldSet = new SimpleFieldSet(prefixFields);
+			Pair<byte[],byte[]> range = HBaseQueryBuilder.getStartEndBytesForPrefix(prefixFieldSet, false);
+			if( ! isSingleEmptyByte(range.getLeft())){
+				splitPoints.add(range.getLeft());
+			}
+//			try{
+//				hBaseAdmin.split(StringByteTool.getUtf8Bytes(tableName), range.getLeft());
+//			}catch(Exception e){
+//				throw new RuntimeException("pre-splitting failed for table:"+tableName, e);
+//			}
+//			logger.warn("split table "+tableName+" "+counter+"/"+CollectionTool.size(allPrefixes));
+		}
+		return splitPoints.toArray(new byte[splitPoints.size()][]);
+	}
+	
+	protected boolean isSingleEmptyByte(byte[] bytes){
+		if(ArrayTool.length(bytes)!=1){ return false; }
+		return bytes[0] == Byte.MIN_VALUE;
+	}
 }
 
 

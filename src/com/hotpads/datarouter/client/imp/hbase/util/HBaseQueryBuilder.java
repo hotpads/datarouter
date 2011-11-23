@@ -89,7 +89,7 @@ public class HBaseQueryBuilder{
 		return new Pair<byte[],byte[]>(startBytes, endBytes);
 	}
 	
-	protected static Pair<byte[],byte[]> getStartEndBytesForPrefix(FieldSet<?> prefix, boolean wildcardLastField){
+	public static Pair<byte[],byte[]> getStartEndBytesForPrefix(FieldSet<?> prefix, boolean wildcardLastField){
 		int numNonNullFields = FieldSetTool.getNumNonNullFields(prefix);
 		byte[][] fieldBytes = new byte[numNonNullFields][];
 		int numFullFieldsFinished = 0;

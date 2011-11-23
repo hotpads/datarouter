@@ -38,7 +38,7 @@ public class ScatteringPrefixIntegrationTests{
 	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
 	static{
 		clientTypes.add(ClientType.hbase);
-		clientTypes.add(ClientType.hibernate);
+//		clientTypes.add(ClientType.hibernate);
 		for(ClientType clientType : clientTypes){
 			clientTypeObjectArrays.add(new Object[]{clientType});
 		}
