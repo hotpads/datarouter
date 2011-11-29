@@ -18,6 +18,7 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.IndexedBasicNodeTestRouter;
+import com.hotpads.datarouter.test.node.basic.manyfield.test.ManyFieldTypeIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanByDCBLookup;
 import com.hotpads.util.core.CollectionTool;
@@ -41,10 +42,11 @@ public class IndexedNodeIntegrationTests{
 	}
 	
 	@BeforeClass
-	public static void init() throws IOException{	
+	public static void init() throws IOException{
+		Class<?> cls = IndexedNodeIntegrationTests.class;
 
 		IndexedBasicNodeTestRouter hibernateRouter = new IndexedBasicNodeTestRouter(
-				DRTestConstants.CLIENT_drTestHibernate0, true);
+				DRTestConstants.CLIENT_drTestHibernate0, cls);
 		routerByClientType.put(ClientType.hibernate, hibernateRouter);
 		
 //		BasicNodeTestRouter hbaseRouter = new BasicNodeTestRouter(

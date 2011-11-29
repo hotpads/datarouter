@@ -21,13 +21,16 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.java.ReflectionTool;
 
 public class HBaseNode<
 		PK extends PrimaryKey<PK>,
@@ -84,10 +87,10 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					for(D databean : databeans){//TODO obey Config.commitBatchSize
 						if(databean==null){ continue; }
 						PK key = databean.getKey();
-						byte[] keyBytes = key.getBytes(false);
+						byte[] keyBytes = getKeyBytesWithScatteringPrefix(key);
 						Put put = new Put(keyBytes);
 						Delete delete = new Delete(keyBytes);
-						List<Field<?>> fields = getNonKeyFields(databean);
+						List<Field<?>> fields = fieldInfo.getNonKeyFields(databean);
 						for(Field<?> field : fields){//TODO only put modified fields
 							byte[] fieldBytes = field.getBytes();
 							if(fieldBytes==null){
@@ -125,6 +128,9 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>("deleteAll", this, config){
 				public Void hbaseCall() throws Exception{
+					
+					//alternative method would be to truncate the table
+					
 					ResultScanner scanner = hTable.getScanner(new Scan());
 					List<Row> batchToDelete = ListTool.createArrayList(1000);
 					for(Result row : scanner){
@@ -161,7 +167,9 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					hTable.setAutoFlush(false);
 					List<Row> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList
 					for(PK key : keys){
-						Delete delete = new Delete(key.getBytes(false));
+						byte[] keyBytes = getKeyBytesWithScatteringPrefix(key);
+						Delete delete = new Delete(keyBytes);
+//						Delete delete = new Delete(key.getBytes(false));
 						deletes.add(delete);
 					}
 					hTable.batch(deletes);
@@ -176,7 +184,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 
 	@Override
 	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
-		//TODO need a method getKeysWithPrefix
+		//TODO need a method getKeysWithPrefix	
 		List<D> databeansToDelete = getWithPrefix(prefix, wildcardLastField, config);
 		if(CollectionTool.notEmpty(databeansToDelete)){
 			deleteMulti(KeyTool.getKeys(databeansToDelete), null);

@@ -14,6 +14,7 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.PeekableIterator;
 
+@Deprecated//migrate to com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator
 public class MergeScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 implements PeekableIterable<D>,PeekableIterator<D>{
 

@@ -18,7 +18,7 @@ implements FieldSet<F>{
 	public boolean equals(Object that){
 		if(that==null){ return false; }
 		if( ! (getClass().equals(that.getClass()))){ return false; }
-		return 0 == compareTo((FieldSet)that);
+		return 0 == compareTo((FieldSet<?>)that);
 	}
 	
 	@Override

@@ -145,6 +145,11 @@ public class Config implements Cloneable{
 	public Integer getLimit() {
 		return limit;
 	}
+	
+	public Integer getLimitOrUse(int pLimit){
+		if(limit==null){ return pLimit; }
+		return limit;
+	}
 
 
 	public Config setLimit(Integer limit) {
@@ -170,6 +175,13 @@ public class Config implements Cloneable{
 
 
 	public Config setIterateBatchSize(Integer iterateBatchSize) {
+		this.iterateBatchSize = iterateBatchSize;
+		return this;
+	}
+
+
+	public Config setIterateBatchSizeIfNull(Integer iterateBatchSize) {
+		if(this.iterateBatchSize!=null){ return this; }
 		this.iterateBatchSize = iterateBatchSize;
 		return this;
 	}

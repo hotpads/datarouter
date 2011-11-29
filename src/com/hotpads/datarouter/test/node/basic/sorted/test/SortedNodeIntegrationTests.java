@@ -21,6 +21,7 @@ import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
+import com.hotpads.datarouter.test.node.basic.manyfield.test.ManyFieldTypeIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.util.core.CollectionTool;
@@ -50,17 +51,18 @@ public class SortedNodeIntegrationTests{
 	
 	@BeforeClass
 	public static void init() throws IOException{	
-
+		Class<?> cls = SortedNodeIntegrationTests.class;
+		
 		if(clientTypes.contains(ClientType.hibernate)){
 			routerByClientType.put(
 					ClientType.hibernate, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, true));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls));
 		}
 
 		if(clientTypes.contains(ClientType.hbase)){
 			routerByClientType.put(
 					ClientType.hbase, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, true));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls));
 		}
 		
 		for(BasicNodeTestRouter router : routerByClientType.values()){
@@ -82,6 +84,7 @@ public class SortedNodeIntegrationTests{
 		Collections.shuffle(cs);
 		Collections.shuffle(ds);
 		
+		List<SortedBean> toSave = ListTool.createArrayList();
 		for(int a=0; a < NUM_ELEMENTS; ++a){
 			for(int b=0; b < NUM_ELEMENTS; ++b){
 				for(int c=0; c < NUM_ELEMENTS; ++c){
@@ -89,12 +92,13 @@ public class SortedNodeIntegrationTests{
 						SortedBean bean = new SortedBean(
 								as.get(a), bs.get(b), cs.get(c), ds.get(d), 
 								"string so hbase has at least one field", null, null, null);
-						routerToReset.sortedBean().put(bean, 
-								new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
+						toSave.add(bean);
 					}
 				}
 			}
 		}
+		routerToReset.sortedBean().putMulti(toSave, 
+				new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(routerToReset.sortedBean().getAll(null)));
 	}
 	

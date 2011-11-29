@@ -8,8 +8,12 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldTool;
+import com.hotpads.datarouter.storage.field.SimpleFieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.prefix.EmptyScatteringPrefix;
+import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -29,6 +33,10 @@ public class DatabeanFieldInfo<
 	protected Class<D> databeanClass;
 	protected D sampleDatabean;
 	protected String keyFieldName;
+	
+	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
+	protected ScatteringPrefix sampleScatteringPrefix;
+	protected List<Field<?>> scatteringPrefixFields;
 	
 	protected Class<F> fielderClass;
 	protected F sampleFielder;
@@ -64,16 +72,13 @@ public class DatabeanFieldInfo<
 			 * TODO remove duplicate logic below, but watch out for handling of non fieldAware databeans
 			 */
 			this.primaryKeyFields = samplePrimaryKey.getFields();
-			this.prefixedPrimaryKeyFields = sampleDatabean.getKeyFields();
+			this.prefixedPrimaryKeyFields = sampleDatabean.getKeyFields();			
 			if(fielderClass==null){
 				if(fieldAware){
 					throw new IllegalArgumentException("could not instantiate "+nodeName
 							+", fieldAware databean node must specify fielder class");
-//					this.fields = sampleDatabean.getFields();//make sure there is a PK or this will NPE
-//					addFieldsToCollections();
-//					this.nonKeyFields = sampleDatabean.getNonKeyFields();//only do these if the previous fields succeeded
-//					addNonKeyFieldsToCollections();
 				}
+				this.scatteringPrefixClass = EmptyScatteringPrefix.class;
 			}else{
 				this.sampleFielder = ReflectionTool.create(fielderClass);
 				this.primaryKeyFields = sampleFielder.getKeyFielder().getFields(sampleDatabean.getKey());
@@ -84,12 +89,16 @@ public class DatabeanFieldInfo<
 					this.nonKeyFields = sampleFielder.getNonKeyFields(sampleDatabean);//only do these if the previous fields succeeded	
 					addNonKeyFieldsToCollections();
 				}
+				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
 			}
 			if(fieldAware){
+//				FieldTool.cacheReflectionInfo(scatteringPrefixFields, sampleScatterPrefix);
 				FieldTool.cacheReflectionInfo(primaryKeyFields, samplePrimaryKey);
 				FieldTool.cacheReflectionInfo(nonKeyFields, sampleDatabean);
 				FieldTool.cacheReflectionInfo(fields, sampleDatabean);
 			}
+			this.sampleScatteringPrefix = ReflectionTool.create(scatteringPrefixClass);
+			this.scatteringPrefixFields = sampleScatteringPrefix.getScatteringPrefixFields(samplePrimaryKey);
 		}catch(Exception probablyNoPkInstantiated){
 			throw new IllegalArgumentException("could not instantiate "+nodeName, probablyNoPkInstantiated);
 		}
@@ -98,6 +107,18 @@ public class DatabeanFieldInfo<
 	
 	
 	/***************************** methods **************************************************/
+	
+	public FieldSet<?> getScatteringPrefixPlusPrimaryKey(PK key){
+		return new SimpleFieldSet(getKeyFieldsWithScatteringPrefix(key));
+	}
+	
+	public List<Field<?>> getKeyFieldsWithScatteringPrefix(PK key){
+		List<Field<?>> fields = ListTool.createLinkedList();
+		fields.addAll(sampleScatteringPrefix.getScatteringPrefixFields(key));
+		if(key==null){ return fields; }
+		fields.addAll(key.getFields());
+		return fields;
+	}
 	
 	public List<Field<?>> getNonKeyFields(D d){
 		if(d==null){ return ListTool.createLinkedList(); }
@@ -242,7 +263,16 @@ public class DatabeanFieldInfo<
 	public List<Field<?>> getPrefixedPrimaryKeyFields(){
 		return prefixedPrimaryKeyFields;
 	}
-	
+
+
+	public List<Field<?>> getScatteringPrefixFields() {
+		return scatteringPrefixFields;
+	}
+
+
+	public ScatteringPrefix getSampleScatteringPrefix() {
+		return sampleScatteringPrefix;
+	}
 	
 	
 }

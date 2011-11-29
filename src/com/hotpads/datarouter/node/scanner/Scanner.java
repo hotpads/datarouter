@@ -3,6 +3,7 @@ package com.hotpads.datarouter.node.scanner;
 import java.util.Iterator;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
@@ -41,9 +42,7 @@ implements PeekableIterable<D>, PeekableIterator<D>{
 		this.end = end;
 		this.endInclusive = endInclusive;
 		this.config = Config.nullSafe(config);
-		if(this.config.getIterateBatchSize()==null){ 
-			this.config.setIterateBatchSize(defaultRowsPerBatch); 
-		}
+		this.config.setIterateBatchSizeIfNull(defaultRowsPerBatch); 
 		foundEndOfData = false;
 		loadNextBatch();
 	}

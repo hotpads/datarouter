@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,22 +15,31 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.HBaseTask;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseManualDatabeanScanner;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseManualPrimaryKeyScanner;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseScatteringPrefixQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
-import com.hotpads.datarouter.node.scanner.Scanner;
-import com.hotpads.datarouter.node.scanner.primarykey.PrimaryKeyScanner;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.iterable.PeekableIterable;
+import com.hotpads.util.core.iterable.scanner.ScannerTool;
+import com.hotpads.util.core.iterable.scanner.collate.Collator;
+import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
+import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class HBaseReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -97,7 +107,8 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<D>(new HBaseTask<D>("get", this, config){
 				public D hbaseCall() throws Exception{
-					Result row = hTable.get(new Get(key.getBytes(false)));
+					byte[] rowBytes = getKeyBytesWithScatteringPrefix(key);
+					Result row = hTable.get(new Get(rowBytes));
 					if(row.isEmpty()){ return null; }
 					D result = HBaseResultTool.getDatabean(row, fieldInfo);
 					return result;
@@ -108,23 +119,7 @@ implements HBasePhysicalNode<PK,D>,
 	
 	@Override
 	public List<D> getAll(final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getAll", this, config){
-				public List<D> hbaseCall() throws Exception{
-					List<D> results = ListTool.createArrayList();
-					Scan scan = new Scan();
-					scan.setCaching(HBaseQueryBuilder.getIterateBatchSize(config));
-					ResultScanner scanner = hTable.getScanner(scan);
-					for(Result row : scanner){
-						if(row.isEmpty()){ continue; }
-						D result = HBaseResultTool.getDatabean(row, fieldInfo);
-						results.add(result);
-						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
-					}
-					scanner.close();
-					return results;
-				}
-			}).call();
+		return getRange(null, true, null, true, pConfig);
 	}
 
 	
@@ -137,7 +132,8 @@ implements HBasePhysicalNode<PK,D>,
 					List<D> results = ListTool.createArrayListWithSize(keys);
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
-						gets.add(new Get(key.getBytes(false)));
+						byte[] rowBytes = getKeyBytesWithScatteringPrefix(key);
+						gets.add(new Get(rowBytes));
 					}
 					Result[] resultArray = hTable.get(gets);
 					for(Result row : resultArray){
@@ -159,7 +155,8 @@ implements HBasePhysicalNode<PK,D>,
 				public List<PK> hbaseCall() throws Exception{
 					List<PK> results = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
-						Get get = new Get(key.getBytes(false));
+						byte[] rowBytes = getKeyBytesWithScatteringPrefix(key);
+						Get get = new Get(rowBytes);
 						get.setFilter(new FirstKeyOnlyFilter());//make sure first column in row is not something big
 						Result row = hTable.get(get);
 						if(row.isEmpty()){ continue; }
@@ -175,18 +172,18 @@ implements HBasePhysicalNode<PK,D>,
 	/******************************* Sorted *************************************/
 	
 	@Override
-	public PK getFirstKey(Config config){
-		Config nsConfig = Config.nullSafe(config).setLimit(1);
+	public PK getFirstKey(Config pConfig){
+		Config config = Config.nullSafe(pConfig).setLimit(1);
 		return CollectionTool.getFirst(
-				getKeysInRange(null, true, null, true, nsConfig));
+				getKeysInRange(null, true, null, true, config));
 	}
 
 	
 	@Override
-	public D getFirst(Config config){
-		Config nsConfig = Config.nullSafe(config).setLimit(1);
+	public D getFirst(Config pConfig){
+		Config config = Config.nullSafe(pConfig).setLimit(1);
 		return CollectionTool.getFirst(
-				getRange(null, true, null, true, nsConfig));
+				getRange(null, true, null, true, config));
 	}
 	
 	
@@ -204,17 +201,20 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getWithPrefixes", this, config){
 				public List<D> hbaseCall() throws Exception{
 					List<D> results = ListTool.createArrayList();
-					for(PK prefix : prefixes){
-						Scan scan = HBaseQueryBuilder.getPrefixScanner(prefix, wildcardLastField, config);
+					List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder
+							.getPrefixScanners(fieldInfo, prefixes, wildcardLastField, config);
+					for(Scan scan : scanForEachScatteringPartition){
 						ResultScanner scanner = hTable.getScanner(scan);
 						for(Result row : scanner){
 							if(row.isEmpty()){ continue; }
 							D result = HBaseResultTool.getDatabean(row, fieldInfo);
 							results.add(result);
+							//TODO terribly inneficient limiting.  fetches full limit for every scattering partition
 							if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 						}
 						scanner.close();
 					}
+					sortIfScatteringPrefixExists(results);
 					return results;
 				}
 			}).call();
@@ -227,69 +227,51 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>("getKeysInRange", this, config){
 				public List<PK> hbaseCall() throws Exception{
-					Scan scan = HBaseQueryBuilder.getRangeScanner(start, startInclusive, end, endInclusive, config);
-					scan.setFilter(new FirstKeyOnlyFilter());
-					List<PK> results = ListTool.createArrayList(scan.getCaching());
-					ResultScanner scanner = hTable.getScanner(scan);
-					for(Result row : scanner){
-						if(row.isEmpty()){ continue; }
-						PK result = HBaseResultTool.getPrimaryKey(row.getRow(), fieldInfo);
-						results.add(result);
-						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
-					}
-					scanner.close();
+					PeekableIterable<PK> iter = scanKeys(start, startInclusive, end, endInclusive, pConfig);
+					int limit = config.getLimitOrUse(Integer.MAX_VALUE);
+					List<PK> results = IterableTool.createArrayListFromIterable(iter, limit);
 					return results;
 				}
 			}).call();
 	}
 	
 
-	//TODO could probably call getPrefixedRange with no prefix
 	@Override
 	public List<D> getRange(final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getRange", this, config){
 				public List<D> hbaseCall() throws Exception{
-					Scan scan = HBaseQueryBuilder.getRangeScanner(start, startInclusive, end, endInclusive, config);
-					List<D> results = ListTool.createArrayList(scan.getCaching());
-					ResultScanner scanner = hTable.getScanner(scan);
-					for(Result row : scanner){
-						if(row.isEmpty()){ continue; }
-						D result = HBaseResultTool.getDatabean(row, fieldInfo);
-						results.add(result);
-						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
-					}
-					scanner.close();
+					PeekableIterable<D> iter = scan(start, startInclusive, end, endInclusive, pConfig);
+					int limit = config.getLimitOrUse(Integer.MAX_VALUE);
+					List<D> results = IterableTool.createArrayListFromIterable(iter, limit);
 					return results;
 				}
 			}).call();
 		
 	}
-	
-	
+
 	@Override
 	public List<D> getPrefixedRange(
 			final PK prefix, final boolean wildcardLastField, 
 			final PK start, final boolean startInclusive, 
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
+		final HBaseReaderNode<PK,D,?> readerNodeRef = this;
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getPrefixedRange", this, config){
 				public List<D> hbaseCall() throws Exception{
-					Scan scan = HBaseQueryBuilder.getPrefixedRangeScanner(
+					List<Pair<byte[],byte[]>> prefixedRanges = HBaseScatteringPrefixQueryBuilder.getPrefixedRanges(
+							fieldInfo,  
 							prefix, wildcardLastField, 
 							start, startInclusive, 
 							null, true, 
 							config);
-					List<D> results = ListTool.createArrayList(scan.getCaching());
-					ResultScanner scanner = hTable.getScanner(scan);
-					for(Result row : scanner){
-						if(row.isEmpty()){ continue; }
-						D result = HBaseResultTool.getDatabean(row, fieldInfo);
-						results.add(result);
-						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
-					}
-					scanner.close();
+					List<HBaseManualDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder.getManualDatabeanScannersForRanges(
+							readerNodeRef, fieldInfo, hTable, prefixedRanges, pConfig);
+					Collator<D> collator = new PriorityQueueCollator<D>(scanners);
+					Iterable<D> iterable = new SortedScannerIterable<D>(collator);
+					int limit = config.getLimitOrUse(Integer.MAX_VALUE);
+					List<D> results = IterableTool.createArrayListFromIterable(iterable, limit);
 					return results;
 				}
 			}).call();
@@ -300,9 +282,17 @@ implements HBasePhysicalNode<PK,D>,
 	public PeekableIterable<PK> scanKeys(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
-			final Config config){
-		return new PrimaryKeyScanner<PK,D>(this, start, startInclusive, end, endInclusive, 
-				config, DEFAULT_ITERATE_BATCH_SIZE);
+			final Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		final HBaseReaderNode<PK,?,?> readerNodeRef = this;
+		return new HBaseTask<PeekableIterable<PK>>("scanKeys", this, config){
+				public PeekableIterable<PK> hbaseCall() throws Exception{
+					List<HBaseManualPrimaryKeyScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder.getManualPrimaryKeyScannerForEachPrefix(
+							readerNodeRef, fieldInfo, hTable, start, startInclusive, end, endInclusive, config);
+					Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
+					return new SortedScannerIterable<PK>(collator);
+				}
+			}.call();
 	}
 
 	
@@ -310,11 +300,53 @@ implements HBasePhysicalNode<PK,D>,
 	public PeekableIterable<D> scan(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
-			final Config config){
-		return new Scanner<PK,D>(this, start, startInclusive, end, endInclusive, 
-				config, DEFAULT_ITERATE_BATCH_SIZE);
+			final Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		final HBaseReaderNode<PK,D,?> readerNodeRef = this;
+		return new HBaseTask<PeekableIterable<D>>("scan", this, config){
+				public PeekableIterable<D> hbaseCall() throws Exception{
+					List<HBaseManualDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder.getManualDatabeanScannerForEachPrefix(
+							readerNodeRef, fieldInfo, hTable, start, startInclusive, end, endInclusive, config);
+					Collator<D> collator = new PriorityQueueCollator<D>(scanners);
+					return new SortedScannerIterable<D>(collator);
+				}
+			}.call();
 	}
 		
 	
+	/************************ helpers ********************************/
+
+	public List<Result> getResultsInSubRange(final byte[] start, final boolean startInclusive, final byte[] end, 
+			final boolean keysOnly, final Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>("getResultsInSubRange", this, config){
+				public List<Result> hbaseCall() throws Exception{
+					Scan scan = HBaseQueryBuilder.getScanForRange(start, startInclusive, end, config);
+					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }
+					ResultScanner scanner = hTable.getScanner(scan);
+					List<Result> results = ListTool.createArrayList();
+					for(Result rowKey : scanner){
+						if(rowKey.isEmpty()){ continue; }
+						results.add(rowKey);
+						if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){ break; }
+						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
+					}
+					scanner.close();
+					return results;
+				}
+			}).call();
+	}
+	
+	protected byte[] getKeyBytesWithScatteringPrefix(PK key){
+		List<Field<?>> keyPlusScatteringPrefixFields = fieldInfo.getKeyFieldsWithScatteringPrefix(key);
+		byte[] bytes = FieldSetTool.getConcatenatedValueBytes(keyPlusScatteringPrefixFields, false);
+		return bytes;
+	}
+	
+	protected <T extends Comparable<? super T>> void sortIfScatteringPrefixExists(List<T> ins){
+		if(fieldInfo.getSampleScatteringPrefix().getNumPrefixBytes() > 0){
+			Collections.sort(ins);
+		}
+	}
 	
 }
