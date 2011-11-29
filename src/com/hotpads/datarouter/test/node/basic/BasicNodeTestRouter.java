@@ -61,7 +61,7 @@ extends BaseDataRouter{
 		}
 		if(ScatteringPrefixIntegrationTests.class.equals(testType)){
 			scatteringPrefixBeanNode = register(NodeFactory.create(client, 
-					"ScatteringPrefixBean8", ScatteringPrefixBean.class.getName(),//optional test to make sure hbase table naming working
+//					"ScatteringPrefixBean8", ScatteringPrefixBean.class.getName(),//optional test to make sure hbase table naming working
 					ScatteringPrefixBean.class, ScatteringPrefixBeanFielder.class, this));
 		}
 		activate();//do after field inits
