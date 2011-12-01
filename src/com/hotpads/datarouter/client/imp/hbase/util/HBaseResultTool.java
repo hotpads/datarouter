@@ -60,10 +60,11 @@ public class HBaseResultTool{
 	
 	public static <PK extends PrimaryKey<PK>> 
 	PK getPrimaryKeyUnchecked(byte[] rowBytes, DatabeanFieldInfo<?,?,?> fieldInfo){
-		byte[] keyBytesWithoutScatteringPrefix = getKeyBytesWithoutScatteringPrefix(fieldInfo, rowBytes);
 		@SuppressWarnings("unchecked")
 		PK primaryKey = (PK)ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
+		if(ArrayTool.isEmpty(rowBytes)){ return primaryKey; }
 		
+		byte[] keyBytesWithoutScatteringPrefix = getKeyBytesWithoutScatteringPrefix(fieldInfo, rowBytes);
 		//copied from above
 		int byteOffset = 0;
 		for(Field<?> field : fieldInfo.getPrimaryKeyFields()){

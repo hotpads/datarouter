@@ -8,13 +8,14 @@ import java.util.SortedSet;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.ClusterStatus;
-import org.apache.hadoop.hbase.HServerAddress;
-import org.apache.hadoop.hbase.HServerInfo;
+import org.apache.hadoop.hbase.HServerLoad;
+import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
@@ -23,7 +24,7 @@ public class DRHServerList{
 	Logger logger = Logger.getLogger(DRHServerList.class);
 
 	protected List<DRHServerInfo> servers;
-	protected Map<HServerAddress,HServerInfo> hServerInfoByHServerAddress;
+	protected Map<ServerName,DRHServerInfo> drhServerInfoByServerName;
 	
 	
 	public DRHServerList(Configuration config){
@@ -31,12 +32,13 @@ public class DRHServerList{
 		try{
 			HBaseAdmin admin = HBaseSimpleClientFactory.ADMIN_BY_CONFIG.get(config);
 			ClusterStatus clusterStatus = admin.getClusterStatus();
-			Collection<HServerInfo> hServers = clusterStatus.getServerInfo();
-			this.servers = ListTool.createArrayListWithSize(hServers);
-			this.hServerInfoByHServerAddress = MapTool.createTreeMap();
-			for(HServerInfo hServer : hServers){
-				this.servers.add(new DRHServerInfo(hServer));
-				this.hServerInfoByHServerAddress.put(hServer.getServerAddress(), hServer);
+			Collection<ServerName> serverNames = clusterStatus.getServers();
+			this.servers = ListTool.createArrayListWithSize(serverNames);
+			this.drhServerInfoByServerName = MapTool.createTreeMap();
+			for(ServerName serverName : IterableTool.nullSafe(serverNames)){
+				DRHServerInfo info = new DRHServerInfo(serverName, clusterStatus.getLoad(serverName));
+				this.servers.add(info);
+				this.drhServerInfoByServerName.put(serverName, info);
 			}
 		}catch(IOException e){
 			throw new DataAccessException(e);
@@ -59,9 +61,8 @@ public class DRHServerList{
 		return serverNames;
 	}
 	
-	public HServerInfo getHServerInfo(HServerAddress server){
-		if(server==null || server.getInetSocketAddress()==null){ return null; }
-		return hServerInfoByHServerAddress.get(server);
+	public HServerLoad getHServerLoad(ServerName serverName){
+		return drhServerInfoByServerName.get(serverName).gethServerLoad();
 	}
 
 	public List<DRHServerInfo> getServers(){

@@ -6,8 +6,9 @@ import junit.framework.Assert;
 
 import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.HServerAddress;
-import org.apache.hadoop.hbase.HServerInfo;
+import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
+import org.apache.hadoop.hbase.ServerName;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
@@ -16,10 +17,9 @@ import com.hotpads.datarouter.client.imp.hbase.util.CompactionScheduler;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class DRHRegionInfo<PK extends PrimaryKey<PK>>{
@@ -32,8 +32,8 @@ public class DRHRegionInfo<PK extends PrimaryKey<PK>>{
 	protected String name;
 	protected PK startKey, endKey;
 	protected HRegionInfo hRegionInfo;
-	protected HServerInfo hServerInfo;
-	@Deprecated HServerAddress hServerAddress;//should get from hServerInfo, but workaround for DNS issues - mcorgan 20110106
+	protected ServerName serverName;
+	protected HServerLoad hServerLoad;
 	protected DRHRegionList regionList;
 	protected DRHServerInfo consistentHashHServer;
 	protected RegionLoad load;
@@ -42,20 +42,21 @@ public class DRHRegionInfo<PK extends PrimaryKey<PK>>{
 	
 	
 	public DRHRegionInfo(Integer regionNum, String tableName, Class<PK> primaryKeyClass, 
-			HRegionInfo hRegionInfo, HServerInfo hServerInfo, HServerAddress hServerAddress, 
+			HRegionInfo hRegionInfo, ServerName serverName, HServerLoad hServerLoad, 
 			DRHRegionList regionList, RegionLoad load, CompactionInfo compactionInfo){
 		this.regionNum = regionNum;
 		this.tableName = tableName;
 		this.name = new String(hRegionInfo.getRegionName());
 		this.hRegionInfo = hRegionInfo;
-		this.hServerInfo = hServerInfo;
-		this.hServerAddress = hServerAddress;
+		this.serverName = serverName;
+		this.hServerLoad = hServerLoad;
 		this.regionList = regionList;
 		this.startKey = getKey(primaryKeyClass, hRegionInfo.getStartKey());
 		this.endKey = getKey(primaryKeyClass, hRegionInfo.getEndKey());
 		this.load = load;
-		this.consistentHashInput = ByteTool.concatenate(
-				StringByteTool.getUtf8Bytes(tableName), hRegionInfo.getStartKey());
+		this.consistentHashInput = hRegionInfo.getEncodedNameAsBytes();
+//		this.consistentHashInput = ByteTool.concatenate(
+//				StringByteTool.getUtf8Bytes(tableName), hRegionInfo.getStartKey());
 		this.consistentHashHServer = regionList.getServerForRegion(consistentHashInput);
 		this.compactionScheduler = new CompactionScheduler(compactionInfo, this);
 	}
@@ -68,23 +69,19 @@ public class DRHRegionInfo<PK extends PrimaryKey<PK>>{
 		if(ArrayTool.isEmpty(bytes)){ return sampleKey; }
 		return HBaseResultTool.getPrimaryKeyUnchecked(bytes, regionList.getNode().getFieldInfo());
 	}
-
-	public HServerAddress getServerAddress(){
-		return hServerInfo.getServerAddress();
-	}
 	
 	public DRHServerInfo getConsistentHashServer(){
 		return consistentHashHServer;
 	}
 	
-	public HServerAddress getConsistentHashServerAddress(){
-		return consistentHashHServer.getHserverInfo().getServerAddress();
+	public ServerName getConsistentHashServerAddress(){
+		return consistentHashHServer.getServerName();
 	}
 	
 	public boolean isOnCorrectServer(){
 		try{
-			return ObjectTool.equals(hServerInfo.getHostnamePort(), 
-					consistentHashHServer.getHserverInfo().getHostnamePort());
+			return ObjectTool.equals(serverName.getHostAndPort(), 
+					consistentHashHServer.getServerName().getHostAndPort());
 		}catch(NullPointerException npe){//not sure where these are coming from yet
 			logger.warn(ExceptionTool.getStackTraceAsString(npe));
 		}
@@ -94,19 +91,28 @@ public class DRHRegionInfo<PK extends PrimaryKey<PK>>{
 	protected static Random random = new Random();
 	
 	public String getServerName(){
-		String name = hServerInfo.getServerName();
+		String name = serverName.getServerName();
 //		if("manimal".equals(name)){ name += random.nextInt(3); }
 		return name;
 	}
 	
 	public String getDisplayServerName(){
 		//doesn't account for multiple servers per node
-		return getDisplayServerName(hServerAddress.getHostname());//hServerInfo.getHostname();
+		return getDisplayServerName(serverName.getHostname());//hServerInfo.getHostname();
 	}
 	
 	public String getConsistentHashDisplayServerName(){
 		//doesn't account for multiple servers per node
 		return getDisplayServerName(consistentHashHServer.getHostname());//hServerInfo.getHostname();
+	}
+	
+	public String getNumKeyValuesWithCompactionPercent(){
+		long totalKvs = load.getTotalCompactingKVs();
+		String totalKvsString = NumberFormatter.addCommas(totalKvs);
+		long compactingKvs = load.getCurrentCompactedKVs();
+		if(totalKvs==compactingKvs){ return totalKvsString; }
+		int percentCompacted = (int)((double)100 * (double)compactingKvs / (double)totalKvs);
+		return totalKvsString + " ["+percentCompacted+"%]";
 	}
 
 	

@@ -1,18 +1,21 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
-import org.apache.hadoop.hbase.HServerInfo;
+import org.apache.hadoop.hbase.HServerLoad;
+import org.apache.hadoop.hbase.ServerName;
 
 public class DRHServerInfo{
 
 	protected String name;
 	protected String hostname;
-	protected HServerInfo hServerInfo;
+	protected ServerName serverName;
+	protected HServerLoad hServerLoad;
 	
 	
-	public DRHServerInfo(HServerInfo hServerInfo){
-		this.hServerInfo = hServerInfo;
-		this.name = hServerInfo.getServerName();
-		this.hostname = hServerInfo.getHostname();
+	public DRHServerInfo(ServerName serverName, HServerLoad hServerLoad){
+		this.serverName = serverName;
+		this.hServerLoad = hServerLoad;
+		this.name = serverName.getServerName();
+		this.hostname = serverName.getHostname();
 	}
 
 	public String getName(){
@@ -23,8 +26,13 @@ public class DRHServerInfo{
 		return hostname;
 	}
 
-	public HServerInfo getHserverInfo(){
-		return hServerInfo;
+	public ServerName getServerName() {
+		return serverName;
 	}
+
+	public HServerLoad gethServerLoad() {
+		return hServerLoad;
+	}
+
 	
 }

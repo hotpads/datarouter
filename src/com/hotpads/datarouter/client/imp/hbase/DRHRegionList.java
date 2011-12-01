@@ -15,6 +15,7 @@ import org.apache.hadoop.hbase.HServerAddress;
 import org.apache.hadoop.hbase.HServerInfo;
 import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
+import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.log4j.Logger;
 
@@ -52,35 +53,37 @@ public class DRHRegionList{
 			for(String tableName : IterableTool.nullSafe(tableNames)){
 				HTable hTable = new HTable(config, tableName);
 				Class<PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
-				Map<HRegionInfo,HServerAddress> hServerAddressByHRegionInfo = hTable.getRegionsInfo();
+				Map<HRegionInfo,ServerName> serverNameByHRegionInfo = hTable.getRegionLocations();
 
 				DRHServerList servers = new DRHServerList(config);
 				this.consistentHashRing = MapTool.createTreeMap();
 				for(DRHServerInfo server : servers.getServers()){
 					for(int i = 0; i < BUCKETS_PER_NODE; ++i){
 						long bucketPosition = HashMethods.longMD5DJBHash(
-								server.getHserverInfo().getHostnamePort()+i);
+								server.getServerName().getHostAndPort()+i);
 						consistentHashRing.put(bucketPosition, server);
 					}
 				}
 
+				//this got reorganized in hbase 0.92... just making quick fix for now
 				Map<String,RegionLoad> regionLoadByName = MapTool.createTreeMap();
 				for(DRHServerInfo server : IterableTool.nullSafe(servers.getServers())){
-					HServerLoad serverLoad = server.getHserverInfo().getLoad();
-					Collection<RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
-					for(RegionLoad regionLoad : regionsLoad){
+					HServerLoad serverLoad = server.gethServerLoad();
+					Map<byte[],HServerLoad.RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
+					for(RegionLoad regionLoad : regionsLoad.values()){
 						String name = new String(regionLoad.getName());
 						regionLoadByName.put(name, regionLoad);
 					}
 				}
 				int regionNum = 0;
-				for(HRegionInfo info : MapTool.nullSafe(hServerAddressByHRegionInfo).keySet()){
-					String name = new String(info.getRegionName());
-					RegionLoad load = regionLoadByName.get(name);
-					HServerAddress hServerAddress = hServerAddressByHRegionInfo.get(info);
-					HServerInfo hServerInfo = servers.getHServerInfo(hServerAddress);
-					regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, info, hServerInfo,
-							hServerAddress, this, load, compactionInfo));
+				for(HRegionInfo hRegionInfo : MapTool.nullSafe(serverNameByHRegionInfo).keySet()){
+					String name = new String(hRegionInfo.getRegionName());
+					RegionLoad regionLoad = regionLoadByName.get(name);
+					ServerName serverName = serverNameByHRegionInfo.get(hRegionInfo);
+					HServerLoad hServerLoad = servers.getHServerLoad(serverName);
+					regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, 
+							hRegionInfo, serverName, hServerLoad,
+							this, regionLoad, compactionInfo));
 				}
 			}
 		}catch(IOException e){
