@@ -37,10 +37,9 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	
 	
 	public N register(N node){
-//		String nodeName = node.getName();
 //		logger.warn("registering:"+nodeName+":"+node.getAllNames());
-//		if(CollectionTool.containsAny(this.getAllNames(), node.getAllNames())){//enforce global node name uniqueness
-//			throw new IllegalArgumentException("node already exists:"+nodeName);
+//		if(node.getName().contains(".Count")){ 
+//			int breakpoint = 1;
 //		}
 		ensureDuplicateNamesReferToSameNode(node);
 		Class<D> databeanType = node.getDatabeanType();
@@ -53,15 +52,15 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 		for(N nodeOrDescendant : IterableTool.nullSafe(nodeWithDescendants)){
 			this.allNames.add(nodeOrDescendant.getName());
 			this.nodeByName.put(nodeOrDescendant.getName(), nodeOrDescendant);
-		}
-		if(node instanceof PhysicalNode){
-			PhysicalNode<PK,D> physicalNode = (PhysicalNode<PK,D>)node;
-			String clientName = physicalNode.getClientName();
-			String tableName = physicalNode.getTableName();
-			if(physicalNodeByTableNameByClientName.get(clientName)==null){
-				physicalNodeByTableNameByClientName.put(clientName, new TreeMap<String,PhysicalNode<PK,D>>());
+			if(nodeOrDescendant instanceof PhysicalNode){
+				PhysicalNode<PK,D> physicalNode = (PhysicalNode<PK,D>)nodeOrDescendant;
+				String clientName = physicalNode.getClientName();
+				String tableName = physicalNode.getTableName();
+				if(physicalNodeByTableNameByClientName.get(clientName)==null){
+					physicalNodeByTableNameByClientName.put(clientName, new TreeMap<String,PhysicalNode<PK,D>>());
+				}
+				physicalNodeByTableNameByClientName.get(clientName).put(tableName, physicalNode);
 			}
-			physicalNodeByTableNameByClientName.get(clientName).put(tableName, physicalNode);
 		}
 		this.nodeByPrimaryKeyType.put(sampleDatabean.getKeyClass(), node);
 		this.nodeByDatabeanType.put(databeanType, node);

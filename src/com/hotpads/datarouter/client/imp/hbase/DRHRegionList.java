@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,8 +10,6 @@ import java.util.SortedSet;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HRegionInfo;
-import org.apache.hadoop.hbase.HServerAddress;
-import org.apache.hadoop.hbase.HServerInfo;
 import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
 import org.apache.hadoop.hbase.ServerName;
@@ -78,12 +75,17 @@ public class DRHRegionList{
 				int regionNum = 0;
 				for(HRegionInfo hRegionInfo : MapTool.nullSafe(serverNameByHRegionInfo).keySet()){
 					String name = new String(hRegionInfo.getRegionName());
-					RegionLoad regionLoad = regionLoadByName.get(name);
-					ServerName serverName = serverNameByHRegionInfo.get(hRegionInfo);
-					HServerLoad hServerLoad = servers.getHServerLoad(serverName);
-					regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, 
-							hRegionInfo, serverName, hServerLoad,
-							this, regionLoad, compactionInfo));
+					try{
+						RegionLoad regionLoad = regionLoadByName.get(name);
+						ServerName serverName = serverNameByHRegionInfo.get(hRegionInfo);
+						HServerLoad hServerLoad = servers.getHServerLoad(serverName);
+						regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, 
+								hRegionInfo, serverName, hServerLoad,
+								this, regionLoad, compactionInfo));
+					}catch(RuntimeException e){
+						logger.warn("couldn't build DRHRegionList for region:"+name);
+						throw e;
+					}
 				}
 			}
 		}catch(IOException e){
