@@ -12,6 +12,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import junit.framework.Assert;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -101,6 +103,7 @@ implements HBaseClientFactory{
 							hBaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
 							CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
 							hBaseAdmin = new HBaseAdmin(hBaseConfig);
+							Assert.assertNotNull(hBaseAdmin);
 							ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
 							//TODO add custom variables programatically
 						}

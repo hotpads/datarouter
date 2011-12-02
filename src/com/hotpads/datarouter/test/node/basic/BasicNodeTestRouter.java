@@ -19,7 +19,7 @@ import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean.BackupBeanFielder;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBeanKey;
-import com.hotpads.datarouter.test.node.basic.backup.test.BackupIntegrationTester;
+import com.hotpads.datarouter.test.node.basic.backup.test.BackupIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean.ManyFieldTypeBeanFielder;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
@@ -55,7 +55,7 @@ extends BaseDataRouter{
 		if(IndexedNodeIntegrationTests.class.equals(testType)){
 			sortedBeanNode = register(NodeFactory.create(client, SortedBean.class, SortedBeanFielder.class, this));
 		}
-		if(BackupIntegrationTester.class.equals(testType)){
+		if(BackupIntegrationTests.class.equals(testType)){
 			backupBeanNode = register(NodeFactory.create(client, BackupBean.class, BackupBeanFielder.class, this));
 			backupRecordNode = register(NodeFactory.create(client, BackupRecord.class, BackupRecordFielder.class, this));
 		}

@@ -40,8 +40,8 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 @RunWith(Parameterized.class)
-public class BackupIntegrationTester{
-	static Logger logger = Logger.getLogger(BackupIntegrationTester.class);
+public class BackupIntegrationTests{
+	static Logger logger = Logger.getLogger(BackupIntegrationTests.class);
 	
 	/****************************** client types ***********************************/
 
@@ -61,7 +61,7 @@ public class BackupIntegrationTester{
 	
 	@BeforeClass
 	public static void init() throws IOException{	
-		Class<?> cls = BackupIntegrationTester.class;
+		Class<?> cls = BackupIntegrationTests.class;
 
 		if(clientTypes.contains(ClientType.hibernate)){
 			routerByClientType.put(
@@ -129,7 +129,7 @@ public class BackupIntegrationTester{
 		return clientTypeObjectArrays;
 	}
 	
-	public BackupIntegrationTester(ClientType clientType){//passed in by junit from the "parameters"
+	public BackupIntegrationTests(ClientType clientType){//passed in by junit from the "parameters"
 		this.clientType = clientType;
 		this.router = routerByClientType.get(clientType);
 	}
