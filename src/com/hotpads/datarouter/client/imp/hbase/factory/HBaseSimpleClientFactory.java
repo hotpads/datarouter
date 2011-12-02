@@ -56,7 +56,7 @@ implements HBaseClientFactory{
 	public static Map<String,Configuration> CONFIG_BY_ZK_QUORUM = new ConcurrentHashMap<String,Configuration>();
 	public static Map<Configuration,HBaseAdmin> ADMIN_BY_CONFIG = new ConcurrentHashMap<Configuration,HBaseAdmin>();
 	
-	static final Integer TIMEOUT_MS = 50000;
+	static final Integer TIMEOUT_MS = 20000;
 	
 	protected DataRouter router;
 	protected String clientName;
