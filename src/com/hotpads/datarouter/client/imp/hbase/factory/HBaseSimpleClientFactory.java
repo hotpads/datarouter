@@ -56,7 +56,7 @@ implements HBaseClientFactory{
 	public static Map<String,Configuration> CONFIG_BY_ZK_QUORUM = new ConcurrentHashMap<String,Configuration>();
 	public static Map<Configuration,HBaseAdmin> ADMIN_BY_CONFIG = new ConcurrentHashMap<Configuration,HBaseAdmin>();
 	
-	static final Integer TIMEOUT_MS = 5000;
+	static final Integer TIMEOUT_MS = 50000;
 	
 	protected DataRouter router;
 	protected String clientName;
@@ -103,7 +103,7 @@ implements HBaseClientFactory{
 							hBaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
 							CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
 							hBaseAdmin = new HBaseAdmin(hBaseConfig);
-							Assert.assertNotNull(hBaseAdmin);
+//							Assert.assertNotNull(hBaseAdmin);
 							ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
 							//TODO add custom variables programatically
 						}
