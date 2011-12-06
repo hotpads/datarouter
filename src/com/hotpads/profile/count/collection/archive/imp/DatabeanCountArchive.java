@@ -18,6 +18,7 @@ import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
 import com.hotpads.profile.count.databean.key.CountKey;
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -103,11 +104,13 @@ public class DatabeanCountArchive extends BaseCountArchive{
 					periodMs, periodStart, source, System.currentTimeMillis(), entry.getValue().get()));
 		}
 		if(countNode!=null){
+			logger.warn("saving "+CollectionTool.size(toSave)+" counts to database from thread "
+					+Thread.currentThread().getId()+" "+Thread.currentThread().getName());
 			countNode.putMulti(toSave, new Config()
 					.setPersistentPut(false)
 					.setIgnoreNullFields(true)
 					.setTimeout(10, TimeUnit.SECONDS)
-					.setNumAttempts(6));
+					.setNumAttempts(1));
 			flushAvailableCounters(countMap.getCountByKey());
 		}
 		lastFlushMs = System.currentTimeMillis();

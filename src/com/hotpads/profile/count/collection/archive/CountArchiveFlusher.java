@@ -62,8 +62,9 @@ public class CountArchiveFlusher{
 			this.flusher = flusher;
 		}
 
+		//trying synchronized on this method to avoid the RejectedExecutionExceptions that never stop once they start
 		@Override
-		public void run(){
+		public /*synchronized*/ void run(){
 			try{
 				if(flusher.flushQueue==null){ return; }
 				if(!flusher.shouldRun()){ 
