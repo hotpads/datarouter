@@ -656,6 +656,31 @@ public final class MemcachedClient extends SpyThread {
 		getLogger().debug("Mutation returned %s", rv);
 		return rv.get();
 	}
+	
+
+	private long mutateAsync(Mutator m, String key, int by, long def, int exp, long timeout, TimeUnit units) throws MemcachedStateException, TimeoutException {
+		final AtomicLong rv=new AtomicLong();
+		final CountDownLatch latch=new CountDownLatch(1);
+		addOp(key, opFact.mutate(m, key, by, def, exp, new OperationCallback() {
+					public void receivedStatus(OperationStatus s) {
+						// XXX:  Potential abstraction leak.
+						// The handling of incr/decr in the binary protocol is
+						// yet undefined.
+						rv.set(new Long(s.isSuccess()?s.getMessage():"-1"));
+					}
+					public void complete() {
+						latch.countDown();
+					}}));
+		try {
+			boolean timeoutHappened = !latch.await(timeout, units);
+			if (timeoutHappened)
+				throw new TimeoutException("timeout happened waiting for mutate countdownLatch");
+		} catch (InterruptedException e) {
+			throw new MemcachedStateException("Interrupted");
+		}
+		getLogger().debug("Mutation returned %s", rv);
+		return rv.get();
+	}
 
 	/**
 	 * Increment the given key by the given amount.
@@ -666,6 +691,18 @@ public final class MemcachedClient extends SpyThread {
 	 */
 	public long incr(String key, int by) throws MemcachedStateException {
 		return mutate(Mutator.incr, key, by, 0, -1);
+	}
+
+	/**
+	 * Increment the given key by the given amount
+	 * throws TimeoutException if timeout fails
+	 *
+	 * @param key the key
+	 * @param by the amount to increment
+	 * @return the new value (-1 if the key doesn't exist)
+	 */
+	public long incrAsync(String key, int by, int def, int exp, long timeout, TimeUnit units) throws MemcachedStateException, TimeoutException {
+		return mutateWithDefaultAsync(Mutator.incr, key, by, def, exp, timeout, units);
 	}
 	
 	public long incr(String key, int by, int def, int exp) throws MemcachedStateException {
@@ -682,7 +719,36 @@ public final class MemcachedClient extends SpyThread {
 	public long decr(String key, int by) throws MemcachedStateException {
 		return mutate(Mutator.decr, key, by, 0, -1);
 	}
+	public long decrAsync(String key, int by, int def, int exp, long timeout, TimeUnit units) throws MemcachedStateException, TimeoutException {
+		return mutateWithDefaultAsync(Mutator.decr, key, by, def, exp, timeout, units);
+	}
 
+	private long mutateWithDefaultAsync(Mutator t, String key,
+			int by, long def, int exp, long timeout, TimeUnit units) throws MemcachedStateException, TimeoutException {
+		long rv = mutateAsync(t, key, by, def, exp, timeout, units);
+		// The ascii protocol doesn't support defaults, so I added them
+		// manually here.
+		if(rv == -1) {
+			Future<Boolean> f=asyncStore(StoreType.add,
+					key, 0,	String.valueOf(def));
+			try {
+				if(f.get(timeout, units)) {
+					rv=def;
+				} else {
+					rv=mutateAsync(t, key, by, 0, 0, timeout, units);
+					assert rv != -1 : "Failed to mutate or init value";
+				}
+			} catch (InterruptedException e) {
+				throw new MemcachedStateException("Interrupted waiting for store");
+			} catch (ExecutionException e) {
+				throw new MemcachedStateException("Failed waiting for store");
+			} catch (TimeoutException e) {
+				throw e;
+			}
+		}
+		return rv;		
+	}
+	
 	private long mutateWithDefault(Mutator t, String key,
 			int by, long def, int exp) throws MemcachedStateException {
 		long rv=mutate(t, key, by, def, exp);
