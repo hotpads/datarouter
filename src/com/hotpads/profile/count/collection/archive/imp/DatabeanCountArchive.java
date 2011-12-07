@@ -104,13 +104,14 @@ public class DatabeanCountArchive extends BaseCountArchive{
 					periodMs, periodStart, source, System.currentTimeMillis(), entry.getValue().get()));
 		}
 		if(countNode!=null){
-			logger.warn("saving "+CollectionTool.size(toSave)+" counts to database from thread "
-					+Thread.currentThread().getId()+" "+Thread.currentThread().getName());
+			logger.warn("saving "+CollectionTool.size(toSave)+" counts to Count"+CountPartitionedNode.getSuffix(flushPeriodMs)
+					+" "+oldAggregator
+					+" from thread "+Thread.currentThread().getId()+" "+Thread.currentThread().getName());
 			countNode.putMulti(toSave, new Config()
 					.setPersistentPut(false)
 					.setIgnoreNullFields(true)
 					.setTimeout(10, TimeUnit.SECONDS)
-					.setNumAttempts(1));
+					.setNumAttempts(2));
 			flushAvailableCounters(countMap.getCountByKey());
 		}
 		lastFlushMs = System.currentTimeMillis();

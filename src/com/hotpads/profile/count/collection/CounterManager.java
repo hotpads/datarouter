@@ -36,13 +36,14 @@ public class CounterManager implements CountMap{
 		long startTime = now - (now % rollPeriodMs);
 		this.liveCounter = new AtomicCounter(startTime, rollPeriodMs);
 		this.flushers = ListTool.createArrayList();
-		this.roll();//init
+		this.checkAndRoll();//init
 	}
 	
 	
 	public void rollIfNecessary(){
+		//called on every increment right now.  currentTimeMillis is supposedly pretty fast, but could be the bottleneck
 		if(System.currentTimeMillis() >= nextStartMs){
-			roll();
+			checkAndRoll();
 		}
 	}
 	
@@ -50,7 +51,7 @@ public class CounterManager implements CountMap{
 	protected Object rollLock = new Object();
 	
 	//TODO better roll-up logic from short counters to longer ones.  not sure if it even makes any sense right now
-	public void roll(){
+	public void checkAndRoll(){
 		
 		//a few threads may slip past the rollIfNecessary call and pile up here
 
@@ -72,7 +73,9 @@ public class CounterManager implements CountMap{
 			//swap in the new counter
 			CountMapPeriod oldCounter = liveCounter;
 			liveCounter = new AtomicCounter(latestStartMs, rollPeriodMs);
-			
+			if(oldCounter.getStartTimeMs()==liveCounter.getStartTimeMs()){
+				logger.warn("probably concurrency bug.  double counter instantiation "+liveCounter);
+			}
 			//add previous counter to flush queue
 			if(oldCounter!=null){
 				for(CountArchiveFlusher flusher : IterableTool.nullSafe(flushers)){

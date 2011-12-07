@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.MapTool;
 
@@ -30,8 +31,9 @@ public class AtomicCounter implements CountMapPeriod{
 
 	@Override
 	public String toString(){
-		String time = DateTool.getYYYYMMDDHHMMSSWithPunctuationNoSpaces(startTimeMs);
-		return getClass().getSimpleName()+"["+time+","+lengthMs+"]";
+		String time = DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(startTimeMs);
+		return getClass().getSimpleName()+"["+time+","+CountPartitionedNode.getSuffix(lengthMs)
+				+","+System.identityHashCode(this)+"]";
 	}
 	
 	@Override
