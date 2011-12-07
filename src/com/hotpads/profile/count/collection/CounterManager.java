@@ -41,6 +41,7 @@ public class CounterManager implements CountMap{
 	
 	
 	public void rollIfNecessary(){
+		//called on every increment right now.  currentTimeMillis is supposedly pretty fast, but could be the bottleneck
 		if(System.currentTimeMillis() >= nextStartMs){
 			roll();
 		}
@@ -72,7 +73,7 @@ public class CounterManager implements CountMap{
 			//swap in the new counter
 			CountMapPeriod oldCounter = liveCounter;
 			liveCounter = new AtomicCounter(latestStartMs, rollPeriodMs);
-			
+//			logger.warn("rolled into new AtomicCounter:"+liveCounter);
 			//add previous counter to flush queue
 			if(oldCounter!=null){
 				for(CountArchiveFlusher flusher : IterableTool.nullSafe(flushers)){

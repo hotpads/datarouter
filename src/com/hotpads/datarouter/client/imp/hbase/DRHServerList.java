@@ -62,7 +62,12 @@ public class DRHServerList{
 	}
 	
 	public HServerLoad getHServerLoad(ServerName serverName){
-		return drhServerInfoByServerName.get(serverName).gethServerLoad();
+		DRHServerInfo drhServerInfo = drhServerInfoByServerName.get(serverName);
+		if(drhServerInfo==null){ 
+			logger.warn("unexpected DRHServerInfo null for "+serverName.getHostAndPort());
+			return null; 
+		}
+		return drhServerInfo.gethServerLoad();
 	}
 
 	public List<DRHServerInfo> getServers(){

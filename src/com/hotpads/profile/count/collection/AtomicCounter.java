@@ -30,7 +30,7 @@ public class AtomicCounter implements CountMapPeriod{
 
 	@Override
 	public String toString(){
-		String time = DateTool.getYYYYMMDDHHMMSSWithPunctuationNoSpaces(startTimeMs);
+		String time = DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(startTimeMs);
 		return getClass().getSimpleName()+"["+time+","+lengthMs+"]";
 	}
 	

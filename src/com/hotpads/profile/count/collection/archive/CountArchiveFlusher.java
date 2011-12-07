@@ -76,13 +76,15 @@ public class CountArchiveFlusher{
 					if(countMap==null){ break; }
 					long discardCutOff = System.currentTimeMillis() - DISCARD_COUNTS_OLDER_THAN_MS;
 					if(countMap.getNextStartTimeMs() < discardCutOff){ 
-						logger.warn("flusher:"+flusher.name+" discarded CountMapPeriod starting at "+new Date(countMap.getStartTimeMs()));
+						logger.warn("flusher:"+flusher.name+" discarded CountMapPeriod starting at "
+								+DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(countMap.getStartTimeMs()));
 						flusher.flushQueue.poll();//remove it
 						continue; 
 					}
+//					logger.warn("submitting CountMapPeriod starting at "
+//							+DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(countMap.getStartTimeMs()));
 					ExecutorService flushExecutorDebug = flusher.flushExecutor.get();
-					Future<?> future = flushExecutorDebug.submit(
-							new CountArchiveFlushAttempt(flusher, countMap));
+					Future<?> future = flushExecutorDebug.submit(new CountArchiveFlushAttempt(flusher, countMap));
 					future.get(INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 				}
 			}catch(TimeoutException te){
