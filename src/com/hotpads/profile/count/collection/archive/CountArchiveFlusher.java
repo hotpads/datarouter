@@ -22,6 +22,8 @@ import com.hotpads.util.core.concurrent.Provider;
 public class CountArchiveFlusher{
 	static Logger logger = Logger.getLogger(CountArchiveFlusher.class);
 	
+	static boolean FLUSH_WITH_TIMEOUT = false;//don't need the timeout if the underlying datarouter node can timeout
+	
 	public static long 
 		INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS = 10,
 		DISCARD_COUNTS_OLDER_THAN_MS = 5 * DateTool.MILLISECONDS_IN_MINUTE;
@@ -41,7 +43,7 @@ public class CountArchiveFlusher{
 		this.flushPeriodMs = flushPeriodMs;
 		this.flushQueue = new ConcurrentLinkedQueue<CountMapPeriod>();//careful, size() must iterate every element
 		this.archives = ListTool.createArrayList();
-		this.flushExecutor = flushExecutor;
+		this.flushExecutor = flushExecutor;//won't be used if FLUSH_WITH_TIMEOUT=false
 		this.flushScheduler = flushScheduler;
 		this.flushScheduler.get().scheduleWithFixedDelay(
 				new CountArchiveFlushUntilEmpty(this), 0, flushPeriodMs, TimeUnit.MILLISECONDS); 
@@ -83,9 +85,14 @@ public class CountArchiveFlusher{
 					}
 //					logger.warn("submitting CountMapPeriod starting at "
 //							+DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(countMap.getStartTimeMs()));
-					ExecutorService flushExecutorDebug = flusher.flushExecutor.get();
-					Future<?> future = flushExecutorDebug.submit(new CountArchiveFlushAttempt(flusher, countMap));
-					future.get(INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+					CountArchiveFlushAttempt attempt = new CountArchiveFlushAttempt(flusher, countMap);
+					if(FLUSH_WITH_TIMEOUT){
+						ExecutorService flushExecutorDebug = flusher.flushExecutor.get();
+						Future<?> future = flushExecutorDebug.submit(attempt);
+						future.get(INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+					}else{
+						attempt.run();
+					}
 				}
 			}catch(TimeoutException te){
 				logger.warn("TimeoutException after "+INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS+" seconds");

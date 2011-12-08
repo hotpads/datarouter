@@ -26,6 +26,8 @@ import com.hotpads.util.core.MapTool;
 public class DatabeanCountArchive extends BaseCountArchive{
 	static Logger logger = Logger.getLogger(DatabeanCountArchive.class);
 	
+	static long MIN_EARLY_FLUSH_PERIOD_MS = 20 * 1000;//prevent the 5s counter from early flushing because of slight lag
+	
 	protected AtomicCounter aggregator;
 	protected Long flushPeriodMs;
 	protected Long lastFlushMs;//need to anchor this to the period... currently floating
@@ -104,9 +106,8 @@ public class DatabeanCountArchive extends BaseCountArchive{
 					periodMs, periodStart, source, System.currentTimeMillis(), entry.getValue().get()));
 		}
 		if(countNode!=null){
-			logger.warn("saving "+CollectionTool.size(toSave)+" counts to Count"+CountPartitionedNode.getSuffix(flushPeriodMs)
-					+" "+oldAggregator
-					+" from thread "+Thread.currentThread().getId()+" "+Thread.currentThread().getName());
+			String tableName = "Count"+CountPartitionedNode.getSuffix(flushPeriodMs);
+			logger.warn("saving "+CollectionTool.size(toSave)+" counts to "+tableName);
 			countNode.putMulti(toSave, new Config()
 					.setPersistentPut(false)
 					.setIgnoreNullFields(true)
@@ -134,12 +135,16 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	protected boolean shouldFlush(CountMapPeriod countMap){
 		long periodEndsMs = aggregator.getStartTimeMs() + periodMs;
 		boolean newPeriod = countMap.getStartTimeMs() >= periodEndsMs;
-		if(newPeriod){ return true; }
+		if(newPeriod){ 
+//			logger.warn("new period flush of "+getName()); 
+			return true; 
+		}
 		
-		long nextFlushMs = lastFlushMs + flushPeriodMs;
+		long flushWindowPaddingMs = 10 * 1000;//give the normal flusher a chance to trigger it
+		long nextFlushMs = lastFlushMs + flushPeriodMs + flushWindowPaddingMs;
 		long now = System.currentTimeMillis();
-		if(now > nextFlushMs){ 
-//			logger.warn("early flush of "+this.getName());
+		if(periodMs > MIN_EARLY_FLUSH_PERIOD_MS && now > nextFlushMs){ 
+			logger.warn("early flush of "+getName()+" nextFlush was "+DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(nextFlushMs));
 			return true; 
 		}
 		

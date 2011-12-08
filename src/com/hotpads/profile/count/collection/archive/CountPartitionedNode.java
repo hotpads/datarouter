@@ -62,7 +62,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 			"4h",  // 
 			"1d"); // no ttl
 	
-	public static final List<String> flushPeriods = ListTool.create("5s", "10s", "20s", "30s", "1m",  "1m", "1m", "1m");
+	public static final List<String> flushPeriods = ListTool.create("5s", "20s", "1m", "5m", "10m",  "30m", "1h", "1h");
 	
 	public static Map<String,Long> msBySuffix = MapTool.createHashMap();
 	public static Map<Long,String> suffixByMs = MapTool.createHashMap();

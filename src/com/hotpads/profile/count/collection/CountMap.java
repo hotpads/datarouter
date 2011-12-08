@@ -11,5 +11,5 @@ public interface CountMap {
 	public long increment(String key, long delta);
 	public AtomicCounter getCounter();
 
-	public AtomicCounter deepCopy();
+//	public AtomicCounter deepCopy();
 }

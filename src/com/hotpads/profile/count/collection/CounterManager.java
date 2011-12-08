@@ -37,6 +37,7 @@ public class CounterManager implements CountMap{
 		this.liveCounter = new AtomicCounter(startTime, rollPeriodMs);
 		this.flushers = ListTool.createArrayList();
 		this.checkAndRoll();//init
+		logger.warn("created "+this);
 	}
 	
 	
@@ -47,32 +48,33 @@ public class CounterManager implements CountMap{
 		}
 	}
 	
-	protected Object rollCheckLock = new Object();
-	protected Object rollLock = new Object();
+//	protected Object rollCheckLock = new Object();
+//	protected Object rollLock = new Object();
 	
 	//TODO better roll-up logic from short counters to longer ones.  not sure if it even makes any sense right now
-	public void checkAndRoll(){
+	public synchronized void checkAndRoll(){
 		
 		//a few threads may slip past the rollIfNecessary call and pile up here
 
 		long now = System.currentTimeMillis();
 		long nowPeriodStart = now - (now % rollPeriodMs);
 		
-		synchronized(rollCheckLock){//essentially an atomicCheckAndPut on latestStartMs
+//		synchronized(rollCheckLock){//essentially an atomicCheckAndPut on latestStartMs
 			if(liveCounter!=null && nowPeriodStart==liveCounter.getStartTimeMs()){
 //				logger.warn("aborting roll "+new Date(latestStartMs));
 				return; //another thread already rolled it
 			}
 			latestStartMs = nowPeriodStart;
 			nextStartMs = latestStartMs + rollPeriodMs;//now other threads should return rollIfNecessary=false
-		}
-		
-		//only one thread (per period) should get to this point because of the logical check above
-		
-		synchronized(rollLock){ //protect against multiple periods overlapping?  we may get count skew here if things get backed up
+//		}
+//		
+//		//only one thread (per period) should get to this point because of the logical check above
+//		
+//		synchronized(rollLock){ //protect against multiple periods overlapping?  we may get count skew here if things get backed up
 			//swap in the new counter
 			CountMapPeriod oldCounter = liveCounter;
 			liveCounter = new AtomicCounter(latestStartMs, rollPeriodMs);
+//			logger.warn(Thread.currentThread().getName()+" rolled CounterManager, created "+liveCounter);
 			if(oldCounter.getStartTimeMs()==liveCounter.getStartTimeMs()){
 				logger.warn("probably concurrency bug.  double counter instantiation "+liveCounter);
 			}
@@ -82,7 +84,7 @@ public class CounterManager implements CountMap{
 					flusher.offer(oldCounter);
 				}
 			}
-		}
+//		}
 		
 		addSpecialCounts(liveCounter);
 	}
@@ -130,10 +132,10 @@ public class CounterManager implements CountMap{
 		return liveCounter.getCountByKey();
 	}
 	
-	@Override
-	public AtomicCounter deepCopy(){
-		return liveCounter.deepCopy();
-	}
+//	@Override
+//	public AtomicCounter deepCopy(){
+//		return liveCounter.deepCopy();
+//	}
 
 	public AtomicCounter getCounter(){
 		return liveCounter.getCounter();

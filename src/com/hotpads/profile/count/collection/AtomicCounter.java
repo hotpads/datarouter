@@ -6,11 +6,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.log4j.Logger;
+
 import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.MapTool;
 
 public class AtomicCounter implements CountMapPeriod{
+	static Logger logger = Logger.getLogger(AtomicCounter.class);
 	
 	public static final Integer INITIAL_CAPACITY = 512;//try to set higher than est num counters
 	
@@ -18,6 +21,8 @@ public class AtomicCounter implements CountMapPeriod{
 	protected long lengthMs;
 	protected long lastMs;
 	protected ConcurrentMap<String,AtomicLong> countByKey;
+	
+	protected String createdByThreadId;
 	
 	protected Date humanReadableStartTime;
 	
@@ -27,13 +32,18 @@ public class AtomicCounter implements CountMapPeriod{
 		this.lastMs = startTimeMs + lengthMs - 1;
 		this.countByKey = new ConcurrentHashMap<String,AtomicLong>(INITIAL_CAPACITY);
 		this.humanReadableStartTime = new Date(startTimeMs);
+		Thread createdByThread = Thread.currentThread();
+		this.createdByThreadId = createdByThread.getId()+"-"+createdByThread.getName();
+//		if(this.toString().contains("Db")){
+//			logger.warn("created "+this);
+//		}
 	}
 
 	@Override
 	public String toString(){
 		String time = DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(startTimeMs);
 		return getClass().getSimpleName()+"["+time+","+CountPartitionedNode.getSuffix(lengthMs)
-				+","+System.identityHashCode(this)+"]";
+				+","+System.identityHashCode(this)+","+createdByThreadId+"]";
 	}
 	
 	@Override

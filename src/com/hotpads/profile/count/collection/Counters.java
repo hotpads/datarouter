@@ -75,10 +75,10 @@ public class Counters implements CountMap{
 		return manager.getCounter();
 	}
 	
-	@Override
-	public AtomicCounter deepCopy(){
-		return manager.deepCopy();
-	}
+//	@Override
+//	public AtomicCounter deepCopy(){
+//		return manager.deepCopy();
+//	}
 	
 	@Override
 	public Map<String,AtomicLong> getCountByKey(){
