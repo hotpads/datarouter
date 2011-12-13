@@ -106,8 +106,8 @@ public class DatabeanCountArchive extends BaseCountArchive{
 					periodMs, periodStart, source, System.currentTimeMillis(), entry.getValue().get()));
 		}
 		if(countNode!=null){
-			String tableName = "Count"+CountPartitionedNode.getSuffix(flushPeriodMs);
-			logger.warn("saving "+CollectionTool.size(toSave)+" counts to "+tableName);
+//			String tableName = "Count"+CountPartitionedNode.getSuffix(flushPeriodMs);
+//			logger.warn("saving "+CollectionTool.size(toSave)+" counts to "+tableName);
 			countNode.putMulti(toSave, new Config()
 					.setPersistentPut(false)
 					.setIgnoreNullFields(true)
