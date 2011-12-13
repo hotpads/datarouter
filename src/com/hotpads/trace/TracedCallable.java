@@ -11,6 +11,8 @@ public abstract class TracedCallable<V> extends TracedCheckedCallable<V>{
 	public V call()/* limited to RuntimeException */{
 		try{
 			return super.call();
+		}catch(RuntimeException re){
+			throw re;
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}
