@@ -10,9 +10,9 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
 
-import com.hotpads.datarouter.client.imp.hbase.HBaseMultiAttemptTask;
-import com.hotpads.datarouter.client.imp.hbase.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
+import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
+import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;

@@ -1,7 +1,7 @@
-package com.hotpads.datarouter.client.imp.hbase;
+package com.hotpads.datarouter.client.imp.hbase.cluster;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -24,6 +24,7 @@ public class DRHServerList{
 	Logger logger = Logger.getLogger(DRHServerList.class);
 
 	protected List<DRHServerInfo> servers;
+	protected List<ServerName> serverNames;
 	protected Map<ServerName,DRHServerInfo> drhServerInfoByServerName;
 	
 	
@@ -32,7 +33,8 @@ public class DRHServerList{
 		try{
 			HBaseAdmin admin = HBaseSimpleClientFactory.ADMIN_BY_CONFIG.get(config);
 			ClusterStatus clusterStatus = admin.getClusterStatus();
-			Collection<ServerName> serverNames = clusterStatus.getServers();
+			serverNames = ListTool.createArrayList(clusterStatus.getServers());
+			Collections.sort(serverNames);
 			this.servers = ListTool.createArrayListWithSize(serverNames);
 			this.drhServerInfoByServerName = MapTool.createTreeMap();
 			for(ServerName serverName : IterableTool.nullSafe(serverNames)){
@@ -45,7 +47,16 @@ public class DRHServerList{
 		}
 	}
 	
-	public SortedSet<String> getServerNames(){
+	public List<ServerName> getServerNames(){
+		return serverNames;
+	}
+
+	
+	public List<ServerName> getServerNamesSorted(){
+		return serverNames;
+	}
+	
+	public SortedSet<String> getServerNameStrings(){
 		SortedSet<String> serverNames = SetTool.createTreeSet();
 		for(DRHServerInfo server : servers){
 			serverNames.add(server.getName());

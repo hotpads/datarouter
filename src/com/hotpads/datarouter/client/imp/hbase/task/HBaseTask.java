@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hbase;
+package com.hotpads.datarouter.client.imp.hbase.task;
 
 import junit.framework.Assert;
 

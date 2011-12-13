@@ -13,8 +13,8 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.imp.hbase.HBaseMultiAttemptTask;
-import com.hotpads.datarouter.client.imp.hbase.HBaseTask;
+import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
+import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseManualDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseManualPrimaryKeyScanner;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;

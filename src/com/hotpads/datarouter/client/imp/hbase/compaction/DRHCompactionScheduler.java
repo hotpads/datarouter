@@ -1,29 +1,29 @@
-package com.hotpads.datarouter.client.imp.hbase.util;
+package com.hotpads.datarouter.client.imp.hbase.compaction;
 
 import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.imp.hbase.DRHRegionInfo;
+import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.HashMethods;
 import com.hotpads.util.core.date.DailyCalendarTool;
 
-public class CompactionScheduler
-implements CompactionInfo{
-	static Logger logger = Logger.getLogger(CompactionScheduler.class);
+public class DRHCompactionScheduler
+implements DRHCompactionInfo{
+	static Logger logger = Logger.getLogger(DRHCompactionScheduler.class);
 	
 	public static final Long COMPACTION_EPOCH = 
 		DailyCalendarTool.parseYYYYMMDDEastern("20110301").getTimeInMillis();
 	
 	protected Long now = System.currentTimeMillis();
-	protected CompactionInfo compactionInfo;
+	protected DRHCompactionInfo compactionInfo;
 	protected Long windowStartMs, windowEndMs;//start inclusive, end exclusive
 	protected DRHRegionInfo regionInfo;
 	protected Long regionHash;
 	protected Long nextCompactTimeMs;
 	
-	public CompactionScheduler(CompactionInfo compactionInfo, DRHRegionInfo regionInfo){
+	public DRHCompactionScheduler(DRHCompactionInfo compactionInfo, DRHRegionInfo regionInfo){
 		this.compactionInfo = compactionInfo;
 		this.windowStartMs = now - (now % compactionInfo.getCompactionTriggerPeriodMs());
 		this.windowEndMs = windowStartMs + compactionInfo.getCompactionTriggerPeriodMs();

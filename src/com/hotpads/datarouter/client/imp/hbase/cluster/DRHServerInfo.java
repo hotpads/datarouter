@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hbase;
+package com.hotpads.datarouter.client.imp.hbase.cluster;
 
 import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.ServerName;

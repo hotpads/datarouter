@@ -1,6 +1,7 @@
-package com.hotpads.datarouter.client.imp.hbase;
+package com.hotpads.datarouter.client.imp.hbase.cluster;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,85 +17,76 @@ import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.imp.hbase.util.CompactionInfo;
+import com.hotpads.datarouter.client.imp.hbase.balancer.BalancerStrategy;
+import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.HashMethods;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.java.ReflectionTool;
 
 public class DRHRegionList{
 	Logger logger = Logger.getLogger(DRHRegionList.class);
 
 	public static final Integer BUCKETS_PER_NODE = 1000;
 
-	protected List<String> tableNames;
+	protected DRHServerList servers;
+	protected String tableName;
 	protected Node<?,?> node;
 	protected List<DRHRegionInfo<?>> regions;
-	protected SortedMap<Long,DRHServerInfo> consistentHashRing;
-	protected CompactionInfo compactionInfo;
+	protected BalancerStrategy balancerStrategy;
+	protected DRHCompactionInfo compactionInfo;
 
 	@SuppressWarnings("unchecked")
-	public DRHRegionList(HBaseClient client, List<String> tableNames, Configuration config,
-			Node<?,?> node, CompactionInfo compactionInfo){
-		this.tableNames = ListTool.nullSafe(tableNames);
+	public DRHRegionList(HBaseClient client, DRHServerList servers, String tableName, Configuration config,
+			Node<?,?> node, BalancerStrategy balancerStrategy, DRHCompactionInfo compactionInfo){
+		this.servers = servers;
+		this.tableName = tableName;
 		this.node = node;
 		this.compactionInfo = compactionInfo;
 		this.regions = ListTool.create();
 		try{
-			for(String tableName : IterableTool.nullSafe(tableNames)){
-				HTable hTable = new HTable(config, tableName);
-				Class<PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
-				Map<HRegionInfo,ServerName> serverNameByHRegionInfo = hTable.getRegionLocations();
+			HTable hTable = new HTable(config, tableName);
+			Class<PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
+			Map<HRegionInfo,ServerName> serverNameByHRegionInfo = hTable.getRegionLocations();
 
-				DRHServerList servers = new DRHServerList(config);
-				this.consistentHashRing = MapTool.createTreeMap();
-				for(DRHServerInfo server : servers.getServers()){
-					for(int i = 0; i < BUCKETS_PER_NODE; ++i){
-						long bucketPosition = HashMethods.longMD5DJBHash(
-								server.getServerName().getHostAndPort()+i);
-						consistentHashRing.put(bucketPosition, server);
-					}
+			//this got reorganized in hbase 0.92... just making quick fix for now
+			Map<String,RegionLoad> regionLoadByName = MapTool.createTreeMap();
+			for(DRHServerInfo server : IterableTool.nullSafe(servers.getServers())){
+				HServerLoad serverLoad = server.gethServerLoad();
+				Map<byte[],HServerLoad.RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
+				for(RegionLoad regionLoad : regionsLoad.values()){
+					String name = new String(regionLoad.getName());
+					regionLoadByName.put(name, regionLoad);
 				}
-
-				//this got reorganized in hbase 0.92... just making quick fix for now
-				Map<String,RegionLoad> regionLoadByName = MapTool.createTreeMap();
-				for(DRHServerInfo server : IterableTool.nullSafe(servers.getServers())){
-					HServerLoad serverLoad = server.gethServerLoad();
-					Map<byte[],HServerLoad.RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
-					for(RegionLoad regionLoad : regionsLoad.values()){
-						String name = new String(regionLoad.getName());
-						regionLoadByName.put(name, regionLoad);
-					}
-				}
-				int regionNum = 0;
-				for(HRegionInfo hRegionInfo : MapTool.nullSafe(serverNameByHRegionInfo).keySet()){
-					String name = new String(hRegionInfo.getRegionName());
-					try{
-						RegionLoad regionLoad = regionLoadByName.get(name);
-						ServerName serverName = serverNameByHRegionInfo.get(hRegionInfo);
-						HServerLoad hServerLoad = servers.getHServerLoad(serverName);
-						regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, 
-								hRegionInfo, serverName, hServerLoad,
-								this, regionLoad, compactionInfo));
-					}catch(RuntimeException e){
-						logger.warn("couldn't build DRHRegionList for region:"+name);
-						throw e;
-					}
+			}
+			int regionNum = 0;
+			for(HRegionInfo hRegionInfo : MapTool.nullSafe(serverNameByHRegionInfo).keySet()){
+				String name = new String(hRegionInfo.getRegionName());
+				try{
+					RegionLoad regionLoad = regionLoadByName.get(name);
+					ServerName serverName = serverNameByHRegionInfo.get(hRegionInfo);
+					HServerLoad hServerLoad = servers.getHServerLoad(serverName);
+					regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, 
+							hRegionInfo, serverName, hServerLoad,
+							this, regionLoad, compactionInfo));
+				}catch(RuntimeException e){
+					logger.warn("couldn't build DRHRegionList for region:"+name);
+					throw e;
 				}
 			}
 		}catch(IOException e){
 			throw new DataAccessException(e);
 		}
-	}
-
-	public boolean getHasMultipleTables(){
-		return CollectionTool.size(tableNames) > 1;
+		Collections.sort(regions);//ensure sorted for getRegionsSorted
+		this.balancerStrategy = balancerStrategy.initMappings(servers, this);
+		for(DRHRegionInfo drhRegionInfo : regions){
+			drhRegionInfo.setBalancerDestinationServer(balancerStrategy.getServerName(drhRegionInfo));
+		}
 	}
 
 	public SortedSet<String> getServerNames(){
@@ -105,11 +97,15 @@ public class DRHRegionList{
 		return serverNames;
 	}
 
-	public List<String> getTableNames(){
-		return tableNames;
+	public String getTableName(){
+		return tableName;
 	}
 
 	public List<DRHRegionInfo<?>> getRegions(){
+		return regions;
+	}
+
+	public List<DRHRegionInfo<?>> getRegionsSorted(){
 		return regions;
 	}
 
@@ -153,14 +149,18 @@ public class DRHRegionList{
 		return regionsByGroup;
 	}
 
-	public DRHServerInfo getServerForRegion(byte[] regionConsistentHashInput){
-		long hash = HashMethods.longMD5DJBHash(regionConsistentHashInput);
-		if(consistentHashRing.isEmpty()){ return null; }
-		if(!consistentHashRing.containsKey(hash)){
-			SortedMap<Long,DRHServerInfo> tail = consistentHashRing.tailMap(hash);
-			hash = tail.isEmpty() ? consistentHashRing.firstKey() : tail.firstKey();
-		}
-		return consistentHashRing.get(hash);
+//	public DRHServerInfo getServerForRegion(byte[] regionConsistentHashInput){
+//		long hash = HashMethods.longMD5DJBHash(regionConsistentHashInput);
+//		if(consistentHashRing.isEmpty()){ return null; }
+//		if(!consistentHashRing.containsKey(hash)){
+//			SortedMap<Long,DRHServerInfo> tail = consistentHashRing.tailMap(hash);
+//			hash = tail.isEmpty() ? consistentHashRing.firstKey() : tail.firstKey();
+//		}
+//		return consistentHashRing.get(hash);
+//	}
+	
+	public ServerName getServerForRegion(DRHRegionInfo drhRegionInfo){
+		return balancerStrategy.getServerName(drhRegionInfo);
 	}
 
 	public Node<?, ?> getNode() {
