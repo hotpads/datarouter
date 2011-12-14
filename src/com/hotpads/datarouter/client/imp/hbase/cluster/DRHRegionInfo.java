@@ -78,8 +78,7 @@ implements Comparable<DRHRegionInfo<?>>{
 	
 	public boolean isOnCorrectServer(){
 		try{
-			return ObjectTool.equals(serverName.getHostAndPort(), 
-					balancerDestinationServer);
+			return ObjectTool.equals(serverName, balancerDestinationServer);
 //					consistentHashHServer.getHostAndPort());
 		}catch(NullPointerException npe){
 			logger.warn(ExceptionTool.getStackTraceAsString(npe));
