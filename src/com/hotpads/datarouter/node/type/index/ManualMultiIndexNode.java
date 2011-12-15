@@ -42,7 +42,9 @@ implements MultiIndexReader<PK,D,IK>
 	@Override
 	public List<D> lookupMulti(IK indexKey, boolean wildcardLastField, Config config){
 		if(indexKey==null){ return new LinkedList<D>(); }
-		List<IE> indexEntries = indexNode.getPrefixedRange(indexKey, wildcardLastField, null, false, config);
+		//hard-coding startInclusive to true because it will usually be true on the first call, 
+		// but subsequent calls may want false, so consider adding as method param
+		List<IE> indexEntries = indexNode.getPrefixedRange(indexKey, wildcardLastField, null, true, config);
 		List<PK> primaryKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
 		List<D> databeans = mainNode.reader().getMulti(primaryKeys, config);
 		return databeans;
@@ -53,7 +55,7 @@ implements MultiIndexReader<PK,D,IK>
 		if(CollectionTool.isEmpty(indexKeys)){ return new LinkedList<D>(); }
 		List<IE> indexEntries = ListTool.createLinkedList();
 		for(IK indexKey : indexKeys){//TODO fetch all in one call getPrefixedRanges(...
-			indexEntries.addAll(indexNode.getPrefixedRange(indexKey, wildcardLastField, null, false, config));
+			indexEntries.addAll(indexNode.getPrefixedRange(indexKey, wildcardLastField, null, true, config));
 		}
 		List<PK> primaryKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
 		List<D> databeans = mainNode.reader().getMulti(primaryKeys, config);

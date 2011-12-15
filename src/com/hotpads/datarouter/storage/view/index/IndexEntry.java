@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.storage.view.index;
 
+import java.util.List;
+
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -11,6 +13,7 @@ public interface IndexEntry<
 extends Databean<IK,IE>{
 
 	PK getTargetKey();
-	void fromDatabean(D target);
+//	void fromDatabean(D target);
+	List<IE> createFromDatabean(D target);
 	
 }
