@@ -50,10 +50,10 @@ implements IndexedStorageReader<PK,D>{
 
 	
 	@Override
-	public List<D> lookup(Lookup<PK> lookup, Config config) {
+	public List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? target.chooseSlave(config) : target.getMaster();
-		return node.lookup(lookup, config);
+		return node.lookup(lookup, wildcardLastField, config);
 	}
 	
 	

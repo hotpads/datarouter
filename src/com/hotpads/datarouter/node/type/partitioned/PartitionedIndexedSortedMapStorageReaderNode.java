@@ -47,8 +47,8 @@ implements IndexedSortedMapStorageReaderNode<PK,D>{
 
 	
 	@Override
-	public List<D> lookup(Lookup<PK> lookup, Config config) {
-		return mixinIndexedReadOps.lookup(lookup, config);
+	public List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
+		return mixinIndexedReadOps.lookup(lookup, wildcardLastField, config);
 	}
 	
 	

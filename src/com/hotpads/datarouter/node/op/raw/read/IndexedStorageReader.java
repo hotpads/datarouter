@@ -20,7 +20,7 @@ extends NodeOps<PK,D>
 	D lookupUnique(UniqueKey<PK> uniqueKey, Config config);
 	List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config);
 	
-	List<D> lookup(Lookup<PK> lookup, Config config);
+	List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config);
 	List<D> lookup(Collection<? extends Lookup<PK>> lookup, Config config);
 	
 	

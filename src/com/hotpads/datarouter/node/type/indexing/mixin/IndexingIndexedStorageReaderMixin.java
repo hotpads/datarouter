@@ -82,7 +82,7 @@ implements IndexedStorageReader<PK,D>{
 
 	
 	@Override
-	public List<D> lookup(Lookup<PK> lookup, Config config) {
+	public List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
 		throw new NotImplementedException("only unique indexes currently supported");
 	}
 	
