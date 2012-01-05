@@ -86,7 +86,7 @@ public class IndexedNodeIntegrationTests{
 	@Test
 	public void testLookup(){
 		SortedBeanByDCBLookup lookup = new SortedBeanByDCBLookup(STRINGS.last(), 1, STRINGS.first());
-		List<SortedBean> result = router.sortedBeanIndexed().lookup(lookup, null);
+		List<SortedBean> result = router.sortedBeanIndexed().lookup(lookup, false, null);
 		Assert.assertEquals(NUM_ELEMENTS, CollectionTool.size(result));
 		Assert.assertTrue(ListTool.isSorted(result));
 	}

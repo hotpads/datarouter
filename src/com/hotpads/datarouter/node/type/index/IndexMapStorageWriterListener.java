@@ -11,7 +11,9 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
+import com.hotpads.datarouter.storage.view.index.KeyIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
@@ -45,8 +47,8 @@ implements IndexListener<PK,D>{
 	@Override
 	public void onDelete(PK key, Config config) {
 		IE indexEntry = createIndexEntry();
-		if(indexEntry instanceof UniqueKeyIndexEntry){
-			((UniqueKeyIndexEntry)indexEntry).fromPrimaryKey(key);
+		if(indexEntry instanceof KeyIndexEntry){
+			((KeyIndexEntry)indexEntry).fromPrimaryKey(key);
 			indexNode.delete(indexEntry.getKey(), config);
 		}
 		else{
@@ -71,9 +73,11 @@ implements IndexListener<PK,D>{
 
 	@Override
 	public void onPut(D databean, Config config) {
-		IE indexEntry = createIndexEntry();
-		indexEntry.fromDatabean(databean);
-		indexNode.put(indexEntry, config);
+		IE sampleIndexEntry = createIndexEntry();
+		List<IE> indexEntries = sampleIndexEntry.createFromDatabean(databean);
+		indexNode.putMulti(indexEntries, config);
+//		indexEntry.fromDatabean(databean);
+//		indexNode.put(indexEntry, config);
 	}
 
 	@Override
@@ -101,11 +105,13 @@ implements IndexListener<PK,D>{
 	}
 	
 	protected List<IE> getIndexEntriesFromDatabeans(Collection<D> databeans){
+		IE sampleIndexEntry = createIndexEntry();
 		List<IE> indexEntries = ListTool.createArrayListWithSize(databeans);
 		for(D databean : IterableTool.nullSafe(databeans)){
-			IE indexEntry = createIndexEntry();
-			indexEntry.fromDatabean(databean);
-			indexEntries.add(indexEntry);
+//			IE indexEntry = createIndexEntry();
+//			indexEntry.fromDatabean(databean);
+			List<IE> indexEntriesFromSingleDatabean = sampleIndexEntry.createFromDatabean(databean);
+			indexEntries.addAll(CollectionTool.nullSafe(indexEntriesFromSingleDatabean));
 		}
 		return indexEntries;
 	}

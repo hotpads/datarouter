@@ -68,13 +68,13 @@ implements IndexedStorageReader<PK,D>{
 
 	
 	@Override
-	public List<D> lookup(Lookup<PK> lookup, Config config) {
+	public List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
 		if(lookup==null){ return null; }
 		List<D> all = ListTool.createLinkedList();
 		Collection<N> nodes = target.getPhysicalNodes(lookup);
 		//TODO randomize node access to avoid drowning first node
 		for(N node : CollectionTool.nullSafe(nodes)){
-			all.addAll(node.lookup(lookup, config));
+			all.addAll(node.lookup(lookup, wildcardLastField, config));
 		}
 		return all;
 	}
@@ -88,7 +88,7 @@ implements IndexedStorageReader<PK,D>{
 		//TODO randomize node access to avoid drowning first node
 		for(N node : CollectionTool.nullSafe(nodes)){
 			for(Lookup<PK> lookup : lookups){
-				all.addAll(node.lookup(lookup, config));
+				all.addAll(node.lookup(lookup, false, config));
 			}
 		}
 		return all;
