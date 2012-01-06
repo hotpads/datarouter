@@ -387,7 +387,9 @@ implements MapStorageReader<PK,D>,
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
 						Conjunction prefixConjunction = getPrefixConjunction(false, lookup, wildcardLastField);
-						criteria.add(prefixConjunction);
+						if(prefixConjunction!=null){
+							criteria.add(prefixConjunction);
+						}
 //						for(Field<?> field : CollectionTool.nullSafe(lookup.getFields())){
 //							criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 //						}
@@ -765,7 +767,11 @@ implements MapStorageReader<PK,D>,
 		if(numNonNullFields==0){ return null; }
 		Conjunction conjunction = Restrictions.conjunction();
 		int numFullFieldsFinished = 0;
-		for(Field<?> field : FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), prefix.getFields())){
+		List<Field<?>> fields = prefix.getFields();
+		if(usePrefixedFieldNames){
+			fields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), fields);
+		}
+		for(Field<?> field : fields){
 			if(numFullFieldsFinished >= numNonNullFields) break;
 			if(field.getValue()==null) {
 				throw new DataAccessException("Prefix query on "+
@@ -774,10 +780,12 @@ implements MapStorageReader<PK,D>,
 			boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
 			boolean stringField = !(field instanceof BasePrimitiveField<?>);
 			boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
-			String fieldNameWithPrefixIfNecessary = usePrefixedFieldNames
-					? field.getPrefixedName() : field.getName();
+//			String fieldNameWithPrefixIfNecessary = usePrefixedFieldNames
+//					? field.getPrefixedName() : field.getName();
+			String fieldNameWithPrefixIfNecessary = field.getPrefixedName();
 			if(canDoPrefixMatchOnField){
-				conjunction.add(Restrictions.like(fieldNameWithPrefixIfNecessary, field.getValue().toString(), MatchMode.START));
+				conjunction.add(Restrictions.like(fieldNameWithPrefixIfNecessary, 
+						field.getValue().toString(), MatchMode.START));
 			}else{
 				conjunction.add(Restrictions.eq(fieldNameWithPrefixIfNecessary, field.getValue()));
 			}

@@ -56,10 +56,11 @@ public class HibernateExecutor {
 				///////////////
 				//the main purpose of this class, hidden in resource management code
 				result = task.run(session);  
+				/////////////////
+				
 				if(EAGER_SESSION_FLUSH){
 					client.flushSession();
 				}
-				/////////////////
 				
 			}catch(Exception e){
 				try{
