@@ -387,12 +387,11 @@ implements MapStorageReader<PK,D>,
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
 						Conjunction prefixConjunction = getPrefixConjunction(false, lookup, wildcardLastField);
-						if(prefixConjunction!=null){
-							criteria.add(prefixConjunction);
+						if(prefixConjunction==null){
+							throw new IllegalArgumentException("Lookup with all null fields would return entire table.  "
+									+"Please use getAll() instead.");
 						}
-//						for(Field<?> field : CollectionTool.nullSafe(lookup.getFields())){
-//							criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-//						}
+						criteria.add(prefixConjunction);
 						List<D> result = criteria.list();
 						Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
 						return result;
