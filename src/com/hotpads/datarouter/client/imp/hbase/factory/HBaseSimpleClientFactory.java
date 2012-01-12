@@ -12,8 +12,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import junit.framework.Assert;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -26,6 +24,7 @@ import org.apache.hadoop.hbase.io.hfile.Compression.Algorithm;
 import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.HTablePool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
@@ -56,7 +55,7 @@ implements HBaseClientFactory{
 	public static Map<String,Configuration> CONFIG_BY_ZK_QUORUM = new ConcurrentHashMap<String,Configuration>();
 	public static Map<Configuration,HBaseAdmin> ADMIN_BY_CONFIG = new ConcurrentHashMap<Configuration,HBaseAdmin>();
 	
-	static final Integer TIMEOUT_MS = 20000;
+	static final Integer CREATE_CLIENT_TIMEOUT_MS = 20000;
 	
 	protected DataRouter router;
 	protected String clientName;
@@ -88,57 +87,70 @@ implements HBaseClientFactory{
 		if(client!=null){ return client; }
 		synchronized(this){
 			if(client!=null){ return client; }
-			Future<HBaseClient> future = executorService.submit(new Callable<HBaseClient>(){
-				@Override public HBaseClient call(){
-					if(client!=null){ return client; }
-					HBaseClientImp newClient = null;
-					try{
-						logger.warn("activating HBase client "+clientName);
-						PhaseTimer timer = new PhaseTimer(clientName);
-	
-						String zkQuorum = options.zookeeperQuorum();
-						hBaseConfig = CONFIG_BY_ZK_QUORUM.get(zkQuorum);
-						if(hBaseConfig==null){
-							hBaseConfig = HBaseConfiguration.create();
-							hBaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
-							CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
-							hBaseAdmin = new HBaseAdmin(hBaseConfig);
-//							Assert.assertNotNull(hBaseAdmin);
-							ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
-							//TODO add custom variables programatically
-						}
-						hBaseAdmin = ADMIN_BY_CONFIG.get(hBaseConfig);
-				
-						//databean config
-						HTablePool pool = initTables();
-						timer.add("init HTables");
-						
-						newClient = new HBaseClientImp(clientName, options, hBaseConfig, hBaseAdmin, pool);
-						logger.warn(timer.add("done"));
-	//					historicClientIds.add(System.identityHashCode(newClient)+"");
-	//					logger.warn("historicClientIds"+historicClientIds);
-					}catch(ZooKeeperConnectionException e){
-						throw new UnavailableException(e);
-					}catch(MasterNotRunningException e){
-						throw new UnavailableException(e);
-					}
-					return newClient;
-				}
-			});
+			Future<HBaseClient> future = executorService.submit(new HBaseClientBuilder());
 			try{
-				this.client = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+				this.client = future.get(CREATE_CLIENT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 			}catch(InterruptedException e){
 				throw new RuntimeException(e);
 			}catch(ExecutionException e){
 				throw new RuntimeException(e);
 			} catch(TimeoutException e) {
-				logger.warn("couldn't instantiate client "+clientName+" in "+TIMEOUT_MS+"ms");
+				logger.warn("couldn't instantiate client "+clientName+" in "+CREATE_CLIENT_TIMEOUT_MS+"ms");
 				future.cancel(false);
-				throw new RuntimeException(e);
+				if(!ClientType.USE_RECONNECTING_HBASE_CLIENT){
+					throw new RuntimeException(e);
+				}
 			}
 		}
 		return client;
 	}
+	
+	
+	public class HBaseClientBuilder implements Callable<HBaseClient>{
+		@Override public HBaseClient call(){
+			if(client!=null){ return client; }
+			HBaseClientImp newClient = null;
+			try{
+				logger.warn("activating HBase client "+clientName);
+				PhaseTimer timer = new PhaseTimer(clientName);
+
+				String zkQuorum = options.zookeeperQuorum();
+				hBaseConfig = CONFIG_BY_ZK_QUORUM.get(zkQuorum);
+				if(hBaseConfig==null){
+					hBaseConfig = HBaseConfiguration.create();
+					hBaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
+				}
+				hBaseAdmin = new HBaseAdmin(hBaseConfig);
+				if(hBaseAdmin.getConnection().isClosed()){
+					CONFIG_BY_ZK_QUORUM.remove(zkQuorum);
+					ADMIN_BY_CONFIG.remove(hBaseConfig);
+					hBaseConfig = null;
+					hBaseAdmin = null;
+					String log = "couldn't open connection because hBaseAdmin.getConnection().isClosed()";
+					logger.warn(log);
+					throw new UnavailableException(log);
+				}else{//yay, the connection is open
+					CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
+					ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
+				}
+		
+				//databean config
+				HTablePool pool = initTables();
+				timer.add("init HTables");
+				
+				newClient = new HBaseClientImp(clientName, options, hBaseConfig, hBaseAdmin, pool);
+				logger.warn(timer.add("done"));
+//					historicClientIds.add(System.identityHashCode(newClient)+"");
+//					logger.warn("historicClientIds"+historicClientIds);
+			}catch(ZooKeeperConnectionException e){
+				throw new UnavailableException(e);
+			}catch(MasterNotRunningException e){
+				throw new UnavailableException(e);
+			}
+			return newClient;
+		}
+	}
+	
 	
 	public static final int 
 		DEFAULT_minPoolSize = 1,//these are per-table

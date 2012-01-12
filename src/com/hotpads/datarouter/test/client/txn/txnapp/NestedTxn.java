@@ -41,14 +41,14 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 		ConnectionHandle handle = hibernateClient.getExistingHandle();
 		
 		TxnBean outer = new TxnBean("outer");
-		router.txnBean().put(outer, null);
+		router.txnBeanHibernate().put(outer, null);
 		if(flush){
 			getSession(client.getName()).flush();
 			getSession(client.getName()).clear();
-			List<TxnBean> all = router.txnBean().getAll(null);
+			List<TxnBean> all = router.txnBeanHibernate().getAll(null);
 			Assert.assertEquals(1, CollectionTool.size(all));
 		}else{
-			List<TxnBean> all = router.txnBean().getAll(null);
+			List<TxnBean> all = router.txnBeanHibernate().getAll(null);
 			if(outer.isFieldAware() || HibernateExecutor.EAGER_SESSION_FLUSH){
 				Assert.assertEquals(1, CollectionTool.size(all));
 			}else{
@@ -59,7 +59,7 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 		router.run(new InnerTxn(router, true, handle));
 		
 		TxnBean outer2 = new TxnBean(outer.getId());
-		router.txnBean().put(outer2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
+		router.txnBeanHibernate().put(outer2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
 		return null;
 	}
 	
@@ -89,14 +89,14 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 			
 			String name = "inner_"+flush;
 			TxnBean inner = new TxnBean(name);
-			router.txnBean().put(inner, null);
+			router.txnBeanHibernate().put(inner, null);
 			if(flush){
 				getSession(client.getName()).flush();
 				getSession(client.getName()).clear();
-				List<TxnBean> all = router.txnBean().getAll(null);
+				List<TxnBean> all = router.txnBeanHibernate().getAll(null);
 				Assert.assertEquals(2, CollectionTool.size(all));//should not include TxnBean.outer
 			}else{
-				List<TxnBean> all = router.txnBean().getAll(null);
+				List<TxnBean> all = router.txnBeanHibernate().getAll(null);
 				if(inner.isFieldAware() || HibernateExecutor.EAGER_SESSION_FLUSH){
 					Assert.assertEquals(2, CollectionTool.size(all));
 				}else{

@@ -6,10 +6,11 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 
-@ImplementedBy(HibernateBasicClientTestRouter.class)
+@ImplementedBy(BasicClientTestRouterImp.class)
 public interface BasicClientTestRouter extends DataRouter{
 
-	MapStorage<TxnBeanKey,TxnBean> txnBean();
+	MapStorage<TxnBeanKey,TxnBean> txnBeanHibernate();
+	MapStorage<TxnBeanKey,TxnBean> txnBeanHBase();
 
 	
 	

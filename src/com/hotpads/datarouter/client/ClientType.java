@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client;
 
 import java.util.concurrent.ExecutorService;
 
+import com.hotpads.datarouter.client.imp.hbase.factory.HBaseDynamicClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedSimpleClientFactory;
@@ -47,21 +48,28 @@ public enum ClientType {
 		return null;
 	}
 	
+	public static final boolean USE_RECONNECTING_HBASE_CLIENT = true;
+	
 	public ClientFactory createClientFactory(
 			DataRouter router, String clientName, 
 			String configFileLocation, ExecutorService executorService){
 		if(hbase==this){ 
-			return new HBaseSimpleClientFactory(router, clientName, 
-					configFileLocation, executorService); }
-//		return new HBaseDynamicClientFactory(router, clientName, 
-//				configFileLocation, executorService); }
+			if(USE_RECONNECTING_HBASE_CLIENT){
+				return new HBaseDynamicClientFactory(router, clientName, 
+						configFileLocation, executorService);
+			}else{
+				return new HBaseSimpleClientFactory(router, clientName, 
+						configFileLocation, executorService);
+			}
+		}
 		if(hibernate==this){ 
 			return new HibernateSimpleClientFactory(router, clientName, 
 					configFileLocation, executorService); }
 		if(memcached==this){ 
 			return new MemcachedSimpleClientFactory(router, clientName, 
 					configFileLocation, executorService); }
-		return null;
+		
+		throw new IllegalArgumentException("unsupported ClientType "+this);
 		
 	}
 }
