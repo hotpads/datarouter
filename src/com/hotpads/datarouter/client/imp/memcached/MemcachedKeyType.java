@@ -15,7 +15,9 @@ public enum MemcachedKeyType implements HpEnum{
 	USER_LISTING_RECORDS_BY_TYPE(9, "userListingRecordsByType", "User Listing Records by Type"), 
 	USER_SEARCH(10, "userSearch", "User Search"),
 	EXPERIMENT(11, "experiment", "Experiment"),
-	ROBOT_DETECTOR(12, "robotDetector", "Robot Detector");
+	ROBOT_DETECTOR(12, "robotDetector", "Robot Detector"),
+	EXCEPTIONAL_IP(13,"exceptionalIP","Exceptional IP"),
+	;
 	
 	private Integer value;
 	private String key;
