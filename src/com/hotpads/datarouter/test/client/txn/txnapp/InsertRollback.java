@@ -33,21 +33,21 @@ public class InsertRollback extends BaseParallelHibernateTxnApp<Void>{
 	@Override
 	public Void runOncePerClient(Client client){
 		TxnBean a = new TxnBean("a");
-		router.txnBean().put(a, null);
+		router.txnBeanHibernate().put(a, null);
 		if(flush){
 			this.getSession(client.getName()).flush();
 			this.getSession(client.getName()).clear();
-			Assert.assertEquals(1, CollectionTool.size(router.txnBean().getAll(null)));
+			Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 		}else{
 			if(a.isFieldAware() || HibernateExecutor.EAGER_SESSION_FLUSH){
-				Assert.assertEquals(1, CollectionTool.size(router.txnBean().getAll(null)));
+				Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 			}else{
-				Assert.assertEquals(0, CollectionTool.size(router.txnBean().getAll(null)));
+				Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 			}
 		}
 		TxnBean a2 = new TxnBean("a2");
 		a2.setId(a.getId());
-		router.txnBean().put(a2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
+		router.txnBeanHibernate().put(a2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
 		return null;
 	}
 }

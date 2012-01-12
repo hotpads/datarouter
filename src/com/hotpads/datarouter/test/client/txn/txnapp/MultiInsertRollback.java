@@ -35,13 +35,13 @@ public class MultiInsertRollback extends BaseParallelHibernateTxnApp<Void>{
 				new TxnBean("d"),
 				new TxnBean("e"));
 		
-		router.txnBean().putMulti(beans, null);
+		router.txnBeanHibernate().putMulti(beans, null);
 		
 		if(flush){//tests calling this should already have 1 bean existing
 			this.getSession(client.getName()).flush();
-			Assert.assertEquals(4, CollectionTool.size(router.txnBean().getAll(null)));
+			Assert.assertEquals(4, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 		}else{
-			List<TxnBean> all = router.txnBean().getAll(null);
+			List<TxnBean> all = router.txnBeanHibernate().getAll(null);
 			if(CollectionTool.getFirst(beans).isFieldAware() || HibernateExecutor.EAGER_SESSION_FLUSH){
 				Assert.assertEquals(4, CollectionTool.size(all));
 			}else{

@@ -22,8 +22,8 @@ public class TxnIntegrationTests {
 	static BasicClientTestRouter router;
 
 	public static void resetTable(){
-		router.txnBean().deleteAll(null);
-		Assert.assertEquals(0, CollectionTool.size(router.txnBean().getAll(null)));
+		router.txnBeanHibernate().deleteAll(null);
+		Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 	}
 	
 	@BeforeClass
@@ -47,7 +47,7 @@ public class TxnIntegrationTests {
 			++numExceptions;
 		}
 		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(0, CollectionTool.size(router.txnBean().getAll(null)));
+		Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 	}
 	
 	@Test 
@@ -60,7 +60,7 @@ public class TxnIntegrationTests {
 			++numExceptions;
 		}
 		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(0, CollectionTool.size(router.txnBean().getAll(null)));
+		Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 	}
 
 	
@@ -71,15 +71,15 @@ public class TxnIntegrationTests {
 		resetTable();
 		int numExceptions = 0;
 		TxnBean b = new TxnBean("b");
-		router.txnBean().put(b, null);
-		Assert.assertEquals(1, CollectionTool.size(router.txnBean().getAll(null)));
+		router.txnBeanHibernate().put(b, null);
+		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 		try{
 			router.run(new MultiInsertRollback(router, false));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
 		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(1, CollectionTool.size(router.txnBean().getAll(null)));
+		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 	}
 	
 	@Test 
@@ -87,15 +87,15 @@ public class TxnIntegrationTests {
 		resetTable();
 		int numExceptions = 0;
 		TxnBean b = new TxnBean("b");
-		router.txnBean().put(b, null);
-		Assert.assertEquals(1, CollectionTool.size(router.txnBean().getAll(null)));
+		router.txnBeanHibernate().put(b, null);
+		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 		try{
 			router.run(new MultiInsertRollback(router, true));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
 		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(1, CollectionTool.size(router.txnBean().getAll(null)));
+		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 	}
 
 	
@@ -112,7 +112,7 @@ public class TxnIntegrationTests {
 			++numExceptions;
 		}
 		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(0, CollectionTool.size(router.txnBean().getAll(null)));
+		Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 	}
 }
 
