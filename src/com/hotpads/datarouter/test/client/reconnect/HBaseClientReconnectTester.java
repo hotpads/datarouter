@@ -23,7 +23,7 @@ public class HBaseClientReconnectTester {
 	Logger logger = Logger.getLogger(HBaseClientReconnectTester.class);
 	
 	@DoNotCommit//will loop forever in the test suite
-	static boolean ENABLED = true;
+	static boolean ENABLED = false;
 //	static boolean ENABLED = false;
 	
 	static BasicClientTestRouter router;
