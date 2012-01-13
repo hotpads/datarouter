@@ -60,7 +60,7 @@ public class HBaseQueryBuilder{
 		}else if(start!=null){
 			scan = new Scan(start);
 		}else if(endExclusive!=null){
-			scan = new Scan(new byte[0], endExclusive);
+			scan = new Scan(new byte[]{}, endExclusive);
 		}else{
 			scan = new Scan();//whole table
 		}
