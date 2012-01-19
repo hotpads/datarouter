@@ -12,7 +12,7 @@ public interface HBaseClient
 extends Client{
 	
 	HTable checkOutHTable(String name);
-	void checkInHTable(HTable hTable);
+	void checkInHTable(HTable hTable, boolean possiblyTarnished);
 	Integer getTotalPoolSize();
 	ExecutorService getExecutorService();
 	HBaseAdmin getHBaseAdmin();

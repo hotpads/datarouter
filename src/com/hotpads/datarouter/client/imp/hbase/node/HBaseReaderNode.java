@@ -84,13 +84,13 @@ implements HBasePhysicalNode<PK,D>,
 	public void clearThreadSpecificState(){
 	}
 
-	public HTable checkOutHTable(){
-		return this.getClient().checkOutHTable(this.getTableName());
-	}
-	
-	public void checkInHTable(HTable hTable){
-		this.getClient().checkInHTable(hTable);
-	}
+//	public HTable checkOutHTable(){
+//		return this.getClient().checkOutHTable(this.getTableName());
+//	}
+//	
+//	public void checkInHTable(HTable hTable){
+//		this.getClient().checkInHTable(hTable);
+//	}
 	
 	
 	/************************************ MapStorageReader methods ****************************/

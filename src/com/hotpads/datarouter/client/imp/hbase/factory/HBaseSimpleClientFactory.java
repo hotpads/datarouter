@@ -26,6 +26,8 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
+import com.hotpads.datarouter.client.imp.hbase.HTableExecutorServicePool;
+import com.hotpads.datarouter.client.imp.hbase.HTablePerTablePool;
 import com.hotpads.datarouter.client.imp.hbase.HTablePool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
@@ -50,6 +52,8 @@ import com.hotpads.util.core.profile.PhaseTimer;
 public class HBaseSimpleClientFactory 
 implements HBaseClientFactory{
 	Logger logger = Logger.getLogger(getClass());
+	
+	public static final Boolean PER_TABLE_POOL = false;//per table is less efficient
 	
 	//static caches
 	public static Map<String,Configuration> CONFIG_BY_ZK_QUORUM = new ConcurrentHashMap<String,Configuration>();
@@ -135,10 +139,11 @@ implements HBaseClientFactory{
 				}
 		
 				//databean config
-				HTablePool pool = initTables();
+				Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> result = initTables();
 				timer.add("init HTables");
 				
-				newClient = new HBaseClientImp(clientName, options, hBaseConfig, hBaseAdmin, pool);
+				newClient = new HBaseClientImp(clientName, options, hBaseConfig, hBaseAdmin, 
+						result.getLeft(), result.getRight());
 				logger.warn(timer.add("done"));
 //					historicClientIds.add(System.identityHashCode(newClient)+"");
 //					logger.warn("historicClientIds"+historicClientIds);
@@ -154,7 +159,8 @@ implements HBaseClientFactory{
 	
 	public static final int 
 		DEFAULT_minPoolSize = 1,//these are per-table
-		DEFAULT_maxPoolSize = 5;
+		DEFAULT_maxPoolSize = 5,
+		EXECUTOR_SERVICE_MAX_POOL_SIZE = 100;//this would be 100 * about 6 = 600 threads
 	
 	public static final long 
 			DEFAULT_MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024,
@@ -163,7 +169,7 @@ implements HBaseClientFactory{
 	public static final byte[] DEFAULT_FAMILY_QUALIFIER = new byte[]{(byte)'a'};
 	public static final String DUMMY_COL_NAME = new String(new byte[]{0});
 	
-	protected HTablePool initTables(){
+	protected Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> initTables(){
 		List<String> tableNames = ListTool.create();
 		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = MapTool.create();
 		@SuppressWarnings("unchecked")
@@ -224,14 +230,17 @@ implements HBaseClientFactory{
 			throw new RuntimeException(e);
 		}
 		
-		HTablePool pool = new HTablePool(hBaseConfig, 
-				tableNames, 
-				options.minPoolSize(DEFAULT_minPoolSize),
-				DEFAULT_maxPoolSize,
-				primaryKeyClassByName);
+		HTablePool pool = null;
+		if (PER_TABLE_POOL) {
+			pool = new HTablePerTablePool(hBaseConfig, tableNames,
+					options.minPoolSize(DEFAULT_minPoolSize),
+					DEFAULT_maxPoolSize);
+		} else {
+			pool = new HTableExecutorServicePool(hBaseConfig, tableNames,
+					EXECUTOR_SERVICE_MAX_POOL_SIZE, primaryKeyClassByName);
+		}
 		
-		
-		return pool;
+		return Pair.create(pool,primaryKeyClassByName);
 	}
 
 	

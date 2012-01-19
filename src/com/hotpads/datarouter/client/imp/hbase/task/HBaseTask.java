@@ -40,6 +40,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	@Override
 	public V wrappedCall(){
 		HBaseClient client = null;
+		boolean possiblyTarnishedHTable = false;
 		try{
 			TraceContext.startSpan(node.getName()+" "+taskName);
 			if(NumberTool.nullSafe(numAttempts) > 1){ 
@@ -53,10 +54,11 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			hTable = client.checkOutHTable(tableName);
 			return hbaseCall();
 		}catch(Exception e){
+			possiblyTarnishedHTable = true;
 			throw new DataAccessException(e);
 		}finally{
 			if(hTable!=null && client!=null){
-				client.checkInHTable(hTable);
+				client.checkInHTable(hTable, possiblyTarnishedHTable);
 			}
 			TraceContext.finishSpan();
 		}

@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,12 +28,14 @@ implements HBaseClient{
 	protected HBaseAdmin hBaseAdmin;
 	protected HTablePool hTablePool;
 	protected ExecutorService executorService;
+	protected Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
 	
 	
 	/**************************** constructor **********************************/
 	
 	public HBaseClientImp(String name, HBaseOptions options, 
-			Configuration hBaseConfiguration, HBaseAdmin hBaseAdmin, HTablePool pool){
+			Configuration hBaseConfiguration, HBaseAdmin hBaseAdmin, HTablePool pool,
+			Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName){
 		this.name = name;
 		this.options = options;
 		this.hBaseConfiguration = hBaseConfiguration;
@@ -47,6 +50,7 @@ implements HBaseClient{
 //				TimeUnit.SECONDS,  //irrelevant because our coreSize=maxSize
 //				new LinkedBlockingQueue<Runnable>(1<<10),
 //				new ThreadPoolExecutor.AbortPolicy());
+		this.primaryKeyClassByName = primaryKeyClassByName;
 	}
 	
 	@Override
@@ -78,8 +82,8 @@ implements HBaseClient{
 	}
 	
 	@Override
-	public void checkInHTable(HTable hTable){
-		hTablePool.checkIn(hTable);
+	public void checkInHTable(HTable hTable, boolean possiblyTarnished){
+		hTablePool.checkIn(hTable, possiblyTarnished);
 	}
 
 	@Override
@@ -89,7 +93,7 @@ implements HBaseClient{
 
 	@Override
 	public Class<PrimaryKey<?>> getPrimaryKeyClass(String tableName){
-		return hTablePool.getPrimaryKeyClass(tableName);
+		return primaryKeyClassByName.get(tableName);
 	}
 	
 	public Configuration getHBaseConfiguration(){

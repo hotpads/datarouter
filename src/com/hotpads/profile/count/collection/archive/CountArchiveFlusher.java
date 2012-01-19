@@ -28,6 +28,8 @@ public class CountArchiveFlusher{
 		INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS = 10,
 		DISCARD_COUNTS_OLDER_THAN_MS = 5 * DateTool.MILLISECONDS_IN_MINUTE;
 	
+	public static final String
+		NAME_MEMORY = "memory";
 	
 	protected String name;
 	protected long flushPeriodMs;
