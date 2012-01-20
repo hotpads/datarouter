@@ -19,6 +19,8 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
+import com.hotpads.util.core.concurrent.ExecutorServiceTool;
+import com.hotpads.util.core.concurrent.ThreadTool;
 
 public class HTableExecutorServicePool implements HTablePool{
 	protected Logger logger = Logger.getLogger(getClass());
@@ -55,15 +57,17 @@ public class HTableExecutorServicePool implements HTablePool{
 				hTableExecutorService = new HTableExecutorService();
 				String counterName = "connection create HTable "+name;
 				DRCounters.inc(counterName);
+				logger.warn("created new HTable ThreadPool Executor for table "+name);
 				break;
 			}
-			if(hTableExecutorService.isExpired()){
-				//TODO background thread that actively discards expired pools
-				logger.warn("discarded expired executorService");
-				hTableExecutorService = null;//release it
-			}else{
+			if(!hTableExecutorService.isExpired()){
+//				logger.warn("connection got pooled HTable executor");
 				DRCounters.inc("connection got pooled HTable executor");
+				break;
 			}
+			//TODO background thread that actively discards expired pools
+			logger.warn("discarded expired executorService");
+			hTableExecutorService = null;//release it and loop around again
 		}
 		
 		HTable hTable = null;
@@ -90,20 +94,30 @@ public class HTableExecutorServicePool implements HTablePool{
 		hTableExecutorService.markLastCheckinMs();
 		ThreadPoolExecutor exec = hTableExecutorService.exec;
 		exec.purge();
-		if(possiblyTarnished){
+		if(possiblyTarnished){//discard
 			logger.warn("ThreadPoolExecutor possibly tarnished, discarding.  table:"+name);
-			DRCounters.inc("HTable executor possibly tarnished "+name);	
-			hTableExecutorService.terminate();
-		}else if(!hTableExecutorService.isReusable()){//discard
+			DRCounters.inc("HTable executor possiblyTarnished "+name);	
+			hTableExecutorService.terminateAndBlockUntilFinished(name);
+		}else if(hTableExecutorService.isDyingOrDead(name)){//discard
 			logger.warn("ThreadPoolExecutor not reusable, discarding.  table:"+name);
-			DRCounters.inc("HTable executor not reusable "+name);	
-			hTableExecutorService.terminate();
-		}else if(queue.offer(hTableExecutorService)){//reuse
-			DRCounters.inc("connection HTable returned to pool "+name);
-		}else{//discard
-			logger.warn("checkIn HTable but queue already full, so close and discard, table="+name);
-			DRCounters.inc("HTable executor pool overflow");	
-			hTableExecutorService.terminate();
+			DRCounters.inc("HTable executor isDyingOrDead "+name);	
+			hTableExecutorService.terminateAndBlockUntilFinished(name);
+		}else if(!hTableExecutorService.isTaskQueueEmpty()){//discard
+			logger.warn("ThreadPoolExecutor taskQueue not empty, discarding.  table:"+name);
+			DRCounters.inc("HTable executor taskQueue not empty "+name);	
+			hTableExecutorService.terminateAndBlockUntilFinished(name);
+		}else if(!hTableExecutorService.waitForActiveThreadsToSettle(name)){//discard
+			logger.warn("active thread count would not settle to 0, table="+name);
+			DRCounters.inc("HTable executor pool active threads won't quit "+name);	
+			hTableExecutorService.terminateAndBlockUntilFinished(name);
+		}else{
+			if(queue.offer(hTableExecutorService)){//keep it!
+				DRCounters.inc("connection HTable returned to pool "+name);
+			}else{//discard
+				logger.warn("checkIn HTable but queue already full, so close and discard, table="+name);
+				DRCounters.inc("HTable executor pool overflow");	
+				hTableExecutorService.terminateAndBlockUntilFinished(name);
+			}
 		}
 	}
 	
@@ -116,22 +130,33 @@ public class HTableExecutorServicePool implements HTablePool{
 	}
 	
 	
-	
+	/*
+	 * From ThreadPoolExecutor javadoc:
+	 * 
+	 * <dd> A pool that is no longer referenced in a program <em>AND</em> has no
+	 * remaining threads will be <tt>shutdown</tt> automatically. If you would
+	 * like to ensure that unreferenced pools are reclaimed even if users forget
+	 * to call {@link ThreadPoolExecutor#shutdown}, then you must arrange that
+	 * unused threads eventually die, by setting appropriate keep-alive times,
+	 * using a lower bound of zero core threads and/or setting {@link
+	 * ThreadPoolExecutor#allowCoreThreadTimeOut(boolean)}. </dd> </dl>
+	 */
 	public static class HTableExecutorService{
 		protected Logger logger = Logger.getLogger(getClass());
 		
+		public static final Integer NUM_CORE_THREADS = 0;//see class comment regarding killing pools
+
 		public static final Long TIMEOUT_MS = 15 * 1000L;//15 seconds
 		
 		protected ThreadPoolExecutor exec;
-//		protected ExecutorService executorService;
 		protected Long createdMs;
 		protected Long lastCheckinMs;
 		
 		public HTableExecutorService() {
-			this.exec = new ThreadPoolExecutor(1, Integer.MAX_VALUE,
+			this.exec = new ThreadPoolExecutor(NUM_CORE_THREADS, Integer.MAX_VALUE,
 			        60, TimeUnit.SECONDS,
 			        new SynchronousQueue<Runnable>());
-//			this.executorService = Executors.newCachedThreadPool();
+			this.exec.allowCoreThreadTimeOut(true);//see class comment regarding killing pools
 			this.createdMs = System.currentTimeMillis();
 			this.lastCheckinMs = this.createdMs;
 		}
@@ -149,33 +174,52 @@ public class HTableExecutorServicePool implements HTablePool{
 			exec.purge();
 		}
 		
-		public boolean isReusable(){	
-			if(exec.isShutdown()){
-				logger.warn("executor isShutdown");
-				return false;
-			}
-			if(exec.isTerminated()){
-				logger.warn("executor isTerminated");
-				return false;
-			}
-			if(exec.isTerminating()){
-				logger.warn("executor isTerminating");
-				return false;
-			}
-			if(exec.getQueue().size() > 0){
-				logger.warn("executor has "+exec.getQueue().size()+" queued tasks");
-				return false;
-			}
-			if(exec.getActiveCount() > 0){
-				logger.warn("executor has "+exec.getActiveCount()+" active threads");
-				return false;
-			}
-			
-			return true;//should be nice and clean for the next HTable
+		public boolean isTaskQueueEmpty(){
+			return exec.getQueue().size() == 0;
 		}
 		
-		public void terminate(){
+		public boolean isDyingOrDead(String tableNameForLog){	
+			if(exec.isShutdown()){
+				logger.warn("executor isShutdown, table:"+tableNameForLog);
+				return true;
+			}
+			if(exec.isTerminated()){
+				logger.warn("executor isTerminated, table:"+tableNameForLog);
+				return true;
+			}
+			if(exec.isTerminating()){
+				logger.warn("executor isTerminating, table:"+tableNameForLog);
+				return true;
+			}
+			return false;//should be nice and clean for the next HTable
+		}
+		
+		public boolean waitForActiveThreadsToSettle(String tableNameForLog){
+			if(exec.getActiveCount()==0){ return true; }
+			ThreadTool.sleep(1);
+			if(exec.getActiveCount()==0){
+				logger.warn("had to sleep a little to let threads finish, table:"+tableNameForLog);
+				return true;
+			}
+			ThreadTool.sleep(10);
+			if(exec.getActiveCount()==0){
+				logger.warn("had to sleep a long time to let threads finish, table:"+tableNameForLog);
+				return true;
+			}
+			logger.warn("still have active threads after 11ms, table:"+tableNameForLog);
+			return false;
+		}
+		
+		public void terminateAndBlockUntilFinished(String tableNameForLog){
 			exec.shutdownNow();//should not block
+			if(exec.getActiveCount()==0){ return; }
+			//else we have issues... try to fix them
+			exec.shutdownNow();
+			if(exec.getActiveCount() > 0){
+				logger.warn("getActiveCount() still > 0 after shutdownNow(), table:"+tableNameForLog);
+			}
+			ExecutorServiceTool.awaitTerminationForever(exec);//any better ideas?  alternative is memory leak
+			logger.warn("awaitTermination finished!, table:"+tableNameForLog);
 		}
 	}
 	
