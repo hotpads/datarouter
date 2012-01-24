@@ -134,8 +134,13 @@ public class StringField extends BaseField<String>{
 	
 	@Override
 	public String fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
-		int length = numBytesWithSeparator(bytes, offset) - 1;
-		return new String(bytes, offset, length, StringByteTool.CHARSET_UTF8);
+		int lengthIncludingSeparator = numBytesWithSeparator(bytes, offset);
+		boolean lastByteIsSeparator = bytes[offset + lengthIncludingSeparator - 1] == SEPARATOR;
+		int lengthWithoutSeparator = lengthIncludingSeparator;
+		if(lastByteIsSeparator){
+			--lengthWithoutSeparator;
+		}
+		return new String(bytes, offset, lengthWithoutSeparator, StringByteTool.CHARSET_UTF8);
 	}
 	
 	

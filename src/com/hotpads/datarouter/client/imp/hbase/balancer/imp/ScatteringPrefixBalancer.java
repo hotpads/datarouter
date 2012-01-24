@@ -47,7 +47,7 @@ implements BalancerStrategy{
 		List<List<Field<?>>> prefixes = scatteringPrefix.getAllPossibleScatteringPrefixes();
 		List<byte[]> prefixByteArrays = ListTool.createArrayList();
 		for(List<Field<?>> prefix : prefixes){
-			byte[] prefixBytes = FieldSetTool.getConcatenatedValueBytes(prefix, false);
+			byte[] prefixBytes = FieldSetTool.getConcatenatedValueBytes(prefix, false, false);
 			prefixByteArrays.add(prefixBytes);
 		}
 		

@@ -57,7 +57,7 @@ public class CharacterField extends BasePrimitiveField<Character>{
 	
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:StringByteTool.getUtf8Bytes(this.value.toString());
+		return value==null?null:StringByteTool.getUtf8Bytes(value.toString());
 	}
 	
 	@Override
@@ -72,6 +72,7 @@ public class CharacterField extends BasePrimitiveField<Character>{
 	
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
+		//TODO this should be reviewed for correctness
 		for(int i=offset; i < bytes.length; ++i){
 			if(bytes[i]==StringField.SEPARATOR){
 				return i - offset + 1;//plus 1 for the separator

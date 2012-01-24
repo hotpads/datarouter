@@ -91,10 +91,10 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 	
 	@Override
 	public byte[] getBytesWithSeparator(){
-		if(this.value==null){ return IntegerByteTool.getUInt31Bytes(0); }
+		if(value==null){ return IntegerByteTool.getUInt31Bytes(0); }
 		//prepend the length (in bytes) as a positive integer (not bitwise comparable =( )
 		//TODO replace with varint
-		byte[] dataBytes = LongByteTool.getUInt63ByteArray(this.value);
+		byte[] dataBytes = LongByteTool.getUInt63ByteArray(value);
 		byte[] allBytes = new byte[4+dataBytes.length];
 		System.arraycopy(IntegerByteTool.getUInt31Bytes(dataBytes.length), 0, allBytes, 0, 4);
 		System.arraycopy(dataBytes, 0, allBytes, 4, dataBytes.length);

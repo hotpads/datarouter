@@ -160,7 +160,7 @@ implements FieldSet<F>{
 	@Override
 	public byte[] getBytes(boolean allowNulls){
 		try{
-			return FieldSetTool.getConcatenatedValueBytes(getFields(), allowNulls);
+			return FieldSetTool.getConcatenatedValueBytes(getFields(), allowNulls, false);
 		}catch(Exception e){
 			throw new IllegalArgumentException("error on getBytes(allowNulls="+allowNulls+") for "+this.toString());
 		}

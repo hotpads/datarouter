@@ -151,9 +151,9 @@ public class DatabeanFieldInfo<
 				}
 			}
 			for(Field<?> field : primaryKeyFields){
-				if(StringTool.notEmpty(field.getPrefix())){
-					logger.warn("found unusual prefix on primaryKeyField "+primaryKeyClass.getName());
-				}
+//				if(StringTool.notEmpty(field.getPrefix())){
+//					logger.warn("found unusual prefix on primaryKeyField "+primaryKeyClass.getName());
+//				}
 			}
 		}
 	}

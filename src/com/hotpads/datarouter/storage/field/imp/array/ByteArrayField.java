@@ -84,7 +84,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 		if(this.value==null){ return null; }
 		//prepend the length as a positive integer (not bitwise comparable =( )
 		//TODO replace with varint
-		byte[] dataBytes = ByteTool.flipToAndFromComparableByteArray(this.value);//TODO write directly to the allBytes array
+		byte[] dataBytes = ByteTool.flipToAndFromComparableByteArray(value);//TODO write directly to the allBytes array
 		byte[] allBytes = new byte[4+ArrayTool.length(dataBytes)];
 		System.arraycopy(IntegerByteTool.getUInt31Bytes(0), 0, allBytes, 4, 4);
 		System.arraycopy(dataBytes, 0, allBytes, 4, ArrayTool.length(dataBytes));
@@ -93,7 +93,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return IntegerByteTool.fromUInt31Bytes(bytes, offset);
+		return IntegerByteTool.fromUInt31Bytes(bytes, offset);//should we be adding 4 here?
 	}
 	
 	@Override
