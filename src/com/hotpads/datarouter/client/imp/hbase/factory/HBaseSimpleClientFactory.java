@@ -208,7 +208,7 @@ implements HBaseClientFactory{
 						hTable.setMemStoreFlushSize(DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES);
 						HColumnDescriptor family = new HColumnDescriptor(DEFAULT_FAMILY_QUALIFIER);
 						family.setMaxVersions(1);
-						family.setBloomFilterType(BloomType.ROW);
+						family.setBloomFilterType(BloomType.NONE);
 						family.setCompressionType(Algorithm.GZ);
 						hTable.addFamily(family);
 						byte[][] splitPoints = getSplitPoints(nodeByTableName.get(tableName));
