@@ -18,7 +18,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	static Logger logger = Logger.getLogger(HBaseMultiAttemptTask.class);
 
 	protected static final Boolean CANCEL_THREAD_IF_RUNNING = true;
-	
+		
 	protected HBaseTask<V> task;
 	protected HBaseClient client;
 	protected ExecutorService executorService;
@@ -31,7 +31,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		this.task = task;
 		//temp hack.  in case of replaced client, we still use old client's exec service
 		this.config = Config.nullSafe(task.config);
-		this.timeoutMs = this.config.getTimeoutMs();
+		this.timeoutMs = getTimeoutMS(this.config);
 		this.numAttempts = this.config.getNumAttempts();
 		
 	}
@@ -72,5 +72,10 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		}
 		throw new DataAccessException("timed out "+numAttempts+" times at timeoutMs="+timeoutMs, 
 				finalAttempException);
+	}
+	
+	protected static Long getTimeoutMS(Config config){
+		if(config.getTimeoutMs()!=null){ return config.getTimeoutMs(); }
+		return HBaseClient.DEFAULT_TIMEOUT_MS;
 	}
 }

@@ -11,6 +11,8 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public interface HBaseClient
 extends Client{
 	
+	public static final Long DEFAULT_TIMEOUT_MS = 10 * 1000L;
+	
 	HTable checkOutHTable(String name);
 	void checkInHTable(HTable hTable, boolean possiblyTarnished);
 	Integer getTotalPoolSize();

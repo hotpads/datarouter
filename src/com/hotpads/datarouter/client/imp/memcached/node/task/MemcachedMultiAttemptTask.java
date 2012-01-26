@@ -8,6 +8,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.imp.memcached.MemcachedClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.trace.TracedCallable;
@@ -28,9 +29,13 @@ public class MemcachedMultiAttemptTask<V> extends TracedCallable<V>{
 		this.task = task;
 		this.executorService = this.task.client.getExecutorService();
 		this.config = Config.nullSafe(task.config);
-		this.timeoutMs = this.config.getTimeoutMs();
+		this.timeoutMs = getTimeoutMS(this.config);
 		this.numAttempts = this.config.getNumAttempts();
-		
+	}
+	
+	protected static Long getTimeoutMS(Config config){
+		if(config.getTimeoutMs()!=null){ return config.getTimeoutMs(); }
+		return MemcachedClient.DEFAULT_TIMEOUT_MS;
 	}
 	
 	@Override

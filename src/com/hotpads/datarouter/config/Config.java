@@ -36,7 +36,7 @@ public class Config implements Cloneable{
 	protected Integer iterateBatchSize;
 	
 	//retrying
-	protected Long timeoutMs = Long.MAX_VALUE;
+	protected Long timeoutMs;
 	protected Integer numAttempts = 1;
 
 	//paging
@@ -284,6 +284,11 @@ public class Config implements Cloneable{
 	
 	public Config setTimeout(Integer timeout, TimeUnit timeUnit){
 		setTimeoutMs(timeUnit.toMillis(timeout));
+		return this;
+	}
+	
+	public Config setNoTimeout(){
+		setTimeoutMs(Long.MAX_VALUE);
 		return this;
 	}
 
