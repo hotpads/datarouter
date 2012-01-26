@@ -4,9 +4,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+
+import junit.framework.Assert;
 
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -34,9 +36,10 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.iterable.PeekableIterable;
-import com.hotpads.util.core.iterable.scanner.ScannerTool;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
@@ -54,22 +57,49 @@ implements HBasePhysicalNode<PK,D>,
 	
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
 	
+	//for backwards compatibility with a few tables
+	protected Boolean primaryKeyHasUnnecessaryTrailingSeparatorByte;
+	public static final Set<String> TRAILING_BYTE_TABLES = SetTool.createHashSet();
+	static{
+		TRAILING_BYTE_TABLES.add("AvailableCounter");
+		TRAILING_BYTE_TABLES.add("DocumentView");
+		TRAILING_BYTE_TABLES.add("JsonListingView");
+		TRAILING_BYTE_TABLES.add("KeepAlive");
+		TRAILING_BYTE_TABLES.add("ListingTrait");
+		TRAILING_BYTE_TABLES.add("ListingTraitByDate");
+		TRAILING_BYTE_TABLES.add("ListingTraitByState");
+		TRAILING_BYTE_TABLES.add("ModelIndexListingView");
+		TRAILING_BYTE_TABLES.add("ModelIndexListingViewByListingKey");
+		TRAILING_BYTE_TABLES.add("MonthlyListingSummary");
+	}
+	
 	/******************************* constructors ************************************/
 
 	public HBaseReaderNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
 		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
+		detectPrimaryKeyHasUnnecessaryTrailingSeparatorByte();
 	}
 	
 	public HBaseReaderNode(Class<D> databeanClass,Class<F> fielderClass,
 			DataRouter router, String clientName) {
 		super(databeanClass, fielderClass, router, clientName);
+		detectPrimaryKeyHasUnnecessaryTrailingSeparatorByte();
 	}
 
 	public HBaseReaderNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
 			Class<F> fielderClass, DataRouter router, String clientName){
 		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);
+		detectPrimaryKeyHasUnnecessaryTrailingSeparatorByte();
+	}
+	
+	protected void detectPrimaryKeyHasUnnecessaryTrailingSeparatorByte(){
+		Assert.assertTrue(StringTool.notEmpty(tableName));
+		primaryKeyHasUnnecessaryTrailingSeparatorByte = TRAILING_BYTE_TABLES.contains(tableName);
+		if(primaryKeyHasUnnecessaryTrailingSeparatorByte){
+			logger.warn("primaryKeyHasUnnecessaryTrailingSeparatorByte for table "+tableName);
+		}
 	}
 	
 	
@@ -339,7 +369,8 @@ implements HBasePhysicalNode<PK,D>,
 	
 	protected byte[] getKeyBytesWithScatteringPrefix(PK key){
 		List<Field<?>> keyPlusScatteringPrefixFields = fieldInfo.getKeyFieldsWithScatteringPrefix(key);
-		byte[] bytes = FieldSetTool.getConcatenatedValueBytes(keyPlusScatteringPrefixFields, false);
+		byte[] bytes = FieldSetTool.getConcatenatedValueBytes(keyPlusScatteringPrefixFields, false,
+				primaryKeyHasUnnecessaryTrailingSeparatorByte);
 		return bytes;
 	}
 	

@@ -9,13 +9,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import junit.framework.Assert;
 
+import org.apache.log4j.Logger;
+import org.junit.Test;
+
+import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.number.VarLong;
@@ -123,18 +129,34 @@ public class FieldSetTool{
 
 	/**************************** bytes ******************/
 	
-	public static byte[] getConcatenatedValueBytes(Collection<Field<?>> fields, boolean allowNulls){
-		if(CollectionTool.size(fields)==1){ return CollectionTool.getFirst(fields).getBytesWithSeparator(); }
-		if(CollectionTool.isEmpty(fields)){ return null; }
+	/*
+	 * the trailingSeparatorAfterEndingString is for backwards compatibility with some early tables
+	 * that appended a trailing 0 to the byte[] even though it wasn't necessary
+	 */
+	public static byte[] getConcatenatedValueBytes(Collection<Field<?>> fields, boolean allowNulls,
+			boolean trailingSeparatorAfterEndingString){
+		int numFields = CollectionTool.size(fields);
+		if(numFields==0){ return null; }
+		if(numFields==1){ 
+			if(trailingSeparatorAfterEndingString){
+				return CollectionTool.getFirst(fields).getBytesWithSeparator(); 
+			}else{
+				return CollectionTool.getFirst(fields).getBytes(); 
+			}
+		}
 		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.size(fields)][];
 		int fieldIdx=-1;
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			++fieldIdx;
+			boolean lastField = fieldIdx == numFields - 1;
 			if(!allowNulls && field.getValue()==null){
 				throw new IllegalArgumentException("field:"+field.getName()+" cannot be null in");
 			}
-			//TODO don't append a separator after the last field, but that will break all currently persisted entities
-			fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
+			if(!lastField || trailingSeparatorAfterEndingString){
+				fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
+			}else{
+				fieldArraysWithSeparators[fieldIdx] = field.getBytes();
+			}
 		}
 		return ByteTool.concatenate(fieldArraysWithSeparators);
 	}
@@ -162,6 +184,26 @@ public class FieldSetTool{
 			}
 		}
 		return baos.toByteArray();
+	}
+	
+	/*************************** tests *********************************/
+	
+	public static class FieldSetToolTests{
+		@Test public void testGetConcatenatedValueBytes(){
+			int someInt = 55;
+			String someStringA = "abc";
+			String someStringB = "xyz";
+			List<Field<?>> fields = FieldTool.createList(
+					new UInt31Field("someInt", someInt),
+					new StringField("someStringA", someStringA),
+					new StringField("someStringB", someStringB));
+			ByteRange withTrailingByte = new ByteRange(getConcatenatedValueBytes(fields, false, true));
+			ByteRange withoutTrailingByte = new ByteRange(getConcatenatedValueBytes(fields, false, false));
+			int lengthWithout = 4 + 3 + 1 + 3;
+			int lengthWith = lengthWithout + 1;
+			Assert.assertEquals(lengthWith, withTrailingByte.getLength());
+			Assert.assertEquals(lengthWithout, withoutTrailingByte.getLength());
+		}
 	}
 	
 }
