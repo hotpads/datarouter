@@ -10,7 +10,6 @@ public class EmptyScatteringPrefix
 extends BaseScatteringPrefix{
 
 	public static final EmptyScatteringPrefix REUSABLE_PREFIX = new EmptyScatteringPrefix();
-	public static final byte[] EMPTY_BYTE_ARRAY = new byte[]{};
 	public static final List<Field<?>> EMPTY_LIST = ListTool.create();
 	
 	//this should have one empty FieldSet representing the normal, non-prefixed table

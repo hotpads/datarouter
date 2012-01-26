@@ -212,9 +212,12 @@ implements HBaseClientFactory{
 						family.setCompressionType(Algorithm.GZ);
 						hTable.addFamily(family);
 						byte[][] splitPoints = getSplitPoints(nodeByTableName.get(tableName));
-						if(splitPoints==null){
+						if(ArrayTool.isEmpty(splitPoints)
+								|| ArrayTool.isEmpty(splitPoints[0])){
 							hBaseAdmin.createTable(hTable);
 						}else{
+							//careful, as throwing strange split points in here can crash master
+							// and corrupt meta table
 							hBaseAdmin.createTable(hTable, splitPoints);
 						}
 						logger.warn("created table " + tableName);
