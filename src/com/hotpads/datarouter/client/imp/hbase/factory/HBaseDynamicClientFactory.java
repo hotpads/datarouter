@@ -101,7 +101,7 @@ implements DynamicClientFactory{
 					if(hBaseAdmin!=null){
 						HConnection hConnection = hBaseAdmin.getConnection();
 						if(hConnection!=null){
-							hConnection.close();
+							hConnection.close();//this may be a bad idea because the connection is used by other clients
 						}
 						hBaseAdmin.close();
 					}

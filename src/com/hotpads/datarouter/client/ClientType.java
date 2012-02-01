@@ -48,7 +48,7 @@ public enum ClientType {
 		return null;
 	}
 	
-	public static final boolean USE_RECONNECTING_HBASE_CLIENT = true;
+	public static final boolean USE_RECONNECTING_HBASE_CLIENT = false;
 	
 	public ClientFactory createClientFactory(
 			DataRouter router, String clientName, 
