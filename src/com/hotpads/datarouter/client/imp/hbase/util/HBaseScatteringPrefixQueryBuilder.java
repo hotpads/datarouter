@@ -118,24 +118,28 @@ public class HBaseScatteringPrefixQueryBuilder {
 		}
 		return outs;
 	}
-
+	
 	public static List<Pair<byte[],byte[]>> getRangeForEachScatteringPrefix(DatabeanFieldInfo<?,?,?> fieldInfo,
 			final FieldSet<?> startKey, final boolean startInclusive, 
 			final FieldSet<?> endKey, final boolean endInclusive, Config config){
-		List<Pair<byte[],byte[]>> ranges = ListTool.createArrayList();
 		
-//		need to do something differently based on inclusive/exclusive
-		
+		List<Pair<byte[],byte[]>> ranges = ListTool.createArrayList();		
 		ArrayList<FieldSet<?>> prefixedStartKeys = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, startKey);
 		ArrayList<FieldSet<?>> prefixedEndKeys = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, endKey);
+		
+		//null endKey should not be exclusive because it would never return results
+		boolean endInclusiveOverride = endInclusive;
+		if(endKey==null){ endInclusiveOverride = true; }
+		
 		for(int i=0; i < prefixedStartKeys.size(); ++i){
 			Pair<byte[],byte[]> byteRange = HBaseQueryBuilder.getStartEndBytesForRange(
-					prefixedStartKeys.get(i), startInclusive, prefixedEndKeys.get(i), endInclusive);
+					prefixedStartKeys.get(i), startInclusive, prefixedEndKeys.get(i), endInclusiveOverride);
 			ranges.add(byteRange);
 		}
 		return ranges;
 	}
 	
+		
 //	@Deprecated
 //	public static <PK extends PrimaryKey<PK>> ArrayList<HBasePrimaryKeyScanner<PK>> getScannerForEachPrefix(
 //			DatabeanFieldInfo<PK,?,?> fieldInfo,
