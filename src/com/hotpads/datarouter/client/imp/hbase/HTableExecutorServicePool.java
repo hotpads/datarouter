@@ -78,10 +78,10 @@ public class HTableExecutorServicePool implements HTablePool{
 			hTableExecutorServiceByHTable.put(hTable, hTableExecutorService);
 			hTable.getWriteBuffer().clear();
 			hTable.setAutoFlush(false);
+			return hTable;
 		}catch(IOException ioe){
 			throw new RuntimeException(ioe);
 		}
-		return hTable;
 	}
 	
 	
@@ -89,8 +89,12 @@ public class HTableExecutorServicePool implements HTablePool{
 	public void checkIn(HTable hTable, boolean possiblyTarnished){
 		hTable.getWriteBuffer().clear();
 		String name = StringByteTool.fromUtf8Bytes(hTable.getTableName());
-		HTableExecutorService hTableExecutorService = hTableExecutorServiceByHTable.get(hTable);
-		hTableExecutorServiceByHTable.remove(hTable);
+		HTableExecutorService hTableExecutorService = hTableExecutorServiceByHTable.remove(hTable);
+		if(hTableExecutorService==null){
+			logger.warn("HTable returned to pool but HTableExecutorService not found");
+			DRCounters.inc("HTable returned to pool but HTableExecutorService not found");
+			return;
+		}
 		hTableExecutorService.markLastCheckinMs();
 		ThreadPoolExecutor exec = hTableExecutorService.exec;
 		exec.purge();
