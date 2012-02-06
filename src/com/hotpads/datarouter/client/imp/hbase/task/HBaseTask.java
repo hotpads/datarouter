@@ -57,7 +57,11 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			possiblyTarnishedHTable = true;
 			throw new DataAccessException(e);
 		}finally{
-			if(hTable!=null && client!=null){
+			if(hTable==null){
+				logger.warn("not checking in HTable because it's null");
+			}else if(client==null){
+				logger.warn("not checking in HTable because client is null");
+			}else{
 				client.checkInHTable(hTable, possiblyTarnishedHTable);
 			}
 			TraceContext.finishSpan();
