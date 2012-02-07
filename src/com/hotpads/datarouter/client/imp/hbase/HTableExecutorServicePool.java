@@ -134,7 +134,7 @@ public class HTableExecutorServicePool implements HTablePool{
 	}
 	
 	protected String queueSizesLogMessage(){
-		return ", active="+hTableExecutorServiceByHTable+", idle="+queue.size();
+		return ", active="+hTableExecutorServiceByHTable.size()+", idle="+queue.size();
 	}
 	
 	/*
