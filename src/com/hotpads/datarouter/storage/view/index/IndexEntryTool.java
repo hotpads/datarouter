@@ -10,7 +10,6 @@ import com.hotpads.util.core.ListTool;
 
 public class IndexEntryTool{
 
-
 	public static <IK extends PrimaryKey<IK>,
 					PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>,
