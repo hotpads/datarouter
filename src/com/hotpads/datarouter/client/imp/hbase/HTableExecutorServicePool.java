@@ -144,9 +144,10 @@ public class HTableExecutorServicePool implements HTablePool{
 	}
 	
 	protected String queueSizesLogMessage(){
-		return ", active="+hTableExecutorServiceByHTable.size()
-				+", idle="+executorServiceQueue.size()
-				+", HTables(available)="+hTableSemaphore.availablePermits();
+		return ", Executors(active)="+hTableExecutorServiceByHTable.size()
+				+", Executors(idle)="+executorServiceQueue.size()
+				+", HTables(available)="+hTableSemaphore.availablePermits()
+				+", HTables(waiting)="+hTableSemaphore.getQueueLength();
 	}
 	
 	/*
