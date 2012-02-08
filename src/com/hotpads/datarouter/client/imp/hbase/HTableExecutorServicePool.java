@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +21,7 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.ExecutorServiceTool;
+import com.hotpads.util.core.concurrent.SemaphoreTool;
 import com.hotpads.util.core.concurrent.ThreadTool;
 
 public class HTableExecutorServicePool implements HTablePool{
@@ -30,7 +32,12 @@ public class HTableExecutorServicePool implements HTablePool{
 	protected Configuration hBaseConfiguration;
 	protected Integer maxSize;
 	
-	protected BlockingDeque<HTableExecutorService> queue;
+	//this turned out weird:
+	// using Semaphore and BlockingDequeue here.  evolutionary complexity, but possibly more flexible
+	protected Semaphore hTableSemaphore;
+	protected BlockingDeque<HTableExecutorService> executorServiceQueue;
+	
+	
 	protected Map<HTable,HTableExecutorService> hTableExecutorServiceByHTable;
 	
 	protected Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
@@ -41,7 +48,8 @@ public class HTableExecutorServicePool implements HTablePool{
 			Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName){
 		this.hBaseConfiguration = hBaseConfiguration;
 		this.maxSize = maxSize;
-		this.queue = new LinkedBlockingDeque<HTableExecutorService>(maxSize);
+		this.hTableSemaphore = new Semaphore(maxSize);
+		this.executorServiceQueue = new LinkedBlockingDeque<HTableExecutorService>(maxSize);
 		this.hTableExecutorServiceByHTable = MapTool.createConcurrentHashMap();
 		this.primaryKeyClassByName = primaryKeyClassByName;
 	}
@@ -49,10 +57,11 @@ public class HTableExecutorServicePool implements HTablePool{
 	
 	@Override
 	public HTable checkOut(String name){
+		SemaphoreTool.acquire(hTableSemaphore);
 		DRCounters.inc("connection getHTable "+name);
 		HTableExecutorService hTableExecutorService = null;
 		while(true){
-			hTableExecutorService = queue.pollFirst();
+			hTableExecutorService = executorServiceQueue.pollFirst();
 			if(hTableExecutorService==null){
 				hTableExecutorService = new HTableExecutorService();
 				String counterName = "connection create HTable "+name;
@@ -87,6 +96,7 @@ public class HTableExecutorServicePool implements HTablePool{
 	
 	@Override
 	public void checkIn(HTable hTable, boolean possiblyTarnished){
+		hTableSemaphore.release();
 		hTable.getWriteBuffer().clear();
 		String name = StringByteTool.fromUtf8Bytes(hTable.getTableName());
 		HTableExecutorService hTableExecutorService = hTableExecutorServiceByHTable.remove(hTable);
@@ -115,7 +125,7 @@ public class HTableExecutorServicePool implements HTablePool{
 			DRCounters.inc("HTable executor pool active threads won't quit "+name);	
 			hTableExecutorService.terminateAndBlockUntilFinished(name);
 		}else{
-			if(queue.offer(hTableExecutorService)){//keep it!
+			if(executorServiceQueue.offer(hTableExecutorService)){//keep it!
 				DRCounters.inc("connection HTable returned to pool "+name);
 			}else{//discard
 				logger.warn("checkIn HTable but queue already full, so close and discard, table="+name+queueSizesLogMessage());
@@ -130,11 +140,13 @@ public class HTableExecutorServicePool implements HTablePool{
 	}
 	
 	public Integer getTotalPoolSize(){
-		return queue.size();
+		return executorServiceQueue.size();
 	}
 	
 	protected String queueSizesLogMessage(){
-		return ", active="+hTableExecutorServiceByHTable.size()+", idle="+queue.size();
+		return ", active="+hTableExecutorServiceByHTable.size()
+				+", idle="+executorServiceQueue.size()
+				+", HTables(available)="+hTableSemaphore.availablePermits();
 	}
 	
 	/*
