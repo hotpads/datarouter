@@ -10,15 +10,14 @@ import junit.framework.Assert;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
+import com.hotpads.datarouter.client.imp.hbase.scan.HBasePrimaryKeyScanner;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseManualDatabeanScanner;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseManualPrimaryKeyScanner;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseScatteringPrefixQueryBuilder;
@@ -281,7 +280,7 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		List<Pair<byte[],byte[]>> prefixedRanges = HBaseScatteringPrefixQueryBuilder.getPrefixedRanges(fieldInfo,  
 				prefix, wildcardLastField, start, startInclusive, null, true, config);
-		List<HBaseManualDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder.getManualDatabeanScannersForRanges(
+		List<HBaseDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder.getManualDatabeanScannersForRanges(
 				this, fieldInfo, prefixedRanges, pConfig);
 		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
 		Iterable<D> iterable = new SortedScannerIterable<D>(collator);
@@ -297,7 +296,7 @@ implements HBasePhysicalNode<PK,D>,
 			final PK end, final boolean endInclusive, 
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		List<HBaseManualPrimaryKeyScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder.getManualPrimaryKeyScannerForEachPrefix(
+		List<HBasePrimaryKeyScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder.getManualPrimaryKeyScannerForEachPrefix(
 				this, fieldInfo, start, startInclusive, end, endInclusive, config);
 		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
 		return new SortedScannerIterable<PK>(collator);
@@ -310,7 +309,7 @@ implements HBasePhysicalNode<PK,D>,
 			final PK end, final boolean endInclusive, 
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		List<HBaseManualDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder.getManualDatabeanScannerForEachPrefix(
+		List<HBaseDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder.getManualDatabeanScannerForEachPrefix(
 				this, fieldInfo, start, startInclusive, end, endInclusive, config);
 		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
 		return new SortedScannerIterable<D>(collator);

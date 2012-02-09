@@ -1,8 +1,7 @@
-package com.hotpads.datarouter.client.imp.hbase.util;
+package com.hotpads.datarouter.client.imp.hbase.scan;
 
 import java.util.List;
 
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
@@ -13,9 +12,11 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.iterable.scanner.BaseSortedScanner;
 
-//copy/pasted from HBaseManualPrimaryKeyScanner.  should probably be abstracted
-public class HBaseManualDatabeanScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-extends BaseSortedScanner<D>{
+public abstract class BaseHBaseScanner<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		T extends Comparable<? super T>>//T should be either PK or D
+extends BaseSortedScanner<T>{
 	
 	protected HBaseReaderNode<PK,D,?> node;
 	protected DatabeanFieldInfo<PK,D,?> fieldInfo;
@@ -27,11 +28,11 @@ extends BaseSortedScanner<D>{
 	protected byte[] lastRow;
 	protected List<Result> currentBatch;
 	protected int currentBatchIndex = 0;
-	protected D current;
+	protected T current;
 	boolean foundEndOfData;
 	
 	
-	public HBaseManualDatabeanScanner(HBaseReaderNode<PK,D,?> node, 
+	public BaseHBaseScanner(HBaseReaderNode<PK,D,?> node, 
 			DatabeanFieldInfo<PK,D,?> fieldInfo, 
 			byte[] startInclusive, byte[] endExclusive, Config pConfig){
 		this.node = node;
@@ -41,27 +42,26 @@ extends BaseSortedScanner<D>{
 		this.config = Config.nullSafe(pConfig);
 		this.config.setIterateBatchSizeIfNull(HBaseReaderNode.DEFAULT_ITERATE_BATCH_SIZE); 
 		foundEndOfData = false;
-//			loadNextBatch();
 	}
 	
 	@Override
-	public D getCurrent() {
+	public T getCurrent() {
 		return current;
 	}
 	
 	@Override
 	public boolean advance() {
-//		if(foundEndOfData){ return false; }
 		if(currentBatchIndex == CollectionTool.size(currentBatch)){
 			loadNextBatch();
 		}
 		if(CollectionTool.isEmpty(currentBatch)){ return false; }
 		Result currentResult = currentBatch.get(currentBatchIndex);
 		++currentBatchIndex;
-		current = HBaseResultTool.getDatabean(currentResult, fieldInfo);
-//		System.out.println(current);
+		setCurrentFromResult(currentResult);
 		return true;
 	}
+	
+	protected abstract void setCurrentFromResult(Result result);
 	
 	protected void loadNextBatch(){
 		currentBatchIndex = 0;
@@ -81,12 +81,6 @@ extends BaseSortedScanner<D>{
 			isStartInclusive = false;
 		}
 		currentBatch = node.getResultsInSubRange(lastRowOfPreviousBatch, isStartInclusive, endExclusive, false, config);
-//		if(true){
-//			if(CollectionTool.notEmpty(currentBatch)){
-//				PK debug = HBaseResultTool.getPrimaryKey(CollectionTool.getLast(currentBatch).getRow(), fieldInfo);
-//				System.out.println("got "+CollectionTool.size(currentBatch)+" "+debug);
-//			}
-//		}
 		if(CollectionTool.size(currentBatch) < config.getIterateBatchSize()){
 			foundEndOfData = true;
 		}
