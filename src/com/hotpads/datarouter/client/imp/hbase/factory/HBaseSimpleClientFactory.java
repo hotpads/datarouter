@@ -239,7 +239,7 @@ implements HBaseClientFactory{
 					options.minPoolSize(DEFAULT_minPoolSize),
 					DEFAULT_maxPoolSize);
 		} else {
-			pool = new HTableExecutorServicePool(hBaseConfig, tableNames,
+			pool = new HTableExecutorServicePool(hBaseConfig, clientName,
 					EXECUTOR_SERVICE_MAX_POOL_SIZE, primaryKeyClassByName);
 		}
 		

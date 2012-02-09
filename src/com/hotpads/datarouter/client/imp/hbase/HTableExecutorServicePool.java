@@ -30,6 +30,7 @@ public class HTableExecutorServicePool implements HTablePool{
 	protected Long lastLoggedWarning = 0L;
 	
 	protected Configuration hBaseConfiguration;
+	protected String clientName;
 	protected Integer maxSize;
 	
 	//this turned out weird:
@@ -44,7 +45,7 @@ public class HTableExecutorServicePool implements HTablePool{
 	
 	
 	public HTableExecutorServicePool(Configuration hBaseConfiguration, 
-			Collection<String> names, int maxSize,
+			String clientName, int maxSize,
 			Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName){
 		this.hBaseConfiguration = hBaseConfiguration;
 		this.maxSize = maxSize;
@@ -66,7 +67,7 @@ public class HTableExecutorServicePool implements HTablePool{
 				hTableExecutorService = new HTableExecutorService();
 				String counterName = "connection create HTable "+name;
 				DRCounters.inc(counterName);
-				logger.warn("created new HTable ThreadPool Executor for table "+name+queueSizesLogMessage());
+				logger.warn("created new HTable ThreadPool Executor for table "+name+getPoolInfoLogMessage());
 				break;
 			}
 			if(!hTableExecutorService.isExpired()){
@@ -75,7 +76,7 @@ public class HTableExecutorServicePool implements HTablePool{
 				break;
 			}
 			//TODO background thread that actively discards expired pools
-			logger.warn("discarded expired executorService"+queueSizesLogMessage());
+			logger.warn("discarded expired executorService"+getPoolInfoLogMessage());
 			hTableExecutorService = null;//release it and loop around again
 		}
 		
@@ -101,7 +102,7 @@ public class HTableExecutorServicePool implements HTablePool{
 		String name = StringByteTool.fromUtf8Bytes(hTable.getTableName());
 		HTableExecutorService hTableExecutorService = hTableExecutorServiceByHTable.remove(hTable);
 		if(hTableExecutorService==null){
-			logger.warn("HTable returned to pool but HTableExecutorService not found "+queueSizesLogMessage());
+			logger.warn("HTable returned to pool but HTableExecutorService not found "+getPoolInfoLogMessage());
 			DRCounters.inc("HTable returned to pool but HTableExecutorService not found");
 			return;
 		}
@@ -109,26 +110,26 @@ public class HTableExecutorServicePool implements HTablePool{
 		ThreadPoolExecutor exec = hTableExecutorService.exec;
 		exec.purge();
 		if(possiblyTarnished){//discard
-			logger.warn("ThreadPoolExecutor possibly tarnished, discarding.  table:"+name+queueSizesLogMessage());
+			logger.warn("ThreadPoolExecutor possibly tarnished, discarding.  table:"+name+getPoolInfoLogMessage());
 			DRCounters.inc("HTable executor possiblyTarnished "+name);	
 			hTableExecutorService.terminateAndBlockUntilFinished(name);
 		}else if(hTableExecutorService.isDyingOrDead(name)){//discard
-			logger.warn("ThreadPoolExecutor not reusable, discarding.  table:"+name+queueSizesLogMessage());
+			logger.warn("ThreadPoolExecutor not reusable, discarding.  table:"+name+getPoolInfoLogMessage());
 			DRCounters.inc("HTable executor isDyingOrDead "+name);	
 			hTableExecutorService.terminateAndBlockUntilFinished(name);
 		}else if(!hTableExecutorService.isTaskQueueEmpty()){//discard
-			logger.warn("ThreadPoolExecutor taskQueue not empty, discarding.  table:"+name+queueSizesLogMessage());
+			logger.warn("ThreadPoolExecutor taskQueue not empty, discarding.  table:"+name+getPoolInfoLogMessage());
 			DRCounters.inc("HTable executor taskQueue not empty "+name);	
 			hTableExecutorService.terminateAndBlockUntilFinished(name);
 		}else if(!hTableExecutorService.waitForActiveThreadsToSettle(name)){//discard
-			logger.warn("active thread count would not settle to 0, table="+name+queueSizesLogMessage());
+			logger.warn("active thread count would not settle to 0, table="+name+getPoolInfoLogMessage());
 			DRCounters.inc("HTable executor pool active threads won't quit "+name);	
 			hTableExecutorService.terminateAndBlockUntilFinished(name);
 		}else{
 			if(executorServiceQueue.offer(hTableExecutorService)){//keep it!
 				DRCounters.inc("connection HTable returned to pool "+name);
 			}else{//discard
-				logger.warn("checkIn HTable but queue already full, so close and discard, table="+name+queueSizesLogMessage());
+				logger.warn("checkIn HTable but queue already full, so close and discard, table="+name+getPoolInfoLogMessage());
 				DRCounters.inc("HTable executor pool overflow");	
 				hTableExecutorService.terminateAndBlockUntilFinished(name);
 			}
@@ -143,8 +144,9 @@ public class HTableExecutorServicePool implements HTablePool{
 		return executorServiceQueue.size();
 	}
 	
-	protected String queueSizesLogMessage(){
-		return ", Executors(active)="+hTableExecutorServiceByHTable.size()
+	protected String getPoolInfoLogMessage(){
+		return ", clientName="+clientName
+				+", Executors(active)="+hTableExecutorServiceByHTable.size()
 				+", Executors(idle)="+executorServiceQueue.size()
 				+", HTables(available)="+hTableSemaphore.availablePermits()
 				+", HTables(waiting)="+hTableSemaphore.getQueueLength();
