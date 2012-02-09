@@ -23,7 +23,6 @@ extends BaseSortedScanner<T>{
 	protected byte[] startInclusive;
 	protected byte[] endExclusive;
 	protected Config config;
-	protected int rowsPerBatch;
 	
 	protected byte[] lastRow;
 	protected List<Result> currentBatch;
@@ -40,7 +39,7 @@ extends BaseSortedScanner<T>{
 		this.startInclusive = startInclusive;
 		this.endExclusive = endExclusive;
 		this.config = Config.nullSafe(pConfig);
-		this.config.setIterateBatchSizeIfNull(HBaseReaderNode.DEFAULT_ITERATE_BATCH_SIZE); 
+		this.config.setIterateBatchSizeIfNull(HBaseReaderNode.DEFAULT_ITERATE_BATCH_SIZE);//why is this necessary?
 		foundEndOfData = false;
 	}
 	
