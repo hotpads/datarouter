@@ -24,6 +24,11 @@ import com.hotpads.util.core.profile.PhaseTimer;
 public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 	protected static Logger logger = Logger.getLogger(RestoreRegion.class);
 	
+	protected static final Config CONFIG_FAST_PUT_MULTI = new Config()
+			.setNumAttempts(20)
+			.setTimeout(30, TimeUnit.SECONDS)
+			.setPersistentPut(false);
+	
 	protected DataRouter router;
 	protected Class<D> cls;
 	protected MapStorageNode<PK,D> node;
@@ -73,8 +78,7 @@ public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean
 					}
 					if(toSave.size() >= putBatchSize){
 						putBatchTimer.add("parsed "+toSave.size());
-						node.putMulti(toSave, new Config().setNumAttempts(20).setTimeout(30, TimeUnit.SECONDS)
-								.setPersistentPut(false).setIgnoreNullFields(ignoreNullFields));
+						node.putMulti(toSave, CONFIG_FAST_PUT_MULTI.setIgnoreNullFields(ignoreNullFields));
 						putBatchTimer.add("saved "+toSave.size());
 //						logger.warn(timer);
 						putBatchTimer = new PhaseTimer();
@@ -82,8 +86,7 @@ public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean
 					}
 				}catch(IllegalArgumentException iac){
 					if(toSave.size() >= 0){//don't forget these
-						node.putMulti(toSave, new Config().setNumAttempts(20).setTimeout(30, TimeUnit.SECONDS)
-								.setPersistentPut(false).setIgnoreNullFields(ignoreNullFields));
+						node.putMulti(toSave, CONFIG_FAST_PUT_MULTI.setIgnoreNullFields(ignoreNullFields));
 						logger.warn("imported "+NumberFormatter.addCommas(numRecords)+" from "+toSave.get(0).getKey());
 					}
 					break;//VarLong throws this at the end of the InputStream
