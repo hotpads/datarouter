@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase.task;
 import junit.framework.Assert;
 
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBasePhysicalNode;
@@ -11,6 +12,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
+import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.NumberTool;
 
 public abstract class HBaseTask<V> extends TracedCallable<V>{
@@ -28,6 +30,12 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	protected Config config;
 	protected HTable hTable;
 	
+	//subclasses should use this for easy, safe "close()" handling
+	protected ResultScanner managedResultScanner;
+	
+	
+	/******************** constructor ****************************/
+	
 	public HBaseTask(String taskName, HBasePhysicalNode<?,?> node, Config config){
 		super("HBaseTask."+taskName);
 		this.taskName = taskName;
@@ -36,6 +44,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		this.config = Config.nullSafe(config);
 		Assert.assertNull(hTable);//previous call should have cleared it in finally block
 	}
+	
 	
 	@Override
 	public V wrappedCall(){
@@ -57,6 +66,14 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			possiblyTarnishedHTable = true;
 			throw new DataAccessException(e);
 		}finally{
+			if(managedResultScanner!=null){
+				try{
+					managedResultScanner.close();
+				}catch(Exception e){
+					logger.warn("couldn't close ResultScanner");
+					logger.warn(ExceptionTool.getStackTraceAsString(e));
+				}
+			}
 			if(hTable==null){
 				logger.warn("not checking in HTable because it's null");
 			}else if(client==null){

@@ -161,7 +161,6 @@ public class HBaseScatteringPrefixQueryBuilder {
 	ArrayList<HBaseManualPrimaryKeyScanner<PK>> getManualPrimaryKeyScannerForEachPrefix(
 			HBaseReaderNode<PK,?,?> node,
 			DatabeanFieldInfo<PK,?,?> fieldInfo,
-			HTable hTable,
 			FieldSet<?> start, boolean startInclusive, 
 			FieldSet<?> end, boolean endInclusive,
 			final Config pConfig){
@@ -170,7 +169,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 				fieldInfo, start, startInclusive, end, endInclusive, config);
 		ArrayList<HBaseManualPrimaryKeyScanner<PK>> scanners = ListTool.createArrayList();
 		for(Pair<byte[],byte[]> range : ranges){
-			scanners.add(new HBaseManualPrimaryKeyScanner<PK>(node, fieldInfo, hTable, 
+			scanners.add(new HBaseManualPrimaryKeyScanner<PK>(node, fieldInfo, 
 					range.getLeft(), range.getRight(), config));
 		}
 		return scanners;
@@ -181,7 +180,6 @@ public class HBaseScatteringPrefixQueryBuilder {
 	ArrayList<HBaseManualDatabeanScanner<PK,D>> getManualDatabeanScannerForEachPrefix(
 			HBaseReaderNode<PK,D,?> node,
 			DatabeanFieldInfo<PK,D,?> fieldInfo,
-			HTable hTable,
 			FieldSet<?> start, boolean startInclusive, 
 			FieldSet<?> end, boolean endInclusive,
 			final Config pConfig){
@@ -190,7 +188,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 				fieldInfo, start, startInclusive, end, endInclusive, config);
 		ArrayList<HBaseManualDatabeanScanner<PK,D>> scanners = ListTool.createArrayList();
 		for(Pair<byte[],byte[]> range : ranges){
-			scanners.add(new HBaseManualDatabeanScanner<PK,D>(node, fieldInfo, hTable, 
+			scanners.add(new HBaseManualDatabeanScanner<PK,D>(node, fieldInfo, 
 					range.getLeft(), range.getRight(), config));
 		}
 		return scanners;
@@ -201,13 +199,12 @@ public class HBaseScatteringPrefixQueryBuilder {
 	ArrayList<HBaseManualDatabeanScanner<PK,D>> getManualDatabeanScannersForRanges(
 			HBaseReaderNode<PK,D,?> node,
 			DatabeanFieldInfo<PK,D,?> fieldInfo,
-			HTable hTable,
 			Collection<Pair<byte[],byte[]>> ranges,
 			final Config pConfig){
 			Config config = Config.nullSafe(pConfig);
 		ArrayList<HBaseManualDatabeanScanner<PK,D>> scanners = ListTool.createArrayList();
 		for(Pair<byte[],byte[]> range : ranges){
-			scanners.add(new HBaseManualDatabeanScanner<PK,D>(node, fieldInfo, hTable, 
+			scanners.add(new HBaseManualDatabeanScanner<PK,D>(node, fieldInfo, 
 					range.getLeft(), range.getRight(), config));
 		}
 		return scanners;

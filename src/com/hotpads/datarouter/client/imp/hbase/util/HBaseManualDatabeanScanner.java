@@ -19,7 +19,6 @@ extends BaseSortedScanner<D>{
 	
 	protected HBaseReaderNode<PK,D,?> node;
 	protected DatabeanFieldInfo<PK,D,?> fieldInfo;
-	protected HTable hTable;
 	protected byte[] startInclusive;
 	protected byte[] endExclusive;
 	protected Config config;
@@ -33,11 +32,10 @@ extends BaseSortedScanner<D>{
 	
 	
 	public HBaseManualDatabeanScanner(HBaseReaderNode<PK,D,?> node, 
-			DatabeanFieldInfo<PK,D,?> fieldInfo, HTable hTable, 
+			DatabeanFieldInfo<PK,D,?> fieldInfo, 
 			byte[] startInclusive, byte[] endExclusive, Config pConfig){
 		this.node = node;
 		this.fieldInfo = node.getFieldInfo();
-		this.hTable = hTable;
 		this.startInclusive = startInclusive;
 		this.endExclusive = endExclusive;
 		this.config = Config.nullSafe(pConfig);
