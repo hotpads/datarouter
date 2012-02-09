@@ -96,9 +96,11 @@ implements PhysicalSortedMapStorageNode<PK,D>
 							if(fieldBytes==null){
 								if(BooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
 									delete.deleteColumn(FAM, field.getColumnNameBytes(), batchStartTime);
+									++numDeletes;
 								}
 							}else{
 								put.add(FAM, field.getColumnNameBytes(), field.getBytes());
+								++numPuts;
 							}
 						}
 						if(put.isEmpty()){ 
@@ -107,8 +109,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						}
 						put.setWriteToWAL(config.getPersistentPut());
 						actions.add(put);
-						++numPuts;
-						if(!delete.isEmpty()){ actions.add(delete); ++numDeletes; }
+						if(!delete.isEmpty()){ actions.add(delete); }
 					}
 					DRCounters.inc(node.getName()+" hbase cells put", numPuts);
 					DRCounters.inc(node.getName()+" hbase cells delete", numDeletes);//deletes gets emptied by the hbase client, so count before flushing
