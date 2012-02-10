@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -48,6 +47,7 @@ public class HTableExecutorServicePool implements HTablePool{
 			String clientName, int maxSize,
 			Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName){
 		this.hBaseConfiguration = hBaseConfiguration;
+		this.clientName = clientName;
 		this.maxSize = maxSize;
 		this.hTableSemaphore = new Semaphore(maxSize);
 		this.executorServiceQueue = new LinkedBlockingDeque<HTableExecutorService>(maxSize);
