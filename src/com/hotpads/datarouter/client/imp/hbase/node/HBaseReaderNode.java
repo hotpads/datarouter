@@ -32,6 +32,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -158,13 +159,15 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getMulti", this, config){
 				public List<D> hbaseCall() throws Exception{
-					List<D> results = ListTool.createArrayListWithSize(keys);
+					DRCounters.inc(node.getName()+" hbase getMulti rows", CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
 						byte[] rowBytes = getKeyBytesWithScatteringPrefix(key);
 						gets.add(new Get(rowBytes));
 					}
+					DRCounters.inc(node.getName()+" hbase getMulti rows", CollectionTool.size(gets));
 					Result[] resultArray = hTable.get(gets);
+					List<D> results = ListTool.createArrayListWithSize(keys);
 					for(Result row : resultArray){
 						if(row==null || row.isEmpty()){ continue; }
 						D result = HBaseResultTool.getDatabean(row, fieldInfo);
@@ -182,13 +185,18 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>("getKeys", this, config){
 				public List<PK> hbaseCall() throws Exception{
-					List<PK> results = ListTool.createArrayListWithSize(keys);
+					DRCounters.inc(node.getName()+" hbase getKeys rows", CollectionTool.size(keys));
+					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
 						byte[] rowBytes = getKeyBytesWithScatteringPrefix(key);
 						Get get = new Get(rowBytes);
 						get.setFilter(new FirstKeyOnlyFilter());//make sure first column in row is not something big
-						Result row = hTable.get(get);
-						if(row.isEmpty()){ continue; }
+						gets.add(get);
+					}
+					Result[] resultArray = hTable.get(gets);
+					List<PK> results = ListTool.createArrayListWithSize(keys);
+					for(Result row : resultArray){
+						if(row==null || row.isEmpty()){ continue; }
 						PK result = HBaseResultTool.getPrimaryKey(row.getRow(), fieldInfo);
 						results.add(result);
 					}

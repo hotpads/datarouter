@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hbase;
+package com.hotpads.datarouter.client.imp.hbase.pool;
 
 import java.io.IOException;
 import java.util.Map;
@@ -36,9 +36,7 @@ public class HTableExecutorServicePool implements HTablePool{
 	// using Semaphore and BlockingDequeue here.  evolutionary complexity, but possibly more flexible
 	protected Semaphore hTableSemaphore;
 	protected BlockingDeque<HTableExecutorService> executorServiceQueue;
-	
-	
-	protected Map<HTable,HTableExecutorService> hTableExecutorServiceByHTable;
+	protected Map<HTable,HTableExecutorService> activeHTables;
 	
 	protected Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
 	
@@ -51,23 +49,24 @@ public class HTableExecutorServicePool implements HTablePool{
 		this.maxSize = maxSize;
 		this.hTableSemaphore = new Semaphore(maxSize);
 		this.executorServiceQueue = new LinkedBlockingDeque<HTableExecutorService>(maxSize);
-		this.hTableExecutorServiceByHTable = MapTool.createConcurrentHashMap();
+		this.activeHTables = MapTool.createConcurrentHashMap();
 		this.primaryKeyClassByName = primaryKeyClassByName;
 	}
 	
 	
 	@Override
-	public HTable checkOut(String name){
+	public HTable checkOut(String tableName){
+		long requestedAtMs = System.currentTimeMillis();
 		SemaphoreTool.acquire(hTableSemaphore);
-		DRCounters.inc("connection getHTable "+name);
+		DRCounters.inc("connection getHTable "+tableName);
 		HTableExecutorService hTableExecutorService = null;
 		while(true){
 			hTableExecutorService = executorServiceQueue.pollFirst();
 			if(hTableExecutorService==null){
 				hTableExecutorService = new HTableExecutorService();
-				String counterName = "connection create HTable "+name;
+				String counterName = "connection create HTable "+tableName;
 				DRCounters.inc(counterName);
-				logger.warn("created new HTable ThreadPool Executor for table "+name+getPoolInfoLogMessage());
+				logWithPoolInfo("created new HTable ThreadPool Executor for table", tableName);
 				break;
 			}
 			if(!hTableExecutorService.isExpired()){
@@ -83,11 +82,16 @@ public class HTableExecutorServicePool implements HTablePool{
 		HTable hTable = null;
 		try{
 			HConnection hConnection = HConnectionManager.getConnection(hBaseConfiguration);
-			hTable = new HTable(StringByteTool.getUtf8Bytes(name), hConnection, 
+			hTable = new HTable(StringByteTool.getUtf8Bytes(tableName), hConnection, 
 					hTableExecutorService.exec);
-			hTableExecutorServiceByHTable.put(hTable, hTableExecutorService);
+			activeHTables.put(hTable, hTableExecutorService);
 			hTable.getWriteBuffer().clear();
 			hTable.setAutoFlush(false);
+			long checkOutDurationMs = System.currentTimeMillis() - requestedAtMs;
+			if(checkOutDurationMs > 1){
+				DRCounters.inc("connection open > 1ms on "+clientName);
+			}
+			logIfInconsistentCounts(true, tableName);
 			return hTable;
 		}catch(IOException ioe){
 			throw new RuntimeException(ioe);
@@ -97,12 +101,13 @@ public class HTableExecutorServicePool implements HTablePool{
 	
 	@Override
 	public void checkIn(HTable hTable, boolean possiblyTarnished){
+		//do this first otherwise things may get hung up in the "active" map
+		HTableExecutorService hTableExecutorService = activeHTables.remove(hTable);
 		hTableSemaphore.release();
 		hTable.getWriteBuffer().clear();
-		String name = StringByteTool.fromUtf8Bytes(hTable.getTableName());
-		HTableExecutorService hTableExecutorService = hTableExecutorServiceByHTable.remove(hTable);
+		String tableName = StringByteTool.fromUtf8Bytes(hTable.getTableName());
 		if(hTableExecutorService==null){
-			logger.warn("HTable returned to pool but HTableExecutorService not found "+getPoolInfoLogMessage());
+			logWithPoolInfo("HTable returned to pool but HTableExecutorService not found", tableName);
 			DRCounters.inc("HTable returned to pool but HTableExecutorService not found");
 			return;
 		}
@@ -110,30 +115,31 @@ public class HTableExecutorServicePool implements HTablePool{
 		ThreadPoolExecutor exec = hTableExecutorService.exec;
 		exec.purge();
 		if(possiblyTarnished){//discard
-			logger.warn("ThreadPoolExecutor possibly tarnished, discarding.  table:"+name+getPoolInfoLogMessage());
-			DRCounters.inc("HTable executor possiblyTarnished "+name);	
-			hTableExecutorService.terminateAndBlockUntilFinished(name);
-		}else if(hTableExecutorService.isDyingOrDead(name)){//discard
-			logger.warn("ThreadPoolExecutor not reusable, discarding.  table:"+name+getPoolInfoLogMessage());
-			DRCounters.inc("HTable executor isDyingOrDead "+name);	
-			hTableExecutorService.terminateAndBlockUntilFinished(name);
+			logWithPoolInfo("ThreadPoolExecutor possibly tarnished, discarding", tableName);
+			DRCounters.inc("HTable executor possiblyTarnished "+tableName);	
+			hTableExecutorService.terminateAndBlockUntilFinished(tableName);
+		}else if(hTableExecutorService.isDyingOrDead(tableName)){//discard
+			logWithPoolInfo("ThreadPoolExecutor not reusable, discarding", tableName);
+			DRCounters.inc("HTable executor isDyingOrDead "+tableName);	
+			hTableExecutorService.terminateAndBlockUntilFinished(tableName);
 		}else if(!hTableExecutorService.isTaskQueueEmpty()){//discard
-			logger.warn("ThreadPoolExecutor taskQueue not empty, discarding.  table:"+name+getPoolInfoLogMessage());
-			DRCounters.inc("HTable executor taskQueue not empty "+name);	
-			hTableExecutorService.terminateAndBlockUntilFinished(name);
-		}else if(!hTableExecutorService.waitForActiveThreadsToSettle(name)){//discard
-			logger.warn("active thread count would not settle to 0, table="+name+getPoolInfoLogMessage());
-			DRCounters.inc("HTable executor pool active threads won't quit "+name);	
-			hTableExecutorService.terminateAndBlockUntilFinished(name);
+			logWithPoolInfo("ThreadPoolExecutor taskQueue not empty, discarding", tableName);
+			DRCounters.inc("HTable executor taskQueue not empty "+tableName);	
+			hTableExecutorService.terminateAndBlockUntilFinished(tableName);
+		}else if(!hTableExecutorService.waitForActiveThreadsToSettle(tableName)){//discard
+			logWithPoolInfo("active thread count would not settle to 0", tableName);
+			DRCounters.inc("HTable executor pool active threads won't quit "+tableName);	
+			hTableExecutorService.terminateAndBlockUntilFinished(tableName);
 		}else{
 			if(executorServiceQueue.offer(hTableExecutorService)){//keep it!
-				DRCounters.inc("connection HTable returned to pool "+name);
+				DRCounters.inc("connection HTable returned to pool "+tableName);
 			}else{//discard
-				logger.warn("checkIn HTable but queue already full, so close and discard, table="+name+getPoolInfoLogMessage());
+				logWithPoolInfo("checkIn HTable but queue already full, so close and discard", tableName);
 				DRCounters.inc("HTable executor pool overflow");	
-				hTableExecutorService.terminateAndBlockUntilFinished(name);
+				hTableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}
 		}
+		logIfInconsistentCounts(false, tableName);
 	}
 	
 	public Class<PrimaryKey<?>> getPrimaryKeyClass(String tableName){
@@ -144,9 +150,21 @@ public class HTableExecutorServicePool implements HTablePool{
 		return executorServiceQueue.size();
 	}
 	
+	public void logIfInconsistentCounts(boolean checkOut, String tableName){
+		int semaphoreAvailable = hTableSemaphore.availablePermits();
+		int numActiveHTables = activeHTables.size();
+		if(semaphoreAvailable + numActiveHTables != maxSize){
+			logWithPoolInfo("inconsistent pool counts on "+(checkOut?"checkOut":"checkIn"), tableName);
+		}
+	}
+	
+	protected void logWithPoolInfo(String message, String tableName){
+		logger.warn(getPoolInfoLogMessage()+", "+message);
+	}
+	
 	protected String getPoolInfoLogMessage(){
-		return ", clientName="+clientName
-				+", Executors(active)="+hTableExecutorServiceByHTable.size()
+		return "clientName="+clientName
+				+", Executors(active)="+activeHTables.size()
 				+", Executors(idle)="+executorServiceQueue.size()
 				+", HTables(available)="+hTableSemaphore.availablePermits()
 				+", HTables(waiting)="+hTableSemaphore.getQueueLength();
@@ -216,11 +234,12 @@ public class HTableExecutorServicePool implements HTablePool{
 			return false;//should be nice and clean for the next HTable
 		}
 		
+		//probably don't need this method, but being safe while debugging
 		public boolean waitForActiveThreadsToSettle(String tableNameForLog){
 			if(exec.getActiveCount()==0){ return true; }
 			ThreadTool.sleep(1);
 			if(exec.getActiveCount()==0){
-				logger.warn("had to sleep a little to let threads finish, table:"+tableNameForLog);
+//				logger.warn("had to sleep a little to let threads finish, table:"+tableNameForLog);
 				return true;
 			}
 			ThreadTool.sleep(10);

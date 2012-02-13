@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseOptions;
+import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;

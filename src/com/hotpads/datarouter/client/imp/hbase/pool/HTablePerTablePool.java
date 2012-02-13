@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hbase;
+package com.hotpads.datarouter.client.imp.hbase.pool;
 
 import java.io.IOException;
 import java.util.Collection;

@@ -26,9 +26,9 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
-import com.hotpads.datarouter.client.imp.hbase.HTableExecutorServicePool;
-import com.hotpads.datarouter.client.imp.hbase.HTablePerTablePool;
-import com.hotpads.datarouter.client.imp.hbase.HTablePool;
+import com.hotpads.datarouter.client.imp.hbase.pool.HTableExecutorServicePool;
+import com.hotpads.datarouter.client.imp.hbase.pool.HTablePerTablePool;
+import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.exception.UnavailableException;
