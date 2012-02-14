@@ -158,9 +158,9 @@ implements HBaseClientFactory{
 	
 	
 	public static final int 
-		DEFAULT_minPoolSize = 1,//these are per-table
-		DEFAULT_maxPoolSize = 5,
-		EXECUTOR_SERVICE_MAX_POOL_SIZE = 100;//this would be 100 * about 6 = 600 threads
+		PER_TABLE_minPoolSize = 1,//these are per-table
+		PER_TABLE_maxPoolSize = 5,
+		EXECUTOR_SERVICE_maxPoolSize = 20;
 	
 	public static final long 
 			DEFAULT_MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024,
@@ -236,11 +236,11 @@ implements HBaseClientFactory{
 		HTablePool pool = null;
 		if (PER_TABLE_POOL) {
 			pool = new HTablePerTablePool(hBaseConfig, tableNames,
-					options.minPoolSize(DEFAULT_minPoolSize),
-					DEFAULT_maxPoolSize);
+					options.minPoolSize(PER_TABLE_minPoolSize),
+					PER_TABLE_maxPoolSize);
 		} else {
 			pool = new HTableExecutorServicePool(hBaseConfig, clientName,
-					EXECUTOR_SERVICE_MAX_POOL_SIZE, primaryKeyClassByName);
+					EXECUTOR_SERVICE_maxPoolSize, primaryKeyClassByName);
 		}
 		
 		return Pair.create(pool,primaryKeyClassByName);
