@@ -172,8 +172,11 @@ public class HTableExecutorServicePool implements HTablePool{
 	}
 
 	static final int LEWAY = 0;
+	static final long THROTTLE_INCONSISTENT_LOG_EVERY_X_MS = 500;
 	
 	protected void logIfInconsistentCounts(boolean checkOut, String tableName){
+		long msSinceLastLog = System.currentTimeMillis() - lastLoggedWarning;
+		if(msSinceLastLog < THROTTLE_INCONSISTENT_LOG_EVERY_X_MS){ return; }
 		int semaphoreAvailable = hTableSemaphorePermitsRemaining();
 		int numActiveHTables = activeHTables.size();
 		if(checkOut){ ++numActiveHTables; }//because the table is not added to the active table map until after this method is called
@@ -181,6 +184,7 @@ public class HTableExecutorServicePool implements HTablePool{
 		if(diff > LEWAY){
 			logWithPoolInfo("inconsistent pool counts on "+(checkOut?"checkOut":"checkIn"), tableName);
 		}
+		lastLoggedWarning = System.currentTimeMillis();
 	}
 	
 	protected void logWithPoolInfo(String message, String tableName){
