@@ -17,7 +17,7 @@ import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
-public class HBaseClientImp 
+public class HBaseClientImp
 extends BaseClient
 implements HBaseClient{
 
@@ -30,11 +30,11 @@ implements HBaseClient{
 	protected HTablePool hTablePool;
 	protected ExecutorService executorService;
 	protected Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
-	
-	
+
+
 	/**************************** constructor **********************************/
-	
-	public HBaseClientImp(String name, HBaseOptions options, 
+
+	public HBaseClientImp(String name, HBaseOptions options,
 			Configuration hBaseConfiguration, HBaseAdmin hBaseAdmin, HTablePool pool,
 			Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName){
 		this.name = name;
@@ -53,38 +53,44 @@ implements HBaseClient{
 //				new ThreadPoolExecutor.AbortPolicy());
 		this.primaryKeyClassByName = primaryKeyClassByName;
 	}
-	
+
 	@Override
 	public String getName(){
 		return name;
 	}
-	
+
 	@Override
 	public ClientType getType(){
 		return ClientType.hbase;
 	}
-	
+
 	@Override
 	public String toString(){
 		return this.name;
 	}
 
-	
-	
+
+
 	/****************************** HBaseClient methods *************************/
-	
+
+	@Override
 	public HBaseAdmin getHBaseAdmin(){
 		return hBaseAdmin;
 	}
-	
+
 	@Override
 	public HTable checkOutHTable(String name){
 		return hTablePool.checkOut(name);
 	}
-	
+
 	@Override
 	public void checkInHTable(HTable hTable, boolean possiblyTarnished){
 		hTablePool.checkIn(hTable, possiblyTarnished);
+	}
+
+	@Override
+	public HTablePool getHTablePool(){
+		return hTablePool;
 	}
 
 	@Override
@@ -96,16 +102,17 @@ implements HBaseClient{
 	public Class<PrimaryKey<?>> getPrimaryKeyClass(String tableName){
 		return primaryKeyClassByName.get(tableName);
 	}
-	
+
 	public Configuration getHBaseConfiguration(){
 		return hBaseConfiguration;
 	}
-	
+
 	@Override
 	public Integer getTotalPoolSize(){
 		return hTablePool.getTotalPoolSize();
 	}
-	
+
+	@Override
 	public void shutdown(){
 		logger.warn("shutting down client:"+name);
 //		hTablePool.killOutstandingConnections();
