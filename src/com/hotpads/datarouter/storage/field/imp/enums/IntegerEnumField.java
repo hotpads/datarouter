@@ -34,7 +34,7 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 	
 	@Override
 	public int compareTo(Field<E> other){
-		return DataRouterEnumTool.compareIntegerEnums(other.getValue(), value);
+		return DataRouterEnumTool.compareIntegerEnums(value, other.getValue());
 	}
 	
 	@Override
