@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.hbase.pool;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -54,9 +53,10 @@ public class HTableExecutorServicePool implements HTablePool{
 	public HTable checkOut(String tableName){
 		long checkoutRequestStartMs = System.currentTimeMillis();
 		checkConsistencyAndAcquireSempahore(tableName);
+		HTableExecutorService hTableExecutorService = null;
+		HTable hTable = null;
 		try{
 			DRCounters.inc("connection getHTable "+tableName);
-			HTableExecutorService hTableExecutorService = null;
 			while(true){
 				hTableExecutorService = executorServiceQueue.pollFirst();
 				if(hTableExecutorService==null){
@@ -81,7 +81,6 @@ public class HTableExecutorServicePool implements HTablePool{
 				hTableExecutorService = null;//release it and loop around again
 			}
 		
-			HTable hTable = null;
 			HConnection hConnection = HConnectionManager.getConnection(hBaseConfiguration);
 			hTable = new HTable(StringByteTool.getUtf8Bytes(tableName), hConnection, 
 					hTableExecutorService.exec);
@@ -91,9 +90,12 @@ public class HTableExecutorServicePool implements HTablePool{
 			recordSlowCheckout(System.currentTimeMillis() - checkoutRequestStartMs);
 			logIfInconsistentCounts(true, tableName);
 			return hTable;
-		}catch(IOException ioe){
+		}catch(Exception e){
+			if(hTable!=null){
+				activeHTables.remove(hTable);
+			}
 			hTableSemaphore.release();//HTable didn't make it out into the wild, so we know it can't be checked in later
-			throw new RuntimeException(ioe);
+			throw new RuntimeException(e);
 		}
 	}
 	
