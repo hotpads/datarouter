@@ -13,7 +13,6 @@ import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
-@Deprecated //should probably use VarIntEnumField instead since most enums are 1 byte ints
 public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 	
 	protected E sampleValue;
