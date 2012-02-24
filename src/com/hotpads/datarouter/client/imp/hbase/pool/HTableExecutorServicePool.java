@@ -4,7 +4,8 @@ import java.util.Map;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadPoolExecutor;
+
+import junit.framework.Assert;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HConnection;
@@ -91,6 +92,7 @@ public class HTableExecutorServicePool implements HTablePool{
 			hTable.setAutoFlush(false);
 			recordSlowCheckout(System.currentTimeMillis() - checkoutRequestStartMs);
 			logIfInconsistentCounts(true, tableName);
+			Assert.assertNotNull(hTable);
 			return hTable;
 		}catch(Exception e){
 			if(hTable!=null){
@@ -106,17 +108,22 @@ public class HTableExecutorServicePool implements HTablePool{
 	public void checkIn(HTable hTable, boolean possiblyTarnished){
 		//do this first otherwise things may get hung up in the "active" map
 		String tableName = StringByteTool.fromUtf8Bytes(hTable.getTableName());
-		try{
-			HTableExecutorService hTableExecutorService = activeHTables.remove(hTable);
+		HTableExecutorService hTableExecutorService;
+		try {
+			hTableExecutorService = activeHTables.remove(hTable);
 			hTable.getWriteBuffer().clear();
 			if(hTableExecutorService==null){
 				logWithPoolInfo("HTable returned to pool but HTableExecutorService not found", tableName);
 				DRCounters.inc("HTable returned to pool but HTableExecutorService not found");
+				//don't release the semaphore
 				return;
 			}
+		}catch(Exception e) {
+			throw new RuntimeException(e);
+		}
+		try{
 			hTableExecutorService.markLastCheckinMs();
-			ThreadPoolExecutor exec = hTableExecutorService.exec;
-			exec.purge();
+			hTableExecutorService.purge();
 			if(possiblyTarnished){//discard
 				logWithPoolInfo("ThreadPoolExecutor possibly tarnished, discarding", tableName);
 				DRCounters.inc("HTable executor possiblyTarnished "+tableName);
@@ -180,11 +187,12 @@ public class HTableExecutorServicePool implements HTablePool{
 	static final int LEWAY = 0;
 
 	public boolean areCountsConsistent(boolean checkOut) {
-		int semaphoreAvailable = hTableSemaphorePermitsRemaining();
+		int numActivePermits = hTableSemaphoreActivePermits();
+		if(numActivePermits > maxSize) { return false; }
 		int numActiveHTables = activeHTables.size();
-		if(checkOut){ ++numActiveHTables; }//because the table is not added to the active table map until after this method is called
-		int diff = maxSize - semaphoreAvailable - numActiveHTables;
-		return diff <= LEWAY;
+		if(numActiveHTables > maxSize) { return false; }
+		if(numActiveHTables > numActivePermits) { return false; }
+		return true;
 	}
 
 	static final long THROTTLE_INCONSISTENT_LOG_EVERY_X_MS = 500;
@@ -224,16 +232,16 @@ public class HTableExecutorServicePool implements HTablePool{
 
 	protected String getPoolInfoLogMessage(String tableName){
 		return "HTables[max="+maxSize
-				+", active="+activeHTables.size()
-				+", available="+hTableSemaphorePermitsRemaining()
+				+", active HTables="+activeHTables.size()
+				+", active permits="+hTableSemaphoreActivePermits()
 				+", waiting="+hTableSemaphore.getQueueLength()+"]"
 				+", ExecServices[idle="+executorServiceQueue.size()+"]"
 				+", client="+clientName
 				+", table="+tableName;
 	}
 
-	protected int hTableSemaphorePermitsRemaining(){
-		return hTableSemaphore.availablePermits();//seems to always be 1 lower?
+	protected int hTableSemaphoreActivePermits(){
+		return maxSize - hTableSemaphore.availablePermits();//seems to always be 1 lower?
 	}
 
 }

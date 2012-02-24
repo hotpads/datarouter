@@ -52,14 +52,10 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		boolean possiblyTarnishedHTable = false;
 		try{
 			TraceContext.startSpan(node.getName()+" "+taskName);
-			if(NumberTool.nullSafe(numAttempts) > 1){ 
-				TraceContext.appendToThreadInfo("[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
-			}
-			if( ! NumberTool.isMax(timeoutMs)){ 
-				TraceContext.appendToThreadInfo("[timeoutMs="+timeoutMs+"]"); 
-			}
+			recordDetailedTraceInfo();
 			client = node.getClient();//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
-//			logger.warn("got client "+System.identityHashCode(client));
+			Assert.assertNotNull(client);
+			Assert.assertNull(hTable);
 			hTable = client.checkOutHTable(tableName);
 			return hbaseCall();
 		}catch(Exception e){
@@ -81,12 +77,22 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			}else{
 				client.checkInHTable(hTable, possiblyTarnishedHTable);
 			}
+			hTable = null;//reset to null since this HBaseTask will get reused
 			TraceContext.finishSpan();
 		}
 	}
 	
 	public abstract V hbaseCall() throws Exception;
 
+	
+	protected void recordDetailedTraceInfo() {
+		if(NumberTool.nullSafe(numAttempts) > 1){ 
+			TraceContext.appendToThreadInfo("[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
+		}
+		if( ! NumberTool.isMax(timeoutMs)){ 
+			TraceContext.appendToThreadInfo("[timeoutMs="+timeoutMs+"]"); 
+		}
+	}
 	
 	/******************************* get/set ********************************************/
 	

@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -37,6 +38,8 @@ import com.hotpads.util.core.number.RandomTool;
 public class HTableExecutorServicePoolTester {
 	Logger logger = Logger.getLogger(HTableExecutorServicePoolTester.class);
 
+	static final int NUM_INSERTS = 1000000;
+	
 	static BasicClientTestRouter router;
 	static HBaseClientImp client;
 	static HTableExecutorServicePool pool;
@@ -66,10 +69,8 @@ public class HTableExecutorServicePoolTester {
 
 	@Test
 	public void testPoolMonitoring(){
-		ThreadPoolExecutor exec = new ThreadPoolExecutor(30,
-				30,
-				60,
-				TimeUnit.SECONDS,
+		ThreadPoolExecutor exec = new ThreadPoolExecutor(30, 30,
+				60, TimeUnit.SECONDS,
 				new LinkedBlockingQueue<Runnable>(Integer.MAX_VALUE),
 				new ThreadPoolExecutor.CallerRunsPolicy());
 
@@ -77,12 +78,12 @@ public class HTableExecutorServicePoolTester {
 
 		Random random = new Random();
 		List<Future> futures = ListTool.createArrayList();
-		for(int i=0; i < 1000000; ++i) {
+		for(int i=0; i < NUM_INSERTS; ++i) {
 			long randomLong = RandomTool.nextPositiveLong(random);
 			ActionUsingPool task = new ActionUsingPool(randomLong);
 			futures.add(exec.submit(task));
 		}
-		for(int i=0; i < 1000000; ++i) {
+		for(int i=0; i < NUM_INSERTS; ++i) {
 			Future<Void> future = futures.get(i);
 			try{
 //				future.get(3, TimeUnit.SECONDS);
@@ -114,11 +115,15 @@ public class HTableExecutorServicePoolTester {
 
 			if(i % 10000 == 0) {
 				logger.warn("did "+i+", NPEs:"+npes+", TOEs:"+toes);
+				
 			}
 		}
 		exec.shutdownNow();
 	}
 
+	
+	/********************* inner class ****************************/
+	
 	class ActionUsingPool implements Callable<Void>{
 		long randomLong;
 		public ActionUsingPool(long randomLong){
