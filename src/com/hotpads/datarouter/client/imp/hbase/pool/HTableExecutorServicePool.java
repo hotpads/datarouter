@@ -232,8 +232,8 @@ public class HTableExecutorServicePool implements HTablePool{
 
 	protected String getPoolInfoLogMessage(String tableName){
 		return "HTables[max="+maxSize
-				+", active HTables="+activeHTables.size()
 				+", active permits="+hTableSemaphoreActivePermits()
+				+", active HTables="+activeHTables.size()
 				+", waiting="+hTableSemaphore.getQueueLength()+"]"
 				+", ExecServices[idle="+executorServiceQueue.size()+"]"
 				+", client="+clientName
