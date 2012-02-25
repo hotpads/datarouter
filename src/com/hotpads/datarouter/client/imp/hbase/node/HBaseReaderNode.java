@@ -165,7 +165,6 @@ implements HBasePhysicalNode<PK,D>,
 						byte[] rowBytes = getKeyBytesWithScatteringPrefix(key);
 						gets.add(new Get(rowBytes));
 					}
-					DRCounters.inc(node.getName()+" hbase getMulti rows", CollectionTool.size(gets));
 					Result[] resultArray = hTable.get(gets);
 					List<D> results = ListTool.createArrayListWithSize(keys);
 					for(Result row : resultArray){
