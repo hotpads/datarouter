@@ -57,6 +57,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			Assert.assertNotNull(client);
 			Assert.assertNull(hTable);
 			hTable = client.checkOutHTable(tableName);
+			Assert.assertNotNull(hTable);
 			return hbaseCall();
 		}catch(Exception e){
 			possiblyTarnishedHTable = true;
