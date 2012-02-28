@@ -66,8 +66,12 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 				}
 			}catch(Exception attemptException){
 				finalAttempException = attemptException;
-				logger.warn("attempt "+i+"/"+numAttempts+" failed with the following exception");
-				logger.warn(ExceptionTool.getStackTraceAsString(attemptException));
+				if(isLastAttempt(i)) {
+					logger.warn("attempt "+i+"/"+numAttempts+" failed with the following exception");
+					logger.warn(ExceptionTool.getStackTraceAsString(attemptException));
+				}else {
+					logger.warn("attempt "+i+"/"+numAttempts+" failed, retrying");
+				}
 			}
 		}
 		throw new DataAccessException("timed out "+numAttempts+" times at timeoutMs="+timeoutMs, 
@@ -77,5 +81,9 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	protected static Long getTimeoutMS(Config config){
 		if(config.getTimeoutMs()!=null){ return config.getTimeoutMs(); }
 		return HBaseClient.DEFAULT_TIMEOUT_MS;
+	}
+	
+	protected boolean isLastAttempt(int i) {
+		return i==numAttempts;
 	}
 }
