@@ -84,7 +84,7 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 
 	@Override
 	public ConnectionHandle reserveConnection(){
-		DRCounters.inc("connection open "+getName());
+		DRCounters.inc("connection open" + getName());
 		try {
 			ConnectionHandle existingHandle = getExistingHandle();
 			if(existingHandle != null){
