@@ -16,6 +16,7 @@ import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
+import com.hotpads.util.datastructs.MutableString;
 
 public class HBaseClientImp
 extends BaseClient
@@ -79,8 +80,8 @@ implements HBaseClient{
 	}
 
 	@Override
-	public HTable checkOutHTable(String name){
-		return hTablePool.checkOut(name);
+	public HTable checkOutHTable(String name, MutableString progress){
+		return hTablePool.checkOut(name, progress);
 	}
 
 	@Override

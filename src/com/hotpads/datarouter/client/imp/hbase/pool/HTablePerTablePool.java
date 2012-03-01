@@ -16,6 +16,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
+import com.hotpads.util.datastructs.MutableString;
 
 @Deprecated//use HTableExecutorServicePool which pools at a lower level for less waste
 public class HTablePerTablePool implements HTablePool{
@@ -49,7 +50,7 @@ public class HTablePerTablePool implements HTablePool{
 	
 	
 	@Override
-	public HTable checkOut(String name){
+	public HTable checkOut(String name, MutableString progress){
 		DRCounters.inc("connection getHTable "+name);
 		LinkedList<HTable> queue = hTablesByName.get(name);
 		HTable hTable;

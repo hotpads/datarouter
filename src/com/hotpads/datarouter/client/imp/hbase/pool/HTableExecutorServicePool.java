@@ -18,11 +18,12 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.SemaphoreTool;
+import com.hotpads.util.datastructs.MutableString;
 
 public class HTableExecutorServicePool implements HTablePool{
 	protected Logger logger = Logger.getLogger(getClass());
 
-	protected static Boolean LOG_ACTIONS = true;
+	protected static Boolean LOG_ACTIONS = false;
 
 	protected Long lastLoggedWarning = 0L;
 
@@ -53,17 +54,21 @@ public class HTableExecutorServicePool implements HTablePool{
 
 
 	@Override
-	public HTable checkOut(String tableName){
+	public HTable checkOut(String tableName, MutableString progress){
 		long checkoutRequestStartMs = System.currentTimeMillis();
 		checkConsistencyAndAcquireSempahore(tableName);
+		setProgress(progress, "passed semaphore");
 		HTableExecutorService hTableExecutorService = null;
 		HTable hTable = null;
 		try{
 			DRCounters.inc("connection getHTable "+tableName);
 			while(true){
 				hTableExecutorService = executorServiceQueue.pollFirst();
+				setProgress(progress, "polled queue "+hTableExecutorService==null?"null":"success");
+				
 				if(hTableExecutorService==null){
 					hTableExecutorService = new HTableExecutorService();
+					setProgress(progress, "new HTableExecutorService()");
 					String counterName = "connection create HTable "+tableName;
 					DRCounters.inc(counterName);
 					logWithPoolInfo("created new HTableExecutorService", tableName);
@@ -85,11 +90,16 @@ public class HTableExecutorServicePool implements HTablePool{
 			}
 
 			HConnection hConnection = HConnectionManager.getConnection(hBaseConfiguration);
+			setProgress(progress, "got hConnection "+hConnection==null?"null":"");
 			hTable = new HTable(StringByteTool.getUtf8Bytes(tableName), hConnection,
 					hTableExecutorService.exec);
+			setProgress(progress, "created HTable");
 			activeHTables.put(hTable, hTableExecutorService);
+			setProgress(progress, "added to activeHTables");
 			hTable.getWriteBuffer().clear();
+			setProgress(progress, "cleared HTable write buffer");
 			hTable.setAutoFlush(false);
+			setProgress(progress, "set HTable autoFlush false");
 			recordSlowCheckout(System.currentTimeMillis() - checkoutRequestStartMs);
 			logIfInconsistentCounts(true, tableName);
 			Assert.assertNotNull(hTable);
@@ -97,10 +107,17 @@ public class HTableExecutorServicePool implements HTablePool{
 		}catch(Exception e){
 			if(hTable!=null){
 				activeHTables.remove(hTable);
+				setProgress(progress, "removed from activeHTables");
 			}
 			hTableSemaphore.release();//HTable didn't make it out into the wild, so we know it can't be checked in later
+			setProgress(progress, "released sempahore");
 			throw new RuntimeException(e);
 		}
+	}
+	
+	protected void setProgress(MutableString progress, String s) {
+		if(progress==null) { return; }
+		progress.set(s);
 	}
 
 

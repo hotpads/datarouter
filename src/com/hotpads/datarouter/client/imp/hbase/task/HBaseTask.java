@@ -14,6 +14,7 @@ import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.NumberTool;
+import com.hotpads.util.datastructs.MutableString;
 
 public abstract class HBaseTask<V> extends TracedCallable<V>{
 	static Logger logger = Logger.getLogger(HBaseTask.class);
@@ -30,6 +31,8 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	protected Config config;
 	protected HTable hTable;
 	
+	protected MutableString progress;
+	
 	//subclasses should use this for easy, safe "close()" handling
 	protected ResultScanner managedResultScanner;
 	
@@ -42,12 +45,14 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		this.node = node;
 		this.tableName = node.getTableName();
 		this.config = Config.nullSafe(config);
+		this.progress = new MutableString("");
 		Assert.assertNull(hTable);//previous call should have cleared it in finally block
 	}
 	
 	
 	@Override
 	public V wrappedCall(){
+		progress.set("starting");
 		HBaseClient client = null;
 		boolean possiblyTarnishedHTable = false;
 		try{
@@ -55,9 +60,11 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			recordDetailedTraceInfo();
 			client = node.getClient();//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
 			Assert.assertNotNull(client);
+			progress.set("got client");
 			Assert.assertNull(hTable);
-			hTable = client.checkOutHTable(tableName);
+			hTable = client.checkOutHTable(tableName, progress);
 			Assert.assertNotNull(hTable);
+			progress.set("got HTable");
 			return hbaseCall();
 		}catch(Exception e){
 			possiblyTarnishedHTable = true;

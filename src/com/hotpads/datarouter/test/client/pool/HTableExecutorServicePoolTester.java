@@ -7,7 +7,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -34,11 +33,13 @@ import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.number.RandomTool;
+import com.hotpads.util.datastructs.MutableString;
 
 public class HTableExecutorServicePoolTester {
 	Logger logger = Logger.getLogger(HTableExecutorServicePoolTester.class);
 
-	static final int NUM_INSERTS = 1000000;
+	static final int NUM_INSERTS = 200000;
+	static final int TIMEOUT_MS = 10;
 	
 	static BasicClientTestRouter router;
 	static HBaseClientImp client;
@@ -77,18 +78,21 @@ public class HTableExecutorServicePoolTester {
 		int npes=0, toes=0;
 
 		Random random = new Random();
-		List<Future> futures = ListTool.createArrayList();
+		List<ActionUsingPool> tasks = ListTool.createArrayList();
+		List<Future<Void>> futures = ListTool.createArrayList();
 		for(int i=0; i < NUM_INSERTS; ++i) {
 			long randomLong = RandomTool.nextPositiveLong(random);
 			ActionUsingPool task = new ActionUsingPool(randomLong);
+			tasks.add(task);
 			futures.add(exec.submit(task));
 		}
 		for(int i=0; i < NUM_INSERTS; ++i) {
 			Future<Void> future = futures.get(i);
 			try{
-//				future.get(3, TimeUnit.SECONDS);
-				future.get();
-//			} catch(TimeoutException e){
+//				future.get();
+				future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+			} catch(TimeoutException e){
+//				logger.warn("progress="+tasks.get(i).progress);
 //				e.printStackTrace();
 			} catch(RuntimeException e){
 				e.printStackTrace();
@@ -107,12 +111,6 @@ public class HTableExecutorServicePoolTester {
 				e.printStackTrace();
 			}
 
-//			try {
-//				FutureTool.get(future);
-//			}catch(RuntimeException e) {
-//				e.printStackTrace();
-//			}
-
 			if(i % 10000 == 0) {
 				logger.warn("did "+i+", NPEs:"+npes+", TOEs:"+toes);
 				
@@ -125,9 +123,11 @@ public class HTableExecutorServicePoolTester {
 	/********************* inner class ****************************/
 	
 	class ActionUsingPool implements Callable<Void>{
+		MutableString progress;
 		long randomLong;
 		public ActionUsingPool(long randomLong){
 			this.randomLong = randomLong;
+			this.progress = new MutableString("constructing");
 		}
 
 
@@ -136,7 +136,7 @@ public class HTableExecutorServicePoolTester {
 			HTable hTable = null;
 			boolean possiblyTarnishedHTable = false;
 			try{
-				hTable = client.checkOutHTable(tableName);
+				hTable = client.checkOutHTable(tableName, null);
 				return hbaseCall(hTable);
 			}catch(Exception e){
 				possiblyTarnishedHTable = true;
@@ -168,7 +168,13 @@ public class HTableExecutorServicePoolTester {
 			else if(eventMod10(3)) {
 				put(hTable);
 				pool.checkIn(hTable, false);//will result in a double checkIn
-			}else {
+			}
+			else if(eventMod10(4)) {
+				int sleepForMs = 5*TIMEOUT_MS;
+				progress.set("about to sleep for "+sleepForMs);
+				Thread.sleep(sleepForMs);
+			}
+			else {
 				put(hTable);
 			}
 			return null;
