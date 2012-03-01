@@ -11,6 +11,11 @@ public class DRCounters{
 		return inc(key, 1L);
 	}
 	
+	public static void incKeyClient(String key, String clientName) {
+		inc(key);
+		inc(key+" "+clientName);
+	}
+	
 	public static void incKeyClientTable(String key, String clientName, String tableName) {
 		inc(key);
 		inc(key+" "+clientName);
