@@ -23,7 +23,7 @@ import com.hotpads.util.datastructs.MutableString;
 public class HTableExecutorServicePool implements HTablePool{
 	protected Logger logger = Logger.getLogger(getClass());
 
-	protected static Boolean LOG_ACTIONS = false;
+	protected static Boolean LOG_ACTIONS = true;
 
 	protected Long lastLoggedWarning = 0L;
 
