@@ -1,13 +1,14 @@
 package com.hotpads.datarouter.app.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.Map.Entry;
 
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -59,6 +60,17 @@ public class ResultMergeTool {
 		for(C b : CollectionTool.nullSafe(bs)){
 			out.addAll(CollectionTool.nullSafe(b));
 		}
+		return out;
+	}
+	
+	public static <T extends Comparable<? super T>,C extends Collection<T>> 
+	ArrayList<T> mergeIntoListAndSort(C a, Collection<? extends C> bs){
+		ArrayList<T> out = ListTool.createArrayList();
+		out.addAll(CollectionTool.nullSafe(a));
+		for(C b : CollectionTool.nullSafe(bs)){
+			out.addAll(CollectionTool.nullSafe(b));
+		}
+		Collections.sort(out);
 		return out;
 	}
 	
