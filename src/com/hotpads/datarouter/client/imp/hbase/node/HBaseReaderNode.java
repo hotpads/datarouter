@@ -160,7 +160,8 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>("getMulti", this, config){
 				public List<D> hbaseCall() throws Exception{
 //					DRCounters.inc(node.getName()+" hbase getMulti rows", CollectionTool.size(keys));
-					DRCounters.incPrefixClientNode("hbase getMulti rows", clientName, node.getName());
+					DRCounters.incPrefixClientNode("hbase getMulti rows", clientName, node.getName(), 
+							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
 						byte[] rowBytes = getKeyBytesWithScatteringPrefix(key);
@@ -186,7 +187,8 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>("getKeys", this, config){
 				public List<PK> hbaseCall() throws Exception{
 //					DRCounters.inc(node.getName()+" hbase getKeys rows", CollectionTool.size(keys));
-					DRCounters.incPrefixClientNode("hbase getKeys rows", clientName, node.getName());
+					DRCounters.incPrefixClientNode("hbase getKeys rows", clientName, node.getName(), 
+							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
 						byte[] rowBytes = getKeyBytesWithScatteringPrefix(key);

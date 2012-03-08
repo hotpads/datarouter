@@ -32,4 +32,21 @@ public class DRCounters{
 		return Counters.inc(PREFIX+" "+key, delta);
 	}
 	
+	public static void incKeyClient(String key, String clientName, long delta) {
+		inc(key, delta);
+		inc(key+" "+clientName, delta);
+	}
+	
+	public static void incKeyClientTable(String key, String clientName, String tableName, long delta) {
+		inc(key, delta);
+		inc(key+" "+clientName, delta);
+		inc(key+" "+clientName+" "+tableName, delta);
+	}
+	
+	public static void incPrefixClientNode(String key, String clientName, String nodeName, long delta) {
+		inc(key, delta);
+		inc(key+" "+clientName, delta);
+		inc(key+" "+clientName+" "+nodeName, delta);
+	}
+	
 }

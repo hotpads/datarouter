@@ -107,9 +107,9 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						actions.add(put);
 						if(!delete.isEmpty()){ actions.add(delete); }
 					}
-					DRCounters.incPrefixClientNode("hbase cells put", clientName, node.getName());
-					DRCounters.incPrefixClientNode("hbase cells delete", clientName, node.getName());
-					DRCounters.incPrefixClientNode("hbase cells put+delete", clientName, node.getName());
+					DRCounters.incPrefixClientNode("hbase cells put", clientName, node.getName(), numPuts);
+					DRCounters.incPrefixClientNode("hbase cells delete", clientName, node.getName(), numDeletes);
+					DRCounters.incPrefixClientNode("hbase cells put+delete", clientName, node.getName(), numPuts + numDeletes);
 //					DRCounters.inc(node.getName()+" hbase cells put", numPuts);
 //					DRCounters.inc(node.getName()+" hbase cells delete", numDeletes);//deletes gets emptied by the hbase client, so count before flushing
 //					DRCounters.inc(node.getName()+" hbase cells put+delete", numPuts + numDeletes);
