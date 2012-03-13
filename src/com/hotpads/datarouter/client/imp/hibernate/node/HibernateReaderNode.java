@@ -41,6 +41,7 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
@@ -140,10 +141,12 @@ implements MapStorageReader<PK,D>,
 			new HibernateTask() {
 				public Object run(Session session) {
 					if(fieldInfo.getFieldAware()){
+						DRCounters.incPrefixClientNode("jdbc get", clientName, name);
 						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields());
 						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
+						DRCounters.incPrefixClientNode("hibernate get", clientName, name);
 						Criteria criteria = getCriteriaForConfig(config, session);
 						Object listOfDatabeans = criteria.list();
 						return listOfDatabeans;//todo, make sure the datastore scans in order so we don't need to sort here
@@ -179,6 +182,8 @@ implements MapStorageReader<PK,D>,
 						if(fieldInfo.getFieldAware()){
 							String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), keyBatch);
 							batch = JdbcTool.selectDatabeans(session, fieldInfo, sql);
+							DRCounters.incPrefixClientNode("jdbc getMulti rows", clientName, name, 
+									CollectionTool.size(keys));
 						}else{
 							Criteria criteria = getCriteriaForConfig(config, session);
 							Disjunction orSeparatedIds = Restrictions.disjunction();
@@ -192,6 +197,8 @@ implements MapStorageReader<PK,D>,
 							}
 							criteria.add(orSeparatedIds);
 							batch = criteria.list();
+							DRCounters.incPrefixClientNode("hibernate getMulti rows", clientName, name, 
+									CollectionTool.size(keys));
 						}
 						Collections.sort(batch);//can sort here because batches were already sorted
 						ListTool.nullSafeArrayAddAll(all, batch);
