@@ -182,6 +182,7 @@ implements MapStorageReader<PK,D>,
 						if(fieldInfo.getFieldAware()){
 							String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), keyBatch);
 							batch = JdbcTool.selectDatabeans(session, fieldInfo, sql);
+							DRCounters.incPrefixClientNode("jdbc getMulti", clientName, name);
 							DRCounters.incPrefixClientNode("jdbc getMulti rows", clientName, name, 
 									CollectionTool.size(keys));
 						}else{
@@ -197,6 +198,7 @@ implements MapStorageReader<PK,D>,
 							}
 							criteria.add(orSeparatedIds);
 							batch = criteria.list();
+							DRCounters.incPrefixClientNode("hibernate getMulti", clientName, name);
 							DRCounters.incPrefixClientNode("hibernate getMulti rows", clientName, name, 
 									CollectionTool.size(keys));
 						}
