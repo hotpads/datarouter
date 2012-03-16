@@ -18,7 +18,6 @@ import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
 import com.hotpads.profile.count.databean.key.CountKey;
-import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -53,7 +52,8 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	@Override
 	public List<AvailableCounter> getAvailableCounters(String nameLike){
 		AvailableCounterKey prefix = new AvailableCounterKey(sourceType, periodMs, nameLike, null);
-		List<AvailableCounter> counters = availableCounterNode.getWithPrefix(prefix, true, null);
+		Config configLongTimeout = new Config().setTimeout(1, TimeUnit.MINUTES);
+		List<AvailableCounter> counters = availableCounterNode.getWithPrefix(prefix, true, configLongTimeout);
 		Collections.sort(counters);
 		return counters;
 	}
