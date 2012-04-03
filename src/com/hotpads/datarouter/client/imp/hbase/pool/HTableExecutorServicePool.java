@@ -198,7 +198,7 @@ public class HTableExecutorServicePool implements HTablePool{
 		if(!LOG_ACTIONS) { return; }
 		if(checkOutDurationMs > 1){
 			DRCounters.incKeyClientTable("connection open > 1ms", clientName, tableName);
-			logger.warn("slow reserveConnection:"+checkOutDurationMs+"ms on "+clientName);
+//			logger.warn("slow reserveConnection:"+checkOutDurationMs+"ms on "+clientName);
 		}
 	}
 
