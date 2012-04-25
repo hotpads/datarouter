@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hibernate.factory;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -11,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 
+import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
@@ -18,6 +20,7 @@ import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.PropertiesTool;
@@ -39,24 +42,24 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	public static final String
 		configLocationDefault = "hib-default.cfg.xml";
 	
-
-	protected DataRouter router;
+	protected DataRouterContext drContext;
 	protected String clientName;
-	protected String configFileLocation;
+	protected List<String> configFilePaths;
 	protected ExecutorService executorService;
-	protected Properties properties;
+	protected List<Properties> multiProperties;
 	protected HibernateClient client;
 	
 	
 	public HibernateSimpleClientFactory(
-			DataRouter router, String clientName, 
-			String configFileLocation, 
+			DataRouterContext drContext,
+			String clientName, 
+			List<String> configFilePaths, 
 			ExecutorService executorService){
-		this.router = router;
+		this.drContext = drContext;
 		this.clientName = clientName;
-		this.configFileLocation = configFileLocation;
+		this.configFilePaths = configFilePaths;
 		this.executorService = executorService;
-		this.properties = PropertiesTool.ioAndNullSafeFromFile(configFileLocation);
+		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
 	}
 	
 	
@@ -69,7 +72,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 				@Override public HibernateClient call(){
 					if(client!=null){ return client; }
 					logger.warn("activating Hibernate client "+clientName);
-					return createFromScratch(router, clientName, properties);
+					return createFromScratch(drContext, clientName);
 				}
 			});
 			try{
@@ -84,8 +87,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	}
 	
 	
-	public HibernateClientImp createFromScratch(
-			DataRouter router, String clientName, Properties properties){
+	public HibernateClientImp createFromScratch(DataRouterContext drContext, String clientName){
 		PhaseTimer timer = new PhaseTimer(clientName);
 		
 		HibernateClientImp client = new HibernateClientImp(clientName);
@@ -93,14 +95,15 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		AnnotationConfiguration sfConfig = new AnnotationConfiguration();
 		
 		//base config file for a SessionFactory
-		String configFileLocation = properties.getProperty(Clients.prefixClient+clientName+paramConfigLocation);
+		String configFileLocation = PropertiesTool.getFirstOccurrence(multiProperties, 
+				Clients.prefixClient+clientName+paramConfigLocation);
 		if(StringTool.isEmpty(configFileLocation)){ configFileLocation = configLocationDefault; }
 		sfConfig.configure(configFileLocation);
 
 		//databean config
 		@SuppressWarnings("unchecked")
-		Nodes nodes = router.getNodes();
-		Collection<Class<? extends Databean<?,?>>> relevantDatabeanTypes = nodes.getTypesForClient(clientName);
+		Collection<Class<? extends Databean<?,?>>> relevantDatabeanTypes = drContext.getNodes()
+				.getTypesForClient(clientName);
 		for(Class<? extends Databean<?,?>> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
 //			logger.warn(clientName+":"+databeanClass);
 			try{
@@ -112,7 +115,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		timer.add("parse");
 
 		//connection pool config
-		JdbcConnectionPool connectionPool = this.getConnectionPool(router, clientName, properties);
+		JdbcConnectionPool connectionPool = getConnectionPool(clientName, multiProperties);
 		client.setConnectionPool(connectionPool);
 		sfConfig.setProperty(provider_class, HibernateConnectionProvider.class.getName());
 		sfConfig.setProperty(connectionPoolName, connectionPool.getName());
@@ -140,11 +143,9 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		return client!=null;
 	}
 	
-	protected JdbcConnectionPool getConnectionPool(
-			DataRouter router, String clientName, Properties properties){
-		String connectionPoolName = properties.getProperty(Clients.prefixClient+clientName+Clients.paramConnectionPool);
-		if(StringTool.isEmpty(connectionPoolName)){ connectionPoolName = clientName; }
-		JdbcConnectionPool connectionPool = router.getConnectionPools().getConnectionPool(connectionPoolName);
+	protected JdbcConnectionPool getConnectionPool(String clientName, List<Properties> multiProperties){
+		boolean writable = ClientId.getWritableNames(drContext.getClientsIds()).contains(connectionPoolName);
+		JdbcConnectionPool connectionPool = new JdbcConnectionPool(connectionPoolName, multiProperties, writable);
 		return connectionPool;
 	}
 	

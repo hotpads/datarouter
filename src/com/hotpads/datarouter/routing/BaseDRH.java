@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.SortedSet;
 
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.client.Clients;
+import com.hotpads.datarouter.connection.ConnectionPools;
+import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -20,7 +24,7 @@ import com.hotpads.util.core.SetTool;
  * 
  * Give each router a static getter like "account()"
  * 
- * Instantiate the DRF and bind it to a thread:
+ * Instantiate the DRH and bind it to a thread:
  *   - at the beginning of a web request
  *   - at the start of a job thread
  *   - in the setup of a Test
@@ -30,11 +34,18 @@ import com.hotpads.util.core.SetTool;
  */
 
 public abstract class BaseDRH{
+
+	protected List<ClientId> clientIds;
+	protected List<String> clientNames;
+	protected ConnectionPools connectionPools;
+	protected Clients clients;
+	protected Nodes nodes = new Nodes();
 	
 	protected List<DataRouter> routers = ListTool.createArrayList();
 	
 	public <R extends DataRouter> R register(R router) throws IOException{
 //		router.activate();//caution: make sure nodes are registered before activating
+		
 		this.routers.add(router);
 		return router;
 	}
@@ -76,5 +87,9 @@ public abstract class BaseDRH{
 		for(DataRouter router : this.routers){
 			router.clearThreadSpecificState();
 		}
+	}
+	
+	public List<String> getClientNames(){
+		return clientNames;
 	}
 }

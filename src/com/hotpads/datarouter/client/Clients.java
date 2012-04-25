@@ -17,7 +17,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.connection.ConnectionPools;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.BaseDRH;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.PropertiesTool;
@@ -28,20 +29,20 @@ import com.hotpads.util.core.concurrent.NamedThreadFactory;
 public class Clients{
 	private static Logger logger = Logger.getLogger(Clients.class);
 
+	protected DataRouterContext drContext;
+	
+	//TODO make this a List of configFileLocations
 	protected String configFileLocation;
-	protected Properties properties;
-	protected DataRouter router;
+	protected Properties properties;//should be list of Properties
 	protected Map<String, Object> params;
 	
-	protected List<String> allClientNames = ListTool.createLinkedList();
+	protected List<ClientId> allClientIds = ListTool.createArrayList();
+	protected List<String> allClientNames = ListTool.createArrayList();
 
 	protected Map<String,ClientFactory> clientFactoryByName = new ConcurrentHashMap<String,ClientFactory>();
 
 	public static final ClientType DEFAULT_CLIENT_TYPE = ClientType.hibernate;
 	
-	protected ThreadGroup parentThreadGroup;
-	protected ThreadFactory threadFactory;
-	protected ThreadPoolExecutor executorService;//for async client init and monitoring
 	
 	public static final String
 		prefixClients = "clients",
@@ -57,15 +58,10 @@ public class Clients{
 	
 	/******************************* constructors **********************************/
 
-	public Clients(ThreadGroup parentThreadGroup, String configFileLocation, DataRouter router) throws IOException {
+	public Clients(DataRouterContext drContext, String configFileLocation){
+		this.drContext = drContext;
 		this.configFileLocation = configFileLocation;
-		this.router = router;
-		this.properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
-		this.parentThreadGroup = parentThreadGroup;//new ThreadGroup("DataRouter-"+router.getName());
-		this.threadFactory = new NamedThreadFactory(parentThreadGroup, "DataRouter-"+router.getName()+"-clients", true);
-		this.executorService = new ThreadPoolExecutor(
-				0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
-	            new SynchronousQueue<Runnable>(), threadFactory);
+		this.properties = PropertiesTool.ioAndNullSafeFromFile(this.configFileLocation);
 		initializeClients();
 	}
 	
@@ -79,7 +75,7 @@ public class Clients{
 		
 		if(forceInitMode != null){
 			if(ClientInitMode.eager.equals(forceInitMode)){
-				return router.getClientNames();
+				return drContext.getClientNames();
 			}else{
 				return null;
 			}
@@ -89,7 +85,7 @@ public class Clients{
 				properties.getProperty(prefixClient+clientDefault+paramInitMode), ClientInitMode.lazy);
 		
 		List<String> clientNamesRequiringEagerInitialization = ListTool.createLinkedList();
-		for(String name : CollectionTool.nullSafe(router.getClientNames())){
+		for(String name : CollectionTool.nullSafe(drContext.getClientNames())){
 			ClientInitMode mode = ClientInitMode.fromString(
 					properties.getProperty(prefixClient+name+paramInitMode), defaultInitMode);
 			if(ClientInitMode.eager.equals(mode)){
@@ -103,20 +99,21 @@ public class Clients{
 	/********************************** initialize ******************************/
 	
 	
-	public void initializeClients() throws IOException{	
+	public void initializeClients(){	
 		String defaultTypeString = properties.getProperty(prefixClient+clientDefault+paramType);
 		if(StringTool.isEmpty(defaultTypeString)){ defaultTypeString = DEFAULT_CLIENT_TYPE.toString(); }
-		allClientNames = router.getClientNames();
+		allClientNames = drContext.getClientNames();
 		if(CollectionTool.isEmpty(allClientNames)){ return; }
 		final List<String> eagerClientNames = getClientNamesRequiringEagerInitialization(properties);
 		for(final String clientName : CollectionTool.nullSafe(allClientNames)){
 			ExecutorService exec = Executors.newSingleThreadExecutor(
-					new NamedThreadFactory(parentThreadGroup, "Client-"+clientName, true));
+					new NamedThreadFactory(drContext.getParentThreadGroup(), "Client-"+clientName, true));
 			String typeString = properties.getProperty(prefixClient+clientName+paramType);
 			if(StringTool.isEmpty(typeString)){ typeString = defaultTypeString; }
 			ClientType clientType = ClientType.fromString(typeString);
-			ClientFactory clientFactory = clientType.createClientFactory(
-					router, clientName, configFileLocation, exec);
+			ClientFactory clientFactory = clientType.createClientFactory(drContext,
+					clientName, drContext.getNodes().getPhysicalNodesForClient(clientName),
+					configFileLocation, drContext.getExecutorService());
 			clientFactoryByName.put(clientName, clientFactory);
 			boolean eager = CollectionTool.contains(eagerClientNames, clientName);
 			if(!eager){
@@ -124,7 +121,7 @@ public class Clients{
 			}
 		}
 		for(final String clientName : CollectionTool.nullSafe(eagerClientNames)){
-			executorService.submit(new Callable<Void>(){
+			drContext.getExecutorService().submit(new Callable<Void>(){
 				public Void call(){
 					try{
 						clientFactoryByName.get(clientName).getClient();
@@ -145,7 +142,7 @@ public class Clients{
 	/********************************** access connection pools ******************************/
 	
 	public ConnectionPools getConnectionPools(){
-		return this.router.getConnectionPools();
+		return drContext.getConnectionPools();
 	}
 	
 	public List<Client> getClients(Collection<String> clientNames){

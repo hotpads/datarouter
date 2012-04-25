@@ -24,10 +24,7 @@ public interface DataRouter {
 	String getConfigLocation();
 	RouterOptions getClientOptions();
 
-	void setClients(Clients clients);
-
-	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>, N extends Node<PK,D>> 
-			N register(N node);
+	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>, N extends Node<PK,D>> N register(N node);
 	
 	void activate() throws IOException;
 

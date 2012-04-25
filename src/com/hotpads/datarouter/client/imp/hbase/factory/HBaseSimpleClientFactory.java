@@ -33,7 +33,7 @@ import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
@@ -61,7 +61,7 @@ implements HBaseClientFactory{
 	
 	static final Integer CREATE_CLIENT_TIMEOUT_MS = 20*1000;//Integer.MAX_VALUE;
 	
-	protected DataRouter router;
+	protected List<PhysicalNode<?,?>> physicalNodes;
 	protected String clientName;
 	protected String configFileLocation;
 	protected ExecutorService executorService;
@@ -75,11 +75,12 @@ implements HBaseClientFactory{
 
 	
 	public HBaseSimpleClientFactory(
-			DataRouter router, String clientName, 
+			String clientName, 
+			List<PhysicalNode<?,?>> physicalNodes, 
 			String configFileLocation, 
 			ExecutorService executorService){
-		this.router = router;
 		this.clientName = clientName;
+		this.physicalNodes = physicalNodes;
 		this.configFileLocation = configFileLocation;
 		this.executorService = executorService;
 		this.properties = PropertiesTool.ioAndNullSafeFromFile(configFileLocation);
@@ -172,8 +173,6 @@ implements HBaseClientFactory{
 	protected Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> initTables(){
 		List<String> tableNames = ListTool.create();
 		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = MapTool.create();
-		@SuppressWarnings("unchecked")
-		List<PhysicalNode<?,?>> physicalNodes = router.getNodes().getPhysicalNodesForClient(clientName);
 		Map<String,PhysicalNode<?,?>> nodeByTableName = MapTool.createTreeMap();
 		for(PhysicalNode<?,?> node : physicalNodes){
 			tableNames.add(node.getTableName());

@@ -9,8 +9,8 @@ public class HibernateOptions extends TypedProperties{
 	
 	protected String clientPrefix;
 
-	public HibernateOptions(Properties properties, String clientName){
-		super(ListTool.wrap(properties));
+	public HibernateOptions(Iterable<Properties> multiProperties, String clientName){
+		super(ListTool.createArrayList(multiProperties));
 		this.clientPrefix = "client."+clientName+".";
 	}
 

@@ -7,7 +7,6 @@ import java.util.List;
 import com.hotpads.datarouter.app.App;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
-import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Node;
@@ -21,10 +20,6 @@ import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
-/**
- * @author mcorgan
- *
- */
 public abstract class BaseDataRouter implements DataRouter {
 
 	public static final String
@@ -32,21 +27,18 @@ public abstract class BaseDataRouter implements DataRouter {
 		MODE_production = "production";
 	
 	/********************************* fields **********************************/
-	protected ThreadGroup parentThreadGroup;
+	
+	protected DataRouterContext context;
 	protected String name;
 	protected List<ClientId> clientIds;
 	protected List<String> clientNames;
 	protected RouterOptions routerOptions;
-	protected ConnectionPools connectionPools;
-	protected Clients clients;
-	
-	protected Nodes nodes = new Nodes();
 	
 	
 	/**************************** constructor  ****************************************/
 	
-	public BaseDataRouter(ThreadGroup parentThradGroup, String name, List<ClientId> clientIds) throws IOException{
-		this.parentThreadGroup = parentThradGroup;
+	public BaseDataRouter(DataRouterContext context, String name, List<ClientId> clientIds) throws IOException{
+		this.context = context;
 		this.name = name;
 		this.clientIds = clientIds;
 		this.clientNames = ClientId.getNames(clientIds);
@@ -56,21 +48,16 @@ public abstract class BaseDataRouter implements DataRouter {
 	
 	/********************************* methods *************************************/
 
-	@Override
-	public String getConfigLocation(){
-		return null;
-	}
-
-	@Override
-	public void setClients(Clients clients){  //called by DataRouterFactory during init
-		this.clients = clients;
-	}
+//	@Override
+//	public String getConfigLocation(){
+//		return null;
+//	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> 
 	N register(N node){
-		this.nodes.register(node);
+		this.context.getNodes().register(node);
 		return node;
 	}
 	
@@ -80,13 +67,12 @@ public abstract class BaseDataRouter implements DataRouter {
 	 */
 	@Override
 	public void activate() throws IOException{
-		this.connectionPools = new ConnectionPools(this);
-		this.clients = new Clients(parentThreadGroup, getConfigLocation(), this);
+		context.register(this);
 	}
 
 	@Override
 	public Nodes<?,?,?> getNodes() {
-		return nodes;
+		return context.getNodes();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -109,7 +95,7 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	public void clearThreadSpecificState(){
-		nodes.clearThreadSpecificState();
+		context.getNodes().clearThreadSpecificState();
 	}
 	
 	/************************************** getting clients *************************/
@@ -126,29 +112,29 @@ public abstract class BaseDataRouter implements DataRouter {
 	
 	@Override
 	public Client getClient(String clientName){
-		return clients.getClient(clientName);
+		return context.getClients().getClient(clientName);
 	}
 
 	@Override
 	public List<Client> getAllClients(){
-		return clients.getAllClients();
+		return context.getClients().getAllClients();
 	}
 	
 	@Override
 	public List<Client> getAllInstantiatedClients(){
-		return clients.getAllInstantiatedClients();
+		return context.getClients().getAllInstantiatedClients();
 	}
 
 	@Override
 	public List<Client> getClients(Collection<String> clientNames){
-		return clients.getClients(clientNames);
+		return context.getClients().getClients(clientNames);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public <K extends Key<K>> List<String> 
 	getClientNamesForKeys(Collection<? extends Key<K>> keys){
-		List<String> clientNames = nodes.getClientNamesForKeys(keys);
+		List<String> clientNames = context.getNodes().getClientNamesForKeys(keys);
 		return clientNames;
 	}
 
@@ -162,9 +148,9 @@ public abstract class BaseDataRouter implements DataRouter {
 	@SuppressWarnings("unchecked")
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<Client> 
 	getClientsForDatabeanType(Class<D> databeanType){
-		List<String> clientNames = nodes.getClientNamesForDatabeanType(databeanType);
+		List<String> clientNames = context.getNodes().getClientNamesForDatabeanType(databeanType);
 		if(CollectionTool.isEmpty(clientNames)){ return null; }
-		return clients.getClients(clientNames);
+		return context.getClients().getClients(clientNames);
 	}
 
 	@Override
@@ -189,7 +175,7 @@ public abstract class BaseDataRouter implements DataRouter {
 	
 	@Override
 	public ConnectionPools getConnectionPools(){
-		return connectionPools;
+		return context.getConnectionPools();
 	}
 
 	

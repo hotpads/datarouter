@@ -19,7 +19,6 @@ public class MemcachedSimpleClientFactory
 implements MemcachedClientFactory{
 	private static Logger logger = Logger.getLogger(MemcachedSimpleClientFactory.class);
 	
-	protected DataRouter router;
 	protected String clientName;
 	protected String configFileLocation;
 	protected ExecutorService executorService;
@@ -29,10 +28,9 @@ implements MemcachedClientFactory{
 	
 	
 	public MemcachedSimpleClientFactory(
-			DataRouter router, String clientName, 
+			String clientName, 
 			String configFileLocation, 
 			ExecutorService executorService){
-		this.router = router;
 		this.clientName = clientName;
 		this.configFileLocation = configFileLocation;
 		this.executorService = executorService;
