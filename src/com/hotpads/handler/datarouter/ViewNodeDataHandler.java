@@ -20,17 +20,17 @@ public class ViewNodeDataHandler extends BaseHandler{
 	
 	/*************************** instance ****************************************/
 	
-	@Override
-	protected Mav handleDefault(){
-		return summary();
-	}
+//	@Override
+//	protected Mav handleDefault(){
+//		return summary();
+//	}
 		
 	/***************************** handlers ********************************/
 	
-	@Handler Mav summary(){
-		modelIndexTreeFactory.getInitializedTree();
-		return new InContextRedirectMav(params, "/admin");
-	}
+//	@Handler Mav summary(){
+//		modelIndexTreeFactory.getInitializedTree();
+//		return new InContextRedirectMav(params, "/admin");
+//	}
 	
 	
 }

@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.routing;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -30,18 +29,16 @@ public abstract class BaseDataRouter implements DataRouter {
 	
 	protected DataRouterContext context;
 	protected String name;
-	protected List<ClientId> clientIds;
 	protected List<String> clientNames;
 	protected RouterOptions routerOptions;
 	
 	
 	/**************************** constructor  ****************************************/
 	
-	public BaseDataRouter(DataRouterContext context, String name, List<ClientId> clientIds) throws IOException{
+	public BaseDataRouter(DataRouterContext context, String name){
 		this.context = context;
 		this.name = name;
-		this.clientIds = clientIds;
-		this.clientNames = ClientId.getNames(clientIds);
+		this.clientNames = ClientId.getNames(getClientIds());
 		this.routerOptions = new RouterOptions(getConfigLocation());
 	}
 	
@@ -66,7 +63,7 @@ public abstract class BaseDataRouter implements DataRouter {
 	 *  without databean configs, and Hibernate will silently return empty results (when called with entityName instead of class)
 	 */
 	@Override
-	public void activate() throws IOException{
+	public void activate(){
 		context.register(this);
 	}
 
@@ -99,11 +96,6 @@ public abstract class BaseDataRouter implements DataRouter {
 	}
 	
 	/************************************** getting clients *************************/
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return clientIds;
-	}
 	
 	@Override
 	public List<String> getClientNames(){
@@ -112,22 +104,22 @@ public abstract class BaseDataRouter implements DataRouter {
 	
 	@Override
 	public Client getClient(String clientName){
-		return context.getClients().getClient(clientName);
+		return context.getClientPool().getClient(clientName);
 	}
 
 	@Override
 	public List<Client> getAllClients(){
-		return context.getClients().getAllClients();
+		return context.getClientPool().getAllClients();
 	}
 	
 	@Override
 	public List<Client> getAllInstantiatedClients(){
-		return context.getClients().getAllInstantiatedClients();
+		return context.getClientPool().getAllInstantiatedClients();
 	}
 
 	@Override
 	public List<Client> getClients(Collection<String> clientNames){
-		return context.getClients().getClients(clientNames);
+		return context.getClientPool().getClients(clientNames);
 	}
 
 	@Override
@@ -150,7 +142,7 @@ public abstract class BaseDataRouter implements DataRouter {
 	getClientsForDatabeanType(Class<D> databeanType){
 		List<String> clientNames = context.getNodes().getClientNamesForDatabeanType(databeanType);
 		if(CollectionTool.isEmpty(clientNames)){ return null; }
-		return context.getClients().getClients(clientNames);
+		return context.getClientPool().getClients(clientNames);
 	}
 
 	@Override

@@ -24,12 +24,16 @@ public class DataRouterContext{
 	protected ThreadGroup parentThreadGroup;
 	protected ThreadFactory threadFactory;
 	protected ThreadPoolExecutor executorService;//for async client init and monitoring
-	
+
+	protected List<DataRouter> routers;
+	protected List<String> configFilePaths;
 	protected ConnectionPools connectionPools;
 	protected Clients clients;
 	protected Nodes nodes;
-	protected List<DataRouter> routers;
-	protected List<String> configFilePaths;
+	
+	public DataRouterContext() {
+		this(new ThreadGroup("DataRouter-DefaultThreadGroup"));
+	}
 	
 	public DataRouterContext(ThreadGroup parentThreadGroup){
 		this.parentThreadGroup = parentThreadGroup;//new ThreadGroup("DataRouter-"+router.getName());
@@ -39,7 +43,7 @@ public class DataRouterContext{
 	            new SynchronousQueue<Runnable>(), threadFactory);
 		
 		connectionPools = new ConnectionPools();
-		clients = new Clients();
+		clients = new Clients(this);
 		nodes = new Nodes();
 		routers = ListTool.createArrayList();
 		configFilePaths = ListTool.createArrayList();
@@ -47,7 +51,10 @@ public class DataRouterContext{
 	
 	public void register(DataRouter router) {
 		routers.add(router);
-		clients.
+		configFilePaths.add(router.getConfigLocation());
+		connectionPools.registerClientIds(router.getClientIds(), router.getConfigLocation());
+		clients.registerClientIds(router.getClientIds(), router.getConfigLocation());
+		//node registration happens in BaseDataRouter.register()
 	}
 	
 	
@@ -88,10 +95,6 @@ public class DataRouterContext{
 		}
 	}
 	
-	public List<String> getClientNames(){
-		return clients.get;
-	}
-	
 	/********************* get/set ***************************/
 
 	public ConnectionPools getConnectionPools(){
@@ -116,6 +119,10 @@ public class DataRouterContext{
 
 	public ThreadPoolExecutor getExecutorService(){
 		return executorService;
+	}
+
+	public List<String> getConfigFilePaths(){
+		return configFilePaths;
 	}
 	
 	

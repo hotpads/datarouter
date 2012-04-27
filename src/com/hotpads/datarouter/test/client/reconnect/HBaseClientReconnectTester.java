@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.BasicClientTestRouterImp;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
@@ -40,7 +41,7 @@ public class HBaseClientReconnectTester {
 	
 	@BeforeClass
 	public static void init() throws IOException{
-		router = new BasicClientTestRouterImp();	
+		router = new BasicClientTestRouterImp(new DataRouterContext());	
 		node = router.txnBeanHBase();
 		resetTable();
 	}

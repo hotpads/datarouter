@@ -1,29 +1,30 @@
 package com.hotpads.datarouter.connection;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
-import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.PropertiesTool;
+import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.ThrowableTool;
 
 public class ConnectionPools {
 	private static Logger logger = Logger.getLogger(ConnectionPools.class);
 
-	protected DataRouter router;
-	protected String configFileLocation;
-	protected Properties properties;
+	protected NavigableSet<ClientId> clientIds = SetTool.createTreeSet();
+	protected Collection<String> configFilePaths = ListTool.createArrayList();
+	protected Collection<Properties> multiProperties = ListTool.createArrayList();
 	protected Map<String,JdbcConnectionPool> connectionPoolByName = MapTool.createConcurrentHashMap();
 
 	public static final String		
@@ -32,10 +33,14 @@ public class ConnectionPools {
 	
 	/******************************* constructors **********************************/
 	
-	public ConnectionPools(DataRouter router) throws IOException {
-		this.router = router;
-		this.configFileLocation = router.getConfigLocation();
-		this.properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
+	public ConnectionPools(){
+	}
+	
+	public void registerClientIds(Collection<ClientId> clientIdsToAdd, String configFilePath) {
+		Preconditions.checkNotNull(configFilePath);
+		clientIds.addAll(CollectionTool.nullSafe(clientIdsToAdd));
+		configFilePaths.add(configFilePath);
+		multiProperties.add(PropertiesTool.ioAndNullSafeFromFile(configFilePath));
 	}
 
 	/****************** shutdown ************************************/
@@ -53,7 +58,7 @@ public class ConnectionPools {
 		if( ! this.connectionPoolByName.containsKey(name)){ 
 			try {
 				this.initializeConnectionPool(name);
-			} catch (IOException e) {
+			} catch (Exception e) {//maybe have caller indicate whether to catch this exception?
 				logger.error(ExceptionTool.getStackTraceAsString(e));
 			}
 		}
@@ -73,10 +78,10 @@ public class ConnectionPools {
 	}
 	
 	
-	public void initializeConnectionPool(String connectionPoolName) throws IOException{		
+	public void initializeConnectionPool(String connectionPoolName){		
 		try{
-			boolean writable = ClientId.getWritableNames(router.getClientIds()).contains(connectionPoolName);
-			JdbcConnectionPool connectionPool = new JdbcConnectionPool(connectionPoolName, properties, writable);
+			boolean writable = ClientId.getWritableNames(clientIds).contains(connectionPoolName);
+			JdbcConnectionPool connectionPool = new JdbcConnectionPool(connectionPoolName, multiProperties, writable);
 			connectionPoolByName.put(connectionPool.getName(), connectionPool);
 		}catch(Exception e){
 			logger.error("error instantiating ConnectionPool:"+connectionPoolName);

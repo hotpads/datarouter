@@ -61,11 +61,15 @@ implements HBaseClientFactory{
 	
 	static final Integer CREATE_CLIENT_TIMEOUT_MS = 20*1000;//Integer.MAX_VALUE;
 	
+	
+	/********************* fields *******************************/
+	
+	protected DataRouterContext drContext;
 	protected List<PhysicalNode<?,?>> physicalNodes;
 	protected String clientName;
-	protected String configFileLocation;
+	protected List<String> configFilePaths;
+	protected List<Properties> multiProperties;
 	protected ExecutorService executorService;
-	protected Properties properties;
 	protected HBaseOptions options;
 	protected HBaseClient client;
 	protected Configuration hBaseConfig;
@@ -75,16 +79,16 @@ implements HBaseClientFactory{
 
 	
 	public HBaseSimpleClientFactory(
+			DataRouterContext drContext,
 			String clientName, 
-			List<PhysicalNode<?,?>> physicalNodes, 
-			String configFileLocation, 
 			ExecutorService executorService){
+		this.drContext = drContext;
 		this.clientName = clientName;
-		this.physicalNodes = physicalNodes;
-		this.configFileLocation = configFileLocation;
 		this.executorService = executorService;
-		this.properties = PropertiesTool.ioAndNullSafeFromFile(configFileLocation);
-		this.options = new HBaseOptions(properties, clientName);
+
+		this.configFilePaths = drContext.getConfigFilePaths();
+		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
+		this.options = new HBaseOptions(multiProperties, clientName);
 	}
 	
 	@Override

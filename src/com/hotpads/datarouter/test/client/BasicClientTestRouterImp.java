@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.test.client;
-import java.io.IOException;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.client.ClientId;
@@ -10,6 +11,7 @@ import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean.PoolTestBeanFielder;
@@ -38,8 +40,9 @@ implements BasicClientTestRouter{
 
 	/********************************* constructor *****************************/
 
-	public BasicClientTestRouterImp() throws IOException{
-		super(null, name, CLIENT_IDS);
+	@Inject
+	public BasicClientTestRouterImp(DataRouterContext drContext){
+		super(drContext, name);
 		keepAliveHBase = cast(register(
 				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, KeepAlive.class, KeepAliveFielder.class, this)));
 
@@ -64,6 +67,11 @@ implements BasicClientTestRouter{
 	public static final List<ClientId> CLIENT_IDS = ListTool.create(
 			new ClientId(DRTestConstants.CLIENT_drTestHibernate0, true),
 			new ClientId(DRTestConstants.CLIENT_drTestHBase, true));
+	
+	@Override
+	public List<ClientId> getClientIds(){
+		return CLIENT_IDS;
+	}
 
 
 	/*************************** get/set ***********************************/

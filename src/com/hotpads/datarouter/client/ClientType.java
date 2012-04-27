@@ -54,21 +54,18 @@ public enum ClientType {
 	public static final boolean USE_RECONNECTING_HBASE_CLIENT = false;
 	
 	public ClientFactory createClientFactory(DataRouterContext drContext, String clientName, 
-			List<PhysicalNode<?,?>> physicalNodes, String configFileLocation, ExecutorService executorService){
+			List<PhysicalNode<?,?>> physicalNodes, ExecutorService executorService){
 		if(hbase==this){ 
 //			if(USE_RECONNECTING_HBASE_CLIENT){
 //				return new HBaseDynamicClientFactory(router, clientName, 
 //						configFileLocation, executorService);
 //			}else{
-				return new HBaseSimpleClientFactory(clientName, physicalNodes, 
-						configFileLocation, executorService);
+				return new HBaseSimpleClientFactory(drContext, clientName, executorService);
 //			}
 		}else if(hibernate==this){ 
-			return new HibernateSimpleClientFactory(drContext, clientName, 
-					configFileLocation, executorService); 
+			return new HibernateSimpleClientFactory(drContext, clientName, executorService); 
 		}else if(memcached==this){ 
-			return new MemcachedSimpleClientFactory(clientName, 
-					configFileLocation, executorService); 
+			return new MemcachedSimpleClientFactory(drContext, clientName, executorService); 
 		}
 		
 		throw new IllegalArgumentException("unsupported ClientType "+this);

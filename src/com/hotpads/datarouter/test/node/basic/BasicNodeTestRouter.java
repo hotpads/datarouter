@@ -1,5 +1,5 @@
 package com.hotpads.datarouter.test.node.basic;
-import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
 import com.google.inject.Singleton;
@@ -15,6 +15,7 @@ import com.hotpads.datarouter.node.op.raw.IndexedStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.SortedStorage;
 import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean.BackupBeanFielder;
@@ -37,37 +38,45 @@ import com.hotpads.util.core.ListTool;
 
 
 @Singleton
-public class BasicNodeTestRouter
-extends BaseDataRouter{
+public class BasicNodeTestRouter extends BaseDataRouter{
 
 	public static final String name = "basicNodeTest";
 	
-	public BasicNodeTestRouter(String client, Class<?> testType) throws IOException{
-		super(null, name, ListTool.create(new ClientId(client, true)));
+	protected String clientName;
+	
+	public BasicNodeTestRouter(String clientName, Class<?> testType){
+		super(new DataRouterContext(), name);
 		
 		if(ManyFieldTypeIntegrationTests.class.equals(testType)){
-			manyFieldTypeBeanNode = register(NodeFactory.create(client, ManyFieldTypeBean.class, ManyFieldTypeBeanFielder.class, 
+			manyFieldTypeBeanNode = register(NodeFactory.create(clientName, ManyFieldTypeBean.class, ManyFieldTypeBeanFielder.class, 
 					new Random().nextInt(), this));
 		}
 		if(SortedNodeIntegrationTests.class.equals(testType)){
-			sortedBeanNode = register(NodeFactory.create(client, SortedBean.class, SortedBeanFielder.class, this));
+			sortedBeanNode = register(NodeFactory.create(clientName, SortedBean.class, SortedBeanFielder.class, this));
 		}
 		if(IndexedNodeIntegrationTests.class.equals(testType)){
-			sortedBeanNode = register(NodeFactory.create(client, SortedBean.class, SortedBeanFielder.class, this));
+			sortedBeanNode = register(NodeFactory.create(clientName, SortedBean.class, SortedBeanFielder.class, this));
 		}
 		if(BackupIntegrationTests.class.equals(testType)){
-			backupBeanNode = register(NodeFactory.create(client, BackupBean.class, BackupBeanFielder.class, this));
-			backupRecordNode = register(NodeFactory.create(client, BackupRecord.class, BackupRecordFielder.class, this));
+			backupBeanNode = register(NodeFactory.create(clientName, BackupBean.class, BackupBeanFielder.class, this));
+			backupRecordNode = register(NodeFactory.create(clientName, BackupRecord.class, BackupRecordFielder.class, this));
 		}
 		if(ScatteringPrefixIntegrationTests.class.equals(testType)){
-			scatteringPrefixBeanNode = register(NodeFactory.create(client, 
+			scatteringPrefixBeanNode = register(NodeFactory.create(clientName, 
 //					"ScatteringPrefixBean8", ScatteringPrefixBean.class.getName(),//optional test to make sure hbase table naming working
 					ScatteringPrefixBean.class, ScatteringPrefixBeanFielder.class, this));
 		}
+		
+		this.clientName = clientName;
 		activate();//do after field inits
 	}
 
 	/********************************** config **********************************/
+	
+	@Override
+	public List<ClientId> getClientIds(){
+		return ListTool.create(new ClientId(clientName, true));
+	}
 	
 	@Override
 	public String getConfigLocation(){
@@ -111,7 +120,7 @@ extends BaseDataRouter{
 	/************************ sorted and indexed versions of this router *****************/
 	
 	public static class SortedBasicNodeTestRouter extends BasicNodeTestRouter{
-		public SortedBasicNodeTestRouter(String client, Class<?> testType) throws IOException{
+		public SortedBasicNodeTestRouter(String client, Class<?> testType){
 			super(client, testType);
 		}
 		public SortedStorage<SortedBeanKey,SortedBean> sortedBeanSorted(){
@@ -123,7 +132,7 @@ extends BaseDataRouter{
 	}
 	
 	public static class IndexedBasicNodeTestRouter extends SortedBasicNodeTestRouter{
-		public IndexedBasicNodeTestRouter(String client, Class<?> testType) throws IOException{
+		public IndexedBasicNodeTestRouter(String client, Class<?> testType){
 			super(client, testType);
 		}
 		public IndexedStorage<SortedBeanKey,SortedBean> sortedBeanIndexed(){
@@ -132,6 +141,12 @@ extends BaseDataRouter{
 	}
 
 	
+	/*************************** get/set *****************************/
+	
+	public BasicNodeTestRouter setClientName(String clientName) {
+		this.clientName = clientName;
+		return this;
+	}
 
 	
 

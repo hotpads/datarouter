@@ -45,20 +45,20 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	protected DataRouterContext drContext;
 	protected String clientName;
 	protected List<String> configFilePaths;
-	protected ExecutorService executorService;
 	protected List<Properties> multiProperties;
+	protected ExecutorService executorService;
 	protected HibernateClient client;
 	
 	
 	public HibernateSimpleClientFactory(
 			DataRouterContext drContext,
 			String clientName, 
-			List<String> configFilePaths, 
 			ExecutorService executorService){
 		this.drContext = drContext;
 		this.clientName = clientName;
-		this.configFilePaths = configFilePaths;
 		this.executorService = executorService;
+
+		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
 	}
 	
@@ -144,7 +144,8 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	}
 	
 	protected JdbcConnectionPool getConnectionPool(String clientName, List<Properties> multiProperties){
-		boolean writable = ClientId.getWritableNames(drContext.getClientsIds()).contains(connectionPoolName);
+		boolean writable = ClientId.getWritableNames(drContext.getClientPool().getClientIds())
+				.contains(connectionPoolName);
 		JdbcConnectionPool connectionPool = new JdbcConnectionPool(connectionPoolName, multiProperties, writable);
 		return connectionPool;
 	}
