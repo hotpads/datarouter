@@ -59,7 +59,8 @@ extends BackupRegion<PK,D>{
 			}
 			try{
 				exportWithoutClosingOutputStream();
-				timer.add("exported "+NumberFormatter.addCommas(numRecords)+", "+NumberFormatter.addCommas(rawBytes)+"b");
+				timer.add("exported "+NumberFormatter.addCommas(numRecords)+
+						", "+NumberFormatter.addCommas(rawBytes)+"b");
 			}finally{
 				try{
 					if(os!=null){ 
@@ -85,12 +86,15 @@ extends BackupRegion<PK,D>{
 	
 	protected void uploadToS3() throws IOException{
 		File localFile = new File(localPath);
-		S3PutTool.putFile(false, s3Bucket, localFile, s3Key, CannedAccessControlList.Private,
-				S3Headers.CONTENT_TYPE_GZIP, S3Headers.CACHE_CONTROL_NO_CACHE);
+		S3PutTool.putFile(false, s3Bucket, localFile, s3Key, 
+				CannedAccessControlList.Private,
+				S3Headers.ContentType.GZIP.getMimeType(), 
+				S3Headers.CACHE_CONTROL_NO_CACHE);
 		timer.add("uploaded to s3");
 	}
 	
-	public static String getS3Key(String sourceName, DataRouter router, Node<?,?> node){
+	public static String getS3Key(
+			String sourceName, DataRouter router, Node<?,?> node){
 		return "datarouter/"+sourceName+"/"+router.getName()+"/"+node.getName();
 	}
 	

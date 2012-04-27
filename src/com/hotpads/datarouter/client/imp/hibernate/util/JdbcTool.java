@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hibernate.util;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,6 +20,21 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
 public class JdbcTool {
+	
+	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
+	
+	public static Connection openConnection(String hostname, int port, String database, String user, 
+			String password){
+		Connection conn = null;
+		try {
+			Class.forName(JDBC_DRIVER).newInstance();//not quite sure why we need this
+			String url = "jdbc:mysql://"+hostname+":"+port+"/"+database+"?user="+user+"&password="+password;
+			conn = DriverManager.getConnection(url);
+		}catch(Exception e) {
+			throw new RuntimeException(e);
+		}
+		return conn;
+	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 	List<PK> selectPrimaryKeys(Session session, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
