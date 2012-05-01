@@ -57,6 +57,10 @@ public class DataRouterContext{
 		//node registration happens in BaseDataRouter.register()
 	}
 	
+	public void activate() {
+		clients.initializeEagerClients();
+	}
+	
 	
 	/********************* methods **********************************/
 

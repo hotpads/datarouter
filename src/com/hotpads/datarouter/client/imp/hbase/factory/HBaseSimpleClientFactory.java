@@ -65,10 +65,10 @@ implements HBaseClientFactory{
 	/********************* fields *******************************/
 	
 	protected DataRouterContext drContext;
-	protected List<PhysicalNode<?,?>> physicalNodes;
+	protected List<PhysicalNode<?,?>> physicalNodes = ListTool.createArrayList();
 	protected String clientName;
-	protected List<String> configFilePaths;
-	protected List<Properties> multiProperties;
+	protected List<String> configFilePaths = ListTool.createArrayList();
+	protected List<Properties> multiProperties = ListTool.createArrayList();
 	protected ExecutorService executorService;
 	protected HBaseOptions options;
 	protected HBaseClient client;

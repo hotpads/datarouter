@@ -145,8 +145,8 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	
 	protected JdbcConnectionPool getConnectionPool(String clientName, List<Properties> multiProperties){
 		boolean writable = ClientId.getWritableNames(drContext.getClientPool().getClientIds())
-				.contains(connectionPoolName);
-		JdbcConnectionPool connectionPool = new JdbcConnectionPool(connectionPoolName, multiProperties, writable);
+				.contains(clientName);
+		JdbcConnectionPool connectionPool = new JdbcConnectionPool(clientName, multiProperties, writable);
 		return connectionPool;
 	}
 	

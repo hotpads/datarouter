@@ -42,7 +42,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 
 	public static final String name = "basicNodeTest";
 	
-	protected String clientName;
+//	protected String clientName;
 	
 	public BasicNodeTestRouter(String clientName, Class<?> testType){
 		super(new DataRouterContext(), name);
@@ -67,20 +67,24 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 					ScatteringPrefixBean.class, ScatteringPrefixBeanFielder.class, this));
 		}
 		
-		this.clientName = clientName;
+//		this.clientName = clientName;
 		activate();//do after field inits
 	}
 
 	/********************************** config **********************************/
-	
-	@Override
-	public List<ClientId> getClientIds(){
-		return ListTool.create(new ClientId(clientName, true));
-	}
-	
+		
 	@Override
 	public String getConfigLocation(){
 		return DRTestConstants.CONFIG_PATH;
+	}
+
+	public static final List<ClientId> CLIENT_IDS = ListTool.create(
+			new ClientId(DRTestConstants.CLIENT_drTestHibernate0, true),
+			new ClientId(DRTestConstants.CLIENT_drTestHBase, true));
+	
+	@Override
+	public List<ClientId> getClientIds(){
+		return CLIENT_IDS;
 	}
 
 
@@ -143,10 +147,10 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	
 	/*************************** get/set *****************************/
 	
-	public BasicNodeTestRouter setClientName(String clientName) {
-		this.clientName = clientName;
-		return this;
-	}
+//	public BasicNodeTestRouter setClientName(String clientName) {
+//		this.clientName = clientName;
+//		return this;
+//	}
 
 	
 
