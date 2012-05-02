@@ -1,14 +1,25 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import java.sql.Statement;
 
+import junit.framework.Assert;
+
 import org.antlr.grammar.v3.ANTLRv3Parser.throwsSpec_return;
 import org.apache.hadoop.hbase.regionserver.ColumnTracker;
+import org.junit.Test;
 import org.mockito.internal.stubbing.answers.ThrowsException;
 
 import sun.dc.pr.PRError;
@@ -19,43 +30,32 @@ import com.sun.org.apache.xml.internal.serializer.ToUnknownStream;
 
 public class testParser {
 
-	public static void main(String[] args) throws SQLException  {
-		Connection conn = JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
-		Statement stmt = null;
-		stmt = conn.createStatement();
-		
-		List<SqlColumn> columnList = ListTool.createArrayList();
-		String phrase = "";
-//		 phrase = "CREATE TABLE `Cheese` ("+				// THE STRING TO TOKENIZE
-//				"  `id` varchar(30) NOT NULL DEFAULT '',"+
-//				"  `country` char(2) DEFAULT NULL,"+
-//				"  `rating` int(11) DEFAULT NULL,"+
-//				" PRIMARY KEY (`id`)"+
-//				") ENGINE=InnoDB DEFAULT CHARSET=latin1 ";
-		
-		
-		
-		stmt.execute("use property;");
-		ResultSet resultSet3 = stmt.executeQuery("show create table Property");
-		while (resultSet3.next()) {
-		      // Get the data from the row using the column index
-	         phrase += resultSet3.getString(2) ;
+	public static void main(String[] args) throws SQLException, IOException  {
+		FileInputStream fis = new FileInputStream("/home/moubenal/workspace/datarouter/src/com/hotpads/datarouter/client/imp/jdbc/ddl/test.txt");
+		// Get the object of DataInputStream
+		  DataInputStream in = new DataInputStream(fis);
+		  BufferedReader br = new BufferedReader(new InputStreamReader(in));
+		  String str, phrase="";
+		while((str=br.readLine()) != null) {
+			phrase+=str;
 		}
-		System.out.println(phrase);
+		 SqlTable table = parseAndCreateTable(phrase);
 		
-		
-		
+		//if(tokens[0].contains("CREATE TABLE")) System.out.println("Roger That!");
+		// TAKE THE STRING
+		// PARSE IT USING '(',')" AND ',' AS DELIMITERS
+			// THE FIRST ONE CONTAINS THE NAME OF THE TABLE
+			// GETTING THE NAME OF THE TABLE 
+			// FOR THE OTHER ONES USE CONTAINS TO KNOW WHAT TYPE OF QUERIE WE ARE DEALING WITH
+	}
+
+	 public static SqlTable parseAndCreateTable(String phrase){
+		List<SqlColumn> columns = ListTool.createArrayList();
 		String delims = "[(),]+";					// THE DELIMITERS FOR TOKENIZING
-		
 		String[] tokens = phrase.split(delims);		// TOKENIZING
 		
 		System.out.println("1st Parsing :");
-//		for (int i = 0; i < tokens.length; i++)			// SHOWING THE TOKENS
-//		    System.out.println(tokens[i]);
-		
 		System.out.println("\n /****** Getting the name of the table ******/");		
-		String delimForTableName = "[`]";
-		//System.out.println(tokens[0].split(delimForTableName)[1]);
 		
 		for(int i=1; i<tokens.length; i++){
 			if(tokens[i].contains("PRIMARY KEY")){
@@ -68,7 +68,6 @@ public class testParser {
 				String name=removeSpaces(tempTokens[1]), type;
 				if(tempTokens[2].length()<16){
 					type = removeSpaces(tempTokens[2]);
-					//System.out.println(name + " & " + type);
 					
 					SqlColumn col = createAppropriateColumnType(name, type);
 					// MAX LENGTH
@@ -82,6 +81,7 @@ public class testParser {
 					}
 					col.setNullable(nullable);
 					System.out.println(col);
+					columns.add(col);
 				}
 				else{  // THIS COLUMN HAS NO MAX VALUE
 					String[] tempTokensBis = tempTokens[2].split("[ ]");
@@ -95,26 +95,15 @@ public class testParser {
 					}
 					col.setNullable(nullable);
 					System.out.println(col);
+					columns.add(col);
 				}
 				
 			}
 			
 		}
-//		System.out.println("\n /****** Getting the  ******/");		
-//		String[] columnToken = tokens[1].split("[`]");
-//		System.out.println(columnToken[0] + " " + columnToken[1] + columnToken[2]);
-		
-		//if(tokens[0].contains("CREATE TABLE")) System.out.println("Roger That!");
-		// TAKE THE STRING
-		// PARSE IT USING '(',')" AND ',' AS DELIMITERS
-			// THE FIRST ONE CONTAINS THE NAME OF THE TABLE
-			// GETTING THE NAME OF THE TABLE 
-			// FOR THE OTHER ONES USE CONTAINS TO KNOW WHAT TYPE OF QUERIE WE ARE DEALING WITH
-			
-		
-		
+		return new SqlTable("generated Sql Table", columns);
 	}
-
+	
 	private static String removeSpaces(String s) {
 		String sResult="";
 		for (int i = 0; i < s.length(); i++) {

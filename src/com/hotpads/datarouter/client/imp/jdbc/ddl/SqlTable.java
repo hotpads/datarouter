@@ -32,4 +32,11 @@ public class SqlTable {
 		return null;
 		
 	}
+
+	@Override
+	public String toString() {
+		return "SqlTable [name=" + name + ", columns=" + columns + "]";
+	}
+	
+	
 }
