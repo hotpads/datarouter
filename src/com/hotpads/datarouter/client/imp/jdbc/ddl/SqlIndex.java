@@ -22,5 +22,33 @@ public class SqlIndex {
 		this.name = name;
 		columns=ListTool.createArrayList();
 	}
+
+	
+	public void addColumn(SqlColumn col){
+		columns.add(col);
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public List<SqlColumn> getColumns() {
+		return columns;
+	}
+
+	public void setColumns(List<SqlColumn> columns) {
+		this.columns = columns;
+	}
+
+	@Override
+	public String toString() {
+		return "SqlIndex [name=" + name + ", columns=" + columns + "]";
+	}
+
+	
 	
 }

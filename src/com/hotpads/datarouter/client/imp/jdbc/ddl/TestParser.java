@@ -15,12 +15,11 @@ import com.hotpads.util.core.ListTool;
 
 public class TestParser {
 	
-
 	public static void main(String[] args) throws SQLException, IOException  {
 		SqlTable table = new SqlTable("Table");
 		List<SqlColumn> columns = ListTool.createArrayList();
 	
-		FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test2.txt");
+		FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");
 		// Get the object of DataInputStream
 		  DataInputStream in = new DataInputStream(fis);
 		  BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -28,22 +27,7 @@ public class TestParser {
 		while((str=br.readLine()) != null) {
 			phrase+=str;
 		}
-		
-		
-//		System.out.println(" get body : " +getBody(phrase));
-//		System.out.println("primary key " +getPrimaryKeyDeclarationFromFullBody(getFullBody(phrase)));
-//		for(String s:getColumns(getBody(phrase))){
-//			if(isNotEmpty(s)){
-//						System.out.println("name : " +getNameOfColumn(s));
-//					
-//					System.out.println("type : " +getTypeOfColumn(s));
-//					if(hasAMaxValue(s)){
-//						System.out.println("max value : " +getMaxValueOfColumn(s));
-//					}
-//					System.out.println("nullable : " +getNullable(s));
-//			}
-//		}
-		
+
 		for(String s:getColumns(getBody(phrase))){
 			if(isNotEmpty(s)){
 				SqlColumn col = new SqlColumn(getNameOfColumn(s), MySqlColumnType.parse(getTypeOfColumn(s)));
@@ -63,17 +47,41 @@ public class TestParser {
 			table.setPrimaryKey(removeNonText(sTokenPKey[i]));
 		}
 		// FOR THE OTHER KEY DECLARATION 
+		List<String> sTokenKey= getKeyDeclarationsFromFullBody(phrase);
+		for (String s1: sTokenKey) {
+				SqlIndex tableIndex = new SqlIndex(getKeyNameFromKeydeclaration(s1));
+				System.out.println(getKeyNameFromKeydeclaration(s1));
+				for(String s2:getKeyColumnsNamesFromKeyDeclaration(s1)){
+					addAppropriateColumnToIndexFromListOfColumn(tableIndex,s2,table.getColumns());
+				}
+				table.addIndex(tableIndex);
+		}
 		
+		System.out.println(table);
 		
-		
-		 //SqlTable table = parseAndCreateTable(phrase);
-		
-		//if(tokens[0].contains("CREATE TABLE")) System.out.println("Roger That!");
-		// TAKE THE STRING
-		// PARSE IT USING '(',')" AND ',' AS DELIMITERS
-			// THE FIRST ONE CONTAINS THE NAME OF THE TABLE
-			// GETTING THE NAME OF THE TABLE 
-			// FOR THE OTHER ONES USE CONTAINS TO KNOW WHAT TYPE OF QUERIE WE ARE DEALING WITH
+	}
+
+	static void addAppropriateColumnToIndexFromListOfColumn(
+			SqlIndex tableIndex, String s1, List<SqlColumn> columns) {
+		for(SqlColumn col: columns){ //TODO can to distinct columns have the same name ?
+			if(col.getName().equals(s1)) tableIndex.addColumn(col);
+		}
+	}
+
+	static List<String> getKeyColumnsNamesFromKeyDeclaration(String string) {
+		int index = string.indexOf("(");
+		String[] sFinal = string.substring(index).split("[`]+");
+		List<String> list = ListTool.createArrayList();
+		for(String s:sFinal){
+			s=removeNonText(s);
+			if(isNotEmpty(s)) list.add(s); 
+		}
+		return list; 
+	}
+
+	static String getKeyNameFromKeydeclaration(String string) {
+		String[] sToken = string.split("[`]+");
+		return sToken[1];
 	}
 
 	/**
@@ -178,7 +186,7 @@ public class TestParser {
 	 * @param s
 	 * @return true if the column type can be null
 	 */
-	private static boolean getNullable(String s) {
+	static boolean getNullable(String s) {
 		// TODO Auto-generated method stub
 		return !s.contains("NOT");
 	}
@@ -198,7 +206,7 @@ public class TestParser {
 	 * @param s
 	 * @return the maximum value for the column type
 	 */
-	private static String getMaxValueOfColumn(String s) {
+	static String getMaxValueOfColumn(String s) {
 		// TODO Auto-generated method stub
 				 int index = s.lastIndexOf('`');
 				String[] tokens = s.substring(index+1).split("[ ()]+");
@@ -210,7 +218,7 @@ public class TestParser {
 	 * @param s
 	 * @return the type name of the column 
 	 */
-	private static String getTypeOfColumn(String s) {
+	static String getTypeOfColumn(String s) {
 		// TODO Auto-generated method stub
 		 int index = s.lastIndexOf('`');
 		String[] tokens = s.substring(index+1).split("[ ()]+");
@@ -223,7 +231,7 @@ public class TestParser {
 	  * @param s a column
 	  * @return the name of the column
 	  */
-	private static String getNameOfColumn(String s) {
+	static String getNameOfColumn(String s) {
 		// TODO Auto-generated method stub
 		 int index = s.indexOf('`');
 		 String[] tokens = s.substring(index+1).split("[`]+");
@@ -252,17 +260,42 @@ public class TestParser {
 			return tokens[0]+")";
 			
 	 }
+	 
+	 public static String getKeyDeclarationFromFullBody(String phrase){
+		    int firstIndex = phrase.toUpperCase().indexOf("KEY"),
+		    index = phrase.substring(firstIndex+1).toUpperCase().indexOf("KEY");
+		    if(index>0){
+		    	return phrase.substring(firstIndex).substring(index+1);
+		    }
+		    else{
+		    	return "";
+		    }
+	 }
+	 
+	 public static List<String> getKeyDeclarationsFromFullBody(String phrase){
+		 String [] tokens = getKeyDeclarationFromFullBody(SqlTable.getFullBody(phrase)).split("[)]");
+		 List<String> keyDeclarationList = ListTool.createArrayList();
+		 for(String s:tokens){
+			 if(isNotEmpty(removeNonText(s))){
+				 keyDeclarationList.add(s);
+			 }
+		 }
+		 return keyDeclarationList ;
+	 }
+	 
 	 /**
 	  * 
 	  * @param phrase is the body of an Sql  querie of the type " show create table nameOfTheTable " 
 	  * @return list of Strings containing the column declarations, primary key declaration and key/indexes declaration 
 	  */
-	 private static String[] getColumns(String phrase){
+	 static String[] getColumns(String phrase){
 		return phrase.split("[,]+"); 
 	 }
+	
 	 private static void testGetColumns(){
 		 System.out.println(SqlTable.getFullBody("Header(blabla(blob()))trail"));
 	 }
+	
 	 /**
 	  * 
 	  * @param s
@@ -282,14 +315,62 @@ public class TestParser {
 	 * @param s
 	 * @return s without occurrences of " " and "" 
 	 */
-	private static String removeNonText(String s) {
+	static String removeNonText(String s) {
 		String sResult="";
 		for (int i = 0; i < s.length(); i++) {
-			if(s.charAt(i)!=' ' && s.charAt(i)!='`'){
+			if(s.charAt(i)!=' ' && s.charAt(i)!='`' && s.charAt(i)!=',' && s.charAt(i)!='(' && s.charAt(i)!=')'){
 				sResult+=s.charAt(i);
 			}
 		}
 		return sResult;
 	}
 
+	public static class ParserTest{
+		
+		@Test public void testGetKeyDeclarationFromFullBody(){
+			String s="CREATE TABLE `Inquiry` (" +
+					"`ccEmailOpened` datetime DEFAULT NULL,"+
+					"`userToken` varchar(255) DEFAULT NULL,"+
+					"PRIMARXtY KEY (`id`),"+
+					"KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`)," +
+					"KEY `index_awaitingPayment` (`awaitingPayment`)," +
+					") ENGINE=InnoDB AUTO_INCREMENT=6853302 DEFAULT CHARSET=latin1",
+					s2="KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`)," +
+							"KEY `index_awaitingPayment` (`awaitingPayment`),";
+			Assert.assertEquals(s2, getKeyDeclarationFromFullBody(SqlTable.getFullBody(s)));
+			
+			// if there's no key declaration 
+			 s="CREATE TABLE `Inquiry` (" +
+						"`ccEmailOpened` datetime DEFAULT NULL,"+
+						"`userToken` varchar(255) DEFAULT NULL,"+
+						"PRIMARXtY KEY (`id`),"+
+						") ENGINE=InnoDB AUTO_INCREMENT=6853302 DEFAULT CHARSET=latin1";
+						s2="";
+				Assert.assertEquals(s2, getKeyDeclarationFromFullBody(SqlTable.getFullBody(s)));
+		}
+		
+		@Test public void testGetKeyColumnsNamesFromKeyDeclaration(){
+			/*
+			 * NOT YET DONE
+			 */
+			String s="CREATE TABLE `Inquiry` (" +
+					"`ccEmailOpened` datetime DEFAULT NULL,"+
+					"`userToken` varchar(255) DEFAULT NULL,"+
+					"PRIMARXtY KEY (`id`),"+
+					"KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`)," +
+					"KEY `index_awaitingPayment` (`awaitingPayment`)," +
+					") ENGINE=InnoDB AUTO_INCREMENT=6853302 DEFAULT CHARSET=latin1",
+					s2="KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`)," +
+							"KEY `index_awaitingPayment` (`awaitingPayment`),";
+			List<String> sList=getKeyDeclarationsFromFullBody(s);
+			
+			for(String str1:sList){
+				System.out.println("]["+str1);
+				for(String str2:getKeyColumnsNamesFromKeyDeclaration(str1)){
+					System.out.println("/*" +str2);
+				}
+			}
+			// Assert.assertEquals(s2, getKeyDeclarationFromFullBody(SqlTable.getFullBody(s)));
+		}
+	}
 }
