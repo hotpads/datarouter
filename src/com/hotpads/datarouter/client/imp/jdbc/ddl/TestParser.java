@@ -8,18 +8,18 @@ import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.hotpads.util.core.ListTool;
 
-public class testParser {
+public class TestParser {
+	
 
 	public static void main(String[] args) throws SQLException, IOException  {
 		SqlTable table = new SqlTable("Table");
 		List<SqlColumn> columns = ListTool.createArrayList();
-		
-		
-		testGetHeader();
-		 testGetTail();
-		 testGetFullBody();
+	
 		FileInputStream fis = new FileInputStream("/home/moubenal/workspace/datarouter/src/com/hotpads/datarouter/client/imp/jdbc/ddl/test2.txt");
 		// Get the object of DataInputStream
 		  DataInputStream in = new DataInputStream(fis);
@@ -46,7 +46,7 @@ public class testParser {
 		
 		for(String s:getColumns(getBody(phrase))){
 			if(isNotEmpty(s)){
-				SqlColumn col = createAppropriateColumnType(getNameOfColumn(s), getTypeOfColumn(s));
+				SqlColumn col = new SqlColumn(getNameOfColumn(s), MySqlColumnType.parse(getTypeOfColumn(s)));
 				if(hasAMaxValue(s)){
 					col.setMaxLength(Integer.parseInt(getMaxValueOfColumn(s)));
 				}
@@ -118,7 +118,7 @@ public class testParser {
 				if(tempTokens[2].contains("datetime")){ // WHEN THERE'S NO MAX LENGTH THISE TOKEN CONTAINS CERTAIN TYPES , should add more types 
 					type = removeSpaces(tempTokens[2]);
 					
-					SqlColumn col = createAppropriateColumnType(name, type);
+					SqlColumn col = new SqlColumn(name, MySqlColumnType.parse(type));
 					// MAX LENGTH
 					int maxLength = Integer.parseInt(tokens[++i]);
 					//System.out.println(maxLength);
@@ -135,7 +135,7 @@ public class testParser {
 				else{  // THIS COLUMN HAS NO MAX VALUE
 					String[] tempTokensBis = tempTokens[2].split("[ ]");
 					type = removeSpaces(tempTokensBis[1]);
-					SqlColumn col = createAppropriateColumnType(name, type);
+					SqlColumn col = new SqlColumn(name, MySqlColumnType.parse(type));
 					// "NULLABLE OR NOT NULLABLE , ..."
 					boolean nullable=true;
 					for (int j = 0; j < tempTokensBis.length; j++) {
@@ -230,46 +230,6 @@ public class testParser {
 		return tokens[0];
 	}
 
-	
-	/**
-	 * 
-	 * @param phrase is what we got for queries of the type " show create table nameOfTheTable " 
-	 * @return the  header of the SQL phrase, i.e. things before the first "(" 
-	 */
-	 public static String  getHeader(String phrase){
-		    int index = phrase.indexOf('(');
-			return phrase.substring(0,index);
-	 }
-	 
-	 public static void testGetHeader(){ 
-		 System.out.println(getHeader("Header(blabla(blob()))trail"));
-	 }
-	 /**
-	  * 
-	  * @param phrase is what we got for queries of the type " show create table nameOfTheTable " 
-	  * @return the tail of the SQL phrase, i.e. things after the last ")" 
-	  */
-	 public static String getTail(String phrase){
-		 int index = phrase.lastIndexOf(')');
-			return phrase.substring(index+1);
-	 }
-	 public static void testGetTail(){ 
-		 System.out.println(getTail("Header(blabla(blob()))trail"));
-	 }
-	 
-	 
-	 /**
-	  * 
-	  * @param phrase is what we got for queries of the type " show create table nameOfTheTable " 
-	  * @return the full body of the SQL phrase, i.e. things between the first "(" and the last ")" 
-	  */
-	 public static String getFullBody(String phrase){
-		    int index1 = phrase.indexOf('('), index2=phrase.lastIndexOf(')');
-			return phrase.substring(index1+1,index2);
-	 }
-	 public static void testGetFullBody(){
-		 System.out.println(getFullBody("Header(blabla(blob()))trail"));
-	 }
 	 
 	 /**
 	  * 
@@ -332,77 +292,4 @@ public class testParser {
 		return sResult;
 	}
 
-	private static SqlColumn createAppropriateColumnType(String name,
-			String type) {
-		switch (MysqlColumnType.valueOf(type.toUpperCase())) {
-		case BIT:
-			return new SqlColumn(name, MysqlColumnType.BIT);
-		case TINYINT:
-			return new SqlColumn(name, MysqlColumnType.TINYINT);
-		case BOOL:
-			return new SqlColumn(name, MysqlColumnType.BOOL);
-		case BOOLEAN:
-			return new SqlColumn(name, MysqlColumnType.BOOLEAN);
-		case SMALLINT:
-			return new SqlColumn(name, MysqlColumnType.SMALLINT);
-		case MEDIUMINT:
-			return new SqlColumn(name, MysqlColumnType.MEDIUMINT);
-		case INT:
-			return new SqlColumn(name, MysqlColumnType.INT);
-		case INTEGER:
-			return new SqlColumn(name, MysqlColumnType.INTEGER);
-		case BIGINT:
-			return new SqlColumn(name, MysqlColumnType.BIGINT);
-		case DECIMAL:
-			return new SqlColumn(name, MysqlColumnType.DECIMAL);
-		case DEC:
-			return new SqlColumn(name, MysqlColumnType.DEC);
-		case FLOAT:
-			return new SqlColumn(name, MysqlColumnType.FLOAT);
-		case DOUBLE:
-			return new SqlColumn(name, MysqlColumnType.DOUBLE);
-		case DOUBLE_PRECISION:
-			return new SqlColumn(name, MysqlColumnType.DOUBLE_PRECISION);
-		case DATE:
-			return new SqlColumn(name, MysqlColumnType.DATE);
-		case DATETIME:
-			return new SqlColumn(name, MysqlColumnType.DATETIME);
-		case TIMESTAMP:
-			return new SqlColumn(name, MysqlColumnType.TIMESTAMP);
-		case TIME:
-			return new SqlColumn(name, MysqlColumnType.TIME);
-		case YEAR:
-			return new SqlColumn(name, MysqlColumnType.YEAR);
-		case CHAR:
-			return new SqlColumn(name, MysqlColumnType.CHAR);
-		case VARCHAR:
-			return new SqlColumn(name, MysqlColumnType.VARCHAR);
-		case BINARY:
-			return new SqlColumn(name, MysqlColumnType.BINARY);
-		case VARBINARY:
-			return new SqlColumn(name, MysqlColumnType.VARBINARY);
-		case TINYBLOB:
-			return new SqlColumn(name, MysqlColumnType.TINYBLOB);
-		case TINYTEXT:
-			return new SqlColumn(name, MysqlColumnType.TINYTEXT);
-		case BLOB:
-			return new SqlColumn(name, MysqlColumnType.BLOB);
-		case MEDIUMBLOB:
-			return new SqlColumn(name, MysqlColumnType.MEDIUMBLOB);
-		case MEDIUMTEXT:
-			return new SqlColumn(name, MysqlColumnType.MEDIUMTEXT);
-		case LONGBLOB:
-			return new SqlColumn(name, MysqlColumnType.LONGBLOB);
-		case LONGTEXT:
-			return new SqlColumn(name, MysqlColumnType.LONGTEXT);
-		case ENUM:
-			return new SqlColumn(name, MysqlColumnType.ENUM);
-		case SET:
-			return new SqlColumn(name, MysqlColumnType.SET);
-		case TEXT:
-			return new SqlColumn(name, MysqlColumnType.TEXT);
-		default:
-			return  new SqlColumn(name, MysqlColumnType.VARCHAR); //// <============== Is varchar the default type ?
-		}
-	}
 }

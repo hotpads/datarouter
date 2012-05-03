@@ -4,23 +4,23 @@ public class SqlColumn {
 
 	// ATTRIBUTES
 	String name;
-	MysqlColumnType Type;
-	Integer MaxLength;
+	MySqlColumnType type;
+	Integer maxLength;
 	Boolean nullable;
 	
-	public SqlColumn(String name, MysqlColumnType type, Integer maxLength,
+	public SqlColumn(String name, MySqlColumnType type, Integer maxLength,
 			Boolean nullable) {
 		super();
 		this.name = name;
-		Type = type;
-		MaxLength = maxLength;
+		this.type = type;
+		this.maxLength = maxLength;
 		this.nullable = nullable;
 	}
 
-	public SqlColumn(String name, MysqlColumnType type) {
+	public SqlColumn(String name, MySqlColumnType type) {
 		super();
 		this.name = name;
-		Type = type;
+		this.type = type;
 	}
 
 	
@@ -33,20 +33,20 @@ public class SqlColumn {
 		this.name = name;
 	}
 
-	public MysqlColumnType getType() {
-		return Type;
+	public MySqlColumnType getType() {
+		return type;
 	}
 
-	public void setType(MysqlColumnType type) {
-		Type = type;
+	public void setType(MySqlColumnType type) {
+		this.type = type;
 	}
 
 	public Integer getMaxLength() {
-		return MaxLength;
+		return maxLength;
 	}
 
 	public void setMaxLength(Integer maxLength) {
-		MaxLength = maxLength;
+		this.maxLength = maxLength;
 	}
 
 	public Boolean getNullable() {
@@ -59,8 +59,8 @@ public class SqlColumn {
 
 	@Override
 	public String toString() {
-		return "SqlColumn [name=" + name + ", Type=" + Type + ", MaxLength="
-				+ MaxLength + ", nullable=" + nullable + "]";
+		return "SqlColumn [name=" + name + ", Type=" + type + ", MaxLength="
+				+ maxLength + ", nullable=" + nullable + "]";
 	}
 	
 	
