@@ -13,10 +13,14 @@ import com.hotpads.util.core.ListTool;
 public class testParser {
 
 	public static void main(String[] args) throws SQLException, IOException  {
+		SqlTable table = new SqlTable("Table");
+		List<SqlColumn> columns = ListTool.createArrayList();
+		
+		
 		testGetHeader();
 		 testGetTail();
-		 testGetBody();
-		FileInputStream fis = new FileInputStream("/home/moubenal/workspace/datarouter/src/com/hotpads/datarouter/client/imp/jdbc/ddl/test.txt");
+		 testGetFullBody();
+		FileInputStream fis = new FileInputStream("/home/moubenal/workspace/datarouter/src/com/hotpads/datarouter/client/imp/jdbc/ddl/test2.txt");
 		// Get the object of DataInputStream
 		  DataInputStream in = new DataInputStream(fis);
 		  BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -24,23 +28,43 @@ public class testParser {
 		while((str=br.readLine()) != null) {
 			phrase+=str;
 		}
+		
+		
+//		System.out.println(" get body : " +getBody(phrase));
+//		System.out.println("primary key " +getPrimaryKeyDeclarationFromFullBody(getFullBody(phrase)));
+//		for(String s:getColumns(getBody(phrase))){
+//			if(isNotEmpty(s)){
+//						System.out.println("name : " +getNameOfColumn(s));
+//					
+//					System.out.println("type : " +getTypeOfColumn(s));
+//					if(hasAMaxValue(s)){
+//						System.out.println("max value : " +getMaxValueOfColumn(s));
+//					}
+//					System.out.println("nullable : " +getNullable(s));
+//			}
+//		}
+		
 		for(String s:getColumns(getBody(phrase))){
-				if(isPrimaryKeyDeclaration(s)){
-					
-				}
-				else if(isKeyDeclaration(s)){
-					
-				}
-				else{
-					System.out.println("name : " +getNameOfColumn(s));
-				
-				System.out.println("type : " +getTypeOfColumn(s));
+			if(isNotEmpty(s)){
+				SqlColumn col = createAppropriateColumnType(getNameOfColumn(s), getTypeOfColumn(s));
 				if(hasAMaxValue(s)){
-					System.out.println("max value : " +getMaxValueOfColumn(s));
+					col.setMaxLength(Integer.parseInt(getMaxValueOfColumn(s)));
 				}
-				System.out.println("nullable : " +getNullable(s));
+				col.setNullable(getNullable(s));
+				System.out.println(col);
+				columns.add(col);
 			}
 		}
+		table.setColumns(columns);
+		
+		// FOR THE PRIMARY KEY DECLARATION
+		String[] sTokenPKey= getPrimaryKeyDeclarationFromFullBody(phrase).split("[,()]");
+		for (int i = 0; i < sTokenPKey.length; i++) {
+			table.setPrimaryKey(removeNonText(sTokenPKey[i]));
+		}
+		// FOR THE OTHER KEY DECLARATION 
+		
+		
 		
 		 //SqlTable table = parseAndCreateTable(phrase);
 		
@@ -52,6 +76,83 @@ public class testParser {
 			// FOR THE OTHER ONES USE CONTAINS TO KNOW WHAT TYPE OF QUERIE WE ARE DEALING WITH
 	}
 
+	/**
+	 * 
+	 * @param s
+	 * @return true if it contains at least one character different than a space
+	 */
+	private static boolean isNotEmpty(String s) {
+		for(char c:s.toCharArray()){
+			if(c!=' ') return true;
+		}
+		return false;
+	}
+
+
+	@Deprecated
+	/**
+	 * OLD VERSION OF THE PARSING 
+	 * @param phrase
+	 * @return
+	 */
+	public static SqlTable parseAndCreateTable(String phrase){
+		List<SqlColumn> columns = ListTool.createArrayList();
+		String delims = "[(),]+";					// THE DELIMITERS FOR TOKENIZING
+		String[] tokens = phrase.split(delims);		// TOKENIZING
+		
+		System.out.println("1st Parsing :");
+		System.out.println("\n /****** Getting the name of the table ******/");		
+		SqlTable table = new SqlTable("generated Sql Table");
+		
+		for(int i=1; i<tokens.length; i++){
+			if(tokens[i].contains("PRIMARY KEY")){
+				System.out.println();
+				table.setPrimaryKey(removeNonText(tokens[++i]));
+			}
+			else if(tokens[i].contains("KEY")){ // INDEXES 
+				
+			}
+			else{
+				String[] tempTokens = tokens[i].split("[`]");
+				String name=removeSpaces(tempTokens[1]), type;
+				if(tempTokens[2].contains("datetime")){ // WHEN THERE'S NO MAX LENGTH THISE TOKEN CONTAINS CERTAIN TYPES , should add more types 
+					type = removeSpaces(tempTokens[2]);
+					
+					SqlColumn col = createAppropriateColumnType(name, type);
+					// MAX LENGTH
+					int maxLength = Integer.parseInt(tokens[++i]);
+					//System.out.println(maxLength);
+					col.setMaxLength(maxLength);
+					// "NULLABLE OR NOT NULLABLE , ..."
+					boolean nullable=true;
+					if(tokens[++i].contains("NOT NULL")){
+						nullable=false;
+					}
+					col.setNullable(nullable);
+					System.out.println(col);
+					columns.add(col);
+				}
+				else{  // THIS COLUMN HAS NO MAX VALUE
+					String[] tempTokensBis = tempTokens[2].split("[ ]");
+					type = removeSpaces(tempTokensBis[1]);
+					SqlColumn col = createAppropriateColumnType(name, type);
+					// "NULLABLE OR NOT NULLABLE , ..."
+					boolean nullable=true;
+					for (int j = 0; j < tempTokensBis.length; j++) {
+						if(tempTokensBis[j].contains("NOT"));
+						nullable=false;
+					}
+					col.setNullable(nullable);
+					System.out.println(col);
+					columns.add(col);
+				}
+				table.setColumns(columns);
+			}
+		}
+		return table;
+	}
+	
+	
 	/**
 	 * 
 	 * @param s  example:			KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`),
@@ -129,68 +230,6 @@ public class testParser {
 		return tokens[0];
 	}
 
-	@Deprecated
-	/**
-	 * OLD VERSION OF THE PARSING 
-	 * @param phrase
-	 * @return
-	 */
-	public static SqlTable parseAndCreateTable(String phrase){
-		List<SqlColumn> columns = ListTool.createArrayList();
-		String delims = "[(),]+";					// THE DELIMITERS FOR TOKENIZING
-		String[] tokens = phrase.split(delims);		// TOKENIZING
-		
-		System.out.println("1st Parsing :");
-		System.out.println("\n /****** Getting the name of the table ******/");		
-		SqlTable table = new SqlTable("generated Sql Table");
-		
-		for(int i=1; i<tokens.length; i++){
-			if(tokens[i].contains("PRIMARY KEY")){
-				System.out.println();
-				table.setPrimaryKey(removeNonText(tokens[++i]));
-			}
-			else if(tokens[i].contains("KEY")){ // INDEXES 
-				
-			}
-			else{
-				String[] tempTokens = tokens[i].split("[`]");
-				String name=removeSpaces(tempTokens[1]), type;
-				if(tempTokens[2].contains("datetime")){ // WHEN THERE'S NO MAX LENGTH THISE TOKEN IS CONTAINS CERTAIN TYPES 
-					type = removeSpaces(tempTokens[2]);
-					
-					SqlColumn col = createAppropriateColumnType(name, type);
-					// MAX LENGTH
-					int maxLength = Integer.parseInt(tokens[++i]);
-					//System.out.println(maxLength);
-					col.setMaxLength(maxLength);
-					// "NULLABLE OR NOT NULLABLE , ..."
-					boolean nullable=true;
-					if(tokens[++i].contains("NOT NULL")){
-						nullable=false;
-					}
-					col.setNullable(nullable);
-					System.out.println(col);
-					columns.add(col);
-				}
-				else{  // THIS COLUMN HAS NO MAX VALUE
-					String[] tempTokensBis = tempTokens[2].split("[ ]");
-					type = removeSpaces(tempTokensBis[1]);
-					SqlColumn col = createAppropriateColumnType(name, type);
-					// "NULLABLE OR NOT NULLABLE , ..."
-					boolean nullable=true;
-					for (int j = 0; j < tempTokensBis.length; j++) {
-						if(tempTokensBis[j].contains("NOT"));
-						nullable=false;
-					}
-					col.setNullable(nullable);
-					System.out.println(col);
-					columns.add(col);
-				}
-				table.setColumns(columns);
-			}
-		}
-		return table;
-	}
 	
 	/**
 	 * 
@@ -222,16 +261,37 @@ public class testParser {
 	 /**
 	  * 
 	  * @param phrase is what we got for queries of the type " show create table nameOfTheTable " 
-	  * @return the body of the SQL phrase, i.e. things between the first "(" and the last ")" 
+	  * @return the full body of the SQL phrase, i.e. things between the first "(" and the last ")" 
 	  */
-	 public static String getBody(String phrase){
+	 public static String getFullBody(String phrase){
 		    int index1 = phrase.indexOf('('), index2=phrase.lastIndexOf(')');
 			return phrase.substring(index1+1,index2);
 	 }
-	 public static void testGetBody(){
-		 System.out.println(getBody("Header(blabla(blob()))trail"));
+	 public static void testGetFullBody(){
+		 System.out.println(getFullBody("Header(blabla(blob()))trail"));
 	 }
 	 
+	 /**
+	  * 
+	  * @param  phrase is what we got for queries of the type " show create table nameOfTheTable " 
+	  * @return the body of the SQL phrase, i.e. things between the first "(" and   "Primary Key"
+	  */
+	 public static String getBody(String phrase){
+		    int index1 = phrase.indexOf('('), index2=phrase.toUpperCase().indexOf("PRIMARY");
+			return phrase.substring(index1+1,index2);
+	 }
+	
+	 /**
+	  * 
+	  * @param phrase is the full body
+	  * @return
+	  */
+	 public static String getPrimaryKeyDeclarationFromFullBody(String phrase){
+		    int index = phrase.toUpperCase().indexOf("PRIMARY");
+		    String[] tokens = phrase.substring(index).split("[)]+");
+			return tokens[0]+")";
+			
+	 }
 	 /**
 	  * 
 	  * @param phrase is the body of an Sql  querie of the type " show create table nameOfTheTable " 
@@ -241,7 +301,7 @@ public class testParser {
 		return phrase.split("[,]+"); 
 	 }
 	 private static void testGetColumns(){
-		 System.out.println(getBody("Header(blabla(blob()))trail"));
+		 System.out.println(getFullBody("Header(blabla(blob()))trail"));
 	 }
 	 /**
 	  * 
@@ -260,7 +320,7 @@ public class testParser {
 	/**
 	 * 
 	 * @param s
-	 * @return s without occurrences of " " and "`" 
+	 * @return s without occurrences of " " and "" 
 	 */
 	private static String removeNonText(String s) {
 		String sResult="";
