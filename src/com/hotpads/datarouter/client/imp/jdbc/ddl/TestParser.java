@@ -20,7 +20,7 @@ public class TestParser {
 		SqlTable table = new SqlTable("Table");
 		List<SqlColumn> columns = ListTool.createArrayList();
 	
-		FileInputStream fis = new FileInputStream("/home/moubenal/workspace/datarouter/src/com/hotpads/datarouter/client/imp/jdbc/ddl/test2.txt");
+		FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test2.txt");
 		// Get the object of DataInputStream
 		  DataInputStream in = new DataInputStream(fis);
 		  BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -261,7 +261,7 @@ public class TestParser {
 		return phrase.split("[,]+"); 
 	 }
 	 private static void testGetColumns(){
-		 System.out.println(getFullBody("Header(blabla(blob()))trail"));
+		 System.out.println(SqlTable.getFullBody("Header(blabla(blob()))trail"));
 	 }
 	 /**
 	  * 
