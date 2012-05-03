@@ -81,7 +81,9 @@ public class SqlTable {
 		}
 		return table;
 	}
+	
 	public String getCreateTable(){
+	
 		return null;
 	}
 
