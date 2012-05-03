@@ -12,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.StringTool;
 
 public class SqlTable {
 	
@@ -38,7 +39,7 @@ public class SqlTable {
 		this.indexes = ListTool.createArrayList();
 	}
 	
-	public SqlTable(String phrase) {
+	public SqlTable(String name) {
 		super();
 		this.name = name;
 		this.columns = ListTool.createArrayList();
@@ -52,7 +53,7 @@ public class SqlTable {
 		
 		
 		for(String s:TestParser.getColumns(TestParser.getBody(phrase))){
-			if(isNotEmpty(s)){
+			if(StringTool.containsAnyNonSpaceCharacters(s)){
 				SqlColumn col = new SqlColumn(TestParser.getNameOfColumn(s), MySqlColumnType.parse(TestParser.getTypeOfColumn(s)));
 				if(hasAMaxValue(s)){
 					col.setMaxLength(Integer.parseInt(TestParser.getMaxValueOfColumn(s)));
@@ -170,21 +171,7 @@ public class SqlTable {
 			return s.contains("(");
 		}
 		
-		/**
-		 * 
-		 * @param s
-		 * @return true if it contains at least one character different than a space
-		 */
-		private static boolean isNotEmpty(String s) {
-			for(char c:s.toCharArray()){
-				if(c!=' ') return true;
-			}
-			return false;
-		}
-
-		
-	
-	public static class SqlTableTests{
+		public static class SqlTableTests{
 		@Test public void testGetHeader() {
 			Assert.assertEquals("Header", getHeader("Header(blabla(blob()))trail"));
 		}
