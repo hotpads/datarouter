@@ -8,14 +8,21 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
+import com.amazonaws.services.s3.model.EmailAddressGrantee;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.trace.TracedCallable;
+import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ExceptionTool;
 
 public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
-	static Logger logger = Logger.getLogger(HBaseMultiAttemptTask.class);
+	protected static Logger logger = Logger.getLogger(HBaseMultiAttemptTask.class);
+	
+	protected static long 
+		throttleEmailsMs = 5 * DateTool.MILLISECONDS_IN_MINUTE,
+		lastEmailSentAtMs = 0L;
 
 	protected static final Boolean CANCEL_THREAD_IF_RUNNING = true;
 		
@@ -75,6 +82,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 				}
 			}
 		}
+		sendThrottledErrorEmail(finalAttempException);
 		throw new DataAccessException("timed out "+numAttempts+" times at timeoutMs="+timeoutMs, 
 				finalAttempException);
 	}
@@ -86,5 +94,14 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	
 	protected boolean isLastAttempt(int i) {
 		return i==numAttempts;
+	}
+	
+	protected void sendThrottledErrorEmail(Exception e) {
+		boolean enoughTimePassed = System.currentTimeMillis() - lastEmailSentAtMs > throttleEmailsMs;
+		if(!enoughTimePassed) { return; }
+		String subject = "HBaseMultiAttempTask failure";
+		String body = "Message throttled for "+throttleEmailsMs+"ms\n\n"+ExceptionTool.getStackTraceAsString(e);
+		DataRouterEmailTool.sendEmail("admin@hotpads.com", "admin@hotpads.com", subject, body);
+		lastEmailSentAtMs = System.currentTimeMillis();
 	}
 }
