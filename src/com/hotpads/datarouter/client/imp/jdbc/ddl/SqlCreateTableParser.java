@@ -128,26 +128,51 @@ public class SqlCreateTableParser{
 			SqlTable table = parser.parse();
 			
 			
-			// TESTS THAT COULD BE DONE ON THIS METHOD
+			/*
+			 *  TESTS THAT COULD BE DONE ON THIS METHOD
+			 */
 			
 			// TESTING THE NAME OF THE TABLE
-																	//System.out.println(parser.getTableName());
 			Assert.assertEquals("Model",parser.getTableName());
+			
 			// TESTING THE NUMBER OF THE COLUMS
-																	//System.out.println(CollectionTool.size(table.getColumns()));
 			Assert.assertEquals(2, CollectionTool.size(table.getColumns()));
+			
 			// TESTING THE NAMES OF THE COLUMNS
+			Assert.assertEquals("includeInSummary", table.getColumns().get(0).getName());
+			Assert.assertEquals("feedModelId", table.getColumns().get(1).getName());
 			
 			// TESTING THE TYPES OF THE COLUMS
+			Assert.assertEquals("TINYINT", table.getColumns().get(0).getType().toString());
+			Assert.assertEquals("VARCHAR", table.getColumns().get(1).getType().toString());
 			
 			// TESTING THE MAXIMUM LENGHTS OF THE COLUMNS
+			Assert.assertEquals(1, table.getColumns().get(0).getMaxLength());
+			Assert.assertEquals(100, table.getColumns().get(1).getMaxLength());
 			
-			// TESTING THE NULLQBILITY OF THE COLUMNS
+			// TESTING THE NULLABILITY OF THE COLUMNS
+			Assert.assertEquals(true, table.getColumns().get(0).getNullable());
+			Assert.assertEquals(false, table.getColumns().get(1).getNullable());
+			
+			
+			
+			sql = "CREATE TABLE `Property` (" +
+					"`id` bigint(20) NOT NULL AUTO_INCREMENT," +
+					"`acres` double DEFAULT NULL," +
+					"  PRIMARY KEY (`id`)" +
+					" KEY `blabla` (`id`,`acres`)," +
+					") ENGINE=InnoDB DEFAULT CHARSET=latin1 |";
+			parser = new SqlCreateTableParser(sql);
+			table = parser.parse();
+			
 			
 			// TESTING THE PRIMARY KEYS (THE NAMES, THE NUMBER )
+			Assert.assertEquals("id", table.getPrimaryKey().getColumns().get(0).getName());
 			
-			// TESTING THE KEYS (THE NAMES, THE NUMBER_)
-			
+			// TESTING THE KEYS (THE NAMES, THE NUMBER)
+			Assert.assertEquals(1, table.getIndexes().size());
+			Assert.assertEquals("id", table.getIndexes().get(0).getColumns().get(0).getName());
+			Assert.assertEquals("acres", table.getIndexes().get(0).getColumns().get(1).getName());
 		}
 	}
 }
