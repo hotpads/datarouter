@@ -17,10 +17,10 @@ import com.hotpads.util.core.StringTool;
 public class SqlTable {
 	
 	// ATTRIBUTES
-	String name;
-	List<SqlColumn> columns;
-	SqlIndex primaryKey;
-	List<SqlIndex> indexes;
+	private String name;
+	private List<SqlColumn> columns;
+	private SqlIndex primaryKey;
+	private List<SqlIndex> indexes;
 	
 	// CONSTRUCTORS
 	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey,
