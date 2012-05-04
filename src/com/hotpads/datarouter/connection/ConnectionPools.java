@@ -40,7 +40,7 @@ public class ConnectionPools {
 		Preconditions.checkNotNull(configFilePath);
 		clientIds.addAll(CollectionTool.nullSafe(clientIdsToAdd));
 		configFilePaths.add(configFilePath);
-		multiProperties.add(PropertiesTool.ioAndNullSafeFromFile(configFilePath));
+		multiProperties.add(PropertiesTool.parse(configFilePath));
 	}
 
 	/****************** shutdown ************************************/

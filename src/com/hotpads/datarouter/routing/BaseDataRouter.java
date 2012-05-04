@@ -69,7 +69,7 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	public Nodes<?,?,?> getNodes() {
-		return context.getNodes();
+		return context.getNodesForRouter(getName());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -109,7 +109,7 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	public List<Client> getAllClients(){
-		return context.getClientPool().getAllClients();
+		return context.getClientPool().getClients(getClientNames());
 	}
 	
 	@Override

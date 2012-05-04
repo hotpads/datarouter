@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.SetTool;
@@ -52,13 +53,16 @@ public class Clients{
 
 	public Clients(DataRouterContext drContext){
 		this.drContext = drContext;
-		initializeEagerClients();
+		initializeEagerClients();//i don't think this will do anything here because clients haven't been registered yet
 	}
 	
 	public void registerClientIds(Collection<ClientId> clientIdsToAdd, String configFilePath) {
 		clientIds.addAll(CollectionTool.nullSafe(clientIdsToAdd));
 		configFilePaths.add(configFilePath);
-		multiProperties.add(PropertiesTool.ioAndNullSafeFromFile(configFilePath));
+		multiProperties.add(PropertiesTool.parse(configFilePath));
+		for(ClientId clientId : IterableTool.nullSafe(clientIds)) {
+			initClientFactoryIfNull(clientId.getName());
+		}
 	}
 	
 	
@@ -82,7 +86,7 @@ public class Clients{
 //					name, drContext.getNodes().getPhysicalNodesForClient(name),
 //					drContext.getExecutorService());
 //			clientFactoryByName.put(name, clientFactory);
-			initClientFactory(clientName);
+			initClientFactoryIfNull(clientName);
 			boolean eager = CollectionTool.contains(eagerClientNames, clientName);
 			if(!eager){
 //				logger.warn("registered:"+clientName+" ("+clientType.toString()+")");
@@ -106,7 +110,8 @@ public class Clients{
 //		executor.shutdown();//i don't think this call blocks.  the invokeAll call does blcok
 	}
 	
-	protected void initClientFactory(String clientName) {
+	protected void initClientFactoryIfNull(String clientName) {
+		if(clientFactoryByName.containsKey(clientName)) { return; }
 		String defaultTypeString = PropertiesTool.getFirstOccurrence(multiProperties, 
 				prefixClient+clientDefault+paramType);
 		if(StringTool.isEmpty(defaultTypeString)){ defaultTypeString = DEFAULT_CLIENT_TYPE.toString(); }
@@ -170,7 +175,7 @@ public class Clients{
 		if(!getClientNames().contains(clientName)) { 
 			throw new IllegalArgumentException("unknown clientName:"+clientName); 
 		}
-		initClientFactory(clientName);
+		initClientFactoryIfNull(clientName);
 		clientFactory = clientFactoryByName.get(clientName);
 		return clientFactory.getClient();
 	}
