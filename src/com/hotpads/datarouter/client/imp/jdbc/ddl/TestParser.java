@@ -273,7 +273,7 @@ public class TestParser {
 	 }
 	 
 	 public static List<String> getKeyDeclarationsFromFullBody(String phrase){
-		 String [] tokens = getKeyDeclarationFromFullBody(SqlTable.getFullBody(phrase)).split("[)]");
+		 String [] tokens = getKeyDeclarationFromFullBody(SqlTable.getColumnDefinitionSection(phrase)).split("[)]");
 		 List<String> keyDeclarationList = ListTool.createArrayList();
 		 for(String s:tokens){
 			 if(isNotEmpty(removeNonText(s))){
@@ -293,7 +293,7 @@ public class TestParser {
 	 }
 	
 	 private static void testGetColumns(){
-		 System.out.println(SqlTable.getFullBody("Header(blabla(blob()))trail"));
+		 System.out.println(SqlTable.getColumnDefinitionSection("Header(blabla(blob()))trail"));
 	 }
 	
 	 /**
@@ -337,7 +337,7 @@ public class TestParser {
 					") ENGINE=InnoDB AUTO_INCREMENT=6853302 DEFAULT CHARSET=latin1",
 					s2="KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`)," +
 							"KEY `index_awaitingPayment` (`awaitingPayment`),";
-			Assert.assertEquals(s2, getKeyDeclarationFromFullBody(SqlTable.getFullBody(s)));
+			Assert.assertEquals(s2, getKeyDeclarationFromFullBody(SqlTable.getColumnDefinitionSection(s)));
 			
 			// if there's no key declaration 
 			 s="CREATE TABLE `Inquiry` (" +
@@ -346,7 +346,7 @@ public class TestParser {
 						"PRIMARXtY KEY (`id`),"+
 						") ENGINE=InnoDB AUTO_INCREMENT=6853302 DEFAULT CHARSET=latin1";
 						s2="";
-				Assert.assertEquals(s2, getKeyDeclarationFromFullBody(SqlTable.getFullBody(s)));
+				Assert.assertEquals(s2, getKeyDeclarationFromFullBody(SqlTable.getColumnDefinitionSection(s)));
 		}
 		
 		@Test public void testGetKeyColumnsNamesFromKeyDeclaration(){

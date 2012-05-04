@@ -5,12 +5,15 @@ import java.util.List;
 import com.hotpads.util.core.ListTool;
 
 public class SqlIndex {
-	// ATTRIBUTES
-	String name;
-	List<SqlColumn> columns;
+	
+	/********************** fields *************************/
+	
+	protected String name;
+	protected List<SqlColumn> columns;
 	
 	
-	//CONSTRUCTORS
+	/********************** constructors **********************/
+	
 	public SqlIndex(String name, List<SqlColumn> columns) {
 		super();
 		this.name = name;
@@ -24,9 +27,22 @@ public class SqlIndex {
 	}
 
 	
+	/******************* methods ****************************/
+	
 	public void addColumn(SqlColumn col){
 		columns.add(col);
 	}
+
+	
+	/******************* Object methods **********************/
+	
+	@Override
+	public String toString() {
+		return "SqlIndex [name=" + name + ", columns=" + columns + "]";
+	}
+	
+	
+	/****************** get/set ****************************/
 	
 	public String getName() {
 		return name;
@@ -43,12 +59,6 @@ public class SqlIndex {
 	public void setColumns(List<SqlColumn> columns) {
 		this.columns = columns;
 	}
-
-	@Override
-	public String toString() {
-		return "SqlIndex [name=" + name + ", columns=" + columns + "]";
-	}
-
 	
 	
 }
