@@ -41,7 +41,7 @@ public class SqlColumn {
 		this.type = type;
 	}
 
-	public int getMaxLength() {
+	public Integer getMaxLength() {
 		return maxLength;
 	}
 
