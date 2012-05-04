@@ -52,6 +52,20 @@ public class SqlCreateTableGenerator {
 					}
 		}
 		s+=")\n";
+		int numbreOfIndexes=table.getIndexes().size();
+		for(int i=0; i< numbreOfIndexes; i++){
+			s+=" KEY `"+ table.getIndexes().get(i).getName() +"` (";
+			int numberOfColumndInindexe = table.getIndexes().get(i).getColumns().size();
+			for(int j=0; j< numberOfColumndInindexe; j++){
+				col = table.getIndexes().get(i).getColumns().get(j);
+				s+= "`" + table.getIndexes().get(i).getColumns().get(j).getName() + "`";
+						if(i != numberOfColumndInindexe -1) {
+							s+="," ;
+						}
+			}
+			s+=")\n";
+		}
+		
 		s+=") ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='InnoDB free: 397312 kB'";
 		return s;
 		
