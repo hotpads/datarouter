@@ -97,12 +97,14 @@ public class SqlTable {
 		}
 	}
 	
-	public void addColumn(SqlColumn column) {
+	public SqlTable addColumn(SqlColumn column) {
 		columns.add(column);
+		return this;
 	}
 
-	public void addIndex(SqlIndex tableIndex) {
+	public SqlTable addIndex(SqlIndex tableIndex) {
 		indexes.add(tableIndex);
+		return this;
 	}
 	
 	
@@ -171,8 +173,9 @@ public class SqlTable {
 		this.indexes = indexes;
 	}
 
-	public void setPrimaryKey(SqlIndex primaryKey){
+	public SqlTable setPrimaryKey(SqlIndex primaryKey){
 		this.primaryKey = primaryKey;
+		return this;
 	}
 
 	

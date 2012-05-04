@@ -29,8 +29,9 @@ public class SqlIndex {
 	
 	/******************* methods ****************************/
 	
-	public void addColumn(SqlColumn col){
+	public SqlIndex addColumn(SqlColumn col){
 		columns.add(col);
+		return this;
 	}
 
 	

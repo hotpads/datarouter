@@ -61,19 +61,20 @@ public class SqlCreateTableGenerator {
 		
 		@Test public void testGenerate(){
 			String nameOfTable="Model";
-			SqlTable myTable = new SqlTable(nameOfTable);
-			SqlColumn col1=new SqlColumn("includeInSummary", MySqlColumnType.TINYINT, 1, true),
-					col2 = new SqlColumn("feedModelId", MySqlColumnType.VARCHAR, 100, false),
-					col3 = new SqlColumn("feedListingId", MySqlColumnType.VARCHAR, 100, false);
-			myTable.addColumn(col1);
-			myTable.addColumn(col2);
-			myTable.addColumn(col3);
-			List<SqlColumn> list = ListTool.createArrayList();
-			list.add(col1);
-			list.add(col2);
-			list.add(col3);
-			SqlIndex primaryKey = new SqlIndex("PKey", list);
-			myTable.setPrimaryKey(primaryKey);
+			SqlColumn col1 = new SqlColumn("includeInSummary", MySqlColumnType.TINYINT, 1, true);
+			SqlColumn col2 = new SqlColumn("feedModelId", MySqlColumnType.VARCHAR, 100, false);
+			SqlColumn col3 = new SqlColumn("feedListingId", MySqlColumnType.VARCHAR, 100, false);
+			SqlIndex primaryKey = new SqlIndex("PKey")
+					.addColumn(col1)
+					.addColumn(col2)
+					.addColumn(col3);
+			SqlTable myTable = new SqlTable(nameOfTable)
+					.addColumn(col1)
+					.addColumn(col2)
+					.addColumn(col3)
+					.setPrimaryKey(primaryKey)
+					.addIndex(new SqlIndex("idx1")
+							.addColumn(col2));
 			SqlCreateTableGenerator generator = new SqlCreateTableGenerator(myTable);
 			System.out.println(generator.generate());
 			//Assert.assertEquals(expected, actual);
