@@ -14,6 +14,10 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableParser;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTable;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.Nodes;
@@ -129,6 +133,22 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		HibernateConnectionProvider.clearConnectionPoolFromThread();
 		client.setSessionFactory(sessionFactory);
 		timer.add("built "+connectionPool);
+		
+//		//compare table schemas
+//		for(Class<? extends Databean<?,?>> databeanClass : relevantDatabeanTypes) {
+//	//		ResultSet resultSet2 = stmt.executeQuery("show create table Cheese;");
+//			String createStatement = "create table etc"; //resultSet2.getStringOrSomethng();
+//			SqlTable current = new SqlCreateTableParser(createStatement).parse();
+//			SqlTable requested = null;//new SqlTableDatabeanGenerator(databeanClass).generate();
+//			if(current==null) {
+//				String create = new SqlCreateTableGenerator(requested).generate();
+//				//issue create table statement
+//			}else if(!current.equals(requested)) {
+//				//issue alter table statement
+//				String alter = new SqlAlterTableGenerator(current, requested).generate();
+//				//send alter statement to server somehow
+//			}//else it is ok
+//		}
 		
 		logger.warn(timer);
 		

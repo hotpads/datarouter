@@ -142,6 +142,13 @@ public class SqlTable {
 				+ ",\n primaryKey=" + primaryKey + ", \nindexes=" + indexes + "]";
 	}
 	
+	@Override
+	public boolean equals(Object otherObject){
+		if(!(otherObject instanceof SqlTable)) { return false; }
+		SqlTable other = (SqlTable)otherObject;
+		return ! new SqlTableDiffGenerator(this, other).isTableModified();
+	}
+	
 	
 	/*************************** get/set ********************************/
 	
