@@ -2,15 +2,18 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 public class SqlColumn {
 
-	// ATTRIBUTES
-	String name;
-	MySqlColumnType type;
-	Integer maxLength;
-	Boolean nullable;
+	/********************** fields *************************/
+	
+	protected String name;
+	protected MySqlColumnType type;
+	protected Integer maxLength;
+	protected Boolean nullable;
+	
+
+	/********************** constructors **********************/
 	
 	public SqlColumn(String name, MySqlColumnType type, Integer maxLength,
 			Boolean nullable) {
-		super();
 		this.name = name;
 		this.type = type;
 		this.maxLength = maxLength;
@@ -18,12 +21,21 @@ public class SqlColumn {
 	}
 
 	public SqlColumn(String name, MySqlColumnType type) {
-		super();
 		this.name = name;
 		this.type = type;
 	}
 
+
+	/******************* Object methods **********************/
 	
+	@Override
+	public String toString() {
+		return "SqlColumn [name=" + name + ", Type=" + type + ", MaxLength="
+				+ maxLength + ", nullable=" + nullable + "]";
+	}
+
+	
+	/******************* methods ****************************/
 	
 	public String getName() {
 		return name;
@@ -57,11 +69,6 @@ public class SqlColumn {
 		this.nullable = nullable;
 	}
 
-	@Override
-	public String toString() {
-		return "SqlColumn [name=" + name + ", Type=" + type + ", MaxLength="
-				+ maxLength + ", nullable=" + nullable + "]";
-	}
 	
 	
 	

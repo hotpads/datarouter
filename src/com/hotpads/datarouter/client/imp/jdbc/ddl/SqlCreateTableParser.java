@@ -11,45 +11,20 @@ import com.hotpads.util.core.StringTool;
 
 public class SqlCreateTableParser{
 
+	/************************** fields *************************/
+	
 	protected String input;
 
+	
+	/******************* constructors ****************************/
+	
 	public SqlCreateTableParser(String input){
 		this.input = input;
 	}
-
-	public String getHeader(){
-		int index = input.indexOf('(');
-		return input.substring(0, index);
-	}
 	
-	public String getTableName() {
-		String header = getHeader();
-		String name = header.split("[`]+")[1];
-		return name;
-	}
-
-	/**
-	 * 
-	 * @param phrase
-	 *            is what we got for queries of the type " show create table nameOfTheTable "
-	 * @return the tail of the SQL phrase, i.e. things after the last ")"
-	 */
-	public String getTail(){
-		int index = input.lastIndexOf(')');
-		return input.substring(index + 1);
-	}
-
-	/**
-	 * 
-	 * @param phrase
-	 *            is what we got for queries of the type " show create table nameOfTheTable "
-	 * @return the full body of the SQL phrase, i.e. things between the first "(" and the last ")"
-	 */
-	public String getFullBody(){
-		int index1 = input.indexOf('('), index2 = input.lastIndexOf(')');
-		return input.substring(index1 + 1, index2);
-	}
 	
+	/****************** primary method ****************************/
+
 	public SqlTable parse() {
 		SqlTable table = new SqlTable(getTableName());
 		List<SqlColumn> columns = ListTool.createArrayList();
@@ -85,38 +60,79 @@ public class SqlCreateTableParser{
 		}
 		return table;
 	}
+	
+	/********************* helper methods *******************************/
+	
+	protected String getHeader(){
+		int index = input.indexOf('(');
+		return input.substring(0, index);
+	}
+	
+	protected String getTableName() {
+		String header = getHeader();
+		String name = header.split("[`]+")[1];
+		return name;
+	}
 
-	public String getBody(){
+	/**
+	 * 
+	 * @param phrase
+	 *            is what we got for queries of the type " show create table nameOfTheTable "
+	 * @return the tail of the SQL phrase, i.e. things after the last ")"
+	 */
+	protected String getTail(){
+		int index = input.lastIndexOf(')');
+		return input.substring(index + 1);
+	}
+
+	/**
+	 * 
+	 * @param phrase
+	 *            is what we got for queries of the type " show create table nameOfTheTable "
+	 * @return the full body of the SQL phrase, i.e. things between the first "(" and the last ")"
+	 */
+	protected String getFullBody(){
+		int index1 = input.indexOf('('), index2 = input.lastIndexOf(')');
+		return input.substring(index1 + 1, index2);
+	}
+
+	protected String getBody(){
 		int index1 = input.indexOf('('), index2 = input.toUpperCase().indexOf("PRIMARY");
 		return input.substring(index1 + 1, index2);
 	}
 
-	public String[] getColumns(){
+	protected String[] getColumns(){
 		return getBody().split("[,]+");
 	}
+	
+	
+	/******************** static methods **************************/
 
-	public static String getNameOfColumn(String s) {
+	protected static String getNameOfColumn(String s) {
 		 int index = s.indexOf('`');
 		 String[] tokens = s.substring(index+1).split("[`]+");
 		return tokens[0];
 	}
 	
-	static String getTypeOfColumn(String s) {
+	protected static String getTypeOfColumn(String s) {
 		 int index = s.lastIndexOf('`');
 		String[] tokens = s.substring(index+1).split("[ ()]+");
 		return tokens[1];
 	}
 	
-	private static boolean hasAMaxValue(String s) {
+	protected static boolean hasAMaxValue(String s) {
 		return s.contains("(");
 	}
 	
-	static String getMaxValueOfColumn(String s) {
+	protected static String getMaxValueOfColumn(String s) {
 				 int index = s.lastIndexOf('`');
 				String[] tokens = s.substring(index+1).split("[ ()]+");
 				return tokens[2];
 	}
 		
+	
+	/******************** tests *****************************/
+	
 	public static class SqlCreateTableParserTests{
 		@Test public void testParse() {
 			String sql = "CREATE TABLE `Model` (" +
@@ -126,36 +142,29 @@ public class SqlCreateTableParser{
 					") ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='InnoDB free: 397312 kB'";
 			SqlCreateTableParser parser = new SqlCreateTableParser(sql);
 			SqlTable table = parser.parse();
-			
-			
-			/*
-			 *  TESTS THAT COULD BE DONE ON THIS METHOD
-			 */
-			
-			// TESTING THE NAME OF THE TABLE
+						
+			//tableName
 			Assert.assertEquals("Model",parser.getTableName());
 			
-			// TESTING THE NUMBER OF THE COLUMS
+			//number of columns
 			Assert.assertEquals(2, CollectionTool.size(table.getColumns()));
 			
-			// TESTING THE NAMES OF THE COLUMNS
+			//column names
 			Assert.assertEquals("includeInSummary", table.getColumns().get(0).getName());
 			Assert.assertEquals("feedModelId", table.getColumns().get(1).getName());
 			
-			// TESTING THE TYPES OF THE COLUMS
+			//column types
 			Assert.assertEquals("TINYINT", table.getColumns().get(0).getType().toString());
 			Assert.assertEquals("VARCHAR", table.getColumns().get(1).getType().toString());
 			
-			// TESTING THE MAXIMUM LENGHTS OF THE COLUMNS
+			//column lengths
 			Assert.assertEquals(1, table.getColumns().get(0).getMaxLength());
 			Assert.assertEquals(100, table.getColumns().get(1).getMaxLength());
 			
-			// TESTING THE NULLABILITY OF THE COLUMNS
+			//column nullability
 			Assert.assertEquals(true, table.getColumns().get(0).getNullable());
 			Assert.assertEquals(false, table.getColumns().get(1).getNullable());
-			
-			
-			
+						
 			sql = "CREATE TABLE `Property` (" +
 					"`id` bigint(20) NOT NULL AUTO_INCREMENT," +
 					"`acres` double DEFAULT NULL," +
@@ -165,11 +174,10 @@ public class SqlCreateTableParser{
 			parser = new SqlCreateTableParser(sql);
 			table = parser.parse();
 			
-			
-			// TESTING THE PRIMARY KEYS (THE NAMES, THE NUMBER )
+			//primary keys
 			Assert.assertEquals("id", table.getPrimaryKey().getColumns().get(0).getName());
 			
-			// TESTING THE KEYS (THE NAMES, THE NUMBER)
+			//secondary indexes
 			Assert.assertEquals(1, table.getIndexes().size());
 			Assert.assertEquals("id", table.getIndexes().get(0).getColumns().get(0).getName());
 			Assert.assertEquals("acres", table.getIndexes().get(0).getColumns().get(1).getName());
