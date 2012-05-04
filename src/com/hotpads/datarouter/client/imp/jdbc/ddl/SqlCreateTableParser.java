@@ -147,8 +147,10 @@ public class SqlCreateTableParser{
 			Assert.assertEquals("VARCHAR", table.getColumns().get(1).getType().toString());
 			
 			// TESTING THE MAXIMUM LENGHTS OF THE COLUMNS
-			Assert.assertEquals(1, table.getColumns().get(0).getMaxLength());
-			Assert.assertEquals(100, table.getColumns().get(1).getMaxLength());
+			int i=table.getColumns().get(0).getMaxLength();
+			Assert.assertEquals(1, i);
+			i=table.getColumns().get(1).getMaxLength();
+			Assert.assertEquals(100, i);
 			
 			// TESTING THE NULLABILITY OF THE COLUMNS
 			Assert.assertEquals(true, table.getColumns().get(0).getNullable());
