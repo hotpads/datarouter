@@ -52,7 +52,7 @@ public class SqlCreateTableGenerator {
 					}
 		}
 		s+=")\n";
-		s+=") ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='InnoDB free: 397312 kB'":
+		s+=") ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='InnoDB free: 397312 kB'";
 		return s;
 		
 	}
