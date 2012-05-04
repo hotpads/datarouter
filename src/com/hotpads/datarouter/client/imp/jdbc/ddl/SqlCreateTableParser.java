@@ -11,7 +11,7 @@ import com.hotpads.util.core.StringTool;
 
 public class SqlCreateTableParser{
 
-	String input;
+	protected String input;
 
 	public SqlCreateTableParser(String input){
 		this.input = input;
@@ -86,40 +86,36 @@ public class SqlCreateTableParser{
 		return table;
 	}
 
-	 public String getBody(){
-		    int index1 = input.indexOf('('), index2=input.toUpperCase().indexOf("PRIMARY");
-			return input.substring(index1+1,index2);
-	 }
-	 
-	 public String[] getColumns(){
-		return getBody().split("[,]+"); 
-	 }
+	public String getBody(){
+		int index1 = input.indexOf('('), index2 = input.toUpperCase().indexOf("PRIMARY");
+		return input.substring(index1 + 1, index2);
+	}
+
+	public String[] getColumns(){
+		return getBody().split("[,]+");
+	}
+
+	public static String getNameOfColumn(String s) {
+		 int index = s.indexOf('`');
+		 String[] tokens = s.substring(index+1).split("[`]+");
+		return tokens[0];
+	}
 	
-		public static String getNameOfColumn(String s) {
-			// TODO Auto-generated method stub
-			 int index = s.indexOf('`');
-			 String[] tokens = s.substring(index+1).split("[`]+");
-			return tokens[0];
-		}
-		
-		static String getTypeOfColumn(String s) {
-			// TODO Auto-generated method stub
-			 int index = s.lastIndexOf('`');
-			String[] tokens = s.substring(index+1).split("[ ()]+");
-			return tokens[1];
-		}
-		
-		private static boolean hasAMaxValue(String s) {
-			// TODO Auto-generated method stub
-			return s.contains("(");
-		}
-		
-		static String getMaxValueOfColumn(String s) {
-			// TODO Auto-generated method stub
-					 int index = s.lastIndexOf('`');
-					String[] tokens = s.substring(index+1).split("[ ()]+");
-					return tokens[2];
-		}
+	static String getTypeOfColumn(String s) {
+		 int index = s.lastIndexOf('`');
+		String[] tokens = s.substring(index+1).split("[ ()]+");
+		return tokens[1];
+	}
+	
+	private static boolean hasAMaxValue(String s) {
+		return s.contains("(");
+	}
+	
+	static String getMaxValueOfColumn(String s) {
+				 int index = s.lastIndexOf('`');
+				String[] tokens = s.substring(index+1).split("[ ()]+");
+				return tokens[2];
+	}
 		
 	public static class SqlCreateTableParserTests{
 		@Test public void testParse() {
@@ -151,6 +147,7 @@ public class SqlCreateTableParser{
 			// TESTING THE PRIMARY KEYS (THE NAMES, THE NUMBER )
 			
 			// TESTING THE KEYS (THE NAMES, THE NUMBER_)
+			
 		}
 	}
 }
