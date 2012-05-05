@@ -2,6 +2,7 @@ package com.hotpads.datarouter.routing;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.SortedSet;
 
 import com.hotpads.datarouter.app.App;
 import com.hotpads.datarouter.client.Client;
@@ -9,7 +10,6 @@ import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
@@ -52,9 +52,8 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> 
-	N register(N node){
-		this.context.getNodes().register(node);
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> N register(N node){
+		this.context.getNodes().register(name, node);
 		return node;
 	}
 	
@@ -68,8 +67,8 @@ public abstract class BaseDataRouter implements DataRouter {
 	}
 
 	@Override
-	public Nodes<?,?,?> getNodes() {
-		return context.getNodesForRouter(getName());
+	public SortedSet<Node> getNodes() {
+		return context.getNodes().getNodesForRouterName(getName());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -168,6 +167,11 @@ public abstract class BaseDataRouter implements DataRouter {
 	@Override
 	public ConnectionPools getConnectionPools(){
 		return context.getConnectionPools();
+	}
+	
+	@Override
+	public DataRouterContext getContext() {
+		return context;
 	}
 
 	

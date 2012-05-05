@@ -6,8 +6,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
@@ -29,6 +31,7 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	protected List<N> allNodes = ListTool.createArrayList();
 	protected List<String> allNames = ListTool.createArrayList();
 	protected Map<String,N> nodeByName = MapTool.createTreeMap();
+	protected SortedMap<String,SortedSet<N>> nodesByRouterName = MapTool.createTreeMap();
 //	protected Map<ClientType,List<N>> nodesByClientType = MapTool.createTreeMap();
 	protected Map<String,Map<String,PhysicalNode<PK,D>>> physicalNodeByTableNameByClientName = MapTool.createTreeMap();
 	protected Map<Class<PK>,N> nodeByPrimaryKeyType = MapTool.createHashMap();
@@ -36,7 +39,7 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	protected Map<Class<D>,List<String>> clientNamesByDatabeanType = MapTool.createHashMap();
 	
 	
-	public N register(N node){
+	public N register(String routerName, N node){
 //		logger.warn("registering:"+nodeName+":"+node.getAllNames());
 //		if(node.getName().contains(".Count")){ 
 //			int breakpoint = 1;
@@ -50,8 +53,8 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 		this.topLevelNodes.add(node);
 		this.allNodes.addAll(nodeWithDescendants);
 		for(N nodeOrDescendant : IterableTool.nullSafe(nodeWithDescendants)){
-			this.allNames.add(nodeOrDescendant.getName());
-			this.nodeByName.put(nodeOrDescendant.getName(), nodeOrDescendant);
+			allNames.add(nodeOrDescendant.getName());
+			nodeByName.put(nodeOrDescendant.getName(), nodeOrDescendant);
 			if(nodeOrDescendant instanceof PhysicalNode){
 				PhysicalNode<PK,D> physicalNode = (PhysicalNode<PK,D>)nodeOrDescendant;
 				String clientName = physicalNode.getClientName();
@@ -61,13 +64,17 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 				}
 				physicalNodeByTableNameByClientName.get(clientName).put(tableName, physicalNode);
 			}
+			if(!nodesByRouterName.containsKey(routerName)) {
+				nodesByRouterName.put(routerName, new TreeSet<N>());
+			}
+			nodesByRouterName.get(routerName).add(node);
 		}
-		this.nodeByPrimaryKeyType.put(sampleDatabean.getKeyClass(), node);
-		this.nodeByDatabeanType.put(databeanType, node);
-		if(this.clientNamesByDatabeanType.get(databeanType)==null){
-			this.clientNamesByDatabeanType.put(databeanType, new LinkedList<String>());
+		nodeByPrimaryKeyType.put(sampleDatabean.getKeyClass(), node);
+		nodeByDatabeanType.put(databeanType, node);
+		if(clientNamesByDatabeanType.get(databeanType)==null){
+			clientNamesByDatabeanType.put(databeanType, new LinkedList<String>());
 		}
-		this.clientNamesByDatabeanType.get(databeanType).addAll(clientNames);
+		clientNamesByDatabeanType.get(databeanType).addAll(clientNames);
 		
 		Collections.sort(topLevelNodes);
 		Collections.sort(allNodes);
@@ -123,6 +130,10 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 		return tableNames;
 	}
 	
+	public SortedSet<N> getNodesForRouterName(String routerName){
+		return nodesByRouterName.get(routerName);
+	}
+	
 	public N getNode(Key<PK> key){
 		return this.nodeByPrimaryKeyType.get(key.getClass());
 	}
@@ -149,7 +160,7 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	}
 
 	public List<String> getClientNamesForDatabeanType(Class<D> databeanType){
-		return this.clientNamesByDatabeanType.get(databeanType);
+		return clientNamesByDatabeanType.get(databeanType);
 	}
 	
 	public void clearThreadSpecificState(){
