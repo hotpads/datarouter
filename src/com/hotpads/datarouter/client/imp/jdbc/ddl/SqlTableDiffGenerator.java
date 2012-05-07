@@ -40,7 +40,6 @@ public class SqlTableDiffGenerator{
 
 	public List<SqlColumn> getIndexesToAdd(){
 		List<SqlColumn> columnsToAdd = ListTool.createArrayList();
-
 		return columnsToAdd;
 	}
 
@@ -99,7 +98,7 @@ public class SqlTableDiffGenerator{
 		}
 		return false; // TODO calculate
 	}
-
+	
 	// etc
 
 	public static class TestSqlTableDiffGenerator{
