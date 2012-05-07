@@ -9,6 +9,7 @@ public class DRTestConstants{
 
 	public static final String
 		CONFIG_PATH = "/hotpads/config/datarouter-test.properties",
+		DATABASE_drTest0 = "drTest0",
 		CLIENT_drTestHibernate0 = "drTestHibernate0",
 		CLIENT_drTestHBase = "drTestHBase",
 		CLIENT_drTestMemcached = "drTestMemcached";

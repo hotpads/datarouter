@@ -19,7 +19,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	protected String name;
 	protected MySqlColumnType type;
 	protected Integer maxLength;
-	protected Boolean nullable;
+	protected Boolean nullable = true;
 	
 
 	/********************** constructors **********************/
