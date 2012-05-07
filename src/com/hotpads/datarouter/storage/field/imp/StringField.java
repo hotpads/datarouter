@@ -140,6 +140,8 @@ public class StringField extends BaseField<String>{
 		if(lastByteIsSeparator){
 			--lengthWithoutSeparator;
 		}
+		if (lengthWithoutSeparator == -1)
+			lengthWithoutSeparator = 0;
 		return new String(bytes, offset, lengthWithoutSeparator, StringByteTool.CHARSET_UTF8);
 	}
 	
