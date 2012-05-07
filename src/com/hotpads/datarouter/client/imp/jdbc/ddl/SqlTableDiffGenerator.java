@@ -106,7 +106,7 @@ public class SqlTableDiffGenerator{
 		public void isTableModifiedTest(){
 
 			SqlColumn 
-				idCol = new SqlColumn("id", MySqlColumnType.BIGINT);
+					idCol = new SqlColumn("id", MySqlColumnType.BIGINT);
 			SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol);
 			List<SqlColumn> 
 					listA = ListTool.createArrayList(), 
@@ -114,16 +114,18 @@ public class SqlTableDiffGenerator{
 					listB = ListTool.createArrayList();
 			SqlTable 
 					tableA = new SqlTable("A", listA, primaryKey1), 
-					tableB = new SqlTable("B", listB, primaryKey1), 
+//					tableB = new SqlTable("B", listB, primaryKey1), 
 					tableA2 = new SqlTable("A", listA2,primaryKey1);
-			SqlTableDiffGenerator diffAB = new SqlTableDiffGenerator(tableA, tableB, true);
+//			SqlTableDiffGenerator diffAB = new SqlTableDiffGenerator(tableA, tableB, true);
 			SqlTableDiffGenerator diffAA = new SqlTableDiffGenerator(tableA, tableA, true);
 			SqlTableDiffGenerator diffAA2 = new SqlTableDiffGenerator(tableA, tableA2, true);
 			Assert.assertFalse(diffAA.isTableModified());
 			// Assert.assertTrue(diffAB.isTableModified()); 						// WE CAN'T HAVE DIFFERENT TABLES WITH THE SAME NAME
 			// TABLES WITH DIFFERENT NUMBER OF COLUMNS
-			SqlColumn col1 = new SqlColumn("col1", MySqlColumnType.BIGINT), col2 =
-					new SqlColumn("col2", MySqlColumnType.BINARY), col3 = new SqlColumn("col3", MySqlColumnType.BIT);
+			SqlColumn 
+					col1 = new SqlColumn("col1", MySqlColumnType.BIGINT), 
+					col2 = new SqlColumn("col2", MySqlColumnType.BINARY), 
+					col3 = new SqlColumn("col3", MySqlColumnType.BIT);
 			tableA.addColumn(col1);
 			tableA2.addColumn(col1);
 			tableA2.addColumn(col2);
@@ -138,8 +140,8 @@ public class SqlTableDiffGenerator{
 		@Test
 		public void isPrimaryKeyModifiedTest(){
 			List<SqlColumn> 
-						list1 = ListTool.createArrayList(),
-						list2 = ListTool.createArrayList();
+					list1 = ListTool.createArrayList(),
+					list2 = ListTool.createArrayList();
 			SqlColumn 
 					idCol = new SqlColumn("id", MySqlColumnType.BIGINT),
 					col	= new SqlColumn("id", MySqlColumnType.BIGINT);
@@ -149,14 +151,14 @@ public class SqlTableDiffGenerator{
 					primaryKey2 = new SqlIndex("pk2").addColumn(idCol).addColumn(col);
 			
 			SqlTable 
-				A = new SqlTable("Table 1", list1, primaryKey1 ),
-				B = new SqlTable("Table 2", list2, primaryKey2 ),
-				A2 = new SqlTable("Table 1", list1, primaryKey2);
+					A = new SqlTable("Table 1", list1, primaryKey1 ),
+					B = new SqlTable("Table 2", list2, primaryKey2 ),
+					A2 = new SqlTable("Table 1", list1, primaryKey2);
 			
 			SqlTableDiffGenerator 
-						diffAA = new SqlTableDiffGenerator(A, A, true),
-						diffAB = new SqlTableDiffGenerator(A, B, true),
-						diffAA2 = new SqlTableDiffGenerator(A,A2,true);
+					diffAA = new SqlTableDiffGenerator(A, A, true),
+					diffAB = new SqlTableDiffGenerator(A, B, true),
+					diffAA2 = new SqlTableDiffGenerator(A,A2,true);
 			
 			Assert.assertFalse(diffAA.isPrimaryKeyModified());
 			Assert.assertTrue(diffAB.isPrimaryKeyModified());
@@ -177,41 +179,39 @@ public class SqlTableDiffGenerator{
 			listBC.add(colC);
 			listM.add(colM);
 			SqlTable 
-				table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
-				table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
+					table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
+					table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
 			
 			SqlTableDiffGenerator 
-						diffBA = new SqlTableDiffGenerator(table2, table1, true),
-						diffAB = new SqlTableDiffGenerator(table1, table2, true);
+					diffBA = new SqlTableDiffGenerator(table2, table1, true),
+					diffAB = new SqlTableDiffGenerator(table1, table2, true);
 			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getColumnsToAdd(), listBC)));
 			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffAB.getColumnsToAdd(), listM)));
-			
-			
 		}
 		
 		@Test public void getColumnsToRemoveTest(){
 			SqlColumn 
-			colA = new SqlColumn("A", MySqlColumnType.BIGINT),
-			colB = new SqlColumn("B", MySqlColumnType.BINARY),
-			colC = new SqlColumn("C", MySqlColumnType.BOOLEAN),
-			colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
-	List<SqlColumn> 
-			listBC = ListTool.createArrayList(),
-			listM = ListTool.createArrayList();
+					colA = new SqlColumn("A", MySqlColumnType.BIGINT),
+					colB = new SqlColumn("B", MySqlColumnType.BINARY),
+					colC = new SqlColumn("C", MySqlColumnType.BOOLEAN),
+					colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
+			List<SqlColumn> 
+					listBC = ListTool.createArrayList(),
+					listM = ListTool.createArrayList();
 	
-	listBC.add(colB);
-	listBC.add(colC);
-	listM.add(colM);
-	SqlTable 
-		table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
-		table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
-	
-	SqlTableDiffGenerator 
-				diffBA = new SqlTableDiffGenerator(table2, table1, true),
-				diffAB = new SqlTableDiffGenerator(table1, table2, true);
-	Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getColumnsToRemove(), listM)));
-	Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffAB.getColumnsToRemove(), listBC)));
-	
+			listBC.add(colB);
+			listBC.add(colC);
+			listM.add(colM);
+			SqlTable 
+					table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
+					table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
+			
+			SqlTableDiffGenerator 
+						diffBA = new SqlTableDiffGenerator(table2, table1, true),
+						diffAB = new SqlTableDiffGenerator(table1, table2, true);
+			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getColumnsToRemove(), listM)));
+			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffAB.getColumnsToRemove(), listBC)));
+			
 		}
 	}
 	
