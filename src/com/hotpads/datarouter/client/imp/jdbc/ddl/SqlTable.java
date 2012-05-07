@@ -32,6 +32,15 @@ public class SqlTable {
 		this.indexes = indexes;
 	}
 
+	
+	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey) {
+		this.name = name;
+		this.columns = columns;
+		this.primaryKey = primaryKey;
+		this.indexes = ListTool.createArrayList();
+	}
+
+
 	public SqlTable(String name, List<SqlColumn> columns) {
 		this.name = name;
 		this.columns = columns;
@@ -146,7 +155,7 @@ public class SqlTable {
 	public boolean equals(Object otherObject){
 		if(!(otherObject instanceof SqlTable)) { return false; }
 		SqlTable other = (SqlTable)otherObject;
-		return ! new SqlTableDiffGenerator(this, other).isTableModified();
+		return ! new SqlTableDiffGenerator(this, other,true).isTableModified();
 	}
 	
 	
