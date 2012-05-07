@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.util.List;
 
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
 public class SqlIndex {
@@ -23,7 +24,7 @@ public class SqlIndex {
 	public SqlIndex(String name) {
 		super();
 		this.name = name;
-		columns=ListTool.createArrayList();
+		this.columns=ListTool.createArrayList();
 	}
 
 	
@@ -62,6 +63,6 @@ public class SqlIndex {
 	}
 	
 	public int getNumberOfColumns(){
-		return columns.size();
+		return CollectionTool.size(columns);
 	}
 }
