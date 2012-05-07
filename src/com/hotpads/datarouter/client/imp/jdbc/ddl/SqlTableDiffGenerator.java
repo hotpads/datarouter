@@ -50,7 +50,7 @@ public class SqlTableDiffGenerator {
 			return true;
 		}
 		if (current.getNumberOfColumns() != requested.getNumberOfColumns()){
-			System.out.println("The number of columns of the table has changed.");
+			System.out.println("The number of columnshas changed.");
 			return true;
 		}
 
@@ -66,6 +66,7 @@ public class SqlTableDiffGenerator {
 					set.add(col); // SAME COLUMNS ARE NOT ADDED TO THE SET
 				}
 				if (set.size() != n) {
+					System.out.println("One of the columns of the table has changed.");
 					return true; // IF A COLUMN HAS BEEN ADDED THEN THERE HAVE BEEN A
 									// CHANGE
 				}
@@ -98,12 +99,13 @@ public class SqlTableDiffGenerator {
 
 	public static class TestSqlTableDiffGenerator {
 		@Test
-		public void testIsTableModified() {
+		public void isTableModifiedTest() {
 			// TABLES WITH DIFFERENT NAME
-			
-			List<SqlColumn> list = ListTool.createArrayList();
-			SqlTable tableA = new SqlTable("A",list), tableB = new SqlTable("B",list);
-			SqlTableDiffGenerator diffAB = new SqlTableDiffGenerator(tableA, tableB), diffAA = new SqlTableDiffGenerator(tableA, tableA);
+			List<SqlColumn> listA = ListTool.createArrayList(), listA2 = ListTool.createArrayList(), listB = ListTool.createArrayList() ;
+			SqlTable tableA = new SqlTable("A",listA), tableB = new SqlTable("B",listB), tableA2 = new SqlTable("A",listA2);
+			SqlTableDiffGenerator diffAB = new SqlTableDiffGenerator(tableA, tableB), 
+					diffAA = new SqlTableDiffGenerator(tableA, tableA),
+					diffAA2 = new SqlTableDiffGenerator(tableA, tableA2);
 			Assert.assertFalse(diffAA.isTableModified());
 			Assert.assertTrue(diffAB.isTableModified());
 			// TABLES WITH DIFFERENT NUMBER OF COLUMNS
@@ -111,10 +113,18 @@ public class SqlTableDiffGenerator {
 					col2 = new SqlColumn("col2", MySqlColumnType.BINARY), 
 					col3 = new SqlColumn("col3", MySqlColumnType.BIT);
 			tableA.addColumn(col1);
-			tableB.addColumn(col1);
-			tableB.addColumn(col2);
-			Assert.assertFalse(diffAA.isTableModified());
-			Assert.assertTrue(diffAB.isTableModified());
+			tableA2.addColumn(col1);
+			tableA2.addColumn(col2);
+			
+			Assert.assertTrue(diffAA2.isTableModified());
+			
+			// TABLES WITH THE SAME NUMBER OF COLUMNS, BUT 1 OR MORE DIFFERENT COLUMN
+			tableA.addColumn(col3);
+			Assert.assertTrue(diffAA2.isTableModified());
+		}
+		@Test
+		public void isPrimaryKeyModifiedTest() {
+			
 		}
 	}
 }
