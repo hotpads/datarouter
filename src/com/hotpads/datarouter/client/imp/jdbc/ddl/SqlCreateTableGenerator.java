@@ -1,12 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
-import java.util.List;
-
 import org.junit.Test;
-
-import com.hotpads.util.core.ListTool;
-
-import junit.framework.Assert;
 
 public class SqlCreateTableGenerator {
 

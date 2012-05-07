@@ -185,7 +185,9 @@ public class SqlTable {
 		return this;
 	}
 
-	
+	public int getNumberOfColumns() {
+		return getColumns().size();
+	}
 	/******************** tests *********************************/
 
 	public static class SqlTableTests{
@@ -216,4 +218,7 @@ public class SqlTable {
 			System.out.println(parseCreateTable(phrase));
 		}
 	}
+
+
+
 }

@@ -61,5 +61,7 @@ public class SqlIndex {
 		this.columns = columns;
 	}
 	
-	
+	public int getNumberOfColumns(){
+		return columns.size();
+	}
 }
