@@ -99,7 +99,15 @@ public class SqlTableDiffGenerator{
 		return false; // TODO calculate
 	}
 	
+	
+	
 	// etc
+
+	public SqlTable getRequested() {
+		return requested;
+	}
+
+
 
 	public static class TestSqlTableDiffGenerator{
 		@Test

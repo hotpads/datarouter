@@ -37,7 +37,7 @@ public enum MySqlColumnType {
 	VARBINARY, 
 	TINYBLOB, 
 	TINYTEXT, 
-	BLOB, 
+	BLOB, //"Binary Long Array of Bytes"
 	TEXT, 
 	MEDIUMBLOB, 
 	MEDIUMTEXT, 
