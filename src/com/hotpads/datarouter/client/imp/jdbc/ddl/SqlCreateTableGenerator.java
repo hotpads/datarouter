@@ -46,22 +46,26 @@ public class SqlCreateTableGenerator {
 						s+="," ;
 					}
 		}
-		s+=")\n";
-		int numbreOfIndexes=table.getIndexes().size();
-		for(int i=0; i< numbreOfIndexes; i++){
+		s+="),\n";
+		int numberOfIndexes=table.getIndexes().size();
+		for(int i=0; i< numberOfIndexes; i++){
 			s+=" KEY `"+ table.getIndexes().get(i).getName() +"` (";
-			int numberOfColumndInindexe = table.getIndexes().get(i).getColumns().size();
-			for(int j=0; j< numberOfColumndInindexe; j++){
+			int numberOfColumndInIndexe = table.getIndexes().get(i).getColumns().size();
+			for(int j=0; j< numberOfColumndInIndexe; j++){
 				col = table.getIndexes().get(i).getColumns().get(j);
 				s+= "`" + table.getIndexes().get(i).getColumns().get(j).getName() + "`";
-						if(i != numberOfColumndInindexe -1) {
+						if(j != numberOfColumndInIndexe -1) {
 							s+="," ;
 						}
 			}
-			s+=")\n";
+			s+=")";
+			if(i != numberOfIndexes - 1){
+				s+=",";
+			}
+			s+="\n";
 		}
 		s+=")";
-		//s+=" ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='InnoDB free: 397312 kB'";
+		s+=" ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='InnoDB free: 397312 kB'";
 		return s;
 		
 	}
