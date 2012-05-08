@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -11,6 +12,7 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.util.core.ListTool;
 
 public class TestCreateTable {
 
@@ -18,6 +20,8 @@ public class TestCreateTable {
 		String tableName = "Person";
 		SqlColumn colLastName = new SqlColumn("lastName", MySqlColumnType.VARCHAR,200,false);
 		SqlColumn colFirstName = new SqlColumn("firstName", MySqlColumnType.VARCHAR,200,false);
+		List<SqlIndex> index = ListTool.createArrayList();
+		index.add(new SqlIndex("index1").addColumn(colLastName).addColumn(colFirstName));
 		SqlTable inputTable = new SqlTable(tableName)
 				.addColumn(colLastName)
 				.addColumn(colFirstName)
@@ -26,6 +30,8 @@ public class TestCreateTable {
 				.setPrimaryKey(new SqlIndex("Person Primary Key")
 						.addColumn(colLastName)
 						.addColumn(colFirstName));
+		inputTable.setIndexes(index);
+		
 		SqlCreateTableGenerator generator = new SqlCreateTableGenerator(inputTable);
 		String sql = generator.generate();
 		
@@ -34,6 +40,7 @@ public class TestCreateTable {
 		try{
 			stmt = conn.createStatement();
 			stmt.execute("drop table if exists "+inputTable.getName()+";");
+			System.out.println(sql);
 			stmt.execute(sql);
 			
 			ResultSet result = stmt.executeQuery("show create table "+inputTable.getName() + ";");
