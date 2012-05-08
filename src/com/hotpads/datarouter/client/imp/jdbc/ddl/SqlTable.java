@@ -97,11 +97,17 @@ public class SqlTable {
 	
 	public void setPrimaryKey(String primaryKeyColumnName){
 		for(SqlColumn col : columns){
+			//System.out.println(" col " + col +" pkeyColumnName " + primaryKeyColumnName);
 			if(col.getName().equals(primaryKeyColumnName)){
 				List<SqlColumn> list = ListTool.createArrayList();
 				list.add(col);
-				this.primaryKey = new SqlIndex(name + " Primary Key", list);
-				System.out.println("The primary key is " + col);
+				if(primaryKey==null){
+					primaryKey = new SqlIndex(name + " Primary Key", list);
+				}
+				else{
+					primaryKey.addColumn(col);
+				}
+				//System.out.println("The primary key is " + col);
 			}
 		}
 	}

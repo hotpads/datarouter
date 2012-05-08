@@ -37,14 +37,14 @@ public class SqlCreateTableParser{
 					col.setMaxLength(Integer.parseInt(getMaxValueOfColumn(s)));
 				}
 				col.setNullable(TestParser.getNullable(s));
-				System.out.println(col);
+				//System.out.println(col);
 				columns.add(col);
 			}
 		}
 		table.setColumns(columns);
 		
 		// FOR THE PRIMARY KEY DECLARATION
-		String[] sTokenPKey= TestParser.getPrimaryKeyDeclarationFromFullBody(input).split("[,()]");
+		String[] sTokenPKey= TestParser.getPrimaryKeyDeclarationFromFullBody(input).substring("PRIMARY KEY ".length()).split("[,()]");
 		for (int i = 0; i < sTokenPKey.length; i++) {
 			table.setPrimaryKey(TestParser.removeNonText(sTokenPKey[i]));
 		}
@@ -52,7 +52,7 @@ public class SqlCreateTableParser{
 		List<String> sTokenKey= TestParser.getKeyDeclarationsFromFullBody(input);
 		for (String s1: sTokenKey) {
 				SqlIndex tableIndex = new SqlIndex(TestParser.getKeyNameFromKeydeclaration(s1));
-				System.out.println(TestParser.getKeyNameFromKeydeclaration(s1));
+				//System.out.println(TestParser.getKeyNameFromKeydeclaration(s1));
 				for(String s2:TestParser.getKeyColumnsNamesFromKeyDeclaration(s1)){
 					TestParser.addAppropriateColumnToIndexFromListOfColumn(tableIndex,s2,table.getColumns());
 				}

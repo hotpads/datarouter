@@ -29,11 +29,12 @@ public class SqlCreateTableGenerator {
 				s+="(" + col.getMaxLength() + ") ";
 			}
 			if(col.getNullable()){
-				s+="DEFAULT NULL,\n";
+				//s+=" DEFAULT NULL,\n";
 			}
 			else{
-				s+="NOT NULL DEFAULT,\n";
+			//	s+=" NOT NULL DEFAULT,\n";
 			}
+			s+=",\n";//
 		}
 
 		s+=" PRIMARY KEY ("; 
@@ -59,8 +60,8 @@ public class SqlCreateTableGenerator {
 			}
 			s+=")\n";
 		}
-		
-		s+=") ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='InnoDB free: 397312 kB'";
+		s+=")";
+		//s+=" ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='InnoDB free: 397312 kB'";
 		return s;
 		
 	}
