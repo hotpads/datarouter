@@ -50,10 +50,8 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	protected HibernateClient client;
 	
 	
-	public HibernateSimpleClientFactory(
-			DataRouterContext drContext,
-			String clientName, 
-			ExecutorService executorService){
+	public HibernateSimpleClientFactory(DataRouterContext drContext, String clientName, 
+			ExecutorService executorService) {
 		this.drContext = drContext;
 		this.clientName = clientName;
 		this.executorService = executorService;
@@ -62,28 +60,34 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
 	}
 	
+	protected static final boolean SEPARATE_THREAD = true;//why do we need this separate thread?
 	
 	@Override
 	public HibernateClient getClient(){
 		if(client!=null){ return client; }
-		synchronized(this){
-			if(client!=null){ return client; }
-			Future<HibernateClient> future = executorService.submit(new Callable<HibernateClient>(){
-				@Override public HibernateClient call(){
-					if(client!=null){ return client; }
-					logger.warn("activating Hibernate client "+clientName);
-					return createFromScratch(drContext, clientName);
+		logger.warn("activating Hibernate client "+clientName);
+		if(SEPARATE_THREAD){
+			synchronized(this){
+				if(client!=null){ return client; }
+				Future<HibernateClient> future = executorService.submit(new Callable<HibernateClient>(){
+					@Override public HibernateClient call(){
+						if(client!=null){ return client; }
+						logger.warn("activating Hibernate client "+clientName);
+						return createFromScratch(drContext, clientName);
+					}
+				});
+				try{
+					client = future.get();
+				}catch(InterruptedException e){
+					throw new RuntimeException(e);
+				}catch(ExecutionException e){
+					throw new RuntimeException(e);
 				}
-			});
-			try{
-				this.client = future.get();
-			}catch(InterruptedException e){
-				throw new RuntimeException(e);
-			}catch(ExecutionException e){
-				throw new RuntimeException(e);
 			}
+			return client;
+		}else{
+			return createFromScratch(drContext, clientName);
 		}
-		return this.client;
 	}
 	
 	

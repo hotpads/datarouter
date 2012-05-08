@@ -89,7 +89,7 @@ public class Clients{
 			initClientFactoryIfNull(clientName);
 			boolean eager = CollectionTool.contains(eagerClientNames, clientName);
 			if(!eager){
-//				logger.warn("registered:"+clientName+" ("+clientType.toString()+")");
+				logger.warn("registered:"+clientName+" ("+clientId.getName()+")");
 			}
 		}
 		for(final String clientName : CollectionTool.nullSafe(eagerClientNames)){
