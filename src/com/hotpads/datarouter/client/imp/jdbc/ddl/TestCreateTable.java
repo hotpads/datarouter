@@ -9,8 +9,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import sun.net.www.content.text.plain;
-
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.test.DRTestConstants;
 
@@ -31,31 +29,25 @@ public class TestCreateTable {
 		SqlCreateTableGenerator generator = new SqlCreateTableGenerator(inputTable);
 		String sql = generator.generate();
 		
-		Connection conn = JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
+		Connection conn = JdbcTool.openConnection("localhost", 3306, DRTestConstants.DATABASE_drTest0, "root", "");
 		Statement stmt = null;
 		try{
 			stmt = conn.createStatement();
-			stmt.execute("use "+DRTestConstants.DATABASE_drTest0+";");
-			//sql = "create table "+inputTable.getName()+";" + sql;
+			stmt.execute("drop table if exists "+inputTable.getName()+";");
 			stmt.execute(sql);
 			
-			String showCreateTableOutput="";
-			 ResultSet result = stmt.executeQuery("show create table "+inputTable.getName() + ";");
-			 while(result.next()){
-				 showCreateTableOutput+=result.getString(2);
-				// System.out.println(showCreateTableOutput);
-			 }
-			//parse showCreateTableOutput into a SqlTable "outputTable"
-			 SqlCreateTableParser parser = new SqlCreateTableParser(showCreateTableOutput);
-			 SqlTable outputTable = parser.parse();
-			//assert inputTable.equals(outputTable)
-			 System.out.println("/******************** INPUT TABLE  *********************************/");
-			 System.out.println(inputTable);
-			 System.out.println("/*******************  OUTPUT TABLE **********************************/");
-			 System.out.println(outputTable);
-			 stmt.execute("drop table "+inputTable.getName()+";");
-			 Assert.assertEquals(inputTable, outputTable);
-			 
+			ResultSet result = stmt.executeQuery("show create table "+inputTable.getName() + ";");
+			result.next();// position at first result row
+			String showCreateTableOutput = result.getString(2);
+			
+			SqlCreateTableParser parser = new SqlCreateTableParser(showCreateTableOutput);
+			SqlTable outputTable = parser.parse();
+			Assert.assertEquals(inputTable, outputTable);
+			
+			System.out.println("/******************** INPUT TABLE  *********************************/");
+			System.out.println(inputTable);
+			System.out.println("/*******************  OUTPUT TABLE **********************************/");
+			System.out.println(outputTable);
 			 
 		}catch(Exception e) {
 			e.printStackTrace();			
