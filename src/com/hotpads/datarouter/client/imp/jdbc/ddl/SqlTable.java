@@ -61,7 +61,7 @@ public class SqlTable {
 		
 		//columns
 		for(String s:TestParser.getColumns(TestParser.getBody(phrase))){
-			if(StringTool.containsAnyNonSpaceCharacters(s)){
+			if(StringTool.containsCharactersBesidesWhitespace(s)){
 				SqlColumn col = new SqlColumn(TestParser.getNameOfColumn(s), MySqlColumnType.parse(TestParser.getTypeOfColumn(s)));
 				if(hasAMaxValue(s)){
 					col.setMaxLength(Integer.parseInt(TestParser.getMaxValueOfColumn(s)));

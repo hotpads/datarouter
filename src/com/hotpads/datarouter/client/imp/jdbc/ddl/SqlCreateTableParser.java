@@ -31,7 +31,7 @@ public class SqlCreateTableParser{
 
 		
 		for(String s:getColumns()){
-			if(StringTool.containsAnyNonSpaceCharacters(s)){
+			if(StringTool.containsCharactersBesidesWhitespace(s)){
 				SqlColumn col = new SqlColumn(getNameOfColumn(s), MySqlColumnType.parse(getTypeOfColumn(s)));
 				if(hasAMaxValue(s)){
 					col.setMaxLength(Integer.parseInt(getMaxValueOfColumn(s)));
