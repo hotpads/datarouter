@@ -38,15 +38,14 @@ public class SqlTableDiffGenerator{
 		return true;//TODO implement
 	}
 
-	public List<SqlColumn> getIndexesToAdd(){
-		List<SqlColumn> columnsToAdd = ListTool.createArrayList();
-		return columnsToAdd;
+	public List<SqlIndex> getIndexesToAdd(){
+		List<SqlIndex> indexesToAdd = ListTool.createArrayList();
+		return indexesToAdd;
 	}
 
-	public List<SqlColumn> getIndexesToRemove(){
-		List<SqlColumn> columnsToAdd = ListTool.createArrayList();
-
-		return columnsToAdd;
+	public List<SqlIndex> getIndexesToRemove(){
+		List<SqlIndex> indexesToRemove = ListTool.createArrayList();
+		return indexesToRemove;
 	}
 
 	public boolean isTableModified(){
