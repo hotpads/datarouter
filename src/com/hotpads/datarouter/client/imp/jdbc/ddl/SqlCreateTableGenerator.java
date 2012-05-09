@@ -29,10 +29,10 @@ public class SqlCreateTableGenerator {
 				s+="(" + col.getMaxLength() + ") ";
 			}
 			if(col.getNullable()){
-				//s+=" DEFAULT NULL,\n";
+				s+=" DEFAULT NULL";
 			}
 			else{
-			//	s+=" NOT NULL DEFAULT,\n";
+				s+=" NOT NULL";
 			}
 			s+=",\n";//
 		}

@@ -64,5 +64,9 @@ public class TestCreateTable {
 		}
 	}
 	
+	@Test public void createTableUsingTextFile(){
+		
+	}
+	
 
 }
