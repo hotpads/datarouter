@@ -123,7 +123,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 			if(fieldInfo.getFieldAware()){//use mohcine's table creator
 				List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
 				List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
-				FieldSqlTableGenerator generator = new FieldSqlTableGenerator(primaryKeyFields, nonKeyFields);
+				FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(),primaryKeyFields, nonKeyFields);
 				//need to somewhere create the table or apply the changes
 			}else{//use hibernate's table creator
 				Class<? extends Databean<?,?>> databeanClass = physicalNode.getDatabeanType();
