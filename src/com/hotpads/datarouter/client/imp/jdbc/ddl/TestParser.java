@@ -257,7 +257,6 @@ public class TestParser {
 	 public static String getPrimaryKeyDeclarationFromFullBody(String phrase){
 		    int index = phrase.toUpperCase().indexOf("PRIMARY");
 		    String[] tokens = phrase.substring(index).split("[)]+");
-		    System.out.println("===> "+tokens[0]);
 			return tokens[0]+")";
 			
 	 }
