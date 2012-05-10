@@ -65,7 +65,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	@Override
 	public HibernateClient getClient(){
 		if(client!=null){ return client; }
-		logger.warn("activating Hibernate client "+clientName);
+//		logger.warn("activating Hibernate client "+clientName);
 		if(SEPARATE_THREAD){
 			synchronized(this){
 				if(client!=null){ return client; }
