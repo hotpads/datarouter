@@ -158,8 +158,9 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 						ResultSet resultSet = statement.executeQuery("show create table "+physicalNode.getTableName());
 						resultSet.next();
 						SqlTable current = new SqlCreateTableParser(resultSet.getString(2)).parse();
-						List<SqlAlterTable> alterations = new SqlAlterTableGenerator(current, requested).generate();
-//						String alterTableStatemetn = SqlAlterTable.asdfadf
+						SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(current, requested);
+						List<SqlAlterTable> alterations = alterTableGenerator.generate();
+						String alterTableStatement = alterTableGenerator.getAlterTableStatement();
 						statement.execute(alterTableStatement);
 					}
 				} catch (SQLException e) {

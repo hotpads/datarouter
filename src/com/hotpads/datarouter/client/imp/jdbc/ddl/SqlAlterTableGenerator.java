@@ -5,6 +5,7 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
@@ -18,6 +19,15 @@ public class SqlAlterTableGenerator{
 	public SqlAlterTableGenerator(SqlTable current, SqlTable requested){
 		this.current = current;
 		this.requested = requested;
+	}
+	
+	public String getAlterTableStatement(){
+		List<SqlAlterTable> list =  generate();
+		String s="";
+		for(SqlAlterTable sqlAT : list){
+			s+=sqlAT.getAlterTable();
+		}
+		return s;
 	}
 	
 	public List<SqlAlterTable> generate() {
