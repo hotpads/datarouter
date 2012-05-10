@@ -40,7 +40,9 @@ public class FieldSqlTableGeneratorTest {
 		primaryKeyFields =mftBean.getKeyFields();
 		nonKeyFields = mftBean.getNonKeyFields();
 		fstGenerator = new FieldSqlTableGenerator(tableName, primaryKeyFields, nonKeyFields);
-		System.out.println(fstGenerator.generate());
+		SqlTable table = fstGenerator.generate();
+		SqlCreateTableGenerator ctGenerator = new SqlCreateTableGenerator(table);
+		System.out.println(ctGenerator.generate());
 	}
 
 }
