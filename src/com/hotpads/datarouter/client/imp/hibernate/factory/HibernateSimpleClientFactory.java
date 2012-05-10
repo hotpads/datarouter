@@ -1,6 +1,9 @@
 package com.hotpads.datarouter.client.imp.hibernate.factory;
 
-import java.util.Collection;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -15,7 +18,13 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
+import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.FieldSqlTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableParser;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTable;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.Nodes;
@@ -24,7 +33,6 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.StringTool;
@@ -103,28 +111,61 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		if(StringTool.isEmpty(configFileLocation)){ configFileLocation = configLocationDefault; }
 		sfConfig.configure(configFileLocation);
 
-		//databean config
-		@SuppressWarnings("unchecked")
-		Nodes nodes = router.getNodes();
-		Collection<Class<? extends Databean<?,?>>> relevantDatabeanTypes = nodes.getTypesForClient(clientName);
-		for(Class<? extends Databean<?,?>> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
-//			logger.warn(clientName+":"+databeanClass);
-			try{
-				sfConfig.addClass(databeanClass);
-			}catch(org.hibernate.MappingNotFoundException mnfe){
-				sfConfig.addAnnotatedClass(databeanClass);
-			}
-		}
-		timer.add("parse");
+//		//databean config
+//		@SuppressWarnings("unchecked")
+//		Nodes nodes = router.getNodes();
+//		Collection<Class<? extends Databean<?,?>>> relevantDatabeanTypes = nodes.getTypesForClient(clientName);
+//		for(Class<? extends Databean<?,?>> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
+////			logger.warn(clientName+":"+databeanClass);
+//			try{
+//				sfConfig.addClass(databeanClass);
+//			}catch(org.hibernate.MappingNotFoundException mnfe){
+//				sfConfig.addAnnotatedClass(databeanClass);
+//			}
+//		}
+//		timer.add("parse");
+		
+		//connection pool config
+		JdbcConnectionPool connectionPool = this.getConnectionPool(router, clientName, properties);
+		client.setConnectionPool(connectionPool);
+		sfConfig.setProperty(provider_class, HibernateConnectionProvider.class.getName());
+		sfConfig.setProperty(connectionPoolName, connectionPool.getName());
+		timer.add("gotPool");
+		
 
+
+		Nodes nodes = router.getNodes();
 		List<? extends PhysicalNode<?,?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);
 		for(PhysicalNode<?,?> physicalNode : IterableTool.nullSafe(physicalNodes)){
+			String tableName = physicalNode.getTableName();
 			DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
 			if(fieldInfo.getFieldAware()){//use mohcine's table creator
 				List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
 				List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
-				FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(),primaryKeyFields, nonKeyFields);
-				//need to somewhere create the table or apply the changes
+				FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(),
+						primaryKeyFields, nonKeyFields);
+				SqlTable requested = generator.generate();
+				try {
+					Connection connection = connectionPool.getDataSource().getConnection();
+					List<String> tableNames = JdbcTool.showTables(connection);
+					Statement statement = connection.createStatement();
+					boolean exists = tableNames.contains(tableName);
+					if( ! exists){
+						//do create table
+						String sql = new SqlCreateTableGenerator(requested).generate();
+						statement.execute(sql);
+					}else{
+						ResultSet resultSet = statement.executeQuery("show create table "+physicalNode.getTableName());
+						resultSet.next();
+						SqlTable current = new SqlCreateTableParser(resultSet.getString(2)).parse();
+						List<SqlAlterTable> alterations = new SqlAlterTableGenerator(current, requested).generate();
+//						String alterTableStatemetn = SqlAlterTable.asdfadf
+						statement.execute(alterTableStatement);
+					}
+				} catch (SQLException e) {
+					throw new RuntimeException(e);
+				}
+				
 			}else{//use hibernate's table creator
 				Class<? extends Databean<?,?>> databeanClass = physicalNode.getDatabeanType();
 				try{
@@ -135,13 +176,6 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 			}
 		}
 		timer.add("schema update");
-		
-		//connection pool config
-		JdbcConnectionPool connectionPool = this.getConnectionPool(router, clientName, properties);
-		client.setConnectionPool(connectionPool);
-		sfConfig.setProperty(provider_class, HibernateConnectionProvider.class.getName());
-		sfConfig.setProperty(connectionPoolName, connectionPool.getName());
-		timer.add("gotPool");
 		
 		//readOnly?... currently being enforced in the connectionPool, and users should only declare "Reader" nodes
 //		String slaveString = properties.getProperty(Clients.prefixClient+clientName+Clients.paramSlave);

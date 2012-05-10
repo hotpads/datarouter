@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -34,6 +35,22 @@ public class JdbcTool {
 			throw new RuntimeException(e);
 		}
 		return conn;
+	}
+	
+	public static List<String> showTables(Connection connection){
+		Statement statement;
+		try {
+			statement = connection.createStatement();
+			ResultSet resultSet = statement.executeQuery("show tables");
+			List<String> tableNames = ListTool.createArrayList();
+			while(resultSet.next()){
+				tableNames.add(resultSet.getString(0));
+			}
+			return tableNames;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
