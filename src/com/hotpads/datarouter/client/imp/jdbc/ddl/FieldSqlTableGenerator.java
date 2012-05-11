@@ -37,6 +37,7 @@ public class FieldSqlTableGenerator {
 		SqlIndex pKey = new SqlIndex(getTableName() +" primary key");
 		for(Field<?> f: getPrimaryKeyFields()){
 			pKey.addColumn(f.getSqlColumnDefinition());
+			table.addColumn(f.getSqlColumnDefinition());
 		}
 		table.setPrimaryKey(pKey);
 		for(Field<?> f: getNonKeyFields()){

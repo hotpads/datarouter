@@ -108,12 +108,12 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		fields.add(new DumbDoubleField(F.doubleField, doubleField));
 		fields.add(new LongDateField(F.longDateField, longDateField));
 		fields.add(new CharacterField(F.characterField, characterField));
-		fields.add(new StringField(F.stringField, stringField));
+		//fields.add(new StringField(F.stringField, stringField));
 		fields.add(new VarIntField(F.varIntField, varIntField));
 		fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, intEnumField));
 		fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, varIntEnumField));
-		fields.add(new StringEnumField<TestEnum>(TestEnum.class, F.stringEnumField, stringEnumField));
-		fields.add(new ByteArrayField(F.stringByteField, stringByteField));
+		//fields.add(new StringEnumField<TestEnum>(TestEnum.class, F.stringEnumField, stringEnumField));
+		//fields.add(new ByteArrayField(F.stringByteField, stringByteField));
 		fields.add(new ByteArrayField(F.data, data));
 		fields.add(new UInt63ArrayField(F.longArrayField, longArrayField));
 		return fields;

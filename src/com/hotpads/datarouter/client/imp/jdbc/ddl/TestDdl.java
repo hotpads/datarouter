@@ -2,11 +2,13 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.omg.CORBA.PRIVATE_MEMBER;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 
@@ -19,7 +21,7 @@ public class TestDdl{
 			stmt = conn.createStatement();
 			
 //			stmt.execute("drop table Cheese");
-						
+			stmt.execute("drop table if exists Cheese;");			
 			String sql = "create table Cheese " 
 					+"(id varchar(30), "
 					+" country char(2), "
@@ -44,7 +46,14 @@ public class TestDdl{
 		        String s = resultSet2.getString(2);
 		        System.out.println(s);
 			}
-			stmt.execute("drop table Cheese;");
+			 //ResultSet rs = stmt.executeQuery("DESCRIBE Cheese");
+			 ResultSet rs = conn.getMetaData().getCatalogs();
+
+			 while (rs.next()) {
+			     System.out.println("TABLE_CAT = " + rs.getString("TABLE_CAT") );
+			 }
+			  
+			
 			
 			stmt.execute("use property;");
 			ResultSet resultSet3 = stmt.executeQuery("show create table User");

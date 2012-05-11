@@ -46,8 +46,9 @@ public class SqlCreateTableGenerator {
 						s+="," ;
 					}
 		}
-		s+="),\n";
+		s+=")\n";
 		int numberOfIndexes=table.getIndexes().size();
+		if(numberOfIndexes>0) s+=",";
 		for(int i=0; i< numberOfIndexes; i++){
 			s+=" KEY `"+ table.getIndexes().get(i).getName() +"` (";
 			int numberOfColumndInIndexe = table.getIndexes().get(i).getColumns().size();

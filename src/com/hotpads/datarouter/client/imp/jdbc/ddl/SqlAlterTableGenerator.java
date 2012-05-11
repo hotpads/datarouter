@@ -25,14 +25,17 @@ public class SqlAlterTableGenerator{
 		List<SqlAlterTable> list =  generate();
 		String s="";
 		for(SqlAlterTable sqlAT : list){
+			 s+="ALTER TABLE `" + current.getName()+"` (\n"; 
 			s+=sqlAT.getAlterTable();
+			s+=");\n";
 		}
+		
 		return s;
 	}
 	
 	public List<SqlAlterTable> generate() {
 		//TODO everything
-		String s="ALTER TABLE `" + current.getName()+"` (\n"; 
+		
 
 		List<SqlAlterTable> list = ListTool.createArrayList();
 		
@@ -58,33 +61,39 @@ public class SqlAlterTableGenerator{
 
 	private SqlAlterTable getAlterTableForAddingColumns(List<SqlColumn> colsToAdd) {
 		// TODO Auto-generated method stub
-		String s= "ADD ( ";
-		for(SqlColumn col:colsToAdd){
-			s+= col.getName() + " " + col.getType().toString().toLowerCase();
-			if(col.getMaxLength()!=null){
-				s+="(" + col.getMaxLength() + ") ";
+		String s = "";
+		if(colsToAdd.size()>0){
+			s+= "ADD ( ";
+			for(SqlColumn col:colsToAdd){
+				s+= col.getName() + " " + col.getType().toString().toLowerCase();
+				if(col.getMaxLength()!=null){
+					s+="(" + col.getMaxLength() + ") ";
+				}
+				if(col.getNullable()){
+					s+=" DEFAULT NULL";
+				}
+				else{
+					s+=" NOT NULL";
+				}
+				s+=",\n";//
 			}
-			if(col.getNullable()){
-				s+=" DEFAULT NULL";
-			}
-			else{
-				s+=" NOT NULL";
-			}
-			s+=",\n";//
+			s = s.substring(0, s.length()-2); // remove the last "," 
+			s+=")\n";
 		}
-		s = s.substring(0, s.length()-2); // remove the last "," 
-		s+=")\n";
 		return new SqlAlterTable(s, SqlAlterTableTypes.ADD_COLUMN);
 	}
 	
 	private SqlAlterTable getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove) {
 		// TODO Auto-generated method stub
-		String s= "DROP COLUMN ( ";
-		for(SqlColumn col:colsToRemove){
-			s+= col.getName() + ", ";
+		String s = "";
+		if(colsToRemove.size()>0){
+			s += "DROP COLUMN ( ";
+			for(SqlColumn col:colsToRemove){
+				s+= col.getName() + ", ";
+			}
+			s = s.substring(0, s.length()-2); // remove the last "," 
+			s+=")\n";
 		}
-		s = s.substring(0, s.length()-2); // remove the last "," 
-		s+=")\n";
 		return new SqlAlterTable(s, SqlAlterTableTypes.DROP_COLUMN);
 	}
 	

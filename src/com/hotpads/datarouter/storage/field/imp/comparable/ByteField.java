@@ -28,7 +28,7 @@ public class ByteField extends BasePrimitiveField<Byte>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(name, MySqlColumnType.BIT, null , true);
+		return new SqlColumn(name, MySqlColumnType.TINYBLOB, null , true);
 	}
 	
 	@Override

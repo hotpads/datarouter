@@ -10,6 +10,8 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
+import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean2;
 import com.hotpads.util.core.ListTool;
 
 public class FieldSqlTableGeneratorTest {
@@ -29,20 +31,31 @@ public class FieldSqlTableGeneratorTest {
 //			}
 //		}
 		String tableName = "TOTO";
-		List<Field<?>> primaryKeyFields = ListTool.create();
-		primaryKeyFields.add(new BooleanField("b", false));
-		List<Field<?>> nonKeyFields = ListTool.createArrayList();
-		nonKeyFields.add(new BooleanField("b", false));
-		FieldSqlTableGenerator fstGenerator = new FieldSqlTableGenerator(tableName, primaryKeyFields, nonKeyFields);
-		System.out.println(fstGenerator.generate());
-		
+		List<Field<?>> primaryKeyFields = ListTool.create(),
+						primaryKeyFields2 = ListTool.create();
+
+		List<Field<?>> nonKeyFields = ListTool.createArrayList(),
+						nonKeyFields2 = ListTool.createArrayList();
+
 		ManyFieldTypeBean mftBean = new ManyFieldTypeBean();
+		ManyFieldTypeBean2 mftBean2 = new ManyFieldTypeBean2();
+		
 		primaryKeyFields =mftBean.getKeyFields();
 		nonKeyFields = mftBean.getNonKeyFields();
-		fstGenerator = new FieldSqlTableGenerator(tableName, primaryKeyFields, nonKeyFields);
+		FieldSqlTableGenerator fstGenerator = new FieldSqlTableGenerator(tableName, primaryKeyFields, nonKeyFields);
 		SqlTable table = fstGenerator.generate();
 		SqlCreateTableGenerator ctGenerator = new SqlCreateTableGenerator(table);
 		System.out.println(ctGenerator.generate());
+		
+		primaryKeyFields2 =mftBean2.getKeyFields();
+		nonKeyFields2 = mftBean2.getNonKeyFields();
+		FieldSqlTableGenerator fstGenerator2 = new FieldSqlTableGenerator(tableName+"2", primaryKeyFields2, nonKeyFields2);
+		SqlTable table2 = fstGenerator2.generate();
+		SqlCreateTableGenerator ctGenerator2 = new SqlCreateTableGenerator(table2);
+		System.out.println(ctGenerator2.generate());
+		
+		SqlAlterTableGenerator alterGen = new SqlAlterTableGenerator(table2, table);
+		System.out.println(alterGen.getAlterTableStatement());
 	}
 
 }

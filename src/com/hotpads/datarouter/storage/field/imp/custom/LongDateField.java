@@ -31,7 +31,7 @@ public class LongDateField extends BasePrimitiveField<Date>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(name, MySqlColumnType.DATETIME, null , true);
+		return new SqlColumn(name, MySqlColumnType.TINYBLOB, null , true);
 	}
 	
 	@Override
