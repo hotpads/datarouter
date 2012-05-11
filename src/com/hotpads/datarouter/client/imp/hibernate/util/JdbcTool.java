@@ -41,10 +41,14 @@ public class JdbcTool {
 		Statement statement;
 		try {
 			statement = connection.createStatement();
-			ResultSet resultSet = statement.executeQuery("show tables");
+//			ResultSet resultSet = statement.executeQuery("show tables");
 			List<String> tableNames = ListTool.createArrayList();
-			while(resultSet.next()){
-				tableNames.add(resultSet.getString(0));
+//			while(resultSet.next()){
+//				tableNames.add(resultSet.getString(0));
+//			}
+			ResultSet rs = connection.getMetaData().getCatalogs();
+			while(rs.next()){
+				tableNames.add(rs.getString("TABLE_CAT"));
 			}
 			return tableNames;
 		} catch (SQLException e) {
