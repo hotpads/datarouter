@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.bytes.DoubleByteTool;
@@ -27,6 +29,11 @@ public class DumbDoubleField extends BasePrimitiveField<Double>{
 		this.value = s==null?null:Double.valueOf(s);
 	}
 
+	@Override
+	public SqlColumn getSqlColumnDefinition(){
+		return new SqlColumn(name, MySqlColumnType.DOUBLE, null, true);
+	}
+	
 	@Override
 	public Double parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:(Double)obj;

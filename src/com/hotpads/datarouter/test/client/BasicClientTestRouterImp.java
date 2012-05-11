@@ -55,6 +55,7 @@ implements BasicClientTestRouter{
 				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, PoolTestBean.class, PoolTestBeanFielder.class, this)));
 
 		activate();//do after field inits
+		getContext().activate();
 	}
 
 	/********************************** config **********************************/

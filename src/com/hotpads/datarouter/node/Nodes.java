@@ -36,8 +36,8 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	protected Map<N,String> routerNameByNode = MapTool.createTreeMap();
 //	protected Map<ClientType,List<N>> nodesByClientType = MapTool.createTreeMap();
 	protected Map<String,Map<String,PhysicalNode<PK,D>>> physicalNodeByTableNameByClientName = MapTool.createTreeMap();
-	protected Map<Class<PK>,N> nodeByPrimaryKeyType = MapTool.createHashMap();
-	protected Map<Class<D>,N> nodeByDatabeanType = MapTool.createHashMap();
+	protected Map<Class<PK>,N> nodeByPrimaryKeyType = MapTool.createHashMap();//won't this have collissions?
+	protected Map<Class<D>,N> nodeByDatabeanType = MapTool.createHashMap();//won't this have collissions?
 	protected Map<Class<D>,List<String>> clientNamesByDatabeanType = MapTool.createHashMap();
 	
 	

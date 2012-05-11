@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Random;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.number.RandomTool;
@@ -34,6 +36,11 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 	@Override
 	public void fromString(String s){
 		this.value = assertInRange(s==null?null:Integer.valueOf(s));
+	}
+	
+	@Override
+	public SqlColumn getSqlColumnDefinition(){
+		return new SqlColumn(name, MySqlColumnType.BIGINT, 20, true);
 	}
 	
 	@Override

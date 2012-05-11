@@ -5,10 +5,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import org.hibernate.Session;
 
+import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -34,6 +36,43 @@ public class JdbcTool {
 			throw new RuntimeException(e);
 		}
 		return conn;
+	}
+	
+	public static Connection checkOutConnectionFromPool(JdbcConnectionPool connectionPool){
+		try {
+			return connectionPool.getDataSource().getConnection();
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static void closeConnection(Connection connection){
+		try {
+			if(connection==null){ return; }
+			connection.close();
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static List<String> showTables(Connection connection){
+		Statement statement;
+		try {
+			statement = connection.createStatement();
+//			ResultSet resultSet = statement.executeQuery("show tables");
+			List<String> tableNames = ListTool.createArrayList();
+//			while(resultSet.next()){
+//				tableNames.add(resultSet.getString(0));
+//			}
+			ResultSet rs = connection.getMetaData().getCatalogs();
+			while(rs.next()){
+				tableNames.add(rs.getString("TABLE_CAT"));
+			}
+			return tableNames;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 

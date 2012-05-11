@@ -53,7 +53,7 @@ public class Clients{
 
 	public Clients(DataRouterContext drContext){
 		this.drContext = drContext;
-		initializeEagerClients();//i don't think this will do anything here because clients haven't been registered yet
+//		initializeEagerClients();//i don't think this will do anything here because clients haven't been registered yet
 	}
 	
 	public void registerClientIds(Collection<ClientId> clientIdsToAdd, String configFilePath) {

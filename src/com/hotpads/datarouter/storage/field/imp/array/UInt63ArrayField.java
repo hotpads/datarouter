@@ -9,6 +9,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
@@ -33,6 +35,11 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 	@Override
 	public void fromString(String s){
 		throw new NotImplementedException();
+	}
+	
+	@Override
+	public SqlColumn getSqlColumnDefinition(){
+		return new SqlColumn(name, MySqlColumnType.LONGBLOB, null , true);
 	}
 	
 	@Override
@@ -121,14 +128,14 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 			byte[] bytesNoPrefix = field.getBytes();
 			Assert.assertEquals(a1.size()*8, ArrayTool.length(bytesNoPrefix));
 			List<Long> a2 = new UInt63ArrayField("", null).fromBytesButDoNotSet(bytesNoPrefix, 0);
-			Assert.assertTrue(CollectionTool.equalsAllElements(a1, a2));
+			Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(a1, a2));
 			
 			byte[] bytesWithPrefix = field.getBytesWithSeparator();
 			Assert.assertEquals(a1.size()*8, bytesWithPrefix[3]);
 			Assert.assertEquals(a1.size()*8 + 4, field.numBytesWithSeparator(bytesWithPrefix, 0));
 
 			List<Long> a3 = new UInt63ArrayField("", null).fromBytesWithSeparatorButDoNotSet(bytesWithPrefix, 0);
-			Assert.assertTrue(CollectionTool.equalsAllElements(a1, a3));
+			Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(a1, a3));
 			
 		}
 	}

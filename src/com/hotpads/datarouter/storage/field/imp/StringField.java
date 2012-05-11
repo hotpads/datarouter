@@ -9,6 +9,8 @@ import java.util.regex.Matcher;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
@@ -37,6 +39,11 @@ public class StringField extends BaseField<String>{
 	@Override
 	public void fromString(String s){
 		this.value = s;
+	}
+	
+	@Override
+	public SqlColumn getSqlColumnDefinition(){
+		return new SqlColumn(name, MySqlColumnType.TEXT, null , true);
 	}
 	
 	@Override
