@@ -35,7 +35,7 @@ public class JdbcConnectionPool{
 	public void createFromScratch(String name){
 		this.name = name;
 		
-		String url = options.url(defaultOptions.url(null));
+		String url = options.url();
 		String user = options.user(defaultOptions.user("root"));
 		String password = options.password(defaultOptions.password(""));
 		Integer minPoolSize = options.minPoolSize(defaultOptions.minPoolSize(1));

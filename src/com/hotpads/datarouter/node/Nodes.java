@@ -21,6 +21,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -32,6 +33,7 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	protected List<String> allNames = ListTool.createArrayList();
 	protected Map<String,N> nodeByName = MapTool.createTreeMap();
 	protected SortedMap<String,SortedSet<N>> nodesByRouterName = MapTool.createTreeMap();
+	protected Map<N,String> routerNameByNode = MapTool.createTreeMap();
 //	protected Map<ClientType,List<N>> nodesByClientType = MapTool.createTreeMap();
 	protected Map<String,Map<String,PhysicalNode<PK,D>>> physicalNodeByTableNameByClientName = MapTool.createTreeMap();
 	protected Map<Class<PK>,N> nodeByPrimaryKeyType = MapTool.createHashMap();
@@ -40,10 +42,6 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	
 	
 	public N register(String routerName, N node){
-//		logger.warn("registering:"+nodeName+":"+node.getAllNames());
-//		if(node.getName().contains(".Count")){ 
-//			int breakpoint = 1;
-//		}
 		ensureDuplicateNamesReferToSameNode(node);
 		Class<D> databeanType = node.getDatabeanType();
 		D sampleDatabean = ReflectionTool.create(databeanType);
@@ -68,6 +66,7 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 				nodesByRouterName.put(routerName, new TreeSet<N>());
 			}
 			nodesByRouterName.get(routerName).add(node);
+			routerNameByNode.put(node, routerName);
 		}
 		nodeByPrimaryKeyType.put(sampleDatabean.getKeyClass(), node);
 		nodeByDatabeanType.put(databeanType, node);
@@ -126,6 +125,17 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 		List<String> tableNames = ListTool.create();
 		for(PhysicalNode<PK,D> physicalNode : IterableTool.nullSafe(physicalNodesForClient)){
 			tableNames.add(physicalNode.getTableName());
+		}
+		return tableNames;
+	}
+	
+	public List<String> getTableNamesForRouterAndClient(String routerName, String clientName){
+		List<? extends PhysicalNode<PK,D>> physicalNodesForClient = getPhysicalNodesForClient(clientName);
+		List<String> tableNames = ListTool.create();
+		for(PhysicalNode<PK,D> physicalNode : IterableTool.nullSafe(physicalNodesForClient)){
+			if(ObjectTool.equals(routerNameByNode.get(physicalNode), routerName)){
+				tableNames.add(physicalNode.getTableName());
+			}
 		}
 		return tableNames;
 	}

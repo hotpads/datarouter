@@ -15,8 +15,8 @@ public class HibernateOptions extends TypedProperties{
 	}
 
 	
-	public String url(String def){
-		return getString(clientPrefix+"url", def);
+	public String url(){
+		return getRequiredString(clientPrefix+"url");
 	}
 
 	public String user(String def){
