@@ -29,20 +29,20 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableParser;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTable;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
-import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	Logger logger = Logger.getLogger(getClass());
+	
+	public static final Boolean SCHEMA_UPDATE = false;
 	
 	public static final String
 		hibernate_connection_prefix = "hibernate.connection.",
@@ -83,6 +83,10 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		if(SEPARATE_THREAD){
 			synchronized(this){
 				if(client!=null){ return client; }
+				if("event".equals(clientName)){
+					logger.warn("intantiating "+clientName);
+					int breakpoint = 1;
+				}
 				Future<HibernateClient> future = executorService.submit(new Callable<HibernateClient>(){
 					@Override public HibernateClient call(){
 						if(client!=null){ return client; }
@@ -118,11 +122,13 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		if(StringTool.isEmpty(configFileLocation)){ configFileLocation = configLocationDefault; }
 		sfConfig.configure(configFileLocation);
 
-		//databean config
+		
+//		//hibernate databeans (register before connecting to db)
 		@SuppressWarnings("unchecked")
 		Collection<Class<? extends Databean<?,?>>> relevantDatabeanTypes = drContext.getNodes()
 				.getTypesForClient(clientName);
 		for(Class<? extends Databean<?,?>> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
+			//TODO skip fieldAware databeans
 //			logger.warn(clientName+":"+databeanClass);
 			try{
 				sfConfig.addClass(databeanClass);
@@ -130,65 +136,16 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 				sfConfig.addAnnotatedClass(databeanClass);
 			}
 		}
-		timer.add("parse");
+		timer.add("SessionFactory");
 
-		//connection pool config
+		
+		//connect to the database
 		JdbcConnectionPool connectionPool = getConnectionPool(clientName, multiProperties);
 		client.setConnectionPool(connectionPool);
 		sfConfig.setProperty(provider_class, HibernateConnectionProvider.class.getName());
 		sfConfig.setProperty(connectionPoolName, connectionPool.getName());
 		timer.add("gotPool");
 		
-
-
-		Nodes nodes = drContext.getNodes();
-		List<? extends PhysicalNode<?,?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);
-		for(PhysicalNode<?,?> physicalNode : IterableTool.nullSafe(physicalNodes)){
-			String tableName = physicalNode.getTableName();
-			DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
-			if(fieldInfo.getFieldAware()){//use mohcine's table creator
-				List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
-				List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
-				FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(),
-						primaryKeyFields, nonKeyFields);
-				SqlTable requested = generator.generate();
-				try {
-					Connection connection = connectionPool.getDataSource().getConnection();
-					List<String> tableNames = JdbcTool.showTables(connection);
-					Statement statement = connection.createStatement();
-					boolean exists = tableNames.contains(tableName);
-					if( ! exists){
-						//do create table
-						String sql = new SqlCreateTableGenerator(requested).generate();
-						statement.execute(sql);
-					}else{
-						ResultSet resultSet = statement.executeQuery("show create table "+physicalNode.getTableName());
-						resultSet.next();
-						SqlTable current = new SqlCreateTableParser(resultSet.getString(2)).parse();
-						SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(current, requested);
-						List<SqlAlterTable> alterations = alterTableGenerator.generate();
-						String alterTableStatement = alterTableGenerator.getAlterTableStatement();
-						statement.execute(alterTableStatement);
-					}
-				} catch (SQLException e) {
-					throw new RuntimeException(e);
-				}
-				
-			}else{//use hibernate's table creator
-				Class<? extends Databean<?,?>> databeanClass = physicalNode.getDatabeanType();
-				try{
-					sfConfig.addClass(databeanClass);
-				}catch(org.hibernate.MappingNotFoundException mnfe){
-					sfConfig.addAnnotatedClass(databeanClass);
-				}
-			}
-		}
-		timer.add("schema update");
-		
-		//readOnly?... currently being enforced in the connectionPool, and users should only declare "Reader" nodes
-//		String slaveString = properties.getProperty(Clients.prefixClient+clientName+Clients.paramSlave);
-//		boolean slave = BooleanTool.isTrue(slaveString);
-		//TODO mind whether it's a slave or not
 		
 		//only way to get the connection pool to the ConnectionProvider is ThreadLocal or JNDI... using ThreadLocal
 		HibernateConnectionProvider.bindDataSourceToThread(connectionPool);
@@ -197,21 +154,27 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		client.setSessionFactory(sessionFactory);
 		timer.add("built "+connectionPool);
 		
-//		//compare table schemas
-//		for(Class<? extends Databean<?,?>> databeanClass : relevantDatabeanTypes) {
-//	//		ResultSet resultSet2 = stmt.executeQuery("show create table Cheese;");
-//			String createStatement = "create table etc"; //resultSet2.getStringOrSomethng();
-//			SqlTable current = new SqlCreateTableParser(createStatement).parse();
-//			SqlTable requested = null;//new SqlTableDatabeanGenerator(databeanClass).generate();
-//			if(current==null) {
-//				String create = new SqlCreateTableGenerator(requested).generate();
-//				//issue create table statement
-//			}else if(!current.equals(requested)) {
-//				//issue alter table statement
-//				String alter = new SqlAlterTableGenerator(current, requested).generate();
-//				//send alter statement to server somehow
-//			}//else it is ok
-//		}
+		
+		//datarouter fieldAware databeans (register after connecting to db)
+		Connection connection = null;
+		try{
+//			connection = JdbcTool.checkOutConnectionFromPool(connectionPool);
+//			List<String> tableNames = JdbcTool.showTables(connection);
+//			Nodes nodes = drContext.getNodes();
+//			List<? extends PhysicalNode<?,?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);
+//			for(PhysicalNode<?,?> physicalNode : IterableTool.nullSafe(physicalNodes)){
+//				String tableName = physicalNode.getTableName();
+//	//			logger.warn(clientName+":"+tableName);
+//				DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
+//				if(SCHEMA_UPDATE && fieldInfo.getFieldAware()){//use mohcine's table creator
+//					createOrUpdateTableIfNeeded(tableNames, connectionPool, physicalNode);
+//				}
+//			}
+		}finally{
+			JdbcTool.closeConnection(connection);//is this how you return it to the pool?
+		}
+		timer.add("schema update");
+		
 		
 		logger.warn(timer);
 		
@@ -230,5 +193,37 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		return connectionPool;
 	}
 	
-	
+	protected void createOrUpdateTableIfNeeded(List<String> tableNames, JdbcConnectionPool connectionPool, 
+			PhysicalNode<?,?> physicalNode){
+		String tableName = physicalNode.getTableName();
+		DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
+		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
+		List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
+		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(),
+				primaryKeyFields, nonKeyFields);
+		SqlTable requested = generator.generate();
+		Connection connection = null;
+		try {
+			connection = connectionPool.getDataSource().getConnection();
+			Statement statement = connection.createStatement();
+			boolean exists = tableNames.contains(tableName);
+			if( ! exists){
+				//do create table
+				String sql = new SqlCreateTableGenerator(requested).generate();
+				statement.execute(sql);
+			}else{
+				ResultSet resultSet = statement.executeQuery("show create table "+tableName);
+				resultSet.next();
+				SqlTable current = new SqlCreateTableParser(resultSet.getString(2)).parse();
+				SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(current, requested);
+				List<SqlAlterTable> alterations = alterTableGenerator.generate();
+				String alterTableStatement = alterTableGenerator.getAlterTableStatement();
+				statement.execute(alterTableStatement);
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}finally{
+			JdbcTool.closeConnection(connection);
+		}
+	}
 }

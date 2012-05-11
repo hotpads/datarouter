@@ -52,16 +52,16 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	protected SessionFactory sessionFactory;
 	
 	protected Map<Long,ConnectionHandle> handleByThread = 
-		Collections.synchronizedMap(new ConcurrentHashMap<Long,ConnectionHandle>());
-//		new ConcurrentHashMap<Long,ConnectionHandle>();
+			Collections.synchronizedMap(new ConcurrentHashMap<Long,ConnectionHandle>());
+	//		new ConcurrentHashMap<Long,ConnectionHandle>();
 	
 	protected Map<ConnectionHandle,Connection> connectionByHandle = 
-		Collections.synchronizedMap(new ConcurrentHashMap<ConnectionHandle,Connection>());
-//		new ConcurrentHashMap<ConnectionHandle,Connection>();
+			Collections.synchronizedMap(new ConcurrentHashMap<ConnectionHandle,Connection>());
+	//		new ConcurrentHashMap<ConnectionHandle,Connection>();
 	
 	protected Map<ConnectionHandle,Session> sessionByConnectionHandle = 
-		Collections.synchronizedMap(new ConcurrentHashMap<ConnectionHandle,Session>());
-//		new ConcurrentHashMap<ConnectionHandle,Session>();
+			Collections.synchronizedMap(new ConcurrentHashMap<ConnectionHandle,Session>());
+	//		new ConcurrentHashMap<ConnectionHandle,Session>();
 	
 	protected AtomicLong connectionCounter = new AtomicLong(-1L);
 	

@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.factory;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -65,7 +66,7 @@ implements HBaseClientFactory{
 	/********************* fields *******************************/
 	
 	protected DataRouterContext drContext;
-	protected List<PhysicalNode<?,?>> physicalNodes = ListTool.createArrayList();
+//	protected List<PhysicalNode<?,?>> physicalNodes = ListTool.createArrayList();
 	protected String clientName;
 	protected List<String> configFilePaths = ListTool.createArrayList();
 	protected List<Properties> multiProperties = ListTool.createArrayList();
@@ -178,6 +179,7 @@ implements HBaseClientFactory{
 		List<String> tableNames = ListTool.create();
 		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = MapTool.create();
 		Map<String,PhysicalNode<?,?>> nodeByTableName = MapTool.createTreeMap();
+		Collection<PhysicalNode<?,?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
 		for(PhysicalNode<?,?> node : physicalNodes){
 			tableNames.add(node.getTableName());
 			primaryKeyClassByName.put(node.getTableName(), (Class<PrimaryKey<?>>)node.getPrimaryKeyType());

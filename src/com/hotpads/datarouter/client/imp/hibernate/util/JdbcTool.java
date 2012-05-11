@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 
+import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -35,6 +36,23 @@ public class JdbcTool {
 			throw new RuntimeException(e);
 		}
 		return conn;
+	}
+	
+	public static Connection checkOutConnectionFromPool(JdbcConnectionPool connectionPool){
+		try {
+			return connectionPool.getDataSource().getConnection();
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static void closeConnection(Connection connection){
+		try {
+			if(connection==null){ return; }
+			connection.close();
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public static List<String> showTables(Connection connection){

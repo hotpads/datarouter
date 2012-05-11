@@ -15,8 +15,6 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -36,7 +34,7 @@ import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.datastructs.MutableString;
 
 public class HTableExecutorServicePoolTester {
-	Logger logger = Logger.getLogger(HTableExecutorServicePoolTester.class);
+	private static Logger logger = Logger.getLogger(HTableExecutorServicePoolTester.class);
 
 	static final int NUM_INSERTS = 200000;
 	static final int TIMEOUT_MS = 10;
@@ -53,7 +51,6 @@ public class HTableExecutorServicePoolTester {
 		node.put(new PoolTestBean(12345L), null);
 	}
 
-	@BeforeClass
 	public static void init() throws IOException{
 		Injector injector = Guice.createInjector();
 		router = injector.getInstance(BasicClientTestRouter.class);
@@ -68,8 +65,8 @@ public class HTableExecutorServicePoolTester {
 
 	/************ InsertRollback *********************/
 
-	@Test
-	public void testPoolMonitoring(){
+	public static void main(String... args) throws IOException{
+		init();
 		ThreadPoolExecutor exec = new ThreadPoolExecutor(30, 30,
 				60, TimeUnit.SECONDS,
 				new LinkedBlockingQueue<Runnable>(Integer.MAX_VALUE),
@@ -122,7 +119,7 @@ public class HTableExecutorServicePoolTester {
 	
 	/********************* inner class ****************************/
 	
-	class ActionUsingPool implements Callable<Void>{
+	static class ActionUsingPool implements Callable<Void>{
 		MutableString progress;
 		long randomLong;
 		public ActionUsingPool(long randomLong){
