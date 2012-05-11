@@ -17,8 +17,8 @@ public class DRTestConstants{
 	public static List<ClientType> ALL_CLIENT_TYPES = ListTool.create();
 	public static List<Object[]> CLIENT_TYPE_OBJECT_ARRAYS = ListTool.create();
 	static{
-		ALL_CLIENT_TYPES.add(ClientType.hibernate);
-		ALL_CLIENT_TYPES.add(ClientType.hbase);
+//		ALL_CLIENT_TYPES.add(ClientType.hibernate);
+//		ALL_CLIENT_TYPES.add(ClientType.hbase);
 		ALL_CLIENT_TYPES.add(ClientType.memcached);
 		for(ClientType clientType : ALL_CLIENT_TYPES){
 			CLIENT_TYPE_OBJECT_ARRAYS.add(new Object[]{clientType});

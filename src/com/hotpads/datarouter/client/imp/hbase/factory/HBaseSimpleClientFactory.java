@@ -33,7 +33,7 @@ import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
@@ -61,11 +61,15 @@ implements HBaseClientFactory{
 	
 	static final Integer CREATE_CLIENT_TIMEOUT_MS = 20*1000;//Integer.MAX_VALUE;
 	
-	protected DataRouter router;
+	
+	/********************* fields *******************************/
+	
+	protected DataRouterContext drContext;
+	protected List<PhysicalNode<?,?>> physicalNodes = ListTool.createArrayList();
 	protected String clientName;
-	protected String configFileLocation;
+	protected List<String> configFilePaths = ListTool.createArrayList();
+	protected List<Properties> multiProperties = ListTool.createArrayList();
 	protected ExecutorService executorService;
-	protected Properties properties;
 	protected HBaseOptions options;
 	protected HBaseClient client;
 	protected Configuration hBaseConfig;
@@ -75,15 +79,16 @@ implements HBaseClientFactory{
 
 	
 	public HBaseSimpleClientFactory(
-			DataRouter router, String clientName, 
-			String configFileLocation, 
+			DataRouterContext drContext,
+			String clientName, 
 			ExecutorService executorService){
-		this.router = router;
+		this.drContext = drContext;
 		this.clientName = clientName;
-		this.configFileLocation = configFileLocation;
 		this.executorService = executorService;
-		this.properties = PropertiesTool.ioAndNullSafeFromFile(configFileLocation);
-		this.options = new HBaseOptions(properties, clientName);
+
+		this.configFilePaths = drContext.getConfigFilePaths();
+		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
+		this.options = new HBaseOptions(multiProperties, clientName);
 	}
 	
 	@Override
@@ -172,8 +177,6 @@ implements HBaseClientFactory{
 	protected Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> initTables(){
 		List<String> tableNames = ListTool.create();
 		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = MapTool.create();
-		@SuppressWarnings("unchecked")
-		List<PhysicalNode<?,?>> physicalNodes = router.getNodes().getPhysicalNodesForClient(clientName);
 		Map<String,PhysicalNode<?,?>> nodeByTableName = MapTool.createTreeMap();
 		for(PhysicalNode<?,?> node : physicalNodes){
 			tableNames.add(node.getTableName());

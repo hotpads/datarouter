@@ -27,38 +27,12 @@ implements ParallelClientApp<T>{
 	
 	@Override
 	public List<Client> getClients() {
-		return this.router.getClients(this.getClientNames());
+		List<String> clientNames = getClientNames();
+		return router.getClients(clientNames);
 	}
 	
 	@Override
 	public abstract T runInEnvironment();
-//	{
-//		T onceResult = null;
-//		Collection<T> clientResults = ListTool.createLinkedList();
-//		Collection<Client> clients = this.getClients();
-//		try{
-//			reserveConections();
-//			
-//			//begin abstract user methods
-//			onceResult = runOnce();
-//			for(Client client : CollectionTool.nullSafe(clients)){
-//				T clientResult = runOncePerClient(client);
-//				clientResults.add(clientResult);
-//			}
-//			//end abstract user methods 
-//			
-//		}finally{
-//			try{
-//				releaseConnections();
-//			}catch(Exception e){
-//				//This is an unexpected exception because each individual release is done in a try/catch block
-//				logger.warn(ExceptionTool.getStackTraceAsString(e));
-//				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
-//			}
-//		}
-//		T mergedResult = mergeResults(onceResult, clientResults);
-//		return mergedResult;
-//	}
 
 	@Override
 	public T runOnce(){  //probably used sometimes

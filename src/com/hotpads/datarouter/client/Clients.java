@@ -1,47 +1,41 @@
 package com.hotpads.datarouter.client;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.connection.ConnectionPools;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.PropertiesTool;
+import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.ThrowableTool;
-import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 public class Clients{
 	private static Logger logger = Logger.getLogger(Clients.class);
 
-	protected String configFileLocation;
-	protected Properties properties;
-	protected DataRouter router;
+	protected DataRouterContext drContext;
+	
+	protected Collection<String> configFilePaths = ListTool.createArrayList();
+	protected Collection<Properties> multiProperties = ListTool.createArrayList();
 	protected Map<String, Object> params;
 	
-	protected List<String> allClientNames = ListTool.createLinkedList();
+	protected NavigableSet<ClientId> clientIds = SetTool.createTreeSet();
+	protected List<Client> clients = ListTool.createArrayList();
 
 	protected Map<String,ClientFactory> clientFactoryByName = new ConcurrentHashMap<String,ClientFactory>();
 
 	public static final ClientType DEFAULT_CLIENT_TYPE = ClientType.hibernate;
 	
-	protected ThreadGroup parentThreadGroup;
-	protected ThreadFactory threadFactory;
-	protected ThreadPoolExecutor executorService;//for async client init and monitoring
 	
 	public static final String
 		prefixClients = "clients",
@@ -57,74 +51,50 @@ public class Clients{
 	
 	/******************************* constructors **********************************/
 
-	public Clients(ThreadGroup parentThreadGroup, String configFileLocation, DataRouter router) throws IOException {
-		this.configFileLocation = configFileLocation;
-		this.router = router;
-		this.properties = PropertiesTool.nullSafeFromFile(this.configFileLocation);
-		this.parentThreadGroup = parentThreadGroup;//new ThreadGroup("DataRouter-"+router.getName());
-		this.threadFactory = new NamedThreadFactory(parentThreadGroup, "DataRouter-"+router.getName()+"-clients", true);
-		this.executorService = new ThreadPoolExecutor(
-				0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
-	            new SynchronousQueue<Runnable>(), threadFactory);
-		initializeClients();
+	public Clients(DataRouterContext drContext){
+		this.drContext = drContext;
+		initializeEagerClients();//i don't think this will do anything here because clients haven't been registered yet
 	}
 	
-	
-	/******************** getNames **********************************************/
-		
-	public List<String> getClientNamesRequiringEagerInitialization(Properties properties){
-		
-		ClientInitMode forceInitMode = ClientInitMode.fromString(
-				properties.getProperty(prefixClients+paramForceInitMode), null);
-		
-		if(forceInitMode != null){
-			if(ClientInitMode.eager.equals(forceInitMode)){
-				return router.getClientNames();
-			}else{
-				return null;
-			}
+	public void registerClientIds(Collection<ClientId> clientIdsToAdd, String configFilePath) {
+		clientIds.addAll(CollectionTool.nullSafe(clientIdsToAdd));
+		configFilePaths.add(configFilePath);
+		multiProperties.add(PropertiesTool.parse(configFilePath));
+		for(ClientId clientId : IterableTool.nullSafe(clientIds)) {
+			initClientFactoryIfNull(clientId.getName());
 		}
-		
-		ClientInitMode defaultInitMode = ClientInitMode.fromString(
-				properties.getProperty(prefixClient+clientDefault+paramInitMode), ClientInitMode.lazy);
-		
-		List<String> clientNamesRequiringEagerInitialization = ListTool.createLinkedList();
-		for(String name : CollectionTool.nullSafe(router.getClientNames())){
-			ClientInitMode mode = ClientInitMode.fromString(
-					properties.getProperty(prefixClient+name+paramInitMode), defaultInitMode);
-			if(ClientInitMode.eager.equals(mode)){
-				clientNamesRequiringEagerInitialization.add(name);
-			}
-		}
-		return clientNamesRequiringEagerInitialization;
 	}
+	
 	
 	
 	/********************************** initialize ******************************/
 	
-	
-	public void initializeClients() throws IOException{	
-		String defaultTypeString = properties.getProperty(prefixClient+clientDefault+paramType);
-		if(StringTool.isEmpty(defaultTypeString)){ defaultTypeString = DEFAULT_CLIENT_TYPE.toString(); }
-		allClientNames = router.getClientNames();
-		if(CollectionTool.isEmpty(allClientNames)){ return; }
-		final List<String> eagerClientNames = getClientNamesRequiringEagerInitialization(properties);
-		for(final String clientName : CollectionTool.nullSafe(allClientNames)){
-			ExecutorService exec = Executors.newSingleThreadExecutor(
-					new NamedThreadFactory(parentThreadGroup, "Client-"+clientName, true));
-			String typeString = properties.getProperty(prefixClient+clientName+paramType);
-			if(StringTool.isEmpty(typeString)){ typeString = defaultTypeString; }
-			ClientType clientType = ClientType.fromString(typeString);
-			ClientFactory clientFactory = clientType.createClientFactory(
-					router, clientName, configFileLocation, exec);
-			clientFactoryByName.put(clientName, clientFactory);
+	public void initializeEagerClients(){	
+		if(CollectionTool.isEmpty(clientIds)){ 
+			logger.warn("activate() called on Clients.java with no ClientIds");
+			return; 
+		}
+		final List<String> eagerClientNames = getClientNamesRequiringEagerInitialization();
+		for(final ClientId clientId : CollectionTool.nullSafe(clientIds)){
+			String clientName = clientId.getName();
+//			ExecutorService exec = Executors.newSingleThreadExecutor(
+//					new NamedThreadFactory(drContext.getParentThreadGroup(), "Client-"+name, true));
+//			String typeString = PropertiesTool.getFirstOccurrence(multiProperties, prefixClient+name+paramType);
+//			if(StringTool.isEmpty(typeString)){ typeString = defaultTypeString; }
+//			ClientType clientType = ClientType.fromString(typeString);
+//			ClientFactory clientFactory = clientType.createClientFactory(drContext,
+//					name, drContext.getNodes().getPhysicalNodesForClient(name),
+//					drContext.getExecutorService());
+//			clientFactoryByName.put(name, clientFactory);
+			initClientFactoryIfNull(clientName);
 			boolean eager = CollectionTool.contains(eagerClientNames, clientName);
 			if(!eager){
-//				logger.warn("registered:"+clientName+" ("+clientType.toString()+")");
+				String writableString = clientId.getWritable()?"":" (read-only)";
+				logger.warn("registered:"+clientName+writableString);
 			}
 		}
 		for(final String clientName : CollectionTool.nullSafe(eagerClientNames)){
-			executorService.submit(new Callable<Void>(){
+			drContext.getExecutorService().submit(new Callable<Void>(){
 				public Void call(){
 					try{
 						clientFactoryByName.get(clientName).getClient();
@@ -141,11 +111,74 @@ public class Clients{
 //		executor.shutdown();//i don't think this call blocks.  the invokeAll call does blcok
 	}
 	
+	protected void initClientFactoryIfNull(String clientName) {
+		if(clientFactoryByName.containsKey(clientName)) { return; }
+		String defaultTypeString = PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefixClient+clientDefault+paramType);
+		if(StringTool.isEmpty(defaultTypeString)){ defaultTypeString = DEFAULT_CLIENT_TYPE.toString(); }
+		String typeString = PropertiesTool.getFirstOccurrence(multiProperties, prefixClient+clientName+paramType);
+		if(StringTool.isEmpty(typeString)){ typeString = defaultTypeString; }
+		ClientType clientType = ClientType.fromString(typeString);
+		ClientFactory clientFactory = clientType.createClientFactory(drContext,
+				clientName, drContext.getNodes().getPhysicalNodesForClient(clientName),
+				drContext.getExecutorService());
+		clientFactoryByName.put(clientName, clientFactory);
+	}
+	
+	
+	/******************** getNames **********************************************/
+		
+	protected List<String> getClientNamesRequiringEagerInitialization(){
+		
+		ClientInitMode forceInitMode = ClientInitMode.fromString(
+				PropertiesTool.getFirstOccurrence(multiProperties, prefixClients+paramForceInitMode), null);
+		
+		if(forceInitMode != null){
+			if(ClientInitMode.eager.equals(forceInitMode)){
+				return getClientNames();
+			}else{
+				return null;
+			}
+		}
+		
+		ClientInitMode defaultInitMode = ClientInitMode.fromString(PropertiesTool.getFirstOccurrence(
+				multiProperties, prefixClient+clientDefault+paramInitMode), ClientInitMode.lazy);
+		
+		List<String> clientNamesRequiringEagerInitialization = ListTool.createLinkedList();
+		for(String name : CollectionTool.nullSafe(getClientNames())){
+			ClientInitMode mode = ClientInitMode.fromString(PropertiesTool.getFirstOccurrence(multiProperties,
+					prefixClient+name+paramInitMode), defaultInitMode);
+			if(ClientInitMode.eager.equals(mode)){
+				clientNamesRequiringEagerInitialization.add(name);
+			}
+		}
+		return clientNamesRequiringEagerInitialization;
+	}
+	
 	
 	/********************************** access connection pools ******************************/
 	
 	public ConnectionPools getConnectionPools(){
-		return this.router.getConnectionPools();
+		return drContext.getConnectionPools();
+	}
+
+	public NavigableSet<ClientId> getClientIds(){
+		return clientIds;
+	}
+
+	public List<String> getClientNames(){
+		return ClientId.getNames(clientIds);
+	}
+	
+	public Client getClient(String clientName){
+		ClientFactory clientFactory = clientFactoryByName.get(clientName);
+		if(clientFactory!=null) { return clientFactory.getClient(); }
+		if(!getClientNames().contains(clientName)) { 
+			throw new IllegalArgumentException("unknown clientName:"+clientName); 
+		}
+		initClientFactoryIfNull(clientName);
+		clientFactory = clientFactoryByName.get(clientName);
+		return clientFactory.getClient();
 	}
 	
 	public List<Client> getClients(Collection<String> clientNames){
@@ -157,23 +190,21 @@ public class Clients{
 	}
 	
 	public List<Client> getAllClients(){
-		return getClients(allClientNames);
+		return getClients(ClientId.getNames(clientIds));
 	}
 	
 	public List<Client> getAllInstantiatedClients(){
 		List<Client> clients = ListTool.createLinkedList();
-		for(String clientName : CollectionTool.nullSafe(allClientNames)){
-			if(clientFactoryByName.get(clientName).isInitialized()){
-				clients.add(clientFactoryByName.get(clientName).getClient());
+		for(ClientId clientId : CollectionTool.nullSafe(clientIds)){
+			String name = clientId.getName();
+			if(clientFactoryByName.get(name).isInitialized()){
+				clients.add(clientFactoryByName.get(name).getClient());
 			}
 		}
 		return clients;
 	}
 	
-	public Client getClient(String clientName){
-		ClientFactory clientFactory = clientFactoryByName.get(clientName);
-		return clientFactory==null?null:clientFactory.getClient();
-	}
+	
 }
 
 
