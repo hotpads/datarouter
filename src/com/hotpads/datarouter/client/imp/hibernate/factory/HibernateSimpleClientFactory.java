@@ -29,12 +29,14 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableParser;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTable;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
+import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -158,18 +160,18 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		//datarouter fieldAware databeans (register after connecting to db)
 		Connection connection = null;
 		try{
-//			connection = JdbcTool.checkOutConnectionFromPool(connectionPool);
-//			List<String> tableNames = JdbcTool.showTables(connection);
-//			Nodes nodes = drContext.getNodes();
-//			List<? extends PhysicalNode<?,?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);
-//			for(PhysicalNode<?,?> physicalNode : IterableTool.nullSafe(physicalNodes)){
-//				String tableName = physicalNode.getTableName();
-//	//			logger.warn(clientName+":"+tableName);
-//				DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
-//				if(SCHEMA_UPDATE && fieldInfo.getFieldAware()){//use mohcine's table creator
-//					createOrUpdateTableIfNeeded(tableNames, connectionPool, physicalNode);
-//				}
-//			}
+			connection = JdbcTool.checkOutConnectionFromPool(connectionPool);
+			List<String> tableNames = JdbcTool.showTables(connection);
+			Nodes nodes = drContext.getNodes();
+			List<? extends PhysicalNode<?,?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);
+			for(PhysicalNode<?,?> physicalNode : IterableTool.nullSafe(physicalNodes)){
+				String tableName = physicalNode.getTableName();
+	//			logger.warn(clientName+":"+tableName);
+				DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
+				if(SCHEMA_UPDATE && fieldInfo.getFieldAware()){//use mohcine's table creator
+					createOrUpdateTableIfNeeded(tableNames, connectionPool, physicalNode);
+				}
+			}
 		}finally{
 			JdbcTool.closeConnection(connection);//is this how you return it to the pool?
 		}
