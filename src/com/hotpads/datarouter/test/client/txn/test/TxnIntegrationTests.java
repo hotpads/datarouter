@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.test.client.txn.test;
 
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -27,7 +25,7 @@ public class TxnIntegrationTests {
 	}
 	
 	@BeforeClass
-	public static void init() throws IOException{
+	public static void init(){
 		Injector injector = Guice.createInjector();
 		router = injector.getInstance(BasicClientTestRouter.class);
 		

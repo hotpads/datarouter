@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Random;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.number.RandomTool;
@@ -33,6 +35,11 @@ public class UInt7Field extends BasePrimitiveField<Byte>{
 	@Override
 	public void fromString(String s){
 		this.value = s==null?null:Byte.valueOf(s);
+	}
+	
+	@Override
+	public SqlColumn getSqlColumnDefinition(){
+		return new SqlColumn(name, MySqlColumnType.TINYINT, 3, true);
 	}
 	
 	@Override

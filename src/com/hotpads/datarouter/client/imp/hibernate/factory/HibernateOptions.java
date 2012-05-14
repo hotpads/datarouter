@@ -9,14 +9,14 @@ public class HibernateOptions extends TypedProperties{
 	
 	protected String clientPrefix;
 
-	public HibernateOptions(Properties properties, String clientName){
-		super(ListTool.wrap(properties));
+	public HibernateOptions(Iterable<Properties> multiProperties, String clientName){
+		super(ListTool.createArrayList(multiProperties));
 		this.clientPrefix = "client."+clientName+".";
 	}
 
 	
-	public String url(String def){
-		return getString(clientPrefix+"url", def);
+	public String url(){
+		return getRequiredString(clientPrefix+"url");
 	}
 
 	public String user(String def){

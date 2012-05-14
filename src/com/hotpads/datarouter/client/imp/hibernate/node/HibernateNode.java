@@ -113,7 +113,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	public void deleteAll(final Config config) {
 		TraceContext.startSpan(getName()+" deleteAll");
 		final String tableName = this.getTableName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		HibernateExecutor executor = HibernateExecutor.create(getClient(), config, false);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {

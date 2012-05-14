@@ -4,8 +4,6 @@ import java.beans.PropertyVetoException;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import javax.naming.NamingException;
-
 import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateOptions;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
@@ -22,12 +20,11 @@ public class JdbcConnectionPool{
 		prefix = ConnectionPools.prefixPool,
 		poolDefault = "default";
 	
-	public JdbcConnectionPool(String name, Properties properties, Boolean writable) 
-			throws PropertyVetoException, NamingException{
-		this.defaultOptions = new HibernateOptions(properties, poolDefault);
-		this.options = new HibernateOptions(properties, name);
+	public JdbcConnectionPool(String name, Iterable<Properties> multiProperties, Boolean writable){
+		this.defaultOptions = new HibernateOptions(multiProperties, poolDefault);
+		this.options = new HibernateOptions(multiProperties, name);
 		this.writable = writable;
-		createFromScratch(name, properties);
+		createFromScratch(name);
 	}
 	
 	@Override
@@ -35,12 +32,10 @@ public class JdbcConnectionPool{
 		return name+"@"+pool.getJdbcUrl();
 	}
 	
-	public void createFromScratch(String name, Properties properties)
-			throws PropertyVetoException, NamingException
-	{
+	public void createFromScratch(String name){
 		this.name = name;
 		
-		String url = options.url(defaultOptions.url(null));
+		String url = options.url();
 		String user = options.user(defaultOptions.user("root"));
 		String password = options.password(defaultOptions.password(""));
 		Integer minPoolSize = options.minPoolSize(defaultOptions.minPoolSize(1));
@@ -61,14 +56,18 @@ public class JdbcConnectionPool{
 		}catch(Exception e){
 		}
 		
-		if(logging){
-			//log4jdbc - see http://code.google.com/p/log4jdbc/
-			pool.setJdbcUrl("jdbc:log4jdbc:mysql://"+url);
-			pool.setDriverClass(net.sf.log4jdbc.DriverSpy.class.getName());
-		}else{
-			//normal jdbc
-			pool.setJdbcUrl("jdbc:mysql://"+url);
-			pool.setDriverClass("com.mysql.jdbc.Driver");
+		try {
+			if(logging){
+				//log4jdbc - see http://code.google.com/p/log4jdbc/
+				pool.setJdbcUrl("jdbc:log4jdbc:mysql://"+url);
+				pool.setDriverClass(net.sf.log4jdbc.DriverSpy.class.getName());
+			}else{
+				//normal jdbc
+				pool.setJdbcUrl("jdbc:mysql://"+url);
+				pool.setDriverClass("com.mysql.jdbc.Driver");
+			}
+		}catch(PropertyVetoException pve) {
+			throw new RuntimeException(pve);
 		}
 		
 		pool.setUser(user);
