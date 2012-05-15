@@ -44,7 +44,7 @@ import com.hotpads.util.core.profile.PhaseTimer;
 public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	Logger logger = Logger.getLogger(getClass());
 	
-	public static final Boolean SCHEMA_UPDATE = false;
+	public static final Boolean SCHEMA_UPDATE = true;
 	
 	public static final String
 		hibernate_connection_prefix = "hibernate.connection.",
@@ -162,6 +162,10 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		try{
 			connection = JdbcTool.checkOutConnectionFromPool(connectionPool);
 			List<String> tableNames = JdbcTool.showTables(connection);
+			System.out.println("table names : ");
+			for(String s: tableNames){
+				System.out.println(s);
+			}
 			Nodes nodes = drContext.getNodes();
 			List<? extends PhysicalNode<?,?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);
 			for(PhysicalNode<?,?> physicalNode : IterableTool.nullSafe(physicalNodes)){
@@ -206,21 +210,32 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		SqlTable requested = generator.generate();
 		Connection connection = null;
 		try {
-			connection = connectionPool.getDataSource().getConnection();
-			Statement statement = connection.createStatement();
-			boolean exists = tableNames.contains(tableName);
-			if( ! exists){
-				//do create table
-				String sql = new SqlCreateTableGenerator(requested).generate();
-				statement.execute(sql);
-			}else{
-				ResultSet resultSet = statement.executeQuery("show create table "+tableName);
-				resultSet.next();
-				SqlTable current = new SqlCreateTableParser(resultSet.getString(2)).parse();
-				SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(current, requested);
-				List<SqlAlterTable> alterations = alterTableGenerator.generate();
-				String alterTableStatement = alterTableGenerator.getAlterTableStatement();
-				statement.execute(alterTableStatement);
+			if(connectionPool.isWritable()){
+				connection = connectionPool.getDataSource().getConnection();
+				Statement statement = connection.createStatement();
+				boolean exists = tableNames.contains(tableName);
+				if( ! exists){
+					//do create table
+					String sql = new SqlCreateTableGenerator(requested).generate();
+					System.out.println("**" + sql);
+					statement.execute(sql);
+				}else{
+					System.out.println("show create table "+tableName );
+					ResultSet resultSet = statement.executeQuery("show create table "+tableName);
+					resultSet.next();
+					String resetStrg = resultSet.getString(2);
+					//System.out.println(resetStrg);
+					SqlTable current = new SqlCreateTableParser(resetStrg).parse();
+					//System.out.println("current : " +current);
+					//System.out.println("requested : " +requested);
+					SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(current, requested);
+					//List<SqlAlterTable> alterations = alterTableGenerator.generate();
+					List<String> alterTableStatements = alterTableGenerator.getAlterTableStatements();
+					for(String s : alterTableStatements){
+						System.out.println(s);
+						statement.execute(s);
+					}
+				}
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);

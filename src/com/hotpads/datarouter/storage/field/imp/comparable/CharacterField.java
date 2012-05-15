@@ -31,7 +31,7 @@ public class CharacterField extends BasePrimitiveField<Character>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(name, MySqlColumnType.VARCHAR, 4 , true);
+		return new SqlColumn(columnName, MySqlColumnType.VARCHAR, 4 , true);
 	}
 	
 	@Override

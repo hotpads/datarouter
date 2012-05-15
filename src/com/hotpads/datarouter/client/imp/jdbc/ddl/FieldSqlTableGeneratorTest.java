@@ -55,7 +55,7 @@ public class FieldSqlTableGeneratorTest {
 		System.out.println(ctGenerator2.generate());
 		
 		SqlAlterTableGenerator alterGen = new SqlAlterTableGenerator(table2, table);
-		System.out.println(alterGen.getAlterTableStatement());
+		System.out.println(alterGen.getAlterTableStatements());
 	}
 
 }

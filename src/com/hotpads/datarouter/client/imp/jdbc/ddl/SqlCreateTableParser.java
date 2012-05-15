@@ -29,9 +29,9 @@ public class SqlCreateTableParser{
 		SqlTable table = new SqlTable(getTableName());
 		List<SqlColumn> columns = ListTool.createArrayList();
 
-		
-		for(String s:getColumns()){
-			if(StringTool.containsCharactersBesidesWhitespace(s)){
+		String[] cols  = getColumns();
+		for(String s: cols){
+			if(StringTool.containsCharactersBesidesWhitespace(StringTool.removeNonAlphanumericCharacters(s))){
 				SqlColumn col = new SqlColumn(getNameOfColumn(s), MySqlColumnType.parse(getTypeOfColumn(s)));
 				if(hasAMaxValue(s)){
 					col.setMaxLength(Integer.parseInt(getMaxValueOfColumn(s)));
@@ -44,25 +44,34 @@ public class SqlCreateTableParser{
 		table.setColumns(columns);
 		
 		// FOR THE PRIMARY KEY DECLARATION
-		String[] sTokenPKey= TestParser.getPrimaryKeyDeclarationFromFullBody(input).substring("PRIMARY KEY ".length()).split("[,()]");
-		for (int i = 0; i < sTokenPKey.length; i++) {
-			table.setPrimaryKey(TestParser.removeNonText(sTokenPKey[i]));
+		if(containsPrimaryKeyDeclaration()){
+			String[] sTokenPKey= TestParser.getPrimaryKeyDeclarationFromFullBody(input).substring("PRIMARY KEY ".length()).split("[,()]");
+			for (int i = 0; i < sTokenPKey.length; i++) {
+				table.setPrimaryKey(TestParser.removeNonText(sTokenPKey[i]));
+			}
 		}
 		// FOR THE OTHER KEY DECLARATION 
-		List<String> sTokenKey= TestParser.getKeyDeclarationsFromFullBody(input);
-		for (String s1: sTokenKey) {
-			if(StringTool.containsCharactersBesidesWhitespace(s1)){
-				SqlIndex tableIndex = new SqlIndex(TestParser.getKeyNameFromKeydeclaration(s1));
-				//System.out.println(TestParser.getKeyNameFromKeydeclaration(s1));
-				for(String s2:TestParser.getKeyColumnsNamesFromKeyDeclaration(s1)){
-					TestParser.addAppropriateColumnToIndexFromListOfColumn(tableIndex,s2,table.getColumns());
+		if(containsIndexKeysDeclaration()){
+			List<String> sTokenKey= TestParser.getKeyDeclarationsFromFullBody(input);
+			System.out.println("getting from THE PRIMARY KEY DECLARATION");
+			for (String s1: sTokenKey) {
+				if(StringTool.containsCharactersBesidesWhitespace(s1)){
+					//System.out.println(s1);
+					if(s1.contains("KEY `")){
+						SqlIndex tableIndex = new SqlIndex(TestParser.getKeyNameFromKeydeclaration(s1));
+						//System.out.println(TestParser.getKeyNameFromKeydeclaration(s1));
+						for(String s2:TestParser.getKeyColumnsNamesFromKeyDeclaration(s1)){
+							TestParser.addAppropriateColumnToIndexFromListOfColumn(tableIndex,s2,table.getColumns());
+						}
+						table.addIndex(tableIndex);
+					}
 				}
-				table.addIndex(tableIndex);
 			}
 		}
 		return table;
 	}
-	
+
+
 	/********************* helper methods *******************************/
 	
 	protected String getHeader(){
@@ -99,7 +108,9 @@ public class SqlCreateTableParser{
 	}
 
 	protected String getBody(){
-		int index1 = input.indexOf('('), index2 = input.toUpperCase().indexOf("PRIMARY");
+		int index1 = input.indexOf('('), index2 = input.toUpperCase().indexOf("PRIMARY ");
+		if(index2<0) index2=input.toUpperCase().indexOf("KEY "); // in case key exist's and primary key doesn't 
+		if(index2<0)index2=input.toUpperCase().indexOf("ENGINE=")-2;// in case primary key nor index exist
 		return input.substring(index1 + 1, index2);
 	}
 
@@ -107,6 +118,17 @@ public class SqlCreateTableParser{
 		return getBody().split("[,]+");
 	}
 	
+	private boolean containsPrimaryKeyDeclaration() {
+		// TODO Auto-generated method stub
+		int index = input.toUpperCase().indexOf("PRIMARY");
+		return index>0;
+	}
+	
+	private boolean containsIndexKeysDeclaration() {
+		// TODO Auto-generated method stub
+		int index = input.toUpperCase().indexOf("KEY `");
+		return index>0;
+	}
 	
 	/******************** static methods **************************/
 
@@ -119,6 +141,7 @@ public class SqlCreateTableParser{
 	protected static String getTypeOfColumn(String s) {
 		 int index = s.lastIndexOf('`');
 		String[] tokens = s.substring(index+1).split("[ ()]+");
+		//System.out.println(s);
 		return tokens[1];
 	}
 	
@@ -185,6 +208,30 @@ public class SqlCreateTableParser{
 			Assert.assertEquals(1, table.getIndexes().size());
 			Assert.assertEquals("id", table.getIndexes().get(0).getColumns().get(0).getName());
 			Assert.assertEquals("acres", table.getIndexes().get(0).getColumns().get(1).getName());
+			sql = "CREATE TABLE `CompanyGroup` ("+
+				  "`id` int(11) NOT NULL,"+
+				  "`created` bigint(20) DEFAULT NULL,"+
+				  "`description` longtext,"+
+				  "`estNumProperties` int(11) DEFAULT NULL,"+
+				  "`lastNoteCreated` bigint(20) DEFAULT NULL,"+
+				  "`name` varchar(255) DEFAULT NULL,"+
+				  "`numActiveListings` int(11) DEFAULT NULL,"+
+				  "`numListings` int(11) DEFAULT NULL,"+
+				  "`numNotes` int(11) DEFAULT NULL,"+
+				  "`numSources` int(11) DEFAULT NULL,"+
+				  "`numUniqueListings` int(11) DEFAULT NULL,"+
+				  "`primaryState` varchar(255) DEFAULT NULL,"+
+				  "`primaryStateOverride` varchar(255) DEFAULT NULL,"+
+				  "`rep` varchar(20) DEFAULT NULL,"+
+				  "`status` varchar(255) DEFAULT NULL,"+
+				  "`type` varchar(20) DEFAULT NULL,"+
+				  "PRIMARY KEY (`id`)"+
+				") ENGINE=InnoDB DEFAULT CHARSET=latin1";
+				parser = new SqlCreateTableParser(sql);
+				table = parser.parse();
+				
+				System.out.println(table);
+			
 		}
 	}
 }

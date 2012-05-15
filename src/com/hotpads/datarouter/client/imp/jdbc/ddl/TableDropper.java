@@ -1,0 +1,34 @@
+package com.hotpads.datarouter.client.imp.jdbc.ddl;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
+
+import junit.framework.Assert;
+
+import org.junit.Test;
+import org.omg.CORBA.PRIVATE_MEMBER;
+
+import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
+
+public class TableDropper{
+
+	@Test public void testCreateAndDeleteTable()throws Exception{
+		Connection conn = JdbcTool.openConnection("localhost", 3306, "property", "root", "");
+		Statement stmt = null;
+		try{
+			stmt = conn.createStatement();
+			
+//			stmt.execute("drop table Cheese");
+//			stmt.execute("drop table if exists Inquiry;");	
+			stmt.execute("alter table Inquiry \n" +
+					"add column blabla BOOLEAN DEFAULT NULL;");	
+		}catch(Exception e) {
+			e.printStackTrace();			
+		}finally{
+			if(stmt!=null){ stmt.close(); }
+			if(conn!=null){ conn.close(); }
+		}
+	}
+}

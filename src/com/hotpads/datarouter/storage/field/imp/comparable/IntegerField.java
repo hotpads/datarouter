@@ -28,7 +28,7 @@ public class IntegerField extends BasePrimitiveField<Integer>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(name, MySqlColumnType.INTEGER, 11, true);
+		return new SqlColumn(columnName, MySqlColumnType.INTEGER, 11, true);
 	}
 
 	@Override

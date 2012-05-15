@@ -11,26 +11,46 @@ import java.util.List;
 import org.junit.Test;
 
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.StringTool;
 
 public class SqlAlterTableGenerator{
 
 	protected SqlTable current, requested;
+	protected boolean dropTable = false;
 
 	public SqlAlterTableGenerator(SqlTable current, SqlTable requested){
 		this.current = current;
 		this.requested = requested;
 	}
 	
-	public String getAlterTableStatement(){
+	public List<String> getAlterTableStatements(){
 		List<SqlAlterTable> list =  generate();
-		String s="";
-		for(SqlAlterTable sqlAT : list){
-			 s+="ALTER TABLE `" + current.getName()+"` (\n"; 
-			s+=sqlAT.getAlterTable();
-			s+=");\n";
+		List<String> l = ListTool.createArrayList();
+		String alterSql="";
+		if(dropTable){
+			for(SqlAlterTable sqlAT : list){
+				String s="";
+				alterSql = sqlAT.getAlterTable();
+				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
+						s+=alterSql;
+						l.add(s);
+				}
+			}
+		}
+		else{
+				for(SqlAlterTable sqlAT : list){
+				String s="";
+				alterSql = sqlAT.getAlterTable();
+				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
+						s+="ALTER TABLE `" + current.getName()+"` \n"; 
+						s+=alterSql;
+						l.add(s);
+				}
+			}
+			//s+="\n";
 		}
 		
-		return s;
+		return l;
 	}
 	
 	public List<SqlAlterTable> generate() {
@@ -51,12 +71,46 @@ public class SqlAlterTableGenerator{
 						 indexesToRemove = diff.getIndexesToRemove();
 		
 		// generate the alter table statements from columns to add and to remove
-		list.add(getAlterTableForAddingColumns(colsToAdd));
-		list.add(getAlterTableForRemovingColumns(colsToRemove));
+		if(colsToRemove.size()<current.getNumberOfColumns()){ 
+			list.addAll(getAlterTableForRemovingColumns(colsToRemove));
+			list.add(getAlterTableForAddingColumns(colsToAdd));
+		}
+		else{// cannot drop all columns, should use drop table then create it from list of columns
+			dropTable = true;
+			list.add(new SqlAlterTable("DROP TABLE " +current.getName() +";", SqlAlterTableTypes.DROP_TABLE));
+			list.add(getCreateTableSqlFromListOfColumnsToAdd(colsToAdd));
+		}
+		
 		// append them all into s
 		
 		//s+=");";
 		return list;
+	}
+
+	private SqlAlterTable getCreateTableSqlFromListOfColumnsToAdd(
+			List<SqlColumn> colsToAdd) {
+		// TODO Auto-generated method stub
+		//new SqlAlterTable("CREATE TABLE " +current.getName() +";", SqlAlterTableTypes.CREATE_TABLE);
+		String s = "CREATE TABLE " +current.getName();
+		if(colsToAdd.size()>0){
+			s+= " ( ";
+			for(SqlColumn col:colsToAdd){
+				s+= col.getName() + " " + col.getType().toString().toLowerCase();
+				if(col.getMaxLength()!=null){
+					s+="(" + col.getMaxLength() + ") ";
+				}
+				if(col.getNullable()){
+					s+=" DEFAULT NULL";
+				}
+				else{
+					s+=" NOT NULL";
+				}
+				s+=",\n";//
+			}
+			s = s.substring(0, s.length()-2); // remove the last "," 
+			s+=");\n";
+		}
+		return new SqlAlterTable(s, SqlAlterTableTypes.CREATE_TABLE);
 	}
 
 	private SqlAlterTable getAlterTableForAddingColumns(List<SqlColumn> colsToAdd) {
@@ -78,25 +132,29 @@ public class SqlAlterTableGenerator{
 				s+=",\n";//
 			}
 			s = s.substring(0, s.length()-2); // remove the last "," 
-			s+=")\n";
+			s+=");\n";
 		}
 		return new SqlAlterTable(s, SqlAlterTableTypes.ADD_COLUMN);
 	}
 	
-	private SqlAlterTable getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove) {
+	private List<SqlAlterTable> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove) {
 		// TODO Auto-generated method stub
-		String s = "";
+		List<SqlAlterTable> list = ListTool.createArrayList();
+		
 		if(colsToRemove.size()>0){
-			s += "DROP COLUMN ( ";
 			for(SqlColumn col:colsToRemove){
-				s+= col.getName() + ", ";
+				String s = "";
+				s += "DROP COLUMN ";
+					s+= col.getName() + ", ";
+				s = s.substring(0, s.length()-2); // remove the last "," 
+				s+=";";
+				list.add(new SqlAlterTable(s, SqlAlterTableTypes.DROP_COLUMN));
 			}
-			s = s.substring(0, s.length()-2); // remove the last "," 
-			s+=")\n";
 		}
-		return new SqlAlterTable(s, SqlAlterTableTypes.DROP_COLUMN);
+		return list;
 	}
-	
+
+
 	public static class TestSqlAlterTableGenerator{
 		@Test public void generateTest() throws IOException{
 			SqlColumn 

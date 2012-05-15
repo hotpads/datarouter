@@ -80,8 +80,21 @@ public class TestParser {
 	}
 
 	static String getKeyNameFromKeydeclaration(String string) {
-		String[] sToken = string.split("[`]+");
-		return sToken[1];
+//		String[] sToken = string.split("[`]+");
+//		System.out.println("*** les tokens ***");
+//		for(String s : sToken){
+//			System.out.println(s);
+//		}
+//		//return sToken[1];
+		int index1 = string.indexOf("KEY `"); 
+		index1 += "KEY `".length();
+		String temp = string.substring(index1);
+		//System.out.println(temp);
+		int index2 = temp.indexOf("`");
+		//System.out.println(" les indexes : "+index1 + " " + index2 );
+		String s= temp.substring(0, index2);
+		//System.out.println(s);
+		return s;
 	}
 
 	/**
@@ -273,7 +286,9 @@ public class TestParser {
 	 }
 	 
 	 public static List<String> getKeyDeclarationsFromFullBody(String phrase){
-		 String [] tokens = getKeyDeclarationFromFullBody(SqlTable.getColumnDefinitionSection(phrase)).split("[)]");
+		 String columnDefinitionSection = SqlTable.getColumnDefinitionSection(phrase);
+		 //System.out.println("getColumnDefinitionSection : " + columnDefinitionSection);
+		 String [] tokens = getKeyDeclarationFromFullBody(columnDefinitionSection).split("[)]");
 		 List<String> keyDeclarationList = ListTool.createArrayList();
 		 for(String s:tokens){
 			 if(isNotEmpty(removeNonText(s))){

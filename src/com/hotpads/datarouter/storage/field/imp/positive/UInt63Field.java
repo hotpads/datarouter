@@ -46,7 +46,7 @@ public class UInt63Field extends BasePrimitiveField<Long>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(name, MySqlColumnType.BIGINT, 20, true);
+		return new SqlColumn(columnName, MySqlColumnType.BIGINT, 20, true);
 	}
 	
 	@Override

@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
@@ -8,6 +9,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
@@ -151,6 +153,16 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			Assert.assertTrue(b==sortedList.get(0));
 			Collections.sort(sortedList);
 			Assert.assertTrue(b==sortedList.get(1));
+		}
+		@Test public void testMinus(){
+			List<SqlColumn> a = ListTool.create(
+					new SqlColumn("a", MySqlColumnType.VARCHAR, 255, true));
+					//a.add(new SqlColumn("b", MySqlColumnType.VARCHAR, 255, false));
+			List<SqlColumn> b = ListTool.create(
+					new SqlColumn("a", MySqlColumnType.VARCHAR, 255, true));
+			b.add(new SqlColumn("b", MySqlColumnType.VARCHAR, 250, false));			
+			Collection<SqlColumn> minus = CollectionTool.minus(a, b);
+			Assert.assertTrue(CollectionTool.isEmpty(minus));
 		}
 	}
 	

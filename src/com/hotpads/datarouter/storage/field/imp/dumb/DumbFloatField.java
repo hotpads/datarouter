@@ -39,7 +39,7 @@ public class DumbFloatField extends BasePrimitiveField<Float>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(name, MySqlColumnType.FLOAT, null, true);
+		return new SqlColumn(columnName, MySqlColumnType.FLOAT, null, true);
 	}
 	
 	@Override

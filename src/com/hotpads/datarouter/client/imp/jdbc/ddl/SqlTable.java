@@ -67,7 +67,7 @@ public class SqlTable {
 					col.setMaxLength(Integer.parseInt(TestParser.getMaxValueOfColumn(s)));
 				}
 				col.setNullable(TestParser.getNullable(s));
-				System.out.println(col);
+				//System.out.println(col);
 				table.addColumn(col);
 			}
 		}
@@ -82,7 +82,7 @@ public class SqlTable {
 		List<String> sTokenKey= TestParser.getKeyDeclarationsFromFullBody(phrase);
 		for (String s1: sTokenKey) {
 				SqlIndex tableIndex = new SqlIndex(TestParser.getKeyNameFromKeydeclaration(s1));
-				System.out.println(TestParser.getKeyNameFromKeydeclaration(s1));
+				//System.out.println(TestParser.getKeyNameFromKeydeclaration(s1));
 				for(String s2:TestParser.getKeyColumnsNamesFromKeyDeclaration(s1)){
 					TestParser.addAppropriateColumnToIndexFromListOfColumn(tableIndex,s2,table.getColumns());
 				}
@@ -153,8 +153,12 @@ public class SqlTable {
 
 	@Override
 	public String toString() {
-		return "SqlTable [name=" + name + ", \n columns=" + columns
-				+ ",\n primaryKey=" + primaryKey + ", \nindexes=" + indexes + "]";
+		String s =  "SqlTable name=" + name + ", \n " ;
+				for(SqlColumn col : getColumns()){
+					s+=col + "\n";
+				}
+				s+= ",\n primaryKey=" + primaryKey + ", \nindexes=" + indexes + "]";
+				return s;
 	}
 	
 	@Override
