@@ -1,16 +1,16 @@
 package com.hotpads.datarouter.client.imp.hbase.factory;
 
+import java.util.List;
 import java.util.Properties;
 
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class HBaseOptions extends TypedProperties{
 	
 	protected String clientPrefix;
 
-	public HBaseOptions(Properties properties, String clientName){
-		super(ListTool.wrap(properties));
+	public HBaseOptions(List<Properties> multiProperties, String clientName){
+		super(multiProperties);
 		this.clientPrefix = "client."+clientName+".hbase.";
 	}
 	

@@ -11,8 +11,8 @@ public class MemcachedOptions extends TypedProperties{
 	
 	protected String clientPrefix;
 
-	public MemcachedOptions(Properties properties, String clientName){
-		super(ListTool.wrap(properties));
+	public MemcachedOptions(List<Properties> multiProperties, String clientName){
+		super(multiProperties);
 		this.clientPrefix = "client."+clientName+".memcached.";
 	}
 	

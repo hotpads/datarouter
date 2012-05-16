@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.memcached;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -10,7 +11,7 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
@@ -19,25 +20,26 @@ public class MemcachedSimpleClientFactory
 implements MemcachedClientFactory{
 	private static Logger logger = Logger.getLogger(MemcachedSimpleClientFactory.class);
 	
-	protected DataRouter router;
+	protected DataRouterContext drContext;
 	protected String clientName;
-	protected String configFileLocation;
+	protected List<String> configFilePaths;
+	protected List<Properties> multiProperties;
 	protected ExecutorService executorService;
-	protected Properties properties;
 	protected MemcachedOptions options;
 	protected MemcachedClient client;
 	
 	
 	public MemcachedSimpleClientFactory(
-			DataRouter router, String clientName, 
-			String configFileLocation, 
+			DataRouterContext drContext,
+			String clientName, 
 			ExecutorService executorService){
-		this.router = router;
+		this.drContext = drContext;
 		this.clientName = clientName;
-		this.configFileLocation = configFileLocation;
 		this.executorService = executorService;
-		this.properties = PropertiesTool.ioAndNullSafeFromFile(configFileLocation);
-		this.options = new MemcachedOptions(properties, clientName);
+
+		this.configFilePaths = drContext.getConfigFilePaths();
+		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
+		this.options = new MemcachedOptions(multiProperties, clientName);
 	}
 	
 	

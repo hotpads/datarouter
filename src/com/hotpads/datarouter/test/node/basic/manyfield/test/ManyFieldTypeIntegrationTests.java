@@ -247,7 +247,7 @@ public class ManyFieldTypeIntegrationTests {
 		if(ClientType.hibernate==clientType){//we're expecting the db to be in ASCII mode and strip out that weird character
 			Assert.assertFalse(bean.getStringField().equals(roundTripped.getStringField()));
 		}else if(ClientType.hbase==clientType || isMemcached()){//byte arrays should handle any string
-			Assert.assertTrue(bean.getStringField().equals(roundTripped.getStringField()));
+			Assert.assertEquals(bean.getStringField(), roundTripped.getStringField());
 		}else{
 			throw new NotImplementedException("test needs a case for this clientType="+clientType); 
 		}

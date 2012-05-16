@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
@@ -27,6 +29,11 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 	@Override
 	public void fromString(String s){
 		throw new NotImplementedException();
+	}
+	
+	@Override
+	public SqlColumn getSqlColumnDefinition(){
+		return new SqlColumn(name, MySqlColumnType.LONGBLOB, null , true);
 	}
 	
 	@Override
