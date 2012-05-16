@@ -229,6 +229,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 					statement.execute(sql);
 				}else{
 					if(!schemaUpdateOptions.anyAlterTrue()){ return; }
+					/*
 						System.out.println("show create table "+tableName );
 						ResultSet resultSet = statement.executeQuery("show create table "+tableName);
 						resultSet.next();
