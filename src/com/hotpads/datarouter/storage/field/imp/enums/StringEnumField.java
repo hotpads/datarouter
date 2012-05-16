@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
@@ -31,6 +33,11 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 	@Override
 	public void fromString(String s){
 		this.value = s==null?null:sampleValue.fromPersistentString(s);
+	}
+	
+	@Override
+	public SqlColumn getSqlColumnDefinition(){
+		return new SqlColumn(name, MySqlColumnType.TEXT, null , true);
 	}
 	
 	@Override

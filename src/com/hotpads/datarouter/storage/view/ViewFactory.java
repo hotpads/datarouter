@@ -28,6 +28,7 @@ public abstract class ViewFactory<
 	public abstract V getLatest(UK key, boolean updateCache);
 	
 	public abstract V update(V view);
+	public abstract V rerender(UK key);//getNew then update
 	
 	public abstract void handleRenderSuccess(Collection<UK> keys);
 	public abstract void handleRenderError(Collection<UK> keys);

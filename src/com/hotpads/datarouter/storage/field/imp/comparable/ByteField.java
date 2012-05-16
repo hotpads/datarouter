@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.ByteTool;
@@ -24,6 +26,11 @@ public class ByteField extends BasePrimitiveField<Byte>{
 		this.value = s==null?null:Byte.valueOf(s);
 	}
 
+	@Override
+	public SqlColumn getSqlColumnDefinition(){
+		return new SqlColumn(name, MySqlColumnType.TINYBLOB, null , true);
+	}
+	
 	@Override
 	public Byte parseJdbcValueButDoNotSet(Object obj){
 		return obj==null?null:(Byte)obj;

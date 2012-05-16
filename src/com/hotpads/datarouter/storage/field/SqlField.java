@@ -3,8 +3,11 @@ package com.hotpads.datarouter.storage.field;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
+
 public interface SqlField<T>{
 	
+	SqlColumn getSqlColumnDefinition();
 	String getSqlNameValuePairEscaped();
 	String getSqlEscaped();
 	T parseJdbcValueButDoNotSet(Object col);
