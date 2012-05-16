@@ -5,7 +5,6 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
@@ -15,10 +14,12 @@ import com.hotpads.util.core.StringTool;
 
 public class SqlAlterTableGenerator{
 
+	protected SchemaUpdateOptions options;
 	protected SqlTable current, requested;
 	protected boolean dropTable = false;
 
-	public SqlAlterTableGenerator(SqlTable current, SqlTable requested){
+	public SqlAlterTableGenerator(SchemaUpdateOptions options, SqlTable current, SqlTable requested){
+		this.options = options;
 		this.current = current;
 		this.requested = requested;
 	}
@@ -186,8 +187,9 @@ public class SqlAlterTableGenerator{
 					table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
 					table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
 			
-			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(table2, table1);
-			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(table1, table2);
+			SchemaUpdateOptions options = new SchemaUpdateOptions().setAllTrue();
+			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(options, table2, table1);
+			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2);
 			System.out.println(alterGenerator21.generate());
 			System.out.println(alterGenerator12.generate());
 			
@@ -212,8 +214,8 @@ public class SqlAlterTableGenerator{
 			SqlTable tab2 = parser.parse();
 			System.out.println(tab2);
 			
-			SqlAlterTableGenerator alterGeneratorBis21 = new SqlAlterTableGenerator(tab2, tab1);
-			SqlAlterTableGenerator alterGeneratorBis12 = new SqlAlterTableGenerator(tab1, tab2);
+			SqlAlterTableGenerator alterGeneratorBis21 = new SqlAlterTableGenerator(options, tab2, tab1);
+			SqlAlterTableGenerator alterGeneratorBis12 = new SqlAlterTableGenerator(options, tab1, tab2);
 			System.out.println(alterGeneratorBis21.generate());
 			System.out.println(alterGeneratorBis12.generate());
 		}
