@@ -39,13 +39,11 @@ public class SqlTableDiffGenerator{
 	}
 
 	public List<SqlIndex> getIndexesToAdd(){
-		List<SqlIndex> indexesToAdd = ListTool.createArrayList();
-		return indexesToAdd;
+		return ListTool.createArrayList(CollectionTool.minus(requested.getIndexes(), current.getIndexes()));
 	}
 
 	public List<SqlIndex> getIndexesToRemove(){
-		List<SqlIndex> indexesToRemove = ListTool.createArrayList();
-		return indexesToRemove;
+		return ListTool.createArrayList(CollectionTool.minus(current.getIndexes(), requested.getIndexes()));
 	}
 
 	public boolean isTableModified(){

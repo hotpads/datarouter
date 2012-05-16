@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
@@ -63,6 +64,32 @@ public class TestDdl{
 		        System.out.println(s);
 			}
 			
+			
+			conn = JdbcTool.openConnection("localhost", 3306, "property", "root", "");
+			 sql = "select * from Inquiry";
+			 rs = stmt.executeQuery(sql);
+			ResultSetMetaData metaData = rs.getMetaData();
+			
+			int rowCount = metaData.getColumnCount();
+
+			System.out.println("Table Name : " + metaData.getTableName(2));
+			System.out.println("Field \tsize\tDataType");
+
+			for (int i = 0; i < rowCount; i++) {
+			System.out.print(metaData.getColumnName(i + 1) + " \t");
+			System.out.print(metaData.getColumnDisplaySize(i + 1) + "\t");
+			System.out.println(metaData.getColumnTypeName(i + 1));
+			}
+			
+			
+			DatabaseMetaData dbmd = conn.getMetaData();
+		    ResultSet indexList = dbmd.getIndexInfo(null,null,"Inquiry",false,false);
+	        while(indexList.next()) {
+	          System.out.println(" Index Name: "+indexList.getString("INDEX_NAME"));
+	          System.out.println(" Column Name:"+indexList.getString("COLUMN_NAME"));
+	        }
+	        indexList.close(); 
+	        
 		}catch(Exception e) {
 			e.printStackTrace();			
 		}finally{

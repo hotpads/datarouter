@@ -24,6 +24,7 @@ import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.FieldSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableFromConnection;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableParser;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTable;
@@ -220,12 +221,19 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 					System.out.println("**" + sql);
 					statement.execute(sql);
 				}else{
-					System.out.println("show create table "+tableName );
-					ResultSet resultSet = statement.executeQuery("show create table "+tableName);
-					resultSet.next();
-					String resetStrg = resultSet.getString(2);
-					//System.out.println(resetStrg);
-					SqlTable current = new SqlCreateTableParser(resetStrg).parse();
+					/*
+						System.out.println("show create table "+tableName );
+						ResultSet resultSet = statement.executeQuery("show create table "+tableName);
+						resultSet.next();
+						String resetStrg = resultSet.getString(2);
+						//System.out.println(resetStrg);
+						SqlTable current = new SqlCreateTableParser(resetStrg).parse();
+					//*/
+					
+					//*
+						SqlCreateTableFromConnection tableConstructor = new SqlCreateTableFromConnection(connection, tableName);
+						SqlTable current = tableConstructor.getTable();
+					//*/
 					//System.out.println("current : " +current);
 					//System.out.println("requested : " +requested);
 					SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(current, requested);

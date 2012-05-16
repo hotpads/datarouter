@@ -44,12 +44,14 @@ public class SqlTable {
 	public SqlTable(String name, List<SqlColumn> columns) {
 		this.name = name;
 		this.columns = columns;
+		this.primaryKey = new SqlIndex("PRIMARY");
 		this.indexes = ListTool.createArrayList();
 	}
 	
 	public SqlTable(String name) {
 		this.name = name;
 		this.columns = ListTool.createArrayList();
+		this.primaryKey = new SqlIndex("PRIMARY");
 		this.indexes = ListTool.createArrayList();
 	}
 	

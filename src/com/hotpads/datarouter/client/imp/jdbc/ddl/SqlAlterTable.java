@@ -4,8 +4,8 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl;
 public class SqlAlterTable {
 	
 	String alterTable;
-	SqlAlterTableTypes type;
-	public SqlAlterTable(String alterTable, SqlAlterTableTypes type){
+	SqlAlterTypes type;
+	public SqlAlterTable(String alterTable, SqlAlterTypes type){
 		this.alterTable = alterTable;
 		this.type = type;
 	}
@@ -18,11 +18,11 @@ public class SqlAlterTable {
 		this.alterTable = alterTable;
 	}
 
-	public SqlAlterTableTypes getType() {
+	public SqlAlterTypes getType() {
 		return type;
 	}
 
-	public void setType(SqlAlterTableTypes type) {
+	public void setType(SqlAlterTypes type) {
 		this.type = type;
 	}
 

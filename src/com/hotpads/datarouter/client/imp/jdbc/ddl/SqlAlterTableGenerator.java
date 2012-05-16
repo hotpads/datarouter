@@ -77,10 +77,23 @@ public class SqlAlterTableGenerator{
 		}
 		else{// cannot drop all columns, should use drop table then create it from list of columns
 			dropTable = true;
-			list.add(new SqlAlterTable("DROP TABLE " +current.getName() +";", SqlAlterTableTypes.DROP_TABLE));
+			list.add(new SqlAlterTable("DROP TABLE " +current.getName() +";", SqlAlterTypes.DROP_TABLE));
 			list.add(getCreateTableSqlFromListOfColumnsToAdd(colsToAdd));
 		}
 		
+		/*
+		if(diff.isPrimaryKeyModified()){
+			list.add(new SqlAlterTable("DROP PRIMARY KEY ;", SqlAlterTypes.DROP_INDEX));
+			
+			List<SqlColumn> listOfColumnsInPkey =requested.getPrimaryKey().getColumns(); 
+			String s = "ADD CONSTRAINT "+ requested.getPrimaryKey().getName() + "PRIMARY KEY (" ;
+			for(SqlColumn col: listOfColumnsInPkey){
+				s+= col.getName() + ",";
+			}
+			s=s.substring(0, s.length()-1)+")";
+			list.add(new SqlAlterTable(s, SqlAlterTypes.ADD_CONTRAINT));
+		}
+		//*/
 		// append them all into s
 		
 		//s+=");";
@@ -110,7 +123,7 @@ public class SqlAlterTableGenerator{
 			s = s.substring(0, s.length()-2); // remove the last "," 
 			s+=");\n";
 		}
-		return new SqlAlterTable(s, SqlAlterTableTypes.CREATE_TABLE);
+		return new SqlAlterTable(s, SqlAlterTypes.CREATE_TABLE);
 	}
 
 	private SqlAlterTable getAlterTableForAddingColumns(List<SqlColumn> colsToAdd) {
@@ -134,7 +147,7 @@ public class SqlAlterTableGenerator{
 			s = s.substring(0, s.length()-2); // remove the last "," 
 			s+=");\n";
 		}
-		return new SqlAlterTable(s, SqlAlterTableTypes.ADD_COLUMN);
+		return new SqlAlterTable(s, SqlAlterTypes.ADD_COLUMN);
 	}
 	
 	private List<SqlAlterTable> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove) {
@@ -148,7 +161,7 @@ public class SqlAlterTableGenerator{
 					s+= col.getName() + ", ";
 				s = s.substring(0, s.length()-2); // remove the last "," 
 				s+=";";
-				list.add(new SqlAlterTable(s, SqlAlterTableTypes.DROP_COLUMN));
+				list.add(new SqlAlterTable(s, SqlAlterTypes.DROP_COLUMN));
 			}
 		}
 		return list;
