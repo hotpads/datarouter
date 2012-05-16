@@ -15,6 +15,7 @@ import java.util.concurrent.Future;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
+import org.mockito.internal.exceptions.util.ScenarioPrinter;
 
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
@@ -22,7 +23,7 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.FieldSqlTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableParser;
@@ -49,8 +50,9 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	public static final String
 		hibernate_connection_prefix = "hibernate.connection.",
 		provider_class = hibernate_connection_prefix + "provider_class",  //from org.hibernate.cfg.Environment.CONNECTION_PROVIDER
-		connectionPoolName = hibernate_connection_prefix + "connectionPoolName";  //any name... SessionFactory simply passes them through
-	
+		connectionPoolName = hibernate_connection_prefix + "connectionPoolName",  //any name... SessionFactory simply passes them through
+		schemaUpdatePrefix = "schemaUpdate";
+		
 	public static final String
 		paramConfigLocation = ".configLocation",
 		nestedParamSessionFactory = ".param.sessionFactory";
@@ -62,6 +64,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	protected String clientName;
 	protected List<String> configFilePaths;
 	protected List<Properties> multiProperties;
+	protected SchemaUpdateOptions schemaUpdateOptions;
 	protected ExecutorService executorService;
 	protected HibernateClient client;
 	
@@ -75,6 +78,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
+		this.schemaUpdateOptions = new SchemaUpdateOptions(multiProperties, schemaUpdatePrefix);
 	}
 	
 	protected static final boolean SEPARATE_THREAD = true;//why do we need this separate thread?
@@ -163,10 +167,10 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		try{
 			connection = JdbcTool.checkOutConnectionFromPool(connectionPool);
 			List<String> tableNames = JdbcTool.showTables(connection);
-			System.out.println("table names : ");
-			for(String s: tableNames){
-				System.out.println(s);
-			}
+//			System.out.println("table names : ");
+//			for(String s: tableNames){
+//				System.out.println(s);
+//			}
 			Nodes nodes = drContext.getNodes();
 			List<? extends PhysicalNode<?,?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);
 			for(PhysicalNode<?,?> physicalNode : IterableTool.nullSafe(physicalNodes)){
@@ -202,6 +206,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	
 	protected void createOrUpdateTableIfNeeded(List<String> tableNames, JdbcConnectionPool connectionPool, 
 			PhysicalNode<?,?> physicalNode){
+		if(!schemaUpdateOptions.anyTrue()){ return; }
 		String tableName = physicalNode.getTableName();
 		DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
@@ -215,12 +220,14 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 				connection = connectionPool.getDataSource().getConnection();
 				Statement statement = connection.createStatement();
 				boolean exists = tableNames.contains(tableName);
-				if( ! exists){
+				if(! exists){
+					if(!schemaUpdateOptions.getCreateTables()){ return; }
 					//do create table
 					String sql = new SqlCreateTableGenerator(requested).generate();
 					System.out.println("**" + sql);
 					statement.execute(sql);
 				}else{
+					if(!schemaUpdateOptions.anyAlterTrue()){ return; }
 					System.out.println("show create table "+tableName );
 					ResultSet resultSet = statement.executeQuery("show create table "+tableName);
 					resultSet.next();
@@ -229,7 +236,8 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 					SqlTable current = new SqlCreateTableParser(resetStrg).parse();
 					//System.out.println("current : " +current);
 					//System.out.println("requested : " +requested);
-					SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(current, requested);
+					SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(schemaUpdateOptions, 
+							current, requested);
 					//List<SqlAlterTable> alterations = alterTableGenerator.generate();
 					List<String> alterTableStatements = alterTableGenerator.getAlterTableStatements();
 					for(String s : alterTableStatements){
