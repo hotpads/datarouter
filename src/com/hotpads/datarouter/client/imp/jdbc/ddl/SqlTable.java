@@ -211,7 +211,7 @@ public class SqlTable {
 	}
 	/******************** tests *********************************/
 
-	public static class SqlTableTests{
+	public static class SqlTableTester{
 		@Test
 		public void testGetHeader(){
 			Assert.assertEquals("Header", getHeader("Header(blabla(blob()))trail"));

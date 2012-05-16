@@ -167,9 +167,8 @@ public class SqlAlterTableGenerator{
 		}
 		return list;
 	}
-
-
-	public static class TestSqlAlterTableGenerator{
+	
+	public static class SqlAlterTableGeneratorTester{
 		@Test public void generateTest() throws IOException{
 			SqlColumn 
 			colA = new SqlColumn("A", MySqlColumnType.BIGINT),

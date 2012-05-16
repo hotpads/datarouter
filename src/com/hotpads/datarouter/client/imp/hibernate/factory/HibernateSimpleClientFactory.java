@@ -207,7 +207,10 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	
 	protected void createOrUpdateTableIfNeeded(List<String> tableNames, JdbcConnectionPool connectionPool, 
 			PhysicalNode<?,?> physicalNode){
-		if(!schemaUpdateOptions.anyTrue()){ return; }
+
+		if(!SCHEMA_UPDATE){ return; }
+		// if(!schemaUpdateOptions.anyTrue()){ return; }
+			
 		String tableName = physicalNode.getTableName();
 		DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();

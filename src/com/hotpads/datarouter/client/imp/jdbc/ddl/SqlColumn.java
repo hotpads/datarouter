@@ -120,7 +120,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	
 	/******************* tests ***************************/
 	
-	public static class SqlColumnTests{
+	public static class SqlColumnTester{
 		@Test public void testCompareTo() {
 			//two different values a, b
 			SqlColumn a = new SqlColumn("a", MySqlColumnType.BIGINT, 19, false);

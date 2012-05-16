@@ -9,7 +9,7 @@ import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean2;
 import com.hotpads.util.core.ListTool;
 
-public class FieldSqlTableGeneratorTest {
+public class FieldSqlTableGeneratorTester {
 
 	@Test public void testGenerate() {
 //		DataRouter router;
