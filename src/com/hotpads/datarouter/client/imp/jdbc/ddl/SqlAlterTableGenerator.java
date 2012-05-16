@@ -155,14 +155,14 @@ public class SqlAlterTableGenerator{
 		List<SqlAlterTable> list = ListTool.createArrayList();
 		
 		if(colsToRemove.size()>0){
+			String s = "";
 			for(SqlColumn col:colsToRemove){
-				String s = "";
 				s += "DROP COLUMN ";
 					s+= col.getName() + ", ";
-				s = s.substring(0, s.length()-2); // remove the last "," 
-				s+=";";
-				list.add(new SqlAlterTable(s, SqlAlterTypes.DROP_COLUMN));
 			}
+			s = s.substring(0, s.length()-2); // remove the last "," 
+			s+=";";
+			list.add(new SqlAlterTable(s, SqlAlterTypes.DROP_COLUMN));
 		}
 		return list;
 	}
