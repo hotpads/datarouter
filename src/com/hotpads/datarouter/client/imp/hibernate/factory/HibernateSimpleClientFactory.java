@@ -66,6 +66,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	protected HibernateClient client;
 	
 	
+	
 	public HibernateSimpleClientFactory(DataRouterContext drContext, String clientName, 
 			ExecutorService executorService) {
 		this.drContext = drContext;
@@ -233,7 +234,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 					List<String> alterTableStatements = alterTableGenerator.getAlterTableStatements();
 					for(String s : alterTableStatements){
 						System.out.println(s);
-						statement.execute(s);
+//						statement.execute(s);
 					}
 				}
 			}
