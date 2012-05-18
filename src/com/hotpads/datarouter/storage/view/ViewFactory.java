@@ -29,7 +29,6 @@ public abstract class ViewFactory<
 	
 	public abstract V update(V view);
 	
-	public abstract void handleRenderSuccess(Collection<UK> keys);
-	public abstract void handleRenderError(Collection<UK> keys);
+	public abstract void handleRenderOutcome(Collection<UK> keys, ViewRenderingStatus newStatus);
 	
 }
