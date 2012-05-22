@@ -49,4 +49,9 @@ implements DatabeanFielder<PK,D>{
 		return allFields;
 	}
 	
+	@Override
+	public List<List<Field<?>>> getIndexes(D d){
+		return ListTool.createLinkedList();
+	}
+	
 }
