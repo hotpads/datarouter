@@ -25,10 +25,12 @@ import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.FieldSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameTypeComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableFromConnection;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableParser;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameComparator;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.Nodes;
@@ -168,10 +170,10 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		try{
 			connection = JdbcTool.checkOutConnectionFromPool(connectionPool);
 			List<String> tableNames = JdbcTool.showTables(connection);
-//			System.out.println("table names : ");
-//			for(String s: tableNames){
-//				System.out.println(s);
-//			}
+			System.out.println("table names : ");
+			for(String s: tableNames){
+				System.out.println(s);
+			}
 			Nodes nodes = drContext.getNodes();
 			List<? extends PhysicalNode<?,?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);
 			for(PhysicalNode<?,?> physicalNode : IterableTool.nullSafe(physicalNodes)){
@@ -209,7 +211,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 			PhysicalNode<?,?> physicalNode){
 
 		if(!SCHEMA_UPDATE){ return; }
-		// if(!schemaUpdateOptions.anyTrue()){ return; }
+		//if(!schemaUpdateOptions.anyTrue()){ return; }
 			
 		String tableName = physicalNode.getTableName();
 		DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
@@ -250,10 +252,12 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 					SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(schemaUpdateOptions, 
 							current, requested);
 					//List<SqlAlterTable> alterations = alterTableGenerator.generate();
-					List<String> alterTableStatements = alterTableGenerator.getAlterTableStatements();
+					SqlColumnNameComparator nameComparator = new SqlColumnNameComparator(true);
+					SqlColumnNameTypeComparator nameTypeComparator = new SqlColumnNameTypeComparator(true);
+					List<String> alterTableStatements = alterTableGenerator.getAlterTableStatements(nameTypeComparator);
 					for(String s : alterTableStatements){
 						System.out.println(s);
-//						statement.execute(s);
+						statement.execute(s);
 					}
 				}
 			}

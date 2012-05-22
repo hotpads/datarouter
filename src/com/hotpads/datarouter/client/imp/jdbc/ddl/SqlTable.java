@@ -104,7 +104,7 @@ public class SqlTable {
 				List<SqlColumn> list = ListTool.createArrayList();
 				list.add(col);
 				if(primaryKey==null){
-					primaryKey = new SqlIndex(name + " Primary Key", list);
+					primaryKey = new SqlIndex(name + "_Primary_Key", list);
 				}
 				else{
 					primaryKey.addColumn(col);
@@ -155,11 +155,11 @@ public class SqlTable {
 
 	@Override
 	public String toString() {
-		String s =  "SqlTable name=" + name + ", \n " ;
+		String s =  "SqlTable name=" + name + ",\n" ;
 				for(SqlColumn col : getColumns()){
 					s+=col + "\n";
 				}
-				s+= ",\n primaryKey=" + primaryKey + ", \nindexes=" + indexes + "]";
+				s+= "PK=" + primaryKey + "\nindexes=" + indexes ;
 				return s;
 	}
 	
@@ -239,7 +239,8 @@ public class SqlTable {
 			System.out.println(parseCreateTable(phrase));
 		}
 	}
-
-
-
+	public boolean hasPrimaryKey() {
+		// TODO Auto-generated method stub
+		return getPrimaryKey()!=null && getPrimaryKey().getColumns().size()>0;
+	}
 }

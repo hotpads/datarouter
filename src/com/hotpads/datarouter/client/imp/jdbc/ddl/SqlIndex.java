@@ -2,6 +2,10 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.util.List;
 
+import junit.framework.Assert;
+
+import org.junit.Test;
+
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
@@ -42,7 +46,7 @@ public class SqlIndex implements Comparable{
 	
 	@Override
 	public String toString() {
-		return "SqlIndex [name=" + name + ", columns=" + columns + "]";
+		return "`" + name + "` , (" + columns + ")";
 	}
 	
 	
@@ -117,5 +121,21 @@ public class SqlIndex implements Comparable{
 				if(c!=0){return c;}
 			}
 			return 0;
+	}
+	
+	public static class TestSqlIndex{
+		@Test public void equalsTester(){
+			SqlColumn a = new SqlColumn("a", MySqlColumnType.BIGINT),
+					b = new SqlColumn("b", MySqlColumnType.BIGINT),
+					aa=new SqlColumn("a", MySqlColumnType.VARBINARY), 
+					bb=new SqlColumn("b", MySqlColumnType.VARCHAR);
+			SqlIndex index1 = new SqlIndex("index"), 
+					index2= new SqlIndex("index");
+			
+			index1.addColumn(a).addColumn(b);
+			index2.addColumn(aa).addColumn(bb);
+			
+			Assert.assertTrue(index1.equals(index2));
+		}
 	}
 }
