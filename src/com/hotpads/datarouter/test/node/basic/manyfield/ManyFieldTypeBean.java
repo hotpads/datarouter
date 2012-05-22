@@ -14,6 +14,7 @@ import org.hibernate.annotations.AccessType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.UInt63ArrayField;
@@ -29,8 +30,6 @@ import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
-import com.hotpads.profile.count.databean.Count;
-import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
@@ -128,6 +127,16 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		@Override
 		public List<Field<?>> getNonKeyFields(ManyFieldTypeBean d){
 			return d.getNonKeyFields();
+		}
+		@Override
+		public List<List<Field<?>>> getIndexes(ManyFieldTypeBean d){
+			List<List<Field<?>>> indexes = ListTool.createArrayList();
+			indexes.add(FieldTool.createList(
+					new ShortField(F.shortField, d.shortField),
+					new IntegerField(F.integerField, d.integerField)));
+			indexes.add(FieldTool.createList(
+					new StringField(F.stringField, d.stringField)));
+			return indexes;
 		}
 	}
 

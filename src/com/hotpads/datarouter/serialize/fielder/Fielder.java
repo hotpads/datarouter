@@ -8,5 +8,6 @@ import com.hotpads.datarouter.storage.field.FieldSet;
 public interface Fielder<F extends FieldSet<F>>{
 
 	public List<Field<?>> getFields(F fieldSet);
+//	public List<List<Field<?>>> getIndexes(F fieldSet);
 	
 }
