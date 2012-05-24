@@ -30,7 +30,6 @@ public class SqlAlterTable {
 	public String toString() {
 		return alterTable;
 	}
-	
-	
+
 }
 

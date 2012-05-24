@@ -234,4 +234,5 @@ public class SqlCreateTableParser{
 			
 		}
 	}
+
 }

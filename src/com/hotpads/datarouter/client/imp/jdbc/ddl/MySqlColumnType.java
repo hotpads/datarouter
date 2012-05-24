@@ -46,7 +46,6 @@ public enum MySqlColumnType {
 	ENUM, 
 	SET;
 
-	
 	public static MySqlColumnType parse(String a){
 		String upperCase = StringTool.nullSafe(a).toUpperCase();
 		for(MySqlColumnType type : values()) {

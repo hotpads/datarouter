@@ -121,16 +121,10 @@ public class SqlTableDiffGenerator{
 		}
 		return false; // TODO calculate
 	}
-	
-	
-	
-	// etc
 
 	public SqlTable getRequested() {
 		return requested;
 	}
-
-
 
 	public static class SqlTableDiffGeneratorTester{
 		@Test
@@ -339,6 +333,5 @@ public class SqlTableDiffGenerator{
 			System.out.println(diffBA.getIndexesToRemove());
 		}
 	}
-	
-	
+
 }

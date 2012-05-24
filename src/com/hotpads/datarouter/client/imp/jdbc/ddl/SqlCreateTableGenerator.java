@@ -94,4 +94,5 @@ public class SqlCreateTableGenerator {
 			//Assert.assertEquals(expected, actual);
 		}
 	}
+
 }

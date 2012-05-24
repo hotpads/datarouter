@@ -138,4 +138,5 @@ public class SqlIndex implements Comparable{
 			Assert.assertTrue(index1.equals(index2));
 		}
 	}
+
 }

@@ -388,4 +388,5 @@ public class TestParser {
 			// Assert.assertEquals(s2, getKeyDeclarationFromFullBody(SqlTable.getFullBody(s)));
 		}
 	}
+
 }

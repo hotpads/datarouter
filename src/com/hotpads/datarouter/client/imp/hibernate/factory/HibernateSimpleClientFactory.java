@@ -41,6 +41,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -217,8 +218,14 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
 		List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
+		List<List<Field<?>>> indexes = fieldInfo.getIndexes();
+		
 		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(),
 				primaryKeyFields, nonKeyFields);
+		if(indexes!=null){
+			generator.setIndexes(indexes);
+		}
+		
 		SqlTable requested = generator.generate();
 		Connection connection = null;
 		try {
@@ -230,7 +237,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 					if(!schemaUpdateOptions.getCreateTables()){ return; }
 					//do create table
 					String sql = new SqlCreateTableGenerator(requested).generate();
-					System.out.println("**" + sql);
+					System.out.println("** Creating table :" + sql);
 					statement.execute(sql);
 				}else{
 					if(!schemaUpdateOptions.anyAlterTrue()){ return; }
@@ -257,7 +264,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 					List<String> alterTableStatements = alterTableGenerator.getAlterTableStatements(nameTypeComparator);
 					for(String s : alterTableStatements){
 						System.out.println(s);
-						statement.execute(s);
+						//statement.execute(s);
 					}
 				}
 			}

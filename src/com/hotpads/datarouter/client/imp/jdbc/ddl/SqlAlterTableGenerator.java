@@ -62,13 +62,9 @@ public class SqlAlterTableGenerator{
 	
 	public List<SqlAlterTable> generate(Comparator<SqlColumn> c) {
 		//TODO everything
-		
-
 		List<SqlAlterTable> list = ListTool.createArrayList();
-		
 		// creating the sqlTableDiffGenerator
 		SqlTableDiffGenerator diff = new SqlTableDiffGenerator(current,requested,true);
-
 		if(diff.isTableModified()){
 			// get the columns to add and the columns to remove
 			List<SqlColumn> colsToAdd = diff.getColumnsToAdd(c),
@@ -107,19 +103,11 @@ public class SqlAlterTableGenerator{
 			if(diff.isIndexesModified()){
 				list.addAll(getAlterTableForRemovingIndexes(indexesToRemove));
 				list.addAll(getAlterTableForAddingIndexes(indexesToAdd));
-			}
-			
-			
+			}	
 		}
-		
-		// append them all into s
-		
 		//s+=");";
-		
 		return list;
 	}
-
-	
 
 	private List<SqlAlterTable> getAlterTableForRemovingIndexes(
 			List<SqlIndex> indexesToAdd) {
@@ -145,9 +133,8 @@ public class SqlAlterTableGenerator{
 		
 		if(indexesToRemove.size()>0){
 			String s="";
-			s+="ADD ";
 			for(SqlIndex index : indexesToRemove){
-				s+="CONSTRAINT " + index.getName() + " FOREIGN KEY ( ";
+				s+="ADD KEY " + index.getName() + "( ";
 				for(SqlColumn col : index.getColumns()){
 					s+= col.getName() + ", ";
 				}

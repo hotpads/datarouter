@@ -101,7 +101,5 @@ public class SchemaUpdateOptions{
 	public void setModifyColumnLengths(Boolean modifyColumnLengths){
 		this.modifyColumnLengths = modifyColumnLengths;
 	}
-	
-	
-	
+
 }

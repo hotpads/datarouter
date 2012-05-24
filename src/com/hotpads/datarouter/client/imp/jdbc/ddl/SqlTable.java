@@ -239,8 +239,10 @@ public class SqlTable {
 			System.out.println(parseCreateTable(phrase));
 		}
 	}
+	
 	public boolean hasPrimaryKey() {
 		// TODO Auto-generated method stub
 		return getPrimaryKey()!=null && getPrimaryKey().getColumns().size()>0;
 	}
+
 }

@@ -14,6 +14,7 @@ import org.hibernate.annotations.AccessType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
@@ -343,6 +344,15 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		this.stringEnumField = stringEnumField;
 	}
 
-	
+	@Override
+	public List<List<Field<?>>> getIndexes(ManyFieldTypeBean d) {
+		List<List<Field<?>>> indexes = ListTool.createArrayList();
+		indexes.add(FieldTool.createList(
+				new ShortField(F.shortField, d.shortField),
+				new IntegerField(F.integerField, d.integerField)));
+		indexes.add(FieldTool.createList(
+				new StringField(F.stringField, d.stringField)));
+		return indexes;
+	}
 	
 }
