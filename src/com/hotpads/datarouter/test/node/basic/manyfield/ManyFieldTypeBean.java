@@ -344,7 +344,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		this.stringEnumField = stringEnumField;
 	}
 
-	@Override
+	//@Override
 	public List<List<Field<?>>> getIndexes(ManyFieldTypeBean d) {
 		List<List<Field<?>>> indexes = ListTool.createArrayList();
 		indexes.add(FieldTool.createList(
