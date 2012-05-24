@@ -14,14 +14,39 @@ public class SchemaUpdateOptions{
 			SUFFIX_addColumns = ".addColumns", 
 			SUFFIX_deleteColumns = ".deleteColumns",
 			SUFFIX_modifyColumnLengths = ".modifyColumnLengths";
-
 	
-	protected Boolean createTables, dropTables, addColumns, deleteColumns, modifyColumnLengths;
+	/*
+	 * print the DDL with a message: "Please Execute: alter table xyz..."
+	 */
+	//default to true
+	protected Boolean printCreateTables;
+	protected Boolean printDropTables;
+	protected Boolean printAddColumns;
+	protected Boolean printDeleteColumns;
+	protected Boolean printModifyColumnLengths;
+	protected Boolean printAddIndexes;
+	protected Boolean printDropIndexes;
+	
+	/*
+	 * if these are true, we should still print the DDL, but with a message saying "Executing: alter table xyz..."
+	 * 
+	 * if any needed operation on a given table is disabled, then we should disable all execution for the table and 
+	 * revert to printing
+	 */
+	//default to true
+	protected Boolean executeCreateTables;
+	//default to false
+	protected Boolean executeDropTables;
+	protected Boolean executeAddColumns;
+	protected Boolean executeDeleteColumns;
+	protected Boolean executeModifyColumnLengths;
+	protected Boolean executeAddIndexes;
+	protected Boolean executeDropIndexes;
 	
 	public SchemaUpdateOptions(){
 	}
 	
-	public SchemaUpdateOptions(List<Properties> multiProperties, String prefix){
+	public SchemaUpdateOptions(List<Properties> multiProperties, String prefix){		
 		this.createTables = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_createTables));
 		this.dropTables = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
