@@ -4,12 +4,13 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameComparator;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean2;
 import com.hotpads.util.core.ListTool;
 
-public class FieldSqlTableGeneratorTest {
+public class FieldSqlTableGeneratorTester {
 
 	@Test public void testGenerate() {
 //		DataRouter router;
@@ -25,7 +26,7 @@ public class FieldSqlTableGeneratorTest {
 //			}else{
 //			}
 //		}
-		String tableName = "TOTO";
+		String tableName = "ManyFieldTypeBean";
 		List<Field<?>> primaryKeyFields = ListTool.create(),
 						primaryKeyFields2 = ListTool.create();
 
@@ -50,7 +51,8 @@ public class FieldSqlTableGeneratorTest {
 		System.out.println(ctGenerator2.generate());
 		
 		SqlAlterTableGenerator alterGen = new SqlAlterTableGenerator(new SchemaUpdateOptions().setAllTrue(), table2, table);
-		System.out.println(alterGen.getAlterTableStatements());
+		SqlColumnNameComparator c = new SqlColumnNameComparator(true);
+		System.out.println(alterGen.getAlterTableStatements(c));
 	}
 
 }

@@ -14,7 +14,7 @@ import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.util.core.ListTool;
 
-public class TestCreateTable {
+public class CreateTableTester {
 
 	@Test public void testCreateTable() throws SQLException{
 		String tableName = "Person";
@@ -67,6 +67,5 @@ public class TestCreateTable {
 	@Test public void createTableUsingTextFile(){
 		
 	}
-	
 
 }

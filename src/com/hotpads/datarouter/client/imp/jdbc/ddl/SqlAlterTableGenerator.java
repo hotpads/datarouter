@@ -5,10 +5,16 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+
+import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.*;
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
@@ -24,8 +30,8 @@ public class SqlAlterTableGenerator{
 		this.requested = requested;
 	}
 	
-	public List<String> getAlterTableStatements(){
-		List<SqlAlterTable> list =  generate();
+	public List<String> getAlterTableStatements(Comparator<SqlColumn> c){
+		List<SqlAlterTable> list =  generate(c);
 		List<String> l = ListTool.createArrayList();
 		String alterSql="";
 		if(dropTable){
@@ -54,50 +60,91 @@ public class SqlAlterTableGenerator{
 		return l;
 	}
 	
-	public List<SqlAlterTable> generate() {
+	public List<SqlAlterTable> generate(Comparator<SqlColumn> c) {
 		//TODO everything
-		
-
 		List<SqlAlterTable> list = ListTool.createArrayList();
-		
 		// creating the sqlTableDiffGenerator
 		SqlTableDiffGenerator diff = new SqlTableDiffGenerator(current,requested,true);
-
-		// get the columns to add and the columns to remove
-		List<SqlColumn> colsToAdd = diff.getColumnsToAdd(),
-						colsToRemove = diff.getColumnsToRemove();
-
-		// get the other modifications ( the indexes )
-		List<SqlIndex> indexesToAdd = diff.getIndexesToAdd(),
-						 indexesToRemove = diff.getIndexesToRemove();
-		
-		// generate the alter table statements from columns to add and to remove
-		if(colsToRemove.size()<current.getNumberOfColumns()){ 
-			list.addAll(getAlterTableForRemovingColumns(colsToRemove));
-			list.add(getAlterTableForAddingColumns(colsToAdd));
-		}
-		else{// cannot drop all columns, should use drop table then create it from list of columns
-			dropTable = true;
-			list.add(new SqlAlterTable("DROP TABLE " +current.getName() +";", SqlAlterTypes.DROP_TABLE));
-			list.add(getCreateTableSqlFromListOfColumnsToAdd(colsToAdd));
-		}
-		
-		/*
-		if(diff.isPrimaryKeyModified()){
-			list.add(new SqlAlterTable("DROP PRIMARY KEY ;", SqlAlterTypes.DROP_INDEX));
+		if(diff.isTableModified()){
+			// get the columns to add and the columns to remove
+			List<SqlColumn> colsToAdd = diff.getColumnsToAdd(c),
+							colsToRemove = diff.getColumnsToRemove(c);
+	
+			// get the other modifications ( the indexes )
+			List<SqlIndex> indexesToAdd = diff.getIndexesToAdd(),
+							 indexesToRemove = diff.getIndexesToRemove();
 			
-			List<SqlColumn> listOfColumnsInPkey =requested.getPrimaryKey().getColumns(); 
-			String s = "ADD CONSTRAINT "+ requested.getPrimaryKey().getName() + "PRIMARY KEY (" ;
-			for(SqlColumn col: listOfColumnsInPkey){
-				s+= col.getName() + ",";
+			// generate the alter table statements from columns to add and to remove
+			if(colsToRemove.size()<current.getNumberOfColumns()){ 
+				list.addAll(getAlterTableForRemovingColumns(colsToRemove));
+				list.add(getAlterTableForAddingColumns(colsToAdd));
 			}
-			s=s.substring(0, s.length()-1)+")";
+			else{// cannot drop all columns, should use drop table then create it from list of columns
+				dropTable = true;
+				list.add(new SqlAlterTable("DROP TABLE " +current.getName() +";", SqlAlterTypes.DROP_TABLE));
+				list.add(getCreateTableSqlFromListOfColumnsToAdd(colsToAdd));
+			}
+			
+			//*
+			if(diff.isPrimaryKeyModified()){
+				if(current.hasPrimaryKey()){
+					list.add(new SqlAlterTable("DROP PRIMARY KEY ;", SqlAlterTypes.DROP_INDEX));
+				}
+				
+				List<SqlColumn> listOfColumnsInPkey =requested.getPrimaryKey().getColumns(); 
+				String s = "ADD CONSTRAINT "+ /*requested.getPrimaryKey().getName() + */ " PRIMARY KEY (" ;
+				for(SqlColumn col: listOfColumnsInPkey){
+					s+= col.getName() + ",";
+				}
+				s=s.substring(0, s.length()-1)+")";
+				list.add(new SqlAlterTable(s, SqlAlterTypes.ADD_CONTRAINT));
+			}
+			//*/
+			if(diff.isIndexesModified()){
+				list.addAll(getAlterTableForRemovingIndexes(indexesToRemove));
+				list.addAll(getAlterTableForAddingIndexes(indexesToAdd));
+			}	
+		}
+		//s+=");";
+		return list;
+	}
+
+	private List<SqlAlterTable> getAlterTableForRemovingIndexes(
+			List<SqlIndex> indexesToAdd) {
+		// TODO Auto-generated method stub
+		List<SqlAlterTable> list = ListTool.createArrayList();
+		
+		if(indexesToAdd.size()>0){
+			String s="";
+			for(SqlIndex index : indexesToAdd){
+				s+= "DROP INDEX "+ index.getName() + ", ";
+			}
+			s=s.substring(0,s.length()-2);
+			s+=";";
+			list.add(new SqlAlterTable(s, SqlAlterTypes.DROP_INDEX));
+		}
+		return list;
+	}
+
+	private List<SqlAlterTable> getAlterTableForAddingIndexes(
+			List<SqlIndex> indexesToRemove) {
+		// TODO Auto-generated method stub
+		List<SqlAlterTable> list = ListTool.createArrayList();
+		
+		if(indexesToRemove.size()>0){
+			String s="";
+			for(SqlIndex index : indexesToRemove){
+				s+="ADD KEY " + index.getName() + "( ";
+				for(SqlColumn col : index.getColumns()){
+					s+= col.getName() + ", ";
+				}
+				s =s.substring(0, s.length()-2);
+				s+="), ";
+			}
+			s = s.substring(0, s.length()-2);
+			s+=";";
 			list.add(new SqlAlterTable(s, SqlAlterTypes.ADD_CONTRAINT));
 		}
-		//*/
-		// append them all into s
-		
-		//s+=");";
 		return list;
 	}
 
@@ -167,10 +214,9 @@ public class SqlAlterTableGenerator{
 		}
 		return list;
 	}
-
-
-	public static class TestSqlAlterTableGenerator{
-		@Test public void generateTest() throws IOException{
+	
+	public static class SqlAlterTableGeneratorTester{
+		 public void generateTest() throws IOException{
 			SqlColumn 
 			colA = new SqlColumn("A", MySqlColumnType.BIGINT),
 			colB = new SqlColumn("B", MySqlColumnType.VARCHAR,250,false),
@@ -186,12 +232,13 @@ public class SqlAlterTableGenerator{
 			SqlTable 
 					table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
 					table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
+			SqlColumnNameComparator c = new SqlColumnNameComparator(true);
 			
 			SchemaUpdateOptions options = new SchemaUpdateOptions().setAllTrue();
 			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(options, table2, table1);
 			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2);
-			System.out.println(alterGenerator21.generate());
-			System.out.println(alterGenerator12.generate());
+			System.out.println(alterGenerator21.generate(c));
+			System.out.println(alterGenerator12.generate(c));
 			
 			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test2.txt");
 			DataInputStream in = new DataInputStream(fis);
@@ -212,13 +259,119 @@ public class SqlAlterTableGenerator{
 			}
 			 parser = new SqlCreateTableParser(phrase);
 			SqlTable tab2 = parser.parse();
-			System.out.println(tab2);
+			//System.out.println(tab2);
 			
 			SqlAlterTableGenerator alterGeneratorBis21 = new SqlAlterTableGenerator(options, tab2, tab1);
 			SqlAlterTableGenerator alterGeneratorBis12 = new SqlAlterTableGenerator(options, tab1, tab2);
-			System.out.println(alterGeneratorBis21.generate());
-			System.out.println(alterGeneratorBis12.generate());
+			System.out.println(alterGeneratorBis21.generate(c));
+			System.out.println(alterGeneratorBis12.generate(c));
 		}
+	
+		@Test public void getAlterTableStatementsTester() throws IOException{
+			SqlColumn 
+			colA = new SqlColumn("A", MySqlColumnType.BIGINT),
+			colB = new SqlColumn("B", MySqlColumnType.VARCHAR,250,false),
+			colC = new SqlColumn("C", MySqlColumnType.BOOLEAN),
+			colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
+			List<SqlColumn> 
+					listBC = ListTool.createArrayList(),
+					listM = ListTool.createArrayList();
+
+			listBC.add(colB);
+			listBC.add(colC);
+			listM.add(colM);
+			SqlTable 
+					table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
+					table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
+			SqlColumnNameComparator nameComparator = new SqlColumnNameComparator(true);
+			SqlColumnNameTypeComparator nameTypeComparator= new SqlColumnNameTypeComparator(true);
+			
+			
+			
+			SchemaUpdateOptions options = new SchemaUpdateOptions().setAllTrue();
+			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(options, table2, table1);
+			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2);
+			System.out.println(alterGenerator21.getAlterTableStatements(nameComparator));
+			System.out.println(alterGenerator12.getAlterTableStatements(nameComparator));
+			
+			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test2.txt");
+			DataInputStream in = new DataInputStream(fis);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String str, phrase = "";
+			while((str = br.readLine()) != null){
+				phrase += str;
+			}
+			SqlCreateTableParser parser = new SqlCreateTableParser(phrase);
+			SqlTable tab1 = parser.parse();
+			
+			 fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test22.txt");
+			 in = new DataInputStream(fis);
+			 br = new BufferedReader(new InputStreamReader(in));
+			 phrase = "";
+			while((str = br.readLine()) != null){
+				phrase += str;
+			}
+			 parser = new SqlCreateTableParser(phrase);
+			SqlTable tab2 = parser.parse();
+			
+			//System.out.println(tab1);
+			//System.out.println(tab2);
+			SqlAlterTableGenerator alterGeneratorBis21 = new SqlAlterTableGenerator(options, tab2, tab1);
+			SqlAlterTableGenerator alterGeneratorBis12 = new SqlAlterTableGenerator(options, tab1, tab2);
+			
+			System.out.println(alterGeneratorBis21.getAlterTableStatements(nameComparator));
+			System.out.println(alterGeneratorBis12.getAlterTableStatements(nameComparator));
+			
+			
+			tab1 = new SqlTable("a"); tab2 =  new SqlTable("a");
+			SqlColumn col0 =  new SqlColumn("ab", MySqlColumnType.VARCHAR,200,true), col0clone = col0.clone();
+			tab2.addColumn(col0);
+			col0clone.setType(MySqlColumnType.BINARY);
+			tab1.addColumn(col0clone);
+			
+//			System.out.println(tab1);
+//			System.out.println(tab2);
+			 alterGeneratorBis21 = new SqlAlterTableGenerator(options, tab2, tab1);
+			 alterGeneratorBis12 = new SqlAlterTableGenerator(options, tab1, tab2);
+			Assert.assertTrue(CollectionTool.isEmpty(alterGeneratorBis21.getAlterTableStatements(nameComparator)));
+			Assert.assertTrue(CollectionTool.isEmpty(alterGeneratorBis12.getAlterTableStatements(nameComparator)));
+			Assert.assertFalse(CollectionTool.isEmpty(alterGeneratorBis21.getAlterTableStatements(nameTypeComparator)));
+			Assert.assertFalse(CollectionTool.isEmpty(alterGeneratorBis12.getAlterTableStatements(nameTypeComparator)));
+			
+	}
+	
+		@Test public void getAlterTableForIndexesTester(){
+			SqlColumn 
+			colA = new SqlColumn("A", MySqlColumnType.BIGINT),
+			colB = new SqlColumn("B", MySqlColumnType.VARCHAR,250,false),
+			colC = new SqlColumn("C", MySqlColumnType.BOOLEAN),
+			colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
+			List<SqlColumn> 
+					listBC = ListTool.createArrayList(),
+					listM = ListTool.createArrayList();
+
+			listBC.add(colB);
+			listBC.add(colC);
+			listM.add(colM);
+			SqlTable 
+					table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
+					table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
+			SqlColumnNameComparator nameComparator = new SqlColumnNameComparator(true);
+			SqlColumnNameTypeComparator nameTypeComparator= new SqlColumnNameTypeComparator(true);
+			
+			SqlIndex index = new SqlIndex("1", listBC),
+						index2 = new SqlIndex("2", listM);
+			table1.addIndex(index);
+			table1.addIndex(index2);
+			
+			SchemaUpdateOptions options = new SchemaUpdateOptions().setAllTrue();
+			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(options, table2, table1);
+			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2);
+			
+			System.out.println(alterGenerator12.getAlterTableStatements(nameTypeComparator));
+			System.out.println(alterGenerator21.getAlterTableStatements(nameTypeComparator));
+		}
+	
 	}
 	
 }

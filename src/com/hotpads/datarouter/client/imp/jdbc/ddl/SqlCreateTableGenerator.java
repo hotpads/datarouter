@@ -71,7 +71,7 @@ public class SqlCreateTableGenerator {
 		
 	}
 	
-	public static class  SqlCreateTableGeneratorTests{
+	public static class  SqlCreateTableGeneratorTester{
 		
 		@Test public void testGenerate(){
 			String nameOfTable="Model";
@@ -94,4 +94,5 @@ public class SqlCreateTableGenerator {
 			//Assert.assertEquals(expected, actual);
 		}
 	}
+
 }

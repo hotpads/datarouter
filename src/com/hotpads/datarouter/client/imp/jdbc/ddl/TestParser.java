@@ -340,7 +340,7 @@ public class TestParser {
 		return sResult;
 	}
 
-	public static class ParserTest{
+	public static class ParserTester{
 		
 		@Test public void testGetKeyDeclarationFromFullBody(){
 			String s="CREATE TABLE `Inquiry` (" +
@@ -388,4 +388,5 @@ public class TestParser {
 			// Assert.assertEquals(s2, getKeyDeclarationFromFullBody(SqlTable.getFullBody(s)));
 		}
 	}
+
 }

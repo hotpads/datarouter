@@ -64,6 +64,7 @@ public class SqlCreateTableFromConnection {
 						addAppropriateColumnToPrimaryKeyFromListOfColumnindexList(
 								table, indexList.getString("COLUMN_NAME"),
 								table.getColumns());
+						listOfIndexes.add(index);
 					} else {
 						addAppropriateColumnToIndexFromListOfColumn(index,
 								indexList.getString("COLUMN_NAME"),
@@ -125,13 +126,34 @@ public class SqlCreateTableFromConnection {
 
 	public static class TestSqlCreateTableFromConnection {
 		@Test
-		public void getTableTest() {
+		public void getTableTest() throws SQLException {
 			Connection conn = JdbcTool.openConnection("localhost", 3306,
 					"property", "root", "");
-			SqlCreateTableFromConnection creator = new SqlCreateTableFromConnection(
-					conn, "Inquiry");
-			SqlTable table = creator.getTable();
+			
+			SqlCreateTableFromConnection creator ;
+			
+			List<String> tableNames = JdbcTool.showTables(conn);
+			SqlTable table;
+			
+			for(String s: tableNames){
+				System.out.println(s);
+				creator = new SqlCreateTableFromConnection(
+						conn, s);
+				if(s.equals("CommentVote")){
+					System.out.println();
+				}
+				table = creator.getTable();
+				System.out.println(table);
+				System.out.println();
+			}
+			
+
+			creator = new SqlCreateTableFromConnection(
+					conn, "UserNote");
+			table = creator.getTable();
 			System.out.println(table);
+			conn.close();
 		}
 	}
+
 }

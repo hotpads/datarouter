@@ -158,7 +158,7 @@ public class SqlCreateTableParser{
 	
 	/******************** tests *****************************/
 	
-	public static class SqlCreateTableParserTests{
+	public static class SqlCreateTableParserTester{
 		@Test public void testParse() {
 			String sql = "CREATE TABLE `Model` (" +
 					"`includeInSummary` tinyint(1) DEFAULT NULL," +
@@ -234,4 +234,5 @@ public class SqlCreateTableParser{
 			
 		}
 	}
+
 }

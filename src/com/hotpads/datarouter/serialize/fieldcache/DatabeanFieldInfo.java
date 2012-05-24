@@ -33,6 +33,7 @@ public class DatabeanFieldInfo<
 	protected Class<D> databeanClass;
 	protected D sampleDatabean;
 	protected String keyFieldName;
+	protected List<List<Field<?>>> indexes; // !new! the indexes in the databean
 	
 	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
 	protected ScatteringPrefix sampleScatteringPrefix;
@@ -83,11 +84,13 @@ public class DatabeanFieldInfo<
 				this.sampleFielder = ReflectionTool.create(fielderClass);
 				this.primaryKeyFields = sampleFielder.getKeyFielder().getFields(sampleDatabean.getKey());
 				this.prefixedPrimaryKeyFields = sampleFielder.getKeyFields(sampleDatabean);
+				
 				if(fieldAware){
 					this.fields = sampleFielder.getFields(sampleDatabean);//make sure there is a PK or this will NPE
 					addFieldsToCollections();
 					this.nonKeyFields = sampleFielder.getNonKeyFields(sampleDatabean);//only do these if the previous fields succeeded	
 					addNonKeyFieldsToCollections();
+					this.indexes=sampleFielder.getIndexes(sampleDatabean);
 				}
 				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
 			}
@@ -273,6 +276,14 @@ public class DatabeanFieldInfo<
 	public ScatteringPrefix getSampleScatteringPrefix() {
 		return sampleScatteringPrefix;
 	}
+
+
+	
+	public List<List<Field<?>>> getIndexes() {
+		return indexes;
+	}
+
+
 	
 	
 }

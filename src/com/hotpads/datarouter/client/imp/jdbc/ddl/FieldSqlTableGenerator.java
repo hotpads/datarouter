@@ -24,12 +24,22 @@ public class FieldSqlTableGenerator {
 	private String tableName;
 	private List<Field<?>> primaryKeyFields;
 	private List<Field<?>> nonKeyFields;
+	private List<List<Field<?>>> indexes;
 	
 	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields,
 			List<Field<?>> nonKeyFields) {
 		this.tableName = tableName;
 		this.primaryKeyFields = primaryKeyFields;
 		this.nonKeyFields = nonKeyFields;
+		this.indexes = ListTool.createArrayList();
+	}
+	
+	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields,
+			List<Field<?>> nonKeyFields, List<List<Field<?>>> indexes) {
+		this.tableName = tableName;
+		this.primaryKeyFields = primaryKeyFields;
+		this.nonKeyFields = nonKeyFields;
+		this.indexes = indexes;
 	}
 
 	public SqlTable generate(){
@@ -42,6 +52,15 @@ public class FieldSqlTableGenerator {
 		table.setPrimaryKey(pKey);
 		for(Field<?> f: getNonKeyFields()){
 			table.addColumn(f.getSqlColumnDefinition());
+		}
+		int i=1;
+		for(List<Field<?>> lof : indexes){
+			SqlIndex index = new SqlIndex(tableName+"_index"+i);
+			for(Field<?> f: lof){
+				index.addColumn(f.getSqlColumnDefinition());
+			}
+			table.addIndex(index);
+			i++;
 		}
 		return table;
 		
@@ -71,5 +90,12 @@ public class FieldSqlTableGenerator {
 		this.nonKeyFields = nonKeyFields;
 	}
 
+	public List<List<Field<?>>> getIndexes() {
+		return indexes;
+	}
+
+	public void setIndexes(List<List<Field<?>>> indexes) {
+		this.indexes = indexes;
+	}
 
 }
