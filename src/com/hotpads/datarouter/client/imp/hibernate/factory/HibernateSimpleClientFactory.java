@@ -24,7 +24,9 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.FieldSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SchemaUpdateOptions;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTypes;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameTypeComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableFromConnection;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
@@ -45,6 +47,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
+
 
 public class HibernateSimpleClientFactory implements HibernateClientFactory {
 	Logger logger = Logger.getLogger(getClass());
@@ -257,7 +260,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				Statement statement = connection.createStatement();
 				boolean exists = tableNames.contains(tableName);
 				if (!exists) {
-					if (!schemaUpdateOptions.getCreateTables()) {
+					if (!schemaUpdateOptions.getExecuteCreateTables()) {
 						return;
 					}
 					// do create table
@@ -266,9 +269,11 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 					System.out.println("** Creating table :" + sql);
 					statement.execute(sql);
 				} else {
-					if (!schemaUpdateOptions.anyAlterTrue()) {
+					/*if (!schemaUpdateOptions.anyAlterTrue()) {
 						return;
-					}
+					}*/
+					
+					
 					/*
 					 * System.out.println("show create table "+tableName );
 					 * ResultSet resultSet =
@@ -294,10 +299,11 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 							true);
 					SqlColumnNameTypeComparator nameTypeComparator = new SqlColumnNameTypeComparator(
 							true);
-					List<String> alterTableStatements = alterTableGenerator
+					List<SqlAlterTable> alterTableStatements = alterTableGenerator
 							.getAlterTableStatements(nameTypeComparator);
-					for (String s : alterTableStatements) {
-						System.out.println(s);
+					for (SqlAlterTable s : alterTableStatements) {
+						printStatementDependingOnSchemaUpdateOption(schemaUpdateOptions,s);
+						executeStatementDependingOnSchemaUpdateOption(schemaUpdateOptions,s, statement);
 						// statement.execute(s);
 					}
 				}
@@ -306,6 +312,87 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 			throw new RuntimeException(e);
 		} finally {
 			JdbcTool.closeConnection(connection);
+		}
+	}
+
+	private void executeStatementDependingOnSchemaUpdateOption(
+			SchemaUpdateOptions schemaUpdate, SqlAlterTable alterTable, Statement statement) throws SQLException {
+		// TODO Auto-generated method stub
+		switch (alterTable.getType()) {
+		case ADD_COLUMN:
+			if(schemaUpdate.getPrintAddColumns()) {
+				System.out.println(":---------- Execution ----------:");
+				statement.execute(alterTable.getAlterTable());
+			}
+			break;
+		case DROP_COLUMN:
+			if(schemaUpdate.getPrintDeleteColumns()) {
+				System.out.println(":---------- Execution ----------:");
+				statement.execute(alterTable.getAlterTable());
+			}
+			break;
+		case MODIFY:
+			if(schemaUpdate.getPrintModifyColumn()) {
+				System.out.println(":---------- Execution ----------:");
+				statement.execute(alterTable.getAlterTable());
+			}
+			break;
+		case ADD_INDEX:
+			if(schemaUpdate.getPrintAddIndex()) {
+				System.out.println(":---------- Execution ----------:");
+				statement.execute(alterTable.getAlterTable());
+			}
+			break;
+		case DROP_INDEX:
+			if(schemaUpdate.getPrintDropIndex()) {
+				System.out.println(":---------- Execution ----------:");
+				statement.execute(alterTable.getAlterTable());
+			}
+			break;
+		case CREATE_TABLE:
+			if(schemaUpdate.getPrintCreateTables()) {
+				System.out.println(":---------- Execution ----------:");
+				statement.execute(alterTable.getAlterTable());
+			}
+			break;
+		case DROP_TABLE:
+			if(schemaUpdate.getPrintDropTables()) {
+				System.out.println(":---------- Execution ----------:");
+				statement.execute(alterTable.getAlterTable());
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	private void printStatementDependingOnSchemaUpdateOption(
+			SchemaUpdateOptions schemaUpdate, SqlAlterTable alterTable) {
+		// TODO Auto-generated method stub
+		switch (alterTable.getType()) {
+		case ADD_COLUMN:
+			if(schemaUpdate.getPrintAddColumns()) System.out.println(alterTable.getAlterTable());
+			break;
+		case DROP_COLUMN:
+			if(schemaUpdate.getPrintDeleteColumns()) System.out.println(alterTable.getAlterTable());
+			break;
+		case MODIFY:
+			if(schemaUpdate.getPrintModifyColumn()) System.out.println(alterTable.getAlterTable());
+			break;
+		case ADD_INDEX:
+			if(schemaUpdate.getPrintAddIndex()) System.out.println(alterTable.getAlterTable());
+			break;
+		case DROP_INDEX:
+			if(schemaUpdate.getPrintDropIndex()) System.out.println(alterTable.getAlterTable());
+			break;
+		case CREATE_TABLE:
+			if(schemaUpdate.getPrintCreateTables()) System.out.println(alterTable.getAlterTable());
+			break;
+		case DROP_TABLE:
+			if(schemaUpdate.getPrintDropTables()) System.out.println(alterTable.getAlterTable());
+			break;
+		default:
+			break;
 		}
 	}
 }

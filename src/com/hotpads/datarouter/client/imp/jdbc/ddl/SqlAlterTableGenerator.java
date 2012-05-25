@@ -30,7 +30,7 @@ public class SqlAlterTableGenerator{
 		this.requested = requested;
 	}
 	
-	public List<String> getAlterTableStatements(Comparator<SqlColumn> c){
+	public List<String> getAlterTableStatementsStrings(Comparator<SqlColumn> c){
 		List<SqlAlterTable> list =  generate(c);
 		List<String> l = ListTool.createArrayList();
 		String alterSql="";
@@ -52,6 +52,36 @@ public class SqlAlterTableGenerator{
 						s+="ALTER TABLE `" + current.getName()+"` \n"; 
 						s+=alterSql;
 						l.add(s);
+				}
+			}
+			//s+="\n";
+		}
+		
+		return l;
+	}
+	
+	public List<SqlAlterTable> getAlterTableStatements(Comparator<SqlColumn> c){
+		List<SqlAlterTable> list =  generate(c);
+		List<SqlAlterTable> l = ListTool.createArrayList();
+		String alterSql="";
+		if(dropTable){
+			for(SqlAlterTable sqlAT : list){
+				String s="";
+				alterSql = sqlAT.getAlterTable();
+				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
+						l.add(sqlAT);
+				}
+			}
+		}
+		else{
+				for(SqlAlterTable sqlAT : list){
+				String s="";
+				alterSql = sqlAT.getAlterTable();
+				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
+						s+="ALTER TABLE `" + current.getName()+"` \n"; 
+						s+=alterSql;
+						sqlAT.setAlterTable(s);
+						l.add(sqlAT);
 				}
 			}
 			//s+="\n";
@@ -97,7 +127,7 @@ public class SqlAlterTableGenerator{
 					s+= col.getName() + ",";
 				}
 				s=s.substring(0, s.length()-1)+")";
-				list.add(new SqlAlterTable(s, SqlAlterTypes.ADD_CONTRAINT));
+				list.add(new SqlAlterTable(s, SqlAlterTypes.ADD_INDEX));
 			}
 			//*/
 			if(diff.isIndexesModified()){
@@ -143,7 +173,7 @@ public class SqlAlterTableGenerator{
 			}
 			s = s.substring(0, s.length()-2);
 			s+=";";
-			list.add(new SqlAlterTable(s, SqlAlterTypes.ADD_CONTRAINT));
+			list.add(new SqlAlterTable(s, SqlAlterTypes.ADD_INDEX));
 		}
 		return list;
 	}

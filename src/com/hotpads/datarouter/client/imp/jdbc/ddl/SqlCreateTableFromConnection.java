@@ -64,7 +64,7 @@ public class SqlCreateTableFromConnection {
 						addAppropriateColumnToPrimaryKeyFromListOfColumnindexList(
 								table, indexList.getString("COLUMN_NAME"),
 								table.getColumns());
-						listOfIndexes.add(index);
+						//listOfIndexes.add(index);
 					} else {
 						addAppropriateColumnToIndexFromListOfColumn(index,
 								indexList.getString("COLUMN_NAME"),
