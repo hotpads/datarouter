@@ -22,7 +22,7 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.FieldSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SchemaUpdateOptions;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableClause;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameTypeComparator;
