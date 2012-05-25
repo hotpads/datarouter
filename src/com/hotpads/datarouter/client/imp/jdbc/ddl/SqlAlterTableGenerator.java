@@ -5,7 +5,6 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
@@ -13,8 +12,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.*;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameComparator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameTypeComparator;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
@@ -74,7 +75,7 @@ public class SqlAlterTableGenerator{
 			}
 		}
 		else{
-				for(SqlAlterTable sqlAT : list){
+			for(SqlAlterTable sqlAT : list){
 				String s="";
 				alterSql = sqlAT.getAlterTable();
 				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
@@ -88,6 +89,21 @@ public class SqlAlterTableGenerator{
 		}
 		
 		return l;
+	}
+	
+	public String getMasterAlterStatement(Comparator<SqlColumn> comparator){
+		List<SqlAlterTable> singleAlters =  generate(comparator);
+		if(CollectionTool.isEmpty(singleAlters)){ return null; }
+		StringBuilder sb = new StringBuilder();
+		sb.append("alter table "+current.getName()+"\n");
+		int numAppended = 0;
+		for(SqlAlterTable singleAlter : IterableTool.nullSafe(singleAlters)){
+			if(numAppended>0){ sb.append(",\n"); }
+			sb.append(singleAlter.getAlterTable());
+			++numAppended;
+		}
+		sb.append(";");
+		return sb.toString();
 	}
 	
 	public List<SqlAlterTable> generate(Comparator<SqlColumn> c) {
@@ -139,10 +155,10 @@ public class SqlAlterTableGenerator{
 		return list;
 	}
 
-	private List<SqlAlterTable> getAlterTableForRemovingIndexes(
-			List<SqlIndex> indexesToAdd) {
+	private List<SqlAlterTable> getAlterTableForRemovingIndexes(List<SqlIndex> indexesToAdd) {
 		// TODO Auto-generated method stub
 		List<SqlAlterTable> list = ListTool.createArrayList();
+		if(!options.getDropIndex()){ return list; }
 		
 		if(indexesToAdd.size()>0){
 			String s="";
@@ -231,6 +247,7 @@ public class SqlAlterTableGenerator{
 	private List<SqlAlterTable> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove) {
 		// TODO Auto-generated method stub
 		List<SqlAlterTable> list = ListTool.createArrayList();
+		if(!options.getDeleteColumns()){ return list; }
 		
 		if(colsToRemove.size()>0){
 			String s = "";

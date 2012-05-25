@@ -9,84 +9,85 @@ import com.hotpads.util.core.PropertiesTool;
 public class SchemaUpdateOptions{
 	
 	public static final String 
-			SUFFIX_printCreateTables = ".printCreateTables", 
-			SUFFIX_printDropTables = ".printDropTables",
-			SUFFIX_printAddColumns = ".printAddColumns", 
-			SUFFIX_printDeleteColumns = ".printDeleteColumns",
-			/*SUFFIX_printModifyColumnLengths = ".printModifyColumnLengths",*/
-			SUFFIX_printModifyColumn = ".printModifyColumn",
-			SUFFIX_printAddIndex = ".printAddIndex",
-			SUFFIX_printDropIndex = ".printAddIndex";
+			SUFFIX_createTables = ".createTables", 
+			SUFFIX_dropTables = ".dropTables",
+			SUFFIX_addColumns = ".addColumns", 
+			SUFFIX_deleteColumns = ".deleteColumns",
+			/*SUFFIX_modifyColumnLengths = ".modifyColumnLengths",*/
+			SUFFIX_modifyColumn = ".modifyColumn",
+			SUFFIX_addIndex = ".addIndex",
+			SUFFIX_dropIndex = ".dropIndex";
 	
-	/*
-	 * print the DDL with a message: "Please Execute: alter table xyz..."
-	 */
-	//default to true
-	protected Boolean printCreateTables;
-	protected Boolean printDropTables;
-	protected Boolean printAddColumns;
-	protected Boolean printDeleteColumns;
-	/*protected Boolean printModifyColumnLengths;*/
-	protected Boolean printModifyColumn;
-	protected Boolean printAddIndex;
-	protected Boolean printDropIndex;
-	
-	/*
-	 * if these are true, we should still print the DDL, but with a message saying "Executing: alter table xyz..."
-	 * 
-	 * if any needed operation on a given table is disabled, then we should disable all execution for the table and 
-	 * revert to printing
-	 */
-	//default to true
-	protected Boolean executeCreateTables;
-	//default to false
-	protected Boolean executeDropTables;
-	protected Boolean executeAddColumns;
-	protected Boolean executeDeleteColumns;
-	/*protected Boolean executeModifyColumnLengths;*/
-	protected Boolean executeAddIndex;
-	protected Boolean executeDropIndex;
+	protected Boolean createTables;
+	protected Boolean dropTables;
+	protected Boolean addColumns;
+	protected Boolean deleteColumns;
+	/*protected Boolean modifyColumnLengths;*/
+	protected Boolean modifyColumn;
+	protected Boolean addIndex;
+	protected Boolean dropIndex;
 	
 	public SchemaUpdateOptions(){
 	}
 	
-	public SchemaUpdateOptions(List<Properties> multiProperties, String prefix){		
-		this.printCreateTables = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-				prefix+SUFFIX_printCreateTables));
-		this.printDropTables = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-				prefix+SUFFIX_printDropTables));
-		this.printAddColumns = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-				prefix+SUFFIX_printAddColumns));
-		this.printDeleteColumns = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-				prefix+SUFFIX_printDeleteColumns));
-		/*this.printModifyColumnLengths = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-				prefix+SUFFIX_printModifyColumnLengths));*/
-		this.printModifyColumn = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-				prefix+SUFFIX_printModifyColumn));
-		this.printAddIndex = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-				prefix+SUFFIX_printAddIndex));
-		this.printDropIndex = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-				prefix+SUFFIX_printDropIndex));
+	public SchemaUpdateOptions(List<Properties> multiProperties, String prefix, boolean printVsExecute){	
+		if(printVsExecute){
+			this.createTables = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_createTables));
+			this.dropTables = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_dropTables));
+			this.addColumns = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_addColumns));
+			this.deleteColumns = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_deleteColumns));
+			/*this.printModifyColumnLengths = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_printModifyColumnLengths));*/
+			this.modifyColumn = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_modifyColumn));
+			this.addIndex = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_addIndex));
+			this.dropIndex = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_dropIndex));
+		}else{
+			this.createTables = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_createTables));
+			this.dropTables = false;
+			this.addColumns = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_addColumns));
+			this.deleteColumns = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_deleteColumns));
+			/*this.printModifyColumnLengths = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_printModifyColumnLengths));*/
+			this.modifyColumn = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_modifyColumn));
+			this.addIndex = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_addIndex));
+			this.dropIndex = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_dropIndex));
+		}
 		
 	}
 
 	
 	/****************************** methods ******************************/
-/*	
-	public boolean anyTrue(){
-		return createTables | anyAlterTrue();
-	}
-	
-	public boolean anyAlterTrue(){
-		return dropTables | addColumns | deleteColumns | modify;
-	}
+
+//	public boolean anyTrue(){
+//		return createTables | anyAlterTrue();
+//	}
+//	
+//	public boolean anyAlterTrue(){
+//		return dropTables | addColumns | deleteColumns | modify;
+//	}
 	
 	public SchemaUpdateOptions setAllTrue(){
 		createTables = true;
 		dropTables = true;
 		addColumns = true;
 		deleteColumns = true;
-		modifyColumnLengths = true;
+		/*modifyColumnLengths;*/
+		modifyColumn = true;
+		addIndex = true;
+		dropIndex = true;
 		return this;
 	}
 
@@ -95,128 +96,62 @@ public class SchemaUpdateOptions{
 	
 	/******************************* get/set *****************************/
 
-	public Boolean getPrintCreateTables() {
-		return printCreateTables;
+	public Boolean getCreateTables(){
+		return createTables;
 	}
 
-	public void setPrintCreateTables(Boolean printCreateTables) {
-		this.printCreateTables = printCreateTables;
+	public void setCreateTables(Boolean createTables){
+		this.createTables = createTables;
 	}
 
-	public Boolean getPrintDropTables() {
-		return printDropTables;
+	public Boolean getDropTables(){
+		return dropTables;
 	}
 
-	public void setPrintDropTables(Boolean printDropTables) {
-		this.printDropTables = printDropTables;
+	public void setDropTables(Boolean dropTables){
+		this.dropTables = dropTables;
 	}
 
-	public Boolean getPrintAddColumns() {
-		return printAddColumns;
+	public Boolean getAddColumns(){
+		return addColumns;
 	}
 
-	public void setPrintAddColumns(Boolean printAddColumns) {
-		this.printAddColumns = printAddColumns;
+	public void setAddColumns(Boolean addColumns){
+		this.addColumns = addColumns;
 	}
 
-	public Boolean getPrintDeleteColumns() {
-		return printDeleteColumns;
+	public Boolean getDeleteColumns(){
+		return deleteColumns;
 	}
 
-	public void setPrintDeleteColumns(Boolean printDeleteColumns) {
-		this.printDeleteColumns = printDeleteColumns;
+	public void setDeleteColumns(Boolean deleteColumns){
+		this.deleteColumns = deleteColumns;
 	}
 
-	/*
-	public Boolean getPrintModifyColumnLengths() {
-		return printModifyColumnLengths;
+	public Boolean getModifyColumn(){
+		return modifyColumn;
 	}
 
-	public void setPrintModifyColumnLengths(Boolean printModifyColumnLengths) {
-		this.printModifyColumnLengths = printModifyColumnLengths;
-	}
-	 */
-	
-	public Boolean getPrintAddIndex() {
-		return printAddIndex;
+	public void setModifyColumn(Boolean modifyColumn){
+		this.modifyColumn = modifyColumn;
 	}
 
-	public void setPrintAddIndex(Boolean printAddIndex) {
-		this.printAddIndex = printAddIndex;
+	public Boolean getAddIndex(){
+		return addIndex;
 	}
 
-	public Boolean getPrintDropIndex() {
-		return printDropIndex;
+	public void setAddIndex(Boolean addIndex){
+		this.addIndex = addIndex;
 	}
 
-	public void setPrintDropIndex(Boolean printDropIndex) {
-		this.printDropIndex = printDropIndex;
+	public Boolean getDropIndex(){
+		return dropIndex;
 	}
 
-	public Boolean getExecuteCreateTables() {
-		return executeCreateTables;
-	}
-
-	public void setExecuteCreateTables(Boolean executeCreateTables) {
-		this.executeCreateTables = executeCreateTables;
-	}
-
-	public Boolean getExecuteDropTables() {
-		return executeDropTables;
-	}
-
-	public void setExecuteDropTables(Boolean executeDropTables) {
-		this.executeDropTables = executeDropTables;
-	}
-
-	public Boolean getExecuteAddColumns() {
-		return executeAddColumns;
-	}
-
-	public void setExecuteAddColumns(Boolean executeAddColumns) {
-		this.executeAddColumns = executeAddColumns;
-	}
-
-	public Boolean getExecuteDeleteColumns() {
-		return executeDeleteColumns;
-	}
-
-	public void setExecuteDeleteColumns(Boolean executeDeleteColumns) {
-		this.executeDeleteColumns = executeDeleteColumns;
+	public void setDropIndex(Boolean dropIndex){
+		this.dropIndex = dropIndex;
 	}
 	
-	/*
-	public Boolean getExecuteModifyColumnLengths() {
-		return executeModifyColumnLengths;
-	}
-
-	public void setExecuteModifyColumnLengths(Boolean executeModifyColumnLengths) {
-		this.executeModifyColumnLengths = executeModifyColumnLengths;
-	}
-	*/
 	
-	public Boolean getExecuteAddIndex() {
-		return executeAddIndex;
-	}
-
-	public void setExecuteAddIndex(Boolean executeAddIndex) {
-		this.executeAddIndex = executeAddIndex;
-	}
-
-	public Boolean getExecuteDropIndex() {
-		return executeDropIndex;
-	}
-
-	public void setExecuteDropIndex(Boolean executeDropIndex) {
-		this.executeDropIndex = executeDropIndex;
-	}
-
-	public Boolean getPrintModifyColumn() {
-		return printModifyColumn;
-	}
-
-	public void setPrintModifyColumn(Boolean printModifyColumn) {
-		this.printModifyColumn = printModifyColumn;
-	}
 
 }
