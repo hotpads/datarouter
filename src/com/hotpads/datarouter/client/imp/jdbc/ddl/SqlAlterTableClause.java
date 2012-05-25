@@ -1,11 +1,11 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 
-public class SqlAlterTable {
+public class SqlAlterTableClause {
 	
 	String alterTable;
 	SqlAlterTypes type;
-	public SqlAlterTable(String alterTable, SqlAlterTypes type){
+	public SqlAlterTableClause(String alterTable, SqlAlterTypes type){
 		this.alterTable = alterTable;
 		this.type = type;
 	}

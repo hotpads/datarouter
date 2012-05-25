@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.hibernate.factory;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
@@ -15,7 +14,6 @@ import java.util.concurrent.Future;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
-import org.mockito.internal.exceptions.util.ScenarioPrinter;
 
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
@@ -24,15 +22,13 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.FieldSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SchemaUpdateOptions;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableClause;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTypes;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameTypeComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableFromConnection;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableParser;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTable;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameComparator;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.Nodes;
@@ -54,15 +50,15 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 
 	public static final Boolean SCHEMA_UPDATE = true;
 
-	public static final String hibernate_connection_prefix = "hibernate.connection.",
-			provider_class = hibernate_connection_prefix + "provider_class", // from
-																				// org.hibernate.cfg.Environment.CONNECTION_PROVIDER
-			connectionPoolName = hibernate_connection_prefix
-					+ "connectionPoolName", // any name... SessionFactory simply
-											// passes them through
-			schemaUpdatePrefix = "schemaUpdate";
+	public static final String 
+			hibernate_connection_prefix = "hibernate.connection.",
+			provider_class = hibernate_connection_prefix + "provider_class", // from org.hibernate.cfg.Environment.CONNECTION_PROVIDER
+			connectionPoolName = hibernate_connection_prefix + "connectionPoolName", // any name... SessionFactory simply passes them through
+			schemaUpdatePrintPrefix = "schemaUpdate.print",
+			schemaUpdateExecutePrefix = "schemaUpdate.execute";
 
-	public static final String paramConfigLocation = ".configLocation",
+	public static final String 
+			paramConfigLocation = ".configLocation",
 			nestedParamSessionFactory = ".param.sessionFactory";
 
 	public static final String configLocationDefault = "hib-default.cfg.xml";
@@ -71,20 +67,21 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 	protected String clientName;
 	protected List<String> configFilePaths;
 	protected List<Properties> multiProperties;
-	protected SchemaUpdateOptions schemaUpdateOptions;
+	protected SchemaUpdateOptions schemaUpdatePrintOptions;
+	protected SchemaUpdateOptions schemaUpdateExecuteOptions;
 	protected ExecutorService executorService;
 	protected HibernateClient client;
 
-	public HibernateSimpleClientFactory(DataRouterContext drContext,
-			String clientName, ExecutorService executorService) {
+	public HibernateSimpleClientFactory(DataRouterContext drContext, String clientName, 
+			ExecutorService executorService) {
 		this.drContext = drContext;
 		this.clientName = clientName;
 		this.executorService = executorService;
 
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
-		this.schemaUpdateOptions = new SchemaUpdateOptions(multiProperties,
-				schemaUpdatePrefix);
+		this.schemaUpdatePrintOptions = new SchemaUpdateOptions(multiProperties, schemaUpdatePrintPrefix);
+		this.schemaUpdateExecuteOptions = new SchemaUpdateOptions(multiProperties, schemaUpdateExecutePrefix);
 	}
 
 	protected static final boolean SEPARATE_THREAD = true;// why do we need this
@@ -131,8 +128,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		}
 	}
 
-	public HibernateClientImp createFromScratch(DataRouterContext drContext,
-			String clientName) {
+	public HibernateClientImp createFromScratch(DataRouterContext drContext, String clientName) {
 		PhaseTimer timer = new PhaseTimer(clientName);
 
 		HibernateClientImp client = new HibernateClientImp(clientName);
@@ -140,9 +136,8 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		AnnotationConfiguration sfConfig = new AnnotationConfiguration();
 
 		// base config file for a SessionFactory
-		String configFileLocation = PropertiesTool.getFirstOccurrence(
-				multiProperties, Clients.prefixClient + clientName
-						+ paramConfigLocation);
+		String configFileLocation = PropertiesTool.getFirstOccurrence(multiProperties, Clients.prefixClient + clientName
+					+ paramConfigLocation);
 		if (StringTool.isEmpty(configFileLocation)) {
 			configFileLocation = configLocationDefault;
 		}
@@ -150,10 +145,9 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 
 		// //hibernate databeans (register before connecting to db)
 		@SuppressWarnings("unchecked")
-		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = drContext
-				.getNodes().getTypesForClient(clientName);
-		for (Class<? extends Databean<?, ?>> databeanClass : CollectionTool
-				.nullSafe(relevantDatabeanTypes)) {
+		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = drContext.getNodes().getTypesForClient(
+				clientName);
+		for (Class<? extends Databean<?, ?>> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)) {
 			// TODO skip fieldAware databeans
 			// logger.warn(clientName+":"+databeanClass);
 			try {
@@ -165,11 +159,9 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		timer.add("SessionFactory");
 
 		// connect to the database
-		JdbcConnectionPool connectionPool = getConnectionPool(clientName,
-				multiProperties);
+		JdbcConnectionPool connectionPool = getConnectionPool(clientName, multiProperties);
 		client.setConnectionPool(connectionPool);
-		sfConfig.setProperty(provider_class,
-				HibernateConnectionProvider.class.getName());
+		sfConfig.setProperty(provider_class,HibernateConnectionProvider.class.getName());
 		sfConfig.setProperty(connectionPoolName, connectionPool.getName());
 		timer.add("gotPool");
 
@@ -191,20 +183,13 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				System.out.println(s);
 			}
 			Nodes nodes = drContext.getNodes();
-			List<? extends PhysicalNode<?, ?>> physicalNodes = nodes
-					.getPhysicalNodesForClient(clientName);
-			for (PhysicalNode<?, ?> physicalNode : IterableTool
-					.nullSafe(physicalNodes)) {
+			List<? extends PhysicalNode<?, ?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);
+			for(PhysicalNode<?, ?> physicalNode : IterableTool.nullSafe(physicalNodes)){
 				String tableName = physicalNode.getTableName();
 				// logger.warn(clientName+":"+tableName);
-				DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode
-						.getFieldInfo();
-				if (SCHEMA_UPDATE && fieldInfo.getFieldAware()) {// use
-																	// mohcine's
-																	// table
-																	// creator
-					createOrUpdateTableIfNeeded(tableNames, connectionPool,
-							physicalNode);
+				DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
+				if (SCHEMA_UPDATE && fieldInfo.getFieldAware()) {
+					createOrUpdateTableIfNeeded(tableNames, connectionPool, physicalNode);
 				}
 			}
 		} finally {
@@ -225,15 +210,13 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 
 	protected JdbcConnectionPool getConnectionPool(String clientName,
 			List<Properties> multiProperties) {
-		boolean writable = ClientId.getWritableNames(
-				drContext.getClientPool().getClientIds()).contains(clientName);
-		JdbcConnectionPool connectionPool = new JdbcConnectionPool(clientName,
-				multiProperties, writable);
+		boolean writable = ClientId.getWritableNames(drContext.getClientPool().getClientIds()).contains(clientName);
+		JdbcConnectionPool connectionPool = new JdbcConnectionPool(clientName, multiProperties, writable);
 		return connectionPool;
 	}
 
-	protected void createOrUpdateTableIfNeeded(List<String> tableNames,
-			JdbcConnectionPool connectionPool, PhysicalNode<?, ?> physicalNode) {
+	protected void createOrUpdateTableIfNeeded(List<String> tableNames, JdbcConnectionPool connectionPool, 
+			PhysicalNode<?, ?> physicalNode) {
 
 		if (!SCHEMA_UPDATE) {
 			return;
@@ -244,69 +227,85 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
 		List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
-		List<List<Field<?>>> indexes = fieldInfo.getIndexes();
+		List<List<Field<?>>> indexes = ListTool.nullSafe(fieldInfo.getIndexes());
 
-		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(
-				physicalNode.getTableName(), primaryKeyFields, nonKeyFields);
-		if (indexes != null) {
-			generator.setIndexes(indexes);
-		}
+		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(), primaryKeyFields, 
+				nonKeyFields);
+		generator.setIndexes(indexes);
 
 		SqlTable requested = generator.generate();
 		Connection connection = null;
 		try {
-			if (connectionPool.isWritable()) {
-				connection = connectionPool.getDataSource().getConnection();
-				Statement statement = connection.createStatement();
-				boolean exists = tableNames.contains(tableName);
-				if (!exists) {
-					if (!schemaUpdateOptions.getExecuteCreateTables()) {
-						return;
-					}
-					// do create table
-					String sql = new SqlCreateTableGenerator(requested)
-							.generate();
+			if (!connectionPool.isWritable()) { return; }
+			connection = connectionPool.getDataSource().getConnection();
+			Statement statement = connection.createStatement();
+			boolean exists = tableNames.contains(tableName);
+			if (!exists) {
+				String sql = new SqlCreateTableGenerator(requested).generate();
+				if(schemaUpdatePrintOptions.getCreateTables()){
+					System.out.println("Please execute: "+sql);
+				}
+				if (schemaUpdateExecuteOptions.getCreateTables()) {
 					System.out.println("** Creating table :" + sql);
 					statement.execute(sql);
-				} else {
-					/*if (!schemaUpdateOptions.anyAlterTrue()) {
-						return;
-					}*/
-					
-					
-					/*
-					 * System.out.println("show create table "+tableName );
-					 * ResultSet resultSet =
-					 * statement.executeQuery("show create table "+tableName);
-					 * resultSet.next(); String resetStrg =
-					 * resultSet.getString(2); //System.out.println(resetStrg);
-					 * SqlTable current = new
-					 * SqlCreateTableParser(resetStrg).parse(); //
-					 */
-
-					// *
-					SqlCreateTableFromConnection tableConstructor = new SqlCreateTableFromConnection(
-							connection, tableName);
-					SqlTable current = tableConstructor.getTable();
-					// */
-					// System.out.println("current : " +current);
-					// System.out.println("requested : " +requested);
-					SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(
-							schemaUpdateOptions, current, requested);
-					// List<SqlAlterTable> alterations =
-					// alterTableGenerator.generate();
-					SqlColumnNameComparator nameComparator = new SqlColumnNameComparator(
-							true);
-					SqlColumnNameTypeComparator nameTypeComparator = new SqlColumnNameTypeComparator(
-							true);
-					List<SqlAlterTable> alterTableStatements = alterTableGenerator
-							.getAlterTableStatements(nameTypeComparator);
-					for (SqlAlterTable s : alterTableStatements) {
-						printStatementDependingOnSchemaUpdateOption(schemaUpdateOptions,s);
-						executeStatementDependingOnSchemaUpdateOption(schemaUpdateOptions,s, statement);
-						// statement.execute(s);
-					}
 				}
+			} else {
+				/*if (!schemaUpdateOptions.anyAlterTrue()) {
+					return;
+				}*/
+				
+				
+				/*
+				 * System.out.println("show create table "+tableName );
+				 * ResultSet resultSet =
+				 * statement.executeQuery("show create table "+tableName);
+				 * resultSet.next(); String resetStrg =
+				 * resultSet.getString(2); //System.out.println(resetStrg);
+				 * SqlTable current = new
+				 * SqlCreateTableParser(resetStrg).parse(); //
+				 */
+
+				// *
+				SqlColumnNameComparator nameComparator = new SqlColumnNameComparator(true);
+				SqlColumnNameTypeComparator nameTypeComparator = new SqlColumnNameTypeComparator(true);
+				
+				//execute the alter table
+				SqlCreateTableFromConnection constructor = new SqlCreateTableFromConnection(connection, tableName);
+				SqlTable current = constructor.getTable();
+				SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(
+						schemaUpdateExecuteOptions, current, requested);
+				String alterTableString = alterTableGenerator.getMasterAlterStatement(comparator);
+				if(StringTool.notEmpty(alterTableString)){
+					System.out.println("Executing ...");
+					//execute it
+				}
+				
+				//print the alter table
+				constructor = new SqlCreateTableFromConnection(connection, tableName);
+				current = constructor.getTable();
+				alterTableGenerator = new SqlAlterTableGenerator(
+						schemaUpdateExecuteOptions, current, requested);
+				alterTableString = alterTableGenerator.getMasterAlterStatement(comparator);
+				if(StringTool.notEmpty(alterTableString)){
+					System.out.println("Please execute ...");
+					//print it
+				}
+						
+//				// */
+//				// System.out.println("current : " +current);
+//				// System.out.println("requested : " +requested);
+//				SqlAlterTableGenerator alterTablePrintGenerator = new SqlAlterTableGenerator(
+//						schemaUpdatePrintOptions, current, requested);
+////					String alterTableStringToPrint = alterTablePrintGenerator.ge....
+//				// List<SqlAlterTable> alterations =
+//				// alterTableGenerator.generate();
+//				List<SqlAlterTable> alterTablePrintStatements = alterTablePrintGenerator
+//						.getAlterTableStatements(nameTypeComparator);
+//				for (SqlAlterTable s : alterTablePrintStatements) {
+//					printStatementDependingOnSchemaUpdateOption(schemaUpdateOptions,s);
+//					executeStatementDependingOnSchemaUpdateOption(schemaUpdateOptions,s, statement);
+//					// statement.execute(s);
+//				}
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -314,85 +313,85 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 			JdbcTool.closeConnection(connection);
 		}
 	}
-
-	private void executeStatementDependingOnSchemaUpdateOption(
-			SchemaUpdateOptions schemaUpdate, SqlAlterTable alterTable, Statement statement) throws SQLException {
-		// TODO Auto-generated method stub
-		switch (alterTable.getType()) {
-		case ADD_COLUMN:
-			if(schemaUpdate.getPrintAddColumns()) {
-				System.out.println(":---------- Execution ----------:");
-				statement.execute(alterTable.getAlterTable());
-			}
-			break;
-		case DROP_COLUMN:
-			if(schemaUpdate.getPrintDeleteColumns()) {
-				System.out.println(":---------- Execution ----------:");
-				statement.execute(alterTable.getAlterTable());
-			}
-			break;
-		case MODIFY:
-			if(schemaUpdate.getPrintModifyColumn()) {
-				System.out.println(":---------- Execution ----------:");
-				statement.execute(alterTable.getAlterTable());
-			}
-			break;
-		case ADD_INDEX:
-			if(schemaUpdate.getPrintAddIndex()) {
-				System.out.println(":---------- Execution ----------:");
-				statement.execute(alterTable.getAlterTable());
-			}
-			break;
-		case DROP_INDEX:
-			if(schemaUpdate.getPrintDropIndex()) {
-				System.out.println(":---------- Execution ----------:");
-				statement.execute(alterTable.getAlterTable());
-			}
-			break;
-		case CREATE_TABLE:
-			if(schemaUpdate.getPrintCreateTables()) {
-				System.out.println(":---------- Execution ----------:");
-				statement.execute(alterTable.getAlterTable());
-			}
-			break;
-		case DROP_TABLE:
-			if(schemaUpdate.getPrintDropTables()) {
-				System.out.println(":---------- Execution ----------:");
-				statement.execute(alterTable.getAlterTable());
-			}
-			break;
-		default:
-			break;
-		}
-	}
-
-	private void printStatementDependingOnSchemaUpdateOption(
-			SchemaUpdateOptions schemaUpdate, SqlAlterTable alterTable) {
-		// TODO Auto-generated method stub
-		switch (alterTable.getType()) {
-		case ADD_COLUMN:
-			if(schemaUpdate.getPrintAddColumns()) System.out.println(alterTable.getAlterTable());
-			break;
-		case DROP_COLUMN:
-			if(schemaUpdate.getPrintDeleteColumns()) System.out.println(alterTable.getAlterTable());
-			break;
-		case MODIFY:
-			if(schemaUpdate.getPrintModifyColumn()) System.out.println(alterTable.getAlterTable());
-			break;
-		case ADD_INDEX:
-			if(schemaUpdate.getPrintAddIndex()) System.out.println(alterTable.getAlterTable());
-			break;
-		case DROP_INDEX:
-			if(schemaUpdate.getPrintDropIndex()) System.out.println(alterTable.getAlterTable());
-			break;
-		case CREATE_TABLE:
-			if(schemaUpdate.getPrintCreateTables()) System.out.println(alterTable.getAlterTable());
-			break;
-		case DROP_TABLE:
-			if(schemaUpdate.getPrintDropTables()) System.out.println(alterTable.getAlterTable());
-			break;
-		default:
-			break;
-		}
-	}
+//
+//	private void executeStatementDependingOnSchemaUpdateOption(
+//			SchemaUpdateOptions schemaUpdate, SqlAlterTable alterTable, Statement statement) throws SQLException {
+//		// TODO Auto-generated method stub
+//		switch (alterTable.getType()) {
+//		case ADD_COLUMN:
+//			if(schemaUpdate.getExecuteAddColumns()) {
+//				System.out.println(":---------- Execution ----------:");
+//				statement.execute(alterTable.getAlterTable());
+//			}
+//			break;
+//		case DROP_COLUMN:
+//			if(schemaUpdate.getExecuteDeleteColumns()) {
+//				System.out.println(":---------- Execution ----------:");
+//				statement.execute(alterTable.getAlterTable());
+//			}
+//			break;
+//		case MODIFY:
+//			if(schemaUpdate.getExecuteModify()) {
+//				System.out.println(":---------- Execution ----------:");
+//				statement.execute(alterTable.getAlterTable());
+//			}
+//			break;
+//		case ADD_INDEX:
+//			if(schemaUpdate.getExecuteAddIndex()) {
+//				System.out.println(":---------- Execution ----------:");
+//				statement.execute(alterTable.getAlterTable());
+//			}
+//			break;
+//		case DROP_INDEX:
+//			if(schemaUpdate.getExecuteDropIndex()) {
+//				System.out.println(":---------- Execution ----------:");
+//				statement.execute(alterTable.getAlterTable());
+//			}
+//			break;
+//		case CREATE_TABLE:
+//			if(schemaUpdate.getExecuteCreateTables()) {
+//				System.out.println(":---------- Execution ----------:");
+//				statement.execute(alterTable.getAlterTable());
+//			}
+//			break;
+//		case DROP_TABLE:
+//			if(schemaUpdate.getExecuteDropTables()) {
+//				System.out.println(":---------- Execution ----------:");
+//				statement.execute(alterTable.getAlterTable());
+//			}
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//
+//	private void printStatementDependingOnSchemaUpdateOption(
+//			SchemaUpdateOptions schemaUpdate, SqlAlterTable alterTable) {
+//		// TODO Auto-generated method stub
+//		switch (alterTable.getType()) {
+//		case ADD_COLUMN:
+//			if(schemaUpdate.getPrintAddColumns()) System.out.println(alterTable.getAlterTable());
+//			break;
+//		case DROP_COLUMN:
+//			if(schemaUpdate.getPrintDeleteColumns()) System.out.println(alterTable.getAlterTable());
+//			break;
+//		case MODIFY:
+//			if(schemaUpdate.getPrintModifyColumn()) System.out.println(alterTable.getAlterTable());
+//			break;
+//		case ADD_INDEX:
+//			if(schemaUpdate.getPrintAddIndex()) System.out.println(alterTable.getAlterTable());
+//			break;
+//		case DROP_INDEX:
+//			if(schemaUpdate.getPrintDropIndex()) System.out.println(alterTable.getAlterTable());
+//			break;
+//		case CREATE_TABLE:
+//			if(schemaUpdate.getPrintCreateTables()) System.out.println(alterTable.getAlterTable());
+//			break;
+//		case DROP_TABLE:
+//			if(schemaUpdate.getPrintDropTables()) System.out.println(alterTable.getAlterTable());
+//			break;
+//		default:
+//			break;
+//		}
+//	}
 }
