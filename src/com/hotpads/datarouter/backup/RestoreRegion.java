@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -27,7 +28,8 @@ public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean
 	protected static final Config CONFIG_FAST_PUT_MULTI = new Config()
 			.setNumAttempts(20)
 			.setTimeout(30, TimeUnit.SECONDS)
-			.setPersistentPut(false);
+			.setPersistentPut(false)
+			.setPutMethod(PutMethod.INSERT_OR_UPDATE);
 	
 	protected DataRouter router;
 	protected Class<D> cls;
