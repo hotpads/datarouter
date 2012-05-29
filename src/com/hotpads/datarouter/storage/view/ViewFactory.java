@@ -22,15 +22,13 @@ public abstract class ViewFactory<
 	public ViewFactory(){
 	}
 
-	public abstract Boolean isLatest(UK key, V view);  //return null if not sure
+	public abstract Boolean isLatest(UK key, V view, boolean ignoreVersion);  //return null if not sure
 	
 	public abstract V getNew(UK key);
-	public abstract V getLatest(UK key, boolean updateCache);
+	public abstract V getLatest(UK key, boolean updateCache, boolean ignoreVersion);
 	
 	public abstract V update(V view);
-	public abstract V rerender(UK key);//getNew then update
 	
-	public abstract void handleRenderSuccess(Collection<UK> keys);
-	public abstract void handleRenderError(Collection<UK> keys);
+	public abstract void handleRenderOutcome(Collection<UK> keys, ViewRenderingStatus newStatus);
 	
 }
