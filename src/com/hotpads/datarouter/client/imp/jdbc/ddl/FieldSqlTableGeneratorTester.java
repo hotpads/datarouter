@@ -13,19 +13,19 @@ import com.hotpads.util.core.ListTool;
 public class FieldSqlTableGeneratorTester {
 
 	@Test public void testGenerate() {
-//		DataRouter router;
-//		Nodes nodes = router.getNodes();
-//		List<? extends PhysicalNode<?,?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);
-//		for(PhysicalNode<?,?> physicalNode : IterableTool.nullSafe(physicalNodes)){
-//			DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
-//			if(fieldInfo.getFieldAware()){//use mohcine's table creator
-//				List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
-//				List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
-//				FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(),primaryKeyFields, nonKeyFields);
-//				//need to somewhere create the table or apply the changes
-//			}else{
-//			}
-//		}
+		//		DataRouter router;
+		//		Nodes nodes = router.getNodes();
+		//		List<? extends PhysicalNode<?,?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);
+		//		for(PhysicalNode<?,?> physicalNode : IterableTool.nullSafe(physicalNodes)){
+		//			DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
+		//			if(fieldInfo.getFieldAware()){//use mohcine's table creator
+		//				List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
+		//				List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
+		//				FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(),primaryKeyFields, nonKeyFields);
+		//				//need to somewhere create the table or apply the changes
+		//			}else{
+		//			}
+		//		}
 		String tableName = "ManyFieldTypeBean";
 		List<Field<?>> primaryKeyFields = ListTool.create(),
 						primaryKeyFields2 = ListTool.create();
@@ -52,7 +52,7 @@ public class FieldSqlTableGeneratorTester {
 		
 		SqlAlterTableGenerator alterGen = new SqlAlterTableGenerator(new SchemaUpdateOptions().setAllTrue(), table2, table);
 		SqlColumnNameComparator c = new SqlColumnNameComparator(true);
-		System.out.println(alterGen.getAlterTableStatements(c));
+		System.out.println(alterGen.getAlterTableStatements());
 	}
 
 }

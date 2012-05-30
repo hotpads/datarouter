@@ -21,6 +21,8 @@ public class SqlTable {
 	private List<SqlColumn> columns;
 	private SqlIndex primaryKey;
 	private List<SqlIndex> indexes;
+//	private MySqlTableEngine engine;
+//	private MySqlCollation collation;
 	
 	
 	/*************** constructors ****************************/

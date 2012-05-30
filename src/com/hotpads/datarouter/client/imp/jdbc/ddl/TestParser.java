@@ -80,12 +80,12 @@ public class TestParser {
 	}
 
 	static String getKeyNameFromKeydeclaration(String string) {
-//		String[] sToken = string.split("[`]+");
-//		System.out.println("*** les tokens ***");
-//		for(String s : sToken){
-//			System.out.println(s);
-//		}
-//		//return sToken[1];
+		//		String[] sToken = string.split("[`]+");
+		//		System.out.println("*** les tokens ***");
+		//		for(String s : sToken){
+		//			System.out.println(s);
+		//		}
+		//		//return sToken[1];
 		int index1 = string.indexOf("KEY `"); 
 		index1 += "KEY `".length();
 		String temp = string.substring(index1);

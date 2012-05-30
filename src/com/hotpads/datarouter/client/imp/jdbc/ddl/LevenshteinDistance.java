@@ -63,26 +63,26 @@ public class LevenshteinDistance {
 	  public static <T> int computeDistance(T o1 , T o2) {
 		return 0;
 		 
-//		    int[] costs = new int[o2.length() + 1];
-//		    for (int i = 0; i <= o1.length(); i++) {
-//		      int lastValue = i;
-//		      for (int j = 0; j <= o2.length(); j++) {
-//		        if (i == 0)
-//		          costs[j] = j;
-//		        else {
-//		          if (j > 0) {
-//		            int newValue = costs[j - 1];
-//		            if (o1.charAt(i - 1) != o2.charAt(j - 1))
-//		              newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-//		            costs[j - 1] = lastValue;
-//		            lastValue = newValue;
-//		          }
-//		        }
-//		      }
-//		      if (i > 0)
-//		        costs[o2.length()] = lastValue;
-//		    }
-//		    return costs[o2.length()];
+		//		    int[] costs = new int[o2.length() + 1];
+		//		    for (int i = 0; i <= o1.length(); i++) {
+		//		      int lastValue = i;
+		//		      for (int j = 0; j <= o2.length(); j++) {
+		//		        if (i == 0)
+		//		          costs[j] = j;
+		//		        else {
+		//		          if (j > 0) {
+		//		            int newValue = costs[j - 1];
+		//		            if (o1.charAt(i - 1) != o2.charAt(j - 1))
+		//		              newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+		//		            costs[j - 1] = lastValue;
+		//		            lastValue = newValue;
+		//		          }
+		//		        }
+		//		      }
+		//		      if (i > 0)
+		//		        costs[o2.length()] = lastValue;
+		//		    }
+		//		    return costs[o2.length()];
 		  }
 	  
 	  public static void printDistance(String s1, String s2) {

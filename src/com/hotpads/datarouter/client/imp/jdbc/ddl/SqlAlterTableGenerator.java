@@ -31,8 +31,8 @@ public class SqlAlterTableGenerator{
 		this.requested = requested;
 	}
 	
-	public List<String> getAlterTableStatementsStrings(Comparator<SqlColumn> c){
-		List<SqlAlterTableClause> list =  generate(c);
+	public List<String> getAlterTableStatementsStrings(){
+		List<SqlAlterTableClause> list =  generate();
 		List<String> l = ListTool.createArrayList();
 		String alterSql="";
 		if(dropTable){
@@ -61,8 +61,8 @@ public class SqlAlterTableGenerator{
 		return l;
 	}
 	
-	public List<SqlAlterTableClause> getAlterTableStatements(Comparator<SqlColumn> c){
-		List<SqlAlterTableClause> list =  generate(c);
+	public List<SqlAlterTableClause> getAlterTableStatements(){
+		List<SqlAlterTableClause> list =  generate();
 		List<SqlAlterTableClause> l = ListTool.createArrayList();
 		String alterSql="";
 		if(dropTable){
@@ -91,30 +91,33 @@ public class SqlAlterTableGenerator{
 		return l;
 	}
 	
-	public String getMasterAlterStatement(Comparator<SqlColumn> comparator){
-		List<SqlAlterTableClause> singleAlters =  generate(comparator);
+	public String getMasterAlterStatement(){
+		List<SqlAlterTableClause> singleAlters =  generate();
 		if(CollectionTool.isEmpty(singleAlters)){ return null; }
 		StringBuilder sb = new StringBuilder();
 		sb.append("alter table "+current.getName()+"\n");
 		int numAppended = 0;
 		for(SqlAlterTableClause singleAlter : IterableTool.nullSafe(singleAlters)){
-			if(numAppended>0){ sb.append(",\n"); }
-			sb.append(singleAlter.getAlterTable());
-			++numAppended;
+			if(singleAlter!=null){
+				if(numAppended>0){ sb.append(",\n"); }
+				sb.append(singleAlter.getAlterTable());
+				++numAppended;
+			}
 		}
 		sb.append(";");
 		return sb.toString();
 	}
 	
-	public List<SqlAlterTableClause> generate(Comparator<SqlColumn> c) {
+	public List<SqlAlterTableClause> generate() {
 		//TODO everything
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		// creating the sqlTableDiffGenerator
 		SqlTableDiffGenerator diff = new SqlTableDiffGenerator(current,requested,true);
 		if(diff.isTableModified()){
 			// get the columns to add and the columns to remove
-			List<SqlColumn> colsToAdd = diff.getColumnsToAdd(c),
-							colsToRemove = diff.getColumnsToRemove(c);
+			List<SqlColumn> colsToAdd = diff.getColumnsToAdd(),
+							colsToRemove = diff.getColumnsToRemove(),
+							colsToModify = diff.getColumnsToModify();
 	
 			// get the other modifications ( the indexes )
 			List<SqlIndex> indexesToAdd = diff.getIndexesToAdd(),
@@ -130,15 +133,25 @@ public class SqlAlterTableGenerator{
 				list.add(new SqlAlterTableClause("DROP TABLE " +current.getName() +";", SqlAlterTypes.DROP_TABLE));
 				list.add(getCreateTableSqlFromListOfColumnsToAdd(colsToAdd));
 			}
-			
+			if(!CollectionTool.isEmpty(colsToModify)){
+				
+				for(SqlColumn col : IterableTool.nullSafe(colsToModify)){
+					SqlColumn requestedCol = getColumnByNamefromListOfColumn(col.getName(),requested.getColumns());
+					String s="MODIFY " +col.getName() +" " + requestedCol.getType() ;
+					if(requestedCol.getMaxLength()!=null){
+						s+=  " (" +requestedCol.getMaxLength() +")";
+					}
+					list.add(new SqlAlterTableClause(s, SqlAlterTypes.MODIFY));
+				}
+			}
 			//*
 			if(diff.isPrimaryKeyModified()){
 				if(current.hasPrimaryKey()){
-					list.add(new SqlAlterTableClause("DROP PRIMARY KEY ;", SqlAlterTypes.DROP_INDEX));
+					list.add(new SqlAlterTableClause("DROP PRIMARY KEY ", SqlAlterTypes.DROP_INDEX));
 				}
 				
 				List<SqlColumn> listOfColumnsInPkey =requested.getPrimaryKey().getColumns(); 
-				String s = "ADD CONSTRAINT "+ /*requested.getPrimaryKey().getName() + */ " PRIMARY KEY (" ;
+				String s = "ADD " /*CONSTRAINT "+ requested.getPrimaryKey().getName() + */ +" PRIMARY KEY (" ;
 				for(SqlColumn col: listOfColumnsInPkey){
 					s+= col.getName() + ",";
 				}
@@ -155,6 +168,14 @@ public class SqlAlterTableGenerator{
 		return list;
 	}
 
+	private SqlColumn getColumnByNamefromListOfColumn(String name, List<SqlColumn> columns){
+		// TODO Auto-generated method stub
+		for(SqlColumn col : IterableTool.nullSafe(columns)){
+			if(col.getName().equals(name)) return col;
+		}
+		return null;
+	}
+
 	private List<SqlAlterTableClause> getAlterTableForRemovingIndexes(List<SqlIndex> indexesToAdd) {
 		// TODO Auto-generated method stub
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
@@ -166,7 +187,7 @@ public class SqlAlterTableGenerator{
 				s+= "DROP INDEX "+ index.getName() + ", ";
 			}
 			s=s.substring(0,s.length()-2);
-			s+=";";
+		//	s+=";";
 			list.add(new SqlAlterTableClause(s, SqlAlterTypes.DROP_INDEX));
 		}
 		return list;
@@ -176,6 +197,7 @@ public class SqlAlterTableGenerator{
 			List<SqlIndex> indexesToRemove) {
 		// TODO Auto-generated method stub
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
+		if(!options.getAddIndex()){ return list; }
 		
 		if(indexesToRemove.size()>0){
 			String s="";
@@ -188,7 +210,7 @@ public class SqlAlterTableGenerator{
 				s+="), ";
 			}
 			s = s.substring(0, s.length()-2);
-			s+=";";
+		//	s+=";";
 			list.add(new SqlAlterTableClause(s, SqlAlterTypes.ADD_INDEX));
 		}
 		return list;
@@ -222,6 +244,8 @@ public class SqlAlterTableGenerator{
 
 	private SqlAlterTableClause getAlterTableForAddingColumns(List<SqlColumn> colsToAdd) {
 		// TODO Auto-generated method stub
+		if(!options.getAddColumns()){ return null; }
+		
 		String s = "";
 		if(colsToAdd.size()>0){
 			s+= "ADD ( ";
@@ -239,7 +263,7 @@ public class SqlAlterTableGenerator{
 				s+=",\n";//
 			}
 			s = s.substring(0, s.length()-2); // remove the last "," 
-			s+=");\n";
+			s+=")";
 		}
 		return new SqlAlterTableClause(s, SqlAlterTypes.ADD_COLUMN);
 	}
@@ -256,14 +280,15 @@ public class SqlAlterTableGenerator{
 					s+= col.getName() + ", ";
 			}
 			s = s.substring(0, s.length()-2); // remove the last "," 
-			s+=";";
+			//s+=";";
 			list.add(new SqlAlterTableClause(s, SqlAlterTypes.DROP_COLUMN));
 		}
 		return list;
 	}
 	
 	public static class SqlAlterTableGeneratorTester{
-		 public void generateTest() throws IOException{
+		 
+		public void generateTest() throws IOException{
 			SqlColumn 
 			colA = new SqlColumn("A", MySqlColumnType.BIGINT),
 			colB = new SqlColumn("B", MySqlColumnType.VARCHAR,250,false),
@@ -279,13 +304,13 @@ public class SqlAlterTableGenerator{
 			SqlTable 
 					table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
 					table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
-			SqlColumnNameComparator c = new SqlColumnNameComparator(true);
+			//SqlColumnNameComparator c = new SqlColumnNameComparator(true);
 			
 			SchemaUpdateOptions options = new SchemaUpdateOptions().setAllTrue();
 			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(options, table2, table1);
 			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2);
-			System.out.println(alterGenerator21.generate(c));
-			System.out.println(alterGenerator12.generate(c));
+			System.out.println(alterGenerator21.generate());
+			System.out.println(alterGenerator12.generate());
 			
 			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test2.txt");
 			DataInputStream in = new DataInputStream(fis);
@@ -310,8 +335,8 @@ public class SqlAlterTableGenerator{
 			
 			SqlAlterTableGenerator alterGeneratorBis21 = new SqlAlterTableGenerator(options, tab2, tab1);
 			SqlAlterTableGenerator alterGeneratorBis12 = new SqlAlterTableGenerator(options, tab1, tab2);
-			System.out.println(alterGeneratorBis21.generate(c));
-			System.out.println(alterGeneratorBis12.generate(c));
+			System.out.println(alterGeneratorBis21.generate());
+			System.out.println(alterGeneratorBis12.generate());
 		}
 	
 		@Test public void getAlterTableStatementsTester() throws IOException{
@@ -330,16 +355,16 @@ public class SqlAlterTableGenerator{
 			SqlTable 
 					table1 = new SqlTable("TA").addColumn(colA).addColumn(colB).addColumn(colC),
 					table2 = new SqlTable("TB").addColumn(colA).addColumn(colM);
-			SqlColumnNameComparator nameComparator = new SqlColumnNameComparator(true);
-			SqlColumnNameTypeComparator nameTypeComparator= new SqlColumnNameTypeComparator(true);
+			//SqlColumnNameComparator nameComparator = new SqlColumnNameComparator(true);
+			//SqlColumnNameTypeComparator nameTypeComparator= new SqlColumnNameTypeComparator(true);
 			
 			
 			
 			SchemaUpdateOptions options = new SchemaUpdateOptions().setAllTrue();
 			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(options, table2, table1);
 			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2);
-			System.out.println(alterGenerator21.getAlterTableStatements(nameComparator));
-			System.out.println(alterGenerator12.getAlterTableStatements(nameComparator));
+			System.out.println(alterGenerator21.getAlterTableStatements());
+			System.out.println(alterGenerator12.getAlterTableStatements());
 			
 			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test2.txt");
 			DataInputStream in = new DataInputStream(fis);
@@ -358,7 +383,7 @@ public class SqlAlterTableGenerator{
 			while((str = br.readLine()) != null){
 				phrase += str;
 			}
-			 parser = new SqlCreateTableParser(phrase);
+			parser = new SqlCreateTableParser(phrase);
 			SqlTable tab2 = parser.parse();
 			
 			//System.out.println(tab1);
@@ -366,8 +391,8 @@ public class SqlAlterTableGenerator{
 			SqlAlterTableGenerator alterGeneratorBis21 = new SqlAlterTableGenerator(options, tab2, tab1);
 			SqlAlterTableGenerator alterGeneratorBis12 = new SqlAlterTableGenerator(options, tab1, tab2);
 			
-			System.out.println(alterGeneratorBis21.getAlterTableStatements(nameComparator));
-			System.out.println(alterGeneratorBis12.getAlterTableStatements(nameComparator));
+			System.out.println(alterGeneratorBis21.getAlterTableStatements());
+			System.out.println(alterGeneratorBis12.getAlterTableStatements());
 			
 			
 			tab1 = new SqlTable("a"); tab2 =  new SqlTable("a");
@@ -376,14 +401,14 @@ public class SqlAlterTableGenerator{
 			col0clone.setType(MySqlColumnType.BINARY);
 			tab1.addColumn(col0clone);
 			
-//			System.out.println(tab1);
-//			System.out.println(tab2);
-			 alterGeneratorBis21 = new SqlAlterTableGenerator(options, tab2, tab1);
-			 alterGeneratorBis12 = new SqlAlterTableGenerator(options, tab1, tab2);
-			Assert.assertTrue(CollectionTool.isEmpty(alterGeneratorBis21.getAlterTableStatements(nameComparator)));
-			Assert.assertTrue(CollectionTool.isEmpty(alterGeneratorBis12.getAlterTableStatements(nameComparator)));
-			Assert.assertFalse(CollectionTool.isEmpty(alterGeneratorBis21.getAlterTableStatements(nameTypeComparator)));
-			Assert.assertFalse(CollectionTool.isEmpty(alterGeneratorBis12.getAlterTableStatements(nameTypeComparator)));
+			// System.out.println(tab1);
+			// System.out.println(tab2);
+			alterGeneratorBis21 = new SqlAlterTableGenerator(options, tab2, tab1);
+			alterGeneratorBis12 = new SqlAlterTableGenerator(options, tab1, tab2);
+			Assert.assertTrue(CollectionTool.isEmpty(alterGeneratorBis21.getAlterTableStatements()));
+			Assert.assertTrue(CollectionTool.isEmpty(alterGeneratorBis12.getAlterTableStatements()));
+			Assert.assertFalse(CollectionTool.isEmpty(alterGeneratorBis21.getAlterTableStatements()));
+			Assert.assertFalse(CollectionTool.isEmpty(alterGeneratorBis12.getAlterTableStatements()));
 			
 	}
 	
@@ -415,10 +440,9 @@ public class SqlAlterTableGenerator{
 			SqlAlterTableGenerator alterGenerator21 = new SqlAlterTableGenerator(options, table2, table1);
 			SqlAlterTableGenerator alterGenerator12 = new SqlAlterTableGenerator(options, table1, table2);
 			
-			System.out.println(alterGenerator12.getAlterTableStatements(nameTypeComparator));
-			System.out.println(alterGenerator21.getAlterTableStatements(nameTypeComparator));
+			System.out.println(alterGenerator12.getMasterAlterStatement());
+			System.out.println(alterGenerator21.getMasterAlterStatement());
 		}
-	
 	}
 	
 }

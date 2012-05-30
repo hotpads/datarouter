@@ -50,8 +50,8 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	public String toString() {
 		return "\t[" + name + ", " + type + ", "
 				+ maxLength + ", " + nullable + "]";
-//		return "SqlColumn [name=" + name + ", Type=" + type + ", MaxLength="
-//				+ maxLength + ", nullable=" + nullable + "]";
+		//		return "SqlColumn [name=" + name + ", Type=" + type + ", MaxLength="
+		//				+ maxLength + ", nullable=" + nullable + "]";
 	}
 
 	public SqlColumn clone(){
@@ -103,6 +103,9 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		}
 		@Override
 		public int compare(SqlColumn a, SqlColumn b) {
+			if(a==null || b==null) return 0;
+			if(a==null)	return -1;
+			if(b==null) return 1;
 			if(caseSensitive){
 				return ComparableTool.nullFirstCompareTo(a.name, b.name);
 			}
@@ -123,6 +126,9 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		@Override
 		public int compare(SqlColumn a, SqlColumn b) {
 			int c ;
+			if(a==null || b==null) return 0;
+			if(a==null)	return -1;
+			if(b==null) return 1;
 			if(caseSensitive){
 			 c = ComparableTool.nullFirstCompareTo(a.name, b.name);
 			}else{
@@ -165,28 +171,30 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		}
 	}
 	
-//	public int compareToUsingAll(SqlColumn other){
-//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
-//		if(c!=0) { return c; }
-//		c = ComparableTool.nullFirstCompareTo(type, other.type);
-//		if(c!=0) { return c; }
-//		c = ComparableTool.nullFirstCompareTo(maxLength, other.maxLength);
-//		if(c!=0) { return c; }
-//		c = ComparableTool.nullFirstCompareTo(nullable, other.nullable);
-//		return c;
-//	}
-//	
-//	public int compareToUsingNameAndTypeOnly(SqlColumn other){
-//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
-//		if(c!=0) { return c; }
-//		c = ComparableTool.nullFirstCompareTo(type, other.type);
-//		return c;
-//	}
-//	
-//	public int compareToUsingNameOnly(SqlColumn other){
-//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
-//		return c;
-//	}
+	//	public int compareToUsingAll(SqlColumn other){
+	//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
+	//		if(c!=0) { return c; }
+	//		c = ComparableTool.nullFirstCompareTo(type, other.type);
+	//		if(c!=0) { return c; }
+	//		c = ComparableTool.nullFirstCompareTo(maxLength, other.maxLength);
+	//		if(c!=0) { return c; }
+	//		c = ComparableTool.nullFirstCompareTo(nullable, other.nullable);
+	//		return c;
+	//	}
+	//	
+	//	public int compareToUsingNameAndTypeOnly(SqlColumn other){
+	//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
+	//		if(c!=0) { return c; }
+	//		c = ComparableTool.nullFirstCompareTo(type, other.type);
+	//		return c;
+	//	}
+	//	
+	//	public int compareToUsingNameOnly(SqlColumn other){
+	//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
+	//		return c;
+	//	}
+	
+	
 	/******************* get/set ****************************/
 	
 	public String getName() {
@@ -242,9 +250,9 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			columns.add(b);
 			columns.add(a);//should keep this version of a/a2 since it was added first
 			columns.add(a2);
-//			for(SqlColumn column : columns) {
-//				System.out.println(column);
-//			}
+			//			for(SqlColumn column : columns) {
+			//				System.out.println(column);
+			//			}
 			List<SqlColumn> columnList = ListTool.createArrayList(columns);
 			Assert.assertTrue(a==columnList.get(0));//it kept the first version
 			Assert.assertTrue(b==columnList.get(1));

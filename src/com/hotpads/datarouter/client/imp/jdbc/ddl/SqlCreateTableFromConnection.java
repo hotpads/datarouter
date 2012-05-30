@@ -12,6 +12,7 @@ import org.hibernate.mapping.Column;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
 public class SqlCreateTableFromConnection{
@@ -34,12 +35,10 @@ public class SqlCreateTableFromConnection{
 			String sql = "select * from " + tableName;
 			ResultSet rs = stmt.executeQuery(sql);
 			ResultSetMetaData metaData = rs.getMetaData();
-
 			int rowCount = metaData.getColumnCount();
-
 			System.out.println("Table Name : " + metaData.getTableName(2));
 			// System.out.println("Field \tsize\tDataType");
-
+			
 			for(int i = 0; i < rowCount; i++){
 				boolean nullable = true; // nullable by default
 				if(metaData.isNullable(i + 1) == ResultSetMetaData.columnNoNulls) nullable = false;
@@ -48,10 +47,12 @@ public class SqlCreateTableFromConnection{
 						metaData.getColumnDisplaySize(i + 1), nullable);
 				table.addColumn(col);
 			}
+			
 			DatabaseMetaData dbmd = connection.getMetaData();
 			ResultSet indexList = dbmd.getIndexInfo(null, null, tableName, false, false);
 			List<String> listOfIndexNames = ListTool.createArrayList();
 			List<SqlIndex> listOfIndexes = ListTool.createArrayList();
+			
 			while(indexList.next()){
 				String indexName = indexList.getString("INDEX_NAME");
 				if(!listOfIndexNames.contains(indexName)){
@@ -72,12 +73,11 @@ public class SqlCreateTableFromConnection{
 							.getString("COLUMN_NAME"), table.getColumns());
 				}
 			}
+			
 			for(SqlIndex i : listOfIndexes){
 				table.addIndex(i);
 			}
-
 			indexList.close();
-
 		}catch(SQLException e){
 			e.printStackTrace();
 		}
@@ -87,7 +87,7 @@ public class SqlCreateTableFromConnection{
 
 	private void addAppropriateColumnToPrimaryKeyFromListOfColumnindexList(SqlTable table, String string,
 			List<SqlColumn> columns){
-		for(SqlColumn col : columns){
+		for(SqlColumn col : IterableTool.nullSafe(columns)){
 			if(col.getName().equals(string)) table.getPrimaryKey().addColumn(col);
 		}
 	}
@@ -95,19 +95,27 @@ public class SqlCreateTableFromConnection{
 	private void addAppropriateColumnToAppropriateIndexFromListOfColumn(String indexName, List<SqlIndex> listOfIndexes,
 			String string, List<SqlColumn> columns){
 		SqlIndex index = null;
+		
 		for(SqlIndex i : listOfIndexes){
 			if(i.getName().equals(indexName)){
 				index = i;
 				break;
 			}
-		} // nullPointerExeption if it doesn't find the appropriate index
-		for(SqlColumn col : columns){
+		} 
+		if(index==null){
+			return;
+		}
+		System.out.println("index name :" +indexName);
+		System.out.println("list of columns " + columns);
+		System.out.println("string " +string );
+		System.out.println(" index " + index);
+		for(SqlColumn col : IterableTool.nullSafe(columns)){
 			if(col.getName().equals(string)) index.addColumn(col);
 		}
 	}
 
 	private static void addAppropriateColumnToIndexFromListOfColumn(SqlIndex index, String s1, List<SqlColumn> columns){
-		for(SqlColumn col : columns){
+		for(SqlColumn col : IterableTool.nullSafe(columns)){
 			if(col.getName().equals(s1)) index.addColumn(col);
 		}
 	}

@@ -71,13 +71,13 @@ public class SchemaUpdateOptions{
 	
 	/****************************** methods ******************************/
 
-//	public boolean anyTrue(){
-//		return createTables | anyAlterTrue();
-//	}
-//	
-//	public boolean anyAlterTrue(){
-//		return dropTables | addColumns | deleteColumns | modify;
-//	}
+	//	public boolean anyTrue(){
+	//		return createTables | anyAlterTrue();
+	//	}
+	//	
+	//	public boolean anyAlterTrue(){
+	//		return dropTables | addColumns | deleteColumns | modify;
+	//	}
 	
 	public SchemaUpdateOptions setAllTrue(){
 		createTables = true;

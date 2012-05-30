@@ -15,6 +15,7 @@ import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 public class TableDropper{
 
 	@Test public void testCreateAndDeleteTable()throws Exception{
+		
 		Connection conn = JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
 		Statement stmt = null;
 		try{
@@ -22,6 +23,7 @@ public class TableDropper{
 			
 //			stmt.execute("drop table Cheese");
 //			stmt.execute("drop table if exists Inquiry;");	
+
 			stmt.execute("alter table Cheese \n" +
 					"add column blabla BOOLEAN DEFAULT NULL;");	
 		}catch(Exception e) {
