@@ -12,7 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.hotpads.util.core.ListTool;
-
+@Deprecated
 public class TestParser {
 	
 	public static void main(String[] args) throws SQLException, IOException  {
@@ -179,8 +179,8 @@ public class TestParser {
 	 * @param s  example:			KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`),
 	 * @return true if it's a declaration of an index
 	 */
+	 @SuppressWarnings("unused") 
 	 private static boolean isKeyDeclaration(String s) {
-		// TODO Auto-generated method stub
 		 return s.toUpperCase().startsWith("KEY") || s.toUpperCase().startsWith("KEY", 1)  || s.toUpperCase().startsWith("KEY", 2) ;
 	}
 
@@ -189,8 +189,8 @@ public class TestParser {
 	  * @param s example:   			   PRIMARY KEY (`id`),
 	  * @return true if it's a primary key declaration
 	  */
+	@SuppressWarnings("unused") 
 	private static boolean isPrimaryKeyDeclaration(String s) {
-		// TODO Auto-generated method stub
 		return s.toUpperCase().startsWith("PRIMARY") || s.toUpperCase().startsWith("PRIMARY", 1)  || s.toUpperCase().startsWith("PRIMARY", 2) ;
 	}
 
@@ -306,10 +306,7 @@ public class TestParser {
 	 static String[] getColumns(String phrase){
 		return phrase.split("[,]+"); 
 	 }
-	
-	 private static void testGetColumns(){
-		 System.out.println(SqlTable.getColumnDefinitionSection("Header(blabla(blob()))trail"));
-	 }
+
 	
 	 /**
 	  * 
@@ -374,9 +371,9 @@ public class TestParser {
 					"PRIMARXtY KEY (`id`),"+
 					"KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`)," +
 					"KEY `index_awaitingPayment` (`awaitingPayment`)," +
-					") ENGINE=InnoDB AUTO_INCREMENT=6853302 DEFAULT CHARSET=latin1",
-					s2="KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`)," +
-							"KEY `index_awaitingPayment` (`awaitingPayment`),";
+					") ENGINE=InnoDB AUTO_INCREMENT=6853302 DEFAULT CHARSET=latin1";
+					//s2="KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`)," +
+						//	"KEY `index_awaitingPayment` (`awaitingPayment`),";
 			List<String> sList=getKeyDeclarationsFromFullBody(s);
 			
 			for(String str1:sList){

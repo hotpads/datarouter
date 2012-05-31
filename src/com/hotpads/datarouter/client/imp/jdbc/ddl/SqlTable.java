@@ -59,7 +59,7 @@ public class SqlTable {
 	
 	
 	/*************** methods *********************************/
-
+	@Deprecated
 	public static SqlTable parseCreateTable(String phrase){
 		SqlTable table = new SqlTable("Table");
 		
@@ -94,7 +94,6 @@ public class SqlTable {
 		}
 		return table;
 	}
-	
 	public String getCreateTable(){
 		return null;
 	}
@@ -148,6 +147,7 @@ public class SqlTable {
 	}
 
 	//for example, "varchar(100)" has a maxValue of 100 while "datetime" does not have a maxValue
+	@SuppressWarnings("unused") 
 	private static boolean hasAMaxValue(String columnDefinitioin){
 		return columnDefinitioin.contains("(");
 	}
@@ -228,7 +228,7 @@ public class SqlTable {
 		public void testGetFullBody(){
 			Assert.assertEquals("blabla(blob())", getColumnDefinitionSection("Header(blabla(blob()))trail"));
 		}
-
+		
 		@Test
 		public void testParseCreateTable() throws IOException{
 			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");

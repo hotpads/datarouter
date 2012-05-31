@@ -1,7 +1,10 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl;
+package com.hotpads.datarouter.client.imp.jdbc.ddl.util;
 
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTable;
 import com.hotpads.util.core.ListTool;
 
 public class LevenshteinDistance {

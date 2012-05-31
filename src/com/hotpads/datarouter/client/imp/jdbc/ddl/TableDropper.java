@@ -1,14 +1,9 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
-import org.omg.CORBA.PRIVATE_MEMBER;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 
