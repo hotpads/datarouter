@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl;
+package com.hotpads.datarouter.client.imp.jdbc.ddl.test;
 
 import java.sql.Connection;
 import java.sql.Statement;

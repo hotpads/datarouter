@@ -1,14 +1,14 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl.tests;
+package com.hotpads.datarouter.client.imp.jdbc.ddl.test;
 
 import java.util.List;
 
 import org.junit.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.FieldSqlTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean2;
@@ -45,14 +45,14 @@ public class FieldSqlTableGeneratorTester {
 		FieldSqlTableGenerator fstGenerator = new FieldSqlTableGenerator(tableName, primaryKeyFields, nonKeyFields);
 		SqlTable table = fstGenerator.generate();
 		SqlCreateTableGenerator ctGenerator = new SqlCreateTableGenerator(table);
-		System.out.println(ctGenerator.generate());
+		System.out.println(ctGenerator.generateDdl());
 		
 		primaryKeyFields2 =mftBean2.getKeyFields();
 		nonKeyFields2 = mftBean2.getNonKeyFields();
 		FieldSqlTableGenerator fstGenerator2 = new FieldSqlTableGenerator(tableName+"2", primaryKeyFields2, nonKeyFields2);
 		SqlTable table2 = fstGenerator2.generate();
 		SqlCreateTableGenerator ctGenerator2 = new SqlCreateTableGenerator(table2);
-		System.out.println(ctGenerator2.generate());
+		System.out.println(ctGenerator2.generateDdl());
 		
 		SqlAlterTableGenerator alterGen = new SqlAlterTableGenerator(new SchemaUpdateOptions().setAllTrue(), table2, table);
 		//SqlColumnNameComparator c = new SqlColumnNameComparator(true);

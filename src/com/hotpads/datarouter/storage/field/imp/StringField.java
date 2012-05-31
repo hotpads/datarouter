@@ -9,8 +9,8 @@ import java.util.regex.Matcher;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.MySqlColumnType;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;

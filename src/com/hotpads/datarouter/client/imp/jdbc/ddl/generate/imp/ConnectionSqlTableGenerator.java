@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl;
+package com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -11,21 +11,27 @@ import java.util.List;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
-public class SqlCreateTableFromConnection{
+public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 
 	protected Connection connection;
 	protected String tableName;
 
-	public SqlCreateTableFromConnection(Connection connection, String tableName){
+	public ConnectionSqlTableGenerator(Connection connection, String tableName){
 		super();
 		this.connection = connection;
 		this.tableName = tableName;
 	}
 
-	public SqlTable getTable(){
+	@Override
+	public SqlTable generate(){
 
 		SqlTable table = new SqlTable(tableName);
 		try{
@@ -124,24 +130,24 @@ public class SqlCreateTableFromConnection{
 		public void getTableTest() throws SQLException{
 			Connection conn = JdbcTool.openConnection("localhost", 3306, "property", "root", "");
 
-			SqlCreateTableFromConnection creator;
+			ConnectionSqlTableGenerator creator;
 
 			List<String> tableNames = JdbcTool.showTables(conn);
 			SqlTable table;
 
 			for(String s : tableNames){
 				System.out.println(s);
-				creator = new SqlCreateTableFromConnection(conn, s);
+				creator = new ConnectionSqlTableGenerator(conn, s);
 				if(s.equals("CommentVote")){
 					System.out.println();
 				}
-				table = creator.getTable();
+				table = creator.generate();
 				System.out.println(table);
 				System.out.println();
 			}
 
-			creator = new SqlCreateTableFromConnection(conn, "UserNote");
-			table = creator.getTable();
+			creator = new ConnectionSqlTableGenerator(conn, "UserNote");
+			table = creator.generate();
 			System.out.println(table);
 			conn.close();
 		}

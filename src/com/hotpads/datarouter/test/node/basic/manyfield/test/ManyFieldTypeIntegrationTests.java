@@ -20,9 +20,9 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.FieldSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.storage.field.Field;
@@ -122,7 +122,7 @@ public class ManyFieldTypeIntegrationTests {
 			SqlTable table = fstGenerator.generate();
 			SqlCreateTableGenerator ctGenerator = new SqlCreateTableGenerator(table);
 			st.execute("drop table if exists " +tableName +";");
-			String sql = ctGenerator.generate();
+			String sql = ctGenerator.generateDdl();
 			//System.out.println(sql);
 			st.execute(sql);
 			conn.close();

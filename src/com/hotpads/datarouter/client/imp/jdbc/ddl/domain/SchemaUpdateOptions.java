@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl;
+package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
 import java.util.List;
 import java.util.Properties;
@@ -15,8 +15,8 @@ public class SchemaUpdateOptions{
 			SUFFIX_deleteColumns = ".deleteColumns",
 			/*SUFFIX_modifyColumnLengths = ".modifyColumnLengths",*/
 			SUFFIX_modifyColumn = ".modifyColumn",
-			SUFFIX_addIndex = ".addIndex",
-			SUFFIX_dropIndex = ".dropIndex";
+			SUFFIX_addIndexes = ".addIndexes",
+			SUFFIX_dropIndexes = ".dropIndexes";
 	
 	protected Boolean createTables;
 	protected Boolean dropTables;
@@ -24,8 +24,8 @@ public class SchemaUpdateOptions{
 	protected Boolean deleteColumns;
 	/*protected Boolean modifyColumnLengths;*/
 	protected Boolean modifyColumn;
-	protected Boolean addIndex;
-	protected Boolean dropIndex;
+	protected Boolean addIndexes;
+	protected Boolean dropIndexes;
 	
 	public SchemaUpdateOptions(){
 	}
@@ -44,10 +44,10 @@ public class SchemaUpdateOptions{
 					prefix+SUFFIX_printModifyColumnLengths));*/
 			this.modifyColumn = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
 					prefix+SUFFIX_modifyColumn));
-			this.addIndex = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_addIndex));
-			this.dropIndex = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_dropIndex));
+			this.addIndexes = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_addIndexes));
+			this.dropIndexes = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_dropIndexes));
 		}else{
 			this.createTables = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
 					prefix+SUFFIX_createTables));
@@ -60,10 +60,10 @@ public class SchemaUpdateOptions{
 					prefix+SUFFIX_printModifyColumnLengths));*/
 			this.modifyColumn = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
 					prefix+SUFFIX_modifyColumn));
-			this.addIndex = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_addIndex));
-			this.dropIndex = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_dropIndex));
+			this.addIndexes = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_addIndexes));
+			this.dropIndexes = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+					prefix+SUFFIX_dropIndexes));
 		}
 		
 	}
@@ -86,8 +86,20 @@ public class SchemaUpdateOptions{
 		deleteColumns = true;
 		/*modifyColumnLengths;*/
 		modifyColumn = true;
-		addIndex = true;
-		dropIndex = true;
+		addIndexes = true;
+		dropIndexes = true;
+		return this;
+	}
+	
+	public SchemaUpdateOptions setAllFalse(){
+		createTables = false;
+		dropTables = false;
+		addColumns = false;
+		deleteColumns = false;
+		/*modifyColumnLengths;*/
+		modifyColumn = false;
+		addIndexes = false;
+		dropIndexes = false;
 		return this;
 	}
 
@@ -100,56 +112,63 @@ public class SchemaUpdateOptions{
 		return createTables;
 	}
 
-	public void setCreateTables(Boolean createTables){
+	public SchemaUpdateOptions setCreateTables(Boolean createTables){
 		this.createTables = createTables;
+		return this;
 	}
 
 	public Boolean getDropTables(){
 		return dropTables;
 	}
 
-	public void setDropTables(Boolean dropTables){
+	public SchemaUpdateOptions setDropTables(Boolean dropTables){
 		this.dropTables = dropTables;
+		return this;
 	}
 
 	public Boolean getAddColumns(){
 		return addColumns;
 	}
 
-	public void setAddColumns(Boolean addColumns){
+	public SchemaUpdateOptions setAddColumns(Boolean addColumns){
 		this.addColumns = addColumns;
+		return this;
 	}
 
 	public Boolean getDeleteColumns(){
 		return deleteColumns;
 	}
 
-	public void setDeleteColumns(Boolean deleteColumns){
+	public SchemaUpdateOptions setDeleteColumns(Boolean deleteColumns){
 		this.deleteColumns = deleteColumns;
+		return this;
 	}
 
 	public Boolean getModifyColumn(){
 		return modifyColumn;
 	}
 
-	public void setModifyColumn(Boolean modifyColumn){
+	public SchemaUpdateOptions setModifyColumn(Boolean modifyColumn){
 		this.modifyColumn = modifyColumn;
+		return this;
 	}
 
-	public Boolean getAddIndex(){
-		return addIndex;
+	public Boolean getAddIndexes(){
+		return addIndexes;
 	}
 
-	public void setAddIndex(Boolean addIndex){
-		this.addIndex = addIndex;
+	public SchemaUpdateOptions setAddIndexes(Boolean addIndexes){
+		this.addIndexes = addIndexes;
+		return this;
 	}
 
-	public Boolean getDropIndex(){
-		return dropIndex;
+	public Boolean getDropIndexes(){
+		return dropIndexes;
 	}
 
-	public void setDropIndex(Boolean dropIndex){
-		this.dropIndex = dropIndex;
+	public SchemaUpdateOptions setDropIndexes(Boolean dropIndexes){
+		this.dropIndexes = dropIndexes;
+		return this;
 	}
 	
 	

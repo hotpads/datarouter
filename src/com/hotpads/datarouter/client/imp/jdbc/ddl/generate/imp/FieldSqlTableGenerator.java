@@ -1,11 +1,14 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl;
+package com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp;
 
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.ListTool;
 
-public class FieldSqlTableGenerator {
+public class FieldSqlTableGenerator implements SqlTableGenerator{
 	private String tableName;
 	private List<Field<?>> primaryKeyFields;
 	private List<Field<?>> nonKeyFields;
@@ -27,6 +30,7 @@ public class FieldSqlTableGenerator {
 		this.indexes = indexes;
 	}
 
+	@Override
 	public SqlTable generate(){
 		SqlTable table = new SqlTable(getTableName());
 		SqlIndex pKey = new SqlIndex(getTableName() +" primary key");

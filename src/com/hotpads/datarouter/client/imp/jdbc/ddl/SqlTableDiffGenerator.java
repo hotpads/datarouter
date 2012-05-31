@@ -8,7 +8,11 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.*;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.*;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;

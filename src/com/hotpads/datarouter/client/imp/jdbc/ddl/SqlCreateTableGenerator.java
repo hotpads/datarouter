@@ -2,7 +2,12 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import org.junit.Test;
 
-public class SqlCreateTableGenerator {
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
+
+public class SqlCreateTableGenerator implements DdlGenerator{
 
 	/************************** fields *************************/
 	
@@ -17,7 +22,8 @@ public class SqlCreateTableGenerator {
 	
 	/****************** primary method ****************************/
 
-	public String generate() {
+	@Override
+	public String generateDdl() {
 		String s="CREATE TABLE `" + table.getName()+"` (\n"; 
 		int nuimberOfColumns=table.getColumns().size();
 		SqlColumn col;
@@ -90,7 +96,7 @@ public class SqlCreateTableGenerator {
 					.addIndex(new SqlIndex("idx1")
 							.addColumn(col2));
 			SqlCreateTableGenerator generator = new SqlCreateTableGenerator(myTable);
-			System.out.println(generator.generate());
+			System.out.println(generator.generateDdl());
 			//Assert.assertEquals(expected, actual);
 		}
 	}

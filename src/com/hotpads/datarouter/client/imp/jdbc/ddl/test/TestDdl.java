@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl.tests;
+package com.hotpads.datarouter.client.imp.jdbc.ddl.test;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -65,8 +65,8 @@ public class TestDdl{
 			
 			
 			conn = JdbcTool.openConnection("localhost", 3306, "property", "root", "");
-			 sql = "select * from Inquiry";
-			 rs = stmt.executeQuery(sql);
+			sql = "select * from Inquiry";
+			rs = stmt.executeQuery(sql);
 			ResultSetMetaData metaData = rs.getMetaData();
 			
 			int rowCount = metaData.getColumnCount();
@@ -75,9 +75,9 @@ public class TestDdl{
 			System.out.println("Field \tsize\tDataType");
 
 			for (int i = 0; i < rowCount; i++) {
-			System.out.print(metaData.getColumnName(i + 1) + " \t");
-			System.out.print(metaData.getColumnDisplaySize(i + 1) + "\t");
-			System.out.println(metaData.getColumnTypeName(i + 1));
+				System.out.print(metaData.getColumnName(i + 1) + " \t");
+				System.out.print(metaData.getColumnDisplaySize(i + 1) + "\t");
+				System.out.println(metaData.getColumnTypeName(i + 1));
 			}
 			
 			

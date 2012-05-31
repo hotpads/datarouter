@@ -20,15 +20,13 @@ import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.FieldSqlTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SchemaUpdateOptions;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableClause;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.DdlGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameComparator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameTypeComparator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableFromConnection;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.Nodes;
@@ -241,7 +239,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 			Statement statement = connection.createStatement();
 			boolean exists = tableNames.contains(tableName);
 			if (!exists) {
-				String sql = new SqlCreateTableGenerator(requested).generate();
+				String sql = new SqlCreateTableGenerator(requested).generateDdl();
 				if(schemaUpdatePrintOptions.getCreateTables()){
 					System.out.println("Please execute: "+sql);
 				}
@@ -260,11 +258,11 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				//SqlColumnNameTypeComparator nameTypeComparator = new SqlColumnNameTypeComparator(true);
 				
 				//execute the alter table
-				SqlCreateTableFromConnection constructor = new SqlCreateTableFromConnection(connection, tableName);
-				SqlTable current = constructor.getTable();
-				SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(schemaUpdateExecuteOptions,
+				ConnectionSqlTableGenerator constructor = new ConnectionSqlTableGenerator(connection, tableName);
+				SqlTable current = constructor.generate();
+				DdlGenerator alterTableGenerator = new SqlAlterTableGenerator(schemaUpdateExecuteOptions,
 																							current, requested);
-				String alterTableString = alterTableGenerator.getMasterAlterStatement();
+				String alterTableString = alterTableGenerator.generateDdl();
 				
 				if(StringTool.notEmpty(alterTableString)){
 					System.out.println("Executing ...");
@@ -274,11 +272,11 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				}
 				
 				//print the alter table
-				constructor = new SqlCreateTableFromConnection(connection, tableName);
-				current = constructor.getTable();
+				constructor = new ConnectionSqlTableGenerator(connection, tableName);
+				current = constructor.generate();
 				alterTableGenerator = new SqlAlterTableGenerator(
 						schemaUpdateExecuteOptions, current, requested);
-				alterTableString = alterTableGenerator.getMasterAlterStatement();
+				alterTableString = alterTableGenerator.generateDdl();
 				if(StringTool.notEmpty(alterTableString)){
 					System.out.println("Please execute ...");
 					//print it

@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl;
+package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -10,6 +10,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTableDiffGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.test.TestParser;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 

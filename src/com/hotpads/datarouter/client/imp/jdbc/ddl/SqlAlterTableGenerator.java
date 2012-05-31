@@ -2,12 +2,16 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
-public class SqlAlterTableGenerator{
+public class SqlAlterTableGenerator implements DdlGenerator{
 
 	protected SchemaUpdateOptions options;
 	protected SqlTable current, requested;
@@ -19,6 +23,24 @@ public class SqlAlterTableGenerator{
 		this.requested = requested;
 	}
 	
+	@Override
+	public String generateDdl(){
+		List<SqlAlterTableClause> singleAlters =  generate();
+		if(CollectionTool.isEmpty(singleAlters)){ return null; }
+		StringBuilder sb = new StringBuilder();
+		sb.append("alter table "+current.getName()+"\n");
+		int numAppended = 0;
+		for(SqlAlterTableClause singleAlter : IterableTool.nullSafe(singleAlters)){
+			if(singleAlter!=null){
+				if(numAppended>0){ sb.append(",\n"); }
+				sb.append(singleAlter.getAlterTable());
+				++numAppended;
+			}
+		}
+		sb.append(";");
+		return sb.toString();
+	}
+	
 	public List<String> getAlterTableStatementsStrings(){
 		List<SqlAlterTableClause> list =  generate();
 		List<String> l = ListTool.createArrayList();
@@ -28,19 +50,19 @@ public class SqlAlterTableGenerator{
 				String s="";
 				alterSql = sqlAT.getAlterTable();
 				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
-						s+=alterSql;
-						l.add(s);
+					s += alterSql;
+					l.add(s);
 				}
 			}
 		}
 		else{
-				for(SqlAlterTableClause sqlAT : list){
-				String s="";
+			for(SqlAlterTableClause sqlAT : list){
+				String s = "";
 				alterSql = sqlAT.getAlterTable();
 				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
-						s+="ALTER TABLE `" + current.getName()+"` \n"; 
-						s+=alterSql;
-						l.add(s);
+					s += "ALTER TABLE `" + current.getName() + "` \n";
+					s += alterSql;
+					l.add(s);
 				}
 			}
 			//s+="\n";
@@ -58,7 +80,7 @@ public class SqlAlterTableGenerator{
 				//sString s="";
 				alterSql = sqlAT.getAlterTable();
 				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
-						l.add(sqlAT);
+					l.add(sqlAT);
 				}
 			}
 		}
@@ -67,10 +89,10 @@ public class SqlAlterTableGenerator{
 				String s="";
 				alterSql = sqlAT.getAlterTable();
 				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
-						s+="ALTER TABLE `" + current.getName()+"` \n"; 
-						s+=alterSql;
-						sqlAT.setAlterTable(s);
-						l.add(sqlAT);
+					s += "ALTER TABLE `" + current.getName() + "` \n";
+					s += alterSql;
+					sqlAT.setAlterTable(s);
+					l.add(sqlAT);
 				}
 			}
 			//s+="\n";
@@ -79,25 +101,7 @@ public class SqlAlterTableGenerator{
 		return l;
 	}
 	
-	public String getMasterAlterStatement(){
-		List<SqlAlterTableClause> singleAlters =  generate();
-		if(CollectionTool.isEmpty(singleAlters)){ return null; }
-		StringBuilder sb = new StringBuilder();
-		sb.append("alter table "+current.getName()+"\n");
-		int numAppended = 0;
-		for(SqlAlterTableClause singleAlter : IterableTool.nullSafe(singleAlters)){
-			if(singleAlter!=null){
-				if(numAppended>0){ sb.append(",\n"); }
-				sb.append(singleAlter.getAlterTable());
-				++numAppended;
-			}
-		}
-		sb.append(";");
-		return sb.toString();
-	}
-	
 	public List<SqlAlterTableClause> generate() {
-		//TODO everything
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		// creating the sqlTableDiffGenerator
 		SqlTableDiffGenerator diff = new SqlTableDiffGenerator(current,requested,true);
@@ -157,7 +161,6 @@ public class SqlAlterTableGenerator{
 	}
 
 	private SqlColumn getColumnByNamefromListOfColumn(String name, List<SqlColumn> columns){
-		// TODO Auto-generated method stub
 		for(SqlColumn col : IterableTool.nullSafe(columns)){
 			if(col.getName().equals(name)) return col;
 		}
@@ -165,7 +168,6 @@ public class SqlAlterTableGenerator{
 	}
 
 	private List<SqlAlterTableClause> getAlterTableForRemovingIndexes(List<SqlIndex> indexesToAdd) {
-		// TODO Auto-generated method stub
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		if(!options.getDropIndex()){ return list; }
 		
@@ -181,9 +183,7 @@ public class SqlAlterTableGenerator{
 		return list;
 	}
 
-	private List<SqlAlterTableClause> getAlterTableForAddingIndexes(
-			List<SqlIndex> indexesToRemove) {
-		// TODO Auto-generated method stub
+	private List<SqlAlterTableClause> getAlterTableForAddingIndexes(List<SqlIndex> indexesToRemove){
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		if(!options.getAddIndex()){ return list; }
 		
@@ -206,7 +206,6 @@ public class SqlAlterTableGenerator{
 
 	private SqlAlterTableClause getCreateTableSqlFromListOfColumnsToAdd(
 			List<SqlColumn> colsToAdd) {
-		// TODO Auto-generated method stub
 		//new SqlAlterTable("CREATE TABLE " +current.getName() +";", SqlAlterTableTypes.CREATE_TABLE);
 		String s = "CREATE TABLE " +current.getName();
 		if(colsToAdd.size()>0){
@@ -231,7 +230,6 @@ public class SqlAlterTableGenerator{
 	}
 
 	private SqlAlterTableClause getAlterTableForAddingColumns(List<SqlColumn> colsToAdd) {
-		// TODO Auto-generated method stub
 		if(!options.getAddColumns()){ return null; }
 		
 		String s = "";
@@ -257,7 +255,6 @@ public class SqlAlterTableGenerator{
 	}
 	
 	private List<SqlAlterTableClause> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove) {
-		// TODO Auto-generated method stub
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		if(!options.getDeleteColumns()){ return list; }
 		
