@@ -31,26 +31,25 @@ public class SqlTableDiffGenerator{
 	public List<SqlColumn> getColumnsToAdd(){
 		SqlColumnNameComparator c = new SqlColumnNameComparator(true);
 		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c), currentColumns = new TreeSet<SqlColumn>(c);
-		try{
-			requestedColumns.addAll(requested.getColumns());
-			currentColumns.addAll( current.getColumns());
-		}catch(Exception e){
-			e.printStackTrace();
+		if(requested==null || current==null){
 			return ListTool.createArrayList();
 		}
-		
+		else{
+			requestedColumns.addAll(requested.getColumns());
+			currentColumns.addAll( current.getColumns());
+		}
 		return ListTool.createArrayList(CollectionTool.minus(requestedColumns,currentColumns,c));
 	}
 
 	public List<SqlColumn> getColumnsToRemove(){
 		SqlColumnNameComparator c = new SqlColumnNameComparator(true);
 		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c), currentColumns = new TreeSet<SqlColumn>(c);
-		try{
-		requestedColumns.addAll(requested.getColumns());
-		currentColumns.addAll( current.getColumns());
-		}catch(Exception e){
-			e.printStackTrace();
+		if(requested==null || current==null){
 			return ListTool.createArrayList();
+		}
+		else{
+			requestedColumns.addAll(requested.getColumns());
+			currentColumns.addAll( current.getColumns());
 		}
 		return ListTool.createArrayList(CollectionTool.minus(currentColumns, requestedColumns,c));
 	}
@@ -58,13 +57,13 @@ public class SqlTableDiffGenerator{
 	public List<SqlColumn> getColumnsToModify(){
 		SqlColumnNameTypeComparator c = new SqlColumnNameTypeComparator(true);
 		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c), currentColumns = new TreeSet<SqlColumn>(c);
-		try{
+		if(requested==null || current==null){
+			return ListTool.createArrayList();
+		}
+		else{
 			requestedColumns.addAll(requested.getColumns());
 			currentColumns.addAll( current.getColumns());
-			}catch(Exception e){
-				e.printStackTrace();
-				return ListTool.createArrayList();
-			}
+		}
 		List<SqlColumn> listOfColumnsToAddWithNameTypeComparator = ListTool.createArrayList(CollectionTool.minus(requestedColumns,currentColumns,c));
 		
 		return ListTool.createArrayList(CollectionTool.minus(listOfColumnsToAddWithNameTypeComparator,getColumnsToAdd()));
@@ -73,13 +72,13 @@ public class SqlTableDiffGenerator{
 	public List<SqlColumn> getListOfColumnPossiblyTheSame(int maxDistanceAllowed){
 		SqlColumnNameComparatorUsingLevenshteinDistance c = new SqlColumnNameComparatorUsingLevenshteinDistance(true,maxDistanceAllowed);
 		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c), currentColumns = new TreeSet<SqlColumn>(c);
-		try{
+		if(requested==null || current==null){
+			return ListTool.createArrayList();
+		}
+		else{
 			requestedColumns.addAll(requested.getColumns());
 			currentColumns.addAll( current.getColumns());
-			}catch(Exception e){
-				e.printStackTrace();
-				return ListTool.createArrayList();
-			}
+		}
 		 return ListTool.createArrayList(CollectionTool.intersection(currentColumns, requestedColumns,c));
 	}
 	
