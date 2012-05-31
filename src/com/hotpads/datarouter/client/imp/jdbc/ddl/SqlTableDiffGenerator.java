@@ -108,7 +108,7 @@ public class SqlTableDiffGenerator{
 
 
 
-	public static class TestSqlTableDiffGenerator{
+	public static class SqlTableDiffGeneratorTester{
 		@Test
 		public void isTableModifiedTest(){
 
