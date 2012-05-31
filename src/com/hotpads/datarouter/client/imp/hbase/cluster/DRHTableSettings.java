@@ -7,7 +7,7 @@ import com.hotpads.util.core.SetTool;
 
 public class DRHTableSettings{
 
-	public static final Boolean HBASE_94 = false;
+	public static final Boolean HBASE_94 = true;
 	
 	public static final String
 		BLOCKCACHE = "BLOCKCACHE",
