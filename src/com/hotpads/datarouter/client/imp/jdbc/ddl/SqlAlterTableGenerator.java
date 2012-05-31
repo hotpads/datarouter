@@ -1,19 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Comparator;
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
-
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameComparator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameTypeComparator;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -67,7 +55,7 @@ public class SqlAlterTableGenerator{
 		String alterSql="";
 		if(dropTable){
 			for(SqlAlterTableClause sqlAT : list){
-				String s="";
+				//sString s="";
 				alterSql = sqlAT.getAlterTable();
 				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
 						l.add(sqlAT);
@@ -288,7 +276,7 @@ public class SqlAlterTableGenerator{
 	
 	public static class SqlAlterTableGeneratorTester{
 		 
-		public void generateTest() throws IOException{
+		/*public void generateTest() throws IOException{
 			SqlColumn 
 			colA = new SqlColumn("A", MySqlColumnType.BIGINT),
 			colB = new SqlColumn("B", MySqlColumnType.VARCHAR,250,false),
@@ -443,6 +431,7 @@ public class SqlAlterTableGenerator{
 			System.out.println(alterGenerator12.getMasterAlterStatement());
 			System.out.println(alterGenerator21.getMasterAlterStatement());
 		}
+		*/
 	}
 	
 }

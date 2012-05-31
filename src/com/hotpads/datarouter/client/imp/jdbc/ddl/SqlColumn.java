@@ -13,6 +13,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.util.LevenshteinDistance;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
@@ -103,7 +104,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		}
 		@Override
 		public int compare(SqlColumn a, SqlColumn b) {
-			if(a==null || b==null) return 0;
+			if(a==null && b==null) return 0;
 			if(a==null)	return -1;
 			if(b==null) return 1;
 			if(caseSensitive){
@@ -114,11 +115,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		}
 	}
 	
-	public static class SqlColumnNameTypeComparator implements Comparator<SqlColumn>, Serializable{
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -5431574512568867120L;
+	public static class SqlColumnNameTypeComparator implements Comparator<SqlColumn>{
 		boolean caseSensitive = true;
 		public SqlColumnNameTypeComparator(boolean caseSensitive) {
 			this.caseSensitive = caseSensitive;
@@ -126,7 +123,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		@Override
 		public int compare(SqlColumn a, SqlColumn b) {
 			int c ;
-			if(a==null || b==null) return 0;
+			if(a==null && b==null) return 0;
 			if(a==null)	return -1;
 			if(b==null) return 1;
 			if(caseSensitive){
@@ -141,11 +138,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		}
 	}
 	
-	public static class SqlColumnNameComparatorUsingLevenshteinDistance implements Comparator<SqlColumn>, Serializable{
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 7201692817811729304L;
+	public static class SqlColumnNameComparatorUsingLevenshteinDistance implements Comparator<SqlColumn>{
 		boolean caseSensitive = true;
 		int maxDistanceAllowed = 2;
 		public SqlColumnNameComparatorUsingLevenshteinDistance(boolean caseSensitive, int maxDistanceAllowed) {

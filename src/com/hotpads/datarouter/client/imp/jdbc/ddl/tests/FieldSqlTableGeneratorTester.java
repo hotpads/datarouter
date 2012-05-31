@@ -1,10 +1,14 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl;
+package com.hotpads.datarouter.client.imp.jdbc.ddl.tests;
 
 import java.util.List;
 
 import org.junit.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn.SqlColumnNameComparator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.FieldSqlTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SchemaUpdateOptions;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTable;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean2;
@@ -51,7 +55,7 @@ public class FieldSqlTableGeneratorTester {
 		System.out.println(ctGenerator2.generate());
 		
 		SqlAlterTableGenerator alterGen = new SqlAlterTableGenerator(new SchemaUpdateOptions().setAllTrue(), table2, table);
-		SqlColumnNameComparator c = new SqlColumnNameComparator(true);
+		//SqlColumnNameComparator c = new SqlColumnNameComparator(true);
 		System.out.println(alterGen.getAlterTableStatements());
 	}
 

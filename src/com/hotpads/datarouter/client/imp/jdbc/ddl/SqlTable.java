@@ -1,17 +1,11 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.StringTool;
 
 public class SqlTable {
 	
@@ -59,41 +53,6 @@ public class SqlTable {
 	
 	
 	/*************** methods *********************************/
-
-	public static SqlTable parseCreateTable(String phrase){
-		SqlTable table = new SqlTable("Table");
-		
-		//columns
-		for(String s:TestParser.getColumns(TestParser.getBody(phrase))){
-			if(StringTool.containsCharactersBesidesWhitespace(s)){
-				SqlColumn col = new SqlColumn(TestParser.getNameOfColumn(s), MySqlColumnType.parse(TestParser.getTypeOfColumn(s)));
-				if(hasAMaxValue(s)){
-					col.setMaxLength(Integer.parseInt(TestParser.getMaxValueOfColumn(s)));
-				}
-				col.setNullable(TestParser.getNullable(s));
-				//System.out.println(col);
-				table.addColumn(col);
-			}
-		}
-		
-		//primary key
-		String[] sTokenPKey= TestParser.getPrimaryKeyDeclarationFromFullBody(phrase).split("[,()]");
-		for (int i = 0; i < sTokenPKey.length; i++) {
-			table.setPrimaryKey(TestParser.removeNonText(sTokenPKey[i]));
-		}
-		
-		//secondary indexes
-		List<String> sTokenKey= TestParser.getKeyDeclarationsFromFullBody(phrase);
-		for (String s1: sTokenKey) {
-				SqlIndex tableIndex = new SqlIndex(TestParser.getKeyNameFromKeydeclaration(s1));
-				//System.out.println(TestParser.getKeyNameFromKeydeclaration(s1));
-				for(String s2:TestParser.getKeyColumnsNamesFromKeyDeclaration(s1)){
-					TestParser.addAppropriateColumnToIndexFromListOfColumn(tableIndex,s2,table.getColumns());
-				}
-				table.addIndex(tableIndex);
-		}
-		return table;
-	}
 	
 	public String getCreateTable(){
 		return null;
@@ -148,6 +107,7 @@ public class SqlTable {
 	}
 
 	//for example, "varchar(100)" has a maxValue of 100 while "datetime" does not have a maxValue
+	@SuppressWarnings("unused") 
 	private static boolean hasAMaxValue(String columnDefinitioin){
 		return columnDefinitioin.contains("(");
 	}
@@ -227,18 +187,6 @@ public class SqlTable {
 		@Test
 		public void testGetFullBody(){
 			Assert.assertEquals("blabla(blob())", getColumnDefinitionSection("Header(blabla(blob()))trail"));
-		}
-
-		@Test
-		public void testParseCreateTable() throws IOException{
-			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");
-			DataInputStream in = new DataInputStream(fis);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String str, phrase = "";
-			while((str = br.readLine()) != null){
-				phrase += str;
-			}
-			System.out.println(parseCreateTable(phrase));
 		}
 	}
 	

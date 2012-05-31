@@ -255,21 +255,9 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				}*/
 				
 				
-				/*
-				 * System.out.println("show create table "+tableName );
-				 * ResultSet resultSet =
-				 * statement.executeQuery("show create table "+tableName);
-				 * resultSet.next(); String resetStrg =
-				 * resultSet.getString(2); //System.out.println(resetStrg);
-				 * SqlTable current = new
-				 * SqlCreateTableParser(resetStrg).parse(); //
-				 */
-
-				// *
-				
 				// TODO DELETE THIS COMPARATORS
-				SqlColumnNameComparator nameComparator = new SqlColumnNameComparator(true);
-				SqlColumnNameTypeComparator nameTypeComparator = new SqlColumnNameTypeComparator(true);
+				//SqlColumnNameComparator nameComparator = new SqlColumnNameComparator(true);
+				//SqlColumnNameTypeComparator nameTypeComparator = new SqlColumnNameTypeComparator(true);
 				
 				//execute the alter table
 				SqlCreateTableFromConnection constructor = new SqlCreateTableFromConnection(connection, tableName);
@@ -365,7 +353,8 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				//				statement.execute(alterTable.getAlterTable());
 				//			}
 				//			break;
-				//		default:
+				//		def
+	// *ault:
 				//			break;
 				//		}
 				//	}

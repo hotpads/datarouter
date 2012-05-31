@@ -11,6 +11,7 @@ import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MathTool;
 
+@SuppressWarnings("rawtypes") 
 public class SqlIndex implements Comparable{
 	
 	/********************** fields *************************/

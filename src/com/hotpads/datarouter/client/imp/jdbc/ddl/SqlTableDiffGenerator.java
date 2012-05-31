@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -126,7 +125,7 @@ public class SqlTableDiffGenerator{
 				requested.getPrimaryKey().getColumns())){ 
 			return true; 
 		}
-		return false; // TODO calculate
+		return false;
 	}
 
 	public SqlTable getRequested() {
@@ -143,8 +142,8 @@ public class SqlTableDiffGenerator{
 			SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol);
 			List<SqlColumn> 
 					listA = ListTool.createArrayList(), 
-					listA2 = ListTool.createArrayList(), 
-					listB = ListTool.createArrayList();
+					listA2 = ListTool.createArrayList();
+					//listB = ListTool.createArrayList();
 			SqlTable 
 					tableA = new SqlTable("A", listA, primaryKey1), 
 					// tableB = new SqlTable("B", listB, primaryKey1), 
@@ -398,13 +397,13 @@ public class SqlTableDiffGenerator{
 				diffANull 	 = new SqlTableDiffGenerator(table1, null, true),
 				diffNullA 	 = new SqlTableDiffGenerator(null, table1, true);
 
-			//Assert.assertEquals("index", diffAB.getColumnsToModify().get(0).getName());
 			System.out.println(diffAB.getColumnsToModify());
-//			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffAB.getColumnsToModify(), ListTool.createArrayList(colA2))));
-//			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getColumnsToModify(), listBC)));
-//			Assert.assertTrue(CollectionTool.isEmpty(diffNullNull.getColumnsToModify()));
-//			Assert.assertTrue(CollectionTool.isEmpty(diffANull.getColumnsToModify()));
-//			Assert.assertTrue(CollectionTool.isEmpty(diffNullA.getColumnsToModify()));
+			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffAB.getColumnsToModify(), ListTool.createArrayList(colA2),  new SqlColumnNameTypeComparator(true))));
+			System.out.println(diffBA.getColumnsToModify());
+			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getColumnsToModify(), ListTool.createArrayList(colA2),  new SqlColumnNameTypeComparator(true))));
+			Assert.assertTrue(CollectionTool.isEmpty(diffNullNull.getColumnsToModify()));
+			Assert.assertTrue(CollectionTool.isEmpty(diffANull.getColumnsToModify()));
+			Assert.assertTrue(CollectionTool.isEmpty(diffNullA.getColumnsToModify()));
 		}
 	
 	}

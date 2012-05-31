@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-import org.hibernate.mapping.Column;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
