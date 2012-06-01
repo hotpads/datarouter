@@ -110,20 +110,20 @@ public class TestSchemaUpdateOptions{
 			colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true),
 			colB = new SqlColumn("B", MySqlColumnType.BINARY),
 			colC = new SqlColumn("C", MySqlColumnType.BOOLEAN),
-			colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
+			colM = new SqlColumn("M", MySqlColumnType.VARCHAR,200, true);
 		List<SqlColumn> 
 			listBC = ListTool.createArrayList(),
 			listM = ListTool.createArrayList();
 		listBC.add(colB);
 		listBC.add(colC);
 		listM.add(colM);
-		SqlIndex index = new SqlIndex("index", listBC),
-				index2 = new SqlIndex("index", listM);	
+		SqlIndex index = new SqlIndex("indexBC", listBC),
+				index2 = new SqlIndex("indexM", listM);	
 		SqlTable 
 				currentTable = new SqlTable(tableName).addColumn(colA).addColumn(colM),
 				requestedTable = new SqlTable(tableName).addColumn(colA).addColumn(colB).addColumn(colC); 
-		currentTable.addIndex(index);
-		requestedTable.addIndex(index2);
+		currentTable.addIndex(index2);
+		requestedTable.addIndex(index);
 		Statement stmt = null;
 	try{
 		stmt = connection.createStatement();
@@ -143,6 +143,7 @@ public class TestSchemaUpdateOptions{
 		Assert.assertTrue(alterTableGenerator.generateDdl().toUpperCase().contains("ADD KEY"));
 		// TEST THAT IT DOESN'T DROP INDEXES
 		Assert.assertFalse(alterTableGenerator.generateDdl().toUpperCase().contains("DROP INDEX"));
+
 		stmt.execute(alterTableGenerator.generateDdl());
 		ConnectionSqlTableGenerator constructor = new ConnectionSqlTableGenerator(connection, tableName);
 		currentTable = constructor.generate();
@@ -155,10 +156,10 @@ public class TestSchemaUpdateOptions{
 		Assert.assertTrue(currentTable.containsColumn("B"));
 		Assert.assertTrue(currentTable.containsColumn("C"));
 		// TEST THAT IT DOES ADD INDEXES 
-		Assert.assertTrue(currentTable.containsIndex("index1"));
+		Assert.assertTrue(currentTable.containsIndex(index.getName()));
 		//Assert.assertTrue(currentTable.getIndexes().equals( *** ));	
 		// TEST THAT IT DOESN'T DROP INDEXES
-		Assert.assertFalse(currentTable.containsIndex("index2"));
+		Assert.assertTrue(currentTable.containsIndex(index2.getName()));
 		//Assert.assertFalse(currentTable.getIndexes().equals( *** ));	
 	}catch(Exception e) {
 		e.printStackTrace();		

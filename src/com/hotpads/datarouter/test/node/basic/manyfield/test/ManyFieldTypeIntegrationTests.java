@@ -83,7 +83,7 @@ public class ManyFieldTypeIntegrationTests {
 			BasicNodeTestRouter router = routerByClientType.get(clientType);
 			if(ClientType.hibernate==clientType){
 				messUpTable();
-				System.out.println("mess up");
+				//System.out.println("mess up");
 			}
 			if(ClientType.memcached!=clientType){
 				router.manyFieldTypeBean().deleteAll(null);
@@ -96,9 +96,6 @@ public class ManyFieldTypeIntegrationTests {
 	}
 	
 	private static void fixTable() {
-		// TODO Auto-generated method stub
-
-
 		Connection conn =  JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
 		Statement st = null;
 		try{
@@ -132,7 +129,6 @@ public class ManyFieldTypeIntegrationTests {
 	}
 
 	private static void messUpTable() {
-		// TODO Auto-generated method stub
 		Connection conn =  JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
 		Statement st = null;
 		try{
@@ -153,7 +149,7 @@ public class ManyFieldTypeIntegrationTests {
 			//st.execute("ALTER TABLE ManyFieldTypeBean ADD COLUMN blabla BOOLEAN DEFAULT NULL;");
 			conn.close();
 		}catch (Exception e) {
-			e.printStackTrace();// TODO: handle exception
+			e.printStackTrace();
 		}
 	
 	}

@@ -35,7 +35,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 				s+="(" + col.getMaxLength() + ") ";
 			}
 			if(col.getNullable()){
-				s+=" DEFAULT NULL";
+				//s+=" DEFAULT NULL";
 			}
 			else{
 				s+=" NOT NULL";
