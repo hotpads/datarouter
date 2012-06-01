@@ -65,14 +65,14 @@ public class TestParser {
 		
 	}
 
-	static void addAppropriateColumnToIndexFromListOfColumn(
+	public static void addAppropriateColumnToIndexFromListOfColumn(
 			SqlIndex tableIndex, String s1, List<SqlColumn> columns) {
-		for(SqlColumn col: columns){ //TODO can to distinct columns have the same name ?
+		for(SqlColumn col: columns){ 
 			if(col.getName().equals(s1)) tableIndex.addColumn(col);
 		}
 	}
 
-	static List<String> getKeyColumnsNamesFromKeyDeclaration(String string) {
+	public static List<String> getKeyColumnsNamesFromKeyDeclaration(String string) {
 		int index = string.indexOf("(");
 		String[] sFinal = string.substring(index).split("[`]+");
 		List<String> list = ListTool.createArrayList();
@@ -83,7 +83,7 @@ public class TestParser {
 		return list; 
 	}
 
-	static String getKeyNameFromKeydeclaration(String string) {
+	public static String getKeyNameFromKeydeclaration(String string) {
 		//		String[] sToken = string.split("[`]+");
 		//		System.out.println("*** les tokens ***");
 		//		for(String s : sToken){
@@ -203,8 +203,7 @@ public class TestParser {
 	 * @param s
 	 * @return true if the column type can be null
 	 */
-	static boolean getNullable(String s) {
-		// TODO Auto-generated method stub
+	public static boolean getNullable(String s) {
 		return !s.contains("NOT");
 	}
 
@@ -214,7 +213,6 @@ public class TestParser {
 	 * @return true if the column type has a maximum value
 	 */
 	private static boolean hasAMaxValue(String s) {
-		// TODO Auto-generated method stub
 		return s.contains("(");
 	}
 
@@ -223,8 +221,7 @@ public class TestParser {
 	 * @param s
 	 * @return the maximum value for the column type
 	 */
-	static String getMaxValueOfColumn(String s) {
-		// TODO Auto-generated method stub
+	public static String getMaxValueOfColumn(String s) {
 				 int index = s.lastIndexOf('`');
 				String[] tokens = s.substring(index+1).split("[ ()]+");
 				return tokens[2];
@@ -235,8 +232,7 @@ public class TestParser {
 	 * @param s
 	 * @return the type name of the column 
 	 */
-	static String getTypeOfColumn(String s) {
-		// TODO Auto-generated method stub
+	public static String getTypeOfColumn(String s) {
 		 int index = s.lastIndexOf('`');
 		String[] tokens = s.substring(index+1).split("[ ()]+");
 		return tokens[1];
@@ -248,8 +244,7 @@ public class TestParser {
 	  * @param s a column
 	  * @return the name of the column
 	  */
-	static String getNameOfColumn(String s) {
-		// TODO Auto-generated method stub
+	public static String getNameOfColumn(String s) {
 		 int index = s.indexOf('`');
 		 String[] tokens = s.substring(index+1).split("[`]+");
 		return tokens[0];
@@ -307,7 +302,7 @@ public class TestParser {
 	  * @param phrase is the body of an Sql  querie of the type " show create table nameOfTheTable " 
 	  * @return list of Strings containing the column declarations, primary key declaration and key/indexes declaration 
 	  */
-	 static String[] getColumns(String phrase){
+	 public static String[] getColumns(String phrase){
 		return phrase.split("[,]+"); 
 	 }
 
@@ -331,7 +326,7 @@ public class TestParser {
 	 * @param s
 	 * @return s without occurrences of " " and "" 
 	 */
-	static String removeNonText(String s) {
+	public static String removeNonText(String s) {
 		String sResult="";
 		for (int i = 0; i < s.length(); i++) {
 			if(s.charAt(i)!=' ' && s.charAt(i)!='`' && s.charAt(i)!=',' && s.charAt(i)!='(' && s.charAt(i)!=')'){
