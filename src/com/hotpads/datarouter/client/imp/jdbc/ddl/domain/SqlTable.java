@@ -127,6 +127,23 @@ public class SqlTable {
 		return this;
 	}
 	
+	public boolean hasPrimaryKey() {
+		return getPrimaryKey()!=null && getPrimaryKey().getColumns().size()>0;
+	}
+
+	public boolean containsColumn(String columnName){
+		for(SqlColumn col : getColumns()){
+			if(col.getName().equals(columnName)) return true;
+		}
+		return false;
+	}
+	
+	public boolean containsIndex(String string){
+		for(SqlIndex index : getIndexes()){
+			if(index.getName().equals(string)) return true;
+		}
+		return false;
+	}
 	
 	/******************* static methods ***************************/
 
@@ -244,9 +261,5 @@ public class SqlTable {
 		}
 	}
 	
-	public boolean hasPrimaryKey() {
-		// TODO Auto-generated method stub
-		return getPrimaryKey()!=null && getPrimaryKey().getColumns().size()>0;
-	}
 
 }

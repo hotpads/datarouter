@@ -40,21 +40,26 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			else{
 				s+=" NOT NULL";
 			}
-			s+=",\n";//
+			if(i<nuimberOfColumns-1) s+=",\n";
+			
 		}
-
-		s+=" PRIMARY KEY ("; 
-		 int numberOfColumnsInPrimaryKey=table.getPrimaryKey().getColumns().size();
-		for(int i=0; i< numberOfColumnsInPrimaryKey; i++){
-			col = table.getPrimaryKey().getColumns().get(i);
-			s+= "`" + col.getName() + "`";
-					if(i != numberOfColumnsInPrimaryKey -1) {
-						s+="," ;
-					}
+		
+		if(table.hasPrimaryKey()){
+				s+=",\n";
+				s+=" PRIMARY KEY ("; 
+			int numberOfColumnsInPrimaryKey=table.getPrimaryKey().getColumns().size();
+			for(int i=0; i< numberOfColumnsInPrimaryKey; i++){
+				col = table.getPrimaryKey().getColumns().get(i);
+				s+= "`" + col.getName() + "`";
+						if(i != numberOfColumnsInPrimaryKey -1) {
+							s+="," ;
+						}
+			}
+			s+=")";
 		}
-		s+=")\n";
+		
 		int numberOfIndexes=table.getIndexes().size();
-		if(numberOfIndexes>0) s+=",";
+		if(numberOfIndexes>0) s+=",\n";
 		for(int i=0; i< numberOfIndexes; i++){
 			s+=" KEY `"+ table.getIndexes().get(i).getName() +"` (";
 			int numberOfColumndInIndexe = table.getIndexes().get(i).getColumns().size();

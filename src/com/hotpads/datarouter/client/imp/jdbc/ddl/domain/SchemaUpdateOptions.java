@@ -32,42 +32,51 @@ public class SchemaUpdateOptions{
 	
 	public SchemaUpdateOptions(List<Properties> multiProperties, String prefix, boolean printVsExecute){	
 		if(printVsExecute){
-			this.createTables = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_createTables));
-			this.dropTables = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_dropTables));
-			this.addColumns = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_addColumns));
-			this.deleteColumns = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_deleteColumns));
-			/*this.printModifyColumnLengths = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_printModifyColumnLengths));*/
-			this.modifyColumn = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_modifyColumn));
-			this.addIndexes = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_addIndexes));
-			this.dropIndexes = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_dropIndexes));
+			SetSchemaUpdateWithPrintOptions(multiProperties,  prefix);
 		}else{
-			this.createTables = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_createTables));
-			this.dropTables = false;
-			this.addColumns = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_addColumns));
-			this.deleteColumns = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_deleteColumns));
-			/*this.printModifyColumnLengths = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_printModifyColumnLengths));*/
-			this.modifyColumn = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_modifyColumn));
-			this.addIndexes = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_addIndexes));
-			this.dropIndexes = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
-					prefix+SUFFIX_dropIndexes));
+			SetSchemaUpdateWithExecuteOptions(multiProperties,  prefix);
 		}
 		
 	}
 
+	private SchemaUpdateOptions SetSchemaUpdateWithPrintOptions(List<Properties> multiProperties, String prefix){
+		this.createTables = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_createTables));
+		this.dropTables = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_dropTables));
+		this.addColumns = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_addColumns));
+		this.deleteColumns = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_deleteColumns));
+		/*this.printModifyColumnLengths = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_printModifyColumnLengths));*/
+		this.modifyColumn = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_modifyColumn));
+		this.addIndexes = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_addIndexes));
+		this.dropIndexes = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_dropIndexes));
+		return this;
+	}
+
+	private SchemaUpdateOptions SetSchemaUpdateWithExecuteOptions(List<Properties> multiProperties, String prefix){
+		this.createTables = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_createTables));
+		this.dropTables = false;
+		this.addColumns = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_addColumns));
+		this.deleteColumns = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_deleteColumns));
+		/*this.printModifyColumnLengths = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_printModifyColumnLengths));*/
+		this.modifyColumn = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_modifyColumn));
+		this.addIndexes = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_addIndexes));
+		this.dropIndexes = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_dropIndexes));
+		return this;
+	}
 	
 	/****************************** methods ******************************/
 

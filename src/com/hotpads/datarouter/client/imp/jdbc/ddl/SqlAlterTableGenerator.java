@@ -169,7 +169,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 
 	private List<SqlAlterTableClause> getAlterTableForRemovingIndexes(List<SqlIndex> indexesToAdd) {
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
-		if(!options.getDropIndex()){ return list; }
+		if(!options.getDropIndexes()){ return list; }
 		
 		if(indexesToAdd.size()>0){
 			String s="";
@@ -185,7 +185,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 
 	private List<SqlAlterTableClause> getAlterTableForAddingIndexes(List<SqlIndex> indexesToRemove){
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
-		if(!options.getAddIndex()){ return list; }
+		if(!options.getAddIndexes()){ return list; }
 		
 		if(indexesToRemove.size()>0){
 			String s="";

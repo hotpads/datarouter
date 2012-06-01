@@ -15,8 +15,8 @@ public class SqlAlterTableClause {
 		return alterTable;
 	}
 
-	public void prependAlterTable(String prefix) {
-		this.alterTable = prefix + alterTable;
+	public void setAlterTable(String s) {
+		this.alterTable = s;
 	}
 
 	public SqlAlterTypes getType() {
