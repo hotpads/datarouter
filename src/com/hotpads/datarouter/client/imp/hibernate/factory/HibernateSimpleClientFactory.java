@@ -298,7 +298,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				//					// statement.execute(s);
 				//				}
 			}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
 			JdbcTool.closeConnection(connection);
