@@ -116,7 +116,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 							 indexesToRemove = diff.getIndexesToRemove();
 			
 			// generate the alter table statements from columns to add and to remove
-			if(colsToRemove.size()<current.getNumberOfColumns()){ 
+			if(colsToRemove.size()<current.getNumberOfColumns() && (colsToAdd.size()>0 || colsToAdd.size()>0) ){ 
 				list.addAll(getAlterTableForRemovingColumns(colsToRemove));
 				list.add(getAlterTableForAddingColumns(colsToAdd));
 			}
@@ -151,7 +151,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				list.add(new SqlAlterTableClause(s, SqlAlterTypes.ADD_INDEX));
 			}
 			//*/
-			if(diff.isIndexesModified()){
+			if(diff.isIndexesModified() && (!CollectionTool.isEmpty(indexesToAdd) || !CollectionTool.isEmpty(indexesToRemove))){
 				list.addAll(getAlterTableForRemovingIndexes(indexesToRemove));
 				list.addAll(getAlterTableForAddingIndexes(indexesToAdd));
 			}	
