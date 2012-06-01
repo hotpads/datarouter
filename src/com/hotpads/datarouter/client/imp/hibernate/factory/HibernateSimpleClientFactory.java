@@ -176,10 +176,10 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		try {
 			connection = JdbcTool.checkOutConnectionFromPool(connectionPool);
 			List<String> tableNames = JdbcTool.showTables(connection);
-			System.out.println("table names : ");
-			for (String s : tableNames) {
-				System.out.println(s);
-			}
+//			System.out.println("table names : ");
+//			for (String s : tableNames) {
+//				System.out.println(s);
+//			}
 			Nodes nodes = drContext.getNodes();
 			List<? extends PhysicalNode<?, ?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);
 			for(PhysicalNode<?, ?> physicalNode : IterableTool.nullSafe(physicalNodes)){

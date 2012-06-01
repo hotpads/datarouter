@@ -74,6 +74,8 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	@Lob @Column(length=1<<27)
 	private List<Long> longArrayField;
 	
+	private String testSchemaUpdateField;
+	
 	
 	public static class F{
 		public static final String
@@ -93,7 +95,8 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 			stringEnumField = "stringEnumField",
 			stringByteField = "stringByteField",
 			data = "data",
-			longArrayField = "longArrayField";
+			longArrayField = "longArrayField",
+			testSchemaUpdateField = "testSchemaUpdateField";
 	}
 	
 	
@@ -116,6 +119,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		fields.add(new ByteArrayField(F.stringByteField, stringByteField));
 		fields.add(new ByteArrayField(F.data, data));
 		fields.add(new UInt63ArrayField(F.longArrayField, longArrayField));
+		fields.add(new StringField(F.testSchemaUpdateField, testSchemaUpdateField));
 		return fields;
 	}
 	
@@ -136,7 +140,8 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 					new ShortField(F.shortField, d.shortField),
 					new IntegerField(F.integerField, d.integerField)));
 			indexes.add(FieldTool.createList(
-					new StringField(F.stringField, d.stringField)));
+					new StringField(F.stringField, d.stringField),
+					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField)));
 			return indexes;
 		}
 	}

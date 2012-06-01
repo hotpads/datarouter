@@ -41,7 +41,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 			ResultSet rs = stmt.executeQuery(sql);
 			ResultSetMetaData metaData = rs.getMetaData();
 			int rowCount = metaData.getColumnCount();
-			System.out.println("Table Name : " + metaData.getTableName(2));
+//			System.out.println("Table Name : " + metaData.getTableName(2));
 			// System.out.println("Field \tsize\tDataType");
 			
 			for(int i = 0; i < rowCount; i++){
