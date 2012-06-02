@@ -27,18 +27,26 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	public String generateDdl(){
 		List<SqlAlterTableClause> singleAlters =  generate();
 		if(CollectionTool.isEmpty(singleAlters)){ return null; }
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(), sb2 = new StringBuilder();
+		
 		sb.append("alter table "+current.getName()+"\n");
 		int numAppended = 0;
 		for(SqlAlterTableClause singleAlter : IterableTool.nullSafe(singleAlters)){
 			if(singleAlter!=null){
-				if(numAppended>0){ sb.append(",\n"); }
-				sb.append(singleAlter.getAlterTable());
-				++numAppended;
+				if(singleAlter.getType().equals(SqlAlterTypes.DROP_TABLE) || singleAlter.getType().equals(SqlAlterTypes.CREATE_TABLE) ){
+					sb2.append(singleAlter.getAlterTable());
+					sb2.append("\n");
+				}
+				else{
+					if(numAppended>0){ sb.append(",\n"); }
+					sb.append(singleAlter.getAlterTable());
+					++numAppended;
+				}
 			}
 		}
 		sb.append(";");
-		return sb.toString();
+		sb2.append(sb);
+		return sb2.toString();
 	}
 	
 	public List<String> getAlterTableStatementsStrings(){
@@ -116,11 +124,11 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 							 indexesToRemove = diff.getIndexesToRemove();
 			
 			// generate the alter table statements from columns to add and to remove
-			if(colsToRemove.size()<current.getNumberOfColumns() && (colsToAdd.size()>0 || colsToAdd.size()>0) ){ 
+			if(colsToRemove.size()<current.getNumberOfColumns() && (colsToAdd.size()>0 || colsToRemove.size()>0) ){ 
 				list.addAll(getAlterTableForRemovingColumns(colsToRemove));
 				list.add(getAlterTableForAddingColumns(colsToAdd));
 			}
-			else{// cannot drop all columns, should use drop table then create it from list of columns
+			else if(colsToRemove.size()>0){// cannot drop all columns, should use drop table then create it from list of columns
 				dropTable = true;
 				list.add(new SqlAlterTableClause("DROP TABLE " +current.getName() +";", SqlAlterTypes.DROP_TABLE));
 				list.add(getCreateTableSqlFromListOfColumnsToAdd(colsToAdd));
@@ -207,8 +215,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	private SqlAlterTableClause getCreateTableSqlFromListOfColumnsToAdd(
 			List<SqlColumn> colsToAdd) {
 		//new SqlAlterTable("CREATE TABLE " +current.getName() +";", SqlAlterTableTypes.CREATE_TABLE);
-		String s = "CREATE TABLE " +current.getName();
 		if(colsToAdd.size()>0){
+			String s = "CREATE TABLE " +current.getName();
 			s+= " ( ";
 			for(SqlColumn col:colsToAdd){
 				s+= col.getName() + " " + col.getType().toString().toLowerCase();
@@ -225,8 +233,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			}
 			s = s.substring(0, s.length()-2); // remove the last "," 
 			s+=");\n";
+			return new SqlAlterTableClause(s, SqlAlterTypes.CREATE_TABLE);
 		}
-		return new SqlAlterTableClause(s, SqlAlterTypes.CREATE_TABLE);
+		return null;
 	}
 
 	private SqlAlterTableClause getAlterTableForAddingColumns(List<SqlColumn> colsToAdd) {
