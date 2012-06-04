@@ -23,7 +23,7 @@ public class SqlTable {
 	private List<SqlColumn> columns;
 	private SqlIndex primaryKey;
 	private List<SqlIndex> indexes;
-//	private MySqlTableEngine engine;
+	private MySqlTableEngine engine = MySqlTableEngine.INNODB;
 //	private MySqlCollation collation;
 	
 	
@@ -181,6 +181,7 @@ public class SqlTable {
 					s+=col + "\n";
 				}
 				s+= "PK=" + primaryKey + "\nindexes=" + indexes ;
+				s+="\nEngine : " +getEngine();
 				return s;
 	}
 	
@@ -230,6 +231,17 @@ public class SqlTable {
 	public int getNumberOfColumns() {
 		return getColumns().size();
 	}
+	
+	
+	public MySqlTableEngine getEngine(){
+		return engine;
+	}
+
+
+	public void setEngine(MySqlTableEngine engine){
+		this.engine = engine;
+	}
+
 	/******************** tests *********************************/
 
 	public static class SqlTableTester{

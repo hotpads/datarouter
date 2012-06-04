@@ -134,6 +134,8 @@ public class ManyFieldTypeIntegrationTests {
 		try{
 			st = conn.createStatement();
 			ResultSet rs ;
+			// modifying the storage engine	
+			st.execute("ALTER TABLE ManyFieldTypeBean ENGINE=MYISAM;");
 			// modifying the type
 			st.execute("ALTER TABLE ManyFieldTypeBean MODIFY byteField VARCHAR(200);");
 			// adding a new column 

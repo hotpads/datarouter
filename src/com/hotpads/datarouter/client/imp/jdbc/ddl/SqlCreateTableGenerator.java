@@ -77,7 +77,11 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			s+="\n";
 		}
 		s+=")";
-		s+=" ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='InnoDB free: 397312 kB'";
+		s+=" ENGINE=" +
+				table.getEngine() +
+				" DEFAULT CHARSET=latin1" +
+				" COMMENT='   " +
+				" free: ***** kB'";
 		return s;
 		
 	}
@@ -99,7 +103,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 					.addColumn(col3)
 					.setPrimaryKey(primaryKey)
 					.addIndex(new SqlIndex("idx1")
-							.addColumn(col2));
+					.addColumn(col2));
 			SqlCreateTableGenerator generator = new SqlCreateTableGenerator(myTable);
 			System.out.println(generator.generateDdl());
 			//Assert.assertEquals(expected, actual);

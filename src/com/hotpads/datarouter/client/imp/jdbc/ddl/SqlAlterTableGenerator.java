@@ -2,6 +2,8 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.util.List;
 
+import org.hamcrest.core.IsEqual;
+
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
@@ -157,6 +159,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				}
 				s=s.substring(0, s.length()-1)+")";
 				list.add(new SqlAlterTableClause(s, SqlAlterTypes.ADD_INDEX));
+			}
+			if(options.getModifyEngine() && diff.isEngineModified()){
+				list.add(new SqlAlterTableClause("ENGINE="+requested.getEngine()+" ", SqlAlterTypes.MODIFY_ENGINE));
 			}
 			//*/
 			if(diff.isIndexesModified() && (!CollectionTool.isEmpty(indexesToAdd) || !CollectionTool.isEmpty(indexesToRemove))){

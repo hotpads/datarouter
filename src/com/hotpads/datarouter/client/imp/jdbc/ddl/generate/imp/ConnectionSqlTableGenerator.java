@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
@@ -32,7 +33,6 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 
 	@Override
 	public SqlTable generate(){
-
 		SqlTable table = new SqlTable(tableName);
 		try{
 			Statement stmt = connection.createStatement();
@@ -83,6 +83,12 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 				table.addIndex(i);
 			}
 			indexList.close();
+			
+			rs = stmt.executeQuery("select engine from information_schema.tables where table_name='" + tableName + "';");
+			rs.next();
+			System.out.println("***" +rs.getString(1));
+			table.setEngine(MySqlTableEngine.parse(rs.getString(1)));
+			
 		}catch(SQLException e){
 			e.printStackTrace();
 		}

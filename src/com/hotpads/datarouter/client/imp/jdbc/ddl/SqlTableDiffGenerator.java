@@ -9,6 +9,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
@@ -115,7 +116,12 @@ public class SqlTableDiffGenerator{
 		if(!SetTool.containsSameKeys(SetTool.createTreeSet(current.getColumns()), SetTool.createTreeSet(requested
 				.getColumns()))){ return true; }
 		if(isIndexesModified()){ return true; }
+		if(isEngineModified()){ return true; }
 		return false;
+	}
+
+	public boolean isEngineModified(){
+		return !MySqlTableEngine.valueOf(current.getEngine().toString()).equals(MySqlTableEngine.valueOf(requested.getEngine().toString()));
 	}
 
 	public boolean isIndexesModified() {
