@@ -2,6 +2,8 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.util.List;
 
+import org.hamcrest.core.IsEqual;
+
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
@@ -125,7 +127,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				list.add(new SqlAlterTableClause("DROP TABLE " +current.getName() +";", SqlAlterTypes.DROP_TABLE));
 				list.add(getCreateTableSqlFromListOfColumnsToAdd(colsToAdd));
 			}
-			if(!CollectionTool.isEmpty(colsToModify)){
+			if(options.getModifyColumns() && !CollectionTool.isEmpty(colsToModify)){
 				
 				for(SqlColumn col : IterableTool.nullSafe(colsToModify)){
 					SqlColumn requestedCol = getColumnByNamefromListOfColumn(col.getName(),requested.getColumns());
@@ -137,18 +139,21 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				}
 			}
 			//*
-			if(diff.isPrimaryKeyModified()){
+			if(options.getAddIndexes() && options.getDropIndexes() && diff.isPrimaryKeyModified()){
 				if(current.hasPrimaryKey()){
 					list.add(new SqlAlterTableClause("DROP PRIMARY KEY ", SqlAlterTypes.DROP_INDEX));
 				}
 				
-				List<SqlColumn> listOfColumnsInPkey =requested.getPrimaryKey().getColumns(); 
+				List<SqlColumn> listOfColumnsInPkey = requested.getPrimaryKey().getColumns(); 
 				String s = "ADD " /*CONSTRAINT "+ requested.getPrimaryKey().getName() + */ +" PRIMARY KEY (" ;
 				for(SqlColumn col: listOfColumnsInPkey){
 					s+= col.getName() + ",";
 				}
 				s=s.substring(0, s.length()-1)+")";
 				list.add(new SqlAlterTableClause(s, SqlAlterTypes.ADD_INDEX));
+			}
+			if(options.getModifyEngine() && diff.isEngineModified()){
+				list.add(new SqlAlterTableClause("ENGINE="+requested.getEngine()+" ", SqlAlterTypes.MODIFY_ENGINE));
 			}
 			//*/
 			if(diff.isIndexesModified()){
