@@ -86,7 +86,6 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 			
 			rs = stmt.executeQuery("select engine from information_schema.tables where table_name='" + tableName + "';");
 			rs.next();
-			System.out.println("***" +rs.getString(1));
 			table.setEngine(MySqlTableEngine.parse(rs.getString(1)));
 			
 		}catch(SQLException e){
