@@ -115,10 +115,10 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 		if(index==null){
 			return;
 		}
-		System.out.println("index name :" +indexName);
-		System.out.println("list of columns " + columns);
-		System.out.println("string " +string );
-		System.out.println(" index " + index);
+//		System.out.println("index name :" +indexName);
+//		System.out.println("list of columns " + columns);
+//		System.out.println("string " +string );
+//		System.out.println(" index " + index);
 		for(SqlColumn col : IterableTool.nullSafe(columns)){
 			if(col.getName().equals(string)) index.addColumn(col);
 		}

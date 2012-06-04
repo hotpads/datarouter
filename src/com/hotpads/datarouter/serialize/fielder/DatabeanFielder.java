@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.serialize.fielder;
 
 import java.util.List;
+import java.util.Map;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -21,6 +22,6 @@ extends Fielder<D>{
 	List<Field<?>> getKeyFields(D databean);
 	List<Field<?>> getNonKeyFields(D databean);
 	
-	List<List<Field<?>>> getIndexes(D databean);
+	Map<String,List<Field<?>>> getIndexes(D databean);
 	
 }

@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.serialize.fielder;
 
 import java.util.List;
+import java.util.Map;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -9,6 +10,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.EmptyScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseDatabeanFielder<
@@ -37,21 +39,21 @@ implements DatabeanFielder<PK,D>{
 	}
 	
 	@Override
-	public List<Field<?>> getKeyFields(D d){
-		return FieldTool.prependPrefixes(d.getKeyFieldName(), 
-				primaryKeyFielder.getFields(d.getKey()));
+	public List<Field<?>> getKeyFields(D databean){
+		return FieldTool.prependPrefixes(databean.getKeyFieldName(), 
+				primaryKeyFielder.getFields(databean.getKey()));
 	}
 	
 	@Override
-	public List<Field<?>> getFields(D d){
-		List<Field<?>> allFields = getKeyFields(d); //getKeyFields already prepends prefixes
-		ListTool.nullSafeArrayAddAll(allFields, getNonKeyFields(d));
+	public List<Field<?>> getFields(D databean){
+		List<Field<?>> allFields = getKeyFields(databean); //getKeyFields already prepends prefixes
+		ListTool.nullSafeArrayAddAll(allFields, getNonKeyFields(databean));
 		return allFields;
 	}
 	
 	@Override
-	public List<List<Field<?>>> getIndexes(D d){
-		return ListTool.createLinkedList();
+	public Map<String,List<Field<?>>> getIndexes(D databean){
+		return MapTool.createTreeMap();
 	}
 	
 }

@@ -3,6 +3,7 @@ package com.hotpads.datarouter.test.node.basic.manyfield;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,7 +15,6 @@ import org.hibernate.annotations.AccessType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
@@ -33,6 +33,7 @@ import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
@@ -134,15 +135,15 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 			return d.getNonKeyFields();
 		}
 		@Override
-		public List<List<Field<?>>> getIndexes(ManyFieldTypeBean d){
-			List<List<Field<?>>> indexes = ListTool.createArrayList();
-			indexes.add(FieldTool.createList(
+		public Map<String,List<Field<?>>> getIndexes(ManyFieldTypeBean d){
+			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
+			indexesByName.put("index_shortInt", FieldTool.createList(
 					new ShortField(F.shortField, d.shortField),
 					new IntegerField(F.integerField, d.integerField)));
-			indexes.add(FieldTool.createList(
+			indexesByName.put("index_stringTestUpdate", FieldTool.createList(
 					new StringField(F.stringField, d.stringField),
 					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField)));
-			return indexes;
+			return indexesByName;
 		}
 	}
 
@@ -347,17 +348,6 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 
 	public void setStringEnumField(TestEnum stringEnumField){
 		this.stringEnumField = stringEnumField;
-	}
-
-	//@Override
-	public List<List<Field<?>>> getIndexes(ManyFieldTypeBean d) {
-		List<List<Field<?>>> indexes = ListTool.createArrayList();
-		indexes.add(FieldTool.createList(
-				new ShortField(F.shortField, d.shortField),
-				new IntegerField(F.integerField, d.integerField)));
-		indexes.add(FieldTool.createList(
-				new StringField(F.stringField, d.stringField)));
-		return indexes;
 	}
 	
 }

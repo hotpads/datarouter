@@ -258,29 +258,28 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				//SqlColumnNameTypeComparator nameTypeComparator = new SqlColumnNameTypeComparator(true);
 				
 				//execute the alter table
-				ConnectionSqlTableGenerator constructor = new ConnectionSqlTableGenerator(connection, tableName);
-				SqlTable current = constructor.generate();
-				DdlGenerator alterTableGenerator = new SqlAlterTableGenerator(schemaUpdateExecuteOptions,
-																							current, requested);
-				String alterTableString = alterTableGenerator.generateDdl();
-				
-				if(StringTool.notEmpty(alterTableString)){
+				ConnectionSqlTableGenerator executeConstructor = new ConnectionSqlTableGenerator(connection, tableName);
+				SqlTable executeCurrent = executeConstructor.generate();
+				DdlGenerator executeAlterTableGenerator = new SqlAlterTableGenerator(schemaUpdateExecuteOptions, executeCurrent,
+						requested);
+				if(StringTool.notEmpty(executeAlterTableGenerator.willAlterTable())){
+					String alterTableExecuteString = executeAlterTableGenerator.generateDdl();
 					System.out.println("Executing ...");
-					System.out.println(alterTableString);
+					System.out.println(alterTableExecuteString);
 					//execute it
-					statement.execute(alterTableString);
+					statement.execute(alterTableExecuteString);
 				}
 				
 				//print the alter table
-				constructor = new ConnectionSqlTableGenerator(connection, tableName);
-				current = constructor.generate();
-				alterTableGenerator = new SqlAlterTableGenerator(
-						schemaUpdateExecuteOptions, current, requested);
-				alterTableString = alterTableGenerator.generateDdl();
-				if(StringTool.notEmpty(alterTableString)){
+				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName);
+				SqlTable printCurrent = prinitConstructor.generate();
+				DdlGenerator printAlterTableGenerator = new SqlAlterTableGenerator(schemaUpdatePrintOptions,
+						printCurrent, requested);
+				if(printAlterTableGenerator.willAlterTable()){
 					System.out.println("Please execute ...");
 					//print it
-					System.out.println(alterTableString);
+					String alterTablePrintString = printAlterTableGenerator.generateDdl();
+					System.out.println(alterTablePrintString);
 				}		
 				//				// */
 				//				// System.out.println("current : " +current);
