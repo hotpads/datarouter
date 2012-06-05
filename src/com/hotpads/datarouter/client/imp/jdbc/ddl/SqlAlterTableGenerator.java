@@ -17,6 +17,7 @@ import com.hotpads.util.core.StringTool;
 
 public class SqlAlterTableGenerator implements DdlGenerator{
 
+	private static final int MINIMUM_ALTER_SIZE = 10;
 	protected SchemaUpdateOptions options;
 	protected SqlTable current, requested;
 	protected boolean dropTable = false;
@@ -43,12 +44,15 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			}
 		}
 		sb.append(";");
+		if(sb.length()>= ("alter table "+current.getName()).length()+MINIMUM_ALTER_SIZE){
+			willAlterTable=true;
+		}
 		return sb.toString();
 	}
 	
 	
 	public boolean willAlterTable(){
-		generate();	
+		generateDdl();	
 		return willAlterTable;
 	}
 	
@@ -170,13 +174,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				list.addAll(getAlterTableForAddingIndexes(indexesToAdd));
 			}	
 		}
-		if(!CollectionTool.isEmpty(list)){
-			willAlterTable=true;
-		}
 		//s+=");";
-		if(list.size()>0) {
-			willAlterTable=true;
-		}
 		return list;
 	}
 
