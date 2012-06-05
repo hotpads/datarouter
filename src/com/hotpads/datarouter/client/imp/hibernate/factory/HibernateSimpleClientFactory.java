@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.hibernate.factory;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
@@ -21,7 +20,6 @@ import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.DdlGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
@@ -38,8 +36,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -73,7 +71,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 	protected HibernateClient client;
 
 	public HibernateSimpleClientFactory(DataRouterContext drContext, String clientName, 
-			ExecutorService executorService) {
+			ExecutorService executorService){
 		this.drContext = drContext;
 		this.clientName = clientName;
 		this.executorService = executorService;
@@ -84,8 +82,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		this.schemaUpdateExecuteOptions = new SchemaUpdateOptions(multiProperties, schemaUpdateExecutePrefix, false);
 	}
 
-	protected static final boolean SEPARATE_THREAD = true;// why do we need this
-															// separate thread?
+	protected static final boolean SEPARATE_THREAD = true;// why do we need this separate thread?
 
 	@Override
 	public HibernateClient getClient() {
@@ -208,8 +205,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		return client != null;
 	}
 
-	protected JdbcConnectionPool getConnectionPool(String clientName,
-			List<Properties> multiProperties) {
+	protected JdbcConnectionPool getConnectionPool(String clientName, List<Properties> multiProperties){
 		boolean writable = ClientId.getWritableNames(drContext.getClientPool().getClientIds()).contains(clientName);
 		JdbcConnectionPool connectionPool = new JdbcConnectionPool(clientName, multiProperties, writable);
 		return connectionPool;
@@ -221,6 +217,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		if (!SCHEMA_UPDATE) {
 			return;
 		}
+		if(ObjectTool.notEquals("property", clientName)){ return; }
 		// if(!schemaUpdateOptions.anyTrue()){ return; }
 
 		String tableName = physicalNode.getTableName();
@@ -262,14 +259,17 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				//execute the alter table
 				ConnectionSqlTableGenerator executeConstructor = new ConnectionSqlTableGenerator(connection, tableName);
 				SqlTable executeCurrent = executeConstructor.generate();
-				SqlAlterTableGenerator executeAlterTableGenerator = new SqlAlterTableGenerator(schemaUpdateExecuteOptions, executeCurrent,
-						requested);
+				SqlAlterTableGenerator executeAlterTableGenerator = new SqlAlterTableGenerator(
+						schemaUpdateExecuteOptions, executeCurrent, requested);
 				if(executeAlterTableGenerator.willAlterTable()){
 					String alterTableExecuteString = executeAlterTableGenerator.generateDdl();
-					System.out.println("Executing ...");
+					PhaseTimer alterTableTimer = new PhaseTimer();
+					System.out.println("--------------- Executing "+getClass().getSimpleName()+" SchemaUpdate ---------------");
 					System.out.println(alterTableExecuteString);
 					//execute it
 					statement.execute(alterTableExecuteString);
+					alterTableTimer.add("Completed SchemaUpdate for "+tableName);
+					System.out.println("----------------- "+alterTableTimer+" -------------------");
 				}
 				
 				//print the alter table
@@ -278,10 +278,11 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(schemaUpdatePrintOptions,
 						printCurrent, requested);
 				if(printAlterTableGenerator.willAlterTable()){
-					System.out.println("Please execute ...");
+					System.out.println("========================================== Please Execute SchemaUpdate ============================");
 					//print it
 					String alterTablePrintString = printAlterTableGenerator.generateDdl();
 					System.out.println(alterTablePrintString);
+					System.out.println("========================================== Thank You ==============================================");
 				}		
 				//				// */
 				//				// System.out.println("current : " +current);
