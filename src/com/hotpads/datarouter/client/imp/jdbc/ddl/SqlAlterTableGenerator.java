@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.hamcrest.core.IsEqual;
 
+import antlr.collections.impl.LList;
+
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
@@ -18,6 +20,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	protected SchemaUpdateOptions options;
 	protected SqlTable current, requested;
 	protected boolean dropTable = false;
+	protected boolean willAlterTable = false;
 
 	public SqlAlterTableGenerator(SchemaUpdateOptions options, SqlTable current, SqlTable requested){
 		this.options = options;
@@ -41,6 +44,12 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		}
 		sb.append(";");
 		return sb.toString();
+	}
+	
+	
+	public boolean willAlterTable(){
+		generate();	
+		return willAlterTable;
 	}
 	
 	public List<String> getAlterTableStatementsStrings(){
@@ -161,7 +170,13 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				list.addAll(getAlterTableForAddingIndexes(indexesToAdd));
 			}	
 		}
+		if(!CollectionTool.isEmpty(list)){
+			willAlterTable=true;
+		}
 		//s+=");";
+		if(list.size()>0) {
+			willAlterTable=true;
+		}
 		return list;
 	}
 
@@ -188,13 +203,13 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		return list;
 	}
 
-	private List<SqlAlterTableClause> getAlterTableForAddingIndexes(List<SqlIndex> indexesToRemove){
+	private List<SqlAlterTableClause> getAlterTableForAddingIndexes(List<SqlIndex> indexesToAdd){
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		if(!options.getAddIndexes()){ return list; }
 		
-		if(indexesToRemove.size()>0){
+		if(indexesToAdd.size()>0){
 			String s="";
-			for(SqlIndex index : indexesToRemove){
+			for(SqlIndex index : indexesToAdd){
 				s+="ADD KEY " + index.getName() + "( ";
 				for(SqlColumn col : index.getColumns()){
 					s+= col.getName() + ", ";

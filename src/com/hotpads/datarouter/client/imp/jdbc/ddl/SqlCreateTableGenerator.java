@@ -110,4 +110,6 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		}
 	}
 
+	
+
 }

@@ -33,7 +33,7 @@ public class DatabeanFieldInfo<
 	protected Class<D> databeanClass;
 	protected D sampleDatabean;
 	protected String keyFieldName;
-	protected List<List<Field<?>>> indexes; // !new! the indexes in the databean
+	protected Map<String,List<Field<?>>>  indexes; // !new! the indexes in the databean
 	
 	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
 	protected ScatteringPrefix sampleScatteringPrefix;
@@ -279,7 +279,7 @@ public class DatabeanFieldInfo<
 
 
 	
-	public List<List<Field<?>>> getIndexes() {
+	public Map<String,List<Field<?>>>  getIndexes() {
 		return indexes;
 	}
 

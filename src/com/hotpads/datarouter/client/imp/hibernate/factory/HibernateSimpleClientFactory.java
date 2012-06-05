@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -38,6 +39,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -225,7 +227,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
 		List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
-		List<List<Field<?>>> indexes = ListTool.nullSafe(fieldInfo.getIndexes());
+		Map<String, List<Field<?>>>  indexes = MapTool.nullSafe(fieldInfo.getIndexes());
 
 		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(), primaryKeyFields, 
 				nonKeyFields);
@@ -260,9 +262,9 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				//execute the alter table
 				ConnectionSqlTableGenerator executeConstructor = new ConnectionSqlTableGenerator(connection, tableName);
 				SqlTable executeCurrent = executeConstructor.generate();
-				DdlGenerator executeAlterTableGenerator = new SqlAlterTableGenerator(schemaUpdateExecuteOptions, executeCurrent,
+				SqlAlterTableGenerator executeAlterTableGenerator = new SqlAlterTableGenerator(schemaUpdateExecuteOptions, executeCurrent,
 						requested);
-				if(StringTool.notEmpty(executeAlterTableGenerator.willAlterTable())){
+				if(executeAlterTableGenerator.willAlterTable()){
 					String alterTableExecuteString = executeAlterTableGenerator.generateDdl();
 					System.out.println("Executing ...");
 					System.out.println(alterTableExecuteString);
@@ -273,7 +275,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				//print the alter table
 				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName);
 				SqlTable printCurrent = prinitConstructor.generate();
-				DdlGenerator printAlterTableGenerator = new SqlAlterTableGenerator(schemaUpdatePrintOptions,
+				SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(schemaUpdatePrintOptions,
 						printCurrent, requested);
 				if(printAlterTableGenerator.willAlterTable()){
 					System.out.println("Please execute ...");
