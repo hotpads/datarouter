@@ -217,7 +217,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		if (!SCHEMA_UPDATE) {
 			return;
 		}
-		if(ObjectTool.notEquals("property", clientName)){ return; }
+		//if(ObjectTool.notEquals("property", clientName)){ return; }
 		// if(!schemaUpdateOptions.anyTrue()){ return; }
 
 		String tableName = physicalNode.getTableName();
@@ -260,7 +260,8 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				ConnectionSqlTableGenerator executeConstructor = new ConnectionSqlTableGenerator(connection, tableName);
 				SqlTable executeCurrent = executeConstructor.generate();
 				SqlAlterTableGenerator executeAlterTableGenerator = new SqlAlterTableGenerator(
-						schemaUpdateExecuteOptions, executeCurrent, requested);
+						schemaUpdateExecuteOptions, executeCurrent, requested, 
+						StringTool.getStringFromLastOccurenceOfIn('/',connectionPool.getDataSource().getJdbcUrl()));
 				if(executeAlterTableGenerator.willAlterTable()){
 					String alterTableExecuteString = executeAlterTableGenerator.generateDdl();
 					PhaseTimer alterTableTimer = new PhaseTimer();
@@ -276,7 +277,8 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName);
 				SqlTable printCurrent = prinitConstructor.generate();
 				SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(schemaUpdatePrintOptions,
-						printCurrent, requested);
+						printCurrent, requested,
+						StringTool.getStringFromLastOccurenceOfIn('/',connectionPool.getDataSource().getJdbcUrl()));
 				if(printAlterTableGenerator.willAlterTable()){
 					System.out.println("========================================== Please Execute SchemaUpdate ============================");
 					//print it

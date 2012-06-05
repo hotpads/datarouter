@@ -20,13 +20,15 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	private static final int MINIMUM_ALTER_SIZE = 10;
 	protected SchemaUpdateOptions options;
 	protected SqlTable current, requested;
+	protected String databaseName="";
 	protected boolean dropTable = false;
 	protected boolean willAlterTable = false;
 
-	public SqlAlterTableGenerator(SchemaUpdateOptions options, SqlTable current, SqlTable requested){
+	public SqlAlterTableGenerator(SchemaUpdateOptions options, SqlTable current, SqlTable requested, String databaseName){
 		this.options = options;
 		this.current = current;
 		this.requested = requested;
+		this.databaseName = databaseName;
 	}
 	
 	@Override
@@ -34,7 +36,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		List<SqlAlterTableClause> singleAlters =  generate();
 		if(CollectionTool.isEmpty(singleAlters)){ return null; }
 		StringBuilder sb = new StringBuilder();
-		sb.append("alter table "+current.getName()+"\n");
+		sb.append("alter table " +databaseName + "." +current.getName()+"\n");
 		int numAppended = 0;
 		for(SqlAlterTableClause singleAlter : IterableTool.nullSafe(singleAlters)){
 			if(singleAlter!=null){
@@ -156,9 +158,8 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				if(current.hasPrimaryKey()){
 					list.add(new SqlAlterTableClause("DROP PRIMARY KEY ", SqlAlterTypes.DROP_INDEX));
 				}
-				
 				List<SqlColumn> listOfColumnsInPkey = requested.getPrimaryKey().getColumns(); 
-				String s = "ADD " /*CONSTRAINT "+ requested.getPrimaryKey().getName() + */ +" PRIMARY KEY (" ;
+				String s = "ADD PRIMARY KEY (" ;
 				for(SqlColumn col: listOfColumnsInPkey){
 					s+= col.getName() + ",";
 				}
