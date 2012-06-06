@@ -223,5 +223,9 @@ public class JdbcTool {
 			}
 		}
 		}
+
+	public static String getSchemaName(JdbcConnectionPool connectionPool){
+		return StringTool.getStringFromLastOccurenceOfIn('/',connectionPool.getDataSource().getJdbcUrl());
+	}
 }
 

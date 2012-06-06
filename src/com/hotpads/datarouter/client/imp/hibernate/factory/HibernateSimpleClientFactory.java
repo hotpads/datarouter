@@ -251,17 +251,11 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 					return;
 				}*/
 				
-				
-				// TODO DELETE THIS COMPARATORS
-				//SqlColumnNameComparator nameComparator = new SqlColumnNameComparator(true);
-				//SqlColumnNameTypeComparator nameTypeComparator = new SqlColumnNameTypeComparator(true);
-				
 				//execute the alter table
 				ConnectionSqlTableGenerator executeConstructor = new ConnectionSqlTableGenerator(connection, tableName);
 				SqlTable executeCurrent = executeConstructor.generate();
 				SqlAlterTableGenerator executeAlterTableGenerator = new SqlAlterTableGenerator(
-						schemaUpdateExecuteOptions, executeCurrent, requested, 
-						StringTool.getStringFromLastOccurenceOfIn('/',connectionPool.getDataSource().getJdbcUrl()));
+						schemaUpdateExecuteOptions, executeCurrent, requested, JdbcTool.getSchemaName(connectionPool));
 				if(executeAlterTableGenerator.willAlterTable()){
 					String alterTableExecuteString = executeAlterTableGenerator.generateDdl();
 					PhaseTimer alterTableTimer = new PhaseTimer();
@@ -277,8 +271,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName);
 				SqlTable printCurrent = prinitConstructor.generate();
 				SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(schemaUpdatePrintOptions,
-						printCurrent, requested,
-						StringTool.getStringFromLastOccurenceOfIn('/',connectionPool.getDataSource().getJdbcUrl()));
+						printCurrent, requested, JdbcTool.getSchemaName(connectionPool));
 				if(printAlterTableGenerator.willAlterTable()){
 					System.out.println("========================================== Please Execute SchemaUpdate ============================");
 					//print it
@@ -286,21 +279,6 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 					System.out.println(alterTablePrintString);
 					System.out.println("========================================== Thank You ==============================================");
 				}		
-				//				// */
-				//				// System.out.println("current : " +current);
-				//				// System.out.println("requested : " +requested);
-				//				SqlAlterTableGenerator alterTablePrintGenerator = new SqlAlterTableGenerator(
-				//						schemaUpdatePrintOptions, current, requested);
-				////					String alterTableStringToPrint = alterTablePrintGenerator.ge....
-				//				// List<SqlAlterTable> alterations =
-				//				// alterTableGenerator.generate();
-				//				List<SqlAlterTable> alterTablePrintStatements = alterTablePrintGenerator
-				//						.getAlterTableStatements(nameTypeComparator);
-				//				for (SqlAlterTable s : alterTablePrintStatements) {
-				//					printStatementDependingOnSchemaUpdateOption(schemaUpdateOptions,s);
-				//					executeStatementDependingOnSchemaUpdateOption(schemaUpdateOptions,s, statement);
-				//					// statement.execute(s);
-				//				}
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -308,86 +286,4 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 			JdbcTool.closeConnection(connection);
 		}
 	}
-				//
-				//	private void executeStatementDependingOnSchemaUpdateOption(
-				//			SchemaUpdateOptions schemaUpdate, SqlAlterTable alterTable, Statement statement) throws SQLException {
-				//		// TODO Auto-generated method stub
-				//		switch (alterTable.getType()) {
-				//		case ADD_COLUMN:
-				//			if(schemaUpdate.getExecuteAddColumns()) {
-				//				System.out.println(":---------- Execution ----------:");
-				//				statement.execute(alterTable.getAlterTable());
-				//			}
-				//			break;
-				//		case DROP_COLUMN:
-				//			if(schemaUpdate.getExecuteDeleteColumns()) {
-				//				System.out.println(":---------- Execution ----------:");
-				//				statement.execute(alterTable.getAlterTable());
-				//			}
-				//			break;
-				//		case MODIFY:
-				//			if(schemaUpdate.getExecuteModify()) {
-				//				System.out.println(":---------- Execution ----------:");
-				//				statement.execute(alterTable.getAlterTable());
-				//			}
-				//			break;
-				//		case ADD_INDEX:
-				//			if(schemaUpdate.getExecuteAddIndex()) {
-				//				System.out.println(":---------- Execution ----------:");
-				//				statement.execute(alterTable.getAlterTable());
-				//			}
-				//			break;
-				//		case DROP_INDEX:
-				//			if(schemaUpdate.getExecuteDropIndex()) {
-				//				System.out.println(":---------- Execution ----------:");
-				//				statement.execute(alterTable.getAlterTable());
-				//			}
-				//			break;
-				//		case CREATE_TABLE:
-				//			if(schemaUpdate.getExecuteCreateTables()) {
-				//				System.out.println(":---------- Execution ----------:");
-				//				statement.execute(alterTable.getAlterTable());
-				//			}
-				//			break;
-				//		case DROP_TABLE:
-				//			if(schemaUpdate.getExecuteDropTables()) {
-				//				System.out.println(":---------- Execution ----------:");
-				//				statement.execute(alterTable.getAlterTable());
-				//			}
-				//			break;
-				//		def
-	// *ault:
-				//			break;
-				//		}
-				//	}
-				//
-				//	private void printStatementDependingOnSchemaUpdateOption(
-				//			SchemaUpdateOptions schemaUpdate, SqlAlterTable alterTable) {
-				//		// TODO Auto-generated method stub
-				//		switch (alterTable.getType()) {
-				//		case ADD_COLUMN:
-				//			if(schemaUpdate.getPrintAddColumns()) System.out.println(alterTable.getAlterTable());
-				//			break;
-				//		case DROP_COLUMN:
-				//			if(schemaUpdate.getPrintDeleteColumns()) System.out.println(alterTable.getAlterTable());
-				//			break;
-				//		case MODIFY:
-				//			if(schemaUpdate.getPrintModifyColumn()) System.out.println(alterTable.getAlterTable());
-				//			break;
-				//		case ADD_INDEX:
-				//			if(schemaUpdate.getPrintAddIndex()) System.out.println(alterTable.getAlterTable());
-				//			break;
-				//		case DROP_INDEX:
-				//			if(schemaUpdate.getPrintDropIndex()) System.out.println(alterTable.getAlterTable());
-				//			break;
-				//		case CREATE_TABLE:
-				//			if(schemaUpdate.getPrintCreateTables()) System.out.println(alterTable.getAlterTable());
-				//			break;
-				//		case DROP_TABLE:
-				//			if(schemaUpdate.getPrintDropTables()) System.out.println(alterTable.getAlterTable());
-				//			break;
-				//		default:
-				//			break;
-				//		}
-				//	}
 }
