@@ -54,7 +54,7 @@ public class FieldSqlTableGeneratorTester {
 		SqlCreateTableGenerator ctGenerator2 = new SqlCreateTableGenerator(table2);
 		System.out.println(ctGenerator2.generateDdl());
 		
-		SqlAlterTableGenerator alterGen = new SqlAlterTableGenerator(new SchemaUpdateOptions().setAllTrue(), table2, table);
+		SqlAlterTableGenerator alterGen = new SqlAlterTableGenerator(new SchemaUpdateOptions().setAllTrue(), table2, table, "db");
 		//SqlColumnNameComparator c = new SqlColumnNameComparator(true);
 		System.out.println(alterGen.getAlterTableStatements());
 	}

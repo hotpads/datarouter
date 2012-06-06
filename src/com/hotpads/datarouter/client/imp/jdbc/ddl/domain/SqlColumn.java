@@ -138,6 +138,30 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		}
 	}
 	
+	public static class SqlColumnNameTypeLengthComparator implements Comparator<SqlColumn>{
+		boolean caseSensitive = true;
+		public SqlColumnNameTypeLengthComparator(boolean caseSensitive) {
+			this.caseSensitive = caseSensitive;
+		}
+		@Override
+		public int compare(SqlColumn a, SqlColumn b) {
+			int c ;
+			if(a==null && b==null) return 0;
+			if(a==null)	return -1;
+			if(b==null) return 1;
+			if(caseSensitive){
+			 c = ComparableTool.nullFirstCompareTo(a.name, b.name);
+			}else{
+				c = ComparableTool.nullFirstCompareTo(StringTool.nullSafe(a.name).toLowerCase(), 
+						StringTool.nullSafe(b.name).toLowerCase());
+			}
+			c = ComparableTool.nullFirstCompareTo(a.type, b.type);
+			if(c!=0) { return c; }
+			return ComparableTool.nullFirstCompareTo(a.maxLength, b.maxLength);
+		}
+	}
+	
+	
 	public static class SqlColumnNameComparatorUsingLevenshteinDistance implements Comparator<SqlColumn>{
 		boolean caseSensitive = true;
 		int maxDistanceAllowed = 2;

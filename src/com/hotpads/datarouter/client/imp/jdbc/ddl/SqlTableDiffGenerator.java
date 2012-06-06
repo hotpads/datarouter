@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeLengthComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.*;
@@ -60,7 +61,7 @@ public class SqlTableDiffGenerator{
 	}
 	
 	public List<SqlColumn> getColumnsToModify(){
-		SqlColumnNameTypeComparator c = new SqlColumnNameTypeComparator(true);
+		SqlColumnNameTypeLengthComparator c = new SqlColumnNameTypeLengthComparator(true);
 		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c), currentColumns = new TreeSet<SqlColumn>(c);
 		if(requested==null || current==null){
 			return ListTool.createArrayList();

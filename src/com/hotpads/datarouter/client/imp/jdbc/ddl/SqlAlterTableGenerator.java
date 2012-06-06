@@ -150,6 +150,11 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 					if(requestedCol.getMaxLength()!=null){
 						s+=  " (" +requestedCol.getMaxLength() +")";
 					}
+					if(requestedCol.getNullable()){
+						s+=" default null";
+					}else{
+						s+=" not null";
+					}
 					list.add(new SqlAlterTableClause(s, SqlAlterTypes.MODIFY));
 				}
 			}

@@ -73,7 +73,7 @@ public class SqlIndex implements Comparable{
 		return CollectionTool.size(columns);
 	}
 
-	
+	/******************* comparator *************************/
 	
 	@Override
 	public int hashCode() {
