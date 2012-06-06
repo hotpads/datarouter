@@ -39,7 +39,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		sb.append("alter table " +databaseName + "." +current.getName()+"\n");
 		int numAppended = 0;
 		for(SqlAlterTableClause singleAlter : IterableTool.nullSafe(singleAlters)){
-			if(singleAlter!=null){
+			if(singleAlter!=null /*&& !StringTool.isEmptyOrWhitespace(singleAlter.getAlterTable())*/){
 				if(numAppended>0){ sb.append(",\n"); }
 				sb.append(singleAlter.getAlterTable());
 				++numAppended;
@@ -252,7 +252,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!options.getAddColumns()){ return null; }
 		
 		String s = "";
-		if(colsToAdd.size()>0){
+		if(colsToAdd.size()<=0) return null;
 			s+= "ADD ( ";
 			for(SqlColumn col:colsToAdd){
 				s+= col.getName() + " " + col.getType().toString().toLowerCase();
@@ -269,7 +269,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			}
 			s = s.substring(0, s.length()-2); // remove the last "," 
 			s+=")";
-		}
+		
 		return new SqlAlterTableClause(s, SqlAlterTypes.ADD_COLUMN);
 	}
 	
