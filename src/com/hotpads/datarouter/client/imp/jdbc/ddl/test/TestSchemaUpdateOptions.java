@@ -61,7 +61,7 @@ public class TestSchemaUpdateOptions{
 		System.out.println(sql);
 		stmt.execute(sql);
 		/************************ EXCECUTION TESTS ************************/
-		DdlGenerator alterTableGenerator = new SqlAlterTableGenerator(doNothing, currentTable, requestedTable);
+		DdlGenerator alterTableGenerator = new SqlAlterTableGenerator(doNothing, currentTable, requestedTable,"drTest0");
 		System.out.println(alterTableGenerator.generateDdl());
 		// TEST THAT IT DOESN'T CREATE TABLES
 		// TEST THAT IT DOESN'T DROP TABLES
@@ -131,7 +131,7 @@ public class TestSchemaUpdateOptions{
 		String sql = new SqlCreateTableGenerator(currentTable).generateDdl();
 		System.out.println(sql);
 		stmt.execute(sql);
-		DdlGenerator alterTableGenerator = new SqlAlterTableGenerator(addColumnsAndIndexes,currentTable, requestedTable);
+		DdlGenerator alterTableGenerator = new SqlAlterTableGenerator(addColumnsAndIndexes,currentTable, requestedTable,"drTest0");
 		/************************ EXCECUTION TESTS ************************/
 		// TEST THAT IT DOESN'T CREATE TABLES
 		// TEST THAT IT DOESM'T DROP TABLES
