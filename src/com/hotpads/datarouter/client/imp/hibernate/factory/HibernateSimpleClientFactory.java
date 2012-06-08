@@ -217,7 +217,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		if (!SCHEMA_UPDATE) {
 			return;
 		}
-		//if(ObjectTool.notEquals("property", clientName)){ return; }
+		if(ObjectTool.notEquals("property", clientName)){ return; }
 		// if(!schemaUpdateOptions.anyTrue()){ return; }
 
 		String tableName = physicalNode.getTableName();
@@ -244,7 +244,10 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 					System.out.println("Please execute: "+sql);
 				}
 				else {
+					System.out.println(sql);
 					statement.execute(sql);
+					System.out.println("====================================================================================================");
+					
 				}
 			} else {
 				/*if (!schemaUpdateOptions.anyAlterTrue()) {

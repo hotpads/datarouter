@@ -43,7 +43,7 @@ public class StringField extends BaseField<String>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(name, MySqlColumnType.VARCHAR, 255 , true);
+		return new SqlColumn(name, MySqlColumnType.VARCHAR, 255, true);
 	}
 	
 	@Override
