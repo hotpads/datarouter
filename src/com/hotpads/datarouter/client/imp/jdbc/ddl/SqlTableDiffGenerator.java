@@ -13,6 +13,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeLengthComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex.*;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.*;
 import com.hotpads.util.core.CollectionTool;
@@ -99,7 +100,7 @@ public class SqlTableDiffGenerator{
 		if(requested==null || current==null){
 			return ListTool.createArrayList();
 		}
-		return ListTool.createArrayList(CollectionTool.minus(current.getIndexes(), requested.getIndexes()));
+		return ListTool.createArrayList(CollectionTool.minus(current.getIndexes(), requested.getIndexes(), new SqlIndexNameComparator()));
 	}
 	
 	/********************* helper methods *******************************/

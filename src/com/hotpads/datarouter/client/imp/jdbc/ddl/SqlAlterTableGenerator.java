@@ -2,10 +2,6 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.util.List;
 
-import org.hamcrest.core.IsEqual;
-
-import antlr.collections.impl.LList;
-
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
@@ -161,6 +157,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			//*
 			if(options.getAddIndexes() && options.getDropIndexes() && diff.isPrimaryKeyModified()){
 				if(current.hasPrimaryKey()){
+					// 
 					list.add(new SqlAlterTableClause("drop primary key", SqlAlterTypes.DROP_INDEX));
 				}
 				List<SqlColumn> listOfColumnsInPkey = requested.getPrimaryKey().getColumns(); 

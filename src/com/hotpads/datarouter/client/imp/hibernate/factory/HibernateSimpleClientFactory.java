@@ -217,6 +217,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		if (!SCHEMA_UPDATE) {
 			return;
 		}
+		//TODO don't forget to comment this condition when testing ManyFielTypeBeanIntegrationTest 
 		//if(ObjectTool.notEquals("property", clientName)){ return; }
 		// if(!schemaUpdateOptions.anyTrue()){ return; }
 

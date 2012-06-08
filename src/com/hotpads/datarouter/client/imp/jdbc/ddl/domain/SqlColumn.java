@@ -93,11 +93,8 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		return c;	
 	}
 	
-	public static class SqlColumnNameComparator implements Comparator<SqlColumn>, Serializable{
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 7201692817811729304L;
+	public static class SqlColumnNameComparator implements Comparator<SqlColumn>{
+		
 		boolean caseSensitive = true;
 		public SqlColumnNameComparator(boolean caseSensitive) {
 			this.caseSensitive = caseSensitive;

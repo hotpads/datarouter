@@ -1,11 +1,13 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
+import java.util.Comparator;
 import java.util.List;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeComparator;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
@@ -113,12 +115,46 @@ public class SqlIndex implements Comparable{
 		return true;
 	}
 
+	public static class SqlIndexNameComparator implements Comparator<SqlIndex>{
+
+		@Override
+		public int compare(SqlIndex index1, SqlIndex index2){
+			int c = ComparableTool.nullFirstCompareTo(index1.getName(), index2.getName());
+			if(c!=0){return c;}
+			SqlColumnNameTypeComparator nameTypeColumnComparator = new SqlColumnNameTypeComparator(true);
+			for(int i=0; i<MathTool.min(index1.getColumns().size(), index2.getColumns().size()); i++){
+				c=ComparableTool.nullFirstCompareTo(index1.getColumns().get(i),index2.getColumns().get(i));
+				if(index1.getColumns().get(i)==null && index2.getColumns().get(i)==null){
+					c = 0;
+				}else if(index1.getColumns().get(i)==null){
+					c = -1;
+				}else if(index2.getColumns().get(i)==null){
+					c = 1;
+				}else{
+					c = nameTypeColumnComparator.compare(index1.getColumns().get(i),index2.getColumns().get(i));
+				}
+				if(c!=0){return c;}
+			}
+			return 0;
+		}
+		
+	}
 	@Override
 	public int compareTo(Object o) {
 			int c = ComparableTool.nullFirstCompareTo(name, ((SqlIndex) o).name);
 			if(c!=0){return c;}
+			SqlColumnNameTypeComparator nameTypeColumnComparator = new SqlColumnNameTypeComparator(true);
 			for(int i=0; i<MathTool.min(columns.size(), ((SqlIndex) o).columns.size()); i++){
 				c=ComparableTool.nullFirstCompareTo(columns.get(i),((SqlIndex) o).columns.get(i));
+				if(columns.get(i)==null && ((SqlIndex) o).columns.get(i)==null){
+					c = 0;
+				}else if(columns.get(i)==null){
+					c = -1;
+				}else if(((SqlIndex) o).columns.get(i)==null){
+					c = 1;
+				}else{
+					c = nameTypeColumnComparator.compare(columns.get(i),((SqlIndex) o).columns.get(i));
+				}
 				if(c!=0){return c;}
 			}
 			return 0;

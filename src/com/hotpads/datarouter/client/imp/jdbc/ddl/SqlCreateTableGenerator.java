@@ -42,7 +42,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			type = col.getType().toString().toLowerCase();
 			s+= " " + col.getName() + " " + type;
 			if(col.getMaxLength()!=null && !type.equals("longblob") && !type.equals("double")){
-				s+="(" + col.getMaxLength() + ") ";
+				s+="(" + col.getMaxLength() + ")";
 			}
 			if(col.getNullable()){
 				s+=" default null";
