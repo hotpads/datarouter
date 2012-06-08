@@ -245,7 +245,10 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 					System.out.println("Please execute: "+sql);
 				}
 				else {
+					System.out.println(sql);
 					statement.execute(sql);
+					System.out.println("====================================================================================================");
+					
 				}
 			} else {
 				/*if (!schemaUpdateOptions.anyAlterTrue()) {
