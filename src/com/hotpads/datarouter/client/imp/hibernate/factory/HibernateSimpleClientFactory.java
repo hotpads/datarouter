@@ -238,12 +238,12 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 			Statement statement = connection.createStatement();
 			boolean exists = tableNames.contains(tableName);
 			if (!exists) {
-				String sql = new SqlCreateTableGenerator(requested).generateDdl();
-				if(schemaUpdatePrintOptions.getCreateTables()){
+				System.out.println("========================================== Creating the table " +tableName +" ============================");
+				String sql = new SqlCreateTableGenerator(requested, JdbcTool.getSchemaName(connectionPool)).generateDdl();
+				if (!schemaUpdateExecuteOptions.getCreateTables()) {
 					System.out.println("Please execute: "+sql);
 				}
-				if (schemaUpdateExecuteOptions.getCreateTables()) {
-					System.out.println("** Creating table :" + sql);
+				else {
 					statement.execute(sql);
 				}
 			} else {

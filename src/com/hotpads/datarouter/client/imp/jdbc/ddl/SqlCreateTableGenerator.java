@@ -6,12 +6,14 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
+import com.hotpads.util.core.StringTool;
 
 public class SqlCreateTableGenerator implements DdlGenerator{
 
 	/************************** fields *************************/
 	
 	protected SqlTable table;
+	protected String databaseName="";
 
 	
 	/******************* constructors ****************************/
@@ -19,26 +21,34 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 	public SqlCreateTableGenerator(SqlTable table){
 		this.table = table;
 	}
-	
+	public SqlCreateTableGenerator(SqlTable table, String databaseName){
+		this.table = table;
+		this.databaseName = databaseName;
+	}
 	/****************** primary method ****************************/
 
 	@Override
 	public String generateDdl() {
-		String s="CREATE TABLE `" + table.getName()+"` (\n"; 
+		String s="CREATE TABLE " ;
+		if(StringTool.isEmpty(databaseName)){
+			s += databaseName + ".";
+		}
+		s += table.getName()+" (\n"; 
 		int nuimberOfColumns=table.getColumns().size();
 		SqlColumn col;
-
+		String type;
 		for(int i=0; i<nuimberOfColumns; i++){
 			col = table.getColumns().get(i);
-			s+= " `" + col.getName() + "` " +col.getType().toString().toLowerCase();
-			if(col.getMaxLength()!=null){
+			type = col.getType().toString().toLowerCase();
+			s+= " " + col.getName() + " " + type;
+			if(col.getMaxLength()!=null && !type.equals("longblob") && !type.equals("double")){
 				s+="(" + col.getMaxLength() + ") ";
 			}
 			if(col.getNullable()){
-				s+=" DEFAULT NULL";
+				s+=" default null";
 			}
 			else{
-				s+=" NOT NULL";
+				s+=" not null";
 			}
 			if(i<nuimberOfColumns-1) s+=",\n";
 			
@@ -46,11 +56,11 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		
 		if(table.hasPrimaryKey()){
 				s+=",\n";
-				s+=" PRIMARY KEY ("; 
+				s+=" primary key ("; 
 			int numberOfColumnsInPrimaryKey=table.getPrimaryKey().getColumns().size();
 			for(int i=0; i< numberOfColumnsInPrimaryKey; i++){
 				col = table.getPrimaryKey().getColumns().get(i);
-				s+= "`" + col.getName() + "`";
+				s+= col.getName();
 						if(i != numberOfColumnsInPrimaryKey -1) {
 							s+="," ;
 						}
@@ -61,13 +71,13 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		int numberOfIndexes=table.getIndexes().size();
 		if(numberOfIndexes>0) s+=",\n";
 		for(int i=0; i< numberOfIndexes; i++){
-			s+=" KEY `"+ table.getIndexes().get(i).getName() +"` (";
+			s+=" KEY "+ table.getIndexes().get(i).getName() +" (";
 			int numberOfColumndInIndexe = table.getIndexes().get(i).getColumns().size();
 			for(int j=0; j< numberOfColumndInIndexe; j++){
 				col = table.getIndexes().get(i).getColumns().get(j);
-				s+= "`" + table.getIndexes().get(i).getColumns().get(j).getName() + "`";
+				s+=  table.getIndexes().get(i).getColumns().get(j).getName();
 						if(j != numberOfColumndInIndexe -1) {
-							s+="," ;
+							s+=", " ;
 						}
 			}
 			s+=")";
@@ -77,11 +87,9 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			s+="\n";
 		}
 		s+=")";
-		s+=" ENGINE=" +
+		s+=" engine=" +
 				table.getEngine() +
-				" DEFAULT CHARSET=latin1" +
-				" COMMENT='   " +
-				" free: ***** kB'";
+				" default charset =utf8";
 		return s;
 		
 	}
