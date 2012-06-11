@@ -19,6 +19,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.UInt63ArrayField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
 import com.hotpads.datarouter.storage.field.imp.comparable.CharacterField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
@@ -48,6 +49,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	@Id
 	private ManyFieldTypeBeanKey key;
 	
+	private Boolean booleanField;
 	private Byte byteField;
 	private Short shortField;
 	private Integer integerField;
@@ -81,6 +83,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	public static class F{
 		public static final String
 			KEY_NAME = "key",
+			booleanField = "booleanField",
 			byteField = "byteField",
 			shortField = "shortField",
 			integerField = "integerField",
@@ -104,6 +107,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		List<Field<?>> fields = ListTool.createLinkedList();
+		fields.add(new BooleanField(F.booleanField, booleanField));
 		fields.add(new ByteField(F.byteField, byteField));
 		fields.add(new ShortField(F.shortField, shortField));
 		fields.add(new IntegerField(F.integerField, integerField));
@@ -348,6 +352,16 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 
 	public void setStringEnumField(TestEnum stringEnumField){
 		this.stringEnumField = stringEnumField;
+	}
+
+
+	public Boolean getBooleanField(){
+		return booleanField;
+	}
+
+
+	public void setBooleanField(Boolean booleanField){
+		this.booleanField = booleanField;
 	}
 	
 }

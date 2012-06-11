@@ -127,16 +127,16 @@ import com.hotpads.util.core.exception.NotImplementedException;
 			st = conn.createStatement();
 			ResultSet rs;
 			// modifying the storage engine
-			// st.execute("ALTER TABLE ManyFieldTypeBean ENGINE=MYISAM;");
+//			 st.execute("ALTER TABLE ManyFieldTypeBean ENGINE=MYISAM;");
 			// modifying the type
-			// st.execute("ALTER TABLE ManyFieldTypeBean MODIFY byteField VARCHAR(200);");
+			 st.execute("ALTER TABLE ManyFieldTypeBean MODIFY byteField VARCHAR(200);");
 			// adding a new column
-			// st.execute("ALTER TABLE ManyFieldTypeBean ADD COLUMN abcd" + (int)(Math.random()*100) +
-			// " VARCHAR(250);");
+			 st.execute("ALTER TABLE ManyFieldTypeBean ADD COLUMN abcd" + (int)(Math.random()*100) +
+			 " VARCHAR(250);");
 			// deleting an existing column l
-			// st.execute("ALTER TABLE ManyFieldTypeBean DROP COLUMN varIntEnumField;");
+			 st.execute("ALTER TABLE ManyFieldTypeBean DROP COLUMN varIntEnumField;");
 			// deleting the primary key
-			// st.execute("ALTER TABLE ManyFieldTypeBean DROP PRIMARY KEY;");
+			 st.execute("ALTER TABLE ManyFieldTypeBean DROP PRIMARY KEY;");
 
 			// adding a foreign key
 			st.execute(" CREATE INDEX key1 ON ManyFieldTypeBean(id, varIntField);");
@@ -165,6 +165,27 @@ import com.hotpads.util.core.exception.NotImplementedException;
 	}
 
 	/***************************** tests **************************************/
+
+	@Test
+	public void testBoolean(){
+		ManyFieldTypeBean bean = new ManyFieldTypeBean();
+		
+		//test true value
+		bean.setBooleanField(true);
+		router.manyFieldTypeBean().put(bean, null);
+		ManyFieldTypeBean roundTrippedTrue = router.manyFieldTypeBean().get(bean.getKey(), null);
+		Assert.assertNotSame(bean, roundTrippedTrue);
+		Assert.assertEquals(bean.getBooleanField(), roundTrippedTrue.getBooleanField());
+
+		//test false value
+		bean.setBooleanField(false);
+		router.manyFieldTypeBean().put(bean, null);
+		ManyFieldTypeBean roundTrippedFalse = router.manyFieldTypeBean().get(bean.getKey(), null);
+		Assert.assertNotSame(bean, roundTrippedFalse);
+		Assert.assertEquals(bean.getBooleanField(), roundTrippedFalse.getBooleanField());
+		
+		recordKey(bean.getKey());
+	}
 
 	@Test
 	public void testByte(){

@@ -8,7 +8,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
-import com.amazonaws.services.s3.model.EmailAddressGrantee;
+import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -16,6 +16,8 @@ import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.util.core.PropertiesTool;
+import com.hotpads.util.core.StringTool;
 
 public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	protected static Logger logger = Logger.getLogger(HBaseMultiAttemptTask.class);
@@ -97,9 +99,12 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	}
 	
 	protected void sendThrottledErrorEmail(Exception e) {
+//		String administratorEmail = PropertiesTool.getFirstOccurrence(multiProperties, HibernateSimpleClientFactory.ADMINISTRATOR_EMAIL);
+//		String serverName = PropertiesTool.getFirstOccurrence(multiProperties, SERVER_NAME);
+//		if(StringTool.isEmpty(administratorEmail) || StringTool.isEmpty(serverName)){ return; }
 		boolean enoughTimePassed = System.currentTimeMillis() - lastEmailSentAtMs > throttleEmailsMs;
 		if(!enoughTimePassed) { return; }
-		String subject = "HBaseMultiAttempTask failure";
+		String subject = "HBaseMultiAttempTask failure";// on "+serverName;
 		String body = "Message throttled for "+throttleEmailsMs+"ms\n\n"+ExceptionTool.getStackTraceAsString(e);
 		DataRouterEmailTool.sendEmail("admin@hotpads.com", "admin@hotpads.com", subject, body);
 		lastEmailSentAtMs = System.currentTimeMillis();

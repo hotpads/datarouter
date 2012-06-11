@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -34,11 +35,13 @@ import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.PropertiesTool;
+import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
@@ -49,6 +52,8 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 	public static final Boolean SCHEMA_UPDATE = true;
 
 	public static final String 
+			SERVER_NAME = "serverName",
+			ADMINISTRATOR_EMAIL = "administrator.email",
 			hibernate_connection_prefix = "hibernate.connection.",
 			provider_class = hibernate_connection_prefix + "provider_class", // from org.hibernate.cfg.Environment.CONNECTION_PROVIDER
 			connectionPoolName = hibernate_connection_prefix + "connectionPoolName", // any name... SessionFactory simply passes them through
@@ -67,8 +72,12 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 	protected List<Properties> multiProperties;
 	protected SchemaUpdateOptions schemaUpdatePrintOptions;
 	protected SchemaUpdateOptions schemaUpdateExecuteOptions;
+	protected Set<String> updatedTables;
+	protected List<String> printedSchemaUpdates;
+	
 	protected ExecutorService executorService;
 	protected HibernateClient client;
+	
 
 	public HibernateSimpleClientFactory(DataRouterContext drContext, String clientName, 
 			ExecutorService executorService){
@@ -80,6 +89,8 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
 		this.schemaUpdatePrintOptions = new SchemaUpdateOptions(multiProperties, schemaUpdatePrintPrefix, true	);
 		this.schemaUpdateExecuteOptions = new SchemaUpdateOptions(multiProperties, schemaUpdateExecutePrefix, false);
+		this.updatedTables = SetTool.createTreeSet();
+		this.printedSchemaUpdates = ListTool.createArrayList();
 	}
 
 	protected static final boolean SEPARATE_THREAD = true;// why do we need this separate thread?
@@ -193,6 +204,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 			JdbcTool.closeConnection(connection);// is this how you return it to
 													// the pool?
 		}
+		sendSchemaUpdateEmail();
 		timer.add("schema update");
 
 		logger.warn(timer);
@@ -218,7 +230,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 			return;
 		}
 		//TODO don't forget to comment this condition when testing ManyFielTypeBeanIntegrationTest 
-		if(ObjectTool.notEquals("property", clientName)){ return; }
+//		if(!ListTool.create("property", "drTestHibernate0").contains(clientName)){ return; }
 		// if(!schemaUpdateOptions.anyTrue()){ return; }
 
 		String tableName = physicalNode.getTableName();
@@ -235,19 +247,24 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		Connection connection = null;
 		try {
 			if (!connectionPool.isWritable()) { return; }
+			if(updatedTables.contains(tableName)){ return; }
+			updatedTables.add(tableName);
 			connection = connectionPool.getDataSource().getConnection();
 			Statement statement = connection.createStatement();
 			boolean exists = tableNames.contains(tableName);
 			if (!exists) {
-				System.out.println("========================================== Creating the table " +tableName +" ============================");
-				String sql = new SqlCreateTableGenerator(requested, JdbcTool.getSchemaName(connectionPool)).generateDdl();
+				System.out.println("========================================== Creating the table " +tableName 
+						+" ============================");
+				String sql = new SqlCreateTableGenerator(requested, JdbcTool.getSchemaName(connectionPool))
+						.generateDdl();
 				if (!schemaUpdateExecuteOptions.getCreateTables()) {
 					System.out.println("Please execute: "+sql);
 				}
 				else {
 					System.out.println(sql);
 					statement.execute(sql);
-					System.out.println("====================================================================================================");
+					System.out.println("============================================================================="
+					+"=======================");
 					
 				}
 			} else {
@@ -263,7 +280,8 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				if(executeAlterTableGenerator.willAlterTable()){
 					String alterTableExecuteString = executeAlterTableGenerator.generateDdl();
 					PhaseTimer alterTableTimer = new PhaseTimer();
-					System.out.println("--------------- Executing "+getClass().getSimpleName()+" SchemaUpdate ---------------");
+					System.out.println("--------------- Executing "+getClass().getSimpleName()
+							+" SchemaUpdate ---------------");
 					System.out.println(alterTableExecuteString);
 					//execute it
 					statement.execute(alterTableExecuteString);
@@ -277,11 +295,14 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(schemaUpdatePrintOptions,
 						printCurrent, requested, JdbcTool.getSchemaName(connectionPool));
 				if(printAlterTableGenerator.willAlterTable()){
-					System.out.println("========================================== Please Execute SchemaUpdate ============================");
+					System.out.println("========================================== Please Execute SchemaUpdate ======"
+							+"======================");
 					//print it
 					String alterTablePrintString = printAlterTableGenerator.generateDdl();
+					printedSchemaUpdates.add(alterTablePrintString);
 					System.out.println(alterTablePrintString);
-					System.out.println("========================================== Thank You ==============================================");
+					System.out.println("========================================== Thank You ========================" 
+							+"======================");
 				}		
 			}
 		} catch (Exception e) {
@@ -289,5 +310,18 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		} finally {
 			JdbcTool.closeConnection(connection);
 		}
+	}
+	
+	protected void sendSchemaUpdateEmail() {
+		if(CollectionTool.isEmpty(printedSchemaUpdates)) { return; }
+		String administratorEmail = PropertiesTool.getFirstOccurrence(multiProperties, ADMINISTRATOR_EMAIL);
+		String serverName = PropertiesTool.getFirstOccurrence(multiProperties, SERVER_NAME);
+		if(StringTool.isEmpty(administratorEmail) || StringTool.isEmpty(serverName)){ return; }
+		String subject = "SchemaUpdate request from "+serverName;
+		StringBuilder body = new StringBuilder();
+		for(String update : IterableTool.nullSafe(printedSchemaUpdates)){
+			body.append(update + "\n\n");
+		}
+		DataRouterEmailTool.sendEmail("schemaupdate@hotpads.com", administratorEmail, subject, body.toString());
 	}
 }
