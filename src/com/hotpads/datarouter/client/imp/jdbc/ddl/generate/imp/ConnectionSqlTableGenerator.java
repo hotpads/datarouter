@@ -64,7 +64,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 					listOfIndexNames.add(indexName);
 					SqlIndex index = new SqlIndex(indexName);
 					if(indexName.toUpperCase().equals("PRIMARY")){
-						addAppropriateColumnToPrimaryKeyFromListOfColumnindexList(table, indexList
+						addAppropriateColumnToPrimaryKeyFromListOfColumn(table, indexList
 								.getString("COLUMN_NAME"), table.getColumns());
 						// listOfIndexes.add(index);
 					}else{
@@ -74,6 +74,10 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 					}
 
 				}else{ // already created this index, just add a column to it
+					if(indexName.toUpperCase().equals("PRIMARY")){ // if its the primary key it won't be in the listOfIndexes
+						addAppropriateColumnToPrimaryKeyFromListOfColumn(table, indexList
+								.getString("COLUMN_NAME"), table.getColumns());
+					}
 					addAppropriateColumnToAppropriateIndexFromListOfColumn(indexName, listOfIndexes, indexList
 							.getString("COLUMN_NAME"), table.getColumns());
 				}
@@ -95,7 +99,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 		return table;
 	}
 
-	private void addAppropriateColumnToPrimaryKeyFromListOfColumnindexList(SqlTable table, String string,
+	private void addAppropriateColumnToPrimaryKeyFromListOfColumn(SqlTable table, String string,
 			List<SqlColumn> columns){
 		for(SqlColumn col : IterableTool.nullSafe(columns)){
 			if(col.getName().equals(string)) table.getPrimaryKey().addColumn(col);
@@ -105,7 +109,6 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 	private void addAppropriateColumnToAppropriateIndexFromListOfColumn(String indexName, List<SqlIndex> listOfIndexes,
 			String string, List<SqlColumn> columns){
 		SqlIndex index = null;
-		
 		for(SqlIndex i : listOfIndexes){
 			if(i.getName().equals(indexName)){
 				index = i;
