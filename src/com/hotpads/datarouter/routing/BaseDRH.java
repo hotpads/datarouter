@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.routing;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -35,13 +34,20 @@ import com.hotpads.util.core.SetTool;
 
 public abstract class BaseDRH{
 
-	protected List<ClientId> clientIds;
-	protected List<String> clientNames;
-	protected ConnectionPools connectionPools;
-	protected Clients clients;
-	protected Nodes nodes = new Nodes();
+//	protected DataRouterContext drContext;
+//	protected List<ClientId> clientIds;
+//	protected List<String> clientNames;
+//	protected ConnectionPools connectionPools;
+//	protected Clients clients;
+//	protected Nodes nodes;
 	
 	protected List<DataRouter> routers = ListTool.createArrayList();
+	
+//	protected BaseDRH(DataRouterContext drContext){
+//		this.drContext = drContext;
+//		this.nodes = new Nodes(drContext);
+//	}
+	
 	
 	public <R extends DataRouter> R register(R router){
 //		router.activate();//caution: make sure nodes are registered before activating
@@ -51,7 +57,7 @@ public abstract class BaseDRH{
 	}
 	
 	public DataRouter getRouter(String name){
-		for(DataRouter router : CollectionTool.nullSafe(this.routers)){
+		for(DataRouter router : CollectionTool.nullSafe(routers)){
 			if(name.equals(router.getName())){
 				return router;
 			}
@@ -89,7 +95,7 @@ public abstract class BaseDRH{
 		}
 	}
 	
-	public List<String> getClientNames(){
-		return clientNames;
-	}
+//	public List<String> getClientNames(){
+//		return clientNames;
+//	}
 }
