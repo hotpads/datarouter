@@ -52,7 +52,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 	public static final Boolean SCHEMA_UPDATE = true;
 
 	public static final String 
-			SERVER_NAME = "serverName",
+			SERVER_NAME = "server.name",
 			ADMINISTRATOR_EMAIL = "administrator.email",
 			hibernate_connection_prefix = "hibernate.connection.",
 			provider_class = hibernate_connection_prefix + "provider_class", // from org.hibernate.cfg.Environment.CONNECTION_PROVIDER
@@ -225,6 +225,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 
 	protected void createOrUpdateTableIfNeeded(List<String> tableNames, JdbcConnectionPool connectionPool, 
 			PhysicalNode<?, ?> physicalNode) {
+		if( ! physicalNode.getFieldInfo().getFieldAware()){ return; }
 
 		if (!SCHEMA_UPDATE) {
 			return;
