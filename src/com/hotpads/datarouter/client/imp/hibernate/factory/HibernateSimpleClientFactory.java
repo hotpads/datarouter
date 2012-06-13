@@ -36,6 +36,7 @@ import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.util.DataRouterEmailTool;
+import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -49,7 +50,7 @@ import com.hotpads.util.core.profile.PhaseTimer;
 public class HibernateSimpleClientFactory implements HibernateClientFactory {
 	Logger logger = Logger.getLogger(getClass());
 
-	public static final Boolean SCHEMA_UPDATE = true;
+	public static Boolean SCHEMA_UPDATE = false;
 
 	public static final String 
 			SERVER_NAME = "server.name",
@@ -91,6 +92,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		this.schemaUpdateExecuteOptions = new SchemaUpdateOptions(multiProperties, schemaUpdateExecutePrefix, false);
 		this.updatedTables = SetTool.createTreeSet();
 		this.printedSchemaUpdates = ListTool.createArrayList();
+		SCHEMA_UPDATE = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, "schemaUpdate.enable"));
 	}
 
 	protected static final boolean SEPARATE_THREAD = true;// why do we need this separate thread?
