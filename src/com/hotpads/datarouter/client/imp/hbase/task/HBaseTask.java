@@ -10,6 +10,7 @@ import com.hotpads.datarouter.client.imp.hbase.node.HBasePhysicalNode;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.core.ExceptionTool;
@@ -18,6 +19,8 @@ import com.hotpads.util.datastructs.MutableString;
 
 public abstract class HBaseTask<V> extends TracedCallable<V>{
 	static Logger logger = Logger.getLogger(HBaseTask.class);
+	
+	protected DataRouterContext drContext;
 
 	//variables for TraceThreads and TraceSpans
 	// breaking encapsulation in favor of tracing
@@ -39,8 +42,9 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	
 	/******************** constructor ****************************/
 	
-	public HBaseTask(String taskName, HBasePhysicalNode<?,?> node, Config config){
+	public HBaseTask(DataRouterContext drContext, String taskName, HBasePhysicalNode<?,?> node, Config config){
 		super("HBaseTask."+taskName);
+		this.drContext = drContext;
 		this.taskName = taskName;
 		this.node = node;
 		this.tableName = node.getTableName();
@@ -102,6 +106,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		}
 	}
 	
+	
 	/******************************* get/set ********************************************/
 	
 	public String getTaskName(){
@@ -138,6 +143,10 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 
 	public void setTimeoutMs(Long timeoutMs){
 		this.timeoutMs = timeoutMs;
+	}
+
+	public DataRouterContext getDrContext(){
+		return drContext;
 	}
 	
 	
