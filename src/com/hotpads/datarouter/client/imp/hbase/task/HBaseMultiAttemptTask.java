@@ -8,10 +8,10 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
-import com.amazonaws.services.s3.model.EmailAddressGrantee;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.core.DateTool;
@@ -25,6 +25,11 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		lastEmailSentAtMs = 0L;
 
 	protected static final Boolean CANCEL_THREAD_IF_RUNNING = true;
+	
+	
+	/*************************** fields *****************************/
+	
+	protected DataRouterContext drContext;
 		
 	protected HBaseTask<V> task;
 	protected HBaseClient client;
@@ -33,14 +38,17 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	protected Long timeoutMs;
 	protected Integer numAttempts;
 	
+	
+	/************************** constructors ***************************/
+	
 	public HBaseMultiAttemptTask(HBaseTask<V> task){
 		super(HBaseMultiAttemptTask.class.getSimpleName()+"."+task.getTaskName());
+		this.drContext = task.getDrContext();
 		this.task = task;
 		//temp hack.  in case of replaced client, we still use old client's exec service
 		this.config = Config.nullSafe(task.config);
 		this.timeoutMs = getTimeoutMS(this.config);
 		this.numAttempts = this.config.getNumAttempts();
-		
 	}
 	
 	@Override
@@ -99,9 +107,9 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	protected void sendThrottledErrorEmail(Exception e) {
 		boolean enoughTimePassed = System.currentTimeMillis() - lastEmailSentAtMs > throttleEmailsMs;
 		if(!enoughTimePassed) { return; }
-		String subject = "HBaseMultiAttempTask failure";
+		String subject = "HBaseMultiAttempTask failure on "+drContext.getServerName();
 		String body = "Message throttled for "+throttleEmailsMs+"ms\n\n"+ExceptionTool.getStackTraceAsString(e);
-		DataRouterEmailTool.sendEmail("admin@hotpads.com", "admin@hotpads.com", subject, body);
+		DataRouterEmailTool.sendEmail("admin@hotpads.com", drContext.getAdministratorEmail(), subject, body);
 		lastEmailSentAtMs = System.currentTimeMillis();
 	}
 }
