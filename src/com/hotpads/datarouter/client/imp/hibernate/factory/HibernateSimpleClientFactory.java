@@ -233,7 +233,8 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 			return;
 		}
 		//TODO don't forget to comment this condition when testing ManyFielTypeBeanIntegrationTest 
-		if(!ListTool.create("property", "drTestHibernate0").contains(clientName)){ return; }
+		//if(!ListTool.create("property", "drTestHibernate0","place","stat","test","view","config").contains(clientName)){ return; }
+		//if(ListTool.create("event").contains(clientName)){ return; }
 		// if(!schemaUpdateOptions.anyTrue()){ return; }
 
 		String tableName = physicalNode.getTableName();

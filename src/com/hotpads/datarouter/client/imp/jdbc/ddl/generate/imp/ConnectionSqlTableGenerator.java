@@ -37,7 +37,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 		try{
 			Statement stmt = connection.createStatement();
 			stmt = connection.createStatement();
-			String sql = "select * from " + tableName;
+			String sql = "select * from " + tableName +" limit 1";
 			ResultSet rs = stmt.executeQuery(sql);
 			ResultSetMetaData metaData = rs.getMetaData();
 			int rowCount = metaData.getColumnCount();

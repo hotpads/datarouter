@@ -30,7 +30,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 	@Override
 	public String generateDdl() {
 		String s="CREATE TABLE " ;
-		if(StringTool.isEmpty(databaseName)){
+		if(!StringTool.isEmpty(databaseName)){
 			s += databaseName + ".";
 		}
 		s += table.getName()+" (\n"; 

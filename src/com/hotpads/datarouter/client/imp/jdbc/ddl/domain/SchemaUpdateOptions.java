@@ -28,10 +28,11 @@ public class SchemaUpdateOptions{
 	protected Boolean addIndexes;
 	protected Boolean dropIndexes;
 	protected Boolean modifyEngine;
-	
+
 	public SchemaUpdateOptions(){
+		super();
 	}
-	
+
 	public SchemaUpdateOptions(List<Properties> multiProperties, String prefix, boolean printVsExecute){	
 		if(printVsExecute){
 			SetSchemaUpdateWithPrintOptions(multiProperties,  prefix);
@@ -103,6 +104,7 @@ public class SchemaUpdateOptions{
 		modifyColumns = true;
 		addIndexes = true;
 		dropIndexes = true;
+		modifyEngine = true;
 		return this;
 	}
 	
@@ -115,6 +117,7 @@ public class SchemaUpdateOptions{
 		modifyColumns = false;
 		addIndexes = false;
 		dropIndexes = false;
+		modifyEngine = false;
 		return this;
 	}
 
