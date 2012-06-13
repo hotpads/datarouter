@@ -256,9 +256,11 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		String s = "";
 		if(colsToAdd.size()<=0) return null;
 			s+= "add (";
+			String type;
 			for(SqlColumn col:colsToAdd){
-				s+= col.getName() + " " + col.getType().toString().toLowerCase();
-				if(col.getMaxLength()!=null){
+				type = col.getType().toString().toLowerCase();
+				s+= col.getName() + " " + type;
+				if(col.getMaxLength()!=null && !type.equals("longblob") && !type.equals("double")){
 					s+="(" + col.getMaxLength() + ")";
 				}
 				if(col.getNullable()){
