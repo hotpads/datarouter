@@ -2,6 +2,8 @@ package com.hotpads.datarouter.client.imp.hibernate.factory;
 
 import java.sql.Connection;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -236,13 +238,25 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		//if(!ListTool.create("property", "drTestHibernate0","place","stat","test","view","config").contains(clientName)){ return; }
 		//if(ListTool.create("event").contains(clientName)){ return; }
 		// if(!schemaUpdateOptions.anyTrue()){ return; }
-
+		
 		String tableName = physicalNode.getTableName();
 		DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
 		List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
 		Map<String, List<Field<?>>>  indexes = MapTool.nullSafe(fieldInfo.getIndexes());
 
+		
+		if(ListTool.create("event").contains(clientName)){  
+			String dateInYYYYMM = new SimpleDateFormat("yyyyMM").format(new Timestamp(System.currentTimeMillis()));
+			String date2InYYYYMM = new SimpleDateFormat("yyyyMM").format(new Timestamp(System.currentTimeMillis()-2678400000L));
+			System.out.println(" date1 " + dateInYYYYMM + "date 2 " + date2InYYYYMM);
+			String actualEventTableName = "Event"+dateInYYYYMM, actualEventTableName2 = "Event"+date2InYYYYMM;
+			 if(!ListTool.create(actualEventTableName, actualEventTableName2).contains(tableName)){
+				 return;
+			 }
+		}
+		
+		
 		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(), primaryKeyFields, 
 				nonKeyFields);
 		generator.setIndexes(indexes);
