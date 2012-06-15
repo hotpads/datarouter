@@ -47,8 +47,8 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		this.task = task;
 		//temp hack.  in case of replaced client, we still use old client's exec service
 		this.config = Config.nullSafe(task.config);
-		this.timeoutMs = getTimeoutMS(this.config);
-		this.numAttempts = this.config.getNumAttempts();
+		this.timeoutMs = getTimeoutMS(config);
+		this.numAttempts = getNumAttempts(config);
 	}
 	
 	@Override
@@ -98,6 +98,11 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	protected static Long getTimeoutMS(Config config){
 		if(config.getTimeoutMs()!=null){ return config.getTimeoutMs(); }
 		return HBaseClient.DEFAULT_TIMEOUT_MS;
+	}
+	
+	protected static Integer getNumAttempts(Config config){
+		if(config.getNumAttempts()!=null){ return config.getNumAttempts(); }
+		return HBaseClient.DEFAULT_NUM_ATTEMPTS;
 	}
 	
 	protected boolean isLastAttempt(int i) {
