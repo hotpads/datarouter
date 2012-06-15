@@ -8,10 +8,10 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.core.DateTool;
@@ -27,6 +27,11 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		lastEmailSentAtMs = 0L;
 
 	protected static final Boolean CANCEL_THREAD_IF_RUNNING = true;
+	
+	
+	/*************************** fields *****************************/
+	
+	protected DataRouterContext drContext;
 		
 	protected HBaseTask<V> task;
 	protected HBaseClient client;
@@ -35,14 +40,17 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	protected Long timeoutMs;
 	protected Integer numAttempts;
 	
+	
+	/************************** constructors ***************************/
+	
 	public HBaseMultiAttemptTask(HBaseTask<V> task){
 		super(HBaseMultiAttemptTask.class.getSimpleName()+"."+task.getTaskName());
+		this.drContext = task.getDrContext();
 		this.task = task;
 		//temp hack.  in case of replaced client, we still use old client's exec service
 		this.config = Config.nullSafe(task.config);
-		this.timeoutMs = getTimeoutMS(this.config);
-		this.numAttempts = this.config.getNumAttempts();
-		
+		this.timeoutMs = getTimeoutMS(config);
+		this.numAttempts = getNumAttempts(config);
 	}
 	
 	@Override
@@ -94,6 +102,11 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		return HBaseClient.DEFAULT_TIMEOUT_MS;
 	}
 	
+	protected static Integer getNumAttempts(Config config){
+		if(config.getNumAttempts()!=null){ return config.getNumAttempts(); }
+		return HBaseClient.DEFAULT_NUM_ATTEMPTS;
+	}
+	
 	protected boolean isLastAttempt(int i) {
 		return i==numAttempts;
 	}
@@ -104,9 +117,9 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 //		if(StringTool.isEmpty(administratorEmail) || StringTool.isEmpty(serverName)){ return; }
 		boolean enoughTimePassed = System.currentTimeMillis() - lastEmailSentAtMs > throttleEmailsMs;
 		if(!enoughTimePassed) { return; }
-		String subject = "HBaseMultiAttempTask failure";// on "+serverName;
+		String subject = "HBaseMultiAttempTask failure on "+drContext.getServerName();
 		String body = "Message throttled for "+throttleEmailsMs+"ms\n\n"+ExceptionTool.getStackTraceAsString(e);
-		DataRouterEmailTool.sendEmail("admin@hotpads.com", "admin@hotpads.com", subject, body);
+		DataRouterEmailTool.sendEmail("admin@hotpads.com", drContext.getAdministratorEmail(), subject, body);
 		lastEmailSentAtMs = System.currentTimeMillis();
 	}
 }

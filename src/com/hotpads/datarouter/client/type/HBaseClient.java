@@ -13,6 +13,7 @@ import com.hotpads.util.datastructs.MutableString;
 public interface HBaseClient
 extends Client{
 
+	public static final Integer DEFAULT_NUM_ATTEMPTS = 3;
 	public static final Long DEFAULT_TIMEOUT_MS = 10 * 1000L;
 
 	HTable checkOutHTable(String name, MutableString progress);
