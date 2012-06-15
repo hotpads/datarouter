@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,9 +22,9 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields,
 			List<Field<?>> nonKeyFields) {
 		this.tableName = tableName;
-		this.primaryKeyFields = primaryKeyFields;
 		this.nonKeyFields = nonKeyFields;
 		this.indexes = MapTool.createHashMap();
+		this.primaryKeyFields = primaryKeyFields;
 	}
 	
 	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields,
@@ -30,7 +32,7 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 		this.tableName = tableName;
 		this.primaryKeyFields = primaryKeyFields;
 		this.nonKeyFields = nonKeyFields;
-		this.indexes = indexes;
+		this.primaryKeyFields = primaryKeyFields;
 	}
 
 	@Override

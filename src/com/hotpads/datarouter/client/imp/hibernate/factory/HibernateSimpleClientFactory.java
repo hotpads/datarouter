@@ -246,15 +246,15 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		Map<String, List<Field<?>>>  indexes = MapTool.nullSafe(fieldInfo.getIndexes());
 
 		
-		if(ListTool.create("event").contains(clientName)){  
-			String dateInYYYYMM = new SimpleDateFormat("yyyyMM").format(new Timestamp(System.currentTimeMillis()));
-			String date2InYYYYMM = new SimpleDateFormat("yyyyMM").format(new Timestamp(System.currentTimeMillis()-2678400000L));
-			System.out.println(" date1 " + dateInYYYYMM + "date 2 " + date2InYYYYMM);
-			String actualEventTableName = "Event"+dateInYYYYMM, actualEventTableName2 = "Event"+date2InYYYYMM;
-			 if(!ListTool.create(actualEventTableName, actualEventTableName2).contains(tableName)){
-				 return;
-			 }
-		}
+//		if(ListTool.create("event").contains(clientName)){  
+//			String dateInYYYYMM = new SimpleDateFormat("yyyyMM").format(new Timestamp(System.currentTimeMillis()));
+//			String date2InYYYYMM = new SimpleDateFormat("yyyyMM").format(new Timestamp(System.currentTimeMillis()-2678400000L));
+//			System.out.println(" date1 " + dateInYYYYMM + "date 2 " + date2InYYYYMM);
+//			String actualEventTableName = "Event"+dateInYYYYMM, actualEventTableName2 = "Event"+date2InYYYYMM;
+//			 if(!ListTool.create(actualEventTableName, actualEventTableName2).contains(tableName)){
+//				 return;
+//			 }
+//		}
 		
 		
 		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(), primaryKeyFields, 

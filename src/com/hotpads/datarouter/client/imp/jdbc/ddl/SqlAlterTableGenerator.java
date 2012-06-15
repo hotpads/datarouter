@@ -31,21 +31,33 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	public String generateDdl(){
 		List<SqlAlterTableClause> singleAlters =  generate();
 		if(CollectionTool.isEmpty(singleAlters)){ return null; }
-		StringBuilder sb = new StringBuilder();
-		sb.append("alter table " +databaseName + "." +current.getName()+"\n");
-		int numAppended = 0;
-		for(SqlAlterTableClause singleAlter : IterableTool.nullSafe(singleAlters)){
-			if(singleAlter!=null /*&& !StringTool.isEmptyOrWhitespace(singleAlter.getAlterTable())*/){
-				if(numAppended>0){ sb.append(",\n"); }
-				sb.append(singleAlter.getAlterTable());
-				++numAppended;
+		if(dropTable){
+			String s="";
+			for(SqlAlterTableClause singleAlter : IterableTool.nullSafe(singleAlters)){
+				String alterSql = singleAlter.getAlterTable();
+				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
+					s += alterSql+ "\n";
+				}
 			}
+			return s;
 		}
-		sb.append(";");
-		if(sb.length()>= ("alter table " +databaseName + "." +current.getName()).length()+MINIMUM_ALTER_SIZE){
-			willAlterTable=true;
+		else{
+			StringBuilder sb = new StringBuilder();
+			sb.append("alter table " +databaseName + "." +current.getName()+"\n");
+			int numAppended = 0;
+			for(SqlAlterTableClause singleAlter : IterableTool.nullSafe(singleAlters)){
+				if(singleAlter!=null /*&& !StringTool.isEmptyOrWhitespace(singleAlter.getAlterTable())*/){
+					if(numAppended>0){ sb.append(",\n"); }
+					sb.append(singleAlter.getAlterTable());
+					++numAppended;
+				}
+			}
+			sb.append(";");
+			if(sb.length()>= ("alter table " +databaseName + "." +current.getName()).length()+MINIMUM_ALTER_SIZE){
+				willAlterTable=true;
+			}
+			return sb.toString();
 		}
-		return sb.toString();
 	}
 	
 	
@@ -135,8 +147,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			}
 			else{// cannot drop all columns, should use drop table then create it from list of columns
 				dropTable = true;
-				list.add(new SqlAlterTableClause("drop table " +current.getName() +";", SqlAlterTypes.DROP_TABLE));
+				list.add(new SqlAlterTableClause("drop table "  +databaseName + "." +current.getName() +";", SqlAlterTypes.DROP_TABLE));
 				list.add(getCreateTableSqlFromListOfColumnsToAdd(colsToAdd));
+				return list;
 			}
 			if(options.getModifyColumns() && !CollectionTool.isEmpty(colsToModify)){
 				
