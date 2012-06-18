@@ -116,7 +116,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		fields.add(new DumbDoubleField(F.doubleField, doubleField));
 		fields.add(new LongDateField(F.longDateField, longDateField));
 		fields.add(new CharacterField(F.characterField, characterField));
-		fields.add(new StringField(F.stringField, stringField));
+		fields.add(new StringField(F.stringField, stringField,255));
 		fields.add(new VarIntField(F.varIntField, varIntField));
 		fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, intEnumField));
 		fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, varIntEnumField));
@@ -124,7 +124,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		fields.add(new ByteArrayField(F.stringByteField, stringByteField));
 		fields.add(new ByteArrayField(F.data, data));
 		fields.add(new UInt63ArrayField(F.longArrayField, longArrayField));
-		fields.add(new StringField(F.testSchemaUpdateField, testSchemaUpdateField));
+		fields.add(new StringField(F.testSchemaUpdateField, testSchemaUpdateField,255));
 		return fields;
 	}
 	
@@ -145,8 +145,8 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 					new ShortField(F.shortField, d.shortField),
 					new IntegerField(F.integerField, d.integerField)));
 			indexesByName.put("index_stringTestUpdate", FieldTool.createList(
-					new StringField(F.stringField, d.stringField),
-					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField)));
+					new StringField(F.stringField, d.stringField,255),
+					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField,255)));
 			return indexesByName;
 		}
 	}
