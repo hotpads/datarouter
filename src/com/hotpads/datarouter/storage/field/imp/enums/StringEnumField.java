@@ -37,7 +37,7 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.VARCHAR, 250 , true);
+		return new SqlColumn(columnName, MySqlColumnType.VARCHAR, 255 , true);
 	}
 	
 	@Override

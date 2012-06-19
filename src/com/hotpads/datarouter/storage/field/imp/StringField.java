@@ -46,12 +46,16 @@ public class StringField extends BaseField<String>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		if(size<=255){
+		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
 			return new SqlColumn(name, MySqlColumnType.VARCHAR, 255, true);
-		}
-		else{
+		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
 			return new SqlColumn(name, MySqlColumnType.TEXT, null, true);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
+			return new SqlColumn(name, MySqlColumnType.MEDIUMTEXT, null, true);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
+			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, true);
 		}
+		throw new IllegalArgumentException("Unknown size:"+size);
 	}
 	
 	@Override
@@ -79,7 +83,7 @@ public class StringField extends BaseField<String>{
 			if(value==null){
 				ps.setNull(parameterIndex, Types.VARCHAR);
 			}else{
-				ps.setString(parameterIndex, this.value);
+				ps.setString(parameterIndex, value);
 			}
 		}catch(SQLException e){
 			throw new DataAccessException(e);

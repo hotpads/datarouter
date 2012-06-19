@@ -27,13 +27,13 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 		this.primaryKeyFields = primaryKeyFields;
 	}
 	
-	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields,
-			List<Field<?>> nonKeyFields, Map<String,List<Field<?>>> indexes) {
-		this.tableName = tableName;
-		this.primaryKeyFields = primaryKeyFields;
-		this.nonKeyFields = nonKeyFields;
-		this.primaryKeyFields = primaryKeyFields;
-	}
+//	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields,
+//			List<Field<?>> nonKeyFields, Map<String,List<Field<?>>> indexes) {
+//		this.tableName = tableName;
+//		this.primaryKeyFields = primaryKeyFields;
+//		this.nonKeyFields = nonKeyFields;
+//		this.primaryKeyFields = primaryKeyFields;
+//	}
 
 	@Override
 	public SqlTable generate(){
@@ -48,10 +48,10 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 			table.addColumn(f.getSqlColumnDefinition());
 		}
 		int i=1;
-		for(List<Field<?>> lof : indexes.values()){
-			SqlIndex index = new SqlIndex(getKeyByValue(indexes,lof));
-			for(Field<?> f: lof){
-				index.addColumn(f.getSqlColumnDefinition());
+		for(List<Field<?>> listOfFields : indexes.values()){
+			SqlIndex index = new SqlIndex(getKeyByValue(indexes, listOfFields));
+			for(Field<?> field : listOfFields){
+				index.addColumn(field.getSqlColumnDefinition());
 			}
 			table.addIndex(index);
 			i++;
