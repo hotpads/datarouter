@@ -17,6 +17,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.RegexTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class StringField extends BaseField<String>{
@@ -49,9 +50,9 @@ public class StringField extends BaseField<String>{
 		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
 			return new SqlColumn(name, MySqlColumnType.VARCHAR, 255, true);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(name, MySqlColumnType.TEXT, null, true);
+			return new SqlColumn(name, MySqlColumnType.VARCHAR, 65535, true);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
-			return new SqlColumn(name, MySqlColumnType.MEDIUMTEXT, null, true);
+			return new SqlColumn(name, MySqlColumnType.VARCHAR, 16777215, true);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
 			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, true);
 		}
