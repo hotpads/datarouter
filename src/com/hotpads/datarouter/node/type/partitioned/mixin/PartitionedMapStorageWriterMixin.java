@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.Assert;
+
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter.PhysicalMapStorageWriterNode;
@@ -29,7 +31,9 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void delete(PK key, Config config) {
-		for(N node : CollectionTool.nullSafe(target.getPhysicalNodes(key))){
+		Collection<N> nodes = target.getPhysicalNodes(key);
+		Assert.assertTrue(CollectionTool.size(nodes) <= 1);
+		for(N node : nodes){
 			node.delete(key, config);
 		}
 	}
@@ -55,6 +59,7 @@ implements MapStorageWriter<PK,D>{
 	@Override
 	public void put(D databean, Config config) {
 		Collection<N> nodes = target.getPhysicalNodes(databean.getKey());
+		Assert.assertTrue(CollectionTool.size(nodes) <= 1);
 		for(N node : CollectionTool.nullSafe(nodes)){
 			node.put(databean, config);
 		}
@@ -65,9 +70,8 @@ implements MapStorageWriter<PK,D>{
 		Map<N,? extends Collection<D>> databeansByNode = target.getDatabeansByPhysicalNode(databeans);
 		for(N node : MapTool.nullSafe(databeansByNode).keySet()){
 			Collection<D> databeansForNode = databeansByNode.get(node);
-			if(CollectionTool.notEmpty(databeansForNode)){
-				node.putMulti(databeansForNode, config);
-			}
+			if(CollectionTool.isEmpty(databeansForNode)){ continue; }//shouldn't be needed, but safer
+			node.putMulti(databeansForNode, config);
 		}
 	}
 

@@ -54,34 +54,37 @@ implements MapStorageReaderNode<PK,D>{
 	@Override
 	public List<D> getAll(Config config) {
 		List<D> all = ListTool.createLinkedList();
-		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes())){
-			all.addAll(CollectionTool.nullSafe(node.getAll(config)));
+		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
+			List<D> allFromPhysicalNode = node.getAll(config);
+			//need to filter in case the physical node is hosting things not in its partitions
+			List<D> filtered = filterDatabeansForPhysicalNode(allFromPhysicalNode, node);
+			all.addAll(CollectionTool.nullSafe(filtered));
 		}
 		return all;
 	}
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config) {
-		Map<N,List<PK>> keysByNode = this.getPrimaryKeysByPhysicalNode(keys);
+		Map<N,List<PK>> keysByNode = getPrimaryKeysByPhysicalNode(keys);
 		List<D> all = ListTool.createLinkedList();
 		for(N node : MapTool.nullSafe(keysByNode).keySet()){
 			Collection<PK> keysForNode = keysByNode.get(node);
-			if(CollectionTool.notEmpty(keysForNode)){
-				all.addAll(node.getMulti(keysForNode, config));
-			}
+			if(CollectionTool.isEmpty(keysForNode)){ continue; }//should not be empty, but being safer
+			List<D> databeansFromNode = node.getMulti(keysForNode, config);
+			all.addAll(CollectionTool.nullSafe(databeansFromNode));
 		}
 		return all;
 	}
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config) {
-		Map<N,List<PK>> keysByNode = this.getPrimaryKeysByPhysicalNode(keys);
+		Map<N,List<PK>> keysByNode = getPrimaryKeysByPhysicalNode(keys);
 		List<PK> all = ListTool.createLinkedList();
 		for(N node : MapTool.nullSafe(keysByNode).keySet()){
 			Collection<PK> keysForNode = keysByNode.get(node);
-			if(CollectionTool.notEmpty(keysForNode)){
-				all.addAll(node.getKeys(keysForNode, config));
-			}
+			if(CollectionTool.isEmpty(keysForNode)){ continue; }//should not be empty, but being safer
+			List<PK> pksFromNode = node.getKeys(keysForNode, config);
+			all.addAll(CollectionTool.nullSafe(pksFromNode));
 		}
 		return all;
 	}

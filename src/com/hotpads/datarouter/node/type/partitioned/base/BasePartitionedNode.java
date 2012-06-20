@@ -121,10 +121,34 @@ extends BaseNode<PK,D,F>{
 		return ListTool.createArrayList(nodes);
 	}
 	
+	//used when a physicalNode has keys that don't belong on it.  need to filter them out when they come back
+	public List<PK> filterPrimaryKeysForPhysicalNode(Collection<PK> keys, N node){
+		List<PK> filteredPks = ListTool.createArrayList();
+		for(PK key : CollectionTool.nullSafe(keys)){
+			List<N> nodes = getPhysicalNodes(key);
+			if(nodes.contains(node)){
+				filteredPks.add(key);
+			}
+		}
+		return filteredPks;
+	}
+	
+	//used when a physicalNode has keys that don't belong on it.  need to filter them out when they come back
+	public List<D> filterDatabeansForPhysicalNode(Collection<D> databeans, N node){
+		List<D> filteredDatabeans = ListTool.createArrayList();
+		for(D databean : CollectionTool.nullSafe(databeans)){
+			List<N> nodes = getPhysicalNodes(databean.getKey());
+			if(nodes.contains(node)){
+				filteredDatabeans.add(databean);
+			}
+		}
+		return filteredDatabeans;
+	}
+	
 	public Map<N,List<PK>> getPrimaryKeysByPhysicalNode(Collection<PK> keys){
 		Map<N,List<PK>> keysByPhysicalNode = MapTool.createHashMap();
 		for(PK key : CollectionTool.nullSafe(keys)){
-			List<N> nodes = this.getPhysicalNodes(key);
+			List<N> nodes = getPhysicalNodes(key);
 			for(N node : CollectionTool.nullSafe(nodes)){
 				if(keysByPhysicalNode.get(node)==null){
 					keysByPhysicalNode.put(node, new LinkedList<PK>());
@@ -138,7 +162,7 @@ extends BaseNode<PK,D,F>{
 	public Map<N,List<D>> getDatabeansByPhysicalNode(Collection<D> databeans){
 		Map<N,List<D>> databeansByPhysicalNode = MapTool.createHashMap();
 		for(D databean : CollectionTool.nullSafe(databeans)){
-			List<N> nodes = this.getPhysicalNodes(databean.getKey());
+			List<N> nodes = getPhysicalNodes(databean.getKey());
 			for(N node : CollectionTool.nullSafe(nodes)){
 				if(databeansByPhysicalNode.get(node)==null){
 					databeansByPhysicalNode.put(node, new LinkedList<D>());

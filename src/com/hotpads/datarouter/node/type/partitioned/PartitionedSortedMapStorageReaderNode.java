@@ -59,20 +59,14 @@ implements SortedMapStorageReaderNode<PK,D>{
 	//TODO optimize with merge sort
 
 	@Override
-	public List<D> getPrefixedRange(PK prefix, boolean wildcardLastField, 
-			final PK start, final boolean startInclusive,
-			Config config) {
+	public List<D> getPrefixedRange(PK prefix, boolean wildcardLastField, final PK start, final boolean startInclusive,
+			Config config){
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
-		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes(prefix))){
-			all.addAll(node.getPrefixedRange(
-					prefix, wildcardLastField, 
-					start, startInclusive,
-					config));
+		for(N node : CollectionTool.nullSafe(getPhysicalNodes(prefix))){
+			all.addAll(node.getPrefixedRange(prefix, wildcardLastField, start, startInclusive, config));
 		}
-		if(CollectionTool.isEmpty(all)){ 
-			return all; 
-		}
+		if(CollectionTool.isEmpty(all)){ return all; }
 		Collections.sort(all);
 		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
 			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
@@ -87,7 +81,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 			final PK end, final boolean endInclusive, final Config config) {
 		//TODO smarter/optional sorting
 		List<PK> all = ListTool.createArrayList();
-		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes())){
+		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
 			all.addAll(node.getKeysInRange(start, startInclusive, end, endInclusive, config));
 		}
 		if(CollectionTool.isEmpty(all)){ 
@@ -107,7 +101,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 			final PK end, final boolean endInclusive, final Config config) {
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
-		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes())){
+		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
 			all.addAll(node.getRange(start, startInclusive, end, endInclusive, config));
 		}
 		if(CollectionTool.isEmpty(all)){ 
@@ -126,7 +120,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
-		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes(prefix))){
+		for(N node : CollectionTool.nullSafe(getPhysicalNodes(prefix))){
 			all.addAll(node.getWithPrefix(prefix, wildcardLastField, config));
 		}
 		if(CollectionTool.isEmpty(all)){ 
@@ -145,7 +139,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config) {
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
-		for(N node : CollectionTool.nullSafe(this.getPhysicalNodes(prefixes))){
+		for(N node : CollectionTool.nullSafe(getPhysicalNodes(prefixes))){
 			//TODO don't send all keys to all nodes in the search
 			all.addAll(node.getWithPrefixes(prefixes, wildcardLastField, config));
 		}
@@ -164,7 +158,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public PeekableIterable<PK> scanKeys(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
 		List<PeekableIterable<PK>> subScanners = ListTool.createArrayList();
-		for(N node : IterableTool.nullSafe(this.getPhysicalNodes())){
+		for(N node : IterableTool.nullSafe(getPhysicalNodes())){
 			subScanners.add(node.scanKeys(start, startInclusive, end, endInclusive, config));
 		}
 		return new PrimaryKeyMergeScanner<PK>(subScanners);
@@ -173,7 +167,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public PeekableIterable<D> scan(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
 		List<PeekableIterable<D>> subScanners = ListTool.createArrayList();
-		for(N node : IterableTool.nullSafe(this.getPhysicalNodes())){
+		for(N node : IterableTool.nullSafe(getPhysicalNodes())){
 			subScanners.add(node.scan(start, startInclusive, end, endInclusive, config));
 		}
 		return new MergeScanner<PK,D>(subScanners);
