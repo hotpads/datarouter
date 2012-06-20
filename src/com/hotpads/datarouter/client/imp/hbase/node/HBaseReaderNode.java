@@ -113,14 +113,6 @@ implements HBasePhysicalNode<PK,D>,
 	@Override
 	public void clearThreadSpecificState(){
 	}
-
-//	public HTable checkOutHTable(){
-//		return this.getClient().checkOutHTable(this.getTableName());
-//	}
-//	
-//	public void checkInHTable(HTable hTable){
-//		this.getClient().checkInHTable(hTable);
-//	}
 	
 	
 	/************************************ MapStorageReader methods ****************************/
@@ -159,7 +151,6 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(drContext, "getMulti", this, config){
 				public List<D> hbaseCall() throws Exception{
-//					DRCounters.inc(node.getName()+" hbase getMulti rows", CollectionTool.size(keys));
 					DRCounters.incPrefixClientNode("hbase getMulti rows", clientName, node.getName(), 
 							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
@@ -186,7 +177,6 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(drContext, "getKeys", this, config){
 				public List<PK> hbaseCall() throws Exception{
-//					DRCounters.inc(node.getName()+" hbase getKeys rows", CollectionTool.size(keys));
 					DRCounters.incPrefixClientNode("hbase getKeys rows", clientName, node.getName(), 
 							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
@@ -284,8 +274,7 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	@Override
-	public List<D> getPrefixedRange(
-			final PK prefix, final boolean wildcardLastField, 
+	public List<D> getPrefixedRange(final PK prefix, final boolean wildcardLastField, 
 			final PK start, final boolean startInclusive, 
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
@@ -302,8 +291,7 @@ implements HBasePhysicalNode<PK,D>,
 
 	
 	@Override
-	public PeekableIterable<PK> scanKeys(
-			final PK start, final boolean startInclusive, 
+	public PeekableIterable<PK> scanKeys(final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
@@ -316,8 +304,7 @@ implements HBasePhysicalNode<PK,D>,
 
 	
 	@Override
-	public PeekableIterable<D> scan(
-			final PK start, final boolean startInclusive, 
+	public PeekableIterable<D> scan(final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
@@ -334,9 +321,8 @@ implements HBasePhysicalNode<PK,D>,
 	public List<Result> getResultsInSubRange(final byte[] start, final boolean startInclusive, final byte[] end, 
 			final boolean keysOnly, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<List<Result>>(
-				new HBaseTask<List<Result>>(drContext, "getResultsInSubRange", 
-						this, config){
+		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(drContext, "getResultsInSubRange",
+				this, config){
 				public List<Result> hbaseCall() throws Exception{
 					Scan scan = HBaseQueryBuilder.getScanForRange(start, startInclusive, end, config);
 					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }

@@ -2,6 +2,7 @@ package com.hotpads.datarouter.node.type.partitioned.mixin;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.SortedSet;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
@@ -14,6 +15,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.SetTool;
 
 public class PartitionedIndexedStorageReaderMixin<
 		PK extends PrimaryKey<PK>,
@@ -29,10 +31,11 @@ implements IndexedStorageReader<PK,D>{
 	}
 
 
+	//warning: i'm not sure what this does or if anything uses it
 	@Override
 	public Long count(Lookup<PK> lookup, Config config) {
 		if(lookup==null){ return null; }
-		Long total = 0l;
+		Long total = 0L;
 		Collection<N> nodes = target.getPhysicalNodes(lookup);
 		//TODO randomize node access to avoid drowning first node
 		for(N node : CollectionTool.nullSafe(nodes)){
@@ -58,40 +61,43 @@ implements IndexedStorageReader<PK,D>{
 	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
 		if(CollectionTool.isEmpty(uniqueKeys)){ return null; }
 		Collection<N> nodes = target.getPhysicalNodes(uniqueKeys);
+		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
 		//TODO randomize node access to avoid drowning first node
 		for(N node : CollectionTool.nullSafe(nodes)){
-			List<D> databean = node.lookupMultiUnique(uniqueKeys, config);
-			if(databean != null){ return databean; }
+			List<D> singleNodeResults = node.lookupMultiUnique(uniqueKeys, config);
+			sortedDedupedResults.addAll(CollectionTool.nullSafe(singleNodeResults));
 		}
-		return null;
+		return ListTool.createArrayList(sortedDedupedResults);
 	}
 
 	
 	@Override
 	public List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
 		if(lookup==null){ return null; }
-		List<D> all = ListTool.createLinkedList();
 		Collection<N> nodes = target.getPhysicalNodes(lookup);
+		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
 		//TODO randomize node access to avoid drowning first node
 		for(N node : CollectionTool.nullSafe(nodes)){
-			all.addAll(node.lookup(lookup, wildcardLastField, config));
+			List<D> singleNodeResults = node.lookup(lookup, wildcardLastField, config);
+			sortedDedupedResults.addAll(CollectionTool.nullSafe(singleNodeResults));
 		}
-		return all;
+		return ListTool.createArrayList(sortedDedupedResults);
 	}
 	
 	
 	@Override
 	public List<D> lookup(Collection<? extends Lookup<PK>> lookups, Config config) {
 		if(CollectionTool.isEmpty(lookups)){ return null; }
-		List<D> all = ListTool.createLinkedList();
 		Collection<N> nodes = target.getPhysicalNodes(lookups);
+		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
 		//TODO randomize node access to avoid drowning first node
 		for(N node : CollectionTool.nullSafe(nodes)){
 			for(Lookup<PK> lookup : lookups){
-				all.addAll(node.lookup(lookup, false, config));
+				List<D> singleNodeResults = node.lookup(lookup, false, config);
+				sortedDedupedResults.addAll(CollectionTool.nullSafe(singleNodeResults));
 			}
 		}
-		return all;
+		return ListTool.createArrayList(sortedDedupedResults);
 	}
 	
 }

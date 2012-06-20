@@ -27,6 +27,9 @@ public abstract class BasePartitionedNode<
 		F extends DatabeanFielder<PK,D>,
 		N extends PhysicalNode<PK,D>>
 extends BaseNode<PK,D,F>{
+	
+	//TODO make this class aware of whether we are hosting all data on each partition so it can alternate
+	// requests to the underlying nodes in cases where it can't pick a single node
 
 	protected Class<D> databeanClass;
 	protected DataRouter router;
@@ -56,22 +59,22 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public List<? extends Node<PK,D>> getChildNodes(){
-		return this.physicalNodes.getAll();
+		return physicalNodes.getAll();
 	}
 
 	@Override
 	public List<String> getClientNames() {
-		return this.physicalNodes.getClientNames();
+		return physicalNodes.getClientNames();
 	}
 
 	@Override
 	public boolean usesClient(String clientName){
-		return CollectionTool.notEmpty(this.physicalNodes.getPhysicalNodesForClient(clientName));
+		return CollectionTool.notEmpty(physicalNodes.getPhysicalNodesForClient(clientName));
 	}
 
 	@Override
 	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
-		Map<N,List<PK>> keysByPhysicalNode = this.getPrimaryKeysByPhysicalNode(keys);
+		Map<N,List<PK>> keysByPhysicalNode = getPrimaryKeysByPhysicalNode(keys);
 		List<String> clientNames = ListTool.createLinkedList();
 		for(PhysicalNode<PK,D> node : MapTool.nullSafe(keysByPhysicalNode).keySet()){
 			String clientName = node.getClientName();
@@ -83,7 +86,7 @@ extends BaseNode<PK,D,F>{
 	@Override
 	public void clearThreadSpecificState(){
 		//TODO physicalNodes can't even have a cache right now... must be a cleaner way to implement cache invalidation
-		for(N physicalNode : this.getPhysicalNodes()){
+		for(N physicalNode : getPhysicalNodes()){
 			physicalNode.clearThreadSpecificState();  
 		}
 	}
@@ -108,15 +111,23 @@ extends BaseNode<PK,D,F>{
 	public List<N> getPhysicalNodesForClient(String clientName) {
 		return this.physicalNodes.getPhysicalNodesForClient(clientName);
 	}
+	
+	
+	/******************* abstract partitioning logic methods ******************/
 
 	public abstract boolean isPartitionAware(Key<PK> key);
 	
 	public abstract List<N> getPhysicalNodes(Key<PK> key);
 	
+	public abstract List<N> getPhysicalNodesForRange(PK start, boolean startInclusive, PK end, boolean endInclusive);
+	
+	
+	/************ common partitioning logic relying on the abstract methods above **********/
+	
 	public List<N> getPhysicalNodes(Collection<? extends Key<PK>> keys){
 		Set<N> nodes = SetTool.createHashSet();
 		for(Key<PK> key : CollectionTool.nullSafe(keys)){
-			nodes.addAll(this.getPhysicalNodes(key));
+			nodes.addAll(getPhysicalNodes(key));
 		}
 		return ListTool.createArrayList(nodes);
 	}
