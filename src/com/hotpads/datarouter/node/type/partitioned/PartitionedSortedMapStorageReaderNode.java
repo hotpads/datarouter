@@ -77,16 +77,14 @@ implements SortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, final Config config) {
+	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, final PK end,
+			final boolean endInclusive, final Config config){
 		//TODO smarter/optional sorting
 		List<PK> all = ListTool.createArrayList();
 		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
 			all.addAll(node.getKeysInRange(start, startInclusive, end, endInclusive, config));
 		}
-		if(CollectionTool.isEmpty(all)){ 
-			return all; 
-		}
+		if(CollectionTool.isEmpty(all)){ return all; }
 		Collections.sort(all);
 		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
 			List<PK> limited = ListTool.copyOfRange(all, 0, config.getLimit());
@@ -97,16 +95,14 @@ implements SortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getRange(final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, final Config config) {
+	public List<D> getRange(final PK start, final boolean startInclusive, final PK end, final boolean endInclusive,
+			final Config config){
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
 		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
 			all.addAll(node.getRange(start, startInclusive, end, endInclusive, config));
 		}
-		if(CollectionTool.isEmpty(all)){ 
-			return all; 
-		}
+		if(CollectionTool.isEmpty(all)){ return all; }
 		Collections.sort(all);
 		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
 			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
@@ -123,9 +119,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 		for(N node : CollectionTool.nullSafe(getPhysicalNodes(prefix))){
 			all.addAll(node.getWithPrefix(prefix, wildcardLastField, config));
 		}
-		if(CollectionTool.isEmpty(all)){ 
-			return all; 
-		}
+		if(CollectionTool.isEmpty(all)){ return all; }
 		Collections.sort(all);
 		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
 			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
@@ -143,9 +137,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 			//TODO don't send all keys to all nodes in the search
 			all.addAll(node.getWithPrefixes(prefixes, wildcardLastField, config));
 		}
-		if(CollectionTool.isEmpty(all)){ 
-			return all; 
-		}
+		if(CollectionTool.isEmpty(all)){ return all; }
 		Collections.sort(all);
 		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
 			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
