@@ -3,6 +3,8 @@ package com.hotpads.profile.count.collection.archive;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.Assert;
+
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
@@ -15,6 +17,7 @@ import com.hotpads.profile.count.databean.Count.CountFielder;
 import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
 
 public class CountPartitionedNode
@@ -48,7 +51,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	}
 	
 	public String getNodeName(long periodMs){
-		return this.getName() + getSuffix(periodMs);
+		return getName() + getSuffix(periodMs);
 	}
 	
 	//recommended Time-to-live's in the comments.  hbase ttl's are ints.  Integer.MAX_VALUE is 63 years
@@ -94,7 +97,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 			Node<CountKey,Count> node = NodeFactory.create(
 					clientName, tableName, entityName, Count.class, CountFielder.class, router);
 			PhysicalSortedMapStorageNode<CountKey,Count> sortedNode = BaseDataRouter.cast(node);
-			this.register(sortedNode);
+			register(sortedNode);
 		}
 	}
 
@@ -112,11 +115,29 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	
 	@Override
 	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodes(Key<CountKey> key) {
-		if(!isPartitionAware(key)){ return this.getPhysicalNodes(); }
+		if(!isPartitionAware(key)){ return getPhysicalNodes(); }
 		CountKey countKey = (CountKey)key;
 		Integer index = indexByMs.get(countKey.getPeriodMs());
-		PhysicalSortedMapStorageNode<CountKey,Count> node = this.physicalNodes.get(index);
+		PhysicalSortedMapStorageNode<CountKey,Count> node = physicalNodes.get(index);
 		if(node==null){ return ListTool.createLinkedList(); }
 		return ListTool.wrap(node);
+	}
+	
+	@Override
+	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForRange(CountKey start, 
+			boolean startInclusive, CountKey end, boolean endInclusive){
+		if(start==null && end==null){ throw new IllegalArgumentException("must specify start or end value"); }
+		if(start!=null && end!=null){
+			if(ObjectTool.notEquals(start.getPeriodMs(), end.getPeriodMs())){
+				throw new IllegalArgumentException("cannot scan across multiple periods through this node");
+			}
+		}
+		Integer index;
+		if(start!=null){ 
+			index = indexByMs.get(start.getPeriodMs()); 
+		}else{
+			index = indexByMs.get(end.getPeriodMs()); 
+		}
+		return ListTool.wrap(physicalNodes.get(index));
 	}
 }

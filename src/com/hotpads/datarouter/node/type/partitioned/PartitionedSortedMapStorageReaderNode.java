@@ -79,37 +79,26 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, final PK end,
 			final boolean endInclusive, final Config config){
-		//TODO smarter/optional sorting
-		List<PK> all = ListTool.createArrayList();
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
-			all.addAll(node.getKeysInRange(start, startInclusive, end, endInclusive, config));
+		SortedSet<PK> sortedDedupedResults = SetTool.createTreeSet();
+		for(N node : CollectionTool.nullSafe(getPhysicalNodesForRange(start, startInclusive, end, endInclusive))){
+			List<PK> resultFromSingleNode = node.getKeysInRange(start, startInclusive, end, endInclusive, config);
+			sortedDedupedResults.addAll(CollectionTool.nullSafe(resultFromSingleNode));
 		}
-		if(CollectionTool.isEmpty(all)){ return all; }
-		Collections.sort(all);
-		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
-			List<PK> limited = ListTool.copyOfRange(all, 0, config.getLimit());
-			return limited;
-		}else{
-			return all;
-		}
+		List<PK> resultList = ListTool.createArrayList(sortedDedupedResults);
+		return getLimitedCopyOfResultIfNecessary(config, resultList);
 	}
 
 	@Override
 	public List<D> getRange(final PK start, final boolean startInclusive, final PK end, final boolean endInclusive,
 			final Config config){
 		//TODO smarter/optional sorting
-		List<D> all = ListTool.createArrayList();
+		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
 		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
-			all.addAll(node.getRange(start, startInclusive, end, endInclusive, config));
+			List<D> resultFromSingleNode = node.getRange(start, startInclusive, end, endInclusive, config);
+			sortedDedupedResults.addAll(CollectionTool.nullSafe(resultFromSingleNode));
 		}
-		if(CollectionTool.isEmpty(all)){ return all; }
-		Collections.sort(all);
-		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
-			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
-			return limited;
-		}else{
-			return all;
-		}
+		List<D> resultList = ListTool.createArrayList(sortedDedupedResults);
+		return getLimitedCopyOfResultIfNecessary(config, resultList);
 	}
 
 	@Override
@@ -154,7 +143,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 			subScanners.add(node.scanKeys(start, startInclusive, end, endInclusive, config));
 		}
 		return new PrimaryKeyMergeScanner<PK>(subScanners);
-	};
+	}
 	
 	@Override
 	public PeekableIterable<D> scan(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
@@ -163,6 +152,15 @@ implements SortedMapStorageReaderNode<PK,D>{
 			subScanners.add(node.scan(start, startInclusive, end, endInclusive, config));
 		}
 		return new MergeScanner<PK,D>(subScanners);
-	};
+	}
+	
+	
+	/************************* helpers ******************************/
+	
+	protected <T> List<T> getLimitedCopyOfResultIfNecessary(Config config, List<T> result){
+		if(config==null){ return result; }
+		if(config.getLimit()==null){ return result; }
+		return ListTool.copyOfRange(result, 0, config.getLimit());
+	}
 	
 }
