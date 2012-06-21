@@ -17,8 +17,12 @@ import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ExceptionTool;
 
+//consider forming base class with commonalities from MemcachedMultiAttemptTash
 public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	protected static Logger logger = Logger.getLogger(HBaseMultiAttemptTask.class);
+	
+	protected static final Integer DEFAULT_NUM_ATTEMPTS = 3;
+	protected static final Long DEFAULT_TIMEOUT_MS = 10 * 1000L;
 	
 	protected static long 
 		throttleEmailsMs = 5 * DateTool.MILLISECONDS_IN_MINUTE,
@@ -97,12 +101,13 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	
 	protected static Long getTimeoutMS(Config config){
 		if(config.getTimeoutMs()!=null){ return config.getTimeoutMs(); }
-		return HBaseClient.DEFAULT_TIMEOUT_MS;
+		return DEFAULT_TIMEOUT_MS;
 	}
 	
 	protected static Integer getNumAttempts(Config config){
-		if(config.getNumAttempts()!=null){ return config.getNumAttempts(); }
-		return HBaseClient.DEFAULT_NUM_ATTEMPTS;
+		if(config==null){ return DEFAULT_NUM_ATTEMPTS; }
+		if(config.getNumAttempts()==null){ return DEFAULT_NUM_ATTEMPTS; }
+		return config.getNumAttempts();
 	}
 	
 	protected boolean isLastAttempt(int i) {
