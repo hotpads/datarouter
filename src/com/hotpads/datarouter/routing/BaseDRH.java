@@ -1,14 +1,9 @@
 package com.hotpads.datarouter.routing;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.SortedSet;
 
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.client.ClientId;
-import com.hotpads.datarouter.client.Clients;
-import com.hotpads.datarouter.connection.ConnectionPools;
-import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -33,34 +28,35 @@ import com.hotpads.util.core.SetTool;
  *   Then access it in your code by calling the static DRH.asdf()...
  */
 
+@Deprecated//try to replace with combination of DataRouterContext and Guice
 public abstract class BaseDRH{
 
-	protected List<ClientId> clientIds;
-	protected List<String> clientNames;
-	protected ConnectionPools connectionPools;
-	protected Clients clients;
-	protected Nodes nodes = new Nodes();
-	
+	protected DataRouterContext drContext;
 	protected List<DataRouter> routers = ListTool.createArrayList();
+	
+	
+	/************************ constructors ************************/
+	
+	protected BaseDRH(DataRouterContext drContext){
+		this.drContext = drContext;
+	}
+	
+	
+	/************************ methods ************************/
 	
 	public <R extends DataRouter> R register(R router){
 //		router.activate();//caution: make sure nodes are registered before activating
-		
 		this.routers.add(router);
 		return router;
 	}
 	
 	public DataRouter getRouter(String name){
-		for(DataRouter router : CollectionTool.nullSafe(this.routers)){
+		for(DataRouter router : CollectionTool.nullSafe(routers)){
 			if(name.equals(router.getName())){
 				return router;
 			}
 		}
 		return null;
-	}
-	
-	public List<DataRouter> getRouters(){
-		return this.routers;
 	}
 	
 	public List<Client> getClients(){
@@ -89,7 +85,14 @@ public abstract class BaseDRH{
 		}
 	}
 	
-	public List<String> getClientNames(){
-		return clientNames;
+	
+	/************************** get/set ******************************/
+	
+	public DataRouterContext getDrContext(){
+		return drContext;
+	}
+	
+	public List<DataRouter> getRouters(){
+		return this.routers;
 	}
 }
