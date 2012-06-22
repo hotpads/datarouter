@@ -139,7 +139,8 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public PeekableIterable<PK> scanKeys(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
 		List<PeekableIterable<PK>> subScanners = ListTool.createArrayList();
-		for(N node : IterableTool.nullSafe(getPhysicalNodes())){
+		List<N> nodes = getPhysicalNodesForRange(start, startInclusive, end, endInclusive);
+		for(N node : IterableTool.nullSafe(CollectionTool.nullSafe(nodes))){
 			subScanners.add(node.scanKeys(start, startInclusive, end, endInclusive, config));
 		}
 		return new PrimaryKeyMergeScanner<PK>(subScanners);
@@ -148,7 +149,8 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public PeekableIterable<D> scan(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
 		List<PeekableIterable<D>> subScanners = ListTool.createArrayList();
-		for(N node : IterableTool.nullSafe(getPhysicalNodes())){
+		List<N> nodes = getPhysicalNodesForRange(start, startInclusive, end, endInclusive);
+		for(N node : IterableTool.nullSafe(nodes)){
 			subScanners.add(node.scan(start, startInclusive, end, endInclusive, config));
 		}
 		return new MergeScanner<PK,D>(subScanners);
