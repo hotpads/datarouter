@@ -94,9 +94,9 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 				}
 			}
 		}
-		sendThrottledErrorEmail(finalAttempException);
-		throw new DataAccessException("timed out "+numAttempts+" times at timeoutMs="+timeoutMs, 
-				finalAttempException);
+		String timeoutMessage = "timed out "+numAttempts+" times at timeoutMs="+timeoutMs;
+		sendThrottledErrorEmail(timeoutMessage, finalAttempException);
+		throw new DataAccessException(finalAttempException);
 	}
 	
 	protected static Long getTimeoutMS(Config config){
@@ -114,11 +114,14 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		return i==numAttempts;
 	}
 	
-	protected void sendThrottledErrorEmail(Exception e) {
+	protected void sendThrottledErrorEmail(String timeoutMessage, Exception e) {
 		boolean enoughTimePassed = System.currentTimeMillis() - lastEmailSentAtMs > throttleEmailsMs;
+		long throttleEmailSeconds = throttleEmailsMs / 1000;
 		if(!enoughTimePassed) { return; }
 		String subject = "HBaseMultiAttempTask failure on "+drContext.getServerName();
-		String body = "Message throttled for "+throttleEmailsMs+"ms\n\n"+ExceptionTool.getStackTraceAsString(e);
+		String body = "Message throttled for "+throttleEmailSeconds+" seconds"
+				+"\n\n"+timeoutMessage
+				+"\n\n"+ExceptionTool.getStackTraceAsString(e);
 		DataRouterEmailTool.sendEmail("admin@hotpads.com", drContext.getAdministratorEmail(), subject, body);
 		lastEmailSentAtMs = System.currentTimeMillis();
 	}
