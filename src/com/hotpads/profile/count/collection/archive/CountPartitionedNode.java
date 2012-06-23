@@ -20,8 +20,8 @@ import com.hotpads.util.core.StringTool;
 public class CountPartitionedNode
 extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSortedMapStorageNode<CountKey,Count>>{
 
-	public static final String table_prefix = Count.class.getSimpleName();
-	public static final String entity_prefix = Count.class.getName();
+	public static final String TABLE_PREFIX = Count.class.getSimpleName();
+	public static final String ENTITY_PREFIX = Count.class.getName();
 	
 	public static long 
 		s = 1000,//ms in second
@@ -89,12 +89,12 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	public CountPartitionedNode(DataRouter router, String clientName){
 		super(Count.class, CountFielder.class, router);
 		for(String suffix : suffixes){
-			String tableName = table_prefix + suffix;
-			String entityName = entity_prefix + suffix;
-			Node<CountKey,Count> node = NodeFactory.create(
-					clientName, tableName, entityName, Count.class, CountFielder.class, router);
+			String tableName = TABLE_PREFIX + suffix;
+			String entityName = ENTITY_PREFIX + suffix;
+			Node<CountKey,Count> node = NodeFactory.create(clientName, tableName, entityName, Count.class,
+					CountFielder.class, router);
 			PhysicalSortedMapStorageNode<CountKey,Count> sortedNode = BaseDataRouter.cast(node);
-			this.register(sortedNode);
+			register(sortedNode);
 		}
 	}
 
@@ -112,10 +112,10 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	
 	@Override
 	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodes(Key<CountKey> key) {
-		if(!isPartitionAware(key)){ return this.getPhysicalNodes(); }
+		if(!isPartitionAware(key)){ return getPhysicalNodes(); }
 		CountKey countKey = (CountKey)key;
 		Integer index = indexByMs.get(countKey.getPeriodMs());
-		PhysicalSortedMapStorageNode<CountKey,Count> node = this.physicalNodes.get(index);
+		PhysicalSortedMapStorageNode<CountKey,Count> node = physicalNodes.get(index);
 		if(node==null){ return ListTool.createLinkedList(); }
 		return ListTool.wrap(node);
 	}
