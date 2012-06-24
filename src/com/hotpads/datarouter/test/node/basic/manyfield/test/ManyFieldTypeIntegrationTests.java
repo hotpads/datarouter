@@ -42,7 +42,8 @@ import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 import com.hotpads.util.core.exception.NotImplementedException;
 
-@RunWith(Parameterized.class) public class ManyFieldTypeIntegrationTests{
+@RunWith(Parameterized.class) 
+public class ManyFieldTypeIntegrationTests{
 	static Logger logger = Logger.getLogger(ManyFieldTypeIntegrationTests.class);
 
 	/****************************** static ***********************************/
@@ -65,8 +66,8 @@ import com.hotpads.util.core.exception.NotImplementedException;
 		}
 
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.hbase)){
-			routerByClientType.put(ClientType.hbase, new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase,
-					cls));
+			routerByClientType.put(ClientType.hbase, new SortedBasicNodeTestRouter(
+					DRTestConstants.CLIENT_drTestHBase, cls));
 		}
 
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.memcached)){
@@ -77,7 +78,7 @@ import com.hotpads.util.core.exception.NotImplementedException;
 		for(ClientType clientType : routerByClientType.keySet()){
 			BasicNodeTestRouter router = routerByClientType.get(clientType);
 			if(ClientType.hibernate == clientType){
-				messUpTable();
+//				messUpTable();
 				// System.out.println("mess up");
 			}
 			if(ClientType.memcached != clientType){
