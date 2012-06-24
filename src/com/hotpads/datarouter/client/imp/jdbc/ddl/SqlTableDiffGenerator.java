@@ -123,10 +123,11 @@ public class SqlTableDiffGenerator{
 	}
 
 	public boolean isEngineModified(){
-		return !MySqlTableEngine.valueOf(current.getEngine().toString()).equals(MySqlTableEngine.valueOf(requested.getEngine().toString()));
+		return !MySqlTableEngine.valueOf(current.getEngine().toString()).equals(MySqlTableEngine.valueOf(requested
+				.getEngine().toString()));
 	}
 
-	public boolean isIndexesModified() {
+	public boolean isIndexesModified(){
 		return !SetTool.containsSameKeys(SetTool.createTreeSet(current.getIndexes()), SetTool.createTreeSet(requested
 				.getIndexes()));
 	}
