@@ -3,12 +3,11 @@ package com.hotpads.datarouter.client;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import com.hotpads.datarouter.client.imp.hbase.factory.HBaseDynamicClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedSimpleClientFactory;
+import com.hotpads.datarouter.client.imp.memory.MemoryClientFactory;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.storage.StorageType;
 import com.hotpads.util.core.StringTool;
@@ -55,7 +54,9 @@ public enum ClientType {
 	
 	public ClientFactory createClientFactory(DataRouterContext drContext, String clientName, 
 			List<PhysicalNode<?,?>> physicalNodes, ExecutorService executorService){
-		if(hbase==this){ 
+		if(memory==this){
+			return new MemoryClientFactory(clientName);
+		}else if(hbase==this){ 
 //			if(USE_RECONNECTING_HBASE_CLIENT){
 //				return new HBaseDynamicClientFactory(router, clientName, 
 //						configFileLocation, executorService);

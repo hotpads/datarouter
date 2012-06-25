@@ -12,7 +12,9 @@ import org.apache.log4j.Logger;
 
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
+import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.util.core.CollectionTool;
@@ -67,10 +69,17 @@ public class DataRouterContext{
 		this.clients = new Clients(this);
 		this.nodes = new Nodes(this);
 		this.routers = ListTool.createArrayList();
+		createDefaultMemoryClient();//do after this.clients and this.nodes have been instantiated
 	}
 	
 	
 	/********************** builder methods ****************************/
+
+	//always create a memory client beforehand so we add nodes to it as they are created
+	protected void createDefaultMemoryClient(){
+		ClientId memoryClientId = new ClientId(RouterOptions.CLIENT_NAME_memory, true);
+		clients.registerClientIds(ListTool.wrap(memoryClientId), null);
+	}
 	
 	public void register(DataRouter router) {
 		routers.add(router);
