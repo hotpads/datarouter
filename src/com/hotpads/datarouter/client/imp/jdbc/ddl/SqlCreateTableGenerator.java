@@ -31,11 +31,11 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 
 	@Override
 	public String generateDdl() {
-		String s="CREATE TABLE " ;
+		StringBuilder sb=new StringBuilder("CREATE TABLE " );
 		if(!StringTool.isEmpty(databaseName)){
-			s += databaseName + ".";
+			sb.append(databaseName + ".");
 		}
-		s += table.getName()+" (\n"; 
+		sb.append(table.getName()+" (\n"); 
 		int nuimberOfColumns=table.getColumns().size();
 		SqlColumn col;
 		String typeSring;
@@ -44,56 +44,55 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			col = table.getColumns().get(i);
 			type = col.getType();
 			typeSring = type.toString().toLowerCase();
-			s+= " " + col.getName() + " " + typeSring;
+			sb.append(" " + col.getName() + " " + typeSring);
 			if(col.getMaxLength()!=null && type.isSpecifyLenght()){
-				s+="(" + col.getMaxLength() + ")";
+				sb.append("(" + col.getMaxLength() + ")");
 			}
 			if(col.getNullable()){
-				s+=" default null";
+				sb.append(" default null");
 			}else{
-				s+=" not null";
+				sb.append(" not null");
 			}
-			if(i<nuimberOfColumns-1) s+=",\n";
-			
+			if(i<nuimberOfColumns-1) sb.append(",\n");
 		}
 		
 		if(table.hasPrimaryKey()){
-				s+=",\n";
-				s+=" primary key ("; 
+				sb.append(",\n");
+				sb.append(" primary key ("); 
 			int numberOfColumnsInPrimaryKey=table.getPrimaryKey().getColumns().size();
 			for(int i=0; i< numberOfColumnsInPrimaryKey; i++){
 				col = table.getPrimaryKey().getColumns().get(i);
-				s+= col.getName();
+				sb.append(col.getName());
 						if(i != numberOfColumnsInPrimaryKey -1) {
-							s+="," ;
+							sb.append(",");
 						}
 			}
-			s+=")";
+			sb.append(")");
 		}
 		
 		int numberOfIndexes=table.getIndexes().size();
-		if(numberOfIndexes>0) s+=",\n";
+		if(numberOfIndexes>0) sb.append(",\n");
 		for(int i=0; i< numberOfIndexes; i++){
-			s+=" KEY "+ table.getIndexes().get(i).getName() +" (";
+			sb.append(" KEY "+ table.getIndexes().get(i).getName() +" (");
 			int numberOfColumndInIndexe = table.getIndexes().get(i).getColumns().size();
 			for(int j=0; j< numberOfColumndInIndexe; j++){
 				col = table.getIndexes().get(i).getColumns().get(j);
-				s+=  table.getIndexes().get(i).getColumns().get(j).getName();
+				sb.append(table.getIndexes().get(i).getColumns().get(j).getName());
 						if(j != numberOfColumndInIndexe -1) {
-							s+=", " ;
+							sb.append(", ") ;
 						}
 			}
-			s+=")";
+			sb.append(")");
 			if(i != numberOfIndexes - 1){
-				s+=",";
+				sb.append(",");
 			}
-			s+="\n";
+			sb.append("\n");
 		}
-		s+=")";
-		s+=" engine=" +
+		sb.append(")");
+		sb.append(" engine=" +
 				table.getEngine() +
-				" default charset =utf8";
-		return s;
+				" default charset =utf8");
+		return sb.toString();
 		
 	}
 	
@@ -120,7 +119,4 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			//Assert.assertEquals(expected, actual);
 		}
 	}
-
-	
-
 }
