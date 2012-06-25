@@ -2,6 +2,8 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.util.List;
 
+import org.apache.avro.tool.Main;
+
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
@@ -278,35 +280,35 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		if(!options.getAddColumns()){ return null; }
 		if(CollectionTool.isEmpty(colsToAdd)){ return null; }
 		
-		//TODO use StringBuilder
-		String s = "";
-		s+= "add (";
+				//TODO use StringBuilder
+		StringBuilder sb = new StringBuilder();
+		String alterTable;
+		sb.append("add (");
 		String type_string;
 		for(SqlColumn col:colsToAdd){
 			MySqlColumnType type = col.getType();
 			type_string = col.getType().toString().toLowerCase();
-			s+= col.getName() + " " + type_string;
+			sb.append(col.getName() + " " + type_string);
 					//TODO longblob and double should be definied as constants somewhere ==> used the method so it handles double and all other cases
 			if(col.getMaxLength()!=null && type.isSpecifyLenght()){
-				s+="(" + col.getMaxLength() + ")";
+				sb.append("(" + col.getMaxLength() + ")");
 			}
 			if(col.getNullable()){
-				s+=" default null";
+				sb.append(" default null");
 			}else{
-				s+=" not null";
+				sb.append(" not null");
 			}
-			s+=",\n";
+			sb.append(",\n");
 		}
-		s = s.substring(0, s.length()-2); // remove the last "," 
-		s+=")";
-		
-		return new SqlAlterTableClause(s, SqlAlterTypes.ADD_COLUMN);
+		alterTable=sb.toString(); 		
+		alterTable = alterTable.substring(0, alterTable.length()-2); // remove the last ","   
+		alterTable+=")";			// sb.deleteCharAt(sb.length()-2)
+		return new SqlAlterTableClause(alterTable, SqlAlterTypes.ADD_COLUMN);
 	}
 	
 	private List<SqlAlterTableClause> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove) {
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		if(!options.getDeleteColumns()){ return list; }
-		
 				//TODO return early if CollectionTool.isEmpty
 		if(CollectionTool.isEmpty(colsToRemove)){
 			return list;
