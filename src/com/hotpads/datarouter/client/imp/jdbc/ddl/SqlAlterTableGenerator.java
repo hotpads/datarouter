@@ -163,7 +163,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				SqlColumn requestedCol = getColumnByNamefromListOfColumn(col.getName(), requested.getColumns());
 				type = requestedCol.getType();
 				type_string =  type.toString().toLowerCase();
-				StringBuilder sb = sb.append("modify " +col.getName() +" " + type_string );
+				StringBuilder sb = new StringBuilder("modify " +col.getName() +" " + type_string );
 				if(requestedCol.getMaxLength()!=null && type.isSpecifyLenght()){
 					sb.append("(" +requestedCol.getMaxLength() +")");
 				}
