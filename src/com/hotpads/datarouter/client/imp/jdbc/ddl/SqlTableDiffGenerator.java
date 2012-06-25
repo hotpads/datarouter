@@ -40,8 +40,7 @@ public class SqlTableDiffGenerator{
 		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c), currentColumns = new TreeSet<SqlColumn>(c);
 		if(requested==null || current==null){
 			return ListTool.createArrayList();
-		}
-		else{
+		}else{
 			requestedColumns.addAll(requested.getColumns());
 			currentColumns.addAll( current.getColumns());
 		}
@@ -53,8 +52,7 @@ public class SqlTableDiffGenerator{
 		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c), currentColumns = new TreeSet<SqlColumn>(c);
 		if(requested==null || current==null){
 			return ListTool.createArrayList();
-		}
-		else{
+		}else{
 			requestedColumns.addAll(requested.getColumns());
 			currentColumns.addAll( current.getColumns());
 		}
@@ -66,8 +64,7 @@ public class SqlTableDiffGenerator{
 		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c), currentColumns = new TreeSet<SqlColumn>(c);
 		if(requested==null || current==null){
 			return ListTool.createArrayList();
-		}
-		else{
+		}else{
 			requestedColumns.addAll(requested.getColumns());
 			currentColumns.addAll( current.getColumns());
 		}
@@ -81,8 +78,7 @@ public class SqlTableDiffGenerator{
 		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c), currentColumns = new TreeSet<SqlColumn>(c);
 		if(requested==null || current==null){
 			return ListTool.createArrayList();
-		}
-		else{
+		}else{
 			requestedColumns.addAll(requested.getColumns());
 			currentColumns.addAll( current.getColumns());
 		}

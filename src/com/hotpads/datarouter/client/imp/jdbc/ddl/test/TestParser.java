@@ -133,11 +133,9 @@ public class TestParser {
 			if(tokens[i].contains("PRIMARY KEY")){
 				System.out.println();
 				table.setPrimaryKey(removeNonText(tokens[++i]));
-			}
-			else if(tokens[i].contains("KEY")){ // INDEXES 
-				
-			}
-			else{
+			}else 
+				if(tokens[i].contains("KEY")){ // INDEXES 	
+			}else{
 				String[] tempTokens = tokens[i].split("[`]");
 				String name=removeSpaces(tempTokens[1]), type;
 				if(tempTokens[2].contains("datetime")){ // WHEN THERE'S NO MAX LENGTH THISE TOKEN CONTAINS CERTAIN TYPES , should add more types 
@@ -156,8 +154,7 @@ public class TestParser {
 					col.setNullable(nullable);
 					System.out.println(col);
 					columns.add(col);
-				}
-				else{  // THIS COLUMN HAS NO MAX VALUE
+				}else{  // THIS COLUMN HAS NO MAX VALUE
 					String[] tempTokensBis = tempTokens[2].split("[ ]");
 					type = removeSpaces(tempTokensBis[1]);
 					SqlColumn col = new SqlColumn(name, MySqlColumnType.parse(type));
@@ -278,8 +275,7 @@ public class TestParser {
 		    index = phrase.substring(firstIndex+1).toUpperCase().indexOf("KEY");
 		    if(index>0){
 		    	return phrase.substring(firstIndex).substring(index+1);
-		    }
-		    else{
+		    }else{
 		    	return "";
 		    }
 	 }

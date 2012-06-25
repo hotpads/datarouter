@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
@@ -19,7 +20,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	protected String databaseName="";
 	protected boolean dropTable = false;
 	protected boolean willAlterTable = false;
-
+	
 	public SqlAlterTableGenerator(SchemaUpdateOptions options, SqlTable current, SqlTable requested, String databaseName){
 		this.options = options;
 		this.current = current;
@@ -40,8 +41,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				}
 			}
 			return s;
-		}
-		else{
+		}else{
 			StringBuilder sb = new StringBuilder();
 			sb.append("alter table " +databaseName + "." +current.getName()+"\n");
 			int numAppended = 0;
@@ -108,9 +108,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 					l.add(sqlAT);
 				}
 			}
-		}
-		//TODO please put all else keywords on the same line as the preceding brace:  }else{
-		else{
+		}else{
 			for(SqlAlterTableClause sqlAT : list){
 				String s="";
 				alterSql = sqlAT.getAlterTable();
@@ -157,12 +155,15 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			}
 			//TODO use CollectionTool.notEmpty
 			if(options.getModifyColumns() && !CollectionTool.isEmpty(colsToModify)){
-				
+				String type_string;
+				MySqlColumnType type ;
 				for(SqlColumn col : IterableTool.nullSafe(colsToModify)){
 					//TODO always put space after comma between method parameters
 					SqlColumn requestedCol = getColumnByNamefromListOfColumn(col.getName(),requested.getColumns());
-					String s = "modify " +col.getName() +" " + requestedCol.getType().toString().toLowerCase() ;
-					if(requestedCol.getMaxLength()!=null){
+					type = requestedCol.getType();
+					type_string =  type.toString().toLowerCase();
+					String s = "modify " +col.getName() +" " + type_string ;
+					if(requestedCol.getMaxLength()!=null && type.isSpecifyLenght()){
 						s+=  "(" +requestedCol.getMaxLength() +")";
 					}
 					if(requestedCol.getNullable()){

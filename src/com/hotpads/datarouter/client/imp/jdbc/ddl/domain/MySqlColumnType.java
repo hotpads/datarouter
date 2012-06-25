@@ -8,44 +8,49 @@ public enum MySqlColumnType {
 	 * NOT TAKING INTO ACCOUNT OPTIONS AVAILABLE FOR THE DIFFERENT TYPES
 	 */
 	 //  Numeric Type Overview 
-	BIT, 
-	TINYINT, 
-	BOOL, 
-	BOOLEAN, 
-	SMALLINT, 
-	MEDIUMINT, 
-	INT, 
-	INTEGER, 
-	BIGINT, 
-	DECIMAL,
-	DEC /* SIMILAR TO DECIMAL, HAS 'FIXED' FOR COMPATIBILITY */, 
-	FLOAT, 
-	DOUBLE, 
-	DOUBLE_PRECISION, /* FLOAT(P) */
+	BIT(true), 
+	TINYINT(true), 
+	BOOL(true), 
+	BOOLEAN(true), 
+	SMALLINT(true), 
+	MEDIUMINT(false), 
+	INT(true), 
+	INTEGER(true), 
+	BIGINT(true), 
+	DECIMAL(true),
+	DEC(true) /* SIMILAR TO DECIMAL, HAS 'FIXED' FOR COMPATIBILITY */, 
+	FLOAT(false), 
+	DOUBLE(false), 
+	DOUBLE_PRECISION(false), /* FLOAT(P) */
 	
 	// Date and Time Type Overview
-	DATE, 
-	DATETIME, 
-	TIMESTAMP, 
-	TIME, 
-	YEAR,
+	DATE(true), 
+	DATETIME(true), 
+	TIMESTAMP(true), 
+	TIME(true), 
+	YEAR(true),
 	
 	// String Type Overview
-	CHAR, 
-	VARCHAR, 
-	BINARY, 
-	VARBINARY, 
-	TINYBLOB, 
-	TINYTEXT, 
-	BLOB, //"Binary Long Array of Bytes"
-	TEXT, 
-	MEDIUMBLOB, 
-	MEDIUMTEXT, 
-	LONGBLOB, 
-	LONGTEXT, 
-	ENUM, 
-	SET;
+	CHAR(true), 
+	VARCHAR(true), 
+	BINARY(true), 
+	VARBINARY(true), 
+	TINYBLOB(false), 
+	TINYTEXT(false), 
+	BLOB(false), //"Binary Long Array of Bytes"
+	TEXT(false), 
+	MEDIUMBLOB(false), 
+	MEDIUMTEXT(false), 
+	LONGBLOB(false), 
+	LONGTEXT(false), 
+	ENUM(true), 
+	SET(true);
 	
+	private boolean specifyLenght;
+	
+	private MySqlColumnType(boolean specifyLength){
+		this.specifyLenght=specifyLength;
+	}
 	public static final Long 
 			MAX_LENGTH_VARCHAR = (1L << 8) - 1,
 			MAX_LENGTH_TEXT = (1L << 16) - 1,
@@ -64,4 +69,8 @@ public enum MySqlColumnType {
 		}
 		return null;
 	}
+	public boolean isSpecifyLenght(){
+		return specifyLenght;
+	}
+	
 }

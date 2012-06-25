@@ -58,9 +58,7 @@ public class LCS {
 				if( a.charAt(ii-1) == b.charAt(jj-1) ) {
 					S[ii][jj] = S[ii-1][jj-1] + 1;
 					R[ii][jj] = UP_AND_LEFT;
-				}
-
-				else {
+				}else {
 					S[ii][jj] = S[ii-1][jj-1] + 0;
 					R[ii][jj] = NEITHER;
 				}
@@ -89,13 +87,9 @@ public class LCS {
 				ii--;
 				jj--;
 				lcs[pos--] = a.charAt(ii);
-			}
-	
-			else if( R[ii][jj] == UP ) {
+			}else if( R[ii][jj] == UP ) {
 				ii--;
-			}
-	
-			else if( R[ii][jj] == LEFT ) {
+			}else if( R[ii][jj] == LEFT ) {
 				jj--;
 			}
 		}

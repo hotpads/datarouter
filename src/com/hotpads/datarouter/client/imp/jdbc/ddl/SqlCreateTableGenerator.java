@@ -1,11 +1,14 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
 public class SqlCreateTableGenerator implements DdlGenerator{
@@ -14,7 +17,6 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 	
 	protected SqlTable table;
 	protected String databaseName="";
-
 	
 	/******************* constructors ****************************/
 	
@@ -36,18 +38,19 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		s += table.getName()+" (\n"; 
 		int nuimberOfColumns=table.getColumns().size();
 		SqlColumn col;
-		String type;
+		String typeSring;
+		MySqlColumnType type;
 		for(int i=0; i<nuimberOfColumns; i++){
 			col = table.getColumns().get(i);
-			type = col.getType().toString().toLowerCase();
-			s+= " " + col.getName() + " " + type;
-			if(col.getMaxLength()!=null && !type.equals("longblob") && !type.equals("double")){
+			type = col.getType();
+			typeSring = type.toString().toLowerCase();
+			s+= " " + col.getName() + " " + typeSring;
+			if(col.getMaxLength()!=null && type.isSpecifyLenght()){
 				s+="(" + col.getMaxLength() + ")";
 			}
 			if(col.getNullable()){
 				s+=" default null";
-			}
-			else{
+			}else{
 				s+=" not null";
 			}
 			if(i<nuimberOfColumns-1) s+=",\n";

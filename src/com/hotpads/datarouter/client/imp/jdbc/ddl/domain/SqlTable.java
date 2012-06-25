@@ -108,8 +108,7 @@ public class SqlTable {
 				list.add(col);
 				if(primaryKey==null){
 					primaryKey = new SqlIndex(name + "_Primary_Key", list);
-				}
-				else{
+				}else{
 					primaryKey.addColumn(col);
 				}
 				//System.out.println("The primary key is " + col);
