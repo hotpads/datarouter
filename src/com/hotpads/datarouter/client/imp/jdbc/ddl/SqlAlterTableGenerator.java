@@ -79,8 +79,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 					l.add(s);
 				}
 			}
-		}
-		else{
+		}else{
 			for(SqlAlterTableClause sqlAT : list){
 				String s = "";
 				alterSql = sqlAT.getAlterTable();
@@ -129,75 +128,76 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		// creating the sqlTableDiffGenerator
 		SqlTableDiffGenerator diff = new SqlTableDiffGenerator(current,requested,true);
-		//TODO return early if !diff.isTableModified() rather than putting the whole method inside the if{}
+				//TODO return early if !diff.isTableModified() rather than putting the whole method inside the if{}
 		if(diff.isTableModified()){
-			// get the columns to add and the columns to remove
-			//TODO please specify the type on every declaration (please change everywhere in your code)
-			List<SqlColumn> colsToAdd = diff.getColumnsToAdd(),
-							colsToRemove = diff.getColumnsToRemove(),
-							colsToModify = diff.getColumnsToModify();
-	
-			// get the other modifications ( the indexes )
-			List<SqlIndex> indexesToAdd = diff.getIndexesToAdd(),
-							 indexesToRemove = diff.getIndexesToRemove();
-			
-			// generate the alter table statements from columns to add and to remove
-			if(colsToRemove.size()<current.getNumberOfColumns()){ 
-				list.addAll(getAlterTableForRemovingColumns(colsToRemove));
-				list.add(getAlterTableForAddingColumns(colsToAdd));
-			}
-			else{// cannot drop all columns, should use drop table then create it from list of columns
-				dropTable = true;
-				list.add(new SqlAlterTableClause("drop table "  +databaseName + "." +current.getName() +";", 
-						SqlAlterTypes.DROP_TABLE));
-				list.add(getCreateTableSqlFromListOfColumnsToAdd(colsToAdd));
-				return list;
-			}
-			//TODO use CollectionTool.notEmpty
-			if(options.getModifyColumns() && !CollectionTool.isEmpty(colsToModify)){
-				String type_string;
-				MySqlColumnType type ;
-				for(SqlColumn col : IterableTool.nullSafe(colsToModify)){
-					//TODO always put space after comma between method parameters
-					SqlColumn requestedCol = getColumnByNamefromListOfColumn(col.getName(),requested.getColumns());
-					type = requestedCol.getType();
-					type_string =  type.toString().toLowerCase();
-					String s = "modify " +col.getName() +" " + type_string ;
-					if(requestedCol.getMaxLength()!=null && type.isSpecifyLenght()){
-						s+=  "(" +requestedCol.getMaxLength() +")";
-					}
-					if(requestedCol.getNullable()){
-						s+=" default null";
-					}else{
-						s+=" not null";
-					}
-					list.add(new SqlAlterTableClause(s, SqlAlterTypes.MODIFY));
+			return list;
+		}
+		// get the columns to add and the columns to remove
+				//TODO please specify the type on every declaration (please change everywhere in your code)
+		List<SqlColumn> colsToAdd = diff.getColumnsToAdd();
+		List<SqlColumn> colsToRemove = diff.getColumnsToRemove();
+		List<SqlColumn> colsToModify = diff.getColumnsToModify();
+
+		// get the other modifications ( the indexes )
+		List<SqlIndex> indexesToAdd = diff.getIndexesToAdd();
+		List<SqlIndex> indexesToRemove = diff.getIndexesToRemove();
+		
+		// generate the alter table statements from columns to add and to remove
+		if(colsToRemove.size()<current.getNumberOfColumns()){ 
+			list.addAll(getAlterTableForRemovingColumns(colsToRemove));
+			list.add(getAlterTableForAddingColumns(colsToAdd));
+		}else{// cannot drop all columns, should use drop table then create it from list of columns
+			dropTable = true;
+			list.add(new SqlAlterTableClause("drop table "  +databaseName + "." +current.getName() +";", 
+					SqlAlterTypes.DROP_TABLE));
+			list.add(getCreateTableSqlFromListOfColumnsToAdd(colsToAdd));
+			return list;
+		}
+					//TODO use CollectionTool.notEmpty
+		if(options.getModifyColumns() && CollectionTool.notEmpty(colsToModify)){
+			String type_string;
+			MySqlColumnType type ;
+			for(SqlColumn col : IterableTool.nullSafe(colsToModify)){
+						//TODO always put space after comma between method parameters
+				SqlColumn requestedCol = getColumnByNamefromListOfColumn(col.getName(), requested.getColumns());
+				type = requestedCol.getType();
+				type_string =  type.toString().toLowerCase();
+				String s = "modify " +col.getName() +" " + type_string ;
+				if(requestedCol.getMaxLength()!=null && type.isSpecifyLenght()){
+					s+=  "(" +requestedCol.getMaxLength() +")";
 				}
-			}
-			//*
-			if(options.getAddIndexes() && options.getDropIndexes() && diff.isPrimaryKeyModified()){
-				if(current.hasPrimaryKey()){
-					// 
-					list.add(new SqlAlterTableClause("drop primary key", SqlAlterTypes.DROP_INDEX));
+				if(requestedCol.getNullable()){
+					s+=" default null";
+				}else{
+					s+=" not null";
 				}
-				List<SqlColumn> listOfColumnsInPkey = requested.getPrimaryKey().getColumns(); 
-				String s = "add primary key (" ;
-				for(SqlColumn col: listOfColumnsInPkey){
-					s+= col.getName() + ",";
-				}
-				s=s.substring(0, s.length()-1)+")";
-				list.add(new SqlAlterTableClause(s, SqlAlterTypes.ADD_INDEX));
-			}
-			//*/
-			if(diff.isIndexesModified()){
-				list.addAll(getAlterTableForRemovingIndexes(indexesToRemove));
-				list.addAll(getAlterTableForAddingIndexes(indexesToAdd));
-			}	
-			if(options.getModifyEngine() && diff.isEngineModified()){
-				list.add(new SqlAlterTableClause("engine="+requested.getEngine().toString().toLowerCase(), 
-						SqlAlterTypes.MODIFY_ENGINE));
+				list.add(new SqlAlterTableClause(s, SqlAlterTypes.MODIFY));
 			}
 		}
+		//*
+		if(options.getAddIndexes() && options.getDropIndexes() && diff.isPrimaryKeyModified()){
+			if(current.hasPrimaryKey()){
+				// 
+				list.add(new SqlAlterTableClause("drop primary key", SqlAlterTypes.DROP_INDEX));
+			}
+			List<SqlColumn> listOfColumnsInPkey = requested.getPrimaryKey().getColumns(); 
+			String s = "add primary key (" ;
+			for(SqlColumn col: listOfColumnsInPkey){
+				s+= col.getName() + ",";
+			}
+			s=s.substring(0, s.length()-1)+")";
+			list.add(new SqlAlterTableClause(s, SqlAlterTypes.ADD_INDEX));
+		}
+		//*/
+		if(diff.isIndexesModified()){
+			list.addAll(getAlterTableForRemovingIndexes(indexesToRemove));
+			list.addAll(getAlterTableForAddingIndexes(indexesToAdd));
+		}	
+		if(options.getModifyEngine() && diff.isEngineModified()){
+			list.add(new SqlAlterTableClause("engine="+requested.getEngine().toString().toLowerCase(), 
+					SqlAlterTypes.MODIFY_ENGINE));
+		}
+
 		//s+=");";
 		return list;
 	}
@@ -213,16 +213,16 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		if(!options.getDropIndexes()){ return list; }
 
-		//TODO return early if CollectionTool.isEmpty
-		if(indexesToAdd.size()>0){
-			String s="";
-			for(SqlIndex index : indexesToAdd){
-				s+= "drop index "+ index.getName() + ",\n";
-			}
-			s=s.substring(0,s.length()-2);
-		//	s+=";";
-			list.add(new SqlAlterTableClause(s, SqlAlterTypes.DROP_INDEX));
+				//TODO return early if CollectionTool.isEmpty
+		if(CollectionTool.isEmpty(indexesToAdd)){
+			return list;
 		}
+		String s="";
+		for(SqlIndex index : indexesToAdd){
+			s+= "drop index "+ index.getName() + ",\n";
+		}
+		s=s.substring(0,s.length()-2);
+		list.add(new SqlAlterTableClause(s, SqlAlterTypes.DROP_INDEX));
 		return list;
 	}
 
@@ -230,21 +230,21 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		if(!options.getAddIndexes()){ return list; }
 
-		//TODO return early if CollectionTool.isEmpty
-		if(indexesToAdd.size()>0){
-			String s="";
-			for(SqlIndex index : indexesToAdd){
-				s+="add key " + index.getName() + "(";
-				for(SqlColumn col : index.getColumns()){
-					s+= col.getName() + ", ";
-				}
-				s =s.substring(0, s.length()-2);
-				s+="),\n";
-			}
-			s = s.substring(0, s.length()-2);
-		//	s+=";";
-			list.add(new SqlAlterTableClause(s, SqlAlterTypes.ADD_INDEX));
+				//TODO return early if CollectionTool.isEmpty
+		if(CollectionTool.isEmpty(indexesToAdd)){
+			return list;
 		}
+		String s="";
+		for(SqlIndex index : indexesToAdd){
+			s+="add key " + index.getName() + "(";
+			for(SqlColumn col : index.getColumns()){
+				s+= col.getName() + ", ";
+			}
+			s =s.substring(0, s.length()-2);
+			s+="),\n";
+		}
+		s = s.substring(0, s.length()-2);
+		list.add(new SqlAlterTableClause(s, SqlAlterTypes.ADD_INDEX));
 		return list;
 	}
 
@@ -252,25 +252,25 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		//new SqlAlterTable("CREATE TABLE " +current.getName() +";", SqlAlterTableTypes.CREATE_TABLE);
 		String s = "create table " + current.getName();
 		
-		//TODO return early if CollectionTool.isEmpty
-		if(colsToAdd.size()>0){
-			s+= " ( ";
-			for(SqlColumn col:colsToAdd){
-				s+= col.getName() + " " + col.getType().toString().toLowerCase();
-				if(col.getMaxLength()!=null){
-					s+="(" + col.getMaxLength() + ")";
-				}
-				if(col.getNullable()){
-					s+=" default null";
-				}
-				else{
-					s+=" not null";
-				}
-				s+=",\n";//
-			}
-			s = s.substring(0, s.length()-2); // remove the last "," 
-			s+=");\n";
+				//TODO return early if CollectionTool.isEmpty
+		if(CollectionTool.isEmpty(colsToAdd)){
+			return new SqlAlterTableClause(s, SqlAlterTypes.CREATE_TABLE);
 		}
+		s+= " ( ";
+		for(SqlColumn col:colsToAdd){
+			s+= col.getName() + " " + col.getType().toString().toLowerCase();
+			if(col.getMaxLength()!=null){
+				s+="(" + col.getMaxLength() + ")";
+			}
+			if(col.getNullable()){
+				s+=" default null";
+			}else{
+				s+=" not null";
+			}
+			s+=",\n";//
+		}
+		s = s.substring(0, s.length()-2); // remove the last "," 
+		s+=");\n";
 		return new SqlAlterTableClause(s, SqlAlterTypes.CREATE_TABLE);
 	}
 
@@ -281,12 +281,13 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		//TODO use StringBuilder
 		String s = "";
 		s+= "add (";
-		String type;
+		String type_string;
 		for(SqlColumn col:colsToAdd){
-			type = col.getType().toString().toLowerCase();
-			s+= col.getName() + " " + type;
-			//TODO longblob and double should be definied as constants somewhere
-			if(col.getMaxLength()!=null && !type.equals("longblob") && !type.equals("double")){
+			MySqlColumnType type = col.getType();
+			type_string = col.getType().toString().toLowerCase();
+			s+= col.getName() + " " + type_string;
+					//TODO longblob and double should be definied as constants somewhere ==> used the method so it handles double and all other cases
+			if(col.getMaxLength()!=null && type.isSpecifyLenght()){
 				s+="(" + col.getMaxLength() + ")";
 			}
 			if(col.getNullable()){
@@ -306,17 +307,17 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		if(!options.getDeleteColumns()){ return list; }
 		
-		//TODO return early if CollectionTool.isEmpty
-		if(colsToRemove.size()>0){
-			String s = "";
-			for(SqlColumn col:colsToRemove){
-				s += "drop column ";
-					s+= col.getName() + ", ";
-			}
-			s = s.substring(0, s.length()-2); // remove the last "," 
-			//s+=";";
-			list.add(new SqlAlterTableClause(s, SqlAlterTypes.DROP_COLUMN));
+				//TODO return early if CollectionTool.isEmpty
+		if(CollectionTool.isEmpty(colsToRemove)){
+			return list;
 		}
+		String s = "";
+		for(SqlColumn col:colsToRemove){
+			s += "drop column ";
+				s+= col.getName() + ", ";
+		}
+		s = s.substring(0, s.length()-2); // remove the last "," 
+		list.add(new SqlAlterTableClause(s, SqlAlterTypes.DROP_COLUMN));
 		return list;
 	}
 	

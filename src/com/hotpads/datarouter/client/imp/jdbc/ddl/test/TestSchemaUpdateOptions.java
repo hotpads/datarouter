@@ -34,22 +34,19 @@ public class TestSchemaUpdateOptions{
 		SchemaUpdateOptions doNothing = new SchemaUpdateOptions().setAllFalse();
 		Connection connection = JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
 		String tableName = "TestSchemaUpdateOptionsDoNothing";
-		SqlColumn 
-		colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true),
-		colB = new SqlColumn("B", MySqlColumnType.BINARY),
-		colC = new SqlColumn("C", MySqlColumnType.BOOLEAN),
-		colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
-		List<SqlColumn> 
-				listBC = ListTool.createArrayList(),
-				listM = ListTool.createArrayList();
+		SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true);
+		SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
+		SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
+		SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
+		List<SqlColumn> listBC = ListTool.createArrayList();
+		List<SqlColumn> listM = ListTool.createArrayList();
 		listBC.add(colB);
 		listBC.add(colC);
 		listM.add(colM);
-		SqlIndex index = new SqlIndex("index1", listBC),
-				index2 = new SqlIndex("index2", listM);	
-		SqlTable 
-				currentTable = new SqlTable(tableName).addColumn(colA).addColumn(colB).addColumn(colC),
-				requestedTable = new SqlTable(tableName).addColumn(colA).addColumn(colM);
+		SqlIndex index = new SqlIndex("index1", listBC);
+		SqlIndex index2 = new SqlIndex("index2", listM);	
+		SqlTable currentTable = new SqlTable(tableName).addColumn(colA).addColumn(colB).addColumn(colC);
+		SqlTable requestedTable = new SqlTable(tableName).addColumn(colA).addColumn(colM);
 		currentTable.addIndex(index);
 		requestedTable.addIndex(index2);
 		
@@ -106,22 +103,20 @@ public class TestSchemaUpdateOptions{
 		
 		String tableName = "TestSchemaUpdateOptionsDoNothing";
 		
-		SqlColumn 
-			colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true),
-			colB = new SqlColumn("B", MySqlColumnType.BINARY),
-			colC = new SqlColumn("C", MySqlColumnType.BOOLEAN),
-			colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
+		SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true);
+		SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
+		SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
+		SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
 		List<SqlColumn> 
 			listBC = ListTool.createArrayList(),
 			listM = ListTool.createArrayList();
 		listBC.add(colB);
 		listBC.add(colC);
 		listM.add(colM);
-		SqlIndex index = new SqlIndex("index", listBC),
-				index2 = new SqlIndex("index", listM);	
-		SqlTable 
-				currentTable = new SqlTable(tableName).addColumn(colA).addColumn(colM),
-				requestedTable = new SqlTable(tableName).addColumn(colA).addColumn(colB).addColumn(colC); 
+		SqlIndex index = new SqlIndex("index", listBC);
+		SqlIndex index2 = new SqlIndex("index", listM);	
+		SqlTable currentTable = new SqlTable(tableName).addColumn(colA).addColumn(colM);
+		SqlTable requestedTable = new SqlTable(tableName).addColumn(colA).addColumn(colB).addColumn(colC); 
 		currentTable.addIndex(index);
 		requestedTable.addIndex(index2);
 		Statement stmt = null;

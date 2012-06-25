@@ -64,7 +64,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	@Override
 	public boolean equals(Object otherObject) {
 		if(!(otherObject instanceof SqlColumn)) { return false; }
-		//TODO //return 0==compareTo((SqlColumn)otherObject);
+		// //return 0==compareTo((SqlColumn)otherObject);
 		return 0== (new SqlColumnNameComparator(true).compare(this,(SqlColumn) otherObject));
 	}
 
