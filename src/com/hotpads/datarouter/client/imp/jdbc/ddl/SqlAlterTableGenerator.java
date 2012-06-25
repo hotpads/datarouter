@@ -282,7 +282,6 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		
 				//TODO use StringBuilder
 		StringBuilder sb = new StringBuilder();
-		String alterTable;
 		sb.append("add (");
 		String type_string;
 		for(SqlColumn col:colsToAdd){
@@ -300,10 +299,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			}
 			sb.append(",\n");
 		}
-		alterTable=sb.toString(); 		
-		alterTable = alterTable.substring(0, alterTable.length()-2); // remove the last ","   
-		alterTable+=")";			// sb.deleteCharAt(sb.length()-2)
-		return new SqlAlterTableClause(alterTable, SqlAlterTypes.ADD_COLUMN);
+		sb = new StringBuilder(sb.substring(0, sb.length()-2)); // remove the last ","   
+		sb.append(")");			// sb.deleteCharAt(sb.length()-2)
+		return new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_COLUMN);
 	}
 	
 	private List<SqlAlterTableClause> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove) {
@@ -323,6 +321,10 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		return list;
 	}
 	
+	public static void main(String[] args){
+		StringBuilder sb = new StringBuilder("asdasd,*");
+		System.out.println(sb.substring(0, sb.length()-2) );
+	}
 	public static class SqlAlterTableGeneratorTester{
 		 
 		/*public void generateTest() throws IOException{
