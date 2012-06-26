@@ -271,6 +271,4 @@ public class SqlTable {
 			System.out.println(parseCreateTable(phrase));
 		}
 	}
-	
-
 }

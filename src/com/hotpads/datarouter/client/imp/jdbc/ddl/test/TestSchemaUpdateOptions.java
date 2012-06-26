@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.test;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
@@ -13,16 +12,12 @@ import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.DdlGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTableDiffGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTableGenerator;
-import com.hotpads.datarouter.client.type.JdbcConnectionClient;
-import com.hotpads.datarouter.connection.JdbcConnectionPool;
-import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
 public class TestSchemaUpdateOptions{

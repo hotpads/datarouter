@@ -1,24 +1,8 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.test;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
-
-import junit.framework.Assert;
 
 import org.junit.Test;
-
-import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTableGenerator;
-import com.hotpads.datarouter.test.DRTestConstants;
-import com.hotpads.util.core.ListTool;
 
 public class CreateTableTester {
 

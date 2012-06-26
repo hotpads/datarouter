@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
