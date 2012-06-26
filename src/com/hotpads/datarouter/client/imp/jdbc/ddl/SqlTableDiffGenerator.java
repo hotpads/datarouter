@@ -139,7 +139,7 @@ public class SqlTableDiffGenerator{
 				//TODO too much on one line.  extract the sets into their own variables
 		SortedSet<SqlColumn> currentColumns = SetTool.createTreeSet(current.getColumns());
 		SortedSet<SqlColumn> requestedColumns = SetTool.createTreeSet(requested.getColumns());
-		if(theTwoColumnSetsContainTheSameKeys(currentColumns, requestedColumns)){ return true; }
+		if(!theTwoColumnSetsContainTheSameKeys(currentColumns, requestedColumns)){ return true; }
 		if(isIndexesModified()){ return true; }
 		if(isEngineModified()){ return true; }
 		return false;

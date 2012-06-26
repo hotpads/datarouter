@@ -127,7 +127,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		// creating the sqlTableDiffGenerator
 		SqlTableDiffGenerator diff = new SqlTableDiffGenerator(current,requested,true);
-		if(diff.isTableModified()){ return list; }
+		if(!diff.isTableModified()){ return list; }
 		// get the columns to add and the columns to remove
 		List<SqlColumn> colsToAdd = diff.getColumnsToAdd();
 		List<SqlColumn> colsToRemove = diff.getColumnsToRemove();
