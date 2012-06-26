@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTableDiffGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.test.TestParser;
 import com.hotpads.util.core.ListTool;
@@ -174,13 +175,16 @@ public class SqlTable {
 	@Override
 	public String toString() {
 		//TODO use StringBuilder
-		String s =  "SqlTable name=" + name + ",\n" ;
-		for(SqlColumn col : getColumns()){
-			s+=col + "\n";
-		}
-		s+= "PK=" + primaryKey + "\nindexes=" + indexes ;
-		s+="\nEngine : " +getEngine();
-		return s;
+		StringBuilder sb = new StringBuilder("SqlTable name=" + name + ",\n") ;
+//		for(SqlColumn col : getColumns()){
+//			sb.append(col + "\n");
+//		}
+//		sb.append("PK=" + primaryKey + "\nindexes=" + indexes );
+//		sb.append("\nEngine : " +getEngine());
+		
+		//sb.append("The create table statement :\n");
+		sb.append(new SqlCreateTableGenerator(this).generateDdl());
+		return sb.toString();
 	}
 	
 	@Override
