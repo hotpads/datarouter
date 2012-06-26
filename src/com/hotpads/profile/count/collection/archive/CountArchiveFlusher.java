@@ -1,6 +1,5 @@
 package com.hotpads.profile.count.collection.archive;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -9,6 +8,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.apache.log4j.Logger;
 
@@ -19,6 +21,7 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.concurrent.Provider;
 
+@Singleton
 public class CountArchiveFlusher{
 	static Logger logger = Logger.getLogger(CountArchiveFlusher.class);
 	
@@ -38,6 +41,7 @@ public class CountArchiveFlusher{
 	protected Provider<ScheduledExecutorService> flushScheduler;
 	protected Provider<ScheduledExecutorService> flushExecutor;//not sure why this has to be a ScheduledExecutor, but it won't work otherwise
 
+	@Inject
 	public CountArchiveFlusher(String name, long flushPeriodMs, 
 			Provider<ScheduledExecutorService> flushScheduler,
 			Provider<ScheduledExecutorService> flushExecutor){

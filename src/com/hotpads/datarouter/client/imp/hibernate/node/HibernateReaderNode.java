@@ -161,8 +161,9 @@ implements MapStorageReader<PK,D>,
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<D> getMulti(final Collection<PK> keys, final Config config) {	
-		TraceContext.startSpan(getName()+" getMulti");	
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
+		DRCounters.incPrefixClientNode("hibernate getMulti rows", clientName, getName(), CollectionTool.size(keys));
+		TraceContext.startSpan(getName()+" getMulti");	
 //		final Class<? extends Databean> persistentClass = CollectionTool.getFirst(keys).getDatabeanClass();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		List<D> result = (List<D>)executor.executeTask(
