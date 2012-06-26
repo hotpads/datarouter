@@ -81,13 +81,12 @@ public class SqlTableDiffGenerator{
 	
 	private List<SqlColumn> getColumnsToModifyAfterAddingColumns(Set<SqlColumn> requestedColumns,
 			Set<SqlColumn> currentColumns, 
-			List<SqlColumn> columnsToAdd, SqlColumnNameTypeLengthComparator c){
+			List<SqlColumn> columnsToAddUsingNameComparator, SqlColumnNameTypeLengthComparator c){
 		// by getting all the modified columns (the ones we should add) and removing from them the ones
 		// we have already added (columnsToAdd)
 		List<SqlColumn> listOfColumnsToAddUsingNameTypeComparator = ListTool.createArrayList(CollectionTool.minus(
 				requestedColumns, currentColumns, c));
-		columnsToAdd = getColumnsToAdd();
-		Set<SqlColumn> columnsToModify = CollectionTool.minus(listOfColumnsToAddUsingNameTypeComparator, columnsToAdd);
+		Set<SqlColumn> columnsToModify = CollectionTool.minus(listOfColumnsToAddUsingNameTypeComparator, columnsToAddUsingNameComparator);
 		return ListTool.createArrayList(columnsToModify);
 	}
 
@@ -428,7 +427,7 @@ public class SqlTableDiffGenerator{
 			SqlTableDiffGenerator diffNullA = new SqlTableDiffGenerator(null, table1, true);
 
 			System.out.println(diffAB.getColumnsToModify());
-			//TODO too much on one line
+					//TODO too much on one line
 			List<SqlColumn> colsToModify = diffAB.getColumnsToModify();
 			ArrayList<SqlColumn> expected = ListTool.createArrayList(colA2);
 			SqlColumnNameTypeComparator c = new SqlColumnNameTypeComparator(true);
@@ -446,7 +445,6 @@ public class SqlTableDiffGenerator{
 
 		private boolean areEqual(List<SqlColumn> colsToModify, ArrayList<SqlColumn> expected,
 				SqlColumnNameTypeComparator c){
-
 			return CollectionTool.isEmpty(CollectionTool.minus(colsToModify, expected, c));
 		}
 	

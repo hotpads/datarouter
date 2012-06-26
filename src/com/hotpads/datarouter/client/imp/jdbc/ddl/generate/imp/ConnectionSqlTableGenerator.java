@@ -17,6 +17,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
+import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
@@ -48,8 +49,14 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 				boolean nullable = true; // nullable by default
 				if(metaData.isNullable(i + 1) == ResultSetMetaData.columnNoNulls) nullable = false;
 				MySqlColumnType type = MySqlColumnType.parse(metaData.getColumnTypeName(i + 1));
-				SqlColumn col = new SqlColumn(metaData.getColumnName(i + 1), type,
-						metaData.getColumnDisplaySize(i + 1), nullable);
+				SqlColumn col;
+				if(type.equals(MySqlColumnType.VARCHAR)){
+					col = StringField.getTypeFromSize(metaData.getColumnName(i + 1), 
+									metaData.getColumnDisplaySize(i + 1), nullable);
+				}else{
+					col = new SqlColumn(metaData.getColumnName(i + 1), type,
+							metaData.getColumnDisplaySize(i + 1), nullable);
+				}
 				table.addColumn(col);
 			}
 			

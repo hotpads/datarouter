@@ -293,11 +293,6 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		return list;
 	}
 	
-	public static void main(String[] args){
-		StringBuilder sb = new StringBuilder("asdasd,*");
-		System.out.println(sb.substring(0, sb.length()-2) );
-	}
-	
 	public static class SqlAlterTableGeneratorTester{
 		 
 		/*public void generateTest() throws IOException{

@@ -184,4 +184,20 @@ public class StringField extends BaseField<String>{
 			
 		}
 	}
+
+
+	public static SqlColumn getTypeFromSize(String name, int size,
+			boolean nullable){
+		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
+			return new SqlColumn(name, MySqlColumnType.VARCHAR, 255, true);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
+			return new SqlColumn(name, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, true);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
+			return new SqlColumn(name, MySqlColumnType.MEDIUMTEXT, null/*MySqlColumnType.MAX_LENGTH_MEDIUMTEXT.intValue()*/, 
+					true);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
+			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, true);
+		}
+		throw new IllegalArgumentException("Unknown size:"+size);
+	}
 }
