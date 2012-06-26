@@ -51,9 +51,12 @@ public class CountArchiveFlusher{
 		this.archives = ListTool.createArrayList();
 		this.flushExecutor = flushExecutor;//won't be used if FLUSH_WITH_TIMEOUT=false
 		this.flushScheduler = flushScheduler;
+		logger.warn("CountArchiveFlusher:"+name+" started");
+	}
+	
+	public void start(){
 		this.flushScheduler.get().scheduleWithFixedDelay(
 				new CountArchiveFlushUntilEmpty(this), 0, flushPeriodMs, TimeUnit.MILLISECONDS); 
-		logger.warn("CountArchiveFlusher:"+name+" started");
 	}
 	
 	/*
@@ -66,6 +69,8 @@ public class CountArchiveFlusher{
 	
 	public static class CountArchiveFlushUntilEmpty implements Runnable{
 		protected final CountArchiveFlusher flusher;
+		
+		@Inject
 		public CountArchiveFlushUntilEmpty(CountArchiveFlusher flusher){
 			this.flusher = flusher;
 		}
