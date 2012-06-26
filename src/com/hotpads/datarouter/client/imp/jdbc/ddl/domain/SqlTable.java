@@ -29,30 +29,28 @@ public class SqlTable {
 	
 	/*************** constructors ****************************/
 	
-	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey, List<SqlIndex> indexes) {
+	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey, List<SqlIndex> indexes){
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = primaryKey;
 		this.indexes = indexes;
 	}
 
-	
-	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey) {
+	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey){
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = primaryKey;
 		this.indexes = ListTool.createArrayList();
 	}
 
-
-	public SqlTable(String name, List<SqlColumn> columns) {
+	public SqlTable(String name, List<SqlColumn> columns){
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = new SqlIndex("PRIMARY");
 		this.indexes = ListTool.createArrayList();
 	}
-	
-	public SqlTable(String name) {
+
+	public SqlTable(String name){
 		this.name = name;
 		this.columns = ListTool.createArrayList();
 		this.primaryKey = new SqlIndex("PRIMARY");
@@ -61,6 +59,7 @@ public class SqlTable {
 	
 	
 	/*************** methods *********************************/
+	
 	@Deprecated
 	public static SqlTable parseCreateTable(String phrase){
 		SqlTable table = new SqlTable("Table");
@@ -165,7 +164,6 @@ public class SqlTable {
 	}
 
 	//for example, "varchar(100)" has a maxValue of 100 while "datetime" does not have a maxValue
-	@SuppressWarnings("unused") 
 	private static boolean hasAMaxValue(String columnDefinitioin){
 		return columnDefinitioin.contains("(");
 	}
@@ -175,13 +173,14 @@ public class SqlTable {
 
 	@Override
 	public String toString() {
+		//TODO use StringBuilder
 		String s =  "SqlTable name=" + name + ",\n" ;
-				for(SqlColumn col : getColumns()){
-					s+=col + "\n";
-				}
-				s+= "PK=" + primaryKey + "\nindexes=" + indexes ;
-				s+="\nEngine : " +getEngine();
-				return s;
+		for(SqlColumn col : getColumns()){
+			s+=col + "\n";
+		}
+		s+= "PK=" + primaryKey + "\nindexes=" + indexes ;
+		s+="\nEngine : " +getEngine();
+		return s;
 	}
 	
 	@Override
@@ -193,24 +192,24 @@ public class SqlTable {
 	
 	
 	/*************************** get/set ********************************/
-	
-	public String getName() {
+
+	public String getName(){
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(String name){
 		this.name = name;
 	}
 
-	public List<SqlColumn> getColumns() {
+	public List<SqlColumn> getColumns(){
 		return columns;
 	}
 
-	public void setColumns(List<SqlColumn> columns) {
+	public void setColumns(List<SqlColumn> columns){
 		this.columns = columns;
 	}
 
-	public SqlIndex getPrimaryKey() {
+	public SqlIndex getPrimaryKey(){
 		return primaryKey;
 	}
 
@@ -227,15 +226,13 @@ public class SqlTable {
 		return this;
 	}
 
-	public int getNumberOfColumns() {
+	public int getNumberOfColumns(){
 		return getColumns().size();
 	}
-	
-	
+
 	public MySqlTableEngine getEngine(){
 		return engine;
 	}
-
 
 	public void setEngine(MySqlTableEngine engine){
 		this.engine = engine;

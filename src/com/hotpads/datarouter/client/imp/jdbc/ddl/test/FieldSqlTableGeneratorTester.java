@@ -31,11 +31,11 @@ public class FieldSqlTableGeneratorTester {
 		//			}
 		//		}
 		String tableName = "ManyFieldTypeBean";
-		List<Field<?>> primaryKeyFields = ListTool.create(),
-						primaryKeyFields2 = ListTool.create();
+		List<Field<?>> primaryKeyFields = ListTool.create();
+		List<Field<?>> primaryKeyFields2 = ListTool.create();
 
-		List<Field<?>> nonKeyFields = ListTool.createArrayList(),
-						nonKeyFields2 = ListTool.createArrayList();
+		List<Field<?>> nonKeyFields = ListTool.createArrayList();
+		List<Field<?>> nonKeyFields2 = ListTool.createArrayList();
 
 		ManyFieldTypeBean mftBean = new ManyFieldTypeBean();
 		ManyFieldTypeBean2 mftBean2 = new ManyFieldTypeBean2();
@@ -49,12 +49,14 @@ public class FieldSqlTableGeneratorTester {
 		
 		primaryKeyFields2 =mftBean2.getKeyFields();
 		nonKeyFields2 = mftBean2.getNonKeyFields();
-		FieldSqlTableGenerator fstGenerator2 = new FieldSqlTableGenerator(tableName+"2", primaryKeyFields2, nonKeyFields2);
+		FieldSqlTableGenerator fstGenerator2 = new FieldSqlTableGenerator(tableName + "2", primaryKeyFields2,
+				nonKeyFields2);
 		SqlTable table2 = fstGenerator2.generate();
 		SqlCreateTableGenerator ctGenerator2 = new SqlCreateTableGenerator(table2);
 		System.out.println(ctGenerator2.generateDdl());
-		
-		SqlAlterTableGenerator alterGen = new SqlAlterTableGenerator(new SchemaUpdateOptions().setAllTrue(), table2, table, "db");
+
+		SqlAlterTableGenerator alterGen = new SqlAlterTableGenerator(new SchemaUpdateOptions().setAllTrue(), table2,
+				table, "db");
 		//SqlColumnNameComparator c = new SqlColumnNameComparator(true);
 		System.out.println(alterGen.getAlterTableStatements());
 	}

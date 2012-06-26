@@ -88,12 +88,13 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 			}
 			indexList.close();
 			
-			rs = stmt.executeQuery("select engine from information_schema.tables where table_name='" + tableName + "';");
+			rs = stmt.executeQuery("select engine from information_schema.tables where table_name='" + tableName 
+					+ "';");
 			rs.next();
 			table.setEngine(MySqlTableEngine.parse(rs.getString(1)));
 			
 		}catch(SQLException e){
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 
 		return table;
@@ -102,7 +103,9 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 	private void addAppropriateColumnToPrimaryKeyFromListOfColumn(SqlTable table, String string,
 			List<SqlColumn> columns){
 		for(SqlColumn col : IterableTool.nullSafe(columns)){
-			if(col.getName().equals(string)) table.getPrimaryKey().addColumn(col);
+			if(col.getName().equals(string)){
+				table.getPrimaryKey().addColumn(col);
+			}
 		}
 	}
 
@@ -123,13 +126,13 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 //		System.out.println("string " +string );
 //		System.out.println(" index " + index);
 		for(SqlColumn col : IterableTool.nullSafe(columns)){
-			if(col.getName().equals(string)) index.addColumn(col);
+			if(col.getName().equals(string)){ index.addColumn(col); }
 		}
 	}
 
 	private static void addAppropriateColumnToIndexFromListOfColumn(SqlIndex index, String s1, List<SqlColumn> columns){
 		for(SqlColumn col : IterableTool.nullSafe(columns)){
-			if(col.getName().equals(s1)) index.addColumn(col);
+			if(col.getName().equals(s1)){ index.addColumn(col); }
 		}
 	}
 

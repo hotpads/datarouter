@@ -1,14 +1,11 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
-import java.util.List;
-
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
 public class SqlCreateTableGenerator implements DdlGenerator{
@@ -45,7 +42,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			type = col.getType();
 			typeSring = type.toString().toLowerCase();
 			sb.append(" " + col.getName() + " " + typeSring);
-			if(col.getMaxLength()!=null && type.isSpecifyLenght()){
+			if(col.getMaxLength()!=null && type.isSpecifyLength()){
 				sb.append("(" + col.getMaxLength() + ")");
 			}
 			if(col.getNullable()){

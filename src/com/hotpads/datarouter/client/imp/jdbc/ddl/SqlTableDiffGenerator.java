@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -12,11 +11,13 @@ import org.junit.Test;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameComparator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameComparatorUsingLevenshteinDistance;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeLengthComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex.*;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex.SqlIndexNameComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.*;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
@@ -38,66 +39,74 @@ public class SqlTableDiffGenerator{
 	
 	public List<SqlColumn> getColumnsToAdd(){
 		SqlColumnNameComparator c = new SqlColumnNameComparator(true);
-		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c), currentColumns = new TreeSet<SqlColumn>(c);
+		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
+		Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);
 		if(requested==null || current==null){
 			return ListTool.createArrayList();
 		}else{
 			requestedColumns.addAll(requested.getColumns());
-			currentColumns.addAll( current.getColumns());
+			currentColumns.addAll(current.getColumns());
 		}
-		return ListTool.createArrayList(CollectionTool.minus(requestedColumns,currentColumns,c));
+		return ListTool.createArrayList(CollectionTool.minus(requestedColumns, currentColumns,c));
 	}
 
 	public List<SqlColumn> getColumnsToRemove(){
 		SqlColumnNameComparator c = new SqlColumnNameComparator(true);
-		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c), currentColumns = new TreeSet<SqlColumn>(c);
+		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
+		Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);
 		if(requested==null || current==null){
 			return ListTool.createArrayList();
 		}else{
 			requestedColumns.addAll(requested.getColumns());
-			currentColumns.addAll( current.getColumns());
+			currentColumns.addAll(current.getColumns());
 		}
-		return ListTool.createArrayList(CollectionTool.minus(currentColumns, requestedColumns,c));
+		return ListTool.createArrayList(CollectionTool.minus(currentColumns, requestedColumns, c));
 	}
 	
 	public List<SqlColumn> getColumnsToModify(){
 		SqlColumnNameTypeLengthComparator c = new SqlColumnNameTypeLengthComparator(true);
-		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c), currentColumns = new TreeSet<SqlColumn>(c);
+		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
+		Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);
 		if(requested==null || current==null){
 			return ListTool.createArrayList();
 		}else{
 			requestedColumns.addAll(requested.getColumns());
-			currentColumns.addAll( current.getColumns());
+			currentColumns.addAll(current.getColumns());
 		}
-		List<SqlColumn> listOfColumnsToAddWithNameTypeComparator = ListTool.createArrayList(CollectionTool.minus(requestedColumns,currentColumns,c));
-		
-		return ListTool.createArrayList(CollectionTool.minus(listOfColumnsToAddWithNameTypeComparator,getColumnsToAdd()));
+		//TODO too much on one line.  extract the sets into their own variables
+		List<SqlColumn> listOfColumnsToAddWithNameTypeComparator = ListTool.createArrayList(CollectionTool.minus(
+				requestedColumns, currentColumns, c));
+
+		return ListTool.createArrayList(CollectionTool.minus(listOfColumnsToAddWithNameTypeComparator,
+				getColumnsToAdd()));
 	}
 	
 	public List<SqlColumn> getListOfColumnPossiblyTheSame(int maxDistanceAllowed){
-		SqlColumnNameComparatorUsingLevenshteinDistance c = new SqlColumnNameComparatorUsingLevenshteinDistance(true,maxDistanceAllowed);
-		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c), currentColumns = new TreeSet<SqlColumn>(c);
+		SqlColumnNameComparatorUsingLevenshteinDistance c = new SqlColumnNameComparatorUsingLevenshteinDistance(true,
+				maxDistanceAllowed);
+		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
+		Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);
 		if(requested==null || current==null){
 			return ListTool.createArrayList();
 		}else{
 			requestedColumns.addAll(requested.getColumns());
-			currentColumns.addAll( current.getColumns());
+			currentColumns.addAll(current.getColumns());
 		}
-		 return ListTool.createArrayList(CollectionTool.intersection(currentColumns, requestedColumns,c));
+		//TODO too much on one line.  extract the sets into their own variables
+		return ListTool.createArrayList(CollectionTool.intersection(currentColumns, requestedColumns, c));
 	}
 	
 	public List<SqlIndex> getIndexesToAdd(){
-		if(requested==null || current==null){
-			return ListTool.createArrayList();
-		}
+		if(requested == null || current == null){ return ListTool.createArrayList(); }
+		//TODO too much on one line.  extract the sets into their own variables
 		return ListTool.createArrayList(CollectionTool.minus(requested.getIndexes(), current.getIndexes()));
 	}
 
 	public List<SqlIndex> getIndexesToRemove(){
-		if(requested==null || current==null){
-			return ListTool.createArrayList();
-		}
-		return ListTool.createArrayList(CollectionTool.minus(current.getIndexes(), requested.getIndexes(), new SqlIndexNameComparator()));
+		if(requested == null || current == null){ return ListTool.createArrayList(); }
+		//TODO too much on one line.  extract the sets into their own variables
+		return ListTool.createArrayList(CollectionTool.minus(current.getIndexes(), requested.getIndexes(),
+				new SqlIndexNameComparator()));
 	}
 	
 	/********************* helper methods *******************************/
@@ -112,6 +121,7 @@ public class SqlTableDiffGenerator{
 
 	public boolean isTableModified(){
 		if(isPrimaryKeyModified()){ return true; }
+		//TODO too much on one line.  extract the sets into their own variables
 		if(!SetTool.containsSameKeys(SetTool.createTreeSet(current.getColumns()), SetTool.createTreeSet(requested
 				.getColumns()))){ return true; }
 		if(isIndexesModified()){ return true; }
@@ -120,16 +130,20 @@ public class SqlTableDiffGenerator{
 	}
 
 	public boolean isEngineModified(){
-		return !MySqlTableEngine.valueOf(current.getEngine().toString()).equals(MySqlTableEngine.valueOf(requested
-				.getEngine().toString()));
+		MySqlTableEngine currentEngine = MySqlTableEngine.valueOf(current.getEngine().toString());
+		MySqlTableEngine requestedEngine = MySqlTableEngine.valueOf(requested.getEngine().toString());
+		return currentEngine != requestedEngine;
 	}
 
 	public boolean isIndexesModified(){
-		return !SetTool.containsSameKeys(SetTool.createTreeSet(current.getIndexes()), SetTool.createTreeSet(requested
-				.getIndexes()));
+		//TODO too much on one line.  extract the sets into their own variables
+		return !SetTool.containsSameKeys(
+				SetTool.createTreeSet(current.getIndexes()), 
+				SetTool.createTreeSet(requested.getIndexes()));
 	}
 
 	public boolean isPrimaryKeyModified(){
+		//TODO too much on one line.  extract the sets into their own variables
 		if(!CollectionTool.equalsAllElementsInIteratorOrder(current.getPrimaryKey().getColumns(), 
 				requested.getPrimaryKey().getColumns())){ 
 			return true; 
@@ -146,6 +160,7 @@ public class SqlTableDiffGenerator{
 	
 	public static class SqlTableDiffGeneratorTester{
 		@Test public void isTableModifiedTest(){
+			//TODO don't reuse declaration types anywhere
 			SqlColumn 
 					idCol = new SqlColumn("id", MySqlColumnType.BIGINT);
 			SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol);
@@ -192,6 +207,7 @@ public class SqlTableDiffGenerator{
 			
 			SqlTableDiffGenerator diffAA = new SqlTableDiffGenerator(A, A, true);
 			SqlTableDiffGenerator diffAB = new SqlTableDiffGenerator(A, B, true);
+			//TODO need spaces after commas everywhere
 			SqlTableDiffGenerator diffAA2 = new SqlTableDiffGenerator(A,A2,true);
 			SqlTableDiffGenerator diffAA0 = new SqlTableDiffGenerator(A,A0,true);
 			
@@ -317,8 +333,10 @@ public class SqlTableDiffGenerator{
 			SqlTableDiffGenerator diffNullA = new SqlTableDiffGenerator(null, table1, true);
 			
 			Assert.assertEquals("index", diffAB.getIndexesToAdd().get(0).getName());
-			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffAB.getIndexesToAdd().get(0).getColumns(),listM)));
-			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getIndexesToAdd().get(0).getColumns(),listBC)));
+			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffAB.getIndexesToAdd().get(0).getColumns(),
+					listM)));
+			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getIndexesToAdd().get(0).getColumns(),
+					listBC)));
 			Assert.assertTrue(CollectionTool.isEmpty(diffNullNull.getIndexesToAdd()));
 			Assert.assertTrue(CollectionTool.isEmpty(diffANull.getIndexesToAdd()));
 			Assert.assertTrue(CollectionTool.isEmpty(diffNullA.getIndexesToAdd()));
@@ -385,9 +403,13 @@ public class SqlTableDiffGenerator{
 			SqlTableDiffGenerator diffNullA = new SqlTableDiffGenerator(null, table1, true);
 
 			System.out.println(diffAB.getColumnsToModify());
-			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffAB.getColumnsToModify(), ListTool.createArrayList(colA2),  new SqlColumnNameTypeComparator(true))));
+			//TODO too much on one line
+			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffAB.getColumnsToModify(), ListTool
+					.createArrayList(colA2), new SqlColumnNameTypeComparator(true))));
 			System.out.println(diffBA.getColumnsToModify());
-			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getColumnsToModify(), ListTool.createArrayList(colA2),  new SqlColumnNameTypeComparator(true))));
+			//TODO too much on one line
+			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getColumnsToModify(), ListTool
+					.createArrayList(colA2), new SqlColumnNameTypeComparator(true))));
 			Assert.assertTrue(CollectionTool.isEmpty(diffNullNull.getColumnsToModify()));
 			Assert.assertTrue(CollectionTool.isEmpty(diffANull.getColumnsToModify()));
 			Assert.assertTrue(CollectionTool.isEmpty(diffNullA.getColumnsToModify()));

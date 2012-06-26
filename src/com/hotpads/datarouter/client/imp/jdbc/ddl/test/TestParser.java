@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.test;
 
 import java.io.BufferedReader;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,19 +18,19 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.util.core.ListTool;
 @Deprecated
-public class TestParser {
-	
-	public static void main(String[] args) throws SQLException, IOException  {
+public class TestParser{
+
+	public static void main(String[] args) throws SQLException, IOException{
 		SqlTable table = new SqlTable("Table");
 		List<SqlColumn> columns = ListTool.createArrayList();
-	
+
 		FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");
 		// Get the object of DataInputStream
-		  DataInputStream in = new DataInputStream(fis);
-		  BufferedReader br = new BufferedReader(new InputStreamReader(in));
-		  String str, phrase="";
-		while((str=br.readLine()) != null) {
-			phrase+=str;
+		DataInputStream in = new DataInputStream(fis);
+		BufferedReader br = new BufferedReader(new InputStreamReader(in));
+		String str, phrase = "";
+		while((str = br.readLine()) != null){
+			phrase += str;
 		}
 
 		for(String s:getColumns(getBody(phrase))){

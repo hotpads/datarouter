@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,8 +30,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 
 	/********************** constructors **********************/
 	
-	public SqlColumn(String name, MySqlColumnType type, Integer maxLength,
-			Boolean nullable) {
+	public SqlColumn(String name, MySqlColumnType type, Integer maxLength, Boolean nullable){
 		this.name = name;
 		this.type = type;
 		this.maxLength = maxLength;
@@ -65,7 +63,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	public boolean equals(Object otherObject) {
 		if(!(otherObject instanceof SqlColumn)) { return false; }
 		// //return 0==compareTo((SqlColumn)otherObject);
-		return 0== (new SqlColumnNameComparator(true).compare(this,(SqlColumn) otherObject));
+		return 0 == new SqlColumnNameComparator(true).compare(this,(SqlColumn) otherObject);
 	}
 
 
