@@ -46,20 +46,30 @@ public enum MySqlColumnType {
 	ENUM(true), 
 	SET(true);
 	
-	private boolean specifyLenght;
+	
+	/**************************** static **********************************/
+	
+	public static final Long 
+		MAX_LENGTH_VARCHAR = (1L << 8) - 1,
+		MAX_LENGTH_TEXT = (1L << 16) - 1,
+		MAX_LENGTH_MEDIUMTEXT = (1L << 24) - 1,
+		MAX_LENGTH_LONGTEXT = (1L << 32) - 1;
+	
+	
+	/**************************** fields ***********************************/
+	
+	private boolean specifyLength;
+	
+	
+	/*********************** constructors *************************************/
 	
 	private MySqlColumnType(boolean specifyLength){
-		this.specifyLenght=specifyLength;
+		this.specifyLength=specifyLength;
 	}
-	public static final Long 
-			MAX_LENGTH_VARCHAR = (1L << 8) - 1,
-			MAX_LENGTH_TEXT = (1L << 16) - 1,
-			MAX_LENGTH_MEDIUMTEXT = (1L << 24) - 1,
-			MAX_LENGTH_LONGTEXT = (1L << 32) - 1;
-
-	public static void main(String[] args){
-		System.out.println(MAX_LENGTH_VARCHAR + " " + MAX_LENGTH_TEXT + " " + " " + MAX_LENGTH_MEDIUMTEXT + " " + MAX_LENGTH_LONGTEXT);
-	}
+	
+	
+	/************************ static methods ******************************************/
+	
 	public static MySqlColumnType parse(String a){
 		String upperCase = StringTool.nullSafe(a).toUpperCase();
 		for(MySqlColumnType type : values()) {
@@ -69,8 +79,19 @@ public enum MySqlColumnType {
 		}
 		return null;
 	}
-	public boolean isSpecifyLenght(){
-		return specifyLenght;
+	
+	
+	/*************************** get/set *******************************************/
+	
+	public boolean isSpecifyLength(){
+		return specifyLength;
+	}
+	
+	
+	/************************ main ***********************************************/
+
+	public static void main(String[] args){
+		System.out.println(MAX_LENGTH_VARCHAR + " " + MAX_LENGTH_TEXT + " " + " " + MAX_LENGTH_MEDIUMTEXT + " " + MAX_LENGTH_LONGTEXT);
 	}
 	
 }

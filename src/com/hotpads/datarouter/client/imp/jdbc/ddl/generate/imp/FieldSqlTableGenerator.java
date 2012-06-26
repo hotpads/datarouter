@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,30 +8,23 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
 public class FieldSqlTableGenerator implements SqlTableGenerator{
+	
 	private String tableName;
 	private List<Field<?>> primaryKeyFields;
 	private List<Field<?>> nonKeyFields;
 	private Map<String,List<Field<?>>> indexes;
+
 	
-	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields,
-			List<Field<?>> nonKeyFields) {
+	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields){
 		this.tableName = tableName;
 		this.nonKeyFields = nonKeyFields;
 		this.indexes = MapTool.createHashMap();
 		this.primaryKeyFields = primaryKeyFields;
 	}
 	
-//	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields,
-//			List<Field<?>> nonKeyFields, Map<String,List<Field<?>>> indexes) {
-//		this.tableName = tableName;
-//		this.primaryKeyFields = primaryKeyFields;
-//		this.nonKeyFields = nonKeyFields;
-//		this.primaryKeyFields = primaryKeyFields;
-//	}
 
 	@Override
 	public SqlTable generate(){
@@ -69,6 +60,9 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 	    return null;
 	}
 
+	
+	/*************************** get/set *************************************/
+	
 	public String getTableName() {
 		return tableName;
 	}

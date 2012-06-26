@@ -25,6 +25,7 @@ public class TestSchemaUpdateOptions{
 	
 	public TestSchemaUpdateOptions(){
 	}
+	
 	@Test public synchronized void testDoNothing() throws Exception{
 		SchemaUpdateOptions doNothing = new SchemaUpdateOptions().setAllFalse();
 		Connection connection = JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");

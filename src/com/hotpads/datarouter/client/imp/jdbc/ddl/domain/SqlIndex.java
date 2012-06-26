@@ -24,14 +24,12 @@ public class SqlIndex implements Comparable{
 	
 	/********************** constructors **********************/
 	
-	public SqlIndex(String name, List<SqlColumn> columns) {
-		super();
+	public SqlIndex(String name, List<SqlColumn> columns){
 		this.name = name;
 		this.columns = columns;
 	}
 
-	public SqlIndex(String name) {
-		super();
+	public SqlIndex(String name){
 		this.name = name;
 		this.columns=ListTool.createArrayList();
 	}
@@ -75,6 +73,7 @@ public class SqlIndex implements Comparable{
 		return CollectionTool.size(columns);
 	}
 
+	
 	/******************* comparator *************************/
 	
 	@Override
@@ -114,7 +113,10 @@ public class SqlIndex implements Comparable{
 		}
 		return true;
 	}
-
+	
+	
+	/********************* comparators **********************************/
+	
 	public static class SqlIndexNameComparator implements Comparator<SqlIndex>{
 
 		@Override
@@ -139,6 +141,7 @@ public class SqlIndex implements Comparable{
 		}
 		
 	}
+	
 	@Override
 	public int compareTo(Object o) {
 			int c = ComparableTool.nullFirstCompareTo(name, ((SqlIndex) o).name);
@@ -160,14 +163,17 @@ public class SqlIndex implements Comparable{
 			return 0;
 	}
 	
+	
+	/**************************** tests *******************************************/
+	
 	public static class TestSqlIndex{
 		@Test public void equalsTester(){
-			SqlColumn a = new SqlColumn("a", MySqlColumnType.BIGINT),
-					b = new SqlColumn("b", MySqlColumnType.BIGINT),
-					aa=new SqlColumn("a", MySqlColumnType.VARBINARY), 
-					bb=new SqlColumn("b", MySqlColumnType.VARCHAR);
-			SqlIndex index1 = new SqlIndex("index"), 
-					index2= new SqlIndex("index");
+			SqlColumn a = new SqlColumn("a", MySqlColumnType.BIGINT);
+			SqlColumn b = new SqlColumn("b", MySqlColumnType.BIGINT);
+			SqlColumn aa=new SqlColumn("a", MySqlColumnType.VARBINARY);
+			SqlColumn bb=new SqlColumn("b", MySqlColumnType.VARCHAR);
+			SqlIndex index1 = new SqlIndex("index");
+			SqlIndex index2= new SqlIndex("index");
 			
 			index1.addColumn(a).addColumn(b);
 			index2.addColumn(aa).addColumn(bb);

@@ -7,7 +7,6 @@ import org.junit.Test;
 public class CreateTableTester {
 
 	@Test public void testCreateTable() throws SQLException{
-		//TODO
 //		String tableName = "Person";
 //		SqlColumn colLastName = new SqlColumn("lastName", MySqlColumnType.VARCHAR,200,false);
 //		SqlColumn colFirstName = new SqlColumn("firstName", MySqlColumnType.VARCHAR,200,false);
