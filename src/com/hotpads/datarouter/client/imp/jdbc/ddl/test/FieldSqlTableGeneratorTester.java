@@ -40,14 +40,14 @@ public class FieldSqlTableGeneratorTester {
 		ManyFieldTypeBean mftBean = new ManyFieldTypeBean();
 		ManyFieldTypeBean2 mftBean2 = new ManyFieldTypeBean2();
 		
-		primaryKeyFields =mftBean.getKeyFields();
+		primaryKeyFields = mftBean.getKeyFields();
 		nonKeyFields = mftBean.getNonKeyFields();
 		FieldSqlTableGenerator fstGenerator = new FieldSqlTableGenerator(tableName, primaryKeyFields, nonKeyFields);
 		SqlTable table = fstGenerator.generate();
 		SqlCreateTableGenerator ctGenerator = new SqlCreateTableGenerator(table);
 		System.out.println(ctGenerator.generateDdl());
 		
-		primaryKeyFields2 =mftBean2.getKeyFields();
+		primaryKeyFields2 = mftBean2.getKeyFields();
 		nonKeyFields2 = mftBean2.getNonKeyFields();
 		FieldSqlTableGenerator fstGenerator2 = new FieldSqlTableGenerator(tableName + "2", primaryKeyFields2,
 				nonKeyFields2);

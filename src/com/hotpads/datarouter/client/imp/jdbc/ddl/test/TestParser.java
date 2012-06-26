@@ -57,7 +57,7 @@ public class TestParser{
 				SqlIndex tableIndex = new SqlIndex(getKeyNameFromKeydeclaration(s1));
 				System.out.println(getKeyNameFromKeydeclaration(s1));
 				for(String s2:getKeyColumnsNamesFromKeyDeclaration(s1)){
-					addAppropriateColumnToIndexFromListOfColumn(tableIndex,s2,table.getColumns());
+					addAppropriateColumnToIndexFromListOfColumn(tableIndex, s2, table.getColumns());
 				}
 				table.addIndex(tableIndex);
 		}
@@ -77,8 +77,8 @@ public class TestParser{
 		int index = string.indexOf("(");
 		String[] sFinal = string.substring(index).split("[`]+");
 		List<String> list = ListTool.createArrayList();
-		for(String s:sFinal){
-			s=removeNonText(s);
+		for(String s: sFinal){
+			s = removeNonText(s);
 			if(isNotEmpty(s)) list.add(s); 
 		}
 		return list; 
@@ -148,9 +148,9 @@ public class TestParser{
 					//System.out.println(maxLength);
 					col.setMaxLength(maxLength);
 					// "NULLABLE OR NOT NULLABLE , ..."
-					boolean nullable=true;
+					boolean nullable = true;
 					if(tokens[++i].contains("NOT NULL")){
-						nullable=false;
+						nullable = false;
 					}
 					col.setNullable(nullable);
 					System.out.println(col);

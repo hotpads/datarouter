@@ -15,10 +15,8 @@ public class TableDropper{
 		Statement stmt = null;
 		try{
 			stmt = conn.createStatement();
-			
 //			stmt.execute("drop table Cheese");
 //			stmt.execute("drop table if exists Inquiry;");	
-
 			stmt.execute("alter table Cheese \n" + "add column blabla BOOLEAN DEFAULT NULL;");
 		}catch(Exception e) {
 			e.printStackTrace();			

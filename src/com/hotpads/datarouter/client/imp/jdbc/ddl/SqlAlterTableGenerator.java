@@ -2,8 +2,6 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.util.List;
 
-import org.apache.avro.tool.Main;
-
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;

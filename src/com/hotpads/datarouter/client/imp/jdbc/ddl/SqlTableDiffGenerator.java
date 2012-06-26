@@ -1,7 +1,9 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import junit.framework.Assert;
@@ -73,14 +75,22 @@ public class SqlTableDiffGenerator{
 			requestedColumns.addAll(requested.getColumns());
 			currentColumns.addAll(current.getColumns());
 		}
-		//TODO too much on one line.  extract the sets into their own variables
-		List<SqlColumn> listOfColumnsToAddWithNameTypeComparator = ListTool.createArrayList(CollectionTool.minus(
-				requestedColumns, currentColumns, c));
-
-		return ListTool.createArrayList(CollectionTool.minus(listOfColumnsToAddWithNameTypeComparator,
-				getColumnsToAdd()));
+				//TODO too much on one line.  extract the sets into their own variables
+		return getColumnsToModifyAfterAddingColumns(requestedColumns,currentColumns,getColumnsToAdd(),c);
 	}
 	
+	private List<SqlColumn> getColumnsToModifyAfterAddingColumns(Set<SqlColumn> requestedColumns,
+			Set<SqlColumn> currentColumns, 
+			List<SqlColumn> columnsToAdd, SqlColumnNameTypeLengthComparator c){
+		// by getting all the modified columns (the ones we should add) and removing from them the ones
+		// we have already added (columnsToAdd)
+		List<SqlColumn> listOfColumnsToAddUsingNameTypeComparator = ListTool.createArrayList(CollectionTool.minus(
+				requestedColumns, currentColumns, c));
+		columnsToAdd = getColumnsToAdd();
+		Set<SqlColumn> columnsToModify = CollectionTool.minus(listOfColumnsToAddUsingNameTypeComparator, columnsToAdd);
+		return ListTool.createArrayList(columnsToModify);
+	}
+
 	public List<SqlColumn> getListOfColumnPossiblyTheSame(int maxDistanceAllowed){
 		SqlColumnNameComparatorUsingLevenshteinDistance c = new SqlColumnNameComparatorUsingLevenshteinDistance(true,
 				maxDistanceAllowed);
@@ -98,15 +108,21 @@ public class SqlTableDiffGenerator{
 	
 	public List<SqlIndex> getIndexesToAdd(){
 		if(requested == null || current == null){ return ListTool.createArrayList(); }
-		//TODO too much on one line.  extract the sets into their own variables
-		return ListTool.createArrayList(CollectionTool.minus(requested.getIndexes(), current.getIndexes()));
+				//TODO too much on one line.  extract the sets into their own variables
+		List<SqlIndex> requestedIndexes = requested.getIndexes();
+		List<SqlIndex> currentIndexes = current.getIndexes();
+		Set<SqlIndex> IndexesToAdd = CollectionTool.minus(requestedIndexes, currentIndexes);
+		return ListTool.createArrayList(IndexesToAdd);
 	}
 
 	public List<SqlIndex> getIndexesToRemove(){
 		if(requested == null || current == null){ return ListTool.createArrayList(); }
-		//TODO too much on one line.  extract the sets into their own variables
-		return ListTool.createArrayList(CollectionTool.minus(current.getIndexes(), requested.getIndexes(),
-				new SqlIndexNameComparator()));
+				//TODO too much on one line.  extract the sets into their own variables
+		List<SqlIndex> requestedIndexes = requested.getIndexes();
+		List<SqlIndex> currentIndexes = current.getIndexes();
+		TreeSet<SqlIndex> indexesToRemove = CollectionTool.minus(currentIndexes, requestedIndexes,
+					new SqlIndexNameComparator());
+		return ListTool.createArrayList(indexesToRemove);
 	}
 	
 	/********************* helper methods *******************************/
@@ -121,12 +137,17 @@ public class SqlTableDiffGenerator{
 
 	public boolean isTableModified(){
 		if(isPrimaryKeyModified()){ return true; }
-		//TODO too much on one line.  extract the sets into their own variables
-		if(!SetTool.containsSameKeys(SetTool.createTreeSet(current.getColumns()), SetTool.createTreeSet(requested
-				.getColumns()))){ return true; }
+				//TODO too much on one line.  extract the sets into their own variables
+		SortedSet<SqlColumn> currentColumns = SetTool.createTreeSet(current.getColumns());
+		SortedSet<SqlColumn> requestedColumns = SetTool.createTreeSet(requested.getColumns());
+		if(theTwoColumnSetsContainTheSameKeys(currentColumns, requestedColumns)){ return true; }
 		if(isIndexesModified()){ return true; }
 		if(isEngineModified()){ return true; }
 		return false;
+	}
+
+	private boolean theTwoColumnSetsContainTheSameKeys(SortedSet<SqlColumn> treeSet, SortedSet<SqlColumn> treeSet2){
+		return SetTool.containsSameKeys(treeSet,treeSet2);
 	}
 
 	public boolean isEngineModified(){
@@ -136,19 +157,25 @@ public class SqlTableDiffGenerator{
 	}
 
 	public boolean isIndexesModified(){
-		//TODO too much on one line.  extract the sets into their own variables
-		return !SetTool.containsSameKeys(
-				SetTool.createTreeSet(current.getIndexes()), 
-				SetTool.createTreeSet(requested.getIndexes()));
+				//TODO too much on one line.  extract the sets into their own variables
+		SortedSet<SqlIndex> currentIndexes = SetTool.createTreeSet(current.getIndexes());
+		SortedSet<SqlIndex> requestedIndexes = SetTool.createTreeSet(requested.getIndexes());
+		return !SetTool.containsSameKeys(currentIndexes, requestedIndexes);
 	}
 
 	public boolean isPrimaryKeyModified(){
-		//TODO too much on one line.  extract the sets into their own variables
-		if(!CollectionTool.equalsAllElementsInIteratorOrder(current.getPrimaryKey().getColumns(), 
-				requested.getPrimaryKey().getColumns())){ 
+				//TODO too much on one line.  extract the sets into their own variables
+		List<SqlColumn> currentPrimaryKeyColumns = current.getPrimaryKey().getColumns();
+		List<SqlColumn> requestedPrimaryKeyColumns = requested.getPrimaryKey().getColumns();
+		if(!haveTheSameColumnsinTheSameOrder(currentPrimaryKeyColumns, requestedPrimaryKeyColumns)){ 
 			return true; 
 		}
 		return false;
+	}
+
+	private boolean haveTheSameColumnsinTheSameOrder(List<SqlColumn> currentPrimaryKeyColumns,
+			List<SqlColumn> requestedPrimaryKeyColumns){
+		return CollectionTool.equalsAllElementsInIteratorOrder(currentPrimaryKeyColumns, requestedPrimaryKeyColumns);
 	}
 
 	public SqlTable getRequested() {
@@ -159,19 +186,17 @@ public class SqlTableDiffGenerator{
 	/********************* Tests *******************************/
 	
 	public static class SqlTableDiffGeneratorTester{
+		private SqlColumn idCol = new SqlColumn("id", MySqlColumnType.BIGINT);
+		private SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol);
+		
 		@Test public void isTableModifiedTest(){
-			//TODO don't reuse declaration types anywhere
-			SqlColumn 
-					idCol = new SqlColumn("id", MySqlColumnType.BIGINT);
-			SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol);
-			List<SqlColumn> 
-					listA = ListTool.createArrayList(), 
-					listA2 = ListTool.createArrayList();
+					//TODO don't reuse declaration types anywhere
+			List<SqlColumn> listA = ListTool.createArrayList();
+			List<SqlColumn> listA2 = ListTool.createArrayList();
 					//listB = ListTool.createArrayList();
-			SqlTable 
-					tableA = new SqlTable("A", listA, primaryKey1), 
-					// tableB = new SqlTable("B", listB, primaryKey1), 
-					tableA2 = new SqlTable("A", listA2,primaryKey1);
+			SqlTable tableA = new SqlTable("A", listA, primaryKey1);
+			// SqlTable tableB = new SqlTable("B", listB, primaryKey1);
+			SqlTable tableA2 = new SqlTable("A", listA2,primaryKey1);
 			
 			SqlTableDiffGenerator diffAA = new SqlTableDiffGenerator(tableA, tableA, true),
 								  diffAA2 = new SqlTableDiffGenerator(tableA, tableA2, true);
@@ -207,9 +232,9 @@ public class SqlTableDiffGenerator{
 			
 			SqlTableDiffGenerator diffAA = new SqlTableDiffGenerator(A, A, true);
 			SqlTableDiffGenerator diffAB = new SqlTableDiffGenerator(A, B, true);
-			//TODO need spaces after commas everywhere
-			SqlTableDiffGenerator diffAA2 = new SqlTableDiffGenerator(A,A2,true);
-			SqlTableDiffGenerator diffAA0 = new SqlTableDiffGenerator(A,A0,true);
+					//TODO need spaces after commas everywhere
+			SqlTableDiffGenerator diffAA2 = new SqlTableDiffGenerator(A, A2, true);
+			SqlTableDiffGenerator diffAA0 = new SqlTableDiffGenerator(A, A0, true);
 			
 			Assert.assertFalse(diffAA.isPrimaryKeyModified());
 			Assert.assertTrue(diffAB.isPrimaryKeyModified());
@@ -404,8 +429,12 @@ public class SqlTableDiffGenerator{
 
 			System.out.println(diffAB.getColumnsToModify());
 			//TODO too much on one line
-			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffAB.getColumnsToModify(), ListTool
-					.createArrayList(colA2), new SqlColumnNameTypeComparator(true))));
+			List<SqlColumn> colsToModify = diffAB.getColumnsToModify();
+			ArrayList<SqlColumn> expected = ListTool.createArrayList(colA2);
+			SqlColumnNameTypeComparator c = new SqlColumnNameTypeComparator(true);
+			Assert.assertTrue(areEqual(colsToModify, expected, c));
+			
+			
 			System.out.println(diffBA.getColumnsToModify());
 			//TODO too much on one line
 			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getColumnsToModify(), ListTool
@@ -413,6 +442,12 @@ public class SqlTableDiffGenerator{
 			Assert.assertTrue(CollectionTool.isEmpty(diffNullNull.getColumnsToModify()));
 			Assert.assertTrue(CollectionTool.isEmpty(diffANull.getColumnsToModify()));
 			Assert.assertTrue(CollectionTool.isEmpty(diffNullA.getColumnsToModify()));
+		}
+
+		private boolean areEqual(List<SqlColumn> colsToModify, ArrayList<SqlColumn> expected,
+				SqlColumnNameTypeComparator c){
+
+			return CollectionTool.isEmpty(CollectionTool.minus(colsToModify, expected, c));
 		}
 	
 	}
