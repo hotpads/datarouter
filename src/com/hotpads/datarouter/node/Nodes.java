@@ -81,8 +81,8 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 			if(!nodesByRouterName.containsKey(routerName)) {
 				nodesByRouterName.put(routerName, new TreeSet<N>());
 			}
-			nodesByRouterName.get(routerName).add(node);
-			routerNameByNode.put(node, routerName);
+			nodesByRouterName.get(routerName).add(nodeOrDescendant);
+			routerNameByNode.put(nodeOrDescendant, routerName);
 		}
 		nodeByPrimaryKeyType.put(sampleDatabean.getKeyClass(), node);
 		nodeByDatabeanType.put(databeanType, node);
