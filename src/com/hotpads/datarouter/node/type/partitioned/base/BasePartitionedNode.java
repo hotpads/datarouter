@@ -20,6 +20,7 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.collections.Range;
 
 public abstract class BasePartitionedNode<
 		PK extends PrimaryKey<PK>,
@@ -119,7 +120,9 @@ extends BaseNode<PK,D,F>{
 	
 	public abstract List<N> getPhysicalNodes(Key<PK> key);
 	
-	public abstract List<N> getPhysicalNodesForRange(PK start, boolean startInclusive, PK end, boolean endInclusive);
+	public abstract List<N> getPhysicalNodesForRange(Range<PK> range);
+	
+	public abstract List<N> getPhysicalNodesForPrefix(PK key, boolean wildcardLastField);
 	
 	
 	/************ common partitioning logic relying on the abstract methods above **********/

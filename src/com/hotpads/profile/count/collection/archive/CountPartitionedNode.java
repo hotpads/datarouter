@@ -3,8 +3,6 @@ package com.hotpads.profile.count.collection.archive;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
@@ -19,6 +17,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
+import com.hotpads.util.core.collections.Range;
 
 public class CountPartitionedNode
 extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSortedMapStorageNode<CountKey,Count>>{
@@ -124,20 +123,31 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	}
 	
 	@Override
-	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForRange(CountKey start, 
-			boolean startInclusive, CountKey end, boolean endInclusive){
-		if(start==null && end==null){ throw new IllegalArgumentException("must specify start or end value"); }
-		if(start!=null && end!=null){
-			if(ObjectTool.notEquals(start.getPeriodMs(), end.getPeriodMs())){
+	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForRange(Range<CountKey> range){
+		if(range.getStart()==null && range.getEnd()==null){ 
+			throw new IllegalArgumentException("must specify start or end value"); 
+		}
+		if(range.getStart()!=null && range.getEnd()!=null){
+			if(ObjectTool.notEquals(range.getStart().getPeriodMs(), range.getEnd().getPeriodMs())){
 				throw new IllegalArgumentException("cannot scan across multiple periods through this node");
 			}
 		}
 		Integer index;
-		if(start!=null){ 
-			index = indexByMs.get(start.getPeriodMs()); 
+		if(range.getStart()!=null){ 
+			index = indexByMs.get(range.getStart().getPeriodMs()); 
 		}else{
-			index = indexByMs.get(end.getPeriodMs()); 
+			index = indexByMs.get(range.getEnd().getPeriodMs()); 
 		}
 		return ListTool.wrap(physicalNodes.get(index));
+	}
+	
+	@Override
+	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForPrefix(CountKey key, 
+			boolean wildcardLastField){
+		if(key.getPeriodMs()!=null){
+			int nodeIndex = indexByMs.get(key.getPeriodMs());
+			return ListTool.wrap(physicalNodes.get(nodeIndex)); 
+		}
+		return getPhysicalNodes();
 	}
 }

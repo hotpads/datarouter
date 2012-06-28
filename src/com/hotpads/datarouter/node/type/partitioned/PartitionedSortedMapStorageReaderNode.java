@@ -18,6 +18,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.PeekableIterable;
 
 public abstract class PartitionedSortedMapStorageReaderNode<
@@ -79,8 +80,10 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, final PK end,
 			final boolean endInclusive, final Config config){
+		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
+		Collection<N> physicalNodes = CollectionTool.nullSafe(getPhysicalNodesForRange(range));
 		SortedSet<PK> sortedDedupedResults = SetTool.createTreeSet();
-		for(N node : CollectionTool.nullSafe(getPhysicalNodesForRange(start, startInclusive, end, endInclusive))){
+		for(N node : IterableTool.nullSafe(physicalNodes)){
 			List<PK> resultFromSingleNode = node.getKeysInRange(start, startInclusive, end, endInclusive, config);
 			sortedDedupedResults.addAll(CollectionTool.nullSafe(resultFromSingleNode));
 		}
@@ -92,8 +95,10 @@ implements SortedMapStorageReaderNode<PK,D>{
 	public List<D> getRange(final PK start, final boolean startInclusive, final PK end, final boolean endInclusive,
 			final Config config){
 		//TODO smarter/optional sorting
+		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
+		Collection<N> physicalNodes = CollectionTool.nullSafe(getPhysicalNodesForRange(range));
 		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
+		for(N node : IterableTool.nullSafe(physicalNodes)){
 			List<D> resultFromSingleNode = node.getRange(start, startInclusive, end, endInclusive, config);
 			sortedDedupedResults.addAll(CollectionTool.nullSafe(resultFromSingleNode));
 		}
@@ -139,7 +144,8 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public PeekableIterable<PK> scanKeys(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
 		List<PeekableIterable<PK>> subScanners = ListTool.createArrayList();
-		List<N> nodes = getPhysicalNodesForRange(start, startInclusive, end, endInclusive);
+		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
+		List<N> nodes = getPhysicalNodesForRange(range);
 		for(N node : IterableTool.nullSafe(CollectionTool.nullSafe(nodes))){
 			subScanners.add(node.scanKeys(start, startInclusive, end, endInclusive, config));
 		}
@@ -149,7 +155,8 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public PeekableIterable<D> scan(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
 		List<PeekableIterable<D>> subScanners = ListTool.createArrayList();
-		List<N> nodes = getPhysicalNodesForRange(start, startInclusive, end, endInclusive);
+		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
+		List<N> nodes = getPhysicalNodesForRange(range);
 		for(N node : IterableTool.nullSafe(nodes)){
 			subScanners.add(node.scan(start, startInclusive, end, endInclusive, config));
 		}

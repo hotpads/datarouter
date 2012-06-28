@@ -229,8 +229,8 @@ implements HBasePhysicalNode<PK,D>,
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
 		final List<D> results = ListTool.createArrayList();
-		List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder
-				.getPrefixScanners(fieldInfo, prefixes, wildcardLastField, config);
+		List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder.getPrefixScanners(fieldInfo, 
+				prefixes, wildcardLastField, config);
 		for(final Scan scan : scanForEachScatteringPartition){
 			new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(drContext, "getWithPrefixes", this, config){
 					public Void hbaseCall() throws Exception{
