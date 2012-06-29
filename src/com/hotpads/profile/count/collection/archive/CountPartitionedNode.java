@@ -147,7 +147,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	
 	@Override
 	public SortedSetMultimap<PhysicalSortedMapStorageNode<CountKey,Count>,CountKey>
-			getPrefixesByPhysicalNode(Collection<? extends CountKey> prefixes, boolean wildcardLastField){
+			getPrefixesByPhysicalNode(Collection<CountKey> prefixes, boolean wildcardLastField){
 		SortedSetMultimap<PhysicalSortedMapStorageNode<CountKey,Count>,CountKey> prefixesByNode = TreeMultimap.create();
 		for(CountKey prefix : IterableTool.nullSafe(prefixes)){
 			int nodeIndex = indexByMs.get(prefix.getPeriodMs());

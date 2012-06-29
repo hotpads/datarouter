@@ -554,7 +554,8 @@ implements MapStorageReader<PK,D>,
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<D> getWithPrefixes(final Collection<? extends PK> prefixes, final boolean wildcardLastField, final Config config) {
+	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
+			final Config config) {
 		TraceContext.startSpan(getName()+" getWithPrefixes");
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);

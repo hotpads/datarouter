@@ -20,7 +20,7 @@ extends NodeOps<PK,D>
 //	
 //	List<Key<D>> getKeysWithPrefix(Key<D> prefix, Config config);
 	List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config);
-	List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config);
+	List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config);
 
 	List<PK> getKeysInRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config);
 	List<D> getRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config);

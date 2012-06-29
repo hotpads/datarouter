@@ -61,12 +61,13 @@ implements SortedStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config) {
+	public List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config) {
 		return readNode.getWithPrefixes(prefixes, wildcardLastField, config);
 	}
 	
 	@Override
-	public PeekableIterable<PK> scanKeys(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
+	public PeekableIterable<PK> scanKeys(PK startKey, boolean startInclusive, PK end, boolean endInclusive, 
+			Config config){
 		return readNode.scanKeys(startKey,startInclusive, end, endInclusive, config);
 	};
 	

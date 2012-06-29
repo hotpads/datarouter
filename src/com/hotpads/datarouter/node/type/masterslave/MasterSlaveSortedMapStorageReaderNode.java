@@ -74,7 +74,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config){
+	public List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : master;
 		return node.getWithPrefixes(prefixes, wildcardLastField, config);

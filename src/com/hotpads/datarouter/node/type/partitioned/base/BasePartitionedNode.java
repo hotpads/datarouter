@@ -124,7 +124,7 @@ extends BaseNode<PK,D,F>{
 	
 	public abstract List<N> getPhysicalNodesForRange(Range<PK> range);
 	
-	public abstract SortedSetMultimap<N,PK>	getPrefixesByPhysicalNode(Collection<? extends PK> prefixes, 
+	public abstract SortedSetMultimap<N,PK>	getPrefixesByPhysicalNode(Collection<PK> prefixes, 
 			boolean wildcardLastField);
 	
 	

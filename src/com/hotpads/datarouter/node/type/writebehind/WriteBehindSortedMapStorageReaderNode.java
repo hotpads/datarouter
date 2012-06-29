@@ -61,7 +61,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config) {
+	public List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config) {
 		return backingNode.getWithPrefixes(prefixes, wildcardLastField, config);
 	}
 	

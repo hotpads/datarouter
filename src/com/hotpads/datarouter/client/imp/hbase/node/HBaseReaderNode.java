@@ -224,8 +224,8 @@ implements HBasePhysicalNode<PK,D>,
 
 	
 	@Override
-	public List<D> getWithPrefixes(final Collection<? extends PK> prefixes, 
-			final boolean wildcardLastField, final Config pConfig){
+	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
+			final Config pConfig){
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
 		final List<D> results = ListTool.createArrayList();
