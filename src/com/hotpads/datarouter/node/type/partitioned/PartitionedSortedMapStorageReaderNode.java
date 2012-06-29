@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 
+import com.google.common.collect.SortedSetMultimap;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.PhysicalSortedMapStorageReaderNode;
 import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.SortedMapStorageReaderNode;
@@ -108,28 +109,17 @@ implements SortedMapStorageReaderNode<PK,D>{
 
 	@Override
 	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
-		//TODO smarter/optional sorting
-		List<D> all = ListTool.createArrayList();
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes(prefix))){
-			all.addAll(node.getWithPrefix(prefix, wildcardLastField, config));
-		}
-		if(CollectionTool.isEmpty(all)){ return all; }
-		Collections.sort(all);
-		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
-			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
-			return limited;
-		}else{
-			return all;
-		}
+		return getWithPrefixes(ListTool.wrap(prefix), wildcardLastField, config);
 	}
 
 	@Override
 	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config) {
 		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes(prefixes))){
-			//TODO don't send all keys to all nodes in the search
-			all.addAll(node.getWithPrefixes(prefixes, wildcardLastField, config));
+		SortedSetMultimap<N,PK>	prefixesByNode = getPrefixesByPhysicalNode(prefixes, wildcardLastField);
+		for(N node : prefixesByNode.keySet()){
+			SortedSet<PK> prefixesForNode = prefixesByNode.get(node);
+			all.addAll(node.getWithPrefixes(prefixesForNode, wildcardLastField, config));
 		}
 		if(CollectionTool.isEmpty(all)){ return all; }
 		Collections.sort(all);

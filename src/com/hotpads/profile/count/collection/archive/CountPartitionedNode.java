@@ -1,8 +1,11 @@
 package com.hotpads.profile.count.collection.archive;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.SortedSetMultimap;
+import com.google.common.collect.TreeMultimap;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
@@ -13,6 +16,7 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.profile.count.databean.Count.CountFielder;
 import com.hotpads.profile.count.databean.key.CountKey;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
@@ -142,12 +146,13 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	}
 	
 	@Override
-	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForPrefix(CountKey key, 
-			boolean wildcardLastField){
-		if(key.getPeriodMs()!=null){
-			int nodeIndex = indexByMs.get(key.getPeriodMs());
-			return ListTool.wrap(physicalNodes.get(nodeIndex)); 
+	public SortedSetMultimap<PhysicalSortedMapStorageNode<CountKey,Count>,CountKey>
+			getPrefixesByPhysicalNode(Collection<? extends CountKey> prefixes, boolean wildcardLastField){
+		SortedSetMultimap<PhysicalSortedMapStorageNode<CountKey,Count>,CountKey> prefixesByNode = TreeMultimap.create();
+		for(CountKey prefix : IterableTool.nullSafe(prefixes)){
+			int nodeIndex = indexByMs.get(prefix.getPeriodMs());
+			prefixesByNode.put(physicalNodes.get(nodeIndex), prefix);
 		}
-		return getPhysicalNodes();
+		return prefixesByNode;
 	}
 }

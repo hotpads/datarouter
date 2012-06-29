@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.SortedSetMultimap;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.node.type.physical.base.PhysicalNodes;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -122,7 +124,8 @@ extends BaseNode<PK,D,F>{
 	
 	public abstract List<N> getPhysicalNodesForRange(Range<PK> range);
 	
-	public abstract List<N> getPhysicalNodesForPrefix(PK key, boolean wildcardLastField);
+	public abstract SortedSetMultimap<N,PK>	getPrefixesByPhysicalNode(Collection<? extends PK> prefixes, 
+			boolean wildcardLastField);
 	
 	
 	/************ common partitioning logic relying on the abstract methods above **********/
