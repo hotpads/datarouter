@@ -57,13 +57,10 @@ implements SortedMapStorageReaderNode<PK,D>{
 		}
 		return CollectionTool.getFirst(firstFromEachNode);
 	}
-	
-	//TODO optimize with merge sort
 
 	@Override
 	public List<D> getPrefixedRange(PK prefix, boolean wildcardLastField, final PK start, final boolean startInclusive,
 			Config config){
-		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
 		for(N node : CollectionTool.nullSafe(getPhysicalNodes(prefix))){
 			all.addAll(node.getPrefixedRange(prefix, wildcardLastField, start, startInclusive, config));
@@ -95,7 +92,6 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public List<D> getRange(final PK start, final boolean startInclusive, final PK end, final boolean endInclusive,
 			final Config config){
-		//TODO smarter/optional sorting
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
 		Collection<N> physicalNodes = CollectionTool.nullSafe(getPhysicalNodesForRange(range));
 		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
@@ -114,7 +110,6 @@ implements SortedMapStorageReaderNode<PK,D>{
 
 	@Override
 	public List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config) {
-		//TODO smarter/optional sorting
 		List<D> all = ListTool.createArrayList();
 		SortedSetMultimap<N,PK>	prefixesByNode = getPrefixesByPhysicalNode(prefixes, wildcardLastField);
 		for(N node : prefixesByNode.keySet()){
