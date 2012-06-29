@@ -117,23 +117,27 @@ extends BaseNode<PK,D,F>{
 	
 	
 	/******************* abstract partitioning logic methods ******************/
-
-	public abstract boolean isPartitionAware(Key<PK> key);
 	
-	public abstract List<N> getPhysicalNodes(Key<PK> key);
+	//for map nodes
+	public abstract boolean isPartitionAware(PK key);
+	public abstract List<N> getPhysicalNodes(PK key);
 	
+	//for sorted nodes
 	public abstract List<N> getPhysicalNodesForRange(Range<PK> range);
-	
 	public abstract SortedSetMultimap<N,PK>	getPrefixesByPhysicalNode(Collection<PK> prefixes, 
 			boolean wildcardLastField);
+
+	//for indexed nodes
+	public abstract boolean isSecondaryKeyPartitionAware(Key<PK> key);
+	public abstract List<N> getPhysicalNodesForSecondaryKey(Key<PK> key);
 	
 	
 	/************ common partitioning logic relying on the abstract methods above **********/
 	
-	public List<N> getPhysicalNodes(Collection<? extends Key<PK>> keys){
+	public List<N> getPhysicalNodesForSecondaryKeys(Collection<? extends Key<PK>> keys){
 		Set<N> nodes = SetTool.createHashSet();
 		for(Key<PK> key : CollectionTool.nullSafe(keys)){
-			nodes.addAll(getPhysicalNodes(key));
+			nodes.addAll(getPhysicalNodesForSecondaryKey(key));
 		}
 		return ListTool.createArrayList(nodes);
 	}

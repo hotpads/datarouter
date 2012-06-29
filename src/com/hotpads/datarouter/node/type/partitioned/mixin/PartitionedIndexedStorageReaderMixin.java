@@ -36,7 +36,7 @@ implements IndexedStorageReader<PK,D>{
 	public Long count(Lookup<PK> lookup, Config config) {
 		if(lookup==null){ return null; }
 		Long total = 0L;
-		Collection<N> nodes = target.getPhysicalNodes(lookup);
+		Collection<N> nodes = target.getPhysicalNodesForSecondaryKey(lookup);
 		//TODO randomize node access to avoid drowning first node
 		for(N node : CollectionTool.nullSafe(nodes)){
 			total += node.count(lookup, config);
@@ -47,7 +47,7 @@ implements IndexedStorageReader<PK,D>{
 	@Override
 	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config) {
 		if(uniqueKey==null){ return null; }
-		Collection<N> nodes = target.getPhysicalNodes(uniqueKey);
+		Collection<N> nodes = target.getPhysicalNodesForSecondaryKey(uniqueKey);
 		//TODO randomize node access to avoid drowning first node
 		for(N node : CollectionTool.nullSafe(nodes)){
 			D databean = node.lookupUnique(uniqueKey, config);
@@ -60,7 +60,7 @@ implements IndexedStorageReader<PK,D>{
 	@Override
 	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
 		if(CollectionTool.isEmpty(uniqueKeys)){ return null; }
-		Collection<N> nodes = target.getPhysicalNodes(uniqueKeys);
+		Collection<N> nodes = target.getPhysicalNodesForSecondaryKeys(uniqueKeys);
 		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
 		//TODO randomize node access to avoid drowning first node
 		for(N node : CollectionTool.nullSafe(nodes)){
@@ -74,7 +74,7 @@ implements IndexedStorageReader<PK,D>{
 	@Override
 	public List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
 		if(lookup==null){ return null; }
-		Collection<N> nodes = target.getPhysicalNodes(lookup);
+		Collection<N> nodes = target.getPhysicalNodesForSecondaryKey(lookup);
 		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
 		//TODO randomize node access to avoid drowning first node
 		for(N node : CollectionTool.nullSafe(nodes)){
@@ -88,7 +88,7 @@ implements IndexedStorageReader<PK,D>{
 	@Override
 	public List<D> lookup(Collection<? extends Lookup<PK>> lookups, Config config) {
 		if(CollectionTool.isEmpty(lookups)){ return null; }
-		Collection<N> nodes = target.getPhysicalNodes(lookups);
+		Collection<N> nodes = target.getPhysicalNodesForSecondaryKeys(lookups);
 		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
 		//TODO randomize node access to avoid drowning first node
 		for(N node : CollectionTool.nullSafe(nodes)){

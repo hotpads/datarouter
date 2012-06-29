@@ -107,7 +107,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	/********************************** required ************************************/
 	
 	@Override
-	public boolean isPartitionAware(Key<CountKey> key){
+	public boolean isSecondaryKeyPartitionAware(Key<CountKey> key){
 		return knowsPartition(key);
 	}
 	
@@ -117,8 +117,8 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	}
 	
 	@Override
-	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodes(Key<CountKey> key) {
-		if(!isPartitionAware(key)){ return getPhysicalNodes(); }
+	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForSecondaryKey(Key<CountKey> key) {
+		if(!isSecondaryKeyPartitionAware(key)){ return getPhysicalNodes(); }
 		CountKey countKey = (CountKey)key;
 		Integer index = indexByMs.get(countKey.getPeriodMs());
 		PhysicalSortedMapStorageNode<CountKey,Count> node = physicalNodes.get(index);
