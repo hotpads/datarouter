@@ -1,15 +1,13 @@
 package com.hotpads.datarouter.node.type.partitioned.base;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.SortedSetMultimap;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.node.type.physical.base.PhysicalNodes;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -20,10 +18,14 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.collections.Range;
 
+/*
+ * current assumption is that partition can always be determined by the PrimaryKey.  should probably create a
+ * new implemenatation in the more obscure case that non-PK fields determine the partition.
+ */
 public abstract class BasePartitionedNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
@@ -77,9 +79,10 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
-		Map<N,List<PK>> keysByPhysicalNode = getPrimaryKeysByPhysicalNode(keys);
+		ArrayListMultimap<N,PK> keysByPhysicalNode = getPrimaryKeysByPhysicalNode(keys);
 		List<String> clientNames = ListTool.createLinkedList();
-		for(PhysicalNode<PK,D> node : MapTool.nullSafe(keysByPhysicalNode).keySet()){
+		if(keysByPhysicalNode==null){ return clientNames; }
+		for(PhysicalNode<PK,D> node : IterableTool.nullSafe(keysByPhysicalNode.keySet())){
 			String clientName = node.getClientName();
 			clientNames.add(clientName);
 		}
@@ -119,13 +122,11 @@ extends BaseNode<PK,D,F>{
 	/******************* abstract partitioning logic methods ******************/
 	
 	//for map nodes
-	public abstract boolean isPartitionAware(PK key);
-	public abstract List<N> getPhysicalNodes(PK key);
+	public abstract N getPhysicalNode(PK key);
 	
 	//for sorted nodes
 	public abstract List<N> getPhysicalNodesForRange(Range<PK> range);
-	public abstract SortedSetMultimap<N,PK>	getPrefixesByPhysicalNode(Collection<PK> prefixes, 
-			boolean wildcardLastField);
+	public abstract Multimap<N,PK> getPrefixesByPhysicalNode(Collection<PK> prefixes, boolean wildcardLastField);
 
 	//for indexed nodes
 	public abstract boolean isSecondaryKeyPartitionAware(Key<PK> key);
@@ -136,60 +137,52 @@ extends BaseNode<PK,D,F>{
 	
 	public List<N> getPhysicalNodesForSecondaryKeys(Collection<? extends Key<PK>> keys){
 		Set<N> nodes = SetTool.createHashSet();
-		for(Key<PK> key : CollectionTool.nullSafe(keys)){
+		for(Key<PK> key : IterableTool.nullSafe(keys)){
 			nodes.addAll(getPhysicalNodesForSecondaryKey(key));
 		}
 		return ListTool.createArrayList(nodes);
 	}
 	
 	//used when a physicalNode has keys that don't belong on it.  need to filter them out when they come back
-	public List<PK> filterPrimaryKeysForPhysicalNode(Collection<PK> keys, N node){
+	public List<PK> filterPrimaryKeysForPhysicalNode(Collection<PK> pks, N targetNode){
 		List<PK> filteredPks = ListTool.createArrayList();
-		for(PK key : CollectionTool.nullSafe(keys)){
-			List<N> nodes = getPhysicalNodes(key);
-			if(nodes.contains(node)){
-				filteredPks.add(key);
+		for(PK pk : IterableTool.nullSafe(pks)){
+			N node = getPhysicalNode(pk);
+			if(ObjectTool.equals(node, targetNode)){
+				filteredPks.add(pk);
 			}
 		}
 		return filteredPks;
 	}
 	
 	//used when a physicalNode has keys that don't belong on it.  need to filter them out when they come back
-	public List<D> filterDatabeansForPhysicalNode(Collection<D> databeans, N node){
+	public List<D> filterDatabeansForPhysicalNode(Collection<D> databeans, N targetNode){
 		List<D> filteredDatabeans = ListTool.createArrayList();
-		for(D databean : CollectionTool.nullSafe(databeans)){
-			List<N> nodes = getPhysicalNodes(databean.getKey());
-			if(nodes.contains(node)){
+		for(D databean : IterableTool.nullSafe(databeans)){
+			N node = getPhysicalNode(databean.getKey());
+			if(ObjectTool.equals(node, targetNode)){
 				filteredDatabeans.add(databean);
 			}
 		}
 		return filteredDatabeans;
 	}
 	
-	public Map<N,List<PK>> getPrimaryKeysByPhysicalNode(Collection<PK> keys){
-		Map<N,List<PK>> keysByPhysicalNode = MapTool.createHashMap();
-		for(PK key : CollectionTool.nullSafe(keys)){
-			List<N> nodes = getPhysicalNodes(key);
-			for(N node : CollectionTool.nullSafe(nodes)){
-				if(keysByPhysicalNode.get(node)==null){
-					keysByPhysicalNode.put(node, new LinkedList<PK>());
-				}
-				keysByPhysicalNode.get(node).add(key);
-			}
+	public ArrayListMultimap<N,PK> getPrimaryKeysByPhysicalNode(Collection<PK> pks){
+		ArrayListMultimap<N,PK> primaryKeysByPhysicalNode = ArrayListMultimap.create();
+		for(PK pk : IterableTool.nullSafe(pks)){
+			N node = getPhysicalNode(pk);
+			if(node==null){ continue; }
+			primaryKeysByPhysicalNode.put(node, pk);
 		}
-		return keysByPhysicalNode;
+		return primaryKeysByPhysicalNode;
 	}
 	
-	public Map<N,List<D>> getDatabeansByPhysicalNode(Collection<D> databeans){
-		Map<N,List<D>> databeansByPhysicalNode = MapTool.createHashMap();
-		for(D databean : CollectionTool.nullSafe(databeans)){
-			List<N> nodes = getPhysicalNodes(databean.getKey());
-			for(N node : CollectionTool.nullSafe(nodes)){
-				if(databeansByPhysicalNode.get(node)==null){
-					databeansByPhysicalNode.put(node, new LinkedList<D>());
-				}
-				databeansByPhysicalNode.get(node).add(databean);
-			}
+	public ArrayListMultimap<N,D> getDatabeansByPhysicalNode(Collection<D> databeans){
+		ArrayListMultimap<N,D> databeansByPhysicalNode = ArrayListMultimap.create();
+		for(D databean : IterableTool.nullSafe(databeans)){
+			N node = getPhysicalNode(databean.getKey());
+			if(node==null){ continue; }
+			databeansByPhysicalNode.get(node).add(databean);
 		}
 		return databeansByPhysicalNode;
 	}

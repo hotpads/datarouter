@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.PhysicalMapStorageReaderNode;
@@ -32,21 +33,21 @@ implements MapStorageReaderNode<PK,D>{
 	
 	@Override
 	public boolean exists(PK key, Config config){
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes(key))){
-			if(node.exists(key, config)){
-				return true;
-			}
+		N node = getPhysicalNode(key);
+		if(node==null){ return false; }
+		if(node.exists(key, config)){
+			return true;
 		}
 		return false;
 	}
 
 	@Override
 	public D get(PK key, Config config) {
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes(key))){
-			D databean = node.get(key,config);
-			if(databean != null){
-				return databean;
-			}
+		N node = getPhysicalNode(key);
+		if(node==null){ return null; }
+		D databean = node.get(key,config);
+		if(databean != null){
+			return databean;
 		}
 		return null;
 	}
@@ -65,9 +66,10 @@ implements MapStorageReaderNode<PK,D>{
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config) {
-		Map<N,List<PK>> keysByNode = getPrimaryKeysByPhysicalNode(keys);
+		Multimap<N,PK> keysByNode = getPrimaryKeysByPhysicalNode(keys);
 		List<D> all = ListTool.createLinkedList();
-		for(N node : MapTool.nullSafe(keysByNode).keySet()){
+		if(keysByNode==null){ return all; }
+		for(N node : keysByNode.keySet()){
 			Collection<PK> keysForNode = keysByNode.get(node);
 			if(CollectionTool.isEmpty(keysForNode)){ continue; }//should not be empty, but being safer
 			List<D> databeansFromNode = node.getMulti(keysForNode, config);
@@ -78,9 +80,10 @@ implements MapStorageReaderNode<PK,D>{
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config) {
-		Map<N,List<PK>> keysByNode = getPrimaryKeysByPhysicalNode(keys);
+		Multimap<N,PK> keysByNode = getPrimaryKeysByPhysicalNode(keys);
 		List<PK> all = ListTool.createLinkedList();
-		for(N node : MapTool.nullSafe(keysByNode).keySet()){
+		if(keysByNode==null){ return all; }
+		for(N node : keysByNode.keySet()){
 			Collection<PK> keysForNode = keysByNode.get(node);
 			if(CollectionTool.isEmpty(keysForNode)){ continue; }//should not be empty, but being safer
 			List<PK> pksFromNode = node.getKeys(keysForNode, config);

@@ -107,25 +107,10 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	/********************************** required ************************************/
 	
 	@Override
-	public boolean isSecondaryKeyPartitionAware(Key<CountKey> key){
-		return knowsPartition(key);
+	public PhysicalSortedMapStorageNode<CountKey,Count> getPhysicalNode(CountKey pk){
+		return physicalNodes.get(indexByMs.get(pk.getPeriodMs()));
 	}
-	
-	public static boolean knowsPartition(Key<CountKey> key){
-		//TODO don't assume it's the PK
-		return ((CountKey)key).getPeriodMs()!=null;
-	}
-	
-	@Override
-	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForSecondaryKey(Key<CountKey> key) {
-		if(!isSecondaryKeyPartitionAware(key)){ return getPhysicalNodes(); }
-		CountKey countKey = (CountKey)key;
-		Integer index = indexByMs.get(countKey.getPeriodMs());
-		PhysicalSortedMapStorageNode<CountKey,Count> node = physicalNodes.get(index);
-		if(node==null){ return ListTool.createLinkedList(); }
-		return ListTool.wrap(node);
-	}
-	
+		
 	@Override
 	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForRange(Range<CountKey> range){
 		if(range.getStart()==null && range.getEnd()==null){ 
@@ -154,5 +139,28 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 			prefixesByNode.put(physicalNodes.get(nodeIndex), prefix);
 		}
 		return prefixesByNode;
+	}
+	
+	@Override
+	public boolean isSecondaryKeyPartitionAware(Key<CountKey> key){
+		return knowsPartition(key);
+	}
+	
+	@Override
+	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForSecondaryKey(Key<CountKey> key) {
+		if(!isSecondaryKeyPartitionAware(key)){ return getPhysicalNodes(); }
+		CountKey countKey = (CountKey)key;
+		Integer index = indexByMs.get(countKey.getPeriodMs());
+		PhysicalSortedMapStorageNode<CountKey,Count> node = physicalNodes.get(index);
+		if(node==null){ return ListTool.createLinkedList(); }
+		return ListTool.wrap(node);
+	}
+	
+	
+	/************************** helper **************************************/
+	
+	protected static boolean knowsPartition(Key<CountKey> key){
+		//TODO don't assume it's the PK
+		return ((CountKey)key).getPeriodMs()!=null;
 	}
 }

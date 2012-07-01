@@ -18,10 +18,10 @@ import com.hotpads.util.core.iterable.PeekableIterator;
 public class MergeScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 implements PeekableIterable<D>,PeekableIterator<D>{
 
-	ArrayList<PeekableIterator<D>> scanners;
-	Map<Scanner<PK,D>,D> nextByScanner;
+	protected ArrayList<PeekableIterator<D>> scanners;
+	protected Map<Scanner<PK,D>,D> nextByScanner;
 	
-	D peeked;
+	protected D peeked;
 	
 	public MergeScanner(Collection<PeekableIterable<D>> scanners){
 		this.scanners = ListTool.createArrayListWithSize(scanners);

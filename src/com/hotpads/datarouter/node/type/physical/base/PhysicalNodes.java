@@ -39,42 +39,42 @@ public class PhysicalNodes<
 		String clientName = node.getClientName();
 		
 		//array list
-		this.nodes.add(node);
+		nodes.add(node);
 		
 		//nodeByName
-		this.nodeByName.put(nodeName, node);
+		nodeByName.put(nodeName, node);
 		
 		//nodeNamesByClientName
-		if(this.nodeNamesByClientName.get(clientName)==null){
-			this.nodeNamesByClientName.put(clientName, new LinkedList<String>());
+		if(nodeNamesByClientName.get(clientName)==null){
+			nodeNamesByClientName.put(clientName, new LinkedList<String>());
 		}
-		this.nodeNamesByClientName.get(clientName).add(nodeName);
+		nodeNamesByClientName.get(clientName).add(nodeName);
 		
 		//clientNamesByNodeName
-		if(this.clientNamesByNodeName.get(nodeName)==null){
-			this.clientNamesByNodeName.put(nodeName, new LinkedList<String>());
+		if(clientNamesByNodeName.get(nodeName)==null){
+			clientNamesByNodeName.put(nodeName, new LinkedList<String>());
 		}
-		this.clientNamesByNodeName.get(nodeName).add(node.getClientName());
+		clientNamesByNodeName.get(nodeName).add(node.getClientName());
 		
-		this.clientNames.add(node.getClientName());
+		clientNames.add(node.getClientName());
 	}
 
 	public void add(PhysicalNodes<PK,D,N> nodes){
 		for(N node : nodes.nodeByName.values()){
-			this.add(node);
+			add(node);
 		}
 	}
 	
 	public N get(int index){
-		return this.nodes.get(index);
+		return nodes.get(index);
 	}
 	
 	public N get(String name){
-		return this.nodeByName.get(name);
+		return nodeByName.get(name);
 	}
 	
 	public List<N> getAll(){
-		return this.nodes;
+		return nodes;
 	}
 	
 	public List<N> getPhysicalNodesForClient(String clientName){
@@ -82,9 +82,9 @@ public class PhysicalNodes<
 			return getAll();
 		}
 		List<N> nodes = ListTool.createLinkedList();
-		List<String> nodeNames = MapTool.nullSafe(this.nodeNamesByClientName).get(clientName);
+		List<String> nodeNames = MapTool.nullSafe(nodeNamesByClientName).get(clientName);
 		for(String nodeName : CollectionTool.nullSafe(nodeNames)){
-			nodes.add(this.nodeByName.get(nodeName));
+			nodes.add(nodeByName.get(nodeName));
 		}
 		return nodes;
 	}
@@ -99,6 +99,6 @@ public class PhysicalNodes<
 	}
 	
 	public List<String> getClientNames(){
-		return ListTool.createArrayList(this.clientNames);
+		return ListTool.createArrayList(clientNames);
 	}
 }

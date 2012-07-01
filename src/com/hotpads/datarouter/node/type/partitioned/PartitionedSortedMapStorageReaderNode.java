@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 
-import com.google.common.collect.SortedSetMultimap;
+import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.PhysicalSortedMapStorageReaderNode;
 import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.SortedMapStorageReaderNode;
@@ -62,7 +62,8 @@ implements SortedMapStorageReaderNode<PK,D>{
 	public List<D> getPrefixedRange(PK prefix, boolean wildcardLastField, final PK start, final boolean startInclusive,
 			Config config){
 		List<D> all = ListTool.createArrayList();
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes(prefix))){
+		Multimap<N,PK> prefixesByPhysicalNode = getPrefixesByPhysicalNode(ListTool.wrap(prefix), wildcardLastField);
+		for(N node : prefixesByPhysicalNode.keySet()){
 			all.addAll(node.getPrefixedRange(prefix, wildcardLastField, start, startInclusive, config));
 		}
 		if(CollectionTool.isEmpty(all)){ return all; }
@@ -111,9 +112,9 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config) {
 		List<D> all = ListTool.createArrayList();
-		SortedSetMultimap<N,PK>	prefixesByNode = getPrefixesByPhysicalNode(prefixes, wildcardLastField);
+		Multimap<N,PK>	prefixesByNode = getPrefixesByPhysicalNode(prefixes, wildcardLastField);
 		for(N node : prefixesByNode.keySet()){
-			SortedSet<PK> prefixesForNode = prefixesByNode.get(node);
+			Collection<PK> prefixesForNode = prefixesByNode.get(node);
 			all.addAll(node.getWithPrefixes(prefixesForNode, wildcardLastField, config));
 		}
 		if(CollectionTool.isEmpty(all)){ return all; }

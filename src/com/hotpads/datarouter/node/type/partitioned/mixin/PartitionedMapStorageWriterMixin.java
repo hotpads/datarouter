@@ -1,11 +1,11 @@
 package com.hotpads.datarouter.node.type.partitioned.mixin;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
 
+import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter.PhysicalMapStorageWriterNode;
@@ -31,17 +31,15 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void delete(PK key, Config config) {
-		Collection<N> nodes = target.getPhysicalNodes(key);
-		Assert.assertTrue(CollectionTool.size(nodes) <= 1);
-		for(N node : nodes){
-			node.delete(key, config);
-		}
+		N node = target.getPhysicalNode(key);
+		node.delete(key, config);
 	}
 	
 	@Override
-	public void deleteMulti(Collection<PK> keys, Config config) {
-		Map<N,List<PK>> keysByNode = target.getPrimaryKeysByPhysicalNode(keys);
-		for(N node : MapTool.nullSafe(keysByNode).keySet()){
+	public void deleteMulti(Collection<PK> pks, Config config) {
+		Multimap<N,PK> keysByNode = target.getPrimaryKeysByPhysicalNode(pks);
+		if(keysByNode==null){ return; }
+		for(N node : keysByNode.keySet()){
 			Collection<PK> keysForNode = keysByNode.get(node);
 			if(CollectionTool.notEmpty(keysForNode)){
 				node.deleteMulti(keysForNode, config);
@@ -58,17 +56,15 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void put(D databean, Config config) {
-		Collection<N> nodes = target.getPhysicalNodes(databean.getKey());
-		Assert.assertTrue(CollectionTool.size(nodes) <= 1);
-		for(N node : CollectionTool.nullSafe(nodes)){
-			node.put(databean, config);
-		}
+		N node = target.getPhysicalNode(databean.getKey());
+		node.put(databean, config);
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config) {
-		Map<N,? extends Collection<D>> databeansByNode = target.getDatabeansByPhysicalNode(databeans);
-		for(N node : MapTool.nullSafe(databeansByNode).keySet()){
+		Multimap<N,D> databeansByNode = target.getDatabeansByPhysicalNode(databeans);
+		if(databeansByNode==null){ return; }
+		for(N node : databeansByNode.keySet()){
 			Collection<D> databeansForNode = databeansByNode.get(node);
 			if(CollectionTool.isEmpty(databeansForNode)){ continue; }//shouldn't be needed, but safer
 			node.putMulti(databeansForNode, config);
