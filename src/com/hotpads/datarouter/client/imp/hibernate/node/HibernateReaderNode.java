@@ -35,6 +35,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.Key;
@@ -47,6 +48,7 @@ import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.PeekableIterable;
 
@@ -593,45 +595,52 @@ implements MapStorageReader<PK,D>,
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config config) {
-
-		TraceContext.startSpan(getName()+" getKeysInRange");
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
-		Object result = executor.executeTask(
-			new HibernateTask() {
-				public Object run(Session session) {
-					if(fieldInfo.getFieldAware()){
-						String sql = SqlBuilder.getInRange(config, tableName, fieldInfo.getPrimaryKeyFields(), 
-								start, startInclusive, end, endInclusive);
-						List<PK> result = JdbcTool.selectPrimaryKeys(session, fieldInfo, sql);
-						return result;
-					}else{
-						Criteria criteria = getCriteriaForConfig(config, session);
-						ProjectionList projectionList = Projections.projectionList();
-						int numFields = 0;
-						for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
-							projectionList.add(Projections.property(field.getPrefixedName()));
-							++numFields;
-						}
-						criteria.setProjection(projectionList);
-						addPrimaryKeyOrderToCriteria(criteria);
-						CriteriaTool.addRangesToCriteria(criteria, start, startInclusive, end, endInclusive, fieldInfo);
-						List<Object[]> rows = criteria.list();
-						List<PK> result = ListTool.createArrayList(CollectionTool.size(rows));
-						for(Object row : IterableTool.nullSafe(rows)){
-							//hibernate will return a plain Object if it's a single col PK
-							Object[] rowCells;
-							if(row instanceof Object[]){ rowCells = (Object[])row; }
-							else{ rowCells = new Object[]{row}; }
-							result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
-									fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rowCells));
-						}
-						return result;
-					}
-				}
-			});
-		TraceContext.finishSpan();
 		
-		return (List<PK>)result;
+		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
+		return (List<PK>)getRangeInternal(range, true, config);
+
+//		TraceContext.startSpan(getName()+" getKeysInRange");
+//		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+//		Object result = executor.executeTask(
+//			new HibernateTask() {
+//				public Object run(Session session) {
+//					if(fieldInfo.getFieldAware()){
+//						String sql = SqlBuilder.getInRange(config, tableName, fieldInfo.getPrimaryKeyFields(), 
+//								start, startInclusive, end, endInclusive);
+//						List<PK> result = JdbcTool.selectPrimaryKeys(session, fieldInfo, sql);
+//						return result;
+//					}else{
+//						Criteria criteria = getCriteriaForConfig(config, session);
+//						//keys only business
+//						ProjectionList projectionList = Projections.projectionList();
+//						int numFields = 0;
+//						for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
+//							projectionList.add(Projections.property(field.getPrefixedName()));
+//							++numFields;
+//						}
+//						criteria.setProjection(projectionList);
+//						//end keys only business
+//						addPrimaryKeyOrderToCriteria(criteria);
+//						CriteriaTool.addRangesToCriteria(criteria, start, startInclusive, end, endInclusive, fieldInfo);
+//						List<Object[]> rows = criteria.list();
+//						//key only business
+//						List<PK> result = ListTool.createArrayList(CollectionTool.size(rows));
+//						for(Object row : IterableTool.nullSafe(rows)){
+//							//hibernate will return a plain Object if it's a single col PK
+//							Object[] rowCells;
+//							if(row instanceof Object[]){ rowCells = (Object[])row; }
+//							else{ rowCells = new Object[]{row}; }
+//							result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
+//									fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rowCells));
+//						}
+//						//end key only business
+//						return result;
+//					}
+//				}
+//			});
+//		TraceContext.finishSpan();
+//		
+//		return (List<PK>)result;
 	}
 	
 	
@@ -641,31 +650,91 @@ implements MapStorageReader<PK,D>,
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config config) {
+		
+		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
+		return (List<D>)getRangeInternal(range, false, config);
 
-		TraceContext.startSpan(getName()+" getRange");
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
-		Object result = executor.executeTask(
-			new HibernateTask() {
-				public Object run(Session session) {
-					if(fieldInfo.getFieldAware()){
-						String sql = SqlBuilder.getInRange(config, tableName, fieldInfo.getFields(), 
-								start, startInclusive, end, endInclusive);
-						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
+//		TraceContext.startSpan(getName()+" getRange");
+//		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+//		Object result = executor.executeTask(
+//			new HibernateTask() {
+//				public Object run(Session session) {
+//					if(fieldInfo.getFieldAware()){
+//						String sql = SqlBuilder.getInRange(config, tableName, fieldInfo.getFields(), 
+//								start, startInclusive, end, endInclusive);
+//						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
+//						return result;
+//					}else{
+//						Criteria criteria = getCriteriaForConfig(config, session);
+//						addPrimaryKeyOrderToCriteria(criteria);
+//						CriteriaTool.addRangesToCriteria(criteria, start, startInclusive, end, endInclusive, fieldInfo);
+//						Object result = criteria.list();
+//						return result;
+//					}
+//				}
+//			});
+//		TraceContext.finishSpan();
+//		
+//		return (List<D>)result;
+	}
+	
+	
+	protected List<? extends FieldSet<?>> getRangeInternal(final Range<PK> range, final boolean keysOnly,
+			final Config config){
+		String spanNameSuffix = keysOnly ? "getKeysInRange" : "getRange";
+		TraceContext.startSpan(getName() + " " + spanNameSuffix);
+		HibernateExecutor executor = HibernateExecutor.create(getClient(), config, false);
+		Object result = executor.executeTask(new HibernateTask(){
+			public Object run(Session session){
+				if(fieldInfo.getFieldAware()){
+					List<Field<?>> fieldsToSelect = keysOnly ? fieldInfo.getPrimaryKeyFields() : fieldInfo.getFields();
+					String sql = SqlBuilder.getInRange(config, tableName, fieldsToSelect, range);
+					List<? extends FieldSet<?>> result;
+					if(keysOnly){
+						result = JdbcTool.selectPrimaryKeys(session, fieldInfo, sql);
+					}else{
+						result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
+					}
+					return result;
+				}else{
+					Criteria criteria = getCriteriaForConfig(config, session);
+					if(keysOnly){
+						ProjectionList projectionList = Projections.projectionList();
+						int numFields = 0;
+						for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
+							projectionList.add(Projections.property(field.getPrefixedName()));
+							++numFields;
+						}
+						criteria.setProjection(projectionList);
+					}
+					addPrimaryKeyOrderToCriteria(criteria);
+					CriteriaTool.addRangesToCriteria(criteria, range, fieldInfo);
+					if(keysOnly){
+						List<Object[]> rows = criteria.list();
+						List<PK> result = ListTool.createArrayList(CollectionTool.size(rows));
+						for(Object row : IterableTool.nullSafe(rows)){
+							// hibernate will return a plain Object if it's a single col PK
+							Object[] rowCells;
+							if(row instanceof Object[]){
+								rowCells = (Object[])row;
+							}else{
+								rowCells = new Object[]{row};
+							}
+							result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(fieldInfo
+									.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rowCells));
+						}
 						return result;
 					}else{
-						Criteria criteria = getCriteriaForConfig(config, session);
-						addPrimaryKeyOrderToCriteria(criteria);
-						CriteriaTool.addRangesToCriteria(criteria, start, startInclusive, end, endInclusive, fieldInfo);
 						Object result = criteria.list();
 						return result;
 					}
 				}
-			});
+			}
+		});
 		TraceContext.finishSpan();
-		
-		return (List<D>)result;
+
+		return (List<PK>)result;
 	}
-	
 
 	
 	
