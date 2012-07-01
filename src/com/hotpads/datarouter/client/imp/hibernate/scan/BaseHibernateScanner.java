@@ -20,17 +20,15 @@ extends BaseBatchingSortedScanner<T,FieldSet<?>>{
 	//inputs
 	protected HibernateReaderNode<PK,D,?> node;
 	protected DatabeanFieldInfo<PK,D,?> fieldInfo;
-	protected PK startInclusive;
-	protected PK endExclusive;
+	protected Range<PK> range;
 	protected Config config;
 	
 	
-	public BaseHibernateScanner(HibernateReaderNode<PK,D,?> node, DatabeanFieldInfo<PK,D,?> fieldInfo, 
-			PK startInclusive, PK endExclusive, Config pConfig){
+	public BaseHibernateScanner(HibernateReaderNode<PK,D,?> node, DatabeanFieldInfo<PK,D,?> fieldInfo, Range<PK> range,
+			Config pConfig){
 		this.node = node;
 		this.fieldInfo = node.getFieldInfo();
-		this.startInclusive = startInclusive;
-		this.endExclusive = endExclusive;
+		this.range = range;
 		this.config = Config.nullSafe(pConfig);
 		this.config.setIterateBatchSizeIfNull(HBaseReaderNode.DEFAULT_ITERATE_BATCH_SIZE);//why is this necessary?
 		this.noMoreBatches = false;
@@ -42,8 +40,8 @@ extends BaseBatchingSortedScanner<T,FieldSet<?>>{
 	@Override
 	protected void loadNextBatch(){
 		currentBatchIndex = 0;
-		PK lastRowOfPreviousBatch = startInclusive;
-		boolean isStartInclusive = true;//only on the first load
+		PK lastRowOfPreviousBatch = range.getStart();
+		boolean isStartInclusive = range.getStartInclusive();//only on the first load
 		if(currentBatch != null){
 			FieldSet<?> endOfLastBatch = CollectionTool.getLast(currentBatch);
 			if(endOfLastBatch==null){
@@ -53,8 +51,9 @@ extends BaseBatchingSortedScanner<T,FieldSet<?>>{
 			lastRowOfPreviousBatch = getPrimaryKey(endOfLastBatch);
 			isStartInclusive = false;
 		}
-		Range<PK> range = Range.create(lastRowOfPreviousBatch, isStartInclusive, endExclusive, false);
-		currentBatch = node.getRangeInternal(range, isKeysOnly(), config);
+		Range<PK> batchRange = Range.create(lastRowOfPreviousBatch, isStartInclusive, range.getEnd(), 
+				range.getEndInclusive());
+		currentBatch = node.getRangeInternal(batchRange, isKeysOnly(), config);
 		if(CollectionTool.size(currentBatch) < config.getIterateBatchSize()){
 			noMoreBatches = true;//tell the advance() method not to call this method again
 		}
