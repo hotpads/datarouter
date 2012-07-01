@@ -679,7 +679,7 @@ implements MapStorageReader<PK,D>,
 	}
 	
 	
-	protected List<? extends FieldSet<?>> getRangeInternal(final Range<PK> range, final boolean keysOnly,
+	public List<? extends FieldSet<?>> getRangeInternal(final Range<PK> range, final boolean keysOnly,
 			final Config config){
 		String spanNameSuffix = keysOnly ? "getKeysInRange" : "getRange";
 		TraceContext.startSpan(getName() + " " + spanNameSuffix);

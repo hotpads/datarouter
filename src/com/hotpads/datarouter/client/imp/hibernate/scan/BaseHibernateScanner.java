@@ -1,21 +1,21 @@
 package com.hotpads.datarouter.client.imp.hibernate.scan;
 
-import org.apache.hadoop.hbase.client.Result;
-
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.BaseBatchingSortedScanner;
 
 public abstract class BaseHibernateScanner<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		T extends Comparable<? super T>>//T should be either PK or D
-extends BaseBatchingSortedScanner<T,Result>{
+extends BaseBatchingSortedScanner<T,FieldSet<?>>{
 	
 	//inputs
 	protected HibernateReaderNode<PK,D,?> node;
@@ -36,24 +36,28 @@ extends BaseBatchingSortedScanner<T,Result>{
 		this.noMoreBatches = false;
 	}
 	
+	protected abstract boolean isKeysOnly();
+	protected abstract PK getPrimaryKey(FieldSet<?> fieldSet);
+	
 	@Override
 	protected void loadNextBatch(){
-//		currentBatchIndex = 0;
-//		PK lastRowOfPreviousBatch = startInclusive;
-//		boolean isStartInclusive = true;//only on the first load
-//		if(currentBatch != null){
-//			PK endOfLastBatch = CollectionTool.getLast(currentBatch);
-//			if(endOfLastBatch==null){
-//				currentBatch = null;
-//				return;
-//			}
-//			lastRowOfPreviousBatch = endOfLastBatch.getRow();
-//			isStartInclusive = false;
-//		}
-//		currentBatch = node.getResultsInSubRange(lastRowOfPreviousBatch, isStartInclusive, endExclusive, false, config);
-//		if(CollectionTool.size(currentBatch) < config.getIterateBatchSize()){
-//			noMoreBatches = true;//tell the advance() method not to call this method again
-//		}
+		currentBatchIndex = 0;
+		PK lastRowOfPreviousBatch = startInclusive;
+		boolean isStartInclusive = true;//only on the first load
+		if(currentBatch != null){
+			FieldSet<?> endOfLastBatch = CollectionTool.getLast(currentBatch);
+			if(endOfLastBatch==null){
+				currentBatch = null;
+				return;
+			}
+			lastRowOfPreviousBatch = getPrimaryKey(endOfLastBatch);
+			isStartInclusive = false;
+		}
+		Range<PK> range = Range.create(lastRowOfPreviousBatch, isStartInclusive, endExclusive, false);
+		currentBatch = node.getRangeInternal(range, isKeysOnly(), config);
+		if(CollectionTool.size(currentBatch) < config.getIterateBatchSize()){
+			noMoreBatches = true;//tell the advance() method not to call this method again
+		}
 	}
 	
 }
