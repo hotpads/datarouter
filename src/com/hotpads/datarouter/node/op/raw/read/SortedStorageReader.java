@@ -10,6 +10,7 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.iterable.PeekableIterable;
+import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public interface SortedStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
@@ -30,7 +31,7 @@ extends NodeOps<PK,D>
 			final PK start, final boolean startInclusive, 
 			final Config config);
 
-	PeekableIterable<PK> scanKeys(
+	SortedScannerIterable<PK> scanKeys(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config config);

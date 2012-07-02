@@ -10,7 +10,6 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.PhysicalSortedMapStorageReaderNode;
 import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.SortedMapStorageReaderNode;
 import com.hotpads.datarouter.node.scanner.MergeScanner;
-import com.hotpads.datarouter.node.scanner.primarykey.PrimaryKeyMergeScanner;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -21,6 +20,10 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.PeekableIterable;
+import com.hotpads.util.core.iterable.scanner.SortedScanner;
+import com.hotpads.util.core.iterable.scanner.collate.Collator;
+import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
+import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public abstract class PartitionedSortedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -128,14 +131,17 @@ implements SortedMapStorageReaderNode<PK,D>{
 	}
 	
 	@Override
-	public PeekableIterable<PK> scanKeys(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
-		List<PeekableIterable<PK>> subScanners = ListTool.createArrayList();
+	public SortedScannerIterable<PK> scanKeys(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
+		List<SortedScanner<PK>> subScanners = ListTool.createArrayList();
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
 		List<N> nodes = getPhysicalNodesForRange(range);
 		for(N node : IterableTool.nullSafe(CollectionTool.nullSafe(nodes))){
-			subScanners.add(node.scanKeys(start, startInclusive, end, endInclusive, config));
+			//the scanners are wrapped in a SortedScannerIterable, so we need to unwrap them for the collator
+			SortedScannerIterable<PK> iterable = node.scanKeys(start, startInclusive, end, endInclusive, config);
+			subScanners.add(iterable.getScanner());
 		}
-		return new PrimaryKeyMergeScanner<PK>(subScanners);
+		Collator<PK> collator = new PriorityQueueCollator<PK>(subScanners);
+		return new SortedScannerIterable<PK>(collator);
 	}
 	
 	@Override

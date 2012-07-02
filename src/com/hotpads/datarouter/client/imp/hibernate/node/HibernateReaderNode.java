@@ -807,7 +807,7 @@ implements MapStorageReader<PK,D>,
 	}
 	
 	@Override
-	public PeekableIterable<PK> scanKeys(
+	public SortedScannerIterable<PK> scanKeys(
 			PK start, boolean startInclusive, 
 			PK end, boolean endInclusive, 
 			Config config){
@@ -821,7 +821,7 @@ implements MapStorageReader<PK,D>,
 	}
 	
 	@Override
-	public PeekableIterable<D> scan(
+	public SortedScannerIterable<D> scan(
 			PK start, boolean startInclusive, 
 			PK end, boolean endInclusive, 
 			Config config){

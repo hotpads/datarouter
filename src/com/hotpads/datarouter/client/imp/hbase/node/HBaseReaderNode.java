@@ -291,7 +291,7 @@ implements HBasePhysicalNode<PK,D>,
 
 	
 	@Override
-	public PeekableIterable<PK> scanKeys(final PK start, final boolean startInclusive, 
+	public SortedScannerIterable<PK> scanKeys(final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
@@ -304,7 +304,7 @@ implements HBasePhysicalNode<PK,D>,
 
 	
 	@Override
-	public PeekableIterable<D> scan(final PK start, final boolean startInclusive, 
+	public SortedScannerIterable<D> scan(final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
