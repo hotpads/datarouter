@@ -145,14 +145,17 @@ implements SortedMapStorageReaderNode<PK,D>{
 	}
 	
 	@Override
-	public PeekableIterable<D> scan(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
-		List<PeekableIterable<D>> subScanners = ListTool.createArrayList();
+	public SortedScannerIterable<D> scan(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
+		List<SortedScanner<D>> subScanners = ListTool.createArrayList();
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
 		List<N> nodes = getPhysicalNodesForRange(range);
 		for(N node : IterableTool.nullSafe(nodes)){
-			subScanners.add(node.scan(start, startInclusive, end, endInclusive, config));
+			//the scanners are wrapped in a SortedScannerIterable, so we need to unwrap them for the collator
+			SortedScannerIterable<D> iterable = node.scan(start, startInclusive, end, endInclusive, config);
+			subScanners.add(iterable.getScanner());
 		}
-		return new MergeScanner<PK,D>(subScanners);
+		Collator<D> collator = new PriorityQueueCollator<D>(subScanners);
+		return new SortedScannerIterable<D>(collator);
 	}
 	
 	

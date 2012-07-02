@@ -73,7 +73,8 @@ implements SortedMapStorageReaderNode<PK,D>{
 	};
 	
 	@Override
-	public PeekableIterable<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
+	public SortedScannerIterable<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, 
+			Config config){
 		return backingNode.scan(startKey,startInclusive, end, endInclusive, config);
 	};
 	

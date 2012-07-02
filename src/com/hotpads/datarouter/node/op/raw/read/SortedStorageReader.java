@@ -35,7 +35,7 @@ extends NodeOps<PK,D>
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config config);
-	PeekableIterable<D> scan(
+	SortedScannerIterable<D> scan(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config config);
