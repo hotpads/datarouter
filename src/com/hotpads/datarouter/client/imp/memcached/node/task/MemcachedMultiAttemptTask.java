@@ -9,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClient;
+import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.trace.TracedCallable;
@@ -17,6 +18,8 @@ public class MemcachedMultiAttemptTask<V> extends TracedCallable<V>{
 	static Logger logger = Logger.getLogger(MemcachedMultiAttemptTask.class);
 
 	protected static final Boolean CANCEL_THREAD_IF_RUNNING = true;
+	protected static final Long DEFAULT_TIMEOUT_MS = 10 * 1000L;
+	protected static final Integer DEFAULT_NUM_ATTEMPTS = 1;
 	
 	protected MemcachedTask<V> task;
 	protected ExecutorService executorService;
@@ -30,12 +33,7 @@ public class MemcachedMultiAttemptTask<V> extends TracedCallable<V>{
 		this.executorService = this.task.client.getExecutorService();
 		this.config = Config.nullSafe(task.config);
 		this.timeoutMs = getTimeoutMS(this.config);
-		this.numAttempts = this.config.getNumAttempts();
-	}
-	
-	protected static Long getTimeoutMS(Config config){
-		if(config.getTimeoutMs()!=null){ return config.getTimeoutMs(); }
-		return MemcachedClient.DEFAULT_TIMEOUT_MS;
+		this.numAttempts = getNumAttempts(this.config);
 	}
 	
 	@Override
@@ -62,5 +60,19 @@ public class MemcachedMultiAttemptTask<V> extends TracedCallable<V>{
 			}
 		}
 		throw new DataAccessException("timed out "+numAttempts+" times at timeoutMs="+timeoutMs);
+	}
+	
+	
+	/*************************** static helper **********************************/
+
+	protected static Long getTimeoutMS(Config config){
+		if(config.getTimeoutMs()!=null){ return config.getTimeoutMs(); }
+		return DEFAULT_TIMEOUT_MS;
+	}
+	
+	protected static Integer getNumAttempts(Config config){
+		if(config==null){ return DEFAULT_NUM_ATTEMPTS; }
+		if(config.getNumAttempts()==null){ return DEFAULT_NUM_ATTEMPTS; }
+		return config.getNumAttempts();
 	}
 }

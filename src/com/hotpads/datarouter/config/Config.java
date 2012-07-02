@@ -14,6 +14,8 @@ public class Config implements Cloneable{
 	public static final Boolean DEFAULT_AUTO_COMMIT = false;
 	
 	/*************** fields ********************************/
+	
+	//i am trying to move away from setting any values here, so please don't add anything to the defaults!
 
 	protected ConnectMethod connectMethod = ConnectMethod.tryExisting;
 	protected Boolean useSession = true;
@@ -37,7 +39,7 @@ public class Config implements Cloneable{
 	
 	//retrying
 	protected Long timeoutMs;
-	protected Integer numAttempts = 1;
+	protected Integer numAttempts;//do not set default here.  do it per-client
 
 	//paging
 	protected Object startId;
