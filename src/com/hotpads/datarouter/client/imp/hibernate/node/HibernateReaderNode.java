@@ -51,8 +51,8 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.PeekableIterable;
-import com.hotpads.util.core.iterable.scanner.SortedScanner;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
+import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
 public class HibernateReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 extends BasePhysicalNode<PK,D,F>

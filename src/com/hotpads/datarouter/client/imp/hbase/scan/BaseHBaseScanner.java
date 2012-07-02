@@ -8,7 +8,7 @@ import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.iterable.scanner.BaseBatchingSortedScanner;
+import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
 
 public abstract class BaseHBaseScanner<
 		PK extends PrimaryKey<PK>,

@@ -51,7 +51,7 @@ extends BaseNode<PK,D,F>{
 	@Override
 	public Set<String> getAllNames(){
 		Set<String> names = SetTool.wrap(this.name);
-		for(N physicalNode : IterableTool.nullSafe(this.physicalNodes.getAll())){
+		for(N physicalNode : IterableTool.nullSafe(physicalNodes.getAll())){
 			names.addAll(physicalNode.getAllNames());
 		}
 		return names;
@@ -100,27 +100,27 @@ extends BaseNode<PK,D,F>{
 	/************************ virtual node methods ***************************/
 	
 	public N register(N physicalNode){
-		this.physicalNodes.add(physicalNode);
+		physicalNodes.add(physicalNode);
 		return physicalNode;
 	}
 	
 	@Override
 	public List<N> getPhysicalNodes() {
-		return this.physicalNodes.getAll();
+		return physicalNodes.getAll();
 	}
 	
 	public N getPhysicalNode(String name){
-		return this.physicalNodes.get(name);
+		return physicalNodes.get(name);
 	}
 	
 	@Override
 	public List<N> getPhysicalNodesForClient(String clientName) {
-		return this.physicalNodes.getPhysicalNodesForClient(clientName);
+		return physicalNodes.getPhysicalNodesForClient(clientName);
 	}
 	
 	
 	/******************* abstract partitioning logic methods ******************/
-	
+		
 	//for map nodes
 	public abstract N getPhysicalNode(PK key);
 	

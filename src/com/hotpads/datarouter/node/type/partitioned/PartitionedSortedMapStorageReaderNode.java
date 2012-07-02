@@ -18,10 +18,12 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.SortedScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
+import com.hotpads.util.core.iterable.scanner.filter.FilteredSortedScanner;
+import com.hotpads.util.core.iterable.scanner.filter.FilteredSortedScannerImp;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
+import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
 public abstract class PartitionedSortedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -136,6 +138,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 		for(N node : IterableTool.nullSafe(CollectionTool.nullSafe(nodes))){
 			//the scanners are wrapped in a SortedScannerIterable, so we need to unwrap them for the collator
 			SortedScannerIterable<PK> iterable = node.scanKeys(start, startInclusive, end, endInclusive, config);
+//			FilteredSortedScanner<PK> filteredScanner = new FilteredSortedScannerImp<PK>(iterable.getScanner(), filter);
 			subScanners.add(iterable.getScanner());
 		}
 		Collator<PK> collator = new PriorityQueueCollator<PK>(subScanners);

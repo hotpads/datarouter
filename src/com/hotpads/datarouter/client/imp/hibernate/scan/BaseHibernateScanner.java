@@ -9,7 +9,7 @@ import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.BaseBatchingSortedScanner;
+import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
 
 public abstract class BaseHibernateScanner<
 		PK extends PrimaryKey<PK>,
