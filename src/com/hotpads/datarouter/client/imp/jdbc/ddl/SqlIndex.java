@@ -7,7 +7,7 @@ import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MathTool;
 
-public class SqlIndex implements Comparable{
+public class SqlIndex implements Comparable<SqlIndex>{
 	
 	/********************** fields *************************/
 	
@@ -109,13 +109,14 @@ public class SqlIndex implements Comparable{
 	}
 
 	@Override
-	public int compareTo(Object o) {
-			int c = ComparableTool.nullFirstCompareTo(name, ((SqlIndex) o).name);
+	public int compareTo(SqlIndex o) {
+			int c = ComparableTool.nullFirstCompareTo(name, o.name);
 			if(c!=0){return c;}
-			for(int i=0; i<MathTool.min(columns.size(), ((SqlIndex) o).columns.size()); i++){
-				c=ComparableTool.nullFirstCompareTo(columns.get(i),((SqlIndex) o).columns.get(i));
+			for(int i=0; i<MathTool.min(columns.size(), o.columns.size()); i++){
+				c=ComparableTool.nullFirstCompareTo(columns.get(i),o.columns.get(i));
 				if(c!=0){return c;}
 			}
 			return 0;
 	}
+
 }
