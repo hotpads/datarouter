@@ -20,8 +20,6 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
-import com.hotpads.util.core.iterable.scanner.filter.FilteredSortedScanner;
-import com.hotpads.util.core.iterable.scanner.filter.FilteredSortedScannerImp;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
