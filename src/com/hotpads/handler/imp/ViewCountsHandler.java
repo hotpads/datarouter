@@ -24,7 +24,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
 
-public class JobsViewCountsHandler extends BaseHandler{
+public class ViewCountsHandler extends BaseHandler{
 
 	public static final String
 	PARAM_counters = "counters",
