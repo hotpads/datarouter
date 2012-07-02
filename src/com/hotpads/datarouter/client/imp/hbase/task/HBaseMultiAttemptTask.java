@@ -16,6 +16,8 @@ import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.util.core.PropertiesTool;
+import com.hotpads.util.core.StringTool;
 
 //consider forming base class with commonalities from MemcachedMultiAttemptTash
 public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
@@ -95,33 +97,37 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 			}
 		}
 		String timeoutMessage = "timed out "+numAttempts+" times at timeoutMs="+timeoutMs;
-		sendThrottledErrorEmail(timeoutMessage, finalAttempException);
-		throw new DataAccessException(finalAttempException);
+		sendThrottledErrorEmail(finalAttempException);
+		throw new DataAccessException("timed out "+numAttempts+" times at timeoutMs="+timeoutMs, 
+				finalAttempException);
 	}
 	
 	protected static Long getTimeoutMS(Config config){
 		if(config.getTimeoutMs()!=null){ return config.getTimeoutMs(); }
-		return DEFAULT_TIMEOUT_MS;
+		return HBaseClient.DEFAULT_TIMEOUT_MS;
 	}
 	
 	protected static Integer getNumAttempts(Config config){
 		if(config==null){ return DEFAULT_NUM_ATTEMPTS; }
-		if(config.getNumAttempts()==null){ return DEFAULT_NUM_ATTEMPTS; }
-		return config.getNumAttempts();
+		if(config.getNumAttempts()!=null){ return config.getNumAttempts(); }
+		return HBaseClient.DEFAULT_NUM_ATTEMPTS;
 	}
 	
 	protected boolean isLastAttempt(int i) {
 		return i==numAttempts;
 	}
 	
-	protected void sendThrottledErrorEmail(String timeoutMessage, Exception e) {
+	protected void sendThrottledErrorEmail(Exception e) {
+//		String administratorEmail = PropertiesTool.getFirstOccurrence(multiProperties, HibernateSimpleClientFactory.ADMINISTRATOR_EMAIL);
+//		String serverName = PropertiesTool.getFirstOccurrence(multiProperties, SERVER_NAME);
+//		if(StringTool.isEmpty(administratorEmail) || StringTool.isEmpty(serverName)){ return; }
 		boolean enoughTimePassed = System.currentTimeMillis() - lastEmailSentAtMs > throttleEmailsMs;
 		long throttleEmailSeconds = throttleEmailsMs / 1000;
 		if(!enoughTimePassed) { return; }
 		String subject = "HBaseMultiAttempTask failure on "+drContext.getServerName();
 		String body = "Message throttled for "+throttleEmailSeconds+" seconds"
 				+"\n\n"+timeoutMessage
-				+"\n\n"+ExceptionTool.getStackTraceAsString(e);
+		String body = "Message throttled for "+throttleEmailsMs+"ms\n\n"+ExceptionTool.getStackTraceAsString(e);
 		DataRouterEmailTool.sendEmail("admin@hotpads.com", drContext.getAdministratorEmail(), subject, body);
 		lastEmailSentAtMs = System.currentTimeMillis();
 	}

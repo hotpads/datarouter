@@ -45,9 +45,9 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new StringField(COL_f1, f1),
+				new StringField(COL_f1, f1,255),
 				new LongField(COL_f2, f2),
-				new StringField(COL_f3, f3),
+				new StringField(COL_f3, f3,255),
 				new DumbDoubleField(COL_f4, f4));
 	}
 	
@@ -112,9 +112,9 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 		}
 		public List<Field<?>> getFields(){
 			return FieldTool.createList(
-					new StringField(SortedBean.KEY_NAME, SortedBeanKey.COL_d, d),
+					new StringField(SortedBean.KEY_NAME, SortedBeanKey.COL_d, d,255),
 					new UInt31Field(SortedBean.KEY_NAME, SortedBeanKey.COL_c, c),
-					new StringField(SortedBean.KEY_NAME, SortedBeanKey.COL_b, b));
+					new StringField(SortedBean.KEY_NAME, SortedBeanKey.COL_b, b,255));
 		}
 	}
 

@@ -1,6 +1,7 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl;
+package com.hotpads.datarouter.client.imp.jdbc.ddl.test;
 
 import java.io.BufferedReader;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,21 +12,25 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.util.core.ListTool;
+@Deprecated
+public class TestParser{
 
-public class TestParser {
-	
-	public static void main(String[] args) throws SQLException, IOException  {
+	public static void main(String[] args) throws SQLException, IOException{
 		SqlTable table = new SqlTable("Table");
 		List<SqlColumn> columns = ListTool.createArrayList();
-	
+
 		FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");
 		// Get the object of DataInputStream
-		  DataInputStream in = new DataInputStream(fis);
-		  BufferedReader br = new BufferedReader(new InputStreamReader(in));
-		  String str, phrase="";
-		while((str=br.readLine()) != null) {
-			phrase+=str;
+		DataInputStream in = new DataInputStream(fis);
+		BufferedReader br = new BufferedReader(new InputStreamReader(in));
+		String str, phrase = "";
+		while((str = br.readLine()) != null){
+			phrase += str;
 		}
 
 		for(String s:getColumns(getBody(phrase))){
@@ -52,7 +57,7 @@ public class TestParser {
 				SqlIndex tableIndex = new SqlIndex(getKeyNameFromKeydeclaration(s1));
 				System.out.println(getKeyNameFromKeydeclaration(s1));
 				for(String s2:getKeyColumnsNamesFromKeyDeclaration(s1)){
-					addAppropriateColumnToIndexFromListOfColumn(tableIndex,s2,table.getColumns());
+					addAppropriateColumnToIndexFromListOfColumn(tableIndex, s2, table.getColumns());
 				}
 				table.addIndex(tableIndex);
 		}
@@ -61,27 +66,40 @@ public class TestParser {
 		
 	}
 
-	static void addAppropriateColumnToIndexFromListOfColumn(
+	public static void addAppropriateColumnToIndexFromListOfColumn(
 			SqlIndex tableIndex, String s1, List<SqlColumn> columns) {
-		for(SqlColumn col: columns){ //TODO can to distinct columns have the same name ?
+		for(SqlColumn col: columns){ 
 			if(col.getName().equals(s1)) tableIndex.addColumn(col);
 		}
 	}
 
-	static List<String> getKeyColumnsNamesFromKeyDeclaration(String string) {
+	public static List<String> getKeyColumnsNamesFromKeyDeclaration(String string) {
 		int index = string.indexOf("(");
 		String[] sFinal = string.substring(index).split("[`]+");
 		List<String> list = ListTool.createArrayList();
-		for(String s:sFinal){
-			s=removeNonText(s);
+		for(String s: sFinal){
+			s = removeNonText(s);
 			if(isNotEmpty(s)) list.add(s); 
 		}
 		return list; 
 	}
 
-	static String getKeyNameFromKeydeclaration(String string) {
-		String[] sToken = string.split("[`]+");
-		return sToken[1];
+	public static String getKeyNameFromKeydeclaration(String string) {
+		//		String[] sToken = string.split("[`]+");
+		//		System.out.println("*** les tokens ***");
+		//		for(String s : sToken){
+		//			System.out.println(s);
+		//		}
+		//		//return sToken[1];
+		int index1 = string.indexOf("KEY `"); 
+		index1 += "KEY `".length();
+		String temp = string.substring(index1);
+		//System.out.println(temp);
+		int index2 = temp.indexOf("`");
+		//System.out.println(" les indexes : "+index1 + " " + index2 );
+		String s= temp.substring(0, index2);
+		//System.out.println(s);
+		return s;
 	}
 
 	/**
@@ -116,11 +134,9 @@ public class TestParser {
 			if(tokens[i].contains("PRIMARY KEY")){
 				System.out.println();
 				table.setPrimaryKey(removeNonText(tokens[++i]));
-			}
-			else if(tokens[i].contains("KEY")){ // INDEXES 
-				
-			}
-			else{
+			}else 
+				if(tokens[i].contains("KEY")){ // INDEXES 	
+			}else{
 				String[] tempTokens = tokens[i].split("[`]");
 				String name=removeSpaces(tempTokens[1]), type;
 				if(tempTokens[2].contains("datetime")){ // WHEN THERE'S NO MAX LENGTH THISE TOKEN CONTAINS CERTAIN TYPES , should add more types 
@@ -132,15 +148,14 @@ public class TestParser {
 					//System.out.println(maxLength);
 					col.setMaxLength(maxLength);
 					// "NULLABLE OR NOT NULLABLE , ..."
-					boolean nullable=true;
+					boolean nullable = true;
 					if(tokens[++i].contains("NOT NULL")){
-						nullable=false;
+						nullable = false;
 					}
 					col.setNullable(nullable);
 					System.out.println(col);
 					columns.add(col);
-				}
-				else{  // THIS COLUMN HAS NO MAX VALUE
+				}else{  // THIS COLUMN HAS NO MAX VALUE
 					String[] tempTokensBis = tempTokens[2].split("[ ]");
 					type = removeSpaces(tempTokensBis[1]);
 					SqlColumn col = new SqlColumn(name, MySqlColumnType.parse(type));
@@ -166,8 +181,8 @@ public class TestParser {
 	 * @param s  example:			KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`),
 	 * @return true if it's a declaration of an index
 	 */
+	 @SuppressWarnings("unused") 
 	 private static boolean isKeyDeclaration(String s) {
-		// TODO Auto-generated method stub
 		 return s.toUpperCase().startsWith("KEY") || s.toUpperCase().startsWith("KEY", 1)  || s.toUpperCase().startsWith("KEY", 2) ;
 	}
 
@@ -176,8 +191,8 @@ public class TestParser {
 	  * @param s example:   			   PRIMARY KEY (`id`),
 	  * @return true if it's a primary key declaration
 	  */
+	@SuppressWarnings("unused") 
 	private static boolean isPrimaryKeyDeclaration(String s) {
-		// TODO Auto-generated method stub
 		return s.toUpperCase().startsWith("PRIMARY") || s.toUpperCase().startsWith("PRIMARY", 1)  || s.toUpperCase().startsWith("PRIMARY", 2) ;
 	}
 
@@ -186,8 +201,7 @@ public class TestParser {
 	 * @param s
 	 * @return true if the column type can be null
 	 */
-	static boolean getNullable(String s) {
-		// TODO Auto-generated method stub
+	public static boolean getNullable(String s) {
 		return !s.contains("NOT");
 	}
 
@@ -197,7 +211,6 @@ public class TestParser {
 	 * @return true if the column type has a maximum value
 	 */
 	private static boolean hasAMaxValue(String s) {
-		// TODO Auto-generated method stub
 		return s.contains("(");
 	}
 
@@ -206,8 +219,7 @@ public class TestParser {
 	 * @param s
 	 * @return the maximum value for the column type
 	 */
-	static String getMaxValueOfColumn(String s) {
-		// TODO Auto-generated method stub
+	public static String getMaxValueOfColumn(String s) {
 				 int index = s.lastIndexOf('`');
 				String[] tokens = s.substring(index+1).split("[ ()]+");
 				return tokens[2];
@@ -218,8 +230,7 @@ public class TestParser {
 	 * @param s
 	 * @return the type name of the column 
 	 */
-	static String getTypeOfColumn(String s) {
-		// TODO Auto-generated method stub
+	public static String getTypeOfColumn(String s) {
 		 int index = s.lastIndexOf('`');
 		String[] tokens = s.substring(index+1).split("[ ()]+");
 		return tokens[1];
@@ -231,8 +242,7 @@ public class TestParser {
 	  * @param s a column
 	  * @return the name of the column
 	  */
-	static String getNameOfColumn(String s) {
-		// TODO Auto-generated method stub
+	public static String getNameOfColumn(String s) {
 		 int index = s.indexOf('`');
 		 String[] tokens = s.substring(index+1).split("[`]+");
 		return tokens[0];
@@ -266,14 +276,15 @@ public class TestParser {
 		    index = phrase.substring(firstIndex+1).toUpperCase().indexOf("KEY");
 		    if(index>0){
 		    	return phrase.substring(firstIndex).substring(index+1);
-		    }
-		    else{
+		    }else{
 		    	return "";
 		    }
 	 }
 	 
 	 public static List<String> getKeyDeclarationsFromFullBody(String phrase){
-		 String [] tokens = getKeyDeclarationFromFullBody(SqlTable.getColumnDefinitionSection(phrase)).split("[)]");
+		 String columnDefinitionSection = SqlTable.getColumnDefinitionSection(phrase);
+		 //System.out.println("getColumnDefinitionSection : " + columnDefinitionSection);
+		 String [] tokens = getKeyDeclarationFromFullBody(columnDefinitionSection).split("[)]");
 		 List<String> keyDeclarationList = ListTool.createArrayList();
 		 for(String s:tokens){
 			 if(isNotEmpty(removeNonText(s))){
@@ -288,13 +299,10 @@ public class TestParser {
 	  * @param phrase is the body of an Sql  querie of the type " show create table nameOfTheTable " 
 	  * @return list of Strings containing the column declarations, primary key declaration and key/indexes declaration 
 	  */
-	 static String[] getColumns(String phrase){
+	 public static String[] getColumns(String phrase){
 		return phrase.split("[,]+"); 
 	 }
-	
-	 private static void testGetColumns(){
-		 System.out.println(SqlTable.getColumnDefinitionSection("Header(blabla(blob()))trail"));
-	 }
+
 	
 	 /**
 	  * 
@@ -315,7 +323,7 @@ public class TestParser {
 	 * @param s
 	 * @return s without occurrences of " " and "" 
 	 */
-	static String removeNonText(String s) {
+	public static String removeNonText(String s) {
 		String sResult="";
 		for (int i = 0; i < s.length(); i++) {
 			if(s.charAt(i)!=' ' && s.charAt(i)!='`' && s.charAt(i)!=',' && s.charAt(i)!='(' && s.charAt(i)!=')'){
@@ -359,9 +367,9 @@ public class TestParser {
 					"PRIMARXtY KEY (`id`),"+
 					"KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`)," +
 					"KEY `index_awaitingPayment` (`awaitingPayment`)," +
-					") ENGINE=InnoDB AUTO_INCREMENT=6853302 DEFAULT CHARSET=latin1",
-					s2="KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`)," +
-							"KEY `index_awaitingPayment` (`awaitingPayment`),";
+					") ENGINE=InnoDB AUTO_INCREMENT=6853302 DEFAULT CHARSET=latin1";
+					//s2="KEY `index_yyyymmddhhmmss` (`year`,`month`,`date`,`hour`,`minute`,`second`)," +
+						//	"KEY `index_awaitingPayment` (`awaitingPayment`),";
 			List<String> sList=getKeyDeclarationsFromFullBody(s);
 			
 			for(String str1:sList){
@@ -373,4 +381,5 @@ public class TestParser {
 			// Assert.assertEquals(s2, getKeyDeclarationFromFullBody(SqlTable.getFullBody(s)));
 		}
 	}
+
 }

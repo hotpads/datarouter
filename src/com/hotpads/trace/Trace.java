@@ -70,10 +70,10 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new StringField(F.sessionId, sessionId),
-				new StringField(F.context, context),
-				new StringField(F.type, type),
-				new StringField(F.params, params),
+				new StringField(F.sessionId, sessionId,32),
+				new StringField(F.context, context,20),
+				new StringField(F.type, type,255),
+				new StringField(F.params, params,255),
 				new UInt63Field(F.created, created),
 				new UInt63Field(F.duration, duration));
 	}
