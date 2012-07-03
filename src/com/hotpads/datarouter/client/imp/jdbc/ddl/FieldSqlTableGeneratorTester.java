@@ -16,7 +16,8 @@ import com.hotpads.util.core.ListTool;
 
 public class FieldSqlTableGeneratorTester {
 
-	@Test public void testGenerate() {
+//	@Test //disabling test until it Asserts something and removes System.out lines
+	public void testGenerate() {
 //		DataRouter router;
 //		Nodes nodes = router.getNodes();
 //		List<? extends PhysicalNode<?,?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);

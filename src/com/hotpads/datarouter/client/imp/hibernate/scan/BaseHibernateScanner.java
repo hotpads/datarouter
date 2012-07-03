@@ -53,7 +53,7 @@ extends BaseBatchingSortedScanner<T,FieldSet<?>>{
 		}
 		Range<PK> batchRange = Range.create(lastRowOfPreviousBatch, isStartInclusive, range.getEnd(), 
 				range.getEndInclusive());
-		currentBatch = node.getRangeInternal(batchRange, isKeysOnly(), config);
+		currentBatch = node.getRangeUnchecked(batchRange, isKeysOnly(), config);
 		if(CollectionTool.size(currentBatch) < config.getIterateBatchSize()){
 			noMoreBatches = true;//tell the advance() method not to call this method again
 		}
