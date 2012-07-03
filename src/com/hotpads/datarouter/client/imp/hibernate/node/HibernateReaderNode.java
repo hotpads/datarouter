@@ -167,8 +167,9 @@ implements MapStorageReader<PK,D>,
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<D> getMulti(final Collection<PK> keys, final Config config) {	
-		TraceContext.startSpan(getName()+" getMulti");	
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
+		DRCounters.incPrefixClientNode("hibernate getMulti rows", clientName, getName(), CollectionTool.size(keys));
+		TraceContext.startSpan(getName()+" getMulti");	
 //		final Class<? extends Databean> persistentClass = CollectionTool.getFirst(keys).getDatabeanClass();
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
 		List<D> result = (List<D>)executor.executeTask(
@@ -251,8 +252,7 @@ implements MapStorageReader<PK,D>,
 						Disjunction orSeparatedIds = Restrictions.disjunction();
 						for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
 							Conjunction possiblyCompoundId = Restrictions.conjunction();
-							List<Field<?>> fields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), 
-									key.getFields());
+							List<Field<?>> fields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), key.getFields());
 							for(Field<?> field : fields){
 								possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 							}
@@ -285,8 +285,7 @@ implements MapStorageReader<PK,D>,
 			new HibernateTask() {
 				public Object run(Session session) {
 					if(fieldInfo.getFieldAware()){
-						String sql = SqlBuilder.getCount(config, tableName, fieldInfo.getFields(), 
-								ListTool.wrap(lookup));
+						String sql = SqlBuilder.getCount(config, tableName, fieldInfo.getFields(), ListTool.wrap(lookup));
 						return JdbcTool.count(session, sql);
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
@@ -307,41 +306,18 @@ implements MapStorageReader<PK,D>,
 	
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
-		//basically copied from "get" for HibernateNode
-		if(uniqueKey==null){ return null; }
-		TraceContext.startSpan(getName()+" lookupUnique");
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
-		Object result = executor.executeTask(
-			new HibernateTask() {
-				public Object run(Session session) {
-					if(fieldInfo.getFieldAware()){
-						String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), 
-								ListTool.wrap(uniqueKey));
-						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
-						if(CollectionTool.size(result) > 1){ 
-							throw new DataAccessException("found >1 databeans with PK="+uniqueKey); 
-						}
-						return CollectionTool.getFirst(result);
-					}else{
-						Criteria criteria = getCriteriaForConfig(config, session);
-						List<Field<?>> fields = uniqueKey.getFields();
-						for(Field<?> field : fields){
-							criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-						}
-						D result = (D)criteria.uniqueResult();
-						return result;
-					}
-				}
-			});
-		TraceContext.finishSpan();
-		return (D)result;
+		List<D> results = lookupMultiUnique(ListTool.wrap(uniqueKey),config);
+		if(results==null) return null;
+		if(CollectionTool.size(results)>1){
+			throw new DataAccessException("found >1 databeans with PK="+uniqueKey);
+		}
+		return CollectionTool.getFirst(results);
 	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<D> lookupMultiUnique( final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
+	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		//basically copied from "getMulti" for HibernateNode
 		TraceContext.startSpan(getName()+" lookupMultiUnique");	
 		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
@@ -349,104 +325,98 @@ implements MapStorageReader<PK,D>,
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
-					int batchSize = DEFAULT_ITERATE_BATCH_SIZE;
-					if(config!=null && config.getIterateBatchSize()!=null){
-						batchSize = config.getIterateBatchSize();
-					}
-					List<? extends UniqueKey<PK>> sortedKeys = ListTool.createArrayList(uniqueKeys);
-					Collections.sort(sortedKeys);
-					int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
-					List<D> all = ListTool.createArrayList(uniqueKeys.size());
-					for(int batchNum=0; batchNum < numBatches; ++batchNum){
-						List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
-						List<D> batch;
-						if(fieldInfo.getFieldAware()){
-							String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), uniqueKeys);
-							List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
-							//maybe verify if the keys were in fact unique?
-							return result;
-						}else{
-							Criteria criteria = getCriteriaForConfig(config, session);
-							Disjunction orSeparatedIds = Restrictions.disjunction();
-							for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
-								Conjunction possiblyCompoundId = Restrictions.conjunction();
-								List<Field<?>> fields = key.getFields();
-								for(Field<?> field : fields){
-									possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-								}
-								orSeparatedIds.add(possiblyCompoundId);
-							}
-							criteria.add(orSeparatedIds);
-							batch = criteria.list();
-						}
-						ListTool.nullSafeArrayAddAll(all, batch);
-					}
-					return all;
+					return lookupMultiUniqueInternal(uniqueKeys, config, session);
 				}
 			});
 		TraceContext.finishSpan();
 		return (List<D>)result;
 	}
+
+	@SuppressWarnings("unchecked")
+	protected List<D> lookupMultiUniqueInternal(final Collection<? extends UniqueKey<PK>> uniqueKeys,
+			final Config config, final Session session){
+		int batchSize = DEFAULT_ITERATE_BATCH_SIZE;
+		if(config!=null && config.getIterateBatchSize()!=null){
+			batchSize = config.getIterateBatchSize();
+		}
+		List<? extends UniqueKey<PK>> sortedKeys = ListTool.createArrayList(uniqueKeys);
+		Collections.sort(sortedKeys);
+		int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
+		List<D> all = ListTool.createArrayList(uniqueKeys.size());
+		for(int batchNum=0; batchNum < numBatches; ++batchNum){
+			List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
+			List<D> batch;
+			if(fieldInfo.getFieldAware()){
+				String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), uniqueKeys);
+				List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
+				if(uniqueKeys.size()==1 && CollectionTool.size(result)>1){
+					//maybe verify if the keys were in fact unique?
+					//TODO check all keys
+					throw new DataAccessException("found >1 databeans with PK="+CollectionTool.getFirst(uniqueKeys));
+				}
+				return result;
+			}else{
+				Criteria criteria = getCriteriaForConfig(config, session);
+				Disjunction orSeparatedIds = Restrictions.disjunction();
+				for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
+					Conjunction possiblyCompoundId = Restrictions.conjunction();
+					List<Field<?>> fields = key.getFields();
+					for(Field<?> field : fields){
+						possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+					}
+					orSeparatedIds.add(possiblyCompoundId);
+				}
+				criteria.add(orSeparatedIds);
+				batch = criteria.list();
+			}
+			ListTool.nullSafeArrayAddAll(all, batch);
+		}
+		return all;		
+	}
+	
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	//TODO pay attention to wildcardLastField
 	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config) {
-		if(lookup==null){ return new LinkedList<D>(); }
-		TraceContext.startSpan(getName()+" lookup");
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
-		Object result = executor.executeTask(
-			new HibernateTask() {
-				public Object run(Session session) {
-					//TODO undefined behavior on trailing nulls
-					if(fieldInfo.getFieldAware()){
-//						String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), ListTool.wrap(lookup));
-						String sql = SqlBuilder.getWithPrefixes(config, tableName, fieldInfo.getFields(), 
-								ListTool.wrap(lookup), wildcardLastField);
-						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
-						return result;
-					}else{
-						Criteria criteria = getCriteriaForConfig(config, session);
-						Conjunction prefixConjunction = getPrefixConjunction(false, lookup, wildcardLastField);
-						if(prefixConjunction==null){
-							throw new IllegalArgumentException("Lookup with all null fields would return entire table. "
-									+"Please use getAll() instead.");
-						}
-						criteria.add(prefixConjunction);
-						List<D> result = criteria.list();
-						Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
-						return result;
-					}
-				}
-			});
-		TraceContext.finishSpan();
-		return (List<D>)result;
+		if(lookup==null){ 
+			return new LinkedList<D>();
+		}
+		return lookupInternal(ListTool.wrap(lookup),wildcardLastField,config);
 	}
 	
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
+		return lookupInternal(lookups,false,config);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected List<D> lookupInternal(final Collection<? extends Lookup<PK>> lookups, final boolean wildcardLastField, 
+			final Config config) {
 		TraceContext.startSpan(getName()+" multiLookup");
-		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
+		if(CollectionTool.isEmpty(lookups)){ 
+			return new LinkedList<D>();
+		}
 		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
 					//TODO undefined behavior on trailing nulls
 					if(fieldInfo.getFieldAware()){
-						String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), lookups);
+						String sql = SqlBuilder.getWithPrefixes(config, tableName, fieldInfo.getFields(), lookups, 
+								wildcardLastField);
 						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
 						Criteria criteria = getCriteriaForConfig(config, session);
 						Disjunction or = Restrictions.disjunction();
 						for(Lookup<PK> lookup : lookups){
-							Conjunction and = Restrictions.conjunction();
-							for(Field<?> field : CollectionTool.nullSafe(lookup.getFields())){
-								and.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+							Conjunction prefixConjunction = getPrefixConjunction(false, lookup, wildcardLastField);
+							if(prefixConjunction==null){
+								throw new IllegalArgumentException("Lookup with all null fields would return entire " +
+										"table.  Please use getAll() instead.");
 							}
-							or.add(and);
+							or.add(prefixConjunction);
 						}
 						criteria.add(or);
 						List<D> result = criteria.list();
@@ -532,38 +502,11 @@ implements MapStorageReader<PK,D>,
 		return pk;
 	}
 
-	
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
-		TraceContext.startSpan(getName()+" getWithPrefix");
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
-		Object result = executor.executeTask(
-			new HibernateTask() {
-				public Object run(Session session) {
-					if(fieldInfo.getFieldAware()){
-						String sql = SqlBuilder.getWithPrefixes(config, tableName, fieldInfo.getFields(), 
-								ListTool.wrap(prefix), wildcardLastField);
-						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
-						return result;
-					}else{
-						Criteria criteria = getCriteriaForConfig(config, session);
-						Conjunction prefixConjunction = getPrefixConjunction(true, prefix, wildcardLastField);
-						if(prefixConjunction == null){
-							throw new IllegalArgumentException("cannot do a null prefix match.  Use getAll() instead");
-						}
-						criteria.add(prefixConjunction);
-						List<D> result = criteria.list();
-						Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
-						return result;
-					}
-				}
-			});
-		TraceContext.finishSpan();
-		return (List<D>)result;
+		return getWithPrefixes(ListTool.wrap(prefix),wildcardLastField,config);
 	}
 
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
@@ -575,8 +518,8 @@ implements MapStorageReader<PK,D>,
 			new HibernateTask() {
 				public Object run(Session session) {
 					if(fieldInfo.getFieldAware()){
-						String sql = SqlBuilder.getWithPrefixes(config, tableName, fieldInfo.getFields(), 
-								prefixes, wildcardLastField);
+						String sql = SqlBuilder.getWithPrefixes(config, tableName, fieldInfo.getFields(), prefixes, 
+								wildcardLastField);
 						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
@@ -585,6 +528,10 @@ implements MapStorageReader<PK,D>,
 						if(prefixesDisjunction != null){
 							for(Key<PK> prefix : prefixes){
 								Conjunction prefixConjunction = getPrefixConjunction(true, prefix, wildcardLastField);
+								if(prefixConjunction == null){
+									throw new IllegalArgumentException("cannot do a null prefix match.  Use getAll() " +
+											"instead");
+								}
 								prefixesDisjunction.add(prefixConjunction);
 							}
 							criteria.add(prefixesDisjunction);
@@ -607,50 +554,7 @@ implements MapStorageReader<PK,D>,
 			final Config config) {
 		
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
-		return (List<PK>)getRangeInternal(range, true, config);
-
-//		TraceContext.startSpan(getName()+" getKeysInRange");
-//		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
-//		Object result = executor.executeTask(
-//			new HibernateTask() {
-//				public Object run(Session session) {
-//					if(fieldInfo.getFieldAware()){
-//						String sql = SqlBuilder.getInRange(config, tableName, fieldInfo.getPrimaryKeyFields(), 
-//								start, startInclusive, end, endInclusive);
-//						List<PK> result = JdbcTool.selectPrimaryKeys(session, fieldInfo, sql);
-//						return result;
-//					}else{
-//						Criteria criteria = getCriteriaForConfig(config, session);
-//						//keys only business
-//						ProjectionList projectionList = Projections.projectionList();
-//						int numFields = 0;
-//						for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
-//							projectionList.add(Projections.property(field.getPrefixedName()));
-//							++numFields;
-//						}
-//						criteria.setProjection(projectionList);
-//						//end keys only business
-//						addPrimaryKeyOrderToCriteria(criteria);
-//						CriteriaTool.addRangesToCriteria(criteria, start, startInclusive, end, endInclusive, fieldInfo);
-//						List<Object[]> rows = criteria.list();
-//						//key only business
-//						List<PK> result = ListTool.createArrayList(CollectionTool.size(rows));
-//						for(Object row : IterableTool.nullSafe(rows)){
-//							//hibernate will return a plain Object if it's a single col PK
-//							Object[] rowCells;
-//							if(row instanceof Object[]){ rowCells = (Object[])row; }
-//							else{ rowCells = new Object[]{row}; }
-//							result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
-//									fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rowCells));
-//						}
-//						//end key only business
-//						return result;
-//					}
-//				}
-//			});
-//		TraceContext.finishSpan();
-//		
-//		return (List<PK>)result;
+		return (List<PK>)getRangeUnchecked(range, true, config);
 	}
 	
 	
@@ -662,34 +566,12 @@ implements MapStorageReader<PK,D>,
 			final Config config) {
 		
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
-		return (List<D>)getRangeInternal(range, false, config);
-
-//		TraceContext.startSpan(getName()+" getRange");
-//		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
-//		Object result = executor.executeTask(
-//			new HibernateTask() {
-//				public Object run(Session session) {
-//					if(fieldInfo.getFieldAware()){
-//						String sql = SqlBuilder.getInRange(config, tableName, fieldInfo.getFields(), 
-//								start, startInclusive, end, endInclusive);
-//						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
-//						return result;
-//					}else{
-//						Criteria criteria = getCriteriaForConfig(config, session);
-//						addPrimaryKeyOrderToCriteria(criteria);
-//						CriteriaTool.addRangesToCriteria(criteria, start, startInclusive, end, endInclusive, fieldInfo);
-//						Object result = criteria.list();
-//						return result;
-//					}
-//				}
-//			});
-//		TraceContext.finishSpan();
-//		
-//		return (List<D>)result;
+		return (List<D>)getRangeUnchecked(range, false, config);
 	}
 	
+	
 	//this gets ugly because we are dealing with PrimaryKeys/Databeans and Jdbc/Hibernate
-	public List<? extends FieldSet<?>> getRangeInternal(final Range<PK> range, final boolean keysOnly,
+	public List<? extends FieldSet<?>> getRangeUnchecked(final Range<PK> range, final boolean keysOnly,
 			final Config config){
 		String spanNameSuffix = keysOnly ? "getKeysInRange" : "getRange";
 		TraceContext.startSpan(getName() + " " + spanNameSuffix);
@@ -775,8 +657,7 @@ implements MapStorageReader<PK,D>,
 							criteria.add(prefixConjunction);
 						}		
 						if(start != null && CollectionTool.notEmpty(start.getFields())){
-							List<Field<?>> startFields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), 
-									start.getFields());
+							List<Field<?>> startFields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), start.getFields());
 							int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 							Disjunction d = Restrictions.disjunction();
 							for(int i=numNonNullStartFields; i > 0; --i){
@@ -815,9 +696,6 @@ implements MapStorageReader<PK,D>,
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
 		SortedScanner<PK> scanner = new HibernatePrimaryKeyScanner<PK,D>(this, fieldInfo, range, config);
 		return new SortedScannerIterable<PK>(scanner);
-		
-//		return new PrimaryKeyScanner<PK>(this, start, startInclusive, end, endInclusive, 
-//				config, DEFAULT_ITERATE_BATCH_SIZE);
 	}
 	
 	@Override
@@ -829,10 +707,6 @@ implements MapStorageReader<PK,D>,
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
 		SortedScanner<D> scanner = new HibernateDatabeanScanner<PK,D>(this, fieldInfo, range, config);
 		return new SortedScannerIterable<D>(scanner);
-		
-//		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
-//		return new Scanner<PK,D>(this, start, startInclusive, end, endInclusive, 
-//				config, DEFAULT_ITERATE_BATCH_SIZE);
 	}
 	
 	

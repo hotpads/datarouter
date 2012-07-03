@@ -86,8 +86,11 @@ public abstract class BaseHandler{
 			}catch(IllegalAccessException e){
 				throw new RuntimeException(e);
 			}catch(InvocationTargetException e){
-//				throw new RuntimeException(e);
-				throw (RuntimeException)e.getCause();
+				Throwable cause = e.getCause();
+				if(cause instanceof RuntimeException){ 
+					throw (RuntimeException)cause; 
+				}
+				throw new RuntimeException(cause);
 			}
 			finishRequest(resultMav);
 		}catch(Exception e){
