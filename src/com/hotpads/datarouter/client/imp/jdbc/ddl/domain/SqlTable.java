@@ -16,7 +16,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.test.TestParser;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
-public class SqlTable {
+public class SqlTable{
 	
 	/***************** fields *****************************/
 	
@@ -80,13 +80,13 @@ public class SqlTable {
 		
 		//primary key
 		String[] sTokenPKey= TestParser.getPrimaryKeyDeclarationFromFullBody(phrase).split("[,()]");
-		for (int i = 0; i < sTokenPKey.length; i++) {
+		for (int i = 0; i < sTokenPKey.length; i++){
 			table.setPrimaryKey(TestParser.removeNonText(sTokenPKey[i]));
 		}
 		
 		//secondary indexes
 		List<String> sTokenKey= TestParser.getKeyDeclarationsFromFullBody(phrase);
-		for (String s1: sTokenKey) {
+		for (String s1: sTokenKey){
 				SqlIndex tableIndex = new SqlIndex(TestParser.getKeyNameFromKeydeclaration(s1));
 				//System.out.println(TestParser.getKeyNameFromKeydeclaration(s1));
 				for(String s2:TestParser.getKeyColumnsNamesFromKeyDeclaration(s1)){
@@ -116,17 +116,17 @@ public class SqlTable {
 		}
 	}
 	
-	public SqlTable addColumn(SqlColumn column) {
+	public SqlTable addColumn(SqlColumn column){
 		columns.add(column);
 		return this;
 	}
 
-	public SqlTable addIndex(SqlIndex tableIndex) {
+	public SqlTable addIndex(SqlIndex tableIndex){
 		indexes.add(tableIndex);
 		return this;
 	}
 	
-	public boolean hasPrimaryKey() {
+	public boolean hasPrimaryKey(){
 		return getPrimaryKey()!=null && getPrimaryKey().getColumns().size()>0;
 	}
 
@@ -173,7 +173,7 @@ public class SqlTable {
 	/********************** Object methods ****************************/
 
 	@Override
-	public String toString() {
+	public String toString(){
 		//TODO use StringBuilder
 		StringBuilder sb = new StringBuilder("SqlTable name=" + name + ",\n") ;
 //		for(SqlColumn col : getColumns()){
@@ -189,7 +189,7 @@ public class SqlTable {
 	
 	@Override
 	public boolean equals(Object otherObject){
-		if(!(otherObject instanceof SqlTable)) { return false; }
+		if(!(otherObject instanceof SqlTable)){ return false; }
 		SqlTable other = (SqlTable)otherObject;
 		return ! new SqlTableDiffGenerator(this, other,true).isTableModified();
 	}

@@ -27,7 +27,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 	/****************** primary method ****************************/
 
 	@Override
-	public String generateDdl() {
+	public String generateDdl(){
 		StringBuilder sb=new StringBuilder("CREATE TABLE " );
 		if(!StringTool.isEmpty(databaseName)){
 			sb.append(databaseName + ".");
@@ -60,7 +60,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			for(int i=0; i< numberOfColumnsInPrimaryKey; i++){
 				col = table.getPrimaryKey().getColumns().get(i);
 				sb.append(col.getName());
-						if(i != numberOfColumnsInPrimaryKey -1) {
+						if(i != numberOfColumnsInPrimaryKey -1){
 							sb.append(",");
 						}
 			}
@@ -75,7 +75,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			for(int j=0; j< numberOfColumndInIndexe; j++){
 				col = table.getIndexes().get(i).getColumns().get(j);
 				sb.append(table.getIndexes().get(i).getColumns().get(j).getName());
-						if(j != numberOfColumndInIndexe -1) {
+						if(j != numberOfColumndInIndexe -1){
 							sb.append(", ") ;
 						}
 			}

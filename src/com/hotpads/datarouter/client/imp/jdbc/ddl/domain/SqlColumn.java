@@ -37,7 +37,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		this.nullable = nullable;
 	}
 
-	public SqlColumn(String name, MySqlColumnType type) {
+	public SqlColumn(String name, MySqlColumnType type){
 		this.name = name;
 		this.type = type;
 	}
@@ -46,7 +46,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	/******************* Object methods **********************/
 	
 	@Override
-	public String toString() {
+	public String toString(){
 		return "\t[" + name + ", " + type + ", "
 				+ maxLength + ", " + nullable + "]";
 		//		return "SqlColumn [name=" + name + ", Type=" + type + ", MaxLength="
@@ -60,8 +60,8 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	/******************* comparator *************************/
 	
 	@Override
-	public boolean equals(Object otherObject) {
-		if(!(otherObject instanceof SqlColumn)) { return false; }
+	public boolean equals(Object otherObject){
+		if(!(otherObject instanceof SqlColumn)){ return false; }
 		// //return 0==compareTo((SqlColumn)otherObject);
 		return 0 == new SqlColumnNameComparator(true).compare(this,(SqlColumn) otherObject);
 	}
@@ -82,11 +82,11 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	@Override
 	public int compareTo(SqlColumn other){
 		int c = ComparableTool.nullFirstCompareTo(name, other.name);
-		if(c!=0) { return c; }
+		if(c!=0){ return c; }
 		c = ComparableTool.nullFirstCompareTo(type, other.type);
-		if(c!=0) { return c; }
+		if(c!=0){ return c; }
 		c = ComparableTool.nullFirstCompareTo(maxLength, other.maxLength);
-		if(c!=0) { return c; }
+		if(c!=0){ return c; }
 		c = ComparableTool.nullFirstCompareTo(nullable, other.nullable);
 		return c;	
 	}
@@ -94,11 +94,11 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	public static class SqlColumnNameComparator implements Comparator<SqlColumn>{
 		
 		boolean caseSensitive = true;
-		public SqlColumnNameComparator(boolean caseSensitive) {
+		public SqlColumnNameComparator(boolean caseSensitive){
 			this.caseSensitive = caseSensitive;
 		}
 		@Override
-		public int compare(SqlColumn a, SqlColumn b) {
+		public int compare(SqlColumn a, SqlColumn b){
 			if(a==null && b==null) return 0;
 			if(a==null)	return -1;
 			if(b==null) return 1;
@@ -112,11 +112,11 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	
 	public static class SqlColumnNameTypeComparator implements Comparator<SqlColumn>{
 		boolean caseSensitive = true;
-		public SqlColumnNameTypeComparator(boolean caseSensitive) {
+		public SqlColumnNameTypeComparator(boolean caseSensitive){
 			this.caseSensitive = caseSensitive;
 		}
 		@Override
-		public int compare(SqlColumn a, SqlColumn b) {
+		public int compare(SqlColumn a, SqlColumn b){
 			int c ;
 			if(a==null && b==null) return 0;
 			if(a==null)	return -1;
@@ -127,7 +127,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 				c = ComparableTool.nullFirstCompareTo(StringTool.nullSafe(a.name).toLowerCase(), 
 						StringTool.nullSafe(b.name).toLowerCase());
 			}
-			if(c!=0) { return c; }
+			if(c!=0){ return c; }
 			return ComparableTool.nullFirstCompareTo(a.type, b.type);
 			
 		}
@@ -135,11 +135,11 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	
 	public static class SqlColumnNameTypeLengthComparator implements Comparator<SqlColumn>{
 		boolean caseSensitive = true;
-		public SqlColumnNameTypeLengthComparator(boolean caseSensitive) {
+		public SqlColumnNameTypeLengthComparator(boolean caseSensitive){
 			this.caseSensitive = caseSensitive;
 		}
 		@Override
-		public int compare(SqlColumn a, SqlColumn b) {
+		public int compare(SqlColumn a, SqlColumn b){
 			int c ;
 			if(a==null && b==null) return 0;
 			if(a==null)	return -1;
@@ -151,7 +151,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 						StringTool.nullSafe(b.name).toLowerCase());
 			}
 			c = ComparableTool.nullFirstCompareTo(a.type, b.type);
-			if(c!=0) { return c; }
+			if(c!=0){ return c; }
 			return ComparableTool.nullFirstCompareTo(a.maxLength, b.maxLength);
 		}
 	}
@@ -160,12 +160,12 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	public static class SqlColumnNameComparatorUsingLevenshteinDistance implements Comparator<SqlColumn>{
 		boolean caseSensitive = true;
 		int maxDistanceAllowed = 2;
-		public SqlColumnNameComparatorUsingLevenshteinDistance(boolean caseSensitive, int maxDistanceAllowed) {
+		public SqlColumnNameComparatorUsingLevenshteinDistance(boolean caseSensitive, int maxDistanceAllowed){
 			this.caseSensitive = caseSensitive;
 			this.maxDistanceAllowed=maxDistanceAllowed;
 		}
 		@Override
-		public int compare(SqlColumn a, SqlColumn b) {
+		public int compare(SqlColumn a, SqlColumn b){
 			if(a==null && b==null){
 				return 0;
 			}else if(a==null){
@@ -185,18 +185,18 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	
 	//	public int compareToUsingAll(SqlColumn other){
 	//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
-	//		if(c!=0) { return c; }
+	//		if(c!=0){ return c; }
 	//		c = ComparableTool.nullFirstCompareTo(type, other.type);
-	//		if(c!=0) { return c; }
+	//		if(c!=0){ return c; }
 	//		c = ComparableTool.nullFirstCompareTo(maxLength, other.maxLength);
-	//		if(c!=0) { return c; }
+	//		if(c!=0){ return c; }
 	//		c = ComparableTool.nullFirstCompareTo(nullable, other.nullable);
 	//		return c;
 	//	}
 	//	
 	//	public int compareToUsingNameAndTypeOnly(SqlColumn other){
 	//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
-	//		if(c!=0) { return c; }
+	//		if(c!=0){ return c; }
 	//		c = ComparableTool.nullFirstCompareTo(type, other.type);
 	//		return c;
 	//	}
@@ -209,42 +209,42 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	
 	/******************* get/set ****************************/
 	
-	public String getName() {
+	public String getName(){
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(String name){
 		this.name = name;
 	}
 
-	public MySqlColumnType getType() {
+	public MySqlColumnType getType(){
 		return type;
 	}
 
-	public void setType(MySqlColumnType type) {
+	public void setType(MySqlColumnType type){
 		this.type = type;
 	}
 
-	public Integer getMaxLength() {
+	public Integer getMaxLength(){
 		return maxLength;
 	}
 
-	public void setMaxLength(Integer maxLength) {
+	public void setMaxLength(Integer maxLength){
 		this.maxLength = maxLength;
 	}
 
-	public Boolean getNullable() {
+	public Boolean getNullable(){
 		return nullable;
 	}
 
-	public void setNullable(Boolean nullable) {
+	public void setNullable(Boolean nullable){
 		this.nullable = nullable;
 	}
 
 	/******************* tests ***************************/
 	
 	public static class SqlColumnTester{
-		@Test public void testCompareTo() {
+		@Test public void testCompareTo(){
 			//two different values a, b
 			SqlColumn a = new SqlColumn("a", MySqlColumnType.BIGINT, 19, false);
 			SqlColumn b = new SqlColumn("b", MySqlColumnType.VARCHAR, 120, true);
@@ -262,7 +262,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			columns.add(b);
 			columns.add(a);//should keep this version of a/a2 since it was added first
 			columns.add(a2);
-			//			for(SqlColumn column : columns) {
+			//			for(SqlColumn column : columns){
 			//				System.out.println(column);
 			//			}
 			List<SqlColumn> columnList = ListTool.createArrayList(columns);

@@ -8,8 +8,8 @@ public enum MySqlTableEngine{
 	;
 	public static MySqlTableEngine parse(String a){
 		String upperCase = StringTool.nullSafe(a).toUpperCase();
-		for(MySqlTableEngine type : values()) {
-			if(type.toString().equals(upperCase)) {
+		for(MySqlTableEngine type : values()){
+			if(type.toString().equals(upperCase)){
 				return type;
 			}
 		}

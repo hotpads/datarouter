@@ -49,7 +49,7 @@ import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 
-public class HibernateSimpleClientFactory implements HibernateClientFactory {
+public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	Logger logger = Logger.getLogger(getClass());
 
 	public static Boolean SCHEMA_UPDATE = false;
@@ -100,25 +100,25 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 	protected static final boolean SEPARATE_THREAD = true;// why do we need this separate thread?
 
 	@Override
-	public HibernateClient getClient() {
-		if (client != null) {
+	public HibernateClient getClient(){
+		if(client != null){
 			return client;
 		}
 		// logger.warn("activating Hibernate client "+clientName);
-		if (SEPARATE_THREAD) {
-			synchronized (this) {
-				if (client != null) {
+		if(SEPARATE_THREAD){
+			synchronized (this){
+				if(client != null){
 					return client;
 				}
-				if ("event".equals(clientName)) {
+				if("event".equals(clientName)){
 					logger.warn("intantiating " + clientName);
 					int breakpoint = 1;
 				}
 				Future<HibernateClient> future = executorService
-						.submit(new Callable<HibernateClient>() {
+						.submit(new Callable<HibernateClient>(){
 							@Override
-							public HibernateClient call() {
-								if (client != null) {
+							public HibernateClient call(){
+								if(client != null){
 									return client;
 								}
 								logger.warn("activating Hibernate client "
@@ -126,21 +126,21 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 								return createFromScratch(drContext, clientName);
 							}
 						});
-				try {
+				try{
 					client = future.get();
-				} catch (InterruptedException e) {
+				} catch (InterruptedException e){
 					throw new RuntimeException(e);
-				} catch (ExecutionException e) {
+				} catch (ExecutionException e){
 					throw new RuntimeException(e);
 				}
 			}
 			return client;
-		} else {
+		} else{
 			return createFromScratch(drContext, clientName);
 		}
 	}
 
-	public HibernateClientImp createFromScratch(DataRouterContext drContext, String clientName) {
+	public HibernateClientImp createFromScratch(DataRouterContext drContext, String clientName){
 		PhaseTimer timer = new PhaseTimer(clientName);
 
 		HibernateClientImp client = new HibernateClientImp(clientName);
@@ -150,7 +150,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		// base config file for a SessionFactory
 		String configFileLocation = PropertiesTool.getFirstOccurrence(multiProperties, Clients.prefixClient + clientName
 					+ paramConfigLocation);
-		if (StringTool.isEmpty(configFileLocation)) {
+		if(StringTool.isEmpty(configFileLocation)){
 			configFileLocation = configLocationDefault;
 		}
 		sfConfig.configure(configFileLocation);
@@ -159,12 +159,12 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		@SuppressWarnings("unchecked")
 		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = drContext.getNodes().getTypesForClient(
 				clientName);
-		for (Class<? extends Databean<?, ?>> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)) {
+		for (Class<? extends Databean<?, ?>> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
 			// TODO skip fieldAware databeans
 			// logger.warn(clientName+":"+databeanClass);
-			try {
+			try{
 				sfConfig.addClass(databeanClass);
-			} catch (org.hibernate.MappingNotFoundException mnfe) {
+			} catch (org.hibernate.MappingNotFoundException mnfe){
 				sfConfig.addAnnotatedClass(databeanClass);
 			}
 		}
@@ -187,11 +187,11 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 
 		// datarouter fieldAware databeans (register after connecting to db)
 		Connection connection = null;
-		try {
+		try{
 			connection = JdbcTool.checkOutConnectionFromPool(connectionPool);
 			List<String> tableNames = JdbcTool.showTables(connection);
 //			System.out.println("table names : ");
-//			for (String s : tableNames) {
+//			for (String s : tableNames){
 //				System.out.println(s);
 //			}
 			Nodes nodes = drContext.getNodes();
@@ -200,11 +200,11 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 				String tableName = physicalNode.getTableName();
 				// logger.warn(clientName+":"+tableName);
 				DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
-				if (SCHEMA_UPDATE && fieldInfo.getFieldAware()) {
+				if(SCHEMA_UPDATE && fieldInfo.getFieldAware()){
 					createOrUpdateTableIfNeeded(tableNames, connectionPool, physicalNode);
 				}
 			}
-		} finally {
+		} finally{
 			JdbcTool.closeConnection(connection);// is this how you return it to
 													// the pool?
 		}
@@ -217,7 +217,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 	}
 
 	@Override
-	public boolean isInitialized() {
+	public boolean isInitialized(){
 		return client != null;
 	}
 
@@ -228,10 +228,10 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 	}
 
 	protected void createOrUpdateTableIfNeeded(List<String> tableNames, JdbcConnectionPool connectionPool, 
-			PhysicalNode<?, ?> physicalNode) {
+			PhysicalNode<?, ?> physicalNode){
 		if( ! physicalNode.getFieldInfo().getFieldAware()){ return; }
 
-		if (!SCHEMA_UPDATE) {
+		if(!SCHEMA_UPDATE){
 			return;
 		}
 		//TODO don't forget to comment this condition when testing ManyFielTypeBeanIntegrationTest 
@@ -245,48 +245,41 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 		List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
 		Map<String, List<Field<?>>>  indexes = MapTool.nullSafe(fieldInfo.getIndexes());
 
-		
-//		if(ListTool.create("event").contains(clientName)){  
-//			String dateInYYYYMM = new SimpleDateFormat("yyyyMM").format(new Timestamp(System.currentTimeMillis()));
-//			String date2InYYYYMM = new SimpleDateFormat("yyyyMM").format(new Timestamp(System.currentTimeMillis()-2678400000L));
-//			System.out.println(" date1 " + dateInYYYYMM + "date 2 " + date2InYYYYMM);
-//			String actualEventTableName = "Event"+dateInYYYYMM, actualEventTableName2 = "Event"+date2InYYYYMM;
-//			 if(!ListTool.create(actualEventTableName, actualEventTableName2).contains(tableName)){
-//				 return;
-//			 }
-//		}
-		
-		
+		if(schemaUpdateExecuteOptions.getIgnoreClients().contains(clientName)){ return; }
+		List<String> tablesToIgnore = schemaUpdateExecuteOptions.getIgnoreTables();
+		String currentTableAbsoluteName = clientName + "." + tableName;
+		if(tablesToIgnore.contains(currentTableAbsoluteName)){ return; }
+
 		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(), primaryKeyFields, 
 				nonKeyFields);
 		generator.setIndexes(indexes);
 
 		SqlTable requested = generator.generate();
 		Connection connection = null;
-		try {
-			if (!connectionPool.isWritable()) { return; }
+		try{
+			if(!connectionPool.isWritable()){ return; }
 			if(updatedTables.contains(tableName)){ return; }
 			updatedTables.add(tableName);
 			connection = connectionPool.getDataSource().getConnection();
 			Statement statement = connection.createStatement();
 			boolean exists = tableNames.contains(tableName);
-			if (!exists) {
+			if(!exists){
 				System.out.println("========================================== Creating the table " +tableName 
 						+" ============================");
 				String sql = new SqlCreateTableGenerator(requested, JdbcTool.getSchemaName(connectionPool))
 						.generateDdl();
-				if (!schemaUpdateExecuteOptions.getCreateTables()) {
+				if(!schemaUpdateExecuteOptions.getCreateTables()){
 					System.out.println("Please execute: "+sql);
 				}
-				else {
+				else{
 					System.out.println(sql);
 					statement.execute(sql);
 					System.out.println("============================================================================="
 					+"=======================");
 					
 				}
-			} else {
-				/*if (!schemaUpdateOptions.anyAlterTrue()) {
+			} else{
+				/*if(!schemaUpdateOptions.anyAlterTrue()){
 					return;
 				}*/
 				
@@ -323,15 +316,15 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory {
 							+"======================");
 				}		
 			}
-		} catch (Exception e) {
+		} catch (Exception e){
 			throw new RuntimeException(e);
-		} finally {
+		} finally{
 			JdbcTool.closeConnection(connection);
 		}
 	}
 	
-	protected void sendSchemaUpdateEmail() {
-		if(CollectionTool.isEmpty(printedSchemaUpdates)) { return; }
+	protected void sendSchemaUpdateEmail(){
+		if(CollectionTool.isEmpty(printedSchemaUpdates)){ return; }
 		String administratorEmail = PropertiesTool.getFirstOccurrence(multiProperties, ADMINISTRATOR_EMAIL);
 		String serverName = PropertiesTool.getFirstOccurrence(multiProperties, SERVER_NAME);
 		if(StringTool.isEmpty(administratorEmail) || StringTool.isEmpty(serverName)){ return; }

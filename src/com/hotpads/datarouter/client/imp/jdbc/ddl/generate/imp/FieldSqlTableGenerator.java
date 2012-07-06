@@ -52,8 +52,8 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 	}
 	
 	private String getKeyByValue(Map<String,List<Field<?>>> map, List<Field<?>> value){
-		for (Entry<String, List<Field<?>>> entry : map.entrySet()) {
-	        if (value.equals(entry.getValue())) {
+		for (Entry<String, List<Field<?>>> entry : map.entrySet()){
+	        if (value.equals(entry.getValue())){
 	            return entry.getKey();
 	        }
 	    }
@@ -63,35 +63,35 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 	
 	/*************************** get/set *************************************/
 	
-	public String getTableName() {
+	public String getTableName(){
 		return tableName;
 	}
 
-	public void setTableName(String tableName) {
+	public void setTableName(String tableName){
 		this.tableName = tableName;
 	}
 
-	public List<Field<?>> getPrimaryKeyFields() {
+	public List<Field<?>> getPrimaryKeyFields(){
 		return primaryKeyFields;
 	}
 
-	public void setPrimaryKeyFields(List<Field<?>> primaryKeyFields) {
+	public void setPrimaryKeyFields(List<Field<?>> primaryKeyFields){
 		this.primaryKeyFields = primaryKeyFields;
 	}
 
-	public List<Field<?>> getNonKeyFields() {
+	public List<Field<?>> getNonKeyFields(){
 		return nonKeyFields;
 	}
 
-	public void setNonKeyFields(List<Field<?>> nonKeyFields) {
+	public void setNonKeyFields(List<Field<?>> nonKeyFields){
 		this.nonKeyFields = nonKeyFields;
 	}
 
-	public Map<String,List<Field<?>>> getIndexes() {
+	public Map<String,List<Field<?>>> getIndexes(){
 		return indexes;
 	}
 
-	public void setIndexes(Map<String,List<Field<?>>> indexes) {
+	public void setIndexes(Map<String,List<Field<?>>> indexes){
 		this.indexes = indexes;
 	}
 

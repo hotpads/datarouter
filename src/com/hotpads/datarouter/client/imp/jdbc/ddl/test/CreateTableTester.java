@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 import org.junit.Test;
 
-public class CreateTableTester {
+public class CreateTableTester{
 
 	@Test public void testCreateTable() throws SQLException{
 //		String tableName = "Person";
@@ -46,7 +46,7 @@ public class CreateTableTester {
 //			System.out.println("/*******************  OUTPUT TABLE **********************************/");
 //			System.out.println(outputTable);
 //			 
-//		}catch(Exception e) {
+//		}catch(Exception e){
 //			e.printStackTrace();			
 //		}finally{
 //			if(stmt!=null){ stmt.close(); }

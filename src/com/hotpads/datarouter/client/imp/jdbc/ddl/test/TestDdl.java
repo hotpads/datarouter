@@ -86,7 +86,7 @@ public class TestDdl{
 			}
 	        indexList.close(); 
 	        
-		}catch(Exception e) {
+		}catch(Exception e){
 			e.printStackTrace();			
 		}finally{
 			if(stmt!=null){ stmt.close(); }
