@@ -1,4 +1,4 @@
-package com.hotpads.handler.imp;
+package com.hotpads.profile.count.viewing;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +17,6 @@ import com.hotpads.profile.count.collection.archive.CountArchive;
 import com.hotpads.profile.count.collection.archive.CountArchiveFlusher;
 import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
-import com.hotpads.profile.count.viewing.CountSeries;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -27,20 +26,20 @@ import com.hotpads.util.core.ObjectTool;
 public class ViewCountsHandler extends BaseHandler{
 
 	public static final String
-	PARAM_counters = "counters",
-	PARAM_archive = "archive",
-	PARAM_sourceType = "sourceType",
-	PARAM_source = "source",
-	PARAM_periodMs = "periodMs",
-	PARAM_frequency = "frequency",
-	PARAM_name = "name",
-	PARAM_nameLike = "nameLike",
-	PARAM_rangeLengthSeconds = "rangeLengthSeconds",
-	VALUE_source_all = "all",
-	
-	JSP_listArchives = "/WEB-INF/jsp/listArchives.jsp",
-	JSP_listCounters = "/WEB-INF/jsp/listCounters.jsp",
-	JSP_viewCounters = "/WEB-INF/jsp/viewCounters.jsp";
+		PARAM_counters = "counters",
+		PARAM_archive = "archive",
+		PARAM_sourceType = "sourceType",
+		PARAM_source = "source",
+		PARAM_periodMs = "periodMs",
+		PARAM_frequency = "frequency",
+		PARAM_name = "name",
+		PARAM_nameLike = "nameLike",
+		PARAM_rangeLengthSeconds = "rangeLengthSeconds",
+		VALUE_source_all = "all",
+		
+		JSP_listArchives = "/WEB-INF/jsp/listArchives.jsp",
+		JSP_listCounters = "/WEB-INF/jsp/listCounters.jsp",
+		JSP_viewCounters = "/WEB-INF/jsp/viewCounters.jsp";
 	
 	@Override
 	protected Mav handleDefault() {
