@@ -2,6 +2,7 @@ package com.hotpads.datarouter.node.type.partitioned.base;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -21,6 +22,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.iterable.scanner.filter.Filter;
 
 /*
  * current assumption is that partition can always be determined by the PrimaryKey.  should probably create a
@@ -120,6 +122,8 @@ extends BaseNode<PK,D,F>{
 	
 	
 	/******************* abstract partitioning logic methods ******************/
+	
+	public abstract Map<N,Filter<PK>> getFilterByNode();
 		
 	//for map nodes
 	public abstract N getPhysicalNode(PK key);

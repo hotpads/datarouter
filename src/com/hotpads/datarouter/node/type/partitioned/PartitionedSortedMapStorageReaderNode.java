@@ -20,6 +20,8 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
+import com.hotpads.util.core.iterable.scanner.filter.Filter;
+import com.hotpads.util.core.iterable.scanner.filter.FilteringSortedScanner;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
@@ -129,15 +131,16 @@ implements SortedMapStorageReaderNode<PK,D>{
 	}
 	
 	@Override
-	public SortedScannerIterable<PK> scanKeys(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
+	public SortedScannerIterable<PK> scanKeys(PK start, boolean startInclusive, PK end, boolean endInclusive, 
+			Config config){
 		List<SortedScanner<PK>> subScanners = ListTool.createArrayList();
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
 		List<N> nodes = getPhysicalNodesForRange(range);
-		for(N node : IterableTool.nullSafe(CollectionTool.nullSafe(nodes))){
-			//the scanners are wrapped in a SortedScannerIterable, so we need to unwrap them for the collator
+		for(N node : IterableTool.nullSafe(nodes)){
 			SortedScannerIterable<PK> iterable = node.scanKeys(start, startInclusive, end, endInclusive, config);
-//			FilteredSortedScanner<PK> filteredScanner = new FilteredSortedScannerImp<PK>(iterable.getScanner(), filter);
-			subScanners.add(iterable.getScanner());
+			Filter<PK> filter = getFilterByNode().get(node);
+			FilteringSortedScanner<PK> filteredScanner = new FilteringSortedScanner<PK>(iterable.getScanner(), filter);
+			subScanners.add(filteredScanner);
 		}
 		Collator<PK> collator = new PriorityQueueCollator<PK>(subScanners);
 		return new SortedScannerIterable<PK>(collator);
