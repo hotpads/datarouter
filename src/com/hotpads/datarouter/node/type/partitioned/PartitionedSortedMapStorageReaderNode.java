@@ -135,6 +135,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 			Config config){
 		List<SortedScanner<PK>> subScanners = ListTool.createArrayList();
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
+		logger.warn(range);
 		List<N> nodes = getPhysicalNodesForRange(range);
 		for(N node : IterableTool.nullSafe(nodes)){
 			SortedScannerIterable<PK> iterable = node.scanKeys(start, startInclusive, end, endInclusive, config);
