@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.node.type.physical.base;
+package com.hotpads.datarouter.node.type.partitioned;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -8,6 +8,9 @@ import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.node.type.partitioned.base.BasePartitionedNode;
+import com.hotpads.datarouter.node.type.partitioned.filter.PartitionedNodeDatabeanFilter;
+import com.hotpads.datarouter.node.type.partitioned.filter.PartitionedNodePrimaryKeyFilter;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -15,20 +18,25 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.iterable.scanner.filter.Filter;
 
-public class PhysicalNodes<
+public class Partitions<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		N extends PhysicalNode<PK,D>> {
-	Logger logger = Logger.getLogger(getClass());
+	protected static Logger logger = Logger.getLogger(Partitions.class);
 
-	List<N> nodes = ListTool.createArrayList();
-	Map<String,N> nodeByName = MapTool.createLinkedHashMap();
-	Map<String,List<String>> nodeNamesByClientName = MapTool.createHashMap();
-	Map<String,List<String>> clientNamesByNodeName = MapTool.createHashMap();
-	SortedSet<String> clientNames = SetTool.createTreeSet();
+	protected BasePartitionedNode<PK,D,?,N> basePartitionedNode;
+	protected List<N> nodes = ListTool.createArrayList();
+	protected Map<String,N> nodeByName = MapTool.createLinkedHashMap();
+	protected Map<String,List<String>> nodeNamesByClientName = MapTool.createHashMap();
+	protected Map<String,List<String>> clientNamesByNodeName = MapTool.createHashMap();
+	protected SortedSet<String> clientNames = SetTool.createTreeSet();
+	protected Map<N,Filter<PK>> primaryKeyFilterByNode = MapTool.createHashMap();
+	protected Map<N,Filter<D>> databeanFilterByNode = MapTool.createHashMap();
 	
-	public PhysicalNodes(){
+	public Partitions(BasePartitionedNode<PK,D,?,N> basePartitionedNode){
+		this.basePartitionedNode = basePartitionedNode;
 	}
 	
 	public void add(N node){		
@@ -57,9 +65,12 @@ public class PhysicalNodes<
 		clientNamesByNodeName.get(nodeName).add(node.getClientName());
 		
 		clientNames.add(node.getClientName());
+		
+		primaryKeyFilterByNode.put(node, new PartitionedNodePrimaryKeyFilter<PK,D,N>(basePartitionedNode, node));
+		databeanFilterByNode.put(node, new PartitionedNodeDatabeanFilter<PK,D,N>(basePartitionedNode, node));
 	}
 
-	public void add(PhysicalNodes<PK,D,N> nodes){
+	public void add(Partitions<PK,D,N> nodes){
 		for(N node : nodes.nodeByName.values()){
 			add(node);
 		}
@@ -100,5 +111,13 @@ public class PhysicalNodes<
 	
 	public List<String> getClientNames(){
 		return ListTool.createArrayList(clientNames);
+	}
+	
+	public Filter<PK> getPrimaryKeyFilterForNode(N node){
+		return primaryKeyFilterByNode.get(node);
+	}
+	
+	public Filter<D> getDatabeanFilterForNode(N node){
+		return databeanFilterByNode.get(node);
 	}
 }

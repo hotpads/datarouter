@@ -130,16 +130,16 @@ implements SortedMapStorageReaderNode<PK,D>{
 		}
 	}
 	
+	//TODO add option to the BasePartitionedNode to skip filtering when not needed
 	@Override
 	public SortedScannerIterable<PK> scanKeys(PK start, boolean startInclusive, PK end, boolean endInclusive, 
 			Config config){
 		List<SortedScanner<PK>> subScanners = ListTool.createArrayList();
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
-		logger.warn(range);
 		List<N> nodes = getPhysicalNodesForRange(range);
 		for(N node : IterableTool.nullSafe(nodes)){
 			SortedScannerIterable<PK> iterable = node.scanKeys(start, startInclusive, end, endInclusive, config);
-			Filter<PK> filter = getFilterByNode().get(node);
+			Filter<PK> filter = partitions.getPrimaryKeyFilterForNode(node);
 			FilteringSortedScanner<PK> filteredScanner = new FilteringSortedScanner<PK>(iterable.getScanner(), filter);
 			subScanners.add(filteredScanner);
 		}
@@ -155,7 +155,9 @@ implements SortedMapStorageReaderNode<PK,D>{
 		for(N node : IterableTool.nullSafe(nodes)){
 			//the scanners are wrapped in a SortedScannerIterable, so we need to unwrap them for the collator
 			SortedScannerIterable<D> iterable = node.scan(start, startInclusive, end, endInclusive, config);
-			subScanners.add(iterable.getScanner());
+			Filter<D> filter = partitions.getDatabeanFilterForNode(node);
+			FilteringSortedScanner<D> filteredScanner = new FilteringSortedScanner<D>(iterable.getScanner(), filter);
+			subScanners.add(filteredScanner);
 		}
 		Collator<D> collator = new PriorityQueueCollator<D>(subScanners);
 		return new SortedScannerIterable<D>(collator);

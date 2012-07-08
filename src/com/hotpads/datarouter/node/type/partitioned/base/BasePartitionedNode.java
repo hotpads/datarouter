@@ -9,8 +9,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.type.partitioned.Partitions;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.node.type.physical.base.PhysicalNodes;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -19,6 +19,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.collections.Range;
@@ -40,11 +41,12 @@ extends BaseNode<PK,D,F>{
 
 	protected Class<D> databeanClass;
 	protected DataRouter router;
-	protected PhysicalNodes<PK,D,N> physicalNodes = new PhysicalNodes<PK,D,N>();
+	protected Partitions<PK,D,N> partitions;
 		
 	public BasePartitionedNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router){
 		super(databeanClass, fielderClass);
 		this.router = router;
+		this.partitions = new Partitions<PK,D,N>(this);
 		this.name = databeanClass.getSimpleName()+"."+getClass().getSimpleName();
 	}
 
@@ -53,7 +55,7 @@ extends BaseNode<PK,D,F>{
 	@Override
 	public Set<String> getAllNames(){
 		Set<String> names = SetTool.wrap(this.name);
-		for(N physicalNode : IterableTool.nullSafe(physicalNodes.getAll())){
+		for(N physicalNode : IterableTool.nullSafe(partitions.getAll())){
 			names.addAll(physicalNode.getAllNames());
 		}
 		return names;
@@ -66,17 +68,17 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public List<? extends Node<PK,D>> getChildNodes(){
-		return physicalNodes.getAll();
+		return partitions.getAll();
 	}
 
 	@Override
 	public List<String> getClientNames() {
-		return physicalNodes.getClientNames();
+		return partitions.getClientNames();
 	}
 
 	@Override
 	public boolean usesClient(String clientName){
-		return CollectionTool.notEmpty(physicalNodes.getPhysicalNodesForClient(clientName));
+		return CollectionTool.notEmpty(partitions.getPhysicalNodesForClient(clientName));
 	}
 
 	@Override
@@ -102,33 +104,32 @@ extends BaseNode<PK,D,F>{
 	/************************ virtual node methods ***************************/
 	
 	public N register(N physicalNode){
-		physicalNodes.add(physicalNode);
+		partitions.add(physicalNode);
 		return physicalNode;
 	}
 	
 	@Override
 	public List<N> getPhysicalNodes() {
-		return physicalNodes.getAll();
+		return partitions.getAll();
 	}
 	
 	public N getPhysicalNode(String name){
-		return physicalNodes.get(name);
+		return partitions.get(name);
 	}
 	
 	@Override
 	public List<N> getPhysicalNodesForClient(String clientName) {
-		return physicalNodes.getPhysicalNodesForClient(clientName);
+		return partitions.getPhysicalNodesForClient(clientName);
 	}
 	
 	
 	/******************* abstract partitioning logic methods ******************/
-	
-	public abstract Map<N,Filter<PK>> getFilterByNode();
 		
 	//for map nodes
 	public abstract N getPhysicalNode(PK key);
 	
 	//for sorted nodes
+	public abstract List<N> getPhysicalNodesForFirst();
 	public abstract List<N> getPhysicalNodesForRange(Range<PK> range);
 	public abstract Multimap<N,PK> getPrefixesByPhysicalNode(Collection<PK> prefixes, boolean wildcardLastField);
 
@@ -148,23 +149,10 @@ extends BaseNode<PK,D,F>{
 	}
 	
 	//used when a physicalNode has keys that don't belong on it.  need to filter them out when they come back
-	public List<PK> filterPrimaryKeysForPhysicalNode(Collection<PK> pks, N targetNode){
-		List<PK> filteredPks = ListTool.createArrayList();
-		for(PK pk : IterableTool.nullSafe(pks)){
-			N node = getPhysicalNode(pk);
-			if(ObjectTool.equals(node, targetNode)){
-				filteredPks.add(pk);
-			}
-		}
-		return filteredPks;
-	}
-	
-	//used when a physicalNode has keys that don't belong on it.  need to filter them out when they come back
 	public List<D> filterDatabeansForPhysicalNode(Collection<D> databeans, N targetNode){
 		List<D> filteredDatabeans = ListTool.createArrayList();
 		for(D databean : IterableTool.nullSafe(databeans)){
-			N node = getPhysicalNode(databean.getKey());
-			if(ObjectTool.equals(node, targetNode)){
+			if(partitions.getPrimaryKeyFilterForNode(targetNode).include(databean.getKey())){
 				filteredDatabeans.add(databean);
 			}
 		}

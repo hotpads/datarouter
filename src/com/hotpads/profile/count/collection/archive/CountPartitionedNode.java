@@ -108,9 +108,16 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	
 	@Override
 	public PhysicalSortedMapStorageNode<CountKey,Count> getPhysicalNode(CountKey pk){
-		return physicalNodes.get(indexByMs.get(pk.getPeriodMs()));
+		return partitions.get(indexByMs.get(pk.getPeriodMs()));
 	}
-		
+	
+	@Override
+	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForFirst(){
+		PhysicalSortedMapStorageNode<CountKey,Count> firstNode = partitions.get(0);
+		if(firstNode==null){ return null; }
+		return ListTool.wrap(firstNode);
+	}
+	
 	@Override
 	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForRange(Range<CountKey> range){
 		if(range.getStart()==null && range.getEnd()==null){ 
@@ -127,7 +134,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		}else{
 			index = indexByMs.get(range.getEnd().getPeriodMs()); 
 		}
-		return ListTool.wrap(physicalNodes.get(index));
+		return ListTool.wrap(partitions.get(index));
 	}
 	
 	@Override
@@ -136,7 +143,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		SortedSetMultimap<PhysicalSortedMapStorageNode<CountKey,Count>,CountKey> prefixesByNode = TreeMultimap.create();
 		for(CountKey prefix : IterableTool.nullSafe(prefixes)){
 			int nodeIndex = indexByMs.get(prefix.getPeriodMs());
-			prefixesByNode.put(physicalNodes.get(nodeIndex), prefix);
+			prefixesByNode.put(partitions.get(nodeIndex), prefix);
 		}
 		return prefixesByNode;
 	}
@@ -151,7 +158,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		if(!isSecondaryKeyPartitionAware(key)){ return getPhysicalNodes(); }
 		CountKey countKey = (CountKey)key;
 		Integer index = indexByMs.get(countKey.getPeriodMs());
-		PhysicalSortedMapStorageNode<CountKey,Count> node = physicalNodes.get(index);
+		PhysicalSortedMapStorageNode<CountKey,Count> node = partitions.get(index);
 		if(node==null){ return ListTool.createLinkedList(); }
 		return ListTool.wrap(node);
 	}

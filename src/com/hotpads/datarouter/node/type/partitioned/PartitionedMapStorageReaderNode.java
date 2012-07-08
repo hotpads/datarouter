@@ -2,7 +2,8 @@ package com.hotpads.datarouter.node.type.partitioned;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.config.Config;
@@ -14,8 +15,8 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 public abstract class PartitionedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -24,6 +25,7 @@ public abstract class PartitionedMapStorageReaderNode<
 		N extends PhysicalMapStorageReaderNode<PK,D>>
 extends BasePartitionedNode<PK,D,F,N>
 implements MapStorageReaderNode<PK,D>{
+	protected static Logger logger = Logger.getLogger(PartitionedMapStorageReaderNode.class);
 	
 	public PartitionedMapStorageReaderNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router) {
 		super(databeanClass, fielderClass, router);
@@ -45,7 +47,7 @@ implements MapStorageReaderNode<PK,D>{
 	public D get(PK key, Config config) {
 		N node = getPhysicalNode(key);
 		if(node==null){ return null; }
-		D databean = node.get(key,config);
+		D databean = node.get(key, config);
 		if(databean != null){
 			return databean;
 		}
@@ -55,7 +57,7 @@ implements MapStorageReaderNode<PK,D>{
 	@Override
 	public List<D> getAll(Config config) {
 		List<D> all = ListTool.createLinkedList();
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
+		for(N node : IterableTool.nullSafe(getPhysicalNodes())){
 			List<D> allFromPhysicalNode = node.getAll(config);
 			//need to filter in case the physical node is hosting things not in its partitions
 			List<D> filtered = filterDatabeansForPhysicalNode(allFromPhysicalNode, node);
@@ -67,6 +69,7 @@ implements MapStorageReaderNode<PK,D>{
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config) {
 		Multimap<N,PK> keysByNode = getPrimaryKeysByPhysicalNode(keys);
+//		logger.warn(keysByNode);
 		List<D> all = ListTool.createLinkedList();
 		if(keysByNode==null){ return all; }
 		for(N node : keysByNode.keySet()){
