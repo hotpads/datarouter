@@ -54,6 +54,7 @@ implements MapStorageReaderNode<PK,D>{
 		return null;
 	}
 
+	//not a great method.  should probably stop supporting getAll in general
 	@Override
 	public List<D> getAll(Config config) {
 		List<D> all = ListTool.createLinkedList();
@@ -61,7 +62,7 @@ implements MapStorageReaderNode<PK,D>{
 			List<D> allFromPhysicalNode = node.getAll(config);
 			//need to filter in case the physical node is hosting things not in its partitions
 			List<D> filtered = filterDatabeansForPhysicalNode(allFromPhysicalNode, node);
-			all.addAll(CollectionTool.nullSafe(filtered));
+			all.addAll(CollectionTool.nullSafe(filtered));//possibly unsorted
 		}
 		return all;
 	}
@@ -70,7 +71,7 @@ implements MapStorageReaderNode<PK,D>{
 	public List<D> getMulti(Collection<PK> keys, Config config) {
 		Multimap<N,PK> keysByNode = getPrimaryKeysByPhysicalNode(keys);
 //		logger.warn(keysByNode);
-		List<D> all = ListTool.createLinkedList();
+		List<D> all = ListTool.createArrayList();
 		if(keysByNode==null){ return all; }
 		for(N node : keysByNode.keySet()){
 			Collection<PK> keysForNode = keysByNode.get(node);
@@ -84,7 +85,7 @@ implements MapStorageReaderNode<PK,D>{
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config) {
 		Multimap<N,PK> keysByNode = getPrimaryKeysByPhysicalNode(keys);
-		List<PK> all = ListTool.createLinkedList();
+		List<PK> all = ListTool.createArrayList();
 		if(keysByNode==null){ return all; }
 		for(N node : keysByNode.keySet()){
 			Collection<PK> keysForNode = keysByNode.get(node);

@@ -40,9 +40,10 @@ implements SortedMapStorageReaderNode<PK,D>{
 	/************************* sorted storage methods *****************************/
 	
 	@Override
-	public D getFirst(Config config) {
+	public D getFirst(Config config){
 		SortedSet<D> firstFromEachNode = SetTool.createTreeSet();
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
+		Collection<N> physicalNodes = getPhysicalNodesForFirst();
+		for(N node : IterableTool.nullSafe(physicalNodes)){
 			D databean = node.getFirst(config);
 			if(databean==null){ continue; }
 			firstFromEachNode.add(databean);
@@ -51,9 +52,10 @@ implements SortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public PK getFirstKey(Config config) {
+	public PK getFirstKey(Config config){
 		SortedSet<PK> firstFromEachNode = SetTool.createTreeSet();
-		for(N node : CollectionTool.nullSafe(getPhysicalNodes())){
+		Collection<N> physicalNodes = getPhysicalNodesForFirst();
+		for(N node : IterableTool.nullSafe(physicalNodes)){
 			PK key = node.getFirstKey(config);
 			if(key==null){ continue; }
 			firstFromEachNode.add(key);
@@ -64,27 +66,23 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public List<D> getPrefixedRange(PK prefix, boolean wildcardLastField, final PK start, final boolean startInclusive,
 			Config config){
-		List<D> all = ListTool.createArrayList();
+		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
 		Multimap<N,PK> prefixesByPhysicalNode = getPrefixesByPhysicalNode(ListTool.wrap(prefix), wildcardLastField);
 		for(N node : prefixesByPhysicalNode.keySet()){
-			all.addAll(node.getPrefixedRange(prefix, wildcardLastField, start, startInclusive, config));
+			List<D> allFromNode = node.getPrefixedRange(prefix, wildcardLastField, start, startInclusive, config);
+			List<D> filtered = filterDatabeansForPhysicalNode(allFromNode, node);
+			sortedDedupedResults.addAll(filtered);
 		}
-		if(CollectionTool.isEmpty(all)){ return all; }
-		Collections.sort(all);
-		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
-			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
-			return limited;
-		}else{
-			return all;
-		}
+		List<D> resultList = ListTool.createArrayList(sortedDedupedResults);
+		return getLimitedCopyOfResultIfNecessary(config, resultList);
 	}
 
 	@Override
 	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, final PK end,
 			final boolean endInclusive, final Config config){
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
-		Collection<N> physicalNodes = CollectionTool.nullSafe(getPhysicalNodesForRange(range));
 		SortedSet<PK> sortedDedupedResults = SetTool.createTreeSet();
+		Collection<N> physicalNodes = getPhysicalNodesForRange(range);
 		for(N node : IterableTool.nullSafe(physicalNodes)){
 			List<PK> resultFromSingleNode = node.getKeysInRange(start, startInclusive, end, endInclusive, config);
 			sortedDedupedResults.addAll(CollectionTool.nullSafe(resultFromSingleNode));
@@ -122,12 +120,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 		}
 		if(CollectionTool.isEmpty(all)){ return all; }
 		Collections.sort(all);
-		if(config!=null && config.getLimit()!=null && config.getLimit() < all.size()){
-			List<D> limited = ListTool.copyOfRange(all, 0, config.getLimit());
-			return limited;
-		}else{
-			return all;
-		}
+		return getLimitedCopyOfResultIfNecessary(config, all);
 	}
 	
 	//TODO add option to the BasePartitionedNode to skip filtering when not needed
