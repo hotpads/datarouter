@@ -14,6 +14,7 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 
@@ -38,8 +39,8 @@ implements IndexedStorageReader<PK,D>{
 		Long total = 0L;
 		Collection<N> nodes = target.getPhysicalNodesForSecondaryKey(lookup);
 		//TODO randomize node access to avoid drowning first node
-		for(N node : CollectionTool.nullSafe(nodes)){
-			total += node.count(lookup, config);
+		for(N node : IterableTool.nullSafe(nodes)){
+			total += node.count(lookup, config);//will count records that aren't supposed to be on the node
 		}
 		return total;
 	}
@@ -49,7 +50,7 @@ implements IndexedStorageReader<PK,D>{
 		if(uniqueKey==null){ return null; }
 		Collection<N> nodes = target.getPhysicalNodesForSecondaryKey(uniqueKey);
 		//TODO randomize node access to avoid drowning first node
-		for(N node : CollectionTool.nullSafe(nodes)){
+		for(N node : IterableTool.nullSafe(nodes)){
 			D databean = node.lookupUnique(uniqueKey, config);
 			if(databean != null){ return databean; }
 		}
@@ -63,7 +64,7 @@ implements IndexedStorageReader<PK,D>{
 		Collection<N> nodes = target.getPhysicalNodesForSecondaryKeys(uniqueKeys);
 		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
 		//TODO randomize node access to avoid drowning first node
-		for(N node : CollectionTool.nullSafe(nodes)){
+		for(N node : IterableTool.nullSafe(nodes)){
 			List<D> singleNodeResults = node.lookupMultiUnique(uniqueKeys, config);
 			sortedDedupedResults.addAll(CollectionTool.nullSafe(singleNodeResults));
 		}
@@ -77,7 +78,7 @@ implements IndexedStorageReader<PK,D>{
 		Collection<N> nodes = target.getPhysicalNodesForSecondaryKey(lookup);
 		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
 		//TODO randomize node access to avoid drowning first node
-		for(N node : CollectionTool.nullSafe(nodes)){
+		for(N node : IterableTool.nullSafe(nodes)){
 			List<D> singleNodeResults = node.lookup(lookup, wildcardLastField, config);
 			sortedDedupedResults.addAll(CollectionTool.nullSafe(singleNodeResults));
 		}
@@ -91,7 +92,7 @@ implements IndexedStorageReader<PK,D>{
 		Collection<N> nodes = target.getPhysicalNodesForSecondaryKeys(lookups);
 		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
 		//TODO randomize node access to avoid drowning first node
-		for(N node : CollectionTool.nullSafe(nodes)){
+		for(N node : IterableTool.nullSafe(nodes)){
 			for(Lookup<PK> lookup : lookups){
 				List<D> singleNodeResults = node.lookup(lookup, false, config);
 				sortedDedupedResults.addAll(CollectionTool.nullSafe(singleNodeResults));
