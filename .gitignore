@@ -4,3 +4,5 @@
 bin/*
 .classpath
 .project
+test-results/
+ant-*-build.xml
