@@ -18,7 +18,6 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.IndexedBasicNodeTestRouter;
-import com.hotpads.datarouter.test.node.basic.manyfield.test.ManyFieldTypeIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanByDCBLookup;
 import com.hotpads.util.core.CollectionTool;
@@ -89,16 +88,22 @@ public class IndexedNodeIntegrationTests{
 		List<SortedBean> result = router.sortedBeanIndexed().lookup(lookup, false, null);
 		Assert.assertEquals(NUM_ELEMENTS, CollectionTool.size(result));
 		Assert.assertTrue(ListTool.isSorted(result));
+		
+		lookup = new SortedBeanByDCBLookup(STRINGS.first(), 2, null);//matches d=aardvark && c=2 (64 rows)
+		result = router.sortedBeanIndexed().lookup(lookup, false, null);
+		Assert.assertEquals(NUM_ELEMENTS*NUM_ELEMENTS, CollectionTool.size(result));
+		Assert.assertTrue(ListTool.isSorted(result));
 	}
 	
 	@Test
 	public void testLookups(){
 		List<SortedBeanByDCBLookup> lookups = ListTool.create(
-				new SortedBeanByDCBLookup(STRINGS.last(), 1, STRINGS.first()),
-				new SortedBeanByDCBLookup(STRINGS.first(), 2, null),//should currently match nulls in 3, which we don't have
-				new SortedBeanByDCBLookup(STRINGS.last(), 0, STRINGS.first()));
+				new SortedBeanByDCBLookup(STRINGS.last(), 1, STRINGS.first()), //8 rows
+				new SortedBeanByDCBLookup(STRINGS.first(), 2, null),//matches d=aardvark && c=2 (64 rows)
+				new SortedBeanByDCBLookup(STRINGS.last(), 0, STRINGS.first())); //8 rows
+		
 		List<SortedBean> result = router.sortedBeanIndexed().lookup(lookups, null);
-		int expected = 2 * NUM_ELEMENTS;
+		int expected = NUM_ELEMENTS + NUM_ELEMENTS*NUM_ELEMENTS + NUM_ELEMENTS;
 		Assert.assertEquals(expected, CollectionTool.size(result));
 		Assert.assertTrue(ListTool.isSorted(result));
 	}
@@ -119,7 +124,4 @@ public class IndexedNodeIntegrationTests{
 	}
 	
 }
-
-
-
 
