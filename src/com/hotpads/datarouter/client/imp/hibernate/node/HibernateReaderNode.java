@@ -552,7 +552,6 @@ implements MapStorageReader<PK,D>,
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config config) {
-		
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
 		return (List<PK>)getRangeUnchecked(range, true, config);
 	}
@@ -725,6 +724,10 @@ implements MapStorageReader<PK,D>,
 		
 		if(config == null){
 			return criteria;
+		}
+		//need clearer spec on how to handle limit and iterateBatchSize
+		if(config.getIterateBatchSize()!=null){
+			config.setLimit(config.getIterateBatchSize());
 		}
 		if(config.getLimit()!=null){
 			criteria.setMaxResults(config.getLimit());
