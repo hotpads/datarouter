@@ -46,20 +46,16 @@ public interface DataRouter {
 	List<Client> getAllInstantiatedClients();
 	List<Client> getClients(Collection<String> clientNames);
 
-	<K extends Key<K>> List<String> 
-			getClientNamesForKeys(Collection<? extends Key<K>> keys);
+	<K extends Key<K>>List<String> getClientNamesForKeys(Collection<? extends Key<K>> keys);
 
-	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<String> 
+	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>List<String>
 			getClientNamesForDatabeans(Collection<D> databeans);
 
-	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<Client> 
-			getClientsForDatabeanType(Class<D> databeanType);
+	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>List<Client> getClientsForDatabeanType(Class<D> databeanType);
 
-	<K extends Key<K>> List<Client> 
-			getClientsForKeys(Collection<? extends Key<K>> keys);
+	<K extends Key<K>>List<Client> getClientsForKeys(Collection<? extends Key<K>> keys);
 
-	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<Client> 
-			getClientsForDatabeans(Collection<D> databeans);
+	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>List<Client> getClientsForDatabeans(Collection<D> databeans);
 
 	/***************** overexposed accessors *******************************/
 	ConnectionPools getConnectionPools();

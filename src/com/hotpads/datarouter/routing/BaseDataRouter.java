@@ -123,15 +123,14 @@ public abstract class BaseDataRouter implements DataRouter {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <K extends Key<K>> List<String> 
-	getClientNamesForKeys(Collection<? extends Key<K>> keys){
+	public <K extends Key<K>>List<String> getClientNamesForKeys(Collection<? extends Key<K>> keys){
 		List<String> clientNames = context.getNodes().getClientNamesForKeys(keys);
 		return clientNames;
 	}
 
 	@Override
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<String> 
-	getClientNamesForDatabeans(Collection<D> databeans){
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>List<String> getClientNamesForDatabeans(
+			Collection<D> databeans){
 		return getClientNamesForKeys(KeyTool.getKeys(databeans));
 	}
 
@@ -145,8 +144,7 @@ public abstract class BaseDataRouter implements DataRouter {
 	}
 
 	@Override
-	public <K extends Key<K>> List<Client> 
-	getClientsForKeys(Collection<? extends Key<K>> keys){
+	public <K extends Key<K>>List<Client> getClientsForKeys(Collection<? extends Key<K>> keys){
 		List<Client> clientsForKeys = ListTool.createLinkedList();
 		List<String> clientNames = getClientNamesForKeys(keys);
 		for(String clientName : CollectionTool.nullSafe(clientNames)){
@@ -157,8 +155,8 @@ public abstract class BaseDataRouter implements DataRouter {
 	}
 
 	@Override
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<Client> 
-	getClientsForDatabeans(Collection<D> databeans){
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>List<Client> getClientsForDatabeans(
+			Collection<D> databeans){
 		return getClientsForKeys(KeyTool.getKeys(databeans));
 	}
 	
