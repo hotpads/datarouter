@@ -22,15 +22,13 @@ implements SortedMapStorageNode<PK,D>{
 	protected MasterSlaveMapStorageWriterMixin<PK,D,F,N> mixinMapWriteOps;
 	protected MasterSlaveSortedStorageWriterMixin<PK,D,F,N> mixinSortedWriteOps;
 	
-	public MasterSlaveSortedMapStorageNode(
-			Class<D> databeanClass, DataRouter router,
+	public MasterSlaveSortedMapStorageNode(Class<D> databeanClass, DataRouter router,
 			N master, Collection<N> slaves) {
 		super(databeanClass, router, master, slaves);
 		initMixins();
 	}
 	
-	public MasterSlaveSortedMapStorageNode(
-			Class<D> databeanClass, DataRouter router) {
+	public MasterSlaveSortedMapStorageNode(Class<D> databeanClass, DataRouter router){
 		super(databeanClass, router);
 		initMixins();
 	}

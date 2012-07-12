@@ -11,6 +11,7 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.iterable.PeekableIterable;
+import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class WriteBehindSortedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -61,17 +62,19 @@ implements SortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getWithPrefixes(Collection<? extends PK> prefixes, boolean wildcardLastField, Config config) {
+	public List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config) {
 		return backingNode.getWithPrefixes(prefixes, wildcardLastField, config);
 	}
 	
 	@Override
-	public PeekableIterable<PK> scanKeys(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
+	public SortedScannerIterable<PK> scanKeys(PK startKey, boolean startInclusive, PK end, boolean endInclusive, 
+			Config config){
 		return backingNode.scanKeys(startKey,startInclusive, end, endInclusive, config);
 	};
 	
 	@Override
-	public PeekableIterable<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, Config config){
+	public SortedScannerIterable<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, 
+			Config config){
 		return backingNode.scan(startKey,startInclusive, end, endInclusive, config);
 	};
 	
