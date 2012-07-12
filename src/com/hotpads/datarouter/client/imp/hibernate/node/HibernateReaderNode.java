@@ -581,9 +581,7 @@ implements MapStorageReader<PK,D>,
 					if(fieldInfo.getFieldAware()){
 						List<Field<?>> fieldsToSelect = keysOnly ? fieldInfo.getPrimaryKeyFields() 
 								: fieldInfo.getFields();
-						String sql = SqlBuilder.getInRange(config, tableName, fieldsToSelect, 
-															range.getStart(), range.getStartInclusive(), 
-															range.getEnd(),   range.getEndInclusive());
+						String sql = SqlBuilder.getInRange(config, tableName, fieldsToSelect, range);
 						List<? extends FieldSet<?>> result;
 						if(keysOnly){
 							result = JdbcTool.selectPrimaryKeys(session, fieldInfo, sql);
