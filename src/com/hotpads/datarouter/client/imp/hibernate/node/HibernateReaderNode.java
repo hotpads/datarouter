@@ -50,7 +50,6 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.exception.NotImplementedException;
-import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
@@ -582,7 +581,9 @@ implements MapStorageReader<PK,D>,
 					if(fieldInfo.getFieldAware()){
 						List<Field<?>> fieldsToSelect = keysOnly ? fieldInfo.getPrimaryKeyFields() 
 								: fieldInfo.getFields();
-						String sql = SqlBuilder.getInRange(config, tableName, fieldsToSelect, range);
+						String sql = SqlBuilder.getInRange(config, tableName, fieldsToSelect, 
+															range.getStart(), range.getStartInclusive(), 
+															range.getEnd(),   range.getEndInclusive());
 						List<? extends FieldSet<?>> result;
 						if(keysOnly){
 							result = JdbcTool.selectPrimaryKeys(session, fieldInfo, sql);
