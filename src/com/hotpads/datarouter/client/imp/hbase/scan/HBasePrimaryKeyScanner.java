@@ -13,8 +13,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public class HBasePrimaryKeyScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends BaseHBaseScanner<PK,D,PK>{
 	
-	public HBasePrimaryKeyScanner(HBaseReaderNode<PK,D,?> node, 
-			DatabeanFieldInfo<PK,D,?> fieldInfo, 
+	public HBasePrimaryKeyScanner(HBaseReaderNode<PK,D,?> node, DatabeanFieldInfo<PK,D,?> fieldInfo, 
 			byte[] startInclusive, byte[] endExclusive, Config pConfig){
 		super(node, fieldInfo, startInclusive, endExclusive, pConfig);
 	}

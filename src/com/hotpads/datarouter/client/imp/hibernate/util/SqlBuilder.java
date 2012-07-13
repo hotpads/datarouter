@@ -13,6 +13,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.collections.Range;
 
 public class SqlBuilder{
 	
@@ -91,6 +92,12 @@ public class SqlBuilder{
 		addPrefixWhereClauseDisjunction(sql, keys, wildcardLastField);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
+	}
+	
+	public static <T extends FieldSet<T>> String getInRange(
+			Config config, String tableName, List<Field<?>> selectFields, Range<T> range){
+		return getInRange(config, tableName, selectFields, range.getStart(), range.getStartInclusive(), range.getEnd(),
+				range.getEndInclusive());
 	}
 	
 	public static String getInRange(
