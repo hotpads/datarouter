@@ -50,7 +50,6 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.exception.NotImplementedException;
-import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 

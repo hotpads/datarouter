@@ -94,8 +94,8 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 	
-	public static String getInRange(
-			Config config, String tableName, List<Field<?>> selectFields, Range<? extends FieldSet<?>> range){
+	public static <T extends FieldSet<T>> String getInRange(
+			Config config, String tableName, List<Field<?>> selectFields, Range<T> range){
 		return getInRange(config, tableName, selectFields, range.getStart(), range.getStartInclusive(), range.getEnd(),
 				range.getEndInclusive());
 	}
