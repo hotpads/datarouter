@@ -33,6 +33,11 @@ public class Mav {
 		this.setViewName(viewName);
 	}
 	
+	public Mav(String viewName, Map<String,Object> model) {
+		this.setViewName(viewName);
+		this.setModel(model);
+	}
+	
 //	public ModelAndView(String viewName, String key, Object value){
 //		this.setViewName(viewName);
 //		this.addObject(key, value);
