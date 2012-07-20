@@ -126,7 +126,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		if(!enoughTimePassed) { return; }
 		String subject = "HBaseMultiAttempTask failure on "+drContext.getServerName();
 		String body = "Message throttled for "+throttleEmailSeconds+" seconds"
-				+"\n\n"+timeoutMessage
+				+"\n\n"+timeoutMessage;
 		String body = "Message throttled for "+throttleEmailsMs+"ms\n\n"+ExceptionTool.getStackTraceAsString(e);
 		DataRouterEmailTool.sendEmail("admin@hotpads.com", drContext.getAdministratorEmail(), subject, body);
 		lastEmailSentAtMs = System.currentTimeMillis();
