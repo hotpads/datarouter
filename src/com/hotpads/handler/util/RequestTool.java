@@ -127,7 +127,11 @@ public class RequestTool {
 
 	public static Boolean getBoolean(HttpServletRequest request, String paramName, Boolean defaultValue){
 		String stringVal = get(request, paramName, null);
-		return StringTool.isEmpty(stringVal) ? defaultValue : BooleanTool.isTrue(stringVal);
+		if(StringTool.isEmpty(stringVal)){
+			/* this has to be an explicit if rather than a ternary if to avoid a NPE when defaultValue==null */
+			return defaultValue;
+		}
+		return BooleanTool.isTrue(stringVal);
 	}
 	
 	public static Long getLong(HttpServletRequest request, String paramName){
