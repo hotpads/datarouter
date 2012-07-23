@@ -14,8 +14,15 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.collections.Range;
 
 public class CriteriaTool {
+	
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>void addRangesToCriteria(Criteria criteria,
+			Range<PK> range, DatabeanFieldInfo<PK,D,?> fieldInfo){
+		addRangesToCriteria(criteria, range.getStart(), range.getStartInclusive(), range.getEnd(), range
+				.getEndInclusive(), fieldInfo);
+	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> void addRangesToCriteria(
 			Criteria criteria, 

@@ -1,8 +1,11 @@
 package com.hotpads.profile.count.collection.archive;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.SortedSetMultimap;
+import com.google.common.collect.TreeMultimap;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
@@ -13,15 +16,18 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.profile.count.databean.Count.CountFielder;
 import com.hotpads.profile.count.databean.key.CountKey;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
+import com.hotpads.util.core.collections.Range;
 
 public class CountPartitionedNode
 extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSortedMapStorageNode<CountKey,Count>>{
 
-	public static final String table_prefix = Count.class.getSimpleName();
-	public static final String entity_prefix = Count.class.getName();
+	public static final String TABLE_PREFIX = Count.class.getSimpleName();
+	public static final String ENTITY_PREFIX = Count.class.getName();
 	
 	public static long 
 		s = 1000,//ms in second
@@ -48,7 +54,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	}
 	
 	public String getNodeName(long periodMs){
-		return this.getName() + getSuffix(periodMs);
+		return getName() + getSuffix(periodMs);
 	}
 	
 	//recommended Time-to-live's in the comments.  hbase ttl's are ints.  Integer.MAX_VALUE is 63 years
@@ -89,34 +95,79 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	public CountPartitionedNode(DataRouter router, String clientName){
 		super(Count.class, CountFielder.class, router);
 		for(String suffix : suffixes){
-			String tableName = table_prefix + suffix;
-			String entityName = entity_prefix + suffix;
-			Node<CountKey,Count> node = NodeFactory.create(
-					clientName, tableName, entityName, Count.class, CountFielder.class, router);
+			String tableName = TABLE_PREFIX + suffix;
+			String entityName = ENTITY_PREFIX + suffix;
+			Node<CountKey,Count> node = NodeFactory.create(clientName, tableName, entityName, Count.class,
+					CountFielder.class, router);
 			PhysicalSortedMapStorageNode<CountKey,Count> sortedNode = BaseDataRouter.cast(node);
-			this.register(sortedNode);
+			register(sortedNode);
 		}
 	}
 
 	/********************************** required ************************************/
 	
 	@Override
-	public boolean isPartitionAware(Key<CountKey> key){
-		return knowsPartition(key);
-	}
-	
-	public static boolean knowsPartition(Key<CountKey> key){
-		//TODO don't assume it's the PK
-		return ((CountKey)key).getPeriodMs()!=null;
+	public PhysicalSortedMapStorageNode<CountKey,Count> getPhysicalNode(CountKey pk){
+		return partitions.get(indexByMs.get(pk.getPeriodMs()));
 	}
 	
 	@Override
-	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodes(Key<CountKey> key) {
-		if(!isPartitionAware(key)){ return this.getPhysicalNodes(); }
+	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForFirst(){
+		PhysicalSortedMapStorageNode<CountKey,Count> firstNode = partitions.get(0);
+		if(firstNode==null){ return null; }
+		return ListTool.wrap(firstNode);
+	}
+	
+	@Override
+	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForRange(Range<CountKey> range){
+		if(range.getStart()==null && range.getEnd()==null){ 
+			throw new IllegalArgumentException("must specify start or end value"); 
+		}
+		if(range.getStart()!=null && range.getEnd()!=null){
+			if(ObjectTool.notEquals(range.getStart().getPeriodMs(), range.getEnd().getPeriodMs())){
+				throw new IllegalArgumentException("cannot scan across multiple periods through this node");
+			}
+		}
+		Integer index;
+		if(range.getStart()!=null){ 
+			index = indexByMs.get(range.getStart().getPeriodMs()); 
+		}else{
+			index = indexByMs.get(range.getEnd().getPeriodMs()); 
+		}
+		return ListTool.wrap(partitions.get(index));
+	}
+	
+	@Override
+	public SortedSetMultimap<PhysicalSortedMapStorageNode<CountKey,Count>,CountKey>
+			getPrefixesByPhysicalNode(Collection<CountKey> prefixes, boolean wildcardLastField){
+		SortedSetMultimap<PhysicalSortedMapStorageNode<CountKey,Count>,CountKey> prefixesByNode = TreeMultimap.create();
+		for(CountKey prefix : IterableTool.nullSafe(prefixes)){
+			int nodeIndex = indexByMs.get(prefix.getPeriodMs());
+			prefixesByNode.put(partitions.get(nodeIndex), prefix);
+		}
+		return prefixesByNode;
+	}
+	
+	@Override
+	public boolean isSecondaryKeyPartitionAware(Key<CountKey> key){
+		return knowsPartition(key);
+	}
+	
+	@Override
+	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForSecondaryKey(Key<CountKey> key) {
+		if(!isSecondaryKeyPartitionAware(key)){ return getPhysicalNodes(); }
 		CountKey countKey = (CountKey)key;
 		Integer index = indexByMs.get(countKey.getPeriodMs());
-		PhysicalSortedMapStorageNode<CountKey,Count> node = this.physicalNodes.get(index);
+		PhysicalSortedMapStorageNode<CountKey,Count> node = partitions.get(index);
 		if(node==null){ return ListTool.createLinkedList(); }
 		return ListTool.wrap(node);
+	}
+	
+	
+	/************************** helper **************************************/
+	
+	protected static boolean knowsPartition(Key<CountKey> key){
+		//TODO don't assume it's the PK
+		return ((CountKey)key).getPeriodMs()!=null;
 	}
 }

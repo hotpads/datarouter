@@ -6,6 +6,8 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
+import com.hotpads.datarouter.client.imp.memory.MemoryClient;
+import com.hotpads.datarouter.client.imp.memory.node.HashMapNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -24,7 +26,7 @@ public class NodeFactory{
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
-	F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
+			F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
 	N create(//4 args
 		String clientName, 
 		Class<D> databeanClass, 
@@ -45,7 +47,10 @@ public class NodeFactory{
 		ClientType clientType = router.getClientOptions().getClientType(clientName);
 		
 		Node<PK,D> node = null;
-		if(ClientType.hibernate==clientType){
+		if(ClientType.memory==clientType){
+			MemoryClient memoryClient = (MemoryClient)router.getClient(clientName);
+			node = new HashMapNode<PK,D,F>(databeanClass, fielderClass, router, memoryClient);
+		}else if(ClientType.hibernate==clientType){
 			node = new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, clientName);
 		}else if(ClientType.hbase==clientType){
 			node = new HBaseNode<PK,D,F>(databeanClass, fielderClass, router, clientName);
@@ -87,8 +92,9 @@ public class NodeFactory{
 		N typedNode = (N)node;
 		return typedNode;
 	}
+	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
+			F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
 	N create(
 			String clientName, 
 			String tableName,

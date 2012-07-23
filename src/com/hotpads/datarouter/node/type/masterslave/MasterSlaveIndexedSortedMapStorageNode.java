@@ -27,15 +27,13 @@ implements IndexedSortedMapStorageNode<PK,D>{
 	protected MasterSlaveSortedStorageWriterMixin<PK,D,F,N> mixinSortedWriteOps;
 	protected MasterSlaveIndexedStorageWriterMixin<PK,D,F,N> mixinIndexedWriteOps;
 	
-	public MasterSlaveIndexedSortedMapStorageNode(
-			Class<D> databeanClass, DataRouter router,
-			N master, Collection<N> slaves) {
+	public MasterSlaveIndexedSortedMapStorageNode(Class<D> databeanClass, DataRouter router, N master,
+			Collection<N> slaves){
 		super(databeanClass, router, master, slaves);
 		initMixins();
 	}
 	
-	public MasterSlaveIndexedSortedMapStorageNode(
-			Class<D> databeanClass, DataRouter router) {
+	public MasterSlaveIndexedSortedMapStorageNode(Class<D> databeanClass, DataRouter router){
 		super(databeanClass, router);
 		initMixins();
 	}
