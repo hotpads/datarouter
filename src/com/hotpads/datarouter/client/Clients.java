@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.connection.ConnectionPools;
+import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
@@ -58,8 +59,10 @@ public class Clients{
 	
 	public void registerClientIds(Collection<ClientId> clientIdsToAdd, String configFilePath) {
 		clientIds.addAll(CollectionTool.nullSafe(clientIdsToAdd));
-		configFilePaths.add(configFilePath);
-		multiProperties.add(PropertiesTool.parse(configFilePath));
+		if(StringTool.notEmpty(configFilePath)){
+			configFilePaths.add(configFilePath);
+			multiProperties.add(PropertiesTool.parse(configFilePath));
+		}
 		for(ClientId clientId : IterableTool.nullSafe(clientIds)) {
 			initClientFactoryIfNull(clientId.getName());
 		}
@@ -113,14 +116,16 @@ public class Clients{
 	
 	protected void initClientFactoryIfNull(String clientName) {
 		if(clientFactoryByName.containsKey(clientName)) { return; }
-		String defaultTypeString = PropertiesTool.getFirstOccurrence(multiProperties, 
-				prefixClient+clientDefault+paramType);
-		if(StringTool.isEmpty(defaultTypeString)){ defaultTypeString = DEFAULT_CLIENT_TYPE.toString(); }
-		String typeString = PropertiesTool.getFirstOccurrence(multiProperties, prefixClient+clientName+paramType);
-		if(StringTool.isEmpty(typeString)){ typeString = defaultTypeString; }
-		ClientType clientType = ClientType.fromString(typeString);
-		ClientFactory clientFactory = clientType.createClientFactory(drContext,
-				clientName, drContext.getNodes().getPhysicalNodesForClient(clientName),
+//		String defaultTypeString = PropertiesTool.getFirstOccurrence(multiProperties, 
+//				prefixClient+clientDefault+paramType);
+//		if(StringTool.isEmpty(defaultTypeString)){ defaultTypeString = DEFAULT_CLIENT_TYPE.toString(); }
+//		String typeString = PropertiesTool.getFirstOccurrence(multiProperties, prefixClient+clientName+paramType);
+//		if(StringTool.isEmpty(typeString)){ typeString = defaultTypeString; }
+//		ClientType clientType = ClientType.fromString(typeString);
+		RouterOptions routerOptions = new RouterOptions(multiProperties);
+		ClientType clientType = routerOptions.getClientType(clientName);
+		List<PhysicalNode<?,?>> physicalNodesForClient = drContext.getNodes().getPhysicalNodesForClient(clientName);
+		ClientFactory clientFactory = clientType.createClientFactory(drContext, clientName, physicalNodesForClient,
 				drContext.getExecutorService());
 		clientFactoryByName.put(clientName, clientFactory);
 	}

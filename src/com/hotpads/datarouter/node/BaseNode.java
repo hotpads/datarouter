@@ -28,8 +28,7 @@ implements Node<PK,D>{
 	}
 	
 	public BaseNode(Class<D> databeanClass, Class<F> fielderClass){
-		this.name = databeanClass.getSimpleName()
-				+"."+getClass().getSimpleName();//probably never used
+		this.name = databeanClass.getSimpleName() + "." + getClass().getSimpleName();// probably never used
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(name, databeanClass, fielderClass);
 		}catch(Exception probablyNoPkInstantiated){
