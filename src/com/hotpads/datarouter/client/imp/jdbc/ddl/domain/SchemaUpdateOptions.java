@@ -88,13 +88,14 @@ public class SchemaUpdateOptions{
 				prefix+SUFFIX_dropIndexes));
 		this.modifyEngine = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_modifyEngine));
-		String clientsToIgnore = PropertiesTool.getFirstOccurrence(multiProperties, prefix + SUFFIX_ignoreClients);
+		String schemaUpdatePrefix = prefix.substring(0, prefix.indexOf('.'));
+		String clientsToIgnore = PropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix + SUFFIX_ignoreClients);
 		this.ignoreClients = StringTool.splitOnCharNoRegex(clientsToIgnore, ',');
-		String tablesToIgnore = PropertiesTool.getFirstOccurrence(multiProperties, prefix + SUFFIX_ignoreTables);
+		String tablesToIgnore = PropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix  + SUFFIX_ignoreTables);
 		this.ignoreTables = StringTool.splitOnCharNoRegex(tablesToIgnore, ',');
 		return this;
 	}
-	
+
 	/****************************** methods ******************************/
 
 	//	public boolean anyTrue(){
