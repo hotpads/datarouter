@@ -66,7 +66,6 @@ public class ManyFieldTypeIntegrationTests {
 					ClientType.memory, 
 					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemory, cls));
 		}
-		
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.hibernate)){
 			routerByClientType.put(
 					ClientType.hibernate, 
@@ -183,15 +182,23 @@ public class ManyFieldTypeIntegrationTests {
 		//test true value
 		bean.setBooleanField(true);
 		router.manyFieldTypeBean().put(bean, null);
-		ManyFieldTypeBean roundTrippedTrue = router.manyFieldTypeBean().get(bean.getKey(), null);
-		Assert.assertNotSame(bean, roundTrippedTrue);
-		Assert.assertEquals(bean.getBooleanField(), roundTrippedTrue.getBooleanField());
+		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
+		if(isMemory()){
+			Assert.assertSame(bean, roundTripped);
+		}else{
+			Assert.assertNotSame(bean, roundTripped);
+		}
+		Assert.assertEquals(bean.getBooleanField(), roundTripped.getBooleanField());
 
 		//test false value
 		bean.setBooleanField(false);
 		router.manyFieldTypeBean().put(bean, null);
 		ManyFieldTypeBean roundTrippedFalse = router.manyFieldTypeBean().get(bean.getKey(), null);
-		Assert.assertNotSame(bean, roundTrippedFalse);
+		if(isMemory()){
+			Assert.assertSame(bean, roundTripped);
+		}else{
+			Assert.assertNotSame(bean, roundTripped);
+		}
 		Assert.assertEquals(bean.getBooleanField(), roundTrippedFalse.getBooleanField());
 		
 		recordKey(bean.getKey());
