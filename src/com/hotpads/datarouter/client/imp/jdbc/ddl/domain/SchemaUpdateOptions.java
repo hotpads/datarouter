@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Properties;
 
 import com.hotpads.util.core.BooleanTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.StringTool;
 
