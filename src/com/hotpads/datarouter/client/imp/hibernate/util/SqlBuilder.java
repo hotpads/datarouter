@@ -13,6 +13,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.collections.Range;
 
 public class SqlBuilder{
 	
@@ -93,6 +94,12 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 	
+	public static <T extends FieldSet<T>> String getInRange(
+			Config config, String tableName, List<Field<?>> selectFields, Range<T> range){
+		return getInRange(config, tableName, selectFields, range.getStart(), range.getStartInclusive(), range.getEnd(),
+				range.getEndInclusive());
+	}
+	
 	public static String getInRange(
 			Config config, String tableName, List<Field<?>> selectFields, 
 			FieldSet<?> start, boolean startInclusive, 
@@ -141,10 +148,18 @@ public class SqlBuilder{
 	public static void addPrefixWhereClauseDisjunction(StringBuilder sql, 
 			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField){
 		int counter = 0;
+		if(keys.size()>1){
+			sql.append("(");
+		}
 		for(FieldSet<?> key : IterableTool.nullSafe(keys)){
-			if(counter>0){ sql.append(" or "); }
+			if(counter>0){ 
+				sql.append(") or ("); 
+			}
 			addPrefixWhereClause(sql, key, wildcardLastField);
 			++counter;
+		}
+		if(counter>1){
+			sql.append(")");
 		}
 	}
 	
@@ -153,12 +168,16 @@ public class SqlBuilder{
 		if(numNonNullFields==0){ return; }
 		int numFullFieldsFinished = 0;
 		for(Field<?> field : CollectionTool.nullSafe(prefix.getFields())){
-			if(numFullFieldsFinished >= numNonNullFields) break;
+			if(numFullFieldsFinished >= numNonNullFields) {
+				break;
+			}
 			if(field.getValue()==null) {
 				throw new DataAccessException("Prefix query on "+
 						prefix.getClass()+" cannot contain intermediate nulls.");
 			}
-			if(numFullFieldsFinished > 0){ sql.append(" and "); }
+			if(numFullFieldsFinished > 0){ 
+				sql.append(" and "); 
+			}
 			boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
 			boolean stringField = !(field instanceof BasePrimitiveField<?>);
 			boolean doPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;

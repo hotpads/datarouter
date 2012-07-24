@@ -84,7 +84,7 @@ public class TestSchemaUpdateOptions{
 		// TEST THAT IT DOESN'T DROP INDEXES
 		Assert.assertFalse(currentTable.containsIndex("index2"));
 	 	//Assert.assertFalse(currentTable.getIndexes().equals( *** ));	
-		}catch(Exception e) {
+		}catch(Exception e){
 			e.printStackTrace();		
 		}finally{
 			if(stmt!=null){ stmt.close(); }
@@ -151,7 +151,7 @@ public class TestSchemaUpdateOptions{
 		// TEST THAT IT DOESN'T DROP INDEXES
 		Assert.assertFalse(currentTable.containsIndex("index2"));
 		//Assert.assertFalse(currentTable.getIndexes().equals( *** ));	
-	}catch(Exception e) {
+	}catch(Exception e){
 		e.printStackTrace();		
 	}finally{
 		if(stmt!=null){ stmt.close(); }

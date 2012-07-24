@@ -126,11 +126,11 @@ public class SqlTableDiffGenerator{
 	
 	/********************* helper methods *******************************/
 	
-	public boolean shouldReorderColumns() {
+	public boolean shouldReorderColumns(){
 		return enforceColumnOrder && ! isColumnOrderCorrect();
 	}
 	
-	public boolean isColumnOrderCorrect() {
+	public boolean isColumnOrderCorrect(){
 		return true;//TODO implement
 	}
 
@@ -177,7 +177,7 @@ public class SqlTableDiffGenerator{
 		return CollectionTool.equalsAllElementsInIteratorOrder(currentPrimaryKeyColumns, requestedPrimaryKeyColumns);
 	}
 
-	public SqlTable getRequested() {
+	public SqlTable getRequested(){
 		return requested;
 	}
 

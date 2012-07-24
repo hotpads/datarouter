@@ -48,12 +48,12 @@ public class TestParser{
 		
 		// FOR THE PRIMARY KEY DECLARATION
 		String[] sTokenPKey= getPrimaryKeyDeclarationFromFullBody(phrase).split("[,()]");
-		for (int i = 0; i < sTokenPKey.length; i++) {
+		for (int i = 0; i < sTokenPKey.length; i++){
 			table.setPrimaryKey(removeNonText(sTokenPKey[i]));
 		}
 		// FOR THE OTHER KEY DECLARATION 
 		List<String> sTokenKey= getKeyDeclarationsFromFullBody(phrase);
-		for (String s1: sTokenKey) {
+		for (String s1: sTokenKey){
 				SqlIndex tableIndex = new SqlIndex(getKeyNameFromKeydeclaration(s1));
 				System.out.println(getKeyNameFromKeydeclaration(s1));
 				for(String s2:getKeyColumnsNamesFromKeyDeclaration(s1)){
@@ -67,13 +67,13 @@ public class TestParser{
 	}
 
 	public static void addAppropriateColumnToIndexFromListOfColumn(
-			SqlIndex tableIndex, String s1, List<SqlColumn> columns) {
+			SqlIndex tableIndex, String s1, List<SqlColumn> columns){
 		for(SqlColumn col: columns){ 
 			if(col.getName().equals(s1)) tableIndex.addColumn(col);
 		}
 	}
 
-	public static List<String> getKeyColumnsNamesFromKeyDeclaration(String string) {
+	public static List<String> getKeyColumnsNamesFromKeyDeclaration(String string){
 		int index = string.indexOf("(");
 		String[] sFinal = string.substring(index).split("[`]+");
 		List<String> list = ListTool.createArrayList();
@@ -84,7 +84,7 @@ public class TestParser{
 		return list; 
 	}
 
-	public static String getKeyNameFromKeydeclaration(String string) {
+	public static String getKeyNameFromKeydeclaration(String string){
 		//		String[] sToken = string.split("[`]+");
 		//		System.out.println("*** les tokens ***");
 		//		for(String s : sToken){
@@ -107,7 +107,7 @@ public class TestParser{
 	 * @param s
 	 * @return true if it contains at least one character different than a space
 	 */
-	private static boolean isNotEmpty(String s) {
+	private static boolean isNotEmpty(String s){
 		for(char c:s.toCharArray()){
 			if(c!=' ') return true;
 		}
@@ -161,7 +161,7 @@ public class TestParser{
 					SqlColumn col = new SqlColumn(name, MySqlColumnType.parse(type));
 					// "NULLABLE OR NOT NULLABLE , ..."
 					boolean nullable=true;
-					for (int j = 0; j < tempTokensBis.length; j++) {
+					for (int j = 0; j < tempTokensBis.length; j++){
 						if(tempTokensBis[j].contains("NOT"));
 						nullable=false;
 					}
@@ -182,7 +182,7 @@ public class TestParser{
 	 * @return true if it's a declaration of an index
 	 */
 	 @SuppressWarnings("unused") 
-	 private static boolean isKeyDeclaration(String s) {
+	 private static boolean isKeyDeclaration(String s){
 		 return s.toUpperCase().startsWith("KEY") || s.toUpperCase().startsWith("KEY", 1)  || s.toUpperCase().startsWith("KEY", 2) ;
 	}
 
@@ -192,7 +192,7 @@ public class TestParser{
 	  * @return true if it's a primary key declaration
 	  */
 	@SuppressWarnings("unused") 
-	private static boolean isPrimaryKeyDeclaration(String s) {
+	private static boolean isPrimaryKeyDeclaration(String s){
 		return s.toUpperCase().startsWith("PRIMARY") || s.toUpperCase().startsWith("PRIMARY", 1)  || s.toUpperCase().startsWith("PRIMARY", 2) ;
 	}
 
@@ -201,7 +201,7 @@ public class TestParser{
 	 * @param s
 	 * @return true if the column type can be null
 	 */
-	public static boolean getNullable(String s) {
+	public static boolean getNullable(String s){
 		return !s.contains("NOT");
 	}
 
@@ -210,7 +210,7 @@ public class TestParser{
 	 * @param s
 	 * @return true if the column type has a maximum value
 	 */
-	private static boolean hasAMaxValue(String s) {
+	private static boolean hasAMaxValue(String s){
 		return s.contains("(");
 	}
 
@@ -219,7 +219,7 @@ public class TestParser{
 	 * @param s
 	 * @return the maximum value for the column type
 	 */
-	public static String getMaxValueOfColumn(String s) {
+	public static String getMaxValueOfColumn(String s){
 				 int index = s.lastIndexOf('`');
 				String[] tokens = s.substring(index+1).split("[ ()]+");
 				return tokens[2];
@@ -230,7 +230,7 @@ public class TestParser{
 	 * @param s
 	 * @return the type name of the column 
 	 */
-	public static String getTypeOfColumn(String s) {
+	public static String getTypeOfColumn(String s){
 		 int index = s.lastIndexOf('`');
 		String[] tokens = s.substring(index+1).split("[ ()]+");
 		return tokens[1];
@@ -242,7 +242,7 @@ public class TestParser{
 	  * @param s a column
 	  * @return the name of the column
 	  */
-	public static String getNameOfColumn(String s) {
+	public static String getNameOfColumn(String s){
 		 int index = s.indexOf('`');
 		 String[] tokens = s.substring(index+1).split("[`]+");
 		return tokens[0];
@@ -309,9 +309,9 @@ public class TestParser{
 	  * @param s
 	  * @return s without occurrences of space : " "
 	  */
-	private static String removeSpaces(String s) {
+	private static String removeSpaces(String s){
 		String sResult="";
-		for (int i = 0; i < s.length(); i++) {
+		for (int i = 0; i < s.length(); i++){
 			if(s.charAt(i)!=' '){
 				sResult+=s.charAt(i);
 			}
@@ -323,9 +323,9 @@ public class TestParser{
 	 * @param s
 	 * @return s without occurrences of " " and "" 
 	 */
-	public static String removeNonText(String s) {
+	public static String removeNonText(String s){
 		String sResult="";
-		for (int i = 0; i < s.length(); i++) {
+		for (int i = 0; i < s.length(); i++){
 			if(s.charAt(i)!=' ' && s.charAt(i)!='`' && s.charAt(i)!=',' && s.charAt(i)!='(' && s.charAt(i)!=')'){
 				sResult+=s.charAt(i);
 			}

@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
-public enum SqlAlterTypes {
+public enum SqlAlterTypes{
 
 	ADD_COLUMN, 
 	DROP_COLUMN, 

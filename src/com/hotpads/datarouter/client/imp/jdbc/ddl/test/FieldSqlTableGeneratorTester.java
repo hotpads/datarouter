@@ -14,9 +14,9 @@ import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean2;
 import com.hotpads.util.core.ListTool;
 
-public class FieldSqlTableGeneratorTester {
+public class FieldSqlTableGeneratorTester{
 
-	@Test public void testGenerate() {
+	@Test public void testGenerate(){
 		//		DataRouter router;
 		//		Nodes nodes = router.getNodes();
 		//		List<? extends PhysicalNode<?,?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);

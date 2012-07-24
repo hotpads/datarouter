@@ -46,26 +46,26 @@ public class SqlIndex implements Comparable{
 	/******************* Object methods **********************/
 	
 	@Override
-	public String toString() {
+	public String toString(){
 		return "`" + name + "` , (" + columns + ")";
 	}
 	
 	
 	/****************** get/set ****************************/
 	
-	public String getName() {
+	public String getName(){
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(String name){
 		this.name = name;
 	}
 
-	public List<SqlColumn> getColumns() {
+	public List<SqlColumn> getColumns(){
 		return columns;
 	}
 
-	public void setColumns(List<SqlColumn> columns) {
+	public void setColumns(List<SqlColumn> columns){
 		this.columns = columns;
 	}
 	
@@ -77,7 +77,7 @@ public class SqlIndex implements Comparable{
 	/******************* comparator *************************/
 	
 	@Override
-	public int hashCode() {
+	public int hashCode(){
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((columns == null) ? 0 : columns.hashCode());
@@ -86,29 +86,29 @@ public class SqlIndex implements Comparable{
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean equals(Object obj){
+		if (this == obj){
 			return true;
 		}
-		if (obj == null) {
+		if (obj == null){
 			return false;
 		}
-		if (!(obj instanceof SqlIndex)) {
+		if (!(obj instanceof SqlIndex)){
 			return false;
 		}
 		SqlIndex other = (SqlIndex) obj;
-		if (columns == null) {
-			if (other.columns != null) {
+		if (columns == null){
+			if (other.columns != null){
 				return false;
 			}
-		} else if (!columns.equals(other.columns)) {
+		} else if (!columns.equals(other.columns)){
 			return false;
 		}
-		if (name == null) {
-			if (other.name != null) {
+		if (name == null){
+			if (other.name != null){
 				return false;
 			}
-		} else if (!name.equals(other.name)) {
+		} else if (!name.equals(other.name)){
 			return false;
 		}
 		return true;
@@ -143,7 +143,7 @@ public class SqlIndex implements Comparable{
 	}
 	
 	@Override
-	public int compareTo(Object o) {
+	public int compareTo(Object o){
 			int c = ComparableTool.nullFirstCompareTo(name, ((SqlIndex) o).name);
 			if(c!=0){return c;}
 			SqlColumnNameTypeComparator nameTypeColumnComparator = new SqlColumnNameTypeComparator(true);

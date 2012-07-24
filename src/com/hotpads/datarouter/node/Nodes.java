@@ -13,6 +13,8 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -39,6 +41,7 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	protected List<String> allNames = ListTool.createArrayList();
 	protected Map<String,N> nodeByName = MapTool.createTreeMap();
 	protected SortedMap<String,SortedSet<N>> nodesByRouterName = MapTool.createTreeMap();
+	protected Multimap<String,N> topLevelNodesByRouterName = TreeMultimap.create();
 	protected Map<N,String> routerNameByNode = MapTool.createTreeMap();
 //	protected Map<ClientType,List<N>> nodesByClientType = MapTool.createTreeMap();
 	protected Map<String,Map<String,PhysicalNode<PK,D>>> physicalNodeByTableNameByClientName = MapTool.createTreeMap();
@@ -65,6 +68,7 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 		@SuppressWarnings("unchecked")
 		List<N> nodeWithDescendants = (List<N>)NodeTool.getNodeAndDescendants(node);
 		this.topLevelNodes.add(node);
+		this.topLevelNodesByRouterName.put(routerName, node);
 		this.allNodes.addAll(nodeWithDescendants);
 		for(N nodeOrDescendant : IterableTool.nullSafe(nodeWithDescendants)){
 			allNames.add(nodeOrDescendant.getName());
@@ -214,4 +218,10 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	public List<N> getTopLevelNodes(){
 		return topLevelNodes;
 	}
+
+	public Multimap<String,N> getTopLevelNodesByRouterName(){
+		return topLevelNodesByRouterName;
+	}
+	
+	
 }

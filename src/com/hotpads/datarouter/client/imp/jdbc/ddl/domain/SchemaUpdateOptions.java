@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Properties;
 
 import com.hotpads.util.core.BooleanTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.PropertiesTool;
+import com.hotpads.util.core.StringTool;
 
 public class SchemaUpdateOptions{
 	
@@ -17,7 +19,9 @@ public class SchemaUpdateOptions{
 			SUFFIX_modifyColumns = ".modifyColumns",
 			SUFFIX_addIndexes = ".addIndexes",
 			SUFFIX_dropIndexes = ".dropIndexes",
-			SUFFIX_modifyEngine = ".modifyEngine";
+			SUFFIX_modifyEngine = ".modifyEngine",
+			SUFFIX_ignoreClients = ".ignoreClients",
+			SUFFIX_ignoreTables = ".ignoreTables";
 	
 	protected Boolean createTables;
 	protected Boolean dropTables;
@@ -28,6 +32,8 @@ public class SchemaUpdateOptions{
 	protected Boolean addIndexes;
 	protected Boolean dropIndexes;
 	protected Boolean modifyEngine;
+	protected List<String> ignoreClients;
+	protected List<String> ignoreTables;
 
 	public SchemaUpdateOptions(){
 		super();
@@ -82,6 +88,10 @@ public class SchemaUpdateOptions{
 				prefix+SUFFIX_dropIndexes));
 		this.modifyEngine = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_modifyEngine));
+		String clientsToIgnore = PropertiesTool.getFirstOccurrence(multiProperties, prefix + SUFFIX_ignoreClients);
+		this.ignoreClients = StringTool.splitOnCharNoRegex(clientsToIgnore, ',');
+		String tablesToIgnore = PropertiesTool.getFirstOccurrence(multiProperties, prefix + SUFFIX_ignoreTables);
+		this.ignoreTables = StringTool.splitOnCharNoRegex(tablesToIgnore, ',');
 		return this;
 	}
 	
@@ -195,6 +205,22 @@ public class SchemaUpdateOptions{
 
 	public void setModifyEngine(Boolean modifyEngine){
 		this.modifyEngine = modifyEngine;
+	}
+
+	public List<String> getIgnoreClients(){
+		return ignoreClients;
+	}
+
+	public void setIgnoreClients(List<String> ignoreClients){
+		this.ignoreClients = ignoreClients;
+	}
+
+	public List<String> getIgnoreTables(){
+		return ignoreTables;
+	}
+
+	public void setIgnoreTables(List<String> ignoreTables){
+		this.ignoreTables = ignoreTables;
 	}
 	
 	

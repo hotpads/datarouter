@@ -2,7 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
 import com.hotpads.util.core.StringTool;
 
-public enum MySqlColumnType {
+public enum MySqlColumnType{
 
 	/*
 	 * NOT TAKING INTO ACCOUNT OPTIONS AVAILABLE FOR THE DIFFERENT TYPES
@@ -72,8 +72,8 @@ public enum MySqlColumnType {
 	
 	public static MySqlColumnType parse(String a){
 		String upperCase = StringTool.nullSafe(a).toUpperCase();
-		for(MySqlColumnType type : values()) {
-			if(type.toString().equals(upperCase)) {
+		for(MySqlColumnType type : values()){
+			if(type.toString().equals(upperCase)){
 				return type;
 			}
 		}

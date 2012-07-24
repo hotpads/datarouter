@@ -123,7 +123,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		return l;
 	}
 	
-	public List<SqlAlterTableClause> generate() {
+	public List<SqlAlterTableClause> generate(){
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		// creating the sqlTableDiffGenerator
 		SqlTableDiffGenerator diff = new SqlTableDiffGenerator(current,requested,true);
@@ -199,7 +199,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		return null;
 	}
 
-	private List<SqlAlterTableClause> getAlterTableForRemovingIndexes(List<SqlIndex> indexesToAdd) {
+	private List<SqlAlterTableClause> getAlterTableForRemovingIndexes(List<SqlIndex> indexesToAdd){
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		if(!options.getDropIndexes()){ return list; }
 		if(CollectionTool.isEmpty(indexesToAdd)){ return list; }
@@ -254,7 +254,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		return new SqlAlterTableClause(sb.toString(), SqlAlterTypes.CREATE_TABLE);
 	}
 
-	private SqlAlterTableClause getAlterTableForAddingColumns(List<SqlColumn> colsToAdd) {
+	private SqlAlterTableClause getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){
 		if(!options.getAddColumns()){ return null; }
 		if(CollectionTool.isEmpty(colsToAdd)){ return null; }
 		
@@ -280,7 +280,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		return new SqlAlterTableClause(sb.toString(), SqlAlterTypes.ADD_COLUMN);
 	}
 	
-	private List<SqlAlterTableClause> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove) {
+	private List<SqlAlterTableClause> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove){
 		List<SqlAlterTableClause> list = ListTool.createArrayList();
 		if(!options.getDeleteColumns()){ return list; }
 		if(CollectionTool.isEmpty(colsToRemove)){ return list; }
