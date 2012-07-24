@@ -14,6 +14,7 @@ public enum ViewRenderingStatus {
 	FAILED(20, "Failed");
 	
 	public static ViewRenderingStatus fromPersistentInteger(Integer value){
+		if(value==null){ return UNKNOWN; }
 		switch(value){
 		case 9: return NEW;
 		case 10: return OK;
