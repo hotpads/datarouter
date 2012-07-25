@@ -99,7 +99,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			String nameOfTable="Model";
 			SqlColumn col1 = new SqlColumn("includeInSummary", MySqlColumnType.TINYINT, 1, true);
 			SqlColumn col2 = new SqlColumn("feedModelId", MySqlColumnType.VARCHAR, 100, false);
-			SqlColumn col3 = new SqlColumn("feedListingId", MySqlColumnType.VARCHAR, 100, false);
+			SqlColumn col3 = new SqlColumn("feedListingId", MySqlColumnType.DATETIME, 19, true);//new SqlColumn("feedListingId", MySqlColumnType.VARCHAR, 100, false);
 			SqlIndex primaryKey = new SqlIndex("PKey")
 					.addColumn(col1)
 					.addColumn(col2)

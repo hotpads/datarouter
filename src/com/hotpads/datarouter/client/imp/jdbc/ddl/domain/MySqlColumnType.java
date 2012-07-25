@@ -24,11 +24,11 @@ public enum MySqlColumnType{
 	DOUBLE_PRECISION(false), /* FLOAT(P) */
 	
 	// Date and Time Type Overview
-	DATE(true), 
-	DATETIME(true), 
-	TIMESTAMP(true), 
-	TIME(true), 
-	YEAR(true),
+	DATE(false), 
+	DATETIME(false), 
+	TIMESTAMP(false), 
+	TIME(false), 
+	YEAR(false),
 	
 	// String Type Overview
 	CHAR(true), 
