@@ -150,6 +150,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 				c = ComparableTool.nullFirstCompareTo(StringTool.nullSafe(a.name).toLowerCase(), 
 						StringTool.nullSafe(b.name).toLowerCase());
 			}
+			if(c!=0){ return c; }
 			c = ComparableTool.nullFirstCompareTo(a.type, b.type);
 			if(c!=0){ return c; }
 			return ComparableTool.nullFirstCompareTo(a.maxLength, b.maxLength);
