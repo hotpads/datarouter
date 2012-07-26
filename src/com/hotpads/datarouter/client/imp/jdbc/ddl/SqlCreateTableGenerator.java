@@ -87,8 +87,8 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		}
 		sb.append(")");
 		sb.append(" engine=" +
-				table.getEngine() +
-				" default charset =utf8");
+				table.getEngine() /*+
+				" default charset =utf8"*/);
 		return sb.toString();
 		
 	}
