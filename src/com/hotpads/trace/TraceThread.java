@@ -68,9 +68,9 @@ public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
 				new UInt63Field(F.parentId, parentId),
-				new StringField(F.name, name),
-				new StringField(F.info, info),
-				new StringField(F.serverId, serverId),
+				new StringField(F.name, name,255),
+				new StringField(F.info, info,255),
+				new StringField(F.serverId, serverId,20),
 				new UInt63Field(F.created, created),
 				new UInt63Field(F.queuedDuration, queuedDuration),
 				new UInt63Field(F.runningDuration, runningDuration),

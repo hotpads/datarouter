@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.junit.Test;
 
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -20,6 +21,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.StringTool;
 
 public class JdbcTool {
 	
@@ -64,9 +66,13 @@ public class JdbcTool {
 //			while(resultSet.next()){
 //				tableNames.add(resultSet.getString(0));
 //			}
-			ResultSet rs = connection.getMetaData().getCatalogs();
+			String tableName;
+			ResultSet rs = connection.getMetaData().getTables(null, null, "%", null);
 			while(rs.next()){
-				tableNames.add(rs.getString("TABLE_CAT"));
+				tableName = rs.getString(3);
+				//if(StringTool.containsCharactersBesidesWhitespace(tableName)){
+					tableNames.add(tableName);
+				//}
 			}
 			return tableNames;
 		} catch (SQLException e) {
@@ -207,4 +213,19 @@ public class JdbcTool {
 			sb.append("?");
 		}
 	}
+	
+	public static class TestJdbcTool{
+		@Test public void showTablesTest(){
+			Connection conn = JdbcTool.openConnection("localhost", 3306, "property", "root", "");
+			List<String> l = showTables(conn);
+			for(String s : l){
+				System.out.println(s);
+			}
+		}
+		}
+
+	public static String getSchemaName(JdbcConnectionPool connectionPool){
+		return StringTool.getStringFromLastOccurenceOfIn('/',connectionPool.getDataSource().getJdbcUrl());
+	}
 }
+

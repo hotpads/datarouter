@@ -46,11 +46,11 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_name, name),
-				new StringField(COL_sourceType, sourceType),
+				new StringField(COL_name, name,255),
+				new StringField(COL_sourceType, sourceType,255),
 				new UInt63Field(COL_periodMs, periodMs),
 				new UInt63Field(COL_startTimeMs, startTimeMs),
-				new StringField(COL_source, source),
+				new StringField(COL_source, source,255),
 				new UInt63Field(COL_created, created));
 	}
 	

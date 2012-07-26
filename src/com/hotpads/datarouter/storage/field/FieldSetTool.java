@@ -195,8 +195,8 @@ public class FieldSetTool{
 			String someStringB = "xyz";
 			List<Field<?>> fields = FieldTool.createList(
 					new UInt31Field("someInt", someInt),
-					new StringField("someStringA", someStringA),
-					new StringField("someStringB", someStringB));
+					new StringField("someStringA", someStringA,255),
+					new StringField("someStringB", someStringB,255));
 			ByteRange withTrailingByte = new ByteRange(getConcatenatedValueBytes(fields, false, true));
 			ByteRange withoutTrailingByte = new ByteRange(getConcatenatedValueBytes(fields, false, false));
 			int lengthWithout = 4 + 3 + 1 + 3;

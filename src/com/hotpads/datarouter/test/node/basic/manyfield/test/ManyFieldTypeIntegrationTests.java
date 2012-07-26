@@ -1,6 +1,9 @@
 package com.hotpads.datarouter.test.node.basic.manyfield.test;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -16,12 +19,18 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
+import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean2;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
 import com.hotpads.datarouter.test.node.basic.manyfield.TestEnum;
 import com.hotpads.util.core.ArrayTool;
@@ -57,7 +66,6 @@ public class ManyFieldTypeIntegrationTests {
 					ClientType.memory, 
 					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemory, cls));
 		}
-		
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.hibernate)){
 			routerByClientType.put(
 					ClientType.hibernate, 
@@ -78,12 +86,77 @@ public class ManyFieldTypeIntegrationTests {
 		
 		for(ClientType clientType : routerByClientType.keySet()){
 			BasicNodeTestRouter router = routerByClientType.get(clientType);
+			if(ClientType.hibernate == clientType){
+//				messUpTable();
+				// System.out.println("mess up");
+			}
 			if(ClientType.memcached!=clientType){
 				router.manyFieldTypeBean().deleteAll(null);
 				Assert.assertEquals(0, CollectionTool.size(router.manyFieldTypeBean().getAll(null)));
 			}
+			// fixTable();
 		}
+
 	}
+
+//	private static void fixTable(){
+//		Connection conn = JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
+//		Statement st = null;
+//		try{
+//
+//			st = conn.createStatement();
+//			ResultSet rs;
+//
+//			String tableName = "ManyFieldTypeBean";
+//			List<Field<?>> primaryKeyFields = ListTool.create(), primaryKeyFields2 = ListTool.create();
+//
+//			List<Field<?>> nonKeyFields = ListTool.createArrayList(), nonKeyFields2 = ListTool.createArrayList();
+//
+//			ManyFieldTypeBean mftBean = new ManyFieldTypeBean();
+//			ManyFieldTypeBean2 mftBean2 = new ManyFieldTypeBean2();
+//
+//			primaryKeyFields = mftBean.getKeyFields();
+//			nonKeyFields = mftBean.getNonKeyFields();
+//			FieldSqlTableGenerator fstGenerator = new FieldSqlTableGenerator(tableName, primaryKeyFields, nonKeyFields);
+//			SqlTable table = fstGenerator.generate();
+//			SqlCreateTableGenerator ctGenerator = new SqlCreateTableGenerator(table);
+//			st.execute("drop table if exists " + tableName + ";");
+//			String sql = ctGenerator.generateDdl();
+//			// System.out.println(sql);
+//			st.execute(sql);
+//			conn.close();
+//		}catch(Exception e){
+//			e.printStackTrace();// TODO: handle exception
+//		}
+//	}
+//
+//	private static void messUpTable(){
+//		Connection conn = JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
+//		Statement st = null;
+//		try{
+//			st = conn.createStatement();
+//			ResultSet rs;
+//			// modifying the storage engine
+////			 st.execute("ALTER TABLE ManyFieldTypeBean ENGINE=MYISAM;");
+//			// modifying the type
+//			 st.execute("ALTER TABLE ManyFieldTypeBean MODIFY byteField VARCHAR(200);");
+//			// adding a new column
+//			 st.execute("ALTER TABLE ManyFieldTypeBean ADD COLUMN abcd" + (int)(Math.random()*100) +
+//			 " VARCHAR(250);");
+//			// deleting an existing column l
+//			 st.execute("ALTER TABLE ManyFieldTypeBean DROP COLUMN varIntEnumField;");
+//			// deleting the primary key
+//			 st.execute("ALTER TABLE ManyFieldTypeBean DROP PRIMARY KEY;");
+//
+//			// adding a foreign key
+//			st.execute(" CREATE INDEX key1 ON ManyFieldTypeBean(id, varIntField);");
+//			st.execute(" CREATE INDEX key2 ON ManyFieldTypeBean(characterField, doubleField);");
+//			// st.execute("ALTER TABLE ManyFieldTypeBean ADD COLUMN blabla BOOLEAN DEFAULT NULL;");
+//			conn.close();
+//		}catch(Exception e){
+//			e.printStackTrace();
+//		}
+//	}
 	
 	/***************************** fields **************************************/
 	
@@ -101,7 +174,36 @@ public class ManyFieldTypeIntegrationTests {
 	}
 
 	/***************************** tests **************************************/
+
+	@Test
+	public void testBoolean(){
+		ManyFieldTypeBean bean = new ManyFieldTypeBean();
 		
+		//test true value
+		bean.setBooleanField(true);
+		router.manyFieldTypeBean().put(bean, null);
+		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
+		if(isMemory()){
+			Assert.assertSame(bean, roundTripped);
+		}else{
+			Assert.assertNotSame(bean, roundTripped);
+		}
+		Assert.assertEquals(bean.getBooleanField(), roundTripped.getBooleanField());
+
+		//test false value
+		bean.setBooleanField(false);
+		router.manyFieldTypeBean().put(bean, null);
+		ManyFieldTypeBean roundTrippedFalse = router.manyFieldTypeBean().get(bean.getKey(), null);
+		if(isMemory()){
+			Assert.assertSame(bean, roundTripped);
+		}else{
+			Assert.assertNotSame(bean, roundTripped);
+		}
+		Assert.assertEquals(bean.getBooleanField(), roundTrippedFalse.getBooleanField());
+		
+		recordKey(bean.getKey());
+	}
+
 	@Test 
 	public void testByte(){		
 		ManyFieldTypeBean bean = new ManyFieldTypeBean();
@@ -452,10 +554,3 @@ public class ManyFieldTypeIntegrationTests {
 		return ClientType.memcached == clientType;
 	}
 }
-
-
-
-
-
-
-
