@@ -28,7 +28,7 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.BIT, 1 , true);
+		return new SqlColumn(columnName, MySqlColumnType.TINYINT, 1 , true);
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
 			if(value==null){
-				ps.setNull(parameterIndex, Types.BIT);
+				ps.setNull(parameterIndex, Types.TINYINT);
 			}else{
 				ps.setBoolean(parameterIndex, value);
 			}
