@@ -43,7 +43,7 @@ public class BackupRecordKey extends BasePrimaryKey<BackupRecordKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_node, node),
+				new StringField(COL_node, node,255),
 				new ByteArrayField(COL_startKey, startKey),
 				new ByteArrayField(COL_endKey, endKey),
 				new LongDateField(COL_created, created));
