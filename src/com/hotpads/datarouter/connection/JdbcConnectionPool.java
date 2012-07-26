@@ -16,6 +16,7 @@ public class JdbcConnectionPool{
 	protected HibernateOptions options;
 	private boolean writable = false;
 	
+
 	public static final String
 		prefix = ConnectionPools.prefixPool,
 		poolDefault = "default";
@@ -102,6 +103,10 @@ public class JdbcConnectionPool{
 
 	public ComboPooledDataSource getDataSource() {
 		return pool;
+	}
+	
+	public boolean isWritable() {
+		return writable;
 	}
 	
 	/*

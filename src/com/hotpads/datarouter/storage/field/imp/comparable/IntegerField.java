@@ -5,8 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.MySqlColumnType;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.bytes.IntegerByteTool;
@@ -28,7 +28,7 @@ public class IntegerField extends BasePrimitiveField<Integer>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(name, MySqlColumnType.INTEGER, 11, true);
+		return new SqlColumn(columnName, MySqlColumnType.INT, 11, true);
 	}
 
 	@Override

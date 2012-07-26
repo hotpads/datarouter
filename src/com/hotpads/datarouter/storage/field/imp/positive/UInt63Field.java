@@ -7,8 +7,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Random;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.MySqlColumnType;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.StringTool;
@@ -46,7 +46,7 @@ public class UInt63Field extends BasePrimitiveField<Long>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(name, MySqlColumnType.BIGINT, 20, true);
+		return new SqlColumn(columnName, MySqlColumnType.BIGINT, 20, true);
 	}
 	
 	@Override

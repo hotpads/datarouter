@@ -12,5 +12,6 @@ public interface DataView<
 		UK extends UniqueKey<VK>> 
 extends View<VK,V,UK>{
 
+	//TODO this should probably be byte[].  then caller can use StringByteTool.fromUtf8Bytes(..)
 	String getData();
 }
