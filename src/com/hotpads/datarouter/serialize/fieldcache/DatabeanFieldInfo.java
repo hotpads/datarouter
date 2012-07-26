@@ -33,6 +33,7 @@ public class DatabeanFieldInfo<
 	protected Class<D> databeanClass;
 	protected D sampleDatabean;
 	protected String keyFieldName;
+	protected Map<String,List<Field<?>>>  indexes; // !new! the indexes in the databean
 	
 	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
 	protected ScatteringPrefix sampleScatteringPrefix;
@@ -83,11 +84,13 @@ public class DatabeanFieldInfo<
 				this.sampleFielder = ReflectionTool.create(fielderClass);
 				this.primaryKeyFields = sampleFielder.getKeyFielder().getFields(sampleDatabean.getKey());
 				this.prefixedPrimaryKeyFields = sampleFielder.getKeyFields(sampleDatabean);
+				
 				if(fieldAware){
 					this.fields = sampleFielder.getFields(sampleDatabean);//make sure there is a PK or this will NPE
 					addFieldsToCollections();
 					this.nonKeyFields = sampleFielder.getNonKeyFields(sampleDatabean);//only do these if the previous fields succeeded	
 					addNonKeyFieldsToCollections();
+					this.indexes = sampleFielder.getIndexes(sampleDatabean);
 				}
 				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
 			}
@@ -165,114 +168,92 @@ public class DatabeanFieldInfo<
 		return primaryKeyClass;
 	}
 
-
 	public PK getSamplePrimaryKey(){
 		return samplePrimaryKey;
 	}
 
-
 	public Class<? super D> getBaseDatabeanClass(){
 		return baseDatabeanClass;
 	}
-	
-	
-
 
 	public void setBaseDatabeanClass(Class<? super D> baseDatabeanClass){
 		this.baseDatabeanClass = baseDatabeanClass;
 	}
 
-
 	public Class<D> getDatabeanClass(){
 		return databeanClass;
 	}
-
 
 	public D getSampleDatabean(){
 		return sampleDatabean;
 	}
 
-
 	public Class<F> getFielderClass(){
 		return fielderClass;
 	}
-
 
 	public F getSampleFielder(){
 		return sampleFielder;
 	}
 
-
 	public boolean getFieldAware(){
 		return fieldAware;
 	}
-
 
 	public List<Field<?>> getPrimaryKeyFields(){
 		return primaryKeyFields;
 	}
 
-
 	public List<Field<?>> getNonKeyFields(){
 		return nonKeyFields;
 	}
-
 
 	public List<Field<?>> getFields(){
 		return fields;
 	}
 
-
-
-
 	public Map<String,Field<?>> getNonKeyFieldByColumnName(){
 		return nonKeyFieldByColumnName;
 	}
-
 
 	public Map<String,Field<?>> getFieldByColumnName(){
 		return fieldByColumnName;
 	}
 
-
 	public List<String> getFieldNames(){
 		return fieldNames;
 	}
-
 
 	public List<java.lang.reflect.Field> getReflectionFields(){
 		return reflectionFields;
 	}
 
-
 	public Map<String,java.lang.reflect.Field> getReflectionFieldByName(){
 		return reflectionFieldByName;
 	}
-
 
 	public Map<String,Field<?>> getFieldByPrefixedName(){
 		return fieldByPrefixedName;
 	}
 
-
 	public String getKeyFieldName(){
 		return keyFieldName;
 	}
-
 
 	public List<Field<?>> getPrefixedPrimaryKeyFields(){
 		return prefixedPrimaryKeyFields;
 	}
 
-
-	public List<Field<?>> getScatteringPrefixFields() {
+	public List<Field<?>> getScatteringPrefixFields(){
 		return scatteringPrefixFields;
 	}
 
-
-	public ScatteringPrefix getSampleScatteringPrefix() {
+	public ScatteringPrefix getSampleScatteringPrefix(){
 		return sampleScatteringPrefix;
 	}
-	
+
+	public Map<String,List<Field<?>>> getIndexes(){
+		return indexes;
+	}
 	
 }

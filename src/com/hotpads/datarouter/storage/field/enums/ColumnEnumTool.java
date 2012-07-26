@@ -13,7 +13,7 @@ public class ColumnEnumTool {
 		return c.getPrefix()+"."+c.getColumnName();
 	}
 	public static StringField field(ColumnEnum c, String value){
-		return new StringField(c.getPrefix(),c.getColumnName(),value);			
+		return new StringField(c.getPrefix(),c.getColumnName(),value,255);			
 	}
 	public static IntegerField field(ColumnEnum c, Integer value){
 		return new IntegerField(c.getPrefix(),c.getColumnName(),value);			

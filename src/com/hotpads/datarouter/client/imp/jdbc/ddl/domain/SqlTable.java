@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl;
+package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -10,10 +10,13 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTableDiffGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.test.TestParser;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
-public class SqlTable {
+public class SqlTable{
 	
 	/***************** fields *****************************/
 	
@@ -21,41 +24,44 @@ public class SqlTable {
 	private List<SqlColumn> columns;
 	private SqlIndex primaryKey;
 	private List<SqlIndex> indexes;
+	private MySqlTableEngine engine = MySqlTableEngine.INNODB;
+//	private MySqlCollation collation;
 	
 	
 	/*************** constructors ****************************/
 	
-	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey, List<SqlIndex> indexes) {
+	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey, List<SqlIndex> indexes){
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = primaryKey;
 		this.indexes = indexes;
 	}
 
-	
-	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey) {
+	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey){
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = primaryKey;
 		this.indexes = ListTool.createArrayList();
 	}
 
-
-	public SqlTable(String name, List<SqlColumn> columns) {
+	public SqlTable(String name, List<SqlColumn> columns){
 		this.name = name;
 		this.columns = columns;
+		this.primaryKey = new SqlIndex("PRIMARY");
 		this.indexes = ListTool.createArrayList();
 	}
-	
-	public SqlTable(String name) {
+
+	public SqlTable(String name){
 		this.name = name;
 		this.columns = ListTool.createArrayList();
+		this.primaryKey = new SqlIndex("PRIMARY");
 		this.indexes = ListTool.createArrayList();
 	}
 	
 	
 	/*************** methods *********************************/
-
+	
+	@Deprecated
 	public static SqlTable parseCreateTable(String phrase){
 		SqlTable table = new SqlTable("Table");
 		
@@ -67,22 +73,22 @@ public class SqlTable {
 					col.setMaxLength(Integer.parseInt(TestParser.getMaxValueOfColumn(s)));
 				}
 				col.setNullable(TestParser.getNullable(s));
-				System.out.println(col);
+				//System.out.println(col);
 				table.addColumn(col);
 			}
 		}
 		
 		//primary key
 		String[] sTokenPKey= TestParser.getPrimaryKeyDeclarationFromFullBody(phrase).split("[,()]");
-		for (int i = 0; i < sTokenPKey.length; i++) {
+		for (int i = 0; i < sTokenPKey.length; i++){
 			table.setPrimaryKey(TestParser.removeNonText(sTokenPKey[i]));
 		}
 		
 		//secondary indexes
 		List<String> sTokenKey= TestParser.getKeyDeclarationsFromFullBody(phrase);
-		for (String s1: sTokenKey) {
+		for (String s1: sTokenKey){
 				SqlIndex tableIndex = new SqlIndex(TestParser.getKeyNameFromKeydeclaration(s1));
-				System.out.println(TestParser.getKeyNameFromKeydeclaration(s1));
+				//System.out.println(TestParser.getKeyNameFromKeydeclaration(s1));
 				for(String s2:TestParser.getKeyColumnsNamesFromKeyDeclaration(s1)){
 					TestParser.addAppropriateColumnToIndexFromListOfColumn(tableIndex,s2,table.getColumns());
 				}
@@ -90,7 +96,6 @@ public class SqlTable {
 		}
 		return table;
 	}
-	
 	public String getCreateTable(){
 		return null;
 	}
@@ -102,9 +107,8 @@ public class SqlTable {
 				List<SqlColumn> list = ListTool.createArrayList();
 				list.add(col);
 				if(primaryKey==null){
-					primaryKey = new SqlIndex(name + " Primary Key", list);
-				}
-				else{
+					primaryKey = new SqlIndex(name + "_Primary_Key", list);
+				}else{
 					primaryKey.addColumn(col);
 				}
 				//System.out.println("The primary key is " + col);
@@ -112,16 +116,33 @@ public class SqlTable {
 		}
 	}
 	
-	public SqlTable addColumn(SqlColumn column) {
+	public SqlTable addColumn(SqlColumn column){
 		columns.add(column);
 		return this;
 	}
 
-	public SqlTable addIndex(SqlIndex tableIndex) {
+	public SqlTable addIndex(SqlIndex tableIndex){
 		indexes.add(tableIndex);
 		return this;
 	}
 	
+	public boolean hasPrimaryKey(){
+		return getPrimaryKey()!=null && getPrimaryKey().getColumns().size()>0;
+	}
+
+	public boolean containsColumn(String columnName){
+		for(SqlColumn col : getColumns()){
+			if(col.getName().equals(columnName)) return true;
+		}
+		return false;
+	}
+	
+	public boolean containsIndex(String string){
+		for(SqlIndex index : getIndexes()){
+			if(index.getName().equals(string)) return true;
+		}
+		return false;
+	}
 	
 	/******************* static methods ***************************/
 
@@ -152,38 +173,47 @@ public class SqlTable {
 	/********************** Object methods ****************************/
 
 	@Override
-	public String toString() {
-		return "SqlTable [name=" + name + ", \n columns=" + columns
-				+ ",\n primaryKey=" + primaryKey + ", \nindexes=" + indexes + "]";
+	public String toString(){
+		//TODO use StringBuilder
+		StringBuilder sb = new StringBuilder("SqlTable name=" + name + ",\n") ;
+//		for(SqlColumn col : getColumns()){
+//			sb.append(col + "\n");
+//		}
+//		sb.append("PK=" + primaryKey + "\nindexes=" + indexes );
+//		sb.append("\nEngine : " +getEngine());
+		
+		//sb.append("The create table statement :\n");
+		sb.append(new SqlCreateTableGenerator(this).generateDdl());
+		return sb.toString();
 	}
 	
 	@Override
 	public boolean equals(Object otherObject){
-		if(!(otherObject instanceof SqlTable)) { return false; }
+		if(!(otherObject instanceof SqlTable)){ return false; }
 		SqlTable other = (SqlTable)otherObject;
 		return ! new SqlTableDiffGenerator(this, other,true).isTableModified();
 	}
 	
 	
 	/*************************** get/set ********************************/
-	
-	public String getName() {
+
+	public String getName(){
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(String name){
 		this.name = name;
 	}
 
-	public List<SqlColumn> getColumns() {
+	public List<SqlColumn> getColumns(){
 		return columns;
 	}
 
-	public void setColumns(List<SqlColumn> columns) {
+	public void setColumns(List<SqlColumn> columns){
 		this.columns = columns;
 	}
 
-	public SqlIndex getPrimaryKey() {
+	public SqlIndex getPrimaryKey(){
 		return primaryKey;
 	}
 
@@ -200,9 +230,18 @@ public class SqlTable {
 		return this;
 	}
 
-	public int getNumberOfColumns() {
+	public int getNumberOfColumns(){
 		return getColumns().size();
 	}
+
+	public MySqlTableEngine getEngine(){
+		return engine;
+	}
+
+	public void setEngine(MySqlTableEngine engine){
+		this.engine = engine;
+	}
+
 	/******************** tests *********************************/
 
 	public static class SqlTableTester{
@@ -220,7 +259,7 @@ public class SqlTable {
 		public void testGetFullBody(){
 			Assert.assertEquals("blabla(blob())", getColumnDefinitionSection("Header(blabla(blob()))trail"));
 		}
-
+		
 		@Test
 		public void testParseCreateTable() throws IOException{
 			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");
@@ -233,7 +272,4 @@ public class SqlTable {
 			System.out.println(parseCreateTable(phrase));
 		}
 	}
-
-
-
 }

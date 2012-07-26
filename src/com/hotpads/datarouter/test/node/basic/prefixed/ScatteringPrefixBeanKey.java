@@ -38,7 +38,7 @@ public class ScatteringPrefixBeanKey extends BasePrimaryKey<ScatteringPrefixBean
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_a, a),
+				new StringField(COL_a, a,255),
 				new UInt63Field(COL_id, id));
 	}
 

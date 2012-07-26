@@ -62,8 +62,8 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
 				new UInt31Field(F.parentSequence, this.parentSequence),
-				new StringField(F.name, this.name),
-				new StringField(F.info, this.info),
+				new StringField(F.name, this.name,255),
+				new StringField(F.info, this.info,255),
 				new UInt63Field(F.created, this.created),
 				new UInt63Field(F.duration, this.duration),
 				new UInt63Field(F.durationNano, this.durationNano));
@@ -85,8 +85,8 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 		public List<Field<?>> getNonKeyFields(TraceSpan d){
 			return FieldTool.createList(
 					new UInt31Field(F.parentSequence, d.parentSequence),
-					new StringField(F.name, d.name),
-					new StringField(F.info, d.info),
+					new StringField(F.name, d.name,255),
+					new StringField(F.info, d.info,255),
 					new UInt63Field(F.created, d.created),
 					new UInt63Field(F.duration, d.duration),
 					new UInt63Field(F.durationNano, d.durationNano));

@@ -3,6 +3,7 @@ package com.hotpads.datarouter.test.node.basic.manyfield;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,9 +15,11 @@ import org.hibernate.annotations.AccessType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.UInt63ArrayField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
 import com.hotpads.datarouter.storage.field.imp.comparable.CharacterField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
@@ -29,10 +32,9 @@ import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
-import com.hotpads.profile.count.databean.Count;
-import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
@@ -47,6 +49,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	@Id
 	private ManyFieldTypeBeanKey key;
 	
+	private Boolean booleanField;
 	private Byte byteField;
 	private Short shortField;
 	private Integer integerField;
@@ -74,10 +77,13 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	@Lob @Column(length=1<<27)
 	private List<Long> longArrayField;
 	
+	private String testSchemaUpdateField;
+	
 	
 	public static class F{
 		public static final String
 			KEY_NAME = "key",
+			booleanField = "booleanField",
 			byteField = "byteField",
 			shortField = "shortField",
 			integerField = "integerField",
@@ -93,13 +99,15 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 			stringEnumField = "stringEnumField",
 			stringByteField = "stringByteField",
 			data = "data",
-			longArrayField = "longArrayField";
+			longArrayField = "longArrayField",
+			testSchemaUpdateField = "testSchemaUpdateField";
 	}
 	
 	
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		List<Field<?>> fields = ListTool.createLinkedList();
+		fields.add(new BooleanField(F.booleanField, booleanField));
 		fields.add(new ByteField(F.byteField, byteField));
 		fields.add(new ShortField(F.shortField, shortField));
 		fields.add(new IntegerField(F.integerField, integerField));
@@ -108,7 +116,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		fields.add(new DumbDoubleField(F.doubleField, doubleField));
 		fields.add(new LongDateField(F.longDateField, longDateField));
 		fields.add(new CharacterField(F.characterField, characterField));
-		fields.add(new StringField(F.stringField, stringField));
+		fields.add(new StringField(F.stringField, stringField,255));
 		fields.add(new VarIntField(F.varIntField, varIntField));
 		fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, intEnumField));
 		fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, varIntEnumField));
@@ -116,6 +124,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		fields.add(new ByteArrayField(F.stringByteField, stringByteField));
 		fields.add(new ByteArrayField(F.data, data));
 		fields.add(new UInt63ArrayField(F.longArrayField, longArrayField));
+		fields.add(new StringField(F.testSchemaUpdateField, testSchemaUpdateField,255));
 		return fields;
 	}
 	
@@ -128,6 +137,17 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		@Override
 		public List<Field<?>> getNonKeyFields(ManyFieldTypeBean d){
 			return d.getNonKeyFields();
+		}
+		@Override
+		public Map<String,List<Field<?>>> getIndexes(ManyFieldTypeBean d){
+			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
+			indexesByName.put("index_shortInt", FieldTool.createList(
+					new ShortField(F.shortField, d.shortField),
+					new IntegerField(F.integerField, d.integerField)));
+			indexesByName.put("index_stringTestUpdate", FieldTool.createList(
+					new StringField(F.stringField, d.stringField,255),
+					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField,255)));
+			return indexesByName;
 		}
 	}
 
@@ -334,6 +354,14 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		this.stringEnumField = stringEnumField;
 	}
 
-	
+
+	public Boolean getBooleanField(){
+		return booleanField;
+	}
+
+
+	public void setBooleanField(Boolean booleanField){
+		this.booleanField = booleanField;
+	}
 	
 }

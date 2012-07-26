@@ -9,25 +9,29 @@ import java.util.regex.Matcher;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.MySqlColumnType;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlColumn;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.RegexTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class StringField extends BaseField<String>{
 	
+	protected int size;
 
-	public StringField(String name, String value){
+	public StringField(String name, String value, int size){
 		super(name, value);
+		this.size = size;
 	}
 
-	public StringField(String prefix, String name, String value){
+	public StringField(String prefix, String name, String value, int size){
 		super(prefix, name, value);
+		this.size = size;
 	}
 	
 	@Override
@@ -43,7 +47,17 @@ public class StringField extends BaseField<String>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(name, MySqlColumnType.TEXT, null , true);
+		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
+			return new SqlColumn(name, MySqlColumnType.VARCHAR, 255, true);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
+			return new SqlColumn(name, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, true);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
+			return new SqlColumn(name, MySqlColumnType.MEDIUMTEXT, null/*MySqlColumnType.MAX_LENGTH_MEDIUMTEXT.intValue()*/, 
+					true);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
+			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, true);
+		}
+		throw new IllegalArgumentException("Unknown size:"+size);
 	}
 	
 	@Override
@@ -71,7 +85,7 @@ public class StringField extends BaseField<String>{
 			if(value==null){
 				ps.setNull(parameterIndex, Types.VARCHAR);
 			}else{
-				ps.setString(parameterIndex, this.value);
+				ps.setString(parameterIndex, value);
 			}
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -158,16 +172,32 @@ public class StringField extends BaseField<String>{
 	public static class StringFieldTests{
 		@Test public void testGetSqlEscaped(){
 			Assert.assertEquals("'bill\\'s'",
-					new StringField("tag","bill's").getSqlEscaped());
+					new StringField("tag","bill's",255).getSqlEscaped());
 			
 			//actual case encountered
 			Assert.assertEquals("'Renter\\\\\\\\\\\\\\'s Assurance Program'", 
-					new StringField("tag","Renter\\\\\\'s Assurance Program").getSqlEscaped());
+					new StringField("tag","Renter\\\\\\'s Assurance Program",255).getSqlEscaped());
 
 
 			Assert.assertEquals("'no apostrophes'",
-					new StringField("tag","no apostrophes").getSqlEscaped());
+					new StringField("tag","no apostrophes",255).getSqlEscaped());
 			
 		}
+	}
+
+
+	public static SqlColumn getTypeFromSize(String name, int size,
+			boolean nullable){
+		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
+			return new SqlColumn(name, MySqlColumnType.VARCHAR, 255, true);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
+			return new SqlColumn(name, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, true);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
+			return new SqlColumn(name, MySqlColumnType.MEDIUMTEXT, null/*MySqlColumnType.MAX_LENGTH_MEDIUMTEXT.intValue()*/, 
+					true);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
+			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, true);
+		}
+		throw new IllegalArgumentException("Unknown size:"+size);
 	}
 }

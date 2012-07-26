@@ -44,9 +44,9 @@ public class BackupBean extends BaseDatabean<BackupBeanKey,BackupBean> implement
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new StringField(COL_f1, f1),
+				new StringField(COL_f1, f1,255),
 				new LongField(COL_f2, f2),
-				new StringField(COL_f3, f3),
+				new StringField(COL_f3, f3,255),
 				new DumbDoubleField(COL_f4, f4));
 	}
 	
@@ -106,9 +106,9 @@ public class BackupBean extends BaseDatabean<BackupBeanKey,BackupBean> implement
 	@Override
 	public List<Field<?>> getContentFields() {
 		return FieldTool.createList(
-				new StringField(COL_f1, f1),
+				new StringField(COL_f1, f1, 255),
 				new LongField(COL_f2, f2),
-				new StringField(COL_f3, f3),
+				new StringField(COL_f3, f3, 255),
 				new DumbDoubleField(COL_f4, f4));
 	}
 
@@ -132,9 +132,9 @@ public class BackupBean extends BaseDatabean<BackupBeanKey,BackupBean> implement
 		}
 		public List<Field<?>> getFields(){
 			return FieldTool.createList(
-					new StringField(BackupBean.KEY_NAME, BackupBeanKey.COL_d, d),
+					new StringField(BackupBean.KEY_NAME, BackupBeanKey.COL_d, d,255),
 					new UInt31Field(BackupBean.KEY_NAME, BackupBeanKey.COL_c, c),
-					new StringField(BackupBean.KEY_NAME, BackupBeanKey.COL_b, b));
+					new StringField(BackupBean.KEY_NAME, BackupBeanKey.COL_b, b,255));
 		}
 	}
 

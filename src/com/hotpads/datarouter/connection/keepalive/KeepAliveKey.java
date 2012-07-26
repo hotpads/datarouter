@@ -24,7 +24,7 @@ public class KeepAliveKey extends BasePrimaryKey<KeepAliveKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_id, id));
+				new StringField(COL_id, id,255));
 	}
 	
 	
