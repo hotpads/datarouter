@@ -43,9 +43,6 @@ import com.hotpads.util.core.collections.arrays.LongArray;
 @AccessType("field")
 public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldTypeBeanKey,ManyFieldTypeBean2>{
 	
-	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
-
-
 	private static final int LEN_STRING_ENUM_FIELD = 20;
 	
 	
@@ -115,7 +112,7 @@ public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldTypeBeanKey,ManyFi
 		fields.add(new LongField(F.longField, longField));
 		fields.add(new DumbFloatField(F.floatField, floatField));
 		fields.add(new CharacterField(F.characterField, characterField));
-		fields.add(new StringField(F.stringField, stringField, DEFAULT_STRING_LENGTH));
+		fields.add(new StringField(F.stringField, stringField, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		fields.add(new VarIntField(F.varIntField, varIntField));
 		fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, intEnumField));
 		fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, varIntEnumField));

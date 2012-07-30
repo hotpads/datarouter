@@ -15,8 +15,6 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 @Embeddable
 public class KeepAliveKey extends BasePrimaryKey<KeepAliveKey>{
 
-	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
-	
 	
 	/********************************* fields ***********************************/
 	
@@ -28,7 +26,7 @@ public class KeepAliveKey extends BasePrimaryKey<KeepAliveKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_id, id, DEFAULT_STRING_LENGTH));
+				new StringField(COL_id, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 	
 	
