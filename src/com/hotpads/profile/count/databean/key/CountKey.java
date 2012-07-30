@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.persistence.Embeddable;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
@@ -18,6 +19,9 @@ import com.hotpads.util.core.DateTool;
 @Embeddable
 public class CountKey extends BasePrimaryKey<CountKey>{
 
+	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	
+	
 	/****************************** fields ********************************/
 	
 	/*
@@ -46,11 +50,11 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_name, name,255),
-				new StringField(COL_sourceType, sourceType,255),
+				new StringField(COL_name, name, DEFAULT_STRING_VALUE),
+				new StringField(COL_sourceType, sourceType, DEFAULT_STRING_VALUE),
 				new UInt63Field(COL_periodMs, periodMs),
 				new UInt63Field(COL_startTimeMs, startTimeMs),
-				new StringField(COL_source, source,255),
+				new StringField(COL_source, source, DEFAULT_STRING_VALUE),
 				new UInt63Field(COL_created, created));
 	}
 	

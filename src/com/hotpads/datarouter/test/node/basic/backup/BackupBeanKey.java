@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.Embeddable;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
@@ -15,6 +16,8 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 @SuppressWarnings("serial")
 @Embeddable
 public class BackupBeanKey extends BasePrimaryKey<BackupBeanKey>{
+	
+	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	protected String a;
 	protected String b;
@@ -42,10 +45,10 @@ public class BackupBeanKey extends BasePrimaryKey<BackupBeanKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_a, a,255),
-				new StringField(COL_b, b,255),
+				new StringField(COL_a, a, DEFAULT_STRING_VALUE),
+				new StringField(COL_b, b, DEFAULT_STRING_VALUE),
 				new UInt31Field(COL_c, c),
-				new StringField(COL_d, d,255));
+				new StringField(COL_d, d, DEFAULT_STRING_VALUE));
 	}
 
 

@@ -7,6 +7,7 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -26,6 +27,8 @@ import com.hotpads.util.core.ListTool;
 @AccessType("field")
 public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,ScatteringPrefixBean>{
 	
+	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	
 	@Id
 	private ScatteringPrefixBeanKey key;
 	
@@ -40,7 +43,7 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new StringField(COL_f1, f1,255));
+				new StringField(COL_f1, f1, DEFAULT_STRING_VALUE));
 	}
 	
 	public static class ScatteringPrefixBeanFielder extends BaseDatabeanFielder<ScatteringPrefixBeanKey,ScatteringPrefixBean>{	

@@ -47,12 +47,16 @@ public enum MySqlColumnType{
 	SET(true);
 	
 	
+
+
 	/**************************** static **********************************/
 	
-	public static final Long 
-		MAX_LENGTH_VARCHAR = (1L << 8) - 1,
-		MAX_LENGTH_TEXT = (1L << 16) - 1,
-		MAX_LENGTH_MEDIUMTEXT = (1L << 24) - 1,
+	public static final int 
+		MAX_LENGTH_VARCHAR = (1 << 8) - 1,
+		MAX_LENGTH_TEXT = (1 << 16) - 1,
+		MAX_LENGTH_MEDIUMTEXT = (1 << 24) - 1;
+
+	public static final long
 		MAX_LENGTH_LONGTEXT = (1L << 32) - 1;
 	
 	
