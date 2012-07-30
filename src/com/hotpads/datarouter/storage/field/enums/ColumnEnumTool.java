@@ -10,14 +10,14 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 
 public class ColumnEnumTool {
 	
-	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	public static String getFieldName(ColumnEnum c){
 		if(c.getPrefix()==null) return c.getColumnName();
 		return c.getPrefix()+"."+c.getColumnName();
 	}
 	public static StringField field(ColumnEnum c, String value){
-		return new StringField(c.getPrefix(),c.getColumnName(),value, DEFAULT_STRING_VALUE);			
+		return new StringField(c.getPrefix(),c.getColumnName(),value, DEFAULT_STRING_LENGTH);			
 	}
 	public static IntegerField field(ColumnEnum c, Integer value){
 		return new IntegerField(c.getPrefix(),c.getColumnName(),value);			

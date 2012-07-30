@@ -17,7 +17,7 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 @Embeddable
 public class ScatteringPrefixBeanKey extends BasePrimaryKey<ScatteringPrefixBeanKey>{
 	
-	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	protected String a;
 	protected Long id;
@@ -41,7 +41,7 @@ public class ScatteringPrefixBeanKey extends BasePrimaryKey<ScatteringPrefixBean
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_a, a, DEFAULT_STRING_VALUE),
+				new StringField(COL_a, a, DEFAULT_STRING_LENGTH),
 				new UInt63Field(COL_id, id));
 	}
 

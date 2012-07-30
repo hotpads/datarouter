@@ -32,12 +32,12 @@ import com.hotpads.util.core.NumberTool;
 @AccessType("field")
 public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 
-	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	@Id
 	protected TraceSpanKey key;
 	protected Integer parentSequence;
-	@Column(length=DEFAULT_STRING_VALUE)
+	@Column(length=DEFAULT_STRING_LENGTH)
 	protected String name;
 	protected Long created;
 	protected Long duration;
@@ -65,8 +65,8 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
 				new UInt31Field(F.parentSequence, this.parentSequence),
-				new StringField(F.name, this.name, DEFAULT_STRING_VALUE),
-				new StringField(F.info, this.info, DEFAULT_STRING_VALUE),
+				new StringField(F.name, this.name, DEFAULT_STRING_LENGTH),
+				new StringField(F.info, this.info, DEFAULT_STRING_LENGTH),
 				new UInt63Field(F.created, this.created),
 				new UInt63Field(F.duration, this.duration),
 				new UInt63Field(F.durationNano, this.durationNano));
@@ -88,8 +88,8 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 		public List<Field<?>> getNonKeyFields(TraceSpan d){
 			return FieldTool.createList(
 					new UInt31Field(F.parentSequence, d.parentSequence),
-					new StringField(F.name, d.name, DEFAULT_STRING_VALUE),
-					new StringField(F.info, d.info, DEFAULT_STRING_VALUE),
+					new StringField(F.name, d.name, DEFAULT_STRING_LENGTH),
+					new StringField(F.info, d.info, DEFAULT_STRING_LENGTH),
 					new UInt63Field(F.created, d.created),
 					new UInt63Field(F.duration, d.duration),
 					new UInt63Field(F.durationNano, d.durationNano));

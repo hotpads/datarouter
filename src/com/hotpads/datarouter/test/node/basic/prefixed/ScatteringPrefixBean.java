@@ -27,7 +27,7 @@ import com.hotpads.util.core.ListTool;
 @AccessType("field")
 public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,ScatteringPrefixBean>{
 	
-	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	@Id
 	private ScatteringPrefixBeanKey key;
@@ -43,7 +43,7 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new StringField(COL_f1, f1, DEFAULT_STRING_VALUE));
+				new StringField(COL_f1, f1, DEFAULT_STRING_LENGTH));
 	}
 	
 	public static class ScatteringPrefixBeanFielder extends BaseDatabeanFielder<ScatteringPrefixBeanKey,ScatteringPrefixBean>{	

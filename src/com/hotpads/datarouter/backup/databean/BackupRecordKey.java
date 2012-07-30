@@ -19,7 +19,7 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 @Embeddable
 public class BackupRecordKey extends BasePrimaryKey<BackupRecordKey>{
 	
-	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	protected String node;
 	protected byte[] startKey;
@@ -46,7 +46,7 @@ public class BackupRecordKey extends BasePrimaryKey<BackupRecordKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_node, node, DEFAULT_STRING_VALUE),
+				new StringField(COL_node, node, DEFAULT_STRING_LENGTH),
 				new ByteArrayField(COL_startKey, startKey),
 				new ByteArrayField(COL_endKey, endKey),
 				new LongDateField(COL_created, created));

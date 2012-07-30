@@ -45,7 +45,7 @@ import com.hotpads.util.core.collections.arrays.LongArray;
 @AccessType("field")
 public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFieldTypeBean>{
 	
-	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
 	private static final int LEN_STRING_ENUM_FIELD = 20;
 	
@@ -121,7 +121,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		fields.add(new DumbDoubleField(F.doubleField, doubleField));
 		fields.add(new LongDateField(F.longDateField, longDateField));
 		fields.add(new CharacterField(F.characterField, characterField));
-		fields.add(new StringField(F.stringField, stringField, DEFAULT_STRING_VALUE));
+		fields.add(new StringField(F.stringField, stringField, DEFAULT_STRING_LENGTH));
 		fields.add(new VarIntField(F.varIntField, varIntField));
 		fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, intEnumField));
 		fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, varIntEnumField));
@@ -129,7 +129,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		fields.add(new ByteArrayField(F.stringByteField, stringByteField));
 		fields.add(new ByteArrayField(F.data, data));
 		fields.add(new UInt63ArrayField(F.longArrayField, longArrayField));
-		fields.add(new StringField(F.testSchemaUpdateField, testSchemaUpdateField, DEFAULT_STRING_VALUE));
+		fields.add(new StringField(F.testSchemaUpdateField, testSchemaUpdateField, DEFAULT_STRING_LENGTH));
 		return fields;
 	}
 	
@@ -150,8 +150,8 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 					new ShortField(F.shortField, d.shortField),
 					new IntegerField(F.integerField, d.integerField)));
 			indexesByName.put("index_stringTestUpdate", FieldTool.createList(
-					new StringField(F.stringField, d.stringField, DEFAULT_STRING_VALUE),
-					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField, DEFAULT_STRING_VALUE)));
+					new StringField(F.stringField, d.stringField, DEFAULT_STRING_LENGTH),
+					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField, DEFAULT_STRING_LENGTH)));
 			return indexesByName;
 		}
 	}

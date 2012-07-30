@@ -30,7 +30,7 @@ import com.hotpads.util.core.number.VarLong;
 public class FieldSetTool{
 	static Logger logger = Logger.getLogger(FieldSetTool.class);
 
-	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	public static int getNumNonNullFields(FieldSet<?> prefix){
 		int numNonNullFields = 0;
@@ -198,8 +198,8 @@ public class FieldSetTool{
 			String someStringB = "xyz";
 			List<Field<?>> fields = FieldTool.createList(
 					new UInt31Field("someInt", someInt),
-					new StringField("someStringA", someStringA, DEFAULT_STRING_VALUE),
-					new StringField("someStringB", someStringB, DEFAULT_STRING_VALUE));
+					new StringField("someStringA", someStringA, DEFAULT_STRING_LENGTH),
+					new StringField("someStringB", someStringB, DEFAULT_STRING_LENGTH));
 			ByteRange withTrailingByte = new ByteRange(getConcatenatedValueBytes(fields, false, true));
 			ByteRange withoutTrailingByte = new ByteRange(getConcatenatedValueBytes(fields, false, false));
 			int lengthWithout = 4 + 3 + 1 + 3;

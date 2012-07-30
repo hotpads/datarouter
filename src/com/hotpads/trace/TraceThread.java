@@ -28,13 +28,13 @@ import com.hotpads.util.core.ComparableTool;
 @SuppressWarnings("serial")
 public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 
-	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	@Id
 	protected TraceThreadKey key;
 
 	protected Long parentId;
-	@Column(length=DEFAULT_STRING_VALUE)
+	@Column(length=DEFAULT_STRING_LENGTH)
 	protected String name;
 	protected String info;
 	@Column(length=20)
@@ -71,8 +71,8 @@ public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
 				new UInt63Field(F.parentId, parentId),
-				new StringField(F.name, name, DEFAULT_STRING_VALUE),
-				new StringField(F.info, info, DEFAULT_STRING_VALUE),
+				new StringField(F.name, name, DEFAULT_STRING_LENGTH),
+				new StringField(F.info, info, DEFAULT_STRING_LENGTH),
 				new StringField(F.serverId, serverId,20),
 				new UInt63Field(F.created, created),
 				new UInt63Field(F.queuedDuration, queuedDuration),

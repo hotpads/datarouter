@@ -28,7 +28,7 @@ import com.hotpads.util.core.StringTool;
 @SuppressWarnings("serial")
 public class Trace extends BaseDatabean<TraceKey,Trace>{
 
-	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	@Id
 	protected TraceKey key;
@@ -37,9 +37,9 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 	protected String sessionId;
 	@Column(length=20)
 	protected String context;
-	@Column(length=DEFAULT_STRING_VALUE)
+	@Column(length=DEFAULT_STRING_LENGTH)
 	protected String type;
-	@Column(length=DEFAULT_STRING_VALUE)
+	@Column(length=DEFAULT_STRING_LENGTH)
 	protected String params;
 	
 	protected Long created;
@@ -75,8 +75,8 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 		return FieldTool.createList(
 				new StringField(F.sessionId, sessionId,LEN_sessionId),
 				new StringField(F.context, context,LEN_context),
-				new StringField(F.type, type, DEFAULT_STRING_VALUE),
-				new StringField(F.params, params, DEFAULT_STRING_VALUE),
+				new StringField(F.type, type, DEFAULT_STRING_LENGTH),
+				new StringField(F.params, params, DEFAULT_STRING_LENGTH),
 				new UInt63Field(F.created, created),
 				new UInt63Field(F.duration, duration));
 	}

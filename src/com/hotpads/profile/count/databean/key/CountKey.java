@@ -19,7 +19,7 @@ import com.hotpads.util.core.DateTool;
 @Embeddable
 public class CountKey extends BasePrimaryKey<CountKey>{
 
-	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	
 	/****************************** fields ********************************/
@@ -50,11 +50,11 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_name, name, DEFAULT_STRING_VALUE),
-				new StringField(COL_sourceType, sourceType, DEFAULT_STRING_VALUE),
+				new StringField(COL_name, name, DEFAULT_STRING_LENGTH),
+				new StringField(COL_sourceType, sourceType, DEFAULT_STRING_LENGTH),
 				new UInt63Field(COL_periodMs, periodMs),
 				new UInt63Field(COL_startTimeMs, startTimeMs),
-				new StringField(COL_source, source, DEFAULT_STRING_VALUE),
+				new StringField(COL_source, source, DEFAULT_STRING_LENGTH),
 				new UInt63Field(COL_created, created));
 	}
 	

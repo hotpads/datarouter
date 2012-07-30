@@ -15,7 +15,7 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 @Embeddable
 public class TxnBeanKey extends BasePrimaryKey<TxnBeanKey>{
 
-	public static final int DEFAULT_STRING_VALUE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	
 	/********************************* fields ***********************************/
@@ -28,7 +28,7 @@ public class TxnBeanKey extends BasePrimaryKey<TxnBeanKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_id, id, DEFAULT_STRING_VALUE));
+				new StringField(COL_id, id, DEFAULT_STRING_LENGTH));
 	}
 	
 	
