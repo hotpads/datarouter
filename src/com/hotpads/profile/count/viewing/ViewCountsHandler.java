@@ -55,6 +55,8 @@ public class ViewCountsHandler extends BaseHandler{
 	@Handler Mav listCounters(){
 		Mav mav = new Mav(JSP_listCounters);
 		
+		mav.addObject("archives", Counters.get().getManager().getArchives());
+		
 		String archiveName = RequestTool.get(request, PARAM_archive);
 //		String sourceType = RequestTool.get(request, PARAM_sourceType);
 //		String source = RequestTool.get(request, PARAM_source);
