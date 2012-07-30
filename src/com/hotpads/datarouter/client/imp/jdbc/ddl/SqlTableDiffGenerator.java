@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -180,8 +181,12 @@ public class SqlTableDiffGenerator{
 	public SqlTable getRequested(){
 		return requested;
 	}
-
 	
+	public SqlTable getCurrent(){
+		return current;
+	}
+
+
 	/********************* Tests *******************************/
 	
 	public static class SqlTableDiffGeneratorTester{
@@ -430,7 +435,7 @@ public class SqlTableDiffGenerator{
 					//TODO too much on one line
 			List<SqlColumn> colsToModify = diffAB.getColumnsToModify();
 			ArrayList<SqlColumn> expected = ListTool.createArrayList(colA2);
-			SqlColumnNameTypeComparator c = new SqlColumnNameTypeComparator(true);
+			SqlColumnNameTypeLengthComparator c = new SqlColumnNameTypeLengthComparator(true);
 			Assert.assertTrue(areEqual(colsToModify, expected, c));
 			
 			
@@ -441,10 +446,68 @@ public class SqlTableDiffGenerator{
 			Assert.assertTrue(CollectionTool.isEmpty(diffNullNull.getColumnsToModify()));
 			Assert.assertTrue(CollectionTool.isEmpty(diffANull.getColumnsToModify()));
 			Assert.assertTrue(CollectionTool.isEmpty(diffNullA.getColumnsToModify()));
+			
+
 		}
 
+		@Test
+		public void getColumnsToModifyBugTest(){
+			SqlColumn col_active = new SqlColumn("active", MySqlColumnType.BIT, 1, true);
+			SqlColumn col_activeTiny = new SqlColumn("active", MySqlColumnType.TINYINT, 1, true);
+			SqlColumn col_includeInSiteMap = new SqlColumn("includeInSiteMap", MySqlColumnType.BIT, 1, true);
+			SqlColumn col_includeInSiteMapTiny = new SqlColumn("includeInSiteMap", MySqlColumnType.TINYINT, 1, true);
+			SqlColumn col_type = new SqlColumn("type", MySqlColumnType.INT, 11, true);
+			SqlColumn col_useBoundedLayout = new SqlColumn("useBoundedLayout", MySqlColumnType.BIT, 1, true);
+			SqlColumn col_useBoundedLayoutTiny = new SqlColumn("useBoundedLayout", MySqlColumnType.TINYINT, 1, true);
+			SqlColumn col_redirect = new SqlColumn("redirect", MySqlColumnType.VARCHAR, 255, true);
+			SqlColumn col_body = new SqlColumn("body", MySqlColumnType.MEDIUMTEXT, 16777216, true);
+			SqlColumn col_id = new SqlColumn("id", MySqlColumnType.VARCHAR, 255, true);
+			SqlColumn col_metaKeywords = new SqlColumn("metaKeywords", MySqlColumnType.VARCHAR, 255, true);
+			SqlColumn col_title = new SqlColumn("title", MySqlColumnType.VARCHAR, 255, true);
+			SqlColumn col_metaDescription = new SqlColumn("metaDescription", MySqlColumnType.VARCHAR, 255, true);
+			SqlColumn col_attributes = new SqlColumn("attributes", MySqlColumnType.VARCHAR, 255, true);
+			SqlColumn lastModified = new SqlColumn("lastModified", MySqlColumnType.DATETIME);
+
+			SqlTable table1 = new SqlTable("TA").addColumn(col_active)
+						.addColumn(col_includeInSiteMap)
+						.addColumn(col_type)
+						.addColumn(col_useBoundedLayout)
+						.addColumn(col_redirect)
+						.addColumn(col_body)
+						.addColumn(col_id)
+						.addColumn(col_metaKeywords)
+						.addColumn(col_title)
+						.addColumn(col_metaDescription)
+						.addColumn(col_attributes)
+						.addColumn(lastModified);
+			SqlTable table2  = new SqlTable("TB").addColumn(col_activeTiny)
+					.addColumn(col_includeInSiteMapTiny)
+					.addColumn(col_type)
+					.addColumn(col_useBoundedLayoutTiny)
+					.addColumn(col_redirect)
+					.addColumn(col_body)
+					.addColumn(col_id)
+					.addColumn(col_metaKeywords)
+					.addColumn(col_title)
+					.addColumn(col_metaDescription)
+					.addColumn(col_attributes)
+					.addColumn(lastModified);
+			
+			SqlTableDiffGenerator diffAB = new SqlTableDiffGenerator(table1, table2, true);
+			List<SqlColumn> colsToModify = diffAB.getColumnsToModify();
+			ArrayList<SqlColumn> expected = ListTool.createArrayList(col_activeTiny, col_includeInSiteMapTiny, col_useBoundedLayoutTiny);
+			SqlColumnNameTypeLengthComparator c = new SqlColumnNameTypeLengthComparator(true);
+			Assert.assertTrue(areEqual(colsToModify, expected, c));
+			
+			Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
+			Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);
+			requestedColumns.addAll(diffAB.getCurrent().getColumns());
+			currentColumns.addAll(diffAB.getRequested().getColumns());
+			Assert.assertEquals(requestedColumns.size(),diffAB.getRequested().getColumns().size());
+			Assert.assertEquals(currentColumns.size(),diffAB.getCurrent().getColumns().size());
+		}
 		private boolean areEqual(List<SqlColumn> colsToModify, ArrayList<SqlColumn> expected,
-				SqlColumnNameTypeComparator c){
+				Comparator<SqlColumn> c){
 			return CollectionTool.isEmpty(CollectionTool.minus(colsToModify, expected, c));
 		}
 	
