@@ -40,7 +40,7 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
 			if(value==null){
-				ps.setNull(parameterIndex, Types.BIT);
+				ps.setNull(parameterIndex, Types.TINYINT);
 			}else{
 				ps.setBoolean(parameterIndex, value);
 			}
