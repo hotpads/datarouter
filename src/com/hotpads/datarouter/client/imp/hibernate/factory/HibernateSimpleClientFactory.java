@@ -2,8 +2,6 @@ package com.hotpads.datarouter.client.imp.hibernate.factory;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -229,6 +227,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 
 	protected void createOrUpdateTableIfNeeded(List<String> tableNames, JdbcConnectionPool connectionPool, 
 			PhysicalNode<?, ?> physicalNode){
+		logger.warn("createOrUpdateTableIfNeeded:"+physicalNode.getTableName());
 		if( ! physicalNode.getFieldInfo().getFieldAware()){ return; }
 
 		if(!SCHEMA_UPDATE){
