@@ -50,7 +50,7 @@ public class StringField extends BaseField<String>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(name, MySqlColumnType.VARCHAR, DEFAULT_STRING_LENGTH, true);
+			return new SqlColumn(name, MySqlColumnType.VARCHAR, size, true);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
 			return new SqlColumn(name, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, true);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){

@@ -76,8 +76,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	protected SchemaUpdateOptions schemaUpdatePrintOptions;
 	protected SchemaUpdateOptions schemaUpdateExecuteOptions;
 	protected Set<String> updatedTables;
-	protected List<String> printedSchemaUpdates;
-	
+	protected List<String> printedSchemaUpdates;	
 	protected ExecutorService executorService;
 	protected HibernateClient client;
 	
