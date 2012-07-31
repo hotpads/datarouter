@@ -86,77 +86,13 @@ public class ManyFieldTypeIntegrationTests {
 		
 		for(ClientType clientType : routerByClientType.keySet()){
 			BasicNodeTestRouter router = routerByClientType.get(clientType);
-			if(ClientType.hibernate == clientType){
-//				messUpTable();
-				// System.out.println("mess up");
-			}
 			if(ClientType.memcached!=clientType){
 				router.manyFieldTypeBean().deleteAll(null);
 				Assert.assertEquals(0, CollectionTool.size(router.manyFieldTypeBean().getAll(null)));
 			}
-			// fixTable();
 		}
 
 	}
-
-//	private static void fixTable(){
-//		Connection conn = JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
-//		Statement st = null;
-//		try{
-//
-//			st = conn.createStatement();
-//			ResultSet rs;
-//
-//			String tableName = "ManyFieldTypeBean";
-//			List<Field<?>> primaryKeyFields = ListTool.create(), primaryKeyFields2 = ListTool.create();
-//
-//			List<Field<?>> nonKeyFields = ListTool.createArrayList(), nonKeyFields2 = ListTool.createArrayList();
-//
-//			ManyFieldTypeBean mftBean = new ManyFieldTypeBean();
-//			ManyFieldTypeBean2 mftBean2 = new ManyFieldTypeBean2();
-//
-//			primaryKeyFields = mftBean.getKeyFields();
-//			nonKeyFields = mftBean.getNonKeyFields();
-//			FieldSqlTableGenerator fstGenerator = new FieldSqlTableGenerator(tableName, primaryKeyFields, nonKeyFields);
-//			SqlTable table = fstGenerator.generate();
-//			SqlCreateTableGenerator ctGenerator = new SqlCreateTableGenerator(table);
-//			st.execute("drop table if exists " + tableName + ";");
-//			String sql = ctGenerator.generateDdl();
-//			// System.out.println(sql);
-//			st.execute(sql);
-//			conn.close();
-//		}catch(Exception e){
-//			e.printStackTrace();// TODO: handle exception
-//		}
-//	}
-//
-//	private static void messUpTable(){
-//		Connection conn = JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
-//		Statement st = null;
-//		try{
-//			st = conn.createStatement();
-//			ResultSet rs;
-//			// modifying the storage engine
-////			 st.execute("ALTER TABLE ManyFieldTypeBean ENGINE=MYISAM;");
-//			// modifying the type
-//			 st.execute("ALTER TABLE ManyFieldTypeBean MODIFY byteField VARCHAR(200);");
-//			// adding a new column
-//			 st.execute("ALTER TABLE ManyFieldTypeBean ADD COLUMN abcd" + (int)(Math.random()*100) +
-//			 " VARCHAR(250);");
-//			// deleting an existing column l
-//			 st.execute("ALTER TABLE ManyFieldTypeBean DROP COLUMN varIntEnumField;");
-//			// deleting the primary key
-//			 st.execute("ALTER TABLE ManyFieldTypeBean DROP PRIMARY KEY;");
-//
-//			// adding a foreign key
-//			st.execute(" CREATE INDEX key1 ON ManyFieldTypeBean(id, varIntField);");
-//			st.execute(" CREATE INDEX key2 ON ManyFieldTypeBean(characterField, doubleField);");
-//			// st.execute("ALTER TABLE ManyFieldTypeBean ADD COLUMN blabla BOOLEAN DEFAULT NULL;");
-//			conn.close();
-//		}catch(Exception e){
-//			e.printStackTrace();
-//		}
-//	}
 	
 	/***************************** fields **************************************/
 	
