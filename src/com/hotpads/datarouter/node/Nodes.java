@@ -13,7 +13,10 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -26,13 +29,19 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>>{
-	Logger logger = Logger.getLogger(getClass());
+	static Logger logger = Logger.getLogger(Nodes.class);
+	
+	
+	/************************ fields *******************************/
+	
+	protected DataRouterContext drContext;
 
 	protected List<N> topLevelNodes = ListTool.createArrayList();
 	protected List<N> allNodes = ListTool.createArrayList();
 	protected List<String> allNames = ListTool.createArrayList();
 	protected Map<String,N> nodeByName = MapTool.createTreeMap();
 	protected SortedMap<String,SortedSet<N>> nodesByRouterName = MapTool.createTreeMap();
+	protected Multimap<String,N> topLevelNodesByRouterName = TreeMultimap.create();
 	protected Map<N,String> routerNameByNode = MapTool.createTreeMap();
 //	protected Map<ClientType,List<N>> nodesByClientType = MapTool.createTreeMap();
 	protected Map<String,Map<String,PhysicalNode<PK,D>>> physicalNodeByTableNameByClientName = MapTool.createTreeMap();
@@ -41,7 +50,17 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	protected Map<Class<D>,List<String>> clientNamesByDatabeanType = MapTool.createHashMap();
 	
 	
+	/********************** constructors **********************************/
+	
+	public Nodes(DataRouterContext drContext){
+		this.drContext = drContext;
+	}
+	
+	
+	/*********************** methods ************************************/
+	
 	public N register(String routerName, N node){
+		node.setDataRouterContext(drContext);
 		ensureDuplicateNamesReferToSameNode(node);
 		Class<D> databeanType = node.getDatabeanType();
 		D sampleDatabean = ReflectionTool.create(databeanType);
@@ -49,6 +68,7 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 		@SuppressWarnings("unchecked")
 		List<N> nodeWithDescendants = (List<N>)NodeTool.getNodeAndDescendants(node);
 		this.topLevelNodes.add(node);
+		this.topLevelNodesByRouterName.put(routerName, node);
 		this.allNodes.addAll(nodeWithDescendants);
 		for(N nodeOrDescendant : IterableTool.nullSafe(nodeWithDescendants)){
 			allNames.add(nodeOrDescendant.getName());
@@ -65,8 +85,8 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 			if(!nodesByRouterName.containsKey(routerName)) {
 				nodesByRouterName.put(routerName, new TreeSet<N>());
 			}
-			nodesByRouterName.get(routerName).add(node);
-			routerNameByNode.put(node, routerName);
+			nodesByRouterName.get(routerName).add(nodeOrDescendant);
+			routerNameByNode.put(nodeOrDescendant, routerName);
 		}
 		nodeByPrimaryKeyType.put(sampleDatabean.getKeyClass(), node);
 		nodeByDatabeanType.put(databeanType, node);
@@ -80,18 +100,6 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 		Collections.sort(allNames);
 		
 		return node;
-	}
-	
-	public List<String> getAllNames(){
-		return allNames;
-	}
-	
-	public List<N> getAllNodes(){
-		return allNodes;
-	}
-	
-	public List<N> getTopLevelNodes(){
-		return topLevelNodes;
 	}
 	
 	public N getNode(String nodeName){
@@ -195,4 +203,25 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 			return null;
 		}
 	}
+	
+	
+	/*************************** get/set ****************************************/
+	
+	public List<String> getAllNames(){
+		return allNames;
+	}
+	
+	public List<N> getAllNodes(){
+		return allNodes;
+	}
+	
+	public List<N> getTopLevelNodes(){
+		return topLevelNodes;
+	}
+
+	public Multimap<String,N> getTopLevelNodesByRouterName(){
+		return topLevelNodesByRouterName;
+	}
+	
+	
 }

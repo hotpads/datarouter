@@ -31,7 +31,6 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 @RunWith(Parameterized.class)
 public class ManyFieldTypeIntegrationTests {
@@ -52,6 +51,11 @@ public class ManyFieldTypeIntegrationTests {
 	public static void init() throws IOException{	
 		Class<?> cls = ManyFieldTypeIntegrationTests.class;
 		
+		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.memory)){
+			routerByClientType.put(
+					ClientType.memory, 
+					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemory, cls));
+		}
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.hibernate)){
 			routerByClientType.put(
 					ClientType.hibernate, 
@@ -77,6 +81,7 @@ public class ManyFieldTypeIntegrationTests {
 				Assert.assertEquals(0, CollectionTool.size(router.manyFieldTypeBean().getAll(null)));
 			}
 		}
+
 	}
 	
 	/***************************** fields **************************************/
@@ -95,7 +100,36 @@ public class ManyFieldTypeIntegrationTests {
 	}
 
 	/***************************** tests **************************************/
+
+	@Test
+	public void testBoolean(){
+		ManyFieldTypeBean bean = new ManyFieldTypeBean();
 		
+		//test true value
+		bean.setBooleanField(true);
+		router.manyFieldTypeBean().put(bean, null);
+		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
+		if(isMemory()){
+			Assert.assertSame(bean, roundTripped);
+		}else{
+			Assert.assertNotSame(bean, roundTripped);
+		}
+		Assert.assertEquals(bean.getBooleanField(), roundTripped.getBooleanField());
+
+		//test false value
+		bean.setBooleanField(false);
+		router.manyFieldTypeBean().put(bean, null);
+		ManyFieldTypeBean roundTrippedFalse = router.manyFieldTypeBean().get(bean.getKey(), null);
+		if(isMemory()){
+			Assert.assertSame(bean, roundTripped);
+		}else{
+			Assert.assertNotSame(bean, roundTripped);
+		}
+		Assert.assertEquals(bean.getBooleanField(), roundTrippedFalse.getBooleanField());
+		
+		recordKey(bean.getKey());
+	}
+
 	@Test 
 	public void testByte(){		
 		ManyFieldTypeBean bean = new ManyFieldTypeBean();
@@ -103,7 +137,11 @@ public class ManyFieldTypeIntegrationTests {
 		router.manyFieldTypeBean().put(bean, null);
 		
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
-		Assert.assertNotSame(bean, roundTripped);
+		if(isMemory()){
+			Assert.assertSame(bean, roundTripped);
+		}else{
+			Assert.assertNotSame(bean, roundTripped);
+		}
 		Assert.assertEquals(bean.getByteField(), roundTripped.getByteField());
 		recordKey(bean.getKey());
 	}
@@ -115,7 +153,11 @@ public class ManyFieldTypeIntegrationTests {
 		router.manyFieldTypeBean().put(bean, null);
 		
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
-		Assert.assertNotSame(bean, roundTripped);
+		if(isMemory()){
+			Assert.assertSame(bean, roundTripped);
+		}else{
+			Assert.assertNotSame(bean, roundTripped);
+		}
 		Assert.assertEquals(bean.getShortField(), roundTripped.getShortField());
 		recordKey(bean.getKey());
 	}
@@ -137,18 +179,17 @@ public class ManyFieldTypeIntegrationTests {
 		bean.setIntegerField(-77);
 		int exceptions=0;
 		try{
+			//hibernate should error with this PutMethod
 			router.manyFieldTypeBean().put(bean, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 		}catch(Exception e){
 			++exceptions;
 			router.manyFieldTypeBean().put(bean, new Config().setPutMethod(PutMethod.INSERT_OR_UPDATE));
 		}
 		int expectedExceptions;
-		if(clientType==ClientType.hibernate){
+		if(isHibernate()){
 			expectedExceptions = 1;
-		}else if(clientType==ClientType.hbase || isMemcached()){
-			expectedExceptions = 0;
 		}else{
-			throw new NotImplementedException("test needs a case for this clientType="+clientType); 
+			expectedExceptions = 0;
 		}
 		Assert.assertEquals(expectedExceptions, exceptions);
 		roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
@@ -244,12 +285,10 @@ public class ManyFieldTypeIntegrationTests {
 		router.manyFieldTypeBean().put(bean, null);
 		
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
-		if(ClientType.hibernate==clientType){//we're expecting the db to be in ASCII mode and strip out that weird character
+		if(isHibernate()){//we're expecting the db to be in ASCII mode and strip out that weird character
 			Assert.assertFalse(bean.getStringField().equals(roundTripped.getStringField()));
-		}else if(ClientType.hbase==clientType || isMemcached()){//byte arrays should handle any string
+		}else{//byte arrays should handle any string
 			Assert.assertEquals(bean.getStringField(), roundTripped.getStringField());
-		}else{
-			throw new NotImplementedException("test needs a case for this clientType="+clientType); 
 		}
 		String roundTrippedByteString = new String(roundTripped.getStringByteField(), StringByteTool.CHARSET_UTF8);
 		Assert.assertEquals(val, roundTrippedByteString);
@@ -263,8 +302,12 @@ public class ManyFieldTypeIntegrationTests {
 		bean0.setVarIntField(0);
 		router.manyFieldTypeBean().put(bean0, null);
 		
-		ManyFieldTypeBean roundTripped0 = router.manyFieldTypeBean().get(bean0.getKey(), null);
-		Assert.assertNotSame(bean0, roundTripped0);
+		ManyFieldTypeBean roundTripped0 = router.manyFieldTypeBean().get(bean0.getKey(), null);		
+		if(isMemory()){
+			Assert.assertSame(bean0, roundTripped0);
+		}else{
+			Assert.assertNotSame(bean0, roundTripped0);
+		}
 		Assert.assertEquals(bean0.getVarIntField(), roundTripped0.getVarIntField());
 		recordKey(bean0.getKey());
 		
@@ -274,7 +317,11 @@ public class ManyFieldTypeIntegrationTests {
 		router.manyFieldTypeBean().put(bean1234567, null);
 		
 		ManyFieldTypeBean roundTripped1234567 = router.manyFieldTypeBean().get(bean1234567.getKey(), null);
-		Assert.assertNotSame(bean1234567, roundTripped1234567);
+		if(isMemory()){
+			Assert.assertSame(bean1234567, roundTripped1234567);
+		}else{
+			Assert.assertNotSame(bean1234567, roundTripped1234567);
+		}
 		Assert.assertEquals(bean1234567.getVarIntField(), roundTripped1234567.getVarIntField());
 		recordKey(bean1234567.getKey());
 		
@@ -284,7 +331,11 @@ public class ManyFieldTypeIntegrationTests {
 		router.manyFieldTypeBean().put(beanMax, null);
 		
 		ManyFieldTypeBean roundTrippedMax = router.manyFieldTypeBean().get(beanMax.getKey(), null);
-		Assert.assertNotSame(beanMax, roundTrippedMax);
+		if(isMemory()){
+			Assert.assertSame(beanMax, roundTrippedMax);
+		}else{
+			Assert.assertNotSame(beanMax, roundTrippedMax);
+		}
 		Assert.assertEquals(beanMax.getVarIntField(), roundTrippedMax.getVarIntField());
 		recordKey(beanMax.getKey());
 	}
@@ -413,14 +464,19 @@ public class ManyFieldTypeIntegrationTests {
 		keysByClientType.get(clientType).add(key);
 	}
 	
+	public boolean isMemory(){
+		return ClientType.memory == clientType;
+	}
+
+	public boolean isHibernate(){
+		return ClientType.hibernate == clientType;
+	}
+
+	public boolean isHbase(){
+		return ClientType.hbase == clientType;
+	}
+
 	public boolean isMemcached(){
-		return ClientType.memcached==clientType;
+		return ClientType.memcached == clientType;
 	}
 }
-
-
-
-
-
-
-

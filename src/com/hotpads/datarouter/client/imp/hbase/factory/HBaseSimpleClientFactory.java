@@ -72,7 +72,7 @@ implements HBaseClientFactory{
 	protected List<Properties> multiProperties = ListTool.createArrayList();
 	protected ExecutorService executorService;
 	protected HBaseOptions options;
-	protected HBaseClient client;
+	protected volatile HBaseClient client;//volatile for double checked locking
 	protected Configuration hBaseConfig;
 	protected HBaseAdmin hBaseAdmin;
 	
@@ -94,7 +94,7 @@ implements HBaseClientFactory{
 	
 	@Override
 	public HBaseClient getClient(){
-		if(client!=null){ return client; }
+		if(client!=null){ return client; }//make sure client is volatile
 		synchronized(this){
 			if(client!=null){ return client; }
 			Future<HBaseClient> future = executorService.submit(new HBaseClientBuilder());

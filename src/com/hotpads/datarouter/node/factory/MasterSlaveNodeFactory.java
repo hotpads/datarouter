@@ -79,7 +79,6 @@ public class MasterSlaveNodeFactory{
 		
 		return new MasterSlaveSortedMapStorageNode<PK,D,F,SortedMapStorageNode<PK,D>>(
 				databeanClass, router, master, slaves);
-		
 	}
 	
 	
@@ -110,11 +109,19 @@ public class MasterSlaveNodeFactory{
 		
 		return new MasterSlaveIndexedMapStorageNode<PK,D,F,IndexedMapStorageNode<PK,D>>(
 				databeanClass, router, master, slaves);
-		
 	}
 
 	
 	//IndexedSorted
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	MasterSlaveIndexedSortedMapStorageNode<PK,D,?,IndexedSortedMapStorageNode<PK,D>> 
+	create(DataRouter router,
+					Class<D> databeanClass, IndexedSortedMapStorageNode<PK,D> master,
+					Collection<IndexedSortedMapStorageNode<PK,D>> slaves){
+		return new MasterSlaveIndexedSortedMapStorageNode<PK,D,F,IndexedSortedMapStorageNode<PK,D>>(databeanClass,
+				router, master, slaves);
+	}
+	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	MasterSlaveIndexedSortedMapStorageNode<PK,D,?,IndexedSortedMapStorageNode<PK,D>> 
 	newMasterSlaveIndexedSorted(
