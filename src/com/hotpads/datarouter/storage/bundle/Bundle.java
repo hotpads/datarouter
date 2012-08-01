@@ -18,19 +18,21 @@ public class Bundle{
 	protected Map<String,SingleTypeBundle<? extends Databean<?,?>>> bundleByType 
 		= MapTool.createHashMap();
 	
-	protected <D extends Databean<?,?>> void add(D databean){
-		if(databean==null){ return; }
+	protected <D extends Databean<?,?>> Bundle add(D databean){
+		if(databean==null){ return this; }
 		this.ensureSingleTypeBundleExists(databean);
-		@SuppressWarnings("unchecked")
-		SingleTypeBundle<D> singleTypeBundle = 
-			(SingleTypeBundle<D>)this.bundleByType.get(databean.getClass().getName());
+		@SuppressWarnings("unchecked") 
+		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(databean.getClass()
+				.getName());
 		singleTypeBundle.add(databean);
+		return this;
 	}
 	
-	protected <D extends Databean<?,?>> void add(Collection<D> databeans){
+	protected <D extends Databean<?,?>> Bundle add(Collection<D> databeans){
 		for(D databean : CollectionTool.nullSafe(databeans)){
 			this.add(databean);
 		}
+		return this;
 	}
 	
 	protected <D extends Databean<?,?>> D getFirst(Class<D> clazz){
