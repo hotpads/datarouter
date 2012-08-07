@@ -6,6 +6,7 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hbase.node.HBasePhysicalNode;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
@@ -63,11 +64,11 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			TraceContext.startSpan(node.getName()+" "+taskName);
 			recordDetailedTraceInfo();
 			client = node.getClient();//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
-			Assert.assertNotNull(client);
+			Preconditions.checkNotNull(client);
 			progress.set("got client");
-			Assert.assertNull(hTable);
+			Preconditions.checkState(hTable==null);
 			hTable = client.checkOutHTable(tableName, progress);
-			Assert.assertNotNull(hTable);
+			Preconditions.checkNotNull(hTable);
 			progress.set("got HTable");
 			return hbaseCall();
 		}catch(Exception e){
