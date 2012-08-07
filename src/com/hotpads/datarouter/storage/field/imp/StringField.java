@@ -17,7 +17,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.RegexTool;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class StringField extends BaseField<String>{
