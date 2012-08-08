@@ -14,6 +14,7 @@ import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.NumberTool;
+import com.hotpads.util.core.concurrent.ThreadTool;
 import com.hotpads.util.datastructs.MutableString;
 
 public abstract class HBaseTask<V> extends TracedCallable<V>{
@@ -58,7 +59,11 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	
 	@Override
 	public V wrappedCall(){
-		Preconditions.checkState(!called);//assert this task has never been called before.  debugging reused tasks
+		if(called){//assert this task has never been called before.  debugging reused tasks
+			logger.error("wrappedCall has already been called... why is call() being called twice?");
+			logger.error(ThreadTool.getStackTraceAsString());
+			throw new IllegalStateException();
+		}
 		called = true;
 		progress.set("starting");
 		HBaseClient client = null;
