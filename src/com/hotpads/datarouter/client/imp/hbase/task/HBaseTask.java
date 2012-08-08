@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.client.imp.hbase.task;
 
-import junit.framework.Assert;
-
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.log4j.Logger;
@@ -20,6 +18,9 @@ import com.hotpads.util.datastructs.MutableString;
 
 public abstract class HBaseTask<V> extends TracedCallable<V>{
 	static Logger logger = Logger.getLogger(HBaseTask.class);
+	
+	//debugging variable.  set this to true the first time this task is called, and throw an exception if it's called again
+	boolean called = false;
 	
 	protected DataRouterContext drContext;
 
@@ -51,12 +52,14 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		this.tableName = node.getTableName();
 		this.config = Config.nullSafe(config);
 		this.progress = new MutableString("");
-		Assert.assertNull(hTable);//previous call should have cleared it in finally block
+		Preconditions.checkState(hTable==null);//previous call should have cleared it in finally block
 	}
 	
 	
 	@Override
 	public V wrappedCall(){
+		Preconditions.checkState(!called);//assert this task has never been called before.  debugging reused tasks
+		called = true;
 		progress.set("starting");
 		HBaseClient client = null;
 		boolean possiblyTarnishedHTable = false;
