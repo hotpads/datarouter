@@ -1,5 +1,9 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
 public enum MySqlColumnType{
@@ -84,6 +88,13 @@ public enum MySqlColumnType{
 		return null;
 	}
 	
+	public static List<String> getAllColumnTypeNames(){
+		ArrayList<String> list = ListTool.createArrayList();
+		for(MySqlColumnType type : values()){
+			list.add(type.toString());
+		}
+		return list;
+	}
 	
 	/*************************** get/set *******************************************/
 	
