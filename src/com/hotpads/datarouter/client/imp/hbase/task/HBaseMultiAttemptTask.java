@@ -94,8 +94,8 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 				}
 			}
 		}
-		String timeoutMessage = "timed out "+numAttempts+" times at timeoutMs="+timeoutMs;
-		sendThrottledErrorEmail(timeoutMessage, finalAttempException);
+		String errorMessage = "errored "+numAttempts+" times.  timeoutMs="+timeoutMs;
+		sendThrottledErrorEmail(errorMessage, finalAttempException);
 		throw new DataAccessException(finalAttempException);
 	}
 	
