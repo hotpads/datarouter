@@ -22,6 +22,8 @@ import com.hotpads.util.core.bytes.StringByteTool;
 
 public class StringField extends BaseField<String>{
 	
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	
 	protected int size;
 
 	public StringField(String name, String value, int size){
@@ -48,7 +50,7 @@ public class StringField extends BaseField<String>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(name, MySqlColumnType.VARCHAR, 255, true);
+			return new SqlColumn(name, MySqlColumnType.VARCHAR, size, true);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
 			return new SqlColumn(name, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, true);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
@@ -172,15 +174,15 @@ public class StringField extends BaseField<String>{
 	public static class StringFieldTests{
 		@Test public void testGetSqlEscaped(){
 			Assert.assertEquals("'bill\\'s'",
-					new StringField("tag","bill's",255).getSqlEscaped());
+					new StringField("tag","bill's", DEFAULT_STRING_LENGTH).getSqlEscaped());
 			
 			//actual case encountered
 			Assert.assertEquals("'Renter\\\\\\\\\\\\\\'s Assurance Program'", 
-					new StringField("tag","Renter\\\\\\'s Assurance Program",255).getSqlEscaped());
+					new StringField("tag","Renter\\\\\\'s Assurance Program", DEFAULT_STRING_LENGTH).getSqlEscaped());
 
 
 			Assert.assertEquals("'no apostrophes'",
-					new StringField("tag","no apostrophes",255).getSqlEscaped());
+					new StringField("tag","no apostrophes", DEFAULT_STRING_LENGTH).getSqlEscaped());
 			
 		}
 	}
@@ -189,7 +191,7 @@ public class StringField extends BaseField<String>{
 	public static SqlColumn getTypeFromSize(String name, int size,
 			boolean nullable){
 		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(name, MySqlColumnType.VARCHAR, 255, true);
+			return new SqlColumn(name, MySqlColumnType.VARCHAR, size, true);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
 			return new SqlColumn(name, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, true);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){

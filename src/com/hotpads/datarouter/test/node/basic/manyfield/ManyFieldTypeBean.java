@@ -12,6 +12,7 @@ import javax.persistence.Lob;
 
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -44,6 +45,10 @@ import com.hotpads.util.core.collections.arrays.LongArray;
 @AccessType("field")
 public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFieldTypeBean>{
 	
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+
+	private static final int LEN_STRING_ENUM_FIELD = 20;
+	
 	/***************************** fields ********************************/
 	
 	@Id
@@ -65,7 +70,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	private TestEnum intEnumField;
 	@Column(columnDefinition="int")
 	private TestEnum varIntEnumField;
-	@Column(columnDefinition="varchar(20)")
+	@Column(columnDefinition="varchar(" +LEN_STRING_ENUM_FIELD +")")
 	private TestEnum stringEnumField;
 
 	@Lob @Column(length=1024)
@@ -116,15 +121,15 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		fields.add(new DumbDoubleField(F.doubleField, doubleField));
 		fields.add(new LongDateField(F.longDateField, longDateField));
 		fields.add(new CharacterField(F.characterField, characterField));
-		fields.add(new StringField(F.stringField, stringField,255));
+		fields.add(new StringField(F.stringField, stringField, DEFAULT_STRING_LENGTH));
 		fields.add(new VarIntField(F.varIntField, varIntField));
 		fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, intEnumField));
 		fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, varIntEnumField));
-		fields.add(new StringEnumField<TestEnum>(TestEnum.class, F.stringEnumField, stringEnumField));
+		fields.add(new StringEnumField<TestEnum>(TestEnum.class, F.stringEnumField, stringEnumField, LEN_STRING_ENUM_FIELD));
 		fields.add(new ByteArrayField(F.stringByteField, stringByteField));
 		fields.add(new ByteArrayField(F.data, data));
 		fields.add(new UInt63ArrayField(F.longArrayField, longArrayField));
-		fields.add(new StringField(F.testSchemaUpdateField, testSchemaUpdateField,255));
+		fields.add(new StringField(F.testSchemaUpdateField, testSchemaUpdateField, DEFAULT_STRING_LENGTH));
 		return fields;
 	}
 	
@@ -145,8 +150,8 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 					new ShortField(F.shortField, d.shortField),
 					new IntegerField(F.integerField, d.integerField)));
 			indexesByName.put("index_stringTestUpdate", FieldTool.createList(
-					new StringField(F.stringField, d.stringField,255),
-					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField,255)));
+					new StringField(F.stringField, d.stringField, DEFAULT_STRING_LENGTH),
+					new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField, DEFAULT_STRING_LENGTH)));
 			return indexesByName;
 		}
 	}
