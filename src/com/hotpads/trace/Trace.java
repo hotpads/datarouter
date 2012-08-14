@@ -10,6 +10,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -27,6 +28,8 @@ import com.hotpads.util.core.StringTool;
 @SuppressWarnings("serial")
 public class Trace extends BaseDatabean<TraceKey,Trace>{
 
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	
 	@Id
 	protected TraceKey key;
 	
@@ -34,9 +37,9 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 	protected String sessionId;
 	@Column(length=20)
 	protected String context;
-	@Column(length=255)
+	@Column(length=DEFAULT_STRING_LENGTH)
 	protected String type;
-	@Column(length=255)
+	@Column(length=DEFAULT_STRING_LENGTH)
 	protected String params;
 	
 	protected Long created;
@@ -70,10 +73,10 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new StringField(F.sessionId, sessionId,32),
-				new StringField(F.context, context,20),
-				new StringField(F.type, type,255),
-				new StringField(F.params, params,255),
+				new StringField(F.sessionId, sessionId,LEN_sessionId),
+				new StringField(F.context, context,LEN_context),
+				new StringField(F.type, type, DEFAULT_STRING_LENGTH),
+				new StringField(F.params, params, DEFAULT_STRING_LENGTH),
 				new UInt63Field(F.created, created),
 				new UInt63Field(F.duration, duration));
 	}
