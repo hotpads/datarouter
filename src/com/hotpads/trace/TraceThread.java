@@ -11,6 +11,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -27,11 +28,13 @@ import com.hotpads.util.core.ComparableTool;
 @SuppressWarnings("serial")
 public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	
 	@Id
 	protected TraceThreadKey key;
 
 	protected Long parentId;
-	@Column(length=255)
+	@Column(length=DEFAULT_STRING_LENGTH)
 	protected String name;
 	protected String info;
 	@Column(length=20)
@@ -68,8 +71,8 @@ public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
 				new UInt63Field(F.parentId, parentId),
-				new StringField(F.name, name,255),
-				new StringField(F.info, info,255),
+				new StringField(F.name, name, DEFAULT_STRING_LENGTH),
+				new StringField(F.info, info, DEFAULT_STRING_LENGTH),
 				new StringField(F.serverId, serverId,20),
 				new UInt63Field(F.created, created),
 				new UInt63Field(F.queuedDuration, queuedDuration),

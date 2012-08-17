@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.Embeddable;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
@@ -38,7 +39,7 @@ public class ScatteringPrefixBeanKey extends BasePrimaryKey<ScatteringPrefixBean
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new StringField(COL_a, a,255),
+				new StringField(COL_a, a, MySqlColumnType.MAX_LENGTH_VARCHAR),
 				new UInt63Field(COL_id, id));
 	}
 

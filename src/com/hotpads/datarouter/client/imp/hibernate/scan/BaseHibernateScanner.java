@@ -53,6 +53,9 @@ extends BaseBatchingSortedScanner<T,FieldSet<?>>{
 		}
 		Range<PK> batchRange = Range.create(lastRowOfPreviousBatch, isStartInclusive, range.getEnd(), 
 				range.getEndInclusive());
+		
+		//unfortunately we need to overwrite the limit.  the original pConfig should be unaffected
+		config.setLimit(config.getIterateBatchSize());
 		currentBatch = node.getRangeUnchecked(batchRange, isKeysOnly(), config);
 		if(CollectionTool.size(currentBatch) < config.getIterateBatchSize()){
 			noMoreBatches = true;//tell the advance() method not to call this method again
