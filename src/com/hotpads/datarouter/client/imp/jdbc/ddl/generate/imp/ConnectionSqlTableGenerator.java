@@ -11,6 +11,8 @@ import java.util.List;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
@@ -25,11 +27,13 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 
 	protected Connection connection;
 	protected String tableName;
+	protected String schemaName;
 
-	public ConnectionSqlTableGenerator(Connection connection, String tableName){
+	public ConnectionSqlTableGenerator(Connection connection, String tableName, String schemaName){
 		super();
 		this.connection = connection;
 		this.tableName = tableName;
+		this.schemaName = schemaName;
 	}
 
 	@Override
@@ -42,7 +46,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 			ResultSet rs = stmt.executeQuery(sql);
 			ResultSetMetaData metaData = rs.getMetaData();
 			int rowCount = metaData.getColumnCount();
-//			System.out.println("Table Name : " + metaData.getTableName(2));
+			//	System.out.println("Table Name : " + metaData.getTableName(2));
 			// System.out.println("Field \tsize\tDataType");
 			
 			for(int i = 0; i < rowCount; i++){
@@ -99,7 +103,23 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 					+ "';");
 			rs.next();
 			table.setEngine(MySqlTableEngine.parse(rs.getString(1)));
+			sql = "SELECT T.table_collation " +
+					"FROM information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA" +
+					"\nWHERE CCSA.collation_name = T.table_collation " +
+					"\nAND T.table_schema=\"" + schemaName + "\" " +
+					"\nAND T.table_name=\"" + tableName +"\";";
+			rs = stmt.executeQuery(sql);
+			rs.next();
+			table.setCollation(MySqlCollation.parse(rs.getString(1)));
 			
+			sql = "SELECT CCSA.character_set_name " +
+					"FROM information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA" +
+					"\nWHERE CCSA.collation_name = T.table_collation " +
+					"\nAND T.table_schema=\"" + schemaName + "\" " +
+					"\nAND T.table_name=\"" + tableName +"\";";
+			rs = stmt.executeQuery(sql);
+			rs.next();
+			table.setCharSet(MySqlCharacterSet.parse(rs.getString(1)));
 		}catch(SQLException e){
 			throw new RuntimeException(e);
 		}
@@ -146,7 +166,8 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 	public static class TestSqlCreateTableFromConnection{
 		@Test
 		public void getTableTest() throws SQLException{
-			Connection conn = JdbcTool.openConnection("localhost", 3306, "property", "root", "");
+			String databaseName = "property";
+			Connection conn = JdbcTool.openConnection("localhost", 3306, databaseName, "root", "");
 
 			ConnectionSqlTableGenerator creator;
 
@@ -155,7 +176,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 
 			for(String s : tableNames){
 				System.out.println(s);
-				creator = new ConnectionSqlTableGenerator(conn, s);
+				creator = new ConnectionSqlTableGenerator(conn, s, databaseName);
 				if(s.equals("CommentVote")){
 					System.out.println();
 				}
@@ -164,7 +185,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 				System.out.println();
 			}
 
-			creator = new ConnectionSqlTableGenerator(conn, "UserNote");
+			creator = new ConnectionSqlTableGenerator(conn, "UserNote", databaseName);
 			table = creator.generate();
 			System.out.println(table);
 			conn.close();

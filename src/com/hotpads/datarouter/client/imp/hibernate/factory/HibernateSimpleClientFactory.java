@@ -74,8 +74,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	protected SchemaUpdateOptions schemaUpdatePrintOptions;
 	protected SchemaUpdateOptions schemaUpdateExecuteOptions;
 	protected Set<String> updatedTables;
-	protected List<String> printedSchemaUpdates;
-	
+	protected List<String> printedSchemaUpdates;	
 	protected ExecutorService executorService;
 	protected HibernateClient client;
 	
@@ -227,6 +226,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 
 	protected void createOrUpdateTableIfNeeded(List<String> tableNames, JdbcConnectionPool connectionPool, 
 			PhysicalNode<?, ?> physicalNode){
+		logger.warn("createOrUpdateTableIfNeeded:"+physicalNode.getTableName());
 		if( ! physicalNode.getFieldInfo().getFieldAware()){ return; }
 
 		if(!SCHEMA_UPDATE){
@@ -282,7 +282,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 				}*/
 				
 				//execute the alter table
-				ConnectionSqlTableGenerator executeConstructor = new ConnectionSqlTableGenerator(connection, tableName);
+				ConnectionSqlTableGenerator executeConstructor = new ConnectionSqlTableGenerator(connection, tableName, JdbcTool.getSchemaName(connectionPool));
 				SqlTable executeCurrent = executeConstructor.generate();
 				SqlAlterTableGenerator executeAlterTableGenerator = new SqlAlterTableGenerator(
 						schemaUpdateExecuteOptions, executeCurrent, requested, JdbcTool.getSchemaName(connectionPool));
@@ -299,7 +299,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 				}
 				
 				//print the alter table
-				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName);
+				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName, JdbcTool.getSchemaName(connectionPool));
 				SqlTable printCurrent = prinitConstructor.generate();
 				SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(schemaUpdatePrintOptions,
 						printCurrent, requested, JdbcTool.getSchemaName(connectionPool));

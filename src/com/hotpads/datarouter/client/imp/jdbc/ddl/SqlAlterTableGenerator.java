@@ -187,6 +187,14 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			list.add(new SqlAlterTableClause("engine="+requested.getEngine().toString().toLowerCase(), 
 					SqlAlterTypes.MODIFY_ENGINE));
 		}
+		if(options.getModifyCharacterSet() && diff.isCharacterSetModified()){
+			list.add(new SqlAlterTableClause("character set "+requested.getCharacterSet().toString().toLowerCase(), 
+					SqlAlterTypes.MODIFY_ChARACTER_SET));
+		}
+		if(options.getModifyCollation() && diff.isCollationModified()){
+			list.add(new SqlAlterTableClause("collate "+requested.getCollation().toString().toLowerCase(), 
+					SqlAlterTypes.MODIFY_COLLATION));
+		}
 
 		//s+=");";
 		return list;
