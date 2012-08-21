@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
@@ -25,8 +26,11 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	protected static final Long DEFAULT_TIMEOUT_MS = 10 * 1000L;
 	
 	protected static long 
-		throttleEmailsMs = 5 * DateTool.MILLISECONDS_IN_MINUTE,
-		lastEmailSentAtMs = 0L;
+		THROTTLE_ERROR_EMAIL_MINUTES = 5,
+		THROTTLE_ERROR_EMAIL_MS = THROTTLE_ERROR_EMAIL_MINUTES * DateTool.MILLISECONDS_IN_MINUTE,
+		LAST_EMAIL_SENT_AT_MS = 0L;
+
+	protected static final AtomicLong NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL = new AtomicLong(0);
 
 	protected static final Boolean CANCEL_THREAD_IF_RUNNING = true;
 	
@@ -115,14 +119,18 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	}
 	
 	protected void sendThrottledErrorEmail(String timeoutMessage, Exception e) {
-		boolean enoughTimePassed = System.currentTimeMillis() - lastEmailSentAtMs > throttleEmailsMs;
-		long throttleEmailSeconds = throttleEmailsMs / 1000;
+		NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL.incrementAndGet();
+		boolean enoughTimePassed = System.currentTimeMillis() - LAST_EMAIL_SENT_AT_MS > THROTTLE_ERROR_EMAIL_MS;
+		long throttleEmailSeconds = THROTTLE_ERROR_EMAIL_MS / 1000;
 		if(!enoughTimePassed) { return; }
+		long numFailures = NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL.get();
 		String subject = "HBaseMultiAttempTask failure on "+drContext.getServerName();
 		String body = "Message throttled for "+throttleEmailSeconds+" seconds"
 				+"\n\n"+timeoutMessage
+				+"\n\n"+numFailures+" since last email attempt "+DateTool.getAgoString(LAST_EMAIL_SENT_AT_MS)
 				+"\n\n"+ExceptionTool.getStackTraceAsString(e);
 		DataRouterEmailTool.sendEmail("admin@hotpads.com", drContext.getAdministratorEmail(), subject, body);
-		lastEmailSentAtMs = System.currentTimeMillis();
+		LAST_EMAIL_SENT_AT_MS = System.currentTimeMillis();
+		NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL.set(0L);
 	}
 }
