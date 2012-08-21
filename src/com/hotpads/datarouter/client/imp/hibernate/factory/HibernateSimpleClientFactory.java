@@ -23,6 +23,8 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTableGenerator;
@@ -242,6 +244,9 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
 		List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
 		Map<String, List<Field<?>>>  indexes = MapTool.nullSafe(fieldInfo.getIndexes());
+		MySqlCollation collation = fieldInfo.getCollation();
+		MySqlCharacterSet character_set = fieldInfo.getCharacterSet();
+		
 
 		if(schemaUpdateExecuteOptions.getIgnoreClients().contains(clientName)){ return; }
 		List<String> tablesToIgnore = schemaUpdateExecuteOptions.getIgnoreTables();
@@ -249,7 +254,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		if(tablesToIgnore.contains(currentTableAbsoluteName)){ return; }
 
 		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(), primaryKeyFields, 
-				nonKeyFields);
+				nonKeyFields, collation, character_set);
 		generator.setIndexes(indexes);
 
 		SqlTable requested = generator.generate();

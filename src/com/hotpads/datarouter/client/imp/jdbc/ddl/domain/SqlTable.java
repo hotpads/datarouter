@@ -149,6 +149,14 @@ public class SqlTable{
 		return false;
 	}
 	
+	public static MySqlCharacterSet getDefaultCharacterSet(){
+		return DEFAULT_CHARACTER_SET;
+	}
+
+	public static MySqlCollation getDefaultCollation(){
+		return DEFAULT_COLLATION;
+	}
+
 	/******************* static methods ***************************/
 
 	//text before the first parenthesis, example "show create table Zebra"
