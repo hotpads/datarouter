@@ -14,6 +14,7 @@ import junit.framework.Assert;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.util.core.ArrayTool;
@@ -195,8 +196,8 @@ public class FieldSetTool{
 			String someStringB = "xyz";
 			List<Field<?>> fields = FieldTool.createList(
 					new UInt31Field("someInt", someInt),
-					new StringField("someStringA", someStringA,255),
-					new StringField("someStringB", someStringB,255));
+					new StringField("someStringA", someStringA, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField("someStringB", someStringB, MySqlColumnType.MAX_LENGTH_VARCHAR));
 			ByteRange withTrailingByte = new ByteRange(getConcatenatedValueBytes(fields, false, true));
 			ByteRange withoutTrailingByte = new ByteRange(getConcatenatedValueBytes(fields, false, false));
 			int lengthWithout = 4 + 3 + 1 + 3;

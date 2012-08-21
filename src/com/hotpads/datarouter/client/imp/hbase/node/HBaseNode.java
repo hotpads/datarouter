@@ -9,6 +9,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
@@ -77,6 +78,12 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(drContext, "putMulti", this, config){
 				public Void hbaseCall() throws Exception{
+					
+					//debugging code because getting NPE's on hTable at the bottom of this method.  trying to see
+					//if it's been nullified after the Future times out
+					Preconditions.checkNotNull(hTable);
+					//end debugging
+					
 					List<Row> actions = ListTool.createArrayList();
 					int numPuts = 0, numDeletes = 0;
 					long batchStartTime = System.currentTimeMillis();

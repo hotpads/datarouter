@@ -7,6 +7,7 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -24,6 +25,8 @@ import com.hotpads.profile.count.databean.key.CountKey;
 @Entity()
 @AccessType("field")
 public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
+	
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	@Id
 	private SortedBeanKey key;
@@ -45,9 +48,9 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new StringField(COL_f1, f1,255),
+				new StringField(COL_f1, f1, DEFAULT_STRING_LENGTH),
 				new LongField(COL_f2, f2),
-				new StringField(COL_f3, f3,255),
+				new StringField(COL_f3, f3, DEFAULT_STRING_LENGTH),
 				new DumbDoubleField(COL_f4, f4));
 	}
 	
@@ -112,9 +115,9 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 		}
 		public List<Field<?>> getFields(){
 			return FieldTool.createList(
-					new StringField(SortedBean.KEY_NAME, SortedBeanKey.COL_d, d,255),
+					new StringField(SortedBean.KEY_NAME, SortedBeanKey.COL_d, d, DEFAULT_STRING_LENGTH),
 					new UInt31Field(SortedBean.KEY_NAME, SortedBeanKey.COL_c, c),
-					new StringField(SortedBean.KEY_NAME, SortedBeanKey.COL_b, b,255));
+					new StringField(SortedBean.KEY_NAME, SortedBeanKey.COL_b, b, DEFAULT_STRING_LENGTH));
 		}
 	}
 
