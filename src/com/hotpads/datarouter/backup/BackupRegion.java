@@ -13,6 +13,7 @@ import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
@@ -54,10 +55,11 @@ public abstract class BackupRegion<PK extends PrimaryKey<PK>,D extends Databean<
 				new Config().setIterateBatchSize(1000).setNumAttempts(30).setTimeout(10, TimeUnit.SECONDS));
 		for(D databean : IterableTool.nullSafe(iterable)){
 			if( ! databean.isFieldAware()){ throw new IllegalArgumentException("databeans must be field aware"); }
-			byte[] fieldSetBytes = FieldSetTool.getSerializedKeyValues(databean.getFields(), true);
-			VarLong length = new VarLong(ArrayTool.length(fieldSetBytes));
+			//include zero-length fields in key bytes
+			byte[] bytes = DatabeanTool.getBytes(databean);
+			VarLong length = new VarLong(ArrayTool.length(bytes));
 			os.write(length.getBytes());
-			os.write(fieldSetBytes);
+			os.write(bytes);
 			++numRecords;
 			rawBytes += length.getValue() + length.getNumBytes();
 			if(numRecords % 10000 == 0){

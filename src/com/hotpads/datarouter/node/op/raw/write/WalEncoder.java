@@ -2,11 +2,9 @@ package com.hotpads.datarouter.node.op.raw.write;
 
 import java.util.Collection;
 
-import com.amazonaws.services.sqs.model.Message;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
+import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.wal.WalMessage;
@@ -30,9 +28,7 @@ public class WalEncoder<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> impl
 	
 	@Override
 	public void put(D databean, Config config){
-		Collection<Field<?>> fields = databean.getFields();
-		boolean includePrefix = true;
-		byte[] serializedDataBean = FieldSetTool.getSerializedKeyValues(fields, includePrefix);
+		byte[] serializedDataBean = DatabeanTool.getBytes(databean);
 		wal.append(new WalMessage(new ByteRange(serializedDataBean)));
 	}
 
