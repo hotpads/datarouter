@@ -113,13 +113,14 @@ public class FieldSetTool{
 			Field<?> field = fieldByPrefixedName.get(prefixedName);
 			if(field==null){ continue; }
 			VarLong valueLength = new VarLong(is);
+			numBytesThroughDatabean += valueLength.getNumBytes();
+			byte[] valueBytes = new byte[valueLength.getValueInt()];
 			if(valueLength.getValue() > 0){
-				byte[] valueBytes = new byte[valueLength.getValueInt()];
 				is.read(valueBytes);
-				numBytesThroughDatabean += valueLength.getNumBytes() + valueLength.getValueInt();
-				Object value = field.fromBytesButDoNotSet(valueBytes, 0);
-				field.setUsingReflection(targetFieldSet, value);
+				numBytesThroughDatabean += valueLength.getValueInt();
 			}
+			Object value = field.fromBytesButDoNotSet(valueBytes, 0);
+			field.setUsingReflection(targetFieldSet, value);
 			if(numBytesThroughDatabean >= numBytes){
 				break;
 			}
