@@ -30,7 +30,7 @@ public class DateField extends BasePrimitiveField<Date>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(name, MySqlColumnType.DATETIME, 19, true);
+		return new SqlColumn(columnName, MySqlColumnType.DATETIME, 19, true);
 	}
 	
 	@Override
