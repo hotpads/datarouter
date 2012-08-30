@@ -68,7 +68,7 @@ public class TestSchemaUpdateOptions{
 		Assert.assertFalse(alterTableGenerator.generateDdl().toUpperCase().contains("DROP INDEX"));
 		/************************ EXCECUTION TESTS ************************/
 		stmt.execute(alterTableGenerator.generateDdl());
-		ConnectionSqlTableGenerator constructor = new ConnectionSqlTableGenerator(connection, tableName);
+		ConnectionSqlTableGenerator constructor = new ConnectionSqlTableGenerator(connection, tableName, "");
 		currentTable = constructor.generate();
 		// TEST THAT IT DOESN'T CREATE TABLES
 		// TEST THAT IT DOESM'T DROP TABLES 
@@ -135,7 +135,7 @@ public class TestSchemaUpdateOptions{
 		// TEST THAT IT DOESN'T DROP INDEXES
 		Assert.assertFalse(alterTableGenerator.generateDdl().toUpperCase().contains("DROP INDEX"));
 		stmt.execute(alterTableGenerator.generateDdl());
-		ConnectionSqlTableGenerator constructor = new ConnectionSqlTableGenerator(connection, tableName);
+		ConnectionSqlTableGenerator constructor = new ConnectionSqlTableGenerator(connection, tableName, "");
 		currentTable = constructor.generate();
 		// TEST THAT IT DOESN'T CREATE TABLES
 		// TEST THAT IT DOESM'T DROP TABLES 

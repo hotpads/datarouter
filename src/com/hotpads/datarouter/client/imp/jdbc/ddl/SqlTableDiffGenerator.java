@@ -11,6 +11,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
@@ -143,6 +145,8 @@ public class SqlTableDiffGenerator{
 		if(!theTwoColumnSetsContainTheSameKeys(currentColumns, requestedColumns)){ return true; }
 		if(isIndexesModified()){ return true; }
 		if(isEngineModified()){ return true; }
+		if(isCharacterSetModified()){ return true; }
+		if(isCollationModified()){ return true; }
 		return false;
 	}
 
@@ -154,6 +158,18 @@ public class SqlTableDiffGenerator{
 		MySqlTableEngine currentEngine = MySqlTableEngine.valueOf(current.getEngine().toString());
 		MySqlTableEngine requestedEngine = MySqlTableEngine.valueOf(requested.getEngine().toString());
 		return currentEngine != requestedEngine;
+	}
+
+	public boolean isCharacterSetModified(){
+		MySqlCharacterSet currentCharacterSet = MySqlCharacterSet.valueOf(current.getCharacterSet().toString());
+		MySqlCharacterSet requestedCharacterSet = MySqlCharacterSet.valueOf(requested.getCharacterSet().toString());
+		return currentCharacterSet != requestedCharacterSet;
+	}
+	
+	public boolean isCollationModified(){
+		MySqlCollation currentCollation = MySqlCollation.valueOf(current.getCollation().toString());
+		MySqlCollation requestedCollation = MySqlCollation.valueOf(requested.getCollation().toString());
+		return currentCollation != requestedCollation;
 	}
 
 	public boolean isIndexesModified(){
