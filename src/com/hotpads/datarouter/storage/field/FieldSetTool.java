@@ -113,13 +113,14 @@ public class FieldSetTool{
 			Field<?> field = fieldByPrefixedName.get(prefixedName);
 			if(field==null){ continue; }
 			VarLong valueLength = new VarLong(is);
+			numBytesThroughDatabean += valueLength.getNumBytes();
+			byte[] valueBytes = new byte[valueLength.getValueInt()];
 			if(valueLength.getValue() > 0){
-				byte[] valueBytes = new byte[valueLength.getValueInt()];
 				is.read(valueBytes);
-				numBytesThroughDatabean += valueLength.getNumBytes() + valueLength.getValueInt();
-				Object value = field.fromBytesButDoNotSet(valueBytes, 0);
-				field.setUsingReflection(targetFieldSet, value);
+				numBytesThroughDatabean += valueLength.getValueInt();
 			}
+			Object value = field.fromBytesButDoNotSet(valueBytes, 0);
+			field.setUsingReflection(targetFieldSet, value);
 			if(numBytesThroughDatabean >= numBytes){
 				break;
 			}
@@ -162,7 +163,14 @@ public class FieldSetTool{
 		return ByteTool.concatenate(fieldArraysWithSeparators);
 	}
 	
-	public static byte[] getSerializedKeyValues(Collection<Field<?>> fields, boolean includePrefix){
+	/**
+	 * @param fields
+	 * @param includePrefix usually refers to the "key." prefix before a PK
+	 * @param skipNullValues important to include nulls in PK's, but usually skip them in normal fields
+	 * @return
+	 */
+	public static byte[] getSerializedKeyValues(Collection<Field<?>> fields, boolean includePrefix, 
+			boolean skipNullValues){
 		if(CollectionTool.isEmpty(fields)){ return new byte[0]; }
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		for(Field<?> field : IterableTool.nullSafe(fields)){
@@ -173,7 +181,7 @@ public class FieldSetTool{
 			byte[] valueBytes = field.getBytes();
 			VarLong valueLength = new VarLong(ArrayTool.length(valueBytes));
 			//abort if value is 0 bytes
-			if(ArrayTool.isEmpty(valueBytes)){ continue; }
+			if(ArrayTool.isEmpty(valueBytes) && skipNullValues){ continue; }
 			try{
 				//write out the bytes
 				baos.write(keyLength.getBytes());

@@ -32,7 +32,8 @@ implements Node<PK,D>{
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(name, databeanClass, fielderClass);
 		}catch(Exception probablyNoPkInstantiated){
-			throw new IllegalArgumentException("could not instantiate "+name, probablyNoPkInstantiated);
+			throw new IllegalArgumentException("could not instantiate "+name+" Check that the primary key is " +
+					"instantiated in the databean constructor.", probablyNoPkInstantiated);
 		}
 	}
 	

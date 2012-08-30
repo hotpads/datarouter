@@ -12,6 +12,7 @@ import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
@@ -71,7 +72,7 @@ implements PhysicalMapStorageNode<PK,D>
 					if( ! databean.isFieldAware()){ throw new IllegalArgumentException("databeans must be field aware"); }
 					//TODO put only the nonKeyFields in the byte[] and figure out the keyFields from the key string
 					//  could big big savings for small or key-only databeans
-					byte[] bytes = FieldSetTool.getSerializedKeyValues(databean.getFields(), true);
+					byte[] bytes = DatabeanTool.getBytes(databean);
 					String key = new DataRouterMemcachedKey<PK>(name, databeanVersion, databean.getKey()).getVersionedKeyString();
 					spyClient.set(key, Integer.MAX_VALUE, bytes);
 				}
