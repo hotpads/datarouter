@@ -228,7 +228,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 
 	protected void createOrUpdateTableIfNeeded(List<String> tableNames, JdbcConnectionPool connectionPool, 
 			PhysicalNode<?, ?> physicalNode){
-		logger.warn("createOrUpdateTableIfNeeded:"+physicalNode.getTableName());
+//		logger.warn("createOrUpdateTableIfNeeded:"+physicalNode.getTableName());
 		if( ! physicalNode.getFieldInfo().getFieldAware()){ return; }
 
 		if(!SCHEMA_UPDATE){
