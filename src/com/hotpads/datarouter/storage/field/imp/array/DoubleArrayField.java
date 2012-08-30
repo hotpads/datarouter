@@ -2,14 +2,17 @@ package com.hotpads.datarouter.storage.field.imp.array;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Arrays;
+import java.sql.SQLException;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.DoubleByteTool;
+import com.hotpads.util.core.bytes.LongByteTool;
+import com.hotpads.util.core.collections.arrays.LongArray;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 
@@ -38,11 +41,10 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 	@Override
 	public List<Double> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
 		List<Double> doubles = ListTool.create();
-		int numBytes = bytes.length - byteOffset;
 		int numDoubles = (bytes.length - byteOffset)/8;
 		byte[] arrayToCopy = new byte[8];
 		for(int i = 0; i < numDoubles; i++){
-			System.arraycopy(bytes, i * 8, arrayToCopy, 0, 8);
+			System.arraycopy(bytes, i * 8 + byteOffset, arrayToCopy, 0, 8);
 			doubles.add(DoubleByteTool.fromBytes(arrayToCopy, byteOffset));
 		}
 		return doubles;
@@ -72,7 +74,6 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 
 	@Override
 	public List<Double> fromJdbcResultSetButDoNotSet(ResultSet rs){
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -82,6 +83,14 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 		
 	}
 	public static void main(String[] args){
-		new DoubleArrayField("stuff", ListTool.create(new Double(5.00001), new Double(203920.555))).getBytes();
+		DoubleArrayField testField = new DoubleArrayField("stuff", ListTool.create(new Double(-5.00001), new Double(203920.555)));
+		for(Double num : testField.value){
+			System.out.println(num);
+		}
+		byte[] bytes = testField.getBytes();
+		List<Double> doubles = testField.fromBytesButDoNotSet(bytes, 0);
+		for(Double doub : doubles){
+			System.out.println(doub);
+		}
 	}
 }
