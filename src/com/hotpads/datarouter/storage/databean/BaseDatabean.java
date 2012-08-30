@@ -3,13 +3,13 @@ package com.hotpads.datarouter.storage.databean;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.hotpads.datarouter.serialize.fielder.Fielder;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.storage.field.BaseFieldSet;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.prefix.EmptyScatteringPrefix;
-import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.ListTool;
 
@@ -41,6 +41,16 @@ implements Databean<PK,D>{
 		return false;
 	}
 	
+	@Override
+	public MySqlCharacterSet getCharacterSet(){
+		return SqlTable.getDefaultCharacterSet();
+	}
+	
+	@Override
+	public MySqlCollation getCollation(){
+		return SqlTable.getDefaultCollation();
+	}
+	
 //	@Override
 //	public Class<? extends Fielder<PK>> getKeyFielderClass(){
 //		return getKeyClass();
@@ -61,6 +71,7 @@ implements Databean<PK,D>{
 		return new LinkedList<Field<?>>();
 //		throw new NotImplementedException("not implemented");
 	}
+
 	
 	//generally unused method that allows databean to implement the DatabeanFielder interface
 //	@Override

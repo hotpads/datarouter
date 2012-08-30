@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
@@ -16,6 +18,8 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 	private List<Field<?>> primaryKeyFields;
 	private List<Field<?>> nonKeyFields;
 	private Map<String,List<Field<?>>> indexes;
+	private MySqlCollation collation = SqlTable.getDefaultCollation();
+	private MySqlCharacterSet character_set = SqlTable.getDefaultCharacterSet();
 
 	
 	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields){
@@ -25,6 +29,17 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 		this.primaryKeyFields = primaryKeyFields;
 	}
 	
+
+	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields,
+			MySqlCollation collation, MySqlCharacterSet character_set){
+		this.tableName = tableName;
+		this.nonKeyFields = nonKeyFields;
+		this.indexes = MapTool.createHashMap();
+		this.primaryKeyFields = primaryKeyFields;
+		this.collation = collation;
+		this.character_set = character_set;
+	}
+
 
 	@Override
 	public SqlTable generate(){
@@ -47,6 +62,8 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 			table.addIndex(index);
 			i++;
 		}
+		table.setCharSet(character_set);
+		table.setCollation(collation);
 		return table;
 		
 	}

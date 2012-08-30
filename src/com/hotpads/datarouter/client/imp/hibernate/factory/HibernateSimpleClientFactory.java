@@ -23,6 +23,8 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTableGenerator;
@@ -226,6 +228,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 
 	protected void createOrUpdateTableIfNeeded(List<String> tableNames, JdbcConnectionPool connectionPool, 
 			PhysicalNode<?, ?> physicalNode){
+//		logger.warn("createOrUpdateTableIfNeeded:"+physicalNode.getTableName());
 		if( ! physicalNode.getFieldInfo().getFieldAware()){ return; }
 
 		if(!SCHEMA_UPDATE){
@@ -241,6 +244,9 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
 		List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
 		Map<String, List<Field<?>>>  indexes = MapTool.nullSafe(fieldInfo.getIndexes());
+		MySqlCollation collation = fieldInfo.getCollation();
+		MySqlCharacterSet character_set = fieldInfo.getCharacterSet();
+		
 
 		if(schemaUpdateExecuteOptions.getIgnoreClients().contains(clientName)){ return; }
 		List<String> tablesToIgnore = schemaUpdateExecuteOptions.getIgnoreTables();
@@ -248,7 +254,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		if(tablesToIgnore.contains(currentTableAbsoluteName)){ return; }
 
 		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(), primaryKeyFields, 
-				nonKeyFields);
+				nonKeyFields, collation, character_set);
 		generator.setIndexes(indexes);
 
 		SqlTable requested = generator.generate();
@@ -281,7 +287,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 				}*/
 				
 				//execute the alter table
-				ConnectionSqlTableGenerator executeConstructor = new ConnectionSqlTableGenerator(connection, tableName);
+				ConnectionSqlTableGenerator executeConstructor = new ConnectionSqlTableGenerator(connection, tableName, JdbcTool.getSchemaName(connectionPool));
 				SqlTable executeCurrent = executeConstructor.generate();
 				SqlAlterTableGenerator executeAlterTableGenerator = new SqlAlterTableGenerator(
 						schemaUpdateExecuteOptions, executeCurrent, requested, JdbcTool.getSchemaName(connectionPool));
@@ -298,7 +304,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 				}
 				
 				//print the alter table
-				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName);
+				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName, JdbcTool.getSchemaName(connectionPool));
 				SqlTable printCurrent = prinitConstructor.generate();
 				SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(schemaUpdatePrintOptions,
 						printCurrent, requested, JdbcTool.getSchemaName(connectionPool));

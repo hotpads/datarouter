@@ -2,6 +2,8 @@ package com.hotpads.datarouter.storage.databean;
 
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
@@ -22,5 +24,7 @@ extends FieldSet<D>
 	
 	List<Field<?>> getKeyFields();
 	List<Field<?>> getNonKeyFields();
+	MySqlCollation getCollation();
+	MySqlCharacterSet getCharacterSet();
 	
 }
