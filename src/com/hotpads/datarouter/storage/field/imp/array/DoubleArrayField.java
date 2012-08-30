@@ -2,16 +2,14 @@ package com.hotpads.datarouter.storage.field.imp.array;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Arrays;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.storage.field.BaseListField;
-import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.DoubleByteTool;
-import com.hotpads.util.core.bytes.LongByteTool;
-import com.hotpads.util.core.collections.arrays.LongArray;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 
@@ -19,7 +17,6 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 
 	public DoubleArrayField(String name, List<Double> value){
 		super(name, value);
-		// TODO Auto-generated constructor stub
 	}
 	
 	public DoubleArrayField(String prefix, String name, List<Double> value){
@@ -28,15 +25,25 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 
 	@Override
 	public byte[] getBytes(){
-		// TODO Auto-generated method stub
-		return null;
+		if(value == null){
+			return null;
+		}
+		byte[] bytes = new byte[value.size() * 8];
+		for(int i = 0; i < value.size(); i++){
+			System.arraycopy(DoubleByteTool.getBytes(value.get(i)), 0, bytes, i * 8, 8);
+		}
+		return bytes;
 	}
 
 	@Override
 	public List<Double> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
 		List<Double> doubles = ListTool.create();
-		for(byte b : bytes){
-			doubles.add(DoubleByteTool.fromBytes(bytes, byteOffset));
+		int numBytes = bytes.length - byteOffset;
+		int numDoubles = (bytes.length - byteOffset)/8;
+		byte[] arrayToCopy = new byte[8];
+		for(int i = 0; i < numDoubles; i++){
+			System.arraycopy(bytes, i * 8, arrayToCopy, 0, 8);
+			doubles.add(DoubleByteTool.fromBytes(arrayToCopy, byteOffset));
 		}
 		return doubles;
 	}
@@ -74,5 +81,7 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 		// TODO Auto-generated method stub
 		
 	}
-	
+	public static void main(String[] args){
+		new DoubleArrayField("stuff", ListTool.create(new Double(5.00001), new Double(203920.555))).getBytes();
+	}
 }
