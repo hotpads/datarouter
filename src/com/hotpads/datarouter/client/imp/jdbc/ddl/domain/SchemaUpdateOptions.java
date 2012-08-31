@@ -20,7 +20,11 @@ public class SchemaUpdateOptions{
 			SUFFIX_dropIndexes = ".dropIndexes",
 			SUFFIX_modifyEngine = ".modifyEngine",
 			SUFFIX_ignoreClients = ".ignoreClients",
-			SUFFIX_ignoreTables = ".ignoreTables";
+			SUFFIX_ignoreTables = ".ignoreTables",
+			SUFFIX_modifyCharacterSet = ".modifyCharacterSet",
+			SUFFIX_modifyCollation = ".modifyCollation";
+
+	 
 	
 	protected Boolean createTables;
 	protected Boolean dropTables;
@@ -31,8 +35,11 @@ public class SchemaUpdateOptions{
 	protected Boolean addIndexes;
 	protected Boolean dropIndexes;
 	protected Boolean modifyEngine;
+	protected boolean modifyCollation;
+	protected boolean modifyCharacterSet;
 	protected List<String> ignoreClients;
 	protected List<String> ignoreTables;
+
 
 	public SchemaUpdateOptions(){
 		super();
@@ -66,6 +73,10 @@ public class SchemaUpdateOptions{
 				prefix+SUFFIX_dropIndexes));
 		this.modifyEngine = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_modifyEngine));
+		this.modifyCharacterSet = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_modifyCharacterSet));
+		this.modifyCollation = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_modifyCollation));
 		return this;
 	}
 
@@ -87,6 +98,10 @@ public class SchemaUpdateOptions{
 				prefix+SUFFIX_dropIndexes));
 		this.modifyEngine = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_modifyEngine));
+		this.modifyCharacterSet = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_modifyCharacterSet));
+		this.modifyCollation = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+				prefix+SUFFIX_modifyCollation));
 		String schemaUpdatePrefix = prefix.substring(0, prefix.indexOf('.'));
 		String clientsToIgnore = PropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix + SUFFIX_ignoreClients);
 		this.ignoreClients = StringTool.splitOnCharNoRegex(clientsToIgnore, ',');
@@ -221,6 +236,15 @@ public class SchemaUpdateOptions{
 
 	public void setIgnoreTables(List<String> ignoreTables){
 		this.ignoreTables = ignoreTables;
+	}
+
+	public boolean getModifyCollation(){
+		return modifyCollation;
+	}
+
+	public boolean getModifyCharacterSet(){
+		// TODO Auto-generated method stub
+		return modifyCharacterSet;
 	}
 	
 	

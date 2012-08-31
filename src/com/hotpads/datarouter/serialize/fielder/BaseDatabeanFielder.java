@@ -3,6 +3,8 @@ package com.hotpads.datarouter.serialize.fielder;
 import java.util.List;
 import java.util.Map;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -54,6 +56,16 @@ implements DatabeanFielder<PK,D>{
 	@Override
 	public Map<String,List<Field<?>>> getIndexes(D databean){
 		return MapTool.createTreeMap();
+	}
+	
+	@Override
+	public MySqlCollation getCollation(D databean){
+		return databean.getCollation();
+	}
+	
+	@Override
+	public MySqlCharacterSet getCharacterSet(D databean){
+		return databean.getCharacterSet();
 	}
 	
 }

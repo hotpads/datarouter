@@ -3,6 +3,8 @@ package com.hotpads.datarouter.serialize.fielder;
 import java.util.List;
 import java.util.Map;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -22,5 +24,7 @@ extends Fielder<D>{
 	List<Field<?>> getNonKeyFields(D databean);
 	
 	Map<String,List<Field<?>>> getIndexes(D databean);
+	MySqlCollation getCollation(D databean);
+	MySqlCharacterSet getCharacterSet(D databean);
 	
 }

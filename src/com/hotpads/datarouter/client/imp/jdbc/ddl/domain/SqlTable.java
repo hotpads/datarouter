@@ -18,6 +18,10 @@ import com.hotpads.util.core.StringTool;
 
 public class SqlTable{
 	
+	private static final MySqlCharacterSet DEFAULT_CHARACTER_SET = MySqlCharacterSet.latin1;
+	private static final MySqlCollation DEFAULT_COLLATION = MySqlCollation.latin1_swedish_ci;
+	
+	
 	/***************** fields *****************************/
 	
 	private String name;
@@ -25,7 +29,8 @@ public class SqlTable{
 	private SqlIndex primaryKey;
 	private List<SqlIndex> indexes;
 	private MySqlTableEngine engine = MySqlTableEngine.INNODB;
-//	private MySqlCollation collation;
+	private MySqlCollation collation = DEFAULT_COLLATION;
+	private MySqlCharacterSet charSet = DEFAULT_CHARACTER_SET;
 	
 	
 	/*************** constructors ****************************/
@@ -144,6 +149,14 @@ public class SqlTable{
 		return false;
 	}
 	
+	public static MySqlCharacterSet getDefaultCharacterSet(){
+		return DEFAULT_CHARACTER_SET;
+	}
+
+	public static MySqlCollation getDefaultCollation(){
+		return DEFAULT_COLLATION;
+	}
+
 	/******************* static methods ***************************/
 
 	//text before the first parenthesis, example "show create table Zebra"
@@ -241,6 +254,23 @@ public class SqlTable{
 	public void setEngine(MySqlTableEngine engine){
 		this.engine = engine;
 	}
+
+	public MySqlCollation getCollation(){
+		return collation;
+	}
+
+	public void setCollation(MySqlCollation collation){
+		this.collation = collation;
+	}
+
+	public MySqlCharacterSet getCharacterSet(){
+		return charSet;
+	}
+
+	public void setCharSet(MySqlCharacterSet charSet){
+		this.charSet = charSet;
+	}
+
 
 	/******************** tests *********************************/
 

@@ -3,6 +3,8 @@ package com.hotpads.datarouter.storage.field.imp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
 
@@ -30,7 +32,7 @@ public class DateField extends BasePrimitiveField<Date>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(name, MySqlColumnType.DATETIME, 19, true);
+		return new SqlColumn(columnName, MySqlColumnType.DATETIME, 19, true);
 	}
 	
 	@Override
@@ -54,8 +56,12 @@ public class DateField extends BasePrimitiveField<Date>{
 	@Override
 	public Date fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
-			Date value = rs.getDate(columnName);
-			return rs.wasNull()?null:value;
+			Timestamp timeStamp = rs.getTimestamp(columnName);
+			if(rs.wasNull()){
+				return null;
+			}
+			Date timeStampDate = new Date(timeStamp.getTime());
+			return timeStampDate;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

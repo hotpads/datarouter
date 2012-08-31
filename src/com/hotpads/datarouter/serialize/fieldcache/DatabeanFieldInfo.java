@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -18,7 +20,6 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class DatabeanFieldInfo<
@@ -34,6 +35,8 @@ public class DatabeanFieldInfo<
 	protected D sampleDatabean;
 	protected String keyFieldName;
 	protected Map<String,List<Field<?>>>  indexes; // !new! the indexes in the databean
+	protected MySqlCollation collation; // !new! the collation of the table
+	protected MySqlCharacterSet character_set; // !new! the character set of the table
 	
 	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
 	protected ScatteringPrefix sampleScatteringPrefix;
@@ -91,6 +94,8 @@ public class DatabeanFieldInfo<
 					this.nonKeyFields = sampleFielder.getNonKeyFields(sampleDatabean);//only do these if the previous fields succeeded	
 					addNonKeyFieldsToCollections();
 					this.indexes = sampleFielder.getIndexes(sampleDatabean);
+					this.character_set = sampleFielder.getCharacterSet(sampleDatabean);
+					this.collation = sampleFielder.getCollation(sampleDatabean);
 				}
 				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
 			}
@@ -254,6 +259,14 @@ public class DatabeanFieldInfo<
 
 	public Map<String,List<Field<?>>> getIndexes(){
 		return indexes;
+	}
+	
+	public MySqlCollation getCollation(){
+		return collation;
+	}
+	
+	public MySqlCharacterSet getCharacterSet(){
+		return character_set;
 	}
 	
 }

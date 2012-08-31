@@ -11,8 +11,6 @@ import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.profile.count.databean.Count;
-import com.hotpads.profile.count.databean.key.CountKey;
 
 /*
  * Databean for auto-generating a table called KeepAlive that can be queried to 
