@@ -8,6 +8,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.storage.field.BaseFieldSet;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ClassTool;
@@ -125,6 +126,15 @@ implements Databean<PK,D>{
 	@Override
 	public int hashCode(){
 		return getKey().hashCode();
+	}
+	
+	@Override
+	public int compareTo(FieldSet that){
+		if(!(that instanceof Databean)){
+			return 1;//put databeans after non-databeans.  no good reason
+		}
+		Databean other = (Databean)that;
+		return getKey().compareTo(other.getKey());
 	}
 
 	@Override
