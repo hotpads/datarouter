@@ -9,10 +9,9 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseListField;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.DoubleByteTool;
-import com.hotpads.util.core.bytes.LongByteTool;
-import com.hotpads.util.core.collections.arrays.LongArray;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 
@@ -31,23 +30,12 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 		if(value == null){
 			return null;
 		}
-		byte[] bytes = new byte[value.size() * 8];
-		for(int i = 0; i < value.size(); i++){
-			System.arraycopy(DoubleByteTool.getBytes(value.get(i)), 0, bytes, i * 8, 8);
-		}
-		return bytes;
+		return DoubleByteTool.getDoubleByteArray(value);
 	}
 
 	@Override
 	public List<Double> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		List<Double> doubles = ListTool.create();
-		int numDoubles = (bytes.length - byteOffset)/8;
-		byte[] arrayToCopy = new byte[8];
-		for(int i = 0; i < numDoubles; i++){
-			System.arraycopy(bytes, i * 8 + byteOffset, arrayToCopy, 0, 8);
-			doubles.add(DoubleByteTool.fromBytes(arrayToCopy, byteOffset));
-		}
-		return doubles;
+		return DoubleByteTool.fromDoubleByteArray(bytes, byteOffset);
 	}
 
 	@Override
@@ -68,20 +56,32 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 
 	@Override
 	public List<Double> parseJdbcValueButDoNotSet(Object col){
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException("code needs testing");
+//		if(obj==null){ return null; }
+//		byte[] bytes = (byte[])obj;
+//		return DoubleByteTool.fromDoubleBytes(bytes);
 	}
-
+	
 	@Override
 	public List<Double> fromJdbcResultSetButDoNotSet(ResultSet rs){
-		return null;
+		try{
+			byte[] bytes = rs.getBytes(columnName);
+			if(ArrayTool.isEmpty(bytes)){ return ListTool.create(new Double(0)); }
+			return DoubleByteTool.fromDoubleByteArray(bytes, 0);
+		}catch(SQLException e){
+			throw new DataAccessException(e);
+		}
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
-		// TODO Auto-generated method stub
-		
+		try{
+			ps.setBytes(parameterIndex, this.value==null?null:DoubleByteTool.getDoubleByteArray(this.value));
+		}catch(SQLException e){
+			throw new DataAccessException(e);
+		}
 	}
+	
 	public static void main(String[] args){
 		DoubleArrayField testField = new DoubleArrayField("stuff", ListTool.create(new Double(-5.00001), new Double(203920.555)));
 		for(Double num : testField.value){
