@@ -17,7 +17,6 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameComparator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameComparatorUsingLevenshteinDistance;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeLengthComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
@@ -91,21 +90,6 @@ public class SqlTableDiffGenerator{
 				requestedColumns, currentColumns, c));
 		Set<SqlColumn> columnsToModify = CollectionTool.minus(listOfColumnsToAddUsingNameTypeComparator, columnsToAddUsingNameComparator);
 		return ListTool.createArrayList(columnsToModify);
-	}
-
-	public List<SqlColumn> getListOfColumnPossiblyTheSame(int maxDistanceAllowed){
-		SqlColumnNameComparatorUsingLevenshteinDistance c = new SqlColumnNameComparatorUsingLevenshteinDistance(true,
-				maxDistanceAllowed);
-		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
-		Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);
-		if(requested==null || current==null){
-			return ListTool.createArrayList();
-		}else{
-			requestedColumns.addAll(requested.getColumns());
-			currentColumns.addAll(current.getColumns());
-		}
-		//TODO too much on one line.  extract the sets into their own variables
-		return ListTool.createArrayList(CollectionTool.intersection(currentColumns, requestedColumns, c));
 	}
 	
 	public List<SqlIndex> getIndexesToAdd(){
@@ -335,28 +319,11 @@ public class SqlTableDiffGenerator{
 			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffAB.getColumnsToRemove(), listBC)));
 		}
 	
-		@Test public void getListOfColumnPossiblyTheSame(){
-			SqlColumn ABC = new SqlColumn("ABC", MySqlColumnType.BIGINT);
-			SqlColumn ABCD = new SqlColumn("ABCED", MySqlColumnType.BIGINT);
-			
-			SqlTable tableABC = new SqlTable("t1");
-			SqlTable tableABCD = new SqlTable("t1");
-			tableABC.addColumn(ABC);
-			tableABCD.addColumn(ABCD);
-			
-			SqlTableDiffGenerator diffGenerator = new SqlTableDiffGenerator(tableABC, tableABCD, true);
-			SqlTableDiffGenerator diffGenerator2 = new SqlTableDiffGenerator(tableABCD, tableABC, true);
-			System.out.println("List of columns possibly the same :");
-			System.out.println(diffGenerator.getListOfColumnPossiblyTheSame(1));
-			System.out.println(diffGenerator2.getListOfColumnPossiblyTheSame(1));
-		}
-	
 		@Test public void getIndexesToAddTest(){
-			SqlColumn 
-			colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true),
-			colB = new SqlColumn("B", MySqlColumnType.BINARY),
-			colC = new SqlColumn("C", MySqlColumnType.BOOLEAN),
-			colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
+			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true);
+			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
+			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
+			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
 			List<SqlColumn> listBC = ListTool.createArrayList();
 			List<SqlColumn> listM = ListTool.createArrayList();
 			

@@ -12,7 +12,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.util.LevenshteinDistance;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
@@ -156,56 +155,6 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			return ComparableTool.nullFirstCompareTo(a.maxLength, b.maxLength);
 		}
 	}
-	
-	
-	public static class SqlColumnNameComparatorUsingLevenshteinDistance implements Comparator<SqlColumn>{
-		boolean caseSensitive = true;
-		int maxDistanceAllowed = 2;
-		public SqlColumnNameComparatorUsingLevenshteinDistance(boolean caseSensitive, int maxDistanceAllowed){
-			this.caseSensitive = caseSensitive;
-			this.maxDistanceAllowed=maxDistanceAllowed;
-		}
-		@Override
-		public int compare(SqlColumn a, SqlColumn b){
-			if(a==null && b==null){
-				return 0;
-			}else if(a==null){
-				return -1;
-			}else if(b==null){
-				return 1;
-			}
-			if(caseSensitive){
-					if(LevenshteinDistance.computeDistance(a.name.toLowerCase(), b.name.toLowerCase())<=maxDistanceAllowed){
-						return 0;
-					}
-					return a.name.toLowerCase().compareTo(b.name.toLowerCase());
-				}
-			return a.name.compareTo(b.name);
-		}
-	}
-	
-	//	public int compareToUsingAll(SqlColumn other){
-	//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
-	//		if(c!=0){ return c; }
-	//		c = ComparableTool.nullFirstCompareTo(type, other.type);
-	//		if(c!=0){ return c; }
-	//		c = ComparableTool.nullFirstCompareTo(maxLength, other.maxLength);
-	//		if(c!=0){ return c; }
-	//		c = ComparableTool.nullFirstCompareTo(nullable, other.nullable);
-	//		return c;
-	//	}
-	//	
-	//	public int compareToUsingNameAndTypeOnly(SqlColumn other){
-	//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
-	//		if(c!=0){ return c; }
-	//		c = ComparableTool.nullFirstCompareTo(type, other.type);
-	//		return c;
-	//	}
-	//	
-	//	public int compareToUsingNameOnly(SqlColumn other){
-	//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
-	//		return c;
-	//	}
 	
 	
 	/******************* get/set ****************************/

@@ -13,8 +13,7 @@ import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MathTool;
 
-@SuppressWarnings("rawtypes") 
-public class SqlIndex implements Comparable{
+public class SqlIndex implements Comparable<SqlIndex>{
 	
 	/********************** fields *************************/
 	
@@ -122,10 +121,10 @@ public class SqlIndex implements Comparable{
 		@Override
 		public int compare(SqlIndex index1, SqlIndex index2){
 			int c = ComparableTool.nullFirstCompareTo(index1.getName(), index2.getName());
-			if(c!=0){return c;}
+			if(c!=0){ return c; }
 			SqlColumnNameTypeComparator nameTypeColumnComparator = new SqlColumnNameTypeComparator(true);
 			for(int i=0; i<MathTool.min(index1.getColumns().size(), index2.getColumns().size()); i++){
-				c=ComparableTool.nullFirstCompareTo(index1.getColumns().get(i),index2.getColumns().get(i));
+				c=ComparableTool.nullFirstCompareTo(index1.getColumns().get(i), index2.getColumns().get(i));
 				if(index1.getColumns().get(i)==null && index2.getColumns().get(i)==null){
 					c = 0;
 				}else if(index1.getColumns().get(i)==null){
@@ -133,9 +132,9 @@ public class SqlIndex implements Comparable{
 				}else if(index2.getColumns().get(i)==null){
 					c = 1;
 				}else{
-					c = nameTypeColumnComparator.compare(index1.getColumns().get(i),index2.getColumns().get(i));
+					c = nameTypeColumnComparator.compare(index1.getColumns().get(i), index2.getColumns().get(i));
 				}
-				if(c!=0){return c;}
+				if(c!=0){ return c; }
 			}
 			return 0;
 		}
@@ -143,22 +142,22 @@ public class SqlIndex implements Comparable{
 	}
 	
 	@Override
-	public int compareTo(Object o){
-			int c = ComparableTool.nullFirstCompareTo(name, ((SqlIndex) o).name);
-			if(c!=0){return c;}
+	public int compareTo(SqlIndex o){
+			int c = ComparableTool.nullFirstCompareTo(name, o.name);
+			if(c!=0){ return c; }
 			SqlColumnNameTypeComparator nameTypeColumnComparator = new SqlColumnNameTypeComparator(true);
-			for(int i=0; i<MathTool.min(columns.size(), ((SqlIndex) o).columns.size()); i++){
-				c=ComparableTool.nullFirstCompareTo(columns.get(i),((SqlIndex) o).columns.get(i));
-				if(columns.get(i)==null && ((SqlIndex) o).columns.get(i)==null){
+			for(int i=0; i < MathTool.min(columns.size(), o.columns.size()); i++){
+				c=ComparableTool.nullFirstCompareTo(columns.get(i),o.columns.get(i));
+				if(columns.get(i)==null && o.columns.get(i)==null){
 					c = 0;
 				}else if(columns.get(i)==null){
 					c = -1;
-				}else if(((SqlIndex) o).columns.get(i)==null){
+				}else if(o.columns.get(i)==null){
 					c = 1;
 				}else{
-					c = nameTypeColumnComparator.compare(columns.get(i),((SqlIndex) o).columns.get(i));
+					c = nameTypeColumnComparator.compare(columns.get(i), o.columns.get(i));
 				}
-				if(c!=0){return c;}
+				if(c!=0){ return c; }
 			}
 			return 0;
 	}
@@ -173,7 +172,7 @@ public class SqlIndex implements Comparable{
 			SqlColumn aa=new SqlColumn("a", MySqlColumnType.VARBINARY);
 			SqlColumn bb=new SqlColumn("b", MySqlColumnType.VARCHAR);
 			SqlIndex index1 = new SqlIndex("index");
-			SqlIndex index2= new SqlIndex("index");
+			SqlIndex index2 = new SqlIndex("index");
 			
 			index1.addColumn(a).addColumn(b);
 			index2.addColumn(aa).addColumn(bb);
