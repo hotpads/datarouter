@@ -6,6 +6,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
+import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.StringTool;
 
 public class SqlCreateTableGenerator implements DdlGenerator{
@@ -67,28 +69,26 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			sb.append(")");
 		}
 		
-		int numberOfIndexes=table.getIndexes().size();
-		if(numberOfIndexes>0) sb.append(",\n");
-		for(int i=0; i< numberOfIndexes; i++){
-			sb.append(" KEY "+ table.getIndexes().get(i).getName() +" (");
-			int numberOfColumndInIndexe = table.getIndexes().get(i).getColumns().size();
-			for(int j=0; j< numberOfColumndInIndexe; j++){
-				col = table.getIndexes().get(i).getColumns().get(j);
-				sb.append(table.getIndexes().get(i).getColumns().get(j).getName());
-						if(j != numberOfColumndInIndexe -1){
-							sb.append(", ") ;
-						}
+		int numIndexes = CollectionTool.size(table.getIndexes());
+		if(numIndexes > 0){ sb.append(",\n"); }
+		int indexCounter = -1;
+		for(SqlIndex index : IterableTool.nullSafe(table.getIndexes())){
+			++indexCounter;
+			sb.append(" index "+ index.getName() +" (");
+			int numColumns = CollectionTool.size(index.getColumns());
+			int columnCounter = -1;
+			for(SqlColumn column : IterableTool.nullSafe(index.getColumns())){
+				++columnCounter;
+				sb.append(column.getName());
+				if(columnCounter != numColumns -1){ sb.append(", "); }
 			}
 			sb.append(")");
-			if(i != numberOfIndexes - 1){
-				sb.append(",");
-			}
+			if(indexCounter != numIndexes - 1){ sb.append(","); }
 			sb.append("\n");
 		}
 		sb.append(")");
-		sb.append(" engine=" +
-				table.getEngine() +
-				" character set = " +table.getCharacterSet() + " collate " +table.getCollation());
+		sb.append(" engine=" + table.getEngine() + " character set = " + table.getCharacterSet() + " collate "
+				+ table.getCollation());
 		return sb.toString();
 		
 	}
