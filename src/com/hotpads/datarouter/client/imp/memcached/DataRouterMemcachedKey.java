@@ -9,7 +9,7 @@ import com.hotpads.util.core.ListTool;
 
 public class DataRouterMemcachedKey<PK extends PrimaryKey<PK>>{
 
-	public static final Integer DATAROUTER_VERSION = 1;
+	public static final Integer DATAROUTER_VERSION = 2;
 	
 	protected String nodeName;
 	protected Integer databeanVersion;
