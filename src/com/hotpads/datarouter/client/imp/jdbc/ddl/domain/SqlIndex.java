@@ -49,32 +49,6 @@ public class SqlIndex implements Comparable<SqlIndex>{
 		return "`" + name + "` , (" + columns + ")";
 	}
 	
-	
-	/****************** get/set ****************************/
-	
-	public String getName(){
-		return name;
-	}
-
-	public void setName(String name){
-		this.name = name;
-	}
-
-	public List<SqlColumn> getColumns(){
-		return columns;
-	}
-
-	public void setColumns(List<SqlColumn> columns){
-		this.columns = columns;
-	}
-	
-	public int getNumberOfColumns(){
-		return CollectionTool.size(columns);
-	}
-
-	
-	/******************* comparator *************************/
-	
 	@Override
 	public int hashCode(){
 		final int prime = 31;
@@ -111,6 +85,29 @@ public class SqlIndex implements Comparable<SqlIndex>{
 			return false;
 		}
 		return true;
+	}
+	
+	
+	/****************** get/set ****************************/
+	
+	public String getName(){
+		return name;
+	}
+
+	public void setName(String name){
+		this.name = name;
+	}
+
+	public List<SqlColumn> getColumns(){
+		return columns;
+	}
+
+	public void setColumns(List<SqlColumn> columns){
+		this.columns = columns;
+	}
+	
+	public int getNumberOfColumns(){
+		return CollectionTool.size(columns);
 	}
 	
 	
@@ -165,7 +162,7 @@ public class SqlIndex implements Comparable<SqlIndex>{
 	
 	/**************************** tests *******************************************/
 	
-	public static class TestSqlIndex{
+	public static class SqlIndexTests{
 		@Test public void equalsTester(){
 			SqlColumn a = new SqlColumn("a", MySqlColumnType.BIGINT);
 			SqlColumn b = new SqlColumn("b", MySqlColumnType.BIGINT);

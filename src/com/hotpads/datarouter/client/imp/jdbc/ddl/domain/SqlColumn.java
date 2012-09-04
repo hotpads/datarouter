@@ -27,7 +27,8 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	protected Integer maxLength;
 	protected Boolean nullable = true;
 
-	/********************** constructors **********************/
+	
+	/********************** construct **********************/
 	
 	public SqlColumn(String name, MySqlColumnType type, Integer maxLength, Boolean nullable){
 		this.name = name;
@@ -56,15 +57,12 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		return new SqlColumn(getName(), getType(), getMaxLength(), getNullable());
 	}
 	
-	/******************* comparator *************************/
-	
 	@Override
 	public boolean equals(Object otherObject){
 		if(!(otherObject instanceof SqlColumn)){ return false; }
 		// //return 0==compareTo((SqlColumn)otherObject);
 		return 0 == new SqlColumnNameComparator(true).compare(this,(SqlColumn) otherObject);
 	}
-
 
 	@Override
 	public int hashCode(){
@@ -76,7 +74,9 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		result = prime * result + ((type == null)?0:type.hashCode());
 		return result;
 	}
+
 	
+	/******************* comparator *************************/
 	
 	@Override
 	public int compareTo(SqlColumn other){
@@ -91,7 +91,6 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	}
 	
 	public static class SqlColumnNameComparator implements Comparator<SqlColumn>{
-		
 		boolean caseSensitive = true;
 		public SqlColumnNameComparator(boolean caseSensitive){
 			this.caseSensitive = caseSensitive;
@@ -191,9 +190,10 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		this.nullable = nullable;
 	}
 
+	
 	/******************* tests ***************************/
 	
-	public static class SqlColumnTester{
+	public static class SqlColumnTests{
 		@Test public void testCompareTo(){
 			//two different values a, b
 			SqlColumn a = new SqlColumn("a", MySqlColumnType.BIGINT, 19, false);

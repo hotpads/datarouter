@@ -158,6 +158,7 @@ public class SqlTable{
 	public static MySqlCollation getDefaultCollation(){
 		return DEFAULT_COLLATION;
 	}
+	
 
 	/******************* static methods ***************************/
 
@@ -276,7 +277,7 @@ public class SqlTable{
 
 	/******************** tests *********************************/
 
-	public static class SqlTableTester{
+	public static class SqlTableTests{
 		@Test
 		public void testGetHeader(){
 			Assert.assertEquals("Header", getHeader("Header(blabla(blob()))trail"));
@@ -292,16 +293,17 @@ public class SqlTable{
 			Assert.assertEquals("blabla(blob())", getColumnDefinitionSection("Header(blabla(blob()))trail"));
 		}
 		
-		@Test
-		public void testParseCreateTable() throws IOException{
-			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");
-			DataInputStream in = new DataInputStream(fis);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String str, phrase = "";
-			while((str = br.readLine()) != null){
-				phrase += str;
-			}
-			System.out.println(parseCreateTable(phrase));
-		}
+//		@Test
+//		public void testParseCreateTable() throws IOException{
+		//need to get filepath correct somehow
+//			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");
+//			DataInputStream in = new DataInputStream(fis);
+//			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+//			String str, phrase = "";
+//			while((str = br.readLine()) != null){
+//				phrase += str;
+//			}
+//			System.out.println(parseCreateTable(phrase));
+//		}
 	}
 }

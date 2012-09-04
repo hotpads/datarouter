@@ -17,7 +17,8 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 	protected SqlTable table;
 	protected String databaseName="";
 	
-	/******************* constructors ****************************/
+	
+	/******************* construct ****************************/
 	
 	public SqlCreateTableGenerator(SqlTable table){
 		this.table = table;
@@ -26,11 +27,13 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		this.table = table;
 		this.databaseName = databaseName;
 	}
+	
+	
 	/****************** primary method ****************************/
 
 	@Override
 	public String generateDdl(){
-		StringBuilder sb=new StringBuilder("CREATE TABLE " );
+		StringBuilder sb=new StringBuilder("create table " );
 		if(!StringTool.isEmpty(databaseName)){
 			sb.append(databaseName + ".");
 		}
@@ -52,19 +55,17 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			}else{
 				sb.append(" not null");
 			}
-			if(i<nuimberOfColumns-1) sb.append(",\n");
+			if(i < nuimberOfColumns-1){ sb.append(",\n"); }
 		}
 		
 		if(table.hasPrimaryKey()){
-				sb.append(",\n");
-				sb.append(" primary key ("); 
+			sb.append(",\n");
+			sb.append(" primary key ("); 
 			int numberOfColumnsInPrimaryKey=table.getPrimaryKey().getColumns().size();
 			for(int i=0; i< numberOfColumnsInPrimaryKey; i++){
 				col = table.getPrimaryKey().getColumns().get(i);
 				sb.append(col.getName());
-						if(i != numberOfColumnsInPrimaryKey -1){
-							sb.append(",");
-						}
+				if(i != numberOfColumnsInPrimaryKey -1){ sb.append(","); }
 			}
 			sb.append(")");
 		}
@@ -93,8 +94,10 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		
 	}
 	
+	
+	/******************** tests *************************/
+	
 	public static class  SqlCreateTableGeneratorTester{
-		
 		@Test public void testGenerate(){
 			String nameOfTable="Model";
 			SqlColumn col1 = new SqlColumn("includeInSummary", MySqlColumnType.TINYINT, 1, true);

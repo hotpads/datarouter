@@ -97,6 +97,7 @@ public enum MySqlColumnType{
 		return list;
 	}
 	
+	
 	/*************************** get/set *******************************************/
 	
 	public boolean isSpecifyLength(){

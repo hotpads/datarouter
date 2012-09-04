@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
-import com.hotpads.util.core.StringTool;
 
 public enum MySqlCollation{
 
@@ -91,6 +90,7 @@ public enum MySqlCollation{
 	 binary              ,
 	 geostd8_general_ci  ,
 	 geostd8_bin     	 ;
+	 
 	 
 	 public static MySqlCollation parse(String s){
 		 String lowerCase = s.toLowerCase();
