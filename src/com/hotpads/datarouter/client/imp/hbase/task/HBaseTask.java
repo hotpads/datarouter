@@ -128,6 +128,8 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		hTable = client.checkOutHTable(tableName, progress);
 		Preconditions.checkNotNull(hTable);
 		progress.set("got HTable attemptNumOneBased:"+attemptNumOneBased);
+		
+		hTable.setOperationTimeout((int)Math.min(timeoutMs, Integer.MAX_VALUE));
 
 		//assert null
 		Preconditions.checkState(managedResultScanner==null);//make sure we cleared this from the previous attempt

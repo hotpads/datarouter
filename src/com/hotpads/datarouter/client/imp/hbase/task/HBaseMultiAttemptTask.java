@@ -3,7 +3,6 @@ package com.hotpads.datarouter.client.imp.hbase.task;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -78,11 +77,12 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 				task.setTimeoutMs(timeoutMs);//Tracing
 				Future<V> future = executorService.submit(task);
 				try{
-					return future.get(timeoutMs, TimeUnit.MILLISECONDS);
-				}catch(TimeoutException e){
-					future.cancel(CANCEL_THREAD_IF_RUNNING);
-					logger.warn("TimeoutException on task with progress="+task.progress);
-					throw new DataAccessException(e);
+//					return future.get(timeoutMs, TimeUnit.MILLISECONDS);
+					return future.get();
+//				}catch(TimeoutException e){
+//					future.cancel(CANCEL_THREAD_IF_RUNNING);
+//					logger.warn("TimeoutException on task with progress="+task.progress);
+//					throw new DataAccessException(e);
 				}catch(InterruptedException e){
 					throw new DataAccessException(e);
 				}catch(ExecutionException e){
