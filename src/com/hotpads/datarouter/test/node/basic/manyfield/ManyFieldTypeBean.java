@@ -12,13 +12,17 @@ import javax.persistence.Lob;
 
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.util.core.ListTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.array.BooleanArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.DoubleArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.IntegerArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.UInt63ArrayField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
@@ -81,6 +85,12 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	
 	@Lob @Column(length=1<<27)
 	private List<Long> longArrayField;
+	@Lob @Column(length=1<<27)
+	private List<Boolean> booleanArrayField;
+	@Lob @Column(length=1<<27)
+	private List<Integer> integerArrayField;
+	@Lob @Column(length=1<<27)
+	private List<Double> doubleArrayField;
 	
 	private String testSchemaUpdateField;
 	
@@ -105,6 +115,9 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 			stringByteField = "stringByteField",
 			data = "data",
 			longArrayField = "longArrayField",
+			booleanArrayField = "booleanArrayField",
+			doubleArrayField = "doubleArrayField",
+			integerArrayField = "integerArrayField",
 			testSchemaUpdateField = "testSchemaUpdateField";
 	}
 	
@@ -129,6 +142,9 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		fields.add(new ByteArrayField(F.stringByteField, stringByteField));
 		fields.add(new ByteArrayField(F.data, data));
 		fields.add(new UInt63ArrayField(F.longArrayField, longArrayField));
+		fields.add(new BooleanArrayField(F.booleanArrayField, booleanArrayField));
+		fields.add(new IntegerArrayField(F.integerArrayField, integerArrayField));
+		fields.add(new DoubleArrayField(F.doubleArrayField, doubleArrayField));
 		fields.add(new StringField(F.testSchemaUpdateField, testSchemaUpdateField, DEFAULT_STRING_LENGTH));
 		return fields;
 	}
@@ -208,6 +224,23 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		return longArrayField;
 	}
 
+	public List<Boolean> appendToBooleanArrayField(Boolean val){
+		if(booleanArrayField==null){ booleanArrayField = ListTool.create(); }
+		booleanArrayField.add(val);
+		return booleanArrayField;
+	}
+	
+	public List<Double> appendToDoubleArrayField(Double val){
+		if(doubleArrayField==null){ doubleArrayField = ListTool.create(); }
+		doubleArrayField.add(val);
+		return doubleArrayField;
+	}
+	
+	public List<Integer> appendToIntegerArrayField(Integer val){
+		if(integerArrayField==null){ integerArrayField = ListTool.create(); }
+		integerArrayField.add(val);
+		return integerArrayField;
+	}
 	
 	/***************************** get/set **************************************/
 	
@@ -313,6 +346,32 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		this.longArrayField = longArrayField;
 	}
 
+	public List<Boolean> getBooleanArrayField(){
+		return booleanArrayField;
+	}
+
+
+	public void setBooleanArrayField(List<Boolean> booleanArrayField){
+		this.booleanArrayField = booleanArrayField;
+	}
+	
+	public List<Double> getDoubleArrayField(){
+		return doubleArrayField;
+	}
+
+
+	public void setDoubleArrayField(List<Double> doubleArrayField){
+		this.doubleArrayField = doubleArrayField;
+	}
+	
+	public List<Integer> getIntegerArrayField(){
+		return integerArrayField;
+	}
+
+
+	public void setIntegerArrayField(List<Integer> integerArrayField){
+		this.integerArrayField = integerArrayField;
+	}
 
 	public Date getLongDateField(){
 		return longDateField;

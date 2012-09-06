@@ -58,7 +58,7 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 		throw new NotImplementedException("code needs testing");
 //		if(obj==null){ return null; }
 //		byte[] bytes = (byte[])obj;
-//		return IntegerByteTool.fromIntegerBytes(bytes));
+//		return IntegerByteTool.fromComparableByteArray(bytes));
 	}
 
 	@Override
@@ -78,6 +78,18 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 			ps.setBytes(parameterIndex, this.value==null?null:IntegerByteTool.getIntegerByteArray(this.value));
 		}catch(SQLException e){
 			throw new DataAccessException(e);
+		}
+	}
+	
+	public static void main(String[] args){
+		IntegerArrayField testField = new IntegerArrayField("stuff", ListTool.create(new Integer(-51), null, new Integer(2)));
+		for(Integer num : testField.value){
+			System.out.println(num);
+		}
+		byte[] bytes = testField.getBytes();
+		List<Integer> integers = testField.fromBytesButDoNotSet(bytes, 0);
+		for(Integer value : integers){
+			System.out.println(value);
 		}
 	}
 }

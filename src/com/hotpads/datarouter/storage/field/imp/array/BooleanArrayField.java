@@ -2,10 +2,16 @@ package com.hotpads.datarouter.storage.field.imp.array;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseListField;
+import com.hotpads.util.core.ArrayTool;
+import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.bytes.BooleanByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
@@ -20,14 +26,15 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 
 	@Override
 	public byte[] getBytes(){
-		// TODO Auto-generated method stub
-		return null;
+		if(value == null){
+			return null;
+		}
+		return BooleanByteTool.getBooleanByteArray(value);
 	}
 
 	@Override
 	public List<Boolean> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		// TODO Auto-generated method stub
-		return null;
+		return BooleanByteTool.fromBooleanByteArray(bytes, byteOffset);
 	}
 
 	@Override
@@ -43,26 +50,46 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		// TODO Auto-generated method stub
-		return null;
+		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, 2147483647, true);
 	}
 
 	@Override
 	public List<Boolean> parseJdbcValueButDoNotSet(Object col){
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException("code needs testing");
+//		if(obj==null){ return null; }
+//		byte[] bytes = (byte[])obj;
+//		return BooleanByteTool.fromBooleanByteArray(bytes));
 	}
 
 	@Override
 	public List<Boolean> fromJdbcResultSetButDoNotSet(ResultSet rs){
-		// TODO Auto-generated method stub
-		return null;
+		try{
+			byte[] bytes = rs.getBytes(columnName);
+			if(ArrayTool.isEmpty(bytes)){ return ListTool.create(new Boolean(false)); }
+			return BooleanByteTool.fromBooleanByteArray(bytes, 0);
+		}catch(SQLException e){
+			throw new DataAccessException(e);
+		}
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
-		// TODO Auto-generated method stub
-		
+		try{
+			ps.setBytes(parameterIndex, this.value==null?null:BooleanByteTool.getBooleanByteArray(this.value));
+		}catch(SQLException e){
+			throw new DataAccessException(e);
+		}
 	}
-
+	
+	public static void main(String[] args){
+		BooleanArrayField testField = new BooleanArrayField("stuff", ListTool.create(new Boolean(true), null, new Boolean(false)));
+		for(Boolean num : testField.value){
+			System.out.println(num);
+		}
+		byte[] bytes = testField.getBytes();
+		List<Boolean> bools = testField.fromBytesButDoNotSet(bytes, 0);
+		for(Boolean bool : bools){
+			System.out.println(bool);
+		}
+	}
 }

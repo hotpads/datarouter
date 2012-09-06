@@ -422,6 +422,47 @@ public class ManyFieldTypeIntegrationTests {
 		recordKey(bean.getKey());
 	}
 	
+	@Test 
+	public void testBooleanArray(){		
+		ManyFieldTypeBean bean = new ManyFieldTypeBean();
+		bean.appendToBooleanArrayField(true);
+		bean.appendToBooleanArrayField(null);
+		bean.appendToBooleanArrayField(false);
+		router.manyFieldTypeBean().put(bean, null);
+		
+		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
+		Assert.assertTrue(0==ListTool.compare(bean.getBooleanArrayField(), roundTripped.getBooleanArrayField()));
+		recordKey(bean.getKey());
+	}
+	
+	@Test 
+	public void testIntegerArray(){		
+		ManyFieldTypeBean bean = new ManyFieldTypeBean();
+		bean.appendToIntegerArrayField(Integer.MAX_VALUE);
+		bean.appendToIntegerArrayField(null);
+		bean.appendToIntegerArrayField(-5029);
+		router.manyFieldTypeBean().put(bean, null);
+		
+		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
+		Assert.assertTrue(0==ListTool.compare(bean.getIntegerArrayField(), roundTripped.getIntegerArrayField()));
+		recordKey(bean.getKey());
+	}
+	
+	@Test 
+	public void testDoubleArray(){		
+		ManyFieldTypeBean bean = new ManyFieldTypeBean();
+		bean.appendToDoubleArrayField(Double.MAX_VALUE);
+		bean.appendToDoubleArrayField(null);
+		bean.appendToDoubleArrayField(null);
+		bean.appendToDoubleArrayField(Double.MIN_VALUE);
+		bean.appendToDoubleArrayField(-5029.02939);
+		router.manyFieldTypeBean().put(bean, null);
+		
+		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
+		Assert.assertTrue(0==ListTool.compare(bean.getDoubleArrayField(), roundTripped.getDoubleArrayField()));
+		recordKey(bean.getKey());
+	}
+	
 	/**
 	 * 
 	 */
