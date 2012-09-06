@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTableDiffGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.test.TestParser;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 
 public class SqlTable{
@@ -27,7 +29,7 @@ public class SqlTable{
 	private String name;
 	private List<SqlColumn> columns;
 	private SqlIndex primaryKey;
-	private List<SqlIndex> indexes;
+	private SortedSet<SqlIndex> indexes;
 	private MySqlTableEngine engine = MySqlTableEngine.INNODB;
 	private MySqlCollation collation = DEFAULT_COLLATION;
 	private MySqlCharacterSet charSet = DEFAULT_CHARACTER_SET;
@@ -35,7 +37,7 @@ public class SqlTable{
 	
 	/*************** constructors ****************************/
 	
-	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey, List<SqlIndex> indexes){
+	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey, SortedSet<SqlIndex> indexes){
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = primaryKey;
@@ -46,21 +48,21 @@ public class SqlTable{
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = primaryKey;
-		this.indexes = ListTool.createArrayList();
+		this.indexes = SetTool.createTreeSet();
 	}
 
 	public SqlTable(String name, List<SqlColumn> columns){
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = new SqlIndex("PRIMARY");
-		this.indexes = ListTool.createArrayList();
+		this.indexes = SetTool.createTreeSet();
 	}
 
 	public SqlTable(String name){
 		this.name = name;
 		this.columns = ListTool.createArrayList();
 		this.primaryKey = new SqlIndex("PRIMARY");
-		this.indexes = ListTool.createArrayList();
+		this.indexes = SetTool.createTreeSet();
 	}
 	
 	
@@ -156,6 +158,7 @@ public class SqlTable{
 	public static MySqlCollation getDefaultCollation(){
 		return DEFAULT_COLLATION;
 	}
+	
 
 	/******************* static methods ***************************/
 
@@ -230,11 +233,11 @@ public class SqlTable{
 		return primaryKey;
 	}
 
-	public List<SqlIndex> getIndexes(){
+	public SortedSet<SqlIndex> getIndexes(){
 		return indexes;
 	}
 
-	public void setIndexes(List<SqlIndex> indexes){
+	public void setIndexes(SortedSet<SqlIndex> indexes){
 		this.indexes = indexes;
 	}
 
@@ -274,7 +277,7 @@ public class SqlTable{
 
 	/******************** tests *********************************/
 
-	public static class SqlTableTester{
+	public static class SqlTableTests{
 		@Test
 		public void testGetHeader(){
 			Assert.assertEquals("Header", getHeader("Header(blabla(blob()))trail"));
@@ -290,16 +293,17 @@ public class SqlTable{
 			Assert.assertEquals("blabla(blob())", getColumnDefinitionSection("Header(blabla(blob()))trail"));
 		}
 		
-		@Test
-		public void testParseCreateTable() throws IOException{
-			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");
-			DataInputStream in = new DataInputStream(fis);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String str, phrase = "";
-			while((str = br.readLine()) != null){
-				phrase += str;
-			}
-			System.out.println(parseCreateTable(phrase));
-		}
+//		@Test
+//		public void testParseCreateTable() throws IOException{
+		//need to get filepath correct somehow
+//			FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");
+//			DataInputStream in = new DataInputStream(fis);
+//			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+//			String str, phrase = "";
+//			while((str = br.readLine()) != null){
+//				phrase += str;
+//			}
+//			System.out.println(parseCreateTable(phrase));
+//		}
 	}
 }

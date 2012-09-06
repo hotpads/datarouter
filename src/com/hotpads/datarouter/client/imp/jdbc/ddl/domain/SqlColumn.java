@@ -12,7 +12,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.util.LevenshteinDistance;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
@@ -28,7 +27,8 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	protected Integer maxLength;
 	protected Boolean nullable = true;
 
-	/********************** constructors **********************/
+	
+	/********************** construct **********************/
 	
 	public SqlColumn(String name, MySqlColumnType type, Integer maxLength, Boolean nullable){
 		this.name = name;
@@ -57,15 +57,12 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		return new SqlColumn(getName(), getType(), getMaxLength(), getNullable());
 	}
 	
-	/******************* comparator *************************/
-	
 	@Override
 	public boolean equals(Object otherObject){
 		if(!(otherObject instanceof SqlColumn)){ return false; }
 		// //return 0==compareTo((SqlColumn)otherObject);
 		return 0 == new SqlColumnNameComparator(true).compare(this,(SqlColumn) otherObject);
 	}
-
 
 	@Override
 	public int hashCode(){
@@ -77,7 +74,9 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		result = prime * result + ((type == null)?0:type.hashCode());
 		return result;
 	}
+
 	
+	/******************* comparator *************************/
 	
 	@Override
 	public int compareTo(SqlColumn other){
@@ -92,7 +91,6 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	}
 	
 	public static class SqlColumnNameComparator implements Comparator<SqlColumn>{
-		
 		boolean caseSensitive = true;
 		public SqlColumnNameComparator(boolean caseSensitive){
 			this.caseSensitive = caseSensitive;
@@ -158,56 +156,6 @@ public class SqlColumn implements Comparable<SqlColumn>{
 	}
 	
 	
-	public static class SqlColumnNameComparatorUsingLevenshteinDistance implements Comparator<SqlColumn>{
-		boolean caseSensitive = true;
-		int maxDistanceAllowed = 2;
-		public SqlColumnNameComparatorUsingLevenshteinDistance(boolean caseSensitive, int maxDistanceAllowed){
-			this.caseSensitive = caseSensitive;
-			this.maxDistanceAllowed=maxDistanceAllowed;
-		}
-		@Override
-		public int compare(SqlColumn a, SqlColumn b){
-			if(a==null && b==null){
-				return 0;
-			}else if(a==null){
-				return -1;
-			}else if(b==null){
-				return 1;
-			}
-			if(caseSensitive){
-					if(LevenshteinDistance.computeDistance(a.name.toLowerCase(), b.name.toLowerCase())<=maxDistanceAllowed){
-						return 0;
-					}
-					return a.name.toLowerCase().compareTo(b.name.toLowerCase());
-				}
-			return a.name.compareTo(b.name);
-		}
-	}
-	
-	//	public int compareToUsingAll(SqlColumn other){
-	//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
-	//		if(c!=0){ return c; }
-	//		c = ComparableTool.nullFirstCompareTo(type, other.type);
-	//		if(c!=0){ return c; }
-	//		c = ComparableTool.nullFirstCompareTo(maxLength, other.maxLength);
-	//		if(c!=0){ return c; }
-	//		c = ComparableTool.nullFirstCompareTo(nullable, other.nullable);
-	//		return c;
-	//	}
-	//	
-	//	public int compareToUsingNameAndTypeOnly(SqlColumn other){
-	//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
-	//		if(c!=0){ return c; }
-	//		c = ComparableTool.nullFirstCompareTo(type, other.type);
-	//		return c;
-	//	}
-	//	
-	//	public int compareToUsingNameOnly(SqlColumn other){
-	//		int c = ComparableTool.nullFirstCompareTo(name, other.name);
-	//		return c;
-	//	}
-	
-	
 	/******************* get/set ****************************/
 	
 	public String getName(){
@@ -242,9 +190,10 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		this.nullable = nullable;
 	}
 
+	
 	/******************* tests ***************************/
 	
-	public static class SqlColumnTester{
+	public static class SqlColumnTests{
 		@Test public void testCompareTo(){
 			//two different values a, b
 			SqlColumn a = new SqlColumn("a", MySqlColumnType.BIGINT, 19, false);

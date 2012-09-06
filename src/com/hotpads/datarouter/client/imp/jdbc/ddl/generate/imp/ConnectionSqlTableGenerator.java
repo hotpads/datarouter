@@ -163,7 +163,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 		}
 	}
 
-	public static class TestSqlCreateTableFromConnection{
+	public static class ConnectionSqlTableGeneratorTester{//localhost only
 		@Test
 		public void getTableTest() throws SQLException{
 			String databaseName = "property";

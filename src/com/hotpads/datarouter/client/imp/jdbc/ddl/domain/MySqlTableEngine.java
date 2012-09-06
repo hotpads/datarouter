@@ -4,8 +4,10 @@ import com.hotpads.util.core.StringTool;
 
 public enum MySqlTableEngine{
 
-	INNODB, MYISAM 
-	;
+	INNODB, 
+	MYISAM;
+	
+	
 	public static MySqlTableEngine parse(String a){
 		String upperCase = StringTool.nullSafe(a).toUpperCase();
 		for(MySqlTableEngine type : values()){

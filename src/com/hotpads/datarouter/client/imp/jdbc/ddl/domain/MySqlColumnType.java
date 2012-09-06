@@ -58,7 +58,8 @@ public enum MySqlColumnType{
 	public static final int 
 		MAX_LENGTH_VARCHAR = (1 << 8) - 1,
 		MAX_LENGTH_TEXT = (1 << 16) - 1,
-		MAX_LENGTH_MEDIUMTEXT = (1 << 24) - 1;
+		MAX_LENGTH_MEDIUMTEXT = (1 << 24) - 1,
+		INT_LENGTH_LONGTEXT = Integer.MAX_VALUE;//use this to get schema-update to create a LONGTEXT field
 
 	public static final long
 		MAX_LENGTH_LONGTEXT = (1L << 32) - 1;
@@ -95,6 +96,7 @@ public enum MySqlColumnType{
 		}
 		return list;
 	}
+	
 	
 	/*************************** get/set *******************************************/
 	

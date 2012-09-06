@@ -10,19 +10,19 @@ import com.hotpads.util.core.StringTool;
 public class SchemaUpdateOptions{
 	
 	public static final String 
-			SUFFIX_createTables = ".createTables", 
-			SUFFIX_dropTables = ".dropTables",
-			SUFFIX_addColumns = ".addColumns", 
-			SUFFIX_deleteColumns = ".deleteColumns",
-			/*SUFFIX_modifyColumnLengths = ".modifyColumnLengths",*/
-			SUFFIX_modifyColumns = ".modifyColumns",
-			SUFFIX_addIndexes = ".addIndexes",
-			SUFFIX_dropIndexes = ".dropIndexes",
-			SUFFIX_modifyEngine = ".modifyEngine",
-			SUFFIX_ignoreClients = ".ignoreClients",
-			SUFFIX_ignoreTables = ".ignoreTables",
-			SUFFIX_modifyCharacterSet = ".modifyCharacterSet",
-			SUFFIX_modifyCollation = ".modifyCollation";
+		SUFFIX_createTables = ".createTables", 
+		SUFFIX_dropTables = ".dropTables",
+		SUFFIX_addColumns = ".addColumns", 
+		SUFFIX_deleteColumns = ".deleteColumns",
+		/*SUFFIX_modifyColumnLengths = ".modifyColumnLengths",*/
+		SUFFIX_modifyColumns = ".modifyColumns",
+		SUFFIX_addIndexes = ".addIndexes",
+		SUFFIX_dropIndexes = ".dropIndexes",
+		SUFFIX_modifyEngine = ".modifyEngine",
+		SUFFIX_ignoreClients = ".ignoreClients",
+		SUFFIX_ignoreTables = ".ignoreTables",
+		SUFFIX_modifyCharacterSet = ".modifyCharacterSet",
+		SUFFIX_modifyCollation = ".modifyCollation";
 
 	 
 	
@@ -110,6 +110,7 @@ public class SchemaUpdateOptions{
 		return this;
 	}
 
+	
 	/****************************** methods ******************************/
 
 	//	public boolean anyTrue(){
@@ -147,8 +148,6 @@ public class SchemaUpdateOptions{
 	}
 
 
-	
-	
 	/******************************* get/set *****************************/
 
 	public Boolean getCreateTables(){
