@@ -65,7 +65,7 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 	public List<Boolean> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(columnName);
-			if(ArrayTool.isEmpty(bytes)){ return ListTool.create(new Boolean(false)); }
+			if(ArrayTool.isEmpty(bytes)){ return ListTool.create(); }
 			return BooleanByteTool.fromBooleanByteArray(bytes, 0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

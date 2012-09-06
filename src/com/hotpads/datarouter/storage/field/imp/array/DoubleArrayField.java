@@ -66,7 +66,7 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 	public List<Double> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(columnName);
-			if(ArrayTool.isEmpty(bytes)){ return ListTool.create(new Double(0)); }
+			if(ArrayTool.isEmpty(bytes)){ return ListTool.create(); }
 			return DoubleByteTool.fromDoubleByteArray(bytes, 0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

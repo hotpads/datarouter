@@ -65,7 +65,7 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 	public List<Integer> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(columnName);
-			if(ArrayTool.isEmpty(bytes)){ return ListTool.create(new Integer(0)); }
+			if(ArrayTool.isEmpty(bytes)){ return ListTool.create(); }
 			return IntegerByteTool.fromIntegerByteArray(bytes, 0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
