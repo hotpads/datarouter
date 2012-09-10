@@ -136,7 +136,24 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 	public E fromBytesButDoNotSet(byte[] bytes, int offset){
 		int length = bytes.length - offset;
 		if(length == 0){ return null; }// hmm - can this handle empty strings?
+		//TODO use StringByteTool?
 		E e = sampleValue.fromPersistentString(new String(bytes, offset, length, StringByteTool.CHARSET_UTF8));
+		return e;
+	}
+	
+	@Override
+	public E fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
+		int lengthIncludingSeparator = numBytesWithSeparator(bytes, offset);
+		boolean lastByteIsSeparator = bytes[offset + lengthIncludingSeparator - 1] == SEPARATOR;
+		int lengthWithoutSeparator = lengthIncludingSeparator;
+		if(lastByteIsSeparator){
+			--lengthWithoutSeparator;
+		}
+		if (lengthWithoutSeparator == -1){
+			lengthWithoutSeparator = 0;
+		}
+		String stringValue = StringByteTool.fromUtf8Bytes(bytes, offset, lengthWithoutSeparator);
+		E e = sampleValue.fromPersistentString(stringValue);
 		return e;
 	}
 

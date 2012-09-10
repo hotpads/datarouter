@@ -328,9 +328,9 @@ implements HBasePhysicalNode<PK,D>,
 					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }
 					managedResultScanner = hTable.getScanner(scan);
 					List<Result> results = ListTool.createArrayList();
-					for(Result rowKey : managedResultScanner){
-						if(rowKey.isEmpty()){ continue; }
-						results.add(rowKey);
+					for(Result row : managedResultScanner){
+						if(row.isEmpty()){ continue; }
+						results.add(row);
 						if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){ break; }
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}

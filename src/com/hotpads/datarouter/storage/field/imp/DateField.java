@@ -3,10 +3,13 @@ package com.hotpads.datarouter.storage.field.imp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
@@ -46,7 +49,7 @@ public class DateField extends BasePrimitiveField<Date>{
 			if(value==null){
 				ps.setNull(parameterIndex, Types.DATE);
 			}else{
-				ps.setTimestamp(parameterIndex, new java.sql.Timestamp(this.value.getTime())); //sql timestamp is MySQL's datetime
+				ps.setTimestamp(parameterIndex, new Timestamp(this.value.getTime())); //sql timestamp is MySQL's datetime
 			}
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -85,6 +88,19 @@ public class DateField extends BasePrimitiveField<Date>{
 	
 	@Override
 	public String getSqlEscaped(){
-		return "'"+value.toString()+"'";
+		return "'" + new Timestamp(this.value.getTime()).toString()+ "'";
+	}
+	
+	/** tests ****************************************************************/
+	public static class Tests {
+		@Test public void testGetSqlEscaped() throws Exception{
+			//mysql date format is yyyy-MM-dd HH:mm:ss http://dev.mysql.com/doc/refman/5.1/en/datetime.html
+			//jdbc timestamp escape format" yyyy-MM-dd HH:mm:ss.n where n is nanoseconds (not representable with Date)
+			// sql insert with a string including the nanosecond value works in mysql 
+			String dateString = "2002-11-05 13:14:01";
+			Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateString);
+			DateField testField = new DateField("test",date);
+			Assert.assertEquals("'"+dateString+".0'", testField.getSqlEscaped());
+		}
 	}
 }
