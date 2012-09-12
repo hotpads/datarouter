@@ -83,7 +83,7 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 	}
 	
 	public static void main(String[] args){
-		DoubleArrayField testField = new DoubleArrayField("stuff", ListTool.create(new Double(-5.00001), new Double(203920.555)));
+		DoubleArrayField testField = new DoubleArrayField("stuff", ListTool.create(new Double(-5.00001), new Double(203920.555),  null));
 		for(Double num : testField.value){
 			System.out.println(num);
 		}
