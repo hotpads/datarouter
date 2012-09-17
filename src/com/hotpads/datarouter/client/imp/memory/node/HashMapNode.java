@@ -5,7 +5,7 @@ import java.util.Collection;
 import com.hotpads.datarouter.client.imp.memory.MemoryClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.op.raw.MapStorage;
+import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -15,7 +15,7 @@ import com.hotpads.util.core.CollectionTool;
 
 public class HashMapNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 extends HashMapReaderNode<PK,D,F>
-implements MapStorage<PK,D>{
+implements MapStorageNode<PK,D>{
 	
 	public HashMapNode(Class<D> databeanClass, Class<F> fielderClass, 
 			DataRouter router, MemoryClient client){

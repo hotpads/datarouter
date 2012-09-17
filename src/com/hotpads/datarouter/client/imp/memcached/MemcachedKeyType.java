@@ -17,6 +17,7 @@ public enum MemcachedKeyType implements HpEnum{
 	EXPERIMENT(11, "experiment", "Experiment"),
 	ROBOT_DETECTOR(12, "robotDetector", "Robot Detector"),
 	EXCEPTIONAL_IP(13,"exceptionalIP","Exceptional IP"),
+	AREABOUNDARIES(14, "areaBoundaries", "Area Boundaries")
 	;
 	
 	private Integer value;

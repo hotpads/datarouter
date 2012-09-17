@@ -36,7 +36,7 @@ extends BaseNode<PK,D,F>{
 		super(backingNode.getDatabeanType(), (Class<F>)backingNode.getFieldInfo().getFielderClass());
 		this.cachingNode = cacheNode;
 		this.backingNode = backingNode;
-		this.name = fieldInfo.getDatabeanClass().getSimpleName()+"."+this.getClass().getSimpleName();
+		this.name = fieldInfo.getDatabeanClass().getSimpleName()+"."+getClass().getSimpleName()+"."+System.identityHashCode(this);
 	}
 
 	
