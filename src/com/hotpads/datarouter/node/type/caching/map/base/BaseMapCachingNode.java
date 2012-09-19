@@ -36,7 +36,9 @@ extends BaseNode<PK,D,F>{
 		super(backingNode.getDatabeanType(), (Class<F>)backingNode.getFieldInfo().getFielderClass());
 		this.cachingNode = cacheNode;
 		this.backingNode = backingNode;
-		this.name = fieldInfo.getDatabeanClass().getSimpleName()+"."+getClass().getSimpleName()+"."+System.identityHashCode(this);
+		//use the inputs to make a unique name.  randomness will not place nicely with the counters
+		this.name = backingNode.getName()+".cache";
+//		this.name = fieldInfo.getDatabeanClass().getSimpleName()+"."+getClass().getSimpleName()+"."+System.identityHashCode(this);
 	}
 
 	
