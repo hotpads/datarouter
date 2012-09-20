@@ -121,6 +121,32 @@ public class JdbcTool {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
+	List<D> selectDatabeansCleaned(Session session, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql, String...values){
+//		System.out.println(sql);
+		try{
+			PreparedStatement ps = session.connection().prepareStatement(sql.toString());
+			int i = 1;
+			for(String value : values){
+				ps.setString(i, value);
+				i++;
+			}
+			ps.execute();
+			ResultSet rs = ps.getResultSet();
+			List<D> databeans = ListTool.createArrayList();
+			while(rs.next()){
+				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
+						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
+				databeans.add(databean);
+			}
+			return databeans;
+		}catch(Exception e){
+			String message = "error executing sql:"+sql.toString();
+			throw new DataAccessException(message, e);
+		}
+	}
+	
 	public static Long count(Session session, String sql) {
 		try {
 			PreparedStatement ps = session.connection().prepareStatement(sql);
