@@ -52,9 +52,22 @@ public class Mav {
 	
 	/********************** methods *******************************************/
 	
+	/**
+	 * Backwards compatible method name for Spring framework.
+	 */
+	@Deprecated
 	public Mav addObject(String key, Object value){
 		model.put(key, value);
 		return this;
+	}
+	
+	/**
+	 * This method returns the value you give it to enable things like fetching an object from the database and getting
+	 * a reference to it in one line.
+	 */
+	public <T> T put(String key, T value){
+		model.put(key, value);
+		return value;
 	}
 	
 	public boolean isRedirect(){
