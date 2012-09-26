@@ -124,13 +124,10 @@ public class JdbcTool {
 	@SuppressWarnings("deprecation")
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 	List<D> selectDatabeansCleaned(Session session, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql, String...values){
-//		System.out.println(sql);
 		try{
 			PreparedStatement ps = session.connection().prepareStatement(sql.toString());
-			int i = 1;
-			for(String value : values){
-				ps.setString(i, value);
-				i++;
+			for(int i = 0; i < values.length; i++){
+				ps.setString(i+1, values[i]);
 			}
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
