@@ -46,6 +46,11 @@ public class SQuadStringField extends BasePrimitiveField<SQuad>{
 	public String getValueString(){
 		return value==null ? null : value.getMicrosoftStyleString();
 	}
+
+	@Override
+	public String getSqlEscaped(){
+		return "'"+value.getMicrosoftStyleString()+"'";
+	}
 	
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
