@@ -39,7 +39,7 @@ public class FieldTool{
 	public static void appendCsvColumnNames(StringBuilder sb, Iterable<Field<?>> fields){
 		int appended = 0;
 		for(Field<?> field : IterableTool.nullSafe(fields)){
-			if(appended > 0){ sb.append(", "); }
+			if(appended > 0){ sb.append(","); }
 			sb.append(field.getColumnName());
 			++appended;
 		}
@@ -54,7 +54,7 @@ public class FieldTool{
 	public static void appendCsvValues(StringBuilder sb, Iterable<Field<?>> fields){
 		int appended = 0;
 		for(Field<?> field : IterableTool.nullSafe(fields)){
-			if(appended > 0){ sb.append(", "); }
+			if(appended > 0){ sb.append(","); }
 			sb.append(field.getSqlEscaped());
 			++appended;
 		}
