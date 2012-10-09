@@ -38,6 +38,15 @@ public class FieldTool{
 			++appended;
 		}
 	}
+	
+	public static void appendCsvColumnNamesWithPrefix(String prefix, StringBuilder sb, Iterable<Field<?>> fields){
+		int appended = 0;
+		for(Field<?> field : IterableTool.nullSafe(fields)){
+			if(appended > 0){ sb.append(", "); }
+			sb.append(prefix + "." + field.getColumnName());
+			++appended;
+		}
+	}
 
 	public static List<String> getFieldNames(List<Field<?>> fields){
 		List<String> fieldNames = ListTool.createLinkedList();
