@@ -29,12 +29,42 @@ public class FieldTool{
 		}
 		return count;
 	}
+
+	public static String getCsvColumnNames(Iterable<Field<?>> fields){
+		StringBuilder sb = new StringBuilder();
+		appendCsvColumnNames(sb, fields);
+		return sb.toString();
+	}
 	
 	public static void appendCsvColumnNames(StringBuilder sb, Iterable<Field<?>> fields){
 		int appended = 0;
 		for(Field<?> field : IterableTool.nullSafe(fields)){
-			if(appended > 0){ sb.append(", "); }
+			if(appended > 0){ sb.append(","); }
 			sb.append(field.getColumnName());
+			++appended;
+		}
+	}
+	
+	public static void appendCsvColumnNamesWithPrefix(String prefix, StringBuilder sb, Iterable<Field<?>> fields){
+		int appended = 0;
+		for(Field<?> field : IterableTool.nullSafe(fields)){
+			if(appended > 0){ sb.append(", "); }
+			sb.append(prefix + "." + field.getColumnName());
+			++appended;
+		}
+	}
+
+	public static String getCsvValues(Iterable<Field<?>> fields){
+		StringBuilder sb = new StringBuilder();
+		appendCsvValues(sb, fields);
+		return sb.toString();
+	}
+	
+	public static void appendCsvValues(StringBuilder sb, Iterable<Field<?>> fields){
+		int appended = 0;
+		for(Field<?> field : IterableTool.nullSafe(fields)){
+			if(appended > 0){ sb.append(","); }
+			sb.append(field.getSqlEscaped());
 			++appended;
 		}
 	}

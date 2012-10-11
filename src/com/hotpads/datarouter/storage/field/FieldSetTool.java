@@ -62,6 +62,21 @@ public class FieldSetTool{
 		return outs;
 	}
 	
+//	public static String getCsv(FieldSet<?> fieldSet){
+//		StringBuilder sb = new StringBuilder();
+//		for(Field<?> field : fieldSet.getFields()){
+//			if(sb.length() > 0){ sb.append(","); }
+//			String value = field.getSqlEscaped();
+//			boolean containsQuotes = value.contains("\"");
+//			if(containsQuotes){
+//				sb.append("\""+value+"\"");
+//			}else{
+//				sb.append(value);
+//			}
+//		}
+//		return sb.toString();
+//	}
+	
 	
 	/***************************** construct fieldsets using reflection ***************************/
 
