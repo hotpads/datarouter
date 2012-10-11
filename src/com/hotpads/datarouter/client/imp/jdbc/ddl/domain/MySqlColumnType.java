@@ -2,6 +2,9 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
@@ -50,7 +53,10 @@ public enum MySqlColumnType{
 	ENUM(true), 
 	SET(true);
 	
-	
+	private static Map<String,MySqlColumnType> OTHER_NAME_TO_TYPE = Maps.newHashMap();
+	static{
+		OTHER_NAME_TO_TYPE.put("INT UNSIGNED", BIGINT);
+	}
 
 
 	/**************************** static **********************************/
@@ -86,7 +92,11 @@ public enum MySqlColumnType{
 				return type;
 			}
 		}
-		return null;
+		MySqlColumnType type = OTHER_NAME_TO_TYPE.get(upperCase);
+		if(type==null){
+			throw new NullPointerException("Unparseable type: "+a);
+		}
+		return type;
 	}
 	
 	public static List<String> getAllColumnTypeNames(){

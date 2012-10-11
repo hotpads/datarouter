@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,15 +53,13 @@ public class ScatteringPrefixIntegrationTests{
 	public static void init() throws IOException{	
 		
 		if(clientTypes.contains(ClientType.hibernate)){
-			routerByClientType.put(
-					ClientType.hibernate, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, ScatteringPrefixIntegrationTests.class));
+			routerByClientType.put(ClientType.hibernate, new SortedBasicNodeTestRouter(
+					DRTestConstants.CLIENT_drTestHibernate0, ScatteringPrefixIntegrationTests.class));
 		}
 
 		if(clientTypes.contains(ClientType.hbase)){
-			routerByClientType.put(
-					ClientType.hbase, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, ScatteringPrefixIntegrationTests.class));
+			routerByClientType.put(ClientType.hbase, new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase,
+					ScatteringPrefixIntegrationTests.class));
 		}
 		
 		for(BasicNodeTestRouter router : routerByClientType.values()){
@@ -88,7 +87,8 @@ public class ScatteringPrefixIntegrationTests{
 			for(int b=0; b < BATCH_SIZE; ++b){
 				String prefix = PREFIXES.get(b % PREFIXES.size());
 				long id = a * BATCH_SIZE + b;
-				toSave.add(new ScatteringPrefixBean(prefix, id, "abc", (int)id % ScatteringPrefixBeanScatterer.NUM_SHARDS));
+				toSave.add(new ScatteringPrefixBean(prefix, id, "abc", (int)id
+						% ScatteringPrefixBeanScatterer.NUM_SHARDS));
 			}
 			//save them every batch to avoid a huge put
 			routerToReset.scatteringPrefixBean().putMulti(toSave, 
@@ -115,7 +115,14 @@ public class ScatteringPrefixIntegrationTests{
 	}
 	
 	
-	/********************** junit methods *********************************************/
+	/********************** setup methods *********************************************/
+	
+	@Before
+	public void setUp(){
+		resetTable(router);
+	}
+	
+	/*************************** tests *********************************************/
 	
 	@Test
 	public synchronized void testGetAll(){
