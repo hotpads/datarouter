@@ -18,7 +18,6 @@ import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt8Field;
 import com.hotpads.datarouter.storage.prefix.BaseScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
-import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.ListTool;
 
 

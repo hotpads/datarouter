@@ -66,11 +66,16 @@ public class StringField extends BaseField<String>{
 		return value;
 	}
 
+	@Override
 	public String getSqlEscaped(){
-		if(value==null){
+		return escapeString(value);
+	}
+	
+	public static String escapeString(final String s){
+		if(s==null){
 			return "null";
 		}
-		String stringValue = (String)value;
+		String stringValue = s;
 		//replace \ with \\
 		stringValue = RegexTool.BACKSLASH_PATTERN.matcher(stringValue)
 						.replaceAll(Matcher.quoteReplacement("\\\\"));
