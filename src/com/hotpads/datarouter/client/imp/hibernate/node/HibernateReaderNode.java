@@ -147,7 +147,8 @@ implements MapStorageReader<PK,D>,
 				public Object run(Session session) {
 					if(fieldInfo.getFieldAware()){
 						DRCounters.incPrefixClientNode("jdbc get", clientName, name);
-						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields());
+						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields(), 
+								fieldInfo.getPrimaryKeyFields());
 						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
@@ -403,7 +404,7 @@ implements MapStorageReader<PK,D>,
 					//TODO undefined behavior on trailing nulls
 					if(fieldInfo.getFieldAware()){
 						String sql = SqlBuilder.getWithPrefixes(config, tableName, fieldInfo.getFields(), lookups, 
-								wildcardLastField);
+								wildcardLastField, fieldInfo.getPrimaryKeyFields());
 						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
@@ -441,7 +442,8 @@ implements MapStorageReader<PK,D>,
 					if(fieldInfo.getFieldAware()){
 						Config nullSafeConfig = Config.nullSafe(config);
 						nullSafeConfig.setLimit(1);
-						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields());
+						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields(), fieldInfo
+								.getPrimaryKeyFields());
 						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return CollectionTool.getFirst(result);
 					}else{
@@ -470,7 +472,8 @@ implements MapStorageReader<PK,D>,
 					if(fieldInfo.getFieldAware()){
 						Config nullSafeConfig = Config.nullSafe(config);
 						nullSafeConfig.setLimit(1);
-						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getPrimaryKeyFields());
+						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getPrimaryKeyFields(), fieldInfo
+								.getPrimaryKeyFields());
 						List<PK> result = JdbcTool.selectPrimaryKeys(session, fieldInfo, sql);
 						return CollectionTool.getFirst(result);
 					}else{
@@ -518,7 +521,7 @@ implements MapStorageReader<PK,D>,
 				public Object run(Session session) {
 					if(fieldInfo.getFieldAware()){
 						String sql = SqlBuilder.getWithPrefixes(config, tableName, fieldInfo.getFields(), prefixes, 
-								wildcardLastField);
+								wildcardLastField, fieldInfo.getPrimaryKeyFields());
 						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
@@ -581,7 +584,8 @@ implements MapStorageReader<PK,D>,
 					if(fieldInfo.getFieldAware()){
 						List<Field<?>> fieldsToSelect = keysOnly ? fieldInfo.getPrimaryKeyFields() 
 								: fieldInfo.getFields();
-						String sql = SqlBuilder.getInRange(config, tableName, fieldsToSelect, range);
+						String sql = SqlBuilder.getInRange(config, tableName, fieldsToSelect, range, fieldInfo
+								.getPrimaryKeyFields());
 						List<? extends FieldSet<?>> result;
 						if(keysOnly){
 							result = JdbcTool.selectPrimaryKeys(session, fieldInfo, sql);
@@ -643,8 +647,9 @@ implements MapStorageReader<PK,D>,
 			new HibernateTask() {
 				public Object run(Session session) {
 					if(fieldInfo.getFieldAware()){
-						String sql = SqlBuilder.getWithPrefixInRange(config, tableName, fieldInfo.getFields(), 
-								prefix, wildcardLastField, start, startInclusive, null, false);
+						String sql = SqlBuilder.getWithPrefixInRange(config, tableName, fieldInfo.getFields(), prefix,
+								wildcardLastField, start, startInclusive, null, false, 
+								fieldInfo.getPrimaryKeyFields());
 						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{

@@ -10,7 +10,7 @@ import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
 import com.hotpads.util.wal.WriteAheadLog;
 import com.hotpads.util.wal.imp.file.FileRollingWal;
 
-public class WalEncoderTest{
+public class WalEncoderTester{
 	WalEncoder walEncoder;
 	WriteAheadLog wal;
 	private String directoryPath = "/tmp/WAL-tests/WalEncoder/";
@@ -25,11 +25,11 @@ public class WalEncoderTest{
 		wal.delete();
 	}
 
-	@Test
-	public void test(){
-		Databean<?,?> databean = new BackupBean("String","String2",123,"String3","String4",1L,"String5",3D);
-		Config config = null;
-		walEncoder.put(databean, config);
-	}
+//	@Test
+//	public void test(){
+//		Databean<?,?> databean = new BackupBean("String","String2",123,"String3","String4",1L,"String5",3D);
+//		Config config = null;
+//		walEncoder.put(databean, config);
+//	}
 
 }
