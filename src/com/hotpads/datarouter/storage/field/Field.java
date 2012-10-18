@@ -10,13 +10,12 @@ extends Comparable<Field<T>>, ByteAwareField<T>, SqlField<T>{//TODO remove SqlFr
 
 	Field<T> setName(String name);
 	String getName();
-
-	Field<T> setValue(T value);
-	T getValue();
 	
 	Field<T> setColumnName(String columnName);
 	String getColumnName();
 
+	Field<T> setValue(T value);
+	T getValue();
 	
 	/*************** useful methods *************************/
 	void cacheReflectionInfo(FieldSet<?> sampleFieldSet);

@@ -18,7 +18,9 @@ import com.hotpads.util.core.collections.Range;
 public class SqlBuilder{
 	
 	/*************************** primary methods ***************************************/
-	public static String getCount(Config config, String tableName, List<Field<?>> fields, Collection<? extends FieldSet<?>> keys) {
+	
+	public static String getCount(Config config, String tableName, List<Field<?>> fields, 
+			Collection<? extends FieldSet<?>> keys) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select count(*) from " + tableName);
 		if (fields.size() > 0) {
@@ -28,10 +30,11 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 	
-	public static String getAll(
-			Config config, String tableName, List<Field<?>> selectFields){
+	public static String getAll(Config config, String tableName, List<Field<?>> selectFields, 
+			List<Field<?>> orderByFields){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
+		addOrderByClause(sql, orderByFields);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
@@ -72,13 +75,13 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 	
-	public static String getWithPrefixes(
-			Config config, String tableName, List<Field<?>> selectFields, 
-			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField){
+	public static String getWithPrefixes(Config config, String tableName, List<Field<?>> selectFields,
+			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField, List<Field<?>> orderByFields){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
 		sql.append(" where ");
 		addPrefixWhereClauseDisjunction(sql, keys, wildcardLastField);
+		addOrderByClause(sql, orderByFields);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
@@ -94,20 +97,21 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 	
-	public static <T extends FieldSet<T>> String getInRange(
-			Config config, String tableName, List<Field<?>> selectFields, Range<T> range){
+	public static <T extends FieldSet<T>>String getInRange(Config config, String tableName,
+			List<Field<?>> selectFields, Range<T> range, List<Field<?>> orderByFields){
 		return getInRange(config, tableName, selectFields, range.getStart(), range.getStartInclusive(), range.getEnd(),
-				range.getEndInclusive());
+				range.getEndInclusive(), orderByFields);
 	}
 	
-	public static String getInRange(
-			Config config, String tableName, List<Field<?>> selectFields, 
-			FieldSet<?> start, boolean startInclusive, 
-			FieldSet<?> end, boolean endInclusive){
+	public static String getInRange(Config config, String tableName, List<Field<?>> selectFields, FieldSet<?> start,
+			boolean startInclusive, FieldSet<?> end, boolean endInclusive, List<Field<?>> orderByFields){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
-		if(needsRangeWhereClause(start,end)){ sql.append(" where "); }
+		if(needsRangeWhereClause(start, end)){
+			sql.append(" where ");
+		}
 		addRangeWhereClause(sql, start, startInclusive, end, endInclusive);
+		addOrderByClause(sql, orderByFields);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
@@ -116,7 +120,7 @@ public class SqlBuilder{
 			Config config, String tableName, List<Field<?>> selectFields, 
 			FieldSet<?> prefix, boolean wildcardLastField,
 			FieldSet<?> start, boolean startInclusive, 
-			FieldSet<?> end, boolean endInclusive){
+			FieldSet<?> end, boolean endInclusive, List<Field<?>> orderByFields){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
 		sql.append(" where ");
@@ -128,6 +132,7 @@ public class SqlBuilder{
 			addRangeWhereClause(sql, start, startInclusive, end, endInclusive);
 			sql.append(")");
 		}
+		addOrderByClause(sql, orderByFields);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
@@ -261,6 +266,17 @@ public class SqlBuilder{
 				}
 				sql.append(")");
 			}
+		}
+	}
+	
+	public static void addOrderByClause(StringBuilder sql, List<Field<?>> orderByFields){
+		if(CollectionTool.isEmpty(orderByFields)){ return; }
+		sql.append(" order by ");
+		int counter = 0;
+		for(Field<?> field : orderByFields){
+			if(counter > 0){ sql.append(", "); }
+			sql.append(field.getColumnName()+" asc");
+			++counter;
 		}
 	}
 	

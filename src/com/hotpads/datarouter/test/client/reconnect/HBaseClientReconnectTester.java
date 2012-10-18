@@ -24,8 +24,8 @@ public class HBaseClientReconnectTester {
 	Logger logger = Logger.getLogger(HBaseClientReconnectTester.class);
 	
 	@DoNotCommit//will loop forever in the test suite
-	static boolean ENABLED = true;
-//	static boolean ENABLED = false;
+//	static boolean ENABLED = true;
+	static boolean ENABLED = false;
 	
 	static BasicClientTestRouter router;
 	static TxnBeanKey testReconnectBeanKey = new TxnBeanKey("testReconnectBean");
@@ -46,7 +46,8 @@ public class HBaseClientReconnectTester {
 		resetTable();
 	}
 
-	@Test public void testReconnect(){
+	@Test 
+	public void testReconnect(){
 		if(!ENABLED){ return; }
 		int periodMs = 5000;
 		while(true){
