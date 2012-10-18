@@ -3,6 +3,7 @@ package com.hotpads.datarouter.storage.field;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.hotpads.util.core.CollectionTool;
@@ -64,7 +65,9 @@ public class FieldTool{
 		int appended = 0;
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			if(appended > 0){ sb.append(","); }
-			sb.append(field.getSqlEscaped());
+			String valueString = field.getValueString();
+			if(StringTool.isEmpty(valueString)){ continue; }
+			sb.append(StringEscapeUtils.escapeCsv(valueString));
 			++appended;
 		}
 	}
