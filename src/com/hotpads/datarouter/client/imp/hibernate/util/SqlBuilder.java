@@ -269,7 +269,8 @@ public class SqlBuilder{
 		}
 	}
 	
-	protected static void addOrderByClause(StringBuilder sql, List<Field<?>> orderByFields){
+	public static void addOrderByClause(StringBuilder sql, List<Field<?>> orderByFields){
+		if(CollectionTool.isEmpty(orderByFields)){ return; }
 		sql.append(" order by ");
 		int counter = 0;
 		for(Field<?> field : orderByFields){
