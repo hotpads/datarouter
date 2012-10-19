@@ -479,6 +479,10 @@ public class RequestTool {
 		return request.getHeader("referer");
 	}
 	
+	public static String getUserAgent(HttpServletRequest request){
+		return request.getHeader("user-agent");
+	}
+	
 	/** tests *****************************************************************/
 	public static class Tests {
 		@Test public void testCheckDouble(){
