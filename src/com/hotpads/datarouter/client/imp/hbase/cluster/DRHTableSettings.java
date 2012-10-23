@@ -6,8 +6,6 @@ import java.util.SortedSet;
 import com.hotpads.util.core.SetTool;
 
 public class DRHTableSettings{
-
-	public static final Boolean HBASE_94 = true;
 	
 	public static final String
 		BLOCKCACHE = "BLOCKCACHE",
@@ -26,10 +24,8 @@ public class DRHTableSettings{
 		COLUMN_SETTINGS.add(BLOCKSIZE);
 		COLUMN_SETTINGS.add(BLOOMFILTER);
 		COLUMN_SETTINGS.add(COMPRESSION);
-		if(HBASE_94) {
-			COLUMN_SETTINGS.add(DATA_BLOCK_ENCODING);
-			COLUMN_SETTINGS.add(ENCODE_ON_DISK);
-		}
+		COLUMN_SETTINGS.add(DATA_BLOCK_ENCODING);
+		COLUMN_SETTINGS.add(ENCODE_ON_DISK);
 		COLUMN_SETTINGS.add(IN_MEMORY);
 		COLUMN_SETTINGS.add(TTL);
 		COLUMN_SETTINGS.add(VERSIONS);
@@ -38,7 +34,11 @@ public class DRHTableSettings{
 	public static final Set<String>
 		SET_BLOOMFILTER = SetTool.create("NONE", "ROW", "ROWCOL"),
 		SET_COMPRESSION = SetTool.create("NONE", "LZO", "GZ"),
-		SET_DATA_BLOCK_ENCODING = SetTool.create("NONE", "PREFIX", "DIFF", "FAST_DIFF", "TRIE");
+		SET_DATA_BLOCK_ENCODING = SetTool.create("NONE", "PREFIX", "DIFF", "FAST_DIFF");
+	
+	public static final String
+		DEFAULT_DATA_BLOCK_ENCODING = "NONE",
+		DEFAULT_ENCODE_ON_DISK = "true";
 		
 	
 	public static void validateColumnFamilySetting(String setting, String value) {
