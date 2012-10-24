@@ -28,6 +28,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.util.core.ArrayTool;
+import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.number.RandomTool;
@@ -90,9 +91,9 @@ public class HTableExecutorServicePoolTester {
 				future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
 			} catch(TimeoutException e){
 //				logger.warn("progress="+tasks.get(i).progress);
-//				e.printStackTrace();
+//				logger.error(ExceptionTool.getStackTraceAsString(e));
 			} catch(RuntimeException e){
-				e.printStackTrace();
+				logger.error(ExceptionTool.getStackTraceAsString(e));
 			} catch(ExecutionException e){
 				if(e.getCause() instanceof DataAccessException) {
 					DataAccessException purposefulException = (DataAccessException)e.getCause();
@@ -102,10 +103,10 @@ public class HTableExecutorServicePoolTester {
 						++npes;
 					}
 				}else {
-					e.printStackTrace();
+					logger.error(ExceptionTool.getStackTraceAsString(e));
 				}
 			} catch(InterruptedException e){
-				e.printStackTrace();
+				logger.error(ExceptionTool.getStackTraceAsString(e));
 			}
 
 			if(i % 10000 == 0) {

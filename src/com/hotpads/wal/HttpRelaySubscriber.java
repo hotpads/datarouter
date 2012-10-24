@@ -5,29 +5,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.UnknownServiceException;
-import java.util.List;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
-import com.hotpads.util.core.map.GridTool;
-import com.hotpads.util.wal.WalMessage;
+import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.wal.WalPosition;
 import com.hotpads.util.wal.WalSubscriber;
 import com.hotpads.util.wal.imp.BaseWalSubscriber;
 
 public class HttpRelaySubscriber extends BaseWalSubscriber{
+	protected final Log logger = LogFactory.getLog(getClass());
 	
 	/************************** fields *****************************/
-	protected static final Log logger = LogFactory.getLog(HttpRelaySubscriber.class);
+	
 	protected String destinationUrl;
 	//http://hc.apache.org/httpclient-3.x/apidocs/org/apache/commons/httpclient/HttpClient.html
 	protected HttpClient client;
@@ -63,7 +61,7 @@ public class HttpRelaySubscriber extends BaseWalSubscriber{
 	@Override
 	public void run(){
 		//send to remote host and return whether it was successful or not
-		System.out.println("start run method of the subscriber ");
+		logger.debug("start run method of the subscriber ");
 		
 		//List<WalMessage> messages = getNewMessages();
 		//if(messages.size()<1){ return ; }
@@ -79,9 +77,10 @@ public class HttpRelaySubscriber extends BaseWalSubscriber{
 		
 		try{
 			int responseCode = httpClient.executeMethod(post);
-			System.out.println("The response code received is : "+responseCode);
-			if(responseCode != 200 && responseCode != 303) 
+			logger.debug("The response code received is : "+responseCode);
+			if(responseCode != 200 && responseCode != 303) {
 				throw new UnknownServiceException("Received "+responseCode+" response.");
+			}
 			InputStream in = post.getResponseBodyAsStream();
 			
 			 BufferedReader reader = new BufferedReader(new InputStreamReader(post.getResponseBodyAsStream()));
@@ -91,18 +90,18 @@ public class HttpRelaySubscriber extends BaseWalSubscriber{
 		        while ((line = reader.readLine()) != null) {
 		            response.append(line);
 		        }
-		        System.out.println("the response received from the post method is : " +response);
+		        logger.debug("the response received from the post method is : " +response);
 		        reader.close();
 		        post.releaseConnection();
 		}catch(HttpException e){
-			e.printStackTrace();
+			logger.error(ExceptionTool.getStackTraceAsString(e));
 		}catch(IOException e){
-			e.printStackTrace();
+			logger.error(ExceptionTool.getStackTraceAsString(e));
 		}
 		
-		System.out.println("Finished appending the messages to the target wal");
+		logger.debug("Finished appending the messages to the target wal");
 		//logPosition = subscriptionManager.getManagedWal().getHead();
-		System.out.println("the new logPosition of the RelaySubscriber is :" + logPosition);
+		logger.debug("the new logPosition of the RelaySubscriber is :" + logPosition);
 	}
 	
 	@Override

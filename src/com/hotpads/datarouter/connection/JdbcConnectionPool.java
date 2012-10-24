@@ -4,11 +4,17 @@ import java.beans.PropertyVetoException;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateOptions;
+import com.hotpads.util.core.ExceptionTool;
+
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
 
 public class JdbcConnectionPool{
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	private String name;
 	private ComboPooledDataSource pool;
@@ -90,7 +96,7 @@ public class JdbcConnectionPool{
 		try{
 			DataSources.destroy(getDataSource());
 		}catch(SQLException e){
-			e.printStackTrace();
+			logger.error(ExceptionTool.getStackTraceAsString(e));
 		}
 	}
 	
