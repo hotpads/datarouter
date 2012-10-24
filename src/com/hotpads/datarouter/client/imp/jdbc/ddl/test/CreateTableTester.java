@@ -46,8 +46,6 @@ public class CreateTableTester{
 //			System.out.println("/*******************  OUTPUT TABLE **********************************/");
 //			System.out.println(outputTable);
 //			 
-//		}catch(Exception e){
-//			e.printStackTrace();			
 //		}finally{
 //			if(stmt!=null){ stmt.close(); }
 //			if(conn!=null){ conn.close(); }

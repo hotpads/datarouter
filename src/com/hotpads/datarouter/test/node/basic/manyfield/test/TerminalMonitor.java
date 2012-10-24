@@ -25,6 +25,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
+import com.hotpads.util.core.ExceptionTool;
+
 /**
  * Examples 4.4 through 4.6.
  */
@@ -54,7 +56,7 @@ public class TerminalMonitor {
     try {
       driver = DriverManager.getDriver(url);
     } catch (SQLException e) {
-      e.printStackTrace();
+      System.err.println(ExceptionTool.getStackTraceAsString(e));
       System.err.println("Unable to find a driver for the specified "
           + "URL.");
       System.err.println("Make sure you passed the jdbc.drivers "
@@ -65,7 +67,7 @@ public class TerminalMonitor {
     try {
       required = driver.getPropertyInfo(url, props);
     } catch (SQLException e) {
-      e.printStackTrace();
+      System.err.println(ExceptionTool.getStackTraceAsString(e));
       System.err.println("Unable to get driver property information.");
       return;
     }
@@ -89,7 +91,7 @@ public class TerminalMonitor {
         }
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      System.err.println(ExceptionTool.getStackTraceAsString(e));
       System.err.println("Unable to read property info.");
       return;
     }
@@ -97,7 +99,7 @@ public class TerminalMonitor {
     try {
       connection = DriverManager.getConnection(url, props);
     } catch (SQLException e) {
-      e.printStackTrace();
+      System.err.println(ExceptionTool.getStackTraceAsString(e));
       System.err.println("Unable to connect to the database.");
     }
     connected = true;
@@ -117,7 +119,7 @@ public class TerminalMonitor {
       try {
         tmp = input.readLine();
       } catch (java.io.IOException e) {
-        e.printStackTrace();
+        System.err.println(ExceptionTool.getStackTraceAsString(e));
         return;
       }
       // Get rid of extra space in the command

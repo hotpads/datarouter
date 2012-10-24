@@ -18,8 +18,6 @@ public class TableDropper{
 //			stmt.execute("drop table Cheese");
 //			stmt.execute("drop table if exists Inquiry;");	
 			stmt.execute("alter table Cheese \n" + "add column blabla BOOLEAN DEFAULT NULL;");
-		}catch(Exception e){
-			e.printStackTrace();			
 		}finally{
 			if(stmt!=null){ stmt.close(); }
 			if(conn!=null){ conn.close(); }

@@ -85,9 +85,6 @@ public class TestDdl{
 				System.out.println(" Column Name:" + indexList.getString("COLUMN_NAME"));
 			}
 	        indexList.close(); 
-	        
-		}catch(Exception e){
-			e.printStackTrace();			
 		}finally{
 			if(stmt!=null){ stmt.close(); }
 			if(conn!=null){ conn.close(); }

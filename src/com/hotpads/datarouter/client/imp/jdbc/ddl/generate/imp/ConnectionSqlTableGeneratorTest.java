@@ -21,9 +21,8 @@ public class ConnectionSqlTableGeneratorTest{
 //		//Statement st = null;
 //		List<String> tableNames = JdbcTool.showTables(connection);
 //		SchemaUpdateOptions options = new SchemaUpdateOptions().setAllFalse();
-//		try{
-//			//st = connection.createStatement();
-//			//ResultSet rs = st.executeQuery("");
+//		//st = connection.createStatement();
+//		//ResultSet rs = st.executeQuery("");
 ////			for(String tableName : tableNames){
 ////				ConnectionSqlTableGenerator executeConstructor = new ConnectionSqlTableGenerator(connection, tableName);
 ////				SqlTable executeCurrent = executeConstructor.generate();
@@ -32,13 +31,10 @@ public class ConnectionSqlTableGeneratorTest{
 ////				System.out.println(executeCurrent);
 ////				System.out.println("---------------------------------------------------------------------------------");
 ////			}
-//			ConnectionSqlTableGenerator constructor = new ConnectionSqlTableGenerator(connection, "BlockedContact");
-//			SqlTable current = constructor.generate();
-//			SqlTable requested = null;
-//			SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(options, current, requested, "BlockedContact");
-//		}catch(Exception e){
-//			e.printStackTrace();
-//		}
+//		ConnectionSqlTableGenerator constructor = new ConnectionSqlTableGenerator(connection, "BlockedContact");
+//		SqlTable current = constructor.generate();
+//		SqlTable requested = null;
+//		SqlAlterTableGenerator alterTableGenerator = new SqlAlterTableGenerator(options, current, requested, "BlockedContact");
 //		fail("Not yet implemented");
 	}
 
