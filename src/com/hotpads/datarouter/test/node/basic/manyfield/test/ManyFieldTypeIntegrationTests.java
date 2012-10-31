@@ -513,7 +513,7 @@ public class ManyFieldTypeIntegrationTests {
 		return ClientType.hibernate == clientType;
 	}
 
-	public boolean isHbase(){
+	public boolean isHBase(){
 		return ClientType.hbase == clientType;
 	}
 

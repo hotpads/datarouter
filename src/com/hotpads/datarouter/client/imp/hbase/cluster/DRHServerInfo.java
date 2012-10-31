@@ -4,11 +4,12 @@ import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.ServerName;
 
 public class DRHServerInfo{
+	
+	protected ServerName serverName;
+	protected HServerLoad hServerLoad;
 
 	protected String name;
 	protected String hostname;
-	protected ServerName serverName;
-	protected HServerLoad hServerLoad;
 	
 	
 	public DRHServerInfo(ServerName serverName, HServerLoad hServerLoad){
