@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
@@ -22,7 +23,7 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.profile.PhaseTimer;
 
-public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
+public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> implements Callable<Void>{
 	protected static Logger logger = Logger.getLogger(RestoreRegion.class);
 	
 	protected static final Config CONFIG_FAST_PUT_MULTI = new Config()
@@ -59,8 +60,6 @@ public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean
 			this.fieldByPrefixedName.put(field.getPrefixedName(), field);
 		}
 	}
-	
-	public abstract void execute();
 	
 	protected void importAndCloseInputStream(){
 		try{

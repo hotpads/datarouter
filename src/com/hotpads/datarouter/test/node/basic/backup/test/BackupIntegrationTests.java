@@ -200,7 +200,7 @@ public class BackupIntegrationTests{
 		//now read back in
 		RestoreRegionFromMemory<BackupBeanKey,BackupBean> restore = new RestoreRegionFromMemory<BackupBeanKey,BackupBean>(
 				backup.getResult(), BackupBean.class, router, node, false);
-		restore.execute();
+		restore.call();
 		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(node.getAll(null)));
 	}
 
@@ -219,7 +219,7 @@ public class BackupIntegrationTests{
 		//now read back in
 		RestoreRegionFromMemory<BackupBeanKey,BackupBean> restore = new RestoreRegionFromMemory<BackupBeanKey,BackupBean>(
 				backup.getResult(), BackupBean.class, router, node, true);
-		restore.execute();
+		restore.call();
 		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(node.getAll(null)));
 	}
 
@@ -248,7 +248,7 @@ public class BackupIntegrationTests{
 		
 		RestoreRegionFromMemory<BackupBeanKey,BackupBean> restore = new RestoreRegionFromMemory<BackupBeanKey,BackupBean>(
 				roundTripped, BackupBean.class, router, node, false);
-		restore.execute();
+		restore.call();
 		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(node.getAll(null)));
 	}
 	
@@ -301,7 +301,7 @@ public class BackupIntegrationTests{
 		//now read back in
 		String s3Key = BackupRegionToS3.getS3Key("test", router, node);
 		new RestoreRegionFromS3<BackupBeanKey,BackupBean>(
-				BackupRegionToS3.DEFAULT_BUCKET, s3Key, BackupBean.class, router, node, 100, false, true, gzip, true).execute();
+				BackupRegionToS3.DEFAULT_BUCKET, s3Key, BackupBean.class, router, node, 100, false, true, gzip, true).call();
 		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(node.getAll(null)));
 	}
 	

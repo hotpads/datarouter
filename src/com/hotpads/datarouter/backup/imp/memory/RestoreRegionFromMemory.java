@@ -32,8 +32,9 @@ extends RestoreRegion<PK,D>{
 	}
 	
 	@Override
-	public void execute(){
+	public Void call(){
 		importAndCloseInputStream();
+		return null;
 	}
 	
 }
