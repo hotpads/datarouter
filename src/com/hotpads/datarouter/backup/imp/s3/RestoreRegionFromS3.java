@@ -29,9 +29,8 @@ extends RestoreRegion<PK,D>{
 
 	protected String localPath;
 
-	public RestoreRegionFromS3(String s3Bucket, String s3Key, Class<D> cls, 
-			DataRouter router, MapStorageNode<PK,D> node, Integer putBatchSize, 
-			Boolean ignoreNullFields, Boolean downloadNewestCopy,
+	public RestoreRegionFromS3(String s3Bucket, String s3Key, Class<D> cls, DataRouter router,
+			MapStorageNode<PK,D> node, Integer putBatchSize, Boolean ignoreNullFields, Boolean downloadNewestCopy,
 			boolean gzip, boolean deleteLocalFile){
 		super(cls, router, node, putBatchSize, ignoreNullFields);
 		this.s3Bucket = s3Bucket;
@@ -46,8 +45,10 @@ extends RestoreRegion<PK,D>{
 		this.downloadNewestCopy = downloadNewestCopy;
 	}
 	
-	public void execute(){
+	@Override
+	public Void call(){
 		try{
+			logger.warn("starting restore of "+s3Key);
 			if(downloadNewestCopy){ downloadFromS3(); }
 			is = new FileInputStream(localPath);
 			if(gzip){
@@ -67,6 +68,7 @@ extends RestoreRegion<PK,D>{
 		}catch(IOException ioe){
 			throw new RuntimeException(ioe);
 		}
+		return null;
 	}
 	
 	protected void downloadFromS3() throws IOException{
