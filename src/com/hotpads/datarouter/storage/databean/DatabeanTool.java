@@ -28,6 +28,7 @@ public class DatabeanTool {
 		}
 	}
 	
+	@Deprecated//should specify fielder using below method
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> byte[] getBytes(D databean){
 		//always include zero-length fields in key bytes
 		byte[] keyBytes = FieldSetTool.getSerializedKeyValues(databean.getKeyFields(), true, false);
