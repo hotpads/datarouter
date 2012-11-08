@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.hibernate.node;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Collection;
 
 import org.hibernate.Session;
@@ -240,7 +241,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 			try{
 				session.save(entityName, databean);
 				session.flush();//seems like it tries to save 3 times before throwing an exception
-			}catch(Exception e){  
+			}catch(RuntimeException e){  
 				session.evict(databean);  //must evict or it will ignore future actions for the databean?
 				session.update(entityName, databean);
 			}
@@ -248,7 +249,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 			try{
 				session.update(entityName, databean);
 				session.flush();
-			}catch(Exception e){
+			}catch(RuntimeException e){
 				session.evict(databean);  //must evict or it will ignore future actions for the databean?
 				session.save(entityName, databean);
 			}
@@ -272,20 +273,22 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 		}else if(PutMethod.INSERT_OR_UPDATE == putMethod){
 			try{
 				jdbcInsert(connection, entityName, databean);
-			}catch(Exception e){  
+			}catch(RuntimeException e){  
+				//TODO this will not work inside a txn if not all of the rows already exist
 				jdbcUpdate(connection, entityName, databean);
 			}
 		}else if(PutMethod.UPDATE_OR_INSERT == putMethod){
 			try{
 				jdbcUpdate(connection, entityName, databean);
-			}catch(Exception e){
+			}catch(RuntimeException e){
+				//TODO this will not work inside a txn if some of the rows already exist
 				jdbcInsert(connection, entityName, databean);
 			}
 		}else if(PutMethod.MERGE == putMethod){
 			//not really a jdbc concept, but usually an update (?)
 			try{
 				jdbcUpdate(connection, entityName, databean);
-			}catch(Exception e){
+			}catch(RuntimeException e){
 				jdbcInsert(connection, entityName, databean);
 			}
 		}else{
@@ -341,7 +344,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 				++parameterIndex;
 			}
 			numUpdated = ps.executeUpdate();
-		}catch(Exception e){
+		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
 		if(numUpdated!=1){

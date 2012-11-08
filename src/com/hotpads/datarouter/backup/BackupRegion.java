@@ -56,7 +56,7 @@ public abstract class BackupRegion<PK extends PrimaryKey<PK>,D extends Databean<
 		for(D databean : IterableTool.nullSafe(iterable)){
 			if( ! databean.isFieldAware()){ throw new IllegalArgumentException("databeans must be field aware"); }
 			//include zero-length fields in key bytes
-			byte[] bytes = DatabeanTool.getBytes(databean);
+			byte[] bytes = DatabeanTool.getBytes(databean, node.getFieldInfo().getSampleFielder());
 			VarLong length = new VarLong(ArrayTool.length(bytes));
 			os.write(length.getBytes());
 			os.write(bytes);
