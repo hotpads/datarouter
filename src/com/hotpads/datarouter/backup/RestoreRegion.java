@@ -47,8 +47,8 @@ public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean
 	
 	protected Integer logEvery;
 	
-	public RestoreRegion(Class<D> cls, DataRouter router, MapStorageNode<PK,D> node, 
-			Integer putBatchSize, Boolean ignoreNullFields){
+	public RestoreRegion(Class<D> cls, DataRouter router, MapStorageNode<PK,D> node, Integer putBatchSize,
+			Boolean ignoreNullFields){
 		this.cls = cls;
 		this.router = router;
 		this.node = node;
