@@ -340,7 +340,7 @@ implements HBasePhysicalNode<PK,D>,
 			}).call();
 	}
 	
-	protected byte[] getKeyBytesWithScatteringPrefix(PK key){
+	public byte[] getKeyBytesWithScatteringPrefix(PK key){
 		List<Field<?>> keyPlusScatteringPrefixFields = fieldInfo.getKeyFieldsWithScatteringPrefix(key);
 		byte[] bytes = FieldSetTool.getConcatenatedValueBytes(keyPlusScatteringPrefixFields, false,
 				primaryKeyHasUnnecessaryTrailingSeparatorByte);
