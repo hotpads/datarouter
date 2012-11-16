@@ -53,6 +53,7 @@ public class DatabeanFieldInfo<
 	protected List<Field<?>> nonKeyFields;
 	protected List<Field<?>> fields;//PK fields will have prefixes in this Collection
 
+	protected Map<String,Field<?>> primaryKeyFieldByName = MapTool.createHashMap();
 	protected Map<String,Field<?>> nonKeyFieldByColumnName = MapTool.createHashMap();
 	protected Map<String,Field<?>> fieldByColumnName = MapTool.createHashMap();
 	protected Map<String,Field<?>> fieldByPrefixedName = MapTool.createHashMap();
@@ -76,7 +77,8 @@ public class DatabeanFieldInfo<
 			 * TODO remove duplicate logic below, but watch out for handling of non fieldAware databeans
 			 */
 			this.primaryKeyFields = samplePrimaryKey.getFields();
-			this.prefixedPrimaryKeyFields = sampleDatabean.getKeyFields();			
+			this.prefixedPrimaryKeyFields = sampleDatabean.getKeyFields();
+			addPrimaryKeyFieldsToCollections();
 			if(fielderClass==null){
 				if(fieldAware){
 					throw new IllegalArgumentException("could not instantiate "+nodeName
@@ -132,6 +134,12 @@ public class DatabeanFieldInfo<
 		if(d==null){ return ListTool.createLinkedList(); }
 		if(fielderClass==null){ return d.getFields(); }
 		return ReflectionTool.create(fielderClass).getNonKeyFields(d);
+	}
+	
+	protected void addPrimaryKeyFieldsToCollections(){
+		for(Field<?> field : IterableTool.nullSafe(primaryKeyFields)){
+			this.primaryKeyFieldByName.put(field.getName(), field);
+		}
 	}
 	
 	protected void addNonKeyFieldsToCollections(){
@@ -267,6 +275,11 @@ public class DatabeanFieldInfo<
 	
 	public MySqlCharacterSet getCharacterSet(){
 		return character_set;
+	}
+
+
+	public Map<String,Field<?>> getPrimaryKeyFieldByName(){
+		return primaryKeyFieldByName;
 	}
 	
 }

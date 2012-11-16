@@ -80,9 +80,9 @@ public class FieldSetTool{
 	
 	/***************************** construct fieldsets using reflection ***************************/
 
-	public static <D extends FieldSet<?>> D fieldSetFromHibernateResultUsingReflection(
-			Class<D> cls, List<Field<?>> fields, Object sqlObject){
-		D targetFieldSet = ReflectionTool.create(cls);
+	public static <F extends FieldSet<?>>F fieldSetFromHibernateResultUsingReflection(Class<F> cls,
+			List<Field<?>> fields, Object sqlObject){
+		F targetFieldSet = ReflectionTool.create(cls);
 		Object[] cols = (Object[])sqlObject;
 		int counter = 0;
 		for(Field<?> field : fields){
@@ -92,9 +92,9 @@ public class FieldSetTool{
 		return targetFieldSet;
 	}
 
-	public static <D extends FieldSet<?>> D fieldSetFromJdbcResultSetUsingReflection(
-			Class<D> cls, List<Field<?>> fields, ResultSet rs, boolean ignorePrefix){
-		D targetFieldSet = ReflectionTool.create(cls);
+	public static <F extends FieldSet<?>>F fieldSetFromJdbcResultSetUsingReflection(Class<F> cls,
+			List<Field<?>> fields, ResultSet rs, boolean ignorePrefix){
+		F targetFieldSet = ReflectionTool.create(cls);
 		int counter = 0;
 		for(Field<?> field : fields){
 			field.fromJdbcResultSetUsingReflection(targetFieldSet, rs);
@@ -103,21 +103,21 @@ public class FieldSetTool{
 		return targetFieldSet;
 	}
 
-	public static <D extends FieldSet<?>> D fieldSetFromByteStream(Class<D> cls, 
+	public static <F extends FieldSet<?>>F fieldSetFromByteStream(Class<F> cls,
 			Map<String,Field<?>> fieldByPrefixedName, InputStream is) throws IOException{
 		int databeanLength = (int)new VarLong(is).getValue();
 		return fieldSetFromByteStreamKnownLength(cls, fieldByPrefixedName, is, databeanLength);
 	}
 
-	public static <D extends FieldSet<?>> D fieldSetFromBytes(Class<D> cls, 
-			Map<String,Field<?>> fieldByPrefixedName, byte[] bytes) throws IOException{
-		return fieldSetFromByteStreamKnownLength(cls, fieldByPrefixedName, 
-				new ByteArrayInputStream(bytes), bytes.length);
+	public static <F extends FieldSet<?>>F fieldSetFromBytes(Class<F> cls, Map<String,Field<?>> fieldByPrefixedName,
+			byte[] bytes) throws IOException{
+		return fieldSetFromByteStreamKnownLength(cls, fieldByPrefixedName, new ByteArrayInputStream(bytes),
+				bytes.length);
 	}
 
-	public static <D extends FieldSet<?>> D fieldSetFromByteStreamKnownLength(Class<D> cls, 
+	public static <F extends FieldSet<?>> F fieldSetFromByteStreamKnownLength(Class<F> cls, 
 			Map<String,Field<?>> fieldByPrefixedName, InputStream is, int numBytes) throws IOException{
-		D targetFieldSet = ReflectionTool.create(cls);
+		F targetFieldSet = ReflectionTool.create(cls);
 		int numBytesThroughDatabean = 0;
 		while(true){
 			VarLong nameLength = new VarLong(is);//will throw IllegalArgumentException at the end of the stream
