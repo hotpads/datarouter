@@ -42,29 +42,24 @@ public class SqlTableDiffGenerator{
 	/****************** primary method ****************************/
 	
 	public List<SqlColumn> getColumnsToAdd(){
-		SqlColumnNameComparator c = new SqlColumnNameComparator(true);
-		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
-		Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);
-		if(requested==null || current==null){
-			return ListTool.createArrayList();
-		}else{
-			requestedColumns.addAll(requested.getColumns());
-			currentColumns.addAll(current.getColumns());
-		}
-		return ListTool.createArrayList(CollectionTool.minus(requestedColumns, currentColumns,c));
+		return minusColumns(requested, current);
 	}
 
 	public List<SqlColumn> getColumnsToRemove(){
+		return minusColumns(current,requested);
+	}
+	
+	private static List<SqlColumn> minusColumns(SqlTable tableA, SqlTable tableB){
 		SqlColumnNameComparator c = new SqlColumnNameComparator(true);
-		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
-		Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);
-		if(requested==null || current==null){
+		Set<SqlColumn> tableAColumns = new TreeSet<SqlColumn>(c);
+		Set<SqlColumn> tableBColumns = new TreeSet<SqlColumn>(c);
+		if(tableA==null || tableB==null){
 			return ListTool.createArrayList();
 		}else{
-			requestedColumns.addAll(requested.getColumns());
-			currentColumns.addAll(current.getColumns());
+			tableAColumns.addAll(tableA.getColumns());
+			tableBColumns.addAll(tableB.getColumns());
 		}
-		return ListTool.createArrayList(CollectionTool.minus(currentColumns, requestedColumns, c));
+		return ListTool.createArrayList(CollectionTool.minus(tableAColumns, tableBColumns, c));		
 	}
 	
 	public List<SqlColumn> getColumnsToModify(){
@@ -94,21 +89,27 @@ public class SqlTableDiffGenerator{
 	}
 	
 	public SortedSet<SqlIndex> getIndexesToAdd(){
-		if(requested == null || current == null){ return SetTool.createTreeSet(); }
-				//TODO too much on one line.  extract the sets into their own variables
-		SortedSet<SqlIndex> requestedIndexes = requested.getIndexes();
-		SortedSet<SqlIndex> currentIndexes = current.getIndexes();
-		Set<SqlIndex> IndexesToAdd = CollectionTool.minus(requestedIndexes, currentIndexes);
-		return SetTool.createTreeSet(IndexesToAdd);
+		return minusIndexes(requested, current);
 	}
 
 	public SortedSet<SqlIndex> getIndexesToRemove(){
-		if(requested == null || current == null){ return SetTool.createTreeSet(); }
-				//TODO too much on one line.  extract the sets into their own variables
-		SortedSet<SqlIndex> requestedIndexes = requested.getIndexes();
-		SortedSet<SqlIndex> currentIndexes = current.getIndexes();
-		TreeSet<SqlIndex> indexesToRemove = CollectionTool.minus(currentIndexes, requestedIndexes,
-					new SqlIndexNameComparator());
+		return minusIndexes(current, requested);
+	}
+	
+	/**
+	 * returns tableA.indexes - tableB.indexes
+	 * @param tableA
+	 * @param tableB
+	 * @return
+	 */
+	private static SortedSet<SqlIndex> minusIndexes(SqlTable tableA, SqlTable tableB){
+		if(tableA == null || tableB == null){
+			return SetTool.createTreeSet();
+		}
+		SortedSet<SqlIndex> tableAIndexes = tableA.getIndexes();
+		SortedSet<SqlIndex> tableBIndexes = tableB.getIndexes();
+		TreeSet<SqlIndex> indexesToRemove = CollectionTool.minus(tableAIndexes, tableBIndexes,
+				new SqlIndexNameComparator());
 		return SetTool.createTreeSet(indexesToRemove);
 	}
 	
@@ -127,16 +128,12 @@ public class SqlTableDiffGenerator{
 				//TODO too much on one line.  extract the sets into their own variables
 		SortedSet<SqlColumn> currentColumns = SetTool.createTreeSet(current.getColumns());
 		SortedSet<SqlColumn> requestedColumns = SetTool.createTreeSet(requested.getColumns());
-		if(!theTwoColumnSetsContainTheSameKeys(currentColumns, requestedColumns)){ return true; }
+		if(! SetTool.containsSameKeys(currentColumns, requestedColumns)){ return true; }
 		if(isIndexesModified()){ return true; }
 		if(isEngineModified()){ return true; }
 		if(isCharacterSetModified()){ return true; }
 		if(isCollationModified()){ return true; }
 		return false;
-	}
-
-	private boolean theTwoColumnSetsContainTheSameKeys(SortedSet<SqlColumn> treeSet, SortedSet<SqlColumn> treeSet2){
-		return SetTool.containsSameKeys(treeSet,treeSet2);
 	}
 
 	public boolean isEngineModified(){
@@ -158,14 +155,12 @@ public class SqlTableDiffGenerator{
 	}
 
 	public boolean isIndexesModified(){
-				//TODO too much on one line.  extract the sets into their own variables
 		SortedSet<SqlIndex> currentIndexes = SetTool.createTreeSet(current.getIndexes());
 		SortedSet<SqlIndex> requestedIndexes = SetTool.createTreeSet(requested.getIndexes());
 		return !SetTool.containsSameKeys(currentIndexes, requestedIndexes);
 	}
 
 	public boolean isPrimaryKeyModified(){
-				//TODO too much on one line.  extract the sets into their own variables
 		List<SqlColumn> currentPrimaryKeyColumns = current.getPrimaryKey().getColumns();
 		List<SqlColumn> requestedPrimaryKeyColumns = requested.getPrimaryKey().getColumns();
 		if(!haveTheSameColumnsinTheSameOrder(currentPrimaryKeyColumns, requestedPrimaryKeyColumns)){ 
