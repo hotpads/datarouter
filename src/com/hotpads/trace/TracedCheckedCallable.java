@@ -25,7 +25,8 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 		Thread currentThread = Thread.currentThread();
 		String originalThreadName = currentThread.getName();
 		try{
-			currentThread.setName(threadName);
+			//probably don't do this because i think it screws things up with CallerRuns strategy.  need to investigate
+//			currentThread.setName(threadName);
 			
 			boolean hasParent = parentCtx!=null;//no use tracing if there's no parent to give them to.
 			boolean isParent = parentThread.getId()==Thread.currentThread().getId();//for cases when the parent just runs the callable
