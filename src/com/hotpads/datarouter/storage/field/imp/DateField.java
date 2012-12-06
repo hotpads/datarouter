@@ -88,7 +88,11 @@ public class DateField extends BasePrimitiveField<Date>{
 	
 	@Override
 	public String getSqlEscaped(){
-		return "'" + new Timestamp(this.value.getTime()).toString()+ "'";
+		return "'" + getSqlDateString(value)+ "'";
+	}
+	
+	public static String getSqlDateString(Date date){
+		return new Timestamp(date.getTime()).toString();
 	}
 	
 	/** tests ****************************************************************/
