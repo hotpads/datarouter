@@ -324,7 +324,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 //				resultSet.getInt(1);
 //			}
 		}catch(Exception e){
-			throw new DataAccessException(e);
+			throw new DataAccessException("error inserting into "+tableName,e);
 		}
 	}
 	
@@ -345,10 +345,11 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 			}
 			numUpdated = ps.executeUpdate();
 		}catch(SQLException e){
-			throw new DataAccessException(e);
+			throw new DataAccessException("error updating "+tableName,e);
 		}
 		if(numUpdated!=1){
-			throw new DataAccessException("row "+databean.getKey().toString()+" not found so could not be updated");
+			throw new DataAccessException(tableName+" row "+databean.getKey().toString()+" not found so could not be " +
+					"updated");
 		}
 	}
 	
