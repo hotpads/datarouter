@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.util;
 
+import java.util.List;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -59,6 +60,22 @@ public class DataRouterEmailTool{
 			Transport.send(message);
 		}catch(MessagingException ex){
 			logger.error(ExceptionTool.getStackTraceAsString(ex));
+		}
+	}
+	
+	public static void sendEmail(String fromEmail, List<String> toEmails, String subject, String body){
+		Session session = Session.getDefaultInstance(fMailServerConfig, null);
+		MimeMessage message = new MimeMessage(session);
+		for(String email: toEmails){
+		try{
+			message.setFrom(new InternetAddress(fromEmail));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
+			message.setSubject(subject);
+			message.setText(body);
+			Transport.send(message);
+		}catch(MessagingException ex){
+			logger.error(ExceptionTool.getStackTraceAsString(ex));
+		}
 		}
 	}
 
