@@ -66,16 +66,16 @@ public class DataRouterEmailTool{
 	public static void sendEmail(String fromEmail, List<String> toEmails, String subject, String body){
 		Session session = Session.getDefaultInstance(fMailServerConfig, null);
 		MimeMessage message = new MimeMessage(session);
-		for(String email: toEmails){
 		try{
 			message.setFrom(new InternetAddress(fromEmail));
-			message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
+			for(String email : toEmails){
+				message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
+			}
 			message.setSubject(subject);
 			message.setText(body);
 			Transport.send(message);
 		}catch(MessagingException ex){
 			logger.error(ExceptionTool.getStackTraceAsString(ex));
-		}
 		}
 	}
 
