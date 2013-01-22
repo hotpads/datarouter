@@ -9,6 +9,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.apache.log4j.Logger;
 
@@ -27,6 +28,7 @@ import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 @Named
+@Singleton
 public class DataRouterContext{
 	protected static Logger logger = Logger.getLogger(DataRouterContext.class);
 
