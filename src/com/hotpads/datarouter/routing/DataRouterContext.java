@@ -8,9 +8,10 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Named;
+
 import org.apache.log4j.Logger;
 
-import com.google.inject.Singleton;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
@@ -25,7 +26,7 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
-@Singleton
+@Named
 public class DataRouterContext{
 	protected static Logger logger = Logger.getLogger(DataRouterContext.class);
 
