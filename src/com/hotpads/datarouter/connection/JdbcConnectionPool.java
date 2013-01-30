@@ -64,15 +64,9 @@ public class JdbcConnectionPool{
 		}
 		
 		try {
-			if(logging){
-				//log4jdbc - see http://code.google.com/p/log4jdbc/
-				pool.setJdbcUrl("jdbc:log4jdbc:mysql://"+url);
-				pool.setDriverClass(net.sf.log4jdbc.DriverSpy.class.getName());
-			}else{
-				//normal jdbc
-				pool.setJdbcUrl("jdbc:mysql://"+url);
-				pool.setDriverClass("com.mysql.jdbc.Driver");
-			}
+			//normal jdbc
+			pool.setJdbcUrl("jdbc:mysql://"+url);
+			pool.setDriverClass("com.mysql.jdbc.Driver");
 		}catch(PropertyVetoException pve) {
 			throw new RuntimeException(pve);
 		}
