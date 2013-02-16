@@ -29,7 +29,7 @@ public class OverdueWriteCanceller implements Runnable{
 				if(writeWrapper.getWrite().isDone() || overdue){ 
 					if(overdue){
 						logger.warn("cancelling overdue write on "+node.getName());
-						DRCounters.inc("writeBehind timeout on "+node.getName());
+						DRCounters.incSuffixOp(null, "writeBehind timeout on "+node.getName());
 					}
 					node.outstandingWrites.poll(); 
 					continue;

@@ -14,6 +14,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBasePrimaryKeyScanner;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
@@ -151,7 +152,7 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(drContext, "getMulti", this, config){
 				public List<D> hbaseCall() throws Exception{
-					DRCounters.incPrefixClientNode("hbase getMulti rows", clientName, node.getName(), 
+					DRCounters.incSuffixClientNode(ClientType.hbase, "getMulti rows", clientName, node.getName(), 
 							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
@@ -177,7 +178,7 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(drContext, "getKeys", this, config){
 				public List<PK> hbaseCall() throws Exception{
-					DRCounters.incPrefixClientNode("hbase getKeys rows", clientName, node.getName(), 
+					DRCounters.incSuffixClientNode(ClientType.hbase, "getKeys rows", clientName, node.getName(), 
 							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){

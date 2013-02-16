@@ -18,7 +18,7 @@ public class MemcachedMultiAttemptTask<V> extends TracedCallable<V>{
 	static Logger logger = Logger.getLogger(MemcachedMultiAttemptTask.class);
 
 	protected static final Boolean CANCEL_THREAD_IF_RUNNING = true;
-	protected static final Long DEFAULT_TIMEOUT_MS = 10 * 1000L;
+	protected static final Long DEFAULT_TIMEOUT_MS = 2 * 1000L;
 	protected static final Integer DEFAULT_NUM_ATTEMPTS = 1;
 	
 	protected MemcachedTask<V> task;
