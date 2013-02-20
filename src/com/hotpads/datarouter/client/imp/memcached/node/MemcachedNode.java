@@ -75,10 +75,13 @@ implements PhysicalMapStorageNode<PK,D>
 					byte[] bytes = DatabeanTool.getBytes(databean);
 					String key = new DataRouterMemcachedKey<PK>(name, databeanVersion, databean.getKey()).getVersionedKeyString();
 					//memcachedClient uses an integer for cache timeout
-					Integer timeout = (config.getCacheTimeoutMs() == null || config.getCacheTimeoutMs() > Integer.MAX_VALUE 
+					Long timeoutLong = config.getCacheTimeoutMs() == null 
+										? Long.MAX_VALUE 
+										: config.getCacheTimeoutMs() / 1000;
+					Integer expiration = (timeoutLong > new Long(Integer.MAX_VALUE) 
 										? Integer.MAX_VALUE 
-										: config.getCacheTimeoutMs().intValue());
-					spyClient.set(key, timeout, bytes);
+										: timeoutLong.intValue());
+					spyClient.set(key, expiration, bytes);
 				}
 				TraceContext.appendToSpanInfo(CollectionTool.size(databeans)+"");
 				return null;
