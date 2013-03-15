@@ -252,6 +252,7 @@ implements HBasePhysicalNode<PK,D>,
 	}
 	
 
+	@Deprecated
 	@Override
 	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, final Config pConfig){
@@ -263,6 +264,7 @@ implements HBasePhysicalNode<PK,D>,
 	}
 	
 
+	@Deprecated
 	@Override
 	public List<D> getRange(final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, final Config pConfig){
