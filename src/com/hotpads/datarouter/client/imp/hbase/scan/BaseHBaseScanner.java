@@ -8,6 +8,8 @@ import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.bytes.ByteRange;
+import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
 
 public abstract class BaseHBaseScanner<
@@ -49,7 +51,10 @@ extends BaseBatchingSortedScanner<T,Result>{
 			lastRowOfPreviousBatch = endOfLastBatch.getRow();
 			isStartInclusive = false;
 		}
-		currentBatch = node.getResultsInSubRange(lastRowOfPreviousBatch, isStartInclusive, endExclusive, false, config);
+//		currentBatch = node.getResultsInSubRange(lastRowOfPreviousBatch, isStartInclusive, endExclusive, false, config);
+		Range<ByteRange> range = Range.create(new ByteRange(lastRowOfPreviousBatch), isStartInclusive, new ByteRange(
+				endExclusive), false);
+		currentBatch = node.getResultsInSubRange(range, false, config);
 		if(CollectionTool.size(currentBatch) < config.getIterateBatchSize()){
 			noMoreBatches = true;//tell the advance() method not to call this method again
 		}
