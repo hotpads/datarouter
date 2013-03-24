@@ -313,6 +313,7 @@ implements HBasePhysicalNode<PK,D>,
 		Range<PK> pkRange = Range.create(start, startInclusive, end, endInclusive);
 		List<BatchingSortedScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder
 				.getBatchingPrimaryKeyScannerForEachPrefix(this, fieldInfo, pkRange, pConfig);
+		//TODO can omit the collator if only one scanner
 		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
 		return new SortedScannerIterable<PK>(collator);
 	}
@@ -338,6 +339,7 @@ implements HBasePhysicalNode<PK,D>,
 		Range<PK> pkRange = Range.create(start, startInclusive, end, endInclusive);
 		List<BatchingSortedScanner<D>> scanners = HBaseScatteringPrefixQueryBuilder
 				.getBatchingDatabeanScannerForEachPrefix(this, fieldInfo, pkRange, pConfig);
+		//TODO can omit the collator if only one scanner
 		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
 		return new SortedScannerIterable<D>(collator);
 	}
