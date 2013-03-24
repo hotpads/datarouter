@@ -7,21 +7,35 @@ import java.util.List;
 import org.apache.hadoop.hbase.client.Scan;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode.PrimaryKeyBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBasePrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
+import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.SimpleFieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Pair;
+import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.collections.Twin;
+import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
+import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
 
 public class HBaseScatteringPrefixQueryBuilder {
+	
+	public static <PK extends PrimaryKey<PK>>
+	byte[] getKeyBytesWithScatteringPrefix(DatabeanFieldInfo<PK,?,?> fieldInfo, byte[] scatteringPrefixBytes, 
+			PK pk){
+		if(pk==null){ return scatteringPrefixBytes; }
+		byte[] pkBytes = fieldInfo.getP
+	}
 
 	public static List<Scan> getRangeScanners(DatabeanFieldInfo<?,?,?> fieldInfo,
 			final FieldSet<?> startKey, final boolean startInclusive, 
@@ -86,6 +100,25 @@ public class HBaseScatteringPrefixQueryBuilder {
 	
 	/**************************** helper ***************************************/
 	
+	//TODO cache these in the hbase node
+	public static ArrayList<Twin<byte[]>> getScatteringPrefixRanges(HBaseReaderNode<?,?,?> node){
+		List<List<Field<?>>> allScatteringPrefixFields = node.getFieldInfo().getSampleScatteringPrefix()
+				.getAllPossibleScatteringPrefixes();
+		
+		ArrayList<byte[]> prefixStartBytes = ListTool.createArrayList();
+		for(List<Field<?>> scatteringPrefixFields : allScatteringPrefixFields){
+			byte[] thisPrefixStart = FieldSetTool.getConcatenatedValueBytes(scatteringPrefixFields, false, false);
+			prefixStartBytes.add(thisPrefixStart);
+		}
+		
+		ArrayList<Twin<byte[]>> outs = ListTool.createArrayList();
+		for(int i=0; i < prefixStartBytes.size() - 1; ++i){//don't do the last one
+			outs.add(Twin.createTwin(prefixStartBytes.get(i), prefixStartBytes.get(i+1)));
+		}
+		outs.add(Twin.createTwin(CollectionTool.getLast(prefixStartBytes), null));
+		return outs;
+	}
+	
 	public static ArrayList<FieldSet<?>> getInstancesForAllPossibleScatteringPrefixes(
 			DatabeanFieldInfo<?,?,?> fieldInfo, Collection<? extends FieldSet<?>> pks){
 		ArrayList<FieldSet<?>> outs = ListTool.createArrayList();
@@ -109,9 +142,9 @@ public class HBaseScatteringPrefixQueryBuilder {
 			if(CollectionTool.isEmpty(scatteringPrefixFields) && pk==null){ 
 				outs.add(null); 
 			}else{
-				SimpleFieldSet<?> scatteringPrefixPlusPrefix = new SimpleFieldSet(scatteringPrefixFields);
-				if(pk!=null){ scatteringPrefixPlusPrefix.add(pk.getFields()); }
-				outs.add(scatteringPrefixPlusPrefix);
+				SimpleFieldSet<?> scatteringPrefixPlusPk = new SimpleFieldSet(scatteringPrefixFields);
+				if(pk!=null){ scatteringPrefixPlusPk.add(pk.getFields()); }
+				outs.add(scatteringPrefixPlusPk);
 			}
 		}
 		return outs;
@@ -151,6 +184,23 @@ public class HBaseScatteringPrefixQueryBuilder {
 		for(Pair<byte[],byte[]> range : ranges){
 			HBasePrimaryKeyScanner<PK,D> scanner = new HBasePrimaryKeyScanner<PK,D>(node, fieldInfo, 
 					range.getLeft(), range.getRight(), config);
+			scanners.add(scanner);
+		}
+		return scanners;
+	}
+	
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
+	ArrayList<BatchingSortedScanner<PK>> getBatchingPrimaryKeyScannerForEachPrefix(
+			HBaseReaderNode<PK,D,F> node,
+			DatabeanFieldInfo<PK,D,F> fieldInfo,
+			Range<PK> pkRange,
+			final Config pConfig){
+		List<Twin<byte[]>> prefixByteRanges = getScatteringPrefixRanges(node);
+		ArrayList<BatchingSortedScanner<PK>> scanners = ListTool.createArrayList();
+		for(Twin<byte[]> prefixByteRange : prefixByteRanges){
+			BatchLoader<PK> initialBatchLoader = new PrimaryKeyBatchLoader<PK,D,F>(node, prefixByteRange.getLeft(), 
+					pkRange, true, pConfig);
+			BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(initialBatchLoader);
 			scanners.add(scanner);
 		}
 		return scanners;

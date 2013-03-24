@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -45,6 +46,7 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchLoader;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
+import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
@@ -164,13 +166,7 @@ implements HBasePhysicalNode<PK,D>,
 						gets.add(new Get(rowBytes));
 					}
 					Result[] resultArray = hTable.get(gets);
-					List<D> results = ListTool.createArrayListWithSize(keys);
-					for(Result row : resultArray){
-						if(row==null || row.isEmpty()){ continue; }
-						D result = HBaseResultTool.getDatabean(row, fieldInfo);
-						results.add(result);
-					}
-					return results;
+					return HBaseResultTool.getDatabeans(Arrays.asList(resultArray), fieldInfo);
 				}
 			}).call();
 	}
@@ -188,17 +184,19 @@ implements HBasePhysicalNode<PK,D>,
 					for(PK key : keys){
 						byte[] rowBytes = getKeyBytesWithScatteringPrefix(key);
 						Get get = new Get(rowBytes);
-						get.setFilter(new FirstKeyOnlyFilter());//make sure first column in row is not something big
+						//FirstKeyOnlyFilter returns value too, so it's better if value in each row is not large
+						get.setFilter(new FirstKeyOnlyFilter());
 						gets.add(get);
 					}
 					Result[] resultArray = hTable.get(gets);
-					List<PK> results = ListTool.createArrayListWithSize(keys);
-					for(Result row : resultArray){
-						if(row==null || row.isEmpty()){ continue; }
-						PK result = HBaseResultTool.getPrimaryKey(row.getRow(), fieldInfo);
-						results.add(result);
-					}
-					return results;
+					return HBaseResultTool.getPrimaryKeys(Arrays.asList(resultArray), fieldInfo);
+//					List<PK> results = ListTool.createArrayListWithSize(keys);
+//					for(Result row : resultArray){
+//						if(row==null || row.isEmpty()){ continue; }
+//						PK result = HBaseResultTool.getPrimaryKey(row.getRow(), fieldInfo);
+//						results.add(result);
+//					}
+//					return results;
 				}
 			}).call();
 	}
@@ -297,14 +295,25 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	
+//	@Override
+//	public SortedScannerIterable<PK> scanKeys(final PK start, final boolean startInclusive, 
+//			final PK end, final boolean endInclusive, 
+//			final Config pConfig){
+//		final Config config = Config.nullSafe(pConfig);
+//		List<HBasePrimaryKeyScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder
+//				.getManualPrimaryKeyScannerForEachPrefix(this, fieldInfo, start, startInclusive, end, endInclusive, 
+//				config);
+//		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
+//		return new SortedScannerIterable<PK>(collator);
+//	}
+	
 	@Override
 	public SortedScannerIterable<PK> scanKeys(final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		List<HBasePrimaryKeyScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder
-				.getManualPrimaryKeyScannerForEachPrefix(this, fieldInfo, start, startInclusive, end, endInclusive, 
-				config);
+		Range<PK> pkRange = Range.create(start, startInclusive, end, endInclusive);
+		List<BatchingSortedScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder
+				.getBatchingPrimaryKeyScannerForEachPrefix(this, fieldInfo, pkRange, pConfig);
 		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
 		return new SortedScannerIterable<PK>(collator);
 	}
@@ -325,45 +334,14 @@ implements HBasePhysicalNode<PK,D>,
 	
 	/************************ helpers ********************************/
 	
-//	public abstract class PrimaryKeyBatchLoader 
-//	extends BaseBatchLoader<PK>{
-//
-//		//same for all scattering prefixes
-//		private final Range<PK> range;
-//		private final boolean keysOnly;
-//		private final Config pConfig;
-//		
-//		//scattering prefix for this scanner
-//		private final List<Field<?>> scatteringPrefix;
-//		
-//		PrimaryKeyBatchLoader(final Range<PK> range, final boolean keysOnly, final Config pConfig,
-//				List<Field<?>> scatteringPrefix){
-//			this.range = range;
-//			this.keysOnly = keysOnly;
-//			this.pConfig = pConfig;
-//			this.scatteringPrefix = scatteringPrefix;
-//		}
-//
-//		@Override
-//		public Void call() throws Exception{
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
-//		
-//		@Override
-//		public boolean isLastBatch(){
-//			return isBatchSmallerThan(pConfig.getIterateBatchSize());
-//		}
-//
-//		@Override
-//		public BatchLoader<PK> getNextLoader(){			
-//			byte[] pkBytes = getKeyBytesWithScatteringPrefix(getLast());
-//			Range<PK> nextRange = Range.create(pkBytes, startInclusive, end, endInclusive)
-//		}
-//		
-//	}
-	public class PrimaryKeyBatchLoader 
+	public static class PrimaryKeyBatchLoader<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>> 
 	extends BaseBatchLoader<PK>{
+		
+		private final HBaseReaderNode<PK,D,F> node;
+		private final byte[] scatteringPrefix;
 
 		//same for all scattering prefixes
 		private final Range<PK> range;
@@ -371,21 +349,24 @@ implements HBasePhysicalNode<PK,D>,
 		
 		private final boolean isFirstBatch;
 		
-		PrimaryKeyBatchLoader(final Range<PK> range, final Config pConfig, boolean isFirstBatch){
+		public PrimaryKeyBatchLoader(final HBaseReaderNode<PK,D,F> node, final byte[] scatteringPrefix,
+				final Range<PK> range, boolean isFirstBatch, final Config pConfig){
+			this.node = node;
+			this.scatteringPrefix = scatteringPrefix;
 			this.range = range;
-			this.pConfig = pConfig;
 			this.isFirstBatch = isFirstBatch;
+			this.pConfig = pConfig;
 		}
 
 		@Override
 		public Void call(){
-			ByteRange pkBytes = new ByteRange(getKeyBytesWithScatteringPrefix(range.getStart()));
+			ByteRange pkBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(range.getStart()));
 			//we only care about the scattering prefix part of the range here, not the actual startKey
-			ByteRange startOfNextScatteringPrefix = new ByteRange(getKeyBytesOfStartOfNextScatteringPrefix(
+			ByteRange startOfNextScatteringPrefix = new ByteRange(node.getKeyBytesOfStartOfNextScatteringPrefix(
 					range.getStart()));
 			Range<ByteRange> range = Range.create(pkBytes, isFirstBatch, startOfNextScatteringPrefix, true);
-			List<Result> hBaseRows = getResultsInSubRange(range, true, pConfig);
-			List<PK> pks = HBaseResultTool.getPrimaryKeys(hBaseRows, fieldInfo);
+			List<Result> hBaseRows = node.getResultsInSubRange(range, true, pConfig);
+			List<PK> pks = HBaseResultTool.getPrimaryKeys(hBaseRows, node.getFieldInfo());
 			setBatch(pks);
 			return null;
 		}
@@ -399,11 +380,15 @@ implements HBasePhysicalNode<PK,D>,
 		public BatchLoader<PK> getNextLoader(){
 			PK lastPkFromPreviousBatch = getLast();
 			Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, isFirstBatch, null, true);
-			return new PrimaryKeyBatchLoader(nextRange, pConfig, false);					
+			return new PrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, false, pConfig);					
 		}
 		
 	}
 
+	/*
+	 * internal method to fetch a single batch of hbase rows/keys.  only public so that iterators in other packages
+	 * can use it
+	 */
 	public List<Result> getResultsInSubRange(final Range<ByteRange> range, final boolean keysOnly, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(drContext, "getResultsInSubRange",
@@ -425,38 +410,23 @@ implements HBasePhysicalNode<PK,D>,
 				}
 			}).call();
 	}
-
-//	public List<Result> getResultsInSubRange(final byte[] start, final boolean startInclusive, final byte[] end, 
-//			final boolean keysOnly, final Config pConfig){
-//		final Config config = Config.nullSafe(pConfig);
-//		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(drContext, "getResultsInSubRange",
-//				this, config){
-//				public List<Result> hbaseCall() throws Exception{
-//					Scan scan = HBaseQueryBuilder.getScanForRange(start, startInclusive, end, config);
-//					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }
-//					managedResultScanner = hTable.getScanner(scan);
-//					List<Result> results = ListTool.createArrayList();
-//					for(Result row : managedResultScanner){
-//						if(row.isEmpty()){ continue; }
-//						results.add(row);
-//						if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){ break; }
-//						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
-//					}
-//					managedResultScanner.close();
-//					return results;
-//				}
-//			}).call();
-//	}
 	
-	public byte[] getKeyBytesWithScatteringPrefix(PK key){
-		List<Field<?>> keyPlusScatteringPrefixFields = fieldInfo.getKeyFieldsWithScatteringPrefix(key);
-		byte[] bytes = FieldSetTool.getConcatenatedValueBytes(keyPlusScatteringPrefixFields, false,
-				primaryKeyHasUnnecessaryTrailingSeparatorByte);
-		return bytes;
-	}
-	
-	public byte[] getKeyBytesOfStartOfNextScatteringPrefix(PK key){
-		List<Field<?>> keyPlusScatteringPrefixFields = fieldInfo.getStartOfNextScatteringPrefix(key);
+	//this method is in the node because it deals with the messy primaryKeyHasUnnecessaryTrailingSeparatorByte
+	public byte[] getKeyBytesWithScatteringPrefix(List<Field<?>> overrideScatteringPrefixFields, PK key){
+		if(key==null){
+			if(CollectionTool.isEmpty(overrideScatteringPrefixFields)){
+				return new byte[]{};
+			}
+			return FieldSetTool.getConcatenatedValueBytes(overrideScatteringPrefixFields, false, false);
+		}
+		List<Field<?>> keyPlusScatteringPrefixFields = ListTool.createLinkedList();
+		if(CollectionTool.notEmpty(overrideScatteringPrefixFields)){
+			keyPlusScatteringPrefixFields.addAll(overrideScatteringPrefixFields);
+		}else{
+			//maybe Assert the override fields match those returned for the key
+			keyPlusScatteringPrefixFields.addAll(fieldInfo.getSampleScatteringPrefix().getScatteringPrefixFields(key));
+		}
+		keyPlusScatteringPrefixFields.addAll(key.getFields());
 		byte[] bytes = FieldSetTool.getConcatenatedValueBytes(keyPlusScatteringPrefixFields, false,
 				primaryKeyHasUnnecessaryTrailingSeparatorByte);
 		return bytes;
@@ -467,5 +437,11 @@ implements HBasePhysicalNode<PK,D>,
 			Collections.sort(ins);
 		}
 	}
+
+	public Boolean getPrimaryKeyHasUnnecessaryTrailingSeparatorByte(){
+		return primaryKeyHasUnnecessaryTrailingSeparatorByte;
+	}
+	
+	
 	
 }
