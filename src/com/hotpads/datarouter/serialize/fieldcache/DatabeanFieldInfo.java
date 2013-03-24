@@ -130,6 +130,14 @@ public class DatabeanFieldInfo<
 		return fields;
 	}
 	
+	public List<Field<?>> getStartOfNextScatteringPrefix(PK key){
+		List<Field<?>> fields = ListTool.createLinkedList();
+		fields.addAll(sampleScatteringPrefix.getScatteringPrefixFields(key));
+		if(key==null){ return fields; }
+		fields.addAll(key.getFields());
+		return fields;
+	}
+	
 	public List<Field<?>> getNonKeyFields(D d){
 		if(d==null){ return ListTool.createLinkedList(); }
 		if(fielderClass==null){ return d.getFields(); }
