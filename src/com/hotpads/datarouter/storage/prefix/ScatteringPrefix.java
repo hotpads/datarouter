@@ -9,7 +9,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public interface ScatteringPrefix{
 
 	List<Field<?>> getScatteringPrefixFields(FieldSet<?> primaryKey);
-	List<Field<?>> getNextScatteringPrefixFields(FieldSet<?> primaryKey);
 	List<List<Field<?>>> getAllPossibleScatteringPrefixes();
 	Integer getNumPrefixBytes();
 	
