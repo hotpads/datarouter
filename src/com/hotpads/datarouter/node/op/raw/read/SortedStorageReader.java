@@ -27,6 +27,7 @@ extends NodeOps<PK,D>
 	@Deprecated
 	List<D> getRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config);
 
+	@Deprecated
 	List<D> getPrefixedRange(
 			final PK prefix, final boolean wildcardLastField, 
 			final PK start, final boolean startInclusive, 

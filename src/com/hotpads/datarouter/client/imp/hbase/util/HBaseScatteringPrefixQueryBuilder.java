@@ -6,8 +6,9 @@ import java.util.List;
 
 import org.apache.hadoop.hbase.client.Scan;
 
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseDatabeanBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
-import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode.PrimaryKeyBatchLoader;
+import com.hotpads.datarouter.client.imp.hbase.node.HBasePrimaryKeyBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBasePrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
@@ -16,7 +17,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.SimpleFieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
@@ -24,7 +24,6 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.collections.Twin;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
 
@@ -192,9 +191,27 @@ public class HBaseScatteringPrefixQueryBuilder {
 				.getAllPossibleScatteringPrefixes();
 		ArrayList<BatchingSortedScanner<PK>> scanners = ListTool.createArrayList();
 		for(List<Field<?>> scatteringPrefix : allScatteringPrefixes){
-			BatchLoader<PK> firstBatchLoaderForPrefix = new PrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, 
+			BatchLoader<PK> firstBatchLoaderForPrefix = new HBasePrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, 
 					pkRange, true, pConfig);
 			BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(firstBatchLoaderForPrefix);
+			scanners.add(scanner);
+		}
+		return scanners;
+	}
+	
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
+	ArrayList<BatchingSortedScanner<D>> getBatchingDatabeanScannerForEachPrefix(
+			HBaseReaderNode<PK,D,F> node,
+			DatabeanFieldInfo<PK,D,F> fieldInfo,
+			Range<PK> pkRange,
+			final Config pConfig){
+		List<List<Field<?>>> allScatteringPrefixes = fieldInfo.getSampleScatteringPrefix()
+				.getAllPossibleScatteringPrefixes();
+		ArrayList<BatchingSortedScanner<D>> scanners = ListTool.createArrayList();
+		for(List<Field<?>> scatteringPrefix : allScatteringPrefixes){
+			BatchLoader<D> firstBatchLoaderForPrefix = new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, 
+					pkRange, true, pConfig);
+			BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(firstBatchLoaderForPrefix);
 			scanners.add(scanner);
 		}
 		return scanners;

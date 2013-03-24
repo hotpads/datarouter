@@ -35,7 +35,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -45,8 +44,6 @@ import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.PeekableIterable;
-import com.hotpads.util.core.iterable.scanner.batch.BaseBatchLoader;
-import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
@@ -127,6 +124,7 @@ implements HBasePhysicalNode<PK,D>,
 	
 	@Override
 	public boolean exists(PK key, Config config) {
+		//should probably make a getKey method
 		return get(key, config) != null;
 	}
 
@@ -320,87 +318,33 @@ implements HBasePhysicalNode<PK,D>,
 	}
 
 	
+//	@Override
+//	public SortedScannerIterable<D> scan(final PK start, final boolean startInclusive, 
+//			final PK end, final boolean endInclusive, 
+//			final Config pConfig){
+//		final Config config = Config.nullSafe(pConfig);
+//		List<HBaseDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder
+//				.getManualDatabeanScannerForEachPrefix(this, fieldInfo, start, startInclusive, end, endInclusive, 
+//				config);
+//		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
+//		return new SortedScannerIterable<D>(collator);
+//	}
+
+	
 	@Override
 	public SortedScannerIterable<D> scan(final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		List<HBaseDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder
-				.getManualDatabeanScannerForEachPrefix(this, fieldInfo, start, startInclusive, end, endInclusive, 
-				config);
+		Range<PK> pkRange = Range.create(start, startInclusive, end, endInclusive);
+		List<BatchingSortedScanner<D>> scanners = HBaseScatteringPrefixQueryBuilder
+				.getBatchingDatabeanScannerForEachPrefix(this, fieldInfo, pkRange, pConfig);
 		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
 		return new SortedScannerIterable<D>(collator);
 	}
 		
 	
-	/************************ helpers ********************************/
+	/***************************** helper methods **********************************/
 	
-	public static class PrimaryKeyBatchLoader<
-			PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>> 
-	extends BaseBatchLoader<PK>{
-		
-		private final HBaseReaderNode<PK,D,F> node;
-
-		//same for all scattering prefixes
-		private final List<Field<?>> scatteringPrefix;
-		private final byte[] scatteringPrefixBytes;//acts as a cache for the comparison of each result
-		private final Range<PK> range;
-		private final Config pConfig;
-		
-		private final boolean isFirstBatch;
-		
-		public PrimaryKeyBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
-				final Range<PK> range, boolean isFirstBatch, final Config pConfig){
-			this.node = node;
-			this.scatteringPrefix = scatteringPrefix;
-			this.scatteringPrefixBytes = FieldSetTool.getConcatenatedValueBytes(scatteringPrefix, false, false);
-			this.range = range;
-			this.isFirstBatch = isFirstBatch;
-			this.pConfig = pConfig;
-		}
-
-		@Override
-		public Void call(){
-			//these should handle null scattering prefixes and null pks
-			ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart()));
-			ByteRange endBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getEnd()));
-			
-			//we only care about the scattering prefix part of the range here, not the actual startKey
-			Range<ByteRange> byteRange = Range.create(startBytes, isFirstBatch, endBytes, range.getEndInclusive());
-			List<Result> hBaseRows = node.getResultsInSubRange(byteRange, true, pConfig);
-			List<PK> results = ListTool.createArrayListWithSize(hBaseRows);
-			for(Result row : hBaseRows){
-				if(row==null || row.isEmpty()){ continue; }
-				if(differentScatteringPrefix(row)){ break; }//we ran into the next scattering prefix partition
-				PK result = HBaseResultTool.getPrimaryKey(row.getRow(), node.getFieldInfo());
-				results.add(result);
-			}
-			List<PK> pks = results;
-			setBatch(pks);
-			return null;
-		}
-		
-		@Override
-		public boolean isLastBatch(){
-			return isBatchSmallerThan(pConfig.getIterateBatchSize());
-		}
-
-		@Override
-		public BatchLoader<PK> getNextLoader(){
-			PK lastPkFromPreviousBatch = getLast();
-			Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, isFirstBatch, null, true);
-			return new PrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, false, pConfig);					
-		}
-		
-		private boolean differentScatteringPrefix(Result row){
-			return ! ByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length, 
-					row.getRow(), 0, scatteringPrefixBytes.length);
-		}
-		
-	}
-
 	/*
 	 * internal method to fetch a single batch of hbase rows/keys.  only public so that iterators in other packages
 	 * can use it
