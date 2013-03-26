@@ -72,7 +72,7 @@ extends BaseBatchLoader<PK>{
 		batchHasBeenLoaded = true;//thread safe by lack of other writers
 		int numItems = CollectionTool.size(pks);
 		timer.add("loaded "+numItems);
-		logger.warn(timer+" from "+node.getName()+" @"+timer.getItemsPerSecond(numItems)+"/s");
+//		logger.warn(timer+" from "+node.getName()+" @"+timer.getItemsPerSecond(numItems)+"/s");
 		return this;
 	}
 	
