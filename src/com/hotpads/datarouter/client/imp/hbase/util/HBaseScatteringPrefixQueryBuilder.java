@@ -3,12 +3,13 @@ package com.hotpads.datarouter.client.imp.hbase.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.hadoop.hbase.client.Scan;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseDatabeanBatchLoader;
-import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBasePrimaryKeyBatchLoader;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBasePrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
@@ -183,6 +184,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 	ArrayList<BatchingSortedScanner<PK>> getBatchingPrimaryKeyScannerForEachPrefix(
+			ExecutorService executorService,
 			HBaseReaderNode<PK,D,F> node,
 			DatabeanFieldInfo<PK,D,F> fieldInfo,
 			Range<PK> pkRange,
@@ -193,7 +195,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 		for(List<Field<?>> scatteringPrefix : allScatteringPrefixes){
 			BatchLoader<PK> firstBatchLoaderForPrefix = new HBasePrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, 
 					pkRange, true, pConfig);
-			BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(firstBatchLoaderForPrefix);
+			BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(executorService, firstBatchLoaderForPrefix);
 			scanners.add(scanner);
 		}
 		return scanners;
@@ -201,6 +203,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 	ArrayList<BatchingSortedScanner<D>> getBatchingDatabeanScannerForEachPrefix(
+			ExecutorService executorService,
 			HBaseReaderNode<PK,D,F> node,
 			DatabeanFieldInfo<PK,D,F> fieldInfo,
 			Range<PK> pkRange,
@@ -211,7 +214,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 		for(List<Field<?>> scatteringPrefix : allScatteringPrefixes){
 			BatchLoader<D> firstBatchLoaderForPrefix = new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, 
 					pkRange, true, pConfig);
-			BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(firstBatchLoaderForPrefix);
+			BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(executorService, firstBatchLoaderForPrefix);
 			scanners.add(scanner);
 		}
 		return scanners;

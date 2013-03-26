@@ -1,9 +1,9 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.config.Config;
@@ -19,6 +19,7 @@ import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchLoader;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
+import com.hotpads.util.core.profile.PhaseTimer;
 
 
 public class HBasePrimaryKeyBatchLoader<
@@ -26,6 +27,7 @@ public class HBasePrimaryKeyBatchLoader<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
 extends BaseBatchLoader<PK>{
+	private static Logger logger = Logger.getLogger(HBasePrimaryKeyBatchLoader.class);
 	
 	private final HBaseReaderNode<PK,D,F> node;
 	private final List<Field<?>> scatteringPrefix;//will be passed along between scanners tracking this partition
@@ -46,7 +48,8 @@ extends BaseBatchLoader<PK>{
 	}
 
 	@Override
-	public Void call(){
+	public HBasePrimaryKeyBatchLoader<PK,D,F> call(){
+		PhaseTimer timer = new PhaseTimer();
 		//these should handle null scattering prefixes and null pks
 		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart()));
 		ByteRange endBytes = null;
@@ -67,7 +70,10 @@ extends BaseBatchLoader<PK>{
 		List<PK> pks = results;
 		setBatch(pks);
 		batchHasBeenLoaded = true;//thread safe by lack of other writers
-		return null;
+		int numItems = CollectionTool.size(pks);
+		timer.add("loaded "+numItems);
+		logger.warn(timer+" from "+node.getName()+" @"+timer.getItemsPerSecond(numItems)+"/s");
+		return this;
 	}
 	
 	@Override
@@ -83,6 +89,7 @@ extends BaseBatchLoader<PK>{
 	}
 	
 	private boolean differentScatteringPrefix(Result row){
+		if(scatteringPrefixBytes==null || row==null){ return false; }
 		return ! ByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length, 
 				row.getRow(), 0, scatteringPrefixBytes.length);
 	}

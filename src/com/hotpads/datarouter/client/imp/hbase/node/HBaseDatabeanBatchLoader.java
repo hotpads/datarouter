@@ -44,7 +44,7 @@ extends BaseBatchLoader<D>{
 	}
 
 	@Override
-	public Void call(){
+	public HBaseDatabeanBatchLoader<PK,D,F> call(){
 		//these should handle null scattering prefixes and null pks
 		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart()));
 		ByteRange endBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getEnd()));
@@ -60,7 +60,7 @@ extends BaseBatchLoader<D>{
 			databeans.add(result);
 		}
 		setBatch(databeans);
-		return null;
+		return this;
 	}
 	
 	@Override
@@ -77,6 +77,7 @@ extends BaseBatchLoader<D>{
 	
 	//TODO same as PrimaryKeyBatchLoader.differentScatteringPrefix
 	private boolean differentScatteringPrefix(Result row){
+		if(scatteringPrefixBytes==null || row==null){ return false; }
 		return ! ByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length, 
 				row.getRow(), 0, scatteringPrefixBytes.length);
 	}

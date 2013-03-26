@@ -15,6 +15,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
@@ -311,7 +312,8 @@ implements HBasePhysicalNode<PK,D>,
 			final Config pConfig){
 		Range<PK> pkRange = Range.create(start, startInclusive, end, endInclusive);
 		List<BatchingSortedScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder
-				.getBatchingPrimaryKeyScannerForEachPrefix(this, fieldInfo, pkRange, pConfig);
+				.getBatchingPrimaryKeyScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, pkRange,
+						pConfig);
 		//TODO can omit the collator if only one scanner
 		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
 		return new SortedScannerIterable<PK>(collator);
@@ -337,7 +339,8 @@ implements HBasePhysicalNode<PK,D>,
 			final Config pConfig){
 		Range<PK> pkRange = Range.create(start, startInclusive, end, endInclusive);
 		List<BatchingSortedScanner<D>> scanners = HBaseScatteringPrefixQueryBuilder
-				.getBatchingDatabeanScannerForEachPrefix(this, fieldInfo, pkRange, pConfig);
+				.getBatchingDatabeanScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, pkRange,
+						pConfig);
 		//TODO can omit the collator if only one scanner
 		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
 		return new SortedScannerIterable<D>(collator);
