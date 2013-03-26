@@ -18,7 +18,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.UInt63ArrayField;
-import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
+import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.storage.field.imp.comparable.CharacterField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;

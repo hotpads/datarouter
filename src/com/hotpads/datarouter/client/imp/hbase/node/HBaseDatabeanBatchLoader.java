@@ -12,6 +12,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ByteTool;
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
@@ -64,12 +65,12 @@ extends BaseBatchLoader<D>{
 	
 	@Override
 	public boolean isLastBatch(){
-		return isBatchSmallerThan(pConfig.getIterateBatchSize());
+		return batchHasBeenLoaded && isBatchSmallerThan(pConfig.getIterateBatchSize());
 	}
 
 	@Override
 	public BatchLoader<D> getNextLoader(){
-		PK lastPkFromPreviousBatch = getLast()==null?null:getLast().getKey();
+		PK lastPkFromPreviousBatch = CollectionTool.isEmpty(batch) ? null : CollectionTool.getLast(batch).getKey();
 		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, isFirstBatch, range.getEnd(), true);
 		return new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, false, pConfig);					
 	}

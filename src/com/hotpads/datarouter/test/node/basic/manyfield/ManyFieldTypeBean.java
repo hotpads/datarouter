@@ -25,7 +25,7 @@ import com.hotpads.datarouter.storage.field.imp.array.DoubleArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.IntegerArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.UInt63ArrayField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
-import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
+import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.storage.field.imp.comparable.CharacterField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
@@ -126,7 +126,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	public List<Field<?>> getNonKeyFields(){
 		List<Field<?>> fields = ListTool.createLinkedList();
 		fields.add(new BooleanField(F.booleanField, booleanField));
-		fields.add(new ByteField(F.byteField, byteField));
+		fields.add(new SignedByteField(F.byteField, byteField));
 		fields.add(new ShortField(F.shortField, shortField));
 		fields.add(new IntegerField(F.integerField, integerField));
 		fields.add(new LongField(F.longField, longField));

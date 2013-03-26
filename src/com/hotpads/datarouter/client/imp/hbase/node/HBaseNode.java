@@ -22,7 +22,7 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
+import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
@@ -108,7 +108,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 							}
 						}
 						if(put.isEmpty()){ 
-							Field<?> dummyField = new ByteField(DUMMY, (byte)0);
+							Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
 							put.add(FAM, dummyField.getColumnNameBytes(), dummyField.getBytes());
 						}
 						put.setWriteToWAL(config.getPersistentPut());

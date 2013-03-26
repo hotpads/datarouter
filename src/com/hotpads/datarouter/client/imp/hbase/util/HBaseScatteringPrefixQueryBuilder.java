@@ -110,21 +110,21 @@ public class HBaseScatteringPrefixQueryBuilder {
 //		outs.add(Twin.createTwin(CollectionTool.getLast(prefixStartBytes), null));
 //		return outs;
 //	}
-	
-	public static ArrayList<FieldSet<?>> getInstancesForAllPossibleScatteringPrefixes(
-			DatabeanFieldInfo<?,?,?> fieldInfo, Collection<? extends FieldSet<?>> pks){
-		ArrayList<FieldSet<?>> outs = ListTool.createArrayList();
-		List<List<Field<?>>> allScatteringPrefixFields = fieldInfo.getSampleScatteringPrefix().getAllPossibleScatteringPrefixes();
-		//iterate through prefixes first so that everything stays sorted
-		for(List<Field<?>> scatteringPrefixFields : allScatteringPrefixFields){
-			for(FieldSet<?> pk : IterableTool.nullSafe(pks)){
-				SimpleFieldSet<?> scatteringPrefixPlusPrefix = new SimpleFieldSet(scatteringPrefixFields);
-				if(pk!=null){ scatteringPrefixPlusPrefix.add(pk.getFields()); }
-				outs.add(scatteringPrefixPlusPrefix);
-			}
-		}
-		return outs;
-	}
+//	
+//	public static ArrayList<FieldSet<?>> getInstancesForAllPossibleScatteringPrefixes(
+//			DatabeanFieldInfo<?,?,?> fieldInfo, Collection<? extends FieldSet<?>> pks){
+//		ArrayList<FieldSet<?>> outs = ListTool.createArrayList();
+//		List<List<Field<?>>> allScatteringPrefixFields = fieldInfo.getSampleScatteringPrefix().getAllPossibleScatteringPrefixes();
+//		//iterate through prefixes first so that everything stays sorted
+//		for(List<Field<?>> scatteringPrefixFields : allScatteringPrefixFields){
+//			for(FieldSet<?> pk : IterableTool.nullSafe(pks)){
+//				SimpleFieldSet<?> scatteringPrefixPlusPrefix = new SimpleFieldSet(scatteringPrefixFields);
+//				if(pk!=null){ scatteringPrefixPlusPrefix.add(pk.getFields()); }
+//				outs.add(scatteringPrefixPlusPrefix);
+//			}
+//		}
+//		return outs;
+//	}
 	
 	public static ArrayList<FieldSet<?>> getInstanceForAllPossibleScatteringPrefixes(
 			DatabeanFieldInfo<?,?,?> fieldInfo, FieldSet<?> pk){
