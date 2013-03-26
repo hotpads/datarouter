@@ -34,16 +34,16 @@ extends BaseBatchLoader<PK>{
 	private final byte[] scatteringPrefixBytes;//acts as a cache for the comparison of each result
 	private final Range<PK> range;
 	private final Config pConfig;
-	private final boolean beforeFirstBatch;
+//	private final boolean beforeFirstBatch;
 	
 	public HBasePrimaryKeyBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
-			final Range<PK> range, boolean beforeFirstBatch, final Config pConfig){
+			final Range<PK> range, final Config pConfig){
 		super();
 		this.node = node;
 		this.scatteringPrefix = scatteringPrefix;
 		this.scatteringPrefixBytes = FieldSetTool.getConcatenatedValueBytes(scatteringPrefix, false, false);
 		this.range = range;
-		this.beforeFirstBatch = beforeFirstBatch;
+//		this.beforeFirstBatch = beforeFirstBatch;
 		this.pConfig = pConfig;
 	}
 
@@ -58,7 +58,7 @@ extends BaseBatchLoader<PK>{
 		}
 		
 		//we only care about the scattering prefix part of the range here, not the actual startKey
-		Range<ByteRange> byteRange = Range.create(startBytes, beforeFirstBatch, endBytes, range.getEndInclusive());
+		Range<ByteRange> byteRange = Range.create(startBytes, shouldIssueStartInclusive(), endBytes, range.getEndInclusive());
 		List<Result> hBaseRows = node.getResultsInSubRange(byteRange, true, pConfig);
 		List<PK> results = ListTool.createArrayListWithSize(hBaseRows);
 		for(Result row : hBaseRows){
@@ -84,8 +84,8 @@ extends BaseBatchLoader<PK>{
 	@Override
 	public BatchLoader<PK> getNextLoader(){
 		PK lastPkFromPreviousBatch = CollectionTool.getLast(batch);
-		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, beforeFirstBatch, range.getEnd(), true);
-		return new HBasePrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, false, pConfig);					
+		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, shouldIssueStartInclusive(), range.getEnd(), true);
+		return new HBasePrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, pConfig);					
 	}
 	
 	private boolean differentScatteringPrefix(Result row){

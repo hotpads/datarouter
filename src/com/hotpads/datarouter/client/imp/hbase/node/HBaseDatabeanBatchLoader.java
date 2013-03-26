@@ -31,15 +31,13 @@ extends BaseBatchLoader<D>{
 	private final byte[] scatteringPrefixBytes;//acts as a cache for the comparison of each result
 	private final Range<PK> range;
 	private final Config pConfig;
-	private final boolean isFirstBatch;
 	
 	public HBaseDatabeanBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
-			final Range<PK> range, boolean isFirstBatch, final Config pConfig){
+			final Range<PK> range, final Config pConfig){
 		this.node = node;
 		this.scatteringPrefix = scatteringPrefix;
 		this.scatteringPrefixBytes = FieldSetTool.getConcatenatedValueBytes(scatteringPrefix, false, false);
 		this.range = range;
-		this.isFirstBatch = isFirstBatch;
 		this.pConfig = pConfig;
 	}
 
@@ -47,10 +45,13 @@ extends BaseBatchLoader<D>{
 	public HBaseDatabeanBatchLoader<PK,D,F> call(){
 		//these should handle null scattering prefixes and null pks
 		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart()));
-		ByteRange endBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getEnd()));
+		ByteRange endBytes = null;
+		if(range.getEnd() != null){//if no end bytes, then the differentScatteringPrefix(row) below will stop the scanner
+			endBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getEnd()));
+		}
 		
 		//we only care about the scattering prefix part of the range here, not the actual startKey
-		Range<ByteRange> byteRange = Range.create(startBytes, isFirstBatch, endBytes, range.getEndInclusive());
+		Range<ByteRange> byteRange = Range.create(startBytes, shouldIssueStartInclusive(), endBytes, range.getEndInclusive());
 		List<Result> hBaseRows = node.getResultsInSubRange(byteRange, false, pConfig);
 		List<D> databeans = ListTool.createArrayListWithSize(hBaseRows);
 		for(Result row : hBaseRows){
@@ -60,6 +61,7 @@ extends BaseBatchLoader<D>{
 			databeans.add(result);
 		}
 		setBatch(databeans);
+		batchHasBeenLoaded = true;//thread safe by lack of other writers
 		return this;
 	}
 	
@@ -71,8 +73,8 @@ extends BaseBatchLoader<D>{
 	@Override
 	public BatchLoader<D> getNextLoader(){
 		PK lastPkFromPreviousBatch = CollectionTool.isEmpty(batch) ? null : CollectionTool.getLast(batch).getKey();
-		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, isFirstBatch, range.getEnd(), true);
-		return new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, false, pConfig);					
+		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, shouldIssueStartInclusive(), range.getEnd(), true);
+		return new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, pConfig);					
 	}
 	
 	//TODO same as PrimaryKeyBatchLoader.differentScatteringPrefix
