@@ -49,7 +49,7 @@ extends BaseBatchLoader<PK>{
 	public Void call(){
 		//these should handle null scattering prefixes and null pks
 		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart()));
-		ByteRange endBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getEnd()));
+		ByteRange endBytes = null;//new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getEnd()));
 		
 		//we only care about the scattering prefix part of the range here, not the actual startKey
 		Range<ByteRange> byteRange = Range.create(startBytes, beforeFirstBatch, endBytes, range.getEndInclusive());

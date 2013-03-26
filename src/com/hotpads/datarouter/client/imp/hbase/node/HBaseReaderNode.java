@@ -17,7 +17,6 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
-import com.hotpads.datarouter.client.imp.hbase.scan.HBasePrimaryKeyScanner;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
@@ -356,8 +355,9 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(drContext, "getResultsInSubRange",
 				this, config){
 				public List<Result> hbaseCall() throws Exception{
-				Scan scan = HBaseQueryBuilder.getScanForRange(range.getStart().copyToNewArray(), range
-						.getStartInclusive(), range.getEnd().copyToNewArray(), config);
+					byte[] start = range.getStart().copyToNewArray();
+					byte[] end = range.getEnd() == null? null : range.getEnd().copyToNewArray();
+					Scan scan = HBaseQueryBuilder.getScanForRange(start, range.getStartInclusive(), end, config);
 					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }
 					managedResultScanner = hTable.getScanner(scan);
 					List<Result> results = ListTool.createArrayList();
