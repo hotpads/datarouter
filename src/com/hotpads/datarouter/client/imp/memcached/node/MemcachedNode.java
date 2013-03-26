@@ -74,7 +74,14 @@ implements PhysicalMapStorageNode<PK,D>
 					//  could big big savings for small or key-only databeans
 					byte[] bytes = DatabeanTool.getBytes(databean);
 					String key = new DataRouterMemcachedKey<PK>(name, databeanVersion, databean.getKey()).getVersionedKeyString();
-					spyClient.set(key, Integer.MAX_VALUE, bytes);
+					//memcachedClient uses an integer for cache timeout
+					Long timeoutLong = config.getCacheTimeoutMs() == null 
+										? Long.MAX_VALUE 
+										: config.getCacheTimeoutMs() / 1000;
+					Integer expiration = (timeoutLong > new Long(Integer.MAX_VALUE) 
+										? Integer.MAX_VALUE 
+										: timeoutLong.intValue());
+					spyClient.set(key, expiration, bytes);
 				}
 				TraceContext.appendToSpanInfo(CollectionTool.size(databeans)+"");
 				return null;
