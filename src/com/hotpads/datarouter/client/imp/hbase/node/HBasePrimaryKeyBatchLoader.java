@@ -58,7 +58,8 @@ extends BaseBatchLoader<PK>{
 		}
 		
 		//we only care about the scattering prefix part of the range here, not the actual startKey
-		Range<ByteRange> byteRange = Range.create(startBytes, shouldIssueStartInclusive(), endBytes, range.getEndInclusive());
+		Range<ByteRange> byteRange = Range.create(startBytes, range.getStartInclusive(), endBytes, 
+				range.getEndInclusive());
 		List<Result> hBaseRows = node.getResultsInSubRange(byteRange, true, pConfig);
 		List<PK> results = ListTool.createArrayListWithSize(hBaseRows);
 		for(Result row : hBaseRows){
@@ -68,8 +69,7 @@ extends BaseBatchLoader<PK>{
 			results.add(result);
 		}
 		List<PK> pks = results;
-		setBatch(pks);
-		batchHasBeenLoaded = true;//thread safe by lack of other writers
+		updateBatch(pks);
 		int numItems = CollectionTool.size(pks);
 		timer.add("loaded "+numItems);
 //		logger.warn(timer+" from "+node.getName()+" @"+timer.getItemsPerSecond(numItems)+"/s");
@@ -78,13 +78,13 @@ extends BaseBatchLoader<PK>{
 	
 	@Override
 	public boolean isLastBatch(){
-		return batchHasBeenLoaded && isBatchSmallerThan(pConfig.getIterateBatchSize());
+		return isBatchHasBeenLoaded() && isBatchSmallerThan(pConfig.getIterateBatchSize());
 	}
 
 	@Override
 	public BatchLoader<PK> getNextLoader(){
-		PK lastPkFromPreviousBatch = CollectionTool.getLast(batch);
-		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, shouldIssueStartInclusive(), range.getEnd(), true);
+		PK lastPkFromPreviousBatch = getLast();
+		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, false, range.getEnd(), true);
 		return new HBasePrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, pConfig);					
 	}
 	

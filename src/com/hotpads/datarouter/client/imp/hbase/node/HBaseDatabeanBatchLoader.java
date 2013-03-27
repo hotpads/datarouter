@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase.node;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.config.Config;
@@ -12,7 +13,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
@@ -25,6 +25,7 @@ public class HBaseDatabeanBatchLoader<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
 extends BaseBatchLoader<D>{
+	private static Logger logger = Logger.getLogger(HBaseDatabeanBatchLoader.class);
 	
 	private final HBaseReaderNode<PK,D,F> node;
 	private final List<Field<?>> scatteringPrefix;//will be passed along between scanners tracking this partition
@@ -51,7 +52,8 @@ extends BaseBatchLoader<D>{
 		}
 		
 		//we only care about the scattering prefix part of the range here, not the actual startKey
-		Range<ByteRange> byteRange = Range.create(startBytes, shouldIssueStartInclusive(), endBytes, range.getEndInclusive());
+		Range<ByteRange> byteRange = Range.create(startBytes, range.getStartInclusive(), endBytes, 
+				range.getEndInclusive());
 		List<Result> hBaseRows = node.getResultsInSubRange(byteRange, false, pConfig);
 		List<D> databeans = ListTool.createArrayListWithSize(hBaseRows);
 		for(Result row : hBaseRows){
@@ -60,20 +62,20 @@ extends BaseBatchLoader<D>{
 			D result = HBaseResultTool.getDatabean(row, node.getFieldInfo());
 			databeans.add(result);
 		}
-		setBatch(databeans);
-		batchHasBeenLoaded = true;//thread safe by lack of other writers
+		updateBatch(databeans);
+		logger.warn("loaded batch for scatteringPrefix="+scatteringPrefix);
 		return this;
 	}
 	
 	@Override
 	public boolean isLastBatch(){
-		return batchHasBeenLoaded && isBatchSmallerThan(pConfig.getIterateBatchSize());
+		return isBatchHasBeenLoaded() && isBatchSmallerThan(pConfig.getIterateBatchSize());
 	}
 
 	@Override
 	public BatchLoader<D> getNextLoader(){
-		PK lastPkFromPreviousBatch = CollectionTool.isEmpty(batch) ? null : CollectionTool.getLast(batch).getKey();
-		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, shouldIssueStartInclusive(), range.getEnd(), true);
+		PK lastPkFromPreviousBatch = getLast()==null ? null : getLast().getKey();
+		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, false, range.getEnd(), true);
 		return new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, pConfig);					
 	}
 	
