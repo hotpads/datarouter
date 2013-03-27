@@ -7,8 +7,8 @@ import java.util.concurrent.ExecutorService;
 
 import org.apache.hadoop.hbase.client.Scan;
 
-import com.hotpads.datarouter.client.imp.hbase.node.HBaseDatabeanBatchLoader;
-import com.hotpads.datarouter.client.imp.hbase.node.HBasePrimaryKeyBatchLoader;
+import com.hotpads.datarouter.client.imp.hbase.batching.HBaseDatabeanBatchLoader;
+import com.hotpads.datarouter.client.imp.hbase.batching.HBasePrimaryKeyBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBasePrimaryKeyScanner;

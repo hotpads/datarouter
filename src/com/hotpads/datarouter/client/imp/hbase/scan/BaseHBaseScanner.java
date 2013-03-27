@@ -12,6 +12,7 @@ import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
 
+@Deprecated
 public abstract class BaseHBaseScanner<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,

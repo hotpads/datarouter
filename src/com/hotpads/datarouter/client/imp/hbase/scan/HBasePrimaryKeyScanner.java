@@ -9,6 +9,7 @@ import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
+@Deprecated
 //can't figure out how to pass wildcards for D when instantiating this class
 public class HBasePrimaryKeyScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends BaseHBaseScanner<PK,D,PK>{
