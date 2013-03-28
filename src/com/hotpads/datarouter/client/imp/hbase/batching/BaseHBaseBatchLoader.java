@@ -12,12 +12,12 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchLoader;
-import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 
 public abstract class BaseHBaseBatchLoader<
 		PK extends PrimaryKey<PK>,
@@ -32,14 +32,16 @@ extends BaseBatchLoader<T>{
 	protected final byte[] scatteringPrefixBytes;//acts as a cache for the comparison of each result
 	protected final Range<PK> range;
 	protected final Config pConfig;
+	protected Long batchChainCounter;
 	
 	public BaseHBaseBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
-			final Range<PK> range, final Config pConfig){
+			final Range<PK> range, final Config pConfig, Long batchChainCounter){
 		this.node = node;
 		this.scatteringPrefix = scatteringPrefix;
 		this.scatteringPrefixBytes = FieldSetTool.getConcatenatedValueBytes(scatteringPrefix, false, false);
 		this.range = range;
 		this.pConfig = pConfig;
+		this.batchChainCounter = batchChainCounter;
 	}
 
 	protected abstract boolean isKeysOnly();
@@ -49,6 +51,8 @@ extends BaseBatchLoader<T>{
 
 	@Override
 	public BaseHBaseBatchLoader<PK,D,F,T> call(){
+		logger.warn("dispatching call "+batchChainCounter+" for scatteringPrefix="+ArrayTool.toCsvString(scatteringPrefixBytes));
+		
 		//these should handle null scattering prefixes and null pks
 		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart()));
 		ByteRange endBytes = null;
@@ -70,7 +74,8 @@ extends BaseBatchLoader<T>{
 			outs.add(result);
 		}
 		updateBatch(outs);
-//		logger.warn("loaded batch for scatteringPrefix="+scatteringPrefix);
+
+		logger.warn("completed call "+batchChainCounter+" for scatteringPrefix="+ArrayTool.toCsvString(scatteringPrefixBytes));
 		return this;
 	}
 	

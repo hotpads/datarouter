@@ -26,8 +26,8 @@ extends BaseHBaseBatchLoader<PK,D,F,D>{
 	private static Logger logger = Logger.getLogger(HBaseDatabeanBatchLoader.class);
 		
 	public HBaseDatabeanBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
-			final Range<PK> range, final Config pConfig){
-		super(node, scatteringPrefix, range, pConfig);
+			final Range<PK> range, final Config pConfig, Long batchChainCounter){
+		super(node, scatteringPrefix, range, pConfig, batchChainCounter);
 	}
 	
 	@Override
@@ -48,6 +48,6 @@ extends BaseHBaseBatchLoader<PK,D,F,D>{
 	@Override
 	public BatchLoader<D> getNextLoader(){
 		Range<PK> nextRange = getNextRange();
-		return new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, pConfig);					
+		return new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, pConfig, batchChainCounter + 1);					
 	}
 }

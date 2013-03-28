@@ -194,7 +194,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 		ArrayList<BatchingSortedScanner<PK>> scanners = ListTool.createArrayList();
 		for(List<Field<?>> scatteringPrefix : allScatteringPrefixes){
 			BatchLoader<PK> firstBatchLoaderForPrefix = new HBasePrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, 
-					pkRange, pConfig);
+					pkRange, pConfig, 1L);//start the counter at 1
 			BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(executorService, firstBatchLoaderForPrefix);
 			scanners.add(scanner);
 		}
@@ -213,7 +213,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 		ArrayList<BatchingSortedScanner<D>> scanners = ListTool.createArrayList();
 		for(List<Field<?>> scatteringPrefix : allScatteringPrefixes){
 			BatchLoader<D> firstBatchLoaderForPrefix = new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, 
-					pkRange, pConfig);
+					pkRange, pConfig, 1L);//start the counter at 1
 			BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(executorService, firstBatchLoaderForPrefix);
 			scanners.add(scanner);
 		}
