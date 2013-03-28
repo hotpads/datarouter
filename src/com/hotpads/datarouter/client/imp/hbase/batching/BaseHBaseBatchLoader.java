@@ -12,7 +12,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.ByteRange;
@@ -26,12 +25,14 @@ public abstract class BaseHBaseBatchLoader<
 		T> //T will be either PK or D, but not going to express that (or think about how to)
 extends BaseBatchLoader<T>{
 	private static Logger logger = Logger.getLogger(BaseBatchLoader.class);
+
+	private static final int DEFAULT_iterateBatchSize = 1000;
 	
 	protected final HBaseReaderNode<PK,D,F> node;
 	protected final List<Field<?>> scatteringPrefix;//will be passed along between scanners tracking this partition
 	protected final byte[] scatteringPrefixBytes;//acts as a cache for the comparison of each result
 	protected final Range<PK> range;
-	protected final Config pConfig;
+	protected final Config config;
 	protected Long batchChainCounter;
 	
 	public BaseHBaseBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
@@ -40,7 +41,9 @@ extends BaseBatchLoader<T>{
 		this.scatteringPrefix = scatteringPrefix;
 		this.scatteringPrefixBytes = FieldSetTool.getConcatenatedValueBytes(scatteringPrefix, false, false);
 		this.range = range;
-		this.pConfig = pConfig;
+		this.config = Config.nullSafe(pConfig);
+		//ensure we have a value on this one so we can identify when a partial batch (which is the last batch) comes back 
+		config.setIterateBatchSize(config.getIterateBatchSizeOverrideNull(DEFAULT_iterateBatchSize));
 		this.batchChainCounter = batchChainCounter;
 	}
 
@@ -50,9 +53,7 @@ extends BaseBatchLoader<T>{
 	
 
 	@Override
-	public BaseHBaseBatchLoader<PK,D,F,T> call(){
-//		logger.warn("dispatching call "+batchChainCounter+" for scatteringPrefix="+ArrayTool.toCsvString(scatteringPrefixBytes));
-		
+	public BaseHBaseBatchLoader<PK,D,F,T> call(){		
 		//these should handle null scattering prefixes and null pks
 		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart()));
 		ByteRange endBytes = null;
@@ -64,7 +65,7 @@ extends BaseBatchLoader<T>{
 				range.getEndInclusive());
 		
 		//do the RPC
-		List<Result> hBaseRows = node.getResultsInSubRange(byteRange, isKeysOnly(), pConfig);
+		List<Result> hBaseRows = node.getResultsInSubRange(byteRange, isKeysOnly(), config);
 		
 		List<T> outs = ListTool.createArrayListWithSize(hBaseRows);
 		for(Result row : hBaseRows){
@@ -75,7 +76,6 @@ extends BaseBatchLoader<T>{
 		}
 		updateBatch(outs);
 
-//		logger.warn("completed call "+batchChainCounter+" for scatteringPrefix="+ArrayTool.toCsvString(scatteringPrefixBytes));
 		return this;
 	}
 	
@@ -87,7 +87,7 @@ extends BaseBatchLoader<T>{
 	
 	@Override
 	public boolean isLastBatch(){
-		return isBatchHasBeenLoaded() && isBatchSmallerThan(pConfig.getIterateBatchSize());
+		return isBatchHasBeenLoaded() && isBatchSmallerThan(config.getIterateBatchSize());
 	}
 
 	

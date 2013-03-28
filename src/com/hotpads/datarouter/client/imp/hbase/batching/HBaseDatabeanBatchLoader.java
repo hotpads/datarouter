@@ -48,6 +48,6 @@ extends BaseHBaseBatchLoader<PK,D,F,D>{
 	@Override
 	public BatchLoader<D> getNextLoader(){
 		Range<PK> nextRange = getNextRange();
-		return new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, pConfig, batchChainCounter + 1);					
+		return new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, config, batchChainCounter + 1);					
 	}
 }

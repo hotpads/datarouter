@@ -46,6 +46,6 @@ extends BaseHBaseBatchLoader<PK,D,F,PK>{
 	@Override
 	public BatchLoader<PK> getNextLoader(){
 		Range<PK> nextRange = getNextRange();
-		return new HBasePrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, pConfig, batchChainCounter + 1);					
+		return new HBasePrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, nextRange, config, batchChainCounter + 1);					
 	}
 }
