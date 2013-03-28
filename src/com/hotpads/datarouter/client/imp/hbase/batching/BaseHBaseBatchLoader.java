@@ -33,6 +33,7 @@ extends BaseBatchLoader<T>{
 	protected final byte[] scatteringPrefixBytes;//acts as a cache for the comparison of each result
 	protected final Range<PK> range;
 	protected final Config config;
+	protected final Integer iterateBatchSize;//break this out of config for safety
 	protected Long batchChainCounter;
 	
 	public BaseHBaseBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
@@ -42,8 +43,8 @@ extends BaseBatchLoader<T>{
 		this.scatteringPrefixBytes = FieldSetTool.getConcatenatedValueBytes(scatteringPrefix, false, false);
 		this.range = range;
 		this.config = Config.nullSafe(pConfig);
-		//ensure we have a value on this one so we can identify when a partial batch (which is the last batch) comes back 
-		config.setIterateBatchSize(config.getIterateBatchSizeOverrideNull(DEFAULT_iterateBatchSize));
+		this.iterateBatchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_iterateBatchSize);
+		config.setIterateBatchSize(iterateBatchSize);
 		this.batchChainCounter = batchChainCounter;
 	}
 
@@ -87,7 +88,8 @@ extends BaseBatchLoader<T>{
 	
 	@Override
 	public boolean isLastBatch(){
-		return isBatchHasBeenLoaded() && isBatchSmallerThan(config.getIterateBatchSize());
+		//refer to the dedicated iterateBatchSize field in case someone changed Config down the line
+		return isBatchHasBeenLoaded() && isBatchSmallerThan(iterateBatchSize);
 	}
 
 	

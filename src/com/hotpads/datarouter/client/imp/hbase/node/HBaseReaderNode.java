@@ -355,8 +355,10 @@ implements HBasePhysicalNode<PK,D>,
 	 */
 	public List<Result> getResultsInSubRange(final Range<ByteRange> range, final boolean keysOnly, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		final String scanKeysVsRows = "scan " + (keysOnly ? "keys" : "rows");
-		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(drContext, scanKeysVsRows,
+		final String scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "key" : "row") + " numBatches";
+		final String scanKeysVsRowsNumRows = "scan " + (keysOnly ? "key" : "row") + " numRows";
+//		final String scanKeysVsRowsNumCells = "scan " + (keysOnly ? "key" : "row") + " numCells";//need a clean way to get cell count
+		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(drContext, scanKeysVsRowsNumBatches,
 				this, config){
 				public List<Result> hbaseCall() throws Exception{
 					byte[] start = range.getStart().copyToNewArray();
@@ -372,7 +374,7 @@ implements HBasePhysicalNode<PK,D>,
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}
 					managedResultScanner.close();
-					DRCounters.incSuffixClientNode(ClientType.hbase, scanKeysVsRows, clientName, node.getName(),  
+					DRCounters.incSuffixClientNode(ClientType.hbase, scanKeysVsRowsNumRows, clientName, node.getName(),  
 							CollectionTool.size(results));
 					return results;
 				}
@@ -395,12 +397,13 @@ implements HBasePhysicalNode<PK,D>,
 			keyPlusScatteringPrefixFields.addAll(fieldInfo.getSampleScatteringPrefix().getScatteringPrefixFields(key));
 		}
 		keyPlusScatteringPrefixFields.addAll(key.getFields());
-		byte[] bytes = FieldSetTool.getConcatenatedValueBytes(keyPlusScatteringPrefixFields, false,
+		//allow nulls because people will pass in keys with only the left fields set
+		byte[] bytes = FieldSetTool.getConcatenatedValueBytes(keyPlusScatteringPrefixFields, true,
 				primaryKeyHasUnnecessaryTrailingSeparatorByte);
 		return bytes;
 	}
 	
-	protected <T extends Comparable<? super T>> void sortIfScatteringPrefixExists(List<T> ins){
+	private <T extends Comparable<? super T>> void sortIfScatteringPrefixExists(List<T> ins){
 		if(fieldInfo.getSampleScatteringPrefix().getNumPrefixBytes() > 0){
 			Collections.sort(ins);
 		}
