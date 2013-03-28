@@ -51,7 +51,7 @@ extends BaseBatchLoader<T>{
 
 	@Override
 	public BaseHBaseBatchLoader<PK,D,F,T> call(){
-		logger.warn("dispatching call "+batchChainCounter+" for scatteringPrefix="+ArrayTool.toCsvString(scatteringPrefixBytes));
+//		logger.warn("dispatching call "+batchChainCounter+" for scatteringPrefix="+ArrayTool.toCsvString(scatteringPrefixBytes));
 		
 		//these should handle null scattering prefixes and null pks
 		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart()));
@@ -75,7 +75,7 @@ extends BaseBatchLoader<T>{
 		}
 		updateBatch(outs);
 
-		logger.warn("completed call "+batchChainCounter+" for scatteringPrefix="+ArrayTool.toCsvString(scatteringPrefixBytes));
+//		logger.warn("completed call "+batchChainCounter+" for scatteringPrefix="+ArrayTool.toCsvString(scatteringPrefixBytes));
 		return this;
 	}
 	

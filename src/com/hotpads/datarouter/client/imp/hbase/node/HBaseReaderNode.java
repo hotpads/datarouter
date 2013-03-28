@@ -355,7 +355,8 @@ implements HBasePhysicalNode<PK,D>,
 	 */
 	public List<Result> getResultsInSubRange(final Range<ByteRange> range, final boolean keysOnly, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(drContext, "getResultsInSubRange",
+		final String scanKeysVsRows = "scan " + (keysOnly ? "keys" : "rows");
+		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(drContext, scanKeysVsRows,
 				this, config){
 				public List<Result> hbaseCall() throws Exception{
 					byte[] start = range.getStart().copyToNewArray();
@@ -371,6 +372,8 @@ implements HBasePhysicalNode<PK,D>,
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}
 					managedResultScanner.close();
+					DRCounters.incSuffixClientNode(ClientType.hbase, scanKeysVsRows, clientName, node.getName(),  
+							CollectionTool.size(results));
 					return results;
 				}
 			}).call();
