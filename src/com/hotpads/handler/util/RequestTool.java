@@ -98,6 +98,10 @@ public class RequestTool {
 		if(StringTool.isEmpty(stringVal)){
 			return defaultValue;
 		}else{
+			try {
+				stringVal = URLDecoder.decode(stringVal, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+			}
 			return stringVal;
 		}
 	}
