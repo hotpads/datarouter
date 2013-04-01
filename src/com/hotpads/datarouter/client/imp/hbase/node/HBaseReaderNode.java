@@ -15,7 +15,6 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
@@ -35,6 +34,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -362,7 +362,14 @@ implements HBasePhysicalNode<PK,D>,
 				this, config){
 				public List<Result> hbaseCall() throws Exception{
 					byte[] start = range.getStart().copyToNewArray();
+					if(start!=null && !range.getStartInclusive()){
+						start = ByteTool.unsignedIncrement(start);
+					}
 					byte[] end = range.getEnd() == null? null : range.getEnd().copyToNewArray();
+					if(end!=null && range.getEndInclusive()){
+						end = ByteTool.unsignedIncrement(end);
+					}
+					
 					Scan scan = HBaseQueryBuilder.getScanForRange(start, range.getStartInclusive(), end, 
 							range.getEndInclusive(), config);
 					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }
