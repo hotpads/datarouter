@@ -363,7 +363,8 @@ implements HBasePhysicalNode<PK,D>,
 				public List<Result> hbaseCall() throws Exception{
 					byte[] start = range.getStart().copyToNewArray();
 					byte[] end = range.getEnd() == null? null : range.getEnd().copyToNewArray();
-					Scan scan = HBaseQueryBuilder.getScanForRange(start, range.getStartInclusive(), end, config);
+					Scan scan = HBaseQueryBuilder.getScanForRange(start, range.getStartInclusive(), end, 
+							range.getEndInclusive(), config);
 					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }
 					managedResultScanner = hTable.getScanner(scan);
 					List<Result> results = ListTool.createArrayList();

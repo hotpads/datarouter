@@ -23,14 +23,14 @@ public class HBaseQueryBuilder{
 			final FieldSet<?> startKey, final boolean startInclusive, 
 			final FieldSet<?> endKey, final boolean endInclusive, Config config){
 		Pair<byte[],byte[]> byteRange = getStartEndBytesForRange(startKey, startInclusive, endKey, endInclusive);
-		Scan scan = getScanForRange(byteRange.getLeft(), true, byteRange.getRight(), config);
+		Scan scan = getScanForRange(byteRange.getLeft(), true, byteRange.getRight(), false, config);
 		return scan;
 	}
 
 	public static Scan getPrefixScanner(FieldSet<?> prefix, 
 			boolean wildcardLastField, Config config){
 		Pair<byte[],byte[]> byteRange = getStartEndBytesForPrefix(prefix, wildcardLastField);
-		Scan scan = getScanForRange(byteRange.getLeft(), true, byteRange.getRight(), config);
+		Scan scan = getScanForRange(byteRange.getLeft(), true, byteRange.getRight(), false, config);
 		return scan;
 	}
 
@@ -42,25 +42,30 @@ public class HBaseQueryBuilder{
 		Pair<byte[],byte[]> prefixBounds = getStartEndBytesForPrefix(prefix, wildcardLastField);
 		Pair<byte[],byte[]> rangeBounds = getStartEndBytesForRange(startKey, startInclusive, endKey, endInclusive);
 		Pair<byte[],byte[]> intersection = getRangeIntersection(prefixBounds, rangeBounds);
-		Scan scan = getScanForRange(intersection.getLeft(), true, intersection.getRight(), config);
+		Scan scan = getScanForRange(intersection.getLeft(), true, intersection.getRight(), false, config);
 		return scan;
 	}
 	
 	/****************************** scan helpers ************************************/
 
-	public static Scan getScanForRange(byte[] pStart, boolean startInclusive, byte[] endExclusive, Config pConfig){
+	public static Scan getScanForRange(byte[] pStart, boolean startInclusive, byte[] pEnd, boolean endInclusive, 
+			Config pConfig){
 		Config config = Config.nullSafe(pConfig);
 		byte[] start = pStart;
 		if( ! startInclusive){
 			start = ByteTool.unsignedIncrement(start); 
 		}
+		byte[] end = pEnd;
+		if(endInclusive && end != null){
+			end = ByteTool.unsignedIncrement(end);
+		}
 		Scan scan;
-		if(start!=null && endExclusive!=null){
-			scan = new Scan(start, endExclusive);
+		if(start!=null && pEnd!=null){
+			scan = new Scan(start, end);
 		}else if(start!=null){
 			scan = new Scan(start);
-		}else if(endExclusive!=null){
-			scan = new Scan(new byte[]{}, endExclusive);
+		}else if(pEnd!=null){
+			scan = new Scan(new byte[]{}, end);
 		}else{
 			scan = new Scan();//whole table
 		}
