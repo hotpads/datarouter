@@ -82,7 +82,7 @@ extends BaseBatchLoader<T>{
 	
 	protected Range<PK> getNextRange(){
 		PK lastPkFromPreviousBatch = getLastPrimaryKeyFromBatch();
-		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, false, range.getEnd(), true);
+		Range<PK> nextRange = Range.create(lastPkFromPreviousBatch, false, range.getEnd(), range.getEndInclusive());
 		return nextRange;
 	}
 	

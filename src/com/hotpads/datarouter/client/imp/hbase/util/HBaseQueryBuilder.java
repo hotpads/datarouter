@@ -10,7 +10,6 @@ import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.collections.Pair;
 
@@ -81,14 +80,14 @@ public class HBaseQueryBuilder{
 			final FieldSet<?> endKey, final boolean endInclusive){
 		byte[] startBytes = null;
 		if(startKey!=null){
-			startBytes = getBytesForNonNullFieldsWithNoTrailingSeparator(startKey);
+			startBytes = FieldSetTool.getBytesForNonNullFieldsWithNoTrailingSeparator(startKey);
 			if( ! startInclusive){
 				startBytes = ByteTool.unsignedIncrement(startBytes); 
 			}
 		}
 		byte[] endBytes = null;
 		if(endKey!=null){
-			endBytes = getBytesForNonNullFieldsWithNoTrailingSeparator(endKey);
+			endBytes = FieldSetTool.getBytesForNonNullFieldsWithNoTrailingSeparator(endKey);
 			if(endInclusive){ endBytes = ByteTool.unsignedIncrement(endBytes); }
 		}
 		return new Pair<byte[],byte[]>(startBytes, endBytes);
@@ -117,23 +116,6 @@ public class HBaseQueryBuilder{
 		byte[] startBytes = ByteTool.concatenate(fieldBytes);
 		byte[] endBytes = ByteTool.unsignedIncrementOverflowToNull(startBytes);
 		return new Pair<byte[],byte[]>(startBytes, endBytes);
-	}
-	
-	/************************** field to byte helpers *****************************************/
-	
-	protected static byte[] getBytesForNonNullFieldsWithNoTrailingSeparator(FieldSet<?> fields){
-		int numNonNullFields = FieldSetTool.getNumNonNullFields(fields);
-		byte[][] fieldArraysWithSeparators = new byte[numNonNullFields][];
-		int fieldIdx=-1;
-		for(Field<?> field : IterableTool.nullSafe(fields.getFields())){
-			++fieldIdx;
-			if(fieldIdx == numNonNullFields - 1){//last field
-				fieldArraysWithSeparators[fieldIdx] = field.getBytes();
-				break;
-			}
-			fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
-		}
-		return ByteTool.concatenate(fieldArraysWithSeparators);
 	}
 	
 	/************************** pure byte helpers *****************************************/
