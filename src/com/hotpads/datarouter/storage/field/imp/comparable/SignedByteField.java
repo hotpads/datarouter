@@ -11,13 +11,14 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.ByteTool;
 
-public class ByteField extends BasePrimitiveField<Byte>{
+//recognizes -128 to -1 using two's complement.  therefore max value is 127
+public class SignedByteField extends BasePrimitiveField<Byte>{
 
-	public ByteField(String name, Byte value){
+	public SignedByteField(String name, Byte value){
 		super(name, value);
 	}
 
-	public ByteField(String prefix, String name, Byte value){
+	public SignedByteField(String prefix, String name, Byte value){
 		super(prefix, name, value);
 	}
 	
@@ -58,7 +59,8 @@ public class ByteField extends BasePrimitiveField<Byte>{
 			throw new DataAccessException(e);
 		}
 	}
-	
+
+	//recognizes -128 to -1 using two's complement.  therefore max value is 127
 	@Override
 	public byte[] getBytes(){
 		return value==null?null:ByteTool.getComparableBytes(value);

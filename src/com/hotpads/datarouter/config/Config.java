@@ -112,37 +112,30 @@ public class Config implements Cloneable{
 		if(isolation==null){ return theDefault; }
 		return isolation;
 	}
+	
 	public Isolation getIsolation() {
 		return isolation;
 	}
+	
 	public Config setIsolation(Isolation isolation) {
 		this.isolation = isolation;
 		return this;
 	}
+	
 
-
-//	public Boolean getAutoCommitOrUse(Boolean theDefault){
-//		if(autoCommit==null){ return theDefault; }
-//		return autoCommit;
-//	}
-//	public Boolean getAutoCommit(){
-//		return autoCommit;
-//	}
-//	public Config setAutoCommit(Boolean autoCommit){
-//		this.autoCommit = autoCommit;
-//		return this;
-//	}
+	/**************** connectMethod **********************/
 
 	public ConnectMethod getConnectMethod() {
 		return connectMethod;
 	}
-
 
 	public Config setConnectMethod(ConnectMethod connectMethod) {
 		this.connectMethod = connectMethod;
 		return this;
 	}
 
+
+	/**************** limit **********************/
 
 	public Integer getLimit() {
 		return limit;
@@ -153,34 +146,38 @@ public class Config implements Cloneable{
 		return limit;
 	}
 
-
 	public Config setLimit(Integer limit) {
 		this.limit = limit;
 		return this;
 	}
 
+	
+	/**************** offset **********************/
 
 	public Integer getOffset() {
 		return offset;
 	}
-
 
 	public Config setOffset(Integer offset) {
 		this.offset = offset;
 		return this;
 	}
 
+	
+	/**************** iterateBatchSize **********************/
 
 	public Integer getIterateBatchSize() {
 		return iterateBatchSize;
 	}
-
+	
+	public Integer getIterateBatchSizeOverrideNull(Integer overrideIfNull){
+		return iterateBatchSize == null ? overrideIfNull : iterateBatchSize;
+	}
 
 	public Config setIterateBatchSize(Integer iterateBatchSize) {
 		this.iterateBatchSize = iterateBatchSize;
 		return this;
 	}
-
 
 	public Config setIterateBatchSizeIfNull(Integer iterateBatchSize) {
 		if(this.iterateBatchSize!=null){ return this; }
@@ -188,10 +185,12 @@ public class Config implements Cloneable{
 		return this;
 	}
 
+	
+	/************** commitBatchSize *************************/
+	
 	public Integer getCommitBatchSize() {
 		return commitBatchSize;
 	}
-
 
 	public Config setCommitBatchSize(Integer commitBatchSize) {
 		this.commitBatchSize = commitBatchSize;
@@ -199,12 +198,11 @@ public class Config implements Cloneable{
 	}
 
 
+	/************** slaveOk *************************/
 
 	public Boolean getSlaveOk() {
-		return this.slaveOk;
+		return slaveOk;
 	}
-
-
 
 	public Config setSlaveOk(Boolean slaveOk) {
 		this.slaveOk = slaveOk;
@@ -212,38 +210,34 @@ public class Config implements Cloneable{
 	}
 
 
-
+	/************** cacheOk *************************/
 
 	public Boolean getCacheOk() {
-		return this.cacheOk;
+		return cacheOk;
 	}
-
-
 
 	public Config setCacheOk(Boolean cacheOk) {
 		this.cacheOk = cacheOk;
 		return this;
 	}
 
+	
+	/************** useSession *************************/
 
 	public Boolean getUseSession() {
 		return useSession;
 	}
-
-
-
 	public Config setUseSession(Boolean useSession) {
 		this.useSession = useSession;
 		return this;
 	}
 
 
+	/************** startId *************************/
 
 	public Object getStartId() {
 		return startId;
 	}
-
-
 
 	public Config setStartId(Object startId) {
 		this.startId = startId;
@@ -251,12 +245,11 @@ public class Config implements Cloneable{
 	}
 
 
+	/************** includeStartId *************************/
 
 	public Boolean getIncludeStartId() {
 		return includeStartId;
 	}
-
-
 
 	public Config setIncludeStartId(Boolean includeStartId) {
 		this.includeStartId = includeStartId;
@@ -264,17 +257,20 @@ public class Config implements Cloneable{
 	}
 
 
+	/************** includeStartId *************************/
 
 	public Integer getNumAttempts() {
 		return numAttempts;
 	}
-
 
 	public Config setNumAttempts(Integer numAttempts) {
 		this.numAttempts = numAttempts;
 		return this;
 	}
 
+	
+	/************** timeoutMs *************************/
+	
 	public Long getTimeoutMs() {
 		return timeoutMs;
 	}
@@ -294,6 +290,9 @@ public class Config implements Cloneable{
 		return this;
 	}
 
+	
+	/************** putMethod *************************/
+	
 	public PutMethod getPutMethod() {
 		return putMethod;
 	}
@@ -304,6 +303,8 @@ public class Config implements Cloneable{
 	}
 
 
+	/************** ignoreNullFields *************************/
+	
 	public Boolean getIgnoreNullFields() {
 		return ignoreNullFields;
 	}
@@ -314,6 +315,8 @@ public class Config implements Cloneable{
 	}
 
 
+	/************** scannerCaching *************************/
+	
 	public Boolean getScannerCaching() {
 		return scannerCaching;
 	}
@@ -323,6 +326,9 @@ public class Config implements Cloneable{
 		return this;
 	}
 
+
+	/************** persistentPut *************************/
+	
 	public Boolean getPersistentPut(){
 		return persistentPut;
 	}
@@ -332,6 +338,9 @@ public class Config implements Cloneable{
 		return this;
 	}
 
+
+	/************** cacheTimeoutMs *************************/
+	
 	public Long getCacheTimeoutMs(){
 		return cacheTimeoutMs;
 	}

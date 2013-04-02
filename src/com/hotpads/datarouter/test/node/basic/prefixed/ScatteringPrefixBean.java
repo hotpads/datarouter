@@ -14,7 +14,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
+import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt8Field;
 import com.hotpads.datarouter.storage.prefix.BaseScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
@@ -65,7 +65,8 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 			public List<List<Field<?>>> getAllPossibleScatteringPrefixes() {
 				List<List<Field<?>>> all = ListTool.createArrayList(NUM_SHARDS);
 				for(int i=0; i < NUM_SHARDS; ++i){
-					all.add(FieldTool.createList(new ByteField(F.prefix, (byte)i)));
+					//DOH, probably should have used an UnsignedByteField
+					all.add(FieldTool.createList(new SignedByteField(F.prefix, (byte)i)));
 				}
 				return all;
 			}

@@ -71,7 +71,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			prepClientAndTableEtc();
 
 			//do this after prepClientAndTableEtc, because client is set in there (null beforehand)
-			DRCounters.incSuffixClientNode(ClientType.hbase, "hbase "+taskName, client.getName(), node.getName());
+			DRCounters.incSuffixClientNode(ClientType.hbase, taskName, client.getName(), node.getName());
 			
 			/******************/
 			return hbaseCall(); //override this method in subclasses

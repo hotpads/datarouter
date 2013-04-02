@@ -548,7 +548,8 @@ implements MapStorageReader<PK,D>,
 		TraceContext.finishSpan();
 		return (List<D>)result;
 	}
-	
+
+	@Deprecated
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<PK> getKeysInRange(
@@ -559,7 +560,8 @@ implements MapStorageReader<PK,D>,
 		return (List<PK>)getRangeUnchecked(range, true, config);
 	}
 	
-	
+
+	@Deprecated
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getRange(

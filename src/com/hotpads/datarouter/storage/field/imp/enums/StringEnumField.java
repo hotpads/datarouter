@@ -53,7 +53,11 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 
 	@Override
 	public int compareTo(Field<E> other){
-		return DataRouterEnumTool.compareStringEnums(other.getValue(), value);
+		/* If we store the string in the database and are using Collating iterators and such, then we pretty much have
+		 * to sort by the persistentString value of the enum even though the persistentInt or Ordinal value of the enum
+		 * may sort differently. Perhaps an argument that PrimaryKeys should not be allowed to have alternate Fielders,
+		 * else the java would sort differently depending on which Fielder was being used. */
+		return DataRouterEnumTool.compareStringEnums(value, other.getValue());
 	}
 
 	@Override
