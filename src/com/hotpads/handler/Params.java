@@ -59,11 +59,7 @@ public class Params{
 	public Integer optionalInteger(String key, Integer defaultValue){
 		String value = request.getParameter(key);
 		if(value==null){ return defaultValue; }
-		try{
-			return Integer.parseInt(value);
-		}catch(Exception e){
-			return defaultValue;
-		}
+		return Integer.valueOf(value);
 	}
 	
 	public List<String> optionalCsvList(String key, List<String> defaultValue){
