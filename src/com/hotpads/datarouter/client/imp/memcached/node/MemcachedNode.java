@@ -4,8 +4,7 @@ import java.util.Collection;
 
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.memcached.DataRouterMemcachedKey;
-import com.hotpads.datarouter.client.imp.memcached.node.task.MemcachedMultiAttemptTask;
-import com.hotpads.datarouter.client.imp.memcached.node.task.MemcachedTask;
+import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
@@ -13,10 +12,10 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 
 public class MemcachedNode<
@@ -66,27 +65,26 @@ implements PhysicalMapStorageNode<PK,D>
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
 		if(CollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new MemcachedMultiAttemptTask<Void>(new MemcachedTask<Void>("putMulti", this, config){
-			public Void memcachedCall() throws Exception{
-				for(D databean : databeans){
-					if( ! databean.isFieldAware()){ throw new IllegalArgumentException("databeans must be field aware"); }
-					//TODO put only the nonKeyFields in the byte[] and figure out the keyFields from the key string
-					//  could big big savings for small or key-only databeans
-					byte[] bytes = DatabeanTool.getBytes(databean);
-					String key = new DataRouterMemcachedKey<PK>(name, databeanVersion, databean.getKey()).getVersionedKeyString();
-					//memcachedClient uses an integer for cache timeout
-					Long timeoutLong = config.getCacheTimeoutMs() == null 
-										? Long.MAX_VALUE 
-										: config.getCacheTimeoutMs() / 1000;
-					Integer expiration = (timeoutLong > new Long(Integer.MAX_VALUE) 
-										? Integer.MAX_VALUE 
-										: timeoutLong.intValue());
-					spyClient.set(key, expiration, bytes);
-				}
-				TraceContext.appendToSpanInfo(CollectionTool.size(databeans)+"");
-				return null;
+		for(D databean : databeans){
+			if( ! databean.isFieldAware()){ throw new IllegalArgumentException("databeans must be field aware"); }
+			//TODO put only the nonKeyFields in the byte[] and figure out the keyFields from the key string
+			//  could big big savings for small or key-only databeans
+			byte[] bytes = DatabeanTool.getBytes(databean);
+			String key = new DataRouterMemcachedKey<PK>(name, databeanVersion, databean.getKey()).getVersionedKeyString();
+			//memcachedClient uses an integer for cache timeout
+			Long timeoutLong = config.getCacheTimeoutMs() == null 
+								? Long.MAX_VALUE 
+								: config.getCacheTimeoutMs() / 1000;
+			Integer expiration = (timeoutLong > new Long(Integer.MAX_VALUE) 
+								? Integer.MAX_VALUE 
+								: timeoutLong.intValue());
+			try {
+				this.getClient().getSpyClient().set(key, expiration, bytes); 
+			} catch (MemcachedStateException e) {
+				logger.error(ExceptionTool.getStackTraceAsString(e));
 			}
-		}).call();
+		}
+		TraceContext.appendToSpanInfo(CollectionTool.size(databeans)+"");
 	}
 	
 	
@@ -105,16 +103,14 @@ implements PhysicalMapStorageNode<PK,D>
 	@Override
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
 		if(CollectionTool.isEmpty(keys)){ return; }
-		final Config config = Config.nullSafe(pConfig);
-		new MemcachedMultiAttemptTask<Void>(new MemcachedTask<Void>("deleteMulti", this, config){
-			public Void memcachedCall() throws Exception{
-				for(PK key : keys){
-					spyClient.delete(key.getPersistentString());
-				}
-				TraceContext.appendToSpanInfo(CollectionTool.size(keys)+"");
-				return null;
+		for(PK key : keys){
+			try {
+				this.getClient().getSpyClient().delete(key.getPersistentString());
+			} catch (MemcachedStateException e) {
+				logger.error(ExceptionTool.getStackTraceAsString(e));
 			}
-		}).call();
+		}
+		TraceContext.appendToSpanInfo(CollectionTool.size(keys)+"");
 	}
 	
 	
