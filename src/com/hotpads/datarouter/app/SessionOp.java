@@ -3,8 +3,8 @@ package com.hotpads.datarouter.app;
 import org.hibernate.Session;
 
 
-public interface HibernateTxnApp<T> 
-extends TxnApp<T> {
+
+public interface SessionOp<T>{
 	
 	Session getSession(String clientName);
 	

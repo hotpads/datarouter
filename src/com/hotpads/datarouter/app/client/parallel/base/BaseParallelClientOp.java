@@ -3,36 +3,36 @@ package com.hotpads.datarouter.app.client.parallel.base;
 import java.util.Collection;
 import java.util.List;
 
-import com.hotpads.datarouter.app.base.BaseApp;
-import com.hotpads.datarouter.app.client.parallel.ParallelClientApp;
+import com.hotpads.datarouter.app.base.BaseDataRouterOp;
+import com.hotpads.datarouter.app.parallel.ParallelClientOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.ConnectionClient;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 
-public abstract class BaseParallelClientApp<T>
-extends BaseApp<T>
-implements ParallelClientApp<T>{
+public abstract class BaseParallelClientOp<T>
+extends BaseDataRouterOp<T>
+implements ParallelClientOp<T>{
 	
+	private List<String> clientNames;
 	
-	public BaseParallelClientApp(DataRouter router) {
-		super(router);
+	public BaseParallelClientOp(DataRouterContext drContext, List<String> clientNames) {
+		super(drContext);
+		this.clientNames = clientNames;
 	}
 	
 	/************* app ******************************************************/
 
-	public abstract List<String> getClientNames();
-	
-	@Override
-	public List<Client> getClients() {
-		List<String> clientNames = getClientNames();
-		return router.getClients(clientNames);
+	public List<String> getClientNames(){
+		return clientNames;
 	}
 	
 	@Override
-	public abstract T runInEnvironment();
+	public List<Client> getClients() {
+		return getDataRouterContext().getClientPool().getClients(clientNames);
+	}
 
 	@Override
 	public T runOnce(){  //probably used sometimes
@@ -55,7 +55,7 @@ implements ParallelClientApp<T>{
 	/********************* txn code **********************************/
 
 	@Override
-	public void reserveConections(){
+	public void reserveConnections(){
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;
@@ -73,7 +73,7 @@ implements ParallelClientApp<T>{
 				connectionClient.releaseConnection();
 //				logger.debug("released "+handle);
 			}catch(Exception e){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				getLogger().warn(ExceptionTool.getStackTraceAsString(e));
 				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF SINGLE CONNECTION, handle now=:"
 						+connectionClient.getExistingHandle(), e);
 			}

@@ -11,7 +11,9 @@ import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernat
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.config.PutMethod;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
@@ -21,8 +23,9 @@ import com.hotpads.util.core.ListTool;
 public class InsertRollback extends BaseParallelHibernateTxnApp<Void>{
 	BasicClientTestRouter router;
 	boolean flush;
-	public InsertRollback(BasicClientTestRouter router, boolean flush){
-		super(router);
+	public InsertRollback(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+			BasicClientTestRouter router, boolean flush){
+		super(drContext, clientNames, isolation);
 		this.router = router;
 		this.flush = flush;
 	}

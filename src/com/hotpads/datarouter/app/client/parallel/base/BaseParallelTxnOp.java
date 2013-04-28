@@ -1,77 +1,29 @@
 package com.hotpads.datarouter.app.client.parallel.base;
 
-import com.hotpads.datarouter.app.client.parallel.ParallelTxnApp;
+import java.util.List;
+
+import com.hotpads.datarouter.app.parallel.ParallelTxnOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.TxnClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 
-public abstract class BaseParallelTxnApp<T>
-extends BaseParallelClientApp<T>
-implements ParallelTxnApp<T>{
+public abstract class BaseParallelTxnOp<T>
+extends BaseParallelClientOp<T>
+implements ParallelTxnOp<T>{
 
 	protected Isolation isolation = Config.DEFAULT_ISOLATION;
 	
 	
-	public BaseParallelTxnApp(DataRouter router) {
-		super(router);
-	}
-	
-	public BaseParallelTxnApp(DataRouter router, Isolation isolation) {
-		super(router);
+	public BaseParallelTxnOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation) {
+		super(drContext, clientNames);
 		this.isolation = isolation;
 	}
-
-
-	/*******************************************************************/
-
-	
-	@Override
-	public abstract T runInEnvironment();
-//	{
-//		T onceResult = null;
-//		Collection<T> clientResults = ListTool.createLinkedList();
-//		Collection<Client> clients = this.getClients();
-//		try{
-//			reserveConections();
-//			beginTxns();
-//			
-//			//begin abstract user methods
-//			onceResult = runOnce();
-//			for(Client client : CollectionTool.nullSafe(clients)){  //TODO threading
-//				T clientResult = runOncePerClient(client);
-//				clientResults.add(clientResult);
-//			}
-//			//end abstract user methods 
-//			
-//		}catch(Exception e){
-//			logger.warn(ExceptionTool.getStackTraceAsString(e));
-//			rollbackTxns();
-//			throw new RollbackException(e);
-//		}finally{
-//			try{
-//				commitTxns();
-//			}catch(Exception e){
-//				//This is an unexpected exception because each individual release is done in a try/catch block
-//				logger.warn(ExceptionTool.getStackTraceAsString(e));
-//				throw new DataAccessException("EXCEPTION THROWN WHILE COMMITTING TXNS", e);
-//			}
-//			try{
-//				releaseConnections();
-//			}catch(Exception e){
-//				//This is an unexpected exception because each individual release is done in a try/catch block
-//				logger.warn(ExceptionTool.getStackTraceAsString(e));
-//				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
-//			}
-//		}
-//		T mergedResult = mergeResults(onceResult, clientResults);
-//		return mergedResult;
-//	}
 	
 	@Override
 	public Isolation getIsolation() {
@@ -114,7 +66,7 @@ implements ParallelTxnApp<T>{
 			try{
 				txnClient.rollbackTxn();
 			}catch(Exception e){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				getLogger().warn(ExceptionTool.getStackTraceAsString(e));
 				throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:"
 						+txnClient.getExistingHandle(), e);
 			}

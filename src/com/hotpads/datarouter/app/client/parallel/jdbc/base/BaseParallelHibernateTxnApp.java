@@ -1,29 +1,27 @@
 package com.hotpads.datarouter.app.client.parallel.jdbc.base;
 
+import java.util.List;
+
 import org.hibernate.Session;
 
-import com.hotpads.datarouter.app.HibernateTxnApp;
-import com.hotpads.datarouter.app.client.parallel.base.BaseParallelSessionTxnApp;
+import com.hotpads.datarouter.app.SessionOp;
+import com.hotpads.datarouter.app.client.parallel.base.BaseParallelSessionTxnOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.config.Isolation;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.DataRouterContext;
 
 public abstract class BaseParallelHibernateTxnApp<T>
-extends BaseParallelSessionTxnApp<T> 
-implements HibernateTxnApp<T> {
+extends BaseParallelSessionTxnOp<T> 
+implements SessionOp<T> {
 
-	public BaseParallelHibernateTxnApp(DataRouter router) {
-		super(router);
-	}
-	
-	public BaseParallelHibernateTxnApp(DataRouter router, Isolation isolation) {
-		super(router, isolation);
+	public BaseParallelHibernateTxnApp(DataRouterContext drContext, List<String> clientNames, Isolation isolation) {
+		super(drContext, clientNames, isolation);
 	}
 
 	@Override
 	public Session getSession(String clientName){
-		Client client = this.router.getClient(clientName);
+		Client client = getDataRouterContext().getClientPool().getClient(clientName);
 		if(client==null){ return null; }
 		if(client instanceof HibernateClient){
 			HibernateClient hibernateSessionClient = (HibernateClient)client;
