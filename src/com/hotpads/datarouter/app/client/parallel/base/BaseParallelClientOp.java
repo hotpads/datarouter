@@ -25,9 +25,9 @@ implements ParallelClientOp<T>{
 	
 	/************* app ******************************************************/
 
-	public List<String> getClientNames(){
-		return clientNames;
-	}
+//	public List<String> getClientNames(){
+//		return clientNames;
+//	}
 	
 	@Override
 	public List<Client> getClients() {

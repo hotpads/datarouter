@@ -15,6 +15,10 @@ public abstract class BaseParallelHibernateTxnApp<T>
 extends BaseParallelSessionTxnOp<T> 
 implements SessionOp<T> {
 
+	public BaseParallelHibernateTxnApp(DataRouterContext drContext, List<String> clientNames) {
+		this(drContext, clientNames, Isolation.DEFAULT);
+	}
+
 	public BaseParallelHibernateTxnApp(DataRouterContext drContext, List<String> clientNames, Isolation isolation) {
 		super(drContext, clientNames, isolation);
 	}
