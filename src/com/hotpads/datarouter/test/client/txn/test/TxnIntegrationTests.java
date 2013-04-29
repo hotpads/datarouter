@@ -2,19 +2,20 @@ package com.hotpads.datarouter.test.client.txn.test;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.txnapp.InsertRollback;
 import com.hotpads.datarouter.test.client.txn.txnapp.MultiInsertRollback;
 import com.hotpads.datarouter.test.client.txn.txnapp.NestedTxn;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ListTool;
 
 public class TxnIntegrationTests {
 	private Logger logger = Logger.getLogger(TxnIntegrationTests.class);
@@ -50,7 +51,7 @@ public class TxnIntegrationTests {
 		resetTable();	
 		int numExceptions = 0;
 		try{
-			router.run(new InsertRollback(drContext, drContext.getClientPool().getClientNames(), Isolation.readCommitted, 
+			router.run(new InsertRollback(drContext, ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0), Isolation.readCommitted, 
 					router, false));
 		}catch(RuntimeException re){
 			++numExceptions;
@@ -64,7 +65,7 @@ public class TxnIntegrationTests {
 		resetTable();
 		int numExceptions = 0;
 		try{
-			router.run(new InsertRollback(drContext, drContext.getClientPool().getClientNames(), Isolation.readCommitted,
+			router.run(new InsertRollback(drContext, ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0), Isolation.readCommitted,
 					router, true));
 		}catch(RuntimeException re){
 			++numExceptions;
@@ -84,7 +85,7 @@ public class TxnIntegrationTests {
 		router.txnBeanHibernate().put(b, null);
 		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 		try{
-			router.run(new MultiInsertRollback(drContext, drContext.getClientPool().getClientNames(), 
+			router.run(new MultiInsertRollback(drContext, ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0), 
 					Isolation.readCommitted, router, false));
 		}catch(RuntimeException re){
 			++numExceptions;
@@ -101,7 +102,7 @@ public class TxnIntegrationTests {
 		router.txnBeanHibernate().put(b, null);
 		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 		try{
-			router.run(new MultiInsertRollback(drContext, drContext.getClientPool().getClientNames(), 
+			router.run(new MultiInsertRollback(drContext, ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0), 
 					Isolation.readCommitted, router, true));
 		}catch(RuntimeException re){
 			++numExceptions;
@@ -119,7 +120,7 @@ public class TxnIntegrationTests {
 		resetTable();	
 		int numExceptions = 0;
 		try{
-			router.run(new NestedTxn(drContext, drContext.getClientPool().getClientNames(), Isolation.readCommitted,
+			router.run(new NestedTxn(drContext, ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0), Isolation.readCommitted,
 					router, false));
 		}catch(RuntimeException re){
 			++numExceptions;

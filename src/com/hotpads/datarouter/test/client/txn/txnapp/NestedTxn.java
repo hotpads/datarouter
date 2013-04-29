@@ -16,18 +16,17 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.routing.DataRouterContext;
-import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
-	DataRouterContext drContext;
-	List<String> clientNames;
-	Isolation isolation;
-	BasicClientTestRouter router;
-	boolean flush;
+	
+	private DataRouterContext drContext;
+	private List<String> clientNames;
+	private Isolation isolation;
+	private BasicClientTestRouter router;
+	private boolean flush;
 	
 	public NestedTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
 			BasicClientTestRouter router, boolean flush){
@@ -37,11 +36,6 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 		this.isolation = isolation;
 		this.router = router;
 		this.flush = flush;
-	}
-	
-	@Override
-	public List<String> getClientNames(){
-		return ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0);
 	}
 	
 	@Override
@@ -74,9 +68,9 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 	
 	
 	public static class InnerTxn extends BaseParallelHibernateTxnApp<Void>{
-		BasicClientTestRouter router;
-		boolean flush;
-		ConnectionHandle outerHandle;
+		private BasicClientTestRouter router;
+		private boolean flush;
+		private ConnectionHandle outerHandle;
 
 		public InnerTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
 				BasicClientTestRouter router, boolean flush, ConnectionHandle outerHandle){
@@ -84,11 +78,6 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 			this.router = router;
 			this.flush = flush;
 			this.outerHandle = outerHandle;
-		}
-		
-		@Override
-		public List<String> getClientNames(){
-			return ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0);
 		}
 		
 		@Override
