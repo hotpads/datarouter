@@ -12,7 +12,6 @@ import org.hibernate.criterion.Projections;
 import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
 import com.hotpads.datarouter.app.util.ResultMergeTool;
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.routing.DataRouterContext;
 
 public class HibernateRowCountTxn extends BaseParallelHibernateTxnApp<Integer>{
@@ -21,10 +20,9 @@ public class HibernateRowCountTxn extends BaseParallelHibernateTxnApp<Integer>{
 	private String colToCount;
 	private Criterion restriction;
 	
-	public HibernateRowCountTxn(DataRouterContext drContext, List<String> clientNames,
-			Isolation isolation, Class<?> bean, String colToCount,
-			Criterion restriction) {
-		super(drContext, clientNames, isolation);
+	public HibernateRowCountTxn(DataRouterContext drContext, List<String> clientNames, Class<?> bean,
+			String colToCount, Criterion restriction){
+		super(drContext, clientNames);
 		this.bean = bean;
 		this.colToCount = colToCount;
 		this.restriction = restriction;
