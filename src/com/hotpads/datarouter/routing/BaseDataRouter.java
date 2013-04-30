@@ -3,8 +3,8 @@ package com.hotpads.datarouter.routing;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.concurrent.Callable;
 
+import com.hotpads.datarouter.app.DataRouterOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.RouterOptions;
@@ -80,7 +80,7 @@ public abstract class BaseDataRouter implements DataRouter {
 	/************************************** app wrappers **************************************/
 
 	@Override
-	public <T> T run(Callable<T> callable){
+	public <T> T run(DataRouterOp<T> callable){
 		TraceContext.startSpan(callable.getClass().getSimpleName());
 		T t;
 		try{
