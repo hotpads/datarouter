@@ -290,4 +290,8 @@ public class DatabeanFieldInfo<
 		return primaryKeyFieldByName;
 	}
 	
+	public void setFields(List<Field<?>> fields){
+		this.fields = fields;
+	}
+	
 }
