@@ -12,27 +12,30 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.connection.ConnectionHandle;
-import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
-	BasicClientTestRouter router;
-	boolean flush;
 	
-	public NestedTxn(BasicClientTestRouter router, boolean flush){
-		super(router);
+	private DataRouterContext drContext;
+	private List<String> clientNames;
+	private Isolation isolation;
+	private BasicClientTestRouter router;
+	private boolean flush;
+	
+	public NestedTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+			BasicClientTestRouter router, boolean flush){
+		super(drContext, clientNames, isolation);
+		this.drContext = drContext;
+		this.clientNames = clientNames;
+		this.isolation = isolation;
 		this.router = router;
 		this.flush = flush;
-	}
-	
-	@Override
-	public List<String> getClientNames(){
-		return ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0);
 	}
 	
 	@Override
@@ -56,7 +59,7 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 			}
 		}
 		
-		router.run(new InnerTxn(router, true, handle));
+		router.run(new InnerTxn(drContext, clientNames, isolation, router, true, handle));
 		
 		TxnBean outer2 = new TxnBean(outer.getId());
 		router.txnBeanHibernate().put(outer2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
@@ -65,20 +68,16 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 	
 	
 	public static class InnerTxn extends BaseParallelHibernateTxnApp<Void>{
-		BasicClientTestRouter router;
-		boolean flush;
-		ConnectionHandle outerHandle;
+		private BasicClientTestRouter router;
+		private boolean flush;
+		private ConnectionHandle outerHandle;
 
-		public InnerTxn(BasicClientTestRouter router, boolean flush, ConnectionHandle outerHandle){
-			super(router);
+		public InnerTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+				BasicClientTestRouter router, boolean flush, ConnectionHandle outerHandle){
+			super(drContext, clientNames, isolation);
 			this.router = router;
 			this.flush = flush;
 			this.outerHandle = outerHandle;
-		}
-		
-		@Override
-		public List<String> getClientNames(){
-			return ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0);
 		}
 		
 		@Override

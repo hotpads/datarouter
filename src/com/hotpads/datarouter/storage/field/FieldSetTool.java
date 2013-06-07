@@ -152,7 +152,7 @@ public class FieldSetTool{
 	 */
 	public static byte[] getConcatenatedValueBytes(Collection<Field<?>> fields, boolean allowNulls,
 			boolean trailingSeparatorAfterEndingString){
-		int numFields = CollectionTool.size(fields);
+		int numFields = FieldTool.countNonNullLeadingFields(fields);
 		if(numFields==0){ return null; }
 		if(numFields==1){ 
 			if(trailingSeparatorAfterEndingString){
@@ -174,6 +174,25 @@ public class FieldSetTool{
 			}else{
 				fieldArraysWithSeparators[fieldIdx] = field.getBytes();
 			}
+			if(lastField){ break; }
+		}
+		return ByteTool.concatenate(fieldArraysWithSeparators);
+	}
+	
+	/*
+	 * should combine this with getConcatenatedValueBytes
+	 */
+	public static byte[] getBytesForNonNullFieldsWithNoTrailingSeparator(FieldSet<?> fields){
+		int numNonNullFields = getNumNonNullFields(fields);
+		byte[][] fieldArraysWithSeparators = new byte[numNonNullFields][];
+		int fieldIdx=-1;
+		for(Field<?> field : IterableTool.nullSafe(fields.getFields())){
+			++fieldIdx;
+			if(fieldIdx == numNonNullFields - 1){//last field
+				fieldArraysWithSeparators[fieldIdx] = field.getBytes();
+				break;
+			}
+			fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
 		}
 		return ByteTool.concatenate(fieldArraysWithSeparators);
 	}
@@ -229,5 +248,8 @@ public class FieldSetTool{
 			Assert.assertEquals(lengthWithout, withoutTrailingByte.getLength());
 		}
 	}
+
+	/************************** field to byte helpers *****************************************/
+	
 	
 }

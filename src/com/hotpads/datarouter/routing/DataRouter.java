@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 
-import com.hotpads.datarouter.app.App;
+import com.hotpads.datarouter.app.DataRouterOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.RouterOptions;
@@ -31,7 +31,7 @@ public interface DataRouter {
 
 	/************************************** app wrappers **************************************/
 
-	<T> T run(App<T> app);
+	<T> T run(DataRouterOp<T> callable);
 
 	/************************************** caching ***********************************/
 

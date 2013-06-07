@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import com.google.common.base.Joiner;
 
+import com.hotpads.handler.mav.Mav;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.Functor;
@@ -114,6 +115,14 @@ public class RequestTool {
 		String stringVal = request.getParameter(paramName);
 		return stringVal==null ? defaultValue : stringVal;
 	}
+
+	public static String getAndPut(HttpServletRequest request, String paramName, String defaultValue, Mav mav){
+		String ret = RequestTool.get(request, paramName, defaultValue);
+		if(ret != null){
+			mav.put(paramName, ret);
+		}
+		return ret;
+	}
 	
 	public static boolean exists(HttpServletRequest request, String paramName){
 		return StringTool.notEmpty(get(request, paramName, null));
@@ -162,6 +171,14 @@ public class RequestTool {
 		}catch(Exception e){
 		}
 		throw new IllegalArgumentException("required Integer "+paramName+" is invalid");
+	}
+
+	public static Integer getIntegerAndPut(HttpServletRequest request, String paramName, Integer defaultValue,
+			Mav mav){
+		String stringVal = RequestTool.get(request, paramName, null);
+		Integer ret = NumberTool.getIntegerNullSafe(stringVal, defaultValue);
+		mav.put(paramName, ret);
+		return ret;
 	}
 	
 	public static Integer getInteger(HttpServletRequest request, String paramName, Integer defaultValue){

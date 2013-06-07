@@ -1,30 +1,26 @@
 package com.hotpads.datarouter.app.client.parallel.jdbc.base;
 
 import java.sql.Connection;
+import java.util.List;
 
-import com.hotpads.datarouter.app.JdbcTxnApp;
-import com.hotpads.datarouter.app.client.parallel.base.BaseParallelTxnApp;
+import com.hotpads.datarouter.app.ConnectionOp;
+import com.hotpads.datarouter.app.client.parallel.base.BaseParallelTxnOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;
 import com.hotpads.datarouter.config.Isolation;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.DataRouterContext;
 
-public abstract class BaseParallelJdbcTxnApp<T>
-extends BaseParallelTxnApp<T> 
-implements JdbcTxnApp<T> {
+public abstract class BaseParallelJdbcTxnOp<T>
+extends BaseParallelTxnOp<T> 
+implements ConnectionOp<T> {
 
-	public BaseParallelJdbcTxnApp(DataRouter router) {
-		super(null);
-		this.router = router;
-	}
-	
-	public BaseParallelJdbcTxnApp(DataRouter router, Isolation isolation) {
-		super(router, isolation);
+	public BaseParallelJdbcTxnOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation) {
+		super(drContext, clientNames, isolation);
 	}
 
 	@Override
 	public Connection getConnection(String clientName){
-		Client client = this.router.getClient(clientName);
+		Client client = getDataRouterContext().getClientPool().getClient(clientName);
 		if(client==null){ return null; }
 		if(client instanceof JdbcConnectionClient){
 			JdbcConnectionClient jdbcConnectionClient = (JdbcConnectionClient)client;

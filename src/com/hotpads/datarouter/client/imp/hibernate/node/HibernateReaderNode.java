@@ -16,6 +16,7 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
@@ -110,7 +111,7 @@ implements MapStorageReader<PK,D>,
 		if(key==null){ return null; }
 		TraceContext.startSpan(getName()+" get");
 		final String tableName = this.getTableName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		HibernateExecutor executor = HibernateExecutor.create("get", getClient(), this, config, false);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -141,18 +142,18 @@ implements MapStorageReader<PK,D>,
 	@SuppressWarnings("unchecked")
 	public List<D> getAll(final Config config) {
 		TraceContext.startSpan(getName()+" getAll");
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		HibernateExecutor executor = HibernateExecutor.create("getAll", getClient(), this, config, false);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
 					if(fieldInfo.getFieldAware()){
-						DRCounters.incPrefixClientNode("jdbc get", clientName, name);
+						DRCounters.incSuffixClientNode(ClientType.jdbc, "get", clientName, name);
 						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields(), 
 								fieldInfo.getPrimaryKeyFields());
 						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
-						DRCounters.incPrefixClientNode("hibernate get", clientName, name);
+						DRCounters.incSuffixClientNode(ClientType.hibernate, "get", clientName, name);
 						Criteria criteria = getCriteriaForConfig(config, session);
 						Object listOfDatabeans = criteria.list();
 						return listOfDatabeans;//todo, make sure the datastore scans in order so we don't need to sort here
@@ -168,10 +169,10 @@ implements MapStorageReader<PK,D>,
 	@SuppressWarnings("unchecked")
 	public List<D> getMulti(final Collection<PK> keys, final Config config) {	
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
-		DRCounters.incPrefixClientNode("hibernate getMulti rows", clientName, getName(), CollectionTool.size(keys));
+		DRCounters.incSuffixClientNode(ClientType.hibernate, "getMulti rows", clientName, getName(), CollectionTool.size(keys));
 		TraceContext.startSpan(getName()+" getMulti");	
 //		final Class<? extends Databean> persistentClass = CollectionTool.getFirst(keys).getDatabeanClass();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		HibernateExecutor executor = HibernateExecutor.create("getMulti", getClient(), this, config, false);
 		List<D> result = (List<D>)executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -189,8 +190,8 @@ implements MapStorageReader<PK,D>,
 						if(fieldInfo.getFieldAware()){
 							String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), keyBatch);
 							batch = JdbcTool.selectDatabeans(session, fieldInfo, sql);
-							DRCounters.incPrefixClientNode("jdbc getMulti", clientName, name);
-							DRCounters.incPrefixClientNode("jdbc getMulti rows", clientName, name, 
+							DRCounters.incSuffixClientNode(ClientType.jdbc, "getMulti", clientName, name);
+							DRCounters.incSuffixClientNode(ClientType.jdbc, "getMulti rows", clientName, name, 
 									CollectionTool.size(keys));
 						}else{
 							Criteria criteria = getCriteriaForConfig(config, session);
@@ -206,8 +207,8 @@ implements MapStorageReader<PK,D>,
 							}
 							criteria.add(orSeparatedIds);
 							batch = criteria.list();
-							DRCounters.incPrefixClientNode("hibernate getMulti", clientName, name);
-							DRCounters.incPrefixClientNode("hibernate getMulti rows", clientName, name, 
+							DRCounters.incSuffixClientNode(ClientType.hibernate, "getMulti", clientName, name);
+							DRCounters.incSuffixClientNode(ClientType.hibernate, "getMulti rows", clientName, name, 
 									CollectionTool.size(keys));
 						}
 						Collections.sort(batch);//can sort here because batches were already sorted
@@ -225,7 +226,7 @@ implements MapStorageReader<PK,D>,
 	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
 		if(fieldInfo.getFieldAware()){ throw new NotImplementedException(); }
 		TraceContext.startSpan(getName()+" getKeys");
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		HibernateExecutor executor = HibernateExecutor.create("getKeys", getClient(), this, config, false);
 		Object result = executor.executeTask(			
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -280,7 +281,7 @@ implements MapStorageReader<PK,D>,
 	public Long count(final Lookup<PK> lookup, final Config config) {
 		if(lookup==null){ return 0l; }
 		TraceContext.startSpan(getName()+" count");
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
+		HibernateExecutor executor = HibernateExecutor.create("count", getClient(), this,	config, false);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -321,7 +322,7 @@ implements MapStorageReader<PK,D>,
 		//basically copied from "getMulti" for HibernateNode
 		TraceContext.startSpan(getName()+" lookupMultiUnique");	
 		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		HibernateExecutor executor = HibernateExecutor.create("lookupMultiUnique", getClient(), this, config, false);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -397,7 +398,7 @@ implements MapStorageReader<PK,D>,
 		if(CollectionTool.isEmpty(lookups)){ 
 			return new LinkedList<D>();
 		}
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(),	config, false);
+		HibernateExecutor executor = HibernateExecutor.create("multiLookup", getClient(), this, config, false);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -435,7 +436,7 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public D getFirst(final Config config) {
 		TraceContext.startSpan(getName()+" getFirst");
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		HibernateExecutor executor = HibernateExecutor.create("getFirst", getClient(), this, config, false);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -465,7 +466,7 @@ implements MapStorageReader<PK,D>,
 	public PK getFirstKey(final Config config) {
 		TraceContext.startSpan(getName()+" getFirstKey");
 		final String entityName = this.getPackagedTableName();
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		HibernateExecutor executor = HibernateExecutor.create("getFirstKey", getClient(), this, config, false);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -515,7 +516,7 @@ implements MapStorageReader<PK,D>,
 			final Config config) {
 		TraceContext.startSpan(getName()+" getWithPrefixes");
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		HibernateExecutor executor = HibernateExecutor.create("getWithPrefixes", getClient(), this, config, false);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -547,7 +548,8 @@ implements MapStorageReader<PK,D>,
 		TraceContext.finishSpan();
 		return (List<D>)result;
 	}
-	
+
+	@Deprecated
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<PK> getKeysInRange(
@@ -558,7 +560,8 @@ implements MapStorageReader<PK,D>,
 		return (List<PK>)getRangeUnchecked(range, true, config);
 	}
 	
-	
+
+	@Deprecated
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getRange(
@@ -577,7 +580,7 @@ implements MapStorageReader<PK,D>,
 		String spanNameSuffix = keysOnly ? "getKeysInRange" : "getRange";
 		TraceContext.startSpan(getName() + " " + spanNameSuffix);
 		try{
-			HibernateExecutor executor = HibernateExecutor.create(getClient(), config, false);
+			HibernateExecutor executor = HibernateExecutor.create("spanNameSuffix", getClient(), this, config, false);
 			@SuppressWarnings("unchecked") 
 			List<? extends FieldSet<?>> result = (List<? extends FieldSet<?>>)executor.executeTask(new HibernateTask(){
 				public Object run(Session session){
@@ -642,7 +645,7 @@ implements MapStorageReader<PK,D>,
 			final Config config) {
 
 		TraceContext.startSpan(getName()+" getPrefixedRange");
-		HibernateExecutor executor = HibernateExecutor.create(this.getClient(), config, false);
+		HibernateExecutor executor = HibernateExecutor.create("getPrefixedRange", getClient(), this, config, false);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {

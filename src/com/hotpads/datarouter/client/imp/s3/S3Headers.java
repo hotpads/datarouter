@@ -55,6 +55,7 @@ public class S3Headers {
 		JPEG("image/jpeg","jpg"),
 		SWF("application/x-shockwave-flash","swf"),
 		TEXT_PLAIN("text/plain","txt"),
+		TEXT_CSV("text/csv","csv"),
 		TEXT_XML("text/xml","xml"),
 		APPLICATION_XML("application/xml",null), //s3's default
 		TEXT_HTML("text/html","html"),

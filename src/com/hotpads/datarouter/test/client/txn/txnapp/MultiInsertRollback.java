@@ -10,24 +10,25 @@ import org.junit.Assert;
 import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
-import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.config.Isolation;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
 public class MultiInsertRollback extends BaseParallelHibernateTxnApp<Void>{
-	BasicClientTestRouter router;
-	boolean flush;
-	public MultiInsertRollback(BasicClientTestRouter router, boolean flush){
-		super(router);
+	
+	private BasicClientTestRouter router;
+	private boolean flush;
+	
+	public MultiInsertRollback(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+			BasicClientTestRouter router, boolean flush){
+		super(drContext, clientNames, isolation);
 		this.router = router;
 		this.flush = flush;
 	}
-	@Override
-	public List<String> getClientNames() {
-		return ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0);
-	}
+	
 	@Override
 	public Void runOncePerClient(Client client){
 		List<TxnBean> beans = ListTool.create(

@@ -10,6 +10,7 @@ import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
 
 import com.google.common.base.Preconditions;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
@@ -21,7 +22,7 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
+import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
@@ -90,7 +91,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					for(D databean : databeans){//TODO obey Config.commitBatchSize
 						if(databean==null){ continue; }
 						PK key = databean.getKey();
-						byte[] keyBytes = getKeyBytesWithScatteringPrefix(key);
+						byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key);
 						Put put = new Put(keyBytes);
 						Delete delete = new Delete(keyBytes);
 						List<Field<?>> fields = fieldInfo.getNonKeyFields(databean);
@@ -107,16 +108,16 @@ implements PhysicalSortedMapStorageNode<PK,D>
 							}
 						}
 						if(put.isEmpty()){ 
-							Field<?> dummyField = new ByteField(DUMMY, (byte)0);
+							Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
 							put.add(FAM, dummyField.getColumnNameBytes(), dummyField.getBytes());
 						}
 						put.setWriteToWAL(config.getPersistentPut());
 						actions.add(put);
 						if(!delete.isEmpty()){ actions.add(delete); }
 					}
-					DRCounters.incPrefixClientNode("hbase cells put", clientName, node.getName(), numPuts);
-					DRCounters.incPrefixClientNode("hbase cells delete", clientName, node.getName(), numDeletes);
-					DRCounters.incPrefixClientNode("hbase cells put+delete", clientName, node.getName(), numPuts + numDeletes);
+					DRCounters.incSuffixClientNode(ClientType.hbase, "cells put", clientName, node.getName(), numPuts);
+					DRCounters.incSuffixClientNode(ClientType.hbase, "cells delete", clientName, node.getName(), numDeletes);
+					DRCounters.incSuffixClientNode(ClientType.hbase, "cells put+delete", clientName, node.getName(), numPuts + numDeletes);
 //					DRCounters.inc(node.getName()+" hbase cells put", numPuts);
 //					DRCounters.inc(node.getName()+" hbase cells delete", numDeletes);//deletes gets emptied by the hbase client, so count before flushing
 //					DRCounters.inc(node.getName()+" hbase cells put+delete", numPuts + numDeletes);
@@ -172,7 +173,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					hTable.setAutoFlush(false);
 					List<Row> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList
 					for(PK key : keys){
-						byte[] keyBytes = getKeyBytesWithScatteringPrefix(key);
+						byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key);
 						Delete delete = new Delete(keyBytes);
 //						Delete delete = new Delete(key.getBytes(false));
 						deletes.add(delete);

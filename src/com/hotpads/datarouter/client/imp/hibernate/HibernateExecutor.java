@@ -5,9 +5,12 @@ import javax.persistence.RollbackException;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ExceptionTool;
 
 public class HibernateExecutor {
@@ -15,17 +18,23 @@ public class HibernateExecutor {
 
 	public static final boolean EAGER_SESSION_FLUSH = true;
 
+	protected String taskName;
 	private HibernateClientImp client;
+	private BasePhysicalNode<?,?,?> node;
 	private Config config;
 	private Session existingSession;
 	private boolean disableAutoCommit = true;  //default to true to be safe
 	
 	public static HibernateExecutor create(
+			String taskName,
 			HibernateClientImp client,
+			BasePhysicalNode<?,?,?> node,
 			Config config,
 			boolean disableAutoCommit){
 		HibernateExecutor executor = new HibernateExecutor();
+		executor.taskName = taskName;
 		executor.client = client;
+		executor.node = node;
 		executor.config = Config.nullSafe(config);
 		executor.existingSession = client.getExistingSession();
 		executor.disableAutoCommit = disableAutoCommit;
@@ -37,6 +46,8 @@ public class HibernateExecutor {
 	}
 	
 	public Object executeTaskInSession(HibernateTask task){
+		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
+		DRCounters.incSuffixClientNode(clientType, taskName, client.getName(), node.getName());
 		Session session = existingSession;
 		boolean newSession = session==null;
 		Object result;

@@ -9,6 +9,8 @@ public enum Isolation {
 	readCommitted(Connection.TRANSACTION_READ_COMMITTED),
 	readUncommitted(Connection.TRANSACTION_READ_UNCOMMITTED);
 	
+	public static final Isolation DEFAULT = readCommitted;
+	
 	private Integer jdbcVal;
 	
 	Isolation(int jdbcVal){

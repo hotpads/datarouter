@@ -24,7 +24,7 @@ import com.hotpads.datarouter.client.imp.hbase.pool.HTableExecutorServicePool;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.imp.comparable.ByteField;
+import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.util.core.ArrayTool;
@@ -186,7 +186,7 @@ public class HTableExecutorServicePoolTester {
 		void put(HTable hTable) throws InterruptedException, IOException {
 			List<Row> actions = ListTool.createArrayList();
 			Put put = new Put(LongByteTool.getComparableBytes(randomLong));
-			Field<?> dummyField = new ByteField(HBaseNode.DUMMY, (byte)0);
+			Field<?> dummyField = new SignedByteField(HBaseNode.DUMMY, (byte)0);
 			put.add(HBaseNode.FAM, dummyField.getColumnNameBytes(), dummyField.getBytes());
 			actions.add(put);
 			put.setWriteToWAL(false);

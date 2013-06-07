@@ -10,7 +10,6 @@ import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.collections.Pair;
 
@@ -23,14 +22,14 @@ public class HBaseQueryBuilder{
 			final FieldSet<?> startKey, final boolean startInclusive, 
 			final FieldSet<?> endKey, final boolean endInclusive, Config config){
 		Pair<byte[],byte[]> byteRange = getStartEndBytesForRange(startKey, startInclusive, endKey, endInclusive);
-		Scan scan = getScanForRange(byteRange.getLeft(), true, byteRange.getRight(), config);
+		Scan scan = getScanForRange(byteRange.getLeft(), true, byteRange.getRight(), false, config);
 		return scan;
 	}
 
 	public static Scan getPrefixScanner(FieldSet<?> prefix, 
 			boolean wildcardLastField, Config config){
 		Pair<byte[],byte[]> byteRange = getStartEndBytesForPrefix(prefix, wildcardLastField);
-		Scan scan = getScanForRange(byteRange.getLeft(), true, byteRange.getRight(), config);
+		Scan scan = getScanForRange(byteRange.getLeft(), true, byteRange.getRight(), false, config);
 		return scan;
 	}
 
@@ -42,25 +41,30 @@ public class HBaseQueryBuilder{
 		Pair<byte[],byte[]> prefixBounds = getStartEndBytesForPrefix(prefix, wildcardLastField);
 		Pair<byte[],byte[]> rangeBounds = getStartEndBytesForRange(startKey, startInclusive, endKey, endInclusive);
 		Pair<byte[],byte[]> intersection = getRangeIntersection(prefixBounds, rangeBounds);
-		Scan scan = getScanForRange(intersection.getLeft(), true, intersection.getRight(), config);
+		Scan scan = getScanForRange(intersection.getLeft(), true, intersection.getRight(), false, config);
 		return scan;
 	}
 	
 	/****************************** scan helpers ************************************/
 
-	public static Scan getScanForRange(byte[] pStart, boolean startInclusive, byte[] endExclusive, Config pConfig){
+	public static Scan getScanForRange(byte[] pStart, boolean startInclusive, byte[] pEnd, boolean endInclusive, 
+			Config pConfig){
 		Config config = Config.nullSafe(pConfig);
 		byte[] start = pStart;
 		if( ! startInclusive){
 			start = ByteTool.unsignedIncrement(start); 
 		}
+		byte[] end = pEnd;
+		if(endInclusive && end != null){
+			end = ByteTool.unsignedIncrement(end);
+		}
 		Scan scan;
-		if(start!=null && endExclusive!=null){
-			scan = new Scan(start, endExclusive);
+		if(start!=null && pEnd!=null){
+			scan = new Scan(start, end);
 		}else if(start!=null){
 			scan = new Scan(start);
-		}else if(endExclusive!=null){
-			scan = new Scan(new byte[]{}, endExclusive);
+		}else if(pEnd!=null){
+			scan = new Scan(new byte[]{}, end);
 		}else{
 			scan = new Scan();//whole table
 		}
@@ -76,14 +80,14 @@ public class HBaseQueryBuilder{
 			final FieldSet<?> endKey, final boolean endInclusive){
 		byte[] startBytes = null;
 		if(startKey!=null){
-			startBytes = getBytesForNonNullFieldsWithNoTrailingSeparator(startKey);
+			startBytes = FieldSetTool.getBytesForNonNullFieldsWithNoTrailingSeparator(startKey);
 			if( ! startInclusive){
 				startBytes = ByteTool.unsignedIncrement(startBytes); 
 			}
 		}
 		byte[] endBytes = null;
 		if(endKey!=null){
-			endBytes = getBytesForNonNullFieldsWithNoTrailingSeparator(endKey);
+			endBytes = FieldSetTool.getBytesForNonNullFieldsWithNoTrailingSeparator(endKey);
 			if(endInclusive){ endBytes = ByteTool.unsignedIncrement(endBytes); }
 		}
 		return new Pair<byte[],byte[]>(startBytes, endBytes);
@@ -112,23 +116,6 @@ public class HBaseQueryBuilder{
 		byte[] startBytes = ByteTool.concatenate(fieldBytes);
 		byte[] endBytes = ByteTool.unsignedIncrementOverflowToNull(startBytes);
 		return new Pair<byte[],byte[]>(startBytes, endBytes);
-	}
-	
-	/************************** field to byte helpers *****************************************/
-	
-	protected static byte[] getBytesForNonNullFieldsWithNoTrailingSeparator(FieldSet<?> fields){
-		int numNonNullFields = FieldSetTool.getNumNonNullFields(fields);
-		byte[][] fieldArraysWithSeparators = new byte[numNonNullFields][];
-		int fieldIdx=-1;
-		for(Field<?> field : IterableTool.nullSafe(fields.getFields())){
-			++fieldIdx;
-			if(fieldIdx == numNonNullFields - 1){//last field
-				fieldArraysWithSeparators[fieldIdx] = field.getBytes();
-				break;
-			}
-			fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
-		}
-		return ByteTool.concatenate(fieldArraysWithSeparators);
 	}
 	
 	/************************** pure byte helpers *****************************************/

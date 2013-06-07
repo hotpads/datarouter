@@ -3,8 +3,8 @@ package com.hotpads.datarouter.app;
 import java.sql.Connection;
 
 
-public interface JdbcTxnApp<T> 
-extends TxnApp<T> {
+
+public interface ConnectionOp<T>{
 	
 	Connection getConnection(String clientName);
 	

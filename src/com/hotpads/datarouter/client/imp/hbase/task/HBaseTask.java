@@ -5,11 +5,13 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Preconditions;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.node.HBasePhysicalNode;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.core.ExceptionTool;
@@ -50,6 +52,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		this.drContext = drContext;
 		this.taskName = taskName;
 		this.node = node;
+		//do not set client here.  it is obtained from node in prepClientAndTableEtc(..)
 		this.tableName = node.getTableName();
 		this.config = Config.nullSafe(config);
 		this.progress = new MutableString("");
@@ -66,6 +69,9 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			recordDetailedTraceInfo();
 			
 			prepClientAndTableEtc();
+
+			//do this after prepClientAndTableEtc, because client is set in there (null beforehand)
+			DRCounters.incSuffixClientNode(ClientType.hbase, taskName, client.getName(), node.getName());
 			
 			/******************/
 			return hbaseCall(); //override this method in subclasses

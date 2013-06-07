@@ -9,6 +9,7 @@ import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
+@Deprecated
 public class HBaseDatabeanScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends BaseHBaseScanner<PK,D,D>{
 	

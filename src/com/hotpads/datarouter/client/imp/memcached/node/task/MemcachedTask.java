@@ -2,10 +2,12 @@ package com.hotpads.datarouter.client.imp.memcached.node.task;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClient;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedPhysicalNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.core.NumberTool;
@@ -41,6 +43,7 @@ extends TracedCallable<V>{
 	@Override
 	public V wrappedCall(){
 		try{
+			DRCounters.incSuffixClientNode(ClientType.memcached, taskName, client.getName(), node.getName());
 			TraceContext.startSpan(node.getName()+" "+taskName);
 			if(NumberTool.nullSafe(numAttempts) > 1){ 
 				TraceContext.appendToThreadInfo("[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 

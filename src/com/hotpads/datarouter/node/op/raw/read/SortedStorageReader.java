@@ -9,7 +9,6 @@ import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public interface SortedStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
@@ -23,9 +22,12 @@ extends NodeOps<PK,D>
 	List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config);
 	List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config);
 
+	@Deprecated
 	List<PK> getKeysInRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config);
+	@Deprecated
 	List<D> getRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config);
 
+	@Deprecated
 	List<D> getPrefixedRange(
 			final PK prefix, final boolean wildcardLastField, 
 			final PK start, final boolean startInclusive, 

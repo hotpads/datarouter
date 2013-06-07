@@ -1,31 +1,27 @@
 package com.hotpads.datarouter.app.client.parallel.base;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.RollbackException;
 
-import com.hotpads.datarouter.app.client.parallel.ParallelSessionApp;
-import com.hotpads.datarouter.app.client.parallel.ParallelTxnApp;
+import com.hotpads.datarouter.app.parallel.ParallelSessionOp;
+import com.hotpads.datarouter.app.parallel.ParallelTxnOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 
-public abstract class BaseParallelSessionTxnApp<T>
-extends BaseParallelTxnApp<T>
-implements ParallelTxnApp<T>, ParallelSessionApp<T>{
-	
-	
-	public BaseParallelSessionTxnApp(DataRouter router) {
-		super(router);
-	}
-	
-	public BaseParallelSessionTxnApp(DataRouter router, Isolation isolation) {
-		super(router, isolation);
+public abstract class BaseParallelSessionTxnOp<T>
+extends BaseParallelTxnOp<T>
+implements ParallelTxnOp<T>, ParallelSessionOp<T>{
+		
+	public BaseParallelSessionTxnOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation) {
+		super(drContext, clientNames, isolation);
 	}
 
 
@@ -33,12 +29,12 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 
 	
 	@Override
-	public T runInEnvironment(){
+	public T call(){
 		T onceResult = null;
 		Collection<T> clientResults = ListTool.createLinkedList();
 		Collection<Client> clients = this.getClients();
 		try{
-			reserveConections();
+			reserveConnections();
 			beginTxns();
 			openSessions();
 			
@@ -54,12 +50,12 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 			commitTxns();
 			
 		}catch(Exception e){
-			logger.warn(ExceptionTool.getStackTraceAsString(e));
+			getLogger().warn(ExceptionTool.getStackTraceAsString(e));
 			try{
 				rollbackTxns();
 			}catch(Exception exceptionDuringRollback){
-				logger.warn("EXCEPTION THROWN DURING TXN ROLL-BACK");
-				logger.warn(ExceptionTool.getStackTraceAsString(exceptionDuringRollback));
+				getLogger().warn("EXCEPTION THROWN DURING TXN ROLL-BACK");
+				getLogger().warn(ExceptionTool.getStackTraceAsString(exceptionDuringRollback));
 				throw new DataAccessException(e);
 			}
 			throw new RollbackException(e);//don't throw in the try block because it will get caught immediately
@@ -74,8 +70,8 @@ implements ParallelTxnApp<T>, ParallelSessionApp<T>{
 				releaseConnections();
 			}catch(Exception e){
 				//This is an unexpected exception because each individual release is done in a try/catch block
-				logger.warn("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				getLogger().warn("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
+				getLogger().warn(ExceptionTool.getStackTraceAsString(e));
 			}
 		}
 		T mergedResult = mergeResults(onceResult, clientResults);
