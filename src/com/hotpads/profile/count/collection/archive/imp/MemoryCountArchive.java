@@ -1,5 +1,6 @@
 package com.hotpads.profile.count.collection.archive.imp;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,10 @@ public class MemoryCountArchive extends BaseCountArchive{
 	}
 	
 	@Override
+	public Collection<? extends AvailableCounter> getAvailableCounters(String nameLike, String webApp){
+		return getAvailableCounters(nameLike);
+	}
+		@Override
 	public List<Count> getCountsForAllSources(String name, Long startMs, Long endMs){
 		int startIndex = getIndexForMs(startMs);
 		if(getEarliestAvailableTime() > startMs){
