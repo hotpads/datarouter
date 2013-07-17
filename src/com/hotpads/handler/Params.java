@@ -62,6 +62,11 @@ public class Params{
 		return Integer.valueOf(value);
 	}
 	
+	public Double requiredDouble(String key){
+		return Double.valueOf(
+				Preconditions.checkNotNull(request.getParameter(key)));
+	}
+	
 	public List<String> optionalCsvList(String key, List<String> defaultValue){
 		return optionalList(key, ",", defaultValue);
 	}
