@@ -29,7 +29,10 @@ public class CountSeries{
 		this.name = name;
 		this.sourceType = sourceType;
 		this.source = source;
+		this.valuesPairs = iniializeValuesPair();
 	}
+
+	
 
 	public CountSeries(List<Pair<Long,Double>> valuesPairs, Long startMs, Long endMs, Long periodMs,
 			String name, String sourceType, String source){
@@ -44,16 +47,24 @@ public class CountSeries{
 
 	}
 	
-private List<Count> initializeCounts(){
+	private List<Count> initializeCounts(){
 		List<Count> counts = ListTool.create();
 		for(Pair<Long,Double> pair : valuesPairs){
-			//TODO check value of created
-			counts.add(new Count(name, sourceType, periodMs, pair.getLeft(), source,pair.getLeft(), new Long(pair.getRight().toString())));
+			// TODO check value of created
+			counts.add(new Count(name, sourceType, periodMs, pair.getLeft(), source, pair.getLeft(), pair
+					.getRight().longValue()));
 		}
-		
+
 		return counts;
 	}
 
+	private List<Pair<Long,Double>> iniializeValuesPair(){
+		List<Pair<Long,Double>> toReturn = ListTool.create();
+		for(Count count : counts){
+			toReturn.add(new Pair<Long,Double>(count.getStartTimeMs(), new Double(count.getValue().toString())));
+		}
+		return toReturn;
+	}
 //	public CountSeries(Long startMs, Long endMs, Long periodMs, List<Count> counts){
 //		this.startMs = startMs;
 //		this.endMs = endMs;
