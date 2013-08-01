@@ -24,13 +24,19 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 	protected String entry;
 	protected String entryArchive;
 	protected Integer entryOrder;
+	protected String serverName;
+	protected String webAppName;
+	protected int periodMs;
+	
 	
 	public static class F{
 		public static final String
 			type = "type",
 			entry = "entry",
 			entryArchive = "entryArchive",
-			entryOrder = "entryOrder";
+			entryOrder = "entryOrder",
+			serverName = "serverName",
+			webAppName = "webAppName";
 	}
 	
 	@Override
@@ -39,7 +45,10 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 				new StringEnumField<DashboardEntryType>(DashboardEntryType.class, F.type, type, 255),
 				new StringField(F.entry, entry, 255),
 				new StringField(F.entryArchive, entryArchive, 255),
-				new IntegerField(F.entryOrder, entryOrder));
+				new IntegerField(F.entryOrder, entryOrder),
+				new StringField(F.serverName, serverName, 255),
+				new StringField(F.webAppName, webAppName, 255));
+			
 	}
 	
 	public static class DashboardEntryFielder extends BaseDatabeanFielder<DashboardEntryKey,DashboardEntry>{
@@ -60,13 +69,19 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 		this.key = new DashboardEntryKey();
 	}
 
-	public DashboardEntry(DashboardEntryKey key, DashboardEntryType type, String entry, String entryArchive, Integer entryOrder){
+	public DashboardEntry(DashboardEntryKey key, DashboardEntryType type, String entry, String entryArchive,String serverName, String webAppName, Integer entryOrder){
+		//TODO CHECK SERVER NAME AND WEB APP EXIST
 		this.key = key;
 		this.type = type;
 		this.entry = entry;
 		this.entryArchive = entryArchive;
+		this.serverName = serverName.trim();
+		this.webAppName = webAppName;
 		this.entryOrder = entryOrder;
+		this.periodMs = getPeriodFromEntryArchive(entryArchive);
 	}
+
+
 
 	/*********************** Databean **********************************/
 
@@ -129,4 +144,54 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 		this.key = key;
 	}
 
+	/**
+	 * @return the server
+	 */
+	public String getServer(){
+		return serverName;
+	}
+
+	/**
+	 * @param server the server to set
+	 */
+	public void setServerName(String serverName){
+		this.serverName = serverName;
+	}
+
+	/**
+	 * @return the webApp
+	 */
+	public String getWebAppName(){
+		return webAppName;
+	}
+
+	/**
+	 * @param webApp the webApp to set
+	 */
+	public void setWebApp(String webAppName){
+		this.webAppName = webAppName;
+	}
+
+	/**
+	 * @return the periodMs
+	 */
+	public int getPeriodMs(){
+		return getPeriodFromEntryArchive(entryArchive);
+	}
+
+	/**
+	 * @param periodMs the periodMs to set
+	 */
+	public void setPeriodMs(int periodMs){
+		this.setEntryArchive("databean "+periodMs);
+		this.periodMs = periodMs;
+	}
+
+	//Useful method
+	private int getPeriodFromEntryArchive(String entryArchive){
+		String period = entryArchive.split(" ")[1];
+		return new Integer(period);
+	}
+	
+	
 }
