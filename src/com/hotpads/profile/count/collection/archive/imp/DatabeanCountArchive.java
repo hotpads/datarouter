@@ -1,5 +1,6 @@
 package com.hotpads.profile.count.collection.archive.imp;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,14 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		return counters;
 	}
 	
+	@Override
+	public Collection<? extends AvailableCounter> getAvailableCounters(String nameLike, String webApp){
+		AvailableCounterKey prefix = new AvailableCounterKey(webApp, periodMs, nameLike, null);
+		Config configLongTimeout = new Config().setTimeout(1, TimeUnit.MINUTES);
+		List<AvailableCounter> counters = availableCounterNode.getWithPrefix(prefix, true, configLongTimeout);
+		Collections.sort(counters);
+		return counters;
+	}
 	/*
 	 * remember that sources are interleaved, so a range query will return all sources
 	 */

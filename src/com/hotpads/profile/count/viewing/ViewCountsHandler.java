@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.StringMav;
@@ -37,6 +38,9 @@ public class ViewCountsHandler extends BaseHandler{
 		JSP_listArchives = "/WEB-INF/jsp/listArchives.jsp",
 		JSP_listCounters = "/WEB-INF/jsp/listCounters.jsp",
 		JSP_viewCounters = "/WEB-INF/jsp/viewCounters.jsp";
+//	JSP_listArchives = "/WEB-INF/jsp/counter/listArchives.jsp",
+//			JSP_listCounters = "/WEB-INF/jsp/counter/listCounters.jsp",
+//			JSP_viewCounters = "/WEB-INF/jsp/counter/viewCounters.jsp";
 	
 	@Override
 	protected Mav handleDefault() {
@@ -45,14 +49,14 @@ public class ViewCountsHandler extends BaseHandler{
 	
 	@Handler Mav listArchives(){
 		Mav mav = new Mav(JSP_listArchives);
-		mav.addObject("archives", Counters.get().getManager().getArchives());
+		mav.put("archives", Counters.get().getManager().getArchives());
 		return mav;
 	}
 	
 	@Handler Mav listCounters(){
 		Mav mav = new Mav(JSP_listCounters);
 		
-		mav.addObject("archives", Counters.get().getManager().getArchives());
+		mav.put("archives", Counters.get().getManager().getArchives());
 		
 		String archiveName = params.required(PARAM_archive);
 //		String sourceType = params.required(PARAM_sourceType);
@@ -64,7 +68,7 @@ public class ViewCountsHandler extends BaseHandler{
 		if(!archiveName.startsWith(CountArchiveFlusher.NAME_MEMORY)){
 			counters = AvailableCounter.filterOutArrayServers(counters);//makes the html table unboundedly wide
 		}
-		mav.addObject("counters", counters);
+		mav.put("counters", counters);
 		SortedMap<String,SortedMap<String,AvailableCounter>> counterBySourceByName = MapTool.createTreeMap();
 		Map<String,AvailableCounter> aCounterByName = MapTool.create();
 		for(AvailableCounter counter : IterableTool.nullSafe(counters)){
@@ -75,11 +79,11 @@ public class ViewCountsHandler extends BaseHandler{
 			counterBySourceByName.get(htmlName).put(counter.getSource(), counter);
 			aCounterByName.put(htmlName, counter);
 		}
-		mav.addObject("counterBySourceByName", counterBySourceByName);
-		mav.addObject("aCounterByName", aCounterByName);
+		mav.put("counterBySourceByName", counterBySourceByName);
+		mav.put("aCounterByName", aCounterByName);
 		List<String> sources = ListTool.create();//wrap(VALUE_source_all);
 		sources.addAll(AvailableCounter.getAllSources(counters));
-		mav.addObject("sources", sources);
+		mav.put("sources", sources);
 		
 		return mav;
 	}
@@ -93,7 +97,7 @@ public class ViewCountsHandler extends BaseHandler{
 			CountSeries series = getSeries(name);
 			ListTool.nullSafeArrayAdd(seriesList, series);
 		}
-		mav.addObject("seriesList", seriesList);
+		mav.put("seriesList", seriesList);
 		
 		return mav;
 	}

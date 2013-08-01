@@ -2,9 +2,12 @@ package com.hotpads.profile.count.viewing;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.util.core.IterableTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.XMLStringTool;
+import com.hotpads.util.core.collections.Pair;
 
 public class CountSeries{
 
@@ -15,6 +18,7 @@ public class CountSeries{
 	private String name;
 	private String sourceType;
 	private String source;
+	private List<Pair<Long,Double>> valuesPairs;
 
 	public CountSeries(Long startMs, Long endMs, Long periodMs,
 			String name, String sourceType, String source, List<Count> counts){
@@ -25,8 +29,42 @@ public class CountSeries{
 		this.name = name;
 		this.sourceType = sourceType;
 		this.source = source;
+		this.valuesPairs = iniializeValuesPair();
 	}
 
+	
+
+	public CountSeries(List<Pair<Long,Double>> valuesPairs, Long startMs, Long endMs, Long periodMs,
+			String name, String sourceType, String source){
+		this.startMs = startMs;
+		this.endMs = endMs;
+		this.periodMs = periodMs;
+		this.name = name;
+		this.sourceType = sourceType;
+		this.source = source;
+		this.valuesPairs = valuesPairs;
+		this.counts = initializeCounts();
+
+	}
+	
+	private List<Count> initializeCounts(){
+		List<Count> counts = ListTool.create();
+		for(Pair<Long,Double> pair : valuesPairs){
+			// TODO check value of created
+			counts.add(new Count(name, sourceType, periodMs, pair.getLeft(), source, pair.getLeft(), pair
+					.getRight().longValue()));
+		}
+
+		return counts;
+	}
+
+	private List<Pair<Long,Double>> iniializeValuesPair(){
+		List<Pair<Long,Double>> toReturn = ListTool.create();
+		for(Count count : counts){
+			toReturn.add(new Pair<Long,Double>(count.getStartTimeMs(), new Double(count.getValue().toString())));
+		}
+		return toReturn;
+	}
 //	public CountSeries(Long startMs, Long endMs, Long periodMs, List<Count> counts){
 //		this.startMs = startMs;
 //		this.endMs = endMs;
@@ -97,7 +135,30 @@ public class CountSeries{
 	public void setCounts(List<Count> counts){
 		this.counts = counts;
 	}
+
+	public List<Double> getValues(){
+		List<Double> toReturnValues = Lists.newLinkedList();
+		for(Pair pair : getValuesPairs()){
+			toReturnValues.add((Double)pair.getRight());
+		}
+		return toReturnValues;
+	}
+
+	public List<Long> getStartTimes(){
+		List<Long> toReturnTimes = Lists.newLinkedList();
+		for(Pair pair : getValuesPairs()){
+			toReturnTimes.add((Long)pair.getLeft());
+		}
+		return toReturnTimes;
+	}
 	
+	public List<Pair<Long,Double>> getValuesPairs(){
+		return valuesPairs;
+	}
+
+	public void setValuesPairs(List<Pair<Long,Double>> valuesPairs){
+		this.valuesPairs = valuesPairs;
+	}
 	
 	
 }

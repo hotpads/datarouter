@@ -1,5 +1,6 @@
 package com.hotpads.profile.count.collection.archive;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.profile.count.collection.CountMapPeriod;
@@ -25,4 +26,6 @@ public interface CountArchive extends Comparable<CountArchive>{
 //	List<Count> getCountsForSource(String name, String source, Long startMs, Long endMs);
 	
 	String getPeriodAbbreviation();
+
+	Collection<? extends AvailableCounter> getAvailableCounters(String nameLike, String webApp);
 }
