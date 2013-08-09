@@ -75,9 +75,8 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		return mav;
 	}
 	
-	
-	@Handler
-	public Mav summary(){
+	@Override
+	protected Mav handleDefault(){
 		return preHandle();
 	}
 	
