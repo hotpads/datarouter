@@ -42,6 +42,36 @@
           </dependency>
         </dependencies>
       </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <phase>test</phase>
+            <configuration>
+              <target>
+                <property name="test_classpath" refid="maven.test.classpath"/>
+                <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+                  <classpath path="${test_classpath}"/>
+                </taskdef>
+                <junit haltonerror="true" haltonfailure="true" printsummary="true" includeantruntime="false">
+                  <classpath>
+                    <pathelement path="${test_classpath}"/>
+                  </classpath>
+                  <batchtest todir="${project.build.directory}/test-results">
+                    <fileset dir="${project.build.directory}/classes"
+                             includes="**/*Tests.class"
+                             excludes="**/*IntegrationTests.class"/>
+                  </batchtest>
+                </junit>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -65,6 +95,18 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>1.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant-junit</artifactId>
+      <version>1.8.1</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
