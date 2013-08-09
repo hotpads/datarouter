@@ -52,7 +52,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 
 	@Override
 	public List<AvailableCounter> getAvailableCounters(String nameLike){
-		AvailableCounterKey prefix = new AvailableCounterKey(sourceType, periodMs, nameLike, null);
+		AvailableCounterKey prefix = new AvailableCounterKey(webApp, periodMs, nameLike, null);
 		Config configLongTimeout = new Config().setTimeout(1, TimeUnit.MINUTES);
 		List<AvailableCounter> counters = availableCounterNode.getWithPrefix(prefix, true, configLongTimeout);
 		Collections.sort(counters);
@@ -72,20 +72,20 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	 */
 	@Override
 	public List<Count> getCountsForAllSources(String name, Long startMs, Long endMs){
-		CountKey start = new CountKey(name, sourceType, periodMs, startMs, null, null);
-		CountKey end = new CountKey(name, sourceType, periodMs, System.currentTimeMillis(), null, null);
+		CountKey start = new CountKey(name, webApp, periodMs, startMs, null, null);
+		CountKey end = new CountKey(name, webApp, periodMs, System.currentTimeMillis(), null, null);
 		List<Count> counts = countNode.getRange(start, true, end, true, null);
 		return counts;
 	}
 	
-//	@Override
-//	public List<Count> getCountsForSource(String name, String filterForSource, Long startMs, Long endMs){
-//		CountKey start = new CountKey(name, sourceType, periodMs, startMs, null, 0L);
-//		CountKey end = new CountKey(name, sourceType, periodMs, System.currentTimeMillis(), null, Long.MAX_VALUE);
-//		List<Count> counts = countNode.getRange(start, true, end, true, null);
-//		List<Count> countsForSource = Count.filterForSource(counts, filterForSource);
-//		return countsForSource;
-//	}
+	@Override
+	public List<Count> getCountsForWebApp(String name, String WebApp, Long startMs, Long endMs){
+		CountKey start = new CountKey(name, WebApp, periodMs, startMs, null, null);
+		CountKey end = new CountKey(name, WebApp, periodMs, System.currentTimeMillis(), null, Long.MAX_VALUE);
+		List<Count> counts = countNode.getRange(start, true, end, true, null);
+		//List<Count> countsForSource = Count.filterForSource(counts, filterForSource);
+		return counts;
+	}
 	
 	public static final int DISCARD_IF_OLDER_THAN = 300 * 1000;
 
@@ -111,7 +111,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		List<Count> toSave = ListTool.create();
 		for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(oldAggregator.getCountByKey()).entrySet()){
 			if(entry.getValue()==null || entry.getValue().equals(0L)){ continue; }
-			toSave.add(new Count(entry.getKey(), sourceType, 
+			toSave.add(new Count(entry.getKey(), webApp, 
 					periodMs, periodStart, source, System.currentTimeMillis(), entry.getValue().get()));
 		}
 		if(countNode!=null){
@@ -131,7 +131,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	protected void flushAvailableCounters(Map<String,AtomicLong> countByKey){
 		List<AvailableCounter> toSave = ListTool.createLinkedList();
 		for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(countByKey).entrySet()){
-			toSave.add(new AvailableCounter(sourceType, periodMs, entry.getKey(), 
+			toSave.add(new AvailableCounter(webApp, periodMs, entry.getKey(), 
 					source, System.currentTimeMillis()));
 		}
 		availableCounterNode.putMulti(toSave, new Config()
