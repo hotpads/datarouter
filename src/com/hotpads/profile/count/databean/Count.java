@@ -120,6 +120,27 @@ public class Count extends BaseDatabean<CountKey,Count>{
 		return ((double)value) * 3600000 / getPeriodMs();
 	}
 	
+	public static double getValuePer(double value, Long periodMs, String frequency){
+		if("second".equals(frequency)){
+			return getValuePerSecond(value, periodMs);
+		}else if("minute".equals(frequency)){
+			return getValuePerMinute(value, periodMs);
+		}else if("hour".equals(frequency)){ return getValuePerHour(value, periodMs); }
+		throw new IllegalArgumentException("unknown frequency: " + frequency);
+	}
+
+	public static double getValuePerSecond(double value, Long periodMs){
+		return ((double)value) * 1000 / periodMs;
+	}
+
+	public static double getValuePerMinute(double value, Long periodMs){
+		return ((double)value) * 60000 / periodMs;
+	}
+
+	public static double getValuePerHour(double value, Long periodMs){
+		return ((double)value) * 3600000 / periodMs;
+	}
+	
 	public String getNameHtmlEscaped(){
 		return XMLStringTool.escapeXml(getName());
 	}
@@ -185,7 +206,6 @@ public class Count extends BaseDatabean<CountKey,Count>{
 //		logger.warn("numMatches="+numMatches);
 		return outs;
 	}
-	
 	/********************************* get/set ****************************************/
 
 

@@ -1,10 +1,12 @@
 package com.hotpads.profile.count.viewing;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.hotpads.profile.count.databean.Count;
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
@@ -126,16 +128,65 @@ public class CountSeries{
 		return Count.getListWithGapsFilled(name, sourceType, source, periodMs, counts, startMs, endMs);
 	}
 
+	public List<Pair<Long,Double>> getPaddedValues(){
+		int numPoints = (int)((endMs - startMs) / periodMs);
+		List<Pair<Long,Double>> outs = ListTool.createArrayList(numPoints + 1);
+		long intervalStart = startMs;
+		Iterator<Pair<Long,Double>> i = valuesPairs.iterator();
+		Pair<Long,Double> next = IterableTool.next(i);
+		int numMatches=0, numNull=0, numOutOfRange=0;
+		if(endMs<=startMs){
+			return null;
+		}
+		while(intervalStart <= endMs){
+			if(next != null && ((Long)next.getLeft()).equals(intervalStart)){
+				if(CollectionTool.notEmpty(outs)){
+					Pair<Long,Double> last = CollectionTool.getLast(outs);
+					if(((Long)last.getLeft()).equals((Long)next.getLeft())){
+						last.setRight((last.getRight() + next.getRight()));// increment
+					}else{
+						outs.add(next);
+					}
+				}else{
+					outs.add(next);
+				}
+				next = IterableTool.next(i);
+				++numMatches;
+			}else{
+				if(next==null){ ++numNull; }
+				else{ ++numOutOfRange; }
+				outs.add(new Pair<Long,Double>(System.currentTimeMillis(), 0D));
+			}
+			if(next==null || (Long)next.getLeft() > intervalStart){
+				intervalStart += periodMs;
+			}
+		}
+		return outs;
+	}
+
+	public static void setCountSeriesWithPaddedCounts(List<CountSeries> countSeriesList){
+		for(CountSeries countSeries : countSeriesList){
+			List<Pair<Long,Double>> counts = countSeries.getPaddedValues();
+			countSeries.setValuesPairs(counts);
+		}
+
+	}
+
 	public static List<Pair<Long,Double>> aggregateCountOfCountSeries(List<CountSeries> countSeries){
+		// Normally here, the valuesPairs have been set to be padded
+		setCountSeriesWithPaddedCounts(countSeries);
 		List<Pair<Long,Double>> counts = ListTool.create();
 		Set<Long> listStartTimes = combineStartTimes(countSeries);
 		Pair<Long,Double> pair;
 		for(Long startTime : listStartTimes){
 			pair = new Pair<Long,Double>(new Long(0), new Double(0));
 			for(CountSeries countSerie : countSeries){
-				Pair<Long,Double> pairTemp = getFirstPair(startTime, countSerie.getValuesPairs());
-				pair.setLeft(pair.getLeft() + pairTemp.getLeft());
-				pair.setRight(pair.getRight() + pairTemp.getRight());
+				Pair<Long,Double> pairTemp = getFirstPair(startTime, countSerie.valuesPairs);
+				if(pair != null && pairTemp != null && pair.getRight() != null && pairTemp.getRight() != null){
+					pair.setLeft(startTime);
+					pair.setRight(pair.getRight() + pairTemp.getRight());
+
+				}
 			}
 			counts.add(pair);
 		}
