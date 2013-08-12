@@ -77,6 +77,15 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>development</id>
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
+    </profile>
+  </profiles>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
