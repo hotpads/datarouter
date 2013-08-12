@@ -47,6 +47,7 @@
         <version>1.7</version>
         <executions>
           <execution>
+            <id>unit-test-with-ant</id>
             <phase>test</phase>
             <configuration>
               <skip>${skipTests}</skip>
