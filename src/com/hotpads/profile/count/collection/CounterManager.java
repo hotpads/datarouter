@@ -104,6 +104,7 @@ public class CounterManager implements CountMap{
 			logger.warn(ns+"ns "+timer);
 		}
 		
+		//TODO should multiply by period of time
 		long usedMemory = totalMemory - freeMemory;
 		counter.increment("memory free MB", freeMemory >> 20);
 		counter.increment("memory max MB", maxMemory >> 20);
@@ -120,6 +121,9 @@ public class CounterManager implements CountMap{
 	@Override
 	public long increment(String key, long delta){
 		rollIfNecessary();
+		/*if(key.equals("Joblet DailyCompanyEventAggregation")){
+			logger.warn(System.identityHashCode(liveCounter));
+		}*/
 		return liveCounter.increment(key, delta);
 	}
 
