@@ -10,10 +10,8 @@ import javax.inject.Inject;
 
 import junit.framework.Assert;
 
-import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
@@ -65,7 +63,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		PARAM_offset = "offset";
 	
 	private Mav preHandle(){
-		Mav mav = new Mav("/admin/datarouter/data/viewNodeData");
+		Mav mav = new Mav("/WEB-INF/jsp/datarouter/viewNodeData.jsp");
 		String nodeName = RequestTool.get(request, PARAM_nodeName);
 		node = drContext.getNodes().getNode(nodeName);
 		if(node==null){
