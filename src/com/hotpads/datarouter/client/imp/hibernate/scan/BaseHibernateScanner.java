@@ -29,7 +29,7 @@ extends BaseBatchingSortedScanner<T,FieldSet<?>>{
 		this.node = node;
 		this.fieldInfo = node.getFieldInfo();
 		this.range = range;
-		this.config = Config.nullSafe(pConfig);
+		this.config = pConfig == null ? new Config() : pConfig.getDeepCopy();
 		this.config.setIterateBatchSizeIfNull(HBaseReaderNode.DEFAULT_ITERATE_BATCH_SIZE);//why is this necessary?
 		this.noMoreBatches = false;
 	}
