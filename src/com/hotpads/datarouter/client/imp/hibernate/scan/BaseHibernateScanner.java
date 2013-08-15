@@ -23,7 +23,6 @@ extends BaseBatchingSortedScanner<T,FieldSet<?>>{
 	protected Range<PK> range;
 	protected Config config;
 	
-	
 	public BaseHibernateScanner(HibernateReaderNode<PK,D,?> node, DatabeanFieldInfo<PK,D,?> fieldInfo, Range<PK> range,
 			Config pConfig){
 		this.node = node;
