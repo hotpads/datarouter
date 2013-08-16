@@ -41,7 +41,8 @@ public abstract class BaseHandler{
 	
 	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 	
-	@Handler protected Mav handleDefault(){
+	@Handler
+	protected Mav handleDefault(){
 		return new MessageMav().addObject("message", "no default handler method found, please specify "
 				+handlerMethodParamName());
 	}
