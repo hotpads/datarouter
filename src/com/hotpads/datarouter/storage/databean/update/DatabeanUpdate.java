@@ -32,7 +32,7 @@ public abstract class DatabeanUpdate <PK extends PrimaryKey<PK>, D extends Datab
 			}
 			newBeansByKey.remove(oldBean.getKey());
 		}
-		storage.putMulti(MapTool.nullSafe(newBeansByKey).values(), Configs.INSERT_OR_BUST);
+		storage.putMulti(MapTool.nullSafe(newBeansByKey).values(), Configs.insertOrBust());
 	}
 	
 	public void update(D oldBean, D newBean){
@@ -40,13 +40,13 @@ public abstract class DatabeanUpdate <PK extends PrimaryKey<PK>, D extends Datab
 			return;
 		}
 		if(oldBean==null && newBean!=null){
-			storage.put(newBean, Configs.INSERT_OR_BUST);
+			storage.put(newBean, Configs.insertOrBust());
 		}else if(oldBean!=null && newBean==null){
 			storage.delete(oldBean.getKey(),null);
 		}else{
-			Config putConfig = Configs.MERGE;
+			Config putConfig = Configs.merge();
 			if(replaceInsteadOfMerge(oldBean, newBean)){
-				putConfig = Configs.INSERT_OR_BUST;
+				putConfig = Configs.insertOrBust();
 				storage.delete(oldBean.getKey(), null);
 			}
 			storage.put(newBean, putConfig);	
