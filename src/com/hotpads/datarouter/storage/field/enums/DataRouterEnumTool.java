@@ -18,27 +18,30 @@ public class DataRouterEnumTool{
 	    }
 	}
 
-    public static <T extends IntegerEnum<T>>
-    int compareIntegerEnums(T a, T b){
-    	if(ObjectTool.bothNull(a, b)){ return 0; }
-    	if(ObjectTool.isOneNullButNotTheOther(a, b)){ return a==null?-1:1; }
-        return ComparableTool.nullFirstCompareTo(
-        		a.getPersistentInteger(), b.getPersistentInteger());
+    public static <T extends IntegerEnum<T>> int compareIntegerEnums(T a, T b){
+    	if(ObjectTool.bothNull(a, b)){
+    		return 0;
+    	}
+    	if(ObjectTool.isOneNullButNotTheOther(a, b)){
+    		return a==null?-1:1;
+    	}
+        return ComparableTool.nullFirstCompareTo(a.getPersistentInteger(), b.getPersistentInteger());
     }
 
-    public static <T extends StringEnum<T>>
-    int compareStringEnums(T a, T b){
-    	if(ObjectTool.bothNull(a, b)){ return 0; }
-    	if(ObjectTool.isOneNullButNotTheOther(a, b)){ return a==null?-1:1; }
-        return ComparableTool.nullFirstCompareTo(
-        		a.getPersistentString(), b.getPersistentString());
+    public static <T extends StringEnum<T>> int compareStringEnums(T a, T b){
+    	if(ObjectTool.bothNull(a, b)){
+    		return 0;
+    	}
+    	if(ObjectTool.isOneNullButNotTheOther(a, b)){
+    		return a==null?-1:1;
+    	}
+        return ComparableTool.nullFirstCompareTo(a.getPersistentString(), b.getPersistentString());
     }
     
     
     /********************** methods **************************************/
 
-	public static <T extends IntegerEnum<T>> 
-	T getEnumFromInteger(T[] values, Integer value, T defaultEnum){
+	public static <T extends IntegerEnum<T>> T getEnumFromInteger(T[] values, Integer value, T defaultEnum){
 		if(value==null) return defaultEnum;
 		for(T type:values){
 			if(type.getPersistentInteger().equals(value)) return type;
@@ -46,14 +49,23 @@ public class DataRouterEnumTool{
 		return defaultEnum;
 	}
 
-	public static <T extends StringEnum<T>> 
-	T getEnumFromString(T[] values, String value, T defaultEnum){
+	public static <T extends StringEnum<T>> T getEnumFromString(T[] values, String value, T defaultEnum,
+			boolean caseSensitive){
 		if(value==null) return defaultEnum;
 		for(T type:values){
-			if(type.getPersistentString().equals(value)) return type;
+			if((caseSensitive && type.getPersistentString().equals(value)) 
+					|| (!caseSensitive && type.getPersistentString().equalsIgnoreCase(value))){
+				return type;
+			}
 		}
 		return defaultEnum;
 	}
+	
+	public static <T extends StringEnum<T>> T getEnumFromString(T[] values, String value, T defaultEnum){
+		return getEnumFromString(values,value,defaultEnum,true);
+	}
+	
+	
 	
 	
 }

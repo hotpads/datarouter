@@ -5,14 +5,14 @@ import com.hotpads.util.core.ComparableTool;
 
 public abstract class BaseCountArchive implements CountArchive{
 
-	protected String sourceType;
+	protected String webApp;
 	protected String source;
 	protected Long periodMs;
 	
 	
 	
 	public BaseCountArchive(String sourceType, String source, Long periodMs){
-		this.sourceType = sourceType;
+		this.webApp = sourceType;
 		this.source = source;
 		this.periodMs = periodMs;
 	}
@@ -27,7 +27,7 @@ public abstract class BaseCountArchive implements CountArchive{
 
 	@Override
 	public String getSourceType(){
-		return sourceType;
+		return webApp;
 	}
 
 	@Override

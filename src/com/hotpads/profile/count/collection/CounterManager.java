@@ -13,6 +13,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.RuntimeTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
@@ -27,8 +28,6 @@ public class CounterManager implements CountMap{
 	
 	protected CountMapPeriod liveCounter;
 	protected List<CountArchiveFlusher> flushers;
-	
-	private Runtime runtime = Runtime.getRuntime();
 
 	public CounterManager(long rollPeriodMs){
 		this.rollPeriodMs = rollPeriodMs;
@@ -97,18 +96,19 @@ public class CounterManager implements CountMap{
 		//get the actual values
 		//not sure if these are slow
 		PhaseTimer timer = new PhaseTimer("memOps");
-		long freeMemory = timer.time(runtime.freeMemory(), "freeMemory()");
-		long maxMemory = timer.time(runtime.maxMemory(), "maxMemory()");
-		long totalMemory = timer.time(runtime.totalMemory(), "totalMemory()");
+		long freeMemory = timer.time(RuntimeTool.getFreeMemory(), "freeMemory()");
+		long maxMemory = timer.time(RuntimeTool.getMaxMemory(), "maxMemory()");
+		long totalMemory = timer.time(RuntimeTool.getTotalMemory(), "totalMemory()");
 		long ns = System.nanoTime() - startNs;
 		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 1){
 			logger.warn(ns+"ns "+timer);
 		}
 		
+		//TODO should multiply by period of time
 		long usedMemory = totalMemory - freeMemory;
 		counter.increment("memory free MB", freeMemory >> 20);
 		counter.increment("memory max MB", maxMemory >> 20);
-		counter.increment("memory total MB", runtime.totalMemory() >> 20);
+		counter.increment("memory total MB", RuntimeTool.getTotalMemory() >> 20);
 		counter.increment("memory used MB", usedMemory >> 20);
 	}
 
@@ -121,6 +121,9 @@ public class CounterManager implements CountMap{
 	@Override
 	public long increment(String key, long delta){
 		rollIfNecessary();
+		/*if(key.equals("Joblet DailyCompanyEventAggregation")){
+			logger.warn(System.identityHashCode(liveCounter));
+		}*/
 		return liveCounter.increment(key, delta);
 	}
 
