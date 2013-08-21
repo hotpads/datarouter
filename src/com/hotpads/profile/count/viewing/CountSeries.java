@@ -134,10 +134,8 @@ public class CountSeries{
 		long intervalStart = startMs;
 		Iterator<Pair<Long,Double>> i = valuesPairs.iterator();
 		Pair<Long,Double> next = IterableTool.next(i);
-		int numMatches=0, numNull=0, numOutOfRange=0;
-		if(endMs<=startMs){
-			return null;
-		}
+		int numMatches = 0, numNull = 0, numOutOfRange = 0;
+		if(endMs <= startMs){ return null; }
 		while(intervalStart <= endMs){
 			if(next != null && ((Long)next.getLeft()).equals(intervalStart)){
 				if(CollectionTool.notEmpty(outs)){
@@ -153,11 +151,14 @@ public class CountSeries{
 				next = IterableTool.next(i);
 				++numMatches;
 			}else{
-				if(next==null){ ++numNull; }
-				else{ ++numOutOfRange; }
+				if(next == null){
+					++numNull;
+				}else{
+					++numOutOfRange;
+				}
 				outs.add(new Pair<Long,Double>(System.currentTimeMillis(), 0D));
 			}
-			if(next==null || (Long)next.getLeft() > intervalStart){
+			if(next == null || (Long)next.getLeft() > intervalStart){
 				intervalStart += periodMs;
 			}
 		}
@@ -221,8 +222,18 @@ public class CountSeries{
 	}
 
 	public List<Double> getValues(){
+		//TODO SHOULD BE OPTIMIZED ?
 		List<Double> toReturnValues = Lists.newLinkedList();
-		for(Pair pair : getValuesPairs()){
+		for(Pair<Long,Double> pair : getValuesPairs()){
+			toReturnValues.add((Double)pair.getRight());
+		}
+		return toReturnValues;
+	}
+
+	public List<Double> getValues(Long period, String frequency){
+		//TODO SHOULD BE OPTIMIZED ?
+		List<Double> toReturnValues = Lists.newLinkedList();
+		for(Pair<Long,Double> pair : getValuesPairs(period, frequency)){
 			toReturnValues.add((Double)pair.getRight());
 		}
 		return toReturnValues;
@@ -230,7 +241,7 @@ public class CountSeries{
 
 	public List<Long> getStartTimes(){
 		List<Long> toReturnTimes = Lists.newLinkedList();
-		for(Pair pair : getValuesPairs()){
+		for(Pair<Long,Double> pair : getValuesPairs()){
 			toReturnTimes.add((Long)pair.getLeft());
 		}
 		return toReturnTimes;
@@ -238,6 +249,17 @@ public class CountSeries{
 
 	public List<Pair<Long,Double>> getValuesPairs(){
 		return valuesPairs;
+	}
+
+	public List<Pair<Long,Double>> getValuesPairs(Long period, String frequency){
+		List<Pair<Long,Double>> valuesPairsPeriod = ListTool.create();
+		Pair<Long,Double> pair;
+		for(Pair<Long,Double> tempPair : valuesPairs){
+			pair = tempPair;
+			pair.setRight(Count.getValuePer(tempPair.getRight(), period, frequency));
+			valuesPairsPeriod.add(pair);
+		}
+		return valuesPairsPeriod;
 	}
 
 	public void setValuesPairs(List<Pair<Long,Double>> valuesPairs){
