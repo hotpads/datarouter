@@ -39,8 +39,7 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 	
-	public static String deleteAll(
-			Config config, String tableName){
+	public static String deleteAll(Config config, String tableName){
 		StringBuilder sql = new StringBuilder();
 		addDeleteFromClause(sql, tableName);
 		addLimitOffsetClause(sql, config);
@@ -61,9 +60,7 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 	
-	public static String deleteMulti(
-			Config config, String tableName,
-			Collection<? extends FieldSet<?>> keys){
+	public static String deleteMulti(Config config, String tableName, Collection<? extends FieldSet<?>> keys){
 		if(CollectionTool.isEmpty(keys)){//getAll() passes null in for keys
 			throw new IllegalArgumentException("no keys provided... use getAll if you want the whole table.");
 		}
@@ -86,9 +83,8 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 	
-	public static String deleteWithPrefixes(
-			Config config, String tableName, 
-			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField){
+	public static String deleteWithPrefixes(Config config, String tableName, Collection<? extends FieldSet<?>> keys,
+			boolean wildcardLastField){
 		StringBuilder sql = new StringBuilder();
 		addDeleteFromClause(sql, tableName);
 		sql.append(" where ");
