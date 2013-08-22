@@ -1,16 +1,14 @@
 package com.hotpads.profile.count.viewing;
 
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.XMLStringTool;
 import com.hotpads.util.core.collections.Pair;
-
+@Deprecated
 public class CountSeries{
 
 	private Long startMs;
@@ -79,27 +77,27 @@ public class CountSeries{
 		return Count.getListWithGapsFilled(name, sourceType, source, periodMs, counts, startMs, endMs);
 	}
 
-	public static List<Count> aggregateCountOfCountSeries(List<CountSeries> countSeriesList, String name,
-			String webApp, String server, long periodMs){
-		// Normally here, the valuesPairs have been set to be padded
-		List<Count> counts = ListTool.create();
-		Count aggregatedCount;
-		long value = new Long(0);
-		// Initialization of the variables
-		if(countSeriesList == null || countSeriesList.size() <= 0){ return null; }
-		List<List<Long>> listStartTimesList = getStartTimesListOfCountSeries(countSeriesList);
-		Set<Long> listStartTimes = SetTool.create(ListTool.intersection(listStartTimesList));
-
-		for(Long startTime : listStartTimes){
-			value = new Long(0);
-			for(CountSeries countSeries : countSeriesList){
-				value += countSeries.getCount(startTime).getValue();
-			}
-			aggregatedCount = new Count(name, webApp, periodMs, startTime, server, startTime, value);
-			counts.add(aggregatedCount);
-		}
-		return counts;
-	}
+//	public static List<Count> aggregateCountOfCountSeries(List<CountSeries> countSeriesList, String name,
+//			String webApp, String server, long periodMs){
+//		// Normally here, the valuesPairs have been set to be padded
+//		List<Count> counts = ListTool.create();
+//		Count aggregatedCount;
+//		long value = new Long(0);
+//		// Initialization of the variables
+//		if(countSeriesList == null || countSeriesList.size() <= 0){ return null; }
+//		List<List<Long>> listStartTimesList = getStartTimesListOfCountSeries(countSeriesList);
+//		Set<Long> listStartTimes = SetTool.create(ListTool.intersection(listStartTimesList));
+//
+//		for(Long startTime : listStartTimes){
+//			value = new Long(0);
+//			for(CountSeries countSeries : countSeriesList){
+//				value += countSeries.getCount(startTime).getValue();
+//			}
+//			aggregatedCount = new Count(name, webApp, periodMs, startTime, server, startTime, value);
+//			counts.add(aggregatedCount);
+//		}
+//		return counts;
+//	}
 
 	public Count getCount(Long startTime){
 		for(Count count : getCounts()){

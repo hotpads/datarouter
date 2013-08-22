@@ -23,7 +23,6 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.XMLStringTool;
-import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
 @SuppressWarnings("serial")
 @Entity
@@ -167,15 +166,14 @@ public class Count extends BaseDatabean<CountKey,Count>{
 		return outs;
 	}
 	
-	public static List<Count> getListWithGapsFilled(
-			String otherName, String otherSourceType, String otherSource,
+	public static List<Count> getListWithGapsFilled(String otherName, String otherSourceType, String otherSource,
 			Long periodMs, Iterable<Count> ins, Long startTime, Long endTime){
 		int numPoints = (int)((endTime - startTime) / periodMs);
 		List<Count> outs = ListTool.createArrayList(numPoints + 1);
 		long intervalStart = startTime;
 		Iterator<Count> iterator = IterableTool.nullSafe(ins).iterator();
 		Count next = IterableTool.next(iterator);
-		int numMatches=0, numNull=0, numOutOfRange=0;
+		// int numMatches=0, numNull=0, numOutOfRange=0;
 		while(intervalStart <= endTime){
 			if(next != null && next.getStartTimeMs().equals(intervalStart)){
 				if(CollectionTool.notEmpty(outs)){
@@ -189,20 +187,24 @@ public class Count extends BaseDatabean<CountKey,Count>{
 					outs.add(next);
 				}
 				next = IterableTool.next(iterator);
-				++numMatches;
+				// ++numMatches;
 			}else{
-//				logger.warn("miss:"+new Date(intervalStart));
-				if(next==null){ ++numNull; }
-				else{ ++numOutOfRange; }
-				Count zero = new Count(otherName, otherSourceType, periodMs, 
-						intervalStart, otherSource, System.currentTimeMillis(), 0L);
+				// logger.warn("miss:"+new Date(intervalStart));
+				if(next == null){
+					// ++numNull; }
+
+				}else{
+					// ++numOutOfRange;
+				}
+				Count zero = new Count(otherName, otherSourceType, periodMs, intervalStart, otherSource, System
+						.currentTimeMillis(), 0L);
 				outs.add(zero);
 			}
-			if(next==null || next.getStartTimeMs() > intervalStart){
+			if(next == null || next.getStartTimeMs() > intervalStart){
 				intervalStart += periodMs;
 			}
 		}
-//		logger.warn("numMatches="+numMatches);
+		// logger.warn("numMatches="+numMatches);
 		return outs;
 	}
 	/********************************* get/set ****************************************/
@@ -271,7 +273,8 @@ public class Count extends BaseDatabean<CountKey,Count>{
 
 	@Override
 	public String toString(){
-		return getName() +", " + getStartTimeMs() + ", " + getValue()+"\n";
+		return getStartTimeMs() + ", " + getValue()+"\n";
+		//return  getValue()+",";
 	}
 
 }
