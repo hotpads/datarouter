@@ -15,6 +15,7 @@ import com.hotpads.profile.count.collection.archive.BaseCountArchive;
 import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
 import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
+import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -143,6 +144,12 @@ public class MemoryCountArchive extends BaseCountArchive{
 			return counts;
 		}
 		
+		@Override
+		@Deprecated
+		public List<Count> getCountsForWebAppWithGapsFilled(String name, String WebApp, long startMs, long endMs){
+			return null;
+			
+		}
 	@Override
 	public void saveCounts(CountMapPeriod countMap){
 		int index = getIndexForMs(countMap.getStartTimeMs());

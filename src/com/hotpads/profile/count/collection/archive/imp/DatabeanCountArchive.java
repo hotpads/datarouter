@@ -2,6 +2,7 @@ package com.hotpads.profile.count.collection.archive.imp;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +23,7 @@ import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class DatabeanCountArchive extends BaseCountArchive{
 	static Logger logger = Logger.getLogger(DatabeanCountArchive.class);
@@ -74,8 +76,10 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	public List<Count> getCountsForAllSources(String name, Long startMs, Long endMs){
 		CountKey start = new CountKey(name, webApp, periodMs, startMs, null, null);
 		CountKey end = new CountKey(name, webApp, periodMs, System.currentTimeMillis(), null, null);
+		//SortedScannerIterable<Count>  scanner = countNode.scan(start, true, end, true, null);
+	//	List<Count> listCounts = ListTool.createArrayList(scanner);
 		List<Count> counts = countNode.getRange(start, true, end, true, null);
-		return counts;
+		return Count.getListWithGapsFilled(name, webApp, source, periodMs, counts, startMs, endMs);
 	}
 	
 	@Override
@@ -83,9 +87,21 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		CountKey start = new CountKey(name, WebApp, periodMs, startMs, null, null);
 		CountKey end = new CountKey(name, WebApp, periodMs, System.currentTimeMillis(), null, Long.MAX_VALUE);
 		List<Count> counts = countNode.getRange(start, true, end, true, null);
-		//List<Count> countsForSource = Count.filterForSource(counts, filterForSource);
 		return counts;
 	}
+	
+	@Override
+	public List<Count> getCountsForWebAppWithGapsFilled(String name, String WebApp, long startMs, long endMs){
+		CountKey start = new CountKey(name, WebApp, periodMs, startMs, null, null);
+		CountKey end = new CountKey(name, WebApp, periodMs, System.currentTimeMillis(), null, Long.MAX_VALUE);
+		//TODO REMOVE THE THE START TIMES WHCIH ARE WEIRD
+//		Iterable<Count> counts = countNode.scan(start, true, end, true, null);
+//		return Count.getListWithGapsFilled(name, WebApp, source, periodMs, counts, startMs, endMs);
+		List<Count> counts = countNode.getRange(start, true, end, true, null);
+		return Count.getListWithGapsFilled(name, webApp, source, periodMs, counts, startMs, endMs);
+		
+	}
+	
 	
 	public static final int DISCARD_IF_OLDER_THAN = 300 * 1000;
 

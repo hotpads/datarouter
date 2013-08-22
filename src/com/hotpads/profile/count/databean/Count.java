@@ -23,6 +23,7 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.XMLStringTool;
+import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
 @SuppressWarnings("serial")
 @Entity
@@ -168,12 +169,12 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	
 	public static List<Count> getListWithGapsFilled(
 			String otherName, String otherSourceType, String otherSource,
-			Long periodMs, List<Count> ins, Long startTime, Long endTime){
+			Long periodMs, Iterable<Count> ins, Long startTime, Long endTime){
 		int numPoints = (int)((endTime - startTime) / periodMs);
 		List<Count> outs = ListTool.createArrayList(numPoints + 1);
 		long intervalStart = startTime;
-		Iterator<Count> i = IterableTool.nullSafe(ins).iterator();
-		Count next = IterableTool.next(i);
+		Iterator<Count> iterator = IterableTool.nullSafe(ins).iterator();
+		Count next = IterableTool.next(iterator);
 		int numMatches=0, numNull=0, numOutOfRange=0;
 		while(intervalStart <= endTime){
 			if(next != null && next.getStartTimeMs().equals(intervalStart)){
@@ -187,7 +188,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 				}else{
 					outs.add(next);
 				}
-				next = IterableTool.next(i);
+				next = IterableTool.next(iterator);
 				++numMatches;
 			}else{
 //				logger.warn("miss:"+new Date(intervalStart));
@@ -268,5 +269,9 @@ public class Count extends BaseDatabean<CountKey,Count>{
 		key.setCreated(created);
 	}
 
-	
+	@Override
+	public String toString(){
+		return getName() +", " + getStartTimeMs() + ", " + getValue()+"\n";
+	}
+
 }
