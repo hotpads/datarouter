@@ -147,7 +147,7 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 	/**
 	 * @return the server
 	 */
-	public String getServer(){
+	public String getServerName(){
 		return serverName;
 	}
 
