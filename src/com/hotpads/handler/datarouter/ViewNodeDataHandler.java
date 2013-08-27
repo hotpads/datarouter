@@ -10,7 +10,6 @@ import javax.inject.Inject;
 
 import junit.framework.Assert;
 
-import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
@@ -22,6 +21,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.datarouter.query.CountWhereTxn;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.util.RequestTool;
@@ -163,6 +163,18 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		if(CollectionTool.size(databeans)>=limit){
 			mav.put(PARAM_nextKey, CollectionTool.getLast(databeans).getPersistentString());
 		}
+		return mav;
+	}
+	
+	@Handler
+	public Mav countWhere(){
+		preHandle();
+		//assume all table names are the same (they are at the time of writing this)
+		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
+		String where = params.optional(PARAM_where, null);
+		List<String> clientNames = node.getClientNames();
+		Long count = new CountWhereTxn(drContext, clientNames, tableName, where).call();
+		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(count)+" rows in "+tableName+" ("+node.getName()+")");
 		return mav;
 	}
 	
