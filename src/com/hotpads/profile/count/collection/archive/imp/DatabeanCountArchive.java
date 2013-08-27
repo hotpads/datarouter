@@ -22,7 +22,6 @@ import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class DatabeanCountArchive extends BaseCountArchive{
 	static Logger logger = Logger.getLogger(DatabeanCountArchive.class);
@@ -94,10 +93,10 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		CountKey start = new CountKey(name, WebApp, periodMs, startMs, null, null);
 		CountKey end = new CountKey(name, WebApp, periodMs, System.currentTimeMillis(), null, Long.MAX_VALUE);
 		//TODO REMOVE THE THE START TIMES WHCIH ARE WEIRD
-		Iterable<Count> counts = countNode.scan(start, true, end, true, null);
-		return Count.getListWithGapsFilled(name, WebApp, source, periodMs, counts, startMs, endMs);
-//		List<Count> counts = countNode.getRange(start, true, end, true, null);
-//		return Count.getListWithGapsFilled(name, webApp, source, periodMs, counts, startMs, endMs);
+//		Iterable<Count> counts = countNode.scan(start, true, end, true, null);
+//		return Count.getListWithGapsFilled(name, WebApp, source, periodMs, counts, startMs, endMs);
+		List<Count> counts = countNode.getRange(start, true, end, true, null);
+		return Count.getListWithGapsFilled(name, webApp, source, periodMs, counts, startMs, endMs);
 		
 	}
 	
