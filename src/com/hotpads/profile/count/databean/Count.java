@@ -98,14 +98,14 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 	
 	public double getValuePer(String frequency){
-		if("second".equals(frequency)){
+		if("none".equals(frequency)){
+			return value;
+		}else if("second".equals(frequency)){
 			return getValuePerSecond();
 		}else if("minute".equals(frequency)){
 			return getValuePerMinute();
-		}else if("hour".equals(frequency)){
-			return getValuePerHour();
-		}
-		throw new IllegalArgumentException("unknown frequency: "+frequency);
+		}else if("hour".equals(frequency)){ return getValuePerHour(); }
+		throw new IllegalArgumentException("unknown frequency: " + frequency);
 	}
 	
 	public double getValuePerSecond(){
@@ -121,7 +121,9 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 	
 	public static double getValuePer(double value, Long periodMs, String frequency){
-		if("second".equals(frequency)){
+		if("none".equals(frequency)){
+			return value;
+		}else if("second".equals(frequency)){
 			return getValuePerSecond(value, periodMs);
 		}else if("minute".equals(frequency)){
 			return getValuePerMinute(value, periodMs);
