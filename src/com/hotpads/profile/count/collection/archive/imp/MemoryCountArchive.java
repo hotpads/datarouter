@@ -68,7 +68,7 @@ public class MemoryCountArchive extends BaseCountArchive{
 					if(StringTool.notEmpty(nameLike) && ! entry.getKey().startsWith(nameLike)){
 						continue; 
 					}
-					unsorted.add(new AvailableCounter(sourceType, 
+					unsorted.add(new AvailableCounter(webApp, 
 							periodMs, entry.getKey(), source, archive[i].getStartTimeMs()));
 				}
 			}
@@ -100,7 +100,7 @@ public class MemoryCountArchive extends BaseCountArchive{
 			}else{
 				AtomicLong atomicLong = period.getCountByKey().get(name);
 				if(atomicLong!=null){
-					Count count = new Count(name, sourceType, 
+					Count count = new Count(name, webApp, 
 							periodMs, period.getStartTimeMs(), source, 
 							System.currentTimeMillis(), atomicLong.longValue());
 					counts.add(count);
@@ -112,6 +112,37 @@ public class MemoryCountArchive extends BaseCountArchive{
 		return counts;
 	}
 
+		@Override
+		public List<Count> getCountsForWebApp(String name, String webApp, Long startMs, Long endMs){
+			
+			int startIndex = getIndexForMs(startMs);
+			if(getEarliestAvailableTime() > startMs){
+				startIndex = getIndexForMs(getEarliestAvailableTime());
+			}
+			List<Count> counts = ListTool.createArrayList();
+			int i = startIndex;
+			while(true){
+				CountMapPeriod period = archive[i];
+				if(period==null
+						|| period.getStartTimeMs() < startMs 
+						|| period.getStartTimeMs() > endMs
+						|| period.getStartTimeMs() < getEarliestAvailableTime()){//old values that haven't been overwritten
+					//do nothing
+				}else{
+					AtomicLong atomicLong = period.getCountByKey().get(name);
+					if(atomicLong!=null){
+						Count count = new Count(name, webApp, 
+								periodMs, period.getStartTimeMs(), source, 
+								System.currentTimeMillis(), atomicLong.longValue());
+						counts.add(count);
+					}
+				}
+				i = getIndexAfter(i);
+				if(i==startIndex){ break; }//looped all the way around
+			}
+			return counts;
+		}
+		
 	@Override
 	public void saveCounts(CountMapPeriod countMap){
 		int index = getIndexForMs(countMap.getStartTimeMs());
