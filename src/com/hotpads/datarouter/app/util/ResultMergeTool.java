@@ -84,8 +84,8 @@ public class ResultMergeTool {
 		return out;
 	}
 	
-	public static <T extends Comparable<T>,C extends Collection<T>> List<T> 
-	appendAndSort(C a, Collection<? extends C> bs){
+	public static <T extends Comparable<T>,C extends Collection<T>> 
+	List<T> appendAndSort(C a, Collection<? extends C> bs){
 		List<T> appended = append(a, bs);
 		Collections.sort(appended);
 		return appended;
