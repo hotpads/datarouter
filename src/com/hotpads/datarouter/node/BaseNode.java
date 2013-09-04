@@ -38,6 +38,11 @@ implements Node<PK,D>{
 	}
 	
 	@Override
+	public DataRouterContext getDataRouterContext(){
+		return drContext;
+	}
+	
+	@Override
 	public void setDataRouterContext(DataRouterContext drContext){
 		this.drContext = drContext;
 	}
