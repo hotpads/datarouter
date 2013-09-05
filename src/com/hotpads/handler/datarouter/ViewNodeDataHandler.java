@@ -22,6 +22,7 @@ import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.datarouter.query.CountWhereTxn;
+import com.hotpads.handler.datarouter.query.GetWhereTxn;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.util.RequestTool;
@@ -177,6 +178,18 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(count)+" rows in "+tableName+" ("+node.getName()+")");
 		return mav;
 	}
+	
+//	@Handler
+//	public Mav getWhere(){
+//		preHandle();
+//		//assume all table names are the same (they are at the time of writing this)
+//		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
+//		String where = params.optional(PARAM_where, null);
+//		List<String> clientNames = node.getClientNames();
+//		List<D> databeans = new GetWhereTxn(drContext, node, tableName, where).call();
+//		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(count)+" rows in "+tableName+" ("+node.getName()+")");
+//		return mav;
+//	}
 	
 	
 	public static final Integer MIN_FIELD_ABBREVIATION_LENGTH = 2;

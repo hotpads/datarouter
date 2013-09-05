@@ -13,6 +13,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.collections.Range;
 
 public class SqlBuilder{
@@ -31,9 +32,10 @@ public class SqlBuilder{
 	}
 	
 	public static String getAll(Config config, String tableName, List<Field<?>> selectFields, 
-			List<Field<?>> orderByFields){
+			String where, List<Field<?>> orderByFields){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
+		addWhereClauseWithWhere(sql, where);
 		addOrderByClause(sql, orderByFields);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
@@ -144,6 +146,12 @@ public class SqlBuilder{
 
 	public static void addDeleteFromClause(StringBuilder sql, String tableName){
 		sql.append("delete from "+tableName);
+	}
+	
+	public static void addWhereClauseWithWhere(StringBuilder sql, String where){
+		if(StringTool.notEmpty(where)){
+			sql.append(" where "+where);
+		}
 	}
 	
 	public static void addPrefixWhereClauseDisjunction(StringBuilder sql, 
