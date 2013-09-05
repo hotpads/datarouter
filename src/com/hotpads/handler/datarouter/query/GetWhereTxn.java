@@ -3,9 +3,14 @@ package com.hotpads.handler.datarouter.query;
 import java.util.Collection;
 import java.util.List;
 
+import org.hibernate.Session;
+
 import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
+import com.hotpads.datarouter.app.util.ResultMergeTool;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
+import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
+import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -22,8 +27,7 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 	private String tableName;
 	private String where;
 	
-	public GetWhereTxn(DataRouterContext drContext, N node, 
-			String tableName, String where){
+	public GetWhereTxn(DataRouterContext drContext, N node, String tableName, String where){
 		super(node.getDataRouterContext(), node.getClientNames());
 		this.tableName = tableName;
 		this.where = where;
@@ -31,18 +35,14 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 
 	@Override
 	public List<D> mergeResults(List<D> fromOnce, Collection<List<D>> fromEachClient){
-//		return ResultMergeTool.appendAndSort(fromOnce, fromEachClient);
-		return null;
+		return ResultMergeTool.mergeIntoListAndSort(fromOnce, fromEachClient);
 	}
 	
 	@Override
 	public List<D> runOncePerClient(Client client){
-		
-		return null;
-		
-//		String sql = SqlBuilder.get
-//		Session session = getSession(client.getName());
-//		return JdbcTool.selectDatabeans(session, fieldInfo, sql;
+		String sql = SqlBuilder.getAll(null, tableName, null, where, null);
+		Session session = getSession(client.getName());
+		return JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
 	}
 	
 }

@@ -148,7 +148,7 @@ implements MapStorageReader<PK,D>,
 				public Object run(Session session) {
 					if(fieldInfo.getFieldAware()){
 						DRCounters.incSuffixClientNode(ClientType.jdbc, "get", clientName, name);
-						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields(), 
+						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields(), null, 
 								fieldInfo.getPrimaryKeyFields());
 						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
@@ -443,7 +443,7 @@ implements MapStorageReader<PK,D>,
 					if(fieldInfo.getFieldAware()){
 						Config nullSafeConfig = Config.nullSafe(config);
 						nullSafeConfig.setLimit(1);
-						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields(), fieldInfo
+						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields(), null, fieldInfo
 								.getPrimaryKeyFields());
 						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return CollectionTool.getFirst(result);
@@ -473,8 +473,8 @@ implements MapStorageReader<PK,D>,
 					if(fieldInfo.getFieldAware()){
 						Config nullSafeConfig = Config.nullSafe(config);
 						nullSafeConfig.setLimit(1);
-						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getPrimaryKeyFields(), fieldInfo
-								.getPrimaryKeyFields());
+						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getPrimaryKeyFields(), null, 
+								fieldInfo.getPrimaryKeyFields());
 						List<PK> result = JdbcTool.selectPrimaryKeys(session, fieldInfo, sql);
 						return CollectionTool.getFirst(result);
 					}else{
