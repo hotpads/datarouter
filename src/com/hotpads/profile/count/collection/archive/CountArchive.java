@@ -24,8 +24,10 @@ public interface CountArchive extends Comparable<CountArchive>{
 	List<AvailableCounter> getAvailableCounters(String nameLike);
 	List<Count> getCountsForAllSources(String name, Long startMs, Long endMs);
 	List<Count> getCountsForWebApp(String name, String webApp, Long startMs, Long endMs);
-	
+	List<Count> getCountsForWebAppWithGapsFilled(String name, String webApp, long rangeStartMs, long rangeEndMs);
+
 	String getPeriodAbbreviation();
 
 	Collection<? extends AvailableCounter> getAvailableCounters(String nameLike, String webApp);
+
 }

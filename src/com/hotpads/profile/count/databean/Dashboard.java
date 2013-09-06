@@ -26,13 +26,15 @@ public class Dashboard extends BaseDatabean<DashboardKey,Dashboard>{
 	protected Long userId;
 	protected Boolean publicAccess;
 	protected String name;
+	protected boolean defaultDashboard;
 	
 	public static class F{
 		public static final String
 			created = "created",
 			userId = "userId",
 			publicAccess = "publicAccess",
-			name = "name";
+			name = "name",
+		defaultDashboard = "defaultDashboard";
 	}
 	
 	@Override
@@ -41,7 +43,8 @@ public class Dashboard extends BaseDatabean<DashboardKey,Dashboard>{
 			new DateField(F.created, created),
 			new LongField(F.userId, userId),
 			new BooleanField(F.publicAccess, publicAccess),
-			new StringField(F.name, name, 255));
+			new StringField(F.name, name, 255),
+			new BooleanField(F.defaultDashboard, isDefaultDashboard()));
 	}
 	
 	public static class DashboardFielder extends BaseDatabeanFielder<DashboardKey,Dashboard>{
@@ -129,6 +132,20 @@ public class Dashboard extends BaseDatabean<DashboardKey,Dashboard>{
 
 	public void setKey(DashboardKey key){
 		this.key = key;
+	}
+
+	/**
+	 * @return the defaultDashboard
+	 */
+	public boolean isDefaultDashboard(){
+		return defaultDashboard;
+	}
+
+	/**
+	 * @param defaultDashboard the defaultDashboard to set
+	 */
+	public void setDefaultDashboard(boolean defaultDashboard){
+		this.defaultDashboard = defaultDashboard;
 	}
 	
 }

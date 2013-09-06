@@ -98,14 +98,14 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 	
 	public double getValuePer(String frequency){
-		if("second".equals(frequency)){
+		if("none".equals(frequency)){
+			return value;
+		}else if("second".equals(frequency)){
 			return getValuePerSecond();
 		}else if("minute".equals(frequency)){
 			return getValuePerMinute();
-		}else if("hour".equals(frequency)){
-			return getValuePerHour();
-		}
-		throw new IllegalArgumentException("unknown frequency: "+frequency);
+		}else if("hour".equals(frequency)){ return getValuePerHour(); }
+		throw new IllegalArgumentException("unknown frequency: " + frequency);
 	}
 	
 	public double getValuePerSecond(){
@@ -121,7 +121,9 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 	
 	public static double getValuePer(double value, Long periodMs, String frequency){
-		if("second".equals(frequency)){
+		if("none".equals(frequency)){
+			return value;
+		}else if("second".equals(frequency)){
 			return getValuePerSecond(value, periodMs);
 		}else if("minute".equals(frequency)){
 			return getValuePerMinute(value, periodMs);
@@ -166,19 +168,16 @@ public class Count extends BaseDatabean<CountKey,Count>{
 		return outs;
 	}
 	
-	public static List<Count> getListWithGapsFilled(
-			String otherName, String otherSourceType, String otherSource,
-			Long periodMs, List<Count> ins, Long startTime, Long endTime){
+	public static List<Count> getListWithGapsFilled(String otherName, String otherSourceType, String otherSource,
+			Long periodMs, Iterable<Count> ins, Long startTime, Long endTime){
 		int numPoints = (int)((endTime - startTime) / periodMs);
 		List<Count> outs = ListTool.createArrayList(numPoints + 1);
 		long intervalStart = startTime;
-		Iterator<Count> i = IterableTool.nullSafe(ins).iterator();
-		Count next = IterableTool.next(i);
-		int numMatches=0, numNull=0, numOutOfRange=0;
+		Iterator<Count> iterator = IterableTool.nullSafe(ins).iterator();
+		Count next = IterableTool.next(iterator);
+		// int numMatches=0, numNull=0, numOutOfRange=0;
 		while(intervalStart <= endTime){
-//			logger.warn("interval:"+new Date(intervalStart)+" "+new Date(next.getStartTimeMs()));
 			if(next != null && next.getStartTimeMs().equals(intervalStart)){
-//				logger.warn("match:"+new Date(intervalStart)+" "+new Date(next.getStartTimeMs()));
 				if(CollectionTool.notEmpty(outs)){
 					Count last = CollectionTool.getLast(outs);
 					if(last.getStartTimeMs().equals(next.getStartTimeMs())){
@@ -189,21 +188,25 @@ public class Count extends BaseDatabean<CountKey,Count>{
 				}else{
 					outs.add(next);
 				}
-				next = IterableTool.next(i);
-				++numMatches;
+				next = IterableTool.next(iterator);
+				// ++numMatches;
 			}else{
-//				logger.warn("miss:"+new Date(intervalStart));
-				if(next==null){ ++numNull; }
-				else{ ++numOutOfRange; }
-				Count zero = new Count(otherName, otherSourceType, periodMs, 
-						intervalStart, otherSource, System.currentTimeMillis(), 0L);
+				// logger.warn("miss:"+new Date(intervalStart));
+				if(next == null){
+					// ++numNull; }
+
+				}else{
+					// ++numOutOfRange;
+				}
+				Count zero = new Count(otherName, otherSourceType, periodMs, intervalStart, otherSource, System
+						.currentTimeMillis(), 0L);
 				outs.add(zero);
 			}
-			if(next==null || next.getStartTimeMs() > intervalStart){
+			if(next == null || next.getStartTimeMs() > intervalStart){
 				intervalStart += periodMs;
 			}
 		}
-//		logger.warn("numMatches="+numMatches);
+		// logger.warn("numMatches="+numMatches);
 		return outs;
 	}
 	/********************************* get/set ****************************************/
@@ -270,5 +273,10 @@ public class Count extends BaseDatabean<CountKey,Count>{
 		key.setCreated(created);
 	}
 
-	
+	@Override
+	public String toString(){
+		return getStartTimeMs() + ", " + getValue()+"\n";
+		//return  getValue()+",";
+	}
+
 }
