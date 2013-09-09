@@ -2,8 +2,10 @@ package com.hotpads.profile.count.viewing;
 
 import java.util.List;
 
+import com.hotpads.profile.count.databean.Count;
 import com.hotpads.profile.count.viewing.PaddedCountSeriesManipulationException.PaddedCountSeriesTypeException;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.XMLStringTool;
 
 public abstract class AbstractCountSeries{
@@ -40,22 +42,20 @@ public abstract class AbstractCountSeries{
 	public Long get(int index){
 		return getCountSeries().get(index);
 	}
-	
-	public int getIndexFromStartTime(long countStartTime)
-			throws PaddedCountSeriesManipulationException{
+
+	public int getIndexFromStartTime(long countStartTime) throws PaddedCountSeriesManipulationException{
 		if(countStartTime % periodMs != 0){ throw new PaddedCountSeriesManipulationException(
 				PaddedCountSeriesTypeException.WRONG_START_TIME); }
 		int toReturn = (int)((countStartTime - startMs) / periodMs);
 		return toReturn;
 	}
-	
+
 	public String getNameHtmlEscaped(){
 		return XMLStringTool.escapeXml(getName());
 	}
-	
 
 	protected List<Long> fillWithZero(){
-		List<Long> toReturn = ListTool.createArrayList(numPeriods+1);
+		List<Long> toReturn = ListTool.createArrayList(numPeriods + 1);
 		for(int index = 0; index <= numPeriods; index++){
 			toReturn.add(new Long(0));
 		}
@@ -63,7 +63,7 @@ public abstract class AbstractCountSeries{
 		return toReturn;
 	}
 
-	/****************Getter and setter *************************/
+	/**************** Getter and setter *************************/
 	public Long getStartMs(){
 		return startMs;
 	}
@@ -112,5 +112,10 @@ public abstract class AbstractCountSeries{
 		this.name = name;
 	}
 
-	
+	public String getFrequencyAbbreviation(String frequencyToConvert){
+		if(StringTool.containsOnlyNumbers(frequencyToConvert)){ 
+			return Count.getListPeriodsForCounters().get(
+				frequencyToConvert); }
+		return frequencyToConvert;
+	}
 }
