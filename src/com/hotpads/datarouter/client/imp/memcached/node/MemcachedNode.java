@@ -52,6 +52,7 @@ implements PhysicalMapStorageNode<PK,D>
 	
 	public static final byte[] FAM = HBaseSimpleClientFactory.DEFAULT_FAMILY_QUALIFIER;
 	public static final String DUMMY = HBaseSimpleClientFactory.DUMMY_COL_NAME;
+	protected static final int MEGABYTE = 1024 * 1024;
 	
 	
 	@Override
@@ -78,10 +79,15 @@ implements PhysicalMapStorageNode<PK,D>
 			Integer expiration = (timeoutLong > new Long(Integer.MAX_VALUE) 
 								? Integer.MAX_VALUE 
 								: timeoutLong.intValue());
+			if (bytes.length > 2 * MEGABYTE) {
+				//memcached max size is 1mb for a compressed object, so don't PUT things that won't compress down that well 
+				logger.error("memcached object too big for memcached!" + databean.getDatabeanName() + ", key:" + databean.getKey().getJson());
+				return;
+			}
 			try {
 				this.getClient().getSpyClient().set(key, expiration, bytes); 
 			} catch (MemcachedStateException e) {
-				logger.error(ExceptionTool.getStackTraceAsString(e));
+				logger.error("memached error on " + key + "\n" + ExceptionTool.getStackTraceAsString(e));
 			}
 		}
 		TraceContext.appendToSpanInfo(CollectionTool.size(databeans)+"");

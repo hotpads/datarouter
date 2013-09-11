@@ -26,6 +26,7 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 	protected Integer entryOrder;
 	protected String serverName;
 	protected String webAppName;
+	protected String frequency;
 	protected int periodMs;
 	
 	
@@ -36,7 +37,8 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 			entryArchive = "entryArchive",
 			entryOrder = "entryOrder",
 			serverName = "serverName",
-			webAppName = "webAppName";
+			webAppName = "webAppName",
+			frequency = "frequency";
 	}
 	
 	@Override
@@ -47,7 +49,8 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 				new StringField(F.entryArchive, entryArchive, 255),
 				new IntegerField(F.entryOrder, entryOrder),
 				new StringField(F.serverName, serverName, 255),
-				new StringField(F.webAppName, webAppName, 255));
+				new StringField(F.webAppName, webAppName, 255),
+				new StringField(F.frequency, getFrequency(), 255));
 			
 	}
 	
@@ -69,7 +72,7 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 		this.key = new DashboardEntryKey();
 	}
 
-	public DashboardEntry(DashboardEntryKey key, DashboardEntryType type, String entry, String entryArchive,String serverName, String webAppName, Integer entryOrder){
+	public DashboardEntry(DashboardEntryKey key, DashboardEntryType type, String entry, String entryArchive,String serverName, String webAppName,  String frequency, Integer entryOrder){
 		//TODO CHECK SERVER NAME AND WEB APP EXIST
 		this.key = key;
 		this.type = type;
@@ -78,7 +81,9 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 		this.serverName = serverName.trim();
 		this.webAppName = webAppName;
 		this.entryOrder = entryOrder;
+		this.setFrequency(frequency);
 		this.periodMs = getPeriodFromEntryArchive(entryArchive);
+		
 	}
 
 
@@ -147,7 +152,7 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 	/**
 	 * @return the server
 	 */
-	public String getServer(){
+	public String getServerName(){
 		return serverName;
 	}
 
@@ -191,6 +196,20 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 	private int getPeriodFromEntryArchive(String entryArchive){
 		String period = entryArchive.split(" ")[1];
 		return new Integer(period);
+	}
+
+	/**
+	 * @return the frequency
+	 */
+	public String getFrequency(){
+		return frequency;
+	}
+
+	/**
+	 * @param frequency the frequency to set
+	 */
+	public void setFrequency(String frequency){
+		this.frequency = frequency;
 	}
 	
 	
