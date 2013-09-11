@@ -2,7 +2,6 @@ package com.hotpads.profile.count.databean;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,7 +21,6 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.XMLStringTool;
 
@@ -100,7 +98,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 	
 	public double getValuePer(String frequency){
-		if(getListPeriodsForCounters().values().contains(frequency.toLowerCase())){
+		if("period".equals(frequency)){
 			return value;
 		}else if("second".equals(frequency)){
 			return getValuePerSecond();
@@ -123,8 +121,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 	
 	public static double getValuePer(double value, Long periodMs, String frequency){
-		if(getListPeriodsForCounters().values().contains(frequency.toLowerCase())){
-			return value;
+		if("period".equals(frequency)){			return value;
 		}else if("second".equals(frequency)){
 			return getValuePerSecond(value, periodMs);
 		}else if("minute".equals(frequency)){
@@ -280,18 +277,5 @@ public class Count extends BaseDatabean<CountKey,Count>{
 		return getStartTimeMs() + ", " + getValue()+"\n";
 		//return  getValue()+",";
 	}
-	
-	// List of periods accepted
-	public static HashMap<String,String> getListPeriodsForCounters(){
-		HashMap<String,String> list = MapTool.createHashMap();
-		list.put("5000", "5s");
-		list.put("20000", "20s");
-		list.put("3600", "1m");
-		list.put("300000", "5m");
-		list.put("1200000", "20m");
-		list.put("14400000", "4h");
-		list.put("86400000", "1d");
-		return list;
 
-	}
 }

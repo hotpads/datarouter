@@ -2,10 +2,8 @@ package com.hotpads.profile.count.viewing;
 
 import java.util.List;
 
-import com.hotpads.profile.count.databean.Count;
 import com.hotpads.profile.count.viewing.PaddedCountSeriesManipulationException.PaddedCountSeriesTypeException;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.XMLStringTool;
 
 public abstract class AbstractCountSeries{
@@ -110,12 +108,5 @@ public abstract class AbstractCountSeries{
 
 	public void setName(String name){
 		this.name = name;
-	}
-
-	public String getFrequencyAbbreviation(String frequencyToConvert){
-		if(StringTool.containsOnlyNumbers(frequencyToConvert)){ 
-			return Count.getListPeriodsForCounters().get(
-				frequencyToConvert); }
-		return frequencyToConvert;
 	}
 }
