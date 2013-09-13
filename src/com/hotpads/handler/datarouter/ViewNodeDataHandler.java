@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 import junit.framework.Assert;
 
+import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
@@ -35,10 +36,17 @@ import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> extends BaseHandler{	
+public class ViewNodeDataHandler<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
+N extends HibernateReaderNode<PK,D,F>>
+extends BaseHandler{	
 	
 	private DataRouterContext drContext;
 	private Node<?,?> node;
+	private Integer limit;
+	private Integer offset;
 	
 
 	@Inject
@@ -72,6 +80,13 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 			return new MessageMav("Cannot find node "+nodeName);
 		}
 		mav.put("node", node);
+		
+		limit = RequestTool.getInteger(request, PARAM_limit, 100);
+		mav.put(PARAM_limit, limit);
+		
+		offset = RequestTool.getInteger(request, PARAM_offset, 0);//offset is for display purposes only
+		mav.put(PARAM_offset, offset);
+		
 		return mav;
 	}
 	
@@ -128,12 +143,6 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		String backKeyString = RequestTool.get(request, PARAM_backKey, null);//allows for 1 "back" action
 		mav.put(PARAM_backKey, backKeyString);
 		String startAfterKeyString = RequestTool.get(request, PARAM_startAfterKey, null);
-		
-		Integer limit = RequestTool.getInteger(request, PARAM_limit, 100);
-		mav.put(PARAM_limit, limit);
-		
-		Integer offset = RequestTool.getInteger(request, PARAM_offset, 0);//offset is for display purposes only
-		mav.put(PARAM_offset, offset);
 
 		Config config = new Config();
 		PK startAfterKey = null;
@@ -145,8 +154,40 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		}
 		config.setLimit(limit);
 		boolean startInclusive = startAfterKey==null;
-		List<? extends Databean<?,?>> databeans = sortedNode.getRange(
-				(PK)startAfterKey, startInclusive, null, true, config);
+		List<D> databeans = sortedNode.getRange((PK)startAfterKey, startInclusive, null, true, 
+				config);
+		
+		addDatabeansToMav(mav, databeans);
+		return mav;
+	}
+	
+	@Handler
+	public Mav countWhere(){
+		preHandle();
+		//assume all table names are the same (they are at the time of writing this)
+		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
+		String where = params.optional(PARAM_where, null);
+		List<String> clientNames = node.getClientNames();
+		Long count = new CountWhereTxn(drContext, clientNames, tableName, where).call();
+		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(count)+" rows in "+tableName+" ("+node.getName()+")");
+		return mav;
+	}
+	
+	@Handler
+	public Mav getWhere(){
+		preHandle();
+		//assume all table names are the same (they are at the time of writing this)
+		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
+		String where = params.optional(PARAM_where, null);
+		List<String> clientNames = node.getClientNames();
+		Config config = new Config().setOffset(offset).setLimit(limit);
+		List<D> databeans = new GetWhereTxn<PK,D,F,N>(drContext, (N)node, tableName, where, config).call();
+		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(CollectionTool.size(databeans))
+				+" rows in "+tableName+" ("+node.getName()+")");
+		return mav;
+	}
+	
+	private void addDatabeansToMav(Mav mav, List<D> databeans){		
 		mav.put("databeans", databeans);
 		
 		List<List<Field<?>>> rowsOfFields = ListTool.create();
@@ -164,37 +205,11 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		if(CollectionTool.size(databeans)>=limit){
 			mav.put(PARAM_nextKey, CollectionTool.getLast(databeans).getPersistentString());
 		}
-		return mav;
 	}
-	
-	@Handler
-	public Mav countWhere(){
-		preHandle();
-		//assume all table names are the same (they are at the time of writing this)
-		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
-		String where = params.optional(PARAM_where, null);
-		List<String> clientNames = node.getClientNames();
-		Long count = new CountWhereTxn(drContext, clientNames, tableName, where).call();
-		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(count)+" rows in "+tableName+" ("+node.getName()+")");
-		return mav;
-	}
-	
-//	@Handler
-//	public Mav getWhere(){
-//		preHandle();
-//		//assume all table names are the same (they are at the time of writing this)
-//		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
-//		String where = params.optional(PARAM_where, null);
-//		List<String> clientNames = node.getClientNames();
-//		List<D> databeans = new GetWhereTxn(drContext, node, tableName, where).call();
-//		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(count)+" rows in "+tableName+" ("+node.getName()+")");
-//		return mav;
-//	}
-	
 	
 	public static final Integer MIN_FIELD_ABBREVIATION_LENGTH = 2;
 	
-	protected Map<String,String> getFieldAbbreviationByFieldName(Collection<? extends Databean<?,?>> databeans){
+	private Map<String,String> getFieldAbbreviationByFieldName(Collection<? extends Databean<?,?>> databeans){
 		if(CollectionTool.isEmpty(databeans)){ return MapTool.create(); }
 		Databean<?,?> first = IterableTool.first(databeans);
 		List<Integer> maxLengths = ListTool.createArrayListAndInitialize(first.getFieldNames().size());
