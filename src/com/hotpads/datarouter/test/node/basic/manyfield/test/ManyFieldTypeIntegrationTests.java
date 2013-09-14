@@ -102,6 +102,19 @@ public class ManyFieldTypeIntegrationTests {
 	/***************************** tests **************************************/
 
 	@Test
+	public void testNullKey(){
+		if (!isHibernate()){
+			return;
+		}
+		ManyFieldTypeBean bean = new ManyFieldTypeBean();
+		System.out.println("key : " + bean.getKey().getId());
+		router.manyFieldTypeBean().put(bean, null);
+		System.out.println("key after : " + bean.getKey().getId());
+		Assert.assertNotNull(bean.getKey().getId());
+		keysByClientType.get(clientType).add(bean.getKey());
+	}
+	
+	@Test
 	public void testBoolean(){
 		ManyFieldTypeBean bean = new ManyFieldTypeBean();
 		
