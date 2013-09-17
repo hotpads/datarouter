@@ -79,7 +79,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		CountKey end = new CountKey(name, webApp, periodMs, System.currentTimeMillis(), null, null);
 		PhysicalSortedMapStorageNode<CountKey,Count> physicalSortedMapStorageNode = ((CountPartitionedNode)countNode).getPhysicalNode(start);
 		SortedScannerIterable<Count> scanner = physicalSortedMapStorageNode.scan(start, true, end, true, null);
-		return ListTool.createArrayList(scanner);
+		return Count.getListWithGapsFilled(name, webApp, getSource(), periodMs, scanner, startMs, endMs);
 
 	}
 	
@@ -89,7 +89,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		CountKey end = new CountKey(name, WebApp, periodMs, System.currentTimeMillis(), null, Long.MAX_VALUE);
 		PhysicalSortedMapStorageNode<CountKey,Count> physicalSortedMapStorageNode = ((CountPartitionedNode)countNode).getPhysicalNode(start);
 		SortedScannerIterable<Count> scanner = physicalSortedMapStorageNode.scan(start, true, end, true, null);
-		return ListTool.createArrayList(scanner);
+		return Count.getListWithGapsFilled(name, WebApp, getSource(), flushPeriodMs, scanner, startMs, endMs);
 	}
 	
 	@Override
@@ -98,7 +98,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		CountKey end = new CountKey(name, WebApp, periodMs, System.currentTimeMillis(), null, Long.MAX_VALUE);
 		PhysicalSortedMapStorageNode<CountKey,Count> physicalSortedMapStorageNode = ((CountPartitionedNode)countNode).getPhysicalNode(start);
 		SortedScannerIterable<Count> scanner = physicalSortedMapStorageNode.scan(start, true, end, true, null);
-		return ListTool.createArrayList(scanner);
+		return Count.getListWithGapsFilled(name, WebApp, getSource(), periodMs, scanner, startMs, endMs);
 		
 	}
 	

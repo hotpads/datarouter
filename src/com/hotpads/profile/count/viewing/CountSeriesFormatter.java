@@ -3,7 +3,6 @@ package com.hotpads.profile.count.viewing;
 import java.util.List;
 
 import com.hotpads.profile.count.databean.Count;
-import com.hotpads.util.core.ListTool;
 
 public class CountSeriesFormatter extends AbstractCountSeries{
 
