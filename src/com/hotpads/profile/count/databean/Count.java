@@ -177,6 +177,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 		// int numMatches=0, numNull=0, numOutOfRange=0;
 		while(intervalStart <= endTime){
 			if(next != null && next.getStartTimeMs().equals(intervalStart)){
+				System.out.println(next.getSource());
 				if(CollectionTool.notEmpty(outs)){
 					Count last = CollectionTool.getLast(outs);
 					if(last.getStartTimeMs().equals(next.getStartTimeMs())){
