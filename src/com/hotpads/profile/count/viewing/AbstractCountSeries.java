@@ -40,22 +40,20 @@ public abstract class AbstractCountSeries{
 	public Long get(int index){
 		return getCountSeries().get(index);
 	}
-	
-	public int getIndexFromStartTime(long countStartTime)
-			throws PaddedCountSeriesManipulationException{
+
+	public int getIndexFromStartTime(long countStartTime) throws PaddedCountSeriesManipulationException{
 		if(countStartTime % periodMs != 0){ throw new PaddedCountSeriesManipulationException(
 				PaddedCountSeriesTypeException.WRONG_START_TIME); }
 		int toReturn = (int)((countStartTime - startMs) / periodMs);
 		return toReturn;
 	}
-	
+
 	public String getNameHtmlEscaped(){
 		return XMLStringTool.escapeXml(getName());
 	}
-	
 
 	protected List<Long> fillWithZero(){
-		List<Long> toReturn = ListTool.createArrayList(numPeriods+1);
+		List<Long> toReturn = ListTool.createArrayList(numPeriods + 1);
 		for(int index = 0; index <= numPeriods; index++){
 			toReturn.add(new Long(0));
 		}
@@ -63,7 +61,7 @@ public abstract class AbstractCountSeries{
 		return toReturn;
 	}
 
-	/****************Getter and setter *************************/
+	/**************** Getter and setter *************************/
 	public Long getStartMs(){
 		return startMs;
 	}
@@ -111,6 +109,4 @@ public abstract class AbstractCountSeries{
 	public void setName(String name){
 		this.name = name;
 	}
-
-	
 }
