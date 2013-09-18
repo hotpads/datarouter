@@ -203,9 +203,7 @@ public class DatabeanFieldInfo<
 					}
 				}
 			}catch(NoSuchFieldException e){
-				// TODO Auto-generated catch block
-//				e.printStackTrace();
-				logger.warn("no such field exception");
+				
 			}
 		}
 		
