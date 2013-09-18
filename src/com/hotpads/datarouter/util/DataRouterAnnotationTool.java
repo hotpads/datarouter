@@ -102,7 +102,7 @@ public class DataRouterAnnotationTool {
 		
 	}
 	
-	protected static class Tests{
+	public static class Tests{
 
 		@Test
 		public void testGetLengthAnnotation() throws Exception{
