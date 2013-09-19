@@ -6,6 +6,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.quartz.CronExpression;
 
+import com.hotpads.job.setting.JobSettings;
+
 public interface Job extends Callable<Void>{
 	
 	void setScheduler(JobScheduler scheduler);
