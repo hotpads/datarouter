@@ -165,6 +165,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				}else{
 					sb.append(" not null");
 				}
+				if(requestedCol.getAutoIncrement()) {
+					sb.append(" auto_increment");
+				}
 				list.add(new SqlAlterTableClause(sb.toString(), SqlAlterTypes.MODIFY));
 			}
 		}
@@ -256,6 +259,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			}else{
 				sb.append(" not null");
 			}
+			if(col.getAutoIncrement()) {
+				sb.append(" auto_increment");
+			}
 			sb.append(",\n");//
 		}
 		sb = new StringBuilder(sb.substring(0, sb.length()-2)); // remove the last "," 
@@ -281,6 +287,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				sb.append(" default null");
 			}else{
 				sb.append(" not null");
+			}
+			if(col.getAutoIncrement()) {
+				sb.append(" auto_increment");
 			}
 			sb.append(",\n");
 		}

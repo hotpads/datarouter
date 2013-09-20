@@ -38,6 +38,13 @@ public class SqlColumn implements Comparable<SqlColumn>{
 		this.nullable = nullable;
 		this.autoIncrement = autoIncrement;
 	}
+	
+	public SqlColumn(String name, MySqlColumnType type, Integer maxLength, Boolean nullable){
+		this.name = name;
+		this.type = type;
+		this.maxLength = maxLength;
+		this.nullable = nullable;
+	}
 
 	public SqlColumn(String name, MySqlColumnType type){
 		this.name = name;
