@@ -32,6 +32,7 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 	
 	public GetWhereTxn(DataRouterContext drContext, N node, String tableName, String where, Config config){
 		super(node.getDataRouterContext(), node.getClientNames());
+		this.node = node;
 		this.tableName = tableName;
 		this.where = where;
 		this.config = config;
