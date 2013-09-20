@@ -26,11 +26,13 @@ public class TestSchemaUpdateOptions{
 	public TestSchemaUpdateOptions(){
 	}
 	
+	//TODO Add auto-increment test
+	
 	@Test public synchronized void testDoNothing() throws Exception{
 		SchemaUpdateOptions doNothing = new SchemaUpdateOptions().setAllFalse();
 		Connection connection = JdbcTool.openConnection("localhost", 3306, "drTest0", "root", "");
 		String tableName = "TestSchemaUpdateOptionsDoNothing";
-		SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true);
+		SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true, false);
 		SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 		SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 		SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
@@ -97,7 +99,7 @@ public class TestSchemaUpdateOptions{
 		
 		String tableName = "TestSchemaUpdateOptionsDoNothing";
 		
-		SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true);
+		SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true, false);
 		SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 		SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 		SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);

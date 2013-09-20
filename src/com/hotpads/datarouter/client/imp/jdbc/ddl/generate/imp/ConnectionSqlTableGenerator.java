@@ -52,6 +52,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 			for(int i = 0; i < rowCount; i++){
 				boolean nullable = true; // nullable by default
 				if(metaData.isNullable(i + 1) == ResultSetMetaData.columnNoNulls) nullable = false;
+				boolean autoIncrement = metaData.isAutoIncrement(i + 1);
 				MySqlColumnType type = MySqlColumnType.parse(metaData.getColumnTypeName(i + 1));
 				SqlColumn col;
 				if(type.equals(MySqlColumnType.VARCHAR)){
@@ -59,7 +60,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 									metaData.getColumnDisplaySize(i + 1), nullable);
 				}else{
 					col = new SqlColumn(metaData.getColumnName(i + 1), type,
-							metaData.getColumnDisplaySize(i + 1), nullable);
+							metaData.getColumnDisplaySize(i + 1), nullable, autoIncrement);
 				}
 				table.addColumn(col);
 			}
@@ -164,6 +165,9 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 	}
 
 	public static class ConnectionSqlTableGeneratorTester{//localhost only
+		
+		//TODO Test auto-increment
+		
 		@Test
 		public void getTableTest() throws SQLException{
 			String databaseName = "property";

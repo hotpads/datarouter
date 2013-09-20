@@ -55,6 +55,9 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			}else{
 				sb.append(" not null");
 			}
+			if (col.getAutoIncrement()) {
+				sb.append(" auto_increment");
+			}
 			if(i < nuimberOfColumns-1){ sb.append(",\n"); }
 		}
 		
@@ -98,11 +101,13 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 	/******************** tests *************************/
 	
 	public static class  SqlCreateTableGeneratorTester{
+		//TODO Test auto-increment
+		
 		@Test public void testGenerate(){
 			String nameOfTable="Model";
-			SqlColumn col1 = new SqlColumn("includeInSummary", MySqlColumnType.TINYINT, 1, true);
-			SqlColumn col2 = new SqlColumn("feedModelId", MySqlColumnType.VARCHAR, 100, false);
-			SqlColumn col3 = new SqlColumn("feedListingId", MySqlColumnType.DATETIME, 19, true);//new SqlColumn("feedListingId", MySqlColumnType.VARCHAR, 100, false);
+			SqlColumn col1 = new SqlColumn("includeInSummary", MySqlColumnType.TINYINT, 1, true, false);
+			SqlColumn col2 = new SqlColumn("feedModelId", MySqlColumnType.VARCHAR, 100, false, false);
+			SqlColumn col3 = new SqlColumn("feedListingId", MySqlColumnType.DATETIME, 19, true,false);//new SqlColumn("feedListingId", MySqlColumnType.VARCHAR, 100, false);
 			SqlIndex primaryKey = new SqlIndex("PKey")
 					.addColumn(col1)
 					.addColumn(col2)

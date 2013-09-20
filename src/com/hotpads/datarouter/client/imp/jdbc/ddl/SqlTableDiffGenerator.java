@@ -189,6 +189,8 @@ public class SqlTableDiffGenerator{
 		private SqlColumn idCol = new SqlColumn("id", MySqlColumnType.BIGINT);
 		private SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol);
 		
+		//TODO Test auto-increment
+		
 		@Test public void isTableModifiedTest(){
 					//TODO don't reuse declaration types anywhere
 			List<SqlColumn> listA = ListTool.createArrayList();
@@ -243,7 +245,7 @@ public class SqlTableDiffGenerator{
 		}
 	
 		@Test public void getColumnsToAddTest(){
-			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 250, true);
+			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 250, true, false);
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
@@ -276,7 +278,7 @@ public class SqlTableDiffGenerator{
 			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getColumnsToAdd(), listBC)));
 			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffAB.getColumnsToAdd(), listM)));
 			
-			SqlColumn ColA2 = new SqlColumn("A", MySqlColumnType.VARCHAR,200,true);
+			SqlColumn ColA2 = new SqlColumn("A", MySqlColumnType.VARCHAR,200,true, false);
 			table1.addColumn(ColA2);
 			diffBA = new SqlTableDiffGenerator(table2, table1, true);
 			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getColumnsToAdd(), listBC)));
@@ -316,7 +318,7 @@ public class SqlTableDiffGenerator{
 		}
 	
 		@Test public void getIndexesToAddTest(){
-			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true);
+			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true, false);
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
@@ -351,7 +353,7 @@ public class SqlTableDiffGenerator{
 		}
 	
 		@Test public void getIndexesToRemove(){
-			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 250, true);
+			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 250, true, false);
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
@@ -387,8 +389,8 @@ public class SqlTableDiffGenerator{
 	
 		@Test
 		public void getColumnsToModifyTest(){
-			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 20, true);
-			SqlColumn colA2 = new SqlColumn("A", MySqlColumnType.INT, 10, true);
+			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 20, true, false);
+			SqlColumn colA2 = new SqlColumn("A", MySqlColumnType.INT, 10, true, false);
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
@@ -433,20 +435,20 @@ public class SqlTableDiffGenerator{
 
 		@Test
 		public void getColumnsToModifyBugTest(){
-			SqlColumn col_active = new SqlColumn("active", MySqlColumnType.BIT, 1, true);
-			SqlColumn col_activeTiny = new SqlColumn("active", MySqlColumnType.TINYINT, 1, true);
-			SqlColumn col_includeInSiteMap = new SqlColumn("includeInSiteMap", MySqlColumnType.BIT, 1, true);
-			SqlColumn col_includeInSiteMapTiny = new SqlColumn("includeInSiteMap", MySqlColumnType.TINYINT, 1, true);
-			SqlColumn col_type = new SqlColumn("type", MySqlColumnType.INT, 11, true);
-			SqlColumn col_useBoundedLayout = new SqlColumn("useBoundedLayout", MySqlColumnType.BIT, 1, true);
-			SqlColumn col_useBoundedLayoutTiny = new SqlColumn("useBoundedLayout", MySqlColumnType.TINYINT, 1, true);
-			SqlColumn col_redirect = new SqlColumn("redirect", MySqlColumnType.VARCHAR, 255, true);
-			SqlColumn col_body = new SqlColumn("body", MySqlColumnType.MEDIUMTEXT, 16777216, true);
-			SqlColumn col_id = new SqlColumn("id", MySqlColumnType.VARCHAR, 255, true);
-			SqlColumn col_metaKeywords = new SqlColumn("metaKeywords", MySqlColumnType.VARCHAR, 255, true);
-			SqlColumn col_title = new SqlColumn("title", MySqlColumnType.VARCHAR, 255, true);
-			SqlColumn col_metaDescription = new SqlColumn("metaDescription", MySqlColumnType.VARCHAR, 255, true);
-			SqlColumn col_attributes = new SqlColumn("attributes", MySqlColumnType.VARCHAR, 255, true);
+			SqlColumn col_active = new SqlColumn("active", MySqlColumnType.BIT, 1, true, false);
+			SqlColumn col_activeTiny = new SqlColumn("active", MySqlColumnType.TINYINT, 1, true, false);
+			SqlColumn col_includeInSiteMap = new SqlColumn("includeInSiteMap", MySqlColumnType.BIT, 1, true, false);
+			SqlColumn col_includeInSiteMapTiny = new SqlColumn("includeInSiteMap", MySqlColumnType.TINYINT, 1, true, false);
+			SqlColumn col_type = new SqlColumn("type", MySqlColumnType.INT, 11, true, false);
+			SqlColumn col_useBoundedLayout = new SqlColumn("useBoundedLayout", MySqlColumnType.BIT, 1, true, false);
+			SqlColumn col_useBoundedLayoutTiny = new SqlColumn("useBoundedLayout", MySqlColumnType.TINYINT, 1, true, false);
+			SqlColumn col_redirect = new SqlColumn("redirect", MySqlColumnType.VARCHAR, 255, true, false);
+			SqlColumn col_body = new SqlColumn("body", MySqlColumnType.MEDIUMTEXT, 16777216, true, false);
+			SqlColumn col_id = new SqlColumn("id", MySqlColumnType.VARCHAR, 255, true, false);
+			SqlColumn col_metaKeywords = new SqlColumn("metaKeywords", MySqlColumnType.VARCHAR, 255, true, false);
+			SqlColumn col_title = new SqlColumn("title", MySqlColumnType.VARCHAR, 255, true, false);
+			SqlColumn col_metaDescription = new SqlColumn("metaDescription", MySqlColumnType.VARCHAR, 255, true, false);
+			SqlColumn col_attributes = new SqlColumn("attributes", MySqlColumnType.VARCHAR, 255, true, false);
 			SqlColumn lastModified = new SqlColumn("lastModified", MySqlColumnType.DATETIME);
 
 			SqlTable table1 = new SqlTable("TA").addColumn(col_active)
