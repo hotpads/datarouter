@@ -184,6 +184,7 @@ extends BaseHandler{
 		List<D> databeans = new GetWhereTxn<PK,D,F,N>(drContext, (N)node, tableName, where, config).call();
 		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(CollectionTool.size(databeans))
 				+" rows in "+tableName+" ("+node.getName()+")");
+		addDatabeansToMav(mav, databeans);
 		return mav;
 	}
 	
