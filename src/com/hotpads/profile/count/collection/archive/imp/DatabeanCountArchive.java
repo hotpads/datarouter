@@ -68,7 +68,6 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	}
 	@Override
 	public Collection<AvailableCounter> getAvailableCountersStartingAt(String startingAt, String webApp){
-	//	AvailableCounterKey prefix = new AvailableCounterKey(webApp, periodMs, nameLike, null);
 		Config configLongTimeout = new Config().setTimeout(1, TimeUnit.MINUTES);
 		AvailableCounterKey start = new AvailableCounterKey(webApp, this.periodMs, startingAt, null);
 		AvailableCounterKey end = new AvailableCounterKey(webApp, this.periodMs, null, null);
@@ -77,14 +76,6 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	}
 
 	
-	public Collection<? extends AvailableCounter> getLimitedNumbersOfAvailableCounters(String nameLike, String webApp, int numToRetrieve){
-		AvailableCounterKey prefix = new AvailableCounterKey(webApp, periodMs, nameLike, null);
-		Config configLongTimeout = new Config().setTimeout(1, TimeUnit.MINUTES);
-		configLongTimeout.setLimit(numToRetrieve);
-		List<AvailableCounter> counters = availableCounterNode.getWithPrefix(prefix, true, configLongTimeout);
-		return counters;
-	}
-
 	/* remember that sources are interleaved, so a range query will return all sources */
 	@Override
 	public List<Count> getCountsForAllSources(String name, Long startMs, Long endMs){
