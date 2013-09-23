@@ -1,7 +1,7 @@
 package com.hotpads.job.setting.cached.imp;
 
-import com.hotpads.job.setting.ClusterSettingFinder;
 import com.hotpads.job.setting.cached.CachedSetting;
+import com.hotpads.setting.ClusterSettingFinder;
 
 public class StringCachedSetting extends CachedSetting<String>{
 

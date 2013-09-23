@@ -7,8 +7,8 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.quartz.CronExpression;
 
-import com.hotpads.job.setting.JobSettings;
 import com.hotpads.job.setting.thread.JobExecutorProvider.JobExecutor;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ExceptionTool;

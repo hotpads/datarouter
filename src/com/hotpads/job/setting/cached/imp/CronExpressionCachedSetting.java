@@ -4,8 +4,8 @@ import java.text.ParseException;
 
 import org.quartz.CronExpression;
 
-import com.hotpads.job.setting.ClusterSettingFinder;
 import com.hotpads.job.setting.cached.CachedSetting;
+import com.hotpads.setting.ClusterSettingFinder;
 
 public class CronExpressionCachedSetting extends CachedSetting<CronExpression>{
 	public CronExpressionCachedSetting(ClusterSettingFinder finder, String name, CronExpression defaultValue)

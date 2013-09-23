@@ -2,8 +2,8 @@ package com.hotpads.job.setting.cached;
 
 import java.util.concurrent.TimeUnit;
 
-import com.hotpads.job.setting.ClusterSettingFinder;
 import com.hotpads.job.setting.Setting;
+import com.hotpads.setting.ClusterSettingFinder;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.cache.Cached;
 

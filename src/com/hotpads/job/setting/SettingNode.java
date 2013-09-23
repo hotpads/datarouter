@@ -7,6 +7,7 @@ import java.util.SortedMap;
 
 import javax.inject.Inject;
 
+import com.hotpads.setting.ClusterSettingFinder;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
