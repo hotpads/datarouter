@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.quartz.CronExpression;
 
+import com.hotpads.job.setting.Setting;
 import com.hotpads.job.setting.thread.JobExecutorProvider.JobExecutor;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ExceptionTool;
@@ -20,7 +21,7 @@ public abstract class BaseJob implements Job{
 
 	protected JobScheduler scheduler;
 	protected ScheduledExecutorService executor;
-	protected JobSettings jobSettings;
+	protected Setting<Boolean> processJobsSetting;
 	protected boolean isAlreadyScheduled;
 	protected MutableBoolean interrupted = new MutableBoolean(false);
 
@@ -45,8 +46,8 @@ public abstract class BaseJob implements Job{
 	}
 
 	@Override @Inject
-	public void setJobSettings(JobSettings jobSettings) {
-		this.jobSettings = jobSettings;
+	public void setProcessJobsSetting(Setting<Boolean> processJobsSetting) {
+		this.processJobsSetting = processJobsSetting;
 	}
 
 
@@ -126,11 +127,11 @@ public abstract class BaseJob implements Job{
 	}
 	
 	protected boolean shouldRunInternal(){
-		return jobSettings.getProcessJobs().getValue() && shouldRun() && BooleanTool.isFalse(getIsDisabled());
+		return processJobsSetting.getValue() && shouldRun() && BooleanTool.isFalse(getIsDisabled());
 	}
 
 	protected void assertBaseServicesSet(){
-		if(scheduler==null || executor==null || jobSettings==null){
+		if(scheduler==null || executor==null || processJobsSetting==null){
 			baseJobLogger.error("you must call job.setScheduler(..), job.setExecutor(..), and job.setSettings(..) if"
 					+" manually instantiating this job.  It is recommended to get an instance from the Injector instead.");
 		}
@@ -140,8 +141,8 @@ public abstract class BaseJob implements Job{
 		if(executor==null){
 			throw new NullPointerException("please call job.setExecutor(ScheduledExecutorService executor)");
 		}
-		if(jobSettings==null){
-			throw new NullPointerException("please call job.setJobSettings(JobSettings jobSettings)");
+		if(processJobsSetting==null){
+			throw new NullPointerException("please call job.setProcessJobsSetting(..)");
 		}
 	}
 
