@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -102,8 +104,27 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 	
 	public static class  SqlCreateTableGeneratorTester{
 		//TODO Test auto-increment
+		@Test
+		public void testAutoIncrement() {
+			String nameOfTable = "AutoIncrement";
+			SqlColumn colId = new SqlColumn("id", MySqlColumnType.BIGINT, 8, false, true);
+			SqlColumn colString = new SqlColumn("string", MySqlColumnType.VARCHAR, 100, true);
+			SqlIndex primaryKey = new SqlIndex("PKey").addColumn(colId);
+			SqlTable sqlTable = new SqlTable(nameOfTable)
+					.addColumn(colId)
+					.addColumn(colString)
+					.setPrimaryKey(primaryKey);
+			SqlCreateTableGenerator generator = new SqlCreateTableGenerator(sqlTable);
+			String expected = "create table AutoIncrement (\n" + 
+					 " id bigint(8) not null auto_increment,\n" + 
+					 " string varchar(100) default null,\n" +
+					 " primary key (id)) engine=INNODB character set = latin1 collate latin1_swedish_ci";
+			System.out.println(generator.generateDdl());
+			Assert.assertEquals(expected, generator.generateDdl());
+		}
 		
-		@Test public void testGenerate(){
+		@Test
+		public void testGenerate(){
 			String nameOfTable="Model";
 			SqlColumn col1 = new SqlColumn("includeInSummary", MySqlColumnType.TINYINT, 1, true, false);
 			SqlColumn col2 = new SqlColumn("feedModelId", MySqlColumnType.VARCHAR, 100, false, false);
