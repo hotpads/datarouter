@@ -189,7 +189,35 @@ public class SqlTableDiffGenerator{
 		private SqlColumn idCol = new SqlColumn("id", MySqlColumnType.BIGINT);
 		private SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol);
 		
-		//TODO Test auto-increment
+		@Test
+		public void testAutoIncrement() {
+
+			SqlColumn idCol1 = new SqlColumn("id", MySqlColumnType.BIGINT, 8, false, true);
+			SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol1);
+			SqlColumn idCol2 = new SqlColumn("id", MySqlColumnType.BIGINT, 8, true);
+			SqlIndex primaryKey2 = new SqlIndex("pk1").addColumn(idCol2);
+			List<SqlColumn> listA = ListTool.createArrayList(idCol1);
+			List<SqlColumn> listA2 = ListTool.createArrayList(idCol2);
+			SqlTable tableA = new SqlTable("A", listA, primaryKey1);
+			SqlTable tableA2 = new SqlTable("A", listA2,primaryKey2);
+			
+			SqlTableDiffGenerator diffAA = new SqlTableDiffGenerator(tableA, tableA, true),
+								  diffAA2 = new SqlTableDiffGenerator(tableA, tableA2, true);
+			Assert.assertFalse(diffAA.isTableModified());
+			Assert.assertTrue(diffAA2.isTableModified());
+			// TABLES WITH DIFFERENT NUMBER OF COLUMNS
+			SqlColumn col1 = new SqlColumn("col1", MySqlColumnType.BIGINT);
+			SqlColumn col2 = new SqlColumn("col2", MySqlColumnType.BINARY);
+			SqlColumn col3 = new SqlColumn("col3", MySqlColumnType.BIT);
+			tableA.addColumn(col1);
+			tableA2.addColumn(col1);
+			tableA2.addColumn(col2);
+			Assert.assertTrue(diffAA2.isTableModified());
+			// TABLES WITH THE SAME NUMBER OF COLUMNS, BUT 1 OR MORE DIFFERENT COLUMN
+			tableA.addColumn(col3);
+			Assert.assertTrue(diffAA2.isTableModified());
+		}
+		
 		
 		@Test public void isTableModifiedTest(){
 					//TODO don't reuse declaration types anywhere
