@@ -9,6 +9,7 @@ import javax.inject.Singleton;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.job.config.instance.InstanceSettings;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
