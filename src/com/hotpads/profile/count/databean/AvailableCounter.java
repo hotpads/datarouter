@@ -20,100 +20,93 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.XMLStringTool;
 
-@SuppressWarnings("serial")
-@Entity
-@AccessType("field")
-public class AvailableCounter extends BaseDatabean<AvailableCounterKey,AvailableCounter>{
+@SuppressWarnings("serial") @Entity @AccessType("field") public class AvailableCounter extends
+		BaseDatabean<AvailableCounterKey,AvailableCounter>{
 
-	@Id
-	protected AvailableCounterKey key;
+	@Id protected AvailableCounterKey key;
 	protected Long lastUpdated;
-		
-	
+
 	/**************************** columns *******************************/
-	
-	public static final String
-		KEY_NAME = "key",
-		COL_lastUpdated = "lastUpdated";
+
+	public static final String KEY_NAME = "key", COL_lastUpdated = "lastUpdated";
 
 	@Override
 	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new UInt63Field(COL_lastUpdated, this.lastUpdated));
+		return FieldTool.createList(new UInt63Field(COL_lastUpdated, this.lastUpdated));
 	}
-	
+
 	public static class AvailableCounterFielder extends BaseDatabeanFielder<AvailableCounterKey,AvailableCounter>{
-		public AvailableCounterFielder(){}
+		public AvailableCounterFielder(){
+		}
+
 		@Override
 		public Class<AvailableCounterKey> getKeyFielderClass(){
 			return AvailableCounterKey.class;
 		}
+
 		@Override
 		public List<Field<?>> getNonKeyFields(AvailableCounter d){
 			return d.getNonKeyFields();
 		}
 	}
-	
+
 	@Override
 	public boolean isFieldAware(){
 		return true;
 	}
-	
-	
+
 	/*********************** constructor **********************************/
-	
+
 	AvailableCounter(){
 		this(null, null, null, null, null);
 	}
-	
+
 	public AvailableCounter(String sourceType, Long periodMs, String name, String source, Long lastUpdated){
 		this.key = new AvailableCounterKey(sourceType, periodMs, name, source);
 		this.lastUpdated = lastUpdated;
 	}
-	
-	
+
 	/************************** databean **************************************/
-	
+
 	@Override
 	public Class<AvailableCounterKey> getKeyClass(){
 		return AvailableCounterKey.class;
 	}
-	
+
 	@Override
 	public AvailableCounterKey getKey(){
 		return key;
 	}
-	
-	
+
 	/********************************* useful ********************************************/
-	
+
 	public String getNameHtmlEscaped(){
 		return XMLStringTool.escapeXml(getName());
 	}
-	
-	
+
 	/********************************** static *****************************************/
-	
+
 	public static SortedSet<String> getAllSources(Collection<AvailableCounter> counters){
 		SortedSet<String> outs = SetTool.createTreeSet();
 		for(AvailableCounter counter : IterableTool.nullSafe(counters)){
 			String source = counter.getSource();
-			if(source==null) continue;
+			if(source == null) continue;
 			outs.add(source);
 		}
 		return outs;
 	}
-	
+
 	public static List<AvailableCounter> filterOutArrayServers(Collection<AvailableCounter> ins){
 		List<AvailableCounter> outs = ListTool.createArrayList();
 		for(AvailableCounter in : IterableTool.nullSafe(ins)){
-			if(in.getSource().contains("#")){ continue; }
+			if(in.getSource().contains("#")){
+				continue;
+			}
 			outs.add(in);
 		}
 		return outs;
 	}
-	
-	
+
 	/********************************* get/set ****************************************/
 
 	public void setKey(AvailableCounterKey key){
@@ -128,7 +121,6 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey,Available
 		key.setPeriodMs(periodMs);
 	}
 
-
 	public String getName(){
 		return key.getName();
 	}
@@ -136,7 +128,6 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey,Available
 	public void setName(String name){
 		key.setName(name);
 	}
-
 
 	public String getSource(){
 		return key.getSource();
@@ -162,5 +153,9 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey,Available
 		key.setSourceType(sourceType);
 	}
 
-	
+	@Override
+	public String toString(){
+		return this.getName();
+	}
+
 }

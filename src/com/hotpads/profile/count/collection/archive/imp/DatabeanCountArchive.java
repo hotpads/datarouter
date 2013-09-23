@@ -1,7 +1,6 @@
 package com.hotpads.profile.count.collection.archive.imp;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -57,16 +56,32 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		AvailableCounterKey prefix = new AvailableCounterKey(webApp, periodMs, nameLike, null);
 		Config configLongTimeout = new Config().setTimeout(1, TimeUnit.MINUTES);
 		List<AvailableCounter> counters = availableCounterNode.getWithPrefix(prefix, true, configLongTimeout);
-		Collections.sort(counters);
 		return counters;
 	}
 
 	@Override
-	public Collection<? extends AvailableCounter> getAvailableCounters(String nameLike, String webApp){
+	public Collection<AvailableCounter> getAvailableCounters(String nameLike, String webApp){
 		AvailableCounterKey prefix = new AvailableCounterKey(webApp, periodMs, nameLike, null);
 		Config configLongTimeout = new Config().setTimeout(1, TimeUnit.MINUTES);
 		List<AvailableCounter> counters = availableCounterNode.getWithPrefix(prefix, true, configLongTimeout);
-		Collections.sort(counters);
+		return counters;
+	}
+	@Override
+	public Collection<AvailableCounter> getAvailableCountersStartingAt(String startingAt, String webApp){
+	//	AvailableCounterKey prefix = new AvailableCounterKey(webApp, periodMs, nameLike, null);
+		Config configLongTimeout = new Config().setTimeout(1, TimeUnit.MINUTES);
+		AvailableCounterKey start = new AvailableCounterKey(webApp, this.periodMs, startingAt, null);
+		AvailableCounterKey end = new AvailableCounterKey(webApp, this.periodMs, null, null);
+		SortedScannerIterable<AvailableCounter> counters = availableCounterNode.scan(start, true, end, true, configLongTimeout);
+		return ListTool.createArrayList(counters.iterator());
+	}
+
+	
+	public Collection<? extends AvailableCounter> getLimitedNumbersOfAvailableCounters(String nameLike, String webApp, int numToRetrieve){
+		AvailableCounterKey prefix = new AvailableCounterKey(webApp, periodMs, nameLike, null);
+		Config configLongTimeout = new Config().setTimeout(1, TimeUnit.MINUTES);
+		configLongTimeout.setLimit(numToRetrieve);
+		List<AvailableCounter> counters = availableCounterNode.getWithPrefix(prefix, true, configLongTimeout);
 		return counters;
 	}
 
