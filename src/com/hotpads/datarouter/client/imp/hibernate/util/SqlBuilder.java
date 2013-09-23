@@ -13,6 +13,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.collections.Range;
 
 public class SqlBuilder{
@@ -31,16 +32,16 @@ public class SqlBuilder{
 	}
 	
 	public static String getAll(Config config, String tableName, List<Field<?>> selectFields, 
-			List<Field<?>> orderByFields){
+			String where, List<Field<?>> orderByFields){
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
+		addWhereClauseWithWhere(sql, where);
 		addOrderByClause(sql, orderByFields);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
 	}
 	
-	public static String deleteAll(
-			Config config, String tableName){
+	public static String deleteAll(Config config, String tableName){
 		StringBuilder sql = new StringBuilder();
 		addDeleteFromClause(sql, tableName);
 		addLimitOffsetClause(sql, config);
@@ -61,9 +62,7 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 	
-	public static String deleteMulti(
-			Config config, String tableName,
-			Collection<? extends FieldSet<?>> keys){
+	public static String deleteMulti(Config config, String tableName, Collection<? extends FieldSet<?>> keys){
 		if(CollectionTool.isEmpty(keys)){//getAll() passes null in for keys
 			throw new IllegalArgumentException("no keys provided... use getAll if you want the whole table.");
 		}
@@ -86,9 +85,8 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 	
-	public static String deleteWithPrefixes(
-			Config config, String tableName, 
-			Collection<? extends FieldSet<?>> keys, boolean wildcardLastField){
+	public static String deleteWithPrefixes(Config config, String tableName, Collection<? extends FieldSet<?>> keys,
+			boolean wildcardLastField){
 		StringBuilder sql = new StringBuilder();
 		addDeleteFromClause(sql, tableName);
 		sql.append(" where ");
@@ -148,6 +146,12 @@ public class SqlBuilder{
 
 	public static void addDeleteFromClause(StringBuilder sql, String tableName){
 		sql.append("delete from "+tableName);
+	}
+	
+	public static void addWhereClauseWithWhere(StringBuilder sql, String where){
+		if(StringTool.notEmpty(where)){
+			sql.append(" where "+where);
+		}
 	}
 	
 	public static void addPrefixWhereClauseDisjunction(StringBuilder sql, 

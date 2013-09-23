@@ -27,6 +27,16 @@ public class ResultMergeTool {
 		return foundValue==true? sum : null;
 	}
 
+	public static Long sum(Long a, Collection<Long> c){
+		boolean foundValue = false;
+		long sum = 0;
+		if(a != null){ foundValue = true; sum += a; }
+		for(Long i : CollectionTool.nullSafe(c)){
+			if(i != null){ foundValue = true; sum += i; }
+		}
+		return foundValue==true? sum : null;
+	}
+
 	public static <T,C extends Collection<T>> T first(T a, C bs){
 		if(a != null){ return a; }
 		for(T t : CollectionTool.nullSafe(bs)){
@@ -74,8 +84,8 @@ public class ResultMergeTool {
 		return out;
 	}
 	
-	public static <T extends Comparable<T>,C extends Collection<T>> List<T> 
-	appendAndSort(C a, Collection<? extends C> bs){
+	public static <T extends Comparable<T>,C extends Collection<T>> 
+	List<T> appendAndSort(C a, Collection<? extends C> bs){
 		List<T> appended = append(a, bs);
 		Collections.sort(appended);
 		return appended;

@@ -2,6 +2,7 @@ package com.hotpads.profile.count.databean;
 
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Id;
 
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
@@ -26,9 +27,12 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 	protected Integer entryOrder;
 	protected String serverName;
 	protected String webAppName;
-	protected int periodMs;
+	protected String frequency;
+	protected Integer periodMs;
+	protected Integer rollPeriod;
 	
-	
+
+
 	public static class F{
 		public static final String
 			type = "type",
@@ -36,7 +40,9 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 			entryArchive = "entryArchive",
 			entryOrder = "entryOrder",
 			serverName = "serverName",
-			webAppName = "webAppName";
+			webAppName = "webAppName",
+			frequency = "frequency",
+			rollPeriod = "rollPeriod";
 	}
 	
 	@Override
@@ -47,7 +53,9 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 				new StringField(F.entryArchive, entryArchive, 255),
 				new IntegerField(F.entryOrder, entryOrder),
 				new StringField(F.serverName, serverName, 255),
-				new StringField(F.webAppName, webAppName, 255));
+				new StringField(F.webAppName, webAppName, 255),
+				new StringField(F.frequency, getFrequency(), 255),
+				new IntegerField(F.rollPeriod, rollPeriod));
 			
 	}
 	
@@ -69,7 +77,7 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 		this.key = new DashboardEntryKey();
 	}
 
-	public DashboardEntry(DashboardEntryKey key, DashboardEntryType type, String entry, String entryArchive,String serverName, String webAppName, Integer entryOrder){
+	public DashboardEntry(DashboardEntryKey key, DashboardEntryType type, String entry, String entryArchive,String serverName, String webAppName,  String frequency, Integer entryOrder){
 		//TODO CHECK SERVER NAME AND WEB APP EXIST
 		this.key = key;
 		this.type = type;
@@ -78,7 +86,9 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 		this.serverName = serverName.trim();
 		this.webAppName = webAppName;
 		this.entryOrder = entryOrder;
+		this.setFrequency(frequency);
 		this.periodMs = getPeriodFromEntryArchive(entryArchive);
+		this.rollPeriod = 1;
 	}
 
 
@@ -147,7 +157,7 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 	/**
 	 * @return the server
 	 */
-	public String getServer(){
+	public String getServerName(){
 		return serverName;
 	}
 
@@ -168,7 +178,7 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 	/**
 	 * @param webApp the webApp to set
 	 */
-	public void setWebApp(String webAppName){
+	public void setWebApp(String webAppName){	
 		this.webAppName = webAppName;
 	}
 
@@ -192,6 +202,30 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 		String period = entryArchive.split(" ")[1];
 		return new Integer(period);
 	}
-	
+
+	/**databean
+	 * @return the frequency
+	 */
+	public String getFrequency(){
+		return frequency;
+	}
+
+	/**
+	 * @param frequency the frequency to set
+	 */
+	public void setFrequency(String frequency){
+		this.frequency = frequency;
+	}
+
+	public Integer getRollPeriod(){
+		if(rollPeriod==null){
+			return 1;
+		}
+		return rollPeriod;
+	}
+
+	public void setRollPeriod(Integer rollPeriod){
+		this.rollPeriod = rollPeriod;
+	}
 	
 }

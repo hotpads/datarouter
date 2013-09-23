@@ -11,6 +11,8 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
+import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
 import com.hotpads.profile.count.collection.archive.BaseCountArchive;
@@ -22,6 +24,7 @@ import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class DatabeanCountArchive extends BaseCountArchive{
 	static Logger logger = Logger.getLogger(DatabeanCountArchive.class);
@@ -74,18 +77,31 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	public List<Count> getCountsForAllSources(String name, Long startMs, Long endMs){
 		CountKey start = new CountKey(name, webApp, periodMs, startMs, null, null);
 		CountKey end = new CountKey(name, webApp, periodMs, System.currentTimeMillis(), null, null);
-		List<Count> counts = countNode.getRange(start, true, end, true, null);
-		return counts;
+		PhysicalSortedMapStorageNode<CountKey,Count> physicalSortedMapStorageNode = ((CountPartitionedNode)countNode).getPhysicalNode(start);
+		SortedScannerIterable<Count> scanner = physicalSortedMapStorageNode.scan(start, true, end, true, null);
+		return Count.getListWithGapsFilled(name, webApp, getSource(), periodMs, scanner, startMs, endMs);
+
 	}
 	
 	@Override
 	public List<Count> getCountsForWebApp(String name, String WebApp, Long startMs, Long endMs){
 		CountKey start = new CountKey(name, WebApp, periodMs, startMs, null, null);
 		CountKey end = new CountKey(name, WebApp, periodMs, System.currentTimeMillis(), null, Long.MAX_VALUE);
-		List<Count> counts = countNode.getRange(start, true, end, true, null);
-		//List<Count> countsForSource = Count.filterForSource(counts, filterForSource);
-		return counts;
+		PhysicalSortedMapStorageNode<CountKey,Count> physicalSortedMapStorageNode = ((CountPartitionedNode)countNode).getPhysicalNode(start);
+		SortedScannerIterable<Count> scanner = physicalSortedMapStorageNode.scan(start, true, end, true, null);
+		return Count.getListWithGapsFilled(name, WebApp, getSource(), flushPeriodMs, scanner, startMs, endMs);
 	}
+	
+	@Override
+	public List<Count> getCountsForWebAppWithGapsFilled(String name, String WebApp, long startMs, long endMs){
+		CountKey start = new CountKey(name, WebApp, periodMs, startMs, null, null);
+		CountKey end = new CountKey(name, WebApp, periodMs, System.currentTimeMillis(), null, Long.MAX_VALUE);
+		PhysicalSortedMapStorageNode<CountKey,Count> physicalSortedMapStorageNode = ((CountPartitionedNode)countNode).getPhysicalNode(start);
+		SortedScannerIterable<Count> scanner = physicalSortedMapStorageNode.scan(start, true, end, true, null);
+		return Count.getListWithGapsFilled(name, WebApp, getSource(), periodMs, scanner, startMs, endMs);
+		
+	}
+	
 	
 	public static final int DISCARD_IF_OLDER_THAN = 300 * 1000;
 
