@@ -28,7 +28,7 @@ public class ShortField extends BasePrimitiveField<Short>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.SMALLINT, 5, true);
+		return new SqlColumn(columnName, MySqlColumnType.SMALLINT, 5, nullable);
 	}
 	
 	@Override

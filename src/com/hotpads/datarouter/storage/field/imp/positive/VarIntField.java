@@ -40,7 +40,7 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.INT, 11, true);
+		return new SqlColumn(columnName, MySqlColumnType.INT, 11, nullable);
 	}
 	
 	@Override

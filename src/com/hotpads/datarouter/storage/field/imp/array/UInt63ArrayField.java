@@ -39,7 +39,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, 2147483647 , true);
+		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, 2147483647 , nullable);
 	}
 	
 	@Override

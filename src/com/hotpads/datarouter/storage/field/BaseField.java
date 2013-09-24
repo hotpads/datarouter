@@ -16,6 +16,7 @@ public abstract class BaseField<T> implements Field<T>{
 	protected String name;
 	protected String columnName;//defaults to name if not specified
 	protected T value;//TODO move this out of the field descriptor
+	protected Boolean nullable = true;
 
 	
 	/*************************** constructor *********************************/
@@ -255,6 +256,14 @@ public abstract class BaseField<T> implements Field<T>{
 		return columnName;
 	}
 	
+	public Boolean getNullable() {
+		return nullable;
+	}
+	
+	public BaseField<T> setNullable(Boolean b) {
+		nullable = b;
+		return this;
+	}
 }
 
 

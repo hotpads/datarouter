@@ -39,7 +39,7 @@ public class SQuadStringField extends BasePrimitiveField<SQuad>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.VARCHAR, SQuad.MAX_LEVEL, true);
+		return new SqlColumn(columnName, MySqlColumnType.VARCHAR, SQuad.MAX_LEVEL, nullable);
 	}
 	
 	@Override

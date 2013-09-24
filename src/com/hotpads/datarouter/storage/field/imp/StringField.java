@@ -49,14 +49,14 @@ public class StringField extends BaseField<String>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(columnName, MySqlColumnType.VARCHAR, size, true);
+			return new SqlColumn(columnName, MySqlColumnType.VARCHAR, size, nullable);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(columnName, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, true);
+			return new SqlColumn(columnName, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, nullable);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
 			return new SqlColumn(columnName, MySqlColumnType.MEDIUMTEXT, null/*MySqlColumnType.MAX_LENGTH_MEDIUMTEXT.intValue()*/, 
-					true);
+					nullable);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
-			return new SqlColumn(columnName, MySqlColumnType.LONGTEXT, null, true);
+			return new SqlColumn(columnName, MySqlColumnType.LONGTEXT, null, nullable);
 		}
 		throw new IllegalArgumentException("Unknown size:"+size);
 	}

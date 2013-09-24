@@ -31,7 +31,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, 2147483647 , true);
+		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, 2147483647 , nullable);
 	}
 	
 	@Override
