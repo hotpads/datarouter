@@ -28,6 +28,7 @@ public interface CountArchive extends Comparable<CountArchive>{
 
 	String getPeriodAbbreviation();
 
-	Collection<? extends AvailableCounter> getAvailableCounters(String nameLike, String webApp);
+	Collection<AvailableCounter> getAvailableCounters(String nameLike, String webApp);
 
+	Collection<AvailableCounter> getAvailableCountersStartingAt(String startingAt, String webApp);
 }
