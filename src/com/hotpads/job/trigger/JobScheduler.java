@@ -17,13 +17,16 @@ import com.hotpads.util.core.ObjectTool;
 public class JobScheduler {
 	protected static Logger logger = Logger.getLogger(JobScheduler.class);
 
-	protected Injector injector;
-	protected ScheduledExecutorService executor;
-	protected TriggerTracker tracker;
+	private Injector injector;
+	private ScheduledExecutorService executor;
+	private TriggerGroup triggerGroup;
+	private TriggerTracker tracker;
 	
 	@Inject
-	public JobScheduler(Injector injector, TriggerTracker tracker, @JobExecutor ScheduledExecutorService executor){
+	public JobScheduler(Injector injector, TriggerGroup triggerGroup, TriggerTracker tracker, 
+			@JobExecutor ScheduledExecutorService executor){
 		this.injector = injector;
+		this.triggerGroup = triggerGroup;
 		this.tracker = tracker;
 		this.executor = executor;
 		
@@ -33,7 +36,7 @@ public class JobScheduler {
 	/***************methods***************/
 	
 	public void scheduleJavaTriggers(){
-		for(Class<? extends Job> jobClass : JobsToTrigger.JOBS_TO_TRIGGER){
+		for(Class<? extends Job> jobClass : triggerGroup.getJobClasses()){
 			tracker.createNewTriggerInfo(jobClass);
 			Job sampleJob = injector.getInstance(jobClass);
 			sampleJob.scheduleNextRun();
