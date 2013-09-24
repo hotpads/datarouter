@@ -51,9 +51,9 @@ public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 			s = "application";
 		}else if(StringTool.notEmpty(instance)){
 			s = "instance";
-		}else if((serverType != ServerType.UNKNOWN) && (serverType != ServerType.ALL)){
+		}else if((serverType != StandardServerType.UNKNOWN) && (serverType != StandardServerType.ALL)){
 			s = "serverType";
-		}else if(serverType == ServerType.ALL){
+		}else if(serverType == StandardServerType.ALL){
 			s = "cluster";
 		}else{
 			s = "defaultScope";

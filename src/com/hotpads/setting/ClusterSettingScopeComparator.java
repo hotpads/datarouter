@@ -41,9 +41,12 @@ public class ClusterSettingScopeComparator implements Comparator<ClusterSetting>
 		
 		@BeforeClass 
 		public static void setUpClass() throws IOException{
-			joblet1 = new ClusterSetting("joblet1", ClusterSettingScope.serverType, StandardServerType.JOBLET, "" , "","0");
-			joblet2 = new ClusterSetting("joblet2", ClusterSettingScope.serverType, StandardServerType.JOBLET, "", "","0");
-			instance1 = new ClusterSetting("instance1", ClusterSettingScope.instance, StandardServerType.UNKNOWN, "sdfdf" ,"","1");
+			joblet1 = new ClusterSetting("joblet1", ClusterSettingScope.serverType, StandardServerType.JOBLET, "", "",
+					"0");
+			joblet2 = new ClusterSetting("joblet2", ClusterSettingScope.serverType, StandardServerType.JOBLET, "", "",
+					"0");
+			instance1 = new ClusterSetting("instance1", ClusterSettingScope.instance, StandardServerType.UNKNOWN,
+					"sdfdf", "", "1");
 			settings.add(joblet1);
 			settings.add(instance1);
 			settings.add(joblet2);
