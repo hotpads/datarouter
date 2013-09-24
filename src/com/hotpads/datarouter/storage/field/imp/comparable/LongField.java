@@ -34,7 +34,7 @@ public class LongField extends BasePrimitiveField<Long>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.BIGINT, 20 , nullable);
+		return new SqlColumn(columnName, MySqlColumnType.BIGINT, 20 , nullable, false);
 	}
 	
 	@Override

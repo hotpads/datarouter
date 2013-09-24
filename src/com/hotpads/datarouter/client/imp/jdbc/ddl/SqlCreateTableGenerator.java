@@ -103,12 +103,11 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 	/******************** tests *************************/
 	
 	public static class  SqlCreateTableGeneratorTester{
-		//TODO Test auto-increment
 		@Test
 		public void testAutoIncrement() {
 			String nameOfTable = "AutoIncrement";
 			SqlColumn colId = new SqlColumn("id", MySqlColumnType.BIGINT, 8, false, true);
-			SqlColumn colString = new SqlColumn("string", MySqlColumnType.VARCHAR, 100, true);
+			SqlColumn colString = new SqlColumn("string", MySqlColumnType.VARCHAR, 100, true, false);
 			SqlIndex primaryKey = new SqlIndex("PKey").addColumn(colId);
 			SqlTable sqlTable = new SqlTable(nameOfTable)
 					.addColumn(colId)

@@ -40,7 +40,7 @@ public class UInt15Field extends BasePrimitiveField<Short>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.SMALLINT, 5, nullable);
+		return new SqlColumn(columnName, MySqlColumnType.SMALLINT, 5, nullable, false);
 	}
 	
 	@Override

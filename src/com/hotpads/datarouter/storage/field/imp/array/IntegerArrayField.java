@@ -50,7 +50,7 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, 2147483647 , nullable);
+		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , nullable, false);
 	}
 
 	@Override

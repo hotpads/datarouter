@@ -35,7 +35,7 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.INT, 11, nullable);
+		return new SqlColumn(columnName, MySqlColumnType.INT, 11, nullable, false);
 	}
 	
 	@Override

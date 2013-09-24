@@ -194,7 +194,7 @@ public class SqlTableDiffGenerator{
 
 			SqlColumn idCol1 = new SqlColumn("id", MySqlColumnType.BIGINT, 8, false, true);
 			SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol1);
-			SqlColumn idCol2 = new SqlColumn("id", MySqlColumnType.BIGINT, 8, true);
+			SqlColumn idCol2 = new SqlColumn("id", MySqlColumnType.BIGINT, 8, true, false);
 			SqlIndex primaryKey2 = new SqlIndex("pk1").addColumn(idCol2);
 			List<SqlColumn> listA = ListTool.createArrayList(idCol1);
 			List<SqlColumn> listA2 = ListTool.createArrayList(idCol2);

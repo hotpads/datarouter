@@ -29,7 +29,7 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.TINYINT, 1 , nullable);
+		return new SqlColumn(columnName, MySqlColumnType.TINYINT, 1 , nullable, false);
 	}
 	
 	@Override

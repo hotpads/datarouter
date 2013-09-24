@@ -39,7 +39,7 @@ public class UInt7Field extends BasePrimitiveField<Byte>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.TINYINT, 3, nullable);
+		return new SqlColumn(columnName, MySqlColumnType.TINYINT, 3, nullable, false);
 	}
 	
 	@Override

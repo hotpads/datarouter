@@ -40,7 +40,7 @@ public class UInt31Field extends BasePrimitiveField<Integer>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.INT, 11, nullable);
+		return new SqlColumn(columnName, MySqlColumnType.INT, 11, nullable, false);
 	}
 	
 	@Override

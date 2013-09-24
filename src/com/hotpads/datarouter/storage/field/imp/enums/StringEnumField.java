@@ -40,14 +40,14 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(columnName, MySqlColumnType.VARCHAR, size, nullable);
+			return new SqlColumn(columnName, MySqlColumnType.VARCHAR, size, nullable, false);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(columnName, MySqlColumnType.TEXT, null/* MySqlColumnType.MAX_LENGTH_TEXT.intValue() */, nullable);
+			return new SqlColumn(columnName, MySqlColumnType.TEXT, null/* MySqlColumnType.MAX_LENGTH_TEXT.intValue() */, nullable, false);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
 			return new SqlColumn(columnName, MySqlColumnType.MEDIUMTEXT, null/* MySqlColstringFumnType.MAX_LENGTH_MEDIUMTEXT.intValue
-																		 * () */, nullable);
+																		 * () */, nullable, false);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){ return new SqlColumn(columnName, MySqlColumnType.LONGTEXT,
-				null, nullable); }
+				null, nullable, false); }
 		throw new IllegalArgumentException("Unknown size:" + size);
 	}
 

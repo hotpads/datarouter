@@ -28,7 +28,7 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.TINYINT, 1 , nullable);
+		return new SqlColumn(columnName, MySqlColumnType.TINYINT, 1 , nullable, false);
 	}
 
 	@Override
