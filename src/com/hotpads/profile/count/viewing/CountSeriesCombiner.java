@@ -2,8 +2,6 @@ package com.hotpads.profile.count.viewing;
 
 import java.util.List;
 
-import com.hotpads.util.core.ListTool;
-
 public class CountSeriesCombiner extends AbstractCountSeries{
 
 	public CountSeriesCombiner(String name, Long startMs, int numPeriods, Long periodMs,

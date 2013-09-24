@@ -131,7 +131,19 @@ extends BaseHandler{
 		logger.warn(message);
 		return new MessageMav(message);
 	}
-		
+	
+	@Handler
+	public Mav countWhere(){
+		preHandle();
+		//assume all table names are the same (they are at the time of writing this)
+		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
+		String where = params.optional(PARAM_where, null);
+		List<String> clientNames = node.getClientNames();
+		Long count = new CountWhereTxn(drContext, clientNames, tableName, where).call();
+		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(count)+" rows in "+tableName+" ("+node.getName()+")");
+		return mav;
+	}
+	
 	@Handler
 	public Mav browseData(){
 		Mav mav = preHandle();
@@ -143,7 +155,7 @@ extends BaseHandler{
 		String backKeyString = RequestTool.get(request, PARAM_backKey, null);//allows for 1 "back" action
 		mav.put(PARAM_backKey, backKeyString);
 		String startAfterKeyString = RequestTool.get(request, PARAM_startAfterKey, null);
-
+	
 		Config config = new Config();
 		PK startAfterKey = null;
 		if(StringTool.notEmpty(startAfterKeyString)){
@@ -162,28 +174,25 @@ extends BaseHandler{
 	}
 	
 	@Handler
-	public Mav countWhere(){
-		preHandle();
-		//assume all table names are the same (they are at the time of writing this)
-		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
-		String where = params.optional(PARAM_where, null);
-		List<String> clientNames = node.getClientNames();
-		Long count = new CountWhereTxn(drContext, clientNames, tableName, where).call();
-		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(count)+" rows in "+tableName+" ("+node.getName()+")");
-		return mav;
-	}
-	
-	@Handler
 	public Mav getWhere(){
-		preHandle();
+		Mav mav = preHandle();
+		if( ! (node instanceof HibernateReaderNode<?,?,?>)){
+			return new MessageMav("Cannot getWhere "+node.getClass().getSimpleName());
+		}
+		mav.put("fields", node.getFields());
+		String backKeyString = RequestTool.get(request, PARAM_backKey, null);//allows for 1 "back" action
+		mav.put(PARAM_backKey, backKeyString);
+		String startAfterKeyString = RequestTool.get(request, PARAM_startAfterKey, null);
+		
 		//assume all table names are the same (they are at the time of writing this)
 		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
 		String where = params.optional(PARAM_where, null);
 		List<String> clientNames = node.getClientNames();
 		Config config = new Config().setOffset(offset).setLimit(limit);
 		List<D> databeans = new GetWhereTxn<PK,D,F,N>(drContext, (N)node, tableName, where, config).call();
-		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(CollectionTool.size(databeans))
+		mav = new MessageMav("found "+NumberFormatter.addCommas(CollectionTool.size(databeans))
 				+" rows in "+tableName+" ("+node.getName()+")");
+		addDatabeansToMav(mav, databeans);
 		return mav;
 	}
 	

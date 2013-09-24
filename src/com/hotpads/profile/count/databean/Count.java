@@ -98,7 +98,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 	
 	public double getValuePer(String frequency){
-		if("none".equals(frequency)){
+		if("period".equals(frequency)){
 			return value;
 		}else if("second".equals(frequency)){
 			return getValuePerSecond();
@@ -121,8 +121,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 	
 	public static double getValuePer(double value, Long periodMs, String frequency){
-		if("none".equals(frequency)){
-			return value;
+		if("period".equals(frequency)){			return value;
 		}else if("second".equals(frequency)){
 			return getValuePerSecond(value, periodMs);
 		}else if("minute".equals(frequency)){

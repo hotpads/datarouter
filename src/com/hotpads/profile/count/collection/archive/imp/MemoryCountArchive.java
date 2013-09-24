@@ -15,7 +15,6 @@ import com.hotpads.profile.count.collection.archive.BaseCountArchive;
 import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
 import com.hotpads.profile.count.databean.AvailableCounter;
 import com.hotpads.profile.count.databean.Count;
-import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -80,10 +79,15 @@ public class MemoryCountArchive extends BaseCountArchive{
 	}
 	
 	@Override
-	public Collection<? extends AvailableCounter> getAvailableCounters(String nameLike, String webApp){
+	public Collection<AvailableCounter> getAvailableCounters(String nameLike, String webApp){
 		return getAvailableCounters(nameLike);
 	}
-		@Override
+	@Override
+	@Deprecated
+	public Collection<AvailableCounter> getAvailableCountersStartingAt(String startingAt, String webApp){
+		return null;
+	}
+	@Override
 	public List<Count> getCountsForAllSources(String name, Long startMs, Long endMs){
 		int startIndex = getIndexForMs(startMs);
 		if(getEarliestAvailableTime() > startMs){
