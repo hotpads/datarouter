@@ -2,8 +2,6 @@ package com.hotpads.setting;
 
 import java.util.List;
 
-import com.hotpads.config.server.enums.ClusterSettingScope;
-import com.hotpads.config.server.enums.ServerType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -12,9 +10,10 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 
 @SuppressWarnings("serial")
-public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
+public class ClusterSetting<ST extends ServerType<ST>>
+extends BaseDatabean<ClusterSettingKey<ST>,ClusterSetting<ST>>{
 
-	protected ClusterSettingKey key;
+	protected ClusterSettingKey<ST> key;
 	protected String value;
 
     
@@ -55,21 +54,21 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 		this.value = value;
 	}
 	
-	public ClusterSetting(String name, ClusterSettingScope scope, ServerType serverType, String instance, 
-			String application, String value){
-		this.key = new ClusterSettingKey(name, scope, serverType, instance, application);
+	public ClusterSetting(String name, ClusterSettingScope scope, Class<ST> serverTypeClass, ServerType<ST> serverType,
+			String instance, String application, String value){
+		this.key = new ClusterSettingKey(name, scope, serverTypeClass, serverType, instance, application);
 		this.value = value;
 	}
     
     /******************************* databean **************************/
     
     @Override
-    public Class<ClusterSettingKey> getKeyClass(){
-    	return ClusterSettingKey.class;
+    public Class<ClusterSettingKey<ST>> getKeyClass(){
+    	return key.getServerTypeClass();
     }
     
     @Override
-	public ClusterSettingKey getKey() {
+	public ClusterSettingKey<ST> getKey() {
 		return key;
 	}
     
@@ -113,11 +112,11 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 		key.setScope(scope);
 	}
 
-	public ServerType getServerType(){
+	public ST getServerType(){
 		return key.getServerType();
 	}
 
-	public void setServerType(ServerType serverType){
+	public void setServerType(ST serverType){
 		key.setServerType(serverType);
 	}
 
