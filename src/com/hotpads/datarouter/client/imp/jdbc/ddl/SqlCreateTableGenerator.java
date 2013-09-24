@@ -39,16 +39,16 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		if(!StringTool.isEmpty(databaseName)){
 			sb.append(databaseName + ".");
 		}
-		sb.append(table.getName()+" (\n"); 
-		int nuimberOfColumns=table.getColumns().size();
+		sb.append(table.getName() + " (\n");
+		int numberOfColumns = table.getColumns().size();
 		SqlColumn col;
-		String typeSring;
+		String typeString;
 		MySqlColumnType type;
-		for(int i=0; i<nuimberOfColumns; i++){
+		for(int i=0; i<numberOfColumns; i++){
 			col = table.getColumns().get(i);
 			type = col.getType();
-			typeSring = type.toString().toLowerCase();
-			sb.append(" " + col.getName() + " " + typeSring);
+			typeString = type.toString().toLowerCase();
+			sb.append(" " + col.getName() + " " + typeString);
 			if(col.getMaxLength()!=null && type.isSpecifyLength()){
 				sb.append("(" + col.getMaxLength() + ")");
 			}
@@ -60,7 +60,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			if (col.getAutoIncrement()) {
 				sb.append(" auto_increment");
 			}
-			if(i < nuimberOfColumns-1){ sb.append(",\n"); }
+			if(i < numberOfColumns-1){ sb.append(",\n"); }
 		}
 		
 		if(table.hasPrimaryKey()){
