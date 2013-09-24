@@ -13,8 +13,8 @@ import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 @SuppressWarnings("serial")
-public class ClusterSettingKey<ST extends ServerType<ST>>
-extends BasePrimaryKey<ClusterSettingKey<ST>>{
+public class ClusterSettingKey
+extends BasePrimaryKey<ClusterSettingKey>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	public static final int LEN_SCOPE = MySqlColumnType.MAX_LENGTH_VARCHAR;
@@ -26,8 +26,7 @@ extends BasePrimaryKey<ClusterSettingKey<ST>>{
 	//could probably calculate the scope at runtime, but an explicit field will make it easier to understand the 
 	// ClusterSetting table in mysql
 	private ClusterSettingScope scope;
-	private Class<ST> serverTypeClass;
-	private ST serverType;
+	private String serverType;
 	private String instance;
 	private String application;
 	
@@ -45,7 +44,7 @@ extends BasePrimaryKey<ClusterSettingKey<ST>>{
 		return FieldTool.createList(
 			new StringField(F.name, name, DEFAULT_STRING_LENGTH),
 			new StringEnumField<ClusterSettingScope>(ClusterSettingScope.class, F.scope, scope, LEN_SCOPE),
-			new StringEnumField<ST>(serverTypeClass, F.serverType, serverType, LEN_SERVER_TYPE),
+			new StringField(serverType, F.serverType, serverType, LEN_SERVER_TYPE),
 			new StringField(F.instance, instance, DEFAULT_STRING_LENGTH),
 			new StringField(F.application, application, DEFAULT_STRING_LENGTH));
 	}
@@ -56,11 +55,10 @@ extends BasePrimaryKey<ClusterSettingKey<ST>>{
 	ClusterSettingKey(){//required no-arg
 	}
 			
-	public ClusterSettingKey(String name, ClusterSettingScope scope, Class<ST> serverTypeClass, ST serverType,
+	public ClusterSettingKey(String name, ClusterSettingScope scope, String serverType,
 			String instance, String application){
 		this.name = name;
 		this.scope = scope;
-		this.serverTypeClass = serverTypeClass;
 		this.serverType = serverType;
 		this.instance = instance;
 		this.application = application;
@@ -68,11 +66,6 @@ extends BasePrimaryKey<ClusterSettingKey<ST>>{
 	
 	
 	/****************************** methods ********************************/
-    
-	public String getServerTypePersistentString(){
-    	if(serverType==null){ return null; }
-    	return serverType.getPersistentString();
-    }
 
 
 	/***************************** get/set *******************************/
@@ -85,11 +78,11 @@ extends BasePrimaryKey<ClusterSettingKey<ST>>{
 		this.scope = scope;
 	}
 
-	public ST getServerType(){
+	public String getServerType(){
 		return serverType;
 	}
 
-	public void setServerType(ST serverType){
+	public void setServerType(String serverType){
 		this.serverType = serverType;
 	}
 
@@ -115,14 +108,6 @@ extends BasePrimaryKey<ClusterSettingKey<ST>>{
 
 	public void setName(String name){
 		this.name = name;
-	}
-
-	public Class<ST> getServerTypeClass(){
-		return serverTypeClass;
-	}
-
-	public void setServerTypeClass(Class<ST> serverTypeClass){
-		this.serverTypeClass = serverTypeClass;
 	}
 	
 }

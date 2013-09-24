@@ -10,10 +10,10 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 
 @SuppressWarnings("serial")
-public class ClusterSetting<ST extends ServerType<ST>>
-extends BaseDatabean<ClusterSettingKey<ST>,ClusterSetting<ST>>{
+public class ClusterSetting
+extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 
-	protected ClusterSettingKey<ST> key;
+	protected ClusterSettingKey key;
 	protected String value;
 
     
@@ -63,12 +63,12 @@ extends BaseDatabean<ClusterSettingKey<ST>,ClusterSetting<ST>>{
     /******************************* databean **************************/
     
     @Override
-    public Class<ClusterSettingKey<ST>> getKeyClass(){
-    	return key.getServerTypeClass();
+    public Class<ClusterSettingKey> getKeyClass(){
+    	return ClusterSettingKey.class;
     }
     
     @Override
-	public ClusterSettingKey<ST> getKey() {
+	public ClusterSettingKey getKey() {
 		return key;
 	}
     
@@ -112,11 +112,11 @@ extends BaseDatabean<ClusterSettingKey<ST>,ClusterSetting<ST>>{
 		key.setScope(scope);
 	}
 
-	public ST getServerType(){
+	public String getServerType(){
 		return key.getServerType();
 	}
 
-	public void setServerType(ST serverType){
+	public void setServerType(String serverType){
 		key.setServerType(serverType);
 	}
 
