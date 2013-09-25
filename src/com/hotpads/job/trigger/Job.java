@@ -2,17 +2,14 @@ package com.hotpads.job.trigger;
 
 import java.util.Date;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.quartz.CronExpression;
 
-import com.hotpads.job.setting.Setting;
-
 public interface Job extends Callable<Void>{
 	
-	void setScheduler(JobScheduler scheduler);
-	void setExecutor(ScheduledExecutorService executor);
-	void setProcessJobsSetting(Setting<Boolean> processJobsSetting);
+//	void setScheduler(JobScheduler scheduler);
+//	void setExecutor(ScheduledExecutorService executor);
+//	void setProcessJobsSetting(Setting<Boolean> processJobsSetting);
 
 	CronExpression getTrigger();
 	Long getDelayBeforeNextFireTimeMs();

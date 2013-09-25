@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.quartz.CronExpression;
 
 import com.hotpads.job.setting.Setting;
-import com.hotpads.job.setting.thread.JobExecutorProvider.JobExecutor;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.datastructs.MutableBoolean;
@@ -29,27 +28,11 @@ public abstract class BaseJob implements Job{
 	/************************* constructors *******************/
 
 	@Inject
-	public BaseJob() {
+	public BaseJob(JobEnvironment jobEnvironment) {
+		this.scheduler = jobEnvironment.getScheduler();
+		this.executor = jobEnvironment.getExecutor();
+		this.processJobsSetting = jobEnvironment.getProcessJobsSetting();
 	}
-
-
-	/************************ injected setters ******************/
-
-	@Override @Inject
-	public void setScheduler(JobScheduler scheduler) {
-		this.scheduler = scheduler;
-	}	
-
-	@Override @Inject
-	public void setExecutor(@JobExecutor ScheduledExecutorService executor) {
-		this.executor = executor;
-	}
-
-	@Override @Inject
-	public void setProcessJobsSetting(Setting<Boolean> processJobsSetting) {
-		this.processJobsSetting = processJobsSetting;
-	}
-
 
 	/*********************** methods ******************************/
 
