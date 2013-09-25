@@ -27,9 +27,8 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	protected List<N> writeNodes = new ArrayList<N>();
 	protected N readNode;//needs to be one of the write nodes
 	
-	public BaseRedundantNode(Class<D> databeanClass, DataRouter router,
-			Collection<N> writeNodes, N readNode) {
-		super(databeanClass);
+	public BaseRedundantNode(Class<D> databeanClass, DataRouter router, Collection<N> writeNodes, N readNode){
+		super(router.getContext(), databeanClass);
 		
 		if(CollectionTool.isEmpty(writeNodes)){ throw new IllegalArgumentException("writeNodes cannont be empty."); }
 		if(readNode==null){ throw new IllegalArgumentException("readNode cannont be null."); }

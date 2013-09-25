@@ -190,8 +190,8 @@ extends BaseHandler{
 		List<String> clientNames = node.getClientNames();
 		Config config = new Config().setOffset(offset).setLimit(limit);
 		List<D> databeans = new GetWhereTxn<PK,D,F,N>(drContext, (N)node, tableName, where, config).call();
-		mav = new MessageMav("found "+NumberFormatter.addCommas(CollectionTool.size(databeans))
-				+" rows in "+tableName+" ("+node.getName()+")");
+//		mav = new MessageMav("found "+NumberFormatter.addCommas(CollectionTool.size(databeans))
+//				+" rows in "+tableName+" ("+node.getName()+")");
 		addDatabeansToMav(mav, databeans);
 		return mav;
 	}

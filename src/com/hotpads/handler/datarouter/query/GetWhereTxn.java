@@ -45,7 +45,7 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 	
 	@Override
 	public List<D> runOncePerClient(Client client){
-		String sql = SqlBuilder.getAll(config, tableName, null, where, null);
+		String sql = SqlBuilder.getAll(config, tableName, node.getFieldInfo().getFields(), where, null);
 		Session session = getSession(client.getName());
 		return JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
 	}
