@@ -49,14 +49,14 @@ public class StringField extends BaseField<String>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(columnName, MySqlColumnType.VARCHAR, size, true);
+			return new SqlColumn(columnName, MySqlColumnType.VARCHAR, size, nullable, false);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(columnName, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, true);
+			return new SqlColumn(columnName, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, nullable, false);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
 			return new SqlColumn(columnName, MySqlColumnType.MEDIUMTEXT, null/*MySqlColumnType.MAX_LENGTH_MEDIUMTEXT.intValue()*/, 
-					true);
+					nullable, false);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
-			return new SqlColumn(columnName, MySqlColumnType.LONGTEXT, null, true);
+			return new SqlColumn(columnName, MySqlColumnType.LONGTEXT, null, nullable, false);
 		}
 		throw new IllegalArgumentException("Unknown size:"+size);
 	}
@@ -195,14 +195,14 @@ public class StringField extends BaseField<String>{
 	public static SqlColumn getTypeFromSize(String name, int size,
 			boolean nullable){
 		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(name, MySqlColumnType.VARCHAR, size, true);
+			return new SqlColumn(name, MySqlColumnType.VARCHAR, size, true, false);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(name, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, true);
+			return new SqlColumn(name, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, true, false);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
 			return new SqlColumn(name, MySqlColumnType.MEDIUMTEXT, null/*MySqlColumnType.MAX_LENGTH_MEDIUMTEXT.intValue()*/, 
-					true);
+					true, false);
 		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
-			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, true);
+			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, true, false);
 		}
 		throw new IllegalArgumentException("Unknown size:"+size);
 	}
