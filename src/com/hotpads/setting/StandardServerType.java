@@ -4,8 +4,8 @@ import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
 
 public enum StandardServerType implements ServerType<StandardServerType>{
 	
-	UNKNOWN("unknown"),
-	ALL("all"),
+	UNKNOWN(ServerType.UNKNOWN),
+	ALL(ServerType.ALL),
 	WEB("web"),
 	JOBLET("joblet");
 	

@@ -2,6 +2,7 @@ package com.hotpads.setting;
 
 import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
 
 public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
@@ -51,9 +52,10 @@ public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 			s = "application";
 		}else if(StringTool.notEmpty(instance)){
 			s = "instance";
-		}else if((serverType != StandardServerType.UNKNOWN) && (serverType != StandardServerType.ALL)){
+		}else if(ObjectTool.notEquals(ServerType.UNKNOWN, serverType.getPersistentString())
+				&& ObjectTool.notEquals(ServerType.ALL, serverType.getPersistentString())){
 			s = "serverType";
-		}else if(serverType == StandardServerType.ALL){
+		}else if(ObjectTool.equals(ServerType.ALL, serverType.getPersistentString())){
 			s = "cluster";
 		}else{
 			s = "defaultScope";
