@@ -26,7 +26,7 @@ extends BasePrimaryKey<ClusterSettingKey>{
 	//could probably calculate the scope at runtime, but an explicit field will make it easier to understand the 
 	// ClusterSetting table in mysql
 	private ClusterSettingScope scope;
-	private ServerType<?> serverType;
+	private String serverType;
 	private String instance;
 	private String application;
 	
@@ -44,7 +44,7 @@ extends BasePrimaryKey<ClusterSettingKey>{
 		return FieldTool.createList(
 			new StringField(F.name, name, DEFAULT_STRING_LENGTH),
 			new StringEnumField<ClusterSettingScope>(ClusterSettingScope.class, F.scope, scope, LEN_SCOPE),
-			new StringField(F.serverType, serverType==null?null:serverType.getPersistentString(), LEN_SERVER_TYPE),
+			new StringField(F.serverType, serverType, LEN_SERVER_TYPE),
 			new StringField(F.instance, instance, DEFAULT_STRING_LENGTH),
 			new StringField(F.application, application, DEFAULT_STRING_LENGTH));
 	}
@@ -55,7 +55,7 @@ extends BasePrimaryKey<ClusterSettingKey>{
 	ClusterSettingKey(){//required no-arg
 	}
 			
-	public ClusterSettingKey(String name, ClusterSettingScope scope, ServerType<?> serverType,
+	public ClusterSettingKey(String name, ClusterSettingScope scope, String serverType,
 			String instance, String application){
 		this.name = name;
 		this.scope = scope;
@@ -78,11 +78,11 @@ extends BasePrimaryKey<ClusterSettingKey>{
 		this.scope = scope;
 	}
 
-	public ServerType<?> getServerType(){
+	public String getServerType(){
 		return serverType;
 	}
 
-	public void setServerType(ServerType<?> serverType){
+	public void setServerType(String serverType){
 		this.serverType = serverType;
 	}
 

@@ -54,7 +54,7 @@ extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 		this.value = value;
 	}
 	
-	public ClusterSetting(String name, ClusterSettingScope scope, ServerType<?> serverType, String instance,
+	public ClusterSetting(String name, ClusterSettingScope scope, String serverType, String instance,
 			String application, String value){
 		this.key = new ClusterSettingKey(name, scope, serverType, instance, application);
 		this.value = value;
@@ -109,11 +109,11 @@ extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 		key.setScope(scope);
 	}
 
-	public ServerType<?> getServerType(){
+	public String getServerType(){
 		return key.getServerType();
 	}
 
-	public void setServerType(ServerType<?> serverType){
+	public void setServerType(String serverType){
 		key.setServerType(serverType);
 	}
 
