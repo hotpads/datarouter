@@ -3,8 +3,6 @@ package com.hotpads.datarouter.test.node.basic.manyfield;
 import java.util.List;
 
 import javax.persistence.Embeddable;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;

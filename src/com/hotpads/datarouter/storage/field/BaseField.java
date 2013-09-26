@@ -260,8 +260,9 @@ public abstract class BaseField<T> implements Field<T>{
 		return nullable;
 	}
 	
+	//TODO would be nice to return the subclass
 	public BaseField<T> setNullable(Boolean b) {
-		nullable = b;
+		this.nullable = b;
 		return this;
 	}
 }
