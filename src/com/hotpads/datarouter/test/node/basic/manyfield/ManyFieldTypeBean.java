@@ -12,7 +12,6 @@ import javax.persistence.Lob;
 
 import org.hibernate.annotations.AccessType;
 
-import com.hotpads.util.core.ListTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -25,11 +24,11 @@ import com.hotpads.datarouter.storage.field.imp.array.DoubleArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.IntegerArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.UInt63ArrayField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
-import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.storage.field.imp.comparable.CharacterField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.comparable.ShortField;
+import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbFloatField;

@@ -18,7 +18,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlTableEngine;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeComparator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeLengthComparator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeLengthAutoIncrementComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex.SqlIndexNameComparator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
@@ -63,7 +63,7 @@ public class SqlTableDiffGenerator{
 	}
 	
 	public List<SqlColumn> getColumnsToModify(){
-		SqlColumnNameTypeLengthComparator c = new SqlColumnNameTypeLengthComparator(true);
+		SqlColumnNameTypeLengthAutoIncrementComparator c = new SqlColumnNameTypeLengthAutoIncrementComparator(true);
 		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
 		Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);
 		if(requested==null || current==null){
@@ -78,7 +78,7 @@ public class SqlTableDiffGenerator{
 	
 	private List<SqlColumn> getColumnsToModifyAfterAddingColumns(Set<SqlColumn> requestedColumns,
 			Set<SqlColumn> currentColumns, 
-			List<SqlColumn> columnsToAddUsingNameComparator, SqlColumnNameTypeLengthComparator c){
+			List<SqlColumn> columnsToAddUsingNameComparator, SqlColumnNameTypeLengthAutoIncrementComparator c){
 		// by getting all the modified columns (the ones we should add) and removing from them the ones
 		// we have already added (columnsToAdd)
 		List<SqlColumn> listOfColumnsToAddUsingNameTypeComparator = ListTool.createArrayList(CollectionTool.minus(
@@ -189,6 +189,36 @@ public class SqlTableDiffGenerator{
 		private SqlColumn idCol = new SqlColumn("id", MySqlColumnType.BIGINT);
 		private SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol);
 		
+		@Test
+		public void testAutoIncrement() {
+
+			SqlColumn idCol1 = new SqlColumn("id", MySqlColumnType.BIGINT, 8, false, true);
+			SqlIndex primaryKey1 = new SqlIndex("pk1").addColumn(idCol1);
+			SqlColumn idCol2 = new SqlColumn("id", MySqlColumnType.BIGINT, 8, true, false);
+			SqlIndex primaryKey2 = new SqlIndex("pk1").addColumn(idCol2);
+			List<SqlColumn> listA = ListTool.createArrayList(idCol1);
+			List<SqlColumn> listA2 = ListTool.createArrayList(idCol2);
+			SqlTable tableA = new SqlTable("A", listA, primaryKey1);
+			SqlTable tableA2 = new SqlTable("A", listA2,primaryKey2);
+			
+			SqlTableDiffGenerator diffAA = new SqlTableDiffGenerator(tableA, tableA, true),
+								  diffAA2 = new SqlTableDiffGenerator(tableA, tableA2, true);
+			Assert.assertFalse(diffAA.isTableModified());
+			Assert.assertTrue(diffAA2.isTableModified());
+			// TABLES WITH DIFFERENT NUMBER OF COLUMNS
+			SqlColumn col1 = new SqlColumn("col1", MySqlColumnType.BIGINT);
+			SqlColumn col2 = new SqlColumn("col2", MySqlColumnType.BINARY);
+			SqlColumn col3 = new SqlColumn("col3", MySqlColumnType.BIT);
+			tableA.addColumn(col1);
+			tableA2.addColumn(col1);
+			tableA2.addColumn(col2);
+			Assert.assertTrue(diffAA2.isTableModified());
+			// TABLES WITH THE SAME NUMBER OF COLUMNS, BUT 1 OR MORE DIFFERENT COLUMN
+			tableA.addColumn(col3);
+			Assert.assertTrue(diffAA2.isTableModified());
+		}
+		
+		
 		@Test public void isTableModifiedTest(){
 					//TODO don't reuse declaration types anywhere
 			List<SqlColumn> listA = ListTool.createArrayList();
@@ -243,7 +273,7 @@ public class SqlTableDiffGenerator{
 		}
 	
 		@Test public void getColumnsToAddTest(){
-			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 250, true);
+			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 250, true, false);
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
@@ -276,7 +306,7 @@ public class SqlTableDiffGenerator{
 			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getColumnsToAdd(), listBC)));
 			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffAB.getColumnsToAdd(), listM)));
 			
-			SqlColumn ColA2 = new SqlColumn("A", MySqlColumnType.VARCHAR,200,true);
+			SqlColumn ColA2 = new SqlColumn("A", MySqlColumnType.VARCHAR,200,true, false);
 			table1.addColumn(ColA2);
 			diffBA = new SqlTableDiffGenerator(table2, table1, true);
 			Assert.assertTrue(CollectionTool.isEmpty(CollectionTool.minus(diffBA.getColumnsToAdd(), listBC)));
@@ -316,7 +346,7 @@ public class SqlTableDiffGenerator{
 		}
 	
 		@Test public void getIndexesToAddTest(){
-			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true);
+			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT,250,true, false);
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
@@ -351,7 +381,7 @@ public class SqlTableDiffGenerator{
 		}
 	
 		@Test public void getIndexesToRemove(){
-			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 250, true);
+			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 250, true, false);
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
@@ -387,8 +417,8 @@ public class SqlTableDiffGenerator{
 	
 		@Test
 		public void getColumnsToModifyTest(){
-			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 20, true);
-			SqlColumn colA2 = new SqlColumn("A", MySqlColumnType.INT, 10, true);
+			SqlColumn colA = new SqlColumn("A", MySqlColumnType.BIGINT, 20, true, false);
+			SqlColumn colA2 = new SqlColumn("A", MySqlColumnType.INT, 10, true, false);
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
@@ -416,7 +446,7 @@ public class SqlTableDiffGenerator{
 					//TODO too much on one line
 			List<SqlColumn> colsToModify = diffAB.getColumnsToModify();
 			ArrayList<SqlColumn> expected = ListTool.createArrayList(colA2);
-			SqlColumnNameTypeLengthComparator c = new SqlColumnNameTypeLengthComparator(true);
+			SqlColumnNameTypeLengthAutoIncrementComparator c = new SqlColumnNameTypeLengthAutoIncrementComparator(true);
 			Assert.assertTrue(areEqual(colsToModify, expected, c));
 			
 			
@@ -433,20 +463,20 @@ public class SqlTableDiffGenerator{
 
 		@Test
 		public void getColumnsToModifyBugTest(){
-			SqlColumn col_active = new SqlColumn("active", MySqlColumnType.BIT, 1, true);
-			SqlColumn col_activeTiny = new SqlColumn("active", MySqlColumnType.TINYINT, 1, true);
-			SqlColumn col_includeInSiteMap = new SqlColumn("includeInSiteMap", MySqlColumnType.BIT, 1, true);
-			SqlColumn col_includeInSiteMapTiny = new SqlColumn("includeInSiteMap", MySqlColumnType.TINYINT, 1, true);
-			SqlColumn col_type = new SqlColumn("type", MySqlColumnType.INT, 11, true);
-			SqlColumn col_useBoundedLayout = new SqlColumn("useBoundedLayout", MySqlColumnType.BIT, 1, true);
-			SqlColumn col_useBoundedLayoutTiny = new SqlColumn("useBoundedLayout", MySqlColumnType.TINYINT, 1, true);
-			SqlColumn col_redirect = new SqlColumn("redirect", MySqlColumnType.VARCHAR, 255, true);
-			SqlColumn col_body = new SqlColumn("body", MySqlColumnType.MEDIUMTEXT, 16777216, true);
-			SqlColumn col_id = new SqlColumn("id", MySqlColumnType.VARCHAR, 255, true);
-			SqlColumn col_metaKeywords = new SqlColumn("metaKeywords", MySqlColumnType.VARCHAR, 255, true);
-			SqlColumn col_title = new SqlColumn("title", MySqlColumnType.VARCHAR, 255, true);
-			SqlColumn col_metaDescription = new SqlColumn("metaDescription", MySqlColumnType.VARCHAR, 255, true);
-			SqlColumn col_attributes = new SqlColumn("attributes", MySqlColumnType.VARCHAR, 255, true);
+			SqlColumn col_active = new SqlColumn("active", MySqlColumnType.BIT, 1, true, false);
+			SqlColumn col_activeTiny = new SqlColumn("active", MySqlColumnType.TINYINT, 1, true, false);
+			SqlColumn col_includeInSiteMap = new SqlColumn("includeInSiteMap", MySqlColumnType.BIT, 1, true, false);
+			SqlColumn col_includeInSiteMapTiny = new SqlColumn("includeInSiteMap", MySqlColumnType.TINYINT, 1, true, false);
+			SqlColumn col_type = new SqlColumn("type", MySqlColumnType.INT, 11, true, false);
+			SqlColumn col_useBoundedLayout = new SqlColumn("useBoundedLayout", MySqlColumnType.BIT, 1, true, false);
+			SqlColumn col_useBoundedLayoutTiny = new SqlColumn("useBoundedLayout", MySqlColumnType.TINYINT, 1, true, false);
+			SqlColumn col_redirect = new SqlColumn("redirect", MySqlColumnType.VARCHAR, 255, true, false);
+			SqlColumn col_body = new SqlColumn("body", MySqlColumnType.MEDIUMTEXT, 16777216, true, false);
+			SqlColumn col_id = new SqlColumn("id", MySqlColumnType.VARCHAR, 255, true, false);
+			SqlColumn col_metaKeywords = new SqlColumn("metaKeywords", MySqlColumnType.VARCHAR, 255, true, false);
+			SqlColumn col_title = new SqlColumn("title", MySqlColumnType.VARCHAR, 255, true, false);
+			SqlColumn col_metaDescription = new SqlColumn("metaDescription", MySqlColumnType.VARCHAR, 255, true, false);
+			SqlColumn col_attributes = new SqlColumn("attributes", MySqlColumnType.VARCHAR, 255, true, false);
 			SqlColumn lastModified = new SqlColumn("lastModified", MySqlColumnType.DATETIME);
 
 			SqlTable table1 = new SqlTable("TA").addColumn(col_active)
@@ -477,7 +507,7 @@ public class SqlTableDiffGenerator{
 			SqlTableDiffGenerator diffAB = new SqlTableDiffGenerator(table1, table2, true);
 			List<SqlColumn> colsToModify = diffAB.getColumnsToModify();
 			ArrayList<SqlColumn> expected = ListTool.createArrayList(col_activeTiny, col_includeInSiteMapTiny, col_useBoundedLayoutTiny);
-			SqlColumnNameTypeLengthComparator c = new SqlColumnNameTypeLengthComparator(true);
+			SqlColumnNameTypeLengthAutoIncrementComparator c = new SqlColumnNameTypeLengthAutoIncrementComparator(true);
 			Assert.assertTrue(areEqual(colsToModify, expected, c));
 			
 			Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);

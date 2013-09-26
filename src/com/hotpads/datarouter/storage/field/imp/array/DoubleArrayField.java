@@ -51,7 +51,7 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, 2147483647 , true);
+		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , nullable, false);
 	}
 
 	@Override
