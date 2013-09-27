@@ -31,7 +31,7 @@ public class DumbDoubleField extends BasePrimitiveField<Double>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.DOUBLE, 22, true);
+		return new SqlColumn(columnName, MySqlColumnType.DOUBLE, 22, nullable, false);
 	}
 	
 	@Override
