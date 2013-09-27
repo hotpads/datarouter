@@ -187,8 +187,18 @@ extends BaseHandler{
 		//assume all table names are the same (they are at the time of writing this)
 		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
 		String where = params.optional(PARAM_where, null);
-		List<String> clientNames = node.getClientNames();
+		
 		Config config = new Config().setOffset(offset).setLimit(limit);
+		//start copied from above
+		PK startAfterKey = null;
+		if(StringTool.notEmpty(startAfterKeyString)){
+			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
+			startAfterKey.fromPersistentString(startAfterKeyString);
+			config.setStartId(startAfterKey);
+			mav.put(PARAM_startAfterKey, startAfterKey.getPersistentString());
+		}
+		//end copied from above
+		
 		List<D> databeans = new GetWhereTxn<PK,D,F,N>(drContext, (N)node, tableName, where, config).call();
 		mav = new MessageMav("found "+NumberFormatter.addCommas(CollectionTool.size(databeans))
 				+" rows in "+tableName+" ("+node.getName()+")");
