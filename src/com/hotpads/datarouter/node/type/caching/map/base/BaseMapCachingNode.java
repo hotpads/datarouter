@@ -33,7 +33,8 @@ extends BaseNode<PK,D,F>{
 	protected Long lastContact = 0L;
 	
 	public BaseMapCachingNode(N cacheNode, N backingNode){
-		super(backingNode.getDatabeanType(), (Class<F>)backingNode.getFieldInfo().getFielderClass());
+		super(backingNode.getDataRouterContext(), backingNode.getDatabeanType(), 
+				(Class<F>)backingNode.getFieldInfo().getFielderClass());
 		this.cachingNode = cacheNode;
 		this.backingNode = backingNode;
 		//use the inputs to make a unique name.  randomness will not place nicely with the counters
