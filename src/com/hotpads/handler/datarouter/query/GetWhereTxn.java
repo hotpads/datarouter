@@ -31,7 +31,7 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 	private Config config;
 	
 	
-	public GetWhereTxn(DataRouterContext drContext, N node, String tableName, String whereClauseFromUser, Config config){
+	public GetWhereTxn(N node, String tableName, String whereClauseFromUser, Config config){
 		super(node.getDataRouterContext(), node.getClientNames());
 		this.node = node;
 		this.tableName = tableName;
