@@ -4,6 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.util.core.StringTool;
 
 public class ImportCounters {
@@ -116,9 +117,7 @@ public class ImportCounters {
 	}
 	
 	private static Long incInternal(String key, long delta) {
-		System.out.println(key + " --- delta: " + delta);
-		return 1L;
-		//return Counters.inc(key, delta);
+		return Counters.inc(key, delta);
 	}
 	
 	/** tests *****************************************************************************/
