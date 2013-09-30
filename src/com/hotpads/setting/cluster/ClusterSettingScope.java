@@ -1,7 +1,8 @@
-package com.hotpads.setting;
+package com.hotpads.setting.cluster;
 
 import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.setting.ServerType;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
 

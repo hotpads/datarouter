@@ -1,7 +1,7 @@
-package com.hotpads.job.setting.cached.imp;
+package com.hotpads.setting.cached.imp;
 
-import com.hotpads.job.setting.cached.CachedSetting;
-import com.hotpads.setting.ClusterSettingFinder;
+import com.hotpads.setting.cached.CachedSetting;
+import com.hotpads.setting.cluster.ClusterSettingFinder;
 
 public class IntegerCachedSetting extends CachedSetting<Integer>{
 	public IntegerCachedSetting(ClusterSettingFinder finder, String name, Integer defaultValue){

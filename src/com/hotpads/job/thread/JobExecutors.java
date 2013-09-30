@@ -1,4 +1,4 @@
-package com.hotpads.job.setting.thread;
+package com.hotpads.job.thread;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 import com.hotpads.util.core.concurrent.Provider;
 
+//oops - this was meant to stay in job project
 public class JobExecutors{
 	static Logger logger = Logger.getLogger(JobExecutors.class);
 	

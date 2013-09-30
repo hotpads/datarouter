@@ -1,4 +1,4 @@
-package com.hotpads.job.setting;
+package com.hotpads.setting;
 
 
 public interface Setting<T>{
@@ -9,4 +9,5 @@ public interface Setting<T>{
 	
 	boolean getHasCustomValue();
 	boolean getHasRedundantCustomValue();
+
 }

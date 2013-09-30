@@ -1,4 +1,4 @@
-package com.hotpads.job.setting.thread;
+package com.hotpads.job.thread;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,9 +11,7 @@ import javax.inject.Provider;
 import com.google.inject.BindingAnnotation;
 
 
-
-/*********************** Guice providers *****************************************/
-
+//oops - this was meant to stay in job project
 public class JobExecutorProvider implements Provider<ScheduledExecutorService>{
 	
 	@BindingAnnotation 

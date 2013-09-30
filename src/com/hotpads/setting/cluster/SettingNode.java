@@ -1,4 +1,4 @@
-package com.hotpads.job.setting;
+package com.hotpads.setting.cluster;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,7 +7,7 @@ import java.util.SortedMap;
 
 import javax.inject.Inject;
 
-import com.hotpads.setting.ClusterSettingFinder;
+import com.hotpads.setting.Setting;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
