@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -37,16 +39,16 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 		if(!StringTool.isEmpty(databaseName)){
 			sb.append(databaseName + ".");
 		}
-		sb.append(table.getName()+" (\n"); 
-		int nuimberOfColumns=table.getColumns().size();
+		sb.append(table.getName() + " (\n");
+		int numberOfColumns = table.getColumns().size();
 		SqlColumn col;
-		String typeSring;
+		String typeString;
 		MySqlColumnType type;
-		for(int i=0; i<nuimberOfColumns; i++){
+		for(int i=0; i<numberOfColumns; i++){
 			col = table.getColumns().get(i);
 			type = col.getType();
-			typeSring = type.toString().toLowerCase();
-			sb.append(" " + col.getName() + " " + typeSring);
+			typeString = type.toString().toLowerCase();
+			sb.append(" " + col.getName() + " " + typeString);
 			if(col.getMaxLength()!=null && type.isSpecifyLength()){
 				sb.append("(" + col.getMaxLength() + ")");
 			}
@@ -55,7 +57,10 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			}else{
 				sb.append(" not null");
 			}
-			if(i < nuimberOfColumns-1){ sb.append(",\n"); }
+			if (col.getAutoIncrement()) {
+				sb.append(" auto_increment");
+			}
+			if(i < numberOfColumns-1){ sb.append(",\n"); }
 		}
 		
 		if(table.hasPrimaryKey()){
@@ -98,11 +103,31 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 	/******************** tests *************************/
 	
 	public static class  SqlCreateTableGeneratorTester{
-		@Test public void testGenerate(){
+		@Test
+		public void testAutoIncrement() {
+			String nameOfTable = "AutoIncrement";
+			SqlColumn colId = new SqlColumn("id", MySqlColumnType.BIGINT, 8, false, true);
+			SqlColumn colString = new SqlColumn("string", MySqlColumnType.VARCHAR, 100, true, false);
+			SqlIndex primaryKey = new SqlIndex("PKey").addColumn(colId);
+			SqlTable sqlTable = new SqlTable(nameOfTable)
+					.addColumn(colId)
+					.addColumn(colString)
+					.setPrimaryKey(primaryKey);
+			SqlCreateTableGenerator generator = new SqlCreateTableGenerator(sqlTable);
+			String expected = "create table AutoIncrement (\n" + 
+					 " id bigint(8) not null auto_increment,\n" + 
+					 " string varchar(100) default null,\n" +
+					 " primary key (id)) engine=INNODB character set = latin1 collate latin1_swedish_ci";
+			System.out.println(generator.generateDdl());
+			Assert.assertEquals(expected, generator.generateDdl());
+		}
+		
+		@Test
+		public void testGenerate(){
 			String nameOfTable="Model";
-			SqlColumn col1 = new SqlColumn("includeInSummary", MySqlColumnType.TINYINT, 1, true);
-			SqlColumn col2 = new SqlColumn("feedModelId", MySqlColumnType.VARCHAR, 100, false);
-			SqlColumn col3 = new SqlColumn("feedListingId", MySqlColumnType.DATETIME, 19, true);//new SqlColumn("feedListingId", MySqlColumnType.VARCHAR, 100, false);
+			SqlColumn col1 = new SqlColumn("includeInSummary", MySqlColumnType.TINYINT, 1, true, false);
+			SqlColumn col2 = new SqlColumn("feedModelId", MySqlColumnType.VARCHAR, 100, false, false);
+			SqlColumn col3 = new SqlColumn("feedListingId", MySqlColumnType.DATETIME, 19, true,false);//new SqlColumn("feedListingId", MySqlColumnType.VARCHAR, 100, false);
 			SqlIndex primaryKey = new SqlIndex("PKey")
 					.addColumn(col1)
 					.addColumn(col2)

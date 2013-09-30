@@ -60,7 +60,6 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	/*********************** methods ************************************/
 	
 	public N register(String routerName, N node){
-		node.setDataRouterContext(drContext);
 		ensureDuplicateNamesReferToSameNode(node);
 		Class<D> databeanType = node.getDatabeanType();
 		D sampleDatabean = ReflectionTool.create(databeanType);
