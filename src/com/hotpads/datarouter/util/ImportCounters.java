@@ -8,54 +8,54 @@ import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.util.core.StringTool;
 
 public class ImportCounters {
-	private static final String PREFIX_IMPORT_ALL = "ImportAll";
-	private static final String PREFIX_IMPORT_FEED = "ImportFeed";
-	private static final String PREFIX_IMPORT_LISTING_TYPE = "ImportListingType";
-	private static final String PREFIX_REALTIME_IMPORT_ALL = "RealTimeImportAll";
-	private static final String PREFIX_REALTIME_IMPORT_FEED = "RealTimeImportFeed";
+	private static final String PREFIX_Import = "Import";
+	private static final String PREFIX_ImportFeed = "ImportFeed";
+	private static final String PREFIX_ImportListingType = "ImportListingType";
+	private static final String PREFIX_RealTimeImport = "RealTimeImport";
+	private static final String PREFIX_RealTimeImportFeed = "RealTimeImportFeed";
 	
-	private static final String ACTION_INSERT = "insert";
-	private static final String ACTION_UPDATE = "update";
-	private static final String ACTION_DEACTIVATE = "deactivate";
-	private static final String ACTION_UNMODIFIED = "unmodified";
-	private static final String ACTION_OLDER = "olderOrSame";
-	private static final String ACTION_MARK_FOR_UPDATE = "markForUpdate";
-	private static final String ACTION_RECEIVE_FOR_UPDATE = "receiveForUpdate";
+	private static final String ACTION_insert = "insert";
+	private static final String ACTION_update = "update";
+	private static final String ACTION_deactivate = "deactivate";
+	private static final String ACTION_unmodified = "unmodified";
+	private static final String ACTION_olderOrSame = "olderOrSame";
+	private static final String ACTION_markForUpdate = "markForUpdate";
+	private static final String ACTION_receiveForUpdate = "receiveForUpdate";
 	
-	private static final String ACTION_TYPE_HASH = "(hash)";
-	private static final String ACTION_TYPE_COMPARE = "(compare)";
-	private static final String ACTION_TYPE_PROVIDER_VERSION = "(providerVersion)";
+	private static final String ACTION_TYPE_hash = "hash";
+	private static final String ACTION_TYPE_compare = "compare";
+	private static final String ACTION_TYPE_providerVersion = "providerVersion";
 			
 	public static void incSuffixInsertListing(String importerName, String feedId, String listingType) {
-		incSuffixAction(importerName, feedId, listingType, ACTION_INSERT);
+		incSuffixAction(importerName, feedId, listingType, ACTION_insert);
 	}
 	
 	public static void incSuffixUpdateListing(String importerName, String feedId, String listingType) {
-		incSuffixAction(importerName, feedId, listingType, ACTION_UPDATE);
+		incSuffixAction(importerName, feedId, listingType, ACTION_update);
 	}
 	
 	public static void incSuffixDeactivateListing(String importerName, String feedId, String listingType) {
-		incSuffixAction(importerName, feedId, listingType, ACTION_DEACTIVATE);
+		incSuffixAction(importerName, feedId, listingType, ACTION_deactivate);
 	}
 	
 	public static void incSuffixUnmodifiedCompareListing(String importerName, String feedId, String listingType) {
-		incSuffixAction(importerName, feedId, listingType, ACTION_UNMODIFIED, ACTION_TYPE_COMPARE);
+		incSuffixAction(importerName, feedId, listingType, ACTION_unmodified, ACTION_TYPE_compare);
 	}
 	
 	public static void incSuffixUnmodifiedHashListing(String importerName, String feedId, String listingType) {
-		incSuffixAction(importerName, feedId, listingType, ACTION_UNMODIFIED, ACTION_TYPE_HASH);
+		incSuffixAction(importerName, feedId, listingType, ACTION_unmodified, ACTION_TYPE_hash);
 	}
 	
 	public static void incSuffixOlderProviderVersionListing(String importerName, String feedId, String listingType) {
-		incSuffixAction(importerName, feedId, listingType, ACTION_OLDER, ACTION_TYPE_PROVIDER_VERSION);
+		incSuffixAction(importerName, feedId, listingType, ACTION_olderOrSame, ACTION_TYPE_providerVersion);
 	}
 	
 	public static void incSuffixRealTimeFeedMarkForUpdate(String feedId, long delta){
-		incSuffixRealTimeAction(feedId, ACTION_MARK_FOR_UPDATE, delta);
+		incSuffixRealTimeAction(feedId, ACTION_markForUpdate, delta);
 	}
 	
 	public static void incSuffixRealTimeFeedReceivedForUpdate(String feedId, long delta){
-		incSuffixRealTimeAction(feedId, ACTION_RECEIVE_FOR_UPDATE, delta);
+		incSuffixRealTimeAction(feedId, ACTION_receiveForUpdate, delta);
 	}
 
 	/********* private ***********/
@@ -78,12 +78,12 @@ public class ImportCounters {
 	}
 	
 	private static void incSuffixRealTimeAction(String feedId, String action, long delta){
-		incInternal(PREFIX_REALTIME_IMPORT_ALL + " " + action + " Listing", delta);
-		incInternal(PREFIX_REALTIME_IMPORT_FEED + " " + feedId + " " + action + " Listing", delta);
+		incInternal(PREFIX_RealTimeImport + " " + action + " Listing", delta);
+		incInternal(PREFIX_RealTimeImportFeed + " " + feedId + " " + action + " Listing", delta);
 	}
 	
 	private static String getKeyForImportAllAction(String importerName, String action) {
-		return importerName + " " + PREFIX_IMPORT_ALL + " " + action + " " + "Listing";
+		return importerName + " " + PREFIX_Import + " " + action + " " + "Listing";
 	}
 
 	private static String getKeyForImportAllAction(String importerName, String action, String actionType) {
@@ -91,7 +91,7 @@ public class ImportCounters {
 	}
 
 	private static String getKeyForImportFeedAction(String importerName, String feedId, String action) {
-		return importerName + " " + PREFIX_IMPORT_FEED + " " + feedId + " " + action + " " + "Listing";
+		return importerName + " " + PREFIX_ImportFeed + " " + feedId + " " + action + " " + "Listing";
 	}
 
 	private static String getKeyForImportFeedAction(String importerName, String feedId, String action, 
@@ -100,7 +100,7 @@ public class ImportCounters {
 	}
 
 	private static String getKeyForImportListingType(String importerName, String listingType, String action) {
-		return importerName + " " + PREFIX_IMPORT_LISTING_TYPE + " " + listingType + " " + action + " " + "Listing";
+		return importerName + " " + PREFIX_ImportListingType + " " + listingType + " " + action + " " + "Listing";
 	}
 
 	private static String getKeyForImportListingType(String importerName, String listingType, String action,
@@ -109,11 +109,11 @@ public class ImportCounters {
 	}
 
 	private static String getKeyForRealTimeImportAllAction(String action) {
-		return PREFIX_REALTIME_IMPORT_ALL + " " + action + " " + "Listing";
+		return PREFIX_RealTimeImport + " " + action + " " + "Listing";
 	}
 	
 	private static String getKeyForRealTimeImportFeedAction(String action) {
-		return PREFIX_REALTIME_IMPORT_FEED + " " + action + " " + "Listing";
+		return PREFIX_RealTimeImportFeed + " " + action + " " + "Listing";
 	}
 	
 	private static Long incInternal(String key, long delta) {
@@ -124,66 +124,66 @@ public class ImportCounters {
 	public static class ImportCountersTests{
 		@Test	public void testGetKeyForImportAllAction() {
 			String importerName = "ListingImporter";
-			Assert.assertEquals("ListingImporter ImportAll insert Listing",
-					getKeyForImportAllAction(importerName, ACTION_INSERT));
-			Assert.assertEquals("ListingImporter ImportAll update Listing",
-					getKeyForImportAllAction(importerName, ACTION_UPDATE));
-			Assert.assertEquals("ListingImporter ImportAll deactivate Listing",
-					getKeyForImportAllAction(importerName, ACTION_DEACTIVATE));
-			Assert.assertEquals("ListingImporter ImportAll unmodified Listing (hash)",
-					getKeyForImportAllAction(importerName, ACTION_UNMODIFIED, ACTION_TYPE_HASH));
-			Assert.assertEquals("ListingImporter ImportAll unmodified Listing (compare)",
-					getKeyForImportAllAction(importerName, ACTION_UNMODIFIED, ACTION_TYPE_COMPARE));
-			Assert.assertEquals("ListingImporter ImportAll olderOrSame Listing (providerVersion)",
-					getKeyForImportAllAction(importerName, ACTION_OLDER, ACTION_TYPE_PROVIDER_VERSION));
+			Assert.assertEquals("ListingImporter Import insert Listing",
+					getKeyForImportAllAction(importerName, ACTION_insert));
+			Assert.assertEquals("ListingImporter Import update Listing",
+					getKeyForImportAllAction(importerName, ACTION_update));
+			Assert.assertEquals("ListingImporter Import deactivate Listing",
+					getKeyForImportAllAction(importerName, ACTION_deactivate));
+			Assert.assertEquals("ListingImporter Import unmodified Listing hash",
+					getKeyForImportAllAction(importerName, ACTION_unmodified, ACTION_TYPE_hash));
+			Assert.assertEquals("ListingImporter Import unmodified Listing compare",
+					getKeyForImportAllAction(importerName, ACTION_unmodified, ACTION_TYPE_compare));
+			Assert.assertEquals("ListingImporter Import olderOrSame Listing providerVersion",
+					getKeyForImportAllAction(importerName, ACTION_olderOrSame, ACTION_TYPE_providerVersion));
 		}
 		
 		@Test	public void testGetKeyForImportFeedAction() {
 			String feedId = "FeedId";
 			String importerName = "ListingImporter";
 			Assert.assertEquals("ListingImporter ImportFeed FeedId insert Listing",
-					getKeyForImportFeedAction(importerName, feedId, ACTION_INSERT));
+					getKeyForImportFeedAction(importerName, feedId, ACTION_insert));
 			Assert.assertEquals("ListingImporter ImportFeed FeedId update Listing",
-					getKeyForImportFeedAction(importerName, feedId, ACTION_UPDATE));
+					getKeyForImportFeedAction(importerName, feedId, ACTION_update));
 			Assert.assertEquals("ListingImporter ImportFeed FeedId deactivate Listing",
-					getKeyForImportFeedAction(importerName, feedId, ACTION_DEACTIVATE));
-			Assert.assertEquals("ListingImporter ImportFeed FeedId unmodified Listing (hash)",
-					getKeyForImportFeedAction(importerName, feedId, ACTION_UNMODIFIED, ACTION_TYPE_HASH));
-			Assert.assertEquals("ListingImporter ImportFeed FeedId unmodified Listing (compare)",
-					getKeyForImportFeedAction(importerName, feedId, ACTION_UNMODIFIED, ACTION_TYPE_COMPARE));
-			Assert.assertEquals("ListingImporter ImportFeed FeedId olderOrSame Listing (providerVersion)",
-					getKeyForImportFeedAction(importerName, feedId, ACTION_OLDER, ACTION_TYPE_PROVIDER_VERSION));
+					getKeyForImportFeedAction(importerName, feedId, ACTION_deactivate));
+			Assert.assertEquals("ListingImporter ImportFeed FeedId unmodified Listing hash",
+					getKeyForImportFeedAction(importerName, feedId, ACTION_unmodified, ACTION_TYPE_hash));
+			Assert.assertEquals("ListingImporter ImportFeed FeedId unmodified Listing compare",
+					getKeyForImportFeedAction(importerName, feedId, ACTION_unmodified, ACTION_TYPE_compare));
+			Assert.assertEquals("ListingImporter ImportFeed FeedId olderOrSame Listing providerVersion",
+					getKeyForImportFeedAction(importerName, feedId, ACTION_olderOrSame, ACTION_TYPE_providerVersion));
 		}
 		
 		@Test	public void testGetKeyForImportListingType() {
 			String listingType = "rental";
 			String importerName = "ListingImporter";
 			Assert.assertEquals("ListingImporter ImportListingType rental insert Listing",
-					getKeyForImportListingType(importerName, listingType, ACTION_INSERT));
+					getKeyForImportListingType(importerName, listingType, ACTION_insert));
 			Assert.assertEquals("ListingImporter ImportListingType rental update Listing",
-					getKeyForImportListingType(importerName, listingType, ACTION_UPDATE));
+					getKeyForImportListingType(importerName, listingType, ACTION_update));
 			Assert.assertEquals("ListingImporter ImportListingType rental deactivate Listing",
-					getKeyForImportListingType(importerName, listingType, ACTION_DEACTIVATE));
-			Assert.assertEquals("ListingImporter ImportListingType rental unmodified Listing (hash)",
-					getKeyForImportListingType(importerName, listingType, ACTION_UNMODIFIED, ACTION_TYPE_HASH));
-			Assert.assertEquals("ListingImporter ImportListingType rental unmodified Listing (compare)",
-					getKeyForImportListingType(importerName, listingType, ACTION_UNMODIFIED, ACTION_TYPE_COMPARE));
-			Assert.assertEquals("ListingImporter ImportListingType rental olderOrSame Listing (providerVersion)",
-					getKeyForImportListingType(importerName, listingType, ACTION_OLDER, ACTION_TYPE_PROVIDER_VERSION));
+					getKeyForImportListingType(importerName, listingType, ACTION_deactivate));
+			Assert.assertEquals("ListingImporter ImportListingType rental unmodified Listing hash",
+					getKeyForImportListingType(importerName, listingType, ACTION_unmodified, ACTION_TYPE_hash));
+			Assert.assertEquals("ListingImporter ImportListingType rental unmodified Listing compare",
+					getKeyForImportListingType(importerName, listingType, ACTION_unmodified, ACTION_TYPE_compare));
+			Assert.assertEquals("ListingImporter ImportListingType rental olderOrSame Listing providerVersion",
+					getKeyForImportListingType(importerName, listingType, ACTION_olderOrSame, ACTION_TYPE_providerVersion));
 		}
 		
 		@Test	public void testGetKeyForRealTimeImportAllAction() {
-			Assert.assertEquals("RealTimeImportAll markForUpdate Listing",
-					getKeyForRealTimeImportAllAction(ACTION_MARK_FOR_UPDATE));
-			Assert.assertEquals("RealTimeImportAll receiveForUpdate Listing",
-					getKeyForRealTimeImportAllAction(ACTION_RECEIVE_FOR_UPDATE));
+			Assert.assertEquals("RealTimeImport markForUpdate Listing",
+					getKeyForRealTimeImportAllAction(ACTION_markForUpdate));
+			Assert.assertEquals("RealTimeImport receiveForUpdate Listing",
+					getKeyForRealTimeImportAllAction(ACTION_receiveForUpdate));
 		}
 		
 		@Test	public void testGetKeyForRealTimeImportFeedAction() {
 			Assert.assertEquals("RealTimeImportFeed markForUpdate Listing",
-					getKeyForRealTimeImportFeedAction(ACTION_MARK_FOR_UPDATE));
+					getKeyForRealTimeImportFeedAction(ACTION_markForUpdate));
 			Assert.assertEquals("RealTimeImportFeed receiveForUpdate Listing",
-					getKeyForRealTimeImportFeedAction(ACTION_RECEIVE_FOR_UPDATE));
+					getKeyForRealTimeImportFeedAction(ACTION_receiveForUpdate));
 		}
 	}
 }
