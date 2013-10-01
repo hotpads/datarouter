@@ -40,6 +40,7 @@ public class JobScheduler {
 			tracker.createNewTriggerInfo(jobClass);
 			Job sampleJob = injector.getInstance(jobClass);
 			sampleJob.scheduleNextRun();
+			logger.warn("scheduled "+jobClass+" at "+sampleJob.getTrigger().getCronExpression());
 		}
 	}
 	
