@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.quartz.CronExpression;
 
-import com.hotpads.job.setting.Setting;
+import com.hotpads.setting.Setting;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.datastructs.MutableBoolean;

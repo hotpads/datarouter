@@ -15,7 +15,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends Comparable<Node<PK,D>>{
 
-	void setDataRouterContext(DataRouterContext drContext);
+//	void setDataRouterContext(DataRouterContext drContext);
 	DataRouterContext getDataRouterContext();
 
 	String getName();

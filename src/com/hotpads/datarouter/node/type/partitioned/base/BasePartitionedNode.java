@@ -2,7 +2,6 @@ package com.hotpads.datarouter.node.type.partitioned.base;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -19,11 +18,8 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.filter.Filter;
 
 /*
  * current assumption is that partition can always be determined by the PrimaryKey.  should probably create a
@@ -44,7 +40,7 @@ extends BaseNode<PK,D,F>{
 	protected Partitions<PK,D,N> partitions;
 		
 	public BasePartitionedNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router){
-		super(databeanClass, fielderClass);
+		super(router.getContext(), databeanClass, fielderClass);
 		this.router = router;
 		this.partitions = new Partitions<PK,D,N>(this);
 		this.name = databeanClass.getSimpleName()+"."+getClass().getSimpleName();

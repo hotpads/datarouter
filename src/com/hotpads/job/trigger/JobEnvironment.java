@@ -5,8 +5,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.hotpads.job.setting.Setting;
-import com.hotpads.job.setting.thread.JobExecutorProvider.JobExecutor;
+import com.hotpads.job.thread.JobExecutorProvider.JobExecutor;
+import com.hotpads.setting.Setting;
 
 @Singleton
 public class JobEnvironment{

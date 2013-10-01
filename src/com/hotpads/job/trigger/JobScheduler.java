@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import org.quartz.CronExpression;
 
 import com.google.inject.Injector;
-import com.hotpads.job.setting.thread.JobExecutorProvider.JobExecutor;
+import com.hotpads.job.thread.JobExecutorProvider.JobExecutor;
 import com.hotpads.util.core.ObjectTool;
 
 @Singleton
@@ -40,6 +40,7 @@ public class JobScheduler {
 			tracker.createNewTriggerInfo(jobClass);
 			Job sampleJob = injector.getInstance(jobClass);
 			sampleJob.scheduleNextRun();
+			logger.warn("scheduled "+jobClass+" at "+sampleJob.getTrigger().getCronExpression());
 		}
 	}
 	

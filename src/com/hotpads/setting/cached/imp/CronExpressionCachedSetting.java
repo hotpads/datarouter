@@ -1,11 +1,11 @@
-package com.hotpads.job.setting.cached.imp;
+package com.hotpads.setting.cached.imp;
 
 import java.text.ParseException;
 
 import org.quartz.CronExpression;
 
-import com.hotpads.job.setting.cached.CachedSetting;
-import com.hotpads.setting.ClusterSettingFinder;
+import com.hotpads.setting.cached.CachedSetting;
+import com.hotpads.setting.cluster.ClusterSettingFinder;
 
 public class CronExpressionCachedSetting extends CachedSetting<CronExpression>{
 	public CronExpressionCachedSetting(ClusterSettingFinder finder, String name, CronExpression defaultValue)

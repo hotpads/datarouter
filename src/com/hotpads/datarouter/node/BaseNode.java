@@ -19,15 +19,16 @@ public abstract class BaseNode<
 implements Node<PK,D>{
 	protected Logger logger = Logger.getLogger(getClass());
 	
-	protected DataRouterContext drContext;
+	private DataRouterContext drContext;
 	protected String name;
 	protected DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
-	public BaseNode(Class<D> databeanClass){
-		this(databeanClass, null);
+	public BaseNode(DataRouterContext drContext, Class<D> databeanClass){
+		this(drContext, databeanClass, null);
 	}
 	
-	public BaseNode(Class<D> databeanClass, Class<F> fielderClass){
+	public BaseNode(DataRouterContext drContext, Class<D> databeanClass, Class<F> fielderClass){
+		this.drContext = drContext;
 		this.name = databeanClass.getSimpleName() + "." + getClass().getSimpleName();// probably never used
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(name, databeanClass, fielderClass);
@@ -42,10 +43,10 @@ implements Node<PK,D>{
 		return drContext;
 	}
 	
-	@Override
-	public void setDataRouterContext(DataRouterContext drContext){
-		this.drContext = drContext;
-	}
+//	@Override
+//	public void setDataRouterContext(DataRouterContext drContext){
+//		this.drContext = drContext;
+//	}
 
 	@Override
 	public Class<PK> getPrimaryKeyType(){
