@@ -1,4 +1,4 @@
-package com.hotpads.setting;
+package com.hotpads.setting.cluster;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.hotpads.setting.StandardServerType;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;

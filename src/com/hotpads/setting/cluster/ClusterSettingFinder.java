@@ -1,4 +1,4 @@
-package com.hotpads.setting;
+package com.hotpads.setting.cluster;
 
 import java.util.List;
 
