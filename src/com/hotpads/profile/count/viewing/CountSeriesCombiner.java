@@ -13,6 +13,7 @@ public class CountSeriesCombiner extends AbstractCountSeries{
 		this.periodMs = periodMs;
 		this.endMs = startMs + numPeriods * periodMs;
 		this.countSeries = aggregatePaddedCountSerie(paddedCountSeriesList);
+		this.average = calculateAverage();
 	}
 
 	private List<Long> aggregatePaddedCountSerie(List<CountSeriesFormatter> paddedCountSeriesList){

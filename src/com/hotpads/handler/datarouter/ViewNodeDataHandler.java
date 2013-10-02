@@ -81,12 +81,8 @@ extends BaseHandler{
 		}
 		mav.put("node", node);
 		
-		limit = RequestTool.getInteger(request, PARAM_limit, 100);
-		mav.put(PARAM_limit, limit);
-		
-		offset = RequestTool.getInteger(request, PARAM_offset, 0);//offset is for display purposes only
-		mav.put(PARAM_offset, offset);
-		
+		limit = RequestTool.getIntegerAndPut(request, PARAM_limit, 100, mav);
+		offset = RequestTool.getIntegerAndPut(request, PARAM_offset, 0, mav);//offset is for display purposes only
 		return mav;
 	}
 	
@@ -131,35 +127,6 @@ extends BaseHandler{
 		logger.warn(message);
 		return new MessageMav(message);
 	}
-		
-	@Handler
-	public Mav browseData(){
-		Mav mav = preHandle();
-		if( ! (node instanceof SortedStorageReader<?,?>)){
-			return new MessageMav("Cannot browse "+node.getClass().getSimpleName());
-		}
-		mav.put("fields", node.getFields());
-		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
-		String backKeyString = RequestTool.get(request, PARAM_backKey, null);//allows for 1 "back" action
-		mav.put(PARAM_backKey, backKeyString);
-		String startAfterKeyString = RequestTool.get(request, PARAM_startAfterKey, null);
-
-		Config config = new Config();
-		PK startAfterKey = null;
-		if(StringTool.notEmpty(startAfterKeyString)){
-			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
-			startAfterKey.fromPersistentString(startAfterKeyString);
-			config.setStartId(startAfterKey);
-			mav.put(PARAM_startAfterKey, startAfterKey.getPersistentString());
-		}
-		config.setLimit(limit);
-		boolean startInclusive = startAfterKey==null;
-		List<D> databeans = sortedNode.getRange((PK)startAfterKey, startInclusive, null, true, 
-				config);
-		
-		addDatabeansToMav(mav, databeans);
-		return mav;
-	}
 	
 	@Handler
 	public Mav countWhere(){
@@ -174,16 +141,57 @@ extends BaseHandler{
 	}
 	
 	@Handler
+	public Mav browseData(){
+		Mav mav = preHandle();
+		if( ! (node instanceof SortedStorageReader<?,?>)){
+			return new MessageMav("Cannot browse "+node.getClass().getSimpleName());
+		}
+		mav.put("fields", node.getFields());
+		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
+		String backKeyString = RequestTool.get(request, PARAM_backKey, null);//allows for 1 "back" action
+		mav.put(PARAM_backKey, backKeyString);
+		String startAfterKeyString = RequestTool.get(request, PARAM_startAfterKey, null);
+	
+		Config config = new Config().setLimit(limit);
+		PK startAfterKey = null;
+		if(StringTool.notEmpty(startAfterKeyString)){
+			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
+			startAfterKey.fromPersistentString(startAfterKeyString);
+			config.setStartId(startAfterKey);
+			mav.put(PARAM_startAfterKey, startAfterKey.getPersistentString());
+		}
+		
+		boolean startInclusive = startAfterKey==null;
+		List<D> databeans = sortedNode.getRange((PK)startAfterKey, startInclusive, null, true, config);
+		
+		addDatabeansToMav(mav, databeans);
+		return mav;
+	}
+	
+	@Handler
 	public Mav getWhere(){
-		preHandle();
+		Mav mav = preHandle();
+		if( ! (node instanceof HibernateReaderNode<?,?,?>)){
+			return new MessageMav("Cannot getWhere "+node.getClass().getSimpleName());
+		}
+		mav.put("fields", node.getFields());
+		String backKeyString = RequestTool.get(request, PARAM_backKey, null);//allows for 1 "back" action
+		mav.put(PARAM_backKey, backKeyString);
+		String startAfterKeyString = RequestTool.get(request, PARAM_startAfterKey, null);
+
+		Config config = new Config().setLimit(limit);
+		PK startAfterKey = null;
+		if(StringTool.notEmpty(startAfterKeyString)){
+			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
+			startAfterKey.fromPersistentString(startAfterKeyString);
+			config.setStartId(startAfterKey);
+			mav.put(PARAM_startAfterKey, startAfterKey.getPersistentString());
+		}
+		
 		//assume all table names are the same (they are at the time of writing this)
 		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
-		String where = params.optional(PARAM_where, null);
-		List<String> clientNames = node.getClientNames();
-		Config config = new Config().setOffset(offset).setLimit(limit);
-		List<D> databeans = new GetWhereTxn<PK,D,F,N>(drContext, (N)node, tableName, where, config).call();
-		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(CollectionTool.size(databeans))
-				+" rows in "+tableName+" ("+node.getName()+")");
+		String where = RequestTool.getAndPut(request, PARAM_where, null, mav);
+		List<D> databeans = new GetWhereTxn<PK,D,F,N>((N)node, tableName, where, config).call();
 		addDatabeansToMav(mav, databeans);
 		return mav;
 	}
