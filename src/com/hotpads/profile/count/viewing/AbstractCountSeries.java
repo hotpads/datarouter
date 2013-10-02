@@ -13,6 +13,7 @@ public abstract class AbstractCountSeries{
 	protected int numPeriods;
 	protected Long periodMs;
 	protected List<Long> countSeries;
+	protected Long average;
 
 	public long getMax(){
 		int max = 0;
@@ -61,6 +62,14 @@ public abstract class AbstractCountSeries{
 		return toReturn;
 	}
 
+	protected Long calculateAverage(){
+		Long toReturn = new Long(0);
+		for(Long count : this.countSeries){
+			toReturn += count;
+		}
+		toReturn = toReturn / this.countSeries.size();
+		return toReturn;
+	}
 	/**************** Getter and setter *************************/
 	public Long getStartMs(){
 		return startMs;
@@ -108,5 +117,13 @@ public abstract class AbstractCountSeries{
 
 	public void setName(String name){
 		this.name = name;
+	}
+
+	public Long getAverage(){
+		return average;
+	}
+
+	public void setAverage(Long average){
+		this.average = average;
 	}
 }
