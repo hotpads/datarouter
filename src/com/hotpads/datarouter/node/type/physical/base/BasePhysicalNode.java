@@ -38,7 +38,7 @@ implements PhysicalNode<PK,D>
 	
 	public BasePhysicalNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName){
-		super(databeanClass, fielderClass);
+		super(router.getContext(), databeanClass, fielderClass);
 		this.router = router;
 		this.clientName = clientName;
 		this.tableName = databeanClass.getSimpleName();

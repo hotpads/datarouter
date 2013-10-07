@@ -47,7 +47,7 @@ public class UInt8Field extends BasePrimitiveField<Byte>{
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.SMALLINT, 5, true);
+		return new SqlColumn(columnName, MySqlColumnType.SMALLINT, 5, nullable, false);
 	}
 	
 	@Override

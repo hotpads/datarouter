@@ -79,10 +79,15 @@ public class MemoryCountArchive extends BaseCountArchive{
 	}
 	
 	@Override
-	public Collection<? extends AvailableCounter> getAvailableCounters(String nameLike, String webApp){
+	public Collection<AvailableCounter> getAvailableCounters(String nameLike, String webApp){
 		return getAvailableCounters(nameLike);
 	}
-		@Override
+	@Override
+	@Deprecated
+	public Collection<AvailableCounter> getAvailableCountersStartingAt(String startingAt, String webApp){
+		return null;
+	}
+	@Override
 	public List<Count> getCountsForAllSources(String name, Long startMs, Long endMs){
 		int startIndex = getIndexForMs(startMs);
 		if(getEarliestAvailableTime() > startMs){
@@ -143,6 +148,12 @@ public class MemoryCountArchive extends BaseCountArchive{
 			return counts;
 		}
 		
+		@Override
+		@Deprecated
+		public List<Count> getCountsForWebAppWithGapsFilled(String name, String WebApp, long startMs, long endMs){
+			return null;
+			
+		}
 	@Override
 	public void saveCounts(CountMapPeriod countMap){
 		int index = getIndexForMs(countMap.getStartTimeMs());

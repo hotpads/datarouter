@@ -77,7 +77,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
 		if(CollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(drContext, "putMulti", this, config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "putMulti", this, config){
 				public Void hbaseCall() throws Exception{
 					
 					//debugging code because getting NPE's on hTable at the bottom of this method.  trying to see
@@ -135,7 +135,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	@Override
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(drContext, "deleteAll", this, config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "deleteAll", this, config){
 				public Void hbaseCall() throws Exception{
 					managedResultScanner = hTable.getScanner(new Scan());
 					List<Row> batchToDelete = ListTool.createArrayList(1000);
@@ -168,7 +168,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
 		if(CollectionTool.isEmpty(keys)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(drContext, "deleteMulti", this, config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "deleteMulti", this, config){
 				public Void hbaseCall() throws Exception{
 					hTable.setAutoFlush(false);
 					List<Row> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList

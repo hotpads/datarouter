@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.StringMav;
@@ -20,7 +19,7 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
-
+@Deprecated
 public class ViewCountsHandler extends BaseHandler{
 
 	public static final String
