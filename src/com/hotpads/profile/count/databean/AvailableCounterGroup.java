@@ -1,9 +1,7 @@
 package com.hotpads.profile.count.databean;
 
 import java.util.HashSet;
-import java.util.List;
 
-import com.hotpads.profile.count.collection.predicate.AnalyticsAvailableCounterGroupPredicate;
 import com.hotpads.util.core.SetTool;
 
 public class AvailableCounterGroup{
