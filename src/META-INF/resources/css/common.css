@@ -6,6 +6,40 @@
 	padding-top: 4px !important;
 }
 
+.table {
+	font-size: 12px;
+}
+
+.table thead th {
+	vertical-align: bottom;
+	text-align: left;
+	font-size: 0.90em;
+	margin: 10%;
+	overflow: inherit;
+	background-color: #585858 !important;
+	color: white;
+}
+
+.table th,.table td {
+	padding: 0px 2px 0px 2px;
+	white-space: nowrap;
+}
+
+.wide-container {
+	margin: 1%;
+}
+
+.label-above #areaPartial {
+	margin-left: 0px
+}
+
+.label-above ul {
+	list-style: none;
+}
+
+.label-above input[type="text"] {
+	width: 85%;
+}
 /* Navbar */
 #generic-navbar {
 	margin-bottom: 0px;
@@ -75,4 +109,19 @@
 
 .thread-filer .radio.inline {
 	margin-bottom: 5px;
+}
+
+/*****************************************************/
+/****************View node Data **********************/
+/*****************************************************/
+.viewNodeDataTable td {
+	text-align: left;
+}
+
+.viewNodeDataTable .highlighted {
+	background-color: #DADADA;
+}
+
+#get-info-node {
+	list-style: none;
 }
