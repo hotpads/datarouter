@@ -10,6 +10,7 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.StringMav;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.StringTool;
 import com.hp.gagawa.java.Node;
 import com.hp.gagawa.java.elements.A;
 import com.hp.gagawa.java.elements.Button;
@@ -46,15 +47,15 @@ public class AdminDefaultHandler extends BaseHandler{
 		for(Thread thread : orderedSts.keySet()){
 
 			if(state == null || thread.getState().toString().equals(state)){
-				++counter;
 				StringBuilder stackTraceBuilder = new StringBuilder();
 				for(StackTraceElement ste : sts.get(thread)){
 					stackTraceBuilder.append(ste.toString() + "<br />");
 				}
-				if(wildcard == null || stackTraceBuilder.toString().toLowerCase().contains(wildcard.toLowerCase())){
+				if(!StringTool.notEmpty(wildcard) || stackTraceBuilder.toString().toLowerCase().contains(wildcard.toLowerCase())){
+					++counter;
 					String highlightedStackTrace = stackTraceBuilder.toString().replaceAll("hotpads",
 							"<span style='color:red;'>hotpads</span>");
-					if(wildcard != null){
+					if(StringTool.notEmpty(wildcard)){
 						highlightedStackTrace = highlightedStackTrace.replaceAll(wildcard, "<span style='color:blue;'>"
 								+ wildcard + "</span>");
 					}
@@ -123,7 +124,7 @@ public class AdminDefaultHandler extends BaseHandler{
 	private Form createSearchForm(String value){
 		Form form = new Form("");
 		form.setMethod("get");
-		form.setAction(request.getContextPath() + "/admin/stackTraces");
+		form.setAction(request.getContextPath() + "/dr/stackTraces");
 		Button submit = new Button();
 		submit.setType("submit");
 		submit.appendText("Submit");
@@ -140,7 +141,10 @@ public class AdminDefaultHandler extends BaseHandler{
 		wildcard.setName("wildcard");
 		wildcard.setCSSClass("span2");
 		wildcard.setId("wildcard");
-		wildcard.setValue(value);
+		wildcard.setAttribute("placeholder", "Search");
+		if(StringTool.notEmpty(value)){
+			wildcard.setValue(value);
+		}
 		return wildcard;
 	}
 
@@ -163,7 +167,7 @@ public class AdminDefaultHandler extends BaseHandler{
 
 		form = new Form("");
 		form.setMethod("post");
-		form.setAction(request.getContextPath() + "/admin/stackTraces?submitAction=interruptThread");
+		form.setAction(request.getContextPath() + "/dr/stackTraces?submitAction=interruptThread");
 		hidden = new Input();
 		hidden.setType("hidden");
 		hidden.setName("threadId");
