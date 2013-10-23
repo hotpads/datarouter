@@ -12,17 +12,13 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 @SuppressWarnings("serial")
 public class GlobalSetting extends BaseDatabean<GlobalSettingKey,GlobalSetting>{
 
-	protected GlobalSettingKey key;
-	protected String value;
-	public static final String VALUE = "value";
+	private GlobalSettingKey key;
+	private String value;
 
-	public GlobalSetting(){
-		this.key = new GlobalSettingKey(null);
-	}
+	/********************** columns ************************/
 
-	public GlobalSetting(GlobalSettingKey key, String value){
-		this.key = key;
-		this.value = value;
+	public static class F{
+		public static final String value = "value";
 	}
 
 	public static class GlobalSettingFielder extends BaseDatabeanFielder<GlobalSettingKey,GlobalSetting>{
@@ -39,8 +35,22 @@ public class GlobalSetting extends BaseDatabean<GlobalSettingKey,GlobalSetting>{
 
 	@Override
 	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(new StringField(VALUE, value, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		return FieldTool.createList(new StringField(F.value, value, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
+
+	/************************* constructors ***************************/
+
+	@SuppressWarnings("unused")
+	private GlobalSetting(){
+		this.key = new GlobalSettingKey(null);
+	}
+
+	public GlobalSetting(GlobalSettingKey key, String value){
+		this.key = key;
+		this.value = value;
+	}
+
+	/******************************* databean **************************/
 
 	@Override
 	public Class<GlobalSettingKey> getKeyClass(){
@@ -57,10 +67,7 @@ public class GlobalSetting extends BaseDatabean<GlobalSettingKey,GlobalSetting>{
 		return true;
 	}
 
-	@Override
-	public String toString(){
-		return key.toString() + ":" + value;
-	}
+	/******************************* getters/setters *****************************/
 
 	public String getValue(){
 		return value;

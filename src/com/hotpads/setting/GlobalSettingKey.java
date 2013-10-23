@@ -12,11 +12,21 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 public class GlobalSettingKey extends BasePrimaryKey<GlobalSettingKey>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+
+	/********************** fields ****************************************/
+
 	private String name;
 
 	public static class F{
 		public static final String name = "name";
 	}
+
+	@Override
+	public List<Field<?>> getFields(){
+		return FieldTool.createList(new StringField(F.name, name, DEFAULT_STRING_LENGTH));
+	}
+
+	/*************************** constructors *******************************/
 
 	GlobalSettingKey(){// required no-arg
 	}
@@ -25,10 +35,9 @@ public class GlobalSettingKey extends BasePrimaryKey<GlobalSettingKey>{
 		this.name = name;
 	}
 
-	@Override
-	public List<Field<?>> getFields(){
-		return FieldTool.createList(new StringField(F.name, name, DEFAULT_STRING_LENGTH));
-	}
+	/****************************** methods ********************************/
+
+	/***************************** get/set *******************************/
 
 	public String getName(){
 		return name;
