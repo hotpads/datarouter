@@ -11,10 +11,12 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.StringTool;
 
 public class GetWhereTxn<
 		PK extends PrimaryKey<PK>,
@@ -25,12 +27,16 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 
 	private N node;
 	private String tableName;
-	private String where;
+	private String whereClauseFromUser;
+	private Config config;
 	
-	public GetWhereTxn(DataRouterContext drContext, N node, String tableName, String where){
+	
+	public GetWhereTxn(N node, String tableName, String whereClauseFromUser, Config config){
 		super(node.getDataRouterContext(), node.getClientNames());
+		this.node = node;
 		this.tableName = tableName;
-		this.where = where;
+		this.whereClauseFromUser = whereClauseFromUser;
+		this.config = Config.nullSafe(config);
 	}
 
 	@Override
@@ -40,7 +46,16 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 	
 	@Override
 	public List<D> runOncePerClient(Client client){
-		String sql = SqlBuilder.getAll(null, tableName, null, where, null);
+		StringBuilder whereClause = new StringBuilder();
+		if(config.getStartId() != null){
+			SqlBuilder.addRangeWhereClause(whereClause, config.getStartId(), false, null, true);
+			if(StringTool.notEmpty(whereClauseFromUser)){
+				whereClause.append(" and ");
+			}
+		}
+		whereClause.append(" "+whereClauseFromUser);
+		String sql = SqlBuilder.getAll(config, tableName, node.getFieldInfo().getFields(), whereClause.toString(), 
+				node.getFieldInfo().getPrimaryKeyFields());
 		Session session = getSession(client.getName());
 		return JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
 	}

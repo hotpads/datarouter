@@ -2,8 +2,6 @@ package com.hotpads.profile.count.viewing;
 
 import java.util.List;
 
-import com.hotpads.util.core.ListTool;
-
 public class CountSeriesCombiner extends AbstractCountSeries{
 
 	public CountSeriesCombiner(String name, Long startMs, int numPeriods, Long periodMs,
@@ -15,6 +13,7 @@ public class CountSeriesCombiner extends AbstractCountSeries{
 		this.periodMs = periodMs;
 		this.endMs = startMs + numPeriods * periodMs;
 		this.countSeries = aggregatePaddedCountSerie(paddedCountSeriesList);
+		this.average = calculateAverage();
 	}
 
 	private List<Long> aggregatePaddedCountSerie(List<CountSeriesFormatter> paddedCountSeriesList){

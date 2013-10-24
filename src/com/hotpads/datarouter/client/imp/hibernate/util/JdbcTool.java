@@ -16,6 +16,7 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
@@ -109,6 +110,8 @@ public class JdbcTool {
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = ListTool.createArrayList();
+			Class<?> clazz = fieldInfo.getBaseDatabeanClass();
+			List<Field<?>> fields = fieldInfo.getFields();
 			while(rs.next()){
 				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
