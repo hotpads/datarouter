@@ -50,6 +50,11 @@ public class GlobalSetting extends BaseDatabean<GlobalSettingKey,GlobalSetting>{
 		this.value = value;
 	}
 
+	public GlobalSetting(String key, String value){
+		this.key = new GlobalSettingKey(key);
+		this.value = value;
+	}
+
 	/******************************* databean **************************/
 
 	@Override
