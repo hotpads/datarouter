@@ -1,0 +1,46 @@
+<%@ include file="/WEB-INF/prelude.jspf"%>
+<html>
+<head>
+<title>DataRouter</title>
+<%@ include file="/jsp/generic/css-import.jsp"%>
+</head>
+<body>
+	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
+<body>
+	<div class="container">
+		<h2>Datarouter
+		</h2>
+		<a href="/admin/dataRouter/menu.htm">DataRouter Home</a> &nbsp;&nbsp;>>&nbsp;&nbsp; <a href="/admin/dataRouter/menu.htm?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;>>&nbsp;&nbsp; client: <b>${client.name}</b>
+		<br />
+		<br />
+		<h3>Hibernate Client Summary</h3>
+		routerName:${param.routerName}<br />
+		clientName:${param.clientName}<br />
+		<h3>HibernateClientStats</h3>
+		${hibernateClientStats}<br />
+		<h3>SessionFactoryStats</h3>
+		<table class="table table-striped table-bordered table-hover table-condensed">
+			<c:forEach items="${sessionFactoryStats}" var="stat">
+				<tr>
+					<td>${stat[0]}</td>
+					<td>${stat[1]}</td>
+				</tr>
+			</c:forEach>
+		</table>
+		<h3>Physical Nodes</h3>
+		<table class="table table-striped table-bordered table-hover table-condensed">
+			<c:forEach items="${nodes}" var="node">
+				<tr>
+					<td><a style="color: black;" href="/analytics/dr/viewNodeData?submitAction=browseData&routerName=${param.routerName}
+					&nodeName=${node.name}"> ${node.name} </a></td>
+					<td>${node['class'].simpleName}</td>
+					<td><a href="/analytics/dr/viewNodeData?submitAction=browseData&routerName=${param.routerName}
+					&nodeName=${node.name}"> data </a></td>
+					<td><a href="/admin/dataRouter/export.htm?submitAction=exportToS3&routerName=${param.routerName}
+					&nodeName=${node.name}"> export to S3 </a></td>
+				</tr>
+			</c:forEach>
+		</table>
+	</div>
+</body>
+</html>

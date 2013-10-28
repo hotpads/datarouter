@@ -1,0 +1,64 @@
+<%@ include file="/WEB-INF/prelude.jspf" %>
+<html>
+<head>
+<title>DR Servers</title>
+<script>
+require(["util/ext/sorttable"], function() {});
+</script>
+<%@ include file="/jsp/generic/css-import.jsp"%>
+</head>
+<body>
+	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
+<div class="container">
+<h2 class="title">DR Servers</h2>
+<a href="/admin/dataRouter/menu.htm">DataRouter Home</a>
+&nbsp;&nbsp;>>&nbsp;&nbsp;
+<a href="/admin/dataRouter/menu.htm?submitAction=inspectRouter&routerName=${param.routerName}">router: ${param.routerName}</a>
+&nbsp;&nbsp;>>&nbsp;&nbsp;
+<a href="/admin/dataRouter/menu.htm?submitAction=inspectClient&routerName=${param.routerName}
+		&clientName=${param.clientName}">client: ${param.clientName}</a>
+&nbsp;&nbsp;>>&nbsp;&nbsp;
+table: ${param.tableName}
+<h3>Servers</h3>
+<br/>
+routerName:${param.routerName}<br/>
+clientName:${param.clientName}<br/>
+	<table class="table table-striped table-bordered table-hover table-condensed sortable">
+	<tr>
+		<th>host</th>
+		<th>coprocessors</th>
+		<th>load</th>
+		<th>maxHeapMB</th>
+		<th>memStoreSizeInMB</th>
+		<th>numberOfRegions</th>
+		<th>numberOfRequests</th>
+		<th>storefileIndexSizeInMB</th>
+		<th>storefiles</th>
+		<th>storefileSizeInMB</th>
+		<th>totalNumberOfRequests</th>
+		<th>usedHeapMB</th>
+		<th>version</th>
+	</tr>
+<c:forEach items="${servers}" var="server" varStatus="status">
+	<tr<c:if test="${status.index%5==0}"> class="highlighted"</c:if>>
+		<%/*<td>${fn:replace(server.hostname,'HadoopNode','')}</td>*/%>
+		<td class="right">${server.hostname}</td>
+		<td class="right">${fn:length(server.hServerLoad.coprocessors)}</td>
+		<td class="right">${server.hServerLoad.load}</td>
+		<td class="right">${server.hServerLoad.maxHeapMB}</td>
+		<td class="right">${server.hServerLoad.memStoreSizeInMB}</td>
+		<td class="right">${server.hServerLoad.numberOfRegions}</td>
+		<td class="right">${server.hServerLoad.numberOfRequests}</td>
+		<td class="right">${server.hServerLoad.storefileIndexSizeInMB}</td>
+		<td class="right">${server.hServerLoad.storefiles}</td>
+		<td class="right">${server.hServerLoad.storefileSizeInMB}</td>
+		<td class="right">${server.hServerLoad.totalNumberOfRequests}</td>
+		<td class="right">${server.hServerLoad.usedHeapMB}</td>
+		<td class="right">${server.hServerLoad.version}</td>
+	</tr>
+</c:forEach>
+</table>
+
+</div>
+</body>
+</html>
