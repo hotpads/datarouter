@@ -32,17 +32,17 @@ table level settings:<br/>
 	<input type="hidden" name="tableName" value="${param.tableName}"/>
 	
 	MAX_FILESIZE (<b>enter in MEGAbytes!!</b>):
-	<input name="maxFileSizeMb" value=""/>
+	<input name="maxFileSizeMb" value="" type="text" />
 	currently: ${tableParamByName['MAX_FILESIZE']} <b>mega</b>bytes<br/>
 	
 	MEMSTORE_FLUSHSIZE (<b>enter in MEGAbytes!!</b>):
-	<input name="memstoreFlushSizeMb" value=""/>
+	<input name="memstoreFlushSizeMb" value="" type="text"/>
 	currently :${tableParamByName['MEMSTORE_FLUSHSIZE']} <b>mega</b>bytes<br/>
 	
-	<input type="submit"/>
+	<input type="submit" class="btn btn-success"/>
 </form>
 <br/>
-	<table class="table table-striped table-bordered table-hover table-condensed">
+	<table class="table table-striped table-bordered  table-condensed">
 	<tr>
 		<th>column family name</th>
 		<th>settings</th>
@@ -57,17 +57,23 @@ table level settings:<br/>
 		<td>
 			<b>WARNING - DO NOT ENTER INVALID VALUES OR EXTRA WHITESPACE</b>
 			<br/>
-			<form method="post" action="?">
+			<form method="post" action="?" class="form-horizontal">
 				<input type="hidden" name="submitAction" value="updateHBaseColumnAttribute"/>
 				<input type="hidden" name="routerName" value="${param.routerName}"/>
 				<input type="hidden" name="clientName" value="${param.clientName}"/>
 				<input type="hidden" name="tableName" value="${param.tableName}"/>
 				<input type="hidden" name="columnName" value="${columnSummary.key}"/>
 				<c:forEach items="${columnSummary.value}" var="attributeByName">
-					${attributeByName.key}:
-					<input name="${attributeByName.key}" value="${attributeByName.value}"/><br/>
+				<div class="span11 row-fluid">
+				<label class="span3" for="${attributeByName.key}" >${attributeByName.key}:</label>
+				<div class="span3">
+					<input type="text"  id="${attributeByName.key}" name="${attributeByName.key}" value="${attributeByName.value}" />
+				</div>
+				</div>
 				</c:forEach>
-				<input type="submit"/>
+				<div class="row-fluid">
+				<input type="submit" class="btn btn-success"/>
+				</div>
 			</form>
 		</td>
 	</tr>

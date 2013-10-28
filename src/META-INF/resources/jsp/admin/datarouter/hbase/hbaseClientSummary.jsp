@@ -37,7 +37,7 @@ These are not node names.  They are table names from HBaseAdmin.listTables();<br
 			${tableSummary.key}
 		</td>
 		<td>
-			<a href="?submitAction=viewHBaseTableRegions&routerName=${param.routerName}
+			<a href="/admin/dataRouter/menu.htm?submitAction=viewHBaseTableRegions&routerName=${param.routerName}
 					&clientName=${param.clientName}&tableName=${tableSummary.key}">regions</a>
 		</td>
 		<td>
@@ -45,7 +45,7 @@ These are not node names.  They are table names from HBaseAdmin.listTables();<br
 					&clientName=${param.clientName}&tableName=${tableSummary.key}">settings</a>
 		</td>
 		<td>
-			<a href="?submitAction=countHBaseTableCells&routerName=${param.routerName}
+			<a href="/admin/dataRouter/menu.htm?submitAction=countHBaseTableCells&routerName=${param.routerName}
 					&clientName=${param.clientName}&tableName=${tableSummary.key}">count cells</a>
 		</td>
 		<!--

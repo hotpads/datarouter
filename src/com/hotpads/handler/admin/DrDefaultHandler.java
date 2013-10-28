@@ -28,9 +28,7 @@ import org.apache.log4j.Logger;
 import com.google.inject.Inject;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHTableSettings;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.memory.MemoryClient;
@@ -86,7 +84,6 @@ public class DrDefaultHandler extends BaseHandler{
 	@Handler
 	protected Mav inspectRouter(){
 		initializeParameters();
-
 		mav = mav.setViewName("/jsp/admin/datarouter/routerSummary.jsp");
 		List<NodeWrapper> nodeWrappers = NodeWrapper.getNodeWrappers(router);
 		mav.put("nodeWrappers", nodeWrappers);
