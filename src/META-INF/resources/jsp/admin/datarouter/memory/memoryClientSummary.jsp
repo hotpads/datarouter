@@ -8,8 +8,8 @@
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 	<div class="container">
 		<h2>Datarouter</h2>
-		<a href="/admin/dataRouter/menu.htm">DataRouter Home</a> &nbsp;&nbsp;>>&nbsp;&nbsp;
-		 <a href="/admin/dataRouter/menu.htm?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;>>&nbsp;&nbsp; client: <b>${client.name}</b>
+		<a href="${contextPath}/dr?submitAction=listRouters">DataRouter Home</a> &nbsp;&nbsp;>>&nbsp;&nbsp;
+		 <a href="${contextPath}/dr?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;>>&nbsp;&nbsp; client: <b>${client.name}</b>
 		<h3 style="width: 100%; border-bottom: 1px solid gray;">Memory Client Summary</h3>
 		routerName:${param.routerName}<br /> clientName:${param.clientName}<br />
 		<h3 style="width: 100%; border-bottom: 1px solid gray;">Stats</h3>

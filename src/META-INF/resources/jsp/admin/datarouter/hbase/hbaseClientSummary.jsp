@@ -13,9 +13,9 @@ require(["util/ext/sorttable"], function() {});
 <body>
 <div class="container">
 <h2>DR ${param.clientName}</h2>
-<a href="/admin/dataRouter/menu.htm">DataRouter Home</a>
+<a href="${contextPath}/dr?submitAction=listRouters">DataRouter Home</a>
 &nbsp;&nbsp;>>&nbsp;&nbsp;
-<a href="/admin/dataRouter/menu.htm?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a>
+<a href="${contextPath}/dr?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a>
 &nbsp;&nbsp;>>&nbsp;&nbsp;
 Client: ${param.clientName}
 <br/>

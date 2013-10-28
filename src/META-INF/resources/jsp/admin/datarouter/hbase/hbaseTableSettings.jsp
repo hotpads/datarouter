@@ -11,11 +11,11 @@ require(["util/ext/sorttable"], function() {});
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 <div class="container">
 <h2 >DR Table Settings</h2>
-<a href="/admin/dataRouter/menu.htm">DataRouter Home</a>
+<a href="${contextPath}/dr?submitAction=listRouters">DataRouter Home</a>
 &nbsp;&nbsp;>>&nbsp;&nbsp;
-<a href="/admin/dataRouter/menu.htm?submitAction=inspectRouter&routerName=${param.routerName}">router: ${param.routerName}</a>
+<a href="${contextPath}/dr?submitAction=inspectRouter&routerName=${param.routerName}">router: ${param.routerName}</a>
 &nbsp;&nbsp;>>&nbsp;&nbsp;
-<a href="/admin/dataRouter/menu.htm?submitAction=inspectClient&routerName=${param.routerName}
+<a href="${contextPath}/dr?submitAction=inspectClient&routerName=${param.routerName}
 		&clientName=${param.clientName}">client: ${param.clientName}</a>
 &nbsp;&nbsp;>>&nbsp;&nbsp;
 table: ${param.tableName}

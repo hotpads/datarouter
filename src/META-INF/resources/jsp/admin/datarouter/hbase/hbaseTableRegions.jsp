@@ -12,15 +12,13 @@ require(["util/ext/sorttable"], function() {});
 </style>
 </head>
 <body>
-<div class="page-container">
-<h2 class="page-title">DR ${param.tableName}</h2>
-<div class="clearfix"></div>
-<div class="page-content-container page-content-thicktop page-single-column">
-<a href="/admin/dataRouter/menu.htm">DataRouter Home</a>
+<div class="container">
+<h2">DR ${param.tableName}</h2>
+<a href="${contextPath}/dr?submitAction=listRouters">DataRouter Home</a>
 &nbsp;&nbsp;>>&nbsp;&nbsp;
-<a href="/admin/dataRouter/menu.htm?submitAction=inspectRouter&routerName=${param.routerName}">router: ${param.routerName}</a>
+<a href="${contextPath}/dr?submitAction=inspectRouter&routerName=${param.routerName}">router: ${param.routerName}</a>
 &nbsp;&nbsp;>>&nbsp;&nbsp;
-<a href="/admin/dataRouter/menu.htm?submitAction=inspectClient&routerName=${param.routerName}
+<a href="${contextPath}/dr?submitAction=inspectClient&routerName=${param.routerName}
 		&clientName=${param.clientName}">client: ${param.clientName}</a>
 &nbsp;&nbsp;>>&nbsp;&nbsp;
 table: ${param.tableName}
@@ -155,6 +153,6 @@ groupBy:
 
 </form>
 
-</div></div>
+</div>
 </body>
 </html>

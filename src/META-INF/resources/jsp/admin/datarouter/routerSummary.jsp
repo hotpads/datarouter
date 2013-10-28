@@ -12,7 +12,7 @@ require(["util/ext/sorttable"], function() {});
 
 <div class="container">
 <h2 >Datarouter</h2>
-		<a href="/admin/dataRouter/menu.htm">DataRouter Home</a> &nbsp;&nbsp;>>&nbsp;&nbsp; routerName:<b>${param.routerName}</b>
+		<a href="${contextPath}/dr?submitAction=listRouters">DataRouter Home</a> &nbsp;&nbsp;>>&nbsp;&nbsp; routerName:<b>${param.routerName}</b>
 		<h3>
 			Nodes in Router: <b>${param.routerName}</b>
 		</h3>
