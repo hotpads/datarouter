@@ -11,7 +11,8 @@
 		<a href="${contextPath}/dr/routers">DataRouter Home</a> &nbsp;&nbsp;>>&nbsp;&nbsp;
 		 <a href="${contextPath}/dr/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;>>&nbsp;&nbsp; client: <b>${client.name}</b>
 		<h3 style="width: 100%; border-bottom: 1px solid gray;">Memory Client Summary</h3>
-		routerName:${param.routerName}<br /> clientName:${param.clientName}<br />
+		<b>routerName: </b${param.routerName}<br /> 
+		<b>clientName: </b${param.clientName}<br />
 		<h3 style="width: 100%; border-bottom: 1px solid gray;">Stats</h3>
 		TODO: track operation counts<br />
 		<h3>Nodes</h3>

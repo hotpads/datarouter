@@ -14,8 +14,8 @@
 		<br />
 		<br />
 		<h3>Hibernate Client Summary</h3>
-		routerName:${param.routerName}<br />
-		clientName:${param.clientName}<br />
+		<b>routerName: </b>${param.routerName}<br />
+		<b>clientName: </b${param.clientName}<br />
 		<h3>HibernateClientStats</h3>
 		${hibernateClientStats}<br />
 		<h3>SessionFactoryStats</h3>

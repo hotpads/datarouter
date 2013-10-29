@@ -20,10 +20,8 @@ require(["util/ext/sorttable"], function() {});
 &nbsp;&nbsp;>>&nbsp;&nbsp;
 table: ${param.tableName}
 <h3>Servers</h3>
-<br/>
-<b>routerName:</b>${param.routerName}<br/>
-<b>clientName:</b>${param.clientName}<br/><br/>
-	
+<b>routerName: </b>${param.routerName}<br/>
+<b>clientName: </b>${param.clientName}<br/>
 
 </div>
 <div class="wide-container">

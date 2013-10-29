@@ -21,10 +21,10 @@ require(["util/ext/sorttable"], function() {});
 table: ${param.tableName}
 
 <h3>Table Settings</h3>
-routerName:${param.routerName}<br/>
-clientName:${param.clientName}<br/>
-tableName:${param.tableName}<br/>
-table level settings:<br/>
+<b>routerName: </b>${param.routerName}<br/>
+<b>clientName: </b>${param.clientName}<br/>
+<b>tableName: </b>${param.tableName}<br/>
+<b>table level settings: </b><br/>
 <form method="post" action="?">
 	<input type="hidden" name="submitAction" value="updateHBaseTableAttribute"/>
 	<input type="hidden" name="routerName" value="${param.routerName}"/>
@@ -85,7 +85,6 @@ table level settings:<br/>
 DATA_BLOCK_ENCODING in ('NONE', 'PREFIX', 'DIFF', 'FAST_DIFF')<br/>
 COMPRESSION in ('LZO', 'GZ', 'NONE')<br/>
 BLOOM in ('NONE', 'ROW', 'ROWCOL')<br/>
-<br/>
 </div>
 </div>
 </body>

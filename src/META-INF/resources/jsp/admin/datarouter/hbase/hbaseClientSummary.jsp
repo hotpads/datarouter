@@ -17,10 +17,10 @@ require(["util/ext/sorttable"], function() {});
 &nbsp;&nbsp;>>&nbsp;&nbsp;
 <a href="${contextPath}/dr/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a>
 &nbsp;&nbsp;>>&nbsp;&nbsp;
-<b>Client:</b> ${param.clientName}
+<b>Client: </b> ${param.clientName}
 <br/>
 <br/>
-<b>zookeeper.quorum:</b>${address}<br/>
+<b>zookeeper.quorum: </b> ${address}<br/>
 <br/>
 These are not node names.  They are table names from HBaseAdmin.listTables();<br/>
 <br/>
