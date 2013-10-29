@@ -31,8 +31,10 @@ public class StackTracesManagerHandler extends BaseHandler{
 	private int counterBlocked;
 	private int counterWating;
 	private int counterTimedWaiting;
-	private int counterTermintaed;
+	private int counterTerminated;
 	private HashMap<State,Integer> threadStateCounters;
+	private String stateParam;
+	private String wildcardParam;
 
 	@Override
 	@Handler
@@ -43,7 +45,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 		counterBlocked = 0;
 		counterWating = 0;
 		counterTimedWaiting = 0;
-		counterTermintaed = 0;
+		counterTerminated = 0;
 		threadStateCounters = MapTool.createHashMap();
 
 		return getStackTraces();
@@ -53,8 +55,8 @@ public class StackTracesManagerHandler extends BaseHandler{
 	public Mav getStackTraces(){
 		Mav mav = new Mav("/jsp/admin/stackTraces.jsp");
 		boolean showAll = params.optionalBoolean("showAll", false);
-		String state = params.optional("state", null);
-		String wildcard = params.optional("wildcard", null);
+		 stateParam = params.optional("state", null);
+		 wildcardParam = params.optional("wildcard", null);
 
 		Map<Thread,StackTraceElement[]> sts = Thread.getAllStackTraces();
 		Map<Thread,StackTraceElement[]> orderedSts = getMapWithComparatorThread();
@@ -66,25 +68,25 @@ public class StackTracesManagerHandler extends BaseHandler{
 
 		for(Thread thread : orderedSts.keySet()){
 			incrementCounter(thread);
-			if(state == null || thread.getState().toString().equals(state)){
+			if(stateParam == null || thread.getState().toString().equals(stateParam)){
 				StringBuilder stackTraceBuilder = new StringBuilder();
 				for(StackTraceElement ste : sts.get(thread)){
 					stackTraceBuilder.append(ste.toString() + "<br />");
 				}
-				if(!StringTool.notEmpty(wildcard)
-						|| stackTraceBuilder.toString().toLowerCase().contains(wildcard.toLowerCase())){
+				if(!StringTool.notEmpty(wildcardParam)
+						|| stackTraceBuilder.toString().toLowerCase().contains(wildcardParam.toLowerCase())){
 					++counter;
 					String highlightedStackTrace = stackTraceBuilder.toString().replaceAll("hotpads",
 							"<span style='color:red;'>hotpads</span>");
-					if(StringTool.notEmpty(wildcard)){
-						highlightedStackTrace = highlightedStackTrace.replaceAll(wildcard, "<span style='color:blue;'>"
-								+ wildcard + "</span>");
+					if(StringTool.notEmpty(wildcardParam)){
+						highlightedStackTrace = highlightedStackTrace.replaceAll(wildcardParam, "<span style='color:blue;'>"
+								+ wildcardParam + "</span>");
 					}
 					boolean interestingThread = highlightedStackTrace.contains("hotpads");
 					if(!showAll){
-						if(!interestingThread){
-							continue;
-						}
+//						if(!interestingThread){
+//							continue;
+//						}
 					}
 
 					description = getThreadDescription(sts, thread, highlightedStackTrace, counter, showAll);
@@ -103,7 +105,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 		pre.appendChild(counterTitle);
 		pre.appendChild(link);
 		pre.setCSSClass("thread-filter");
-		pre.appendChild(createSearchForm(wildcard));
+		pre.appendChild(createSearchForm(wildcardParam));
 
 		mav.put("contentJSP", pre.write() + container.write());
 		return mav;
@@ -113,7 +115,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 		threadStateCounters.put(State.BLOCKED, counterBlocked);
 		threadStateCounters.put(State.NEW, counterNew);
 		threadStateCounters.put(State.RUNNABLE, counterRunnable);
-		threadStateCounters.put(State.TERMINATED, counterBlocked);
+		threadStateCounters.put(State.TERMINATED, counterTerminated);
 		threadStateCounters.put(State.TIMED_WAITING, counterTimedWaiting);
 		threadStateCounters.put(State.WAITING, counterWating);
 
@@ -131,7 +133,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 			counterRunnable++;
 			break;
 		case TERMINATED:
-			counterTermintaed++;
+			counterTerminated++;
 			break;
 		case TIMED_WAITING:
 			counterTimedWaiting++;
@@ -174,7 +176,11 @@ public class StackTracesManagerHandler extends BaseHandler{
 		radio.setType("radio");
 		radio.setName("state");
 		radio.setValue(state.toString());
+		if(state.toString().equals(stateParam)){
+			radio.setChecked("true");
+		}
 		label.appendChild(radio);
+		
 		return label;
 
 	}

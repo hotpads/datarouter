@@ -10,7 +10,7 @@
 	<div class="container">
 		<h2>Datarouter
 		</h2>
-		<a href="${contextPath}/dr?submitAction=listRouters">DataRouter Home</a> &nbsp;&nbsp;>>&nbsp;&nbsp; <a href="${contextPath}/dr?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;>>&nbsp;&nbsp; client: <b>${client.name}</b>
+		<a href="${contextPath}/dr/routers">DataRouter Home</a> &nbsp;&nbsp;>>&nbsp;&nbsp; <a href="${contextPath}/dr?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;>>&nbsp;&nbsp; client: <b>${client.name}</b>
 		<br />
 		<br />
 		<h3>Hibernate Client Summary</h3>
