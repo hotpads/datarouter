@@ -16,16 +16,20 @@
 		TODO: track operation counts<br />
 		<h3>Nodes</h3>
 		<table class="table table-striped table-bordered table-hover table-condensed ">
-			<tr>
+		<thead>
+			<th>
 				<td>name</td>
 				<td>size</td>
-			</tr>
+			</th>
+			</thead>
+			<tbody>
 			<c:forEach items="${nodes}" var="node">
 				<tr>
 					<td>${node.name}</td>
 					<td>${node.size}</td>
 				</tr>
 			</c:forEach>
+			</tbody>
 		</table>
 	</div>
 	</div>

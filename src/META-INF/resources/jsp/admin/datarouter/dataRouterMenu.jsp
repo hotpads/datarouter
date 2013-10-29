@@ -24,14 +24,14 @@
 	${router['class'].simpleName}
 	<table class="table table-striped table-bordered table-hover table-condensed">
 		<c:forEach items="${router.allClients}" var="client">
-			<tr>
-				<td>
+			<tr >
+				<td style="width: 33%">
 					<a href="?submitAction=inspectClient&routerName=${router.name}&clientName=${client.name}">${client.name}</a>
 				</td>
-				<td>
+				<td style="width: 33%">
 					${client.type}
 				</td>
-					<td>
+					<td style="width: 33%">
 						<c:if test="${client.type=='hbase'}">
 							<a href="?submitAction=viewHBaseServers&routerName=${router.name}&clientName=${client.name}">servers</a>
 						</c:if>

@@ -43,10 +43,11 @@ table level settings:<br/>
 </form>
 <br/>
 	<table class="table table-striped table-bordered  table-condensed">
-	<tr>
+	<thead>
 		<th>column family name</th>
 		<th>settings</th>
-	</tr>
+	</thead>
+	<tbody>
 <c:forEach items="${columnSummaryByName}" var="columnSummary">
 	<tr>
 		<td>
@@ -78,6 +79,7 @@ table level settings:<br/>
 		</td>
 	</tr>
 </c:forEach>
+</tbody>
 </table>
 <br/>
 DATA_BLOCK_ENCODING in ('NONE', 'PREFIX', 'DIFF', 'FAST_DIFF')<br/>

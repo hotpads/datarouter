@@ -17,7 +17,7 @@ require(["util/ext/sorttable"], function() {});
 			Nodes in Router: <b>${param.routerName}</b>
 		</h3>
 		<table class="table table-striped table-bordered table-hover table-condensed sortable">
-			<tr>
+			<thead>
 				<th>node name</th>
 				<th>data</th>
 				<th>count keys</th>
@@ -26,7 +26,8 @@ require(["util/ext/sorttable"], function() {});
 				<th>import from S3</th>
 				<th>copy table</th>
 				<th>export HFiles</th>
-			</tr>
+			</thead>
+			<tbody>
 		<c:forEach items="${nodeWrappers}" var="nodeWrapper">
 			<tr>
 				<td>
@@ -83,6 +84,7 @@ require(["util/ext/sorttable"], function() {});
 				</td>
 			</tr>
 		</c:forEach>
+		</tbody>
 		</table>
 </div>
 </body>

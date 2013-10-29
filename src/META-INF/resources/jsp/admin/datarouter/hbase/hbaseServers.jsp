@@ -28,7 +28,7 @@ table: ${param.tableName}
 </div>
 <div class="wide-container">
 	<table class="table table-striped table-bordered table-hover table-condensed sortable">
-		<tr>
+		<thead>
 			<th>host</th>
 			<th>coprocessors</th>
 			<th>load</th>
@@ -42,7 +42,8 @@ table: ${param.tableName}
 			<th>totalNumberOfRequests</th>
 			<th>usedHeapMB</th>
 			<th>version</th>
-		</tr>
+		</thead>
+		<tbody>
 	<c:forEach items="${servers}" var="server" varStatus="status">
 		<tr<c:if test="${status.index%5==0}"> class="highlighted"</c:if>>
 			<%/*<td>${fn:replace(server.hostname,'HadoopNode','')}</td>*/%>
@@ -61,6 +62,7 @@ table: ${param.tableName}
 			<td class="right">${server.hServerLoad.version}</td>
 		</tr>
 	</c:forEach>
+	</tbody>
 	</table>
 </div>
 </body>
