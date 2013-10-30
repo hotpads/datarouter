@@ -1,0 +1,7 @@
+requirejs.config({
+
+});
+
+require([],
+	function   () {
+});
