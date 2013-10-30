@@ -1,3 +1,7 @@
+body {
+	font-family: verdana, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
 #hotpads-logo {
 	height: 40px;
 }
@@ -49,7 +53,7 @@
 }
 
 #generic-navbar ul {
-	padding: 5 0 0 0;
+	padding: 5px 0px 0px 0px;
 	margin-left: 100px;
 }
 
