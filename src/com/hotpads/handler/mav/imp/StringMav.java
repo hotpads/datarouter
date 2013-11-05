@@ -5,7 +5,7 @@ import com.hotpads.handler.mav.Mav;
 public class StringMav extends Mav{
 
 	public static final String
-		JSP_PATH = "/generic/string",
+		JSP_PATH = "/jsp/generic/string.jsp",
 		VAR_NAME = "string";
 
 	public StringMav(){
@@ -14,7 +14,7 @@ public class StringMav extends Mav{
 
 	public StringMav(String string){
 		super(JSP_PATH);
-		addObject(VAR_NAME, string);
+		put(VAR_NAME, string);
 	}
 	
 }

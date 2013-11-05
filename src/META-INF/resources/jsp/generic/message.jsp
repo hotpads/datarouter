@@ -1,0 +1,1 @@
+<div style="border: 1px dashed #D11418; margin: 10px; padding: 6px;">${message}</div>
