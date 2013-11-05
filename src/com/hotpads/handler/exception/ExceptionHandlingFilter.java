@@ -58,10 +58,11 @@ public class ExceptionHandlingFilter implements Filter {
 				request.setAttribute("stackTraceString", 
 						ExceptionTool.getStackTraceStringForHtmlPreBlock(httpException));
 			}
-			response.sendError(httpException.getStatusCode());
+//			response.sendError(httpException.getStatusCode());
 			
 			//the error pages specified in web.xml will not work without calling this
-			request.getRequestDispatcher(null).include(request, response);
+//			request.getRequestDispatcher(null).include(request, response);
+			response.sendRedirect(request.getContextPath()+"/error");
 			
 		}finally {
 		}

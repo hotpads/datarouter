@@ -6,7 +6,7 @@
 require(["util/ext/sorttable"], function() {});
 </script>
 
-<%@ include file="/jsp/generic/css-import.jsp"%>
+<%@ include file="/jsp/css/css-import.jsp"%>
 </head>
 <body>
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>

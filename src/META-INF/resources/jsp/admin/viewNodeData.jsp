@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>DataRouter</title>
-<%@ include file="/jsp/generic/css-import.jsp"%>
+<%@ include file="/jsp/css/css-import.jsp"%>
 <script type="text/javascript" data-main="${contextPath}/assets/js/core-analytics" src="${contextPath}/assets/js/require-jquery.js"></script>
 <style>
 </style>
