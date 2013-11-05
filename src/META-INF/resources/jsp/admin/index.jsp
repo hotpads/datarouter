@@ -7,7 +7,7 @@
 <body>
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 	<div class="container">
-	<h4>Welcome to Datarouter project !</h4>
+	<h4>Welcome to Datarouter module !</h4>
 	</div>
 	</form>
 </body>
