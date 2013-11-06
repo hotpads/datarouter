@@ -1,27 +1,27 @@
-<%@ include file="/src/META-INF/resources/jsp/generic/prelude.jspf"%>
+<%@ include file="../../../generic/prelude.jspf"%>
 <html>
 <head>
 <title>DR Table Settings</title>
-<c: import url="/jsp/generic/head.jsp" />
+<c:import url="/jsp/generic/head.jsp" />
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
 	require([
            "plugin/sorttable", "bootstrap/bootstrap"
     ], function($) {});
 </script>
-<c: import url="/jsp/css/css-import.jsp" />
+<c:import url="/jsp/css/css-import.jsp" />
 </head>
 <body>
-	<c: import url="/jsp/menu/dr-navbar.jsp" />
+	<c:import url="/jsp/menu/dr-navbar.jsp" />
 <div class="container">
 <h2 >DR Table Settings</h2>
 <a href="${contextPath}/dr/routers">DataRouter Home</a>
-&nbsp;&nbsp;>>&nbsp;&nbsp;
+&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp;
 <a href="${contextPath}/dr/routers?submitAction=inspectRouter&routerName=${param.routerName}">router: ${param.routerName}</a>
-&nbsp;&nbsp;>>&nbsp;&nbsp;
+&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp;
 <a href="${contextPath}/dr/routers?submitAction=inspectClient&routerName=${param.routerName}
 		&clientName=${param.clientName}">client: ${param.clientName}</a>
-&nbsp;&nbsp;>>&nbsp;&nbsp;
+&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp;
 table: ${param.tableName}
 
 <h3>Table Settings</h3>
@@ -48,8 +48,10 @@ table: ${param.tableName}
 <br/>
 	<table class="table table-striped table-bordered  table-condensed">
 	<thead>
+	<tr>
 		<th>column family name</th>
 		<th>settings</th>
+	</tr>
 	</thead>
 	<tbody>
 <c:forEach items="${columnSummaryByName}" var="columnSummary">
@@ -89,7 +91,6 @@ table: ${param.tableName}
 DATA_BLOCK_ENCODING in ('NONE', 'PREFIX', 'DIFF', 'FAST_DIFF')<br/>
 COMPRESSION in ('LZO', 'GZ', 'NONE')<br/>
 BLOOM in ('NONE', 'ROW', 'ROWCOL')<br/>
-</div>
 </div>
 </body>
 </html>

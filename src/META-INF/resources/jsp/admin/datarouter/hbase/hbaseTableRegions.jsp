@@ -1,9 +1,9 @@
-<%@ include file="/src/META-INF/resources/jsp/generic/prelude.jspf"%>
+<%@ include file="../../../generic/prelude.jspf"%>
 <html>
 <head>
 <title>DR ${param.tableName}</title>
 <link rel="stylesheet" type="text/css" href="/css/admin.css" />
-<c: import url="/jsp/generic/head.jsp" />
+<c:import url="/jsp/generic/head.jsp" />
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
 	require([
@@ -16,11 +16,11 @@
 </head>
 <body>
 <div class="container">
-<h2">DR ${param.tableName}</h2>
+<h2>DR ${param.tableName}</h2>
 <a href="${contextPath}/dr/routers">DataRouter Home</a>
-&nbsp;&nbsp;>>&nbsp;&nbsp;
+&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp;
 <a href="${contextPath}/dr/routers?submitAction=inspectRouter&routerName=${param.routerName}">router: ${param.routerName}</a>
-&nbsp;&nbsp;>>&nbsp;&nbsp;
+&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp;
 <a href="${contextPath}/dr/routers?submitAction=inspectClient&routerName=${param.routerName}
 		&clientName=${param.clientName}">client: ${param.clientName}</a>
 &nbsp;&nbsp;>>&nbsp;&nbsp;
@@ -47,7 +47,7 @@ table: ${param.tableName}
 		</span></span><br/>
 		move selected regions to:<br/>
 			<select name="destinationServerName">
-				<option>&nbsp;&nbsp;--&nbsp;&nbsp;select&nbsp;&nbsp;--&nbsp;&nbsp;</option>&nbsp;&nbsp;
+				<option>&nbsp;&nbsp;--&nbsp;&nbsp;select&nbsp;&nbsp;--&nbsp;&nbsp;</option>
 				<c:forEach items="${serverNames}" var="serverName">
 					<option value="${serverName}">${serverName}</option>
 				</c:forEach>

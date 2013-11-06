@@ -1,23 +1,25 @@
-<%@ include file="/src/META-INF/resources/jsp/generic/prelude.jspf"%>
+<%@ include file="../../../generic/prelude.jspf"%>
 <html>
 <head>
 <title>DataRouter</title>
-<c: import url="/jsp/generic/head.jsp" />
+<c:import url="/jsp/generic/head.jsp" />
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
 	require([
            "bootstrap/bootstrap"
     ], function($) {});
 </script>
-<c: import url="/jsp/css/css-import.jsp" />
+<c:import url="/jsp/css/css-import.jsp" />
 </head>
 <body>
-	<c: import url="/jsp/menu/dr-navbar.jsp" />
+	<c:import url="/jsp/menu/dr-navbar.jsp" />
 <body>
 	<div class="container">
 		<h2>Datarouter
 		</h2>
-		<a href="${contextPath}/dr/routers">DataRouter Home</a> &nbsp;&nbsp;>>&nbsp;&nbsp; <a href="${contextPath}/dr/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;>>&nbsp;&nbsp; client: <b>${client.name}</b>
+		<a href="${contextPath}/dr/routers">DataRouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; 
+		<a href="${contextPath}/dr/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a>
+		 &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; client: <b>${client.name}</b>
 		<br />
 		<br />
 		<h3>Hibernate Client Summary</h3>

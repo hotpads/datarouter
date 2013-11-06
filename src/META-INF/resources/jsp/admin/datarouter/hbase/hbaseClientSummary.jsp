@@ -1,8 +1,8 @@
-<%@ include file="/src/META-INF/resources/jsp/generic/prelude.jspf"%>
+<%@ include file="../../../generic/prelude.jspf"%>
 <html>
 <head>
 <title>DR ${param.clientName}</title>
-<c: import url="/jsp/generic/head.jsp" />
+<c:import url="/jsp/generic/head.jsp" />
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
 	require([
@@ -10,17 +10,17 @@
     ], function($) {});
 </script>
 
-<c: import url="/jsp/css/css-import.jsp" />
+<c:import url="/jsp/css/css-import.jsp" />
 </head>
 <body>
-	<c: import url="/jsp/menu/dr-navbar.jsp" />
+	<c:import url="/jsp/menu/dr-navbar.jsp" />
 <body>
 <div class="container">
 <h2>DR ${param.clientName}</h2>
 <a href="${contextPath}/dr/routers">DataRouter Home</a>
-&nbsp;&nbsp;>>&nbsp;&nbsp;
+&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp;
 <a href="${contextPath}/dr/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a>
-&nbsp;&nbsp;>>&nbsp;&nbsp;
+&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp;
 <b>Client: </b> ${param.clientName}
 <br/>
 <br/>
@@ -30,10 +30,12 @@ These are not node names.  They are table names from HBaseAdmin.listTables();<br
 <br/>
 	<table class="table table-striped table-bordered table-hover table-condensed sortable">
 	<thead>
+	<tr>
 		<th>table name</th>
 		<th>regions</th>
 		<th>settings</th>
 		<th>count cells</th>
+	</tr>
 	</thead>
 	<tbody>
 		<c:forEach items="${tableSummaryByName}" var="tableSummary">

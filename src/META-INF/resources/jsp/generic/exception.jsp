@@ -1,4 +1,4 @@
-<%@ include file="/src/META-INF/resources/jsp/generic/prelude.jspf"%>
+<%@ include file="prelude.jspf"%>
 <!DOCTYPE html>
 <html>
 <head>

@@ -1,4 +1,4 @@
-<%@ include file="/src/META-INF/resources/jsp/generic/prelude.jspf"%>
+<c:import  url="/jsp/generic/prelude.jspf" />
 <!DOCTYPE HTML>
 <html>
 <head>
