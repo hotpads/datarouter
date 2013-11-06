@@ -1,25 +1,25 @@
-<%@ include file="/WEB-INF/prelude.jspf"%>
+<%@ include file="/src/META-INF/resources/jsp/generic/prelude.jspf"%>
 <html>
 <head>
 <title>DataRouter</title>
-<%@ include file="/jsp/generic/head.jsp"%>
+<c: import url="/jsp/generic/head.jsp" />
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
 	require([
            "bootstrap/bootstrap"
     ], function($) {});
 </script>
-<%@ include file="/jsp/css/css-import.jsp"%>
+<c: import url="/jsp/css/css-import.jsp" />
 </head>
 <body>
-	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
+	<c: import url="/jsp/menu/dr-navbar.jsp" />
 	<div class="container">
 		<h2>Datarouter</h2>
 		<a href="${contextPath}/dr/routers">DataRouter Home</a> &nbsp;&nbsp;>>&nbsp;&nbsp;
 		 <a href="${contextPath}/dr/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;>>&nbsp;&nbsp; client: <b>${client.name}</b>
 		<h3 style="width: 100%; border-bottom: 1px solid gray;">Memory Client Summary</h3>
-		<b>routerName: </b${param.routerName}<br /> 
-		<b>clientName: </b${param.clientName}<br />
+		<b>routerName: </b>${param.routerName}<br /> 
+		<b>clientName: </b>${param.clientName}<br />
 		<h3 style="width: 100%; border-bottom: 1px solid gray;">Stats</h3>
 		TODO: track operation counts<br />
 		<h3>Nodes</h3>
@@ -40,6 +40,6 @@
 			</tbody>
 		</table>
 	</div>
-	</div>
+
 </body>
 </html>

@@ -1,9 +1,9 @@
-<%@ include file="/WEB-INF/prelude.jspf" %>
+<%@ include file="/src/META-INF/resources/jsp/generic/prelude.jspf"%>
 <html>
 <head>
 <title>DR ${param.tableName}</title>
 <link rel="stylesheet" type="text/css" href="/css/admin.css" />
-<%@ include file="/jsp/generic/head.jsp"%>
+<c: import url="/jsp/generic/head.jsp" />
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
 	require([

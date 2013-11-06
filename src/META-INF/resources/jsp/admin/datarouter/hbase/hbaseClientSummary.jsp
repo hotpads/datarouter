@@ -1,8 +1,8 @@
-<%@ include file="/WEB-INF/prelude.jspf" %>
+<%@ include file="/src/META-INF/resources/jsp/generic/prelude.jspf"%>
 <html>
 <head>
 <title>DR ${param.clientName}</title>
-<%@ include file="/jsp/generic/head.jsp"%>
+<c: import url="/jsp/generic/head.jsp" />
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
 	require([
@@ -10,10 +10,10 @@
     ], function($) {});
 </script>
 
-<%@ include file="/jsp/css/css-import.jsp"%>
+<c: import url="/jsp/css/css-import.jsp" />
 </head>
 <body>
-	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
+	<c: import url="/jsp/menu/dr-navbar.jsp" />
 <body>
 <div class="container">
 <h2>DR ${param.clientName}</h2>

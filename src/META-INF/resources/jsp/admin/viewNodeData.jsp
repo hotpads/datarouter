@@ -1,14 +1,14 @@
-<%@ include file="/WEB-INF/prelude.jspf"%>
+<%@ include file="/src/META-INF/resources/jsp/generic/prelude.jspf"%>
 <html>
 <head>
 <title>DataRouter</title>
-<%@ include file="/jsp/generic/head.jsp"%>
-<%@ include file="/jsp/css/css-import.jsp"%>
+<c: import url="/jsp/generic/head.jsp" />
+<c: import url="/jsp/css/css-import.jsp" />
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <style>
 </style>
 </head>
-<%@ include file="/jsp/menu/dr-navbar.jsp"%>
+<c: import url="/jsp/menu/dr-navbar.jsp" />
 <body>
 	<h2 class="container">DataRouter</h2>
 	<div class="wide-container">
@@ -81,8 +81,8 @@
 		<c:if test="${not (offset > 0 and not empty backKey)}">
 			<b>previous&nbsp;</b>-&nbsp;
 		</c:if>
-		<c:if test="${fn:length(databeans) >= limit}">
 			<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}
+		<c:if test="${fn:length(databeans) >= limit}">
 				&backKey=${startAfterKey}&startAfterKey=${nextKey}
 				&limit=${limit}&offset=${offset+limit}&where=${param.where}">next</a>
 		</c:if>

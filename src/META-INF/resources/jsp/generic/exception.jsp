@@ -1,5 +1,4 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ include file="/jsp/generic/prelude.jspf"%>
+<%@ include file="/src/META-INF/resources/jsp/generic/prelude.jspf"%>
 <!DOCTYPE html>
 <html>
 <head>

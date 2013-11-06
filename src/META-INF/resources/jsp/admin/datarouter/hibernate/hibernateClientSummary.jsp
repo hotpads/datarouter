@@ -1,18 +1,18 @@
-<%@ include file="/WEB-INF/prelude.jspf"%>
+<%@ include file="/src/META-INF/resources/jsp/generic/prelude.jspf"%>
 <html>
 <head>
 <title>DataRouter</title>
-<%@ include file="/jsp/generic/head.jsp"%>
+<c: import url="/jsp/generic/head.jsp" />
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
 	require([
            "bootstrap/bootstrap"
     ], function($) {});
 </script>
-<%@ include file="/jsp/css/css-import.jsp"%>
+<c: import url="/jsp/css/css-import.jsp" />
 </head>
 <body>
-	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
+	<c: import url="/jsp/menu/dr-navbar.jsp" />
 <body>
 	<div class="container">
 		<h2>Datarouter
@@ -22,7 +22,7 @@
 		<br />
 		<h3>Hibernate Client Summary</h3>
 		<b>routerName: </b>${param.routerName}<br />
-		<b>clientName: </b${param.clientName}<br />
+		<b>clientName: </b>${param.clientName}<br />
 		<h3>HibernateClientStats</h3>
 		${hibernateClientStats}<br />
 		<h3>SessionFactoryStats</h3>
