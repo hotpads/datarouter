@@ -2,8 +2,12 @@
 <html>
 <head>
 <title>DR ${param.clientName}</title>
-<script>
-require(["util/ext/sorttable"], function() {});
+<%@ include file="/jsp/generic/head.jsp"%>
+<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
+<script type="text/javascript">
+	require([
+           "bootstrap/bootstrap", "plugin/sorttable"
+    ], function($) {});
 </script>
 
 <%@ include file="/jsp/css/css-import.jsp"%>

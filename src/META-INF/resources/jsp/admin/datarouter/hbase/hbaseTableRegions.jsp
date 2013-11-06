@@ -3,10 +3,13 @@
 <head>
 <title>DR ${param.tableName}</title>
 <link rel="stylesheet" type="text/css" href="/css/admin.css" />
-<script>
-require(["util/ext/sorttable"], function() {});
+<%@ include file="/jsp/generic/head.jsp"%>
+<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
+<script type="text/javascript">
+	require([
+           "plugin/sorttable", "bootstrap/bootstrap"
+    ], function($) {});
 </script>
-
 <style>
 #mainDecoratorDiv { width:100% }
 </style>

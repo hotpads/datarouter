@@ -2,8 +2,9 @@
 <html>
 <head>
 <title>DataRouter</title>
+<%@ include file="/jsp/generic/head.jsp"%>
 <%@ include file="/jsp/css/css-import.jsp"%>
-<script type="text/javascript" data-main="${contextPath}/js/core-analytics" src="${contextPath}/js/require-jquery.js"></script>
+<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <style>
 </style>
 </head>
