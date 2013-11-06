@@ -10,11 +10,13 @@
 <body>
 	<div class="container on-top">
 		<div class="alert alert-danger">We're sorry, but there was an error processing your request.</div>
+		<div class="alert alert-info">
+			<b>HTTP error code:</b> ${statusCode}
+		</div>
+		<c:if test="${not empty message}">
+			<div class="alert alert-info">${message}</div>
+		</c:if>
 		<pre>
-<b>HTTP error code:</b> ${statusCode}
-<c:if test="${not empty message}">
-${message}
-</c:if>
 <c:if test="${not empty stackTraceString}">
 <b>stack trace:</b>
 ${stackTraceString}
