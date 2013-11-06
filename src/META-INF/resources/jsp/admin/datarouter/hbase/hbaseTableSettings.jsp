@@ -11,7 +11,7 @@ require(["util/ext/sorttable"], function() {});
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 <div class="container">
 <h2 >DR Table Settings</h2>
-<a href="${contextPath}/dr/routers?submitAction=listRouters">DataRouter Home</a>
+<a href="${contextPath}/dr/routers">DataRouter Home</a>
 &nbsp;&nbsp;>>&nbsp;&nbsp;
 <a href="${contextPath}/dr/routers?submitAction=inspectRouter&routerName=${param.routerName}">router: ${param.routerName}</a>
 &nbsp;&nbsp;>>&nbsp;&nbsp;

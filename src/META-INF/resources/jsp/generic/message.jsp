@@ -7,7 +7,7 @@
 </head>
 <body>
 	<pre class="container" style="margin-top: 10%">
-		${message}
+		<h4>${message}</h4>
 	</pre>
 </body>
 </html>

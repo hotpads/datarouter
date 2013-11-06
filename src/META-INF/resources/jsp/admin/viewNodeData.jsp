@@ -3,7 +3,7 @@
 <head>
 <title>DataRouter</title>
 <%@ include file="/jsp/css/css-import.jsp"%>
-<script type="text/javascript" data-main="${contextPath}/assets/js/core-analytics" src="${contextPath}/assets/js/require-jquery.js"></script>
+<script type="text/javascript" data-main="${contextPath}/js/core-analytics" src="${contextPath}/js/require-jquery.js"></script>
 <style>
 </style>
 </head>
@@ -11,7 +11,7 @@
 <body>
 	<h2 class="container">DataRouter</h2>
 	<div class="wide-container">
-		<a href="/admin/dataRouter/menu.htm">DataRouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a href="/admin/dataRouter/menu.htm?submitAction=inspectRouter&routerName=${param.S}">Router: ${param.routerName}</a> &nbsp;&nbsp;&#62;&#62; &nbsp;&nbsp;
+		<a href="${contextPath}/dr/routers">DataRouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a href="${contextPath}/dr/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;&#62;&#62; &nbsp;&nbsp;
 		node: <b>${node.name}</b><br /> <br />
 		<form method="get" action="?">
 			<div class="label-above row-fluid">
