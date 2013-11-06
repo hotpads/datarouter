@@ -1,18 +1,18 @@
-<%@ include file="../../generic/prelude.jspf"%>
+<%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
 <html>
 <head>
 <title>DataRouter</title>
-<c:import url="/jsp/generic/head.jsp" />
+<%@ include file="/jsp/generic/head.jsp" %>
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
 	require([
             "plugin/sorttable", "bootstrap/bootstrap"
     ], function($) {});
 </script>
-<c:import url="/jsp/css/css-import.jsp" />
+<%@ include file="/jsp/css/css-import.jspf" %>
 </head>
 <body>
-	<c:import url="/jsp/menu/dr-navbar.jsp" />
+	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
 		<h2>Datarouter</h2>
 		<a href="${contextPath}/dr/routers">DataRouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; routerName:<b>${param.routerName}</b>

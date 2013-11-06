@@ -1,14 +1,14 @@
-<%@ include file="../generic/prelude.jspf"%>
+<%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
 <html>
 <head>
 <title>DataRouter</title>
-<c:import url="/jsp/generic/head.jsp" />
-<c:import url="/jsp/css/css-import.jsp" />
+<%@ include file="/jsp/generic/head.jsp" %>
+<%@ include file="/jsp/css/css-import.jspf" %>
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <style>
 </style>
 </head>
-<c:import url="/jsp/menu/dr-navbar.jsp" />
+<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 <body>
 	<h2 class="container">DataRouter</h2>
 	<div class="wide-container">

@@ -1,8 +1,8 @@
-<%@ include file="../../../generic/prelude.jspf"%>
+<%@ include file="/jsp/generic/prelude-datarouter.jspf" %>
 <html>
 <head>
 <title>DR ${param.clientName}</title>
-<c:import url="/jsp/generic/head.jsp" />
+<%@ include file="/jsp/generic/head.jsp" %>
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
 	require([
@@ -10,10 +10,10 @@
     ], function($) {});
 </script>
 
-<c:import url="/jsp/css/css-import.jsp" />
+<%@ include file="/jsp/css/css-import.jspf" %>
 </head>
 <body>
-	<c:import url="/jsp/menu/dr-navbar.jsp" />
+	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 <body>
 <div class="container">
 <h2>DR ${param.clientName}</h2>

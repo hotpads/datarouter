@@ -1,9 +1,9 @@
-<c:import  url="/jsp/generic/prelude.jspf" />
+<%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
 <!DOCTYPE HTML>
 <html>
 <head>
 <title>Message</title>
-<c:import url="/jsp/css/css-import.jsp" />
+<%@ include file="/jsp/css/css-import.jspf" %>
 </head>
 <body>
 	<pre class="container" style="margin-top: 10%">

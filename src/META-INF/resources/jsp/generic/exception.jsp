@@ -1,10 +1,10 @@
-<%@ include file="prelude.jspf"%>
+<%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Error processing request</title>
-<c:import url="/jsp/css/css-import.jsp" />
+<%@ include file="/jsp/css/css-import.jspf" %>
 </head>
 <body>
 	<div class="container on-top">

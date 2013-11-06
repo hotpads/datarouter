@@ -1,9 +1,9 @@
-<%@ include file="../../../generic/prelude.jspf"%>
+<%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
 <html>
 <head>
 <title>DR ${param.tableName}</title>
 <link rel="stylesheet" type="text/css" href="/css/admin.css" />
-<c:import url="/jsp/generic/head.jsp" />
+<%@ include file="/jsp/generic/head.jsp" %>
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
 	require([
