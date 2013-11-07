@@ -15,7 +15,7 @@
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
 		<h2>Datarouter</h2>
-		<a href="${contextPath}/dr/routers">DataRouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; routerName:<b>${param.routerName}</b>
+		<a href="${contextPath}/datarouter/routers">DataRouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; routerName:<b>${param.routerName}</b>
 		<h3>
 			Nodes in Router: <b>${param.routerName}</b>
 		</h3>
@@ -35,16 +35,16 @@
 			<tbody>
 				<c:forEach items="${nodeWrappers}" var="nodeWrapper">
 					<tr>
-						<td><a style="color: black;" href="/analytics/dr/viewNodeData?submitAction=browseData&routerName=${param.routerName}
+						<td><a style="color: black;" href="${contextPath}/datarouter/viewNodeData?submitAction=browseData&routerName=${param.routerName}
 							&nodeName=${nodeWrapper.node.name}"> ${nodeWrapper.indentHtml}${nodeWrapper.node.name}</a></td>
-						<td><a href="/analytics/dr/viewNodeData?submitAction=browseData&routerName=${param.routerName}
+						<td><a href="${contextPath}/datarouter/viewNodeData?submitAction=browseData&routerName=${param.routerName}
 							&nodeName=${nodeWrapper.node.name}"> data</a></td>
 						<td><c:if test="${nodeWrapper.sorted}">
-								<a href="/analytics/dr/viewNodeData?submitAction=countKeys&routerName=${param.routerName}
+								<a href="${contextPath}/datarouter/viewNodeData?submitAction=countKeys&routerName=${param.routerName}
 								&nodeName=${nodeWrapper.node.name}"> count keys</a>
 							</c:if></td>
 						<td><c:if test="${true}">
-								<a href="/analytics/dr/viewNodeData?submitAction=countWhere&routerName=${param.routerName}
+								<a href="${contextPath}/datarouter/viewNodeData?submitAction=countWhere&routerName=${param.routerName}
 								&nodeName=${nodeWrapper.node.name}"> count txn</a>
 							</c:if></td>
 						<td><a href="/admin/dataRouter/export.htm?submitAction=exportToS3&routerName=${param.routerName}

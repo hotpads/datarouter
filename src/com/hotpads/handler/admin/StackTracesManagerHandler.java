@@ -188,7 +188,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 	private Form createSearchForm(String value){
 		Form form = new Form("");
 		form.setMethod("get");
-		form.setAction(request.getContextPath() + "/dr/stackTraces");
+		form.setAction(request.getContextPath() + "/datarouter/stackTraces");
 		Button submit = new Button();
 		submit.setType("submit");
 		submit.appendText("Submit");
@@ -231,7 +231,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 
 		form = new Form("");
 		form.setMethod("post");
-		form.setAction(request.getContextPath() + "/dr/stackTraces?submitAction=interruptThread");
+		form.setAction(request.getContextPath() + "/datarouter/stackTraces?submitAction=interruptThread");
 		hidden = new Input();
 		hidden.setType("hidden");
 		hidden.setName("threadId");
