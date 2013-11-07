@@ -26,8 +26,8 @@
 					<th>data</th>
 					<th>count keys</th>
 					<th>count txn</th>
-					<th>export to S3</th>
-					<th>import from S3</th>
+<!-- 					<th>export to S3</th> -->
+<!-- 					<th>import from S3</th> -->
 					<th>copy table</th>
 					<th>export HFiles</th>
 				</tr>
@@ -47,10 +47,11 @@
 								<a href="${contextPath}/datarouter/viewNodeData?submitAction=countWhere&routerName=${param.routerName}
 								&nodeName=${nodeWrapper.node.name}"> count txn</a>
 							</c:if></td>
-						<td><a href="/admin/dataRouter/export.htm?submitAction=exportToS3&routerName=${param.routerName}
-						&nodeName=${nodeWrapper.node.name}"> export to S3 </a></td>
-						<td><a href="/admin/dataRouter/export.htm?submitAction=showImportForm&routerName=${param.routerName}
-						&nodeName=${nodeWrapper.node.name}"> import from S3 </a></td>
+<!-- 						<td> -->
+<%-- 						<a href="/admin/dataRouter/export.htm?submitAction=exportToS3&routerName=${param.routerName} --%>
+<%-- 						&nodeName=${nodeWrapper.node.name}"> export to S3 </a></td> --%>
+<%-- 						<td><a href="/admin/dataRouter/export.htm?submitAction=showImportForm&routerName=${param.routerName} --%>
+<%-- 						&nodeName=${nodeWrapper.node.name}"> import from S3 </a></td> --%>
 						<td><c:if test="${nodeWrapper.isHBaseNode}">
 								<a href="/admin/dataRouter/menu.htm?submitAction=copyHBaseTable&routerName=${param.routerName}
 							&nodeName=${nodeWrapper.node.name}&destinationTableName="> copy table </a>
