@@ -54,7 +54,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 	@Handler
 	public Mav getStackTraces(){
 		Mav mav = new Mav("/jsp/admin/stackTraces.jsp");
-		boolean showAll = params.optionalBoolean("showAll", false);
+		//boolean showAll = params.optionalBoolean("showAll", false);
 		 stateParam = params.optional("state", null);
 		 wildcardParam = params.optional("wildcard", null);
 
@@ -83,13 +83,13 @@ public class StackTracesManagerHandler extends BaseHandler{
 								+ wildcardParam + "</span>");
 					}
 					boolean interestingThread = highlightedStackTrace.contains("hotpads");
-					if(!showAll){
+					//if(!showAll){
 //						if(!interestingThread){
 //							continue;
 //						}
-					}
+					//}
 
-					description = getThreadDescription(sts, thread, highlightedStackTrace, counter, showAll);
+					description = getThreadDescription(sts, thread, highlightedStackTrace, counter);
 					container.appendChild(description);
 				}
 			}
@@ -97,13 +97,13 @@ public class StackTracesManagerHandler extends BaseHandler{
 
 		saveStateCounters();
 		mav.put("title", "StackTraces of " + request.getLocalAddr());
-		A link = getLinkShowAll(showAll);
+		//A link = getLinkShowAll(showAll);
 
 		Pre pre = new Pre();
 		H4 counterTitle = new H4();
 		counterTitle.appendText(counter + " total threads running");
 		pre.appendChild(counterTitle);
-		pre.appendChild(link);
+		//pre.appendChild(link);
 		pre.setCSSClass("thread-filter");
 		pre.appendChild(createSearchForm(wildcardParam));
 
@@ -213,7 +213,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 	}
 
 	private Div getThreadDescription(Map<Thread,StackTraceElement[]> sts, Thread thread, String highlightedStackTrace,
-			int counter, boolean showAll){
+			int counter){
 		H4 title;
 		Div header;
 		Form form;
