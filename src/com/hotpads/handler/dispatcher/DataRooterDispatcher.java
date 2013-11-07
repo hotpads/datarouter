@@ -11,7 +11,7 @@ public class DataRooterDispatcher extends BaseDispatcher{
 
 	private static final String ROUTERS = "/routers";
 	public static final String URL_STACKTRACES = "/stackTraces";
-	public static final String URL_DR = "/dr";
+	public static final String URL_DR = "/datarouter";
 	public static final String URL_DATAROUTER_VIEW_NODE_DATA = URL_DR + "/viewNodeData";
 
 
