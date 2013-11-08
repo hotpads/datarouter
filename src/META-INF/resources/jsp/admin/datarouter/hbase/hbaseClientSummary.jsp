@@ -34,7 +34,7 @@ These are not node names.  They are table names from HBaseAdmin.listTables();<br
 		<th>table name</th>
 		<th>regions</th>
 		<th>settings</th>
-		<th>count cells</th>
+<!-- 		<th>count cells</th> -->
 	</tr>
 	</thead>
 	<tbody>
@@ -51,10 +51,10 @@ These are not node names.  They are table names from HBaseAdmin.listTables();<br
 					<a href="?submitAction=viewHBaseTableSettings&routerName=${param.routerName}
 							&clientName=${param.clientName}&tableName=${tableSummary.key}">settings</a>
 				</td>
-				<td>
-					<a href="/admin/dataRouter/menu.htm?submitAction=countHBaseTableCells&routerName=${param.routerName}
-							&clientName=${param.clientName}&tableName=${tableSummary.key}">count cells</a>
-				</td>
+<!-- 				<td> -->
+<%-- 					<a href="/admin/dataRouter/menu.htm?submitAction=countHBaseTableCells&routerName=${param.routerName} --%>
+<%-- 							&clientName=${param.clientName}&tableName=${tableSummary.key}">count cells</a> --%>
+<!-- 				</td> -->
 				<!--
 				<td>
 					<c:forEach items="${tableSummary.value}" var="attributeByName">
