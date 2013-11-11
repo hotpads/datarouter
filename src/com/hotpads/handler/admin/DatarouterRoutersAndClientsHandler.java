@@ -51,22 +51,22 @@ import com.hotpads.util.core.bytes.StringByteTool;
 
 public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 
-	private DataRouter router;
+	protected DataRouter router;
 	@Inject private DataRouterContext dataRouterContext;
-	private Mav mav;
-	private String routerName = null;
-	private String clientName = null;
-	private Client client = null;
-	private MemoryClient memoryClient = null;
-	private HibernateClientImp hibernateClient = null;
-	private HBaseClientImp hbaseClient = null;
-	private Configuration hbaseConfig = null;
-	private String nodeName = null;
-	private Node<?,?> node = null;
+	protected Mav mav;
+	protected String routerName = null;
+	protected String clientName = null;
+	protected Client client = null;
+	protected MemoryClient memoryClient = null;
+	protected HibernateClientImp hibernateClient = null;
+	protected HBaseClientImp hbaseClient = null;
+	protected Configuration hbaseConfig = null;
+	protected String nodeName = null;
+	protected Node<?,?> node = null;
 	
 	@Handler
 	protected Mav handleDefault(){
-		initializeParameters();
+		initializeGlobalParameters();
 		mav = mav.setViewName("/jsp/admin/datarouter/dataRouterMenu.jsp");
 		List<DataRouter> routers = dataRouterContext.getRouters();
 		initClients(routers);
@@ -78,7 +78,7 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 
 	@Handler
 	protected Mav inspectRouter(){
-		initializeParameters();
+		initializeGlobalParameters();
 		mav = mav.setViewName("/jsp/admin/datarouter/routerSummary.jsp");
 		List<NodeWrapper> nodeWrappers = NodeWrapper.getNodeWrappers(router);
 		mav.put("nodeWrappers", nodeWrappers);
@@ -88,7 +88,7 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 
 	@Handler
 	protected Mav inspectClient(){
-		initializeParameters();
+		initializeGlobalParameters();
 		List<PhysicalNode<?,?>> nodes = dataRouterContext.getNodes().getPhysicalNodesForClient(clientName);
 		mav.put("nodes", nodes);
 
@@ -110,7 +110,7 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 			return mav;
 
 		}else if(client instanceof HBaseClientImp){
-			mav.setViewName("/jsp/admin/datarouter/hbase/hbaseClientSummary.jsp");
+			mav.setViewName("PATH_HBASE_JSP+hbaseClientSummary.jsp");
 			mav.put("address", hbaseConfig.get(HConstants.ZOOKEEPER_QUORUM));
 			List<HTableDescriptor> tables = null;
 			try{
@@ -181,333 +181,12 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 	// return new MessageMav(sb.toString());
 	//
 	// }
-	@Handler
-	protected Mav viewHBaseServers(){
-		initializeParameters();
-		mav.setViewName("/jsp/admin/datarouter/hbase/hbaseServers.jsp");
-		hbaseClient.getHBaseAdmin();
-		HMasterInterface master = null;
-		try{
-			master = hbaseClient.getHBaseAdmin().getMaster();
-		}catch(MasterNotRunningException e){
-			e.printStackTrace();
-		}catch(ZooKeeperConnectionException e){
-			e.printStackTrace();
-		}
-		if(master != null){
-			ClusterStatus clusterStatus = master.getClusterStatus();
-			mav.put("clusterStatus", clusterStatus);
-			Collection<ServerName> serverNames = clusterStatus.getServers();
-			List<DRHServerInfo> servers = ListTool.create();
-			for(ServerName serverName : IterableTool.nullSafe(serverNames)){
-				HServerLoad hServerLoad = clusterStatus.getLoad(serverName);
-				servers.add(new DRHServerInfo(serverName, hServerLoad));
-			}
-			mav.put("servers", servers);
-		}
-		return mav;
-	}
 
-//	@Handler
-//	protected Mav viewHBaseTableRegions(){
-//		mav.setViewName("/jsp/admin/datarouter/hbase/hbaseTableRegions.jsp");
-//		String tableName = RequestTool.get(request, "tableName");
-//		String groupBy = RequestTool.get(request, "groupBy", null);
-//		DRHServerList drhServerList = new DRHServerList(hbaseConfig);
-//		DRHRegionList regionList = new DRHRegionList(hbaseClient, drhServerList, tableName, hbaseConfig, node,
-//				HbaseRegionBalancerJob.getBalancerStrategyForTable(tableName), new HotPadsCompactionInfo());
-//		mav.put("regionsByGroup", regionList.getRegionsGroupedBy(groupBy));
-//		DRHServerList serverList = new DRHServerList(hbaseConfig);
-//		mav.put("serverNames", serverList.getServerNames());
-//		return mav;
-//
-//	}
 
-	// @Handler
-	// protected Mav moveRegionsToCorrectServer.equals(action)
-	// || ACTION_moveHBaseTableRegions.equals(action)
-	// || ACTION_compactHBaseTableRegions.equals(action)
-	// || ACTION_compactAllHBaseTableRegions.equals(action)
-	// || ACTION_majorCompactHBaseTableRegions.equals(action)
-	// || ACTION_majorCompactAllHBaseTableRegions.equals(action)
-	// || ACTION_flushHBaseTableRegions.equals(action)
-	// || ACTION_flushAllHBaseTableRegions.equals(action)
-	// || ACTION_mergeFollowingHBaseTableRegions.equals(action)){
-	// // TODO don't tie to a specific table
-	// String tableName = RequestTool.get(request, PARAM_tableName);
-	// HBaseAdmin admin = hbaseClient.getHBaseAdmin();
-	// List<String> encodedRegionNameStrings =
-	// RequestTool.getCheckedBoxes(request, PARAM_PREFIX_encodedRegionName_);
-	// int numRegions = CollectionTool.size(encodedRegionNameStrings);
-	//
-	// if(ACTION_moveRegionsToCorrectServer.equals(action)){
-	// DRHServerList drhServerList = new DRHServerList(hbaseConfig);
-	// DRHRegionList regionList =
-	// new DRHRegionList(hbaseClient, drhServerList, tableName, hbaseConfig, node,
-	// HbaseRegionBalancerJob.getBalancerStrategyForTable(tableName),
-	// new HotPadsCompactionInfo());
-	// int counter = 0;
-	// for(DRHRegionInfo region : regionList.getRegions()){
-	// if(!region.isOnCorrectServer()){
-	// ++counter;
-	// PhaseTimer timer = new PhaseTimer("move " + counter + " of " + tableName);
-	// String encodedRegionNameString = region.getRegion().getEncodedName();
-	// String destinationServer = region.getConsistentHashServerName().getHostname();
-	// admin.move(Bytes.toBytes(encodedRegionNameString), Bytes.toBytes(destinationServer));
-	// logger.warn(timer.add("HBase moved region " + encodedRegionNameString + " to server "
-	// + destinationServer));
-	// }
-	// }
-	// }
-	// @Handler
-	// protected Mav moveHBaseTableRegions(){
-	// String destinationServer = RequestTool.get(request, PARAM_destinationServerName);
-	// ServerName serverName = new ServerName(destinationServer);
-	// DRHServerList serverList = new DRHServerList(hbaseConfig);
-	// if(CollectionTool.doesNotContain(serverList.getServerNames(), serverName)){
-	// throw new IllegalArgumentException(serverName + " not found");
-	// }
-	// for(int i = 0; i < numRegions; ++i){
-	// String encodedRegionNameString = encodedRegionNameStrings.get(i);
-	// PhaseTimer timer = new PhaseTimer("move " + i + "/" + numRegions + " of " + tableName);
-	// admin.move(Bytes.toBytes(encodedRegionNameString), Bytes.toBytes(destinationServer));
-	// logger.warn(timer.add("HBase moved region " + encodedRegionNameString + " to server "
-	// + serverName));
-	// }
-	//
-	// }
-	//
-	// @Handler
-	// protected Mav compactHBaseTableRegions(){
-	// DRHServerList drhServerList = new DRHServerList(hbaseConfig);
-	// DRHRegionList regionList = new DRHRegionList(hbaseClient, drhServerList, tableName, hbaseConfig, node,
-	// HbaseRegionBalancerJob.getBalancerStrategyForTable(tableName),
-	// new HotPadsCompactionInfo());
-	// for(int i = 0; i < numRegions; ++i){
-	// String encodedRegionNameString = encodedRegionNameStrings.get(i);
-	// PhaseTimer timer = new PhaseTimer("compact " + i + "/" + numRegions + " on " + tableName);
-	// DRHRegionInfo region = regionList.getRegionByEncodedName(encodedRegionNameString);
-	// if(region == null){
-	// logger.warn(timer.add("couldn't find " + tableName + " region " + encodedRegionNameString));
-	// continue;
-	// }
-	// admin.compact(region.getRegion().getRegionName());
-	// logger.warn(timer.add("Submitted compact request region " + encodedRegionNameString));
-	// }
-	// } @Handler
-	// protected Mav compactAllHBaseTableRegions(){
-	// admin.compact(tableName);
-	// logger.warn("Submitted compact request for entire table " + tableName);
-	//
-	// } @Handler
-	// protected Mav majorCompactHBaseTableRegions(){
-	// DRHServerList drhServerList = new DRHServerList(hbaseConfig);
-	// DRHRegionList regionList = new DRHRegionList(hbaseClient, drhServerList, tableName, hbaseConfig, node,
-	// HbaseRegionBalancerJob.getBalancerStrategyForTable(tableName), new HotPadsCompactionInfo());
-	// for(int i = 0; i < numRegions; ++i){
-	// String encodedRegionNameString = encodedRegionNameStrings.get(i);
-	// PhaseTimer timer = new PhaseTimer("majorCompact " + i + "/" + numRegions + " on " + tableName);
-	// DRHRegionInfo region = regionList.getRegionByEncodedName(encodedRegionNameString);
-	// if(region == null){
-	// logger.warn(timer.add("couldn't find " + tableName + " region " + encodedRegionNameString));
-	// continue;
-	// }
-	// admin.majorCompact(region.getRegion().getRegionName());
-	// logger.warn(timer.add("Submitted majorCompact request region " + encodedRegionNameString));
-	// }
-	// } @Handler
-	// protected Mav majorCompactAllHBaseTableRegions(){
-	// admin.majorCompact(tableName);
-	// logger.warn("Submitted majorCompact request for entire table " + tableName);
-	//
-	// } @Handler
-	// protected Mav flushHBaseTableRegions(){
-	// DRHServerList drhServerList = new DRHServerList(hbaseConfig);
-	// DRHRegionList regionList = new DRHRegionList(hbaseClient, drhServerList, tableName, hbaseConfig, node,
-	// HbaseRegionBalancerJob.getBalancerStrategyForTable(tableName), new HotPadsCompactionInfo());
-	// for(int i = 0; i < numRegions; ++i){
-	// String encodedRegionNameString = encodedRegionNameStrings.get(i);
-	// PhaseTimer timer = new PhaseTimer("flush " + i + "/" + numRegions + " on " + tableName);
-	// DRHRegionInfo region = regionList.getRegionByEncodedName(encodedRegionNameString);
-	// if(region == null){
-	// logger.warn(timer.add("couldn't find " + tableName + " region " + encodedRegionNameString));
-	// continue;
-	// }
-	// admin.flush(region.getRegion().getRegionName());
-	// logger.warn(timer.add("Submitted flush request region " + encodedRegionNameString));
-	// }
-	// }
-	//
-	//
-	// @Handler
-	// protected Mav flushAllHBaseTableRegions(){
-	// admin.flush(tableName);
-	// logger.warn("Submitted flush request for entire table " + tableName);
-	//
-	// }
-	//
-	//
-	//
-	// @Handler
-	// protected Mav mergeFollowingHBaseTableRegions(){
-	// DRHServerList drhServerList = new DRHServerList(hbaseConfig);
-	// DRHRegionList regionList = new DRHRegionList(hbaseClient, drhServerList, tableName, hbaseConfig, node,
-	// HbaseRegionBalancerJob.getBalancerStrategyForTable(tableName),
-	// new HotPadsCompactionInfo());
-	// Merge merge = new Merge(hbaseConfig);
-	// for(int i = 0; i < numRegions; ++i){
-	// PhaseTimer timer = new PhaseTimer("merge " + i + "/" + numRegions + " on " + tableName);
-	// DRHRegionInfo regionA = regionList.getRegionByEncodedName(encodedRegionNameStrings.get(i));
-	// if(regionA == null){
-	// logger.warn(timer.add("couldn't find " + tableName + " region "
-	// + encodedRegionNameStrings.get(i)));
-	// continue;
-	// }
-	// DRHRegionInfo regionB = regionList.getRegionAfter(encodedRegionNameStrings.get(i));
-	// admin.flush(regionA.getRegion().getRegionName());
-	// admin.flush(regionB.getRegion().getRegionName());
-	// merge.run(new String[]{tableName, regionA.getRegion().getRegionNameAsString(),
-	// regionB.getRegion().getRegionNameAsString()});
-	// logger.warn(timer.add("merged " + regionA.getRegion().getRegionNameAsString() + " and "
-	// + regionB.getRegion().getRegionNameAsString()));
-	// }
-	// }
-	// mav.setViewName("redirect:/admin/dataRouter/menu.htm");
-	// mav.put(RequestTool.SUBMIT_ACTION, ACTION_viewHBaseTableRegions);
-	// mav.put(PARAM_routerName, routerName);
-	// mav.put(PARAM_clientName, clientName);
-	// mav.put(PARAM_tableName, tableName);
-	// return mav;
-	//
-	// }
 
-	@Handler
-	protected Mav viewHBaseTableSettings(){
-		initializeParameters();
-		mav.setViewName("/jsp/admin/datarouter/hbase/hbaseTableSettings.jsp");
-		String tableName = RequestTool.get(request, PARAM_tableName);
-		HTableDescriptor table = null;
-		try{
-			table = hbaseClient.getHBaseAdmin().getTableDescriptor(tableName.getBytes());
-		}catch(TableNotFoundException e){
-			e.printStackTrace();
-		}catch(IOException e){
-			e.printStackTrace();
-		}
-		if(table != null){
-			// table level settings
-			Map<String,String> tableParamByName = MapTool.createTreeMap();
-			tableParamByName.put(HBASE_TABLE_PARAM_MAX_FILESIZE, table.getMaxFileSize() / 1024 / 1024 + "");
-			tableParamByName.put(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE, table.getMemStoreFlushSize() / 1024 / 1024 + "");
-			mav.put("tableParamByName", tableParamByName);
-
-			// column family level settings
-			List<HColumnDescriptor> columnFamilies = ListTool.create(table.getColumnFamilies());
-			Map<String,Map<String,String>> columnSummaryByName = MapTool.createTreeMap();
-			for(HColumnDescriptor column : IterableTool.nullSafe(columnFamilies)){
-				Map<String,String> attributeByName = parseFamilyAttributeMap(column.getValues());
-				columnSummaryByName.put(column.getNameAsString(), attributeByName);
-			}
-			mav.put("columnSummaryByName", columnSummaryByName);
-		}
-
-		return mav;
-
-	}
-
-	@Handler
-	protected Mav updateHBaseTableAttribute(){
-		initializeParameters();
-		String tableName = RequestTool.get(request, PARAM_tableName);
-		HBaseAdmin admin = hbaseClient.getHBaseAdmin();
-		HTableDescriptor table = null;
-		try{
-			table = admin.getTableDescriptor(tableName.getBytes());
-
-			if(table != null){
-				try{
-					admin.disableTable(tableName);
-					logger.warn("table disabled");
-					Long maxFileSizeMb = RequestTool.getLong(request, PARAM_maxFileSizeMb, null);
-					if(maxFileSizeMb != null){
-						table.setMaxFileSize(maxFileSizeMb * 1024 * 1024);
-					}
-					Long memstoreFlushSizeMb = RequestTool.getLong(request, PARAM_memstoreFlushSizeMb, null);
-					if(memstoreFlushSizeMb != null){
-						table.setMemStoreFlushSize(memstoreFlushSizeMb * 1024 * 1024);
-					}
-					admin.modifyTable(StringByteTool.getUtf8Bytes(tableName), table);
-				}catch(Exception e){
-					logger.warn(ExceptionTool.getStackTraceAsString(e));
-				}finally{
-					admin.enableTable(tableName);
-				}
-				logger.warn("table enabled");
-				//TODO Update when the handler is created on datarouter
-				mav.setViewName("redirect:/admin/dataRouter/menu.htm");
-				mav.put(RequestTool.SUBMIT_ACTION, ACTION_viewHBaseTableRegions);
-				mav.put(PARAM_routerName, RequestTool.get(request, PARAM_routerName));
-				mav.put(PARAM_clientName, RequestTool.get(request, PARAM_clientName));
-				mav.put(PARAM_tableName, RequestTool.get(request, PARAM_tableName));
-			}
-		}catch(TableNotFoundException e1){
-			e1.printStackTrace();
-		}catch(IOException e1){
-			e1.printStackTrace();
-		}
-		return mav;
-
-	}
-
-	@Handler
-	protected Mav updateHBaseColumnAttribute(){
-		initializeParameters();
-		String tableName = RequestTool.get(request, PARAM_tableName);
-		HBaseAdmin admin = hbaseClient.getHBaseAdmin();
-		HTableDescriptor table;
-		try{
-			table = admin.getTableDescriptor(tableName.getBytes());
-
-			String columnName = RequestTool.get(request, PARAM_columnName);
-			HColumnDescriptor column = table.getFamily(columnName.getBytes());
-			try{
-				// validate all settings before disabling table
-				for(String colParam : IterableTool.nullSafe(DRHTableSettings.COLUMN_SETTINGS)){
-					String value = RequestTool.get(request, colParam);
-					DRHTableSettings.validateColumnFamilySetting(colParam, value);
-				}
-				admin.disableTable(tableName);
-				logger.warn("table disabled");
-				for(String colParam : IterableTool.nullSafe(DRHTableSettings.COLUMN_SETTINGS)){
-					String value = RequestTool.get(request, colParam);
-					column.setValue(colParam, value.trim());
-				}
-				admin.modifyColumn(tableName, column);
-			}catch(Exception e){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
-			}finally{
-				admin.enableTable(tableName);
-			}
-		}catch(TableNotFoundException e1){
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}catch(IOException e1){
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		logger.warn("table enabled");
-		//TODO Update when the handler is created on datarouter
-		mav.setViewName("redirect:/admin/dataRouter/menu.htm");
-		mav.put(RequestTool.SUBMIT_ACTION, ACTION_viewHBaseTableRegions);
-		mav.put(PARAM_routerName, RequestTool.get(request, PARAM_routerName));
-		mav.put(PARAM_clientName, RequestTool.get(request, PARAM_clientName));
-		mav.put(PARAM_tableName, RequestTool.get(request, PARAM_tableName));
-		return mav;
-
-	}
 
 	/************************* Utils methods ***********************************/
-	private void initializeParameters(){
+	protected void initializeGlobalParameters(){
 		String action = RequestTool.getSubmitAction(request, ACTION_listRouters);
 		mav = new Mav();
 		/********************** common params *************************************/
@@ -588,7 +267,7 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 	/************************************** Constants **********************************/
 	Logger logger = Logger.getLogger(getClass());
 
-	public static final String ACTION_listRouters = "listRouters",
+	protected static final String ACTION_listRouters = "listRouters",
 			ACTION_inspectRouter = "inspectRouter",
 			ACTION_inspectClient = "inspectClient",
 
@@ -616,7 +295,7 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 			PARAM_destinationServerName = "destinationServerName", PARAM_maxFileSizeMb = "maxFileSizeMb",
 			PARAM_memstoreFlushSizeMb = "memstoreFlushSizeMb";
 
-	public static final List<String> NEEDS_CLIENT = ListTool.create();
+	protected static final List<String> NEEDS_CLIENT = ListTool.create();
 	static{
 		NEEDS_CLIENT.add(ACTION_inspectClient);
 		NEEDS_CLIENT.add(ACTION_viewHBaseServers);
@@ -635,7 +314,7 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 		NEEDS_CLIENT.add(ACTION_updateHBaseColumnAttribute);
 	}
 
-	public static final List<String> NEEDS_ROUTER = ListTool.create();
+	protected static final List<String> NEEDS_ROUTER = ListTool.create();
 	static{
 		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
 		NEEDS_ROUTER.add(ACTION_inspectRouter);
@@ -643,7 +322,7 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 		NEEDS_ROUTER.add(ACTION_exportNodeToHFile);
 	}
 
-	public static final List<String> NEEDS_NODE = ListTool.create();
+	protected static final List<String> NEEDS_NODE = ListTool.create();
 	static{
 		NEEDS_NODE.add(ACTION_copyHBaseTable);
 		NEEDS_NODE.add(ACTION_exportNodeToHFile);
@@ -655,12 +334,12 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 		NEEDS_NODE.add(ACTION_viewHBaseTableRegions);
 	}
 
-	public static final String
+	protected static final String
 	// also hard-coded in hbaseTableSettings.jsp
 			HBASE_TABLE_PARAM_MAX_FILESIZE = "MAX_FILESIZE",
 			HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE = "MEMSTORE_FLUSHSIZE";
 
-	public static final List<String> HBASE_TABLE_PARAMS = ListTool.create();
+	protected static final List<String> HBASE_TABLE_PARAMS = ListTool.create();
 	static{
 		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MAX_FILESIZE);
 		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE);

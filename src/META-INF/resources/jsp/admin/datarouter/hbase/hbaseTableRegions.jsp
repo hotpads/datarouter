@@ -2,7 +2,6 @@
 <html>
 <head>
 <title>DR ${param.tableName}</title>
-<link rel="stylesheet" type="text/css" href="/css/admin.css" />
 <%@ include file="/jsp/generic/head.jsp" %>
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
@@ -30,13 +29,13 @@ table: ${param.tableName}
 <h3 style="width:100%;border-bottom:1px solid gray;">Regions</h3>
 <br/>
 <form method="post" action="?" name="mainform">
-<table>
+<table class="table table-striped table-condensed">
 <tr>
 	<td>
 		routerName:${param.routerName}<br/>
 		clientName:${param.clientName}<br/>
 		tableName:${param.tableName}<br/>
-		<a href="/admin/dataRouter/menu.htm?submitAction=viewHBaseTableSettings&routerName=${param.routerName}
+		<a href="?submitAction=viewHBaseTableSettings&routerName=${param.routerName}
 				&clientName=${param.clientName}&tableName=${param.tableName}">Table Settings</a>
 	</td>
 	<td>	
@@ -89,7 +88,7 @@ table: ${param.tableName}
 </tr>
 </table>
 groupBy:
-<c:set var="groupByUrlBase" value="/admin/dataRouter/menu.htm?submitAction=viewHBaseTableRegions&routerName=${param.routerName}
+<c:set var="groupByUrlBase" value="?submitAction=viewHBaseTableRegions&routerName=${param.routerName}
 		&clientName=${param.clientName}&tableName=${param.tableName}"/>
 <a style="<c:if test="${empty param.groupBy}">font-weight:bold;</c:if>" href="${groupByUrlBase}">all</a>&nbsp;-&nbsp;
 <a style="<c:if test="${param.groupBy=='serverName'}">font-weight:bold;</c:if>" href="${groupByUrlBase}&groupBy=serverName">serverName</a>
