@@ -73,7 +73,7 @@ extends BaseHandler{
 		PARAM_offset = "offset";
 	
 	private Mav preHandle(){
-		Mav mav = new Mav("/WEB-INF/jsp/datarouter/viewNodeData.jsp");
+		Mav mav = new Mav("/jsp/admin/viewNodeData.jsp");
 		String nodeName = RequestTool.get(request, PARAM_nodeName);
 		node = drContext.getNodes().getNode(nodeName);
 		if(node==null){

@@ -6,6 +6,7 @@ import java.util.Enumeration;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -43,7 +44,10 @@ public class StaticFileFilter implements Filter {
 				String headerValue = config.getInitParameter(headerName);
 				response.addHeader(headerName, headerValue);
 			 }
-		    request.getRequestDispatcher(contextPath + path).forward(request, response);
+			
+			RequestDispatcher rd = request.getServletContext().getNamedDispatcher("default");
+			rd.forward(request, response);
+//			    request.getRequestDispatcher("default").forward(request, response);
 		    return;
 		}
 			//continue

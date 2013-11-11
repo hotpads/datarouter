@@ -2,9 +2,7 @@ package com.hotpads.handler.datarouter.dispatcher;
 
 import com.google.inject.Injector;
 import com.hotpads.handler.BaseDispatcher;
-import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.datarouter.ViewNodeDataHandler;
-import com.hotpads.handler.mav.Mav;
 
 
 public class RootDispatcher extends BaseDispatcher{
