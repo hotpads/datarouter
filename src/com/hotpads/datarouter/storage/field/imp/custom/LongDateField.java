@@ -31,7 +31,7 @@ public class LongDateField extends BasePrimitiveField<Date>{
 	@Override
 	public String getStringEncodedValue(){
 		if(value==null){ return null; }
-		return value.toString();
+		return value.getTime()+"";
 	}
 	
 	@Override
