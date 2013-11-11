@@ -1,3 +1,7 @@
+body {
+	font-family: verdana, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
 #hotpads-logo {
 	height: 40px;
 }
@@ -6,6 +10,48 @@
 	padding-top: 4px !important;
 }
 
+.underline {
+	text-decoration: underline
+}
+
+.on-top {
+	margin-top: 5%;
+}
+
+.table {
+	font-size: 12px;
+}
+
+.table thead th {
+	vertical-align: bottom;
+	text-align: left;
+	font-size: 0.90em;
+	margin: 10%;
+	overflow: inherit;
+	background-color: #585858 !important;
+	color: white;
+}
+
+.table th,.table td {
+	padding: 0px 2px 0px 2px;
+	white-space: nowrap;
+}
+
+.wide-container {
+	margin: 1%;
+}
+
+.label-above #areaPartial {
+	margin-left: 0px
+}
+
+.label-above ul {
+	list-style: none;
+}
+
+.label-above input[type="text"] {
+	width: 85%;
+}
 /* Navbar */
 #generic-navbar {
 	margin-bottom: 0px;
@@ -15,8 +61,7 @@
 }
 
 #generic-navbar ul {
-	padding: 5 0 0 0;
-	margin-left: 100px;
+	padding: 5px 0px 0px 0px;
 }
 
 #generic-navbar li {
@@ -25,18 +70,69 @@
 	list-style: none;
 	margin-right: 15px;
 	margin-top: 9px;
+	color: #bbb;
 }
 
 #generic-navbar a {
 	color: #bbb;
+	width: inherit;
 }
 
 #generic-navbar a:hover {
 	color: white;
 }
-.sub-navigation{
+
+.sub-navigation {
 	margin: 0px 0px 10px 70px !important;
 }
-.navbar-small{
+
+.navbar-small {
 	height: 50px !important;
+}
+
+/* StackTraces */
+.thread-description {
+	border: solid 1px #A3A3A3;
+	border-radius: 10px;
+	padding: 10px;
+	background-color: #eee;
+	margin-bottom: 20px;
+}
+
+.thread-description .header-thread-descritpion {
+	display: inline;
+}
+
+.thread-description .header-thread-descritpion input {
+	float: right;
+}
+
+.thread-filter a {
+	margin-left: 10px;
+}
+
+.thread-filter #wildcard {
+	margin-bottom: 0;
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-top: 3px;
+}
+
+.thread-filer .radio.inline {
+	margin-bottom: 5px;
+}
+
+/*****************************************************/
+/****************View node Data **********************/
+/*****************************************************/
+.viewNodeDataTable td {
+	text-align: left;
+}
+
+.viewNodeDataTable .highlighted {
+	background-color: #DADADA;
+}
+
+#get-info-node {
+	list-style: none;
 }

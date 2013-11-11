@@ -56,6 +56,7 @@ public enum MySqlColumnType{
 	private static Map<String,MySqlColumnType> OTHER_NAME_TO_TYPE = Maps.newHashMap();
 	static{
 		OTHER_NAME_TO_TYPE.put("INT UNSIGNED", BIGINT);
+		OTHER_NAME_TO_TYPE.put("BIGINT UNSIGNED", BIGINT);
 	}
 
 
