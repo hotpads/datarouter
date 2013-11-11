@@ -36,13 +36,16 @@ public class StringField extends BaseField<String>{
 	}
 	
 	
-	/*********************** StringEncodedField ***********************/
+	/************************ Comparable ****************************/
 	
 	@Override
 	public int compareTo(Field<String> other){
 		if(other==null){ return -1; }
 		return ComparableTool.nullFirstCompareTo(this.getValue(), other.getValue());
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 	
 	@Override
 	public String getStringEncodedValue(){

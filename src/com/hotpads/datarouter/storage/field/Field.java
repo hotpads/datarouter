@@ -30,8 +30,9 @@ extends Comparable<Field<T>>,
 	
 	boolean isCollection();
 	String getPrefixedName();
-	String getValueString();
-	void fromString(String s);
 	void setUsingReflection(FieldSet<?> targetFieldSet, Object value);
 
+	@Deprecated
+	String getValueString();
+	void fromString(String s);
 }
