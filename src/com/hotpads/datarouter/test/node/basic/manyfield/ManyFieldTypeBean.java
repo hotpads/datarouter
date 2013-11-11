@@ -149,6 +149,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	}
 	
 	public boolean equalsAllPersistentFields(ManyFieldTypeBean that){
+		if(ObjectTool.notEquals(key, that.key)){ return false; }
 		if(ObjectTool.notEquals(booleanField, that.booleanField)){ return false; }
 		if(ObjectTool.notEquals(byteField, that.byteField)){ return false; }
 		if(ObjectTool.notEquals(shortField, that.shortField)){ return false; }
