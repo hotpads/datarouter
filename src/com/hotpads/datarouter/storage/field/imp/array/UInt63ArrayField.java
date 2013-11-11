@@ -46,6 +46,47 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 		throw new NotImplementedException();
 	}
 	
+
+	/*********************** ByteEncodedField ***********************/	
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:LongByteTool.getUInt63ByteArray(value);
+	}
+	
+	@Override
+	public List<Long> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
+		int numBytes = ArrayTool.length(bytes) - byteOffset;
+		return new LongArray(LongByteTool.fromUInt63ByteArray(bytes, byteOffset, numBytes));
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
+		return bytes==null?0:(IntegerByteTool.fromUInt31Bytes(bytes, byteOffset) + 4);
+	}
+	
+	@Override
+	public byte[] getBytesWithSeparator(){
+		if(value==null){ return IntegerByteTool.getUInt31Bytes(0); }
+		//prepend the length (in bytes) as a positive integer (not bitwise comparable =( )
+		//TODO replace with varint
+		byte[] dataBytes = LongByteTool.getUInt63ByteArray(value);
+		byte[] allBytes = new byte[4+dataBytes.length];
+		System.arraycopy(IntegerByteTool.getUInt31Bytes(dataBytes.length), 0, allBytes, 0, 4);
+		System.arraycopy(dataBytes, 0, allBytes, 4, dataBytes.length);
+		return allBytes;
+	}
+	
+	@Override
+	public List<Long> fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
+		int numBytes = numBytesWithSeparator(bytes, byteOffset) - 4;
+		return new LongArray(LongByteTool.fromUInt63ByteArray(bytes, byteOffset + 4, numBytes));
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
+	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , nullable, false);
@@ -86,43 +127,10 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 	@Override
 	public String getSqlEscaped(){
 		throw new NotImplementedException("and probably never will be");
-	};
-	
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:LongByteTool.getUInt63ByteArray(value);
 	}
 	
-	@Override
-	public List<Long> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		int numBytes = ArrayTool.length(bytes) - byteOffset;
-		return new LongArray(LongByteTool.fromUInt63ByteArray(bytes, byteOffset, numBytes));
-	}
 	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		return bytes==null?0:(IntegerByteTool.fromUInt31Bytes(bytes, byteOffset) + 4);
-	}
-	
-	@Override
-	public byte[] getBytesWithSeparator(){
-		if(value==null){ return IntegerByteTool.getUInt31Bytes(0); }
-		//prepend the length (in bytes) as a positive integer (not bitwise comparable =( )
-		//TODO replace with varint
-		byte[] dataBytes = LongByteTool.getUInt63ByteArray(value);
-		byte[] allBytes = new byte[4+dataBytes.length];
-		System.arraycopy(IntegerByteTool.getUInt31Bytes(dataBytes.length), 0, allBytes, 0, 4);
-		System.arraycopy(dataBytes, 0, allBytes, 4, dataBytes.length);
-		return allBytes;
-	}
-	
-	@Override
-	public List<Long> fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
-		int numBytes = numBytesWithSeparator(bytes, byteOffset) - 4;
-		return new LongArray(LongByteTool.fromUInt63ByteArray(bytes, byteOffset + 4, numBytes));
-	}
-	
+	/*********************** tests ***************************/	
 	
 	public static class UInt63ArrayFieldTests{
 		@Test public void testByteAware(){

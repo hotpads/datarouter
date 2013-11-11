@@ -47,6 +47,27 @@ public class UInt15Field extends BasePrimitiveField<Short>{
 		return Short.valueOf(s);
 	}
 	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:ShortByteTool.getUInt15Bytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 2;
+	}
+	
+	@Override
+	public Short fromBytesButDoNotSet(byte[] bytes, int offset){
+		return ShortByteTool.fromUInt15Bytes(bytes, offset);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.SMALLINT, 5, nullable, false);
@@ -90,20 +111,5 @@ public class UInt15Field extends BasePrimitiveField<Short>{
 //			throw new DataAccessException(e.getClass().getSimpleName()+" on "+fieldSet.getClass().getSimpleName()+"."+fieldName);
 //		}
 //	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:ShortByteTool.getUInt15Bytes(value);
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 2;
-	}
-	
-	@Override
-	public Short fromBytesButDoNotSet(byte[] bytes, int offset){
-		return ShortByteTool.fromUInt15Bytes(bytes, offset);
-	}
 
 }

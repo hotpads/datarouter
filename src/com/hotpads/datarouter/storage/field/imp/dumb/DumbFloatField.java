@@ -48,6 +48,27 @@ public class DumbFloatField extends BasePrimitiveField<Float>{
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Float.valueOf(s);
 	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:FloatByteTool.getBytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 4;
+	}
+	
+	@Override
+	public Float fromBytesButDoNotSet(byte[] bytes, int offset){
+		return FloatByteTool.fromBytes(bytes, offset);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -80,20 +101,5 @@ public class DumbFloatField extends BasePrimitiveField<Float>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:FloatByteTool.getBytes(value);
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 4;
-	}
-	
-	@Override
-	public Float fromBytesButDoNotSet(byte[] bytes, int offset){
-		return FloatByteTool.fromBytes(bytes, offset);
 	}
 }

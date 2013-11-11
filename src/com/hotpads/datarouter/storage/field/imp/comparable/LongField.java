@@ -37,6 +37,27 @@ public class LongField extends BasePrimitiveField<Long>{
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Long.valueOf(s);
 	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+	
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:LongByteTool.getComparableBytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 8;
+	}
+	
+	@Override
+	public Long fromBytesButDoNotSet(byte[] bytes, int offset){
+		return LongByteTool.fromComparableBytes(bytes, offset);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -84,19 +105,4 @@ public class LongField extends BasePrimitiveField<Long>{
 //			throw new DataAccessException(e.getClass().getSimpleName()+" on "+fieldSet.getClass().getSimpleName()+"."+fieldName);
 //		}
 //	}
-	
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:LongByteTool.getComparableBytes(value);
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 8;
-	}
-	
-	@Override
-	public Long fromBytesButDoNotSet(byte[] bytes, int offset){
-		return LongByteTool.fromComparableBytes(bytes, offset);
-	}
 }

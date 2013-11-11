@@ -44,6 +44,29 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 		return sampleValue.fromPersistentInteger(Integer.valueOf(s));
 	}
 	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:IntegerByteTool.getComparableBytes(
+				value.getPersistentInteger());
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 4;
+	}
+	
+	@Override
+	public E fromBytesButDoNotSet(byte[] bytes, int offset){
+		return sampleValue.fromPersistentInteger(
+				IntegerByteTool.fromComparableBytes(bytes, offset));
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.INT, 11, nullable, false);
@@ -92,23 +115,6 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:IntegerByteTool.getComparableBytes(
-				value.getPersistentInteger());
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 4;
-	}
-	
-	@Override
-	public E fromBytesButDoNotSet(byte[] bytes, int offset){
-		return sampleValue.fromPersistentInteger(
-				IntegerByteTool.fromComparableBytes(bytes, offset));
 	}
 	
 	

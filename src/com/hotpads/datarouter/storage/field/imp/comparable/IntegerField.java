@@ -37,6 +37,28 @@ public class IntegerField extends BasePrimitiveField<Integer>{
 		return Integer.valueOf(s);
 	}
 	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:IntegerByteTool.getComparableBytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 4;
+	}
+	
+	@Override
+	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
+		return IntegerByteTool.fromComparableBytes(bytes, offset);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
+	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.INT, 11, nullable, false);
@@ -68,22 +90,6 @@ public class IntegerField extends BasePrimitiveField<Integer>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:IntegerByteTool.getComparableBytes(value);
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 4;
-	}
-	
-	@Override
-	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
-		return IntegerByteTool.fromComparableBytes(bytes, offset);
-	}
-	
+	}	
 	
 }

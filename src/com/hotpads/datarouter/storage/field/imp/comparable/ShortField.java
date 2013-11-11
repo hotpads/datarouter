@@ -37,6 +37,27 @@ public class ShortField extends BasePrimitiveField<Short>{
 		return Short.valueOf(s);
 	}
 	
+
+	/*********************** ByteEncodedField ***********************/
+	
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:ShortByteTool.getComparableBytes(this.value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 2;
+	}
+	
+	@Override
+	public Short fromBytesButDoNotSet(byte[] bytes, int offset){
+		return ShortByteTool.fromComparableBytes(bytes, offset);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.SMALLINT, 5, nullable, false);
@@ -68,21 +89,6 @@ public class ShortField extends BasePrimitiveField<Short>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-	
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:ShortByteTool.getComparableBytes(this.value);
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 2;
-	}
-	
-	@Override
-	public Short fromBytesButDoNotSet(byte[] bytes, int offset){
-		return ShortByteTool.fromComparableBytes(bytes, offset);
 	}
 
 }

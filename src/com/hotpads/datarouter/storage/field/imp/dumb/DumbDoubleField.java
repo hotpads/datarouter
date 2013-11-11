@@ -39,6 +39,27 @@ public class DumbDoubleField extends BasePrimitiveField<Double>{
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Double.valueOf(s);
 	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:DoubleByteTool.getBytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 8;
+	}
+	
+	@Override
+	public Double fromBytesButDoNotSet(byte[] bytes, int offset){
+		return DoubleByteTool.fromBytes(bytes, offset);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -71,21 +92,6 @@ public class DumbDoubleField extends BasePrimitiveField<Double>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:DoubleByteTool.getBytes(value);
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 8;
-	}
-	
-	@Override
-	public Double fromBytesButDoNotSet(byte[] bytes, int offset){
-		return DoubleByteTool.fromBytes(bytes, offset);
 	}
 	
 

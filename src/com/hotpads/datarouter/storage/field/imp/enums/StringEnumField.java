@@ -47,6 +47,73 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 		if(StringTool.isEmpty(s)){ return null; }
 		return sampleValue.fromPersistentString(s);
 	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+	
+	public static final byte SEPARATOR = 0;
+
+	@Override
+	public boolean isFixedLength(){
+		return false;
+	}
+
+	@Override
+	public byte[] getBytes(){
+		return value == null ? null : StringByteTool.getUtf8Bytes(value.getPersistentString());
+	}
+
+	@Override
+	public byte[] getBytesWithSeparator(){
+		// TODO someday don't put the separator after the last field, but that would break all currently persisted keys
+		byte[] dataBytes = getBytes();
+		if(ArrayTool.containsUnsorted(dataBytes, SEPARATOR)){ throw new IllegalArgumentException(
+				"String cannot contain separator byteVal=" + SEPARATOR); }
+		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{SEPARATOR}; }
+		byte[] allBytes = new byte[dataBytes.length + 1];
+		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
+		allBytes[allBytes.length - 1] = SEPARATOR;// Ascii "null" will compare first in lexicographical bytes comparison
+		return allBytes;
+	}
+
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		for(int i = offset; i < bytes.length; ++i){
+			if(bytes[i] == StringField.SEPARATOR){ return i - offset + 1;// plus 1 for the separator
+			}
+		}
+		int numBytes = bytes.length - offset;
+		return numBytes >= 0 ? numBytes : 0; // not sure where the separator went. schema change or corruption?
+		// throw new IllegalArgumentException("separator not found for bytes:"+new String(bytes));
+	}
+
+	@Override
+	public E fromBytesButDoNotSet(byte[] bytes, int offset){
+		int length = bytes.length - offset;
+		if(length == 0){ return null; }// hmm - can this handle empty strings?
+		//TODO use StringByteTool?
+		E e = sampleValue.fromPersistentString(new String(bytes, offset, length, StringByteTool.CHARSET_UTF8));
+		return e;
+	}
+	
+	@Override
+	public E fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
+		int lengthIncludingSeparator = numBytesWithSeparator(bytes, offset);
+		boolean lastByteIsSeparator = bytes[offset + lengthIncludingSeparator - 1] == SEPARATOR;
+		int lengthWithoutSeparator = lengthIncludingSeparator;
+		if(lastByteIsSeparator){
+			--lengthWithoutSeparator;
+		}
+		if (lengthWithoutSeparator == -1){
+			lengthWithoutSeparator = 0;
+		}
+		String stringValue = StringByteTool.fromUtf8Bytes(bytes, offset, lengthWithoutSeparator);
+		E e = sampleValue.fromPersistentString(stringValue);
+		return e;
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -109,67 +176,5 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 		}
 	}
 
-	/************************* bytes (mostly copied from StringField) **************************/
-
-	public static final byte SEPARATOR = 0;
-
-	@Override
-	public boolean isFixedLength(){
-		return false;
-	}
-
-	@Override
-	public byte[] getBytes(){
-		return value == null ? null : StringByteTool.getUtf8Bytes(value.getPersistentString());
-	}
-
-	@Override
-	public byte[] getBytesWithSeparator(){
-		// TODO someday don't put the separator after the last field, but that would break all currently persisted keys
-		byte[] dataBytes = getBytes();
-		if(ArrayTool.containsUnsorted(dataBytes, SEPARATOR)){ throw new IllegalArgumentException(
-				"String cannot contain separator byteVal=" + SEPARATOR); }
-		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{SEPARATOR}; }
-		byte[] allBytes = new byte[dataBytes.length + 1];
-		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
-		allBytes[allBytes.length - 1] = SEPARATOR;// Ascii "null" will compare first in lexicographical bytes comparison
-		return allBytes;
-	}
-
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		for(int i = offset; i < bytes.length; ++i){
-			if(bytes[i] == StringField.SEPARATOR){ return i - offset + 1;// plus 1 for the separator
-			}
-		}
-		int numBytes = bytes.length - offset;
-		return numBytes >= 0 ? numBytes : 0; // not sure where the separator went. schema change or corruption?
-		// throw new IllegalArgumentException("separator not found for bytes:"+new String(bytes));
-	}
-
-	@Override
-	public E fromBytesButDoNotSet(byte[] bytes, int offset){
-		int length = bytes.length - offset;
-		if(length == 0){ return null; }// hmm - can this handle empty strings?
-		//TODO use StringByteTool?
-		E e = sampleValue.fromPersistentString(new String(bytes, offset, length, StringByteTool.CHARSET_UTF8));
-		return e;
-	}
-	
-	@Override
-	public E fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
-		int lengthIncludingSeparator = numBytesWithSeparator(bytes, offset);
-		boolean lastByteIsSeparator = bytes[offset + lengthIncludingSeparator - 1] == SEPARATOR;
-		int lengthWithoutSeparator = lengthIncludingSeparator;
-		if(lastByteIsSeparator){
-			--lengthWithoutSeparator;
-		}
-		if (lengthWithoutSeparator == -1){
-			lengthWithoutSeparator = 0;
-		}
-		String stringValue = StringByteTool.fromUtf8Bytes(bytes, offset, lengthWithoutSeparator);
-		E e = sampleValue.fromPersistentString(stringValue);
-		return e;
-	}
 
 }

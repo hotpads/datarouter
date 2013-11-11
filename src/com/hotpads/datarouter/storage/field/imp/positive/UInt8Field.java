@@ -55,6 +55,27 @@ public class UInt8Field extends BasePrimitiveField<Byte>{
 		return ByteTool.toUnsignedByte(Integer.valueOf(s));
 	}
 	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:new byte[]{value};
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 1;
+	}
+	
+	@Override
+	public Byte fromBytesButDoNotSet(byte[] bytes, int offset){
+		return bytes[offset];
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.SMALLINT, 5, nullable, false);
@@ -98,20 +119,5 @@ public class UInt8Field extends BasePrimitiveField<Byte>{
 //			throw new DataAccessException(e.getClass().getSimpleName()+" on "+fieldSet.getClass().getSimpleName()+"."+fieldName);
 //		}
 //	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:new byte[]{value};
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 1;
-	}
-	
-	@Override
-	public Byte fromBytesButDoNotSet(byte[] bytes, int offset){
-		return bytes[offset];
-	}
 
 }

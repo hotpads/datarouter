@@ -38,7 +38,10 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 	public List<Double> parseStringEncodedValueButDoNotSet(String s){
 		throw new NotImplementedException();
 	}
+	
 
+	/*********************** ByteEncodedField ***********************/
+	
 	@Override
 	public byte[] getBytes(){
 		if(value == null){
@@ -57,6 +60,9 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
+
+	/*********************** SqlEncodedField ***********************/
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

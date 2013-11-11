@@ -37,6 +37,9 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 	public List<Integer> parseStringEncodedValueButDoNotSet(String s){
 		throw new NotImplementedException();
 	}
+	
+
+	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){
@@ -56,6 +59,9 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
+
+	/*********************** SqlEncodedField ***********************/
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -89,6 +95,9 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 			throw new DataAccessException(e);
 		}
 	}
+	
+	
+	/********************* main ************************/
 	
 	public static void main(String[] args){
 		IntegerArrayField testField = new IntegerArrayField("stuff", ListTool.create(new Integer(-51), null, new Integer(2)));

@@ -50,6 +50,27 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 		return assertInRange(s==null?null:Integer.valueOf(s));
 	}
 	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:new VarInt(value).getBytes();
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return new VarInt(bytes, offset).getNumBytes();
+	}
+	
+	@Override
+	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
+		return new VarInt(bytes, offset).getValue();
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.INT, 11, nullable, false);
@@ -93,21 +114,6 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 //			throw new DataAccessException(e.getClass().getSimpleName()+" on "+fieldSet.getClass().getSimpleName()+"."+fieldName);
 //		}
 //	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:new VarInt(value).getBytes();
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return new VarInt(bytes, offset).getNumBytes();
-	}
-	
-	@Override
-	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
-		return new VarInt(bytes, offset).getValue();
-	}
 	
 	/***************************** validate *****************************************/
 	

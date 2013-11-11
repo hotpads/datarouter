@@ -37,6 +37,29 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Byte.valueOf(s);
 	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+
+	//recognizes -128 to -1 using two's complement.  therefore max value is 127
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:ByteTool.getComparableBytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 1;
+	}
+	
+	@Override
+	public Byte fromBytesButDoNotSet(byte[] bytes, int offset){
+		return ByteTool.getComparableByte(bytes[offset]);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -69,22 +92,6 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-
-	//recognizes -128 to -1 using two's complement.  therefore max value is 127
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:ByteTool.getComparableBytes(value);
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 1;
-	}
-	
-	@Override
-	public Byte fromBytesButDoNotSet(byte[] bytes, int offset){
-		return ByteTool.getComparableByte(bytes[offset]);
 	}
 
 

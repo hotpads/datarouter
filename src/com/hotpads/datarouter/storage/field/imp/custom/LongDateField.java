@@ -40,6 +40,27 @@ public class LongDateField extends BasePrimitiveField<Date>{
 		return DateTool.parseUserInputDate(s,null);
 	}
 	
+
+	/*********************** ByteEncodedField ***********************/
+	
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:LongByteTool.getUInt63Bytes(value.getTime());
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 8;
+	}
+	
+	@Override
+	public Date fromBytesButDoNotSet(byte[] bytes, int offset){
+		return new Date(LongByteTool.fromUInt63Bytes(bytes, offset));
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.BIGINT, 20 , nullable, false);
@@ -89,21 +110,6 @@ public class LongDateField extends BasePrimitiveField<Date>{
 //			throw new DataAccessException(e.getClass().getSimpleName()+" on "+fieldSet.getClass().getSimpleName()+"."+fieldName);
 //		}
 //	}
-	
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:LongByteTool.getUInt63Bytes(value.getTime());
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 8;
-	}
-	
-	@Override
-	public Date fromBytesButDoNotSet(byte[] bytes, int offset){
-		return new Date(LongByteTool.fromUInt63Bytes(bytes, offset));
-	}
 
 	@Override
 	public String getSqlEscaped(){

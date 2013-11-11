@@ -37,6 +37,27 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 		return Boolean.valueOf(s);
 	}
 	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:BooleanByteTool.getBytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 1;
+	}
+	
+	@Override
+	public Boolean fromBytesButDoNotSet(byte[] bytes, int offset){
+		return BooleanByteTool.fromBytes(bytes, offset);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.TINYINT, 1 , nullable, false);
@@ -68,21 +89,6 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:BooleanByteTool.getBytes(value);
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 1;
-	}
-	
-	@Override
-	public Boolean fromBytesButDoNotSet(byte[] bytes, int offset){
-		return BooleanByteTool.fromBytes(bytes, offset);
 	}
 
 }

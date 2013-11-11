@@ -44,6 +44,28 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 		return sampleValue.fromPersistentInteger(Integer.valueOf(s));
 	}
 	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:new VarInt(value.getPersistentInteger()).getBytes();
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return new VarInt(bytes, offset).getNumBytes();
+	}
+	
+	@Override
+	public E fromBytesButDoNotSet(byte[] bytes, int offset){
+		Integer i = new VarInt(bytes, offset).getValue();
+		return i==null?null:sampleValue.fromPersistentInteger(i);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.INT, 11 , nullable, false);
@@ -92,22 +114,6 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:new VarInt(value.getPersistentInteger()).getBytes();
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return new VarInt(bytes, offset).getNumBytes();
-	}
-	
-	@Override
-	public E fromBytesButDoNotSet(byte[] bytes, int offset){
-		Integer i = new VarInt(bytes, offset).getValue();
-		return i==null?null:sampleValue.fromPersistentInteger(i);
 	}
 	
 	
