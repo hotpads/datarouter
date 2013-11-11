@@ -29,6 +29,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	
 	@Override
 	public String getStringEncodedValue(){
+		if(value==null){ return null; }
 		//TODO to base-64 format?
 		throw new NotImplementedException();
 	}

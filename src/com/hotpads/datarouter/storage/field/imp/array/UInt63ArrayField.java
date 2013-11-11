@@ -46,6 +46,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 	
 	@Override
 	public String getStringEncodedValue(){
+		if(value==null){ return null; }
 		//TODO to CSV format?
 		throw new NotImplementedException();
 	}

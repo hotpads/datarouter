@@ -30,6 +30,7 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 	
 	@Override
 	public String getStringEncodedValue(){
+		if(value==null){ return null; }
 		//TODO to CSV format?
 		throw new NotImplementedException();
 	}

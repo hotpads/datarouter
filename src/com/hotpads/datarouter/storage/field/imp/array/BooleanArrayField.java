@@ -29,6 +29,7 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 	
 	@Override
 	public String getStringEncodedValue(){
+		if(value==null){ return null; }
 		//TODO to CSV format?
 		throw new NotImplementedException();
 	}

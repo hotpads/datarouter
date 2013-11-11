@@ -25,14 +25,14 @@ public class JsonDatabeanTool{
 	/********************** to json *************************/
 	
 	public static <PK extends PrimaryKey<PK>> 
-	JSONObject primaryKeyToJson(PrimaryKey<?> pk){
-		return fieldsToJson(pk.getFields());
+	JSONObject primaryKeyToJson(PK pk, Fielder<PK> fielder){
+		return fieldsToJson(fielder.getFields(pk));
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	JSONObject databeanToJson(D databean, DatabeanFielder<PK,D> fielder){
 		JSONObject j = new JSONObject();
-		j.element(databean.getKeyFieldName(), primaryKeyToJson(databean.getKey()));
+		j.element(databean.getKeyFieldName(), primaryKeyToJson(databean.getKey(), fielder.getKeyFielder()));
 		addFieldsToJson(j, fielder.getNonKeyFields(databean));
 		return j;
 	}
@@ -52,7 +52,7 @@ public class JsonDatabeanTool{
 		List<Field<?>> fields = fielder.getFields(pk);
 		for(Field<?> field : fields){
 			String jsonFieldName = field.getColumnName();
-			String jsonValueString = json.getString(jsonFieldName);
+			String jsonValueString = json.getString(jsonFieldName);//PK fields are required
 			Object value = field.parseStringEncodedValueButDoNotSet(jsonValueString);
 			field.setUsingReflection(pk, value);
 		}
@@ -67,7 +67,8 @@ public class JsonDatabeanTool{
 		List<Field<?>> fields = fielder.getNonKeyFields(databean);
 		for(Field<?> field : fields){
 			String jsonFieldName = field.getColumnName();
-			String jsonValueString = json.getString(jsonFieldName);
+			String jsonValueString = json.optString(jsonFieldName, null);
+			if(jsonValueString==null){ continue; }//careful: only skip nulls, not empty strings
 			Object value = field.parseStringEncodedValueButDoNotSet(jsonValueString);
 			field.setUsingReflection(databean, value);
 		}
@@ -85,7 +86,7 @@ public class JsonDatabeanTool{
 	
 	private static void addFieldsToJson(JSONObject jsonObject, List<Field<?>> fields){
 		for(Field<?> f : IterableTool.nullSafe(fields)){
-			jsonObject.element(f.getColumnName(), f.getValue());
+			jsonObject.element(f.getColumnName(), f.getStringEncodedValue());
 		}
 	}
 	
@@ -97,7 +98,7 @@ public class JsonDatabeanTool{
 		@Test
 		public void testRoundTrip(){
 			ManyFieldTypeBeanKey keyIn = new ManyFieldTypeBeanKey(12345L);
-			JSONObject keyJsonObject = primaryKeyToJson(keyIn);
+			JSONObject keyJsonObject = primaryKeyToJson(keyIn, fielder.getKeyFielder());
 			System.out.println(keyJsonObject.toString());
 			ManyFieldTypeBeanKey keyOut = primaryKeyFromJson(ManyFieldTypeBeanKey.class, fielder.getKeyFielder(), 
 					keyJsonObject);
@@ -122,7 +123,7 @@ public class JsonDatabeanTool{
 			JSONObject databeanJson = databeanToJson(beanIn, fielder);
 			System.out.println(databeanJson);
 			ManyFieldTypeBean beanOut = databeanFromJson(ManyFieldTypeBean.class, fielder, databeanJson);
-			Assert.assertEquals(beanIn, beanOut);
+			Assert.assertTrue(beanIn.equalsAllPersistentFields(beanOut));
 		}
 	}
 	

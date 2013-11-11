@@ -31,6 +31,7 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 	
 	@Override
 	public String getStringEncodedValue(){
+		if(value==null){ return null; }
 		//TODO to CSV format?
 		throw new NotImplementedException();
 	}

@@ -29,6 +29,7 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 	
 	@Override
 	public String getStringEncodedValue(){
+		if(value==null){ return null; }
 		//TODO to CSV format?
 		throw new NotImplementedException();
 	}
