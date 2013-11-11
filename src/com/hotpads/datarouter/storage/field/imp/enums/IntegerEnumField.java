@@ -30,6 +30,14 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 	}
 	
 	
+	/*********************** Comparable ********************************/
+	
+	@Override
+	public int compareTo(Field<E> other){
+		return DataRouterEnumTool.compareIntegerEnums(value, other.getValue());
+	}
+	
+	
 	/*********************** StringEncodedField ***********************/
 
 	@Override
@@ -70,11 +78,6 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.INT, 11, nullable, false);
-	}
-	
-	@Override
-	public int compareTo(Field<E> other){
-		return DataRouterEnumTool.compareIntegerEnums(value, other.getValue());
 	}
 	
 	@Override

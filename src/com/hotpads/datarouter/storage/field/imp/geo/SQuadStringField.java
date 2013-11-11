@@ -27,6 +27,11 @@ public class SQuadStringField extends BasePrimitiveField<SQuad>{
 	}
 	
 	
+	/*********************** Comparable ********************************/
+	
+	//SQuads sort in native Long order, so don't need a comparator
+	
+	
 	/*********************** StringEncodedField ***********************/
 	
 	@Override

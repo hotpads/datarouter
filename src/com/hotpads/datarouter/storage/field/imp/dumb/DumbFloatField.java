@@ -11,15 +11,6 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.FloatByteTool;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-
-import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.util.core.bytes.DoubleByteTool;
-import com.hotpads.util.core.map.SQuad;
 /*
  * "dumb" because doesn't necessarily sort correctly in serialized form.  should prob copy
  * whatever they do in Orderly: https://github.com/zettaset/orderly

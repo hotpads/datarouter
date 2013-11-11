@@ -33,6 +33,15 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 	}
 	
 	
+	/*********************** Comparable ********************************/
+	
+	//TODO should we even bother?
+	@Override
+	public int compareTo(Field<List<Long>> other){
+		return ListTool.compare(this.value, other.getValue());
+	}
+	
+	
 	/*********************** StringEncodedField ***********************/
 	
 	@Override
@@ -90,11 +99,6 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , nullable, false);
-	}
-	
-	@Override
-	public int compareTo(Field<List<Long>> other){
-		return ListTool.compare(this.value, other.getValue());
 	}
 	
 	@Override

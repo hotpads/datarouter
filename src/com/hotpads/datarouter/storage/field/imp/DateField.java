@@ -114,9 +114,12 @@ public class DateField extends BasePrimitiveField<Date>{
 		return new Timestamp(date.getTime()).toString();
 	}
 	
-	/** tests ****************************************************************/
+	
+	/*********************** tests ******************************/
+	
 	public static class Tests {
-		@Test public void testGetSqlEscaped() throws Exception{
+		@Test 
+		public void testGetSqlEscaped() throws Exception{
 			//mysql date format is yyyy-MM-dd HH:mm:ss http://dev.mysql.com/doc/refman/5.1/en/datetime.html
 			//jdbc timestamp escape format" yyyy-MM-dd HH:mm:ss.n where n is nanoseconds (not representable with Date)
 			// sql insert with a string including the nanosecond value works in mysql 
