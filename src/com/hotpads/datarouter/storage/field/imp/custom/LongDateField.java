@@ -37,7 +37,8 @@ public class LongDateField extends BasePrimitiveField<Date>{
 	@Override
 	public Date parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
-		return DateTool.parseUserInputDate(s,null);
+//		return DateTool.parseUserInputDate(s,null);
+		return new Date(Long.valueOf(s));
 	}
 	
 
