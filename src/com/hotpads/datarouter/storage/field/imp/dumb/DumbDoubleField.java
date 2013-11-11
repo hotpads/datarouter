@@ -24,6 +24,9 @@ public class DumbDoubleField extends BasePrimitiveField<Double>{
 	public DumbDoubleField(String prefix, String name, Double value){
 		super(prefix, name, value);
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

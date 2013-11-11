@@ -22,6 +22,9 @@ public class LongField extends BasePrimitiveField<Long>{
 	public LongField(String prefix, String name, Long value){
 		super(prefix, name, value);
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

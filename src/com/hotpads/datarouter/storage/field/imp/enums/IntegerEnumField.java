@@ -28,6 +28,9 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 		super(prefix, name, value);
 		this.sampleValue = ReflectionTool.create(enumClass);
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

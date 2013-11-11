@@ -33,7 +33,8 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 		return RandomTool.nextPositiveInt(random);
 	}
 	
-	/*********************** override *******************************/
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

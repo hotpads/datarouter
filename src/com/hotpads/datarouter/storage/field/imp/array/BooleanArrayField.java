@@ -24,6 +24,9 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
 	public String getStringEncodedValue(){
 		//TODO to CSV format?

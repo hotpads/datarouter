@@ -31,8 +31,9 @@ public class UInt15Field extends BasePrimitiveField<Short>{
 	public static int nextPositiveRandom(){
 		return RandomTool.nextPositiveShort(random);
 	}
+
 	
-	/*********************** override *******************************/
+	/*********************** StringEncodedField ***********************/
 	
 	@Override
 	public String getStringEncodedValue(){

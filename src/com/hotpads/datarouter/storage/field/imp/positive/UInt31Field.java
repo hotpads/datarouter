@@ -32,7 +32,8 @@ public class UInt31Field extends BasePrimitiveField<Integer>{
 		return RandomTool.nextPositiveInt(random);
 	}
 	
-	/*********************** override *******************************/
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

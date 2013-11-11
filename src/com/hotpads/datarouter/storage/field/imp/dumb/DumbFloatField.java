@@ -33,6 +33,9 @@ public class DumbFloatField extends BasePrimitiveField<Float>{
 	public DumbFloatField(String prefix, String name, Float value){
 		super(prefix, name, value);
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

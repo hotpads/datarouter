@@ -21,6 +21,9 @@ public class ShortField extends BasePrimitiveField<Short>{
 	public ShortField(String prefix, String name, Short value){
 		super(prefix, name, value);
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

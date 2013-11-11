@@ -21,6 +21,9 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 	public BooleanField(String prefix, String name, Boolean value){
 		super(prefix, name, value);
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

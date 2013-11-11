@@ -29,6 +29,9 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 		this.sampleValue = ReflectionTool.create(enumClass);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
 	public String getStringEncodedValue(){
 		if(value==null){ return null; }

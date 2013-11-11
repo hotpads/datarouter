@@ -26,6 +26,9 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
 	public String getStringEncodedValue(){
 		//TODO to CSV format?

@@ -31,7 +31,8 @@ public class UInt7Field extends BasePrimitiveField<Byte>{
 		return RandomTool.nextPositiveByte(random);
 	}
 	
-	/*********************** override *******************************/
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

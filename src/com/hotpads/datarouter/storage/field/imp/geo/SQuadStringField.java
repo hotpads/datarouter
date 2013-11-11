@@ -26,6 +26,9 @@ public class SQuadStringField extends BasePrimitiveField<SQuad>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
 	public int compareTo(Field<SQuad> other){
 		if(other==null){ return -1; }

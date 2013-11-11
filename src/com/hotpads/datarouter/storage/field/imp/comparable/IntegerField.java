@@ -21,6 +21,9 @@ public class IntegerField extends BasePrimitiveField<Integer>{
 	public IntegerField(String prefix, String name, Integer value){
 		super(prefix, name, value);
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

@@ -25,6 +25,9 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
 	public String getStringEncodedValue(){
 		//TODO to CSV format?

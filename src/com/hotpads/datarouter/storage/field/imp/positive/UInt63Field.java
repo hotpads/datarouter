@@ -35,7 +35,8 @@ public class UInt63Field extends BasePrimitiveField<Long>{
 		return RandomTool.nextPositiveLong(random);
 	}
 	
-	/*********************** override *******************************/
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

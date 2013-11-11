@@ -23,6 +23,9 @@ public class CharacterField extends BasePrimitiveField<Character>{
 	public CharacterField(String prefix, String name, Character value){
 		super(prefix, name, value);
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

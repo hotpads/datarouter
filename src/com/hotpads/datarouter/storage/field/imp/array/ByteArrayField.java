@@ -24,6 +24,9 @@ public class ByteArrayField extends BaseField<byte[]>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
 	public String getStringEncodedValue(){
 		//TODO to base-64 format?

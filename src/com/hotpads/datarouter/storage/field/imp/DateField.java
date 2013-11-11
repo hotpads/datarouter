@@ -29,6 +29,9 @@ public class DateField extends BasePrimitiveField<Date>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
 	public String getStringEncodedValue(){
 		if(value==null){ return null; }

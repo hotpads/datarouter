@@ -22,6 +22,9 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 	public SignedByteField(String prefix, String name, Byte value){
 		super(prefix, name, value);
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

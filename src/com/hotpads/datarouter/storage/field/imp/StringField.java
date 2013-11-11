@@ -35,6 +35,9 @@ public class StringField extends BaseField<String>{
 		this.size = size;
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
 	public int compareTo(Field<String> other){
 		if(other==null){ return -1; }

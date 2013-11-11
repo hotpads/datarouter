@@ -32,6 +32,9 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 		this.sampleValue = ReflectionTool.create(enumClass);
 		this.size = size;
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

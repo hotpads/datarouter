@@ -24,6 +24,9 @@ public class LongDateField extends BasePrimitiveField<Date>{
 	public LongDateField(String prefix, String name, Date value){
 		super(prefix, name, value);
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
 	public String getStringEncodedValue(){

@@ -32,6 +32,9 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
 	public String getStringEncodedValue(){
 		//TODO to CSV format?
