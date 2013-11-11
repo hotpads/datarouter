@@ -1,12 +1,6 @@
 package com.hotpads.datarouter.config;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSet;
-
-
 
 
 public class Config implements Cloneable{
@@ -46,8 +40,6 @@ public class Config implements Cloneable{
 	protected Integer numAttempts;//do not set default here.  do it per-client
 
 	//paging
-	protected FieldSet<?> startId;
-	protected Boolean includeStartId = false;
 	protected Integer limit;
 	protected Integer offset;
 	
@@ -84,8 +76,6 @@ public class Config implements Cloneable{
 			.setTimeoutMs(timeoutMs)
 			.setNumAttempts(numAttempts)
 			
-			.setStartId(startId)
-			.setIncludeStartId(includeStartId)
 			.setLimit(limit)
 			.setOffset(offset)
 			
@@ -233,30 +223,6 @@ public class Config implements Cloneable{
 	}
 	public Config setUseSession(Boolean useSession) {
 		this.useSession = useSession;
-		return this;
-	}
-
-
-	/************** startId *************************/
-
-	public FieldSet<?> getStartId() {
-		return startId;
-	}
-
-	public Config setStartId(FieldSet<?> startId) {
-		this.startId = startId;
-		return this;
-	}
-
-
-	/************** includeStartId *************************/
-
-	public Boolean getIncludeStartId() {
-		return includeStartId;
-	}
-
-	public Config setIncludeStartId(Boolean includeStartId) {
-		this.includeStartId = includeStartId;
 		return this;
 	}
 

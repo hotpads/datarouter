@@ -12,7 +12,6 @@ import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -27,14 +26,16 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 
 	private N node;
 	private String tableName;
+	private PK startAfterKey;
 	private String whereClauseFromUser;
 	private Config config;
 	
 	
-	public GetWhereTxn(N node, String tableName, String whereClauseFromUser, Config config){
+	public GetWhereTxn(N node, String tableName, PK startAfterKey, String whereClauseFromUser, Config config){
 		super(node.getDataRouterContext(), node.getClientNames());
 		this.node = node;
 		this.tableName = tableName;
+		this.startAfterKey = startAfterKey;
 		this.whereClauseFromUser = whereClauseFromUser;
 		this.config = Config.nullSafe(config);
 	}
@@ -47,8 +48,8 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 	@Override
 	public List<D> runOncePerClient(Client client){
 		StringBuilder whereClause = new StringBuilder();
-		if(config.getStartId() != null){
-			SqlBuilder.addRangeWhereClause(whereClause, config.getStartId(), false, null, true);
+		if(startAfterKey != null){
+			SqlBuilder.addRangeWhereClause(whereClause, startAfterKey, false, null, true);
 			if(StringTool.notEmpty(whereClauseFromUser)){
 				whereClause.append(" and ");
 			}

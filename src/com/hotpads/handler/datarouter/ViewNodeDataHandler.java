@@ -157,7 +157,6 @@ extends BaseHandler{
 		if(StringTool.notEmpty(startAfterKeyString)){
 			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
 			startAfterKey.fromPersistentString(startAfterKeyString);
-			config.setStartId(startAfterKey);
 			mav.put(PARAM_startAfterKey, startAfterKey.getPersistentString());
 		}
 		
@@ -184,14 +183,13 @@ extends BaseHandler{
 		if(StringTool.notEmpty(startAfterKeyString)){
 			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
 			startAfterKey.fromPersistentString(startAfterKeyString);
-			config.setStartId(startAfterKey);
 			mav.put(PARAM_startAfterKey, startAfterKey.getPersistentString());
 		}
 		
 		//assume all table names are the same (they are at the time of writing this)
 		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
 		String where = RequestTool.getAndPut(request, PARAM_where, null, mav);
-		List<D> databeans = new GetWhereTxn<PK,D,F,N>((N)node, tableName, where, config).call();
+		List<D> databeans = new GetWhereTxn<PK,D,F,N>((N)node, tableName, startAfterKey, where, config).call();
 		addDatabeansToMav(mav, databeans);
 		return mav;
 	}
