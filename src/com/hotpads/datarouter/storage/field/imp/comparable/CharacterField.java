@@ -25,8 +25,9 @@ public class CharacterField extends BasePrimitiveField<Character>{
 	}
 	
 	@Override
-	public void fromString(String s){
-		this.value = StringTool.isEmpty(s)?null:s.charAt(0);
+	public Character parseStringValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s)){ return null; }
+		return s.charAt(0);
 	}
 
 	@Override

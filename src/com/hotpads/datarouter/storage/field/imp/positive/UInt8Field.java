@@ -11,6 +11,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.ByteTool;
+import com.hotpads.util.core.StringTool;
 
 public class UInt8Field extends BasePrimitiveField<Byte>{
 
@@ -41,8 +42,11 @@ public class UInt8Field extends BasePrimitiveField<Byte>{
 	/*********************** override *******************************/
 
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:ByteTool.toUnsignedByte(Integer.valueOf(s));
+	public Byte parseStringValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){
+			return null; 
+		}
+		return ByteTool.toUnsignedByte(Integer.valueOf(s));
 	}
 	
 	@Override

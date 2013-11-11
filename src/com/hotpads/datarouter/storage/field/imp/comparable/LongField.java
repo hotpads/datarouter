@@ -24,12 +24,9 @@ public class LongField extends BasePrimitiveField<Long>{
 	}
 	
 	@Override
-	public void fromString(String s){
-		if(StringTool.isEmpty(s) || s.equals("null")){ 
-			this.value = null; 
-			return; 
-		}
-		this.value = Long.valueOf(s);
+	public Long parseStringValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		return Long.valueOf(s);
 	}
 
 	@Override

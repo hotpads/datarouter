@@ -12,6 +12,7 @@ import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ComparableTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.map.SQuad;
 
@@ -29,12 +30,12 @@ public class SQuadStringField extends BasePrimitiveField<SQuad>{
 	public int compareTo(Field<SQuad> other){
 		if(other==null){ return -1; }
 		return ComparableTool.nullFirstCompareTo(value, other.getValue());
-	};
+	}
 	
 	@Override
-	public void fromString(String s){
-		if(s==null){ value = null; }
-		value = new SQuad(s);
+	public SQuad parseStringValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		return new SQuad(s);
 	}
 	
 	@Override

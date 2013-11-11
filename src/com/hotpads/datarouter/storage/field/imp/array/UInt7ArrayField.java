@@ -27,7 +27,7 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 	}
 	
 	@Override
-	public void fromString(String s){
+	public List<Byte> parseStringValueButDoNotSet(String s){
 		throw new NotImplementedException();
 	}
 	

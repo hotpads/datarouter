@@ -10,6 +10,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.ByteTool;
+import com.hotpads.util.core.StringTool;
 
 //recognizes -128 to -1 using two's complement.  therefore max value is 127
 public class SignedByteField extends BasePrimitiveField<Byte>{
@@ -23,8 +24,9 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 	}
 	
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:Byte.valueOf(s);
+	public Byte parseStringValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		return Byte.valueOf(s);
 	}
 
 	@Override

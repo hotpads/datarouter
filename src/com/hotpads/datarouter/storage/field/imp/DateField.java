@@ -16,6 +16,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.DateTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 
 public class DateField extends BasePrimitiveField<Date>{
@@ -29,8 +30,11 @@ public class DateField extends BasePrimitiveField<Date>{
 	}
 	
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:DateTool.parseUserInputDate(s,null);
+	public Date parseStringValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){
+			return null; 
+		}
+		return DateTool.parseUserInputDate(s,null);
 	}
 
 	@Override

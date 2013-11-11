@@ -1,7 +1,10 @@
 package com.hotpads.datarouter.storage.field;
 
 public interface Field<T>
-extends Comparable<Field<T>>, ByteAwareField<T>, SqlField<T>{//TODO remove SqlFrom standard field
+extends Comparable<Field<T>>, 
+		ByteAwareField<T>, 
+		SqlField<T>, //TODO remove SqlFrom standard field
+		ValueAsStringField<T>{
 
 	/******************* get/set ********************************/
 	

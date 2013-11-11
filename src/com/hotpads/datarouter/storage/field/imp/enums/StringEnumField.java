@@ -14,6 +14,7 @@ import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.util.core.ArrayTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -31,10 +32,11 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 		this.sampleValue = ReflectionTool.create(enumClass);
 		this.size = size;
 	}
-
+	
 	@Override
-	public void fromString(String s){
-		this.value = s == null ? null : sampleValue.fromPersistentString(s);
+	public E parseStringValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s)){ return null; }
+		return sampleValue.fromPersistentString(s);
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.ShortByteTool;
 import com.hotpads.util.core.number.RandomTool;
 
@@ -32,10 +33,11 @@ public class UInt15Field extends BasePrimitiveField<Short>{
 	}
 	
 	/*********************** override *******************************/
-
+	
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:Short.valueOf(s);
+	public Short parseStringValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		return Short.valueOf(s);
 	}
 	
 	@Override

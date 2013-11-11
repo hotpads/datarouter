@@ -33,7 +33,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 	}
 	
 	@Override
-	public void fromString(String s){
+	public List<Long> parseStringValueButDoNotSet(String s){
 		throw new NotImplementedException();
 	}
 	

@@ -9,6 +9,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.DoubleByteTool;
 /*
  * "dumb" because doesn't necessarily sort correctly in serialized form.  should prob copy
@@ -25,8 +26,9 @@ public class DumbDoubleField extends BasePrimitiveField<Double>{
 	}
 	
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:Double.valueOf(s);
+	public Double parseStringValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		return Double.valueOf(s);
 	}
 
 	@Override

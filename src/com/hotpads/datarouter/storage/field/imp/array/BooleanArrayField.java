@@ -23,6 +23,11 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 	public BooleanArrayField(String prefix, String name, List<Boolean> value){
 		super(prefix, name, value);
 	}
+	
+	@Override
+	public List<Boolean> parseStringValueButDoNotSet(String s){
+		throw new NotImplementedException();
+	}
 
 	@Override
 	public byte[] getBytes(){
@@ -41,11 +46,6 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public void fromString(String s){
-		throw new NotImplementedException();
 	}
 
 	@Override

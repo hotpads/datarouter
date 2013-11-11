@@ -25,7 +25,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	}
 	
 	@Override
-	public void fromString(String s){
+	public byte[] parseStringValueButDoNotSet(String s){
 		throw new NotImplementedException();
 	}
 	

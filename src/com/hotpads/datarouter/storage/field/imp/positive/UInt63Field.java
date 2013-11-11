@@ -36,14 +36,13 @@ public class UInt63Field extends BasePrimitiveField<Long>{
 	}
 	
 	/*********************** override *******************************/
-
+	
 	@Override
-	public void fromString(String s){
-		if(StringTool.isEmpty(s) || s.equals("null")){ 
-			this.value = null; 
-			return; 
+	public Long parseStringValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){
+			return null; 
 		}
-		this.value = Long.valueOf(s);
+		return Long.valueOf(s);
 	}
 	
 	@Override

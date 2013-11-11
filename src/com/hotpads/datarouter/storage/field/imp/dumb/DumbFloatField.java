@@ -9,6 +9,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.FloatByteTool;
 
 import java.sql.ResultSet;
@@ -18,6 +19,7 @@ import java.sql.Types;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.bytes.DoubleByteTool;
+import com.hotpads.util.core.map.SQuad;
 /*
  * "dumb" because doesn't necessarily sort correctly in serialized form.  should prob copy
  * whatever they do in Orderly: https://github.com/zettaset/orderly
@@ -33,8 +35,9 @@ public class DumbFloatField extends BasePrimitiveField<Float>{
 	}
 	
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:Float.valueOf(s);
+	public Float parseStringValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		return Float.valueOf(s);
 	}
 
 	@Override

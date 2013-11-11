@@ -24,6 +24,11 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 	public DoubleArrayField(String prefix, String name, List<Double> value){
 		super(prefix, name, value);
 	}
+	
+	@Override
+	public List<Double> parseStringValueButDoNotSet(String s){
+		throw new NotImplementedException();
+	}
 
 	@Override
 	public byte[] getBytes(){
@@ -42,11 +47,6 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public void fromString(String s){
-		throw new NotImplementedException();
 	}
 
 	@Override

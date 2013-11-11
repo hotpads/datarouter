@@ -3,7 +3,7 @@ package com.hotpads.datarouter.storage.field;
 import java.util.Iterator;
 import java.util.List;
 
-import com.hotpads.datarouter.serialize.JsonTool;
+import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.CollectionTool;
 
@@ -135,7 +135,7 @@ implements FieldSet<F>{
 	
 	@Override
 	public String getJson(){
-		return JsonTool.getJson(getFields()).toString();
+		return JsonDatabeanTool.fieldsToJson(getFields()).toString();
 	}
 	
 	/**************************** sql ******************/

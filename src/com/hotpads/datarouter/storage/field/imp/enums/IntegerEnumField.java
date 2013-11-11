@@ -12,6 +12,7 @@ import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -29,8 +30,9 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 	}
 	
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:sampleValue.fromPersistentInteger(Integer.valueOf(s));
+	public E parseStringValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s)){ return null; }
+		return sampleValue.fromPersistentInteger(Integer.valueOf(s));
 	}
 	
 	@Override

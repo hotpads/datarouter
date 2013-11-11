@@ -175,7 +175,11 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	/***************************** constructor **************************************/
 		
 	public ManyFieldTypeBean(){//no-arg and public
-		this.key = new ManyFieldTypeBeanKey();
+		this(null);
+	}
+	
+	public ManyFieldTypeBean(Long id){
+		this.key = new ManyFieldTypeBeanKey(id);
 	}
 	
 	

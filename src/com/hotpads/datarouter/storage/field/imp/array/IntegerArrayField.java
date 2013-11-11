@@ -23,6 +23,11 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 	public IntegerArrayField(String prefix, String name, List<Integer> value){
 		super(prefix, name, value);
 	}
+	
+	@Override
+	public List<Integer> parseStringValueButDoNotSet(String s){
+		throw new NotImplementedException();
+	}
 
 	@Override
 	public byte[] getBytes(){
@@ -41,11 +46,6 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public void fromString(String s){
-		throw new NotImplementedException();
 	}
 
 	@Override

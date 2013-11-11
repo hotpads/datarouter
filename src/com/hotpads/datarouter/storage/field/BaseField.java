@@ -94,6 +94,12 @@ public abstract class BaseField<T> implements Field<T>{
 	}
 	
 	
+	@Override
+	public void fromString(String s){
+		this.value = parseStringValueButDoNotSet(s);
+	}
+	
+	
 	/****************************** ByteField ***********************************/
 
 	@Override
