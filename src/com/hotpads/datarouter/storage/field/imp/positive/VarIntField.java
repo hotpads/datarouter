@@ -36,7 +36,13 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 	/*********************** override *******************************/
 
 	@Override
-	public Integer parseStringValueButDoNotSet(String s){
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
+	}
+	
+	@Override
+	public Integer parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){
 			return null; 
 		}

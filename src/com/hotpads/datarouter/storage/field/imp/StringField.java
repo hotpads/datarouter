@@ -42,7 +42,12 @@ public class StringField extends BaseField<String>{
 	}
 	
 	@Override
-	public String parseStringValueButDoNotSet(String s){
+	public String getStringEncodedValue(){
+		return value;
+	}
+	
+	@Override
+	public String parseStringEncodedValueButDoNotSet(String s){
 		return s;
 	}
 	

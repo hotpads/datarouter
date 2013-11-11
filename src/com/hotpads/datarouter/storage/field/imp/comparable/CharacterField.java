@@ -23,9 +23,15 @@ public class CharacterField extends BasePrimitiveField<Character>{
 	public CharacterField(String prefix, String name, Character value){
 		super(prefix, name, value);
 	}
+
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
+	}
 	
 	@Override
-	public Character parseStringValueButDoNotSet(String s){
+	public Character parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s)){ return null; }
 		return s.charAt(0);
 	}

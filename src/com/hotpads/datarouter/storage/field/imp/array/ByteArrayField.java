@@ -25,7 +25,13 @@ public class ByteArrayField extends BaseField<byte[]>{
 	}
 	
 	@Override
-	public byte[] parseStringValueButDoNotSet(String s){
+	public String getStringEncodedValue(){
+		//TODO to base-64 format?
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	public byte[] parseStringEncodedValueButDoNotSet(String s){
 		throw new NotImplementedException();
 	}
 	

@@ -24,9 +24,15 @@ public class DumbDoubleField extends BasePrimitiveField<Double>{
 	public DumbDoubleField(String prefix, String name, Double value){
 		super(prefix, name, value);
 	}
+
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
+	}
 	
 	@Override
-	public Double parseStringValueButDoNotSet(String s){
+	public Double parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Double.valueOf(s);
 	}

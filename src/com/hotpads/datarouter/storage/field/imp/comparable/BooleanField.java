@@ -21,9 +21,15 @@ public class BooleanField extends BasePrimitiveField<Boolean>{
 	public BooleanField(String prefix, String name, Boolean value){
 		super(prefix, name, value);
 	}
+
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
+	}
 	
 	@Override
-	public Boolean parseStringValueButDoNotSet(String s){
+	public Boolean parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Boolean.valueOf(s);
 	}

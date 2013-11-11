@@ -33,9 +33,15 @@ public class DumbFloatField extends BasePrimitiveField<Float>{
 	public DumbFloatField(String prefix, String name, Float value){
 		super(prefix, name, value);
 	}
+
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
+	}
 	
 	@Override
-	public Float parseStringValueButDoNotSet(String s){
+	public Float parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Float.valueOf(s);
 	}

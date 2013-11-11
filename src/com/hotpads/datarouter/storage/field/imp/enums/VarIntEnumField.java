@@ -30,7 +30,13 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 	}
 	
 	@Override
-	public E parseStringValueButDoNotSet(String s){
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.getPersistentInteger().toString();
+	}
+	
+	@Override
+	public E parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s)){ return null; }
 		return sampleValue.fromPersistentInteger(Integer.valueOf(s));
 	}

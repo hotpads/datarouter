@@ -26,7 +26,13 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 	}
 	
 	@Override
-	public List<Double> parseStringValueButDoNotSet(String s){
+	public String getStringEncodedValue(){
+		//TODO to CSV format?
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	public List<Double> parseStringEncodedValueButDoNotSet(String s){
 		throw new NotImplementedException();
 	}
 

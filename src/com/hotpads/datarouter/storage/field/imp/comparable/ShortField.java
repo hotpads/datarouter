@@ -21,9 +21,15 @@ public class ShortField extends BasePrimitiveField<Short>{
 	public ShortField(String prefix, String name, Short value){
 		super(prefix, name, value);
 	}
+
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
+	}
 	
 	@Override
-	public Short parseStringValueButDoNotSet(String s){
+	public Short parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Short.valueOf(s);
 	}

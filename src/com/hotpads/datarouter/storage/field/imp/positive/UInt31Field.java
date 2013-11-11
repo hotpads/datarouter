@@ -33,9 +33,15 @@ public class UInt31Field extends BasePrimitiveField<Integer>{
 	}
 	
 	/*********************** override *******************************/
+
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
+	}
 	
 	@Override
-	public Integer parseStringValueButDoNotSet(String s){
+	public Integer parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Integer.valueOf(s);
 	}

@@ -27,7 +27,13 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 	}
 	
 	@Override
-	public List<Byte> parseStringValueButDoNotSet(String s){
+	public String getStringEncodedValue(){
+		//TODO to CSV format?
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	public List<Byte> parseStringEncodedValueButDoNotSet(String s){
 		throw new NotImplementedException();
 	}
 	

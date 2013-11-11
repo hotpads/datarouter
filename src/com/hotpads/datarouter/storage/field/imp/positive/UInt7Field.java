@@ -34,7 +34,13 @@ public class UInt7Field extends BasePrimitiveField<Byte>{
 	/*********************** override *******************************/
 
 	@Override
-	public Byte parseStringValueButDoNotSet(String s){
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
+	}
+	
+	@Override
+	public Byte parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){
 			return null; 
 		}

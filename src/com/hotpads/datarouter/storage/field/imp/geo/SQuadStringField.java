@@ -31,9 +31,15 @@ public class SQuadStringField extends BasePrimitiveField<SQuad>{
 		if(other==null){ return -1; }
 		return ComparableTool.nullFirstCompareTo(value, other.getValue());
 	}
+
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.getMicrosoftStyleString();
+	}
 	
 	@Override
-	public SQuad parseStringValueButDoNotSet(String s){
+	public SQuad parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return new SQuad(s);
 	}

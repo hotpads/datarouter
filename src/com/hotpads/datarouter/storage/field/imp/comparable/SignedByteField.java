@@ -22,9 +22,15 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 	public SignedByteField(String prefix, String name, Byte value){
 		super(prefix, name, value);
 	}
+
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
+	}
 	
 	@Override
-	public Byte parseStringValueButDoNotSet(String s){
+	public Byte parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Byte.valueOf(s);
 	}

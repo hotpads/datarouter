@@ -25,7 +25,13 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 	}
 	
 	@Override
-	public List<Integer> parseStringValueButDoNotSet(String s){
+	public String getStringEncodedValue(){
+		//TODO to CSV format?
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	public List<Integer> parseStringEncodedValueButDoNotSet(String s){
 		throw new NotImplementedException();
 	}
 

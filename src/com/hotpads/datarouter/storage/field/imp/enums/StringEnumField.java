@@ -32,9 +32,15 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 		this.sampleValue = ReflectionTool.create(enumClass);
 		this.size = size;
 	}
+
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.getPersistentString();
+	}
 	
 	@Override
-	public E parseStringValueButDoNotSet(String s){
+	public E parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s)){ return null; }
 		return sampleValue.fromPersistentString(s);
 	}

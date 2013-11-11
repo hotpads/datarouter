@@ -1,10 +1,11 @@
 package com.hotpads.datarouter.storage.field;
 
+import com.hotpads.datarouter.storage.field.encoding.ByteEncodedField;
 import com.hotpads.util.core.ComparableTool;
 
 public abstract class BasePrimitiveField<T extends Comparable<T>> 
 extends BaseField<T>
-implements ByteAwareField<T>{
+implements ByteEncodedField<T>{
 
 	public BasePrimitiveField(String name, T value) {
 		super(null, name, value);

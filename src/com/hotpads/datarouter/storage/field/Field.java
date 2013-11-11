@@ -1,10 +1,15 @@
 package com.hotpads.datarouter.storage.field;
 
+import com.hotpads.datarouter.storage.field.encoding.ByteEncodedField;
+import com.hotpads.datarouter.storage.field.encoding.SqlEncodedField;
+import com.hotpads.datarouter.storage.field.encoding.StringEncodedField;
+
 public interface Field<T>
 extends Comparable<Field<T>>, 
-		ByteAwareField<T>, 
-		SqlField<T>, //TODO remove SqlFrom standard field
-		ValueAsStringField<T>{
+		StringEncodedField<T>,
+		ByteEncodedField<T>, 
+		SqlEncodedField<T> //TODO remove SqlFrom standard field
+		{
 
 	/******************* get/set ********************************/
 	

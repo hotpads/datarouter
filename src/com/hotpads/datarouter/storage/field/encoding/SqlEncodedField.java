@@ -1,11 +1,12 @@
-package com.hotpads.datarouter.storage.field;
+package com.hotpads.datarouter.storage.field.encoding;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
+import com.hotpads.datarouter.storage.field.FieldSet;
 
-public interface SqlField<T>{
+public interface SqlEncodedField<T>{
 	
 	SqlColumn getSqlColumnDefinition();
 	String getSqlNameValuePairEscaped();

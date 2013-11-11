@@ -30,7 +30,13 @@ public class DateField extends BasePrimitiveField<Date>{
 	}
 	
 	@Override
-	public Date parseStringValueButDoNotSet(String s){
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return DateTool.getInternetDate(value);
+	}
+	
+	@Override
+	public Date parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){
 			return null; 
 		}

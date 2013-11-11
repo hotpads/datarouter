@@ -25,7 +25,13 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 	}
 	
 	@Override
-	public List<Boolean> parseStringValueButDoNotSet(String s){
+	public String getStringEncodedValue(){
+		//TODO to CSV format?
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	public List<Boolean> parseStringEncodedValueButDoNotSet(String s){
 		throw new NotImplementedException();
 	}
 

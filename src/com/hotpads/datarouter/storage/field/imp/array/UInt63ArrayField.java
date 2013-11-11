@@ -33,7 +33,13 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 	}
 	
 	@Override
-	public List<Long> parseStringValueButDoNotSet(String s){
+	public String getStringEncodedValue(){
+		//TODO to CSV format?
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	public List<Long> parseStringEncodedValueButDoNotSet(String s){
 		throw new NotImplementedException();
 	}
 	

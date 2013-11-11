@@ -1,7 +1,7 @@
-package com.hotpads.datarouter.storage.field;
+package com.hotpads.datarouter.storage.field.encoding;
 
 
-public interface ByteAwareField<T>{
+public interface ByteEncodedField<T>{
 
 	boolean isFixedLength();
 

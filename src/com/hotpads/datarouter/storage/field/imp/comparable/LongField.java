@@ -22,9 +22,15 @@ public class LongField extends BasePrimitiveField<Long>{
 	public LongField(String prefix, String name, Long value){
 		super(prefix, name, value);
 	}
+
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
+	}
 	
 	@Override
-	public Long parseStringValueButDoNotSet(String s){
+	public Long parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Long.valueOf(s);
 	}

@@ -24,9 +24,15 @@ public class LongDateField extends BasePrimitiveField<Date>{
 	public LongDateField(String prefix, String name, Date value){
 		super(prefix, name, value);
 	}
+
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
+	}
 	
 	@Override
-	public Date parseStringValueButDoNotSet(String s){
+	public Date parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return DateTool.parseUserInputDate(s,null);
 	}

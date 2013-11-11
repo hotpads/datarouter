@@ -53,7 +53,7 @@ public class JsonDatabeanTool{
 		for(Field<?> field : fields){
 			String jsonFieldName = field.getColumnName();
 			String jsonValueString = json.getString(jsonFieldName);
-			Object value = field.parseStringValueButDoNotSet(jsonValueString);
+			Object value = field.parseStringEncodedValueButDoNotSet(jsonValueString);
 			field.setUsingReflection(pk, value);
 		}
 	}
@@ -68,7 +68,7 @@ public class JsonDatabeanTool{
 		for(Field<?> field : fields){
 			String jsonFieldName = field.getColumnName();
 			String jsonValueString = json.getString(jsonFieldName);
-			Object value = field.parseStringValueButDoNotSet(jsonValueString);
+			Object value = field.parseStringEncodedValueButDoNotSet(jsonValueString);
 			field.setUsingReflection(databean, value);
 		}
 		return databean;

@@ -35,7 +35,13 @@ public class UInt15Field extends BasePrimitiveField<Short>{
 	/*********************** override *******************************/
 	
 	@Override
-	public Short parseStringValueButDoNotSet(String s){
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
+	}
+	
+	@Override
+	public Short parseStringEncodedValueButDoNotSet(String s){
 		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Short.valueOf(s);
 	}
