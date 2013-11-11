@@ -175,7 +175,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	/***************************** constructor **************************************/
 		
 	public ManyFieldTypeBean(){//no-arg and public
-		this(null);
+		this.key = new ManyFieldTypeBeanKey();//let the key generate a random value
 	}
 	
 	public ManyFieldTypeBean(Long id){
