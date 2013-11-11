@@ -1,9 +1,23 @@
 package com.hotpads.datarouter.config;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.storage.databean.BaseDatabean;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
+import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 
-public class Config implements Cloneable{
+
+@SuppressWarnings("serial")
+public class Config
+extends BaseDatabean<ConfigKey,Config>
+implements Cloneable{
 	
 	/****************** static vars *******************************/
 	
@@ -11,41 +25,108 @@ public class Config implements Cloneable{
 	public static final Isolation DEFAULT_ISOLATION = Isolation.readCommitted;
 	public static final Boolean DEFAULT_AUTO_COMMIT = false;
 	
+	
 	/*************** fields ********************************/
+
+	private ConfigKey key;
 	
 	//i am trying to move away from setting any values here, so please don't add anything to the defaults!
 
-	protected ConnectMethod connectMethod = ConnectMethod.tryExisting;
-	protected Boolean useSession = true;
+	private ConnectMethod connectMethod = ConnectMethod.tryExisting;
+	private Boolean useSession = true;
 	
 	//transactions
-	protected Isolation isolation = DEFAULT_ISOLATION;
-//	protected Boolean autoCommit;//HibernateExecutor assumes this to be null unless explicitly set to false
+	private Isolation isolation = DEFAULT_ISOLATION;
 	
 	//slaves
-	protected Boolean slaveOk = false;
+	private Boolean slaveOk = false;
 	
 	//put options
-	protected PutMethod putMethod = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
-	protected Boolean ignoreNullFields = false;
-	protected Integer commitBatchSize;
-	protected Boolean persistentPut = true;
+	private PutMethod putMethod = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
+	private Boolean ignoreNullFields = false;
+	private Integer commitBatchSize;
+	private Boolean persistentPut = true;
 
 	//table scans
-	protected Boolean scannerCaching = true;
-	protected Integer iterateBatchSize;
+	private Boolean scannerCaching = true;
+	private Integer iterateBatchSize;
 	
 	//retrying
-	protected Long timeoutMs;
-	protected Integer numAttempts;//do not set default here.  do it per-client
+	private Long timeoutMs;
+	private Integer numAttempts;//do not set default here.  do it per-client
 
 	//paging
-	protected Integer limit;
-	protected Integer offset;
+	private Integer limit;
+	private Integer offset;
 	
 	//caching
-	protected Boolean cacheOk = DEFAULT_CACHE_OK;
-	protected Long cacheTimeoutMs = Long.MAX_VALUE;
+	private Boolean cacheOk = DEFAULT_CACHE_OK;
+	private Long cacheTimeoutMs = Long.MAX_VALUE;
+	
+	
+	/**************************** columns *******************************/
+	
+	public static final Integer
+		LEN_default = StringField.DEFAULT_STRING_LENGTH;
+	
+	public static class F{
+		public static final String
+			KEY_key = "key",
+			connectMethod = "connectMethod",
+			useSession = "useSession",
+			isolation = "isolation",
+			slaveOk = "slaveOk",
+			putMethod = "putMethod",
+			ignoreNullFields = "ignoreNullFields",
+			commitBatchSize = "commitBatchSize",
+			persistentPut = "persistentPut",
+			scannerCaching = "scannerCaching",
+			iterateBatchSize = "iterateBatchSize",
+			timeoutMs = "timeoutMs",
+			numAttempts = "numAttempts",
+			limit = "limit",
+			offset = "offset",
+			cacheOk = "cacheOk",
+			cacheTimeoutMs = "cacheTimeoutMs";
+	}
+	
+	@Override
+	public List<Field<?>> getNonKeyFields(){
+		return FieldTool.createList(
+				new StringEnumField<ConnectMethod>(ConnectMethod.class, F.connectMethod, connectMethod, LEN_default),
+				new BooleanField(F.useSession, useSession),
+				new StringEnumField<Isolation>(Isolation.class, F.isolation, isolation, LEN_default),
+				new BooleanField(F.slaveOk, slaveOk),
+				new StringEnumField<PutMethod>(PutMethod.class, F.putMethod, putMethod, LEN_default),
+				new BooleanField(F.ignoreNullFields, ignoreNullFields),
+				new UInt31Field(F.commitBatchSize, commitBatchSize),
+				new BooleanField(F.persistentPut, persistentPut),
+				new BooleanField(F.scannerCaching, scannerCaching),
+				new UInt31Field(F.iterateBatchSize, iterateBatchSize),
+				new UInt63Field(F.timeoutMs, timeoutMs),
+				new UInt31Field(F.numAttempts, numAttempts),
+				new UInt31Field(F.limit, limit),
+				new UInt31Field(F.offset, offset),
+				new BooleanField(F.cacheOk, cacheOk),
+				new UInt63Field(F.cacheTimeoutMs, cacheTimeoutMs));
+	}
+	
+	public static class ConfigFielder extends BaseDatabeanFielder<ConfigKey,Config>{
+		public ConfigFielder(){}
+		@Override
+		public Class<ConfigKey> getKeyFielderClass(){
+			return ConfigKey.class;
+		}
+		@Override
+		public List<Field<?>> getNonKeyFields(Config d){
+			return d.getNonKeyFields();
+		}
+	}
+	
+	@Override
+	public boolean isFieldAware(){
+		return true;
+	}
 	
 	
 	/******************* clone ******************************************/
@@ -86,7 +167,24 @@ public class Config implements Cloneable{
 	}
 	
 	
+	/************************** databean **************************************/
+	
+	@Override
+	public Class<ConfigKey> getKeyClass() {
+		return ConfigKey.class;
+	};
+	
+	@Override
+	public ConfigKey getKey() {
+		return key;
+	}
+	
+	
 	/***************** constructors ********************************/
+	
+	public Config(){
+		this.key = new ConfigKey();
+	}
 	
 	public static Config create(){
 		Config config = new Config();
