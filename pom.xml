@@ -390,6 +390,11 @@
       <version>1.4.3</version>
     </dependency>
     <dependency>
+      <groupId>com.googlecode.log4jdbc</groupId>
+      <artifactId>log4jdbc</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.zookeeper</groupId>
       <artifactId>zookeeper</artifactId>
       <version>3.4.2</version>
