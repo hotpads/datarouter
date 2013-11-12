@@ -20,13 +20,13 @@ public class MemcachedSimpleClientFactory
 implements MemcachedClientFactory{
 	private static Logger logger = Logger.getLogger(MemcachedSimpleClientFactory.class);
 	
-	protected DataRouterContext drContext;
-	protected String clientName;
-	protected List<String> configFilePaths;
-	protected List<Properties> multiProperties;
-	protected ExecutorService executorService;
-	protected MemcachedOptions options;
-	protected MemcachedClient client;
+	private DataRouterContext drContext;
+	private String clientName;
+	private List<String> configFilePaths;
+	private List<Properties> multiProperties;
+	private ExecutorService executorService;
+	private MemcachedOptions options;
+	private MemcachedClient client;
 	
 	
 	public MemcachedSimpleClientFactory(
