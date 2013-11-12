@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
+import com.hotpads.util.core.net.UrlTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class HttpClientOptions extends TypedProperties{
@@ -17,12 +18,7 @@ public class HttpClientOptions extends TypedProperties{
 	}
 	
 	public URL getUrl(){
-		String urlString = getRequiredString(clientPrefix+"numServers");
-		try{
-			return new URL(urlString);
-		}catch(MalformedURLException e){
-			throw new IllegalArgumentException("invalid URL:"+urlString);
-		}
+		return UrlTool.create(getRequiredString(clientPrefix+"url"));
 	}
 	
 }
