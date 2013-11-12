@@ -1,22 +1,16 @@
 package com.hotpads.datarouter.client.imp.http.node;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
-import com.amazonaws.util.json.JSONObject;
-import com.hotpads.datarouter.client.imp.http.HttpClient;
-import com.hotpads.datarouter.client.imp.memcached.DataRouterMemcachedKey;
-import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
+import com.hotpads.datarouter.client.imp.http.DataRouterHttpClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Config.ConfigFielder;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
@@ -25,14 +19,9 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
-import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 
 public class HttpReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -41,6 +30,8 @@ public class HttpReaderNode<
 extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>{
 	protected static Logger logger = Logger.getLogger(HttpReaderNode.class);
+	
+	public static final String ENCODING_json = "json";
 	
 	private ConfigFielder configFielder;
 		
@@ -63,8 +54,8 @@ implements MapStorageReader<PK,D>{
 	/***************************** plumbing methods ***********************************/
 
 	@Override
-	public HttpClient getClient(){
-		return (HttpClient)this.router.getClient(getClientName());
+	public DataRouterHttpClient getClient(){
+		return (DataRouterHttpClient)this.router.getClient(getClientName());
 	}
 	
 	@Override
@@ -80,86 +71,86 @@ implements MapStorageReader<PK,D>{
 	}
 
 	
+	public static final String 
+		METHOD_get = "get",
+		METHOD_get_PARAM_key = "key",
+		METHOD_get_PARAM_config = "config";
+	
 	@Override
-	public D get(final PK key, final Config pConfig){
+	public D get(final PK key, final Config config){
 		if(key==null){ return null; }
-		final Config config = Config.nullSafe(pConfig);
-		StringBuilder urlBuilder = getOpUrl("/get/json");
-		JSONObject json = new JSONObject();
-		json.put("key", JsonDatabeanTool.primaryKeyToJson(key, fieldInfo.getSampleFielder().getKeyFielder()));
-		json.put("config", JsonDatabeanTool.databeanToJson(pConfig, configFielder));
-		urlBuilder.append("?params=");
-		urlBuilder.append(json.toString());
 		
-		
-			
-		if(ArrayTool.isEmpty(bytes)){ 
-			TraceContext.appendToSpanInfo("miss");
-			return null; 
-		}
-//					System.out.println(StringByteTool.fromUtf8Bytes(bytes));
-		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		try {
-			D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
-					fieldInfo.getFieldByPrefixedName(), is, bytes.length);
-			return databean;
-		} catch (IOException e) {
-			logger.error(ExceptionTool.getStackTraceAsString(e));
-			return null;
-		}
+		Map<String,String> params = MapTool.createHashMap();
+		params.put(METHOD_get_PARAM_key, JsonDatabeanTool.primaryKeyToJson(key, 
+				fieldInfo.getSampleFielder().getKeyFielder()).toString());
+		params.put(METHOD_get_PARAM_config, JsonDatabeanTool.databeanToJson(config, configFielder).toString());
+
+		StringBuilder uriBuilder = getOpUrl("/"+METHOD_get+"/"+ENCODING_json);
+		JSONObject jsonObject = getClient().getApacheHttpClient().request(params, uriBuilder.toString(), JSONObject.class);
+		D databean = JsonDatabeanTool.databeanFromJson(fieldInfo.getDatabeanClass(), fieldInfo.getSampleFielder(), 
+				jsonObject);
+		return databean;
 	}
 	
+
+	public static final String 
+		METHOD_getAll = "getAll",
+		METHOD_getAll_PARAM_config = "config";
 	
 	@Override
-	public List<D> getAll(final Config pConfig){
-		throw new UnsupportedOperationException();
-	}
+	public List<D> getAll(final Config config){
+		Map<String,String> params = MapTool.createHashMap();
+		params.put(METHOD_getAll_PARAM_config, JsonDatabeanTool.databeanToJson(config, configFielder).toString());
 
-	
-	@Override
-	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){
-		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
-		final Config config = Config.nullSafe(pConfig);
-		List<D> databeans = ListTool.createArrayListWithSize(keys);
-		Map<String,Object> bytesByStringKey = null;
-
-		
-		try {
-			Future<Map<String,Object>> f = this.getClient().getSpyClient().asyncGetBulk( //get results asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
-				DataRouterMemcachedKey.getVersionedKeyStrings(name, databeanVersion, keys));
-			bytesByStringKey = f.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS);
-		} catch (TimeoutException e) {										
-			TraceContext.appendToSpanInfo("memcached timeout");	
-		} catch (ExecutionException e) {					
-		} catch (InterruptedException e) {					
-		} catch (MemcachedStateException e) {
-			logger.error(ExceptionTool.getStackTraceAsString(e));
-		}
-		
-		if (bytesByStringKey == null)
-			return null;
-		
-		for(Map.Entry<String,Object> entry : bytesByStringKey.entrySet()){
-			byte[] bytes = (byte[])entry.getValue();
-			if(ArrayTool.isEmpty(bytes)){ return null; }
-			ByteArrayInputStream is = new ByteArrayInputStream((byte[])entry.getValue());
-			try {
-				D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
-						fieldInfo.getFieldByPrefixedName(), is, bytes.length);
-				databeans.add(databean);
-			} catch (IOException e) {
-				logger.error(ExceptionTool.getStackTraceAsString(e));
-			}
-		}
-		TraceContext.appendToSpanInfo("[got "+CollectionTool.size(databeans)+"/"+CollectionTool.size(keys)+"]");
+		StringBuilder uriBuilder = getOpUrl("/"+METHOD_getAll+"/"+ENCODING_json);
+		JSONArray jsonArray = getClient().getApacheHttpClient().request(params, uriBuilder.toString(), JSONArray.class);
+		List<D> databeans = JsonDatabeanTool.databeansFromJson(fieldInfo.getDatabeanClass(), fieldInfo.getSampleFielder(), 
+				jsonArray);
 		return databeans;
 	}
+
 	
+	public static final String 
+		METHOD_getMulti = "getMulti",
+		METHOD_getMulti_PARAM_keys = "keys",
+		METHOD_getMulti_PARAM_config = "config";
 	
 	@Override
-	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig) {	
+	public List<D> getMulti(final Collection<PK> keys, final Config config){
+		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
+		
+		Map<String,String> params = MapTool.createHashMap();
+		params.put(METHOD_getMulti_PARAM_keys, JsonDatabeanTool.primaryKeysToJson(keys, 
+				fieldInfo.getSampleFielder().getKeyFielder()).toString());
+		params.put(METHOD_getMulti_PARAM_config, JsonDatabeanTool.databeanToJson(config, configFielder).toString());
+
+		StringBuilder uriBuilder = getOpUrl("/"+METHOD_getMulti+"/"+ENCODING_json);
+		JSONArray jsonArray = getClient().getApacheHttpClient().request(params, uriBuilder.toString(), JSONArray.class);
+		List<D> databeans = JsonDatabeanTool.databeansFromJson(fieldInfo.getDatabeanClass(), fieldInfo.getSampleFielder(), 
+				jsonArray);
+		return databeans;
+	}
+
+	
+	public static final String 
+		METHOD_getKeys = "getKeys",
+		METHOD_getKeys_PARAM_keys = "keys",
+		METHOD_getKeys_PARAM_config = "config";
+	
+	@Override
+	public List<PK> getKeys(final Collection<PK> keys, final Config config) {	
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
-		return KeyTool.getKeys(getMulti(keys, pConfig));
+		
+		Map<String,String> params = MapTool.createHashMap();
+		params.put(METHOD_getKeys_PARAM_keys, JsonDatabeanTool.primaryKeysToJson(keys, 
+				fieldInfo.getSampleFielder().getKeyFielder()).toString());
+		params.put(METHOD_getKeys_PARAM_config, JsonDatabeanTool.databeanToJson(config, configFielder).toString());
+
+		StringBuilder uriBuilder = getOpUrl("/"+METHOD_getKeys+"/"+ENCODING_json);
+		JSONArray jsonArray = getClient().getApacheHttpClient().request(params, uriBuilder.toString(), JSONArray.class);
+		List<PK> result = JsonDatabeanTool.primaryKeysFromJson(fieldInfo.getPrimaryKeyClass(), fieldInfo.getSampleFielder()
+				.getKeyFielder(), jsonArray);
+		return result;
 	}
 
 	
@@ -167,7 +158,7 @@ implements MapStorageReader<PK,D>{
 	
 	private StringBuilder getNodeUrl(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(getClient().getUrl().toExternalForm());
+		sb.append(getClient().getUrl());
 		sb.append("/");
 		sb.append(router.getName());
 		sb.append("/");

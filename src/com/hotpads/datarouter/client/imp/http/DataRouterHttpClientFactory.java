@@ -8,26 +8,26 @@ import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.util.core.PropertiesTool;
 
 
-public class HttpClientFactory implements ClientFactory{
+public class DataRouterHttpClientFactory implements ClientFactory{
 
 	private DataRouterContext drContext;
 	private String clientName;
 	private List<String> configFilePaths;
 	private List<Properties> multiProperties;
-	private HttpClientOptions options;
+	private DataRouterHttpClientOptions options;
 	
 	private boolean initialized = false;
-	private volatile HttpClient client = null;//volatile for double checked locking
+	private volatile DataRouterHttpClient client = null;//volatile for double checked locking
 	
 
 	
 	
-	public HttpClientFactory(DataRouterContext drContext, String clientName){
+	public DataRouterHttpClientFactory(DataRouterContext drContext, String clientName){
 		this.drContext = drContext;
 		this.clientName = clientName;
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
-		this.options = new HttpClientOptions(multiProperties, clientName);
+		this.options = new DataRouterHttpClientOptions(multiProperties, clientName);
 	}
 
 	
@@ -37,11 +37,11 @@ public class HttpClientFactory implements ClientFactory{
 	}
 	
 	@Override
-	public HttpClient getClient(){
+	public DataRouterHttpClient getClient(){
 		if(client!=null){ return client; }//make sure client is volatile
 		synchronized(this){
 			if(client!=null){ return client; }
-			client = new HttpClient(clientName, options.getUrl());
+			client = new DataRouterHttpClient(clientName, options.getUrl());
 		}
 		return client;
 	}

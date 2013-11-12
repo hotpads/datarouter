@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService;
 
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateSimpleClientFactory;
-import com.hotpads.datarouter.client.imp.http.HttpClientFactory;
+import com.hotpads.datarouter.client.imp.http.DataRouterHttpClientFactory;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.memory.MemoryClientFactory;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -59,7 +59,7 @@ public enum ClientType {
 		}else if(memcached==this){ 
 			return new MemcachedSimpleClientFactory(drContext, clientName, executorService); 
 		}else if(http==this){
-			return new HttpClientFactory(drContext, clientName);
+			return new DataRouterHttpClientFactory(drContext, clientName);
 		}
 		
 		throw new IllegalArgumentException("unsupported ClientType "+this);
