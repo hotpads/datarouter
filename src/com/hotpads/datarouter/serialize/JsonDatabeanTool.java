@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -99,6 +100,24 @@ public class JsonDatabeanTool{
 		}
 		return pks;
 	}
+	
+	//wrappers
+	public static <PK extends PrimaryKey<PK>>
+	PK primaryKeyFromJson(Class<PK> pkClass, Fielder<PK> fielder, String json){
+		return primaryKeyFromJson(pkClass, fielder, stringToJsonObject(json));
+	}
+	
+	public static <PK extends PrimaryKey<PK>>
+	void primaryKeyFromJson(PK pk, Fielder<PK> fielder, String json){
+		primaryKeyFromJson(pk, fielder, stringToJsonObject(json));
+	}
+	
+	public static <PK extends PrimaryKey<PK>>
+	List<PK> primaryKeysFromJson(Class<PK> pkClass, Fielder<PK> fielder, String json){
+		return primaryKeysFromJson(pkClass, fielder, stringToJsonArray(json));
+	}
+	
+	
 
 
 	/********************** databean from json *************************/
@@ -131,8 +150,27 @@ public class JsonDatabeanTool{
 		return databeans;
 	}
 	
+	//wrappers
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	D databeanFromJson(Class<D> databeanClass, DatabeanFielder<PK,D> fielder, String json){
+		return databeanFromJson(databeanClass, fielder, stringToJsonObject(json));
+	}
+
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	List<D> databeansFromJson(Class<D> databeanClass, DatabeanFielder<PK,D> fielder, String json){
+		return databeansFromJson(databeanClass, fielder, stringToJsonArray(json));
+	}
+	
 	
 	/********************** util ****************************/
+	
+	public static JSONObject stringToJsonObject(String s){
+		return (JSONObject)JSONSerializer.toJSON(s);
+	}
+
+	public static JSONArray stringToJsonArray(String s){
+		return (JSONArray)JSONSerializer.toJSON(s);
+	}
 
 	public static JSONObject fieldsToJson(List<Field<?>> fields) {
 		JSONObject jsonObject = new JSONObject();

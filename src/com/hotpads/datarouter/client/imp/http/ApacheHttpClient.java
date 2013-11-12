@@ -35,6 +35,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Strings;
+import com.hotpads.util.core.io.ReaderTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 
@@ -108,7 +109,7 @@ public class ApacheHttpClient{
 			httpClient.executeMethod(post);
 			if(post.getStatusCode() == HttpStatus.SC_OK){
 				Reader reader = new InputStreamReader(post.getResponseBodyAsStream(), post.getResponseCharSet());
-				return getJSON(reader, returnType);
+				return getJson(reader, returnType);
 			}else{
 				logger.warn("Post request unsuccessful, returned HTTPStatus:" + post.getStatusCode()
 						+ " for parameters:" + parameters.toString());
@@ -125,25 +126,14 @@ public class ApacheHttpClient{
 		}
 	}
 
-	private static <T extends JSON> T getJSON(Reader reader, Class<T> returnType) throws JSONException, IOException{
-		BufferedReader bufferedReader = new BufferedReader(reader);
-		try{
-			String jsonString;
-			StringBuilder stringBuilder = new StringBuilder();
-			while((jsonString = bufferedReader.readLine()) != null){
-				stringBuilder.append(jsonString);
-			}
-			jsonString = stringBuilder.toString();
-			logger.debug(jsonString);
-			if(!Strings.isNullOrEmpty(jsonString)){
-				T json = (T) JSONSerializer.toJSON(jsonString);
-				return json;
-			}else{
-				logger.error("Server returned empty/null json object: '" + jsonString + "'");
-				return ReflectionTool.create(returnType);
-			}
-		}finally{
-			reader.close();
+	private static <T extends JSON> T getJson(Reader reader, Class<T> returnType){
+		String jsonString = ReaderTool.accumulateStringAndClose(reader).toString();
+		if(!Strings.isNullOrEmpty(jsonString)){
+			T json = (T) JSONSerializer.toJSON(jsonString);
+			return json;
+		}else{
+			logger.error("Server returned empty/null json object: '" + jsonString + "'");
+			return ReflectionTool.create(returnType);
 		}
 	}
 

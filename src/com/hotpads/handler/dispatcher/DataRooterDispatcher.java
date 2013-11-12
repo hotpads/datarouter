@@ -13,6 +13,7 @@ public class DataRooterDispatcher extends BaseDispatcher{
 	public static final String URL_STACKTRACES = "/stackTraces";
 	public static final String URL_DR = "/datarouter";
 	public static final String URL_DATAROUTER_VIEW_NODE_DATA = URL_DR + "/viewNodeData";
+	public static final String URL_HTTP_CLIENT = URL_DR + "/httpNode";
 
 
 	public DataRooterDispatcher(Injector injector, String servletContextPath, String urlPrefix){

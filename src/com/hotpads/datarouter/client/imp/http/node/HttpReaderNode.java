@@ -31,8 +31,27 @@ extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>{
 	protected static Logger logger = Logger.getLogger(HttpReaderNode.class);
 	
-	public static final String ENCODING_json = "json";
+	/******************** static ****************************/
 	
+	public static final String 
+		ENCODING_json = "json",
+		
+		PARAM_config = "config",
+		
+		METHOD_get = "get",
+		METHOD_get_PARAM_key = "key",
+		
+		METHOD_getAll = "getAll",
+		
+		METHOD_getMulti = "getMulti",
+		METHOD_getMulti_PARAM_keys = "keys",
+		
+		METHOD_getKeys = "getKeys",
+		METHOD_getKeys_PARAM_keys = "keys";
+	
+		
+	/*************** fields ********************************/
+		
 	private ConfigFielder configFielder;
 		
 	/******************************* constructors ************************************/
@@ -69,12 +88,6 @@ implements MapStorageReader<PK,D>{
 	public boolean exists(PK key, Config config) {
 		return get(key, config) != null;
 	}
-
-	
-	public static final String 
-		METHOD_get = "get",
-		METHOD_get_PARAM_key = "key",
-		METHOD_get_PARAM_config = "config";
 	
 	@Override
 	public D get(final PK key, final Config config){
@@ -83,7 +96,7 @@ implements MapStorageReader<PK,D>{
 		Map<String,String> params = MapTool.createHashMap();
 		params.put(METHOD_get_PARAM_key, JsonDatabeanTool.primaryKeyToJson(key, 
 				fieldInfo.getSampleFielder().getKeyFielder()).toString());
-		params.put(METHOD_get_PARAM_config, JsonDatabeanTool.databeanToJson(config, configFielder).toString());
+		addConfigParam(params, config);
 
 		StringBuilder uriBuilder = getOpUrl("/"+METHOD_get+"/"+ENCODING_json);
 		JSONObject jsonObject = getClient().getApacheHttpClient().request(params, uriBuilder.toString(), JSONObject.class);
@@ -92,15 +105,10 @@ implements MapStorageReader<PK,D>{
 		return databean;
 	}
 	
-
-	public static final String 
-		METHOD_getAll = "getAll",
-		METHOD_getAll_PARAM_config = "config";
-	
 	@Override
 	public List<D> getAll(final Config config){
 		Map<String,String> params = MapTool.createHashMap();
-		params.put(METHOD_getAll_PARAM_config, JsonDatabeanTool.databeanToJson(config, configFielder).toString());
+		addConfigParam(params, config);
 
 		StringBuilder uriBuilder = getOpUrl("/"+METHOD_getAll+"/"+ENCODING_json);
 		JSONArray jsonArray = getClient().getApacheHttpClient().request(params, uriBuilder.toString(), JSONArray.class);
@@ -108,12 +116,6 @@ implements MapStorageReader<PK,D>{
 				jsonArray);
 		return databeans;
 	}
-
-	
-	public static final String 
-		METHOD_getMulti = "getMulti",
-		METHOD_getMulti_PARAM_keys = "keys",
-		METHOD_getMulti_PARAM_config = "config";
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config config){
@@ -122,7 +124,7 @@ implements MapStorageReader<PK,D>{
 		Map<String,String> params = MapTool.createHashMap();
 		params.put(METHOD_getMulti_PARAM_keys, JsonDatabeanTool.primaryKeysToJson(keys, 
 				fieldInfo.getSampleFielder().getKeyFielder()).toString());
-		params.put(METHOD_getMulti_PARAM_config, JsonDatabeanTool.databeanToJson(config, configFielder).toString());
+		addConfigParam(params, config);
 
 		StringBuilder uriBuilder = getOpUrl("/"+METHOD_getMulti+"/"+ENCODING_json);
 		JSONArray jsonArray = getClient().getApacheHttpClient().request(params, uriBuilder.toString(), JSONArray.class);
@@ -130,12 +132,6 @@ implements MapStorageReader<PK,D>{
 				jsonArray);
 		return databeans;
 	}
-
-	
-	public static final String 
-		METHOD_getKeys = "getKeys",
-		METHOD_getKeys_PARAM_keys = "keys",
-		METHOD_getKeys_PARAM_config = "config";
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config config) {	
@@ -144,7 +140,7 @@ implements MapStorageReader<PK,D>{
 		Map<String,String> params = MapTool.createHashMap();
 		params.put(METHOD_getKeys_PARAM_keys, JsonDatabeanTool.primaryKeysToJson(keys, 
 				fieldInfo.getSampleFielder().getKeyFielder()).toString());
-		params.put(METHOD_getKeys_PARAM_config, JsonDatabeanTool.databeanToJson(config, configFielder).toString());
+		addConfigParam(params, config);
 
 		StringBuilder uriBuilder = getOpUrl("/"+METHOD_getKeys+"/"+ENCODING_json);
 		JSONArray jsonArray = getClient().getApacheHttpClient().request(params, uriBuilder.toString(), JSONArray.class);
@@ -156,6 +152,11 @@ implements MapStorageReader<PK,D>{
 	
 	/***************************** private *****************************/
 	
+	private void addConfigParam(Map<String,String> params, Config config){
+		params.put(PARAM_config, JsonDatabeanTool.databeanToJson(config, configFielder).toString());
+	}
+	
+	// should be like: /contextPath/datarouter/httpNode/routerName/clientName.nodeName
 	private StringBuilder getNodeUrl(){
 		StringBuilder sb = new StringBuilder();
 		sb.append(getClient().getUrl());
