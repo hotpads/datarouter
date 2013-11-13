@@ -8,7 +8,7 @@ import com.hotpads.handler.admin.StackTracesManagerHandler;
 import com.hotpads.handler.datarouter.ViewNodeDataHandler;
 import com.hotpads.handler.httpclient.DataRouterHttpClientHandler;
 
-public class DataRooterDispatcher extends BaseDispatcher{
+public class DataRouterDispatcher extends BaseDispatcher{
 
 	private static final String ROUTERS = "/routers";
 	public static final String URL_STACKTRACES = "/stackTraces";
@@ -17,7 +17,7 @@ public class DataRooterDispatcher extends BaseDispatcher{
 	public static final String URL_HTTP_CLIENT = URL_DR + "/httpNode";
 
 
-	public DataRooterDispatcher(Injector injector, String servletContextPath, String urlPrefix){
+	public DataRouterDispatcher(Injector injector, String servletContextPath, String urlPrefix){
 		super(injector, servletContextPath, urlPrefix);
 		// DataRouter
 		handle(URL_HTTP_CLIENT, DataRouterHttpClientHandler.class);
