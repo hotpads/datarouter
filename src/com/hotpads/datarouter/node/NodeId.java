@@ -9,6 +9,7 @@ public class NodeId<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>{
 
+	private Class<? extends Node<PK,D>> nodeClass;
 	private Class<D> databeanClass;
 	private String routerName;
 	private String clientName;
@@ -16,8 +17,9 @@ public class NodeId<
 	private String nodeName;
 	
 	
-	public NodeId(Class<D> databeanClass, String routerName, String clientName, String parentNodeName,
-			String nodeName){
+	public NodeId(Class<? extends Node<PK,D>> nodeClass, Class<D> databeanClass, String routerName, String clientName, 
+			String parentNodeName, String nodeName){
+		this.nodeClass = nodeClass;
 		this.databeanClass = databeanClass;
 		this.routerName = routerName;
 		this.clientName = clientName;

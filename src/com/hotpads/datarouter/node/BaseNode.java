@@ -22,7 +22,7 @@ implements Node<PK,D>{
 	protected Logger logger = Logger.getLogger(getClass());
 	
 	private DataRouterContext drContext;
-	private NodeId<PK,D,F> id;
+	protected NodeId<PK,D,F> id;
 	protected String name;
 	protected DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
@@ -32,7 +32,7 @@ implements Node<PK,D>{
 	
 	public BaseNode(DataRouterContext drContext, Class<D> databeanClass, Class<F> fielderClass){
 		this.drContext = drContext;
-		this.id = new NodeId<PK,D,F>(databeanClass, null, null, null, getClass().getSimpleName());
+		this.id = new NodeId<PK,D,F>(getClass(), databeanClass, null, null, null, null);
 		this.name = databeanClass.getSimpleName() + "." + getClass().getSimpleName();// probably never used
 		Assert.assertEquals(name, id.getName());
 		try{
