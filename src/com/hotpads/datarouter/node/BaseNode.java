@@ -2,6 +2,8 @@ package com.hotpads.datarouter.node;
 
 import java.util.List;
 
+import junit.framework.Assert;
+
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -20,6 +22,7 @@ implements Node<PK,D>{
 	protected Logger logger = Logger.getLogger(getClass());
 	
 	private DataRouterContext drContext;
+	private NodeId<PK,D,F> id;
 	protected String name;
 	protected DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
@@ -29,7 +32,9 @@ implements Node<PK,D>{
 	
 	public BaseNode(DataRouterContext drContext, Class<D> databeanClass, Class<F> fielderClass){
 		this.drContext = drContext;
+		this.id = new NodeId<PK,D,F>(databeanClass, null, null, null, getClass().getSimpleName());
 		this.name = databeanClass.getSimpleName() + "." + getClass().getSimpleName();// probably never used
+		Assert.assertEquals(name, id.getName());
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(name, databeanClass, fielderClass);
 		}catch(Exception probablyNoPkInstantiated){

@@ -43,6 +43,7 @@ implements PhysicalNode<PK,D>
 		this.clientName = clientName;
 		this.tableName = databeanClass.getSimpleName();
 		this.packagedTableName = databeanClass.getName();
+		this.no
 		this.name = clientName+"."+databeanClass.getSimpleName();
 //		if(this.fieldAware){
 //			logger.warn("Found fieldAware Databean:"+this.getName());
