@@ -95,7 +95,6 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 	
 
 	/*********************** SqlEncodedField ***********************/
-
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
