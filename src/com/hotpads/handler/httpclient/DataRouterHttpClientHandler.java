@@ -5,6 +5,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import net.sf.json.JSON;
+import net.sf.json.JSONObject;
 
 import com.hotpads.datarouter.client.imp.http.node.HttpReaderNode;
 import com.hotpads.datarouter.config.Config;
@@ -63,6 +64,20 @@ implements MapStorageReaderHttpNode<PK,D>{
 		if(configJsonString != null){
 			config = JsonDatabeanTool.databeanFromJson(Config.class, CONFIG_FIELDER, configJsonString);
 		}
+	}
+	
+	@Override
+	@Handler
+	public JsonMav exists(){
+		preHandle();
+		PK key = JsonDatabeanTool.primaryKeyFromJson(
+				fieldInfo.getPrimaryKeyClass(),
+				fieldInfo.getSampleFielder().getKeyFielder(),
+				params.required(HttpReaderNode.METHOD_get_PARAM_key));
+		D databean = node.get(key, config);
+		JSONObject existsJson = new JSONObject();
+		existsJson.put("exists", databean==null);
+		return new JsonMav(existsJson);
 	}
 	
 	@Override
