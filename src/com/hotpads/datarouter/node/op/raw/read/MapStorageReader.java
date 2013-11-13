@@ -15,10 +15,13 @@ public interface MapStorageReader<PK extends PrimaryKey<PK>,D extends Databean<P
 extends NodeOps<PK,D>
 {
 	
+	@Deprecated//just check if get!=null
 	boolean exists(PK key, Config config);
 	
 	D get(PK key, Config config);
 	List<D> getMulti(Collection<PK> keys, Config config);
+	
+	@Deprecated//replace with iterator
 	List<D> getAll(Config config);
 	
 	List<PK> getKeys(final Collection<PK> keys, final Config config);
