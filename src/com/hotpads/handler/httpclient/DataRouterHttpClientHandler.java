@@ -19,12 +19,19 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.JsonMav;
 import com.hotpads.handler.mav.imp.MessageMav;
 
+/*
+ * http://localhost:8080/analytics/datarouter/httpNode?submitAction=get&routerName=search&nodeName=search.Listing&key={%22feedId%22:%22HomeRentals%22,%22feedListingId%22:%22AL010006L%22}
+ */
 public class DataRouterHttpClientHandler<
-		PK extends PrimaryKey<PK>,
+		PK extends PrimaryKey<PK>,//handles a request for one node at a time, so the generics work
 		D extends Databean<PK,D>>
 extends BaseHandler{
 	
 	private static final ConfigFielder CONFIG_FIELDER = new ConfigFielder();
+	
+	public static final String
+		PARAM_routerName = "routerName",
+		PARAM_nodeName = "nodeName";
 	
 	@Inject
 	private DataRouterContext drContext;
@@ -44,8 +51,8 @@ extends BaseHandler{
 	
 	private void preHandle(){
 		String[] uriTokens = params.getRequest().getRequestURI().split("/");
-		routerName = uriTokens[uriTokens.length - 2];
-		nodeName = uriTokens[uriTokens.length - 1];
+		routerName = params.required(PARAM_routerName);
+		nodeName = params.required(PARAM_nodeName);
 		router = drContext.getRouter(routerName);
 		node = (MapStorageReaderNode<PK,D>)drContext.getNodes().getNode(nodeName);
 		fieldInfo = node.getFieldInfo();
@@ -58,6 +65,7 @@ extends BaseHandler{
 	
 	@Handler
 	JsonMav get(){
+		preHandle();
 		PK key = JsonDatabeanTool.primaryKeyFromJson(
 				fieldInfo.getPrimaryKeyClass(),
 				fieldInfo.getSampleFielder().getKeyFielder(),

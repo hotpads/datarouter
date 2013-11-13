@@ -7,8 +7,8 @@ import com.hotpads.handler.mav.Mav;
 public class JsonMav extends Mav{
 	
 	public static final String 
-		JSP_PATH = "/generic/json",
-		VAR_NAME = "data";
+		JSP_PATH = "/jsp/generic/json.jsp",
+		VAR_NAME = "json";
 
 	public JsonMav(){
 		super(JSP_PATH);
