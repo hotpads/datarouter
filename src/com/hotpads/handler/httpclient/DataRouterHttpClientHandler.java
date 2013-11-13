@@ -1,12 +1,15 @@
 package com.hotpads.handler.httpclient;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
-import net.sf.json.JSONObject;
+import net.sf.json.JSON;
 
 import com.hotpads.datarouter.client.imp.http.node.HttpReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Config.ConfigFielder;
+import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderHttpNode;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -25,7 +28,8 @@ import com.hotpads.handler.mav.imp.MessageMav;
 public class DataRouterHttpClientHandler<
 		PK extends PrimaryKey<PK>,//handles a request for one node at a time, so the generics work
 		D extends Databean<PK,D>>
-extends BaseHandler{
+extends BaseHandler
+implements MapStorageReaderHttpNode<PK,D>{
 	
 	private static final ConfigFielder CONFIG_FIELDER = new ConfigFielder();
 	
@@ -50,7 +54,6 @@ extends BaseHandler{
 	}
 	
 	private void preHandle(){
-		String[] uriTokens = params.getRequest().getRequestURI().split("/");
 		routerName = params.required(PARAM_routerName);
 		nodeName = params.required(PARAM_nodeName);
 		router = drContext.getRouter(routerName);
@@ -62,17 +65,53 @@ extends BaseHandler{
 		}
 	}
 	
-	
+	@Override
 	@Handler
-	JsonMav get(){
+	public JsonMav get(){
 		preHandle();
 		PK key = JsonDatabeanTool.primaryKeyFromJson(
 				fieldInfo.getPrimaryKeyClass(),
 				fieldInfo.getSampleFielder().getKeyFielder(),
 				params.required(HttpReaderNode.METHOD_get_PARAM_key));
 		D databean = node.get(key, config);
-		JSONObject jsonDatabean = JsonDatabeanTool.databeanToJson(databean, fieldInfo.getSampleFielder());
+		JSON jsonDatabean = JsonDatabeanTool.databeanToJson(databean, fieldInfo.getSampleFielder());
 		return new JsonMav(jsonDatabean);
+	}
+
+	@Override
+	@Handler
+	public JsonMav getMulti(){
+		preHandle();
+		List<PK> keys = JsonDatabeanTool.primaryKeysFromJson(
+				fieldInfo.getPrimaryKeyClass(),
+				fieldInfo.getSampleFielder().getKeyFielder(),
+				params.required(HttpReaderNode.METHOD_getMulti_PARAM_keys));
+		List<D> databeans = node.getMulti(keys, config);
+		JSON jsonDatabeans = JsonDatabeanTool.databeansToJson(databeans, fieldInfo.getSampleFielder());
+		return new JsonMav(jsonDatabeans);
+	}
+
+	@Override
+	@Handler
+	public JsonMav getAll(){
+		preHandle();
+		List<D> databeans = node.getAll(config);
+		JSON jsonDatabeans = JsonDatabeanTool.databeansToJson(databeans, fieldInfo.getSampleFielder());
+		return new JsonMav(jsonDatabeans);
+	}
+
+	@Override
+	@Handler
+	public JsonMav getKeys(){
+		preHandle();
+		List<PK> keys = JsonDatabeanTool.primaryKeysFromJson(
+				fieldInfo.getPrimaryKeyClass(),
+				fieldInfo.getSampleFielder().getKeyFielder(),
+				params.required(HttpReaderNode.METHOD_getMulti_PARAM_keys));
+		List<PK> existingKeys = node.getKeys(keys, config);
+		JSON jsonExistingKeys = JsonDatabeanTool.primaryKeysToJson(existingKeys, fieldInfo.getSampleFielder()
+				.getKeyFielder());
+		return new JsonMav(jsonExistingKeys);
 	}
 	
 }
