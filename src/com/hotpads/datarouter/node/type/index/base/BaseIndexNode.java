@@ -76,7 +76,7 @@ extends BaseNode<IK,IE,DatabeanFielder<IK,IE>>{
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = SetTool.wrap(name);
+		Set<String> names = SetTool.wrap(getName());
 		names.addAll(indexNode.getAllNames());
 		return names;
 	}

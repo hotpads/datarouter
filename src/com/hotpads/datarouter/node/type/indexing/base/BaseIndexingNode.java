@@ -45,7 +45,7 @@ extends BaseNode<PK,D,F>{
 	@Override
 	public Set<String> getAllNames(){
 		Set<String> names = SetTool.createHashSet();
-		names.addAll(CollectionTool.nullSafe(name));
+		names.addAll(CollectionTool.nullSafe(getName()));
 		names.addAll(CollectionTool.nullSafe(mainNode.getAllNames()));
 		return names;
 	}

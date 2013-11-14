@@ -4,10 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import junit.framework.Assert;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeId;
 import com.hotpads.datarouter.node.type.partitioned.Partitions;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -43,14 +46,16 @@ extends BaseNode<PK,D,F>{
 		super(router.getContext(), databeanClass, fielderClass);
 		this.router = router;
 		this.partitions = new Partitions<PK,D,N>(this);
-		this.name = databeanClass.getSimpleName()+"."+getClass().getSimpleName();
+		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), null, null, null));
+		this.setName(databeanClass.getSimpleName()+"."+getClass().getSimpleName());
+		Assert.assertEquals(getName(), getId().getName());
 	}
 
 	/*************************** node methods *************************/
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = SetTool.wrap(this.name);
+		Set<String> names = SetTool.wrap(getName());
 		for(N physicalNode : IterableTool.nullSafe(partitions.getAll())){
 			names.addAll(physicalNode.getAllNames());
 		}

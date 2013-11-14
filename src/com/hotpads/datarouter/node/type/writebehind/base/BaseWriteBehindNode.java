@@ -80,7 +80,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	@Override
 	public Set<String> getAllNames(){
 		Set<String> names = SetTool.createHashSet();
-		names.addAll(CollectionTool.nullSafe(name));
+		names.addAll(CollectionTool.nullSafe(getName()));
 		names.addAll(CollectionTool.nullSafe(backingNode.getAllNames()));
 		return names;
 	}

@@ -134,7 +134,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = SetTool.wrap(this.name);
+		Set<String> names = SetTool.wrap(getName());
 		names.addAll(backingNode.getAllNames());
 		return names;
 	}

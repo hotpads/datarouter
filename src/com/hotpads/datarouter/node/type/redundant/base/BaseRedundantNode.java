@@ -43,7 +43,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	@Override
 	public Set<String> getAllNames(){
 		Set<String> names = SetTool.createHashSet();
-		names.add(name);
+		names.add(getName());
 		names.addAll(CollectionTool.nullSafe(readNode.getAllNames()));
 		for(N backingNode : IterableTool.nullSafe(writeNodes)){
 			names.addAll(CollectionTool.nullSafe(backingNode.getAllNames()));

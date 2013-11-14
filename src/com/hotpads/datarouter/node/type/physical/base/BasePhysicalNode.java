@@ -46,10 +46,10 @@ implements PhysicalNode<PK,D>
 		this.clientName = clientName;
 		this.tableName = databeanClass.getSimpleName();
 		this.packagedTableName = databeanClass.getName();
-		this.id = new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), clientName, 
-				null, null);
-		this.name = clientName+"."+databeanClass.getSimpleName();
-		Assert.assertEquals(name, id.getName());
+		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), clientName, 
+				null, null));
+		this.setName(clientName+"."+databeanClass.getSimpleName());
+		Assert.assertEquals(getName(), getId().getName());
 //		if(this.fieldAware){
 //			logger.warn("Found fieldAware Databean:"+this.getName());
 //		}
@@ -63,7 +63,9 @@ implements PhysicalNode<PK,D>
 		//overwrite the default values
 		this.tableName = tableName;
 		this.packagedTableName = packagedTableName;
-		this.name = clientName+"."+tableName;
+		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), clientName, 
+				null, clientName+"."+tableName));
+		this.setName(clientName+"."+tableName);
 		logger.info("client:"+this.clientName+" databean "+databeanClass.getSimpleName()+" -> "+tableName);
 	}
 	
@@ -94,7 +96,7 @@ implements PhysicalNode<PK,D>
 
 	@Override
 	public Set<String> getAllNames(){
-		return SetTool.wrap(this.name);
+		return SetTool.wrap(getName());
 	}
 
 	@Override

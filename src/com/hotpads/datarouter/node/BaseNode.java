@@ -22,8 +22,8 @@ implements Node<PK,D>{
 	protected Logger logger = Logger.getLogger(getClass());
 	
 	private DataRouterContext drContext;
-	protected NodeId<PK,D,F> id;
-	protected String name;
+	private NodeId<PK,D,F> id;
+	private String name;
 	protected DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
 	public BaseNode(DataRouterContext drContext, Class<D> databeanClass){
@@ -66,6 +66,18 @@ implements Node<PK,D>{
 	@Override
 	public String getName() {
 		return this.name;
+	}
+	
+	protected void setName(String name){
+		this.name = name;
+	}
+	
+	protected void setId(NodeId<PK,D,F> id){
+		this.id = id;
+	}
+	
+	public NodeId<PK,D,F> getId(){
+		return id;
 	}
 	
 	@Override

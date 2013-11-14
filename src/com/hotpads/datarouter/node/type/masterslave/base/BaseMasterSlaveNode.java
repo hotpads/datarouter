@@ -46,7 +46,7 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = SetTool.wrap(this.name);
+		Set<String> names = SetTool.wrap(getName());
 		names.addAll(this.master.getAllNames());
 		for(N slave : IterableTool.nullSafe(this.slaves)){
 			names.addAll(slave.getAllNames());
