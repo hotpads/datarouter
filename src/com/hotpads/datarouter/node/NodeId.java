@@ -21,8 +21,8 @@ public class NodeId<
 	
 	public NodeId(Class<Node<PK,D>> nodeClass, Class<D> databeanClass, String routerName, String clientName, 
 			String parentNodeName, String explicitName){
-		this.nodeClass = nodeClass;
-		this.databeanClass = databeanClass;
+		this.nodeClass = Preconditions.checkNotNull(nodeClass);
+		this.databeanClass = Preconditions.checkNotNull(databeanClass);
 		this.routerName = Preconditions.checkNotNull(routerName);
 		this.clientName = clientName;
 		this.parentNodeName = parentNodeName;
