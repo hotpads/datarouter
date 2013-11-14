@@ -22,7 +22,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import net.spy.memcached.compat.SpyThread;
+import net.spy.SpyThread;
 import net.spy.memcached.ops.DeleteOperation;
 import net.spy.memcached.ops.GetOperation;
 import net.spy.memcached.ops.Mutator;

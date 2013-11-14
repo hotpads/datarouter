@@ -11,8 +11,8 @@ import java.util.Date;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import net.spy.memcached.compat.SpyObject;
-import net.spy.memcached.compat.CloseUtil;
+import net.spy.SpyObject;
+import net.spy.util.CloseUtil;
 
 /**
  * Transcoder that serializes and compresses objects.

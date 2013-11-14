@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import net.spy.memcached.compat.SpyObject;
+import net.spy.SpyObject;
 
 import com.google.common.collect.Lists;
 import com.hotpads.util.core.GenericsFactory;
