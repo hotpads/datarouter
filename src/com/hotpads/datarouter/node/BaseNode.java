@@ -47,11 +47,6 @@ implements Node<PK,D>{
 	public DataRouterContext getDataRouterContext(){
 		return drContext;
 	}
-	
-//	@Override
-//	public void setDataRouterContext(DataRouterContext drContext){
-//		this.drContext = drContext;
-//	}
 
 	@Override
 	public Class<PK> getPrimaryKeyType(){
@@ -65,7 +60,7 @@ implements Node<PK,D>{
 
 	@Override
 	public String getName() {
-		return this.name;
+		return id==null ? null : id.getName();
 	}
 	
 	protected void setName(String name){
