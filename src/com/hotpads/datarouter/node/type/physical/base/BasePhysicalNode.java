@@ -66,6 +66,7 @@ implements PhysicalNode<PK,D>
 		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), clientName, 
 				null, clientName+"."+tableName));
 		this.setName(clientName+"."+tableName);
+		Assert.assertEquals(getName(), getId().getName());
 		logger.info("client:"+this.clientName+" databean "+databeanClass.getSimpleName()+" -> "+tableName);
 	}
 	
