@@ -5,10 +5,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
+import junit.framework.Assert;
+
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeId;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -43,8 +46,10 @@ implements PhysicalNode<PK,D>
 		this.clientName = clientName;
 		this.tableName = databeanClass.getSimpleName();
 		this.packagedTableName = databeanClass.getName();
-		this.no
+		this.id = new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), clientName, 
+				null, null);
 		this.name = clientName+"."+databeanClass.getSimpleName();
+		Assert.assertEquals(name, id.getName());
 //		if(this.fieldAware){
 //			logger.warn("Found fieldAware Databean:"+this.getName());
 //		}

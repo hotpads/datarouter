@@ -32,7 +32,7 @@ implements Node<PK,D>{
 	
 	public BaseNode(DataRouterContext drContext, Class<D> databeanClass, Class<F> fielderClass){
 		this.drContext = drContext;
-		this.id = new NodeId<PK,D,F>(getClass(), databeanClass, null, null, null, null);
+		this.id = new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, null, null, null, null);
 		this.name = databeanClass.getSimpleName() + "." + getClass().getSimpleName();// probably never used
 		Assert.assertEquals(name, id.getName());
 		try{
