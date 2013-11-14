@@ -23,7 +23,6 @@ implements Node<PK,D>{
 	
 	private DataRouterContext drContext;
 	private NodeId<PK,D,F> id;
-	private String name;
 	protected DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
 	public BaseNode(DataRouterContext drContext, Class<D> databeanClass){
@@ -33,12 +32,10 @@ implements Node<PK,D>{
 	public BaseNode(DataRouterContext drContext, Class<D> databeanClass, Class<F> fielderClass){
 		this.drContext = drContext;
 		this.id = new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, null, null, null, null);
-		this.name = databeanClass.getSimpleName() + "." + getClass().getSimpleName();// probably never used
-		Assert.assertEquals(name, id.getName());
 		try{
-			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(name, databeanClass, fielderClass);
+			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(getName(), databeanClass, fielderClass);
 		}catch(Exception probablyNoPkInstantiated){
-			throw new IllegalArgumentException("could not instantiate "+name+" Check that the primary key is " +
+			throw new IllegalArgumentException("could not instantiate "+getName()+" Check that the primary key is " +
 					"instantiated in the databean constructor.", probablyNoPkInstantiated);
 		}
 	}
@@ -61,10 +58,6 @@ implements Node<PK,D>{
 	@Override
 	public String getName() {
 		return id==null ? null : id.getName();
-	}
-	
-	protected void setName(String name){
-		this.name = name;
 	}
 	
 	protected void setId(NodeId<PK,D,F> id){

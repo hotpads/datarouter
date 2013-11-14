@@ -43,8 +43,6 @@ extends BaseNode<PK,D,F>{
 		//use the inputs to make a unique name.  randomness will not place nicely with the counters
 		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), backingNode.getDatabeanType(), null, null, null, 
 				backingNode.getName()+".cache"));
-		this.setName(backingNode.getName()+".cache");
-		Assert.assertEquals(getName(), getId().getName());
 //		this.name = fieldInfo.getDatabeanClass().getSimpleName()+"."+getClass().getSimpleName()+"."+System.identityHashCode(this);
 	}
 

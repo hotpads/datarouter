@@ -71,7 +71,7 @@ extends BaseNode<IK,IE,DatabeanFielder<IK,IE>>{
 
 	@Override
 	public String getName() {
-		return indexNode.getName();
+		return indexNode==null ? null : indexNode.getName();
 	}
 
 	@Override

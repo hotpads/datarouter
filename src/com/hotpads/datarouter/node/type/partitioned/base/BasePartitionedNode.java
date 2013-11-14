@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.node.BaseNode;
@@ -47,8 +45,6 @@ extends BaseNode<PK,D,F>{
 		this.router = router;
 		this.partitions = new Partitions<PK,D,N>(this);
 		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), null, null, null));
-		this.setName(databeanClass.getSimpleName()+"."+getClass().getSimpleName());
-		Assert.assertEquals(getName(), getId().getName());
 	}
 
 	/*************************** node methods *************************/
