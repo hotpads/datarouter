@@ -29,7 +29,7 @@ extends BaseNode<IK,IE,DatabeanFielder<IK,IE>>{
 	protected N indexNode;
 	
 	public BaseIndexNode(Class<IE> indexEntryClass, N backingNode){
-		super(backingNode.getDataRouterContext(), indexEntryClass, 
+		super(backingNode.getRouter(), indexEntryClass, 
 				(Class<DatabeanFielder<IK,IE>>)backingNode.getFieldInfo().getFielderClass());
 		this.indexNode = backingNode;
 	}

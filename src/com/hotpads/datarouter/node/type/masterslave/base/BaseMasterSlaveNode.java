@@ -35,7 +35,7 @@ extends BaseNode<PK,D,F>{
 	protected AtomicInteger slaveRequestCounter = new AtomicInteger(0);
 	
 	public BaseMasterSlaveNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router){
-		super(router.getContext(), databeanClass, fielderClass);
+		super(router, databeanClass, fielderClass);
 	}
 	
 	public BaseMasterSlaveNode(Class<D> databeanClass, DataRouter router){

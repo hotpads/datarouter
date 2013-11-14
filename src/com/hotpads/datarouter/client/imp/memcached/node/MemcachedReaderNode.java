@@ -69,7 +69,7 @@ implements MemcachedPhysicalNode<PK,D>,
 
 	@Override
 	public MemcachedClient getClient(){
-		return (MemcachedClient)this.router.getClient(getClientName());
+		return (MemcachedClient)getRouter().getClient(getClientName());
 	}
 	
 	@Override

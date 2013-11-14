@@ -27,7 +27,7 @@ extends BaseNode<PK,D,F>{
 	protected List<IndexListener<PK,D>> indexListeners;
 	
 	public BaseIndexingNode(N mainNode) {
-		super(mainNode.getDataRouterContext(), mainNode.getDatabeanType(), 
+		super(mainNode.getRouter(), mainNode.getDatabeanType(), 
 				(Class<F>)mainNode.getFieldInfo().getFielderClass());
 		this.mainNode = mainNode;
 		this.indexListeners = ListTool.createArrayList();

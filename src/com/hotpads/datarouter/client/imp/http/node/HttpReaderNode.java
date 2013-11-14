@@ -74,7 +74,7 @@ implements MapStorageReader<PK,D>{
 
 	@Override
 	public DataRouterHttpClient getClient(){
-		return (DataRouterHttpClient)this.router.getClient(getClientName());
+		return (DataRouterHttpClient)getRouter().getClient(getClientName());
 	}
 	
 	@Override
@@ -161,7 +161,7 @@ implements MapStorageReader<PK,D>{
 		StringBuilder sb = new StringBuilder();
 		sb.append(getClient().getUrl());
 		sb.append("/");
-		sb.append(router.getName());
+		sb.append(getRouter().getName());
 		sb.append("/");
 		sb.append(getName());
 		return sb;

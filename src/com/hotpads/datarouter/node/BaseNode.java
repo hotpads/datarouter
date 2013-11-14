@@ -2,10 +2,9 @@ package com.hotpads.datarouter.node;
 
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -22,16 +21,18 @@ implements Node<PK,D>{
 	protected Logger logger = Logger.getLogger(getClass());
 	
 	private DataRouterContext drContext;
+	private DataRouter router;
 	private NodeId<PK,D,F> id;
 	protected DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
-	public BaseNode(DataRouterContext drContext, Class<D> databeanClass){
-		this(drContext, databeanClass, null);
+	public BaseNode(DataRouter router, Class<D> databeanClass){
+		this(router, databeanClass, null);
 	}
 	
-	public BaseNode(DataRouterContext drContext, Class<D> databeanClass, Class<F> fielderClass){
-		this.drContext = drContext;
-		this.id = new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, null, null, null, null);
+	public BaseNode(DataRouter router, Class<D> databeanClass, Class<F> fielderClass){
+		this.drContext = router.getContext();
+		this.router = router;
+		this.id = new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), null, null, null);
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(getName(), databeanClass, fielderClass);
 		}catch(Exception probablyNoPkInstantiated){
@@ -93,5 +94,9 @@ implements Node<PK,D>{
 		return fieldInfo;
 	}
 	
+	@Override
+	public DataRouter getRouter(){
+		return router;
+	}
 	
 }

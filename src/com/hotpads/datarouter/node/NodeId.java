@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -22,14 +23,15 @@ public class NodeId<
 			String parentNodeName, String explicitName){
 		this.nodeClass = nodeClass;
 		this.databeanClass = databeanClass;
-		this.routerName = routerName;
+		this.routerName = Preconditions.checkNotNull(routerName);
 		this.clientName = clientName;
 		this.parentNodeName = parentNodeName;
 		this.explicitName = explicitName;
 	}
 	
 	public String getName(){
-		if(StringTool.notEmpty(explicitName)){//if name is specified
+		//if name is specified
+		if(StringTool.notEmpty(explicitName)){
 			return explicitName;
 		}
 		

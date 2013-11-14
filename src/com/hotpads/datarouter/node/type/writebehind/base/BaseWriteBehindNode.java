@@ -40,7 +40,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	
 	public BaseWriteBehindNode(Class<D> databeanClass, DataRouter router,
 			N backingNode, ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
-		super(router.getContext(), databeanClass);
+		super(router, databeanClass);
 		if(backingNode==null){ throw new IllegalArgumentException("backingNode cannont be null."); }
 		this.backingNode = backingNode;
 		

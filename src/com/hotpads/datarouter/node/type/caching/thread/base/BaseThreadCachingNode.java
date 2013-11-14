@@ -33,7 +33,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	
 	
 	public BaseThreadCachingNode(N backingNode){
-		super(backingNode.getDataRouterContext(), backingNode.getDatabeanType());
+		super(backingNode.getRouter(), backingNode.getDatabeanType());
 		this.backingNode = backingNode;
 	}
 

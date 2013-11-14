@@ -37,12 +37,10 @@ extends BaseNode<PK,D,F>{
 	// requests to the underlying nodes in cases where it can't pick a single node
 
 	protected Class<D> databeanClass;
-	protected DataRouter router;
 	protected Partitions<PK,D,N> partitions;
 		
 	public BasePartitionedNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router){
-		super(router.getContext(), databeanClass, fielderClass);
-		this.router = router;
+		super(router, databeanClass, fielderClass);
 		this.partitions = new Partitions<PK,D,N>(this);
 		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), null, null, null));
 	}

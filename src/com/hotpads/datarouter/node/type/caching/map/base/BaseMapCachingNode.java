@@ -36,7 +36,7 @@ extends BaseNode<PK,D,F>{
 	protected Long lastContact = 0L;
 	
 	public BaseMapCachingNode(N cacheNode, N backingNode){
-		super(backingNode.getDataRouterContext(), backingNode.getDatabeanType(), 
+		super(backingNode.getRouter(), backingNode.getDatabeanType(), 
 				(Class<F>)backingNode.getFieldInfo().getFielderClass());
 		this.cachingNode = cacheNode;
 		this.backingNode = backingNode;

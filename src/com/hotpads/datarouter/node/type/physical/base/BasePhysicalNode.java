@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.node.BaseNode;
@@ -33,16 +31,13 @@ implements PhysicalNode<PK,D>
 	protected String clientName;
 	protected String tableName;
 	protected String packagedTableName;
-	
-	protected DataRouter router;
 
 	
 	/****************************** constructors ********************************/
 	
 	public BasePhysicalNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName){
-		super(router.getContext(), databeanClass, fielderClass);
-		this.router = router;
+		super(router, databeanClass, fielderClass);
 		this.clientName = clientName;
 		this.tableName = databeanClass.getSimpleName();
 		this.packagedTableName = databeanClass.getName();
