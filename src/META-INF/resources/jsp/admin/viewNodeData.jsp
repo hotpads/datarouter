@@ -81,13 +81,18 @@
 		<c:if test="${not (offset > 0 and not empty backKey)}">
 			<b>previous&nbsp;</b>-&nbsp;
 		</c:if>
-			<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}
+		<c:set var="accesDatabeans" value=""></c:set>
 		<c:if test="${fn:length(databeans) >= limit}">
-				&backKey=${startAfterKey}&startAfterKey=${nextKey}
-				&limit=${limit}&offset=${offset+limit}&where=${param.where}">next</a>
+		<c:set var="accesDatabeans" value="&backKey=${startAfterKey}&startAfterKey=${nextKey}
+				&limit=${limit}&offset=${offset+limit}&where=${param.where}"></c:set>
 		</c:if>
-		<br />
+				<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}${accesDatabeans}">next</a>
 		
+		<br />
+		Test 
+		<c:if test="${nonFieldAware}">
+		Test ${nonFieldAware}
+		</c:if>
 		
 		<c:forEach items="${fields}" var="field">
 				${field.name},&nbsp;

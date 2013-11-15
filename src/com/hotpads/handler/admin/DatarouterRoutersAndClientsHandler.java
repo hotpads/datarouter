@@ -53,6 +53,7 @@ import com.hotpads.util.core.bytes.StringByteTool;
 
 public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 
+	private static final String PATH_HBASE_JSP = "/jsp/admin/datarouter/hbase";
 	protected DataRouter router;
 	@Inject private DataRouterContext dataRouterContext;
 	protected Mav mav;
@@ -113,7 +114,7 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 			return mav;
 
 		}else if(client instanceof HBaseClientImp){
-			mav.setViewName("PATH_HBASE_JSP+hbaseClientSummary.jsp");
+			mav.setViewName(PATH_HBASE_JSP+"/hbaseClientSummary.jsp");
 			mav.put("address", hbaseConfig.get(HConstants.ZOOKEEPER_QUORUM));
 			List<HTableDescriptor> tables = null;
 			try{
