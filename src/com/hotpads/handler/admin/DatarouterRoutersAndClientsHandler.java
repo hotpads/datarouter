@@ -2,6 +2,7 @@ package com.hotpads.handler.admin;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -36,6 +37,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.comparator.ComparatorDataRouter;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
@@ -72,6 +74,7 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 		initClients(routers);
 		mav.put("serverName", dataRouterContext.getServerName());
 		mav.put("administratorEmail", dataRouterContext.getAdministratorEmail());
+		Collections.sort(routers, new ComparatorDataRouter());
 		mav.put("routers", routers);
 		return mav;
 	}
