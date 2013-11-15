@@ -107,14 +107,12 @@ public class ApacheHttpClient{
 		post.setRequestEntity(entity);
 		try{
 			httpClient.executeMethod(post);
-			if(post.getStatusCode() == HttpStatus.SC_OK){
-				Reader reader = new InputStreamReader(post.getResponseBodyAsStream(), post.getResponseCharSet());
-				return getJson(reader, returnType);
-			}else{
-				logger.warn("Post request unsuccessful, returned HTTPStatus:" + post.getStatusCode()
+			if(post.getStatusCode() != HttpStatus.SC_OK){
+				throw new RuntimeException("Post request unsuccessful, returned HTTPStatus:" + post.getStatusCode()
 						+ " for parameters:" + parameters.toString());
-				return ReflectionTool.create(returnType);
 			}
+			Reader reader = new InputStreamReader(post.getResponseBodyAsStream(), post.getResponseCharSet());
+			return getJson(reader, returnType);
 		}catch(ClientProtocolException e){
 			throw new RuntimeException(e);
 		}catch(JSONException e){

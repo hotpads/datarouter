@@ -88,6 +88,7 @@ implements MapStorageReaderHttpNode<PK,D>{
 				fieldInfo.getPrimaryKeyClass(),
 				fieldInfo.getSampleFielder().getKeyFielder(),
 				params.required(HttpReaderNode.METHOD_get_PARAM_key));
+		logger.warn("server get:"+key);
 		D databean = node.get(key, config);
 		JSON jsonDatabean = JsonDatabeanTool.databeanToJson(databean, fieldInfo.getSampleFielder());
 		return new JsonMav(jsonDatabean);
