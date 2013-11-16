@@ -9,6 +9,7 @@
 					<li><a href="${contextPath}/datarouter" title="See the strackTraces of this server">Datarouter</a></li>
 					<li><a href="${contextPath}/datarouter/stackTraces" title="See the strackTraces of this server">StackTraces</a></li>
 					<li><a href="${contextPath}/datarouter/routers" title="List all the routers">List Routers</a></li>
+					<li><a href="${contextPath}/datarouter/hackweek6" title="Databean class generator">Databean Class Generator</a></li>
 				</ul>
 			</div>
 		</div>
