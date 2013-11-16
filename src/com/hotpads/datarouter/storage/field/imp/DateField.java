@@ -16,6 +16,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.DateTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 
 public class DateField extends BasePrimitiveField<Date>{
@@ -28,10 +29,44 @@ public class DateField extends BasePrimitiveField<Date>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:DateTool.parseUserInputDate(s,null);
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return DateTool.getInternetDate(value);
 	}
+	
+	@Override
+	public Date parseStringEncodedValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){
+			return null; 
+		}
+		return DateTool.parseUserInputDate(s,null);
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+	
+	@Override
+	public byte[] getBytes(){
+		if(value==null){ return null; }
+		return LongByteTool.getUInt63Bytes(value.getTime());
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 8;
+	}
+	
+	@Override
+	public Date fromBytesButDoNotSet(byte[] bytes, int offset){
+		return new Date(LongByteTool.fromUInt63Bytes(bytes, offset));
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -71,22 +106,6 @@ public class DateField extends BasePrimitiveField<Date>{
 	}
 	
 	@Override
-	public byte[] getBytes(){
-		if(value==null){ return null; }
-		return LongByteTool.getUInt63Bytes(value.getTime());
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 8;
-	}
-	
-	@Override
-	public Date fromBytesButDoNotSet(byte[] bytes, int offset){
-		return new Date(LongByteTool.fromUInt63Bytes(bytes, offset));
-	}
-	
-	@Override
 	public String getSqlEscaped(){
 		return "'" + getSqlDateString(value)+ "'";
 	}
@@ -95,9 +114,12 @@ public class DateField extends BasePrimitiveField<Date>{
 		return new Timestamp(date.getTime()).toString();
 	}
 	
-	/** tests ****************************************************************/
+	
+	/*********************** tests ******************************/
+	
 	public static class Tests {
-		@Test public void testGetSqlEscaped() throws Exception{
+		@Test 
+		public void testGetSqlEscaped() throws Exception{
 			//mysql date format is yyyy-MM-dd HH:mm:ss http://dev.mysql.com/doc/refman/5.1/en/datetime.html
 			//jdbc timestamp escape format" yyyy-MM-dd HH:mm:ss.n where n is nanoseconds (not representable with Date)
 			// sql insert with a string including the nanosecond value works in mysql 

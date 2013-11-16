@@ -10,6 +10,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.number.RandomTool;
 
@@ -31,13 +32,42 @@ public class UInt31Field extends BasePrimitiveField<Integer>{
 		return RandomTool.nextPositiveInt(random);
 	}
 	
-	/*********************** override *******************************/
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:Integer.valueOf(s);
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
 	}
 	
+	@Override
+	public Integer parseStringEncodedValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		return Integer.valueOf(s);
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:IntegerByteTool.getUInt31Bytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 4;
+	}
+	
+	@Override
+	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
+		return IntegerByteTool.fromUInt31Bytes(bytes, offset);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.INT, 11, nullable, false);
@@ -81,20 +111,5 @@ public class UInt31Field extends BasePrimitiveField<Integer>{
 //			throw new DataAccessException(e.getClass().getSimpleName()+" on "+fieldSet.getClass().getSimpleName()+"."+fieldName);
 //		}
 //	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:IntegerByteTool.getUInt31Bytes(value);
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 4;
-	}
-	
-	@Override
-	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
-		return IntegerByteTool.fromUInt31Bytes(bytes, offset);
-	}
 
 }

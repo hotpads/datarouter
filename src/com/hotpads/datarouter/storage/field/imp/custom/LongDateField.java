@@ -12,6 +12,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.DateTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 
 public class LongDateField extends BasePrimitiveField<Date>{
@@ -24,11 +25,43 @@ public class LongDateField extends BasePrimitiveField<Date>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:DateTool.parseUserInputDate(s,null);
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.getTime()+"";
 	}
 	
+	@Override
+	public Date parseStringEncodedValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+//		return DateTool.parseUserInputDate(s,null);
+		return new Date(Long.valueOf(s));
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+	
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:LongByteTool.getUInt63Bytes(value.getTime());
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 8;
+	}
+	
+	@Override
+	public Date fromBytesButDoNotSet(byte[] bytes, int offset){
+		return new Date(LongByteTool.fromUInt63Bytes(bytes, offset));
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.BIGINT, 20 , nullable, false);
@@ -78,21 +111,6 @@ public class LongDateField extends BasePrimitiveField<Date>{
 //			throw new DataAccessException(e.getClass().getSimpleName()+" on "+fieldSet.getClass().getSimpleName()+"."+fieldName);
 //		}
 //	}
-	
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:LongByteTool.getUInt63Bytes(value.getTime());
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 8;
-	}
-	
-	@Override
-	public Date fromBytesButDoNotSet(byte[] bytes, int offset){
-		return new Date(LongByteTool.fromUInt63Bytes(bytes, offset));
-	}
 
 	@Override
 	public String getSqlEscaped(){

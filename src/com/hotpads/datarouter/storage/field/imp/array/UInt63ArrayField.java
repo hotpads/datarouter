@@ -32,53 +32,32 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 		super(prefix, name, value);
 	}
 	
-	@Override
-	public void fromString(String s){
-		throw new NotImplementedException();
-	}
 	
-	@Override
-	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , nullable, false);
-	}
+	/*********************** Comparable ********************************/
 	
+	//TODO should we even bother?
 	@Override
 	public int compareTo(Field<List<Long>> other){
 		return ListTool.compare(this.value, other.getValue());
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
-		try{
-			ps.setBytes(parameterIndex, this.value==null?null:LongByteTool.getUInt63ByteArray(this.value));
-		}catch(SQLException e){
-			throw new DataAccessException(e);
-		}
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		//TODO to CSV format?
+		throw new NotImplementedException();
 	}
+	
+	@Override
+	public List<Long> parseStringEncodedValueButDoNotSet(String s){
+		throw new NotImplementedException();
+	}
+	
 
-	@Override
-	public List<Long> parseJdbcValueButDoNotSet(Object obj){
-		throw new NotImplementedException("code needs testing");
-//		if(obj==null){ return null; }
-//		byte[] bytes = (byte[])obj;
-//		return new LongArray(LongByteTool.fromUInt63Bytes(bytes));
-	}
-	
-	@Override
-	public List<Long> fromJdbcResultSetButDoNotSet(ResultSet rs){
-		try{
-			byte[] bytes = rs.getBytes(columnName);
-			return new LongArray(LongByteTool.fromUInt63ByteArray(bytes));
-		}catch(SQLException e){
-			throw new DataAccessException(e);
-		}
-	}
-	
-	@Override
-	public String getSqlEscaped(){
-		throw new NotImplementedException("and probably never will be");
-	};
-	
+	/*********************** ByteEncodedField ***********************/	
 
 	@Override
 	public byte[] getBytes(){
@@ -114,6 +93,48 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 		return new LongArray(LongByteTool.fromUInt63ByteArray(bytes, byteOffset + 4, numBytes));
 	}
 	
+
+	/*********************** SqlEncodedField ***********************/
+	
+	@Override
+	public SqlColumn getSqlColumnDefinition(){
+		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , nullable, false);
+	}
+	
+	@Override
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+		try{
+			ps.setBytes(parameterIndex, this.value==null?null:LongByteTool.getUInt63ByteArray(this.value));
+		}catch(SQLException e){
+			throw new DataAccessException(e);
+		}
+	}
+
+	@Override
+	public List<Long> parseJdbcValueButDoNotSet(Object obj){
+		throw new NotImplementedException("code needs testing");
+//		if(obj==null){ return null; }
+//		byte[] bytes = (byte[])obj;
+//		return new LongArray(LongByteTool.fromUInt63Bytes(bytes));
+	}
+	
+	@Override
+	public List<Long> fromJdbcResultSetButDoNotSet(ResultSet rs){
+		try{
+			byte[] bytes = rs.getBytes(columnName);
+			return new LongArray(LongByteTool.fromUInt63ByteArray(bytes));
+		}catch(SQLException e){
+			throw new DataAccessException(e);
+		}
+	}
+	
+	@Override
+	public String getSqlEscaped(){
+		throw new NotImplementedException("and probably never will be");
+	}
+	
+	
+	/*********************** tests ***************************/	
 	
 	public static class UInt63ArrayFieldTests{
 		@Test public void testByteAware(){

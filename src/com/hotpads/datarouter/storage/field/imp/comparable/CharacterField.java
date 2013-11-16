@@ -24,10 +24,58 @@ public class CharacterField extends BasePrimitiveField<Character>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+
 	@Override
-	public void fromString(String s){
-		this.value = StringTool.isEmpty(s)?null:s.charAt(0);
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
 	}
+	
+	@Override
+	public Character parseStringEncodedValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s)){ return null; }
+		return s.charAt(0);
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+	
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:StringByteTool.getUtf8Bytes(value.toString());
+	}
+	
+	@Override
+	public byte[] getBytesWithSeparator(){
+		byte[] dataBytes = getBytes();
+		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{StringField.SEPARATOR}; }
+		byte[] allBytes = new byte[dataBytes.length+1];
+		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
+		allBytes[allBytes.length-1] = StringField.SEPARATOR;
+		return allBytes;
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		//TODO this should be reviewed for correctness
+		for(int i=offset; i < bytes.length; ++i){
+			if(bytes[i]==StringField.SEPARATOR){
+				return i - offset + 1;//plus 1 for the separator
+			}
+		}
+		throw new IllegalArgumentException("separator not found");
+	}
+	
+	@Override
+	public Character fromBytesButDoNotSet(byte[] bytes, int offset){
+		int length = bytes.length - offset;
+		return new String(bytes, offset, length, StringByteTool.CHARSET_UTF8).charAt(0);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -60,38 +108,6 @@ public class CharacterField extends BasePrimitiveField<Character>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-	
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:StringByteTool.getUtf8Bytes(value.toString());
-	}
-	
-	@Override
-	public byte[] getBytesWithSeparator(){
-		byte[] dataBytes = getBytes();
-		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{StringField.SEPARATOR}; }
-		byte[] allBytes = new byte[dataBytes.length+1];
-		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
-		allBytes[allBytes.length-1] = StringField.SEPARATOR;
-		return allBytes;
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		//TODO this should be reviewed for correctness
-		for(int i=offset; i < bytes.length; ++i){
-			if(bytes[i]==StringField.SEPARATOR){
-				return i - offset + 1;//plus 1 for the separator
-			}
-		}
-		throw new IllegalArgumentException("separator not found");
-	}
-	
-	@Override
-	public Character fromBytesButDoNotSet(byte[] bytes, int offset){
-		int length = bytes.length - offset;
-		return new String(bytes, offset, length, StringByteTool.CHARSET_UTF8).charAt(0);
 	}
 
 }

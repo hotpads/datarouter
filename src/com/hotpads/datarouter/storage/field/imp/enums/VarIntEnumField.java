@@ -12,6 +12,7 @@ import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.number.VarInt;
 
@@ -28,19 +29,54 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 		this.sampleValue = ReflectionTool.create(enumClass);
 	}
 	
-	@Override
-	public void fromString(String s){
-		this.value = s==null?null:sampleValue.fromPersistentInteger(Integer.valueOf(s));
-	}
 	
-	@Override
-	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.INT, 11 , nullable, false);
-	}
+	/*********************** Comparable ********************************/
 	
 	@Override
 	public int compareTo(Field<E> other){
 		return DataRouterEnumTool.compareIntegerEnums(value, other.getValue());
+	}
+	
+	
+	/*********************** StringEncodedField ***********************/
+	
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.getPersistentInteger().toString();
+	}
+	
+	@Override
+	public E parseStringEncodedValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s)){ return null; }
+		return sampleValue.fromPersistentInteger(Integer.valueOf(s));
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:new VarInt(value.getPersistentInteger()).getBytes();
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return new VarInt(bytes, offset).getNumBytes();
+	}
+	
+	@Override
+	public E fromBytesButDoNotSet(byte[] bytes, int offset){
+		Integer i = new VarInt(bytes, offset).getValue();
+		return i==null?null:sampleValue.fromPersistentInteger(i);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+	
+	@Override
+	public SqlColumn getSqlColumnDefinition(){
+		return new SqlColumn(columnName, MySqlColumnType.INT, 11 , nullable, false);
 	}
 	
 	@Override
@@ -81,22 +117,6 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:new VarInt(value.getPersistentInteger()).getBytes();
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return new VarInt(bytes, offset).getNumBytes();
-	}
-	
-	@Override
-	public E fromBytesButDoNotSet(byte[] bytes, int offset){
-		Integer i = new VarInt(bytes, offset).getValue();
-		return i==null?null:sampleValue.fromPersistentInteger(i);
 	}
 	
 	
