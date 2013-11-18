@@ -57,15 +57,15 @@ public class DatabeanClassGeneratorHandler extends BaseHandler {
 		FIELD_TYPES.add(LongDateField.class);
 		FIELD_TYPES.add(DumbDoubleField.class);
 		FIELD_TYPES.add(DumbFloatField.class);
-		FIELD_TYPES.add(IntegerEnumField.class);
-		FIELD_TYPES.add(StringEnumField.class);
+//		FIELD_TYPES.add(IntegerEnumField.class);
+//		FIELD_TYPES.add(StringEnumField.class);
 		FIELD_TYPES.add(VarIntField.class);
 		FIELD_TYPES.add(SQuadStringField.class);
 		FIELD_TYPES.add(UInt15Field.class);
 		FIELD_TYPES.add(UInt31Field.class);
 		FIELD_TYPES.add(UInt63Field.class);
 		FIELD_TYPES.add(UInt7Field.class);
-		FIELD_TYPES.add(UInt8Field.class);
+//		FIELD_TYPES.add(UInt8Field.class);
 		FIELD_TYPES.add(DateField.class);
 		FIELD_TYPES.add(StringField.class);
 		Collections.sort(FIELD_TYPES, new Comparator<Class>() {

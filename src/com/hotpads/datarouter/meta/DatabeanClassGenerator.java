@@ -37,11 +37,13 @@ import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
+import com.hotpads.datarouter.storage.field.imp.geo.SQuadStringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.handler.admin.DatabeanClassGeneratorHandler;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
+import com.hotpads.util.core.map.SQuad;
 
 public class DatabeanClassGenerator {
 
@@ -204,7 +206,9 @@ public class DatabeanClassGenerator {
 				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"<"+f.getSuperClassGenericParameterString()+">("+f.getSuperClassGenericParameterString()+".class, F."+f.getJavaParamName()+", "+f.name+", "+MySqlColumnType.class.getSimpleName()+".MAX_LENGTH_VARCHAR)");
 			} else  if(INTEGER_ENUM_FIELDS.contains(f.type)){
 				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"<"+f.getSuperClassGenericParameterString()+">("+f.getSuperClassGenericParameterString()+".class, F."+f.getJavaParamName()+", "+f.name+")");
-			}else {
+			} else if(f.type.equals(StringField.class)){
+				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"(F."+f.getJavaParamName()+", " + f.name + ", "+MySqlColumnType.class.getSimpleName()+".MAX_LENGTH_VARCHAR)");
+			} else {
 				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"(F."+f.getJavaParamName()+", "+f.name+")");	
 			}
 			
@@ -219,7 +223,7 @@ public class DatabeanClassGenerator {
 			.addLine(1, "@Override")
 			.addLine(1, "public List<Field<?>> getNonKeyFields(){")
 			.addLine(2, "return FieldTool.createList(")
-			.addLine(Joiner.on("," + NEW_LINE).join(nonkeyDefs)+";")
+			.addLine(Joiner.on("," + NEW_LINE).join(nonkeyDefs)+");")
 			.addLine(1, "}")
 			.add(NEW_LINE)
 			.addStarCommentLine(1, "fielder")
@@ -390,6 +394,8 @@ public class DatabeanClassGenerator {
 				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"<"+f.getSuperClassGenericParameterString()+">("+f.getSuperClassGenericParameterString()+".class, F."+f.getJavaParamName()+", "+f.name+", "+MySqlColumnType.class.getSimpleName()+".MAX_LENGTH_VARCHAR)");
 			} else  if(INTEGER_ENUM_FIELDS.contains(f.type)){
 				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"<"+f.getSuperClassGenericParameterString()+">("+f.getSuperClassGenericParameterString()+".class, F."+f.getJavaParamName()+", "+f.name+")");
+			} else if(f.type.equals(StringField.class)){
+				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"(F."+f.getJavaParamName()+", " + f.name + ", "+MySqlColumnType.class.getSimpleName()+".MAX_LENGTH_VARCHAR)");
 			} else {
 				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"(F."+f.getJavaParamName()+", "+f.name+")");	
 			}
@@ -480,10 +486,10 @@ public class DatabeanClassGenerator {
 		for(FieldDefinition<?> f 
 				: Iterables.concat(CollectionTool.nullSafe(fs),
 									CollectionTool.nullSafe(keyFs))){
-			if(fs == null){
-				cannonicalClassNames.add(
-						fieldImpPackage+"."+f.type.getSimpleName()+"");
-			}
+//			if(fs == null){
+//				cannonicalClassNames.add(
+//						fieldImpPackage+"."+f.type.getSimpleName()+"");
+//			}
 			
 			String canonical = f.type.getCanonicalName();
 			if(canonical.startsWith(String.class.getPackage().getName()))
@@ -491,6 +497,14 @@ public class DatabeanClassGenerator {
 			cannonicalClassNames.add(canonical);
 			if(STRING_ENUM_FIELDS.contains(f.type)){
 				containsStringEnum = true;
+			}
+			
+			if(SQuadStringField.class.equals(f.type)){
+				cannonicalClassNames.add(SQuad.class.getCanonicalName());
+			}
+			
+			if(f.type.equals(StringField.class)){
+				cannonicalClassNames.add(MySqlColumnType.class.getCanonicalName());
 			}
 		}
 		

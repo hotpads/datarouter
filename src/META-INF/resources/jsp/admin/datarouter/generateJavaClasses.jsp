@@ -211,9 +211,9 @@ function getDemoScript(){
 				<div onclick="location.reload();">CLEAR</div>
 				<fieldset style="margin:0 0; padding:10px;">
 					<legend>Create script</legend>
-					<div id="getDemoScript" onclick="getDemoScript();">Get DEMO script</div>
+					<div class="divButton" id="getDemoScript" onclick="getDemoScript();">Get DEMO script</div>
 					<textarea id="createScript" class="jsonCode" spellcheck=false></textarea>
-					<div id="loadDataBean" onclick="loadDataBean();">LOAD</div>
+					<div class = divButton id="loadDataBean" onclick="loadDataBean();">LOAD</div>
 				</fieldset>
 				<label>Java package:<input type="text" name="databeanPackage" value="${param.feed}"  required></label>
 				<label>Class name: <input type="text" name="databeanName" value="${param.feed}"  required></label>
@@ -275,7 +275,7 @@ function getDemoScript(){
 	</div>
 	<div class="container generatedCode1">
 		<h4>Java code for databean</h4>
-		<div onclick="saveAs('#generatedCode1');">Save to File</div>
+		<div class="divButton" onclick="saveAs('#generatedCode1');">Save to File</div>
 		<textarea id="generatedCode1" class="javaCode" spellcheck=false>
 			
 		</textarea>
@@ -283,7 +283,7 @@ function getDemoScript(){
 	
 	<div class="container generatedCode2">
 		<h4>Java code for databean key</h4>
-		<div onclick="saveAs('#generatedCode2');">Save to File</div>
+		<div class="divButton" onclick="saveAs('#generatedCode2');">Save to File</div>
 		<textarea id="generatedCode2" class="javaCode" spellcheck=false>
 			
 		</textarea>
