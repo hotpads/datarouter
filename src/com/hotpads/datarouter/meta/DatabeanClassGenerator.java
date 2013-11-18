@@ -585,7 +585,7 @@ public class DatabeanClassGenerator {
 	private static final String EMPTY_LINE = "\n";
 	private static final String NEW_LINE = EMPTY_LINE;
 	private static final String TAB = "\t";
-	private static final int maxCommentLine = 120;
+	private static final int maxCommentLine = 114;
 
 	private static class CodeStringBuilder{
 		StringBuilder sb ;
