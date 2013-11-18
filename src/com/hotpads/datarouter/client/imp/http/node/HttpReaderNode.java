@@ -96,7 +96,7 @@ implements MapStorageReader<PK,D>{
 	
 	@Override
 	public D get(final PK key, final Config config){
-		logger.warn("client get:"+key);
+//		logger.warn("client get:"+key);
 		if(key==null){ return null; }
 		
 		Map<String,String> params = MapTool.createHashMap();
