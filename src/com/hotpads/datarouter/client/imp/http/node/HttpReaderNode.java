@@ -53,20 +53,25 @@ implements MapStorageReader<PK,D>{
 	/*************** fields ********************************/
 		
 	private ConfigFielder configFielder;
+	
+	private String remoteRouterName;
+	private String remoteNodeName;
 		
 	/******************************* constructors ************************************/
 
-	public HttpReaderNode(Class<D> databeanClass, Class<F> fielderClass,
-			DataRouter router, String clientName, 
-			String physicalName, String qualifiedPhysicalName) {
-		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
-		this.configFielder = new ConfigFielder();
-	}
+//	public HttpReaderNode(Class<D> databeanClass, Class<F> fielderClass,
+//			DataRouter router, String clientName, 
+//			String physicalName, String qualifiedPhysicalName) {
+//		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
+//		this.configFielder = new ConfigFielder();
+//	}
 	
 	public HttpReaderNode(Class<D> databeanClass,Class<F> fielderClass,
-			DataRouter router, String clientName) {
+			DataRouter router, String clientName, String remoteRouterName, String remoteNodeName) {
 		super(databeanClass, fielderClass, router, clientName);
 		this.configFielder = new ConfigFielder();
+		this.remoteRouterName = remoteRouterName;
+		this.remoteNodeName = remoteNodeName;
 	}
 	
 	
@@ -159,14 +164,14 @@ implements MapStorageReader<PK,D>{
 		params.put(PARAM_config, json.toString());
 	}
 	
-	// should be like: /contextPath/datarouter/httpNode/routerName/clientName.nodeName
+	// should be like: /contextPath/datarouterApi/httpNode/routerName/clientName.nodeName
 	private StringBuilder getNodeUrl(){
 		StringBuilder sb = new StringBuilder();
 		sb.append(getClient().getUrl());
 		sb.append("?");
-		sb.append("routerName="+getRouter().getName());
+		sb.append("routerName="+remoteRouterName);
 		sb.append("&");
-		sb.append("nodeName="+getName());
+		sb.append("nodeName="+remoteNodeName);
 		return sb;
 	}
 	

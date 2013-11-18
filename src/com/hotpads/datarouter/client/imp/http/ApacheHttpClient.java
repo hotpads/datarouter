@@ -43,10 +43,12 @@ public class ApacheHttpClient{
 	private static Logger logger = Logger.getLogger(ApacheHttpClient.class);
 
 	private static final String AUTH_KEY = "11a682aac58c4e802c335228c2de5adc";
-	private static final String AUTH_SECRET = "4baeb1f5b0740abb35afcee91941d11f";
-	private static final String USERNAME = "datarouter";
-	private static final String PASSWORD = "h19y6t643k8";
-	private static final String PARAMS_SIGNATURE = "signature";
+	public static final String AUTH_SECRET = "4baeb1f5b0740abb35afcee91941d11f";
+	public static final String DR_USERNAME = "datarouter";
+	public static final String DR_PASSWORD = "h19y6t643k8";
+	public static final String PARAMS_DR_USERNAME = "drUsername";
+	public static final String PARAMS_DR_PASSWORD = "drPassword";
+	public static final String PARAMS_SIGNATURE = "signature";
 	private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
 	
 	private static final int TOTAL_CONNECTIONS = 50;
@@ -81,7 +83,7 @@ public class ApacheHttpClient{
 		HttpClient threadSafeHttpClient = new HttpClient(manager);
 
 		// Basic HTTP Authentication.
-		Credentials credentials = new UsernamePasswordCredentials(USERNAME, PASSWORD);
+		Credentials credentials = new UsernamePasswordCredentials(DR_USERNAME, DR_PASSWORD);
 		threadSafeHttpClient.getState().setCredentials(new AuthScope(url, 80, AuthScope.ANY_REALM), credentials);
 		threadSafeHttpClient.getParams().setAuthenticationPreemptive(true);
 		return threadSafeHttpClient;
@@ -90,6 +92,8 @@ public class ApacheHttpClient{
 
 
 	public <T extends JSON> T request(Map<String,String> params, String uri, Class<T> returnType){
+		params.put(PARAMS_DR_USERNAME, DR_USERNAME);
+		params.put(PARAMS_DR_PASSWORD, DR_PASSWORD);
 		String signature = generateSignature(uri, params, AUTH_SECRET);
 		// Build parameters and create a POST request.
 		StringBuilder parameters = new StringBuilder();
@@ -138,7 +142,7 @@ public class ApacheHttpClient{
 	/**
 	 * Generates a HMAC-SHA1 signature using the specified secretKey.
 	 */
-	private static String generateSignature(String endPoint, Map<String,String> params, String secretKey){
+	public static String generateSignature(String endPoint, Map<String,String> params, String secretKey){
 		StringBuilder result = new StringBuilder();
 		try{
 			for(Entry<String,String> entry : params.entrySet()){

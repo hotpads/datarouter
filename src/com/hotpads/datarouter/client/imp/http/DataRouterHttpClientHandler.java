@@ -1,12 +1,14 @@
-package com.hotpads.handler.httpclient;
+package com.hotpads.datarouter.client.imp.http;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.http.node.HttpReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Config.ConfigFielder;
@@ -22,6 +24,8 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.JsonMav;
 import com.hotpads.handler.mav.imp.MessageMav;
+import com.hotpads.handler.util.RequestTool;
+import com.hotpads.util.core.ObjectTool;
 
 /*
  * http://localhost:8080/analytics/datarouter/httpNode?submitAction=get&routerName=search&nodeName=search.Listing&key={%22feedId%22:%22HomeRentals%22,%22feedListingId%22:%22AL010006L%22}
@@ -37,6 +41,8 @@ implements MapStorageReaderHttpNode<PK,D>{
 	public static final String
 		PARAM_routerName = "routerName",
 		PARAM_nodeName = "nodeName";
+	
+	public static final boolean VERIFY_SIGNATURE = false;
 	
 	@Inject
 	private DataRouterContext drContext;
@@ -55,6 +61,7 @@ implements MapStorageReaderHttpNode<PK,D>{
 	}
 	
 	private void preHandle(){
+		authenticate();
 		routerName = params.required(PARAM_routerName);
 		nodeName = params.required(PARAM_nodeName);
 		router = drContext.getRouter(routerName);
@@ -63,6 +70,28 @@ implements MapStorageReaderHttpNode<PK,D>{
 		String configJsonString = params.optional(HttpReaderNode.PARAM_config, null);
 		if(configJsonString != null){
 			config = JsonDatabeanTool.databeanFromJson(Config.class, CONFIG_FIELDER, configJsonString);
+		}
+	}
+	
+	private void authenticate(){
+		String drUsername = params.required(ApacheHttpClient.PARAMS_DR_USERNAME);
+		if(ObjectTool.notEquals(ApacheHttpClient.DR_USERNAME, drUsername)){
+			throw new IllegalArgumentException("invalid username:"+drUsername);
+		}
+		
+		String drPassword = params.required(ApacheHttpClient.PARAMS_DR_PASSWORD);
+		if(ObjectTool.notEquals(ApacheHttpClient.DR_PASSWORD, drPassword)){
+			throw new IllegalArgumentException("invalid password:"+drPassword);
+		}
+		
+		if(VERIFY_SIGNATURE){
+			String uri = params.getRequest().getRequestURI();
+			String signature = params.required(ApacheHttpClient.PARAMS_SIGNATURE);
+			Map<String,String> requestParams = RequestTool.getMapOfParameters(params.getRequest());
+			String expectedSignature = ApacheHttpClient.generateSignature(uri, requestParams, ApacheHttpClient.AUTH_SECRET);
+			if(ObjectTool.notEquals(expectedSignature, signature)){
+				throw new IllegalArgumentException("expected signature "+expectedSignature+" but received "+signature);
+			}
 		}
 	}
 	
