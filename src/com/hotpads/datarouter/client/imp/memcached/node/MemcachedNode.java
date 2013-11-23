@@ -71,7 +71,7 @@ implements PhysicalMapStorageNode<PK,D>
 			//TODO put only the nonKeyFields in the byte[] and figure out the keyFields from the key string
 			//  could big big savings for small or key-only databeans
 			byte[] bytes = DatabeanTool.getBytes(databean);
-			String key = new DataRouterMemcachedKey<PK>(name, databeanVersion, databean.getKey()).getVersionedKeyString();
+			String key = new DataRouterMemcachedKey<PK>(getName(), databeanVersion, databean.getKey()).getVersionedKeyString();
 			//memcachedClient uses an integer for cache timeout
 			Long timeoutLong = config.getCacheTimeoutMs() == null 
 								? Long.MAX_VALUE 

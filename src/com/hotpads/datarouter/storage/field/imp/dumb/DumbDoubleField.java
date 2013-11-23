@@ -9,6 +9,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.DoubleByteTool;
 /*
  * "dumb" because doesn't necessarily sort correctly in serialized form.  should prob copy
@@ -24,10 +25,41 @@ public class DumbDoubleField extends BasePrimitiveField<Double>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:Double.valueOf(s);
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
 	}
+	
+	@Override
+	public Double parseStringEncodedValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		return Double.valueOf(s);
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:DoubleByteTool.getBytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 8;
+	}
+	
+	@Override
+	public Double fromBytesButDoNotSet(byte[] bytes, int offset){
+		return DoubleByteTool.fromBytes(bytes, offset);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -60,21 +92,6 @@ public class DumbDoubleField extends BasePrimitiveField<Double>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:DoubleByteTool.getBytes(value);
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 8;
-	}
-	
-	@Override
-	public Double fromBytesButDoNotSet(byte[] bytes, int offset){
-		return DoubleByteTool.fromBytes(bytes, offset);
 	}
 	
 

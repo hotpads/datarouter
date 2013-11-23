@@ -33,7 +33,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	
 	
 	public BaseThreadCachingNode(N backingNode){
-		super(backingNode.getDataRouterContext(), backingNode.getDatabeanType());
+		super(backingNode.getRouter(), backingNode.getDatabeanType());
 		this.backingNode = backingNode;
 	}
 
@@ -134,7 +134,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = SetTool.wrap(this.name);
+		Set<String> names = SetTool.wrap(getName());
 		names.addAll(backingNode.getAllNames());
 		return names;
 	}

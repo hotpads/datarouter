@@ -5,12 +5,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.ByteTool;
+import com.hotpads.util.core.StringTool;
 
 public class UInt8Field extends BasePrimitiveField<Byte>{
 
@@ -38,13 +38,44 @@ public class UInt8Field extends BasePrimitiveField<Byte>{
 //		
 //	}
 	
-	/*********************** override *******************************/
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:ByteTool.toUnsignedByte(Integer.valueOf(s));
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
 	}
 	
+	@Override
+	public Byte parseStringEncodedValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){
+			return null; 
+		}
+		return ByteTool.toUnsignedByte(Integer.valueOf(s));
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:new byte[]{value};
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 1;
+	}
+	
+	@Override
+	public Byte fromBytesButDoNotSet(byte[] bytes, int offset){
+		return bytes[offset];
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.SMALLINT, 5, nullable, false);
@@ -88,20 +119,5 @@ public class UInt8Field extends BasePrimitiveField<Byte>{
 //			throw new DataAccessException(e.getClass().getSimpleName()+" on "+fieldSet.getClass().getSimpleName()+"."+fieldName);
 //		}
 //	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:new byte[]{value};
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 1;
-	}
-	
-	@Override
-	public Byte fromBytesButDoNotSet(byte[] bytes, int offset){
-		return bytes[offset];
-	}
 
 }

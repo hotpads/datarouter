@@ -10,6 +10,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.util.core.ByteTool;
+import com.hotpads.util.core.StringTool;
 
 //recognizes -128 to -1 using two's complement.  therefore max value is 127
 public class SignedByteField extends BasePrimitiveField<Byte>{
@@ -22,10 +23,43 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:Byte.valueOf(s);
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
 	}
+	
+	@Override
+	public Byte parseStringEncodedValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		return Byte.valueOf(s);
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+
+	//recognizes -128 to -1 using two's complement.  therefore max value is 127
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:ByteTool.getComparableBytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 1;
+	}
+	
+	@Override
+	public Byte fromBytesButDoNotSet(byte[] bytes, int offset){
+		return ByteTool.getComparableByte(bytes[offset]);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -58,22 +92,6 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-
-	//recognizes -128 to -1 using two's complement.  therefore max value is 127
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:ByteTool.getComparableBytes(value);
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 1;
-	}
-	
-	@Override
-	public Byte fromBytesButDoNotSet(byte[] bytes, int offset){
-		return ByteTool.getComparableByte(bytes[offset]);
 	}
 
 

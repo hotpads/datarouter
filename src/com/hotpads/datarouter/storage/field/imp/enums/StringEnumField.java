@@ -14,6 +14,7 @@ import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.util.core.ArrayTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -31,25 +32,9 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 		this.sampleValue = ReflectionTool.create(enumClass);
 		this.size = size;
 	}
-
-	@Override
-	public void fromString(String s){
-		this.value = s == null ? null : sampleValue.fromPersistentString(s);
-	}
-
-	@Override
-	public SqlColumn getSqlColumnDefinition(){
-		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(columnName, MySqlColumnType.VARCHAR, size, nullable, false);
-		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(columnName, MySqlColumnType.TEXT, null/* MySqlColumnType.MAX_LENGTH_TEXT.intValue() */, nullable, false);
-		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
-			return new SqlColumn(columnName, MySqlColumnType.MEDIUMTEXT, null/* MySqlColstringFumnType.MAX_LENGTH_MEDIUMTEXT.intValue
-																		 * () */, nullable, false);
-		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){ return new SqlColumn(columnName, MySqlColumnType.LONGTEXT,
-				null, nullable, false); }
-		throw new IllegalArgumentException("Unknown size:" + size);
-	}
+	
+	
+	/*********************** Comparable ********************************/
 
 	@Override
 	public int compareTo(Field<E> other){
@@ -59,47 +44,25 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 		 * else the java would sort differently depending on which Fielder was being used. */
 		return DataRouterEnumTool.compareStringEnums(value, other.getValue());
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
-	public String getValueString(){
-		return value == null ? null : value.getPersistentString();
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.getPersistentString();
 	}
-
+	
 	@Override
-	public String getSqlEscaped(){
-		return value == null ? "null" : "'" + value.getPersistentString() + "'";
+	public E parseStringEncodedValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s)){ return null; }
+		return sampleValue.fromPersistentString(s);
 	}
+	
 
-	@Override
-	public E parseJdbcValueButDoNotSet(Object obj){
-		return obj == null ? null : sampleValue.fromPersistentString((String)obj);
-	}
-
-	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
-		try{
-			if(value == null){
-				ps.setNull(parameterIndex, Types.VARCHAR);
-			}else{
-				ps.setString(parameterIndex, value.getPersistentString());
-			}
-		}catch(SQLException e){
-			throw new DataAccessException(e);
-		}
-	}
-
-	@Override
-	public E fromJdbcResultSetButDoNotSet(ResultSet rs){
-		try{
-			String s = rs.getString(columnName);
-			return s == null ? null : sampleValue.fromPersistentString(s);
-		}catch(SQLException e){
-			throw new DataAccessException(e);
-		}
-	}
-
-	/************************* bytes (mostly copied from StringField) **************************/
-
+	/*********************** ByteEncodedField ***********************/
+	
 	public static final byte SEPARATOR = 0;
 
 	@Override
@@ -160,5 +123,61 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 		E e = sampleValue.fromPersistentString(stringValue);
 		return e;
 	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
+	@Override
+	public SqlColumn getSqlColumnDefinition(){
+		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
+			return new SqlColumn(columnName, MySqlColumnType.VARCHAR, size, nullable, false);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
+			return new SqlColumn(columnName, MySqlColumnType.TEXT, null/* MySqlColumnType.MAX_LENGTH_TEXT.intValue() */, nullable, false);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
+			return new SqlColumn(columnName, MySqlColumnType.MEDIUMTEXT, null/* MySqlColstringFumnType.MAX_LENGTH_MEDIUMTEXT.intValue
+																		 * () */, nullable, false);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){ return new SqlColumn(columnName, MySqlColumnType.LONGTEXT,
+				null, nullable, false); }
+		throw new IllegalArgumentException("Unknown size:" + size);
+	}
+
+	@Override
+	public String getValueString(){
+		return value == null ? null : value.getPersistentString();
+	}
+
+	@Override
+	public String getSqlEscaped(){
+		return value == null ? "null" : "'" + value.getPersistentString() + "'";
+	}
+
+	@Override
+	public E parseJdbcValueButDoNotSet(Object obj){
+		return obj == null ? null : sampleValue.fromPersistentString((String)obj);
+	}
+
+	@Override
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+		try{
+			if(value == null){
+				ps.setNull(parameterIndex, Types.VARCHAR);
+			}else{
+				ps.setString(parameterIndex, value.getPersistentString());
+			}
+		}catch(SQLException e){
+			throw new DataAccessException(e);
+		}
+	}
+
+	@Override
+	public E fromJdbcResultSetButDoNotSet(ResultSet rs){
+		try{
+			String s = rs.getString(columnName);
+			return s == null ? null : sampleValue.fromPersistentString(s);
+		}catch(SQLException e){
+			throw new DataAccessException(e);
+		}
+	}
+
 
 }

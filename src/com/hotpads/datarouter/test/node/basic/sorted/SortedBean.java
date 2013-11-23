@@ -17,8 +17,6 @@ import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
-import com.hotpads.profile.count.databean.Count;
-import com.hotpads.profile.count.databean.key.CountKey;
 
 
 @SuppressWarnings("serial")
@@ -80,12 +78,15 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 	
 	public SortedBean(String a, String b, Integer c, String d,
 			String f1, Long f2, String f3, Double f4){
-		this.key = new SortedBeanKey(a, b, c, d);
+		this(new SortedBeanKey(a, b, c, d), f1, f2, f3, f4);
+	}
+	
+	public SortedBean(SortedBeanKey key, String f1, Long f2, String f3, Double f4){
+		this.key = key;
 		this.f1 = f1;
 		this.f2 = f2;
 		this.f3 = f3;
 		this.f4 = f4;
-		
 	}
 	
 	

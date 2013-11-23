@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeId;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -30,20 +31,18 @@ implements PhysicalNode<PK,D>
 	protected String clientName;
 	protected String tableName;
 	protected String packagedTableName;
-	
-	protected DataRouter router;
 
 	
 	/****************************** constructors ********************************/
 	
 	public BasePhysicalNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName){
-		super(router.getContext(), databeanClass, fielderClass);
-		this.router = router;
+		super(router, databeanClass, fielderClass);
 		this.clientName = clientName;
 		this.tableName = databeanClass.getSimpleName();
 		this.packagedTableName = databeanClass.getName();
-		this.name = clientName+"."+databeanClass.getSimpleName();
+		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), clientName, 
+				null, null));
 //		if(this.fieldAware){
 //			logger.warn("Found fieldAware Databean:"+this.getName());
 //		}
@@ -57,7 +56,8 @@ implements PhysicalNode<PK,D>
 		//overwrite the default values
 		this.tableName = tableName;
 		this.packagedTableName = packagedTableName;
-		this.name = clientName+"."+tableName;
+		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), clientName, 
+				null, clientName+"."+tableName));
 		logger.info("client:"+this.clientName+" databean "+databeanClass.getSimpleName()+" -> "+tableName);
 	}
 	
@@ -88,7 +88,7 @@ implements PhysicalNode<PK,D>
 
 	@Override
 	public Set<String> getAllNames(){
-		return SetTool.wrap(this.name);
+		return SetTool.wrap(getName());
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateSimpleClientFactory;
+import com.hotpads.datarouter.client.imp.http.DataRouterHttpClientFactory;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.memory.MemoryClientFactory;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -16,23 +17,13 @@ public enum ClientType {
 
 	memory(StorageType.sortedMap),
 	memcached(StorageType.map),
-	ehcache(StorageType.map),
-	
-	treeMap(StorageType.sortedMap),
-	
-	bdb(StorageType.indexed),
-	bdbJe(StorageType.indexed),
 	
 	hbase(StorageType.sortedMap),
-	cassandra(StorageType.sortedMap),
-	hypertable(StorageType.sortedMap),
 	
 	jdbc(StorageType.column),
 	hibernate(StorageType.column),
 	
-	simpleDb(StorageType.attribute),
-	lucene(StorageType.attribute),
-	hotpadsIndex(StorageType.attribute),
+	http(StorageType.map),
 	;
 	
 	protected StorageType storageType;
@@ -67,6 +58,8 @@ public enum ClientType {
 			return new HibernateSimpleClientFactory(drContext, clientName, executorService); 
 		}else if(memcached==this){ 
 			return new MemcachedSimpleClientFactory(drContext, clientName, executorService); 
+		}else if(http==this){
+			return new DataRouterHttpClientFactory(drContext, clientName);
 		}
 		
 		throw new IllegalArgumentException("unsupported ClientType "+this);

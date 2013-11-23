@@ -23,6 +23,24 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 	public BooleanArrayField(String prefix, String name, List<Boolean> value){
 		super(prefix, name, value);
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
+	
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		//TODO to CSV format?
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	public List<Boolean> parseStringEncodedValueButDoNotSet(String s){
+		throw new NotImplementedException();
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
 
 	@Override
 	public byte[] getBytes(){
@@ -42,11 +60,9 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
 
-	@Override
-	public void fromString(String s){
-		throw new NotImplementedException();
-	}
+	/*********************** SqlEncodedField ***********************/
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -80,6 +96,9 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 			throw new DataAccessException(e);
 		}
 	}
+	
+	
+	/************************** main ***********************/
 	
 	public static void main(String[] args){
 		BooleanArrayField testField = new BooleanArrayField("stuff", ListTool.create(new Boolean(true), null, new Boolean(false)));

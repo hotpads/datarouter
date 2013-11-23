@@ -148,6 +148,32 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		return fields;
 	}
 	
+	public boolean equalsAllPersistentFields(ManyFieldTypeBean that){
+		if(ObjectTool.notEquals(key, that.key)){ return false; }
+		if(ObjectTool.notEquals(booleanField, that.booleanField)){ return false; }
+		if(ObjectTool.notEquals(byteField, that.byteField)){ return false; }
+		if(ObjectTool.notEquals(shortField, that.shortField)){ return false; }
+		if(ObjectTool.notEquals(integerField, that.integerField)){ return false; }
+		if(ObjectTool.notEquals(longField, that.longField)){ return false; }
+		if(ObjectTool.notEquals(floatField, that.floatField)){ return false; }
+		if(ObjectTool.notEquals(doubleField, that.doubleField)){ return false; }
+		if(ObjectTool.notEquals(longDateField, that.longDateField)){ return false; }
+		if(ObjectTool.notEquals(characterField, that.characterField)){ return false; }
+		if(ObjectTool.notEquals(stringField, that.stringField)){ return false; }
+		if(ObjectTool.notEquals(varIntField, that.varIntField)){ return false; }
+		if(ObjectTool.notEquals(intEnumField, that.intEnumField)){ return false; }
+		if(ObjectTool.notEquals(varIntEnumField, that.varIntEnumField)){ return false; }
+		if(ObjectTool.notEquals(stringEnumField, that.stringEnumField)){ return false; }
+		if(ObjectTool.notEquals(stringByteField, that.stringByteField)){ return false; }
+		if(ObjectTool.notEquals(data, that.data)){ return false; }
+		if(ObjectTool.notEquals(longArrayField, that.longArrayField)){ return false; }
+		if(ObjectTool.notEquals(booleanArrayField, that.booleanArrayField)){ return false; }
+		if(ObjectTool.notEquals(integerArrayField, that.integerArrayField)){ return false; }
+		if(ObjectTool.notEquals(doubleArrayField, that.doubleArrayField)){ return false; }
+		if(ObjectTool.notEquals(testSchemaUpdateField, that.testSchemaUpdateField)){ return false; }
+		return true;
+	}
+	
 	public static class ManyFieldTypeBeanFielder extends BaseDatabeanFielder<ManyFieldTypeBeanKey,ManyFieldTypeBean>{
 		public ManyFieldTypeBeanFielder(){}
 		@Override
@@ -175,7 +201,11 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	/***************************** constructor **************************************/
 		
 	public ManyFieldTypeBean(){//no-arg and public
-		this.key = new ManyFieldTypeBeanKey();
+		this.key = new ManyFieldTypeBeanKey();//let the key generate a random value
+	}
+	
+	public ManyFieldTypeBean(Long id){
+		this.key = new ManyFieldTypeBeanKey(id);
 	}
 	
 	
