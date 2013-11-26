@@ -24,10 +24,21 @@
 		<sourceDirectory>${project.basedir}/src/</sourceDirectory>
 		<outputDirectory>${project.basedir}/target/classes/</outputDirectory>
 		<plugins>
+			<!-- Should set-up the context path of the webApp. It seems it does not 
+				work -->
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.0</version>
+				<configuration>
+					<path>/datarouter</path>
+				</configuration>
+			</plugin>
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>2.6</version>
 				<executions>
+					<!-- Is needed to copy all the shared jsp, js and css for all the project -->
 					<execution>
 						<id>copy-resources-META-INF</id>
 						<phase>validate</phase>
@@ -47,6 +58,7 @@
 							</resources>
 						</configuration>
 					</execution>
+					<!-- Is needed to copy the configuration to the root of datarouter jar -->
 					<execution>
 						<id>copy-resources-datarouter</id>
 						<phase>validate</phase>
@@ -70,14 +82,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.tomcat.maven</groupId>
-				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.0</version>
-				<configuration>
-					<path>/datarouter</path>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
@@ -87,7 +91,6 @@
 					<target>1.7</target>
 					<optimize>true</optimize>
 					<phase>compile</phase>
-
 				</configuration>
 				<dependencies>
 					<dependency>
@@ -131,7 +134,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
 		</plugins>
 	</build>
 	<profiles>
