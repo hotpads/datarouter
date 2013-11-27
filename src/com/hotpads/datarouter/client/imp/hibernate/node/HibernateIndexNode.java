@@ -66,7 +66,7 @@ implements IndexReader<PK,D,IK>{
 
 	@Override
 	public HibernateClientImp getClient(){
-		return (HibernateClientImp)this.router.getClient(getClientName());
+		return (HibernateClientImp)getRouter().getClient(getClientName());
 	}
 	
 	@Override

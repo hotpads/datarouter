@@ -160,17 +160,17 @@ implements MapStorageReaderNode<PK,D>{
 	/************** counters ***************************************/
 	
 	protected void countHits(int num){
-		DRCounters.incSuffixOp(ClientType.memory, name+" hit");
+		DRCounters.incSuffixOp(ClientType.memory, getName()+" hit");
 //		logger.warn("hit");
 	}
 	
 	protected void countMisses(int num){
-		DRCounters.incSuffixOp(ClientType.memory, name+" miss");
+		DRCounters.incSuffixOp(ClientType.memory, getName()+" miss");
 //		logger.warn("miss");
 	}
 	
 	protected void countExceptions(){
-		DRCounters.incSuffixOp(ClientType.memory, name+" exception");
+		DRCounters.incSuffixOp(ClientType.memory, getName()+" exception");
 //		logger.warn("exception");
 	}
 	

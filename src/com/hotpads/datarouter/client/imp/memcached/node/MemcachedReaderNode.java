@@ -69,7 +69,7 @@ implements MemcachedPhysicalNode<PK,D>,
 
 	@Override
 	public MemcachedClient getClient(){
-		return (MemcachedClient)this.router.getClient(getClientName());
+		return (MemcachedClient)getRouter().getClient(getClientName());
 	}
 	
 	@Override
@@ -89,7 +89,7 @@ implements MemcachedPhysicalNode<PK,D>,
 	public D get(final PK key, final Config pConfig){
 		if(key==null){ return null; }
 		final Config config = Config.nullSafe(pConfig);
-			String memcachedKey = new DataRouterMemcachedKey<PK>(name, databeanVersion, key).getVersionedKeyString();
+			String memcachedKey = new DataRouterMemcachedKey<PK>(getName(), databeanVersion, key).getVersionedKeyString();
 			byte[] bytes = null;
 			
 			try {
@@ -136,7 +136,7 @@ implements MemcachedPhysicalNode<PK,D>,
 		
 		try {
 			Future<Map<String,Object>> f = this.getClient().getSpyClient().asyncGetBulk( //get results asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
-				DataRouterMemcachedKey.getVersionedKeyStrings(name, databeanVersion, keys));
+				DataRouterMemcachedKey.getVersionedKeyStrings(getName(), databeanVersion, keys));
 			bytesByStringKey = f.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS);
 		} catch (TimeoutException e) {										
 			TraceContext.appendToSpanInfo("memcached timeout");	

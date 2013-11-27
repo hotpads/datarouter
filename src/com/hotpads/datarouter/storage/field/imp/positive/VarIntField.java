@@ -10,6 +10,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
+import com.hotpads.util.core.ByteTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.core.number.VarInt;
 
@@ -31,13 +33,44 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 		return RandomTool.nextPositiveInt(random);
 	}
 	
-	/*********************** override *******************************/
+	
+	/*********************** StringEncodedField ***********************/
 
 	@Override
-	public void fromString(String s){
-		this.value = assertInRange(s==null?null:Integer.valueOf(s));
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
 	}
 	
+	@Override
+	public Integer parseStringEncodedValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){
+			return null; 
+		}
+		return assertInRange(s==null?null:Integer.valueOf(s));
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:new VarInt(value).getBytes();
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return new VarInt(bytes, offset).getNumBytes();
+	}
+	
+	@Override
+	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
+		return new VarInt(bytes, offset).getValue();
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.INT, 11, nullable, false);
@@ -81,21 +114,6 @@ public class VarIntField extends BasePrimitiveField<Integer>{
 //			throw new DataAccessException(e.getClass().getSimpleName()+" on "+fieldSet.getClass().getSimpleName()+"."+fieldName);
 //		}
 //	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:new VarInt(value).getBytes();
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return new VarInt(bytes, offset).getNumBytes();
-	}
-	
-	@Override
-	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
-		return new VarInt(bytes, offset).getValue();
-	}
 	
 	/***************************** validate *****************************************/
 	

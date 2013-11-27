@@ -24,11 +24,66 @@ public class ByteArrayField extends BaseField<byte[]>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
-	public void fromString(String s){
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		//TODO to base-64 format?
 		throw new NotImplementedException();
 	}
 	
+	@Override
+	public byte[] parseStringEncodedValueButDoNotSet(String s){
+		throw new NotImplementedException();
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+	
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:ByteTool.flipToAndFromComparableByteArray(this.value);
+	}
+	
+	@Override
+	public boolean isFixedLength(){
+		return false;
+	}
+	
+	@Override
+	public byte[] getBytesWithSeparator(){
+		if(this.value==null){ return null; }
+		//prepend the length as a positive integer (not bitwise comparable =( )
+		//TODO replace with varint
+		byte[] dataBytes = ByteTool.flipToAndFromComparableByteArray(value);//TODO write directly to the allBytes array
+		byte[] allBytes = new byte[4+ArrayTool.length(dataBytes)];
+		System.arraycopy(IntegerByteTool.getUInt31Bytes(0), 0, allBytes, 4, 4);
+		System.arraycopy(dataBytes, 0, allBytes, 4, ArrayTool.length(dataBytes));
+		return allBytes;
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return IntegerByteTool.fromUInt31Bytes(bytes, offset);//should we be adding 4 here?
+	}
+	
+	@Override
+	public byte[] fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
+		int numBytes = numBytesWithSeparator(bytes, offset) - 4;
+		return ByteTool.flipToAndFromComparableByteArray(bytes, offset + 4, numBytes);
+	}
+	
+	@Override
+	public byte[] fromBytesButDoNotSet(byte[] bytes, int byteOffset){
+		int length = bytes.length - byteOffset;
+		return ByteTool.flipToAndFromComparableByteArray(bytes, byteOffset, length);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , nullable, false);
@@ -73,46 +128,5 @@ public class ByteArrayField extends BaseField<byte[]>{
 	@Override
 	public String getSqlEscaped(){
 		throw new NotImplementedException();
-	};
-	
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:ByteTool.flipToAndFromComparableByteArray(this.value);
 	}
-	
-	@Override
-	public boolean isFixedLength(){
-		return false;
-	}
-	
-	@Override
-	public byte[] getBytesWithSeparator(){
-		if(this.value==null){ return null; }
-		//prepend the length as a positive integer (not bitwise comparable =( )
-		//TODO replace with varint
-		byte[] dataBytes = ByteTool.flipToAndFromComparableByteArray(value);//TODO write directly to the allBytes array
-		byte[] allBytes = new byte[4+ArrayTool.length(dataBytes)];
-		System.arraycopy(IntegerByteTool.getUInt31Bytes(0), 0, allBytes, 4, 4);
-		System.arraycopy(dataBytes, 0, allBytes, 4, ArrayTool.length(dataBytes));
-		return allBytes;
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return IntegerByteTool.fromUInt31Bytes(bytes, offset);//should we be adding 4 here?
-	}
-	
-	@Override
-	public byte[] fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
-		int numBytes = numBytesWithSeparator(bytes, offset) - 4;
-		return ByteTool.flipToAndFromComparableByteArray(bytes, offset + 4, numBytes);
-	}
-	
-	@Override
-	public byte[] fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		int length = bytes.length - byteOffset;
-		return ByteTool.flipToAndFromComparableByteArray(bytes, byteOffset, length);
-	}
-
 }

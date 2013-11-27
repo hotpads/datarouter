@@ -86,7 +86,7 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public HibernateClientImp getClient(){
-		return (HibernateClientImp)this.router.getClient(getClientName());
+		return (HibernateClientImp)getRouter().getClient(getClientName());
 	}
 	
 	@Override
@@ -147,13 +147,13 @@ implements MapStorageReader<PK,D>,
 			new HibernateTask() {
 				public Object run(Session session) {
 					if(fieldInfo.getFieldAware()){
-						DRCounters.incSuffixClientNode(ClientType.jdbc, "get", clientName, name);
+						DRCounters.incSuffixClientNode(ClientType.jdbc, "get", clientName, getName());
 						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields(), null, 
 								fieldInfo.getPrimaryKeyFields());
 						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
 						return result;
 					}else{
-						DRCounters.incSuffixClientNode(ClientType.hibernate, "get", clientName, name);
+						DRCounters.incSuffixClientNode(ClientType.hibernate, "get", clientName, getName());
 						Criteria criteria = getCriteriaForConfig(config, session);
 						Object listOfDatabeans = criteria.list();
 						return listOfDatabeans;//todo, make sure the datastore scans in order so we don't need to sort here
@@ -190,8 +190,8 @@ implements MapStorageReader<PK,D>,
 						if(fieldInfo.getFieldAware()){
 							String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), keyBatch);
 							batch = JdbcTool.selectDatabeans(session, fieldInfo, sql);
-							DRCounters.incSuffixClientNode(ClientType.jdbc, "getMulti", clientName, name);
-							DRCounters.incSuffixClientNode(ClientType.jdbc, "getMulti rows", clientName, name, 
+							DRCounters.incSuffixClientNode(ClientType.jdbc, "getMulti", clientName, getName());
+							DRCounters.incSuffixClientNode(ClientType.jdbc, "getMulti rows", clientName, getName(), 
 									CollectionTool.size(keys));
 						}else{
 							Criteria criteria = getCriteriaForConfig(config, session);
@@ -207,8 +207,8 @@ implements MapStorageReader<PK,D>,
 							}
 							criteria.add(orSeparatedIds);
 							batch = criteria.list();
-							DRCounters.incSuffixClientNode(ClientType.hibernate, "getMulti", clientName, name);
-							DRCounters.incSuffixClientNode(ClientType.hibernate, "getMulti rows", clientName, name, 
+							DRCounters.incSuffixClientNode(ClientType.hibernate, "getMulti", clientName, getName());
+							DRCounters.incSuffixClientNode(ClientType.hibernate, "getMulti rows", clientName, getName(), 
 									CollectionTool.size(keys));
 						}
 						Collections.sort(batch);//can sort here because batches were already sorted

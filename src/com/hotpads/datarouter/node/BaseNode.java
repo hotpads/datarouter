@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -20,20 +21,22 @@ implements Node<PK,D>{
 	protected Logger logger = Logger.getLogger(getClass());
 	
 	private DataRouterContext drContext;
-	protected String name;
+	private DataRouter router;
+	private NodeId<PK,D,F> id;
 	protected DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
-	public BaseNode(DataRouterContext drContext, Class<D> databeanClass){
-		this(drContext, databeanClass, null);
+	public BaseNode(DataRouter router, Class<D> databeanClass){
+		this(router, databeanClass, null);
 	}
 	
-	public BaseNode(DataRouterContext drContext, Class<D> databeanClass, Class<F> fielderClass){
-		this.drContext = drContext;
-		this.name = databeanClass.getSimpleName() + "." + getClass().getSimpleName();// probably never used
+	public BaseNode(DataRouter router, Class<D> databeanClass, Class<F> fielderClass){
+		this.drContext = router.getContext();
+		this.router = router;
+		this.id = new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), null, null, null);
 		try{
-			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(name, databeanClass, fielderClass);
+			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(getName(), databeanClass, fielderClass);
 		}catch(Exception probablyNoPkInstantiated){
-			throw new IllegalArgumentException("could not instantiate "+name+" Check that the primary key is " +
+			throw new IllegalArgumentException("could not instantiate "+getName()+" Check that the primary key is " +
 					"instantiated in the databean constructor.", probablyNoPkInstantiated);
 		}
 	}
@@ -42,11 +45,6 @@ implements Node<PK,D>{
 	public DataRouterContext getDataRouterContext(){
 		return drContext;
 	}
-	
-//	@Override
-//	public void setDataRouterContext(DataRouterContext drContext){
-//		this.drContext = drContext;
-//	}
 
 	@Override
 	public Class<PK> getPrimaryKeyType(){
@@ -60,7 +58,15 @@ implements Node<PK,D>{
 
 	@Override
 	public String getName() {
-		return this.name;
+		return id==null ? null : id.getName();
+	}
+	
+	protected void setId(NodeId<PK,D,F> id){
+		this.id = id;
+	}
+	
+	public NodeId<PK,D,F> getId(){
+		return id;
 	}
 	
 	@Override
@@ -88,5 +94,9 @@ implements Node<PK,D>{
 		return fieldInfo;
 	}
 	
+	@Override
+	public DataRouter getRouter(){
+		return router;
+	}
 	
 }

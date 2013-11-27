@@ -35,16 +35,91 @@ public class StringField extends BaseField<String>{
 		this.size = size;
 	}
 	
+	
+	/************************ Comparable ****************************/
+	
 	@Override
 	public int compareTo(Field<String> other){
 		if(other==null){ return -1; }
 		return ComparableTool.nullFirstCompareTo(this.getValue(), other.getValue());
-	};
+	}
+	
+	
+	/*********************** StringEncodedField ***********************/
 	
 	@Override
-	public void fromString(String s){
-		this.value = s;
+	public String getStringEncodedValue(){
+		return value;
 	}
+
+	@Override
+	public String parseStringEncodedValueButDoNotSet(String s){
+		return s;
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+	
+	public static final byte SEPARATOR = 0;
+	
+	@Override
+	public boolean isFixedLength(){
+		return false;
+	}
+	
+	@Override
+	public byte[] getBytes(){
+		byte[] bytes = StringByteTool.getUtf8Bytes(value);
+		return bytes;
+	}
+	
+	@Override
+	public byte[] getBytesWithSeparator(){
+		//TODO someday don't put the separator after the last field, but that would break all currently persisted keys
+		byte[] dataBytes = getBytes();
+		if(ArrayTool.containsUnsorted(dataBytes, SEPARATOR)){
+			throw new IllegalArgumentException("String cannot contain separator byteVal="+SEPARATOR);
+		}
+		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{SEPARATOR}; }
+		byte[] allBytes = new byte[dataBytes.length+1];
+		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
+		allBytes[allBytes.length-1] = SEPARATOR;//Ascii "null" will compare first in lexicographical bytes comparison
+		return allBytes;
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		for(int i=offset; i < bytes.length; ++i){
+			if(bytes[i]==SEPARATOR){
+				return i - offset + 1;//plus 1 for the separator
+			}
+		}
+		int numBytes = bytes.length - offset;
+		return numBytes >= 0 ? numBytes : 0; //not sure where the separator went.  schema change or corruption?
+//		throw new IllegalArgumentException("separator not found for bytes:"+new String(bytes));
+	}
+	
+	@Override
+	public String fromBytesButDoNotSet(byte[] bytes, int offset){
+		int length = bytes.length - offset;
+		return new String(bytes, offset, length, StringByteTool.CHARSET_UTF8);
+	}
+	
+	@Override
+	public String fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
+		int lengthIncludingSeparator = numBytesWithSeparator(bytes, offset);
+		boolean lastByteIsSeparator = bytes[offset + lengthIncludingSeparator - 1] == SEPARATOR;
+		int lengthWithoutSeparator = lengthIncludingSeparator;
+		if(lastByteIsSeparator){
+			--lengthWithoutSeparator;
+		}
+		if (lengthWithoutSeparator == -1)
+			lengthWithoutSeparator = 0;
+		return new String(bytes, offset, lengthWithoutSeparator, StringByteTool.CHARSET_UTF8);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
 	
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -111,65 +186,19 @@ public class StringField extends BaseField<String>{
 			throw new DataAccessException(e);
 		}
 	}
-	
-	/******************** bytes *****************************/
-	
-	public static final byte SEPARATOR = 0;
-	
-	@Override
-	public boolean isFixedLength(){
-		return false;
-	}
-	
-	@Override
-	public byte[] getBytes(){
-		byte[] bytes = StringByteTool.getUtf8Bytes(value);
-		return bytes;
-	}
-	
-	@Override
-	public byte[] getBytesWithSeparator(){
-		//TODO someday don't put the separator after the last field, but that would break all currently persisted keys
-		byte[] dataBytes = getBytes();
-		if(ArrayTool.containsUnsorted(dataBytes, SEPARATOR)){
-			throw new IllegalArgumentException("String cannot contain separator byteVal="+SEPARATOR);
+
+	public static SqlColumn getMySqlTypeFromSize(String name, int size, boolean nullable){
+		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
+			return new SqlColumn(name, MySqlColumnType.VARCHAR, size, true, false);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
+			return new SqlColumn(name, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, true, false);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
+			return new SqlColumn(name, MySqlColumnType.MEDIUMTEXT, null/*MySqlColumnType.MAX_LENGTH_MEDIUMTEXT.intValue()*/, 
+					true, false);
+		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
+			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, true, false);
 		}
-		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{SEPARATOR}; }
-		byte[] allBytes = new byte[dataBytes.length+1];
-		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
-		allBytes[allBytes.length-1] = SEPARATOR;//Ascii "null" will compare first in lexicographical bytes comparison
-		return allBytes;
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		for(int i=offset; i < bytes.length; ++i){
-			if(bytes[i]==SEPARATOR){
-				return i - offset + 1;//plus 1 for the separator
-			}
-		}
-		int numBytes = bytes.length - offset;
-		return numBytes >= 0 ? numBytes : 0; //not sure where the separator went.  schema change or corruption?
-//		throw new IllegalArgumentException("separator not found for bytes:"+new String(bytes));
-	}
-	
-	@Override
-	public String fromBytesButDoNotSet(byte[] bytes, int offset){
-		int length = bytes.length - offset;
-		return new String(bytes, offset, length, StringByteTool.CHARSET_UTF8);
-	}
-	
-	@Override
-	public String fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
-		int lengthIncludingSeparator = numBytesWithSeparator(bytes, offset);
-		boolean lastByteIsSeparator = bytes[offset + lengthIncludingSeparator - 1] == SEPARATOR;
-		int lengthWithoutSeparator = lengthIncludingSeparator;
-		if(lastByteIsSeparator){
-			--lengthWithoutSeparator;
-		}
-		if (lengthWithoutSeparator == -1)
-			lengthWithoutSeparator = 0;
-		return new String(bytes, offset, lengthWithoutSeparator, StringByteTool.CHARSET_UTF8);
+		throw new IllegalArgumentException("Unknown size:"+size);
 	}
 	
 	
@@ -189,21 +218,5 @@ public class StringField extends BaseField<String>{
 					new StringField("tag","no apostrophes", DEFAULT_STRING_LENGTH).getSqlEscaped());
 			
 		}
-	}
-
-
-	public static SqlColumn getTypeFromSize(String name, int size,
-			boolean nullable){
-		if(size <= MySqlColumnType.MAX_LENGTH_VARCHAR){
-			return new SqlColumn(name, MySqlColumnType.VARCHAR, size, true, false);
-		}else if(size <= MySqlColumnType.MAX_LENGTH_TEXT){
-			return new SqlColumn(name, MySqlColumnType.TEXT, null/*MySqlColumnType.MAX_LENGTH_TEXT.intValue()*/, true, false);
-		}else if(size <= MySqlColumnType.MAX_LENGTH_MEDIUMTEXT){
-			return new SqlColumn(name, MySqlColumnType.MEDIUMTEXT, null/*MySqlColumnType.MAX_LENGTH_MEDIUMTEXT.intValue()*/, 
-					true, false);
-		}else if(size <= MySqlColumnType.MAX_LENGTH_LONGTEXT){
-			return new SqlColumn(name, MySqlColumnType.LONGTEXT, null, true, false);
-		}
-		throw new IllegalArgumentException("Unknown size:"+size);
 	}
 }
