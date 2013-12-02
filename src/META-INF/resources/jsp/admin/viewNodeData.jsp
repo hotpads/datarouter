@@ -56,10 +56,10 @@
 					<li><b>where:</b></li>
 					<li><input name="where" value="${param.where}" type="text" /></li>
 				</ul>
-				<ul class="span12">
+				<ul class="span6">
 					<li></li>
-					<li><input type="submit" name="submitAction" value="countWhere" class="btn btn-success" /></li>
-					<li><input type="submit" name="submitAction" value="getWhere" class="btn btn-success" /></li>
+					<li class="span3"><input type="submit" name="submitAction" value="countWhere" class="btn btn-success" />
+					<li class="span3"><input type="submit" name="submitAction" value="getWhere" class="btn btn-success" /></li>
 				</ul>
 			</div>
 		</form>
@@ -89,11 +89,9 @@
 				<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}${accesDatabeans}">next</a>
 		
 		<br />
-		Test 
-		<c:if test="${nonFieldAware}">
-		Test ${nonFieldAware}
-		</c:if>
+		${param.nodeName} is${nonFieldAware}
 		
+		<br />
 		<c:forEach items="${fields}" var="field">
 				${field.name},&nbsp;
 		</c:forEach>

@@ -126,7 +126,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		if(!(node instanceof SortedStorageReader<?,?>)){ return new MessageMav("Cannot browse "
 				+ node.getClass().getSimpleName()); }
 		List<Field<?>> fields = node.getFields();
-		mav.put("nonFieldAware", "");
+		mav.put("nonFieldAware", "field aware");
 
 		if(fields == null){
 			fields = ListTool.create();
