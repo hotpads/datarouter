@@ -17,6 +17,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 	public static final String URL_DATAROUTER_API = "/datarouterApi";
 	public static final String URL_DATAROUTER_VIEW_NODE_DATA = URL_DATAROUTER + "/viewNodeData";
 	public static final String URL_HTTP_CLIENT = URL_DATAROUTER_API + "/httpNode";
+	private static final String HBASE = "/hbase";
 
 
 	public DataRouterDispatcher(Injector injector, String servletContextPath, String urlPrefix){
@@ -25,6 +26,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 //		handle(URL_HTTP_CLIENT, DataRouterHttpClientHandler.class);
 		handle(URL_DATAROUTER_VIEW_NODE_DATA, ViewNodeDataHandler.class);
 		handle(URL_DATAROUTER + URL_STACKTRACES, StackTracesManagerHandler.class);
+		handle(URL_DATAROUTER + ROUTERS + HBASE, HBaseHandler.class);
 		handle(URL_DATAROUTER + ROUTERS, DatarouterRoutersAndClientsHandler.class);
 		handle(URL_DATAROUTER + "*", DrDefaultHandler.class);
 
