@@ -53,20 +53,114 @@ import com.hotpads.util.core.bytes.StringByteTool;
 
 public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 
-	private static final String PATH_HBASE_JSP = "/jsp/admin/datarouter/hbase";
-	protected DataRouter router;
-	@Inject private DataRouterContext dataRouterContext;
-	protected Mav mav;
-	protected String routerName = null;
-	protected String clientName = null;
-	protected Client client = null;
-	protected MemoryClient memoryClient = null;
-	protected HibernateClientImp hibernateClient = null;
-	protected HBaseClientImp hbaseClient = null;
-	protected Configuration hbaseConfig = null;
-	protected String nodeName = null;
-	protected Node<?,?> node = null;
+	/************************************** Constants **********************************/
+	private static Logger logger = Logger.getLogger(DatarouterRoutersAndClientsHandler.class);
+
+	private static final String ACTION_listRouters = "listRouters",
+			ACTION_inspectRouter = "inspectRouter",
+			ACTION_inspectClient = "inspectClient",
+
+			// hbase
+			ACTION_countHBaseTableCells = "countHBaseTableCells", ACTION_copyHBaseTable = "copyHBaseTable",
+			ACTION_exportNodeToHFile = "exportNodeToHFile", ACTION_viewHBaseServers = "viewHBaseServers",
+			ACTION_viewHBaseTableRegions = "viewHBaseTableRegions",
+			ACTION_moveRegionsToCorrectServer = "moveRegionsToCorrectServer",
+			ACTION_moveHBaseTableRegions = "moveHBaseTableRegions",
+			ACTION_compactHBaseTableRegions = "compactHBaseTableRegions",
+			ACTION_compactAllHBaseTableRegions = "compactAllHBaseTableRegions",
+			ACTION_majorCompactHBaseTableRegions = "majorCompactHBaseTableRegions",
+			ACTION_majorCompactAllHBaseTableRegions = "majorCompactAllHBaseTableRegions",
+			ACTION_flushHBaseTableRegions = "flushHBaseTableRegions",
+			ACTION_flushAllHBaseTableRegions = "flushAllHBaseTableRegions",
+			ACTION_mergeFollowingHBaseTableRegions = "mergeFollowingHBaseTableRegions",
+			ACTION_viewHBaseTableSettings = "viewHBaseTableSettings",
+			ACTION_updateHBaseTableAttribute = "updateHBaseTableAttribute",
+			ACTION_updateHBaseColumnAttribute = "updateHBaseColumnAttribute",
+
+			PARAM_routerName = "routerName", 
+			PARAM_clientName = "clientName", 
+			PARAM_nodeName = "nodeName",
+			PARAM_tableName = "tableName", 
+			PARAM_columnName = "columnName",
+			PARAM_destinationTableName = "destinationTableName",
+			PARAM_PREFIX_encodedRegionName_ = "encodedRegionName_",
+			PARAM_destinationServerName = "destinationServerName", 
+			PARAM_maxFileSizeMb = "maxFileSizeMb",
+			PARAM_memstoreFlushSizeMb = "memstoreFlushSizeMb";
+
+	private static final List<String> NEEDS_CLIENT = ListTool.create();
+	static{
+		NEEDS_CLIENT.add(ACTION_inspectClient);
+		NEEDS_CLIENT.add(ACTION_viewHBaseServers);
+		NEEDS_CLIENT.add(ACTION_viewHBaseTableRegions);
+		NEEDS_CLIENT.add(ACTION_moveRegionsToCorrectServer);
+		NEEDS_CLIENT.add(ACTION_moveHBaseTableRegions);
+		NEEDS_CLIENT.add(ACTION_compactHBaseTableRegions);
+		NEEDS_CLIENT.add(ACTION_compactAllHBaseTableRegions);
+		NEEDS_CLIENT.add(ACTION_majorCompactHBaseTableRegions);
+		NEEDS_CLIENT.add(ACTION_majorCompactAllHBaseTableRegions);
+		NEEDS_CLIENT.add(ACTION_flushHBaseTableRegions);
+		NEEDS_CLIENT.add(ACTION_flushAllHBaseTableRegions);
+		NEEDS_CLIENT.add(ACTION_mergeFollowingHBaseTableRegions);
+		NEEDS_CLIENT.add(ACTION_viewHBaseTableSettings);
+		NEEDS_CLIENT.add(ACTION_updateHBaseTableAttribute);
+		NEEDS_CLIENT.add(ACTION_updateHBaseColumnAttribute);
+	}
+
+	private static final List<String> NEEDS_ROUTER = ListTool.create();
+	static{
+		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
+		NEEDS_ROUTER.add(ACTION_inspectRouter);
+		NEEDS_ROUTER.add(ACTION_copyHBaseTable);
+		NEEDS_ROUTER.add(ACTION_exportNodeToHFile);
+	}
+
+	private static final List<String> NEEDS_NODE = ListTool.create();
+	static{
+		NEEDS_NODE.add(ACTION_copyHBaseTable);
+		NEEDS_NODE.add(ACTION_exportNodeToHFile);
+		NEEDS_NODE.add(ACTION_compactHBaseTableRegions);
+		NEEDS_NODE.add(ACTION_flushHBaseTableRegions);
+		NEEDS_NODE.add(ACTION_majorCompactHBaseTableRegions);
+		NEEDS_NODE.add(ACTION_mergeFollowingHBaseTableRegions);
+		NEEDS_NODE.add(ACTION_moveRegionsToCorrectServer);
+		NEEDS_NODE.add(ACTION_viewHBaseTableRegions);
+	}
+
+	private static final String
+	// also hard-coded in hbaseTableSettings.jsp
+			HBASE_TABLE_PARAM_MAX_FILESIZE = "MAX_FILESIZE",
+			HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE = "MEMSTORE_FLUSHSIZE";
+
+	private static final List<String> HBASE_TABLE_PARAMS = ListTool.create();
+	static{
+		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MAX_FILESIZE);
+		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE);
+	}
 	
+	
+	/******************* fields ********************/
+
+	//injected
+	@Inject
+	private DataRouterContext dataRouterContext;
+	
+	//not injected
+	private static final String PATH_HBASE_JSP = "/jsp/admin/datarouter/hbase";
+	private DataRouter router;
+	private Mav mav;
+	private String routerName = null;
+	private String clientName = null;
+	private Client client = null;
+	private MemoryClient memoryClient = null;
+	private HibernateClientImp hibernateClient = null;
+	private HBaseClientImp hbaseClient = null;
+	private Configuration hbaseConfig = null;
+	private String nodeName = null;
+	private Node<?,?> node = null;
+	
+	
+	/************* Handler methods ********************/
 	@Handler
 	protected Mav handleDefault(){
 		initializeGlobalParameters();
@@ -81,7 +175,7 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 	}
 
 	@Handler
-	protected Mav inspectRouter(){
+	Mav inspectRouter(){
 		initializeGlobalParameters();
 		mav = mav.setViewName("/jsp/admin/datarouter/routerSummary.jsp");
 		List<NodeWrapper> nodeWrappers = NodeWrapper.getNodeWrappers(router);
@@ -91,7 +185,7 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 	}
 
 	@Handler
-	protected Mav inspectClient(){
+	Mav inspectClient(){
 		initializeGlobalParameters();
 		List<PhysicalNode<?,?>> nodes = dataRouterContext.getNodes().getPhysicalNodesForClient(clientName);
 		mav.put("nodes", nodes);
@@ -190,7 +284,7 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 
 
 	/************************* Utils methods ***********************************/
-	protected void initializeGlobalParameters(){
+	public void initializeGlobalParameters(){
 		String action = RequestTool.getSubmitAction(request, ACTION_listRouters);
 		mav = new Mav();
 		/********************** common params *************************************/
@@ -246,14 +340,14 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 		exec.shutdown();
 	}
 
-	protected Client getClient(HttpServletRequest request){
+	private Client getClient(HttpServletRequest request){
 		String routerName = RequestTool.get(request, PARAM_routerName);
 		String clientName = RequestTool.get(request, PARAM_clientName);
 		Client baseClient = dataRouterContext.getRouter(routerName).getClient(clientName);
 		return baseClient;
 	}
 
-	protected Map<String,String> parseFamilyAttributeMap(Map<ImmutableBytesWritable,ImmutableBytesWritable> ins){
+	private Map<String,String> parseFamilyAttributeMap(Map<ImmutableBytesWritable,ImmutableBytesWritable> ins){
 		Map<String,String> outs = MapTool.createTreeMap();
 		for(Map.Entry<ImmutableBytesWritable,ImmutableBytesWritable> entry : MapTool.nullSafe(ins).entrySet()){
 			outs.put(StringByteTool.fromUtf8Bytes(entry.getKey().get()), StringByteTool.fromUtf8Bytes(entry.getValue()
@@ -268,84 +362,4 @@ public class DatarouterRoutersAndClientsHandler extends BaseHandler{
 		return outs;
 	}
 
-	/************************************** Constants **********************************/
-	Logger logger = Logger.getLogger(getClass());
-
-	protected static final String ACTION_listRouters = "listRouters",
-			ACTION_inspectRouter = "inspectRouter",
-			ACTION_inspectClient = "inspectClient",
-
-			// hbase
-			ACTION_countHBaseTableCells = "countHBaseTableCells", ACTION_copyHBaseTable = "copyHBaseTable",
-			ACTION_exportNodeToHFile = "exportNodeToHFile", ACTION_viewHBaseServers = "viewHBaseServers",
-			ACTION_viewHBaseTableRegions = "viewHBaseTableRegions",
-			ACTION_moveRegionsToCorrectServer = "moveRegionsToCorrectServer",
-			ACTION_moveHBaseTableRegions = "moveHBaseTableRegions",
-			ACTION_compactHBaseTableRegions = "compactHBaseTableRegions",
-			ACTION_compactAllHBaseTableRegions = "compactAllHBaseTableRegions",
-			ACTION_majorCompactHBaseTableRegions = "majorCompactHBaseTableRegions",
-			ACTION_majorCompactAllHBaseTableRegions = "majorCompactAllHBaseTableRegions",
-			ACTION_flushHBaseTableRegions = "flushHBaseTableRegions",
-			ACTION_flushAllHBaseTableRegions = "flushAllHBaseTableRegions",
-			ACTION_mergeFollowingHBaseTableRegions = "mergeFollowingHBaseTableRegions",
-			ACTION_viewHBaseTableSettings = "viewHBaseTableSettings",
-			ACTION_updateHBaseTableAttribute = "updateHBaseTableAttribute",
-			ACTION_updateHBaseColumnAttribute = "updateHBaseColumnAttribute",
-
-			PARAM_routerName = "routerName", PARAM_clientName = "clientName", PARAM_nodeName = "nodeName",
-			PARAM_tableName = "tableName", PARAM_columnName = "columnName",
-			PARAM_destinationTableName = "destinationTableName",
-			PARAM_PREFIX_encodedRegionName_ = "encodedRegionName_",
-			PARAM_destinationServerName = "destinationServerName", PARAM_maxFileSizeMb = "maxFileSizeMb",
-			PARAM_memstoreFlushSizeMb = "memstoreFlushSizeMb";
-
-	protected static final List<String> NEEDS_CLIENT = ListTool.create();
-	static{
-		NEEDS_CLIENT.add(ACTION_inspectClient);
-		NEEDS_CLIENT.add(ACTION_viewHBaseServers);
-		NEEDS_CLIENT.add(ACTION_viewHBaseTableRegions);
-		NEEDS_CLIENT.add(ACTION_moveRegionsToCorrectServer);
-		NEEDS_CLIENT.add(ACTION_moveHBaseTableRegions);
-		NEEDS_CLIENT.add(ACTION_compactHBaseTableRegions);
-		NEEDS_CLIENT.add(ACTION_compactAllHBaseTableRegions);
-		NEEDS_CLIENT.add(ACTION_majorCompactHBaseTableRegions);
-		NEEDS_CLIENT.add(ACTION_majorCompactAllHBaseTableRegions);
-		NEEDS_CLIENT.add(ACTION_flushHBaseTableRegions);
-		NEEDS_CLIENT.add(ACTION_flushAllHBaseTableRegions);
-		NEEDS_CLIENT.add(ACTION_mergeFollowingHBaseTableRegions);
-		NEEDS_CLIENT.add(ACTION_viewHBaseTableSettings);
-		NEEDS_CLIENT.add(ACTION_updateHBaseTableAttribute);
-		NEEDS_CLIENT.add(ACTION_updateHBaseColumnAttribute);
-	}
-
-	protected static final List<String> NEEDS_ROUTER = ListTool.create();
-	static{
-		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
-		NEEDS_ROUTER.add(ACTION_inspectRouter);
-		NEEDS_ROUTER.add(ACTION_copyHBaseTable);
-		NEEDS_ROUTER.add(ACTION_exportNodeToHFile);
-	}
-
-	protected static final List<String> NEEDS_NODE = ListTool.create();
-	static{
-		NEEDS_NODE.add(ACTION_copyHBaseTable);
-		NEEDS_NODE.add(ACTION_exportNodeToHFile);
-		NEEDS_NODE.add(ACTION_compactHBaseTableRegions);
-		NEEDS_NODE.add(ACTION_flushHBaseTableRegions);
-		NEEDS_NODE.add(ACTION_majorCompactHBaseTableRegions);
-		NEEDS_NODE.add(ACTION_mergeFollowingHBaseTableRegions);
-		NEEDS_NODE.add(ACTION_moveRegionsToCorrectServer);
-		NEEDS_NODE.add(ACTION_viewHBaseTableRegions);
-	}
-
-	protected static final String
-	// also hard-coded in hbaseTableSettings.jsp
-			HBASE_TABLE_PARAM_MAX_FILESIZE = "MAX_FILESIZE",
-			HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE = "MEMSTORE_FLUSHSIZE";
-
-	protected static final List<String> HBASE_TABLE_PARAMS = ListTool.create();
-	static{
-		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MAX_FILESIZE);
-		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE);
-	}
 }

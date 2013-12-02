@@ -3,7 +3,7 @@ package com.hotpads.handler.admin;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 
-public class DrDefaultHandler extends BaseHandler{
+public class DatarouterDefaultHandler extends BaseHandler{
 
 	@Override
 	@Handler

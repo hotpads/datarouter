@@ -4,7 +4,7 @@ import com.google.inject.Injector;
 import com.hotpads.datarouter.client.imp.http.DataRouterHttpClientHandler;
 import com.hotpads.handler.BaseDispatcher;
 import com.hotpads.handler.admin.DatarouterRoutersAndClientsHandler;
-import com.hotpads.handler.admin.DrDefaultHandler;
+import com.hotpads.handler.admin.DatarouterDefaultHandler;
 import com.hotpads.handler.admin.StackTracesManagerHandler;
 import com.hotpads.handler.admin.hbase.HBaseHandler;
 import com.hotpads.handler.datarouter.ViewNodeDataHandler;
@@ -28,7 +28,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + URL_STACKTRACES, StackTracesManagerHandler.class);
 		handle(URL_DATAROUTER + ROUTERS + HBASE, HBaseHandler.class);
 		handle(URL_DATAROUTER + ROUTERS, DatarouterRoutersAndClientsHandler.class);
-		handle(URL_DATAROUTER + "*", DrDefaultHandler.class);
+		handle(URL_DATAROUTER + "*", DatarouterDefaultHandler.class);
 
 	}
 

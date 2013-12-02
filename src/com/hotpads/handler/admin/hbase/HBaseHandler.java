@@ -29,7 +29,8 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHTableSettings;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
-import com.hotpads.handler.admin.DatarouterRoutersAndClientsHandler;
+import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.BaseHandler.Handler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.util.RequestTool;
@@ -41,9 +42,39 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
-public class HBaseHandler extends DatarouterRoutersAndClientsHandler {
+public class HBaseHandler extends BaseHandler {
 	protected Logger logger = Logger.getLogger(getClass());
 
+	protected static String ACTION_countHBaseTableCells = "countHBaseTableCells",
+			ACTION_copyHBaseTable = "copyHBaseTable",
+			ACTION_exportNodeToHFile = "exportNodeToHFile",
+			ACTION_viewHBaseServers = "viewHBaseServers",
+			ACTION_viewHBaseTableRegions = "viewHBaseTableRegions",
+			ACTION_moveRegionsToCorrectServer = "moveRegionsToCorrectServer",
+			ACTION_moveHBaseTableRegions = "moveHBaseTableRegions",
+			ACTION_compactHBaseTableRegions = "compactHBaseTableRegions",
+			ACTION_compactAllHBaseTableRegions = "compactAllHBaseTableRegions",
+			ACTION_majorCompactHBaseTableRegions = "majorCompactHBaseTableRegions",
+			ACTION_majorCompactAllHBaseTableRegions = "majorCompactAllHBaseTableRegions",
+			ACTION_flushHBaseTableRegions = "flushHBaseTableRegions",
+			ACTION_flushAllHBaseTableRegions = "flushAllHBaseTableRegions",
+			ACTION_mergeFollowingHBaseTableRegions = "mergeFollowingHBaseTableRegions",
+			ACTION_viewHBaseTableSettings = "viewHBaseTableSettings",
+			ACTION_updateHBaseTableAttribute = "updateHBaseTableAttribute",
+			ACTION_updateHBaseColumnAttribute = "updateHBaseColumnAttribute";
+
+	public static BalancerStrategy getBalancerStrategyForTable(String tableName) {
+		return new ConsistentHashBalancer();
+	}
+
+	
+	/******************** fields ************************/
+	
+	//injected
+	@Inject
+	protected DRHCompactionInfo drhCompactionInfo;
+	
+	//not injected
 	private static final String PATH_JSP_HBASE = "/jsp/admin/datarouter/hbase/";
 	protected String tableName;
 	protected HBaseAdmin admin;
@@ -51,9 +82,34 @@ public class HBaseHandler extends DatarouterRoutersAndClientsHandler {
 	protected List<String> encodedRegionNameStrings;
 	protected DRHServerList drhServerList;
 	protected DRHRegionList regionList;
-	@Inject
-	protected DRHCompactionInfo drhCompactionInfo;
 
+
+	/*********** Useful methods ********************/
+	
+	private Mav initializeMav() {
+		mav = new Mav();
+		mav = new Mav("redirect:" + request.getContextPath()
+				+ "/datarouter/routers");
+		// mav.put(RequestTool.SUBMIT_ACTION, ACTION_viewHBaseTableRegions);
+		mav.put(PARAM_routerName, routerName);
+		mav.put(PARAM_clientName, clientName);
+		mav.put(PARAM_tableName, tableName);
+		return mav;
+	}
+
+	protected void initializeHBaseParameters() {
+		// TODO don't tie to a specific table
+		tableName = RequestTool.get(request, PARAM_tableName);
+		admin = hbaseClient.getHBaseAdmin();
+		encodedRegionNameStrings = RequestTool.getCheckedBoxes(request,
+				PARAM_PREFIX_encodedRegionName_);
+		numRegions = CollectionTool.size(encodedRegionNameStrings);
+		drhServerList = new DRHServerList(hbaseConfig);
+		regionList = new DRHRegionList(hbaseClient, drhServerList, tableName,
+				hbaseConfig, node, getBalancerStrategyForTable(tableName),
+				drhCompactionInfo);
+	}
+	
 	/****************************************************/
 	/********************** View Handlers ***************/
 	/****************************************************/
@@ -518,53 +574,6 @@ public class HBaseHandler extends DatarouterRoutersAndClientsHandler {
 		mav = new MessageMav("Merged HBase table regions ");
 
 		return mav;
-	}
-
-	/*********** Useful methods ********************/
-	private Mav initializeMav() {
-		mav = new Mav();
-		mav = new Mav("redirect:" + request.getContextPath()
-				+ "/datarouter/routers");
-		// mav.put(RequestTool.SUBMIT_ACTION, ACTION_viewHBaseTableRegions);
-		mav.put(PARAM_routerName, routerName);
-		mav.put(PARAM_clientName, clientName);
-		mav.put(PARAM_tableName, tableName);
-		return mav;
-	}
-
-	protected void initializeHBaseParameters() {
-		// TODO don't tie to a specific table
-		tableName = RequestTool.get(request, PARAM_tableName);
-		admin = hbaseClient.getHBaseAdmin();
-		encodedRegionNameStrings = RequestTool.getCheckedBoxes(request,
-				PARAM_PREFIX_encodedRegionName_);
-		numRegions = CollectionTool.size(encodedRegionNameStrings);
-		drhServerList = new DRHServerList(hbaseConfig);
-		regionList = new DRHRegionList(hbaseClient, drhServerList, tableName,
-				hbaseConfig, node, getBalancerStrategyForTable(tableName),
-				drhCompactionInfo);
-	}
-
-	protected static String ACTION_countHBaseTableCells = "countHBaseTableCells",
-			ACTION_copyHBaseTable = "copyHBaseTable",
-			ACTION_exportNodeToHFile = "exportNodeToHFile",
-			ACTION_viewHBaseServers = "viewHBaseServers",
-			ACTION_viewHBaseTableRegions = "viewHBaseTableRegions",
-			ACTION_moveRegionsToCorrectServer = "moveRegionsToCorrectServer",
-			ACTION_moveHBaseTableRegions = "moveHBaseTableRegions",
-			ACTION_compactHBaseTableRegions = "compactHBaseTableRegions",
-			ACTION_compactAllHBaseTableRegions = "compactAllHBaseTableRegions",
-			ACTION_majorCompactHBaseTableRegions = "majorCompactHBaseTableRegions",
-			ACTION_majorCompactAllHBaseTableRegions = "majorCompactAllHBaseTableRegions",
-			ACTION_flushHBaseTableRegions = "flushHBaseTableRegions",
-			ACTION_flushAllHBaseTableRegions = "flushAllHBaseTableRegions",
-			ACTION_mergeFollowingHBaseTableRegions = "mergeFollowingHBaseTableRegions",
-			ACTION_viewHBaseTableSettings = "viewHBaseTableSettings",
-			ACTION_updateHBaseTableAttribute = "updateHBaseTableAttribute",
-			ACTION_updateHBaseColumnAttribute = "updateHBaseColumnAttribute";
-
-	public static BalancerStrategy getBalancerStrategyForTable(String tableName) {
-		return new ConsistentHashBalancer();
 	}
 
 }
