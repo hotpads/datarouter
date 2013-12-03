@@ -112,7 +112,7 @@ implements HBasePhysicalNode<PK,D>,
 
 	@Override
 	public HBaseClient getClient(){
-		return (HBaseClient)this.router.getClient(getClientName());
+		return (HBaseClient)getRouter().getClient(getClientName());
 	}
 	
 	@Override

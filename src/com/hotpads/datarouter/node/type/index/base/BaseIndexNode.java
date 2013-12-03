@@ -29,7 +29,7 @@ extends BaseNode<IK,IE,DatabeanFielder<IK,IE>>{
 	protected N indexNode;
 	
 	public BaseIndexNode(Class<IE> indexEntryClass, N backingNode){
-		super(backingNode.getDataRouterContext(), indexEntryClass, 
+		super(backingNode.getRouter(), indexEntryClass, 
 				(Class<DatabeanFielder<IK,IE>>)backingNode.getFieldInfo().getFielderClass());
 		this.indexNode = backingNode;
 	}
@@ -71,12 +71,12 @@ extends BaseNode<IK,IE,DatabeanFielder<IK,IE>>{
 
 	@Override
 	public String getName() {
-		return indexNode.getName();
+		return indexNode==null ? null : indexNode.getName();
 	}
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = SetTool.wrap(name);
+		Set<String> names = SetTool.wrap(getName());
 		names.addAll(indexNode.getAllNames());
 		return names;
 	}

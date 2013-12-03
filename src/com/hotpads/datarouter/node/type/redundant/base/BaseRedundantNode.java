@@ -28,7 +28,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	protected N readNode;//needs to be one of the write nodes
 	
 	public BaseRedundantNode(Class<D> databeanClass, DataRouter router, Collection<N> writeNodes, N readNode){
-		super(router.getContext(), databeanClass);
+		super(router, databeanClass);
 		
 		if(CollectionTool.isEmpty(writeNodes)){ throw new IllegalArgumentException("writeNodes cannont be empty."); }
 		if(readNode==null){ throw new IllegalArgumentException("readNode cannont be null."); }
@@ -43,7 +43,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	@Override
 	public Set<String> getAllNames(){
 		Set<String> names = SetTool.createHashSet();
-		names.add(name);
+		names.add(getName());
 		names.addAll(CollectionTool.nullSafe(readNode.getAllNames()));
 		for(N backingNode : IterableTool.nullSafe(writeNodes)){
 			names.addAll(CollectionTool.nullSafe(backingNode.getAllNames()));

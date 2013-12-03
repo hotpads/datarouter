@@ -35,6 +35,7 @@ public class JsonDatabeanTool{
 	
 	public static <PK extends PrimaryKey<PK>> 
 	JSONObject primaryKeyToJson(PK pk, Fielder<PK> fielder){
+		if(pk==null){ return null; }
 		return fieldsToJson(fielder.getFields(pk));
 	}
 	
@@ -52,6 +53,7 @@ public class JsonDatabeanTool{
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	JSONObject databeanToJson(D databean, DatabeanFielder<PK,D> fielder){
+		if(databean==null){ return null; }
 		JSONObject j = new JSONObject();
 		j.element(databean.getKeyFieldName(), primaryKeyToJson(databean.getKey(), fielder.getKeyFielder()));
 		addFieldsToJsonObject(j, fielder.getNonKeyFields(databean));
@@ -72,6 +74,7 @@ public class JsonDatabeanTool{
 	
 	public static <PK extends PrimaryKey<PK>>
 	PK primaryKeyFromJson(Class<PK> pkClass, Fielder<PK> fielder, JSONObject json){
+		if(json==null){ return null; }
 		PK pk = ReflectionTool.create(pkClass);
 		primaryKeyFromJson(pk, fielder, json);
 		return pk;
@@ -79,6 +82,7 @@ public class JsonDatabeanTool{
 	
 	public static <PK extends PrimaryKey<PK>>
 	void primaryKeyFromJson(PK pk, Fielder<PK> fielder, JSONObject json){
+		if(json==null){ return; }
 		List<Field<?>> fields = fielder.getFields(pk);
 		for(Field<?> field : fields){
 			String jsonFieldName = field.getColumnName();
@@ -91,6 +95,7 @@ public class JsonDatabeanTool{
 	public static <PK extends PrimaryKey<PK>>
 	List<PK> primaryKeysFromJson(Class<PK> pkClass, Fielder<PK> fielder, JSONArray json){
 		List<PK> pks = ListTool.createArrayList();
+		if(json==null){ return pks; }
 		Iterator<?> iter = json.iterator();
 		while(iter.hasNext()){
 			JSONObject jsonPk = (JSONObject)iter.next();
@@ -124,6 +129,7 @@ public class JsonDatabeanTool{
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	D databeanFromJson(Class<D> databeanClass, DatabeanFielder<PK,D> fielder, JSONObject json){
+		if(json==null){ return null; }
 		D databean = ReflectionTool.create(databeanClass);
 		JSONObject pkJson = json.getJSONObject(databean.getKeyFieldName());
 		primaryKeyFromJson(databean.getKey(), fielder.getKeyFielder(), pkJson);
@@ -141,6 +147,7 @@ public class JsonDatabeanTool{
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	List<D> databeansFromJson(Class<D> databeanClass, DatabeanFielder<PK,D> fielder, JSONArray json){
 		List<D> databeans = ListTool.createArrayList();
+		if(json==null){ return databeans; }
 		Iterator<?> iter = json.iterator();
 		while(iter.hasNext()){
 			JSONObject jsonDatabean = (JSONObject)iter.next();
