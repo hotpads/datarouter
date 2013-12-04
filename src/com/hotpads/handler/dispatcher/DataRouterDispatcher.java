@@ -21,7 +21,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 	public DataRouterDispatcher(Injector injector, String servletContextPath, String urlPrefix){
 		super(injector, servletContextPath, urlPrefix);
 		// DataRouter
-		handle(URL_HTTP_CLIENT, DataRouterHttpClientHandler.class);
+//		handle(URL_HTTP_CLIENT, DataRouterHttpClientHandler.class);
 		handle(URL_DATAROUTER_VIEW_NODE_DATA, ViewNodeDataHandler.class);
 		handle(URL_DATAROUTER + URL_STACKTRACES, StackTracesManagerHandler.class);
 		handle(URL_DATAROUTER + ROUTERS, DatarouterRoutersAndClientsHandler.class);
