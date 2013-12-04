@@ -13,7 +13,7 @@
 </head>
 <body>
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
-<body>
+
 	<div class="container">
 		<h2>Datarouter
 		</h2>

@@ -20,7 +20,7 @@
 			&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a
 				href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">router:
 				${param.routerName}</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a
-				href="${contextPath}/datarouter/routers?submitAction=inspectClient&routerName=${param.routerName}
+				href="${contextPath}/datarouter/routers/hbase?submitAction=inspectClient&routerName=${param.routerName}
 		&clientName=${param.clientName}">client:
 				${param.clientName}</a> &nbsp;&nbsp;>>&nbsp;&nbsp; table:
 			${param.tableName} <a

@@ -37,17 +37,12 @@
 	<table class="table table-striped table-bordered table-hover table-condensed">
 		<c:forEach items="${router.allClients}" var="client">
 			<tr >
-				<td style="width: 33%">
-					<a href="?submitAction=inspectClient&routerName=${router.name}&clientName=${client.name}">${client.name}</a>
+				<td style="width: 50%">
+					<a href="routers/${client.type}?submitAction=inspectClient&routerName=${router.name}&clientName=${client.name}">${client.name}</a>
 				</td>
-				<td style="width: 33%">
+				<td style="width: 50%">
 					${client.type}
 				</td>
-					<td style="width: 33%">
-						<c:if test="${client.type=='hbase'}">
-							<a href="routers/${client.type}?submitAction=viewHBaseServers&routerName=${router.name}&clientName=${client.name}">servers</a>
-						</c:if>
-					</td>
 			</tr>
 		</c:forEach>
 	</table>
