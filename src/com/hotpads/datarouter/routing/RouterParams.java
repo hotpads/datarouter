@@ -10,13 +10,14 @@ import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.memory.MemoryClient;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.handler.Params;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.StringTool;
 
-public class ParamsRouter<C extends Client> {
+public class RouterParams<C extends Client> {
 
 	private static final String PARAM_routerName = "routerName";
 	private static final String PARAM_clientName = "clientName";
@@ -37,7 +38,7 @@ public class ParamsRouter<C extends Client> {
 	private Node node;
 	private String tableName;
 
-	public ParamsRouter(DataRouterContext dataRouterContext, Params params,
+	public RouterParams(DataRouterContext dataRouterContext, Params params,
 			HashMap<String, List<String>> needs) {
 		this.action = params.optional(RequestTool.SUBMIT_ACTION,
 				RoutersHandler.ACTION_listRouters);
@@ -77,6 +78,14 @@ public class ParamsRouter<C extends Client> {
 				}
 			}
 		}
+	}
+
+	public DataRouterContext getContext() {
+		return this.router.getContext();
+	}
+
+	public Nodes getNodes() {
+		return this.getContext().getNodes();
 	}
 
 	public String getAction() {

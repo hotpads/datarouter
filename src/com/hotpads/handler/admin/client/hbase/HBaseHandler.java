@@ -36,7 +36,7 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DRHTableSettings;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.routing.DataRouterContext;
-import com.hotpads.datarouter.routing.ParamsRouter;
+import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.BaseHandler.Handler;
 import com.hotpads.handler.admin.RoutersHandler;
@@ -68,7 +68,7 @@ public class HBaseHandler extends BaseHandler {
 
 	// not injected
 	private static final String PATH_JSP_HBASE = "/jsp/admin/datarouter/hbase/";
-	private ParamsRouter<HBaseClientImp> paramsRouter;
+	private RouterParams<HBaseClientImp> paramsRouter;
 
 	protected int numRegions;
 	protected List<String> encodedRegionNameStrings;
@@ -83,7 +83,7 @@ public class HBaseHandler extends BaseHandler {
 
 	private Mav initialize() {
 		mav = new Mav();
-		paramsRouter = new ParamsRouter<HBaseClientImp>(dataRouterContext,
+		paramsRouter = new RouterParams<HBaseClientImp>(dataRouterContext,
 				params, HBASE_NEEDS);
 		// mav.put(RequestTool.SUBMIT_ACTION, ACTION_viewHBaseTableRegions);
 		mav.put(RoutersHandler.PARAM_routerName, paramsRouter.getRouterName());
@@ -133,10 +133,7 @@ public class HBaseHandler extends BaseHandler {
 		Map<String, Map<String, String>> tableSummaryByName = MapTool
 				.createTreeMap();
 		@SuppressWarnings("unchecked")
-		List<String> tableNamesForClient = paramsRouter
-				.getRouter()
-				.getContext()
-				.getNodes()
+		List<String> tableNamesForClient = paramsRouter.getNodes()
 				.getTableNamesForRouterAndClient(paramsRouter.getRouterName(),
 						paramsRouter.getClientName());
 		for (HTableDescriptor table : IterableTool.nullSafe(tables)) {
@@ -722,9 +719,9 @@ public class HBaseHandler extends BaseHandler {
 	private static final HashMap<String, List<String>> HBASE_NEEDS = MapTool
 			.createHashMap();
 	static {
-		HBASE_NEEDS.put(ParamsRouter.NEEDS_CLIENT, NEEDS_CLIENT);
-		HBASE_NEEDS.put(ParamsRouter.NEEDS_ROUTER, NEEDS_ROUTER);
-		HBASE_NEEDS.put(ParamsRouter.NEEDS_NODE, NEEDS_NODE);
+		HBASE_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
+		HBASE_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
+		HBASE_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);
 	}
 
 	private static final String

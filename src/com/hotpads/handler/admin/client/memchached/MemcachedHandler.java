@@ -9,7 +9,7 @@ import com.google.inject.Inject;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClientImp;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
 import com.hotpads.datarouter.routing.DataRouterContext;
-import com.hotpads.datarouter.routing.ParamsRouter;
+import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
@@ -21,7 +21,7 @@ public class MemcachedHandler extends BaseHandler {
 	@Inject
 	private DataRouterContext dataRouterContext;
 
-	private ParamsRouter<MemcachedClientImp> paramsRouter;
+	private RouterParams<MemcachedClientImp> paramsRouter;
 
 	@Handler
 	protected Mav inspectClient() {
@@ -41,7 +41,7 @@ public class MemcachedHandler extends BaseHandler {
 	}
 
 	private void initialize() {
-		paramsRouter = new ParamsRouter<>(dataRouterContext, params,
+		paramsRouter = new RouterParams<>(dataRouterContext, params,
 				MEMCHACHED_NEEDS);
 
 	}
@@ -64,9 +64,9 @@ public class MemcachedHandler extends BaseHandler {
 	private static final HashMap<String, List<String>> MEMCHACHED_NEEDS = MapTool
 			.createHashMap();
 	static {
-		MEMCHACHED_NEEDS.put(ParamsRouter.NEEDS_CLIENT, NEEDS_CLIENT);
-		MEMCHACHED_NEEDS.put(ParamsRouter.NEEDS_ROUTER, NEEDS_ROUTER);
-		MEMCHACHED_NEEDS.put(ParamsRouter.NEEDS_NODE, NEEDS_NODE);
+		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
+		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
+		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);
 	}
 
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.inject.Inject;
 import com.hotpads.datarouter.client.imp.memory.MemoryClient;
 import com.hotpads.datarouter.routing.DataRouterContext;
-import com.hotpads.datarouter.routing.ParamsRouter;
+import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
@@ -17,7 +17,7 @@ public class MemoryHandler extends BaseHandler {
 	@Inject
 	private DataRouterContext dataRouterContext;
 
-	private ParamsRouter<MemoryClient> paramsRouter;
+	private RouterParams<MemoryClient> paramsRouter;
 
 	@Handler
 	protected Mav inspectClient() {
@@ -29,7 +29,7 @@ public class MemoryHandler extends BaseHandler {
 	}
 
 	private void initialize() {
-		paramsRouter = new ParamsRouter<>(dataRouterContext, params,
+		paramsRouter = new RouterParams<>(dataRouterContext, params,
 				MEMORY_NEEDS);
 
 	}
@@ -60,8 +60,8 @@ public class MemoryHandler extends BaseHandler {
 	private static final HashMap<String, List<String>> MEMORY_NEEDS = MapTool
 			.createHashMap();
 	static {
-		MEMORY_NEEDS.put(ParamsRouter.NEEDS_CLIENT, NEEDS_CLIENT);
-		MEMORY_NEEDS.put(ParamsRouter.NEEDS_ROUTER, NEEDS_ROUTER);
-		MEMORY_NEEDS.put(ParamsRouter.NEEDS_NODE, NEEDS_NODE);
+		MEMORY_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
+		MEMORY_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
+		MEMORY_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);
 	}
 }
