@@ -4,6 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -20,6 +21,7 @@ import org.hibernate.annotations.AccessType;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 //import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -33,14 +35,18 @@ import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.DoubleArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.IntegerArrayField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 import com.hotpads.datarouter.storage.field.imp.geo.SQuadStringField;
+import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.handler.admin.DatabeanClassGeneratorHandler;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.map.SQuad;
@@ -52,6 +58,9 @@ public class DatabeanClassGenerator {
 	private String name;
 	private List<FieldDefinition<?>> fieldDefinitions;
 	private List<FieldDefinition<?>> keyFieldDefinitions;
+	private List<IndexDefinition> indexDefinitions;
+	private Map<String, FieldDefinition<?>> nonKeyFieldNameToFieldDefinition;
+	private Map<String, FieldDefinition<?>> keyFieldNameToFieldDefinition;
 	
 	public static Set<Class<?>> INTEGER_ENUM_FIELDS = SetTool.createHashSet();
 	static {
@@ -66,6 +75,60 @@ public class DatabeanClassGenerator {
 	static{
 		ENUM_FIELDS.addAll(INTEGER_ENUM_FIELDS);
 		ENUM_FIELDS.addAll(STRING_ENUM_FIELDS);
+	}
+	
+	private static class IndexDefinition{
+		List<FieldDefinition<?>> fields; 
+		public IndexDefinition(){
+			fields = ListTool.createLinkedList();
+		}
+		public String toString(){
+			return null;
+		}
+		
+		public void add(FieldDefinition<?> field){
+			fields.add(field);
+		}
+		
+		public String getCreateScriptString(){
+			if(CollectionTool.isEmpty(fields))
+				return null;
+			StringBuilder sb = new StringBuilder();
+			sb.append("index(");
+			List<String> indexedFields = ListTool.createLinkedList();
+			for(FieldDefinition<?> field : fields){
+				indexedFields.add(field.name);
+			}
+			sb.append(Joiner.on(", ").join(indexedFields));
+			sb.append(")");
+			return sb.toString();
+		}
+		
+		public String getIndexClassNameString(String databeanClassName){
+			if(CollectionTool.isEmpty(fields))
+				return null;
+			StringBuilder sb = new StringBuilder();
+			sb.append(databeanClassName + "sBy");
+			for(FieldDefinition<?> field : fields){
+				sb.append(StringTool.capitalizeFirstLetter(field.name));
+			}
+			sb.append("Lookup");
+			return sb.toString();
+		}
+		
+		public List<FieldDefinition<?>> getFieldDefinitions(){
+			return fields;
+		}
+		public String getMySqlNameString() {
+			if(CollectionTool.isEmpty(fields))
+				return null;
+			StringBuilder sb = new StringBuilder();
+			sb.append("index");
+			for(FieldDefinition<?> field : fields){
+				sb.append("_" +field.name);
+			}
+			return sb.toString();
+		}
 	}
 	
 	private static class FieldDefinition<T>{
@@ -84,6 +147,11 @@ public class DatabeanClassGenerator {
 			String primitiveType = getSuperClassGenericParameterString();
 			return "private "+primitiveType+" "+name +";";
 		}
+		
+		public String getCreateScriptString(){
+			return type.getSimpleName()+" "+name;
+		}
+		
 		public String getJavaParamName(){
 			if(StringTool.isEmpty(name)){
 				return name;
@@ -122,24 +190,86 @@ public class DatabeanClassGenerator {
 			}
 			return c.getSimpleName();
 		}
+		
+		public String getDefaultValueString(){
+			return "null";
+		}
 	}
 	
 	public DatabeanClassGenerator(String name){
 		this.name = name;
 		this.fieldDefinitions = Lists.newLinkedList();
 		this.keyFieldDefinitions = Lists.newLinkedList();
+		this.indexDefinitions = Lists.newLinkedList();
+		this.nonKeyFieldNameToFieldDefinition = Maps.newHashMap();
+		this.keyFieldNameToFieldDefinition = Maps.newHashMap();
 	}
 	
 	
 	private <T> void addField(Class<T> type, String name, String genericType, 
-			List<FieldDefinition<?>> fieldList){
-		fieldList.add(new FieldDefinition<T>(type,name,genericType));
+			List<FieldDefinition<?>> fieldList, boolean isKey){
+		FieldDefinition<T> fieldDefinition = new FieldDefinition<T>(type,name,genericType); 
+		fieldList.add(fieldDefinition);
+		if(isKey){
+			keyFieldNameToFieldDefinition.put(name, fieldDefinition);
+		} else {
+			nonKeyFieldNameToFieldDefinition.put(name, fieldDefinition);
+		}
 	}
 	public <T> void addKeyField(Class<T> type, String name, String genericType){
-		addField(type,name,genericType,keyFieldDefinitions);
+		addField(type,name,genericType,keyFieldDefinitions, true);
 	}
 	public <T> void addField(Class<T> type, String name, String genericType){
-		addField(type,name,genericType,fieldDefinitions);
+		addField(type,name,genericType,fieldDefinitions, false);
+	}
+	
+	public String getCsvKeyFieldNames (){
+		return Joiner.on(", " ).join(getFieldsNames(keyFieldDefinitions));
+	}
+	
+	public String getCsvFieldNames (){
+		return Joiner.on(", " ).join(getFieldsNames(fieldDefinitions));
+	}
+	
+	private List<String> getFieldsNames(Collection<FieldDefinition<?>> fieldDefinitions){
+		List<String> fieldName = ListTool.createLinkedList();
+		for(FieldDefinition<?> fieldDefinition: fieldDefinitions){
+			fieldName.add(fieldDefinition.name);
+		}
+		return fieldName;
+	}
+	
+	public void addIndex(String ...indexFields){
+		IndexDefinition indexDefinition = new IndexDefinition();
+		for(String indexField : indexFields){
+			if(StringTool.isEmpty(indexField)){
+				continue;
+			}
+			//indexField example: StringField string
+//			String fieldType = indexField.split(" ")[0]; 
+//			String fieldName = indexField.split(" ")[1];
+			String fieldName = indexField.trim();
+			FieldDefinition<?> fieldDefinition = keyFieldNameToFieldDefinition.get(fieldName);
+			if(fieldDefinition == null){
+				fieldDefinition = nonKeyFieldNameToFieldDefinition.get(fieldName);
+			}
+			if(fieldDefinition == null){
+				return;//drop the index
+			}
+			indexDefinition.add(new FieldDefinition(fieldDefinition.type, fieldName, null));
+		}
+		
+		if(CollectionTool.notEmpty(indexDefinition.getFieldDefinitions())){
+			addIndex(indexDefinition);
+		}
+	}
+	
+	private void addIndex(IndexDefinition index){
+		indexDefinitions.add(index);
+	}
+	
+	private boolean isKeyField(String fieldName){
+		return keyFieldNameToFieldDefinition.containsKey(fieldName);
 	}
 	
 	public String toJavaDatabean(){
@@ -157,7 +287,7 @@ public class DatabeanClassGenerator {
 		javaCode.add(generateImports(fieldDefinitions, keyFieldDefinitions, 
 				Entity.class,Id.class,AccessType.class,Field.class, FieldTool.class, BaseDatabeanFielder.class, List.class,
 				Date.class,
-				BaseDatabean.class));
+				BaseDatabean.class, Map.class, MapTool.class, BaseLookup.class));
 		javaCode.add(EMPTY_LINE);
 		
 		/** Class Definition **************************************************/
@@ -213,6 +343,7 @@ public class DatabeanClassGenerator {
 			}
 			
 		}
+		
 		javaCode
 			.add(NEW_LINE)
 			.addLine(1, "public static class F {")
@@ -239,9 +370,32 @@ public class DatabeanClassGenerator {
 			.addLine(2, "public List<Field<?>> getNonKeyFields("+name+" "+StringTool.lowercaseFirstCharacter(name)+") {")
 			.addLine(3, "return "+StringTool.lowercaseFirstCharacter(name)+".getNonKeyFields();")
 			.addLine(2, "}")
+			.addEmptyLine();
+		
+		if(CollectionTool.notEmpty(indexDefinitions)){
+			javaCode
+			.addLine(2,"@Override")
+			.addLine(2,"public Map<String, List<Field<?>>> getIndexes("+name+" databean){")
+			.addLine(3,"Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();");
+		
+		for(IndexDefinition i: indexDefinitions){
+			javaCode.addLine(3, "indexesByName.put(\"" + i.getMySqlNameString() + "\", new "
+					+ i.getIndexClassNameString(name) + "("+makeMethodArguments(i.getFieldDefinitions())+")" + ".getFields());");
+		}
+			
+		javaCode
+			.addLine(3,"return indexesByName;")
+			.addLine(2,"}")
 			.addLine(1, "}")
 			.addEmptyLine()
-			;
+			;	
+		} else {
+			javaCode
+				.addLine(1, "}")
+				.addEmptyLine()
+				;	
+		}
+		
 		/** Constructors ******************************************************/
 		List<String> keyArgsList = Lists.newLinkedList();
 		for(FieldDefinition<?> kf : keyFieldDefinitions){ 
@@ -255,7 +409,7 @@ public class DatabeanClassGenerator {
 			.addLine(2, "this.key = new "+keyClassName+"();")
 			.addLine(1, "}")
 			.add(NEW_LINE)
-			.addLine(1, "public "+name+"(" +makeMethodArguments(keyFieldDefinitions) + "){")
+			.addLine(1, "public "+name+"(" +makeMethodParameters(keyFieldDefinitions) + "){")
 			.addLine(2, "this.key = new "+keyClassName+"("+keyArgs+");")
 			.addLine(1, "}")
 			.addEmptyLine();
@@ -280,6 +434,56 @@ public class DatabeanClassGenerator {
 			.addLine(1, "}")
 			.addEmptyLine();
 		
+		/** Indexes   *********************************************************/
+		if (CollectionTool.notEmpty(indexDefinitions)) {
+			javaCode
+				.addEmptyLine()
+				.addStarCommentLine(1, "indexes")
+				.addEmptyLine();
+		}
+		for(IndexDefinition i : indexDefinitions){
+			javaCode
+				.addLine(1, "public static class " + i.getIndexClassNameString(name)+" extends BaseLookup<"+keyClassName+">{");
+			
+			for(FieldDefinition<?> f : i.getFieldDefinitions()){
+				javaCode.addLine(2, f.getPrimitiveTypeDeclarationString());
+			}
+			
+			javaCode
+				.addEmptyLine()
+				.addLine(2, "public " + i.getIndexClassNameString(name) + "(" +makeMethodParameters(i.getFieldDefinitions()) + "){");
+			
+				for(FieldDefinition<?> f : i.getFieldDefinitions()){
+					javaCode.addLine(3, "this."+f.name+" = "+f.name+";");
+				}
+			javaCode	
+				.addLine(2, "}")
+				.addEmptyLine();
+			
+			List<String> fDefs = Lists.newLinkedList();
+			for(FieldDefinition<?> f : i.getFieldDefinitions()){
+				String keyFieldArgument = isKeyField(f.name)?("DEFAULT_KEY_FIELD_NAME, "+keyClassName+"."):"";
+				if(STRING_ENUM_FIELDS.contains(f.type)){
+					fDefs.add("\t\t\t\tnew "+ f.type.getSimpleName()+"<"+f.getSuperClassGenericParameterString()+">("+f.getSuperClassGenericParameterString()+".class, "+keyFieldArgument+"F."+f.getJavaParamName()+", "+f.name+", "+MySqlColumnType.class.getSimpleName()+".MAX_LENGTH_VARCHAR)");
+				} else  if(INTEGER_ENUM_FIELDS.contains(f.type)){
+					fDefs.add("\t\t\t\tnew "+ f.type.getSimpleName()+"<"+f.getSuperClassGenericParameterString()+">("+f.getSuperClassGenericParameterString()+".class, "+keyFieldArgument+"F."+f.getJavaParamName()+", "+f.name+")");
+				} else if(f.type.equals(StringField.class)){
+					fDefs.add("\t\t\t\tnew "+ f.type.getSimpleName()+"("+keyFieldArgument+"F."+f.getJavaParamName()+", " + f.name + ", "+MySqlColumnType.class.getSimpleName()+".MAX_LENGTH_VARCHAR)");
+				} else {
+					fDefs.add("\t\t\t\tnew "+ f.type.getSimpleName()+"("+keyFieldArgument+"F."+f.getJavaParamName()+", "+f.name+")");	
+				}
+				
+			}
+			javaCode
+				.addLine(2, "public List<Field<?>> getFields(){")
+				.addLine(3, "return FieldTool.createList(")
+				.addLine(Joiner.on("," + NEW_LINE).join(fDefs) + ");")
+				.addLine(2, "}")
+				.addLine(1, "}")
+				.addEmptyLine(); 
+	
+		}
+				
 		/** Getters and Setters ***********************************************/
 		javaCode
 			.addStarCommentLine(1, "getters/setters")
@@ -354,8 +558,55 @@ public class DatabeanClassGenerator {
 		json.accumulate("pk",pk);
 		json.accumulate("fields",fields);
 		
-		setCreateScript(json.toString(1));
+		//setCreateScript(json.toString(1));
+		setCreateScript(toCreateScript());
+		
 	}
+	
+	public String toCreateScript(){
+		CodeStringBuilder createScript = new CodeStringBuilder();
+		if(StringTool.notEmpty(packageName)){
+			createScript
+				.addLine(packageName +"."+ name + "{")
+				;
+		} else {
+			createScript
+				.addLine(name + "{");
+		}
+		
+		List<String> colDefs = Lists.newLinkedList();
+		for(FieldDefinition<?> f : 	keyFieldDefinitions){
+			colDefs.add("\t\t" + f.getCreateScriptString());
+		}
+		createScript
+				.addLine(1, "PK{")
+				.addLine(Joiner.on("," + NEW_LINE).join(colDefs))
+				.addLine(1, "}");
+		colDefs = Lists.newLinkedList();
+		for(FieldDefinition<?> f : 	fieldDefinitions){
+			colDefs.add("\t" + f.getCreateScriptString());
+		}
+		if(CollectionTool.notEmpty(indexDefinitions)){
+			createScript
+				.addLine(Joiner.on("," + NEW_LINE).join(colDefs) +",");	
+		} else {
+			createScript
+				.addLine(Joiner.on("," + NEW_LINE).join(colDefs));
+		}
+		
+				
+		colDefs = Lists.newLinkedList();
+		for(IndexDefinition f : 	indexDefinitions){
+			colDefs.add("\t" + f.getCreateScriptString());
+		}
+		createScript
+				.addLine(Joiner.on("," + NEW_LINE).join(colDefs));
+		
+		createScript
+				.addLine("}");
+		return createScript.build();
+	}
+	
 	public String toJavaDatabeanKey(){
 		CodeStringBuilder javaCode = new CodeStringBuilder();
 		
@@ -429,7 +680,7 @@ public class DatabeanClassGenerator {
 			.addStarCommentLine(1, "constructors")
 			.addLine(1, keyClassName+"(){}")
 			.addEmptyLine()
-			.addLine(1, "public "+keyClassName+"(" + makeMethodArguments(keyFieldDefinitions) + "){")
+			.addLine(1, "public "+keyClassName+"(" + makeMethodParameters(keyFieldDefinitions) + "){")
 			;
 		for(FieldDefinition<?> kf : keyFieldDefinitions){
 			javaCode
@@ -464,10 +715,18 @@ public class DatabeanClassGenerator {
 		return javaCode.build();
 	}
 	
-	private static String makeMethodArguments(Collection<FieldDefinition<?>> fs){
+	private static String makeMethodParameters(Collection<FieldDefinition<?>> fs){
 		List<String> args = Lists.newLinkedList();
 		for(FieldDefinition<?> f : fs){
 			args.add(f.getSuperClassGenericParameterString()+" "+f.name);
+		}
+		return Joiner.on(", ").join(args);
+	}
+	
+	private String makeMethodArguments(List<FieldDefinition<?>> fs) {
+		List<String> args = Lists.newLinkedList();
+		for(FieldDefinition<?> f : fs){
+			args.add("" + f.getDefaultValueString());
 		}
 		return Joiner.on(", ").join(args);
 	}
@@ -557,9 +816,21 @@ public class DatabeanClassGenerator {
 			g.addField(c, StringTool.lowercaseFirstCharacter(c.getSimpleName()), genericType);
 		}
 		
+		IndexDefinition index = new IndexDefinition();
+		index.add(new FieldDefinition<>(StringField.class, "id", "fdf"));
+		index.add(new FieldDefinition<>(StringField.class, "id2", ""));
+		g.addIndex(index);
+		
+		index = new IndexDefinition();
+		index.add(new FieldDefinition<>(StringField.class, "id4", "fdf"));
+		index.add(new FieldDefinition<>(StringField.class, "id5", ""));
+		g.addIndex(index);
+		
+		g.generateCreateScript();
+//		System.out.println(g.getCreateScript());
 		System.err.println(g.toJavaDatabean());
-		System.err.println("\n");
-		System.err.println(g.toJavaDatabeanKey());
+//		System.err.println("\n");
+//		System.err.println(g.toJavaDatabeanKey());
 	}
 
 

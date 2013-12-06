@@ -3,6 +3,7 @@ package com.hotpads.handler.dispatcher;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.client.imp.http.DataRouterHttpClientHandler;
 import com.hotpads.handler.BaseDispatcher;
+import com.hotpads.handler.admin.DatabeanClassGeneratorHandler;
 import com.hotpads.handler.admin.DatarouterRoutersAndClientsHandler;
 import com.hotpads.handler.admin.DrDefaultHandler;
 import com.hotpads.handler.admin.StackTracesManagerHandler;
