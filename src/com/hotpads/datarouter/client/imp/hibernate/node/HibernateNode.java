@@ -33,7 +33,10 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class HibernateNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
+public class HibernateNode<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>> 
 extends HibernateReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>
 {
@@ -64,26 +67,32 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	
 	public static final PutMethod DEFAULT_PUT_METHOD = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
 	
+//	@Override
+//	public void put(final D databean, final Config config) {
+//		TraceContext.startSpan(getName()+" put");
+//		if(databean==null){ return; }
+//		final String entityName = this.getPackagedTableName();
+//		boolean disableAutoCommit = this.shouldDisableAutoCommit(config, DEFAULT_PUT_METHOD);
+//		HibernateExecutor executor = HibernateExecutor.create("put", getClient(), this, config, disableAutoCommit);
+//		executor.executeTask(
+//			new HibernateTask() {
+//				@SuppressWarnings("deprecation")
+//				public Object run(Session session) {
+//					if(fieldInfo.getFieldAware()){
+//						jdbcPutUsingMethod(session.connection(), entityName, databean, config, DEFAULT_PUT_METHOD);
+//					}else{
+//						hibernatePutUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
+//					}
+//					return databean;
+//				}
+//			});
+//		TraceContext.finishSpan();
+//	}
+
 	@Override
 	public void put(final D databean, final Config config) {
-		TraceContext.startSpan(getName()+" put");
-		if(databean==null){ return; }
-		final String entityName = this.getPackagedTableName();
-		boolean disableAutoCommit = this.shouldDisableAutoCommit(config, DEFAULT_PUT_METHOD);
-		HibernateExecutor executor = HibernateExecutor.create("put", getClient(), this, config, disableAutoCommit);
-		executor.executeTask(
-			new HibernateTask() {
-				@SuppressWarnings("deprecation")
-				public Object run(Session session) {
-					if(fieldInfo.getFieldAware()){
-						jdbcPutUsingMethod(session.connection(), entityName, databean, config, DEFAULT_PUT_METHOD);
-					}else{
-						hibernatePutUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
-					}
-					return databean;
-				}
-			});
-		TraceContext.finishSpan();
+		HibernatePutOp<PK,D,F> op = new HibernatePutOp<PK,D,F>(this, databean, config);
+		op.call();
 	}
 
 	
@@ -231,7 +240,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	
 	/******************** private **********************************************/
 	
-	protected void hibernatePutUsingMethod(Session session, String entityName, Databean<PK,D> databean, 
+	public void hibernatePutUsingMethod(Session session, String entityName, Databean<PK,D> databean, 
 			final Config config, PutMethod defaultPutMethod){
 		
 		PutMethod putMethod = defaultPutMethod;
@@ -265,7 +274,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 		}
 	}
 	
-	protected void jdbcPutUsingMethod(Connection connection, String entityName, Databean<PK,D> databean,
+	public void jdbcPutUsingMethod(Connection connection, String entityName, Databean<PK,D> databean,
 			final Config config, PutMethod defaultPutMethod){
 		PutMethod putMethod = defaultPutMethod;
 		if(config!=null && config.getPutMethod()!=null){

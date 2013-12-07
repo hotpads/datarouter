@@ -5,14 +5,14 @@ import java.util.List;
 import org.hibernate.Session;
 
 import com.hotpads.datarouter.app.SessionOp;
-import com.hotpads.datarouter.app.client.parallel.base.BaseParallelSessionTxnOp;
+import com.hotpads.datarouter.app.client.parallel.base.BaseParallelSessionOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.routing.DataRouterContext;
 
 public abstract class BaseParallelHibernateTxnApp<T>
-extends BaseParallelSessionTxnOp<T> 
+extends BaseParallelSessionOp<T> 
 implements SessionOp<T> {
 
 	public BaseParallelHibernateTxnApp(DataRouterContext drContext, List<String> clientNames) {

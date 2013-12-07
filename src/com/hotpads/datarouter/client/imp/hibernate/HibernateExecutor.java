@@ -14,11 +14,11 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ExceptionTool;
 
 public class HibernateExecutor {
-	Logger logger = Logger.getLogger(HibernateExecutor.class);
+	private Logger logger = Logger.getLogger(HibernateExecutor.class);
 
 	public static final boolean EAGER_SESSION_FLUSH = true;
 
-	protected String taskName;
+	private String taskName;
 	private HibernateClientImp client;
 	private BasePhysicalNode<?,?,?> node;
 	private Config config;

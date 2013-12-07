@@ -6,7 +6,6 @@ import java.util.List;
 import javax.persistence.RollbackException;
 
 import com.hotpads.datarouter.app.parallel.ParallelSessionOp;
-import com.hotpads.datarouter.app.parallel.ParallelTxnOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.config.Isolation;
@@ -16,11 +15,11 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 
-public abstract class BaseParallelSessionTxnOp<T>
+public abstract class BaseParallelSessionOp<T>
 extends BaseParallelTxnOp<T>
-implements ParallelTxnOp<T>, ParallelSessionOp<T>{
+implements ParallelSessionOp<T>{
 		
-	public BaseParallelSessionTxnOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation) {
+	public BaseParallelSessionOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation) {
 		super(drContext, clientNames, isolation);
 	}
 
