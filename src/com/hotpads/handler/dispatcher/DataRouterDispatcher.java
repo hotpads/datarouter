@@ -36,7 +36,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + ROUTERS + MEMORY, MemoryHandler.class);
 		handle(URL_DATAROUTER + ROUTERS + MEMCACHED, MemcachedHandler.class);
 		handle(URL_DATAROUTER + ROUTERS, RoutersHandler.class);
-		handle(URL_DATAROUTER + "*", DatarouterDefaultHandler.class);
+		handle(URL_DATAROUTER + "*", RoutersHandler.class);
 
 	}
 
