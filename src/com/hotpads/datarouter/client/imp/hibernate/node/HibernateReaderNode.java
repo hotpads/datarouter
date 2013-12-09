@@ -20,6 +20,7 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
+import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetOp;
 import com.hotpads.datarouter.client.imp.hibernate.scan.HibernateDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hibernate.scan.HibernatePrimaryKeyScanner;
 import com.hotpads.datarouter.client.imp.hibernate.util.CriteriaTool;
@@ -105,36 +106,10 @@ implements MapStorageReader<PK,D>,
 	}
 
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public D get(final PK key, final Config config){
-		if(key==null){ return null; }
-		TraceContext.startSpan(getName()+" get");
-		final String tableName = this.getTableName();
-		HibernateExecutor executor = HibernateExecutor.create("get", getClient(), this, config, false);
-		Object result = executor.executeTask(
-			new HibernateTask() {
-				public Object run(Session session) {
-					if(fieldInfo.getFieldAware()){
-						String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), ListTool.wrap(key));
-						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
-						if(CollectionTool.size(result) > 1){ 
-							throw new DataAccessException("found >1 databeans with PK="+key); 
-						}
-						return CollectionTool.getFirst(result);
-					}else{
-						Criteria criteria = getCriteriaForConfig(config, session);
-						List<Field<?>> fields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), key.getFields());
-						for(Field<?> field : fields){
-							criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-						}
-						D result = (D)criteria.uniqueResult();
-						return result;
-					}
-				}
-			});
-		TraceContext.finishSpan();
-		return (D)result;
+		HibernateGetOp<PK,D,F> op = new HibernateGetOp<PK,D,F>(this, "get", ListTool.wrap(key), config);
+		return CollectionTool.getFirst(op.call());
 	}
 	
 	
@@ -166,60 +141,9 @@ implements MapStorageReader<PK,D>,
 
 	
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<D> getMulti(final Collection<PK> keys, final Config config) {	
-		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
-		DRCounters.incSuffixClientNode(ClientType.hibernate, "getMulti rows", clientName, getName(), CollectionTool.size(keys));
-		TraceContext.startSpan(getName()+" getMulti");	
-//		final Class<? extends Databean> persistentClass = CollectionTool.getFirst(keys).getDatabeanClass();
-		HibernateExecutor executor = HibernateExecutor.create("getMulti", getClient(), this, config, false);
-		List<D> result = (List<D>)executor.executeTask(
-			new HibernateTask() {
-				public Object run(Session session) {
-					int batchSize = DEFAULT_ITERATE_BATCH_SIZE;
-					if(config!=null && config.getIterateBatchSize()!=null){
-						batchSize = config.getIterateBatchSize();
-					}
-					List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
-					Collections.sort(sortedKeys);
-					int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
-					List<D> all = ListTool.createArrayList(keys.size());
-					for(int batchNum=0; batchNum < numBatches; ++batchNum){
-						List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
-						List<D> batch;
-						if(fieldInfo.getFieldAware()){
-							String sql = SqlBuilder.getMulti(config, tableName, fieldInfo.getFields(), keyBatch);
-							batch = JdbcTool.selectDatabeans(session, fieldInfo, sql);
-							DRCounters.incSuffixClientNode(ClientType.jdbc, "getMulti", clientName, getName());
-							DRCounters.incSuffixClientNode(ClientType.jdbc, "getMulti rows", clientName, getName(), 
-									CollectionTool.size(keys));
-						}else{
-							Criteria criteria = getCriteriaForConfig(config, session);
-							Disjunction orSeparatedIds = Restrictions.disjunction();
-							for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
-								Conjunction possiblyCompoundId = Restrictions.conjunction();
-								List<Field<?>> fields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), 
-										key.getFields());
-								for(Field<?> field : fields){
-									possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-								}
-								orSeparatedIds.add(possiblyCompoundId);
-							}
-							criteria.add(orSeparatedIds);
-							batch = criteria.list();
-							DRCounters.incSuffixClientNode(ClientType.hibernate, "getMulti", clientName, getName());
-							DRCounters.incSuffixClientNode(ClientType.hibernate, "getMulti rows", clientName, getName(), 
-									CollectionTool.size(keys));
-						}
-						Collections.sort(batch);//can sort here because batches were already sorted
-						ListTool.nullSafeArrayAddAll(all, batch);
-					}
-					return all;
-				}
-			});
-		TraceContext.appendToSpanInfo("[got "+CollectionTool.size(result)+"/"+CollectionTool.size(keys)+"]");
-		TraceContext.finishSpan();
-		return result;
+	public List<D> getMulti(final Collection<PK> keys, final Config config) {
+		HibernateGetOp<PK,D,F> op = new HibernateGetOp<PK,D,F>(this, "getMulti", keys, config);
+		return op.call();
 	}
 	
 	@Override
@@ -725,7 +649,7 @@ implements MapStorageReader<PK,D>,
 	}
 	
 	
-	protected Criteria getCriteriaForConfig(Config config, Session session){
+	public Criteria getCriteriaForConfig(Config config, Session session){
 		final String entityName = this.getPackagedTableName();
 		Criteria criteria = session.createCriteria(entityName);
 		
