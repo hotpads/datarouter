@@ -39,7 +39,7 @@ implements ParallelTxnOp<T>{
 			TxnClient txnClient = (TxnClient)client;
 			ConnectionHandle connectionHandle = txnClient.getExistingHandle();
 			if(connectionHandle.isOutermostHandle()){
-				txnClient.beginTxn(this.getIsolation(), true);
+				txnClient.beginTxn(this.getIsolation(), false);
 			}
 //			logger.debug("began txn for "+txnClient.getExistingHandle());
 		}
