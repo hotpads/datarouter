@@ -3,7 +3,7 @@ package com.hotpads.handler.dispatcher;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.client.imp.http.DataRouterHttpClientHandler;
 import com.hotpads.handler.BaseDispatcher;
-import com.hotpads.handler.admin.DatabeanClassGeneratorHandler;
+import com.hotpads.handler.admin.DatabeanGeneratorHandler;
 import com.hotpads.handler.admin.DatarouterRoutersAndClientsHandler;
 import com.hotpads.handler.admin.DrDefaultHandler;
 import com.hotpads.handler.admin.StackTracesManagerHandler;
@@ -27,7 +27,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER_VIEW_NODE_DATA, ViewNodeDataHandler.class);
 		handle(URL_DATAROUTER + URL_STACKTRACES, StackTracesManagerHandler.class);
 		handle(URL_DATAROUTER + ROUTERS, DatarouterRoutersAndClientsHandler.class);
-		handle(URL_DATABEAN_CLASS_GENERATOR, DatabeanClassGeneratorHandler.class);
+		handle(URL_DATABEAN_CLASS_GENERATOR, DatabeanGeneratorHandler.class);
 		handle(URL_DATAROUTER + "*", DrDefaultHandler.class);
 
 	}

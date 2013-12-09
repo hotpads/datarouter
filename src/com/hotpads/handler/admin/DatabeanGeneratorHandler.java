@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import com.hotpads.datarouter.meta.DatabeanClassGenerator;
+import com.hotpads.datarouter.meta.DatabeanGenerator;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.BooleanArrayField;
@@ -39,7 +39,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.StringTool;
 
-public class DatabeanClassGeneratorHandler extends BaseHandler {
+public class DatabeanGeneratorHandler extends BaseHandler {
 
 	public static List<Class<?>> FIELD_TYPES = ListTool.create();
 	static{
@@ -130,16 +130,16 @@ public class DatabeanClassGeneratorHandler extends BaseHandler {
 	@Handler
 	protected Mav getDemoScript() {
 		try {
-			DatabeanClassGenerator g = 
-					new DatabeanClassGenerator("ListingCounter");
+			DatabeanGenerator g = 
+					new DatabeanGenerator("ListingCounter");
 
 				g.setPackageName("com.hotpads.marius");
 				
-				for(Class<?> c: DatabeanClassGeneratorHandler.FIELD_TYPES){
+				for(Class<?> c: DatabeanGeneratorHandler.FIELD_TYPES){
 					String genericType = null;
-					if(DatabeanClassGenerator.INTEGER_ENUM_FIELDS.contains(c)){
+					if(DatabeanGenerator.INTEGER_ENUM_FIELDS.contains(c)){
 						continue;
-					} else if(DatabeanClassGenerator.STRING_ENUM_FIELDS.contains(c)){
+					} else if(DatabeanGenerator.STRING_ENUM_FIELDS.contains(c)){
 						continue;
 					} else if(c.equals(UInt8Field.class)){
 						continue;
@@ -277,7 +277,7 @@ public class DatabeanClassGeneratorHandler extends BaseHandler {
 			//return toString();
 			
 			
-			DatabeanClassGenerator generator = new DatabeanClassGenerator(dataBeanName);
+			DatabeanGenerator generator = new DatabeanGenerator(dataBeanName);
 			generator.setPackageName(dataBeanPackage);
 			for(int i =0; i< keyFieldNames.size(); i++){
 					generator.addKeyField(getClassForName(keyFieldTypes.get(i)), keyFieldNames.get(i), keyfieldEnumTypes.get(i));

@@ -35,7 +35,7 @@ import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 import com.hotpads.datarouter.storage.field.imp.geo.SQuadStringField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.handler.admin.DatabeanClassGeneratorHandler;
+import com.hotpads.handler.admin.DatabeanGeneratorHandler;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -43,7 +43,7 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.map.SQuad;
 
-public class DatabeanClassGenerator {
+public class DatabeanGenerator {
 
 	private String createScript = "";
 	private String packageName;
@@ -166,15 +166,15 @@ public class DatabeanClassGenerator {
 
 			if (primitiveClass.contains("<")) {
 				// TODO it's fast and ugly. expected input: java.util.List<java.lang.Integer>
-				Class<?> firstClass = DatabeanClassGeneratorHandler.getClassForName(primitiveClass.substring(0,
+				Class<?> firstClass = DatabeanGeneratorHandler.getClassForName(primitiveClass.substring(0,
 						primitiveClass.indexOf("<")));
-				Class<?> secondClass = DatabeanClassGeneratorHandler.getClassForName(primitiveClass.substring(
+				Class<?> secondClass = DatabeanGeneratorHandler.getClassForName(primitiveClass.substring(
 						primitiveClass.lastIndexOf("<") + 1, primitiveClass.length() - 1));
 				return firstClass.getSimpleName() + "<" + secondClass.getSimpleName() + ">";
 			}
-			Class<?> c = DatabeanClassGeneratorHandler.getClassForName(primitiveClass);
+			Class<?> c = DatabeanGeneratorHandler.getClassForName(primitiveClass);
 			if (c == null) {
-				c = DatabeanClassGeneratorHandler.getClassForName(genericType);
+				c = DatabeanGeneratorHandler.getClassForName(genericType);
 			}
 
 			if (c == null) {
@@ -188,7 +188,7 @@ public class DatabeanClassGenerator {
 		}
 	}
 	
-	public DatabeanClassGenerator(String name){
+	public DatabeanGenerator(String name){
 		this.name = name;
 		this.fieldDefinitions = Lists.newLinkedList();
 		this.keyFieldDefinitions = Lists.newLinkedList();
@@ -783,8 +783,8 @@ public class DatabeanClassGenerator {
 	
 	public static void main(String... args){
 		
-		DatabeanClassGenerator g = 
-			new DatabeanClassGenerator("ListingCounter");
+		DatabeanGenerator g = 
+			new DatabeanGenerator("ListingCounter");
 
 //		g.addField(IntegerArrayField.class, "active", null);
 //		g.addField(DumbDoubleField.class, "ds", null);
@@ -797,7 +797,7 @@ public class DatabeanClassGenerator {
 
 		g.setPackageName("com.hotpads.marius");
 		
-		for(Class c: DatabeanClassGeneratorHandler.FIELD_TYPES){
+		for(Class c: DatabeanGeneratorHandler.FIELD_TYPES){
 			String genericType = null;
 			if(INTEGER_ENUM_FIELDS.contains(c)){
 				genericType = "com.hotpads.databean.search.feed.enums.FeedReportFormat";
