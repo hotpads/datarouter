@@ -70,7 +70,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 		if(databean==null){ return; }
 		final String entityName = this.getPackagedTableName();
 		boolean disableAutoCommit = this.shouldDisableAutoCommit(config, DEFAULT_PUT_METHOD);
-		HibernateExecutor executor = HibernateExecutor.create("put", getClient(), this, config, disableAutoCommit);
+		HibernateExecutor executor = HibernateExecutor.create("put", getClient(), this, config, !disableAutoCommit);
 		executor.executeTask(
 			new HibernateTask() {
 				@SuppressWarnings("deprecation")
@@ -96,7 +96,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 		final Collection<D> finalDatabeans = databeans;
 		boolean disableAutoCommit = numDatabeans > 1
 				|| this.shouldDisableAutoCommit(config, DEFAULT_PUT_METHOD);
-		HibernateExecutor executor = HibernateExecutor.create("putMulti", getClient(), this, config, disableAutoCommit);
+		HibernateExecutor executor = HibernateExecutor.create("putMulti", getClient(), this, config, !disableAutoCommit);
 		executor.executeTask(
 			new HibernateTask() {
 				@SuppressWarnings("deprecation")
@@ -119,7 +119,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	public void deleteAll(final Config config) {
 		TraceContext.startSpan(getName()+" deleteAll");
 		final String tableName = this.getTableName();
-		HibernateExecutor executor = HibernateExecutor.create("deleteAll", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("deleteAll", getClient(), this, config, true);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -152,7 +152,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 		//build query
 		if(CollectionTool.isEmpty(keys)){ return; }
 		final String tableName = this.getTableName();
-		HibernateExecutor executor = HibernateExecutor.create("deleteMulti", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("deleteMulti", getClient(), this, config, true);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -179,7 +179,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 		//build query
 		if(CollectionTool.isEmpty(uniqueKeys)){ return; }
 		final String tableName = this.getTableName();
-		HibernateExecutor executor = HibernateExecutor.create("deleteMultiUnique", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("deleteMultiUnique", getClient(), this, config, true);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -197,7 +197,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 		TraceContext.startSpan(getName()+" deleteRangeWithPrefix");
 		if(prefix==null){ return; }
 		final String tableName = this.getTableName();
-		HibernateExecutor executor = HibernateExecutor.create("deleteRangeWithPrefix", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("deleteRangeWithPrefix", getClient(), this, config, true);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -215,7 +215,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 		TraceContext.startSpan(getName()+" deleteLookup");
 		if(lookup==null){ return; }
 		final String tableName = this.getTableName();
-		HibernateExecutor executor = HibernateExecutor.create("deleteLookup", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("deleteLookup", getClient(), this, config, true);
 		executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
