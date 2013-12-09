@@ -281,7 +281,7 @@ implements MapStorageReader<PK,D>,
 	public Long count(final Lookup<PK> lookup, final Config config) {
 		if(lookup==null){ return 0l; }
 		TraceContext.startSpan(getName()+" count");
-		HibernateExecutor executor = HibernateExecutor.create("count", getClient(), this,	config, false);
+		HibernateExecutor executor = HibernateExecutor.create("count", getClient(), this,	config, true);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -322,7 +322,7 @@ implements MapStorageReader<PK,D>,
 		//basically copied from "getMulti" for HibernateNode
 		TraceContext.startSpan(getName()+" lookupMultiUnique");	
 		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
-		HibernateExecutor executor = HibernateExecutor.create("lookupMultiUnique", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("lookupMultiUnique", getClient(), this, config, true);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -398,7 +398,7 @@ implements MapStorageReader<PK,D>,
 		if(CollectionTool.isEmpty(lookups)){ 
 			return new LinkedList<D>();
 		}
-		HibernateExecutor executor = HibernateExecutor.create("multiLookup", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("multiLookup", getClient(), this, config, true);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -436,7 +436,7 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public D getFirst(final Config config) {
 		TraceContext.startSpan(getName()+" getFirst");
-		HibernateExecutor executor = HibernateExecutor.create("getFirst", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("getFirst", getClient(), this, config, true);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -466,7 +466,7 @@ implements MapStorageReader<PK,D>,
 	public PK getFirstKey(final Config config) {
 		TraceContext.startSpan(getName()+" getFirstKey");
 		final String entityName = this.getPackagedTableName();
-		HibernateExecutor executor = HibernateExecutor.create("getFirstKey", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("getFirstKey", getClient(), this, config, true);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -516,7 +516,7 @@ implements MapStorageReader<PK,D>,
 			final Config config) {
 		TraceContext.startSpan(getName()+" getWithPrefixes");
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
-		HibernateExecutor executor = HibernateExecutor.create("getWithPrefixes", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("getWithPrefixes", getClient(), this, config, true);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -580,7 +580,7 @@ implements MapStorageReader<PK,D>,
 		String spanNameSuffix = keysOnly ? "getKeysInRange" : "getRange";
 		TraceContext.startSpan(getName() + " " + spanNameSuffix);
 		try{
-			HibernateExecutor executor = HibernateExecutor.create("spanNameSuffix", getClient(), this, config, false);
+			HibernateExecutor executor = HibernateExecutor.create("spanNameSuffix", getClient(), this, config, true);
 			@SuppressWarnings("unchecked") 
 			List<? extends FieldSet<?>> result = (List<? extends FieldSet<?>>)executor.executeTask(new HibernateTask(){
 				public Object run(Session session){
@@ -645,7 +645,7 @@ implements MapStorageReader<PK,D>,
 			final Config config) {
 
 		TraceContext.startSpan(getName()+" getPrefixedRange");
-		HibernateExecutor executor = HibernateExecutor.create("getPrefixedRange", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("getPrefixedRange", getClient(), this, config, true);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
