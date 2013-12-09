@@ -14,8 +14,9 @@ public abstract class BaseParallelJdbcTxnOp<T>
 extends BaseParallelTxnOp<T> 
 implements ConnectionOp<T> {
 
-	public BaseParallelJdbcTxnOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation) {
-		super(drContext, clientNames, isolation);
+	public BaseParallelJdbcTxnOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+			boolean autoCommit) {
+		super(drContext, clientNames, isolation, autoCommit);
 	}
 
 	@Override

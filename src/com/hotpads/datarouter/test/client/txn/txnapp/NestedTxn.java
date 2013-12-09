@@ -28,9 +28,9 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 	private BasicClientTestRouter router;
 	private boolean flush;
 	
-	public NestedTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+	public NestedTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation, boolean autoCommit,
 			BasicClientTestRouter router, boolean flush){
-		super(drContext, clientNames, isolation);
+		super(drContext, clientNames, isolation, autoCommit);
 		this.drContext = drContext;
 		this.clientNames = clientNames;
 		this.isolation = isolation;
@@ -59,7 +59,7 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 			}
 		}
 		
-		router.run(new InnerTxn(drContext, clientNames, isolation, router, true, handle));
+		router.run(new InnerTxn(drContext, clientNames, isolation, false, router, true, handle));
 		
 		TxnBean outer2 = new TxnBean(outer.getId());
 		router.txnBeanHibernate().put(outer2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
@@ -72,9 +72,9 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 		private boolean flush;
 		private ConnectionHandle outerHandle;
 
-		public InnerTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+		public InnerTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation, boolean autoCommit,
 				BasicClientTestRouter router, boolean flush, ConnectionHandle outerHandle){
-			super(drContext, clientNames, isolation);
+			super(drContext, clientNames, isolation, autoCommit);
 			this.router = router;
 			this.flush = flush;
 			this.outerHandle = outerHandle;

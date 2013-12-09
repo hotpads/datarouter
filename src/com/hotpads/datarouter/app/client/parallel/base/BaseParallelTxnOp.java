@@ -17,12 +17,14 @@ public abstract class BaseParallelTxnOp<T>
 extends BaseParallelClientOp<T>
 implements ParallelTxnOp<T>{
 
-	protected Isolation isolation = Config.DEFAULT_ISOLATION;
+	private Isolation isolation = Config.DEFAULT_ISOLATION;
+	private boolean autoCommit;
 	
-	
-	public BaseParallelTxnOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation) {
+	public BaseParallelTxnOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+			boolean autoCommit) {
 		super(drContext, clientNames);
 		this.isolation = isolation;
+		this.autoCommit = autoCommit;
 	}
 	
 	@Override
@@ -34,12 +36,12 @@ implements ParallelTxnOp<T>{
 
 	@Override
 	public void beginTxns(){
-		for(Client client : CollectionTool.nullSafe(this.getClients())){
+		for(Client client : CollectionTool.nullSafe(getClients())){
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
 			ConnectionHandle connectionHandle = txnClient.getExistingHandle();
 			if(connectionHandle.isOutermostHandle()){
-				txnClient.beginTxn(this.getIsolation(), true);
+				txnClient.beginTxn(this.getIsolation(), autoCommit);
 			}
 //			logger.debug("began txn for "+txnClient.getExistingHandle());
 		}
@@ -47,7 +49,7 @@ implements ParallelTxnOp<T>{
 	
 	@Override
 	public void commitTxns(){
-		for(Client client : CollectionTool.nullSafe(this.getClients())){
+		for(Client client : CollectionTool.nullSafe(getClients())){
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
 			ConnectionHandle connectionHandle = txnClient.getExistingHandle();
@@ -60,7 +62,7 @@ implements ParallelTxnOp<T>{
 	
 	@Override
 	public void rollbackTxns(){
-		for(Client client : CollectionTool.nullSafe(this.getClients())){
+		for(Client client : CollectionTool.nullSafe(getClients())){
 			if( ! (client instanceof TxnClient) ){ continue; }
 			TxnClient txnClient = (TxnClient)client;
 			try{

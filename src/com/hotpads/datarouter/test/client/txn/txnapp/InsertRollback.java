@@ -25,7 +25,7 @@ public class InsertRollback extends BaseParallelHibernateTxnApp<Void>{
 	
 	public InsertRollback(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
 			BasicClientTestRouter router, boolean flush){
-		super(drContext, clientNames, isolation);
+		super(drContext, clientNames, isolation, false);
 		this.router = router;
 		this.flush = flush;
 	}

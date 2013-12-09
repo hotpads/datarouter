@@ -16,11 +16,12 @@ extends BaseParallelSessionOp<T>
 implements SessionOp<T> {
 
 	public BaseParallelHibernateTxnApp(DataRouterContext drContext, List<String> clientNames) {
-		this(drContext, clientNames, Isolation.DEFAULT);
+		this(drContext, clientNames, Isolation.DEFAULT, false);
 	}
 
-	public BaseParallelHibernateTxnApp(DataRouterContext drContext, List<String> clientNames, Isolation isolation) {
-		super(drContext, clientNames, isolation);
+	public BaseParallelHibernateTxnApp(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+			boolean autoCommit) {
+		super(drContext, clientNames, isolation, autoCommit);
 	}
 
 	@Override

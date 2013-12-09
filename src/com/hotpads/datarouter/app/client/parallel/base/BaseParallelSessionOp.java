@@ -19,8 +19,9 @@ public abstract class BaseParallelSessionOp<T>
 extends BaseParallelTxnOp<T>
 implements ParallelSessionOp<T>{
 		
-	public BaseParallelSessionOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation) {
-		super(drContext, clientNames, isolation);
+	public BaseParallelSessionOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+			boolean autoCommit) {
+		super(drContext, clientNames, isolation, autoCommit);
 	}
 
 
