@@ -11,7 +11,6 @@ import java.util.List;
 import org.hibernate.Session;
 
 import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
-import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
@@ -53,12 +52,12 @@ extends BaseParallelHibernateTxnApp<Void>{
 	}
 	
 	@Override
-	public Void runOncePerClient(Client client){
+	public Void runOnce(){
 		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
-		DRCounters.incSuffixClientNode(clientType, opName, client.getName(), node.getName());
+		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(client.getName());
+			Session session = getSession(node.getClientName());
 			final String entityName = node.getPackagedTableName();
 			for(D databean : CollectionTool.nullSafe(databeans)){
 				if(node.getFieldInfo().getFieldAware()){

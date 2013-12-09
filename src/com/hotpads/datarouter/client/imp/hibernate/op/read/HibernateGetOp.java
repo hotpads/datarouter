@@ -11,7 +11,6 @@ import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 
 import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
-import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
@@ -50,13 +49,12 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 	}
 	
 	@Override
-	public List<D> runOncePerClient(Client client){
-		String clientName = client.getName();
+	public List<D> runOnce(){
 		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
-		DRCounters.incSuffixClientNode(clientType, opName, client.getName(), node.getName());
+		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(client.getName());
+			Session session = getSession(node.getClientName());
 			int batchSize = HibernateNode.DEFAULT_ITERATE_BATCH_SIZE;
 			if(config!=null && config.getIterateBatchSize()!=null){
 				batchSize = config.getIterateBatchSize();
@@ -71,8 +69,8 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 				if(node.getFieldInfo().getFieldAware()){
 					String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), keyBatch);
 					batch = JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
-					DRCounters.incSuffixClientNode(ClientType.jdbc, opName, clientName, node.getName());
-					DRCounters.incSuffixClientNode(ClientType.jdbc, opName+" rows", clientName, node.getName(), 
+					DRCounters.incSuffixClientNode(ClientType.jdbc, opName, node.getClientName(), node.getName());
+					DRCounters.incSuffixClientNode(ClientType.jdbc, opName+" rows", node.getClientName(), node.getName(), 
 							CollectionTool.size(keys));
 				}else{
 					Criteria criteria = node.getCriteriaForConfig(config, session);
@@ -88,8 +86,8 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 					}
 					criteria.add(orSeparatedIds);
 					batch = criteria.list();
-					DRCounters.incSuffixClientNode(ClientType.hibernate, opName, clientName, node.getName());
-					DRCounters.incSuffixClientNode(ClientType.hibernate, opName+" rows", clientName, node.getName(), 
+					DRCounters.incSuffixClientNode(ClientType.hibernate, opName, node.getClientName(), node.getName());
+					DRCounters.incSuffixClientNode(ClientType.hibernate, opName+" rows", node.getClientName(), node.getName(), 
 							CollectionTool.size(keys));
 				}
 				Collections.sort(batch);//can sort here because batches were already sorted

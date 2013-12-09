@@ -5,7 +5,6 @@ import java.util.Collection;
 import org.hibernate.Session;
 
 import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
-import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
@@ -40,12 +39,12 @@ extends BaseParallelHibernateTxnApp<Long>{
 	}
 	
 	@Override
-	public Long runOncePerClient(Client client){
+	public Long runOnce(){
 		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
-		DRCounters.incSuffixClientNode(clientType, opName, client.getName(), node.getName());
+		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(client.getName());
+			Session session = getSession(node.getClientName());
 			String sql = SqlBuilder.deleteMulti(config, node.getTableName(), uniqueKeys);
 			long numModified = JdbcTool.update(session, sql.toString());
 			return numModified;
