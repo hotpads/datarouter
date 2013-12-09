@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate.node;
+package com.hotpads.datarouter.client.imp.hibernate.op;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,6 +13,7 @@ import org.hibernate.Session;
 import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
@@ -34,19 +35,19 @@ public class HibernatePutOp<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
 extends BaseParallelHibernateTxnApp<Void>{
-//	private static Logger logger = Logger.getLogger(HibernatePutOp.class);
 	
-	private static final String OP_NAME = "putMulti";
 	public static final PutMethod DEFAULT_PUT_METHOD = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
 	
 	private HibernateNode<PK,D,F> node;
+	private String opName;
 	private Collection<D> databeans;
 	private Config config;
 	
-	public HibernatePutOp(HibernateNode<PK,D,F> node, Collection<D> databeans, Config config) {
+	public HibernatePutOp(HibernateNode<PK,D,F> node, String opName, Collection<D> databeans, Config config) {
 		super(node.getDataRouterContext(), node.getClientNames(), getIsolation(config), 
 				shouldAutoCommit(databeans, config));
 		this.node = node;
+		this.opName = opName;
 		this.databeans = databeans;
 		this.config = config;
 	}
@@ -54,9 +55,9 @@ extends BaseParallelHibernateTxnApp<Void>{
 	@Override
 	public Void runOncePerClient(Client client){
 		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
-		DRCounters.incSuffixClientNode(clientType, OP_NAME, client.getName(), node.getName());
+		DRCounters.incSuffixClientNode(clientType, opName, client.getName(), node.getName());
 		try{
-			TraceContext.startSpan(node.getName()+" putMulti");
+			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(client.getName());
 			final String entityName = node.getPackagedTableName();
 			for(D databean : CollectionTool.nullSafe(databeans)){
