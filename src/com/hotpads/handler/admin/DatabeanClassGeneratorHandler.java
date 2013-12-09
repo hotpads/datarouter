@@ -38,11 +38,10 @@ import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.StringTool;
-import com.hotpads.util.core.java.ReflectionTool;
 
 public class DatabeanClassGeneratorHandler extends BaseHandler {
 
-	public static List<Class> FIELD_TYPES = ListTool.create();
+	public static List<Class<?>> FIELD_TYPES = ListTool.create();
 	static{
 		FIELD_TYPES.add(BooleanArrayField.class);
 		FIELD_TYPES.add(ByteArrayField.class);
@@ -70,12 +69,20 @@ public class DatabeanClassGeneratorHandler extends BaseHandler {
 		FIELD_TYPES.add(UInt8Field.class);
 		FIELD_TYPES.add(DateField.class);
 		FIELD_TYPES.add(StringField.class);
-		Collections.sort(FIELD_TYPES, new Comparator<Class>() {
+		Collections.sort(FIELD_TYPES, new Comparator<Class<?>>() {
 			@Override
-			public int compare(Class o1, Class o2) {
+			public int compare(Class<?> o1, Class<?> o2) {
 				return o1.getSimpleName().compareTo(o2.getSimpleName());
 			}
 		});
+	}
+	
+	public static Map<String, String> simpleClassNameToCanonicalClassName;
+	static{
+		simpleClassNameToCanonicalClassName = MapTool.createHashMap();
+		for(Class<?> field : FIELD_TYPES){
+			simpleClassNameToCanonicalClassName.put(field.getSimpleName(), field.getCanonicalName());
+		}
 	}
 	
 	public static final String PARAM_DATABEAN_NAME = "databeanName";
@@ -96,7 +103,7 @@ public class DatabeanClassGeneratorHandler extends BaseHandler {
 		Mav mav = new Mav("/jsp/admin/datarouter/generateJavaClasses.jsp");
 		StringBuilder sb = new StringBuilder();
 		StringBuilder sb1 = new StringBuilder("FIELD TYPES:\n------------\n");
-		for (Class clazz : FIELD_TYPES) {
+		for (Class<?> clazz : FIELD_TYPES) {
 			sb.append("<option value=\"" + clazz.getSimpleName() + "\">" + clazz.getSimpleName() + "</option>");
 			sb1.append(clazz.getSimpleName()+"\n");
 		}
@@ -112,7 +119,7 @@ public class DatabeanClassGeneratorHandler extends BaseHandler {
 			collectParams(databeanParams);
 			String javaCode = databeanParams.getJavaCode();
 			out.write(javaCode);
-			logger.warn(javaCode);
+			//logger.warn(javaCode);
 		} catch (Exception e) {
 			e.printStackTrace();
 			out.write("failed");
@@ -128,7 +135,7 @@ public class DatabeanClassGeneratorHandler extends BaseHandler {
 
 				g.setPackageName("com.hotpads.marius");
 				
-				for(Class c: DatabeanClassGeneratorHandler.FIELD_TYPES){
+				for(Class<?> c: DatabeanClassGeneratorHandler.FIELD_TYPES){
 					String genericType = null;
 					if(DatabeanClassGenerator.INTEGER_ENUM_FIELDS.contains(c)){
 						continue;
@@ -146,7 +153,7 @@ public class DatabeanClassGeneratorHandler extends BaseHandler {
 			g.generateCreateScript();
 			String demoScript  = g.getCreateScript();
 			out.write(demoScript);
-			logger.warn(demoScript);
+			//logger.warn(demoScript);
 		} catch (Exception e) {
 			e.printStackTrace();
 			out.write("failed");
@@ -320,14 +327,6 @@ public class DatabeanClassGeneratorHandler extends BaseHandler {
 			return sb.toString();
 		}
 		
-	}
-	
-	public static Map<String, String> simpleClassNameToCanonicalClassName;
-	static{
-		simpleClassNameToCanonicalClassName = MapTool.createHashMap();
-		for(Class<?> field : FIELD_TYPES){
-			simpleClassNameToCanonicalClassName.put(field.getSimpleName(), field.getCanonicalName());
-		}
 	}
 	
 	public static Class<?> getClassForName(String name){

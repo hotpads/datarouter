@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -29,14 +28,7 @@ import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
-import com.hotpads.datarouter.storage.field.imp.array.DoubleArrayField;
-import com.hotpads.datarouter.storage.field.imp.array.IntegerArrayField;
-import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
-import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
-import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
@@ -170,7 +162,7 @@ public class DatabeanClassGenerator {
 			int numGenericParams = superClass.getActualTypeArguments().length;
 			String primitiveClass = superClass.getActualTypeArguments()[numGenericParams - 1].toString().replace(
 					"class ", "");
-			System.out.println(type + "================" + primitiveClass);
+			//System.out.println(type + "================" + primitiveClass);
 
 			if (primitiveClass.contains("<")) {
 				// TODO it's fast and ugly. expected input: java.util.List<java.lang.Integer>

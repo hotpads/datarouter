@@ -2,7 +2,7 @@
 <html>
 <head>
 <%@ include file="/WEB-INF/jsp/generic/head.jsp"%>
-<link rel="stylesheet" href="${contextPath}/assets/css/hackweek6.css" />
+<link rel="stylesheet" href="${contextPath}/assets/css/databeanGenerator.css" />
 <title>Home</title>
 <script type="text/javascript" data-main="${contextPath}/js/core-analytics" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
@@ -72,7 +72,7 @@ function getDemoScript(){
 	$("#createScript").val("");
 	$.ajax({
 		type: 'GET',
-		url: '${contextPath}/datarouter/hackweek6?submitAction=getDemoScript', 
+		url: '${contextPath}/datarouter/databeanGenerator?submitAction=getDemoScript', 
 		success: function(data){
 			addDemoScriptCode(data);
 		}
@@ -83,7 +83,7 @@ function generateDataBean(){
 	var createScript = $("#createScript").val();
 	$.ajax({
 		type: 'POST',
-		url: '${contextPath}/datarouter/hackweek6', 
+		url: '${contextPath}/datarouter/databeanGenerator', 
 		data: 'script='+ createScript + '&submitAction=generateJavaCode',
 		success: function(data){
 			addGeneratedCode(data);
@@ -364,7 +364,7 @@ function endsWith(str1, str2){
 					<div class = divButton id="loadDataBean" onclick="loadDataBean();">Load in Databean Builder</div>
 					<div class = divButton id="generateDataBean" onclick="generateDataBean();">Generate</div>
 		</fieldset>
-		<form id="dataBeanForm" method="POST" action="${contextPath}/datarouter/hackweek6">
+		<form id="dataBeanForm" method="POST" action="${contextPath}/datarouter/databeanGenerator">
 			<fieldset> 
 				<legend style="color:#317eac; font-size:20px;">Databean Builder</legend>
 				<label>Java package:<input type="text" name="databeanPackage" value="${param.feed}"  required></label>

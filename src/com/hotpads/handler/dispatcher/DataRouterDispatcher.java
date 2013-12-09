@@ -17,7 +17,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 	public static final String URL_DATAROUTER_API = "/datarouterApi";
 	public static final String URL_DATAROUTER_VIEW_NODE_DATA = URL_DATAROUTER + "/viewNodeData";
 	public static final String URL_HTTP_CLIENT = URL_DATAROUTER_API + "/httpNode";
-	public static final String URL_DATABEAN_CLASS_GENERATOR = URL_DATAROUTER + "/hackweek6";
+	public static final String URL_DATABEAN_CLASS_GENERATOR = URL_DATAROUTER + "/databeanGenerator";
 
 
 	public DataRouterDispatcher(Injector injector, String servletContextPath, String urlPrefix){
