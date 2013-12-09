@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate.op;
+package com.hotpads.datarouter.client.imp.hibernate.op.write;
 
 import java.util.Collection;
 

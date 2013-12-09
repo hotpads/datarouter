@@ -2,12 +2,12 @@ package com.hotpads.datarouter.client.imp.hibernate.node;
 
 import java.util.Collection;
 
-import com.hotpads.datarouter.client.imp.hibernate.op.HibernateDeleteAllOp;
-import com.hotpads.datarouter.client.imp.hibernate.op.HibernateDeleteOp;
-import com.hotpads.datarouter.client.imp.hibernate.op.HibernateIndexDeleteOp;
-import com.hotpads.datarouter.client.imp.hibernate.op.HibernatePrefixDeleteOp;
-import com.hotpads.datarouter.client.imp.hibernate.op.HibernatePutOp;
-import com.hotpads.datarouter.client.imp.hibernate.op.HibernateUniqueIndexDeleteOp;
+import com.hotpads.datarouter.client.imp.hibernate.op.write.HibernateDeleteAllOp;
+import com.hotpads.datarouter.client.imp.hibernate.op.write.HibernateDeleteOp;
+import com.hotpads.datarouter.client.imp.hibernate.op.write.HibernateIndexDeleteOp;
+import com.hotpads.datarouter.client.imp.hibernate.op.write.HibernatePrefixDeleteOp;
+import com.hotpads.datarouter.client.imp.hibernate.op.write.HibernatePutOp;
+import com.hotpads.datarouter.client.imp.hibernate.op.write.HibernateUniqueIndexDeleteOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;

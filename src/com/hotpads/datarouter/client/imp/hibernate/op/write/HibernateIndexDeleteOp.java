@@ -1,6 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate.op;
-
-import java.util.Collection;
+package com.hotpads.datarouter.client.imp.hibernate.op.write;
 
 import org.hibernate.Session;
 
@@ -13,12 +11,13 @@ import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ListTool;
 
-public class HibernateDeleteOp<
+public class HibernateIndexDeleteOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
@@ -26,14 +25,14 @@ extends BaseParallelHibernateTxnApp<Long>{
 		
 	private HibernateNode<PK,D,F> node;
 	private String opName;
-	private Collection<PK> keys;
+	private Lookup<PK> lookup;
 	private Config config;
 	
-	public HibernateDeleteOp(HibernateNode<PK,D,F> node, String opName, Collection<PK> keys, Config config) {
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, shouldAutoCommit(keys));
+	public HibernateIndexDeleteOp(HibernateNode<PK,D,F> node, String opName, Lookup<PK> lookup, Config config){
+		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;
-		this.keys = keys;
+		this.lookup = lookup;
 		this.config = config;
 	}
 	
@@ -44,7 +43,7 @@ extends BaseParallelHibernateTxnApp<Long>{
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(client.getName());
-			String sql = SqlBuilder.deleteMulti(config, node.getTableName(), keys);
+			String sql = SqlBuilder.deleteMulti(config, node.getTableName(), ListTool.wrap(lookup));
 			long numModified = JdbcTool.update(session, sql.toString());
 			return numModified;
 		}finally{
@@ -52,8 +51,4 @@ extends BaseParallelHibernateTxnApp<Long>{
 		}
 	}
 	
-	
-	private static boolean shouldAutoCommit(Collection<?> keys){
-		return CollectionTool.size(keys) <= 1;
-	}
 }
