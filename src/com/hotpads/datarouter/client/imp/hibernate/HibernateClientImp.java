@@ -178,11 +178,11 @@ implements JdbcConnectionClient, TxnClient, HibernateClient{
 	/****************************** JdbcTxnClient methods *************************/
 
 	@Override
-	public ConnectionHandle beginTxn(Isolation isolation, boolean disableAutoCommit){
+	public ConnectionHandle beginTxn(Isolation isolation, boolean autoCommit){
 		try {
 			Connection connection = getExistingConnection();
 			//jdbc standard says that autoCommit=true by default on each new connection
-			if(disableAutoCommit){
+			if(!autoCommit){
 				connection.setAutoCommit(false);
 				logger.debug("setAutoCommit="+false+" on "+this.getExistingHandle());
 				if(connection.getTransactionIsolation() != isolation.getJdbcVal().intValue()){
