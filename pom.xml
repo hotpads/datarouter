@@ -82,8 +82,10 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<compilerId>eclipse</compilerId>s
+					<compilerId>eclipse</compilerId>
 					<optimize>true</optimize>
+					<source>1.7</source>
+					<target>1.7</target>
 					<phase>compile</phase>
 				</configuration>
 				<dependencies>
