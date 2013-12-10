@@ -47,7 +47,7 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 	
 	public HibernateGetWithPrefixesOp(HibernateReaderNode<PK,D,F> node, String opName, 
 			Collection<PK> prefixes, boolean wildcardLastField, Config config) {
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, false);
+		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;
 		this.prefixes = prefixes;

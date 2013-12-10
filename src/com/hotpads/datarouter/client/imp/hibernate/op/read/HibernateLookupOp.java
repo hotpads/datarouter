@@ -46,7 +46,7 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 	
 	public HibernateLookupOp(HibernateReaderNode<PK,D,F> node, String opName, 
 			Collection<? extends Lookup<PK>> lookups, boolean wildcardLastField, Config config) {
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, false);
+		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;
 		this.lookups = lookups;

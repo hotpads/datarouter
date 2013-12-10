@@ -44,7 +44,7 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 	
 	public HibernateLookupUniqueOp(HibernateReaderNode<PK,D,F> node, String opName, 
 			Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, false);
+		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;
 		this.uniqueKeys = uniqueKeys;
@@ -71,7 +71,8 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 				List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
 				List<D> batch;
 				if(node.getFieldInfo().getFieldAware()){
-					String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), uniqueKeys);
+					String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), 
+							uniqueKeys);
 					List<D> result = JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
 					return result;
 				}else{
