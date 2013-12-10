@@ -10,8 +10,6 @@ import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
@@ -23,12 +21,12 @@ import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstKeyO
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetKeysOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetOp;
+import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetRangeUncheckedOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetWithPrefixesOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateLookupOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateLookupUniqueOp;
 import com.hotpads.datarouter.client.imp.hibernate.scan.HibernateDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hibernate.scan.HibernatePrimaryKeyScanner;
-import com.hotpads.datarouter.client.imp.hibernate.util.CriteriaTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
@@ -51,7 +49,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
@@ -231,62 +228,10 @@ implements MapStorageReader<PK,D>,
 	//this gets ugly because we are dealing with PrimaryKeys/Databeans and Jdbc/Hibernate
 	public List<? extends FieldSet<?>> getRangeUnchecked(final Range<PK> range, final boolean keysOnly,
 			final Config config){
-		String spanNameSuffix = keysOnly ? "getKeysInRange" : "getRange";
-		TraceContext.startSpan(getName() + " " + spanNameSuffix);
-		try{
-			HibernateExecutor executor = HibernateExecutor.create("spanNameSuffix", getClient(), this, config, true);
-			@SuppressWarnings("unchecked") 
-			List<? extends FieldSet<?>> result = (List<? extends FieldSet<?>>)executor.executeTask(new HibernateTask(){
-				public Object run(Session session){
-					if(fieldInfo.getFieldAware()){
-						List<Field<?>> fieldsToSelect = keysOnly ? fieldInfo.getPrimaryKeyFields() 
-								: fieldInfo.getFields();
-						String sql = SqlBuilder.getInRange(config, tableName, fieldsToSelect, range, fieldInfo
-								.getPrimaryKeyFields());
-						List<? extends FieldSet<?>> result;
-						if(keysOnly){
-							result = JdbcTool.selectPrimaryKeys(session, fieldInfo, sql);
-						}else{
-							result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
-						}
-						return result;
-					}else{
-						Criteria criteria = getCriteriaForConfig(config, session);
-						if(keysOnly){
-							ProjectionList projectionList = Projections.projectionList();
-							for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
-								projectionList.add(Projections.property(field.getPrefixedName()));
-							}
-							criteria.setProjection(projectionList);
-						}
-						addPrimaryKeyOrderToCriteria(criteria);
-						CriteriaTool.addRangesToCriteria(criteria, range, fieldInfo);
-						if(keysOnly){
-							List<Object[]> rows = criteria.list();
-							List<PK> result = ListTool.createArrayList(CollectionTool.size(rows));
-							for(Object row : IterableTool.nullSafe(rows)){
-								// hibernate will return a plain Object if it's a single col PK
-								Object[] rowCells;
-								if(row instanceof Object[]){
-									rowCells = (Object[])row;
-								}else{
-									rowCells = new Object[]{row};
-								}
-								result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(fieldInfo
-										.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rowCells));
-							}
-							return result;
-						}else{
-							Object result = criteria.list();
-							return result;
-						}
-					}
-				}
-			});
-			return result;
-		}finally{
-			TraceContext.finishSpan();
-		}
+		String opName = keysOnly ? "getKeysInRange" : "getRange";
+		HibernateGetRangeUncheckedOp<PK,D,F> op = new HibernateGetRangeUncheckedOp<PK,D,F>(this, opName, range, keysOnly,
+				config);
+		return op.call();
 	}
 
 	
