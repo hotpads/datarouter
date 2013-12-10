@@ -7,28 +7,24 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
-import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateCountOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetAllOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstKeyOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetKeysOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetOp;
+import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetPrefixedRangeOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetRangeUncheckedOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetWithPrefixesOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateLookupOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateLookupUniqueOp;
 import com.hotpads.datarouter.client.imp.hibernate.scan.HibernateDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hibernate.scan.HibernatePrimaryKeyScanner;
-import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
-import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
@@ -47,7 +43,6 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Range;
@@ -235,61 +230,14 @@ implements MapStorageReader<PK,D>,
 	}
 
 	
-	
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getPrefixedRange(
 			final PK prefix, final boolean wildcardLastField,
 			final PK start, final boolean startInclusive, 
 			final Config config) {
-
-		TraceContext.startSpan(getName()+" getPrefixedRange");
-		HibernateExecutor executor = HibernateExecutor.create("getPrefixedRange", getClient(), this, config, true);
-		Object result = executor.executeTask(
-			new HibernateTask() {
-				public Object run(Session session) {
-					if(fieldInfo.getFieldAware()){
-						String sql = SqlBuilder.getWithPrefixInRange(config, tableName, fieldInfo.getFields(), prefix,
-								wildcardLastField, start, startInclusive, null, false, 
-								fieldInfo.getPrimaryKeyFields());
-						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
-						return result;
-					}else{
-						Criteria criteria = getCriteriaForConfig(config, session);
-						addPrimaryKeyOrderToCriteria(criteria);
-						Conjunction prefixConjunction = getPrefixConjunction(true, prefix, wildcardLastField);
-						if(prefixConjunction != null){
-							criteria.add(prefixConjunction);
-						}		
-						if(start != null && CollectionTool.notEmpty(start.getFields())){
-							List<Field<?>> startFields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), start.getFields());
-							int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
-							Disjunction d = Restrictions.disjunction();
-							for(int i=numNonNullStartFields; i > 0; --i){
-								Conjunction c = Restrictions.conjunction();
-								for(int j=0; j < i; ++j){
-									Field<?> startField = startFields.get(j);
-									if(j < (i-1)){
-										c.add(Restrictions.eq(startField.getPrefixedName(), startField.getValue()));
-									}else{
-										if(startInclusive && i==numNonNullStartFields){
-											c.add(Restrictions.ge(startField.getPrefixedName(), startField.getValue()));
-										}else{
-											c.add(Restrictions.gt(startField.getPrefixedName(), startField.getValue()));
-										}
-									}
-								}
-								d.add(c);
-							}
-							criteria.add(d);
-						}
-						Object result = criteria.list();
-						return result;
-					}
-				}
-			});
-		TraceContext.finishSpan();
-		return (List<D>)result;
+		HibernateGetPrefixedRangeOp<PK,D,F> op = new HibernateGetPrefixedRangeOp<PK,D,F>(this, "getPrefixedRange", 
+				prefix, wildcardLastField, start, startInclusive, config);
+		return op.call();
 	}
 	
 	@Override
@@ -316,6 +264,7 @@ implements MapStorageReader<PK,D>,
 	
 	
 	/********************************* hibernate helpers ***********************************************/
+	
 	//shouldn't need this for innodb.  not sure if it hurts or not though.  see Handler_read_rnd_next (innodb may sort anyway?)
 	public void addPrimaryKeyOrderToCriteria(Criteria criteria){
 		for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
