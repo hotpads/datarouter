@@ -21,6 +21,7 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateCountOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetAllOp;
+import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstKeyOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetKeysOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetOp;
@@ -186,45 +187,8 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public PK getFirstKey(final Config config) {
-		TraceContext.startSpan(getName()+" getFirstKey");
-		final String entityName = this.getPackagedTableName();
-		HibernateExecutor executor = HibernateExecutor.create("getFirstKey", getClient(), this, config, true);
-		Object result = executor.executeTask(
-			new HibernateTask() {
-				public Object run(Session session) {
-					if(fieldInfo.getFieldAware()){
-						Config nullSafeConfig = Config.nullSafe(config);
-						nullSafeConfig.setLimit(1);
-						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getPrimaryKeyFields(), null, 
-								fieldInfo.getPrimaryKeyFields());
-						List<PK> result = JdbcTool.selectPrimaryKeys(session, fieldInfo, sql);
-						return CollectionTool.getFirst(result);
-					}else{
-						Criteria criteria = session.createCriteria(entityName);
-						ProjectionList projectionList = Projections.projectionList();
-						int numFields = 0;
-						for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
-							projectionList.add(Projections.property(field.getPrefixedName()));
-							++numFields;
-						}
-						criteria.setProjection(projectionList);
-						addPrimaryKeyOrderToCriteria(criteria);
-						criteria.setMaxResults(1);
-						Object rows = criteria.uniqueResult();
-						if(rows==null){ return null; }
-						if(numFields==1){
-							rows = new Object[]{rows};
-						}
-						PK pk = (PK)FieldSetTool.fieldSetFromHibernateResultUsingReflection(
-								fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rows);
-						return pk;
-					}
-				}
-			});
-		TraceContext.finishSpan();
-		@SuppressWarnings("unchecked")
-		PK pk = (PK)result;
-		return pk;
+		HibernateGetFirstKeyOp<PK,D,F> op = new HibernateGetFirstKeyOp<PK,D,F>(this, "getFirstKey", config);
+		return op.call();
 	}
 
 	@Override
@@ -440,7 +404,7 @@ implements MapStorageReader<PK,D>,
 	
 	/********************************* hibernate helpers ***********************************************/
 	//shouldn't need this for innodb.  not sure if it hurts or not though.  see Handler_read_rnd_next (innodb may sort anyway?)
-	protected void addPrimaryKeyOrderToCriteria(Criteria criteria){
+	public void addPrimaryKeyOrderToCriteria(Criteria criteria){
 		for(Field<?> field : fieldInfo.getPrefixedPrimaryKeyFields()){
 			criteria.addOrder(Order.asc(field.getPrefixedName()));
 		}
