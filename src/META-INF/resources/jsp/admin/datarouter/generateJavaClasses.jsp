@@ -1,8 +1,15 @@
-<%@ include file="/WEB-INF/prelude.jspf"%>
+<%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
 <html>
 <head>
-<%@ include file="/WEB-INF/jsp/generic/head.jsp"%>
-<link rel="stylesheet" href="${contextPath}/assets/css/databeanGenerator.css" />
+<%@ include file="/jsp/generic/head.jsp" %>
+<link href="${contextPath}/js/google-code-prettify/prettify.css" rel="stylesheet">
+<link href="${contextPath}/css/datatables/TableTools.css" rel="stylesheet">
+<link href="${contextPath}/css/bootstrap/bootstrap.css" rel="stylesheet" />
+<link href="${contextPath}/css/bootstrap/bootstrap-responsive.css" rel="stylesheet">
+<link rel="stylesheet" href="${contextPath}/css/datatables/datatables-bootstrap2.css" />
+<link rel="stylesheet" href="${contextPath}/css/common.css" />
+<link rel="stylesheet" href="${contextPath}/assets/css/analytics.css" />
+<link rel="stylesheet" href="${contextPath}/css/other/databeanGenerator.css" />
 <title>Home</title>
 <script type="text/javascript" data-main="${contextPath}/js/core-analytics" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
