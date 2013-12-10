@@ -31,19 +31,22 @@
 			<h4>${stats.key}</h4>
 			<table
 				class="table table-striped table-bordered table-hover table-condensed">
-				<thead>
-					<tr>
-						<c:forEach items="${stats.value}" var="stat">
-							<th>${stat.key}</th>
-						</c:forEach>
-					</tr>
-				</thead>
+				<!-- 				<thead> -->
+				<!-- 					<tr> -->
+				<%-- 						<c:forEach items="${stats.value}" var="stat"> --%>
+
+				<%-- 						</c:forEach> --%>
+				<!-- 					</tr> -->
+				<!-- 				</thead> -->
 				<tbody>
-					<tr>
-						<c:forEach items="${stats.value}" var="stat">
+
+					<c:forEach items="${stats.value}" var="stat">
+						<tr>
+							<th>${stat.key}</th>
 							<td>${stat.value}</td>
-						</c:forEach>
-					</tr>
+						</tr>
+
+					</c:forEach>
 				</tbody>
 			</table>
 
