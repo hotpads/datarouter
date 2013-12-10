@@ -21,6 +21,7 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateTask;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateCountOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetAllOp;
+import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetKeysOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateLookupOp;
@@ -178,30 +179,8 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public D getFirst(final Config config) {
-		TraceContext.startSpan(getName()+" getFirst");
-		HibernateExecutor executor = HibernateExecutor.create("getFirst", getClient(), this, config, true);
-		Object result = executor.executeTask(
-			new HibernateTask() {
-				public Object run(Session session) {
-					if(fieldInfo.getFieldAware()){
-						Config nullSafeConfig = Config.nullSafe(config);
-						nullSafeConfig.setLimit(1);
-						String sql = SqlBuilder.getAll(config, tableName, fieldInfo.getFields(), null, fieldInfo
-								.getPrimaryKeyFields());
-						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
-						return CollectionTool.getFirst(result);
-					}else{
-						Criteria criteria = getCriteriaForConfig(config, session);
-						criteria.setMaxResults(1);
-						Object result = criteria.uniqueResult();
-						return result;
-					}
-				}
-			});
-		TraceContext.finishSpan();
-		@SuppressWarnings("unchecked")
-		D databean = (D)result;
-		return databean;
+		HibernateGetFirstOp<PK,D,F> op = new HibernateGetFirstOp<PK,D,F>(this, "getFirst", config);
+		return op.call();
 	}
 
 	
