@@ -1,8 +1,6 @@
 package com.hotpads.datarouter.client.imp.hibernate.node;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -25,6 +23,7 @@ import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstKeyO
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetKeysOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetOp;
+import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetWithPrefixesOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateLookupOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateLookupUniqueOp;
 import com.hotpads.datarouter.client.imp.hibernate.scan.HibernateDatabeanScanner;
@@ -196,43 +195,12 @@ implements MapStorageReader<PK,D>,
 		return getWithPrefixes(ListTool.wrap(prefix),wildcardLastField,config);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
 			final Config config) {
-		TraceContext.startSpan(getName()+" getWithPrefixes");
-		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
-		HibernateExecutor executor = HibernateExecutor.create("getWithPrefixes", getClient(), this, config, true);
-		Object result = executor.executeTask(
-			new HibernateTask() {
-				public Object run(Session session) {
-					if(fieldInfo.getFieldAware()){
-						String sql = SqlBuilder.getWithPrefixes(config, tableName, fieldInfo.getFields(), prefixes, 
-								wildcardLastField, fieldInfo.getPrimaryKeyFields());
-						List<D> result = JdbcTool.selectDatabeans(session, fieldInfo, sql);
-						return result;
-					}else{
-						Criteria criteria = getCriteriaForConfig(config, session);
-						Disjunction prefixesDisjunction = Restrictions.disjunction();
-						if(prefixesDisjunction != null){
-							for(Key<PK> prefix : prefixes){
-								Conjunction prefixConjunction = getPrefixConjunction(true, prefix, wildcardLastField);
-								if(prefixConjunction == null){
-									throw new IllegalArgumentException("cannot do a null prefix match.  Use getAll() " +
-											"instead");
-								}
-								prefixesDisjunction.add(prefixConjunction);
-							}
-							criteria.add(prefixesDisjunction);
-						}
-						List<D> result = criteria.list();
-						Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
-						return result;
-					}
-				}
-			});
-		TraceContext.finishSpan();
-		return (List<D>)result;
+		HibernateGetWithPrefixesOp<PK,D,F> op = new HibernateGetWithPrefixesOp<PK,D,F>(this, "getWithPrefixes", prefixes, 
+				wildcardLastField, config);
+		return op.call();
 	}
 
 	@Deprecated
