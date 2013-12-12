@@ -20,14 +20,16 @@
 		<sourceDirectory>${project.basedir}/src/</sourceDirectory>
 		<outputDirectory>${project.basedir}/target/classes/</outputDirectory>
 		<plugins>
-			<!-- Should set-up the context path of the webApp. It seems it does not 
-				work -->
 			<plugin>
-				<groupId>org.apache.tomcat.maven</groupId>
-				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.0</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.9</version>
 				<configuration>
-					<path>/datarouter</path>
+					<buildOutputDirectory>${project.basedir}/target/classes
+					</buildOutputDirectory>
+					<additionalProjectFacets>
+						<jst.java>1.7</jst.java>
+					</additionalProjectFacets>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -45,7 +47,8 @@
 							<outputDirectory>${project.build.directory}/classes/META-INF/resources/</outputDirectory>
 							<resources>
 								<resource>
-									<directory>${project.basedir}/src/META-INF/resources/</directory>
+									<directory>${project.basedir}/src/META-INF/resources/
+									</directory>
 									<filtering>false</filtering>
 									<includes>
 										<include>**/*</include>
