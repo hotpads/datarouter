@@ -8,12 +8,10 @@
 			<div class="nav-collapse collapse">
 				<ul class="nav" role="navigation">
 					<li><a href="${contextPath}" title="Go to ${contextPath}">${contextPath}</a></li>
-					<li><a href="${contextPath}/datarouter"
-						title="See the strackTraces of this server">Datarouter</a></li>
-					<li><a href="${contextPath}/datarouter/stackTraces"
-						title="See the strackTraces of this server">StackTraces</a></li>
-					<li><a href="${contextPath}/datarouter/routers"
-						title="List all the routers">List Routers</a></li>
+					<li><a href="${contextPath}/datarouter" title="See the strackTraces of this server">Datarouter</a></li>
+					<li><a href="${contextPath}/datarouter/stackTraces" title="See the strackTraces of this server">StackTraces</a></li>
+					<li><a href="${contextPath}/datarouter/routers" title="List all the routers">List Routers</a></li>
+					<li><a href="${contextPath}/datarouter/databeanGenerator" title="Databean generator">Databean Generator</a></li>
 				</ul>
 			</div>
 		</div>
