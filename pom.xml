@@ -84,13 +84,17 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
-				<configuration>
-					<compilerId>eclipse</compilerId>
-					<optimize>true</optimize>
-					<source>1.7</source>
-					<target>1.7</target>
-					<phase>compile</phase>
-				</configuration>
+				<executions>
+					<execution>
+						<configuration>
+							<compilerId>eclipse</compilerId>
+							<optimize>true</optimize>
+							<source>1.7</source>
+							<target>1.7</target>
+							<phase>compile</phase>
+						</configuration>
+					</execution>
+				</executions>
 				<dependencies>
 					<dependency>
 						<groupId>org.codehaus.plexus</groupId>
