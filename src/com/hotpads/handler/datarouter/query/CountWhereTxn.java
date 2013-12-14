@@ -36,7 +36,7 @@ extends BaseParallelHibernateTxnApp<Long>{
 			sql += " where " + where;
 		}
 		Session session = getSession(client.getName());
-		return JdbcTool.count(session, sql);
+		return JdbcTool.count(session.connection(), sql);
 	}
 	
 }

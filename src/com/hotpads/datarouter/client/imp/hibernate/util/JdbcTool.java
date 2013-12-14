@@ -147,9 +147,9 @@ public class JdbcTool {
 		}
 	}
 	
-	public static Long count(Session session, String sql) {
+	public static Long count(Connection connection, String sql) {
 		try {
-			PreparedStatement ps = session.connection().prepareStatement(sql);
+			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
 			rs.next();

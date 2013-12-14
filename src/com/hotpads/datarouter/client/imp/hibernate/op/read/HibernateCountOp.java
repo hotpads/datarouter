@@ -50,7 +50,7 @@ extends BaseParallelHibernateTxnApp<Long>{
 			if(node.getFieldInfo().getFieldAware()){
 				String sql = SqlBuilder.getCount(config, node.getTableName(), node.getFieldInfo().getFields(), 
 						ListTool.wrap(lookup));
-				return JdbcTool.count(session, sql);
+				return JdbcTool.count(session.connection(), sql);
 			}else{
 				Criteria criteria = node.getCriteriaForConfig(config, session);
 				criteria.setProjection(Projections.rowCount());
