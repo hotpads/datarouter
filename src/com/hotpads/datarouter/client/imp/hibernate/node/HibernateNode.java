@@ -17,6 +17,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
 public class HibernateNode<
@@ -60,6 +61,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	
 	@Override
 	public void putMulti(Collection<D> databeans, final Config config) {
+		if(CollectionTool.isEmpty(databeans)){ return; }//avoid starting txn
 		HibernatePutOp<PK,D,F> op = new HibernatePutOp<PK,D,F>(this, "putMulti", databeans, config);
 		op.call();
 	}
@@ -78,12 +80,13 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 
 	@Override
 	public void deleteMulti(final Collection<PK> keys, final Config config){
+		if(CollectionTool.isEmpty(keys)){ return; }//avoid starting txn
 		HibernateDeleteOp<PK,D,F> op = new HibernateDeleteOp<PK,D,F>(this, "deleteMulti", keys, config);
 		op.call();
 	}
 
 	@Override
-	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config) {
+	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
 		HibernateUniqueIndexDeleteOp<PK,D,F> op = new HibernateUniqueIndexDeleteOp<PK,D,F>(this, "deleteUnique", 
 				ListTool.wrap(uniqueKey), config);
 		op.call();
@@ -91,6 +94,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	
 	@Override
 	public void deleteMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
+		if(CollectionTool.isEmpty(uniqueKeys)){ return; }//avoid starting txn
 		HibernateUniqueIndexDeleteOp<PK,D,F> op = new HibernateUniqueIndexDeleteOp<PK,D,F>(this, "deleteMultiUnique", uniqueKeys, 
 				config);
 		op.call();

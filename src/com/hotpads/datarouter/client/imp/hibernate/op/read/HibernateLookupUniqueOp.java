@@ -53,7 +53,6 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		if(node.getFieldInfo().getFieldAware()){ throw new NotImplementedException(); }
 		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
 		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
 		try{
