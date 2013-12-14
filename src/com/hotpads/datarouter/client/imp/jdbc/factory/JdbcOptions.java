@@ -1,15 +1,15 @@
-package com.hotpads.datarouter.client.imp.hibernate.factory;
+package com.hotpads.datarouter.client.imp.jdbc.factory;
 
 import java.util.Properties;
 
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
-public class HibernateOptions extends TypedProperties{
+public class JdbcOptions extends TypedProperties{
 	
 	protected String clientPrefix;
 
-	public HibernateOptions(Iterable<Properties> multiProperties, String clientName){
+	public JdbcOptions(Iterable<Properties> multiProperties, String clientName){
 		super(ListTool.createArrayList(multiProperties));
 		this.clientPrefix = "client."+clientName+".";
 	}
