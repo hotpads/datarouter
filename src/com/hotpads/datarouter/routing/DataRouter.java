@@ -5,12 +5,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 
-import com.hotpads.datarouter.app.DataRouterOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.op.TxnOp;
+import com.hotpads.datarouter.op.aware.DataRouterContextAware;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -31,7 +32,7 @@ public interface DataRouter {
 
 	/************************************** app wrappers **************************************/
 
-	<T> T run(DataRouterOp<T> callable);
+	<T> T run(TxnOp<T> parallelTxnOp);
 
 	/************************************** caching ***********************************/
 

@@ -1,12 +1,12 @@
-package com.hotpads.datarouter.app.base;
+package com.hotpads.datarouter.op;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.app.DataRouterOp;
+import com.hotpads.datarouter.op.aware.DataRouterContextAware;
 import com.hotpads.datarouter.routing.DataRouterContext;
 
 public abstract class BaseDataRouterOp<T>
-implements DataRouterOp<T>{
+implements DataRouterContextAware<T>{
 
 	private Logger logger = Logger.getLogger(getClass());
 	private DataRouterContext drContext;

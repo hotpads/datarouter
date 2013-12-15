@@ -1,27 +1,28 @@
-package com.hotpads.datarouter.app.client.parallel.base;
+package com.hotpads.datarouter.op.executor.impl;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.concurrent.Callable;
 
 import javax.persistence.RollbackException;
 
-import com.hotpads.datarouter.app.parallel.ParallelSessionOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.HibernateClient;
-import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.op.TxnOp;
+import com.hotpads.datarouter.op.executor.SessionExecutor;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 
-public abstract class BaseParallelSessionOp<T>
-extends BaseParallelTxnOp<T>
-implements ParallelSessionOp<T>{
+public class SessionExecutorImpl<T>
+extends BaseTxnExecutor<T>
+implements SessionExecutor<T>, Callable<T>{
 		
-	public BaseParallelSessionOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
-			boolean autoCommit) {
-		super(drContext, clientNames, isolation, autoCommit);
+	private TxnOp<T> parallelTxnOp;
+	
+	public SessionExecutorImpl(TxnOp<T> parallelTxnOp) {
+		super(parallelTxnOp.getDataRouterContext(), parallelTxnOp);
+		this.parallelTxnOp = parallelTxnOp;
 	}
 
 
@@ -39,9 +40,9 @@ implements ParallelSessionOp<T>{
 			openSessions();
 			
 			//begin user code
-			onceResult = runOnce();
+			onceResult = parallelTxnOp.runOnce();
 			for(Client client : CollectionTool.nullSafe(clients)){  //TODO threading
-				T clientResult = runOncePerClient(client);
+				T clientResult = parallelTxnOp.runOncePerClient(client);
 				clientResults.add(clientResult);
 			}
 			//end user code
@@ -74,7 +75,7 @@ implements ParallelSessionOp<T>{
 				getLogger().warn(ExceptionTool.getStackTraceAsString(e));
 			}
 		}
-		T mergedResult = mergeResults(onceResult, clientResults);
+		T mergedResult = parallelTxnOp.mergeResults(onceResult, clientResults);
 		return mergedResult;
 	}
 	

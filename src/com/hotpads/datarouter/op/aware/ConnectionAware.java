@@ -1,10 +1,8 @@
-package com.hotpads.datarouter.app;
+package com.hotpads.datarouter.op.aware;
 
 import java.sql.Connection;
 
-
-
-public interface ConnectionOp<T>{
+public interface ConnectionAware<T>{
 	
 	Connection getConnection(String clientName);
 	

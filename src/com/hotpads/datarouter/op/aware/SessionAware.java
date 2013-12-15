@@ -1,10 +1,10 @@
-package com.hotpads.datarouter.app;
+package com.hotpads.datarouter.op.aware;
 
 import org.hibernate.Session;
 
 
 
-public interface SessionOp<T>{
+public interface SessionAware<T>{
 	
 	Session getSession(String clientName);
 	

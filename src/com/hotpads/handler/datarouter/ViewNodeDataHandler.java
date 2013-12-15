@@ -135,7 +135,7 @@ extends BaseHandler{
 		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
 		String where = params.optional(PARAM_where, null);
 		List<String> clientNames = node.getClientNames();
-		Long count = new CountWhereTxn(drContext, clientNames, tableName, where).call();
+		Long count = node.getRouter().run(new CountWhereTxn(drContext, clientNames, tableName, where));
 		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(count)+" rows in "+tableName+" ("+node.getName()+")");
 		return mav;
 	}
@@ -189,7 +189,8 @@ extends BaseHandler{
 		//assume all table names are the same (they are at the time of writing this)
 		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
 		String where = RequestTool.getAndPut(request, PARAM_where, null, mav);
-		List<D> databeans = new GetWhereTxn<PK,D,F,N>((N)node, tableName, startAfterKey, where, config).call();
+		List<D> databeans = node.getRouter().run(new GetWhereTxn<PK,D,F,N>((N)node, tableName, startAfterKey, where, 
+				config));
 		addDatabeansToMav(mav, databeans);
 		return mav;
 	}

@@ -15,6 +15,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
+//TODO move
 public class ResultMergeTool {
 
 	public static Integer sum(Integer a, Collection<Integer> c){

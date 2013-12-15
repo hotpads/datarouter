@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.app.client.parallel.jdbc.impl;
+package com.hotpads.datarouter.client.imp.hibernate.op.custom;
 
 import java.util.Collection;
 import java.util.List;

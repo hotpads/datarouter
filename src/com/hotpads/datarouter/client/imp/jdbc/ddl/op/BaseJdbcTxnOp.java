@@ -1,22 +1,23 @@
-package com.hotpads.datarouter.app.client.parallel.jdbc.base;
+package com.hotpads.datarouter.client.imp.jdbc.ddl.op;
 
 import java.sql.Connection;
 import java.util.List;
 
-import com.hotpads.datarouter.app.ConnectionOp;
-import com.hotpads.datarouter.app.client.parallel.base.BaseParallelTxnOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;
 import com.hotpads.datarouter.config.Isolation;
+import com.hotpads.datarouter.op.BaseDataRouterOp;
+import com.hotpads.datarouter.op.aware.ConnectionAware;
 import com.hotpads.datarouter.routing.DataRouterContext;
 
-public abstract class BaseParallelJdbcTxnOp<T>
-extends BaseParallelTxnOp<T> 
-implements ConnectionOp<T> {
-
-	public BaseParallelJdbcTxnOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+//TODO move to jdbc module
+public abstract class BaseJdbcTxnOp<T>
+extends BaseDataRouterOp<T> 
+implements ConnectionAware<T> {
+	
+	public BaseJdbcTxnOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
 			boolean autoCommit) {
-		super(drContext, clientNames, isolation, autoCommit);
+		super(drContext);
 	}
 
 	@Override

@@ -1,9 +1,9 @@
-package com.hotpads.datarouter.app.parallel;
+package com.hotpads.datarouter.op.executor;
 
 import com.hotpads.datarouter.config.Isolation;
 
 
-public interface ParallelTxnOp<T>{
+public interface TxnExecutor<T>{
 
 	Isolation getIsolation();
 	void beginTxns();

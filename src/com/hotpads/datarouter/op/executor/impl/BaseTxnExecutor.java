@@ -1,35 +1,30 @@
-package com.hotpads.datarouter.app.client.parallel.base;
+package com.hotpads.datarouter.op.executor.impl;
 
-import java.util.List;
-
-import com.hotpads.datarouter.app.parallel.ParallelTxnOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.TxnClient;
-import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.op.TxnOp;
+import com.hotpads.datarouter.op.executor.TxnExecutor;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 
-public abstract class BaseParallelTxnOp<T>
-extends BaseParallelClientOp<T>
-implements ParallelTxnOp<T>{
+public abstract class BaseTxnExecutor<T>
+extends BaseClientExecutor<T>
+implements TxnExecutor<T>{
 
-	private Isolation isolation = Config.DEFAULT_ISOLATION;
-	private boolean autoCommit;
+	private TxnOp<T> parallelTxnOp;
 	
-	public BaseParallelTxnOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
-			boolean autoCommit) {
-		super(drContext, clientNames);
-		this.isolation = isolation;
-		this.autoCommit = autoCommit;
+	public BaseTxnExecutor(DataRouterContext drContext, TxnOp<T> parallelTxnOp) {
+		super(drContext, parallelTxnOp);
+		this.parallelTxnOp = parallelTxnOp;
 	}
 	
 	@Override
 	public Isolation getIsolation() {
-		return isolation;
+		return parallelTxnOp.getIsolation();
 	}
 	
 	/********************* txn code **********************************/
@@ -41,7 +36,7 @@ implements ParallelTxnOp<T>{
 			TxnClient txnClient = (TxnClient)client;
 			ConnectionHandle connectionHandle = txnClient.getExistingHandle();
 			if(connectionHandle.isOutermostHandle()){
-				txnClient.beginTxn(this.getIsolation(), autoCommit);
+				txnClient.beginTxn(this.getIsolation(), parallelTxnOp.isAutoCommit());
 			}
 //			logger.debug("began txn for "+txnClient.getExistingHandle());
 		}

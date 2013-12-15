@@ -1,21 +1,17 @@
-package com.hotpads.datarouter.app.parallel;
+package com.hotpads.datarouter.op;
 
 import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.op.aware.DataRouterContextAware;
 
-public interface ParallelClientOp<T>{
+public interface ClientOp<T>
+extends DataRouterContextAware<T>{
 
-	List<Client> getClients();
-	
-	void reserveConnections();
-	void releaseConnections();
-	
-
+	List<String> getClientNames();	
 	T runOnce();
 	T runOncePerClient(Client client);
-	
 	T mergeResults(T fromOnce, Collection<T> fromEachClient);
 	
 }
