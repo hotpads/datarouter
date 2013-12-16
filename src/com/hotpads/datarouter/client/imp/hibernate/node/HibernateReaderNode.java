@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hibernate.node;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -97,7 +98,7 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public boolean exists(PK key, Config config) {
-		return this.get(key, config) != null;
+		return get(key, config) != null;
 	}
 
 	@Override
@@ -147,6 +148,7 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
+		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
 		HibernateLookupUniqueOp<PK,D,F> op = new HibernateLookupUniqueOp<PK,D,F>(this, "lookupMultiUnique", uniqueKeys,
 				config);
 		return new SessionExecutorImpl<List<D>>(op).call();
@@ -163,6 +165,7 @@ implements MapStorageReader<PK,D>,
 	//TODO rename lookupMulti
 	@Override
 	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
+		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
 		HibernateLookupOp<PK,D,F> op = new HibernateLookupOp<PK,D,F>(this, "lookupMulti", lookups, false, config);
 		return new SessionExecutorImpl<List<D>>(op).call();
 	}
@@ -215,7 +218,6 @@ implements MapStorageReader<PK,D>,
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config config) {
-		
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
 		return (List<D>)getRangeUnchecked(range, false, config);
 	}
@@ -246,7 +248,6 @@ implements MapStorageReader<PK,D>,
 			PK start, boolean startInclusive, 
 			PK end, boolean endInclusive, 
 			Config config){
-
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
 		SortedScanner<PK> scanner = new HibernatePrimaryKeyScanner<PK,D>(this, fieldInfo, range, config);
 		return new SortedScannerIterable<PK>(scanner);
@@ -257,7 +258,6 @@ implements MapStorageReader<PK,D>,
 			PK start, boolean startInclusive, 
 			PK end, boolean endInclusive, 
 			Config config){
-
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
 		SortedScanner<D> scanner = new HibernateDatabeanScanner<PK,D>(this, fieldInfo, range, config);
 		return new SortedScannerIterable<D>(scanner);

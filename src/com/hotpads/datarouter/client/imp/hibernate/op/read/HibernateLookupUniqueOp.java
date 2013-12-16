@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.hibernate.op.read;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -17,7 +18,6 @@ import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -29,7 +29,6 @@ import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 public class HibernateLookupUniqueOp<
 		PK extends PrimaryKey<PK>,
@@ -53,6 +52,7 @@ extends BaseParallelHibernateTxnApp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
+		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
 		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
 		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
 		try{
