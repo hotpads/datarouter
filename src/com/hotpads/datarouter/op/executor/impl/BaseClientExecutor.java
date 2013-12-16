@@ -2,10 +2,11 @@ package com.hotpads.datarouter.op.executor.impl;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.ConnectionClient;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.op.BaseDataRouterOp;
 import com.hotpads.datarouter.op.ClientOp;
 import com.hotpads.datarouter.op.executor.ClientExecutor;
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -13,26 +14,37 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 
 public abstract class BaseClientExecutor<T>
-extends BaseDataRouterOp<T>
 implements ClientExecutor{
-	
+	private Logger logger = Logger.getLogger(getClass());
+
+	private DataRouterContext drContext;
 	private ClientOp<T> parallelClientOp;
 	
 	public BaseClientExecutor(DataRouterContext drContext, ClientOp<T> parallelClientOp) {
-		super(drContext);
+		this.drContext = drContext;
 		this.parallelClientOp = parallelClientOp;
 	}
 	
 
 	@Override
 	public List<Client> getClients(){
-		return getDataRouterContext().getClientPool().getClients(parallelClientOp.getClientNames());
+		return drContext.getClientPool().getClients(parallelClientOp.getClientNames());
+	}
+	
+	
+	/******************* get /*************************************/
+
+	public Logger getLogger(){
+		return logger;
+	}
+
+	public DataRouterContext getDrContext(){
+		return drContext;
 	}
 
 	public ClientOp<T> getParallelClientOp(){
 		return parallelClientOp;
 	}
-	
 
 	/********************* txn code **********************************/
 
