@@ -21,7 +21,7 @@ public class DRTestConstants{
 	static{
 		ALL_CLIENT_TYPES.add(ClientType.memory);
 		ALL_CLIENT_TYPES.add(ClientType.hibernate);
-//		ALL_CLIENT_TYPES.add(ClientType.hbase);
+		ALL_CLIENT_TYPES.add(ClientType.hbase);
 		ALL_CLIENT_TYPES.add(ClientType.memcached);
 		for(ClientType clientType : ALL_CLIENT_TYPES){
 			CLIENT_TYPE_OBJECT_ARRAYS.add(new Object[]{clientType});
