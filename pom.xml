@@ -7,15 +7,13 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-<!-- 	<groupId>com.hotpads</groupId> -->
+	<!-- <groupId>com.hotpads</groupId> -->
 	<artifactId>datarouter</artifactId>
-<!-- 	<version>0.0.1-SNAPSHOT</version> -->
+	<!-- <version>0.0.1-SNAPSHOT</version> -->
 	<packaging>jar</packaging>
 
 	<name>datarouter</name>
 	<url>http://maven.apache.org</url>
-
-
 
 	<build>
 		<finalName>datarouter</finalName>
@@ -70,47 +68,11 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<id>unit-test-with-ant</id>
-						<phase>test</phase>
-						<configuration>
-							<skip>${skipTests}</skip>
-							<target>
-								<property name="test_classpath" refid="maven.test.classpath" />
-								<taskdef name="junit"
-									classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-									<classpath path="${test_classpath}" />
-								</taskdef>
-								<junit haltonerror="true" haltonfailure="true"
-									printsummary="true" includeantruntime="false">
-									<classpath>
-										<pathelement path="${test_classpath}" />
-									</classpath>
-									<batchtest todir="${project.build.directory}/test-results">
-										<fileset dir="${project.build.directory}/classes"
-											includes="**/*Tests.class" excludes="**/*IntegrationTests.class" />
-									</batchtest>
-								</junit>
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
+				<inherited>true</inherited>
 			</plugin>
 		</plugins>
 	</build>
-	<profiles>
-		<profile>
-			<id>development</id>
-			<properties>
-				<skipTests>true</skipTests>
-			</properties>
-		</profile>
-	</profiles>
+
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
