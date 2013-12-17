@@ -7,9 +7,9 @@ import org.hibernate.Session;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 
-import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
+import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.CriteriaTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
@@ -31,7 +31,7 @@ public class HibernateGetRangeUncheckedOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
-extends BaseParallelHibernateTxnApp<List<? extends FieldSet<?>>>{
+extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 		
 	private HibernateReaderNode<PK,D,F> node;
 	private String opName;

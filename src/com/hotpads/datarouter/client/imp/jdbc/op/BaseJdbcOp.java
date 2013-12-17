@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl.op;
+package com.hotpads.datarouter.client.imp.jdbc.op;
 
 import java.sql.Connection;
 import java.util.Collection;
@@ -13,8 +13,7 @@ import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.aware.ConnectionAware;
 import com.hotpads.datarouter.routing.DataRouterContext;
 
-//TODO move to jdbc module
-public abstract class BaseJdbcTxnOp<T>
+public abstract class BaseJdbcOp<T>
 implements TxnOp<T>, ConnectionAware<T> {
 	private Logger logger = Logger.getLogger(getClass());
 
@@ -23,7 +22,7 @@ implements TxnOp<T>, ConnectionAware<T> {
 	private Isolation isolation;
 	private boolean autoCommit;
 	
-	public BaseJdbcTxnOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+	public BaseJdbcOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
 			boolean autoCommit) {
 		this.drContext = drContext;
 		this.clientNames = clientNames;

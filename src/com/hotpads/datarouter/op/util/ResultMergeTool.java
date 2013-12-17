@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.app.util;
+package com.hotpads.datarouter.op.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,7 +15,6 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
-//TODO move
 public class ResultMergeTool {
 
 	public static Integer sum(Integer a, Collection<Integer> c){

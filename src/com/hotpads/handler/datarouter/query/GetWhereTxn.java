@@ -5,13 +5,13 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
-import com.hotpads.datarouter.app.util.ResultMergeTool;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
+import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -22,7 +22,7 @@ public class GetWhereTxn<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends HibernateReaderNode<PK,D,F>>
-extends BaseParallelHibernateTxnApp<List<D>>{
+extends BaseHibernateOp<List<D>>{
 
 	private N node;
 	private String tableName;

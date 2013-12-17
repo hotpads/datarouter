@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl.op.read;
+package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
 import java.sql.Connection;
 
@@ -6,7 +6,7 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.op.BaseJdbcTxnOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;

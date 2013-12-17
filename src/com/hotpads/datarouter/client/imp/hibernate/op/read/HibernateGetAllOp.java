@@ -5,9 +5,9 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 
-import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
+import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
@@ -21,7 +21,7 @@ public class HibernateGetAllOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
-extends BaseParallelHibernateTxnApp<List<D>>{
+extends BaseHibernateOp<List<D>>{
 		
 	private HibernateReaderNode<PK,D,F> node;
 	private String opName;

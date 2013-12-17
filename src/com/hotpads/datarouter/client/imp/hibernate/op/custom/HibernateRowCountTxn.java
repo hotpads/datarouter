@@ -9,12 +9,12 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 
-import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
-import com.hotpads.datarouter.app.util.ResultMergeTool;
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
+import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.DataRouterContext;
 
-public class HibernateRowCountTxn extends BaseParallelHibernateTxnApp<Integer>{
+public class HibernateRowCountTxn extends BaseHibernateOp<Integer>{
 
 	private Class<?> bean;
 	private String colToCount;
