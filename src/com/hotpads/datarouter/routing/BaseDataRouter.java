@@ -4,13 +4,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 
-import com.hotpads.datarouter.app.DataRouterOp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.NodeOps;
+import com.hotpads.datarouter.op.TxnOp;
+import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.KeyTool;
@@ -19,7 +20,8 @@ import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
-public abstract class BaseDataRouter implements DataRouter {
+public abstract class BaseDataRouter
+implements DataRouter{
 
 	public static final String
 		MODE_development = "development",
@@ -80,11 +82,11 @@ public abstract class BaseDataRouter implements DataRouter {
 	/************************************** app wrappers **************************************/
 
 	@Override
-	public <T> T run(DataRouterOp<T> callable){
-		TraceContext.startSpan(callable.getClass().getSimpleName());
+	public <T> T run(TxnOp<T> parallelTxnOp){
+		TraceContext.startSpan(parallelTxnOp.getClass().getSimpleName());
 		T t;
 		try{
-			t = callable.call();
+			t = new SessionExecutorImpl<T>(parallelTxnOp).call();
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}

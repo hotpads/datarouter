@@ -7,10 +7,10 @@ import java.util.List;
 
 import org.junit.Assert;
 
-import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
+import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.config.PutMethod;
@@ -20,7 +20,7 @@ import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.util.core.CollectionTool;
 
-public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
+public class NestedTxn extends BaseHibernateOp<Void>{
 	
 	private DataRouterContext drContext;
 	private List<String> clientNames;
@@ -28,9 +28,9 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 	private BasicClientTestRouter router;
 	private boolean flush;
 	
-	public NestedTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+	public NestedTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation, boolean autoCommit,
 			BasicClientTestRouter router, boolean flush){
-		super(drContext, clientNames, isolation);
+		super(drContext, clientNames, isolation, autoCommit);
 		this.drContext = drContext;
 		this.clientNames = clientNames;
 		this.isolation = isolation;
@@ -59,7 +59,7 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 			}
 		}
 		
-		router.run(new InnerTxn(drContext, clientNames, isolation, router, true, handle));
+		router.run(new InnerTxn(drContext, clientNames, isolation, false, router, true, handle));
 		
 		TxnBean outer2 = new TxnBean(outer.getId());
 		router.txnBeanHibernate().put(outer2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
@@ -67,14 +67,14 @@ public class NestedTxn extends BaseParallelHibernateTxnApp<Void>{
 	}
 	
 	
-	public static class InnerTxn extends BaseParallelHibernateTxnApp<Void>{
+	public static class InnerTxn extends BaseHibernateOp<Void>{
 		private BasicClientTestRouter router;
 		private boolean flush;
 		private ConnectionHandle outerHandle;
 
-		public InnerTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+		public InnerTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation, boolean autoCommit,
 				BasicClientTestRouter router, boolean flush, ConnectionHandle outerHandle){
-			super(drContext, clientNames, isolation);
+			super(drContext, clientNames, isolation, autoCommit);
 			this.router = router;
 			this.flush = flush;
 			this.outerHandle = outerHandle;
