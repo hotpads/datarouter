@@ -120,8 +120,8 @@ public class TxnIntegrationTests {
 		resetTable();	
 		int numExceptions = 0;
 		try{
-			router.run(new NestedTxn(drContext, ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0), Isolation.readCommitted,
-					router, false));
+			router.run(new NestedTxn(drContext, ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0), 
+					Isolation.readCommitted, false, router, false));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}

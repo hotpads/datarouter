@@ -7,7 +7,7 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateOptions;
+import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
 import com.hotpads.util.core.ExceptionTool;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -18,8 +18,8 @@ public class JdbcConnectionPool{
 
 	private String name;
 	private ComboPooledDataSource pool;
-	protected HibernateOptions defaultOptions;
-	protected HibernateOptions options;
+	protected JdbcOptions defaultOptions;
+	protected JdbcOptions options;
 	private boolean writable = false;
 	
 
@@ -28,8 +28,8 @@ public class JdbcConnectionPool{
 		poolDefault = "default";
 	
 	public JdbcConnectionPool(String name, Iterable<Properties> multiProperties, Boolean writable){
-		this.defaultOptions = new HibernateOptions(multiProperties, poolDefault);
-		this.options = new HibernateOptions(multiProperties, name);
+		this.defaultOptions = new JdbcOptions(multiProperties, poolDefault);
+		this.options = new JdbcOptions(multiProperties, name);
 		this.writable = writable;
 		createFromScratch(name);
 	}
