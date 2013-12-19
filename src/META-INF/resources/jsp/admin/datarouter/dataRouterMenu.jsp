@@ -38,7 +38,7 @@
 		<c:forEach items="${router.allClients}" var="client">
 			<tr >
 				<td style="width: 50%">
-					<a href="routers/${client.type}?submitAction=inspectClient&routerName=${router.name}&clientName=${client.name}">${client.name}</a>
+					<a href="datarouter/routers/${client.type}?submitAction=inspectClient&routerName=${router.name}&clientName=${client.name}">${client.name}</a>
 				</td>
 				<td style="width: 50%">
 					${client.type}
