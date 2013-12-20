@@ -2,9 +2,9 @@ package com.hotpads.profile.count.databean;
 
 import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Id;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -17,6 +17,8 @@ import com.hotpads.profile.count.databean.key.DashboardEntryKey;
 @SuppressWarnings("serial")
 public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntry>{
 
+	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	
 	/************************ fields ********************************/
 	
 	@Id
@@ -48,13 +50,13 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-				new StringEnumField<DashboardEntryType>(DashboardEntryType.class, F.type, type, 255),
-				new StringField(F.entry, entry, 255),
-				new StringField(F.entryArchive, entryArchive, 255),
+				new StringEnumField<DashboardEntryType>(DashboardEntryType.class, F.type, type, DEFAULT_STRING_LENGTH),
+				new StringField(F.entry, entry, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
+				new StringField(F.entryArchive, entryArchive, DEFAULT_STRING_LENGTH),
 				new IntegerField(F.entryOrder, entryOrder),
-				new StringField(F.serverName, serverName, 255),
-				new StringField(F.webAppName, webAppName, 255),
-				new StringField(F.frequency, getFrequency(), 255),
+				new StringField(F.serverName, serverName, DEFAULT_STRING_LENGTH),
+				new StringField(F.webAppName, webAppName, DEFAULT_STRING_LENGTH),
+				new StringField(F.frequency, getFrequency(), DEFAULT_STRING_LENGTH),
 				new IntegerField(F.rollPeriod, rollPeriod));
 			
 	}
@@ -77,7 +79,8 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 		this.key = new DashboardEntryKey();
 	}
 
-	public DashboardEntry(DashboardEntryKey key, DashboardEntryType type, String entry, String entryArchive,String serverName, String webAppName,  String frequency, Integer entryOrder){
+	public DashboardEntry(DashboardEntryKey key, DashboardEntryType type, String entry, String entryArchive,
+			String serverName, String webAppName, String frequency, Integer entryOrder){
 		//TODO CHECK SERVER NAME AND WEB APP EXIST
 		this.key = key;
 		this.type = type;
@@ -154,44 +157,26 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 		this.key = key;
 	}
 
-	/**
-	 * @return the server
-	 */
 	public String getServerName(){
 		return serverName;
 	}
 
-	/**
-	 * @param server the server to set
-	 */
 	public void setServerName(String serverName){
 		this.serverName = serverName;
 	}
 
-	/**
-	 * @return the webApp
-	 */
 	public String getWebAppName(){
 		return webAppName;
 	}
 
-	/**
-	 * @param webApp the webApp to set
-	 */
 	public void setWebApp(String webAppName){	
 		this.webAppName = webAppName;
 	}
 
-	/**
-	 * @return the periodMs
-	 */
 	public int getPeriodMs(){
 		return getPeriodFromEntryArchive(entryArchive);
 	}
 
-	/**
-	 * @param periodMs the periodMs to set
-	 */
 	public void setPeriodMs(int periodMs){
 		this.setEntryArchive("databean "+periodMs);
 		this.periodMs = periodMs;
@@ -203,16 +188,10 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 		return new Integer(period);
 	}
 
-	/**databean
-	 * @return the frequency
-	 */
 	public String getFrequency(){
 		return frequency;
 	}
 
-	/**
-	 * @param frequency the frequency to set
-	 */
 	public void setFrequency(String frequency){
 		this.frequency = frequency;
 	}
