@@ -30,24 +30,12 @@ implements BalancerStrategy{
 	
 	public ConsistentHashBalancer initMappings(DRHServerList servers, DRHRegionList regions){
 		//set up the ring of servers
-		SortedMap<Long,ServerName> consistentHashRing = MapTool.createTreeMap();
-		for(DRHServerInfo server : servers.getServers()){
-			for(int i = 0; i < BUCKETS_PER_NODE; ++i){
-				long bucketPosition = HashMethods.longMD5DJBHash(server.getServerName().getHostAndPort() + i);
-				consistentHashRing.put(bucketPosition, server.getServerName());
-			}
-		}
+		SortedMap<Long,ServerName> consistentHashRing = buildServerHashRing(servers, BUCKETS_PER_NODE);
 		
 		//calculate each region's position in the ring and store it
 		for(DRHRegionInfo<?> drhRegionInfo : regions.getRegions()){
 			byte[] consistentHashInput = drhRegionInfo.getRegion().getEncodedNameAsBytes();
-			long hash = HashMethods.longMD5DJBHash(consistentHashInput);
-			if(consistentHashRing.isEmpty()){ continue; }
-			if(!consistentHashRing.containsKey(hash)){
-				SortedMap<Long,ServerName> tail = consistentHashRing.tailMap(hash);
-				hash = tail.isEmpty() ? consistentHashRing.firstKey() : tail.firstKey();
-			}
-			ServerName serverName = consistentHashRing.get(hash);
+			ServerName serverName = calcServerNameForItem(consistentHashRing, consistentHashInput);
 			serverByRegion.put(drhRegionInfo, serverName);//now region->server mapping is known
 		}
 		
@@ -63,6 +51,28 @@ implements BalancerStrategy{
 	@Override
 	public ServerName getServerName(DRHRegionInfo<?> drhRegionInfo) {
 		return serverByRegion.get(drhRegionInfo);
+	}
+	
+	public static SortedMap<Long,ServerName> buildServerHashRing(DRHServerList servers, int numBucketsPerNode){
+		SortedMap<Long,ServerName> consistentHashRing = MapTool.createTreeMap();
+		for(DRHServerInfo server : servers.getServers()){
+			for(int i = 0; i < numBucketsPerNode; ++i){
+				long bucketPosition = HashMethods.longMD5DJBHash(server.getServerName().getHostAndPort() + i);
+				consistentHashRing.put(bucketPosition, server.getServerName());
+			}
+		}
+		return consistentHashRing;
+	}
+	
+	public static ServerName calcServerNameForItem(SortedMap<Long,ServerName> consistentHashRing, 
+			byte[] consistentHashInput){
+		long hash = HashMethods.longMD5DJBHash(consistentHashInput);
+		if(!consistentHashRing.containsKey(hash)){
+			SortedMap<Long,ServerName> tail = consistentHashRing.tailMap(hash);
+			hash = tail.isEmpty() ? consistentHashRing.firstKey() : tail.firstKey();
+		}
+		ServerName serverName = consistentHashRing.get(hash);
+		return serverName;
 	}
 	
 }

@@ -4,27 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.apache.hadoop.hbase.ServerName;
-import org.apache.hadoop.hbase.util.Bytes;
 
+import com.hotpads.datarouter.client.imp.hbase.balancer.BalanceLeveler;
 import com.hotpads.datarouter.client.imp.hbase.balancer.BalancerStrategy;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
-import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.java.ReflectionTool;
 
 /*
- * assign each partition in full to a server, and hard-balance the number of regions
+ * assign each partition in full to a server, and hard-level the number of regions
  */
 public class ScatteringPrefixBalancer
 implements BalancerStrategy{
@@ -43,15 +38,6 @@ implements BalancerStrategy{
 	
 	@Override
 	public ScatteringPrefixBalancer initMappings(DRHServerList drhServerList, DRHRegionList drhRegionList){
-		//collect the different prefix byte arrays
-//		List<List<Field<?>>> prefixes = scatteringPrefix.getAllPossibleScatteringPrefixes();
-//		List<byte[]> prefixByteArrays = ListTool.createArrayList();
-//		for(List<Field<?>> prefix : prefixes){
-//			byte[] prefixBytes = FieldSetTool.getConcatenatedValueBytes(prefix, false, false);
-//			prefixByteArrays.add(prefixBytes);
-//		}
-		
-
 		//group the regions by prefix
 		Map<ByteRange,List<DRHRegionInfo<?>>> regionsByPrefix = MapTool.createTreeMap();
 		for(DRHRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
@@ -63,14 +49,29 @@ implements BalancerStrategy{
 			regionsByPrefix.get(regionPrefixBytes).add(drhRegionInfo);
 		}
 		
-		//TODO balance them somehow!!!  THIS CLASS IS INCOMPLETE
+		//set up the ring of servers
+		SortedMap<Long,ServerName> consistentHashRing = ConsistentHashBalancer.buildServerHashRing(drhServerList, 
+				ConsistentHashBalancer.BUCKETS_PER_NODE);
+		
+		//calculate each prefix's position in the ring and store it
+		SortedMap<ByteRange,ServerName> serverByPrefix = MapTool.createTreeMap();
+		for(ByteRange prefix : regionsByPrefix.keySet()){
+			byte[] consistentHashInput = prefix.copyToNewArray();
+			ServerName serverName = ConsistentHashBalancer.calcServerNameForItem(consistentHashRing, consistentHashInput);
+			serverByPrefix.put(prefix, serverName);//now region->server mapping is known
+		}
+		
+		//level out any imbalances from the hashing
+		BalanceLeveler<ByteRange,ServerName> leveler = new BalanceLeveler<ByteRange,ServerName>(
+				serverByPrefix);
+		serverByPrefix = leveler.getBalancedDestinationByItem();
 
-		List<ServerName> serverNames = drhServerList.getServerNamesSorted();
-		int regionIndex=0;
-		for(DRHRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
-			int serverIndex = regionIndex % CollectionTool.size(serverNames);
-			serverByRegion.put(drhRegionInfo, serverNames.get(serverIndex));
-			++regionIndex;
+		//map individual regions to servers based on their prefix
+		for(Map.Entry<ByteRange,ServerName> entry : serverByPrefix.entrySet()){
+			List<DRHRegionInfo<?>> regionsInPrefix = regionsByPrefix.get(entry.getKey());
+			for(DRHRegionInfo<?> region : regionsInPrefix){
+				serverByRegion.put(region, entry.getValue());
+			}
 		}
 		
 		return this;
@@ -81,9 +82,5 @@ implements BalancerStrategy{
 	public ServerName getServerName(DRHRegionInfo<?> drhRegionInfo) {
 		return serverByRegion.get(drhRegionInfo);
 	}
-	
-//	public void setScatteringPrefixClass(Class<? extends ScatteringPrefix> scatteringPrefixClass){
-//		this.scatteringPrefixClass = scatteringPrefixClass;
-//	}
 	
 }
