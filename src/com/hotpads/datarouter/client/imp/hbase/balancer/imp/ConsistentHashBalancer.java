@@ -22,25 +22,23 @@ implements BalancerStrategy{
 	
 	/******************* constructor ***************************/
 	
-	public ConsistentHashBalancer(){//public no-arg for reflection
+	public ConsistentHashBalancer(){//no-arg for reflection
+		this.serverByRegion = MapTool.createTreeMap();
 	}
 	
 	
 	public ConsistentHashBalancer initMappings(DRHServerList servers, DRHRegionList regions){
-		
 		//set up the ring of servers
 		SortedMap<Long,ServerName> consistentHashRing = MapTool.createTreeMap();
 		for(DRHServerInfo server : servers.getServers()){
 			for(int i = 0; i < BUCKETS_PER_NODE; ++i){
-				long bucketPosition = HashMethods.longMD5DJBHash(
-						server.getServerName().getHostAndPort()+i);
+				long bucketPosition = HashMethods.longMD5DJBHash(server.getServerName().getHostAndPort() + i);
 				consistentHashRing.put(bucketPosition, server.getServerName());
 			}
 		}
 
 		
 		//calculate each region's position in the ring and store it
-		this.serverByRegion = MapTool.createTreeMap();
 		for(DRHRegionInfo<?> drhRegionInfo : regions.getRegions()){
 			byte[] consistentHashInput = drhRegionInfo.getRegion().getEncodedNameAsBytes();
 			long hash = HashMethods.longMD5DJBHash(consistentHashInput);
@@ -50,7 +48,7 @@ implements BalancerStrategy{
 				hash = tail.isEmpty() ? consistentHashRing.firstKey() : tail.firstKey();
 			}
 			ServerName serverName = consistentHashRing.get(hash);
-			this.serverByRegion.put(drhRegionInfo, serverName);//now region->server mapping is known
+			serverByRegion.put(drhRegionInfo, serverName);//now region->server mapping is known
 		}
 		
 		return this;
