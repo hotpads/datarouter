@@ -4,6 +4,7 @@ import java.util.SortedMap;
 
 import org.apache.hadoop.hbase.ServerName;
 
+import com.hotpads.datarouter.client.imp.hbase.balancer.BalanceLeveler;
 import com.hotpads.datarouter.client.imp.hbase.balancer.BalancerStrategy;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
@@ -36,7 +37,6 @@ implements BalancerStrategy{
 				consistentHashRing.put(bucketPosition, server.getServerName());
 			}
 		}
-
 		
 		//calculate each region's position in the ring and store it
 		for(DRHRegionInfo<?> drhRegionInfo : regions.getRegions()){
@@ -50,6 +50,11 @@ implements BalancerStrategy{
 			ServerName serverName = consistentHashRing.get(hash);
 			serverByRegion.put(drhRegionInfo, serverName);//now region->server mapping is known
 		}
+		
+		//level out any imbalances from the hashing
+		BalanceLeveler<DRHRegionInfo<?>,ServerName> leveler = new BalanceLeveler<DRHRegionInfo<?>,ServerName>(
+				serverByRegion);
+		serverByRegion = leveler.getBalancedDestinationByItem();
 		
 		return this;
 	}

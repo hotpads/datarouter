@@ -4,80 +4,78 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.hadoop.hbase.ServerName;
-
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
 
-public class BalanceLeveler{
+/*
+ * I: item
+ * D: destination
+ */
+public class BalanceLeveler<I,D>{
 
-	private SortedMap<DRHRegionInfo<?>,ServerName> originalServerByRegion;
-	private SortedMap<DRHRegionInfo<?>,ServerName> workingServerByRegion;
-	
-	private long minForServer;
-	private long maxForServer;
-	private Map<ServerName,Long> workingCountByServer;
+	private SortedMap<I,D> destinationByItem;
+	private long minAtDestination;
+	private long maxAtDestination;
+	private Map<D,Long> countByDestination;
 	
 	
 	/************** construct ***************************/
 	
-	public BalanceLeveler(SortedMap<DRHRegionInfo<?>,ServerName> serverByRegion){
-		this.originalServerByRegion = serverByRegion;
-		this.workingServerByRegion = new TreeMap<DRHRegionInfo<?>,ServerName>(serverByRegion);
-		updateWorkingCountByServer();
+	public BalanceLeveler(SortedMap<I,D> unleveledDestinationByItem){
+		this.destinationByItem = new TreeMap<I,D>(unleveledDestinationByItem);
+		updateCountByDestination();
 	}
 	
 	
 	/************* public methods ***********************/
 	
-	public SortedMap<DRHRegionInfo<?>,ServerName> getBalancedServerByRegion(){
+	public SortedMap<I,D> getBalancedDestinationByItem(){
 		while( ! isBalanced()){
-			ServerName mostLoadedServer = getMostLoadedServer();
-			DRHRegionInfo<?> firstRegionOnServer = getFirstRegionOnServer(mostLoadedServer);
-			ServerName leastLoadedServer = getLeastLoadedServer();
-			//overwrite the region's serverName, thus moving it
-			workingServerByRegion.put(firstRegionOnServer, leastLoadedServer);
-			updateWorkingCountByServer();
+			D mostLoadedDestination = getMostLoadedDestination();
+			I firstItemAtDestination = getFirstItemAtDestinatioin(mostLoadedDestination);
+			D leastLoadedDestination = getLeastLoadedDestination();
+			//overwrite the region's D, thus moving it
+			destinationByItem.put(firstItemAtDestination, leastLoadedDestination);
+			updateCountByDestination();
 		}
-		return workingServerByRegion;
+		return destinationByItem;
 	}
 	
 	
 	/*************** private methods **************************/
 	
-	private void updateWorkingCountByServer(){
-		for(Map.Entry<DRHRegionInfo<?>,ServerName> entry : originalServerByRegion.entrySet()){
-			MapTool.increment(workingCountByServer, entry.getValue());
+	private void updateCountByDestination(){
+		for(Map.Entry<I,D> entry : destinationByItem.entrySet()){
+			MapTool.increment(countByDestination, entry.getValue());
 		}
-		this.minForServer = ComparableTool.getFirst(workingCountByServer.values());
-		this.maxForServer = ComparableTool.getLast(workingCountByServer.values());
+		this.minAtDestination = ComparableTool.getFirst(countByDestination.values());
+		this.maxAtDestination = ComparableTool.getLast(countByDestination.values());
 	}
 	
 	private boolean isBalanced(){
-		return maxForServer - minForServer <= 1;
+		return maxAtDestination - minAtDestination <= 1;
 	}
 	
-	private ServerName getMostLoadedServer(){
-		for(Map.Entry<ServerName,Long> entry : workingCountByServer.entrySet()){
-			if(entry.getValue() == maxForServer){ return entry.getKey(); }
+	private D getMostLoadedDestination(){
+		for(Map.Entry<D,Long> entry : countByDestination.entrySet()){
+			if(entry.getValue() == maxAtDestination){ return entry.getKey(); }
 		}
 		throw new IllegalArgumentException("max values out of sync");
 	}
 	
-	private ServerName getLeastLoadedServer(){
-		for(Map.Entry<ServerName,Long> entry : workingCountByServer.entrySet()){
-			if(entry.getValue() == minForServer){ return entry.getKey(); }
+	private D getLeastLoadedDestination(){
+		for(Map.Entry<D,Long> entry : countByDestination.entrySet()){
+			if(entry.getValue() == minAtDestination){ return entry.getKey(); }
 		}
 		throw new IllegalArgumentException("min values out of sync");
 	}
 	
 	
-	private DRHRegionInfo<?> getFirstRegionOnServer(ServerName serverName){
-		for(Map.Entry<DRHRegionInfo<?>,ServerName> entry : workingServerByRegion.entrySet()){
-			if(ObjectTool.equals(serverName, entry.getValue())){ return entry.getKey(); }
+	private I getFirstItemAtDestinatioin(D destination){
+		for(Map.Entry<I,D> entry : destinationByItem.entrySet()){
+			if(ObjectTool.equals(destination, entry.getValue())){ return entry.getKey(); }
 		}
-		throw new IllegalArgumentException("value didn't exist in map");
+		throw new IllegalArgumentException("item didn't exist in map");
 	}
 }
