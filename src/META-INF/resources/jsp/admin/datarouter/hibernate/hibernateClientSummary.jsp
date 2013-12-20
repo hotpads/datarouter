@@ -13,7 +13,7 @@
 </head>
 <body>
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
-<body>
+
 	<div class="container">
 		<h2>Datarouter
 		</h2>
@@ -45,8 +45,8 @@
 					<td>${node['class'].simpleName}</td>
 					<td><a href="${contextPath}/datarouter/viewNodeData?submitAction=browseData&routerName=${param.routerName}
 					&nodeName=${node.name}"> data </a></td>
-					<td><a href="/admin/dataRouter/export.htm?submitAction=exportToS3&routerName=${param.routerName}
-					&nodeName=${node.name}"> export to S3 </a></td>
+<%-- 					<td><a href="/admin/dataRouter/export.htm?submitAction=exportToS3&routerName=${param.routerName} --%>
+<%-- 					&nodeName=${node.name}"> export to S3 </a></td> --%>
 				</tr>
 			</c:forEach>
 		</table>
