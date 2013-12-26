@@ -91,7 +91,7 @@ body {
 }
 
 .distingish-host-project{
-	color: rgb(255, 143, 0); !important;
+	color: #FFA300; !important;
 	font-style:italic
 }
 /* StackTraces */
