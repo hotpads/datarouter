@@ -33,6 +33,7 @@ public class HibernateHandler extends BaseHandler {
 			sessionFactoryStats.add(token.split("="));
 		}
 		mav.put("sessionFactoryStats", sessionFactoryStats);
+		mav.put("nodes", paramsRouter.getContext().getNodes().getPhysicalNodesForClient(paramsRouter.getClientName()));
 		return mav;
 	}
 
