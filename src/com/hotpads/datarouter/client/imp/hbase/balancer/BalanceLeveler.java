@@ -53,9 +53,11 @@ public class BalanceLeveler<I,D>{
 		this.maxAtDestination = ComparableTool.getLast(countByDestination.values());
 	}
 	
+	
 	private boolean isBalanced(){
 		return maxAtDestination - minAtDestination <= 1;
 	}
+	
 	
 	private D getMostLoadedDestination(){
 		for(Map.Entry<D,Long> entry : countByDestination.entrySet()){
@@ -63,6 +65,7 @@ public class BalanceLeveler<I,D>{
 		}
 		throw new IllegalArgumentException("max values out of sync");
 	}
+	
 	
 	private D getLeastLoadedDestination(){
 		for(Map.Entry<D,Long> entry : countByDestination.entrySet()){
