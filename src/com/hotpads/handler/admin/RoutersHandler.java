@@ -34,11 +34,6 @@ public class RoutersHandler extends BaseHandler {
 	public static final String PARAM_nodeName = "nodeName";
 	public static final String PARAM_tableName = "tableName";
 	public static final String PARAM_columnName = "columnName";
-	public static final String PARAM_destinationTableName = "destinationTableName";
-	public static final String PARAM_PREFIX_encodedRegionName_ = "encodedRegionName_";
-	public static final String PARAM_destinationServerName = "destinationServerName";
-	public static final String PARAM_maxFileSizeMb = "maxFileSizeMb";
-	public static final String PARAM_memstoreFlushSizeMb = "memstoreFlushSizeMb";
 
 	/******************* fields ********************/
 

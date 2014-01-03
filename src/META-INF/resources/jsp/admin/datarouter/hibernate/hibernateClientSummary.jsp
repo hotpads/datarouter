@@ -40,10 +40,10 @@
 		<table class="table table-striped table-bordered table-hover table-condensed">
 			<c:forEach items="${nodes}" var="node">
 				<tr>
-					<td><a style="color: black;" href="${contextPath}/datarouter/viewNodeData?submitAction=browseData&routerName=${param.routerName}
+					<td><a style="color: black;" href="${contextPath}/datarouter/nodes/browseData?submitAction=browseData&routerName=${param.routerName}
 					&nodeName=${node.name}"> ${node.name} </a></td>
 					<td>${node['class'].simpleName}</td>
-					<td><a href="${contextPath}/datarouter/viewNodeData?submitAction=browseData&routerName=${param.routerName}
+					<td><a href="${contextPath}/datarouter/nodes/browseData?submitAction=browseData&routerName=${param.routerName}
 					&nodeName=${node.name}"> data </a></td>
 <%-- 					<td><a href="/admin/dataRouter/export.htm?submitAction=exportToS3&routerName=${param.routerName} --%>
 <%-- 					&nodeName=${node.name}"> export to S3 </a></td> --%>
