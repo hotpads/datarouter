@@ -9,15 +9,19 @@ import com.hotpads.datarouter.node.op.NodeOps;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.handler.mav.Mav;
 
 public interface MapStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
 	
+	@Deprecated//just check if get!=null
 	boolean exists(PK key, Config config);
 	
 	D get(PK key, Config config);
 	List<D> getMulti(Collection<PK> keys, Config config);
+	
+	@Deprecated//replace with iterator
 	List<D> getAll(Config config);
 	
 	List<PK> getKeys(final Collection<PK> keys, final Config config);
@@ -32,5 +36,13 @@ extends NodeOps<PK,D>
 	public interface PhysicalMapStorageReaderNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	extends PhysicalNode<PK,D>, MapStorageReaderNode<PK,D>
 	{
+	}
+	
+	public interface MapStorageReaderHttpNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
+		Mav exists();
+		Mav get();
+		Mav getMulti();
+		Mav getAll();
+		Mav getKeys();
 	}
 }

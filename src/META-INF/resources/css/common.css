@@ -90,6 +90,10 @@ body {
 	height: 50px !important;
 }
 
+.distingish-host-project{
+	color: #FFA300; !important;
+	font-style:italic
+}
 /* StackTraces */
 .thread-description {
 	border: solid 1px #A3A3A3;

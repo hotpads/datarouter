@@ -12,6 +12,7 @@ import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ComparableTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.map.SQuad;
 
@@ -25,63 +26,28 @@ public class SQuadStringField extends BasePrimitiveField<SQuad>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** Comparable ********************************/
+	
+	//SQuads sort in native Long order, so don't need a comparator
+	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
 	public int compareTo(Field<SQuad> other){
 		if(other==null){ return -1; }
 		return ComparableTool.nullFirstCompareTo(value, other.getValue());
-	};
-	
-	@Override
-	public void fromString(String s){
-		if(s==null){ value = null; }
-		value = new SQuad(s);
-	}
-	
-	@Override
-	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.VARCHAR, SQuad.MAX_LEVEL, nullable, false);
-	}
-	
-	@Override
-	public String getValueString(){
-		return value==null ? null : value.getMicrosoftStyleString();
 	}
 
 	@Override
-	public String getSqlEscaped(){
-		return "'"+value.getMicrosoftStyleString()+"'";
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.getMicrosoftStyleString();
 	}
 	
-	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
-		try{
-			if(value==null){
-				ps.setNull(parameterIndex, Types.VARCHAR);
-			}else{
-				ps.setString(parameterIndex, value.getMicrosoftStyleString());
-			}
-		}catch(SQLException e){
-			throw new DataAccessException(e);
-		}
-	}
 
-	@Override
-	public SQuad parseJdbcValueButDoNotSet(Object obj){
-		return obj==null ? null : new SQuad((String)obj);
-	}
-	
-	@Override
-	public SQuad fromJdbcResultSetButDoNotSet(ResultSet rs){
-		try{
-			String s = rs.getString(columnName);
-			if(s==null){ return null; }
-			return new SQuad(s);
-		}catch(SQLException e){
-			throw new DataAccessException(e);
-		}
-	}
-	
-	/*********************** override *******************************/
+	/*********************** ByteEncodedField ***********************/
 	
 	public static final byte SEPARATOR = 0;
 	
@@ -142,6 +108,59 @@ public class SQuadStringField extends BasePrimitiveField<SQuad>{
 			lengthWithoutSeparator = 0;
 		String string = StringByteTool.fromUtf8Bytes(bytes, offset, lengthWithoutSeparator);
 		return new SQuad(string);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
+	@Override
+	public SQuad parseStringEncodedValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		return new SQuad(s);
+	}
+	
+	@Override
+	public SqlColumn getSqlColumnDefinition(){
+		return new SqlColumn(columnName, MySqlColumnType.VARCHAR, SQuad.MAX_LEVEL, nullable, false);
+	}
+	
+	@Override
+	public String getValueString(){
+		return value==null ? null : value.getMicrosoftStyleString();
+	}
+
+	@Override
+	public String getSqlEscaped(){
+		return "'"+value.getMicrosoftStyleString()+"'";
+	}
+	
+	@Override
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+		try{
+			if(value==null){
+				ps.setNull(parameterIndex, Types.VARCHAR);
+			}else{
+				ps.setString(parameterIndex, value.getMicrosoftStyleString());
+			}
+		}catch(SQLException e){
+			throw new DataAccessException(e);
+		}
+	}
+
+	@Override
+	public SQuad parseJdbcValueButDoNotSet(Object obj){
+		return obj==null ? null : new SQuad((String)obj);
+	}
+	
+	@Override
+	public SQuad fromJdbcResultSetButDoNotSet(ResultSet rs){
+		try{
+			String s = rs.getString(columnName);
+			if(s==null){ return null; }
+			return new SQuad(s);
+		}catch(SQLException e){
+			throw new DataAccessException(e);
+		}
 	}
 
 }

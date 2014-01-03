@@ -24,7 +24,25 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 	public DoubleArrayField(String prefix, String name, List<Double> value){
 		super(prefix, name, value);
 	}
+	
+	
+	/*********************** StringEncodedField ***********************/
+	
+	@Override
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		//TODO to CSV format?
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	public List<Double> parseStringEncodedValueButDoNotSet(String s){
+		throw new NotImplementedException();
+	}
+	
 
+	/*********************** ByteEncodedField ***********************/
+	
 	@Override
 	public byte[] getBytes(){
 		if(value == null){
@@ -43,11 +61,9 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
 
-	@Override
-	public void fromString(String s){
-		throw new NotImplementedException();
-	}
+	/*********************** SqlEncodedField ***********************/
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){

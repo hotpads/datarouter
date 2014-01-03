@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.junit.Assert;
 
-import com.hotpads.datarouter.app.client.parallel.jdbc.base.BaseParallelHibernateTxnApp;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
+import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.config.PutMethod;
@@ -18,14 +18,14 @@ import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.util.core.CollectionTool;
 
-public class InsertRollback extends BaseParallelHibernateTxnApp<Void>{
+public class InsertRollback extends BaseHibernateOp<Void>{
 	
 	private BasicClientTestRouter router;
 	private boolean flush;
 	
 	public InsertRollback(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
 			BasicClientTestRouter router, boolean flush){
-		super(drContext, clientNames, isolation);
+		super(drContext, clientNames, isolation, false);
 		this.router = router;
 		this.flush = flush;
 	}

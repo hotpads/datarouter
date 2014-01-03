@@ -14,30 +14,30 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ExceptionTool;
 
 public class HibernateExecutor {
-	Logger logger = Logger.getLogger(HibernateExecutor.class);
+	private Logger logger = Logger.getLogger(HibernateExecutor.class);
 
 	public static final boolean EAGER_SESSION_FLUSH = true;
 
-	protected String taskName;
+	private String taskName;
 	private HibernateClientImp client;
 	private BasePhysicalNode<?,?,?> node;
 	private Config config;
 	private Session existingSession;
-	private boolean disableAutoCommit = true;  //default to true to be safe
+	private boolean autoCommit = false;  //default to true to be safe
 	
 	public static HibernateExecutor create(
 			String taskName,
 			HibernateClientImp client,
 			BasePhysicalNode<?,?,?> node,
 			Config config,
-			boolean disableAutoCommit){
+			boolean autoCommit){
 		HibernateExecutor executor = new HibernateExecutor();
 		executor.taskName = taskName;
 		executor.client = client;
 		executor.node = node;
 		executor.config = Config.nullSafe(config);
 		executor.existingSession = client.getExistingSession();
-		executor.disableAutoCommit = disableAutoCommit;
+		executor.autoCommit = autoCommit;
 		return executor;
 	}
 	
@@ -57,7 +57,7 @@ public class HibernateExecutor {
 				client.reserveConnection();
 				client.beginTxn(
 						config.getIsolationOrUse(Config.DEFAULT_ISOLATION), 
-						disableAutoCommit);
+						autoCommit);
 				client.openSession();
 				session = client.getExistingSession();
 				logger.debug("found connection "+client.getExistingHandle());

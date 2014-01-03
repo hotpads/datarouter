@@ -5,9 +5,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
+import junit.framework.Assert;
+
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeId;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -33,12 +36,13 @@ extends BaseNode<PK,D,F>{
 	protected Long lastContact = 0L;
 	
 	public BaseMapCachingNode(N cacheNode, N backingNode){
-		super(backingNode.getDataRouterContext(), backingNode.getDatabeanType(), 
+		super(backingNode.getRouter(), backingNode.getDatabeanType(), 
 				(Class<F>)backingNode.getFieldInfo().getFielderClass());
 		this.cachingNode = cacheNode;
 		this.backingNode = backingNode;
 		//use the inputs to make a unique name.  randomness will not place nicely with the counters
-		this.name = backingNode.getName()+".cache";
+		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), backingNode.getDatabeanType(), 
+				backingNode.getRouter().getName(), null, null, backingNode.getName()+".cache"));
 //		this.name = fieldInfo.getDatabeanClass().getSimpleName()+"."+getClass().getSimpleName()+"."+System.identityHashCode(this);
 	}
 
@@ -95,15 +99,15 @@ extends BaseNode<PK,D,F>{
 		return ListTool.wrap(backingNode);
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
+//	@Override
+//	public String getName() {
+//		return name;
+//	}
 
 	@Override
 	public Set<String> getAllNames(){
 		Set<String> names = SetTool.createHashSet();
-		names.add(name);
+		names.add(getName());
 		names.addAll(CollectionTool.nullSafe(cachingNode.getAllNames()));
 		names.addAll(CollectionTool.nullSafe(backingNode.getAllNames()));
 		return names;

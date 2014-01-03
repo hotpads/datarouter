@@ -9,15 +9,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.FloatByteTool;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-
-import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.util.core.bytes.DoubleByteTool;
 /*
  * "dumb" because doesn't necessarily sort correctly in serialized form.  should prob copy
  * whatever they do in Orderly: https://github.com/zettaset/orderly
@@ -32,10 +25,41 @@ public class DumbFloatField extends BasePrimitiveField<Float>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+
 	@Override
-	public void fromString(String s){
-		this.value = s==null?null:Float.valueOf(s);
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		return value.toString();
 	}
+	
+	@Override
+	public Float parseStringEncodedValueButDoNotSet(String s){
+		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		return Float.valueOf(s);
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return value==null?null:FloatByteTool.getBytes(value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int offset){
+		return 4;
+	}
+	
+	@Override
+	public Float fromBytesButDoNotSet(byte[] bytes, int offset){
+		return FloatByteTool.fromBytes(bytes, offset);
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
@@ -68,20 +92,5 @@ public class DumbFloatField extends BasePrimitiveField<Float>{
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
-	}
-
-	@Override
-	public byte[] getBytes(){
-		return value==null?null:FloatByteTool.getBytes(value);
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 4;
-	}
-	
-	@Override
-	public Float fromBytesButDoNotSet(byte[] bytes, int offset){
-		return FloatByteTool.fromBytes(bytes, offset);
 	}
 }

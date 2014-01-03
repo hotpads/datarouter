@@ -15,7 +15,12 @@
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 <div class="container">
 <h2>Datarouter</h2>
-
+<%-- <c:if test="${not empty message-update}"> --%>
+<!-- <div class="alert alert-info"> -->
+<!--   <button type="button" class="close" data-dismiss="alert">&times;</button> -->
+<%--   ${message-update} --%>
+<!-- </div> -->
+<%-- </c:if> --%>
 <h3>Server Info</h3>
 	<table class="table table-striped table-bordered table-hover table-condensed">
 	<tr><td>server.name</td><td>${serverName}</td></tr>
@@ -32,17 +37,12 @@
 	<table class="table table-striped table-bordered table-hover table-condensed">
 		<c:forEach items="${router.allClients}" var="client">
 			<tr >
-				<td style="width: 33%">
-					<a href="?submitAction=inspectClient&routerName=${router.name}&clientName=${client.name}">${client.name}</a>
+				<td style="width: 50%">
+					<a href="${contextPath}/datarouter/clients/${client.type}?submitAction=inspectClient&routerName=${router.name}&clientName=${client.name}">${client.name}</a>
 				</td>
-				<td style="width: 33%">
+				<td style="width: 50%">
 					${client.type}
 				</td>
-					<td style="width: 33%">
-						<c:if test="${client.type=='hbase'}">
-							<a href="?submitAction=viewHBaseServers&routerName=${router.name}&clientName=${client.name}">servers</a>
-						</c:if>
-					</td>
 			</tr>
 		</c:forEach>
 	</table>

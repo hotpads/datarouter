@@ -56,10 +56,10 @@
 					<li><b>where:</b></li>
 					<li><input name="where" value="${param.where}" type="text" /></li>
 				</ul>
-				<ul class="span12">
+				<ul class="span6">
 					<li></li>
-					<li><input type="submit" name="submitAction" value="countWhere" class="btn btn-success" /></li>
-					<li><input type="submit" name="submitAction" value="getWhere" class="btn btn-success" /></li>
+					<li class="span3"><input type="submit" name="submitAction" value="countWhere" class="btn btn-success" />
+					<li class="span3"><input type="submit" name="submitAction" value="getWhere" class="btn btn-success" /></li>
 				</ul>
 			</div>
 		</form>
@@ -81,14 +81,17 @@
 		<c:if test="${not (offset > 0 and not empty backKey)}">
 			<b>previous&nbsp;</b>-&nbsp;
 		</c:if>
-			<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}
+		<c:set var="accesDatabeans" value=""></c:set>
 		<c:if test="${fn:length(databeans) >= limit}">
-				&backKey=${startAfterKey}&startAfterKey=${nextKey}
-				&limit=${limit}&offset=${offset+limit}&where=${param.where}">next</a>
+		<c:set var="accesDatabeans" value="&backKey=${startAfterKey}&startAfterKey=${nextKey}
+				&limit=${limit}&offset=${offset+limit}&where=${param.where}"></c:set>
 		</c:if>
+				<a href="?submitAction=${param.submitAction}&routerName=${param.routerName}&nodeName=${param.nodeName}${accesDatabeans}">next</a>
+		
 		<br />
+		${param.nodeName} is${nonFieldAware}
 		
-		
+		<br />
 		<c:forEach items="${fields}" var="field">
 				${field.name},&nbsp;
 		</c:forEach>

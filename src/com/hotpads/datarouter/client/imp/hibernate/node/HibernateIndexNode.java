@@ -66,7 +66,7 @@ implements IndexReader<PK,D,IK>{
 
 	@Override
 	public HibernateClientImp getClient(){
-		return (HibernateClientImp)this.router.getClient(getClientName());
+		return (HibernateClientImp)getRouter().getClient(getClientName());
 	}
 	
 	@Override
@@ -90,7 +90,7 @@ implements IndexReader<PK,D,IK>{
 		//basically copied from "get" for HibernateNode
 		if(uniqueKey==null){ return null; }
 		TraceContext.startSpan(getName()+" lookupUnique");
-		HibernateExecutor executor = HibernateExecutor.create("lookupUnique", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("lookupUnique", getClient(), this, config, true);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -120,7 +120,7 @@ implements IndexReader<PK,D,IK>{
 		//basically copied from "getMulti" for HibernateNode
 		TraceContext.startSpan(getName()+" lookupMultiUnique");	
 		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
-		HibernateExecutor executor = HibernateExecutor.create("lookupMultiUnique", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("lookupMultiUnique", getClient(), this, config, true);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -168,7 +168,7 @@ implements IndexReader<PK,D,IK>{
 	public List<D> lookupMulti(final IK indexKey, final boolean wildcardLastField, final Config config){
 		if(indexKey==null){ return new LinkedList<D>(); }
 		TraceContext.startSpan(getName()+" lookupMulti");
-		HibernateExecutor executor = HibernateExecutor.create("lookupMulti", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("lookupMulti", getClient(), this, config, true);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {
@@ -196,7 +196,7 @@ implements IndexReader<PK,D,IK>{
 	public List<D> lookupMultiMulti(final Collection<IK> indexKeys, final boolean wildcardLastField, final Config config){
 		if(CollectionTool.isEmpty(indexKeys)){ return new LinkedList<D>(); }
 		TraceContext.startSpan(getName()+" lookupMultiMulti");
-		HibernateExecutor executor = HibernateExecutor.create("lookupMultiMulti", getClient(), this, config, false);
+		HibernateExecutor executor = HibernateExecutor.create("lookupMultiMulti", getClient(), this, config, true);
 		Object result = executor.executeTask(
 			new HibernateTask() {
 				public Object run(Session session) {

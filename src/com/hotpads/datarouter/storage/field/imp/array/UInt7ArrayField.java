@@ -26,11 +26,49 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 		super(prefix, name, value);
 	}
 	
+	
+	/*********************** StringEncodedField ***********************/
+	
 	@Override
-	public void fromString(String s){
+	public String getStringEncodedValue(){
+		if(value==null){ return null; }
+		//TODO to CSV format?
 		throw new NotImplementedException();
 	}
 	
+	@Override
+	public List<Byte> parseStringEncodedValueButDoNotSet(String s){
+		throw new NotImplementedException();
+	}
+	
+
+	/*********************** ByteEncodedField ***********************/
+
+	@Override
+	public byte[] getBytes(){
+		return this.value==null?null:ByteTool.getUInt7Bytes(this.value);
+	}
+	
+	@Override
+	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
+		return IntegerByteTool.fromUInt31Bytes(bytes, byteOffset);
+	}
+	
+	@Override
+	public List<Byte> fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
+		int numBytes = numBytesWithSeparator(bytes, byteOffset) - 4;
+		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset + 4, numBytes));
+	}
+	
+	@Override
+	public List<Byte> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
+		int numBytes = ArrayTool.length(bytes) - byteOffset;
+		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset, numBytes));
+	}
+	
+
+	/*********************** SqlEncodedField ***********************/
+
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , nullable, false);
@@ -71,29 +109,6 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 	@Override
 	public String getSqlEscaped(){
 		throw new NotImplementedException("and probably never will be");
-	};
-	
-
-	@Override
-	public byte[] getBytes(){
-		return this.value==null?null:ByteTool.getUInt7Bytes(this.value);
-	}
-	
-	@Override
-	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		return IntegerByteTool.fromUInt31Bytes(bytes, byteOffset);
-	}
-	
-	@Override
-	public List<Byte> fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
-		int numBytes = numBytesWithSeparator(bytes, byteOffset) - 4;
-		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset + 4, numBytes));
-	}
-	
-	@Override
-	public List<Byte> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		int numBytes = ArrayTool.length(bytes) - byteOffset;
-		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset, numBytes));
-	}
+	}	
 
 }

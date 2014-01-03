@@ -35,7 +35,7 @@ extends BaseNode<PK,D,F>{
 	protected AtomicInteger slaveRequestCounter = new AtomicInteger(0);
 	
 	public BaseMasterSlaveNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router){
-		super(router.getContext(), databeanClass, fielderClass);
+		super(router, databeanClass, fielderClass);
 	}
 	
 	public BaseMasterSlaveNode(Class<D> databeanClass, DataRouter router){
@@ -46,7 +46,7 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = SetTool.wrap(this.name);
+		Set<String> names = SetTool.wrap(getName());
 		names.addAll(this.master.getAllNames());
 		for(N slave : IterableTool.nullSafe(this.slaves)){
 			names.addAll(slave.getAllNames());

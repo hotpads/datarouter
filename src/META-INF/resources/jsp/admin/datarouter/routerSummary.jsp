@@ -35,16 +35,16 @@
 			<tbody>
 				<c:forEach items="${nodeWrappers}" var="nodeWrapper">
 					<tr>
-						<td><a style="color: black;" href="${contextPath}/datarouter/viewNodeData?submitAction=browseData&routerName=${param.routerName}
+						<td><a style="color: black;" href="${contextPath}/datarouter/nodes/browseData?submitAction=browseData&routerName=${param.routerName}
 							&nodeName=${nodeWrapper.node.name}"> ${nodeWrapper.indentHtml}${nodeWrapper.node.name}</a></td>
-						<td><a href="${contextPath}/datarouter/viewNodeData?submitAction=browseData&routerName=${param.routerName}
+						<td><a href="${contextPath}/datarouter/nodes/browseData?submitAction=browseData&routerName=${param.routerName}
 							&nodeName=${nodeWrapper.node.name}"> data</a></td>
 						<td><c:if test="${nodeWrapper.sorted}">
-								<a href="${contextPath}/datarouter/viewNodeData?submitAction=countKeys&routerName=${param.routerName}
+								<a href="${contextPath}/datarouter/nodes/browseData?submitAction=countKeys&routerName=${param.routerName}
 								&nodeName=${nodeWrapper.node.name}"> count keys</a>
 							</c:if></td>
 						<td><c:if test="${true}">
-								<a href="${contextPath}/datarouter/viewNodeData?submitAction=countWhere&routerName=${param.routerName}
+								<a href="${contextPath}/datarouter/nodes/browseData?submitAction=countWhere&routerName=${param.routerName}
 								&nodeName=${nodeWrapper.node.name}"> count txn</a>
 							</c:if></td>
 <!-- 						<td> -->

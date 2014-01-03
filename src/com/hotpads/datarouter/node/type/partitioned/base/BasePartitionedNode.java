@@ -8,6 +8,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeId;
 import com.hotpads.datarouter.node.type.partitioned.Partitions;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -36,21 +37,19 @@ extends BaseNode<PK,D,F>{
 	// requests to the underlying nodes in cases where it can't pick a single node
 
 	protected Class<D> databeanClass;
-	protected DataRouter router;
 	protected Partitions<PK,D,N> partitions;
 		
 	public BasePartitionedNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router){
-		super(router.getContext(), databeanClass, fielderClass);
-		this.router = router;
+		super(router, databeanClass, fielderClass);
 		this.partitions = new Partitions<PK,D,N>(this);
-		this.name = databeanClass.getSimpleName()+"."+getClass().getSimpleName();
+		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), null, null, null));
 	}
 
 	/*************************** node methods *************************/
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = SetTool.wrap(this.name);
+		Set<String> names = SetTool.wrap(getName());
 		for(N physicalNode : IterableTool.nullSafe(partitions.getAll())){
 			names.addAll(physicalNode.getAllNames());
 		}

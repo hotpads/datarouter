@@ -57,7 +57,7 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 				MySqlColumnType type = MySqlColumnType.parse(metaData.getColumnTypeName(i + 1));
 				SqlColumn col;
 				if(type.equals(MySqlColumnType.VARCHAR)){
-					col = StringField.getTypeFromSize(metaData.getColumnName(i + 1), 
+					col = StringField.getMySqlTypeFromSize(metaData.getColumnName(i + 1), 
 									metaData.getColumnDisplaySize(i + 1), nullable);
 				}else{
 					col = new SqlColumn(metaData.getColumnName(i + 1), type,
