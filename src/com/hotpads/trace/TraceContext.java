@@ -14,7 +14,7 @@ import com.hotpads.util.core.StringTool;
 public class TraceContext {
 	protected static Logger logger = Logger.getLogger(TraceContext.class);
 	
-	protected String serverId;
+	protected String serverName;
 	protected Long traceId;
 	protected Long traceThreadParentId;
 	protected Integer nextSpanSequence = 0;
@@ -28,8 +28,8 @@ public class TraceContext {
 	
 	/***************** constructors **********************************/
 	
-	public TraceContext(String serverId, Long traceId, Long traceThreadParentId){
-		this.serverId = serverId;
+	public TraceContext(String serverName, Long traceId, Long traceThreadParentId){
+		this.serverName = serverName;
 		this.traceId = traceId;
 		this.traceThreadParentId = traceThreadParentId;
 	}
@@ -63,7 +63,7 @@ public class TraceContext {
 		boolean hasParent = ctx.getTraceThreadParentId()!=null;
 		TraceThread thread = new TraceThread(traceId, hasParent);
 		thread.setParentId(ctx.getTraceThreadParentId());
-		thread.setServerId(ctx.getServerId());
+		thread.setServerId(ctx.getServerName());
 		thread.setName(name);
 		ctx.setCurrentThread(thread);
 	}
@@ -255,12 +255,12 @@ public class TraceContext {
 		this.spans = spans;
 	}
 
-	public String getServerId(){
-		return serverId;
+	public String getServerName(){
+		return serverName;
 	}
 
-	public void setServerId(String serverId){
-		this.serverId = serverId;
+	public void setServerName(String serverName){
+		this.serverName = serverName;
 	}
 
 	public Long getTraceId(){

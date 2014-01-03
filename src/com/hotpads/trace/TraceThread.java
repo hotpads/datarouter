@@ -37,6 +37,7 @@ public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 	@Column(length=DEFAULT_STRING_LENGTH)
 	protected String name;
 	protected String info;
+	//should be serverName
 	@Column(length=20)
 	protected String serverId;
 	protected Long created;
@@ -175,7 +176,7 @@ public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 		this.key = key;
 	}
 
-
+	//should be serverName
 	public String getServerId() {
 		return serverId;
 	}

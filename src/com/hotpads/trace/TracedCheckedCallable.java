@@ -35,7 +35,7 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 			
 			TraceContext ctx = null;
 			if(shouldStartNestedTrace){
-				ctx = new TraceContext(parentCtx.getServerId(), parentCtx.getTraceId(), parentCtx.getCurrentThreadId());
+				ctx = new TraceContext(parentCtx.getServerName(), parentCtx.getTraceId(), parentCtx.getCurrentThreadId());
 				TraceContext.bindToThread(ctx);
 				TraceContext.createAndStartThread(threadName);
 			}
