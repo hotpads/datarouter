@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.log4j.Logger;
+
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
@@ -13,17 +15,19 @@ import com.hotpads.util.core.ObjectTool;
  * D: destination
  */
 public class BalanceLeveler<I,D>{
+	private static Logger logger = Logger.getLogger(BalanceLeveler.class);
 
 	private SortedMap<I,D> destinationByItem;
 	private long minAtDestination;
 	private long maxAtDestination;
-	private Map<D,Long> countByDestination;
+	private SortedMap<D,Long> countByDestination;
 	
 	
 	/************** construct ***************************/
 	
 	public BalanceLeveler(SortedMap<I,D> unleveledDestinationByItem){
 		this.destinationByItem = new TreeMap<I,D>(unleveledDestinationByItem);
+		this.countByDestination = MapTool.createTreeMap();//sorted easier for debugging
 		updateCountByDestination();
 	}
 	
@@ -33,10 +37,10 @@ public class BalanceLeveler<I,D>{
 	public SortedMap<I,D> getBalancedDestinationByItem(){
 		while( ! isBalanced()){
 			D mostLoadedDestination = getMostLoadedDestination();
-			I firstItemAtDestination = getFirstItemAtDestinatioin(mostLoadedDestination);
+			I itemToMove = takeFirstItemAtDestination(mostLoadedDestination);
 			D leastLoadedDestination = getLeastLoadedDestination();
 			//overwrite the region's D, thus moving it
-			destinationByItem.put(firstItemAtDestination, leastLoadedDestination);
+			destinationByItem.put(itemToMove, leastLoadedDestination);
 			updateCountByDestination();
 		}
 		return destinationByItem;
@@ -46,11 +50,15 @@ public class BalanceLeveler<I,D>{
 	/*************** private methods **************************/
 	
 	private void updateCountByDestination(){
+		countByDestination.clear();
 		for(Map.Entry<I,D> entry : destinationByItem.entrySet()){
 			MapTool.increment(countByDestination, entry.getValue());
 		}
 		this.minAtDestination = ComparableTool.getFirst(countByDestination.values());
 		this.maxAtDestination = ComparableTool.getLast(countByDestination.values());
+		logger.warn(countByDestination);
+		logger.warn("minAtDestination"+minAtDestination);
+		logger.warn("maxAtDestination"+maxAtDestination);
 	}
 	
 	
@@ -75,10 +83,13 @@ public class BalanceLeveler<I,D>{
 	}
 	
 	
-	private I getFirstItemAtDestinatioin(D destination){
+	private I takeFirstItemAtDestination(D destination){
 		for(Map.Entry<I,D> entry : destinationByItem.entrySet()){
-			if(ObjectTool.equals(destination, entry.getValue())){ return entry.getKey(); }
+			if(ObjectTool.equals(destination, entry.getValue())){ 
+				destinationByItem.remove(entry.getKey());
+				return entry.getKey(); 
+			}
 		}
-		throw new IllegalArgumentException("item didn't exist in map");
+		throw new IllegalArgumentException("item didn't exist in map:"+destination);
 	}
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.SortedMap;
 
 import org.apache.hadoop.hbase.ServerName;
+import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.balancer.BalanceLeveler;
 import com.hotpads.datarouter.client.imp.hbase.balancer.BalancerStrategy;
@@ -15,6 +16,7 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -23,6 +25,7 @@ import com.hotpads.util.core.java.ReflectionTool;
  */
 public class ScatteringPrefixBalancer
 implements BalancerStrategy{
+	private static Logger logger = Logger.getLogger(ScatteringPrefixBalancer.class);
 	
 	protected SortedMap<DRHRegionInfo<?>,ServerName> serverByRegion;
 	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
@@ -73,7 +76,7 @@ implements BalancerStrategy{
 				serverByRegion.put(region, entry.getValue());
 			}
 		}
-		
+		logger.warn(getServerByRegionStringForDebug());
 		return this;
 	}
 	
@@ -81,6 +84,17 @@ implements BalancerStrategy{
 	@Override
 	public ServerName getServerName(DRHRegionInfo<?> drhRegionInfo) {
 		return serverByRegion.get(drhRegionInfo);
+	}
+	
+	private String getServerByRegionStringForDebug(){
+		int i = 0;
+		StringBuilder sb = new StringBuilder();
+		for(Map.Entry<DRHRegionInfo<?>,ServerName> entry : serverByRegion.entrySet()){
+			sb.append(StringTool.pad(i+"", ' ', 3)
+					+entry.getKey().getRegion().getEncodedName()
+					+", "+entry.getValue());
+		}
+		return sb.toString();
 	}
 	
 }
