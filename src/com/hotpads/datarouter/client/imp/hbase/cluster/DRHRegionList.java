@@ -87,19 +87,12 @@ public class DRHRegionList{
 		Collections.sort(regions);//ensure sorted for getRegionsSorted
 		this.balancerStrategy = balancerStrategy.init(scatteringPrefixClass, servers, this);
 		this.targetServerNameByRegion = CallableTool.callUnchecked(balancerStrategy);
-		assertRegionCountsConsistent();
+		balancerStrategy.assertRegionCountsConsistent();
 		for(DRHRegionInfo<?> drhRegionInfo : regions){
 			drhRegionInfo.setBalancerDestinationServer(targetServerNameByRegion.get(drhRegionInfo));
 		}
 	}
 	
-	private void assertRegionCountsConsistent(){
-		if(regions.size() != targetServerNameByRegion.size()){
-			logger.error("regions:"+regions);
-			logger.error("balanced regions:"+targetServerNameByRegion.keySet());
-			throw new RuntimeException("regions.size() != targetServerNameByRegion.size()");
-		}
-	}
 
 	public SortedSet<String> getServerNames(){
 		SortedSet<String> serverNames = SetTool.createTreeSet();

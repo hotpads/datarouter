@@ -52,9 +52,9 @@ extends BaseHBaseRegionBalancer{
 		}
 		
 		//level out any imbalances from the hashing
-//		BalanceLeveler<ByteRange,ServerName> leveler = new BalanceLeveler<ByteRange,ServerName>(
-//				drhServerList.getServerNames(), serverByPrefix);
-//		serverByPrefix = leveler.getBalancedDestinationByItem();
+		BalanceLeveler<ByteRange,ServerName> leveler = new BalanceLeveler<ByteRange,ServerName>(
+				drhServerList.getServerNames(), serverByPrefix);
+		serverByPrefix = leveler.getBalancedDestinationByItem();
 
 		//map individual regions to servers based on their prefix
 		for(Map.Entry<ByteRange,ServerName> entry : serverByPrefix.entrySet()){
@@ -64,24 +64,8 @@ extends BaseHBaseRegionBalancer{
 			}
 		}
 		logger.warn(getServerByRegionStringForDebug());
+		assertRegionCountsConsistent();
 		return serverByRegion;
-	}
-	
-	
-//	@Override
-//	public ServerName getServerName(DRHRegionInfo<?> drhRegionInfo) {
-//		return serverByRegion.get(drhRegionInfo);
-//	}
-	
-	private String getServerByRegionStringForDebug(){
-		int i = 0;
-		StringBuilder sb = new StringBuilder();
-		for(Map.Entry<DRHRegionInfo<?>,ServerName> entry : serverByRegion.entrySet()){
-			sb.append(StringTool.pad(i+"", ' ', 3)
-					+entry.getKey().getRegion().getEncodedName()
-					+", "+entry.getValue());
-		}
-		return sb.toString();
 	}
 	
 }

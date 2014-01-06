@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.ObjectTool;
 
 /*
  * I: item
@@ -41,7 +40,8 @@ public class BalanceLeveler<I,D>{
 	public SortedMap<I,D> getBalancedDestinationByItem(){
 		while( ! isBalanced()){
 			D mostLoadedDestination = getMostLoadedDestination();
-			I itemToMove = takeFirstItemAtDestination(mostLoadedDestination);
+//			I itemToMove = takeFirstItemAtDestination(mostLoadedDestination);
+			I itemToMove = MapTool.getFirstKeyWhereValueEquals(destinationByItem, mostLoadedDestination);
 			D leastLoadedDestination = getLeastLoadedDestination();
 			//overwrite the region's D, thus moving it
 			destinationByItem.put(itemToMove, leastLoadedDestination);
@@ -96,13 +96,13 @@ public class BalanceLeveler<I,D>{
 	}
 	
 	
-	private I takeFirstItemAtDestination(D destination){
-		for(Map.Entry<I,D> entry : destinationByItem.entrySet()){
-			if(ObjectTool.equals(destination, entry.getValue())){ 
-				destinationByItem.remove(entry.getKey());
-				return entry.getKey(); 
-			}
-		}
-		throw new IllegalArgumentException("item didn't exist in map:"+destination);
-	}
+//	private I takeFirstItemAtDestination(D destination){
+//		for(Map.Entry<I,D> entry : destinationByItem.entrySet()){
+//			if(ObjectTool.equals(destination, entry.getValue())){ 
+////				destinationByItem.remove(entry.getKey());
+//				return entry.getKey(); 
+//			}
+//		}
+//		throw new IllegalArgumentException("item didn't exist in map:"+destination);
+//	}
 }

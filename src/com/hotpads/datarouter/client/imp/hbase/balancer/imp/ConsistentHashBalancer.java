@@ -31,12 +31,16 @@ extends BaseHBaseRegionBalancer{
 			ServerName serverName = calcServerNameForItem(consistentHashRing, consistentHashInput);
 			serverByRegion.put(drhRegionInfo, serverName);//now region->server mapping is known
 		}
+		logger.warn(getServerByRegionStringForDebug());
+		assertRegionCountsConsistent();
 		
 		//level out any imbalances from the hashing
 		BalanceLeveler<DRHRegionInfo<?>,ServerName> leveler = new BalanceLeveler<DRHRegionInfo<?>,ServerName>(
 				drhServerList.getServerNames(), serverByRegion);
 		serverByRegion = leveler.getBalancedDestinationByItem();
-		
+
+		logger.warn(getServerByRegionStringForDebug());
+		assertRegionCountsConsistent();
 		return serverByRegion;
 	}
 	
