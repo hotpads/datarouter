@@ -26,8 +26,7 @@ import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
-import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
-import com.hotpads.datarouter.client.imp.hbase.balancer.imp.ConsistentHashBalancer;
+import com.hotpads.datarouter.client.imp.hbase.balancer.HBaseBalancerFactory;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo;
@@ -60,10 +59,6 @@ public class HBaseHandler extends BaseHandler {
 		PARAM_maxFileSizeMb = "maxFileSizeMb",
 		PARAM_memstoreFlushSizeMb = "memstoreFlushSizeMb";
 
-	public static BaseHBaseRegionBalancer getBalancerStrategyForTable(String tableName) {
-		return new ConsistentHashBalancer();
-	}
-
 	/******************** fields ************************/
 
 	// injected
@@ -71,6 +66,8 @@ public class HBaseHandler extends BaseHandler {
 	protected DRHCompactionInfo drhCompactionInfo;
 	@Inject
 	private DataRouterContext dataRouterContext;
+	@Inject
+	private HBaseBalancerFactory balancerFactory;
 
 	// not injected
 	private static final String PATH_JSP_HBASE = "/jsp/admin/datarouter/hbase/";
@@ -110,7 +107,7 @@ public class HBaseHandler extends BaseHandler {
 		drhServerList = new DRHServerList(hbaseConfig);
 		if(routerParams.getNode() != null){
 			regionList = new DRHRegionList(routerParams.getClient(), drhServerList, routerParams.getTableName(),
-					hbaseConfig, routerParams.getNode(), getBalancerStrategyForTable(routerParams.getTableName()),
+					hbaseConfig, routerParams.getNode(), balancerFactory.getBalancerForTable(routerParams.getTableName()),
 					drhCompactionInfo);
 		}
 	}

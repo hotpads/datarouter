@@ -17,7 +17,7 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseHBaseRegionBalancer
 implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
-	protected static Logger logger = Logger.getLogger(BaseHBaseRegionBalancer.class);
+	protected final Logger logger = Logger.getLogger(getClass());
 	
 	protected DRHServerList drhServerList;
 	protected DRHRegionList drhRegionList;
@@ -38,6 +38,7 @@ implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
 		if(scatteringPrefixClass != null){
 			this.scatteringPrefix = ReflectionTool.create(scatteringPrefixClass);
 		}
+		logger.warn("init complete, scatteringPrefixClass:"+scatteringPrefixClass);
 		return this;
 	}
 
