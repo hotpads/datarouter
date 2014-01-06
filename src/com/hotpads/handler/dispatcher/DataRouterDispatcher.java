@@ -17,7 +17,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 	public static final String URL_STACKTRACES = "/stackTraces";
 	public static final String URL_DATAROUTER = "/datarouter";
 	public static final String URL_DATAROUTER_API = "/datarouterApi";
-	public static final String URL_DATAROUTER_VIEW_NODE_DATA = URL_DATAROUTER + "/viewNodeData";
+	public static final String URL_DATAROUTER_browse_NODE_DATA = URL_DATAROUTER + "/nodes/browseData";
 	public static final String URL_HTTP_CLIENT = URL_DATAROUTER_API + "/httpNode";
 
 	private static final String HBASE = "/hbase";
@@ -26,20 +26,21 @@ public class DataRouterDispatcher extends BaseDispatcher{
 	private static final String MEMCACHED = "/memcached";
 	
 	public static final String URL_DATABEAN_CLASS_GENERATOR = URL_DATAROUTER + "/databeanGenerator";
+	private static final String CLIENTS = "/clients";
 
 
 	public DataRouterDispatcher(Injector injector, String servletContextPath, String urlPrefix){
 		super(injector, servletContextPath, urlPrefix);
 		// DataRouter
 //		handle(URL_HTTP_CLIENT, DataRouterHttpClientHandler.class);
-		handle(URL_DATAROUTER_VIEW_NODE_DATA, ViewNodeDataHandler.class);
+		handle(URL_DATAROUTER_browse_NODE_DATA , ViewNodeDataHandler.class);
 		handle(URL_DATAROUTER + URL_STACKTRACES, StackTracesManagerHandler.class);
 		handle(URL_DATABEAN_CLASS_GENERATOR, DatabeanGeneratorHandler.class);
 		
-		handle(URL_DATAROUTER + ROUTERS + HBASE, HBaseHandler.class);
-		handle(URL_DATAROUTER + ROUTERS + HIBERNATE, HibernateHandler.class);
-		handle(URL_DATAROUTER + ROUTERS + MEMORY, MemoryHandler.class);
-		handle(URL_DATAROUTER + ROUTERS + MEMCACHED, MemcachedHandler.class);
+		handle(URL_DATAROUTER + CLIENTS + HBASE, HBaseHandler.class);
+		handle(URL_DATAROUTER + CLIENTS + HIBERNATE, HibernateHandler.class);
+		handle(URL_DATAROUTER + CLIENTS + MEMORY, MemoryHandler.class);
+		handle(URL_DATAROUTER + CLIENTS + MEMCACHED, MemcachedHandler.class);
 		handle(URL_DATAROUTER + ROUTERS, RoutersHandler.class);
 		handle(URL_DATAROUTER + "*", RoutersHandler.class);
 	}

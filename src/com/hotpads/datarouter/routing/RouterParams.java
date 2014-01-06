@@ -3,17 +3,11 @@ package com.hotpads.datarouter.routing;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
-import com.hotpads.datarouter.client.imp.memory.MemoryClient;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.handler.Params;
 import com.hotpads.handler.admin.RoutersHandler;
-import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.StringTool;
 
@@ -35,19 +29,16 @@ public class RouterParams<C extends Client> {
 	private String nodeName;
 	private C client;
 	private DataRouter router;
-	private Node node;
+	private Node<?,?> node;
 	private String tableName;
 
-	public RouterParams(DataRouterContext dataRouterContext, Params params,
-			HashMap<String, List<String>> needs) {
-		this.action = params.optional(RequestTool.SUBMIT_ACTION,
-				RoutersHandler.ACTION_listRouters);
+	public RouterParams(DataRouterContext dataRouterContext, Params params, HashMap<String,List<String>> needs){
+		this.action = params.optional(RequestTool.SUBMIT_ACTION, RoutersHandler.ACTION_listRouters);
 		this.needs = needs;
 		initializeGlobalParameters(dataRouterContext, params);
 	}
 
-	public void initializeGlobalParameters(DataRouterContext dataRouterContext,
-			Params params) {
+	public void initializeGlobalParameters(DataRouterContext dataRouterContext, Params params){
 
 		if (needs.get(NEEDS_ROUTER).contains(action)) {
 			routerName = params.required(PARAM_routerName);
@@ -55,8 +46,7 @@ public class RouterParams<C extends Client> {
 		}
 		if (needs.get(NEEDS_CLIENT).contains(action)) {
 			clientName = params.required(PARAM_clientName);
-			client = (C) dataRouterContext.getRouter(routerName).getClient(
-					clientName);
+			client = (C)dataRouterContext.getRouter(routerName).getClient(clientName);
 			tableName = params.optional(PARAM_tableName, null);
 
 		}
@@ -64,17 +54,12 @@ public class RouterParams<C extends Client> {
 			nodeName = params.optional(PARAM_nodeName, null);
 			tableName = params.required(PARAM_tableName);
 			if (StringTool.notEmpty(nodeName)) {
-				node = dataRouterContext.getRouter(routerName).getContext()
-						.getNodes().getNode(nodeName);
+				node = dataRouterContext.getRouter(routerName).getContext().getNodes().getNode(nodeName);
 			} else {
 				setTableName(params.optional(PARAM_tableName, null));
 				if (getTableName() != null) {
-					node = dataRouterContext
-							.getRouter(routerName)
-							.getContext()
-							.getNodes()
-							.getPhyiscalNodeForClientAndTable(clientName,
-									getTableName());
+					node = dataRouterContext.getRouter(routerName).getContext().getNodes()
+							.getPhyiscalNodeForClientAndTable(clientName, getTableName());
 				}
 			}
 		}
@@ -116,7 +101,7 @@ public class RouterParams<C extends Client> {
 		return router;
 	}
 
-	public Node getNode() {
+	public Node<?,?> getNode() {
 		return node;
 	}
 
@@ -148,7 +133,7 @@ public class RouterParams<C extends Client> {
 		this.router = router;
 	}
 
-	public void setNode(Node node) {
+	public void setNode(Node<?,?> node) {
 		this.node = node;
 	}
 
