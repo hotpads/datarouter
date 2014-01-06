@@ -1,11 +1,13 @@
 package com.hotpads.datarouter.client.imp.hbase.balancer;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
@@ -17,6 +19,7 @@ import com.hotpads.util.core.ObjectTool;
 public class BalanceLeveler<I,D>{
 	private static Logger logger = Logger.getLogger(BalanceLeveler.class);
 
+	private Collection<D> allDestinations;
 	private SortedMap<I,D> destinationByItem;
 	private long minAtDestination;
 	private long maxAtDestination;
@@ -25,7 +28,8 @@ public class BalanceLeveler<I,D>{
 	
 	/************** construct ***************************/
 	
-	public BalanceLeveler(SortedMap<I,D> unleveledDestinationByItem){
+	public BalanceLeveler(Collection<D> allDestinations, SortedMap<I,D> unleveledDestinationByItem){
+		this.allDestinations = CollectionTool.nullSafe(allDestinations);
 		this.destinationByItem = new TreeMap<I,D>(unleveledDestinationByItem);
 		this.countByDestination = MapTool.createTreeMap();//sorted easier for debugging
 		updateCountByDestination();
@@ -54,11 +58,20 @@ public class BalanceLeveler<I,D>{
 		for(Map.Entry<I,D> entry : destinationByItem.entrySet()){
 			MapTool.increment(countByDestination, entry.getValue());
 		}
+		ensureAllDestinationsInCountByDestination();
 		this.minAtDestination = ComparableTool.getFirst(countByDestination.values());
 		this.maxAtDestination = ComparableTool.getLast(countByDestination.values());
 		logger.warn(countByDestination);
 		logger.warn("minAtDestination"+minAtDestination);
 		logger.warn("maxAtDestination"+maxAtDestination);
+	}
+	
+	private void ensureAllDestinationsInCountByDestination(){
+		for(D d : allDestinations){
+			if(!countByDestination.containsKey(d)){
+				countByDestination.put(d, 0L);
+			}
+		}
 	}
 	
 	

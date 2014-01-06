@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
-import com.hotpads.datarouter.client.imp.hbase.balancer.BalancerStrategy;
+import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.balancer.imp.ConsistentHashBalancer;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
@@ -60,7 +60,7 @@ public class HBaseHandler extends BaseHandler {
 		PARAM_maxFileSizeMb = "maxFileSizeMb",
 		PARAM_memstoreFlushSizeMb = "memstoreFlushSizeMb";
 
-	public static BalancerStrategy getBalancerStrategyForTable(String tableName) {
+	public static BaseHBaseRegionBalancer getBalancerStrategyForTable(String tableName) {
 		return new ConsistentHashBalancer();
 	}
 

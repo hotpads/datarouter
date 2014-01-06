@@ -6,41 +6,28 @@ import java.util.Map;
 import java.util.SortedMap;
 
 import org.apache.hadoop.hbase.ServerName;
-import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.balancer.BalanceLeveler;
-import com.hotpads.datarouter.client.imp.hbase.balancer.BalancerStrategy;
+import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
-import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.ByteRange;
-import com.hotpads.util.core.java.ReflectionTool;
 
 /*
  * assign each partition in full to a server, and hard-level the number of regions
  */
 public class ScatteringPrefixBalancer
-implements BalancerStrategy{
-	private static Logger logger = Logger.getLogger(ScatteringPrefixBalancer.class);
-	
-	protected SortedMap<DRHRegionInfo<?>,ServerName> serverByRegion;
-	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
-	protected ScatteringPrefix scatteringPrefix;
+extends BaseHBaseRegionBalancer{
 	
 	/******************* constructor ***************************/
 	
-	public ScatteringPrefixBalancer(Class<? extends ScatteringPrefix> scatteringPrefixClass){//public no-arg for reflection
-		this.serverByRegion = MapTool.createTreeMap();
-		this.scatteringPrefixClass = scatteringPrefixClass;
-		this.scatteringPrefix = ReflectionTool.create(scatteringPrefixClass);
+	public ScatteringPrefixBalancer(){
 	}
 	
 	@Override
-	public ScatteringPrefixBalancer initMappings(DRHServerList drhServerList, DRHRegionList drhRegionList){
+	public SortedMap<DRHRegionInfo<?>,ServerName> call(){
 		//group the regions by prefix
 		Map<ByteRange,List<DRHRegionInfo<?>>> regionsByPrefix = MapTool.createTreeMap();
 		for(DRHRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
@@ -65,9 +52,9 @@ implements BalancerStrategy{
 		}
 		
 		//level out any imbalances from the hashing
-		BalanceLeveler<ByteRange,ServerName> leveler = new BalanceLeveler<ByteRange,ServerName>(
-				serverByPrefix);
-		serverByPrefix = leveler.getBalancedDestinationByItem();
+//		BalanceLeveler<ByteRange,ServerName> leveler = new BalanceLeveler<ByteRange,ServerName>(
+//				drhServerList.getServerNames(), serverByPrefix);
+//		serverByPrefix = leveler.getBalancedDestinationByItem();
 
 		//map individual regions to servers based on their prefix
 		for(Map.Entry<ByteRange,ServerName> entry : serverByPrefix.entrySet()){
@@ -77,14 +64,14 @@ implements BalancerStrategy{
 			}
 		}
 		logger.warn(getServerByRegionStringForDebug());
-		return this;
+		return serverByRegion;
 	}
 	
 	
-	@Override
-	public ServerName getServerName(DRHRegionInfo<?> drhRegionInfo) {
-		return serverByRegion.get(drhRegionInfo);
-	}
+//	@Override
+//	public ServerName getServerName(DRHRegionInfo<?> drhRegionInfo) {
+//		return serverByRegion.get(drhRegionInfo);
+//	}
 	
 	private String getServerByRegionStringForDebug(){
 		int i = 0;

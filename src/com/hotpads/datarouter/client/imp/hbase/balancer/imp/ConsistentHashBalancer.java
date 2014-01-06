@@ -1,11 +1,12 @@
 package com.hotpads.datarouter.client.imp.hbase.balancer.imp;
 
+import java.util.Map;
 import java.util.SortedMap;
 
 import org.apache.hadoop.hbase.ServerName;
 
 import com.hotpads.datarouter.client.imp.hbase.balancer.BalanceLeveler;
-import com.hotpads.datarouter.client.imp.hbase.balancer.BalancerStrategy;
+import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo;
@@ -14,26 +15,18 @@ import com.hotpads.util.core.HashMethods;
 import com.hotpads.util.core.MapTool;
 
 public class ConsistentHashBalancer
-implements BalancerStrategy{
+extends BaseHBaseRegionBalancer{
 	
 	public static final Integer BUCKETS_PER_NODE = 1000;
-	
-	protected SortedMap<DRHRegionInfo<?>,ServerName> serverByRegion;
 
 	
-	/******************* constructor ***************************/
-	
-	public ConsistentHashBalancer(){//no-arg for reflection
-		this.serverByRegion = MapTool.createTreeMap();
-	}
-	
-	
-	public ConsistentHashBalancer initMappings(DRHServerList servers, DRHRegionList regions){
+	@Override
+	public Map<DRHRegionInfo<?>,ServerName> call(){
 		//set up the ring of servers
-		SortedMap<Long,ServerName> consistentHashRing = buildServerHashRing(servers, BUCKETS_PER_NODE);
+		SortedMap<Long,ServerName> consistentHashRing = buildServerHashRing(drhServerList, BUCKETS_PER_NODE);
 		
 		//calculate each region's position in the ring and store it
-		for(DRHRegionInfo<?> drhRegionInfo : regions.getRegions()){
+		for(DRHRegionInfo<?> drhRegionInfo : drhRegionList.getRegions()){
 			byte[] consistentHashInput = drhRegionInfo.getRegion().getEncodedNameAsBytes();
 			ServerName serverName = calcServerNameForItem(consistentHashRing, consistentHashInput);
 			serverByRegion.put(drhRegionInfo, serverName);//now region->server mapping is known
@@ -41,16 +34,10 @@ implements BalancerStrategy{
 		
 		//level out any imbalances from the hashing
 		BalanceLeveler<DRHRegionInfo<?>,ServerName> leveler = new BalanceLeveler<DRHRegionInfo<?>,ServerName>(
-				serverByRegion);
+				drhServerList.getServerNames(), serverByRegion);
 		serverByRegion = leveler.getBalancedDestinationByItem();
 		
-		return this;
-	}
-	
-	
-	@Override
-	public ServerName getServerName(DRHRegionInfo<?> drhRegionInfo) {
-		return serverByRegion.get(drhRegionInfo);
+		return serverByRegion;
 	}
 	
 	public static SortedMap<Long,ServerName> buildServerHashRing(DRHServerList servers, int numBucketsPerNode){

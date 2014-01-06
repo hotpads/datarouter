@@ -17,17 +17,18 @@ import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.imp.hbase.balancer.BalancerStrategy;
+import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
+import com.hotpads.util.core.CallableTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.java.ReflectionTool;
 
 public class DRHRegionList{
 	Logger logger = Logger.getLogger(DRHRegionList.class);
@@ -38,12 +39,14 @@ public class DRHRegionList{
 	protected String tableName;
 	protected Node<?,?> node;
 	protected List<DRHRegionInfo<?>> regions;
-	protected BalancerStrategy balancerStrategy;
+	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
+	protected BaseHBaseRegionBalancer balancerStrategy;
+	protected Map<DRHRegionInfo<?>,ServerName> targetServerNameByRegion;
 	protected DRHCompactionInfo compactionInfo;
 
 	@SuppressWarnings("unchecked")
 	public DRHRegionList(HBaseClient client, DRHServerList servers, String tableName, Configuration config,
-			Node<?,?> node, BalancerStrategy balancerStrategy, DRHCompactionInfo compactionInfo){
+			Node<?,?> node, BaseHBaseRegionBalancer balancerStrategy, DRHCompactionInfo compactionInfo){
 		this.servers = servers;
 		this.tableName = tableName;
 		this.node = node;
@@ -66,16 +69,15 @@ public class DRHRegionList{
 			}
 			int regionNum = 0;
 			for(HRegionInfo hRegionInfo : MapTool.nullSafe(serverNameByHRegionInfo).keySet()){
-				String name = new String(hRegionInfo.getRegionName());
 				try{
-					RegionLoad regionLoad = regionLoadByName.get(name);
+					RegionLoad regionLoad = regionLoadByName.get(hRegionInfo.getEncodedName());
 					ServerName serverName = serverNameByHRegionInfo.get(hRegionInfo);
 					HServerLoad hServerLoad = servers.getHServerLoad(serverName);
 					regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, 
 							hRegionInfo, serverName, hServerLoad,
 							this, regionLoad, compactionInfo));
 				}catch(RuntimeException e){
-					logger.warn("couldn't build DRHRegionList for region:"+name);
+					logger.warn("couldn't build DRHRegionList for region:"+hRegionInfo.getEncodedName());
 					throw e;
 				}
 			}
@@ -83,9 +85,19 @@ public class DRHRegionList{
 			throw new DataAccessException(e);
 		}
 		Collections.sort(regions);//ensure sorted for getRegionsSorted
-		this.balancerStrategy = balancerStrategy.initMappings(servers, this);
-		for(DRHRegionInfo drhRegionInfo : regions){
-			drhRegionInfo.setBalancerDestinationServer(balancerStrategy.getServerName(drhRegionInfo));
+		this.balancerStrategy = balancerStrategy.init(scatteringPrefixClass, servers, this);
+		this.targetServerNameByRegion = CallableTool.callUnchecked(balancerStrategy);
+		assertRegionCountsConsistent();
+		for(DRHRegionInfo<?> drhRegionInfo : regions){
+			drhRegionInfo.setBalancerDestinationServer(targetServerNameByRegion.get(drhRegionInfo));
+		}
+	}
+	
+	private void assertRegionCountsConsistent(){
+		if(regions.size() != targetServerNameByRegion.size()){
+			logger.error("regions:"+regions);
+			logger.error("balanced regions:"+targetServerNameByRegion.keySet());
+			throw new RuntimeException("regions.size() != targetServerNameByRegion.size()");
 		}
 	}
 
@@ -160,7 +172,7 @@ public class DRHRegionList{
 //	}
 	
 	public ServerName getServerForRegion(DRHRegionInfo drhRegionInfo){
-		return balancerStrategy.getServerName(drhRegionInfo);
+		return targetServerNameByRegion.get(drhRegionInfo);
 	}
 
 	public Node<?, ?> getNode() {

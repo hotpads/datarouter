@@ -12,11 +12,13 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionScheduler;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
+import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.ObjectTool;
@@ -105,12 +107,33 @@ implements Comparable<DRHRegionInfo<?>>{
 	}
 	
 	public String getNumKeyValuesWithCompactionPercent(){
+		if(load==null){ return "?"; }
 		long totalKvs = load.getTotalCompactingKVs();
 		String totalKvsString = NumberFormatter.addCommas(totalKvs);
 		long compactingKvs = load.getCurrentCompactedKVs();
 		if(totalKvs==compactingKvs){ return totalKvsString; }
 		int percentCompacted = (int)((double)100 * (double)compactingKvs / (double)totalKvs);
 		return totalKvsString + " ["+percentCompacted+"%]";
+	}
+	
+	
+	/******************* Object, Comparable *******************************/
+	
+	@Override
+	public String toString(){
+		return hRegionInfo.getEncodedName();
+	}
+	
+	public boolean equals(Object obj){
+		if(this==obj){ return true; }
+		if(ClassTool.differentClass(this, obj)){ return false; }
+		DRHRegionInfo<PK> that = (DRHRegionInfo<PK>)obj;
+		return ObjectTool.equals(hRegionInfo.getEncodedName(), that.hRegionInfo.getEncodedName());
+	}
+	
+	@Override
+	public int hashCode(){
+		return hRegionInfo.getEncodedName().hashCode();
 	}
 	
 	@Override
@@ -158,7 +181,7 @@ implements Comparable<DRHRegionInfo<?>>{
 //	}
 	
 	public void setBalancerDestinationServer(ServerName balancerDestinationServer){
-		this.balancerDestinationServer = balancerDestinationServer;
+		this.balancerDestinationServer = Preconditions.checkNotNull(balancerDestinationServer);
 	}
 
 
