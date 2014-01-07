@@ -59,7 +59,7 @@ extends BaseHBaseRegionBalancer{
 				serverByRegion.put(region, entry.getValue());
 			}
 		}
-		logger.warn(getServerByRegionStringForDebug());
+//		logger.warn(getServerByRegionStringForDebug());
 		assertRegionCountsConsistent();
 		return serverByRegion;
 	}
