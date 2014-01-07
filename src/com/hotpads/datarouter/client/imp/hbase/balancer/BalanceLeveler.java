@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
-
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.MapTool;
@@ -16,7 +14,7 @@ import com.hotpads.util.core.MapTool;
  * D: destination
  */
 public class BalanceLeveler<I,D>{
-	private static Logger logger = Logger.getLogger(BalanceLeveler.class);
+//	private static Logger logger = Logger.getLogger(BalanceLeveler.class);
 
 	private Collection<D> allDestinations;
 	private SortedMap<I,D> destinationByItem;
@@ -40,10 +38,9 @@ public class BalanceLeveler<I,D>{
 	public SortedMap<I,D> getBalancedDestinationByItem(){
 		while( ! isBalanced()){
 			D mostLoadedDestination = getMostLoadedDestination();
-//			I itemToMove = takeFirstItemAtDestination(mostLoadedDestination);
 			I itemToMove = MapTool.getFirstKeyWhereValueEquals(destinationByItem, mostLoadedDestination);
 			D leastLoadedDestination = getLeastLoadedDestination();
-			//overwrite the region's D, thus moving it
+			//overwrite the item's destination, thus moving it
 			destinationByItem.put(itemToMove, leastLoadedDestination);
 			updateCountByDestination();
 		}
@@ -61,10 +58,11 @@ public class BalanceLeveler<I,D>{
 		ensureAllDestinationsInCountByDestination();
 		this.minAtDestination = ComparableTool.getFirst(countByDestination.values());
 		this.maxAtDestination = ComparableTool.getLast(countByDestination.values());
-		logger.warn(countByDestination);
-		logger.warn("minAtDestination"+minAtDestination);
-		logger.warn("maxAtDestination"+maxAtDestination);
+//		logger.warn(countByDestination);
+//		logger.warn("minAtDestination"+minAtDestination);
+//		logger.warn("maxAtDestination"+maxAtDestination);
 	}
+	
 	
 	private void ensureAllDestinationsInCountByDestination(){
 		for(D d : allDestinations){
@@ -95,14 +93,4 @@ public class BalanceLeveler<I,D>{
 		throw new IllegalArgumentException("min values out of sync");
 	}
 	
-	
-//	private I takeFirstItemAtDestination(D destination){
-//		for(Map.Entry<I,D> entry : destinationByItem.entrySet()){
-//			if(ObjectTool.equals(destination, entry.getValue())){ 
-////				destinationByItem.remove(entry.getKey());
-//				return entry.getKey(); 
-//			}
-//		}
-//		throw new IllegalArgumentException("item didn't exist in map:"+destination);
-//	}
 }
