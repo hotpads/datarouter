@@ -10,9 +10,11 @@ import org.apache.hadoop.hbase.ServerName;
 import com.hotpads.datarouter.client.imp.hbase.balancer.BalanceLeveler;
 import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldSetTool;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.ByteRange;
 
 /*
@@ -28,14 +30,22 @@ extends BaseHBaseRegionBalancer{
 	
 	@Override
 	public SortedMap<DRHRegionInfo<?>,ServerName> call(){
-		//group the regions by prefix
+		//set up a bucket for each prefix
 		Map<ByteRange,List<DRHRegionInfo<?>>> regionsByPrefix = MapTool.createTreeMap();
+		for(List<Field<?>> prefixFields : scatteringPrefix.getAllPossibleScatteringPrefixes()){
+			ByteRange prefix = new ByteRange(FieldSetTool.getConcatenatedValueBytes(prefixFields, false, false));
+			regionsByPrefix.put(prefix, new ArrayList<DRHRegionInfo<?>>()); 
+		}
+		
+		//group the regions by prefix
 		for(DRHRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
-			ByteRange regionPrefixBytes = new ByteRange(ByteTool.copyOfRange(drhRegionInfo.getRegion().getStartKey(), 0, 
-					1));
-			if(regionsByPrefix.get(regionPrefixBytes)==null){ 
-				regionsByPrefix.put(regionPrefixBytes, new ArrayList<DRHRegionInfo<?>>()); 
+			byte[] startKey = drhRegionInfo.getRegion().getStartKey();
+			if(ArrayTool.isEmpty(startKey)){//use first prefix (is there a more robust way?)
+				List<Field<?>> firstPrefix = scatteringPrefix.getAllPossibleScatteringPrefixes().get(0);
+				startKey = FieldSetTool.getConcatenatedValueBytes(firstPrefix, false, false);
 			}
+			ByteRange regionPrefixBytes = new ByteRange(ByteTool.copyOfRange(startKey, 0, scatteringPrefix
+					.getNumPrefixBytes()));
 			regionsByPrefix.get(regionPrefixBytes).add(drhRegionInfo);
 		}
 		

@@ -52,6 +52,7 @@ public class DRHRegionList{
 		this.node = node;
 		this.compactionInfo = compactionInfo;
 		this.regions = ListTool.create();
+		this.scatteringPrefixClass = node.getFieldInfo().getScatteringPrefixClass();
 		try{
 			HTable hTable = new HTable(config, tableName);
 			Class<PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
