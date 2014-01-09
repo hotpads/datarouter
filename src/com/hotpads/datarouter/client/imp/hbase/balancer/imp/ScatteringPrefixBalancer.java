@@ -4,84 +4,88 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.apache.hadoop.hbase.ServerName;
-import org.apache.hadoop.hbase.util.Bytes;
 
-import com.hotpads.datarouter.client.imp.hbase.balancer.BalancerStrategy;
+import com.hotpads.datarouter.client.imp.hbase.balancer.BalanceLeveler;
+import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
-import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.util.core.bytes.ByteRange;
 
 /*
- * we want this to take the last region of each prefix and balance those evenly to avoid hotspots
- * 
- * would be nice if it also balances the cold regions
+ * assign each partition in full to a server, and hard-level the number of regions
  */
 public class ScatteringPrefixBalancer
-implements BalancerStrategy{
+extends BaseHBaseRegionBalancer{
 	
-	protected SortedMap<DRHRegionInfo<?>,ServerName> serverByRegion;
-	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
-	protected ScatteringPrefix scatteringPrefix;
+	private Map<ByteRange,List<DRHRegionInfo<?>>> regionsByPrefix;
 	
 	/******************* constructor ***************************/
 	
-	public ScatteringPrefixBalancer(Class<? extends ScatteringPrefix> scatteringPrefixClass){//public no-arg for reflection
-		this.scatteringPrefixClass = scatteringPrefixClass;
-		this.scatteringPrefix = ReflectionTool.create(scatteringPrefixClass);
+	public ScatteringPrefixBalancer(){
 	}
 	
 	@Override
-	public ScatteringPrefixBalancer initMappings(DRHServerList drhServerList, DRHRegionList drhRegionList){
-		//collect the different prefix byte arrays
-		List<List<Field<?>>> prefixes = scatteringPrefix.getAllPossibleScatteringPrefixes();
-		List<byte[]> prefixByteArrays = ListTool.createArrayList();
-		for(List<Field<?>> prefix : prefixes){
-			byte[] prefixBytes = FieldSetTool.getConcatenatedValueBytes(prefix, false, false);
-			prefixByteArrays.add(prefixBytes);
+	public SortedMap<DRHRegionInfo<?>,ServerName> call(){
+		initRegionByPrefixMap();
+		groupRegionsByPrefix();
+		
+		//set up the ring of servers
+		SortedMap<Long,ServerName> consistentHashRing = ConsistentHashBalancer.buildServerHashRing(drhServerList, 
+				ConsistentHashBalancer.BUCKETS_PER_NODE);
+		
+		//calculate each prefix's position in the ring and store it
+		SortedMap<ByteRange,ServerName> serverByPrefix = MapTool.createTreeMap();
+		for(ByteRange prefix : regionsByPrefix.keySet()){
+			byte[] consistentHashInput = prefix.copyToNewArray();
+			ServerName serverName = ConsistentHashBalancer.calcServerNameForItem(consistentHashRing, consistentHashInput);
+			serverByPrefix.put(prefix, serverName);//now region->server mapping is known
 		}
 		
-		this.serverByRegion = MapTool.createTreeMap();
-		List<ServerName> serverNames = drhServerList.getServerNamesSorted();
+		//level out any imbalances from the hashing
+		BalanceLeveler<ByteRange,ServerName> leveler = new BalanceLeveler<ByteRange,ServerName>(
+				drhServerList.getServerNames(), serverByPrefix);
+		serverByPrefix = leveler.getBalancedDestinationByItem();
 
+		//map individual regions to servers based on their prefix
+		for(Map.Entry<ByteRange,ServerName> entry : serverByPrefix.entrySet()){
+			List<DRHRegionInfo<?>> regionsInPrefix = regionsByPrefix.get(entry.getKey());
+			for(DRHRegionInfo<?> region : regionsInPrefix){
+				serverByRegion.put(region, entry.getValue());
+			}
+		}
+//		logger.warn(getServerByRegionStringForDebug());
+		assertRegionCountsConsistent();
+		return serverByRegion;
+	}
+	
+	
+	private void initRegionByPrefixMap(){
+		regionsByPrefix = MapTool.createTreeMap();
+		for(List<Field<?>> prefixFields : scatteringPrefix.getAllPossibleScatteringPrefixes()){
+			ByteRange prefix = new ByteRange(FieldSetTool.getConcatenatedValueBytes(prefixFields, false, false));
+			regionsByPrefix.put(prefix, new ArrayList<DRHRegionInfo<?>>()); 
+		}
+	}
+	
+	
+	private void groupRegionsByPrefix(){
 		//group the regions by prefix
-		Map<byte[],List<DRHRegionInfo<?>>> regionsByPrefix = new TreeMap<byte[],List<DRHRegionInfo<?>>>(Bytes.BYTES_COMPARATOR);
 		for(DRHRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
-			byte[] regionPrefixBytes = ByteTool.copyOfRange(drhRegionInfo.getRegion().getStartKey(), 0, 1);
-			if(regionsByPrefix.get(regionPrefixBytes)==null){ regionsByPrefix.put(regionPrefixBytes, new ArrayList<DRHRegionInfo<?>>()); }
+			byte[] startKey = drhRegionInfo.getRegion().getStartKey();
+			if(ArrayTool.isEmpty(startKey)){//use first prefix (is there a more robust way?)
+				List<Field<?>> firstPrefix = scatteringPrefix.getAllPossibleScatteringPrefixes().get(0);
+				startKey = FieldSetTool.getConcatenatedValueBytes(firstPrefix, false, false);
+			}
+			ByteRange regionPrefixBytes = new ByteRange(ByteTool.copyOfRange(startKey, 0, scatteringPrefix
+					.getNumPrefixBytes()));
 			regionsByPrefix.get(regionPrefixBytes).add(drhRegionInfo);
 		}
-		
-		//TODO balance them somehow!!!  THIS CLASS IS INCOMPLETE
-		
-		int regionIndex=0;
-		for(DRHRegionInfo<?> drhRegionInfo : drhRegionList.getRegionsSorted()){
-			int serverIndex = regionIndex % CollectionTool.size(serverNames);
-			this.serverByRegion.put(drhRegionInfo, serverNames.get(serverIndex));
-			++regionIndex;
-		}
-		
-		return this;
-	}
-	
-	
-	@Override
-	public ServerName getServerName(DRHRegionInfo<?> drhRegionInfo) {
-		return serverByRegion.get(drhRegionInfo);
-	}
-	
-	public void setScatteringPrefixClass(Class<? extends ScatteringPrefix> scatteringPrefixClass){
-		this.scatteringPrefixClass = scatteringPrefixClass;
 	}
 	
 }

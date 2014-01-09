@@ -29,7 +29,6 @@ public class DRHServerList{
 	
 	
 	public DRHServerList(Configuration config){
-		
 		try{
 			HBaseAdmin admin = HBaseSimpleClientFactory.ADMIN_BY_CONFIG.get(config);
 			ClusterStatus clusterStatus = admin.getClusterStatus();

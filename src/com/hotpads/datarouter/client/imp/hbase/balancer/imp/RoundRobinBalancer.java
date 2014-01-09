@@ -1,30 +1,20 @@
 package com.hotpads.datarouter.client.imp.hbase.balancer.imp;
 
 import java.util.List;
-import java.util.SortedMap;
+import java.util.Map;
 
 import org.apache.hadoop.hbase.ServerName;
 
-import com.hotpads.datarouter.client.imp.hbase.balancer.BalancerStrategy;
+import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.MapTool;
 
 public class RoundRobinBalancer
-implements BalancerStrategy{
-	
-	protected SortedMap<DRHRegionInfo<?>,ServerName> serverByRegion;
-
-	
-	/******************* constructor ***************************/
-	
-	public RoundRobinBalancer(){//public no-arg for reflection
-	}
+extends BaseHBaseRegionBalancer{
 	
 	@Override
-	public RoundRobinBalancer initMappings(DRHServerList drhServerList, DRHRegionList drhRegionList) {
+	public Map<DRHRegionInfo<?>,ServerName> call() {
 		this.serverByRegion = MapTool.createTreeMap();
 		List<ServerName> serverNames = drhServerList.getServerNamesSorted();
 		
@@ -35,13 +25,7 @@ implements BalancerStrategy{
 			++regionIndex;
 		}
 		
-		return this;
-	}
-	
-	
-	@Override
-	public ServerName getServerName(DRHRegionInfo<?> drhRegionInfo) {
-		return serverByRegion.get(drhRegionInfo);
+		return serverByRegion;
 	}
 	
 }
