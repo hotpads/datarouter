@@ -4,8 +4,10 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.util.core.DateTool;
+import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.HashMethods;
 import com.hotpads.util.core.date.DailyCalendarTool;
 
@@ -27,7 +29,10 @@ implements DRHCompactionInfo{
 		this.compactionInfo = compactionInfo;
 		this.windowStartMs = now - (now % compactionInfo.getCompactionTriggerPeriodMs());
 		this.windowEndMs = windowStartMs + compactionInfo.getCompactionTriggerPeriodMs();
-		this.regionInfo = regionInfo;
+		this.regionInfo = Preconditions.checkNotNull(regionInfo);
+		//these can apparently be null for some reason.  implementation should handle it
+//		Preconditions.checkNotNull(regionInfo.getRegion(), regionInfo.getTableName()+" "+regionInfo.getName());
+//		Preconditions.checkNotNull(regionInfo.getLoad().getStorefiles(), regionInfo.getTableName()+" "+regionInfo.getName());
 		String startKeyString = regionInfo.getRegion().getEncodedName();
 		this.regionHash = Math.abs(HashMethods.longDJBHash(startKeyString));
 		calculateNextCompactTime();
@@ -53,6 +58,16 @@ implements DRHCompactionInfo{
 //					+", nextCompactTime"+DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(new Date(nextCompactTimeMs)));
 			return false;
 		}
+		
+		//tease out NPE's and return false if we hit one.  this happens occasionally for some reason
+		try{
+			regionInfo.getLoad();
+			regionInfo.getLoad().getStorefiles();
+		}catch(NullPointerException npe){
+			logger.warn(ExceptionTool.getStackTraceAsString(npe));
+			return false; 
+		}
+		
 		boolean moreThanOneStoreFile = regionInfo.getLoad().getStorefiles() > 1;
 		if(!moreThanOneStoreFile){//still need to compact to localize the hdfs blocks
 			logger.warn("compacting "+regionInfo.getRegion().getEncodedName()+", "
