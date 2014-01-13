@@ -64,7 +64,8 @@ public class DRHRegionList{
 				HServerLoad serverLoad = server.gethServerLoad();
 				Map<byte[],HServerLoad.RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
 				for(RegionLoad regionLoad : regionsLoad.values()){
-					String name = new String(regionLoad.getName());
+//					String name = new String(regionLoad.getName());
+					String name = HRegionInfo.encodeRegionName(regionLoad.getName());
 					regionLoadByName.put(name, regionLoad);
 				}
 			}
