@@ -38,7 +38,7 @@ implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
 		if(scatteringPrefixClass != null){
 			this.scatteringPrefix = ReflectionTool.create(scatteringPrefixClass);
 		}
-		logger.warn("init complete, scatteringPrefixClass:"+scatteringPrefixClass);
+//		logger.warn("init complete, scatteringPrefixClass:"+scatteringPrefixClass);
 		return this;
 	}
 
