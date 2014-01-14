@@ -4,8 +4,10 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.util.core.DateTool;
+import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.HashMethods;
 import com.hotpads.util.core.date.DailyCalendarTool;
 
@@ -27,7 +29,9 @@ implements DRHCompactionInfo{
 		this.compactionInfo = compactionInfo;
 		this.windowStartMs = now - (now % compactionInfo.getCompactionTriggerPeriodMs());
 		this.windowEndMs = windowStartMs + compactionInfo.getCompactionTriggerPeriodMs();
-		this.regionInfo = regionInfo;
+		this.regionInfo = Preconditions.checkNotNull(regionInfo);
+		//these can apparently be null for some reason.  implementation should handle it
+//		Preconditions.checkNotNull(regionInfo.getLoad(), regionInfo.getTableName()+" "+regionInfo.getName());
 		String startKeyString = regionInfo.getRegion().getEncodedName();
 		this.regionHash = Math.abs(HashMethods.longDJBHash(startKeyString));
 		calculateNextCompactTime();
@@ -44,6 +48,17 @@ implements DRHCompactionInfo{
 	}
 
 	public boolean shouldCompact(){
+		//tease out NPE's and return false if we hit one.  this happens occasionally for some reason
+		if(regionInfo.getLoad()==null){
+			logger.warn("regionInfo.getLoad()==null on "+regionInfo.getTableName()+" "+regionInfo.getName());
+			return false; 
+		}
+//		if(regionInfo.getLoad().getStorefiles()==null){
+//			logger.warn("NPE on "+regionInfo.getTableName()+" "+regionInfo.getName());
+//			logger.warn(ExceptionTool.getStackTraceAsString(npe));
+//			return false;
+//		}
+		
 		boolean inCurrentWindow = nextCompactTimeMs >= windowStartMs
 				&& nextCompactTimeMs < windowEndMs;
 		if(!inCurrentWindow){
@@ -53,6 +68,7 @@ implements DRHCompactionInfo{
 //					+", nextCompactTime"+DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(new Date(nextCompactTimeMs)));
 			return false;
 		}
+		
 		boolean moreThanOneStoreFile = regionInfo.getLoad().getStorefiles() > 1;
 		if(!moreThanOneStoreFile){//still need to compact to localize the hdfs blocks
 			logger.warn("compacting "+regionInfo.getRegion().getEncodedName()+", "

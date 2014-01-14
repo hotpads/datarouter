@@ -7,3 +7,6 @@ bin/*
 .project
 test-results/
 ant-*-build.xml
+target/*
+/target
+/bin
