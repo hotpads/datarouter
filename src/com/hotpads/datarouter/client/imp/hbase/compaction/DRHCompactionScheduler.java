@@ -69,13 +69,13 @@ implements DRHCompactionInfo{
 			return false;
 		}
 		
-		boolean moreThanOneStoreFile = regionInfo.getLoad().getStorefiles() > 1;
-		if(!moreThanOneStoreFile){//still need to compact to localize the hdfs blocks
-			logger.warn("compacting "+regionInfo.getRegion().getEncodedName()+", "
-					+regionInfo.getStartKey().toString()+" even though only one store file");
-//			logger.warn("skipping compaction of "+regionInfo.getRegion().getEncodedName()+", "
-//					+regionInfo.getStartKey().toString()+" because only one file");
-//			return false;			
+		boolean onlyOneStoreFile = regionInfo.getLoad().getStorefiles() <= 1;
+		if(onlyOneStoreFile){//still need to compact to localize the hdfs blocks
+//			logger.warn("compacting "+regionInfo.getRegion().getEncodedName()+", "
+//					+regionInfo.getStartKey().toString()+" even though only one store file");
+			logger.warn("skipping compaction of "+regionInfo.getRegion().getEncodedName()+", "
+					+regionInfo.getStartKey().toString()+" because only one file");
+			return false;
 		}
 		return true;
 	}
