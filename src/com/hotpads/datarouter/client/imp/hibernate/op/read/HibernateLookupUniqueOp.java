@@ -58,23 +58,25 @@ extends BaseHibernateOp<List<D>>{
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
-			int batchSize = HibernateNode.DEFAULT_ITERATE_BATCH_SIZE;
-			if(config!=null && config.getIterateBatchSize()!=null){
-				batchSize = config.getIterateBatchSize();
-			}
+			
+			//i forget why we're doing this sorting.  prob not necessary
 			List<? extends UniqueKey<PK>> sortedKeys = ListTool.createArrayList(uniqueKeys);
 			Collections.sort(sortedKeys);
-			int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
-			List<D> all = ListTool.createArrayList(uniqueKeys.size());
-			for(int batchNum=0; batchNum < numBatches; ++batchNum){
-				List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
-				List<D> batch;
-				if(node.getFieldInfo().getFieldAware()){
-					String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), 
-							uniqueKeys);
-					List<D> result = JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
-					return result;
-				}else{
+			
+			if(node.getFieldInfo().getFieldAware()){
+				String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), 
+						sortedKeys);
+				List<D> result = JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
+				return result;
+			}else{
+				int batchSize = HibernateNode.DEFAULT_ITERATE_BATCH_SIZE;
+				if(config!=null && config.getIterateBatchSize()!=null){
+					batchSize = config.getIterateBatchSize();
+				}
+				int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
+				List<D> all = ListTool.createArrayList(uniqueKeys.size());
+				for(int batchNum=0; batchNum < numBatches; ++batchNum){
+					List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
 					Criteria criteria = node.getCriteriaForConfig(config, session);
 					Disjunction orSeparatedIds = Restrictions.disjunction();
 					for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
@@ -86,11 +88,11 @@ extends BaseHibernateOp<List<D>>{
 						orSeparatedIds.add(possiblyCompoundId);
 					}
 					criteria.add(orSeparatedIds);
-					batch = criteria.list();
+					List<D> batch = criteria.list();
+					all.addAll(CollectionTool.nullSafe(batch));
 				}
-				ListTool.nullSafeArrayAddAll(all, batch);
+				return all;	
 			}
-			return all;	
 		}finally{
 			TraceContext.finishSpan();
 		}
