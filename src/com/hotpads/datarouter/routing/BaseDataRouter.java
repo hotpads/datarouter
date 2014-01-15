@@ -178,6 +178,14 @@ implements DataRouter{
 	public DataRouterContext getContext() {
 		return context;
 	}
+	
+	
+	/********************* Object ********************************/
+	
+	@Override
+	public String toString(){
+		return name;
+	}
 
 	
 	/********************* get/set ******************************/

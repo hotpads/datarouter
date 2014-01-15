@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.http;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -12,7 +13,7 @@ public class DataRouterHttpClientFactory implements ClientFactory{
 
 	private DataRouterContext drContext;
 	private String clientName;
-	private List<String> configFilePaths;
+	private Set<String> configFilePaths;
 	private List<Properties> multiProperties;
 	private DataRouterHttpClientOptions options;
 	

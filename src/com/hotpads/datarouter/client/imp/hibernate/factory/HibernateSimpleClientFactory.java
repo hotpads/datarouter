@@ -71,7 +71,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 
 	protected DataRouterContext drContext;
 	protected String clientName;
-	protected List<String> configFilePaths;
+	protected Set<String> configFilePaths;
 	protected List<Properties> multiProperties;
 	protected SchemaUpdateOptions schemaUpdatePrintOptions;
 	protected SchemaUpdateOptions schemaUpdateExecuteOptions;
@@ -110,7 +110,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 					return client;
 				}
 				if("event".equals(clientName)){
-					logger.warn("intantiating " + clientName);
+					logger.warn("instantiating " + clientName);
 					int breakpoint = 1;
 				}
 				Future<HibernateClient> future = executorService

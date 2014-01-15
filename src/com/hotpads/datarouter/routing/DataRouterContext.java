@@ -2,6 +2,7 @@ package com.hotpads.datarouter.routing;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -44,7 +45,7 @@ public class DataRouterContext{
 	protected ThreadPoolExecutor executorService;//for async client init and monitoring
 
 	protected List<DataRouter> routers;
-	protected List<String> configFilePaths;
+	protected Set<String> configFilePaths;
 	protected List<Properties> multiProperties;
 	protected String serverName;
 	protected String administratorEmail;
@@ -67,7 +68,7 @@ public class DataRouterContext{
 		this.executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
 	            new SynchronousQueue<Runnable>(), threadFactory);
 
-		this.configFilePaths = ListTool.createArrayList();
+		this.configFilePaths = SetTool.createTreeSet();
 		this.connectionPools = new ConnectionPools();
 		this.clients = new Clients(this);
 		this.nodes = new Nodes(this);
@@ -93,6 +94,7 @@ public class DataRouterContext{
 	}
 	
 	public void activate() {
+		logger.warn("activating DataRouterContext with routers:"+routers+", configFiles:"+configFilePaths);
 		multiProperties = PropertiesTool.fromFiles(configFilePaths);
 		serverName = PropertiesTool.getFirstOccurrence(multiProperties, CONFIG_SERVER_NAME);
 		if(StringTool.isEmpty(serverName)){ logger.warn("server.name was not found in config files"); }
@@ -165,7 +167,7 @@ public class DataRouterContext{
 		return executorService;
 	}
 
-	public List<String> getConfigFilePaths(){
+	public Set<String> getConfigFilePaths(){
 		return configFilePaths;
 	}
 
