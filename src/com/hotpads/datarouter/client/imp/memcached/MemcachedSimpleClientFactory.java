@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.memcached;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -22,7 +23,7 @@ implements MemcachedClientFactory{
 	
 	private DataRouterContext drContext;
 	private String clientName;
-	private List<String> configFilePaths;
+	private Set<String> configFilePaths;
 	private List<Properties> multiProperties;
 	private ExecutorService executorService;
 	private MemcachedOptions options;
