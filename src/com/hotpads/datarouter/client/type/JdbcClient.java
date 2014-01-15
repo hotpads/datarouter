@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.type;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-public interface HibernateClient 
+public interface JdbcClient 
 extends SessionClient{
 	
 	Session getExistingSession();

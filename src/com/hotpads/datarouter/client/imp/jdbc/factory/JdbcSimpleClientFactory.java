@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate.factory;
+package com.hotpads.datarouter.client.imp.jdbc.factory;
 
 import java.sql.Connection;
 import java.sql.Statement;
@@ -21,6 +21,7 @@ import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
+import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
@@ -49,7 +50,7 @@ import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 
-public class HibernateSimpleClientFactory implements HibernateClientFactory{
+public class JdbcSimpleClientFactory implements JdbcClientFactory{
 	Logger logger = Logger.getLogger(getClass());
 
 	public static Boolean SCHEMA_UPDATE = false;
@@ -67,8 +68,6 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 			paramConfigLocation = ".configLocation",
 			nestedParamSessionFactory = ".param.sessionFactory";
 
-	public static final String configLocationDefault = "hib-default.cfg.xml";
-
 	protected DataRouterContext drContext;
 	protected String clientName;
 	protected Set<String> configFilePaths;
@@ -81,7 +80,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 	protected JdbcClient client;
 	
 
-	public HibernateSimpleClientFactory(DataRouterContext drContext, String clientName, 
+	public JdbcSimpleClientFactory(DataRouterContext drContext, String clientName, 
 			ExecutorService executorService){
 		this.drContext = drContext;
 		this.clientName = clientName;
@@ -139,19 +138,19 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 		}
 	}
 
-	public HibernateClientImp createFromScratch(DataRouterContext drContext, String clientName){
+	public JdbcClientImp createFromScratch(DataRouterContext drContext, String clientName){
 		PhaseTimer timer = new PhaseTimer(clientName);
 
-		HibernateClientImp client = new HibernateClientImp(clientName);
+		JdbcClientImp client = new JdbcClientImp(clientName);
 
 		AnnotationConfiguration sfConfig = new AnnotationConfiguration();
 
 		// base config file for a SessionFactory
 		String configFileLocation = PropertiesTool.getFirstOccurrence(multiProperties, Clients.prefixClient + clientName
 					+ paramConfigLocation);
-		if(StringTool.isEmpty(configFileLocation)){
-			configFileLocation = configLocationDefault;
-		}
+//		if(StringTool.isEmpty(configFileLocation)){
+//			configFileLocation = configLocationDefault;
+//		}
 		sfConfig.configure(configFileLocation);
 
 		// //hibernate databeans (register before connecting to db)

@@ -27,6 +27,7 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Range;
 
+//TODO this is the jdbc implementation, so extend or abstract it
 public class HibernateGetRangeUncheckedOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
@@ -63,9 +64,9 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 						node.getFieldInfo().getPrimaryKeyFields());
 				List<? extends FieldSet<?>> result;
 				if(keysOnly){
-					result = JdbcTool.selectPrimaryKeys(session, node.getFieldInfo(), sql);
+					result = JdbcTool.selectPrimaryKeys(session.connection(), node.getFieldInfo(), sql);
 				}else{
-					result = JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
+					result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
 				}
 				return result;
 			}else{

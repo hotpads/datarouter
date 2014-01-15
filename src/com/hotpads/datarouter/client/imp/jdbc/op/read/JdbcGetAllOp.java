@@ -1,12 +1,12 @@
-package com.hotpads.datarouter.client.imp.hibernate.op.write;
+package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
-import org.hibernate.Session;
+import java.util.List;
 
 import com.hotpads.datarouter.client.ClientType;
-import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
-import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
+import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -14,18 +14,17 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 
-@Deprecated//use Jdbc op
-public class HibernateDeleteAllOp<
+public class JdbcGetAllOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
-extends BaseHibernateOp<Long>{
+extends BaseJdbcOp<List<D>>{
 		
-	private HibernateNode<PK,D,F> node;
+	private JdbcReaderNode<PK,D,F> node;
 	private String opName;
 	private Config config;
 	
-	public HibernateDeleteAllOp(HibernateNode<PK,D,F> node, String opName, Config config) {
+	public JdbcGetAllOp(JdbcReaderNode<PK,D,F> node, String opName, Config config) {
 		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;
@@ -33,19 +32,18 @@ extends BaseHibernateOp<Long>{
 	}
 	
 	@Override
-	public Long runOnce(){
-		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
-		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
+	public List<D> runOnce(){
+		DRCounters.incSuffixClientNode(ClientType.jdbc, opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(node.getClientName());
-			String sql = SqlBuilder.deleteAll(config, node.getTableName());
-			long numModified = JdbcTool.update(session.connection(), sql.toString());
-			return numModified;
+			DRCounters.incSuffixClientNode(ClientType.jdbc, opName, node.getClientName(), node.getName());
+			String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getFields(), null, 
+					node.getFieldInfo().getPrimaryKeyFields());
+			List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
+			return result;
 		}finally{
 			TraceContext.finishSpan();
 		}
 	}
 	
-
 }

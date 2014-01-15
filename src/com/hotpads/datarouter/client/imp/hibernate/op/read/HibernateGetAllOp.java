@@ -45,7 +45,7 @@ extends BaseHibernateOp<List<D>>{
 				DRCounters.incSuffixClientNode(ClientType.jdbc, opName, node.getClientName(), node.getName());
 				String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getFields(), null, 
 						node.getFieldInfo().getPrimaryKeyFields());
-				List<D> result = JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
+				List<D> result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
 				return result;
 			}else{
 				DRCounters.incSuffixClientNode(ClientType.hibernate, opName, node.getClientName(), node.getName());

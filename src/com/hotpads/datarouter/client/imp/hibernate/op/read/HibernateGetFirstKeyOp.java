@@ -51,7 +51,7 @@ extends BaseHibernateOp<PK>{
 				nullSafeConfig.setLimit(1);
 				String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), null, 
 						node.getFieldInfo().getPrimaryKeyFields());
-				List<PK> result = JdbcTool.selectPrimaryKeys(session, node.getFieldInfo(), sql);
+				List<PK> result = JdbcTool.selectPrimaryKeys(session.connection(), node.getFieldInfo(), sql);
 				return CollectionTool.getFirst(result);
 			}else{
 				String entityName = node.getPackagedTableName();

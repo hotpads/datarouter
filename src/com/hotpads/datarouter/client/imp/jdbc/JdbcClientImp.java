@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate;
+package com.hotpads.datarouter.client.imp.jdbc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,7 +28,7 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.MapTool;
 
-public class HibernateClientImp 
+public class JdbcClientImp 
 extends BaseClient
 implements JdbcConnectionClient, TxnClient, JdbcClient{
 	protected Logger logger = Logger.getLogger(this.getClass());
@@ -68,7 +68,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	
 	/**************************** constructor **********************************/
 	
-	public HibernateClientImp(String name){
+	public JdbcClientImp(String name){
 		this.name = name;
 	}
 	

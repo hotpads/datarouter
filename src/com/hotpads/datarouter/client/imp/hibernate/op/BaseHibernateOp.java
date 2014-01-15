@@ -6,7 +6,7 @@ import org.hibernate.Session;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
-import com.hotpads.datarouter.client.type.HibernateClient;
+import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.aware.SessionAware;
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -28,8 +28,8 @@ implements SessionAware<T> {
 	public Session getSession(String clientName){
 		Client client = getDataRouterContext().getClientPool().getClient(clientName);
 		if(client==null){ return null; }
-		if(client instanceof HibernateClient){
-			HibernateClient hibernateSessionClient = (HibernateClient)client;
+		if(client instanceof JdbcClient){
+			JdbcClient hibernateSessionClient = (JdbcClient)client;
 			Session session = hibernateSessionClient.getExistingSession();
 			return session;
 		}
