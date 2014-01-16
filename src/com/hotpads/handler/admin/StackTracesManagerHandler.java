@@ -1,5 +1,7 @@
 package com.hotpads.handler.admin;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.Thread.State;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -54,9 +56,9 @@ public class StackTracesManagerHandler extends BaseHandler{
 	@Handler
 	public Mav getStackTraces(){
 		Mav mav = new Mav("/jsp/admin/stackTraces.jsp");
-		//boolean showAll = params.optionalBoolean("showAll", false);
-		 stateParam = params.optional("state", null);
-		 wildcardParam = params.optional("wildcard", null);
+		// boolean showAll = params.optionalBoolean("showAll", false);
+		stateParam = params.optional("state", null);
+		wildcardParam = params.optional("wildcard", null);
 
 		Map<Thread,StackTraceElement[]> sts = Thread.getAllStackTraces();
 		Map<Thread,StackTraceElement[]> orderedSts = getMapWithComparatorThread();
@@ -79,15 +81,15 @@ public class StackTracesManagerHandler extends BaseHandler{
 					String highlightedStackTrace = stackTraceBuilder.toString().replaceAll("hotpads",
 							"<span style='color:red;'>hotpads</span>");
 					if(StringTool.notEmpty(wildcardParam)){
-						highlightedStackTrace = highlightedStackTrace.replaceAll(wildcardParam, "<span style='color:blue;'>"
-								+ wildcardParam + "</span>");
+						highlightedStackTrace = highlightedStackTrace.replaceAll(wildcardParam,
+								"<span style='color:blue;'>" + wildcardParam + "</span>");
 					}
 					boolean interestingThread = highlightedStackTrace.contains("hotpads");
-					//if(!showAll){
-//						if(!interestingThread){
-//							continue;
-//						}
-					//}
+					// if(!showAll){
+					// if(!interestingThread){
+					// continue;
+					// }
+					// }
 
 					description = getThreadDescription(sts, thread, highlightedStackTrace, counter);
 					container.appendChild(description);
@@ -97,13 +99,13 @@ public class StackTracesManagerHandler extends BaseHandler{
 
 		saveStateCounters();
 		mav.put("title", "StackTraces of " + request.getLocalAddr());
-		//A link = getLinkShowAll(showAll);
+		// A link = getLinkShowAll(showAll);
 
 		Pre pre = new Pre();
 		H4 counterTitle = new H4();
 		counterTitle.appendText(counter + " total threads running");
 		pre.appendChild(counterTitle);
-		//pre.appendChild(link);
+		// pre.appendChild(link);
 		pre.setCSSClass("thread-filter");
 		pre.appendChild(createSearchForm(wildcardParam));
 
@@ -170,7 +172,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 	private Label getLinkType(State state){
 		Label label = new Label();
 		label.setCSSClass("radio inline");
-		label.appendText(state.toString()+ "("+threadStateCounters.get(state)+")");
+		label.appendText(state.toString() + "(" + threadStateCounters.get(state) + ")");
 
 		Input radio = new Input();
 		radio.setType("radio");
@@ -180,7 +182,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 			radio.setChecked("true");
 		}
 		label.appendChild(radio);
-		
+
 		return label;
 
 	}

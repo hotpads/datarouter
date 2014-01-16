@@ -90,9 +90,13 @@ body {
 	height: 50px !important;
 }
 
-.distingish-host-project{
-	color: #FFA300; !important;
-	font-style:italic
+.isLocal {
+	color: #D3D3D3! important;
+}
+
+.isNotLocal {
+	color: #D37714! important;
+	font-style: italic
 }
 /* StackTraces */
 .thread-description {
