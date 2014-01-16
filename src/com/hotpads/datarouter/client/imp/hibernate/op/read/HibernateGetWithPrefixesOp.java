@@ -66,7 +66,7 @@ extends BaseHibernateOp<List<D>>{
 			if(node.getFieldInfo().getFieldAware()){
 				String sql = SqlBuilder.getWithPrefixes(config, node.getTableName(), node.getFieldInfo().getFields(), prefixes, 
 						wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
-				List<D> result = JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
+				List<D> result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
 				return result;
 			}else{
 				Criteria criteria = node.getCriteriaForConfig(config, session);

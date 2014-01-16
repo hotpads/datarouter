@@ -16,6 +16,7 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.ListTool;
 
+@Deprecated//use Jdbc op
 public class HibernateIndexDeleteOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
@@ -43,7 +44,7 @@ extends BaseHibernateOp<Long>{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
 			String sql = SqlBuilder.deleteMulti(config, node.getTableName(), ListTool.wrap(lookup));
-			long numModified = JdbcTool.update(session, sql.toString());
+			long numModified = JdbcTool.update(session.connection(), sql.toString());
 			return numModified;
 		}finally{
 			TraceContext.finishSpan();

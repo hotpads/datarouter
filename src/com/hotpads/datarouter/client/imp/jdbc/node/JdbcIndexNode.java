@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.hibernate.node;
+package com.hotpads.datarouter.client.imp.jdbc.node;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -33,7 +33,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
-public class HibernateIndexNode<
+public class JdbcIndexNode<
 				PK extends PrimaryKey<PK>,
 				D extends Databean<PK,D>,
 				IK extends PrimaryKey<IK>,
@@ -45,18 +45,18 @@ implements IndexReader<PK,D,IK>{
 	
 	/******************************* constructors ************************************/
 
-	public HibernateIndexNode(Class<D> databeanClass, Class<F> fielderClass,
+	public JdbcIndexNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
 		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
 	
-	public HibernateIndexNode(Class<D> databeanClass, Class<F> fielderClass,
+	public JdbcIndexNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName) {
 		super(databeanClass, fielderClass, router, clientName);
 	}
 
-	public HibernateIndexNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
+	public JdbcIndexNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
 			Class<F> fielderClass, DataRouter router, String clientName){
 		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);
 	}

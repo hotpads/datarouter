@@ -15,6 +15,7 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.ListTool;
 
+@Deprecated//use Jdbc op
 public class HibernatePrefixDeleteOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
@@ -46,7 +47,7 @@ extends BaseHibernateOp<Long>{
 			Session session = getSession(node.getClientName());
 			String sql = SqlBuilder.deleteWithPrefixes(config, node.getTableName(), ListTool.wrap(prefix),
 					wildcardLastField);
-			long numModified = JdbcTool.update(session, sql.toString());
+			long numModified = JdbcTool.update(session.connection(), sql.toString());
 			return numModified;
 		}finally{
 			TraceContext.finishSpan();

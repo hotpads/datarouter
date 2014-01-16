@@ -1,9 +1,9 @@
-package com.hotpads.datarouter.client.imp.hibernate.factory;
+package com.hotpads.datarouter.client.imp.jdbc.factory;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.type.JdbcClient;
 
-public interface HibernateClientFactory extends ClientFactory{
+public interface JdbcClientFactory extends ClientFactory{
 	
 	@Override
 	public JdbcClient getClient();

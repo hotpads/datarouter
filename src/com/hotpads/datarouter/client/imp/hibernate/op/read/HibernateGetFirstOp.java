@@ -47,7 +47,7 @@ extends BaseHibernateOp<D>{
 				nullSafeConfig.setLimit(1);
 				String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getFields(), null, 
 						node.getFieldInfo().getPrimaryKeyFields());
-				List<D> result = JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
+				List<D> result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
 				return CollectionTool.getFirst(result);
 			}else{
 				Criteria criteria = node.getCriteriaForConfig(config, session);
