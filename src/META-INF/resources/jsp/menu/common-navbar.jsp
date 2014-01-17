@@ -1,4 +1,10 @@
-<%@ include file="../generic/prelude-services.jspf"%>
+<%@ include file="../generic/prelude-datarouter.jspf"%>
+<!-- This jspf displays only the webapps currently deployed on this server. -->
+<%-- The HTML code '${commonNavbarHtml}' is added to the servletContext in --%>
+<!-- com.hotpads.handler.AbstractLocalWebbapps. To make it works, You need to -->
+<!-- extends this class and override the method you need/want. This subclass -->
+<!-- needs to be declared as listener in your web.xml. You also need to bind -->
+<!-- AbstractLocalWebbapps to your subclass in one of your module. -->
 <c:set var="commonNavbarHtml"
 	value="<%=getServletContext().getAttribute("commonNavbarHtml")%>"
 	scope="request" />
