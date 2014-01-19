@@ -1,6 +1,7 @@
 package com.hotpads.handler.user.authenticate;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -16,10 +17,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Preconditions;
+import com.hotpads.handler.CookieTool;
+import com.hotpads.handler.DatarouterCookieKeys;
 import com.hotpads.handler.ResponseTool;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionDao;
@@ -37,9 +40,6 @@ public abstract class BaseAuthenticationFilter implements Filter{
 	protected static final String PARAM_PASSWORD = "loginPassword";
 	protected static final String URL_LOGIN = "/login";
 	protected static final String URL_LOGIN_SUBMIT = "/login/submit";
-	//why are these static?
-	protected static String loginFormURI = "";
-	protected static String loginSubmitURI = "";
 
 	protected ServletContext servletContext;
 	
@@ -64,61 +64,50 @@ public abstract class BaseAuthenticationFilter implements Filter{
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain) throws IOException,
 			ServletException{
-		HttpServletRequest request = (HttpServletRequest)req;
-		HttpServletResponse response = (HttpServletResponse)res;
-		HttpSession session = request.getSession();
-		loginFormURI = request.getContextPath() + URL_LOGIN;
-		loginSubmitURI = request.getContextPath() + URL_LOGIN_SUBMIT;
+		
+		/*********** parse inputs *****************/
+		
+		final HttpServletRequest request = (HttpServletRequest)req;
+		final HttpServletResponse response = (HttpServletResponse)res;
+		
+		//these should always be the same, but easiest to get them each request
+		final String loginFormUri = request.getContextPath() + URL_LOGIN;
+		final String loginSubmitUri = request.getContextPath() + URL_LOGIN_SUBMIT;
 
 		// parse inputs
 		final String uri = request.getRequestURI();// for debugging
 		final String queryString = (request.getQueryString() != null) ? "?" + request.getQueryString() : "";
 		final String url = request.getRequestURL().toString() + queryString;
-		final String interceptedUrlString = (String)session.getAttribute(DatarouterSessionKeys.targetUrl.toString());
-		URL interceptedUrl = null;
-		try{
-			interceptedUrl = new URL(interceptedUrlString);
-		}catch(MalformedURLException e){
-		}
-		final String referrer = request.getHeader("referer"); // misspelled on purpose
+		final URL targetUrl = DatarouterSessionTool.getTargetUrlFromCookie(request);
+		final URL referrer = getReferrerUrl(request);
+		final String sessionToken = DatarouterSessionTool.getSessionTokenFromCookie(request);
 
+		
 		// store the referrer so we can bounce the user back to the page they clicked "sign in" from
-		if((loginFormURI.equals(uri)) && interceptedUrl == null // only if they clicked "sign-in" manually
-				&& StringTool.notEmpty(referrer)){
-			try{
-				URL referringUrl = new URL(referrer);
-				if(referringUrl.getHost().equals(request.getServerName())){
-					session.setAttribute(DatarouterSessionKeys.targetUrl.toString(), referrer);
-				}
-			}catch(MalformedURLException e){
+		if((loginFormUri.equals(uri)) 
+				&& targetUrl == null // only if they clicked "sign-in" manually
+				&& referrer != null){
+			if(referrer.getHost().equals(request.getServerName())){//why this?
+				DatarouterSessionTool.addTargetUrlCookie(response, referrer.toExternalForm());
 			}
 		}
 
-		// figure out who they are
-		RequestAuthentication userSession = null;
+		
+		//obtain a valid datarouterSession or redirect to the login form
+		DatarouterSession datarouterSession;
 		try{
-			userSession = getUserSession(request, response);
-			if(userSession == null){// NewUserAuthenticator didn't return a userSession
-				throw new NullPointerException("no user session");
-			}
-		}catch(InvalidCredentialsException e){
+			datarouterSession = Preconditions.checkNotNull(getAndCacheSession(request, response));
+		}catch(InvalidCredentialsException e){//authenticators should throw this exception for bad credentials
 			logger.warn(e.getMessage());
-			String attemptedUsername = RequestTool.get(request, PARAM_USERNAME, "");
-			String escapedUsername = URLEncoder.encode(attemptedUsername, "UTF-8");
-			String usernameParam = StringTool.isEmpty(attemptedUsername) ? "" : "&" + PARAM_USERNAME + "="
-					+ escapedUsername;
-			String errorParam = "?error=true" + usernameParam;
-			ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, loginFormURI + errorParam);
+			handleInvalidLogin(request, response, loginFormUri);
 			return;
 		}
 
-		// check their UserRoles
-		if(missingRequiredRoles(userSession)){
-			if(userSession.isAnonymous()){// trump the referrer url
-				session.setAttribute(DatarouterSessionKeys.targetUrl.toString(), url);
-				String sessionToken = DatarouterSessionTool.getSessionTokenFromCookie(request);
-				datarouterSessionDao.putTargetUrl(sessionToken, request.getRequestURL().toString());
-				ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, loginFormURI);
+		//we identified the user, now check they have the needed roles for the uri
+		if(missingRequiredRoles(datarouterSession)){
+			if(datarouterSession.doesUserHaveRole(DatarouterUserRole.anonymous)){// trump the referrer url
+				DatarouterSessionTool.addTargetUrlCookie(response, url);
+				ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, loginFormUri);
 			}else{
 				response.sendError(403);// 403=permission denied
 			}
@@ -126,20 +115,46 @@ public abstract class BaseAuthenticationFilter implements Filter{
 		}
 
 		// successful login
-		if(loginSubmitURI.equals(uri)){
-			handleSuccessfulLogin(request, response, interceptedUrl, interceptedUrlString);
+		if(loginSubmitUri.equals(uri)){
+			handleSuccessfulLogin(request, response, loginFormUri, interceptedUrl, interceptedUrlString);
 			return;
 		}
 
 		filterChain.doFilter(req, res);
 	}
-
 	
-	protected void handleSuccessfulLogin(HttpServletRequest request, HttpServletResponse response, 
-			URL interceptedUrl, String interceptedUrlString){
+	
+	/****************** private methods **************************/
+	
+	private static URL getReferrerUrl(HttpServletRequest request){
+		final String referrerString = request.getHeader("referer"); // misspelled on purpose
+		if(StringTool.isEmpty(referrerString)){ return null; }
+		try{
+			return new URL(referrerString);
+		}catch(MalformedURLException e){
+			throw new IllegalArgumentException("invalid referer:"+referrerString);
+		}
+	}
+
+	private void handleInvalidLogin(HttpServletRequest request, HttpServletResponse response, String loginFormUri){
+		String attemptedUsername = RequestTool.get(request, PARAM_USERNAME, "");
+		String escapedUsername;
+		try{
+			escapedUsername = URLEncoder.encode(attemptedUsername, "UTF-8");
+		}catch(UnsupportedEncodingException e){
+			throw new RuntimeException(e);
+		}
+		String usernameParam = StringTool.isEmpty(attemptedUsername) ? "" : "&" + PARAM_USERNAME + "="
+				+ escapedUsername;
+		String errorParam = "?error=true" + usernameParam;
+		ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, loginFormUri + errorParam);
+	}
+	
+	private void handleSuccessfulLogin(HttpServletRequest request, HttpServletResponse response, 
+			String loginFormUri, URL interceptedUrl, String interceptedUrlString){
 		//decide where to redirect to
 		if(interceptedUrl != null 
-				&& ObjectTool.notEquals(loginFormURI, interceptedUrl.getPath())) { 
+				&& ObjectTool.notEquals(loginFormUri, interceptedUrl.getPath())) { 
 			//if already logged in will always redirect to localhost
 			ResponseTool.sendRedirect(response, HttpServletResponse.SC_SEE_OTHER, interceptedUrl.toExternalForm());
 		}else{
@@ -147,20 +162,19 @@ public abstract class BaseAuthenticationFilter implements Filter{
 		}
 	}
 
-
-	protected DatarouterSession getUserSession(HttpServletRequest request, HttpServletResponse response){
+	private DatarouterSession getAndCacheSession(HttpServletRequest request, HttpServletResponse response){
 		for(BaseDatarouterAuthenticator authenticator : IterableTool.nullSafe(getAuthenticators(request, response))){
 			DatarouterSession authentication = authenticator.getSession();
 			if(authentication != null){
-				RequestAuthentication.cacheInRequest(request, authentication);
+				DatarouterSessionTool.addToRequest(request, authentication);
 				break;
 			}
 		}
 		return null;
 	}
 
-	private boolean missingRequiredRoles(RequestAuthentication authentication){
+	private boolean missingRequiredRoles(DatarouterSession datarouterSession){
 		Collection<DatarouterUserRole> requiredRoles = getRequiredRoles();
-		return ! requiredRoles.containsAll(authentication.getRoles());
+		return ! requiredRoles.containsAll(datarouterSession.getRoles());
 	}
 }

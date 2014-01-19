@@ -14,6 +14,7 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.handler.user.DatarouterTokenGenerator;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUserKey;
 import com.hotpads.handler.user.authenticate.DatarouterUserRole;
@@ -89,7 +90,7 @@ implements Serializable {
 	
 	public static DatarouterSession createNewAnonymousSession(){
 		DatarouterSession session = new DatarouterSession();
-		session.setSessionToken(DatarouterSessionTool.generateSessionToken());
+		session.setSessionToken(DatarouterTokenGenerator.generateRandomToken());
 		Date now = new Date();
 		session.setCreated(now);
 		session.setUpdated(now);

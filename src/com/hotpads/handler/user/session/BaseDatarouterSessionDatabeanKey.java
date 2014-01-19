@@ -16,22 +16,33 @@ public class BaseDatarouterSessionDatabeanKey<
 		PK extends BaseDatarouterSessionDatabeanKey<PK>> 
 extends BasePrimaryKey<PK>{
 	
+	/************** fields ************************/
+	
 	private String sessionToken;
 	
 	public class F{
-		private static final String sessionToken = "sessionToken";
+		private static final String 
+			sessionToken = "sessionToken";
 	}
 	
 	@Override
 	public List<Field<?>> getFields(){
-		return FieldTool.createList(new StringField(F.sessionToken, sessionToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		return FieldTool.createList(
+			new StringField(F.sessionToken, sessionToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 	
-	public BaseDatarouterSessionDatabeanKey(){}
+	
+	/**************** construct *********************/
+	
+	public BaseDatarouterSessionDatabeanKey(){
+	}
 	
 	public BaseDatarouterSessionDatabeanKey(String sessionToken){
 		this.sessionToken = sessionToken;
 	}
+	
+	
+	/**************** get/set **********************/
 	
 	public void setSessionToken(String sessionToken){
 		this.sessionToken = sessionToken;

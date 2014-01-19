@@ -9,23 +9,27 @@ import org.hibernate.annotations.AccessType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 
 @SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
-public class AuthenticationTargetUrl extends BaseDatarouterSessionDatabean<AuthenticationTargetUrlKey, AuthenticationTargetUrl>{
-protected String value;
+@Deprecated//use cookie
+public class AuthenticationTargetUrl 
+extends BaseDatarouterSessionDatabean<AuthenticationTargetUrlKey,AuthenticationTargetUrl>{
+
+	private String value;
 	
-	public static final String COL_value = "value";
+	public static class F{
+		public static final String
+			value = "value";
+	}
 	
 	@Override
 	public List<Field<?>> getNonKeyFields() {
-		return FieldTool.createList(
-				new DateField(BaseDatarouterSessionDatabean.F.updated, updated),
-				new StringField(COL_value, value, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		List<Field<?>> fields = super.getNonKeyFields();
+		fields.add(new StringField(F.value, value, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT));
+		return fields;
 	}
 	
 	public static class AuthenticationTargetUrlFielder 
