@@ -1,13 +1,12 @@
 package com.hotpads.handler.user.authenticate;
 
-package com.hotpads.websupport.authentication;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Collection;
 
+import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -22,7 +21,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 
 import com.hotpads.handler.ResponseTool;
+import com.hotpads.handler.user.session.DatarouterSessionDao;
 import com.hotpads.handler.user.session.DatarouterSessionKeys;
+import com.hotpads.handler.user.session.DatarouterSessionTool;
 import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ObjectTool;
@@ -40,6 +41,9 @@ public abstract class BaseAuthenticationFilter implements Filter{
 	protected static String loginSubmitURI = "";
 
 	protected ServletContext servletContext;
+	
+	@Inject
+	private DatarouterSessionDao datarouterSessionDao;
 
 	protected abstract Collection<DatarouterUserRole> getRequiredRoles();
 
@@ -111,8 +115,8 @@ public abstract class BaseAuthenticationFilter implements Filter{
 		if(missingRequiredRoles(userSession)){
 			if(userSession.isAnonymous()){// trump the referrer url
 				session.setAttribute(DatarouterSessionKeys.targetUrl.toString(), url);
-				SessionDao.saveAcegiSecurityTargetUrl(UserTool.getSessionToken(request), request.getRequestURL()
-						.toString());
+				String sessionToken = DatarouterSessionTool.getSessionTokenFromCookie(request);
+				datarouterSessionDao.putTargetUrl(sessionToken, request.getRequestURL().toString());
 				ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, loginFormURI);
 			}else{
 				response.sendError(403);// 403=permission denied
