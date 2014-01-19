@@ -2,10 +2,9 @@ package com.hotpads.handler.user.session;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.Assert;
 
@@ -15,12 +14,17 @@ import org.junit.Test;
 
 import com.hotpads.handler.CookieTool;
 import com.hotpads.handler.DatarouterCookieKeys;
-import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.bytes.StringByteTool;
+import com.hotpads.websupport.search.SearchConstants;
 
 public class DatarouterSessionTool{
 	
 	/************* static fields **********************/
+
+	private final static String REQUEST_ATTRIBUTE_NAME = "userSession";
+	private static final int 
+		SESSION_TOKEN_COOKIE_EXPIRATION_SECONDS = 30 * 60,
+		USER_TOKEN_COOKIE_EXPIRATION_SECONDS = 365 * 24 * 3600;
 	
 	private static SecureRandom secureRandom;
 	static{
@@ -43,76 +47,26 @@ public class DatarouterSessionTool{
 		return randomString;
 	}
 	
+	public static void addSessionTokenCookie(HttpServletResponse response, String sessionToken){
+		CookieTool.addCookie(response, DatarouterCookieKeys.sessionToken.toString(), sessionToken, "/", 
+				SESSION_TOKEN_COOKIE_EXPIRATION_SECONDS);
+	}
+	
+	public static void addUserTokenCookie(HttpServletResponse response, String userToken){
+		CookieTool.addCookie(response, DatarouterCookieKeys.userToken.toString(), userToken, "/", 
+				USER_TOKEN_COOKIE_EXPIRATION_SECONDS);
+	}
+	
 	public static String getSessionTokenFromCookie(HttpServletRequest request){
 		return CookieTool.getCookieValue(request, DatarouterCookieKeys.sessionToken.toString());
 	}
 
-	
-	private final static String REQUEST_ATTRIBUTE_NAME = "userSession";
-	
-	public static DatarouterSession getUserSession(HttpServletRequest request) {
-		//try to get userSession out of request cache
-		DatarouterSession userSession = (DatarouterSession)request.getAttribute(REQUEST_ATTRIBUTE_NAME);
-		if (userSession != null) {
-			return userSession;
-		} else {
-			String sessionToken = UserSessionTokenTool.getSessionTokenFromCookie(request);
-			userSession = SessionDao.getUserSession(sessionToken);
-			if (userSession != null)
-				cacheInRequest(request, userSession);
-			return userSession;
-		}
-	}
-		
-	public static void store(HttpServletRequest request, DatarouterSession userSession) {
-		cacheInRequest(request, userSession);
-		Set<UserRole> roles = SetTool.create();
-		boolean rep = request.getAttribute(RequestKeys.REP.toString()) != null && ((Boolean)request.getAttribute(RequestKeys.REP.toString()));
-		if (rep){ //dont store rep permissions for changedUser
-			roles = SetTool.createHashSet(userSession.getUserRoles());
-			roles.remove(UserRole.ROLE_REP);
-			userSession.setUserRoles(roles);
-		}
-		//store userSession in memcached for 3 days
-		if (userSession != null) {
-			if(userSession.getUserToken() == null){
-				userSession.setUserToken(UserTool.getUserToken(request));
-				userSession.setSessionToken(UserTool.getSessionToken(request));									
-			}
-			SessionDao.saveUserSession(userSession);
-		}
-		
-		if (rep) {
-			roles.add(UserRole.ROLE_REP);
-			userSession.setUserRoles(roles);
-		}
+	public static DatarouterSession getFromRequest(HttpServletRequest request) {
+		return (DatarouterSession)request.getAttribute(REQUEST_ATTRIBUTE_NAME);
 	}
 	
-	public static void cacheInRequest(HttpServletRequest request, DatarouterSession userSession) {
+	public static void addToRequest(HttpServletRequest request, DatarouterSession userSession) {
 		request.setAttribute(REQUEST_ATTRIBUTE_NAME, userSession); 
-	}
-	
-	public static void populateAndCache(HttpServletRequest request, DatarouterSession userSession, User user){
-		List<Authority> authorities = AuthorityDao.getAuthorities(user.getKey());
-		userSession.setEmail(user.getEmail());
-		userSession.setId(user.getId());
-		userSession.setAnonUser(false);
-		userSession.setUserToken(user.getToken());
-		
-		userSession.setUserRoles(Authority.getUserRoles(authorities));
-
-			
-
-		store(request, userSession);
-		
-		if (request.getAttribute(RequestKeys.REP.toString()) != null && ((Boolean)request.getAttribute(RequestKeys.REP.toString()))){
-			Set<UserRole> roRoles = userSession.getUserRoles();
-			Set<UserRole> roles = SetTool.createHashSet(roRoles);
-			roles.add(UserRole.ROLE_REP);
-			userSession.setUserRoles(roles);
-		}
-		cacheInRequest(request, userSession);
-		
 	}
 	
 	/******************* tests **************************/

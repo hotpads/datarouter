@@ -1,15 +1,11 @@
 package com.hotpads.handler.user.authenticate.authenticator;
 
-import java.util.Date;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.hotpads.handler.user.authenticate.BaseDatarouterAuthenticator;
-import com.hotpads.handler.user.authenticate.DatarouterUserRole;
-import com.hotpads.handler.user.authenticate.RequestAuthentication;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.handler.user.session.DatarouterSession;
+import com.hotpads.handler.user.session.DatarouterSessionTool;
 
 public class DatarouterNewUserAuthenticator extends BaseDatarouterAuthenticator{
 
@@ -18,28 +14,10 @@ public class DatarouterNewUserAuthenticator extends BaseDatarouterAuthenticator{
 	}
 	
 	@Override
-	public RequestAuthentication authenticate(){
-		String email = null;//we don't know it
-		List<DatarouterUserRole> roles = ListTool.wrap(DatarouterUserRole.anonymous);
-		RequestAuthentication authentication = new RequestAuthentication(email, roles);
-		
-		userSession.setAnonUser(true);
-		userSession.setUserRoles(SetTool.create(UserRole.ROLE_ANONYMOUS));
-		userSession.setUserCreationDate(new Date());
-
-		String newUserToken = UserSessionTokenTool.buildUserToken();
-		userSession.setUserToken(newUserToken);
-		UserSessionTokenTool.addUserTokenCookie(response, userSession.getUserToken());
-		
-		String newSessionToken = UserSessionTokenTool.buildSessionToken();
-		userSession.setSessionToken(newSessionToken);
-		UserSessionTokenTool.addSessionTokenCookie(response, userSession.getSessionToken());
-		
-		userSession.setUpdated(new Date());
-		DatarouterSession.store(request, userSession);
-
-		onSuccess(userSession);
-		
-		return userSession;
+	public DatarouterSession getSession(){
+		DatarouterSession session = DatarouterSession.createNewAnonymousSession();
+		DatarouterSessionTool.addUserTokenCookie(response, session.getUserToken());
+		DatarouterSessionTool.addSessionTokenCookie(response, session.getSessionToken());
+		return session;
 	}
 }

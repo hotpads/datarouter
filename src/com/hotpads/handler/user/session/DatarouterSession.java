@@ -1,28 +1,29 @@
 package com.hotpads.handler.user.session;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import javax.persistence.Entity;
-
-import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
+import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUserKey;
 import com.hotpads.handler.user.authenticate.DatarouterUserRole;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
+/*
+ * A single user may have multiple sessions via different computers, browsers, tabs, etc.  Create one of these for each
+ * such session
+ */
 @SuppressWarnings("serial")
-@Entity()
-@AccessType("field")
 public class DatarouterSession 
 extends BaseDatarouterSessionDatabean<DatarouterSessionKey, DatarouterSession> 
 implements Serializable {	
@@ -30,11 +31,13 @@ implements Serializable {
 
 	/****************** fields **************************/
 	
-	private Long userId;
+	private Long userId;//needed to map back to the DatarouterUser
+	
+	//cached fields from DatarouterUser
 	private String userToken;
 	private String email;
 	private Date userCreated;
-	private List<String> roles = ListTool.create();
+	private List<String> roles;
 	
 	public class F {
 		public static final String
@@ -47,19 +50,18 @@ implements Serializable {
 	}
 	
 	@Override
-	public List<Field<?>> getNonKeyFields() {
-		List<Field<?>> fields =  FieldTool.createList(
-				new DateField(BaseDatarouterSessionDatabean.F.updated, updated),
-				new StringField(F.userToken, userToken, MySqlColumnType.MAX_LENGTH_VARCHAR),
-				new StringField(F.email, email, MySqlColumnType.MAX_LENGTH_VARCHAR),
-				new LongField(F.userId, userId),
-				new DelimitedStringArrayField(F.roles, roles),
-				new DateField(F.userCreated, userCreated));
+	public List<Field<?>> getNonKeyFields(){
+		List<Field<?>> fields = super.getNonKeyFields();
+		fields.add(new UInt63Field(F.userId, userId));
+		fields.add(new StringField(F.userToken, userToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		fields.add(new StringField(F.email, email, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		fields.add(new DelimitedStringArrayField(F.roles, ",", roles));
+		fields.add(new DateField(F.userCreated, userCreated));
 		return fields;
 	}
 	
-	public static class UserSessionFielder extends BaseDatabeanFielder<DatarouterSessionKey,DatarouterSession>{
-		public UserSessionFielder(){}
+	public static class DatarouterSessionFielder extends BaseDatabeanFielder<DatarouterSessionKey,DatarouterSession>{
+		public DatarouterSessionFielder(){}
 		@Override
 		public Class<DatarouterSessionKey> getKeyFielderClass(){
 			return DatarouterSessionKey.class;
@@ -81,8 +83,27 @@ implements Serializable {
 
 	/************************** construct *************************/
 	
-	public DatarouterSession(){
-		super(new DatarouterSessionKey());
+	DatarouterSession(){
+		super(new DatarouterSessionKey(null));
+	}
+	
+	public static DatarouterSession createNewAnonymousSession(){
+		DatarouterSession session = new DatarouterSession();
+		session.setSessionToken(DatarouterSessionTool.generateSessionToken());
+		Date now = new Date();
+		session.setCreated(now);
+		session.setUpdated(now);
+		return session;
+	}
+	
+	public static DatarouterSession createFromUser(DatarouterUser user){
+		DatarouterSession session = createNewAnonymousSession();
+		session.setUserId(user.getId());
+		session.setUserCreated(user.getCreated());
+		session.setEmail(user.getEmail());
+		session.setUserToken(user.getUserToken());
+		session.setRoles(user.getRoles());//remember to overwrite the anonymous role
+		return session;
 	}
 	
 	
@@ -98,6 +119,15 @@ implements Serializable {
 	public DatarouterUserKey getUserKey(){
 		if(userId==null){ return null; }
 		return new DatarouterUserKey(userId);
+	}
+	
+	public List<DatarouterUserRole> getRoles(){
+		return DataRouterEnumTool.fromPersistentStrings(DatarouterUserRole.anonymous, roles);
+	}
+	
+	public void setRoles(Collection<DatarouterUserRole> roleEnums){
+		roles = DataRouterEnumTool.getPersistentStrings(roleEnums);
+		Collections.sort(roles);//for db readability, but don't rely on it
 	}
 	
 	public boolean doesUserHaveRole(DatarouterUserRole requiredRole) {
@@ -138,4 +168,21 @@ implements Serializable {
 	public void setUserToken(String userToken){
 		this.userToken = userToken;
 	}
+
+	public Long getUserId(){
+		return userId;
+	}
+
+	public void setUserId(Long userId){
+		this.userId = userId;
+	}
+
+	public Date getUserCreated(){
+		return userCreated;
+	}
+
+	public void setUserCreated(Date userCreated){
+		this.userCreated = userCreated;
+	}
+	
 }

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 
 import com.hotpads.handler.ResponseTool;
+import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionDao;
 import com.hotpads.handler.user.session.DatarouterSessionKeys;
 import com.hotpads.handler.user.session.DatarouterSessionTool;
@@ -147,9 +148,9 @@ public abstract class BaseAuthenticationFilter implements Filter{
 	}
 
 
-	protected RequestAuthentication getUserSession(HttpServletRequest request, HttpServletResponse response){
+	protected DatarouterSession getUserSession(HttpServletRequest request, HttpServletResponse response){
 		for(BaseDatarouterAuthenticator authenticator : IterableTool.nullSafe(getAuthenticators(request, response))){
-			RequestAuthentication authentication = authenticator.authenticate();
+			DatarouterSession authentication = authenticator.getSession();
 			if(authentication != null){
 				RequestAuthentication.cacheInRequest(request, authentication);
 				break;

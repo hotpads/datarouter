@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.common.base.Preconditions;
 import com.hotpads.util.core.CollectionTool;
 
+@Deprecated//use DatarouterSession
 public class RequestAuthentication{
 
 	private static final String REQUEST_ATTRIBUTE_NAME = "requestAuthentication";

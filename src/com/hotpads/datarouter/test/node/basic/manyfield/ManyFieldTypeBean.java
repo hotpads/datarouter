@@ -148,7 +148,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		fields.add(new BooleanArrayField(F.booleanArrayField, booleanArrayField));
 		fields.add(new IntegerArrayField(F.integerArrayField, integerArrayField));
 		fields.add(new DoubleArrayField(F.doubleArrayField, doubleArrayField));
-		fields.add(new DelimitedStringArrayField(F.delimitedStringArrayField, delimitedStringArrayField));
+		fields.add(new DelimitedStringArrayField(F.delimitedStringArrayField, ",", delimitedStringArrayField));
 		fields.add(new StringField(F.testSchemaUpdateField, testSchemaUpdateField, DEFAULT_STRING_LENGTH));
 		return fields;
 	}

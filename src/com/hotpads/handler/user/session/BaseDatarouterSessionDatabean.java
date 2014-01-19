@@ -23,18 +23,21 @@ extends BaseDatabean<PK,D>{
 	
 	@Id
 	protected PK key;
-	
-	protected Date updated;
+	private Date created;//track how old the session is
+	private Date updated;
 
 	
 	public static class F{
 		public static final String 
+			created = "created",
 			updated = "updated";
 	}
 	
 	@Override
 	public List<Field<?>> getNonKeyFields() {
-		return FieldTool.createList(new DateField(F.updated, updated));
+		return FieldTool.createList(
+			new DateField(F.created, created),
+			new DateField(F.updated, updated));
 	}
 	
 	protected BaseDatarouterSessionDatabean(PK key){
@@ -65,4 +68,13 @@ extends BaseDatabean<PK,D>{
 	public void setUpdated(Date updated){
 		this.updated = updated;
 	}
+
+	public Date getCreated(){
+		return created;
+	}
+
+	public void setCreated(Date created){
+		this.created = created;
+	}
+	
 }
