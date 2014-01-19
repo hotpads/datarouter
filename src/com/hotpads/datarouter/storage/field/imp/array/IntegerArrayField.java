@@ -57,8 +57,7 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		// TODO Auto-generated method stub
-		return 0;
+		throw new NotImplementedException();//why isn't this implemented?
 	}
 	
 

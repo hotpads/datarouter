@@ -16,7 +16,7 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 @SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
-public class AuthenticationTargetUrl extends BaseUserSessionDatabean<AuthenticationTargetUrlKey, AuthenticationTargetUrl>{
+public class AuthenticationTargetUrl extends BaseDatarouterSessionDatabean<AuthenticationTargetUrlKey, AuthenticationTargetUrl>{
 protected String value;
 	
 	public static final String COL_value = "value";
@@ -24,7 +24,7 @@ protected String value;
 	@Override
 	public List<Field<?>> getNonKeyFields() {
 		return FieldTool.createList(
-				new DateField(BaseUserSessionDatabean.F.updated, updated),
+				new DateField(BaseDatarouterSessionDatabean.F.updated, updated),
 				new StringField(COL_value, value, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 	

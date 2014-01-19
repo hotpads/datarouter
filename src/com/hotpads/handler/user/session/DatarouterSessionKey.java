@@ -2,11 +2,11 @@ package com.hotpads.handler.user.session;
 
 import javax.persistence.Embeddable;
 
-import com.hotpads.handler.user.session.BaseUserSessionDatabeanKey;
+import com.hotpads.handler.user.session.BaseDatarouterSessionDatabeanKey;
 
 @SuppressWarnings("serial")
 @Embeddable
-public class DatarouterSessionKey extends BaseUserSessionDatabeanKey<DatarouterSessionKey>{
+public class DatarouterSessionKey extends BaseDatarouterSessionDatabeanKey<DatarouterSessionKey>{
 	public DatarouterSessionKey(){
 	}
 	

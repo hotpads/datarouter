@@ -12,8 +12,8 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 @SuppressWarnings("serial")
 @MappedSuperclass
-public class BaseUserSessionDatabeanKey<
-		PK extends BaseUserSessionDatabeanKey<PK>> 
+public class BaseDatarouterSessionDatabeanKey<
+		PK extends BaseDatarouterSessionDatabeanKey<PK>> 
 extends BasePrimaryKey<PK>{
 	
 	private String sessionToken;
@@ -27,9 +27,9 @@ extends BasePrimaryKey<PK>{
 		return FieldTool.createList(new StringField(F.sessionToken, sessionToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 	
-	public BaseUserSessionDatabeanKey(){}
+	public BaseDatarouterSessionDatabeanKey(){}
 	
-	public BaseUserSessionDatabeanKey(String sessionToken){
+	public BaseDatarouterSessionDatabeanKey(String sessionToken){
 		this.sessionToken = sessionToken;
 	}
 	

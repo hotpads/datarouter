@@ -20,6 +20,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.BooleanArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.DoubleArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.IntegerArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.UInt63ArrayField;
@@ -90,6 +91,8 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	private List<Integer> integerArrayField;
 	@Lob @Column(length=1<<27)
 	private List<Double> doubleArrayField;
+	@Lob @Column(length=1<<27)
+	private List<String> delimitedStringArrayField;
 	
 	private String testSchemaUpdateField;
 	
@@ -115,8 +118,9 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 			data = "data",
 			longArrayField = "longArrayField",
 			booleanArrayField = "booleanArrayField",
-			doubleArrayField = "doubleArrayField",
 			integerArrayField = "integerArrayField",
+			doubleArrayField = "doubleArrayField",
+			delimitedStringArrayField = "delimitedStringArrayField",
 			testSchemaUpdateField = "testSchemaUpdateField";
 	}
 	
@@ -144,6 +148,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		fields.add(new BooleanArrayField(F.booleanArrayField, booleanArrayField));
 		fields.add(new IntegerArrayField(F.integerArrayField, integerArrayField));
 		fields.add(new DoubleArrayField(F.doubleArrayField, doubleArrayField));
+		fields.add(new DelimitedStringArrayField(F.delimitedStringArrayField, delimitedStringArrayField));
 		fields.add(new StringField(F.testSchemaUpdateField, testSchemaUpdateField, DEFAULT_STRING_LENGTH));
 		return fields;
 	}
@@ -170,6 +175,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		if(ObjectTool.notEquals(booleanArrayField, that.booleanArrayField)){ return false; }
 		if(ObjectTool.notEquals(integerArrayField, that.integerArrayField)){ return false; }
 		if(ObjectTool.notEquals(doubleArrayField, that.doubleArrayField)){ return false; }
+		if(ObjectTool.notEquals(delimitedStringArrayField, that.delimitedStringArrayField)){ return false; }
 		if(ObjectTool.notEquals(testSchemaUpdateField, that.testSchemaUpdateField)){ return false; }
 		return true;
 	}
@@ -269,6 +275,12 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		if(integerArrayField==null){ integerArrayField = ListTool.create(); }
 		integerArrayField.add(val);
 		return integerArrayField;
+	}
+	
+	public List<String> appendToDelimitedStringArrayField(String val){
+		if(delimitedStringArrayField==null){ delimitedStringArrayField = ListTool.create(); }
+		delimitedStringArrayField.add(val);
+		return delimitedStringArrayField;
 	}
 	
 	/***************************** get/set **************************************/
@@ -455,6 +467,14 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 
 	public void setBooleanField(Boolean booleanField){
 		this.booleanField = booleanField;
+	}
+
+	public List<String> getDelimitedStringArrayField(){
+		return delimitedStringArrayField;
+	}
+
+	public void setDelimitedStringArrayField(List<String> delimitedStringArrayField){
+		this.delimitedStringArrayField = delimitedStringArrayField;
 	}
 	
 }

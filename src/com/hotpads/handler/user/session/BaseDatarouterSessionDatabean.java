@@ -16,9 +16,9 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 @SuppressWarnings("serial")
 @MappedSuperclass 
 @AccessType("field")
-public abstract class BaseUserSessionDatabean<
-		PK extends BaseUserSessionDatabeanKey<PK>,
-		D extends BaseUserSessionDatabean<PK,D>> 
+public abstract class BaseDatarouterSessionDatabean<
+		PK extends BaseDatarouterSessionDatabeanKey<PK>,
+		D extends BaseDatarouterSessionDatabean<PK,D>> 
 extends BaseDatabean<PK,D>{
 	
 	@Id
@@ -37,7 +37,7 @@ extends BaseDatabean<PK,D>{
 		return FieldTool.createList(new DateField(F.updated, updated));
 	}
 	
-	protected BaseUserSessionDatabean(PK key){
+	protected BaseDatarouterSessionDatabean(PK key){
 		this.updated = new Date();
 		this.key = key;
 	}
