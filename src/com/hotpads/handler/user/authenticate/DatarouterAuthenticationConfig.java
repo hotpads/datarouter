@@ -7,11 +7,13 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface DatarouterAuthenticationConfig{
 
-	String getLoginFormPath();
-	String getLoginSubmitPath();
+	String getSignupFormPath();
+	String getSignupSubmitPath();
+	String getSigninFormPath();
+	String getSigninSubmitPath();
 	String getUsernameParamName();
 	String getPasswordParamName();
-	String getLogoutPath();
+	String getSignoutPath();
 	
 	Iterable<BaseDatarouterAuthenticator> getAuthenticators(HttpServletRequest request,
 			HttpServletResponse response);

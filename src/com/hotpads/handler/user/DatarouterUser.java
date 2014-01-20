@@ -142,7 +142,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 	/***************** methods *****************/
 	
 	public List<DatarouterUserRole> getRoles(){
-		return DataRouterEnumTool.fromPersistentStrings(DatarouterUserRole.anonymous, roles);
+		return DataRouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
 	}
 	
 	public void setRoles(Collection<DatarouterUserRole> roleEnums){

@@ -4,51 +4,45 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
-import com.hotpads.databean.property.user.UserSession;
-import com.hotpads.databean.property.user.util.UserSessionTokenTool;
-import com.hotpads.handler.util.RequestTool;
-import com.hotpads.session.SessionDao;
+import com.hotpads.handler.user.DatarouterUserNodes;
+import com.hotpads.handler.user.authenticate.BaseDatarouterAuthenticator;
+import com.hotpads.handler.user.session.DatarouterSession;
+import com.hotpads.handler.user.session.DatarouterSessionKey;
+import com.hotpads.handler.user.session.DatarouterSessionTool;
 import com.hotpads.util.core.DateTool;
-import com.hotpads.websupport.authentication.BaseAuthenticator;
-import com.hotpads.websupport.user.UserTool;
 
-public class DatarouterSessionAuthenticator extends BaseAuthenticator{
+public class DatarouterSessionAuthenticator extends BaseDatarouterAuthenticator{
 	
 	public static final Long
-		//consider a user dead if 30 minutes has passed without a heartbeat
-		SESSION_LIFESPAN_MS = 30L * DateTool.MILLISECONDS_IN_MINUTE;
+		SESSION_TIMOUT_MS = 30L * DateTool.MILLISECONDS_IN_MINUTE;
 			
-	public DatarouterSessionAuthenticator(HttpServletRequest request, HttpServletResponse response) {
+	private DatarouterUserNodes userNodes;
+	
+	public DatarouterSessionAuthenticator(HttpServletRequest request, HttpServletResponse response,
+			DatarouterUserNodes userNodes) {
 		super(request, response);
+		this.userNodes = userNodes;
 	}
 
 	@Override
-	public DatarouterSession getUserSession(){		
-		String sessionToken = UserTool.getSessionToken(request);
-		DatarouterSession userSession = SessionDao.getUserSession(sessionToken);
-		if(userSession == null || System.currentTimeMillis() - userSession.getUpdated().getTime() > SESSION_LIFESPAN_MS){
+	public DatarouterSession getSession(){		
+		String sessionToken = DatarouterSessionTool.getSessionTokenFromCookie(request);
+		DatarouterSession session = userNodes.getSessionNode().get(new DatarouterSessionKey(sessionToken), null);
+		if(session == null){
 			return null;
 		}
-		//userSession = SessionDao.getUserSession(sessionToken);
-		//if(userSession==null){ return null; }
-		
-		user_token_override(request, userSession);
-		
-		onSuccess(userSession);
-		SessionDao.saveUserSession(userSession);
-		
-		return userSession;
-		
-	}
-	
-	protected void user_token_override(HttpServletRequest request, DatarouterSession userSession) {
-		String ut_override = RequestTool.get(request, UserSessionTokenTool.USER_TOKEN_OVERRIDE, null);
-		if(UserSessionTokenTool.isValidUserToken(ut_override)){ 
-			ut_override = UserSessionTokenTool.cleanUserTokenOverride(ut_override);
-			userSession.setUserToken(ut_override);
-			UserSessionTokenTool.addUserTokenCookie(response, userSession.getUserToken());
+		long msSinceLastAccess = System.currentTimeMillis() - session.getUpdated().getTime();
+		if(msSinceLastAccess > SESSION_TIMOUT_MS){
+			return null;
 		}
+		
+		session.setUpdated(new Date());
+		
+		//TODO may want to always save to memcached, but less frequently to database
+		userNodes.getSessionNode().put(session, null);
+		
+		return session;
+		
 	}
 }

@@ -8,8 +8,7 @@ implements StringEnum<DatarouterUserRole>{
 
 	datarouterAdmin("datarouterAdmin"),
 	admin("admin"),
-	user("user"),
-	anonymous("anonymous");
+	user("user");
 	
 	private String persistentString;
 
@@ -27,7 +26,7 @@ implements StringEnum<DatarouterUserRole>{
 	
 	@Override
 	public DatarouterUserRole fromPersistentString(String s){
-		return DataRouterEnumTool.getEnumFromString(values(), s, anonymous);
+		return DataRouterEnumTool.getEnumFromString(values(), s, null);
 	}
 	
 }

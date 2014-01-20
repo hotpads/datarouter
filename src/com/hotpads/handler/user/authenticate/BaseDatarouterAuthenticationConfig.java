@@ -1,33 +1,44 @@
 package com.hotpads.handler.user.authenticate;
 
-import java.util.List;
+import junit.framework.Assert;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.apache.bcel.generic.ACONST_NULL;
+import org.junit.Test;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.handler.user.authenticate.authenticator.DatarouterLoginFormAuthenticator;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 
 public abstract class BaseDatarouterAuthenticationConfig
 implements DatarouterAuthenticationConfig{
 	
 	public static final String
-		PATH_LOGIN_FORM = "/login",
-		PATH_LOGIN_SUBMIT = "/login/submit",
-		PATH_LOGOUT = "/logout",
-		PARAM_USERNAME = "loginUsername",
-		PARAM_PASSWORD = "loginPassword";
-
+		PATH_SIGNUP_FORM = "/signup",
+		PATH_SIGNUP_SUBMIT = "/signup/submit",
+		PATH_SIGNIN_FORM = "/signin",
+		PATH_SIGNIN_SUBMIT = "/signin/submit",
+		PATH_SIGNOUT = "/signout",
+		
+		PARAM_USERNAME = "signinUsername",
+		PARAM_PASSWORD = "signinPassword";
+	
 	@Override
-	public String getLoginFormPath(){
-		return PATH_LOGIN_FORM;
+	public String getSignupFormPath(){
+		return PATH_SIGNUP_FORM;
+	}
+	
+	@Override
+	public String getSignupSubmitPath(){
+		return PATH_SIGNUP_SUBMIT;
 	}
 
 	@Override
-	public String getLoginSubmitPath(){
-		return PATH_LOGIN_SUBMIT;
+	public String getSigninFormPath(){
+		return PATH_SIGNIN_FORM;
+	}
+
+	@Override
+	public String getSigninSubmitPath(){
+		return PATH_SIGNIN_SUBMIT;
 	}
 
 	@Override
@@ -41,39 +52,75 @@ implements DatarouterAuthenticationConfig{
 	}
 	
 	@Override
-	public String getLogoutPath(){
-		return PATH_LOGOUT;
+	public String getSignoutPath(){
+		return PATH_SIGNOUT;
+	}
+	
+	public static String normalizePath(String rawPath){
+		Preconditions.checkNotNull(rawPath);
+		String path = rawPath.trim().toLowerCase();
+		//not scrubbing out duplicate slashes.  should we?
+		Preconditions.checkArgument(path.startsWith("/"));
+		if(path.length() > 1 && path.endsWith("/")){
+			return path.substring(0, path.length() - 1);//remove trailing slash
+		}
+		return path;
 	}
 	
 	public boolean isLoginRelatedPath(String path){
-		return ObjectTool.equals(path, getLoginFormPath())
-				|| ObjectTool.equals(path, getLoginSubmitPath())
-				|| ObjectTool.equals(path, getLogoutPath());
+		return pathAContainsB(getSignupFormPath(), path)
+				|| pathAContainsB(getSignupSubmitPath(), path)
+				|| pathAContainsB(getSigninFormPath(), path)
+				|| pathAContainsB(getSigninSubmitPath(), path)
+				|| pathAContainsB(getSignoutPath(), path);
 	}
 	
-	public boolean pathAStartsWithB(String a, String b){
-		Preconditions.checkNotNull(a);
-		Preconditions.checkNotNull(b);
-		Preconditions.checkArgument(a.startsWith("/"));
-		Preconditions.checkArgument(b.startsWith("/"));
-		String aLowerCase = a.toLowerCase();
-		String bLowerCase = b.toLowerCase();
-		return aLowerCase.startsWith(bLowerCase);
+	public static boolean pathAContainsB(String rawA, String rawB){
+		String a = normalizePath(rawA);
+		String b = normalizePath(rawB);
+		if(a.equals(b)){ return true; }
+		
+		// a=/fl should NOT contain b=/flowbee
+		String aAsDirectory = a + "/";
+		return b.startsWith(aAsDirectory);
 	}
 	
-	@Override
-	public Iterable<BaseDatarouterAuthenticator> getAuthenticators(HttpServletRequest request,
-			HttpServletResponse response){
-
-		List<DatarouterAuthenticator> authenticators = ListTool.createArrayList();
-		authenticators.add(new DatarouterLoginFormAuthenticator(request, response, HotPadsAuthenticationFilter.loginSubmitURI, PARAM_USERNAME,
-				PARAM_PASSWORD, routers.user(), routers.userSearch(), routers.event(), userItemRecordDao));
-
-		authenticators.add(new SessionAuthenticator(request, response));
-		authenticators.add(new RememberMeCookieAuthenticator(request, response));
-		authenticators.add(new UserTokenAuthenticator(request, response));
-		authenticators.add(new NewUserAuthenticator(request, response));
-		return authenticators;
+//	@Override
+//	public Iterable<BaseDatarouterAuthenticator> getAuthenticators(HttpServletRequest request,
+//			HttpServletResponse response){
+//
+//		List<DatarouterAuthenticator> authenticators = ListTool.createArrayList();
+//		authenticators.add(new DatarouterLoginFormAuthenticator(request, response, HotPadsAuthenticationFilter.loginSubmitURI, PARAM_USERNAME,
+//				PARAM_PASSWORD, routers.user(), routers.userSearch(), routers.event(), userItemRecordDao));
+//
+//		authenticators.add(new SessionAuthenticator(request, response));
+//		authenticators.add(new RememberMeCookieAuthenticator(request, response));
+//		authenticators.add(new UserTokenAuthenticator(request, response));
+//		authenticators.add(new NewUserAuthenticator(request, response));
+//		return authenticators;
+//	}
+	
+	
+	/***************** tests ************************/
+	
+	public static class BaseDatarouterAuthenticationConfigTests{
+		@Test
+		public void testNormalize(){
+			Assert.assertEquals("/", normalizePath("/"));
+			Assert.assertEquals("/", normalizePath(" / "));
+			Assert.assertEquals("/caterpillar", normalizePath("/caterpillar"));
+			Assert.assertEquals("/caterpillar", normalizePath("/caterpillar/"));
+			Assert.assertEquals("/caterpillar/", normalizePath("/caterpillar//"));//prob not valid
+		}
+		@Test
+		public void testContains(){
+			Assert.assertTrue(pathAContainsB("/fl", "/fl"));
+			Assert.assertTrue(pathAContainsB("/fl", "/fl/"));
+			Assert.assertTrue(pathAContainsB("/fl/", "/fl/"));
+			Assert.assertTrue(pathAContainsB("/fl", "/fl/owbee"));
+			Assert.assertFalse(pathAContainsB("/fl", "/flowbee"));
+			Assert.assertFalse(pathAContainsB("/flowbee", "/fl"));
+		}
 	}
 	
 }

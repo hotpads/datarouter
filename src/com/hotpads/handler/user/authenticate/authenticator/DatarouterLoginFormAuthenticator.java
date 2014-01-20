@@ -43,7 +43,7 @@ public class DatarouterLoginFormAuthenticator extends BaseDatarouterAuthenticato
 	@Override
 	public DatarouterSession getSession(){
 		//the usual case where we're not submitting the login form.  just skip this filter
-		if(ObjectTool.notEquals(request.getServletPath(), authenticationConfig.getLoginSubmitPath())){
+		if(ObjectTool.notEquals(request.getServletPath(), authenticationConfig.getSigninSubmitPath())){
 			return null; 
 		}
 		

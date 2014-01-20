@@ -123,7 +123,7 @@ implements Serializable {
 	}
 	
 	public List<DatarouterUserRole> getRoles(){
-		return DataRouterEnumTool.fromPersistentStrings(DatarouterUserRole.anonymous, roles);
+		return DataRouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
 	}
 	
 	public void setRoles(Collection<DatarouterUserRole> roleEnums){
@@ -133,6 +133,10 @@ implements Serializable {
 	
 	public boolean doesUserHaveRole(DatarouterUserRole requiredRole) {
 		return CollectionTool.nullSafe(roles).contains(requiredRole);
+	}
+	
+	public boolean isAnonymous(){
+		return CollectionTool.isEmpty(roles);
 	}
 	
 	

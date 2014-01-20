@@ -1,18 +1,15 @@
 package com.hotpads.handler.user.authenticate.authenticator;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.hotpads.databean.property.user.UserSession;
-import com.hotpads.databean.property.user.security.UserRole;
-import com.hotpads.databean.property.user.util.UserSessionTokenTool;
+import com.hotpads.handler.user.session.DatarouterSession;
+import com.hotpads.handler.user.session.DatarouterSessionTool;
 import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
-import com.hotpads.websupport.authentication.BaseAuthenticator;
 
 public class DatarouterUserTokenAuthenticator extends BaseAuthenticator{
 	
@@ -21,9 +18,9 @@ public class DatarouterUserTokenAuthenticator extends BaseAuthenticator{
 	}
 
 	@Override
-	public DatarouterSession getUserSession(){
+	public DatarouterSession getSession(){
 
-		String cookieUserToken = UserSessionTokenTool.getUserTokenFromCookie(request);
+		String cookieUserToken = DatarouterSessionTool.getUserTokenFromCookie(request);
 		if( ! UserSessionTokenTool.isValidUserToken(cookieUserToken)){ cookieUserToken = null; }
 		
 		String userTokenOverride = RequestTool.get(request, UserSessionTokenTool.USER_TOKEN_OVERRIDE, null);

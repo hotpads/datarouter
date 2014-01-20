@@ -24,7 +24,7 @@ extends BaseDatabean<PK,D>{
 	@Id
 	protected PK key;
 	private Date created;//track how old the session is
-	private Date updated;
+	private Date updated;//last heartbeat time
 
 	
 	public static class F{
@@ -37,7 +37,7 @@ extends BaseDatabean<PK,D>{
 	public List<Field<?>> getNonKeyFields() {
 		return FieldTool.createList(
 			new DateField(F.created, created),
-			new DateField(F.updated, updated));
+			new DateField(F.updated, updated));//this should probably be LongDateField for mysql
 	}
 	
 	protected BaseDatarouterSessionDatabean(PK key){

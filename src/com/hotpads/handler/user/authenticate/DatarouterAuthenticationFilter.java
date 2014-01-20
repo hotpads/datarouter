@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -30,27 +29,19 @@ import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.exception.InvalidCredentialsException;
 import com.hotpads.util.core.io.RuntimeIOException;
 
-public abstract class BaseAuthenticationFilter implements Filter{
-	protected static Logger logger = Logger.getLogger(BaseAuthenticationFilter.class);
-//	protected static final String PARAM_USERNAME = "loginUsername";
-//	protected static final String PARAM_PASSWORD = "loginPassword";
-//	protected static final String URL_LOGIN = "/login";
-//	protected static final String URL_LOGIN_SUBMIT = "/login/submit";
-
-	protected ServletContext servletContext;
+public class DatarouterAuthenticationFilter implements Filter{
+	private static Logger logger = Logger.getLogger(DatarouterAuthenticationFilter.class);
 	
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException{
-		servletContext = filterConfig.getServletContext();
 	}
 	
 	@Override
 	public void destroy(){
 	}
-
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain) throws IOException,
@@ -58,8 +49,8 @@ public abstract class BaseAuthenticationFilter implements Filter{
 		final HttpServletRequest request = (HttpServletRequest)req;
 		final HttpServletResponse response = (HttpServletResponse)res;
 		
-		final String loginFormPath = authenticationConfig.getLoginFormPath();
-		final String loginSubmitPath = authenticationConfig.getLoginSubmitPath();
+		final String loginFormPath = authenticationConfig.getSigninFormPath();
+		final String loginSubmitPath = authenticationConfig.getSigninSubmitPath();
 		final String path = request.getServletPath();
 //		final String uri = request.getRequestURI();// for debugging
 		final String urlWithQueryString = getUrlWithQueryString(request);
@@ -172,7 +163,7 @@ public abstract class BaseAuthenticationFilter implements Filter{
 	
 	private static void handleMissingRoles(HttpServletRequest request, HttpServletResponse response, String url,
 			String loginFormPath, DatarouterSession datarouterSession){
-		if(datarouterSession.doesUserHaveRole(DatarouterUserRole.anonymous)){// trump the referrer url
+		if(datarouterSession.isAnonymous()){// trump the referrer url
 			DatarouterSessionTool.addTargetUrlCookie(response, url);
 			ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, loginFormPath);
 		}else{
