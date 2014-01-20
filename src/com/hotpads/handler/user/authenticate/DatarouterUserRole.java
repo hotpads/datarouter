@@ -1,16 +1,12 @@
 package com.hotpads.handler.user.authenticate;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 public enum DatarouterUserRole
 implements StringEnum<DatarouterUserRole>{
 
+	datarouterAdmin("datarouterAdmin"),
 	admin("admin"),
 	user("user"),
 	anonymous("anonymous");

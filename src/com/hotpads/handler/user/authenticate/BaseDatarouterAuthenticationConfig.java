@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.handler.user.authenticate.authenticator.DatarouterLoginFormAuthenticator;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
@@ -48,6 +49,16 @@ implements DatarouterAuthenticationConfig{
 		return ObjectTool.equals(path, getLoginFormPath())
 				|| ObjectTool.equals(path, getLoginSubmitPath())
 				|| ObjectTool.equals(path, getLogoutPath());
+	}
+	
+	public boolean pathAStartsWithB(String a, String b){
+		Preconditions.checkNotNull(a);
+		Preconditions.checkNotNull(b);
+		Preconditions.checkArgument(a.startsWith("/"));
+		Preconditions.checkArgument(b.startsWith("/"));
+		String aLowerCase = a.toLowerCase();
+		String bLowerCase = b.toLowerCase();
+		return aLowerCase.startsWith(bLowerCase);
 	}
 	
 	@Override
