@@ -77,19 +77,4 @@ public class DatarouterPasswordService{
 			Assert.assertTrue(elapsedNs < 300*1000*1000);//less than 300ms (taking 81ms in testing)
 		}
 	}
-	
-	public static void main(String... args){
-		generateTempPassword();
-	}
-	
-	public static void generateTempPassword(){
-		Injector injector = Guice.createInjector();
-		DatarouterPasswordService passwordService = injector.getInstance(DatarouterPasswordService.class);
-		String salt = passwordService.generateSaltForNewUser();
-		String rawPw = "pass"+RandomTool.nextPositiveInt(new Random());
-		String digest = passwordService.digest(salt, rawPw);
-		System.out.println("  salt: "+salt);
-		System.out.println(" rawPw: "+rawPw);
-		System.out.println("digest: "+digest);
-	}
 }

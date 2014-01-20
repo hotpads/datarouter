@@ -14,8 +14,8 @@ public interface DatarouterAuthenticationConfig{
 	String getSignupSubmitPath();
 	String getSigninFormPath();
 	String getSigninSubmitPath();
-	String getUsernameParamName();
-	String getPasswordParamName();
+	String getUsernameParam();
+	String getPasswordParam();
 	String getSignoutPath();
 	
 	Iterable<DatarouterAuthenticator> getAuthenticators(HttpServletRequest request,

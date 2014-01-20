@@ -21,14 +21,14 @@ import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.exception.IncorrectPasswordException;
 import com.hotpads.util.core.exception.InvalidCredentialsException;
 
-public class DatarouterLoginFormAuthenticator extends BaseDatarouterAuthenticator{
+public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticator{
 //	private static Logger logger = Logger.getLogger(DatarouterLoginFormAuthenticator.class);
 
 	private DatarouterAuthenticationConfig authenticationConfig;
 	private DatarouterUserNodes userNodes;
 	private DatarouterPasswordService passwordService;
 	
-	public DatarouterLoginFormAuthenticator(HttpServletRequest request, HttpServletResponse response, 
+	public DatarouterSigninFormAuthenticator(HttpServletRequest request, HttpServletResponse response, 
 			DatarouterAuthenticationConfig authenticationConfig, DatarouterUserNodes userNodes,
 			DatarouterPasswordService passwordService) {
 		super(request, response);
@@ -44,8 +44,8 @@ public class DatarouterLoginFormAuthenticator extends BaseDatarouterAuthenticato
 			return null; 
 		}
 		
-		String username = RequestTool.get(request, authenticationConfig.getUsernameParamName(), null);
-		String password = RequestTool.get(request, authenticationConfig.getPasswordParamName(), null);
+		String username = RequestTool.get(request, authenticationConfig.getUsernameParam(), null);
+		String password = RequestTool.get(request, authenticationConfig.getPasswordParam(), null);
 		
 		DatarouterUser user = lookupAndValidateUser(username, password);
 		

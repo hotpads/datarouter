@@ -56,17 +56,18 @@ public class DatarouterAuthenticationFilter implements Filter{
 		final HttpServletRequest request = (HttpServletRequest)req;
 		final HttpServletResponse response = (HttpServletResponse)res;
 		
-		final String loginFormPath = authenticationConfig.getSigninFormPath();
-		final String loginSubmitPath = authenticationConfig.getSigninSubmitPath();
+		final String contextPath = request.getContextPath();
+		final String signinFormPath = authenticationConfig.getSigninFormPath();
+		final String signinSubmitPath = authenticationConfig.getSigninSubmitPath();
 		final String path = request.getServletPath();
 //		final String uri = request.getRequestURI();// for debugging
 		final String urlWithQueryString = getUrlWithQueryString(request);
-		final URL targetUrl = getValidTargetUrl(request, loginFormPath);
+		final URL targetUrl = getValidTargetUrl(request, signinFormPath);
 		final URL referrerUrl = getReferrerUrl(request);
 
 		
 		//special case where they clicked sign-in from a random page and we want to bounce them back to that page
-		if(shouldBounceBack(request, path, loginFormPath, referrerUrl, targetUrl)){
+		if(shouldBounceBack(request, path, signinFormPath, referrerUrl, targetUrl)){
 			DatarouterSessionTool.addTargetUrlCookie(response, referrerUrl.toExternalForm());
 		}
 
@@ -77,18 +78,18 @@ public class DatarouterAuthenticationFilter implements Filter{
 			datarouterSession = getAndCacheSession(request, response);
 		}catch(InvalidCredentialsException e){//authenticators should throw this exception for bad credentials
 			logger.warn(e.getMessage());
-			handleBadCredentials(request, response, loginFormPath);
+			handleBadCredentials(request, response, contextPath, signinFormPath);
 			return;
 		}
 
 		//we identified the user, now check they have the needed roles for the uri
 		if(missingRequiredRoles(path, datarouterSession)){
-			handleMissingRoles(request, response, urlWithQueryString, loginFormPath, datarouterSession);
+			handleMissingRoles(request, response, urlWithQueryString, contextPath, signinFormPath, datarouterSession);
 			return;
 		}
 
 		// successful login.  redirect 
-		if(ObjectTool.equals(path, loginSubmitPath)){
+		if(ObjectTool.equals(path, signinSubmitPath)){
 			handleSuccessfulLogin(request, response, targetUrl);
 			return;
 		}
@@ -114,10 +115,10 @@ public class DatarouterAuthenticationFilter implements Filter{
 		}
 	}
 	
-	private static URL getValidTargetUrl(HttpServletRequest request, String loginFormPath){
+	private static URL getValidTargetUrl(HttpServletRequest request, String signinFormPath){
 		URL targetUrl = DatarouterSessionTool.getTargetUrlFromCookie(request);
 		if(targetUrl==null){ return null; }
-		if(ObjectTool.equals(loginFormPath, targetUrl.getPath())){
+		if(ObjectTool.equals(signinFormPath, targetUrl.getPath())){
 			logger.warn("ignoring targetUrl "+targetUrl.getPath());
 			return null; 
 		}
@@ -125,12 +126,12 @@ public class DatarouterAuthenticationFilter implements Filter{
 	}
 	
 	//case where they clicked sign-in from a random page on the site, and we want to send them back to that page
-	private static boolean shouldBounceBack(HttpServletRequest request, String path, String loginFormPath, URL referrer, 
+	private static boolean shouldBounceBack(HttpServletRequest request, String path, String signinFormPath, URL referrer, 
 			URL targetUrl){
 		boolean referredFromThisHost = referrer != null
 				&& ObjectTool.equals(referrer.getHost(), request.getServerName());
 		boolean noExplicitTargetUrl = targetUrl == null;
-		boolean displayingLoginForm = ObjectTool.equals(loginFormPath, path);
+		boolean displayingLoginForm = ObjectTool.equals(signinFormPath, path);
 		return referredFromThisHost && noExplicitTargetUrl && displayingLoginForm;
 	}
 
@@ -141,6 +142,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 			DatarouterSession session = authenticator.getSession();
 			if(session != null){
 				DatarouterSessionTool.addToRequest(request, session);
+				DatarouterSessionTool.addSessionTokenCookie(response, session.getSessionToken());
 				userNodes.getSessionNode().put(session, null);
 				return session;
 			}
@@ -148,31 +150,34 @@ public class DatarouterAuthenticationFilter implements Filter{
 		throw new RuntimeException("no session returned.  make sure you have a catch-all authenticator");
 	}
 
-	private void handleBadCredentials(HttpServletRequest request, HttpServletResponse response, String loginFormPath){
-		String usernameParamName = authenticationConfig.getUsernameParamName();
-		String attemptedUsername = RequestTool.get(request, usernameParamName, "");
+	private void handleBadCredentials(HttpServletRequest request, HttpServletResponse response, String contextPath,
+			String signinFormPath){
+		String usernameParam = authenticationConfig.getUsernameParam();
+		String attemptedUsername = RequestTool.get(request, usernameParam, "");
 		String escapedUsername;
 		try{
 			escapedUsername = URLEncoder.encode(attemptedUsername, "UTF-8");
 		}catch(UnsupportedEncodingException e){
 			throw new RuntimeException(e);
 		}
-		String usernameParam = StringTool.isEmpty(attemptedUsername) ? "" : "&" + usernameParamName + "="
+		String usernameParamAndValue = StringTool.isEmpty(attemptedUsername) ? "" : "&" + usernameParam + "="
 				+ escapedUsername;
-		String errorParam = "?error=true" + usernameParam;
-		ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, loginFormPath + errorParam);
+		String errorParam = "?error=true" + usernameParamAndValue;
+		ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, contextPath + signinFormPath 
+				+ errorParam);
 	}
 
 	private boolean missingRequiredRoles(String path, DatarouterSession datarouterSession){
 		Collection<DatarouterUserRole> requiredRoles = authenticationConfig.getRequiredRoles(path);
-		return ! requiredRoles.containsAll(datarouterSession.getRoles());
+		boolean userHasAllRoles = datarouterSession.getRoles().containsAll(requiredRoles);
+		return ! userHasAllRoles;
 	}
 	
-	private static void handleMissingRoles(HttpServletRequest request, HttpServletResponse response, String url,
-			String loginFormPath, DatarouterSession datarouterSession){
+	private void handleMissingRoles(HttpServletRequest request, HttpServletResponse response, String url,
+			String contextPath, String signinFormPath, DatarouterSession datarouterSession){
 		if(datarouterSession.isAnonymous()){// trump the referrer url
 			DatarouterSessionTool.addTargetUrlCookie(response, url);
-			ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, loginFormPath);
+			ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, contextPath + signinFormPath);
 		}else{
 			try{
 				response.sendError(403);//403=permission denied

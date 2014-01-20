@@ -42,12 +42,12 @@ implements DatarouterAuthenticationConfig{
 	}
 
 	@Override
-	public String getUsernameParamName(){
+	public String getUsernameParam(){
 		return PARAM_USERNAME;
 	}
 
 	@Override
-	public String getPasswordParamName(){
+	public String getPasswordParam(){
 		return PARAM_PASSWORD;
 	}
 	
