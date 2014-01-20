@@ -14,7 +14,7 @@
 	<div class="wide-container">
 		<form method="POST" action="${contextPath}${authenticationConfig.signinSubmitPath}"/>
 			username:<input name="${authenticationConfig.usernameParam}" value="${param[authenticationConfig.usernameParam]}"/><br/>
-			password:<input name="${authenticationConfig.passwordParam}"/><br/>
+			password:<input type="password" name="${authenticationConfig.passwordParam}"/><br/>
 			<input type="submit"/>
 		</form>
 	</div>

@@ -142,6 +142,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 			DatarouterSession session = authenticator.getSession();
 			if(session != null){
 				DatarouterSessionTool.addToRequest(request, session);
+				DatarouterSessionTool.addUserTokenCookie(response, session.getUserToken());
 				DatarouterSessionTool.addSessionTokenCookie(response, session.getSessionToken());
 				userNodes.getSessionNode().put(session, null);
 				return session;
