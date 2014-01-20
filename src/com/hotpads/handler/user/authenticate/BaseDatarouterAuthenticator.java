@@ -5,11 +5,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.handler.user.session.DatarouterSession;
 
-
-public abstract class BaseDatarouterAuthenticator{
-	protected Logger logger = Logger.getLogger(BaseDatarouterAuthenticator.class);
+public abstract class BaseDatarouterAuthenticator
+implements DatarouterAuthenticator{
 
 	protected HttpServletRequest request;
 	protected HttpServletResponse response;
@@ -19,6 +17,5 @@ public abstract class BaseDatarouterAuthenticator{
 		this.response = response;
 	}
 	
-	public abstract DatarouterSession getSession();
 	
 }

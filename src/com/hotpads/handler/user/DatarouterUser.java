@@ -20,26 +20,12 @@ import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.key.unique.base.BaseStringUniqueKey;
 import com.hotpads.handler.user.authenticate.DatarouterUserRole;
 import com.hotpads.util.core.MapTool;
 
-
-/** CREATE SCRIPT
-com.hotpads.reputation.databean.user.ReputationUser{
-	PK{
-		UInt63Field id
-	}
-	DateField created,
-	StringField email,
-	StringField password,
-	index(email)
-}
-
-*/
 @SuppressWarnings("serial")
-@Entity
-@AccessType("field")
 public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUser> {
 
 	/********************* fields *************************/
@@ -47,33 +33,40 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 	@Id
 	private DatarouterUserKey key;
 
-	private Date created;
 	private String email;
 	private String userToken;
 	private String passwordSalt;
 	private String passwordDigest;
+	private Boolean enabled;
 	private List<String> roles;
+
+	private Date created;
+	private Date lastLoggedIn;
 
 
 	public static class F {
 		public static final String
-			created = "created",
 			email = "email",
 			userToken = "userToken",
 			passwordSalt = "passwordSalt",
 			passwordDigest = "passwordDigest",
-			roles = "roles";
+			enabled = "enabled",
+			roles = "roles",
+			created = "created",
+			lastLoggedIn = "lastLoggedIn";
 	}
 
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-			new DateField(F.created, created),
 			new StringField(F.email, email, MySqlColumnType.MAX_LENGTH_VARCHAR),
 			new StringField(F.userToken, userToken, MySqlColumnType.MAX_LENGTH_VARCHAR),
 			new StringField(F.passwordSalt, passwordSalt, MySqlColumnType.MAX_LENGTH_VARCHAR),
 			new StringField(F.passwordDigest, passwordDigest, MySqlColumnType.MAX_LENGTH_TEXT),
-			new DelimitedStringArrayField(F.roles, ",", roles));
+			new BooleanField(F.enabled, enabled),
+			new DelimitedStringArrayField(F.roles, ",", roles),
+			new DateField(F.created, created),
+			new DateField(F.lastLoggedIn, lastLoggedIn));
 	}
 
 	/****************** fielder *****************************/
@@ -90,8 +83,8 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		@Override
 		public Map<String, List<Field<?>>> getIndexes(DatarouterUser databean){
 			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
-			indexesByName.put("index_email", new ReputationUserByEmailLookup(null).getFields());
-			indexesByName.put("index_userToken", new ReputationUserByUserTokenLookup(null).getFields());
+			indexesByName.put("index_email", new DatarouterUserByEmailLookup(null).getFields());
+			indexesByName.put("index_userToken", new DatarouterUserByUserTokenLookup(null).getFields());
 			return indexesByName;
 		}
 	}
@@ -126,8 +119,8 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 
 	/***************** indexes *****************/
 
-	public static class ReputationUserByEmailLookup extends BaseStringUniqueKey<DatarouterUserKey>{
-		public ReputationUserByEmailLookup(String email){
+	public static class DatarouterUserByEmailLookup extends BaseStringUniqueKey<DatarouterUserKey>{
+		public DatarouterUserByEmailLookup(String email){
 			super(email);
 		}
 		public List<Field<?>> getFields(){
@@ -136,8 +129,8 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		}
 	}
 
-	public static class ReputationUserByUserTokenLookup extends BaseStringUniqueKey<DatarouterUserKey>{
-		public ReputationUserByUserTokenLookup(String userToken){
+	public static class DatarouterUserByUserTokenLookup extends BaseStringUniqueKey<DatarouterUserKey>{
+		public DatarouterUserByUserTokenLookup(String userToken){
 			super(userToken);
 		}
 		public List<Field<?>> getFields(){
@@ -209,6 +202,22 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 
 	public void setUserToken(String userToken){
 		this.userToken = userToken;
+	}
+
+	public Boolean isEnabled(){
+		return enabled;
+	}
+
+	public void setEnabled(Boolean enabled){
+		this.enabled = enabled;
+	}
+
+	public Date getLastLoggedIn(){
+		return lastLoggedIn;
+	}
+
+	public void setLastLoggedIn(Date lastLoggedIn){
+		this.lastLoggedIn = lastLoggedIn;
 	}
 
 }

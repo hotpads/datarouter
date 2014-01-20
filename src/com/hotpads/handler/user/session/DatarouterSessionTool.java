@@ -28,6 +28,10 @@ public class DatarouterSessionTool{
 				TARGET_URL_COOKIE_EXPIRATION_SECONDS);
 	}
 	
+	public static void clearTargetUrlCookie(HttpServletResponse response){
+		CookieTool.deleteCookie(response, DatarouterCookieKeys.targetUrl.toString());
+	}
+	
 	public static URL getTargetUrlFromCookie(HttpServletRequest request){
 		String targetUrlString = CookieTool.getCookieValue(request, DatarouterCookieKeys.targetUrl.toString());
 		if(StringTool.isEmpty(targetUrlString)){ return null; }

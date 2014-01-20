@@ -15,7 +15,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.hotpads.handler.user.DatarouterUser;
-import com.hotpads.handler.user.DatarouterUser.ReputationUserByEmailLookup;
+import com.hotpads.handler.user.DatarouterUser.DatarouterUserByEmailLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.bytes.StringByteTool;
@@ -47,7 +47,7 @@ public class DatarouterPasswordService{
 	}
 	
 	public boolean isPasswordCorrect(String email, String rawPassword){
-		DatarouterUser user = userNodes.getUserNode().lookupUnique(new ReputationUserByEmailLookup(email), null);
+		DatarouterUser user = userNodes.getUserNode().lookupUnique(new DatarouterUserByEmailLookup(email), null);
 		return isPasswordCorrect(user, rawPassword);
 	}
 	
