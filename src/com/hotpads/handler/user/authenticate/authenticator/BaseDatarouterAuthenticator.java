@@ -1,4 +1,4 @@
-package com.hotpads.handler.user.authenticate;
+package com.hotpads.handler.user.authenticate.authenticator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

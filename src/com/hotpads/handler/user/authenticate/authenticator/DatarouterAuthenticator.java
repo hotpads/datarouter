@@ -1,4 +1,4 @@
-package com.hotpads.handler.user.authenticate;
+package com.hotpads.handler.user.authenticate.authenticator;
 
 import com.hotpads.handler.user.session.DatarouterSession;
 

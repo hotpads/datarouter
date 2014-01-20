@@ -1,4 +1,4 @@
-package com.hotpads.handler.user.authenticate.authenticator;
+package com.hotpads.handler.user.authenticate.authenticator.impl;
 
 import java.util.Date;
 
@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.hotpads.handler.user.DatarouterUserNodes;
-import com.hotpads.handler.user.authenticate.BaseDatarouterAuthenticator;
+import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthenticator;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionKey;
 import com.hotpads.handler.user.session.DatarouterSessionTool;

@@ -1,4 +1,4 @@
-package com.hotpads.handler.user;
+package com.hotpads.handler.user.authenticate;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;

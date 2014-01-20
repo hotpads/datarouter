@@ -22,7 +22,7 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.key.unique.base.BaseStringUniqueKey;
-import com.hotpads.handler.user.authenticate.DatarouterUserRole;
+import com.hotpads.handler.user.role.DatarouterUserRole;
 import com.hotpads.util.core.MapTool;
 
 @SuppressWarnings("serial")

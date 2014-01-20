@@ -21,6 +21,9 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.handler.ResponseTool;
 import com.hotpads.handler.user.DatarouterUserNodes;
+import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthenticator;
+import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
+import com.hotpads.handler.user.role.DatarouterUserRole;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionTool;
 import com.hotpads.handler.util.RequestTool;

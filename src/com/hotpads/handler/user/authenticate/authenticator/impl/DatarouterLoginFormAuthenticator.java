@@ -1,4 +1,4 @@
-package com.hotpads.handler.user.authenticate.authenticator;
+package com.hotpads.handler.user.authenticate.authenticator.impl;
 
 import java.util.Date;
 
@@ -10,9 +10,9 @@ import org.apache.log4j.Logger;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByEmailLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
-import com.hotpads.handler.user.authenticate.BaseDatarouterAuthenticator;
-import com.hotpads.handler.user.authenticate.DatarouterAuthenticationConfig;
 import com.hotpads.handler.user.authenticate.DatarouterPasswordService;
+import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthenticator;
+import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.BooleanTool;

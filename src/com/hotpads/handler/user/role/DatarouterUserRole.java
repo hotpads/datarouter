@@ -1,4 +1,4 @@
-package com.hotpads.handler.user.authenticate;
+package com.hotpads.handler.user.role;
 
 import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
