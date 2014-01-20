@@ -1,14 +1,11 @@
 package com.hotpads.handler.user.authenticate.authenticator;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.hsqldb.User;
 
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByEmailLookup;
@@ -25,7 +22,7 @@ import com.hotpads.util.core.exception.IncorrectPasswordException;
 import com.hotpads.util.core.exception.InvalidCredentialsException;
 
 public class DatarouterLoginFormAuthenticator extends BaseDatarouterAuthenticator{
-	private static Logger logger = Logger.getLogger(DatarouterLoginFormAuthenticator.class);
+//	private static Logger logger = Logger.getLogger(DatarouterLoginFormAuthenticator.class);
 
 	private DatarouterAuthenticationConfig authenticationConfig;
 	private DatarouterUserNodes userNodes;
@@ -54,10 +51,15 @@ public class DatarouterLoginFormAuthenticator extends BaseDatarouterAuthenticato
 		
 		user.setLastLoggedIn(new Date());
 		userNodes.getUserNode().put(user, null);
+
+//		if (rememberMe) {
+//			RememberMeCookieAuthenticator.addRememberMeCookieToResponse(request, response, user);
+//		}
 		
 		DatarouterSession session = DatarouterSession.createFromUser(user);
 		return session;
 	}
+	
 	
 	private DatarouterUser lookupAndValidateUser(String username, String password){
 		if(StringTool.isEmpty(username)){
@@ -80,58 +82,5 @@ public class DatarouterLoginFormAuthenticator extends BaseDatarouterAuthenticato
 		}
 		return user;
 	}
-	
-	/**
-	 * Fully login a user: building a userSession for them and storing it in memcached, 
-	 * adding their userToken to their cookie, and adding a rememberme cookie if desired
-	 * @param user
-	 * @param request
-	 * @param response
-	 * @param rememberMe whether or not to add a rememberme cookie
-	 * @return
-	 */
-	public static DatarouterSession loginUser(User user, 
-										  HttpServletRequest request, 
-										  HttpServletResponse response, 
-										  boolean rememberMe) {
-		DatarouterSession userSession = buildUserSessionForUser(user, request, response);
-		DatarouterSession.store(request, userSession);
 		
-		if (rememberMe) {
-			RememberMeCookieAuthenticator.addRememberMeCookieToResponse(request, response, user);
-		}
-		
-		UserSessionTokenTool.addUserTokenCookie(response, userSession.getUserToken());
-		UserSessionTokenTool.addSessionTokenCookie(response, userSession.getSessionToken());
-		
-		return userSession;
-	}
-
-
-	public static DatarouterSession buildUserSessionForUser(User user, HttpServletRequest request, HttpServletResponse response){
-		DatarouterSession userSession = new DatarouterSession();
-		
-		userSession.setId(user.getId());
-		userSession.setEmail(user.getEmail());
-		userSession.setAnonUser(false);
-		userSession.setUserToken(user.getToken());
-		userSession.setSessionToken(UserTool.getSessionToken(request));
-		if (userSession.getSessionToken() == null) {
-			logger.error("null session token found, creating new one");
-			String newSessionToken = UserSessionTokenTool.buildSessionToken();
-			userSession.setSessionToken(newSessionToken);
-			UserSessionTokenTool.addSessionTokenCookie(response, userSession.getSessionToken());
-		}
-		if (user.getCreationDate() != null) {
-			userSession.setUserCreationDate(user.getCreationDate()); //experimentsTODO this is not quite when they first used hotpads 
-		}
-		
-		List<Authority> authorities = AuthorityDao.getAuthorities(user.getKey());
-		Set<UserRole> userRoles = Authority.getUserRoles(authorities);
-		userSession.setUserRoles(userRoles);
-		
-		return userSession;
-	}
-	
-	
 }

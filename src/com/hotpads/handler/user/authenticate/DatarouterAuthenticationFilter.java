@@ -19,8 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.handler.ResponseTool;
+import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionTool;
 import com.hotpads.handler.util.RequestTool;
@@ -34,6 +34,8 @@ public class DatarouterAuthenticationFilter implements Filter{
 	
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
+	@Inject
+	private DatarouterUserNodes userNodes;
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException{
@@ -68,7 +70,6 @@ public class DatarouterAuthenticationFilter implements Filter{
 		DatarouterSession datarouterSession;
 		try{
 			datarouterSession = getAndCacheSession(request, response);
-			Preconditions.checkNotNull(datarouterSession);//we should always have a catch-all authenticator
 		}catch(InvalidCredentialsException e){//authenticators should throw this exception for bad credentials
 			logger.warn(e.getMessage());
 			handleBadCredentials(request, response, loginFormPath);
@@ -132,13 +133,14 @@ public class DatarouterAuthenticationFilter implements Filter{
 		Iterable<BaseDatarouterAuthenticator> authenticators = authenticationConfig.getAuthenticators(request,
 				response);
 		for(BaseDatarouterAuthenticator authenticator : authenticators){
-			DatarouterSession authentication = authenticator.getSession();
-			if(authentication != null){
-				DatarouterSessionTool.addToRequest(request, authentication);
-				break;
+			DatarouterSession session = authenticator.getSession();
+			if(session != null){
+				DatarouterSessionTool.addToRequest(request, session);
+				userNodes.getSessionNode().put(session, null);
+				return session;
 			}
 		}
-		return null;
+		throw new RuntimeException("no session returned.  make sure you have a catch-all authenticator");
 	}
 
 	private void handleBadCredentials(HttpServletRequest request, HttpServletResponse response, String loginFormPath){

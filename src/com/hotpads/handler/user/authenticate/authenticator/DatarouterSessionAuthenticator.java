@@ -5,14 +5,18 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.authenticate.BaseDatarouterAuthenticator;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionKey;
 import com.hotpads.handler.user.session.DatarouterSessionTool;
 import com.hotpads.util.core.DateTool;
+import com.hotpads.util.core.ObjectTool;
 
 public class DatarouterSessionAuthenticator extends BaseDatarouterAuthenticator{
+	private static Logger logger = Logger.getLogger(DatarouterSessionAuthenticator.class);
 	
 	public static final Long
 		SESSION_TIMOUT_MS = 30L * DateTool.MILLISECONDS_IN_MINUTE;
@@ -37,11 +41,17 @@ public class DatarouterSessionAuthenticator extends BaseDatarouterAuthenticator{
 			return null;
 		}
 		
-		session.setUpdated(new Date());
+		//verify session's userToken matches cookie userToken.  if not, delete session to be safe
+		String cookieUserToken = DatarouterSessionTool.getUserTokenFromCookie(request);
+		if(ObjectTool.notEquals(cookieUserToken, session.getUserToken())){
+			logger.warn("session userToken "+session.getUserToken()+" != cookie userToken "+cookieUserToken
+					+", deleting session");
+			userNodes.getSessionNode().delete(session.getKey(), null);
+			DatarouterSessionTool.clearSessionTokenCookie(response);
+			return null;
+		}
 		
-		//TODO may want to always save to memcached, but less frequently to database
-		userNodes.getSessionNode().put(session, null);
-		
+		session.setUpdated(new Date());		
 		return session;
 		
 	}

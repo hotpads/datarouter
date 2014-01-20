@@ -1,17 +1,14 @@
 package com.hotpads.handler.user.authenticate.authenticator;
 
-import java.util.Date;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.hotpads.handler.user.authenticate.BaseDatarouterAuthenticator;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionTool;
-import com.hotpads.handler.util.RequestTool;
-import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 
-public class DatarouterUserTokenAuthenticator extends BaseAuthenticator{
+public class DatarouterUserTokenAuthenticator extends BaseDatarouterAuthenticator{
 	
 	public DatarouterUserTokenAuthenticator(HttpServletRequest request, HttpServletResponse response) {
 		super(request, response);
@@ -19,46 +16,14 @@ public class DatarouterUserTokenAuthenticator extends BaseAuthenticator{
 
 	@Override
 	public DatarouterSession getSession(){
-
-		String cookieUserToken = DatarouterSessionTool.getUserTokenFromCookie(request);
-		if( ! UserSessionTokenTool.isValidUserToken(cookieUserToken)){ cookieUserToken = null; }
-		
-		String userTokenOverride = RequestTool.get(request, UserSessionTokenTool.USER_TOKEN_OVERRIDE, null);
-		if( ! UserSessionTokenTool.isValidUserToken(userTokenOverride)){ userTokenOverride = null; }
-		userTokenOverride = UserSessionTokenTool.cleanUserTokenOverride(userTokenOverride);
-		
-		if(StringTool.isEmpty(cookieUserToken) && StringTool.isEmpty(userTokenOverride)){
+		String userToken = DatarouterSessionTool.getUserTokenFromCookie(request);
+		if(StringTool.isEmpty(userToken)){
 			return null;
 		}
 		
-		String cookieSessionToken = UserSessionTokenTool.getSessionTokenFromCookie(request);
-		if( ! UserSessionTokenTool.isValidUserToken(cookieSessionToken)){ cookieSessionToken = null; }
-
-		if(StringTool.isEmpty(cookieSessionToken)){
-			cookieSessionToken =  UserSessionTokenTool.buildSessionToken();
-			UserSessionTokenTool.addSessionTokenCookie(response, cookieSessionToken);
-		}
-		
-		//valid token found, return a UserSession
-		
-		DatarouterSession userSession = new DatarouterSession();
-		
-		userSession.setAnonUser(true);
-		userSession.setUserRoles(SetTool.create(UserRole.ROLE_ANONYMOUS));
-		userSession.setUserToken(cookieUserToken);
-		userSession.setUserCreationDate(new Date()); //experimentTODO how to get actual creation date?? 
-		//maybe set to today-5days since session must have expired out of memcached by then - but could have lost memcached...
-		
-		if(StringTool.notEmpty(userTokenOverride)){
-			userSession.setUserToken(userTokenOverride);
-			UserSessionTokenTool.addUserTokenCookie(response, userSession.getUserToken());
-		}
-		userSession.setSessionToken(cookieSessionToken);
-		userSession.setUpdated(new Date());
-		DatarouterSession.store(request, userSession);
-		
-		onSuccess(userSession);
-		return userSession;
+		//user has been to the site before.  create a new session with their previous userToken
+		DatarouterSession session = DatarouterSession.createAnonymousSession(userToken);
+		return session;
 	}
 	
 	

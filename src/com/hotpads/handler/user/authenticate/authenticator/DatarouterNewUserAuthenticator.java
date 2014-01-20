@@ -3,6 +3,7 @@ package com.hotpads.handler.user.authenticate.authenticator;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.hotpads.handler.user.DatarouterTokenGenerator;
 import com.hotpads.handler.user.authenticate.BaseDatarouterAuthenticator;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionTool;
@@ -15,7 +16,8 @@ public class DatarouterNewUserAuthenticator extends BaseDatarouterAuthenticator{
 	
 	@Override
 	public DatarouterSession getSession(){
-		DatarouterSession session = DatarouterSession.createNewAnonymousSession();
+		String userToken = DatarouterTokenGenerator.generateRandomToken();
+		DatarouterSession session = DatarouterSession.createAnonymousSession(userToken);
 		DatarouterSessionTool.addUserTokenCookie(response, session.getUserToken());
 		DatarouterSessionTool.addSessionTokenCookie(response, session.getSessionToken());
 		return session;

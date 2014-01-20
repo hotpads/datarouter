@@ -88,8 +88,9 @@ implements Serializable {
 		super(new DatarouterSessionKey(null));
 	}
 	
-	public static DatarouterSession createNewAnonymousSession(){
+	public static DatarouterSession createAnonymousSession(String userToken){
 		DatarouterSession session = new DatarouterSession();
+		session.setUserToken(userToken);
 		session.setSessionToken(DatarouterTokenGenerator.generateRandomToken());
 		Date now = new Date();
 		session.setCreated(now);
@@ -98,11 +99,10 @@ implements Serializable {
 	}
 	
 	public static DatarouterSession createFromUser(DatarouterUser user){
-		DatarouterSession session = createNewAnonymousSession();
+		DatarouterSession session = createAnonymousSession(user.getUserToken());
 		session.setUserId(user.getId());
 		session.setUserCreated(user.getCreated());
 		session.setEmail(user.getEmail());
-		session.setUserToken(user.getUserToken());
 		session.setRoles(user.getRoles());//remember to overwrite the anonymous role
 		return session;
 	}
