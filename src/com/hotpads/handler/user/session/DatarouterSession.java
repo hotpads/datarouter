@@ -19,6 +19,7 @@ import com.hotpads.handler.user.DatarouterUserKey;
 import com.hotpads.handler.user.authenticate.DatarouterTokenGenerator;
 import com.hotpads.handler.user.role.DatarouterUserRole;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ListTool;
 
 /*
  * A single user may have multiple sessions via different computers, browsers, tabs, etc.  Create one of these for each
@@ -52,13 +53,17 @@ implements Serializable {
 	
 	@Override
 	public List<Field<?>> getNonKeyFields(){
-		List<Field<?>> fields = super.getNonKeyFields();
-		fields.add(new UInt63Field(F.userId, userId));
-		fields.add(new StringField(F.userToken, userToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
-		fields.add(new StringField(F.email, email, MySqlColumnType.MAX_LENGTH_VARCHAR));
-		fields.add(new DelimitedStringArrayField(F.roles, ",", roles));
-		fields.add(new DateField(F.userCreated, userCreated));
-		return fields;
+		List<Field<?>> nonKeyFields = ListTool.createArrayList();
+//		fields.add(new DateField(BaseDatarouterSessionDatabean.F.created, getCreated()));
+		nonKeyFields.add(new DateField(BaseDatarouterSessionDatabean.F.updated, getUpdated()));
+		
+//		List<Field<?>> nonKeyFields = super.getNonKeyFields();
+		nonKeyFields.add(new UInt63Field(F.userId, userId));
+		nonKeyFields.add(new StringField(F.userToken, userToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		nonKeyFields.add(new StringField(F.email, email, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		nonKeyFields.add(new DelimitedStringArrayField(F.roles, ",", roles));
+		nonKeyFields.add(new DateField(F.userCreated, userCreated));
+		return nonKeyFields;
 	}
 	
 	public static class DatarouterSessionFielder extends BaseDatabeanFielder<DatarouterSessionKey,DatarouterSession>{
