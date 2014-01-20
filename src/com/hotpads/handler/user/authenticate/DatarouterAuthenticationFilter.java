@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.util.Collection;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -21,7 +22,7 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.handler.ResponseTool;
 import com.hotpads.handler.user.DatarouterUserNodes;
-import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthenticator;
+import com.hotpads.handler.user.authenticate.authenticator.DatarouterAuthenticator;
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.handler.user.role.DatarouterUserRole;
 import com.hotpads.handler.user.session.DatarouterSession;
@@ -32,6 +33,7 @@ import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.exception.InvalidCredentialsException;
 import com.hotpads.util.core.io.RuntimeIOException;
 
+@Singleton
 public class DatarouterAuthenticationFilter implements Filter{
 	private static Logger logger = Logger.getLogger(DatarouterAuthenticationFilter.class);
 	
@@ -133,9 +135,9 @@ public class DatarouterAuthenticationFilter implements Filter{
 	}
 
 	private DatarouterSession getAndCacheSession(HttpServletRequest request, HttpServletResponse response){
-		Iterable<BaseDatarouterAuthenticator> authenticators = authenticationConfig.getAuthenticators(request,
+		Iterable<DatarouterAuthenticator> authenticators = authenticationConfig.getAuthenticators(request,
 				response);
-		for(BaseDatarouterAuthenticator authenticator : authenticators){
+		for(DatarouterAuthenticator authenticator : authenticators){
 			DatarouterSession session = authenticator.getSession();
 			if(session != null){
 				DatarouterSessionTool.addToRequest(request, session);

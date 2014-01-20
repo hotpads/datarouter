@@ -5,7 +5,7 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthenticator;
+import com.hotpads.handler.user.authenticate.authenticator.DatarouterAuthenticator;
 import com.hotpads.handler.user.role.DatarouterUserRole;
 
 public interface DatarouterAuthenticationConfig{
@@ -18,7 +18,7 @@ public interface DatarouterAuthenticationConfig{
 	String getPasswordParamName();
 	String getSignoutPath();
 	
-	Iterable<BaseDatarouterAuthenticator> getAuthenticators(HttpServletRequest request,
+	Iterable<DatarouterAuthenticator> getAuthenticators(HttpServletRequest request,
 			HttpServletResponse response);
 	
 	Collection<DatarouterUserRole> getRequiredRoles(String path);
