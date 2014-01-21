@@ -2,6 +2,7 @@ package com.hotpads.handler.https;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.handler.AbstractLocalWebapps;
 import com.hotpads.util.core.StringTool;
 
 public abstract class AbstractHttpsFilter implements Filter {
@@ -20,7 +22,7 @@ public abstract class AbstractHttpsFilter implements Filter {
 
 	
 	protected abstract UrlScheme getRequiredScheme(String path);
-
+@Inject AbstractLocalWebapps abstractLocalWebapps;
 	
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc)

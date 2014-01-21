@@ -5,8 +5,6 @@ import java.io.FilenameFilter;
 import java.util.List;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 
 import com.hotpads.util.core.ListTool;
 import com.hp.gagawa.java.Node;
@@ -14,22 +12,16 @@ import com.hp.gagawa.java.elements.A;
 import com.hp.gagawa.java.elements.Li;
 import com.hp.gagawa.java.elements.Ul;
 
-public abstract class AbstractLocalWebapps implements ServletContextListener{
+public abstract class AbstractLocalWebapps{
 
 	protected List<String> localWebApps = ListTool.create();
 	protected ServletContext context;
 
-	@Override
-	public void contextInitialized(ServletContextEvent arg0){
-		context = arg0.getServletContext();
+	public AbstractLocalWebapps(ServletContext servletContext){
+		context = servletContext;
 		String path = context.getRealPath("");
 		localWebApps = ListTool.createArrayList(listWebapps(path));
-		arg0.getServletContext().setAttribute("commonNavbarHtml", createHtml().write());
-
-	}
-
-	@Override
-	public void contextDestroyed(ServletContextEvent arg0){
+		context.setAttribute("commonNavbarHtml", createHtml().write());
 	}
 
 	protected Node createHtml(){
@@ -75,7 +67,7 @@ public abstract class AbstractLocalWebapps implements ServletContextListener{
 	}
 
 	protected String getClass(String webApp){
-			return "isLocal";
+		return "isLocal";
 
 	}
 
