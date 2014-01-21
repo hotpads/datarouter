@@ -10,8 +10,8 @@
 </head>
 <body>
 	<div class="wide-container">
-		<h2>Sign in</h2>
-		<form method="POST" action="${contextPath}${authenticationConfig.signinSubmitPath}"/>
+		<h2>Sign up</h2>
+		<form method="POST" action="${contextPath}/admin/editUser?submitAction=create"/>
 			username:<input name="${authenticationConfig.usernameParam}" value="${param[authenticationConfig.usernameParam]}"/><br/>
 			password:<input type="password" name="${authenticationConfig.passwordParam}"/><br/>
 			<input type="submit"/>
