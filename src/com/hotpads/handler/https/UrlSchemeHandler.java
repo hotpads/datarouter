@@ -76,7 +76,6 @@ public class UrlSchemeHandler{
 		if(UrlScheme.HTTP == requiredScheme){
 			return standard ? "" : ":" + PORT_HTTP_DEV;
 		}else if(UrlScheme.HTTPS == requiredScheme){ return standard ? "" : ":" +
-				// "8445";}//
 		portIdentifier.getHttpsPort(); }
 		throw new IllegalArgumentException("UrlScheme.HTTPS filter is confused.  Terminating request.");
 	}
@@ -93,21 +92,19 @@ public class UrlSchemeHandler{
 			Assert.assertEquals("", urlSchemeHandler.getRedirectUrlPortStringWithColon(443, UrlScheme.HTTP));
 		}
 
-		@Test
-		public void testGetUriWithScheme() throws Exception{
-			Assert.assertEquals("UrlScheme.HTTP://x.com/y?z=0", urlSchemeHandler.getUriWithScheme(UrlScheme.HTTP, new URL(
-					"UrlScheme.HTTP://x.com/y?z=0")));
-			Assert.assertEquals("UrlScheme.HTTP://x.com:8080/y?z=0", urlSchemeHandler.getUriWithScheme(UrlScheme.HTTP, new URL(
-					"UrlScheme.HTTP://x.com:8080/y?z=0")));
-			Assert.assertEquals("UrlScheme.HTTPs://x.com:8443/y?z=0", urlSchemeHandler.getUriWithScheme(UrlScheme.HTTPS, new URL(
-					"UrlScheme.HTTP://x.com:8080/y?z=0")));
-			Assert.assertEquals("UrlScheme.HTTPs://x.com/y?z=0", urlSchemeHandler.getUriWithScheme(UrlScheme.HTTPS, new URL(
-					"UrlScheme.HTTP://x.com/y?z=0")));
-			Assert.assertEquals("UrlScheme.HTTPs://x.com", urlSchemeHandler.getUriWithScheme(UrlScheme.HTTPS, new URL(
-					"UrlScheme.HTTP://x.com")));
-			Assert.assertEquals("UrlScheme.HTTP://x.com", urlSchemeHandler.getUriWithScheme(UrlScheme.HTTP, new URL(
-					"UrlScheme.HTTP://x.com")));
+		@Test public void testGetUriWithScheme() throws Exception{
+			Assert.assertEquals("http://x.com/y?z=0", 
+					urlSchemeHandler.getUriWithScheme(UrlScheme.HTTP, new URL("http://x.com/y?z=0")));
+			Assert.assertEquals("http://x.com:8080/y?z=0", 
+					urlSchemeHandler.getUriWithScheme(UrlScheme.HTTP, new URL("http://x.com:8080/y?z=0")));
+			Assert.assertEquals("https://x.com:8443/y?z=0", 
+					urlSchemeHandler.getUriWithScheme(UrlScheme.HTTPS, new URL("http://x.com:8080/y?z=0")));
+			Assert.assertEquals("https://x.com/y?z=0", 
+					urlSchemeHandler.getUriWithScheme(UrlScheme.HTTPS, new URL("http://x.com/y?z=0")));
+			Assert.assertEquals("https://x.com", 
+					urlSchemeHandler.getUriWithScheme(UrlScheme.HTTPS, new URL("http://x.com")));
+			Assert.assertEquals("http://x.com", 
+					urlSchemeHandler.getUriWithScheme(UrlScheme.HTTP, new URL("http://x.com")));
 		}
 	}
-
 }
