@@ -14,6 +14,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Preconditions;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.memcached.DataRouterMemcachedKey;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClient;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
@@ -26,6 +27,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
@@ -103,8 +105,12 @@ implements MemcachedPhysicalNode<PK,D>,
 				logger.error(ExceptionTool.getStackTraceAsString(e));
 			}
 			
+			String opName = "get";
+			DRCounters.incSuffixClientNode(ClientType.memcached, opName, getClientName(), getName());
+			
 			if(ArrayTool.isEmpty(bytes)){ 
 				TraceContext.appendToSpanInfo("miss");
+				DRCounters.incSuffixClientNode(ClientType.memcached, opName+" miss", getClientName(), getName());
 				return null; 
 			}
 //					System.out.println(StringByteTool.fromUtf8Bytes(bytes));
@@ -112,6 +118,7 @@ implements MemcachedPhysicalNode<PK,D>,
 			try {
 				D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
 						fieldInfo.getFieldByPrefixedName(), is, bytes.length);
+				DRCounters.incSuffixClientNode(ClientType.memcached, opName+" hit", getClientName(), getName());
 				return databean;
 			} catch (IOException e) {
 				logger.error(ExceptionTool.getStackTraceAsString(e));
@@ -146,8 +153,9 @@ implements MemcachedPhysicalNode<PK,D>,
 			logger.error(ExceptionTool.getStackTraceAsString(e));
 		}
 		
-		if (bytesByStringKey == null)
+		if (bytesByStringKey == null){
 			return null;
+		}
 		
 		for(Map.Entry<String,Object> entry : bytesByStringKey.entrySet()){
 			byte[] bytes = (byte[])entry.getValue();
@@ -162,6 +170,16 @@ implements MemcachedPhysicalNode<PK,D>,
 			}
 		}
 		TraceContext.appendToSpanInfo("[got "+CollectionTool.size(databeans)+"/"+CollectionTool.size(keys)+"]");
+
+		String opName = "getMulti";
+		DRCounters.incSuffixClientNode(ClientType.memcached, opName, getClientName(), getName());
+		int requested = keys.size();
+		int hit = databeans.size();
+		int miss = requested - hit;
+		DRCounters.incSuffixClientNode(ClientType.memcached, opName+" requested", getClientName(), getName(), requested);
+		DRCounters.incSuffixClientNode(ClientType.memcached, opName+" hit", getClientName(), getName(), hit);
+		DRCounters.incSuffixClientNode(ClientType.memcached, opName+" miss", getClientName(), getName(), miss);
+				
 		return databeans;
 	}
 	
