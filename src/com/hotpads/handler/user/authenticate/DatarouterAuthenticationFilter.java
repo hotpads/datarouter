@@ -26,7 +26,7 @@ import com.hotpads.handler.user.authenticate.authenticator.DatarouterAuthenticat
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.handler.user.role.DatarouterUserRole;
 import com.hotpads.handler.user.session.DatarouterSession;
-import com.hotpads.handler.user.session.DatarouterSessionTool;
+import com.hotpads.handler.user.session.DatarouterSessionManager;
 import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
@@ -41,6 +41,8 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private DatarouterAuthenticationConfig authenticationConfig;
 	@Inject
 	private DatarouterUserNodes userNodes;
+	@Inject
+	private DatarouterSessionManager sessionManager;
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException{
@@ -68,7 +70,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		
 		//special case where they clicked sign-in from a random page and we want to bounce them back to that page
 		if(shouldBounceBack(request, path, signinFormPath, referrerUrl, targetUrl)){
-			DatarouterSessionTool.addTargetUrlCookie(response, referrerUrl.toExternalForm());
+			DatarouterSessionManager.addTargetUrlCookie(response, referrerUrl.toExternalForm());
 		}
 
 		
@@ -116,7 +118,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 	}
 	
 	private static URL getValidTargetUrl(HttpServletRequest request, String signinFormPath){
-		URL targetUrl = DatarouterSessionTool.getTargetUrlFromCookie(request);
+		URL targetUrl = DatarouterSessionManager.getTargetUrlFromCookie(request);
 		if(targetUrl==null){ return null; }
 		if(ObjectTool.equals(signinFormPath, targetUrl.getPath())){
 			logger.warn("ignoring targetUrl "+targetUrl.getPath());
@@ -141,9 +143,9 @@ public class DatarouterAuthenticationFilter implements Filter{
 		for(DatarouterAuthenticator authenticator : authenticators){
 			DatarouterSession session = authenticator.getSession();
 			if(session != null){
-				DatarouterSessionTool.addToRequest(request, session);
-				DatarouterSessionTool.addUserTokenCookie(response, session.getUserToken());
-				DatarouterSessionTool.addSessionTokenCookie(response, session.getSessionToken());
+				DatarouterSessionManager.addToRequest(request, session);
+				sessionManager.addUserTokenCookie(response, session.getUserToken());
+				sessionManager.addSessionTokenCookie(response, session.getSessionToken());
 				userNodes.getSessionNode().put(session, null);
 				return session;
 			}
@@ -177,7 +179,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private void handleMissingRoles(HttpServletRequest request, HttpServletResponse response, String url,
 			String contextPath, String signinFormPath, DatarouterSession datarouterSession){
 		if(datarouterSession.isAnonymous()){// trump the referrer url
-			DatarouterSessionTool.addTargetUrlCookie(response, url);
+			DatarouterSessionManager.addTargetUrlCookie(response, url);
 			ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, contextPath + signinFormPath);
 		}else{
 			try{
@@ -192,7 +194,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		String redirectTo;
 		if(targetUrl != null){
 			redirectTo = targetUrl.toExternalForm();
-			DatarouterSessionTool.clearTargetUrlCookie(response);
+			DatarouterSessionManager.clearTargetUrlCookie(response);
 		}else{
 			redirectTo = request.getContextPath();
 		}

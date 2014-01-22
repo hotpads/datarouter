@@ -2,11 +2,10 @@ package com.hotpads.handler.user.authenticate.config;
 
 import junit.framework.Assert;
 
-import org.apache.bcel.generic.ACONST_NULL;
 import org.junit.Test;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.util.core.ObjectTool;
+import com.hotpads.handler.DatarouterCookieKeys;
 
 public abstract class BaseDatarouterAuthenticationConfig
 implements DatarouterAuthenticationConfig{
@@ -40,6 +39,11 @@ implements DatarouterAuthenticationConfig{
 	public String getSigninSubmitPath(){
 		return PATH_SIGNIN_SUBMIT;
 	}
+	
+	@Override
+	public String getSignoutPath(){
+		return PATH_SIGNOUT;
+	}
 
 	@Override
 	public String getUsernameParam(){
@@ -52,8 +56,23 @@ implements DatarouterAuthenticationConfig{
 	}
 	
 	@Override
-	public String getSignoutPath(){
-		return PATH_SIGNOUT;
+	public String getUserTokenCookieName(){
+		return DatarouterCookieKeys.userToken.toString();
+	}
+	
+	@Override
+	public String getSessionTokenCookieName(){
+		return DatarouterCookieKeys.sessionToken.toString();
+	}
+	
+	@Override
+	public Integer getUserTokenTimeoutSeconds(){
+		return 365 * 24 * 60 * 60;//365 days * 24 hours * 60 minutes * 60 seconds => 1 year
+	}
+	
+	@Override
+	public Integer getSessionTokenTimeoutSeconds(){
+		return 30 * 60;//30 minutes * 60 seconds => 30 minutes
 	}
 	
 	public static String normalizePath(String rawPath){

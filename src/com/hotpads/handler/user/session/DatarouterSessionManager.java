@@ -3,21 +3,25 @@ package com.hotpads.handler.user.session;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.hotpads.handler.CookieTool;
 import com.hotpads.handler.DatarouterCookieKeys;
+import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.util.core.StringTool;
 
-public class DatarouterSessionTool{
+public class DatarouterSessionManager{
+	
+	@Inject
+	private DatarouterAuthenticationConfig config;
 	
 	/************* static fields **********************/
 
 	private final static String REQUEST_ATTRIBUTE_NAME = "userSession";
 	private static final int 
 		TARGET_URL_COOKIE_EXPIRATION_SECONDS = 30 * 60,
-		SESSION_TOKEN_COOKIE_EXPIRATION_SECONDS = 30 * 60,
 		USER_TOKEN_COOKIE_EXPIRATION_SECONDS = 365 * 24 * 3600;
 		
 	
@@ -45,9 +49,9 @@ public class DatarouterSessionTool{
 	
 	/************* sessionToken *********************/
 	
-	public static void addSessionTokenCookie(HttpServletResponse response, String sessionToken){
-		CookieTool.addCookie(response, DatarouterCookieKeys.sessionToken.toString(), sessionToken, "/", 
-				SESSION_TOKEN_COOKIE_EXPIRATION_SECONDS);
+	public void addSessionTokenCookie(HttpServletResponse response, String sessionToken){
+		CookieTool.addCookie(response, config.getSessionTokenCookieName(), sessionToken, "/", 
+				config.getSessionTokenTimeoutSeconds());
 	}
 	
 	public static String getSessionTokenFromCookie(HttpServletRequest request){
@@ -61,8 +65,8 @@ public class DatarouterSessionTool{
 	
 	/************* userToken *********************/
 	
-	public static void addUserTokenCookie(HttpServletResponse response, String userToken){
-		CookieTool.addCookie(response, DatarouterCookieKeys.userToken.toString(), userToken, "/", 
+	public void addUserTokenCookie(HttpServletResponse response, String userToken){
+		CookieTool.addCookie(response, config.getUserTokenCookieName(), userToken, "/", 
 				USER_TOKEN_COOKIE_EXPIRATION_SECONDS);
 	}
 	

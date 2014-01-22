@@ -12,11 +12,20 @@ public interface DatarouterAuthenticationConfig{
 
 	String getSignupFormPath();
 	String getSignupSubmitPath();
+	
 	String getSigninFormPath();
 	String getSigninSubmitPath();
+	
+	String getSignoutPath();
+	
 	String getUsernameParam();
 	String getPasswordParam();
-	String getSignoutPath();
+	
+	String getUserTokenCookieName();
+	String getSessionTokenCookieName();
+
+	Integer getUserTokenTimeoutSeconds();
+	Integer getSessionTokenTimeoutSeconds();
 	
 	Iterable<DatarouterAuthenticator> getAuthenticators(HttpServletRequest request,
 			HttpServletResponse response);

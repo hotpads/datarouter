@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.hotpads.handler.user.authenticate.DatarouterTokenGenerator;
 import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthenticator;
 import com.hotpads.handler.user.session.DatarouterSession;
-import com.hotpads.handler.user.session.DatarouterSessionTool;
+import com.hotpads.handler.user.session.DatarouterSessionManager;
 
 public class DatarouterNewUserAuthenticator extends BaseDatarouterAuthenticator{
 
@@ -18,8 +18,8 @@ public class DatarouterNewUserAuthenticator extends BaseDatarouterAuthenticator{
 	public DatarouterSession getSession(){
 		String userToken = DatarouterTokenGenerator.generateRandomToken();
 		DatarouterSession session = DatarouterSession.createAnonymousSession(userToken);
-		DatarouterSessionTool.addUserTokenCookie(response, session.getUserToken());
-		DatarouterSessionTool.addSessionTokenCookie(response, session.getSessionToken());
+		DatarouterSessionManager.addUserTokenCookie(response, session.getUserToken());
+		DatarouterSessionManager.addSessionTokenCookie(response, session.getSessionToken());
 		return session;
 	}
 }

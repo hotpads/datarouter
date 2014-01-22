@@ -2,15 +2,12 @@ package com.hotpads.handler.user;
 
 import java.util.List;
 
-import javax.persistence.Embeddable;
-
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 @SuppressWarnings("serial")
-@Embeddable
 public class DatarouterUserKey extends BasePrimaryKey<DatarouterUserKey> {
 
 	/** fields ********************************************************************************************************/
@@ -33,6 +30,10 @@ public class DatarouterUserKey extends BasePrimaryKey<DatarouterUserKey> {
 	public DatarouterUserKey(Long id){
 		this.id = id;
 	}
+	
+//	public static DatarouterUserKey create(){
+//		return new DatarouterUserKey(RandomTool.nextPositiveLong());
+//	}
 
 	/** getters/setters ***********************************************************************************************/
 	public Long getId(){

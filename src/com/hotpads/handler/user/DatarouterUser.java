@@ -6,10 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Entity;
 import javax.persistence.Id;
-
-import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
@@ -97,6 +94,23 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 
 	public DatarouterUser(Long id){
 		this.key = new DatarouterUserKey(id);
+	}
+	
+	public static DatarouterUser create(Long id, String userToken, String email, String passwordSalt,
+			String passwordDigest, Collection<DatarouterUserRole> roles){
+		DatarouterUser user = new DatarouterUser();
+		user.setId(id);
+		Date now = new Date();
+		user.setCreated(now);
+		user.setLastLoggedIn(null);
+		user.setEnabled(true);
+		
+		user.setUserToken(userToken);
+		user.setEmail(email);
+		user.setPasswordSalt(passwordSalt);
+		user.setPasswordDigest(passwordDigest);
+		user.setRoles(roles);
+		return user;
 	}
 
 	/******** databean ***********************************/
