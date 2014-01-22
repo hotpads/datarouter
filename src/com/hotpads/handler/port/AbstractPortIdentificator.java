@@ -7,12 +7,12 @@ public abstract class AbstractPortIdentificator{
 	protected ServletContext context;
 	protected Integer httpsPort;
 
-	public AbstractPortIdentificator(ServletContext context){
+	public AbstractPortIdentificator(ServletContext context) throws Exception{
 		this.context = context;
 		this.setHttpsPort(initializeHttpsPort());
 	}
 
-	protected Integer initializeHttpsPort(){
+	protected Integer initializeHttpsPort() throws Exception{
 		return new Integer(8443);
 	}
 
