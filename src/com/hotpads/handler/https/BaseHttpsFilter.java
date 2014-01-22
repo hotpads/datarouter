@@ -14,18 +14,22 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.handler.AbstractLocalWebapps;
-import com.hotpads.handler.port.AbstractPortIdentificator;
+import com.hotpads.handler.BaseLocalWebapps;
+import com.hotpads.handler.port.PortIdentifier;
 import com.hotpads.util.core.StringTool;
 
-public abstract class AbstractHttpsFilter implements Filter {
+public abstract class BaseHttpsFilter implements Filter {
 	protected Logger logger = Logger.getLogger(getClass());
 
 	
 	protected abstract UrlScheme getRequiredScheme(String path);
-	@Inject AbstractLocalWebapps abstractLocalWebapps;
-	@Inject AbstractPortIdentificator abstractPortIdentificator;
+
+	@Inject
+	private BaseLocalWebapps localWebapps;
+	@Inject
+	private UrlSchemeHandler urlSchemeHandler;
 	
+
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc)
 			throws IOException, ServletException {
@@ -35,7 +39,7 @@ public abstract class AbstractHttpsFilter implements Filter {
 		
 		/********************** parse request ****************************/
 
-		UrlScheme scheme = UrlSchemeHandler.fromRequest(req, abstractPortIdentificator);
+		UrlScheme scheme = urlSchemeHandler.fromRequest(req);
 		String path = request.getServletPath();
         String pathInfo = StringTool.nullSafe(request.getPathInfo());
         
@@ -46,7 +50,7 @@ public abstract class AbstractHttpsFilter implements Filter {
         if(requiredScheme != null 
         		&& requiredScheme != UrlScheme.ANY 
         		&& requiredScheme != scheme){
-        	String redirectUrl = UrlSchemeHandler.getUriWithScheme(requiredScheme,req);
+        	String redirectUrl = urlSchemeHandler.getUriWithScheme(requiredScheme,req);
         	
         	response.sendRedirect(response.encodeRedirectURL(redirectUrl));
         	return;

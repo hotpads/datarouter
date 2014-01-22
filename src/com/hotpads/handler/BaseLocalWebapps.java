@@ -12,12 +12,12 @@ import com.hp.gagawa.java.elements.A;
 import com.hp.gagawa.java.elements.Li;
 import com.hp.gagawa.java.elements.Ul;
 
-public abstract class AbstractLocalWebapps{
+public abstract class BaseLocalWebapps{
 
 	protected List<String> localWebApps = ListTool.create();
 	protected ServletContext context;
 
-	public AbstractLocalWebapps(ServletContext servletContext){
+	public BaseLocalWebapps(ServletContext servletContext){
 		context = servletContext;
 		String path = context.getRealPath("");
 		localWebApps = ListTool.createArrayList(listWebapps(path));
