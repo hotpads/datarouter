@@ -59,43 +59,35 @@ extends BaseHibernateOp<List<PK>>{
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
-			int batchSize = HibernateNode.DEFAULT_ITERATE_BATCH_SIZE;
-			if(config!=null && config.getIterateBatchSize()!=null){
-				batchSize = config.getIterateBatchSize();
-			}
 			List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
-			Collections.sort(sortedKeys);
-			int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
-			List<PK> all = ListTool.createArrayList(keys.size());
-			for(int batchNum=0; batchNum < numBatches; ++batchNum){
-				List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
-				Criteria criteria = node.getCriteriaForConfig(config, session);
-				//projection list
-				ProjectionList projectionList = Projections.projectionList();
-				int numFields = 0;
-				for(Field<?> field : node.getFieldInfo().getPrefixedPrimaryKeyFields()){
-					projectionList.add(Projections.property(field.getPrefixedName()));
-					++numFields;
-				}
-				criteria.setProjection(projectionList);
-				//where clause
-				Disjunction orSeparatedIds = Restrictions.disjunction();
-				for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
-					Conjunction possiblyCompoundId = Restrictions.conjunction();
-					List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), key.getFields());
-					for(Field<?> field : fields){
-						possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-					}
-					orSeparatedIds.add(possiblyCompoundId);
-				}
-				criteria.add(orSeparatedIds);
-				List<Object[]> rows = criteria.list();
-				for(Object[] row : IterableTool.nullSafe(rows)){
-					all.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
-							node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), row));
-				}
+			Collections.sort(sortedKeys);//is this sorting at all beneficial?
+			List<PK> result = ListTool.createArrayList(keys.size());
+			Criteria criteria = node.getCriteriaForConfig(config, session);
+			//projection list
+			ProjectionList projectionList = Projections.projectionList();
+			int numFields = 0;
+			for(Field<?> field : node.getFieldInfo().getPrefixedPrimaryKeyFields()){
+				projectionList.add(Projections.property(field.getPrefixedName()));
+				++numFields;
 			}
-			return all;
+			criteria.setProjection(projectionList);
+			//where clause
+			Disjunction orSeparatedIds = Restrictions.disjunction();
+			for(Key<PK> key : CollectionTool.nullSafe(keys)){
+				Conjunction possiblyCompoundId = Restrictions.conjunction();
+				List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), key.getFields());
+				for(Field<?> field : fields){
+					possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+				}
+				orSeparatedIds.add(possiblyCompoundId);
+			}
+			criteria.add(orSeparatedIds);
+			List<Object[]> rows = criteria.list();
+			for(Object[] row : IterableTool.nullSafe(rows)){
+				result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
+						node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), row));
+			}
+			return result;
 		}finally{
 			TraceContext.finishSpan();
 		}
