@@ -10,16 +10,20 @@ import com.hotpads.handler.user.session.DatarouterSessionManager;
 
 public class DatarouterNewUserAuthenticator extends BaseDatarouterAuthenticator{
 
-	public DatarouterNewUserAuthenticator(HttpServletRequest request, HttpServletResponse response) {
+	private DatarouterSessionManager sessionManager;
+	
+	public DatarouterNewUserAuthenticator(HttpServletRequest request, HttpServletResponse response,
+			DatarouterSessionManager sessionManager) {
 		super(request, response);
+		this.sessionManager = sessionManager;
 	}
 	
 	@Override
 	public DatarouterSession getSession(){
 		String userToken = DatarouterTokenGenerator.generateRandomToken();
 		DatarouterSession session = DatarouterSession.createAnonymousSession(userToken);
-		DatarouterSessionManager.addUserTokenCookie(response, session.getUserToken());
-		DatarouterSessionManager.addSessionTokenCookie(response, session.getSessionToken());
+		sessionManager.addUserTokenCookie(response, session.getUserToken());
+		sessionManager.addSessionTokenCookie(response, session.getSessionToken());
 		return session;
 	}
 }
