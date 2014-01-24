@@ -12,6 +12,7 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateCountOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetAllOp;
@@ -45,6 +46,8 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Range;
@@ -94,7 +97,9 @@ implements MapStorageReader<PK,D>,
 	
 	/************************************ MapStorageReader methods ****************************/
 	
-	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
+	public static final int 
+		DEFAULT_GET_MULTI_BATCH_SIZE = 200,
+		DEFAULT_ITERATE_BATCH_SIZE = 1000;
 	
 	@Override
 	public boolean exists(PK key, Config config) {
@@ -108,21 +113,36 @@ implements MapStorageReader<PK,D>,
 	}
 
 	@Override
-	public List<D> getAll(final Config config) {
+	public List<D> getAll(final Config config){
 		HibernateGetAllOp<PK,D,F> op = new HibernateGetAllOp<PK,D,F>(this, "getAll", config);
 		return new SessionExecutorImpl<List<D>>(op).call();
 	}
 	
 	@Override
-	public List<D> getMulti(final Collection<PK> keys, final Config config) {
-		HibernateGetOp<PK,D,F> op = new HibernateGetOp<PK,D,F>(this, "getMulti", keys, config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){
+		DRCounters.incSuffixClientNode(ClientType.hibernate, "getMulti", getClientName(), getName());
+		List<D> result = ListTool.createArrayListWithSize(keys);
+		Config config = Config.nullSafe(pConfig);
+		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
+		for(List<PK> keyBatch : BatchTool.getBatches(keys, batchSize)){
+			HibernateGetOp<PK,D,F> op = new HibernateGetOp<PK,D,F>(this, "getMultiBatch", keyBatch, config);
+			List<D> resultBatch = new SessionExecutorImpl<List<D>>(op).call();
+			result.addAll(CollectionTool.nullSafe(resultBatch));
+		}
+		return result;
 	}
 	
 	@Override
-	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
-		HibernateGetKeysOp<PK,D,F> op = new HibernateGetKeysOp<PK,D,F>(this, "getKeys", keys, config);
-		return new SessionExecutorImpl<List<PK>>(op).call();
+	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig){
+		DRCounters.incSuffixClientNode(ClientType.hibernate, "getKeys", getClientName(), getName());
+		Config config = Config.nullSafe(pConfig);
+		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
+		List<PK> result = ListTool.createArrayListWithSize(keys);
+		for(List<PK> keyBatch : BatchTool.getBatches(keys, batchSize)){
+			HibernateGetKeysOp<PK,D,F> op = new HibernateGetKeysOp<PK,D,F>(this, "getKeysBatch", keyBatch, config);
+			result.addAll(new SessionExecutorImpl<List<PK>>(op).call());
+		}
+		return result;
 	}
 
 	
