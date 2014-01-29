@@ -23,10 +23,11 @@ public abstract class BaseHttpsFilter implements Filter {
 	
 	protected abstract UrlScheme getRequiredScheme(String path);
 
+
 	@Inject
-	private BaseLocalWebapps localWebapps;
+	private BaseLocalWebapps baseLocalWebapps;
 	@Inject
-	private UrlSchemeHandler urlSchemeHandler;
+	protected UrlSchemeHandler urlSchemeHandler;
 	
 
 	@Override

@@ -20,11 +20,12 @@ import com.hotpads.util.core.StringTool;
 @Singleton
 public class UrlSchemeHandler{
 
-	protected PortIdentifier portIdentifier;
+	private PortIdentifier portIdentifier;
+	
 	
 	@Inject
 	public UrlSchemeHandler(PortIdentifier portIdentifier){
-		this.portIdentifier = portIdentifier;
+		this.setPortIdentifier(portIdentifier);
 	}
 	
 	public UrlScheme fromRequest(ServletRequest req){
@@ -76,8 +77,16 @@ public class UrlSchemeHandler{
 		if(UrlScheme.HTTP == requiredScheme){
 			return standard ? "" : ":" + PORT_HTTP_DEV;
 		}else if(UrlScheme.HTTPS == requiredScheme){ return standard ? "" : ":" +
-		portIdentifier.getHttpsPort(); }
+		getPortIdentifier().getHttpsPort(); }
 		throw new IllegalArgumentException("UrlScheme.HTTPS filter is confused.  Terminating request.");
+	}
+
+	public PortIdentifier getPortIdentifier(){
+		return portIdentifier;
+	}
+
+	public void setPortIdentifier(PortIdentifier portIdentifier){
+		this.portIdentifier = portIdentifier;
 	}
 
 	public static class Tests{
