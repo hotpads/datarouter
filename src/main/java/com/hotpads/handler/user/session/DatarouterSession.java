@@ -37,7 +37,7 @@ implements Serializable {
 	
 	//cached fields from DatarouterUser
 	private String userToken;
-	private String email;
+	private String username;
 	private Date userCreated;
 	private List<String> roles;
 	
@@ -46,7 +46,7 @@ implements Serializable {
 				KEY_NAME = "key",
 				userId = "userId",
 				userToken = "userToken",
-				email = "email",
+				username = "username",
 				userCreated = "userCreated",
 				roles = "roles";
 	}
@@ -60,7 +60,7 @@ implements Serializable {
 //		List<Field<?>> nonKeyFields = super.getNonKeyFields();
 		nonKeyFields.add(new UInt63Field(F.userId, userId));
 		nonKeyFields.add(new StringField(F.userToken, userToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
-		nonKeyFields.add(new StringField(F.email, email, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		nonKeyFields.add(new StringField(F.username, username, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		nonKeyFields.add(new DelimitedStringArrayField(F.roles, ",", roles));
 		nonKeyFields.add(new DateField(F.userCreated, userCreated));
 		return nonKeyFields;
@@ -107,7 +107,7 @@ implements Serializable {
 		DatarouterSession session = createAnonymousSession(user.getUserToken());
 		session.setUserId(user.getId());
 		session.setUserCreated(user.getCreated());
-		session.setEmail(user.getEmail());
+		session.setUsername(user.getUsername());
 		session.setRoles(user.getRoles());//remember to overwrite the anonymous role
 		return session;
 	}
@@ -155,12 +155,12 @@ implements Serializable {
 		this.key = key;
 	}
 	
-	public String getEmail() {
-		return email;
+	public String getUsername() {
+		return username;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 	
 	public Long getId() {

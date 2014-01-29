@@ -8,7 +8,7 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.user.DatarouterUser;
-import com.hotpads.handler.user.DatarouterUser.DatarouterUserByEmailLookup;
+import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUsernameLookup;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUserTokenLookup;
 import com.hotpads.handler.user.DatarouterUserKey;
 import com.hotpads.handler.user.DatarouterUserNodes;
@@ -50,7 +50,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		DatarouterUser user = DatarouterUser.create(id, userToken, username, passwordSalt, passwordDigest, roles);
 		assertUserDoesNotExist(id, userToken, username);
 		userNodes.getUserNode().put(user, null);
-		return new MessageMav("created DatarouterUser "+user.getEmail()+", userToken="+user.getUserToken());
+		return new MessageMav("created DatarouterUser "+user.getUsername()+", userToken="+user.getUserToken());
 	}
 	
 	private void assertUserDoesNotExist(Long id, String userToken, String username){
@@ -64,7 +64,7 @@ public class AdminEditUserHandler extends BaseHandler{
 			throw new IllegalArgumentException("DatarouterUser already exists with userToken="+userToken);
 		}
 		DatarouterUser userWithEmail = userNodes.getUserNode().lookupUnique(
-				new DatarouterUserByEmailLookup(username), null);
+				new DatarouterUserByUsernameLookup(username), null);
 		if(userWithEmail != null){
 			throw new IllegalArgumentException("DatarouterUser already exists with username="+username);
 		}

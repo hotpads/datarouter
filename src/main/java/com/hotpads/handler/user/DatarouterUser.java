@@ -30,7 +30,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 	@Id
 	private DatarouterUserKey key;
 
-	private String email;
+	private String username;
 	private String userToken;
 	private String passwordSalt;
 	private String passwordDigest;
@@ -43,7 +43,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 
 	public static class F {
 		public static final String
-			email = "email",
+			username = "username",
 			userToken = "userToken",
 			passwordSalt = "passwordSalt",
 			passwordDigest = "passwordDigest",
@@ -56,7 +56,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
-			new StringField(F.email, email, MySqlColumnType.MAX_LENGTH_VARCHAR),
+			new StringField(F.username, username, MySqlColumnType.MAX_LENGTH_VARCHAR),
 			new StringField(F.userToken, userToken, MySqlColumnType.MAX_LENGTH_VARCHAR),
 			new StringField(F.passwordSalt, passwordSalt, MySqlColumnType.MAX_LENGTH_VARCHAR),
 			new StringField(F.passwordDigest, passwordDigest, MySqlColumnType.MAX_LENGTH_TEXT),
@@ -80,7 +80,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		@Override
 		public Map<String, List<Field<?>>> getIndexes(DatarouterUser databean){
 			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
-			indexesByName.put("index_email", new DatarouterUserByEmailLookup(null).getFields());
+			indexesByName.put("index_username", new DatarouterUserByUsernameLookup(null).getFields());
 			indexesByName.put("index_userToken", new DatarouterUserByUserTokenLookup(null).getFields());
 			return indexesByName;
 		}
@@ -106,7 +106,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		user.setEnabled(true);
 		
 		user.setUserToken(userToken);
-		user.setEmail(email);
+		user.setUsername(email);
 		user.setPasswordSalt(passwordSalt);
 		user.setPasswordDigest(passwordDigest);
 		user.setRoles(roles);
@@ -133,13 +133,13 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 
 	/***************** indexes *****************/
 
-	public static class DatarouterUserByEmailLookup extends BaseStringUniqueKey<DatarouterUserKey>{
-		public DatarouterUserByEmailLookup(String email){
-			super(email);
+	public static class DatarouterUserByUsernameLookup extends BaseStringUniqueKey<DatarouterUserKey>{
+		public DatarouterUserByUsernameLookup(String username){
+			super(username);
 		}
 		public List<Field<?>> getFields(){
 			return FieldTool.createList(
-				new StringField(F.email, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new StringField(F.username, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 	}
 
@@ -178,12 +178,12 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		this.created = created;
 	}
 
-	public String getEmail(){
-		return this.email;
+	public String getUsername(){
+		return this.username;
 	}
 
-	public void setEmail(String email){
-		this.email = email;
+	public void setUsername(String username){
+		this.username = username;
 	}
 
 	public String getPasswordDigest(){

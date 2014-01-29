@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.hotpads.handler.user.DatarouterUser;
-import com.hotpads.handler.user.DatarouterUser.DatarouterUserByEmailLookup;
+import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUsernameLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.authenticate.DatarouterPasswordService;
 import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthenticator;
@@ -66,7 +66,7 @@ public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticat
 			throw new InvalidCredentialsException("no username specified");
 		}
 		
-		DatarouterUser user = userNodes.getUserNode().lookupUnique(new DatarouterUserByEmailLookup(username), null);
+		DatarouterUser user = userNodes.getUserNode().lookupUnique(new DatarouterUserByUsernameLookup(username), null);
 		
 		if(user==null){
 			throw new InvalidCredentialsException("user not found ("+username+")");
