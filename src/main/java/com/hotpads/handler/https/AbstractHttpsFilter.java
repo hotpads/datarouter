@@ -2,6 +2,7 @@ package com.hotpads.handler.https;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -21,6 +22,7 @@ public abstract class AbstractHttpsFilter implements Filter {
 	
 	protected abstract UrlScheme getRequiredScheme(String path);
 
+	@Inject UrlSchemeHandler urlSchemeHandler;
 	
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc)
@@ -31,7 +33,7 @@ public abstract class AbstractHttpsFilter implements Filter {
 		
 		/********************** parse request ****************************/
 
-		UrlScheme scheme = UrlScheme.fromRequest(req);
+		UrlScheme scheme = urlSchemeHandler.fromRequest(req);
 		String path = request.getServletPath();
         String pathInfo = StringTool.nullSafe(request.getPathInfo());
         
@@ -42,7 +44,7 @@ public abstract class AbstractHttpsFilter implements Filter {
         if(requiredScheme != null 
         		&& requiredScheme != UrlScheme.ANY 
         		&& requiredScheme != scheme){
-        	String redirectUrl = UrlScheme.getUriWithScheme(requiredScheme,req);
+        	String redirectUrl = urlSchemeHandler.getUriWithScheme(requiredScheme,req);
         	
         	response.sendRedirect(response.encodeRedirectURL(redirectUrl));
         	return;

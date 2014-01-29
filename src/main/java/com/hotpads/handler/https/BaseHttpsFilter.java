@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.hotpads.handler.BaseLocalWebapps;
-import com.hotpads.handler.port.PortIdentifier;
 import com.hotpads.util.core.StringTool;
 
 public abstract class BaseHttpsFilter implements Filter {
