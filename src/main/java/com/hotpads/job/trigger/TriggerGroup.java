@@ -1,9 +1,9 @@
 package com.hotpads.job.trigger;
 
-import java.util.List;
+import java.util.Map;
 
 public interface TriggerGroup{
 
-	List<Class<? extends Job>> getJobClasses();
+	Map<Class<? extends Job>, String> getJobClasses();
 	
 }

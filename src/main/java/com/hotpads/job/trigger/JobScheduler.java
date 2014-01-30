@@ -1,6 +1,7 @@
 package com.hotpads.job.trigger;
 
 import java.util.Date;
+import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
@@ -36,16 +37,18 @@ public class JobScheduler {
 	/***************methods***************/
 	
 	public void scheduleJavaTriggers(){
-		for(Class<? extends Job> jobClass : triggerGroup.getJobClasses()){
-			tracker.createNewTriggerInfo(jobClass);
-			Job sampleJob = injector.getInstance(jobClass);
+		for(Entry<Class<? extends Job>, String> entry : triggerGroup.getJobClasses().entrySet()){
+			tracker.createNewTriggerInfo(entry.getKey());
+			Job sampleJob = injector.getInstance(entry.getKey());
+			sampleJob.setDefaultCronExpression(entry.getValue());
 			sampleJob.scheduleNextRun();
 //			logger.warn("scheduled "+jobClass+" at "+sampleJob.getTrigger().getCronExpression());
 		}
 	}
 	
-	public Job getJobInstance(Class<? extends Job> jobClass){
+	public Job getJobInstance(Class<? extends Job> jobClass, String cronExpression){
 		Job sampleJob = injector.getInstance(jobClass);
+		sampleJob.setDefaultCronExpression(cronExpression);
 		if(tracker.get(jobClass).getLastFired() != null){
 			long lastIntervalDurationMs = System.currentTimeMillis() - tracker.get(jobClass).getLastFired().getTime();
 			tracker.get(jobClass).setLastIntervalDurationMs(lastIntervalDurationMs);

@@ -33,4 +33,5 @@ public interface Job extends Callable<Void>{
 	
 	void interrupt();
 	boolean isInterrupted();
+	void setDefaultCronExpression(String cronExpression);
 }
