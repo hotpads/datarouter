@@ -10,6 +10,7 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.BooleanArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.ByteArrayField;
+import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.DoubleArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.IntegerArrayField;
 import com.hotpads.datarouter.storage.field.imp.array.UInt63ArrayField;
@@ -69,6 +70,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		FIELD_TYPES.add(UInt8Field.class);
 		FIELD_TYPES.add(DateField.class);
 		FIELD_TYPES.add(StringField.class);
+		FIELD_TYPES.add(DelimitedStringArrayField.class);
 		Collections.sort(FIELD_TYPES, new Comparator<Class<?>>() {
 			@Override
 			public int compare(Class<?> o1, Class<?> o2) {
