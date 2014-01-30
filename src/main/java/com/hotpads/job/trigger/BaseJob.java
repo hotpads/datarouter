@@ -24,7 +24,6 @@ public abstract class BaseJob implements Job{
 	protected Setting<Boolean> processJobsSetting;
 	protected boolean isAlreadyScheduled;
 	protected MutableBoolean interrupted = new MutableBoolean(false);
-	protected CronExpression defaultCronExpression;
 
 
 	/************************* constructors *******************/
@@ -225,16 +224,11 @@ public abstract class BaseJob implements Job{
 	}
 	
 	@Override
-	public void setDefaultCronExpression(String cronExpression){
+	public CronExpression getDefaultTrigger() {
 		try {
-			this.defaultCronExpression = new CronExpression(cronExpression);
+			return new CronExpression(scheduler.getTriggerGroup().getJobClasses().get(getClass()));
 		} catch (ParseException e) {
 			throw new IllegalArgumentException(e);
 		}
-	}
-	
-	@Override
-	public CronExpression getDefaultTrigger() {
-		return defaultCronExpression;
 	}
 }

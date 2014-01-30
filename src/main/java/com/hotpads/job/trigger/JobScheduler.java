@@ -40,7 +40,6 @@ public class JobScheduler {
 		for(Entry<Class<? extends Job>, String> entry : triggerGroup.getJobClasses().entrySet()){
 			tracker.createNewTriggerInfo(entry.getKey());
 			Job sampleJob = injector.getInstance(entry.getKey());
-			sampleJob.setDefaultCronExpression(entry.getValue());
 			sampleJob.scheduleNextRun();
 //			logger.warn("scheduled "+jobClass+" at "+sampleJob.getTrigger().getCronExpression());
 		}
@@ -48,7 +47,6 @@ public class JobScheduler {
 	
 	public Job getJobInstance(Class<? extends Job> jobClass, String cronExpression){
 		Job sampleJob = injector.getInstance(jobClass);
-		sampleJob.setDefaultCronExpression(cronExpression);
 		if(tracker.get(jobClass).getLastFired() != null){
 			long lastIntervalDurationMs = System.currentTimeMillis() - tracker.get(jobClass).getLastFired().getTime();
 			tracker.get(jobClass).setLastIntervalDurationMs(lastIntervalDurationMs);
@@ -74,6 +72,10 @@ public class JobScheduler {
 	
 	public TriggerTracker getTracker(){
 		return tracker;
+	}
+	
+	public TriggerGroup getTriggerGroup(){
+		return triggerGroup;
 	}
 	
 }
