@@ -36,7 +36,7 @@ public abstract class BaseLocalWebapps{
 			a = new A();
 			a.setHref(getHref(webApp));
 			a.setTitle("Go to " + getName(webApp));
-			a.setCSSClass(getClass(webApp));
+			a.setCSSClass(getCssClass(webApp));
 			a.appendText(getName(webApp));
 			li.appendChild(a);
 			ul.appendChild(li);
@@ -66,7 +66,7 @@ public abstract class BaseLocalWebapps{
 		}
 	}
 
-	protected String getClass(String webApp){
+	protected String getCssClass(String webApp){
 		return "isLocal";
 
 	}

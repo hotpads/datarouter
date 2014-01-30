@@ -18,13 +18,13 @@ import com.hotpads.handler.port.PortIdentifier.TestPortIdentifier;
 import com.hotpads.util.core.StringTool;
 
 @Singleton
-public class UrlSchemeRedirecter{
+public class UrlSchemeRedirector{
 
 	private PortIdentifier portIdentifier;
 	
 	
 	@Inject
-	public UrlSchemeRedirecter(PortIdentifier portIdentifier){
+	public UrlSchemeRedirector(PortIdentifier portIdentifier){
 		this.setPortIdentifier(portIdentifier);
 	}
 	
@@ -35,7 +35,7 @@ public class UrlSchemeRedirecter{
 		return null;
 	}
 
-	public static final int PORT__STANDARD = 80, PORT_HTTPS_STANDARD = 443, PORT_HTTP_DEV = 8080;
+	public static final int PORT_STANDARD = 80, PORT_HTTPS_STANDARD = 443, PORT_HTTP_DEV = 8080;
 
 	protected static Set<Integer> STANDARD_PORTS = new HashSet<Integer>();
 	static{
@@ -91,7 +91,7 @@ public class UrlSchemeRedirecter{
 
 	public static class Tests{
 		
-		private UrlSchemeRedirecter urlSchemeHandler = new UrlSchemeRedirecter(new TestPortIdentifier());
+		private UrlSchemeRedirector urlSchemeHandler = new UrlSchemeRedirector(new TestPortIdentifier());
 		
 		@Test
 		public void testGetRedirectUrlPortStringWithColon(){
