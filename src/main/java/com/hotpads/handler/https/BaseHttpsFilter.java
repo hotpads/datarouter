@@ -28,7 +28,7 @@ public abstract class BaseHttpsFilter implements Filter {
 	@Inject
 	private BaseLocalWebapps baseLocalWebapps;
 	@Inject
-	protected UrlSchemeHandler urlSchemeHandler;
+	protected UrlSchemeRedirecter urlSchemeHandler;
 	
 
 	@Override
