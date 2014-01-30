@@ -15,13 +15,13 @@ import com.hp.gagawa.java.elements.Ul;
 public abstract class BaseLocalWebapps{
 
 	protected List<String> localWebApps = ListTool.create();
-	protected ServletContext context;
+	protected ServletContext servletContext;
 
 	public BaseLocalWebapps(ServletContext servletContext){
-		context = servletContext;
-		String path = context.getRealPath("");
-		localWebApps = ListTool.createArrayList(listWebapps(path));
-		context.setAttribute("commonNavbarHtml", createHtml().write());
+		this.servletContext = servletContext;
+		String path = servletContext.getRealPath("");
+		this.localWebApps = ListTool.createArrayList(listWebapps(path));
+		servletContext.setAttribute("commonNavbarHtml", createHtml().write());
 	}
 
 	protected Node createHtml(){
@@ -49,7 +49,7 @@ public abstract class BaseLocalWebapps{
 		li = new Li();
 		li.setId("common-menu-datarouter");
 		a = new A();
-		a.setHref(context.getContextPath() + "/datarouter");
+		a.setHref(servletContext.getContextPath() + "/datarouter");
 		a.setTitle("Go to datarouter");
 		a.setCSSClass("isLocal");
 		a.appendText(getName("Datarouter"));
