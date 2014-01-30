@@ -24,6 +24,7 @@ public abstract class BaseHttpsFilter implements Filter {
 	protected abstract UrlScheme getRequiredScheme(String path);
 
 
+//	This instance is not used but needs to injected once to initialize the list of webapp currently deployed on the server
 	@Inject
 	private BaseLocalWebapps baseLocalWebapps;
 	@Inject
