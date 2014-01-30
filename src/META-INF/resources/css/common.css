@@ -90,9 +90,44 @@ body {
 	height: 50px !important;
 }
 
-.distingish-host-project{
-	color: #FFA300; !important;
-	font-style:italic
+.distingish-host-project {
+	color: #FFA300; ! important;
+	font-style: italic
+}
+
+/* Login */
+.login-controls {
+	width: 50%;
+	margin-left: 25% !important;
+	margin-right: 25%;
+}
+
+#login-box {
+	width: 33%;
+	margin-left: 33%;
+	margin-right: 33%;
+	margin-top: 5%;
+}
+
+@media ( max-width :1000px) {
+	#login-box {
+		width: 60%;
+		margin-left: 20%;
+		margin-right: 20%;
+	}
+}
+
+@media ( max-width :400px) {
+	#login-box {
+		width: 90%;
+		margin-left: 5%;
+		margin-right: 5%;
+	}
+}
+
+#login-box input[type="email"],#login-box input[type="password"],#login-box button
+	{
+	width: 100%;
 }
 /* StackTraces */
 .thread-description {
