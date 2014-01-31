@@ -1,8 +1,12 @@
 package com.hotpads.datarouter.storage.field.enums;
 
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 
 public class DataRouterEnumTool{
@@ -65,7 +69,26 @@ public class DataRouterEnumTool{
 		return getEnumFromString(values,value,defaultEnum,true);
 	}
 	
+
 	
+	/***************  multiple values ****************/
+	
+	public static <E extends StringEnum<E>> List<String> getPersistentStrings(Collection<E> enums){
+		List<String> strings = ListTool.createArrayList();
+		for(E stringEnum : CollectionTool.nullSafe(enums)){
+			strings.add(stringEnum.getPersistentString());
+		}
+		return strings;
+	}
+	
+	public static <E extends StringEnum<E>> List<E> fromPersistentStrings(E enumInstance, 
+			Collection<String> persistentStrings){
+		List<E> enums = ListTool.createArrayList();
+		for(String persistentString : CollectionTool.nullSafe(persistentStrings)){
+			enums.add(enumInstance.fromPersistentString(persistentString));
+		}
+		return enums;
+	}
 	
 	
 }

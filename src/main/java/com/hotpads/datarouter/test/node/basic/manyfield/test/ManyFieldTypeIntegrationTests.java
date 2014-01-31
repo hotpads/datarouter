@@ -476,9 +476,18 @@ public class ManyFieldTypeIntegrationTests {
 		recordKey(bean.getKey());
 	}
 	
-	/**
-	 * 
-	 */
+	@Test 
+	public void testDelimitedStringArray(){		
+		ManyFieldTypeBean bean = new ManyFieldTypeBean();
+		List<String> strings = ListTool.create("abc hi!", "xxx's", "bb_3");
+		bean.setDelimitedStringArrayField(strings);
+		router.manyFieldTypeBean().put(bean, null);
+		
+		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
+		Assert.assertArrayEquals(strings.toArray(), roundTripped.getDelimitedStringArrayField().toArray());
+		recordKey(bean.getKey());
+	}
+	
 	@Test 
 	public void testBigLongArray(){		
 		ManyFieldTypeBean bean = new ManyFieldTypeBean();
