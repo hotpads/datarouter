@@ -17,6 +17,8 @@ public abstract class BaseLocalWebapps{
 	protected List<String> localWebApps = ListTool.create();
 	protected ServletContext servletContext;
 
+	public BaseLocalWebapps(){
+	}
 	public BaseLocalWebapps(ServletContext servletContext){
 		this.servletContext = servletContext;
 		String path = servletContext.getRealPath("");
