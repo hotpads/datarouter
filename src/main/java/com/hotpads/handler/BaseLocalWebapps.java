@@ -12,7 +12,7 @@ import com.hp.gagawa.java.elements.A;
 import com.hp.gagawa.java.elements.Li;
 import com.hp.gagawa.java.elements.Ul;
 
-public abstract class BaseLocalWebapps{
+public class BaseLocalWebapps{
 
 	protected List<String> localWebApps = ListTool.create();
 	protected ServletContext servletContext;
