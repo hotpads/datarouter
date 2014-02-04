@@ -19,11 +19,9 @@ public class TomcatServerXmlPortIdentifier implements PortIdentifier{
 	
 	public static class TomcatServerXmlPortIdentifierProvider implements Provider<TomcatServerXmlPortIdentifier>{
 		private ServletContext servletContext;
-		
 		public TomcatServerXmlPortIdentifierProvider(ServletContext servletContext){
 			this.servletContext = servletContext;
 		}
-		
 		@Override
 		public TomcatServerXmlPortIdentifier get(){
 			return new TomcatServerXmlPortIdentifier(servletContext);

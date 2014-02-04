@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
+import com.google.inject.Provider;
 import com.hotpads.util.core.ListTool;
 import com.hp.gagawa.java.Node;
 import com.hp.gagawa.java.elements.A;
@@ -14,6 +15,17 @@ import com.hp.gagawa.java.elements.Ul;
 
 public class BaseLocalWebapps{
 
+	public static class BaseLocalWebAppsProvider implements Provider<BaseLocalWebapps>{
+		private ServletContext servletContext;
+		public BaseLocalWebAppsProvider(ServletContext servletContext){
+			this.servletContext=servletContext;
+		}
+		@Override
+		public BaseLocalWebapps get(){
+			return new BaseLocalWebapps(servletContext);
+		}
+	}
+	
 	protected List<String> localWebApps = ListTool.create();
 	protected ServletContext servletContext;
 
