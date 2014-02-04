@@ -24,6 +24,7 @@ public abstract class BaseHttpsFilter implements Filter{
 
 	// This instance is not used but needs to injected once 
 	//to initialize the list of webapp currently deployed on the server
+	@SuppressWarnings("unused") 
 	@Inject private BaseLocalWebapps baseLocalWebapps;
 	@Inject protected UrlSchemeRedirector urlSchemeHandler;
 
