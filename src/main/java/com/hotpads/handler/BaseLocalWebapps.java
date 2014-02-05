@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.List;
 
+import javax.inject.Singleton;
 import javax.servlet.ServletContext;
+
+import org.apache.log4j.Logger;
 
 import com.google.inject.Provider;
 import com.hotpads.util.core.ListTool;
@@ -13,8 +16,14 @@ import com.hp.gagawa.java.elements.A;
 import com.hp.gagawa.java.elements.Li;
 import com.hp.gagawa.java.elements.Ul;
 
+//TODO pull an interface out of this for clarity
+@Singleton
 public class BaseLocalWebapps{
+	private Logger logger = Logger.getLogger(BaseLocalWebapps.class);
 
+	/************** Provider class *********************/
+	
+	//so we can access ServletContext
 	public static class BaseLocalWebAppsProvider implements Provider<BaseLocalWebapps>{
 		private ServletContext servletContext;
 		public BaseLocalWebAppsProvider(ServletContext servletContext){
@@ -26,18 +35,29 @@ public class BaseLocalWebapps{
 		}
 	}
 	
+	
+	/****************** fields *************************/
+	
 	protected List<String> localWebApps = ListTool.create();
 	protected ServletContext servletContext;
 
+	
+	/****************** construct ************************/
+	
 	public BaseLocalWebapps(){
 	}
+	
 	public BaseLocalWebapps(ServletContext servletContext){
 		this.servletContext = servletContext;
 		String path = servletContext.getRealPath("");
 		this.localWebApps = ListTool.createArrayList(listWebapps(path));
+		logger.warn("found webapps:"+localWebApps);
 		servletContext.setAttribute("commonNavbarHtml", createHtml().write());
 	}
 
+	
+	/********************* methods ***********************/
+	
 	protected Node createHtml(){
 		Ul ul = new Ul();
 		Li li;

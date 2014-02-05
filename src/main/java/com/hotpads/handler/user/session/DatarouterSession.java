@@ -39,7 +39,7 @@ implements Serializable {
 	private String userToken;
 	private String username;
 	private Date userCreated;
-	private List<String> roles;
+	private List<String> roles;//TODO convert to List<DatarouterUserRole>
 	
 	public class F {
 		public static final String
@@ -127,6 +127,11 @@ implements Serializable {
 		return new DatarouterUserKey(userId);
 	}
 	
+	
+	/************** DatarouterUserRole methods *****************************/
+	/*
+	 * careful, these are stored as strings right now, so watch for unchecked methods
+	 */
 	public List<DatarouterUserRole> getRoles(){
 		return DataRouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
 	}
@@ -137,11 +142,15 @@ implements Serializable {
 	}
 	
 	public boolean doesUserHaveRole(DatarouterUserRole requiredRole) {
-		return CollectionTool.nullSafe(roles).contains(requiredRole);
+		return CollectionTool.nullSafe(roles).contains(requiredRole.getPersistentString());
 	}
 	
 	public boolean isAnonymous(){
 		return CollectionTool.isEmpty(roles);
+	}
+	
+	public boolean isDatarouterAdmin(){
+		return CollectionTool.nullSafe(roles).contains(DatarouterUserRole.datarouterAdmin.getPersistentString());
 	}
 	
 	

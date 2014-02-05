@@ -77,7 +77,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		//obtain a valid datarouterSession or redirect to the login form
 		DatarouterSession datarouterSession;
 		try{
-			datarouterSession = getAndCacheSession(request, response);
+			datarouterSession = getSessionAndAddToRequest(request, response);
 		}catch(InvalidCredentialsException e){//authenticators should throw this exception for bad credentials
 			logger.warn(e.getMessage());
 			handleBadCredentials(request, response, contextPath, signinFormPath);
@@ -137,7 +137,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		return referredFromThisHost && noExplicitTargetUrl && displayingLoginForm;
 	}
 
-	private DatarouterSession getAndCacheSession(HttpServletRequest request, HttpServletResponse response){
+	private DatarouterSession getSessionAndAddToRequest(HttpServletRequest request, HttpServletResponse response){
 		Iterable<DatarouterAuthenticator> authenticators = authenticationConfig.getAuthenticators(request,
 				response);
 		for(DatarouterAuthenticator authenticator : authenticators){
