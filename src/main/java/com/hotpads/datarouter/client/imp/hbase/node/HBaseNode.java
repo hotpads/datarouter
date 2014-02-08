@@ -86,7 +86,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					//end debugging
 					
 					List<Row> actions = ListTool.createArrayList();
-					int numPuts = 0, numDeletes = 0;
+					int numCellsPut = 0, numCellsDeleted = 0, numRowsPut = 0;;
 					long batchStartTime = System.currentTimeMillis();
 					for(D databean : databeans){//TODO obey Config.commitBatchSize
 						if(databean==null){ continue; }
@@ -100,11 +100,11 @@ implements PhysicalSortedMapStorageNode<PK,D>
 							if(fieldBytes==null){
 								if(BooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
 									delete.deleteColumn(FAM, field.getColumnNameBytes(), batchStartTime);
-									++numDeletes;
+									++numCellsDeleted;
 								}
 							}else{
 								put.add(FAM, field.getColumnNameBytes(), field.getBytes());
-								++numPuts;
+								++numCellsPut;
 							}
 						}
 						if(put.isEmpty()){ 
@@ -114,10 +114,11 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						put.setWriteToWAL(config.getPersistentPut());
 						actions.add(put);
 						if(!delete.isEmpty()){ actions.add(delete); }
+						++numRowsPut;
 					}
-					DRCounters.incSuffixClientNode(ClientType.hbase, "cells put", clientName, node.getName(), numPuts);
-					DRCounters.incSuffixClientNode(ClientType.hbase, "cells delete", clientName, node.getName(), numDeletes);
-					DRCounters.incSuffixClientNode(ClientType.hbase, "cells put+delete", clientName, node.getName(), numPuts + numDeletes);
+					DRCounters.incSuffixClientNode(ClientType.hbase, "cells put", clientName, node.getName(), numCellsPut);
+					DRCounters.incSuffixClientNode(ClientType.hbase, "cells delete", clientName, node.getName(), numCellsDeleted);
+					DRCounters.incSuffixClientNode(ClientType.hbase, "rows put", clientName, node.getName(), numRowsPut);
 //					DRCounters.inc(node.getName()+" hbase cells put", numPuts);
 //					DRCounters.inc(node.getName()+" hbase cells delete", numDeletes);//deletes gets emptied by the hbase client, so count before flushing
 //					DRCounters.inc(node.getName()+" hbase cells put+delete", numPuts + numDeletes);

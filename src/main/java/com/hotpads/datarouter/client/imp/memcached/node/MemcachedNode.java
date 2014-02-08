@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.memcached.node;
 
 import java.util.Collection;
 
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.memcached.DataRouterMemcachedKey;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
@@ -13,6 +14,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
@@ -62,6 +64,7 @@ implements PhysicalMapStorageNode<PK,D>
 	}
 
 	
+	//TODO does spy client not do batched puts?
 	@Override
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
 		if(CollectionTool.isEmpty(databeans)){ return; }
@@ -90,6 +93,9 @@ implements PhysicalMapStorageNode<PK,D>
 				logger.error("memached error on " + key + "\n" + ExceptionTool.getStackTraceAsString(e));
 			}
 		}
+		String opName = "putMulti";
+		DRCounters.incSuffixClientNode(ClientType.memcached, opName, getClientName(), getName());
+		DRCounters.incSuffixClientNode(ClientType.memcached, opName+" objects", getClientName(), getName(), databeans.size());
 		TraceContext.appendToSpanInfo(CollectionTool.size(databeans)+"");
 	}
 	
@@ -117,6 +123,9 @@ implements PhysicalMapStorageNode<PK,D>
 			}
 		}
 		TraceContext.appendToSpanInfo(CollectionTool.size(keys)+"");
+		String opName = "deleteMulti";
+		DRCounters.incSuffixClientNode(ClientType.memcached, opName, getClientName(), getName());
+		DRCounters.incSuffixClientNode(ClientType.memcached, opName+" objects", getClientName(), getName(), keys.size());
 	}
 	
 	

@@ -52,7 +52,7 @@ implements MemcachedClientFactory{
 		Future<MemcachedClient> future = executorService.submit(new Callable<MemcachedClient>(){
 			@Override public MemcachedClient call(){//i forget why this is in a separate thread... timeout-able?
 				if(client!=null){ return client; }
-				logger.warn("activating Memcached client "+clientName);
+				logger.info("activating Memcached client "+clientName);
 				PhaseTimer timer = new PhaseTimer(clientName);
 				net.spy.memcached.MemcachedClient spyClient;
 				try{

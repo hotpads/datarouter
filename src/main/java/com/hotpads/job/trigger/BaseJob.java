@@ -1,5 +1,6 @@
 package com.hotpads.job.trigger;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -57,7 +58,7 @@ public abstract class BaseJob implements Job{
 			baseJobLogger.warn("couldn't schedule "+getClass()+" because is already scheduled");
 			return;
 		}
-		Job nextJobInstance = scheduler.getJobInstance(getClass());
+		Job nextJobInstance = scheduler.getJobInstance(getClass(), getTrigger().getCronExpression());
 		executor.schedule(nextJobInstance, delay, TimeUnit.MILLISECONDS);
 		isAlreadyScheduled = true;
 //		logger.warn("scheduled next execution of "+getClass()+" for "
@@ -170,7 +171,8 @@ public abstract class BaseJob implements Job{
 	
 	@Override
 	public boolean getIsCustom(){
-		return getFromTracker().isCustom();
+		TriggerInfo triggerInfo = getFromTracker();
+		return triggerInfo.isCustom();
 	}
 	
 	@Override
@@ -208,6 +210,11 @@ public abstract class BaseJob implements Job{
 	}
 	
 	@Override
+	public CronExpression getTrigger(){
+		return getDefaultTrigger();
+	}
+	
+	@Override
 	public boolean isInterrupted(){
 		return interrupted.isTrue();
 	}
@@ -216,4 +223,12 @@ public abstract class BaseJob implements Job{
 		return scheduler.getTracker().get(getClass());
 	}
 	
+	@Override
+	public CronExpression getDefaultTrigger() {
+		try {
+			return new CronExpression(scheduler.getTriggerGroup().getJobClasses().get(getClass()));
+		} catch (ParseException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
 }
