@@ -58,7 +58,7 @@ extends BaseHibernateOp<List<D>>{
 			List<D> result;
 			if(node.getFieldInfo().getFieldAware()){
 				String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), sortedKeys);
-				result = JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
+				result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
 				DRCounters.incSuffixClientNode(ClientType.jdbc, opName, node.getClientName(), node.getName());
 				DRCounters.incSuffixClientNode(ClientType.jdbc, opName+" rows", node.getClientName(), node.getName(), 
 						CollectionTool.size(result));
