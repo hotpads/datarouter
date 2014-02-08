@@ -66,7 +66,7 @@ extends BaseHibernateOp<List<D>>{
 			if(node.getFieldInfo().getFieldAware()){
 				String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), 
 						sortedKeys);
-				List<D> result = JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
+				List<D> result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
 				return result;
 			}else{
 				int batchSize = HibernateNode.DEFAULT_ITERATE_BATCH_SIZE;
