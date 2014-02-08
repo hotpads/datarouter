@@ -93,7 +93,7 @@ public class Clients{
 			boolean eager = CollectionTool.contains(eagerClientNames, clientName);
 			if(!eager){
 				String writableString = clientId.getWritable()?"":" (read-only)";
-				logger.warn("registered:"+clientName+writableString);
+				logger.info("registered:"+clientName+writableString);
 			}
 		}
 		for(final String clientName : CollectionTool.nullSafe(eagerClientNames)){
