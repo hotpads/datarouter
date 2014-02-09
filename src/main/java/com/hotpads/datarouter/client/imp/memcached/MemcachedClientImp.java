@@ -3,13 +3,15 @@ package com.hotpads.datarouter.client.imp.memcached;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.DClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 public class MemcachedClientImp 
 extends BaseClient
 implements MemcachedClient{
+	
+	private final DClientType type = new MemcachedClientType();
 
 	protected String name;
 	protected net.spy.memcached.MemcachedClient spyClient;
@@ -39,8 +41,8 @@ implements MemcachedClient{
 	}
 	
 	@Override
-	public ClientType getType(){
-		return ClientType.memcached;
+	public DClientType getType(){
+		return type;
 	}
 	
 //	net.spy.memcached.MemcachedClient spyClient;

@@ -15,7 +15,7 @@ import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.DClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;
@@ -32,15 +32,17 @@ public class HibernateClientImp
 extends BaseClient
 implements JdbcConnectionClient, TxnClient, JdbcClient{
 	protected Logger logger = Logger.getLogger(this.getClass());
+
+	private final DClientType type = new HibernateClientType();
 	
-	String name;
+	private String name;
 	public String getName(){
 		return name;
 	}
 	
 	@Override
-	public ClientType getType(){
-		return ClientType.hibernate;
+	public DClientType getType(){
+		return type;
 	}
 	
 	@Override
@@ -84,7 +86,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 
 	@Override
 	public ConnectionHandle reserveConnection(){
-		DRCounters.incSuffixClient(ClientType.hibernate, "connection open", getName());
+		DRCounters.incSuffixClient(type, "connection open", getName());
 		try {
 			ConnectionHandle existingHandle = getExistingHandle();
 			if(existingHandle != null){
@@ -109,7 +111,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 			logger.debug("new connection:"+handle);
 			return handle;
 		}catch(SQLException e){
-			DRCounters.incSuffixClient(ClientType.hibernate, "connection open "+e.getClass().getSimpleName(), getName());
+			DRCounters.incSuffixClient(type, "connection open "+e.getClass().getSimpleName(), getName());
 			throw new DataAccessException(e);
 		}
 	}
@@ -117,7 +119,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	protected void logIfSlowReserveConnection(long requestTimeMs){
 		long elapsedTime = System.currentTimeMillis() - requestTimeMs;
 		if(elapsedTime > 1){
-			DRCounters.incSuffixClient(ClientType.hibernate, "connection open > 1ms", getName());
+			DRCounters.incSuffixClient(type, "connection open > 1ms", getName());
 			logger.warn("slow reserveConnection:"+elapsedTime+"ms on "+getName());
 		}
 	}

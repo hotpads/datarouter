@@ -4,5 +4,5 @@ public interface Client
 extends Comparable<Client>{
 
 	String getName();
-	ClientType getType();
+	DClientType getType();
 }

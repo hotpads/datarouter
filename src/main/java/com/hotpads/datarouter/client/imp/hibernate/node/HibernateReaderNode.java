@@ -120,7 +120,7 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){
-		DRCounters.incSuffixClientNode(ClientType.hibernate, "getMulti", getClientName(), getName());
+		DRCounters.incSuffixClientNode(getClient().getType(), "getMulti", getClientName(), getName());
 		List<D> result = ListTool.createArrayListWithSize(keys);
 		Config config = Config.nullSafe(pConfig);
 		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
@@ -134,7 +134,7 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig){
-		DRCounters.incSuffixClientNode(ClientType.hibernate, "getKeys", getClientName(), getName());
+		DRCounters.incSuffixClientNode(getClient().getType(), "getKeys", getClientName(), getName());
 		Config config = Config.nullSafe(pConfig);
 		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
 		List<PK> result = ListTool.createArrayListWithSize(keys);

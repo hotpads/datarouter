@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Properties;
 
 import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class RouterOptions extends TypedProperties{
@@ -45,6 +46,12 @@ public class RouterOptions extends TypedProperties{
 		ClientType clientType = ClientType.fromString(type);
 //		return Preconditions.checkNotNull(clientType, "unknown clientType:"+clientType+" for clientName:"+clientName);
 		return clientType==null?ClientType.hibernate:clientType;
+	}
+	
+	public DClientType getClientTypeInstance(String clientName){
+		String typeName = getString(prependClientPrefix(clientName, "type"));
+		String typeClassName = getString("clientType."+typeName+".class");
+		return ReflectionTool.create(typeClassName);
 	}
 	
 	public String getMode(String routerName){

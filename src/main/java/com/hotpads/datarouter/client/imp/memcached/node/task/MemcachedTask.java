@@ -43,7 +43,7 @@ extends TracedCallable<V>{
 	@Override
 	public V wrappedCall(){
 		try{
-			DRCounters.incSuffixClientNode(ClientType.memcached, taskName, client.getName(), node.getName());
+			DRCounters.incSuffixClientNode(client.getType(), taskName, client.getName(), node.getName());
 			TraceContext.startSpan(node.getName()+" "+taskName);
 			if(NumberTool.nullSafe(numAttempts) > 1){ 
 				TraceContext.appendToThreadInfo("[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 

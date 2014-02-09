@@ -63,7 +63,7 @@ public class HTablePerTablePool implements HTablePool{
 				String counterName = "connection create HTable "+name;
 				hTable = new HTable(this.hBaseConfiguration, name);
 				logger.warn(counterName+", size="+queue.size());
-				DRCounters.incSuffixOp(ClientType.hbase, counterName);
+				DRCounters.incSuffixOp(, counterName);
 			}catch(IOException ioe){
 				throw new RuntimeException(ioe);
 			}

@@ -43,7 +43,7 @@ extends BaseJdbcOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.jdbc;
-		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			int batchSize = JdbcNode.DEFAULT_ITERATE_BATCH_SIZE;
@@ -59,8 +59,8 @@ extends BaseJdbcOp<List<D>>{
 				List<D> batch;
 				String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), keyBatch);
 				batch = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
-				DRCounters.incSuffixClientNode(ClientType.jdbc, opName, node.getClientName(), node.getName());
-				DRCounters.incSuffixClientNode(ClientType.jdbc, opName+" rows", node.getClientName(), node.getName(), 
+				DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+				DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
 						CollectionTool.size(keys));
 				Collections.sort(batch);//can sort here because batches were already sorted
 				ListTool.nullSafeArrayAddAll(all, batch);

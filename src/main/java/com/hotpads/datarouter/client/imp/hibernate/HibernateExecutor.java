@@ -5,7 +5,6 @@ import javax.persistence.RollbackException;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -46,8 +45,7 @@ public class HibernateExecutor {
 	}
 	
 	public Object executeTaskInSession(HibernateTask task){
-		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
-		DRCounters.incSuffixClientNode(clientType, taskName, client.getName(), node.getName());
+		DRCounters.incSuffixClientNode(client.getType(), taskName, client.getName(), node.getName());
 		Session session = existingSession;
 		boolean newSession = session==null;
 		Object result;

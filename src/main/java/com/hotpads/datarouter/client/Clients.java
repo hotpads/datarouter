@@ -123,9 +123,10 @@ public class Clients{
 //		if(StringTool.isEmpty(typeString)){ typeString = defaultTypeString; }
 //		ClientType clientType = ClientType.fromString(typeString);
 		RouterOptions routerOptions = new RouterOptions(multiProperties);
-		ClientType clientType = routerOptions.getClientType(clientName);
+//		ClientType clientType = routerOptions.getClientType(clientName);
+		DClientType clientTypeInstance = routerOptions.getClientTypeInstance(clientName);
 		List<PhysicalNode<?,?>> physicalNodesForClient = drContext.getNodes().getPhysicalNodesForClient(clientName);
-		ClientFactory clientFactory = clientType.createClientFactory(drContext, clientName, physicalNodesForClient,
+		ClientFactory clientFactory = clientTypeInstance.createClientFactory(drContext, clientName, physicalNodesForClient,
 				drContext.getExecutorService());
 		clientFactoryByName.put(clientName, clientFactory);
 	}

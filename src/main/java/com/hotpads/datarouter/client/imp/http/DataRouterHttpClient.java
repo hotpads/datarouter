@@ -4,13 +4,14 @@ import java.util.NavigableSet;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.DClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.util.core.SetTool;
 
 public class DataRouterHttpClient extends BaseClient{
 	protected static Logger logger = Logger.getLogger(DataRouterHttpClient.class);
+	private final DClientType type = new HttpClientType();
 	
 	private String name;
 	private String url;
@@ -36,8 +37,8 @@ public class DataRouterHttpClient extends BaseClient{
 	}
 
 	@Override
-	public ClientType getType(){
-		return ClientType.http;
+	public DClientType getType(){
+		return type;
 	}
 	
 	public NavigableSet<Node<?,?>> getNodes(){

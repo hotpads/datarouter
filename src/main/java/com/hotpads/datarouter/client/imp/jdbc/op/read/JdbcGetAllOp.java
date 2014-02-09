@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
 import java.util.List;
 
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
@@ -33,10 +32,10 @@ extends BaseJdbcOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		DRCounters.incSuffixClientNode(ClientType.jdbc, opName, node.getClientName(), node.getName());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
-			DRCounters.incSuffixClientNode(ClientType.jdbc, opName, node.getClientName(), node.getName());
+			DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 			String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getFields(), null, 
 					node.getFieldInfo().getPrimaryKeyFields());
 			List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);

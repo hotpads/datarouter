@@ -10,7 +10,6 @@ import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
@@ -116,9 +115,9 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						if(!delete.isEmpty()){ actions.add(delete); }
 						++numRowsPut;
 					}
-					DRCounters.incSuffixClientNode(ClientType.hbase, "cells put", clientName, node.getName(), numCellsPut);
-					DRCounters.incSuffixClientNode(ClientType.hbase, "cells delete", clientName, node.getName(), numCellsDeleted);
-					DRCounters.incSuffixClientNode(ClientType.hbase, "rows put", clientName, node.getName(), numRowsPut);
+					DRCounters.incSuffixClientNode(client.getType(), "cells put", clientName, node.getName(), numCellsPut);
+					DRCounters.incSuffixClientNode(client.getType(), "cells delete", clientName, node.getName(), numCellsDeleted);
+					DRCounters.incSuffixClientNode(client.getType(), "rows put", clientName, node.getName(), numRowsPut);
 //					DRCounters.inc(node.getName()+" hbase cells put", numPuts);
 //					DRCounters.inc(node.getName()+" hbase cells delete", numDeletes);//deletes gets emptied by the hbase client, so count before flushing
 //					DRCounters.inc(node.getName()+" hbase cells put+delete", numPuts + numDeletes);

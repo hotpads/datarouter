@@ -94,8 +94,8 @@ implements PhysicalMapStorageNode<PK,D>
 			}
 		}
 		String opName = "putMulti";
-		DRCounters.incSuffixClientNode(ClientType.memcached, opName, getClientName(), getName());
-		DRCounters.incSuffixClientNode(ClientType.memcached, opName+" objects", getClientName(), getName(), databeans.size());
+		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
+		DRCounters.incSuffixClientNode(getClient().getType(), opName+" objects", getClientName(), getName(), databeans.size());
 		TraceContext.appendToSpanInfo(CollectionTool.size(databeans)+"");
 	}
 	
@@ -124,8 +124,8 @@ implements PhysicalMapStorageNode<PK,D>
 		}
 		TraceContext.appendToSpanInfo(CollectionTool.size(keys)+"");
 		String opName = "deleteMulti";
-		DRCounters.incSuffixClientNode(ClientType.memcached, opName, getClientName(), getName());
-		DRCounters.incSuffixClientNode(ClientType.memcached, opName+" objects", getClientName(), getName(), keys.size());
+		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
+		DRCounters.incSuffixClientNode(getClient().getType(), opName+" objects", getClientName(), getName(), keys.size());
 	}
 	
 	

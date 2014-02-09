@@ -16,6 +16,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.DClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;
@@ -32,6 +33,8 @@ public class JdbcClientImp
 extends BaseClient
 implements JdbcConnectionClient, TxnClient, JdbcClient{
 	protected Logger logger = Logger.getLogger(this.getClass());
+
+	private final DClientType type = new JdbcClientType();
 	
 	String name;
 	public String getName(){
@@ -39,8 +42,8 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	}
 	
 	@Override
-	public ClientType getType(){
-		return ClientType.hibernate;
+	public DClientType getType(){
+		return type;
 	}
 	
 	@Override

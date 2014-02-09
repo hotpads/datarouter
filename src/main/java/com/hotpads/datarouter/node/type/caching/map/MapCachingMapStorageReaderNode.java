@@ -160,7 +160,7 @@ implements MapStorageReaderNode<PK,D>{
 	/************** counters ***************************************/
 	
 	protected void countHits(int num){
-		DRCounters.incSuffixOp(ClientType.memory, getName()+" hit");
+		DRCounters.incSuffixOp(getClient().getType(), getName()+" hit");
 //		logger.warn("hit");
 	}
 	

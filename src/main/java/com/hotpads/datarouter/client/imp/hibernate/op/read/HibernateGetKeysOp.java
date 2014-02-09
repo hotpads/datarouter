@@ -54,8 +54,7 @@ extends BaseHibernateOp<List<PK>>{
 	@Override
 	public List<PK> runOnce(){
 		if(node.getFieldInfo().getFieldAware()){ throw new NotImplementedException(); }
-		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
-		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());

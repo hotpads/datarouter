@@ -106,11 +106,11 @@ implements MemcachedPhysicalNode<PK,D>,
 			}
 			
 			String opName = "get";
-			DRCounters.incSuffixClientNode(ClientType.memcached, opName, getClientName(), getName());
+			DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
 			
 			if(ArrayTool.isEmpty(bytes)){ 
 				TraceContext.appendToSpanInfo("miss");
-				DRCounters.incSuffixClientNode(ClientType.memcached, opName+" miss", getClientName(), getName());
+				DRCounters.incSuffixClientNode(getClient().getType(), opName+" miss", getClientName(), getName());
 				return null; 
 			}
 //					System.out.println(StringByteTool.fromUtf8Bytes(bytes));
@@ -118,7 +118,7 @@ implements MemcachedPhysicalNode<PK,D>,
 			try {
 				D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
 						fieldInfo.getFieldByPrefixedName(), is, bytes.length);
-				DRCounters.incSuffixClientNode(ClientType.memcached, opName+" hit", getClientName(), getName());
+				DRCounters.incSuffixClientNode(getClient().getType(), opName+" hit", getClientName(), getName());
 				return databean;
 			} catch (IOException e) {
 				logger.error(ExceptionTool.getStackTraceAsString(e));
@@ -172,13 +172,13 @@ implements MemcachedPhysicalNode<PK,D>,
 		TraceContext.appendToSpanInfo("[got "+CollectionTool.size(databeans)+"/"+CollectionTool.size(keys)+"]");
 
 		String opName = "getMulti";
-		DRCounters.incSuffixClientNode(ClientType.memcached, opName, getClientName(), getName());
+		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
 		int requested = keys.size();
 		int hit = databeans.size();
 		int miss = requested - hit;
-		DRCounters.incSuffixClientNode(ClientType.memcached, opName+" requested", getClientName(), getName(), requested);
-		DRCounters.incSuffixClientNode(ClientType.memcached, opName+" hit", getClientName(), getName(), hit);
-		DRCounters.incSuffixClientNode(ClientType.memcached, opName+" miss", getClientName(), getName(), miss);
+		DRCounters.incSuffixClientNode(getClient().getType(), opName+" requested", getClientName(), getName(), requested);
+		DRCounters.incSuffixClientNode(getClient().getType(), opName+" hit", getClientName(), getName(), hit);
+		DRCounters.incSuffixClientNode(getClient().getType(), opName+" miss", getClientName(), getName(), miss);
 				
 		return databeans;
 	}
