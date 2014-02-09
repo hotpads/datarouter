@@ -1,7 +1,8 @@
-package com.hotpads.datarouter.client.imp.hibernate.scan;
+package com.hotpads.datarouter.client.imp.jdbc.scan;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -11,22 +12,19 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
 
-/*
- * TODO merge with BaseJdbcScanner
- */
-public abstract class BaseHibernateScanner<
+public abstract class BaseJdbcScanner<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		T extends Comparable<? super T>>//T should be either PK or D
 extends BaseBatchingSortedScanner<T,FieldSet<?>>{
 	
 	//inputs
-	protected HibernateReaderNode<PK,D,?> node;
+	protected JdbcReaderNode<PK,D,?> node;
 	protected DatabeanFieldInfo<PK,D,?> fieldInfo;
 	protected Range<PK> range;
 	protected Config config;
 	
-	public BaseHibernateScanner(HibernateReaderNode<PK,D,?> node, DatabeanFieldInfo<PK,D,?> fieldInfo, Range<PK> range,
+	public BaseJdbcScanner(JdbcReaderNode<PK,D,?> node, DatabeanFieldInfo<PK,D,?> fieldInfo, Range<PK> range,
 			Config pConfig){
 		this.node = node;
 		this.fieldInfo = node.getFieldInfo();
