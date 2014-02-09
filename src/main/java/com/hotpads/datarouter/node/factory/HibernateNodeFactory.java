@@ -9,26 +9,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class HibernateNodeFactory {
 
-	
-	//String physicalName, String qualifiedPhysicalName,
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	Node<PK,D> 
-	newHibernate(String clientName, 
-			String physicalName, String qualifiedPhysicalName,
-			Class<D> databeanClass, 
-			DataRouter router){
-		return newHibernate(clientName, physicalName, qualifiedPhysicalName, databeanClass, null, router);
-	}
-	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	Node<PK,D> 
-	newHibernate(String clientName, 
-			String physicalName, String qualifiedPhysicalName,
-			Class<D> databeanClass, 
-			Class<F> fielderClass,
-			DataRouter router){
-		return NodeFactory.create(clientName, physicalName, qualifiedPhysicalName, databeanClass, fielderClass, router);
-	}
 
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
