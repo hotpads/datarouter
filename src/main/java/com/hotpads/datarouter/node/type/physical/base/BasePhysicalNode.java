@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeId;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -18,6 +19,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.StringTool;
 
 public abstract class BasePhysicalNode<
 		PK extends PrimaryKey<PK>,
@@ -35,6 +37,17 @@ implements PhysicalNode<PK,D>
 	
 	/****************************** constructors ********************************/
 	
+	public BasePhysicalNode(NodeParams<PK,D,F> params){
+		super(params);
+		this.clientName = params.getClientName();
+		this.tableName = ObjectTool.nullSafe(params.getPhysicalName(), params.getDatabeanClass().getSimpleName());
+		this.packagedTableName = ObjectTool.nullSafe(params.getQualifiedPhysicalName(), params.getDatabeanClass().getSimpleName());
+		this.fieldInfo.setBaseDatabeanClass(params.getBaseDatabeanClass());
+		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params.getDatabeanClass(), params.getRouter()
+				.getName(), clientName, null, null));
+	}
+	
+	@Deprecated
 	public BasePhysicalNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName){
 		super(router, databeanClass, fielderClass);
@@ -43,11 +56,9 @@ implements PhysicalNode<PK,D>
 		this.packagedTableName = databeanClass.getName();
 		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), clientName, 
 				null, null));
-//		if(this.fieldAware){
-//			logger.warn("Found fieldAware Databean:"+this.getName());
-//		}
 	}
-	
+
+	@Deprecated
 	//for things like the event.Event monthly partitioned tables
 	public BasePhysicalNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName, 
@@ -60,7 +71,8 @@ implements PhysicalNode<PK,D>
 				null, clientName+"."+tableName));
 		logger.info("client:"+this.clientName+" databean "+databeanClass.getSimpleName()+" -> "+tableName);
 	}
-	
+
+	@Deprecated
 	//for table-per-class hierarchy like the property.Photo hierarchy
 	public BasePhysicalNode(Class<? super D> baseDatabeanClass, 
 			Class<D> databeanClass, Class<F> fielderClass,

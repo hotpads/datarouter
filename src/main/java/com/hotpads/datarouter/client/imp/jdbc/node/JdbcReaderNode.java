@@ -22,12 +22,12 @@ import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcDatabeanScanner;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcPrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
-import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.FieldSet;
@@ -53,21 +53,8 @@ implements MapStorageReader<PK,D>,
 	
 	/******************************* constructors ************************************/
 
-	public JdbcReaderNode(Class<D> databeanClass, Class<F> fielderClass,
-			DataRouter router, String clientName, 
-			String physicalName, String qualifiedPhysicalName) {
-		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
-	}
-	
-	public JdbcReaderNode(Class<D> databeanClass, Class<F> fielderClass,
-			DataRouter router, String clientName) {
-		super(databeanClass, fielderClass, router, clientName);
-	}
-
-	public JdbcReaderNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
-			Class<F> fielderClass,
-			DataRouter router, String clientName){
-		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);
+	public JdbcReaderNode(NodeParams<PK,D,F> params){
+		super(params);
 	}
 	
 	

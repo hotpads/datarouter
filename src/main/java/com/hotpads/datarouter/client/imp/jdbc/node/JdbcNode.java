@@ -10,9 +10,9 @@ import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcPutOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcUniqueIndexDeleteOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
-import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
@@ -28,21 +28,9 @@ public class JdbcNode<
 extends JdbcReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>
 {
-	
-	public JdbcNode(Class<D> databeanClass, Class<F> fielderClass,
-			DataRouter router, String clientName, 
-			String physicalName, String qualifiedPhysicalName) {
-		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
-	}
-	
-	public JdbcNode(Class<D> databeanClass, Class<F> fielderClass,
-			DataRouter router, String clientName) {
-		super(databeanClass, fielderClass, router, clientName);
-	}
-	
-	public JdbcNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
-			Class<F> fielderClass, DataRouter router, String clientName){
-		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);
+
+	public JdbcNode(NodeParams<PK,D,F> params){
+		super(params);
 	}
 	
 	@Override

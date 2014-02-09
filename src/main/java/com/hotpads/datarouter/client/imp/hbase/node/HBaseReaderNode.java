@@ -15,7 +15,6 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
@@ -24,6 +23,8 @@ import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseScatteringPrefixQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
@@ -79,20 +80,28 @@ implements HBasePhysicalNode<PK,D>,
 	}
 	
 	/******************************* constructors ************************************/
+	
+	public HBaseReaderNode(NodeParams<PK,D,F> params){
+		super(params);
+		detectPrimaryKeyHasUnnecessaryTrailingSeparatorByte();
+	}
 
+	@Deprecated
 	public HBaseReaderNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
 		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
 		detectPrimaryKeyHasUnnecessaryTrailingSeparatorByte();
 	}
-	
+
+	@Deprecated
 	public HBaseReaderNode(Class<D> databeanClass,Class<F> fielderClass,
 			DataRouter router, String clientName) {
 		super(databeanClass, fielderClass, router, clientName);
 		detectPrimaryKeyHasUnnecessaryTrailingSeparatorByte();
 	}
 
+	@Deprecated
 	public HBaseReaderNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
 			Class<F> fielderClass, DataRouter router, String clientName){
 		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);

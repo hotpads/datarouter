@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.write;
 
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
@@ -35,8 +34,7 @@ extends BaseJdbcOp<Long>{
 	
 	@Override
 	public Long runOnce(){
-		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
-		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			String sql = SqlBuilder.deleteMulti(config, node.getTableName(), ListTool.wrap(lookup));

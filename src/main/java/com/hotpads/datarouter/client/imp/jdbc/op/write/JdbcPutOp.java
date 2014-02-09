@@ -8,7 +8,6 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
 
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
@@ -51,7 +50,7 @@ extends BaseJdbcOp<Void>{
 	
 	@Override
 	public Void runOnce(){
-		DRCounters.incSuffixClientNode(ClientType.jdbc, opName, node.getClientName(), node.getName());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			final String entityName = node.getPackagedTableName();

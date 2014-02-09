@@ -12,7 +12,6 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateCountOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetAllOp;
@@ -29,12 +28,12 @@ import com.hotpads.datarouter.client.imp.hibernate.scan.HibernateDatabeanScanner
 import com.hotpads.datarouter.client.imp.hibernate.scan.HibernatePrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
-import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
@@ -64,21 +63,8 @@ implements MapStorageReader<PK,D>,
 	
 	/******************************* constructors ************************************/
 
-	public HibernateReaderNode(Class<D> databeanClass, Class<F> fielderClass,
-			DataRouter router, String clientName, 
-			String physicalName, String qualifiedPhysicalName) {
-		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
-	}
-	
-	public HibernateReaderNode(Class<D> databeanClass, Class<F> fielderClass,
-			DataRouter router, String clientName) {
-		super(databeanClass, fielderClass, router, clientName);
-	}
-
-	public HibernateReaderNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
-			Class<F> fielderClass,
-			DataRouter router, String clientName){
-		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);
+	public HibernateReaderNode(NodeParams<PK,D,F> params){
+		super(params);
 	}
 	
 	
