@@ -25,6 +25,8 @@ implements DClientType<PK,D,F>{
 	
 	public static final String NAME = "memory";
 	
+	public static final MemoryClientType INSTANCE = new MemoryClientType();
+	
 	@Override
 	public String getName(){
 		return NAME;

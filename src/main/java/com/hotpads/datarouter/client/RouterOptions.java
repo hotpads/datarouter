@@ -3,13 +3,19 @@ package com.hotpads.datarouter.client;
 import java.util.Collection;
 import java.util.Properties;
 
+import com.google.common.base.Preconditions;
+import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
+import com.hotpads.datarouter.client.imp.memory.MemoryClientType;
 import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class RouterOptions extends TypedProperties{
 	
 	public static final String CLIENT_NAME_memory = "memory";
+	
+	public static final DClientType CLIENT_TYPE_DEFAULT = HibernateClientType.INSTANCE;//for now, because our config files assume this
 
 	public RouterOptions(Collection<Properties> propertiesList){
 		super(propertiesList);
@@ -49,8 +55,12 @@ public class RouterOptions extends TypedProperties{
 	}
 	
 	public DClientType getClientTypeInstance(String clientName){
-		String typeName = getString(prependClientPrefix(clientName, "type"));
-		String typeClassName = getString("clientType."+typeName+".class");
+		if(CLIENT_NAME_memory.equals(clientName)){ return MemoryClientType.INSTANCE; }
+		String typeNameKey = prependClientPrefix(clientName, "type");
+		String typeName = getString(typeNameKey);
+		if(StringTool.isEmpty(typeName)){ return CLIENT_TYPE_DEFAULT; }
+		String typeClassNameKey = "clientType."+typeName;
+		String typeClassName = Preconditions.checkNotNull(getString(typeClassNameKey), typeClassNameKey);
 		return ReflectionTool.create(typeClassName);
 	}
 	
