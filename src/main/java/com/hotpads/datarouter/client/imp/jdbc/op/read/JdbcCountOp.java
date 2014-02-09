@@ -6,6 +6,7 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -19,7 +20,7 @@ public class JdbcCountOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
-extends BaseParallelJdbcTxnOp<Long>{
+extends BaseJdbcOp<Long>{
 		
 	private HibernateReaderNode<PK,D,F> node;
 	private String opName;
