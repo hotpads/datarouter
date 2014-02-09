@@ -7,6 +7,7 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.imp.http.node.HttpReaderNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -24,6 +25,8 @@ implements DClientType<PK,D,F>{
 	
 	public static final String NAME = "http";
 	
+	public static final HttpClientType INSTANCE = new HttpClientType();
+	
 	@Override
 	public String getName(){
 		return NAME;
@@ -37,7 +40,7 @@ implements DClientType<PK,D,F>{
 	
 	@Override
 	public Node<PK,D> createNode(NodeParams<PK,D,F> nodeParams){
-		return new DatarouterHttpNode<PK,D,F>(nodeParams);
+		return new HttpReaderNode<PK,D,F>(nodeParams);//TODO change to HttpNode when it's available
 	}
 	
 }

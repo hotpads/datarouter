@@ -7,6 +7,7 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.node.Node;
@@ -25,6 +26,8 @@ public class HibernateClientType<
 implements DClientType<PK,D,F>{
 	
 	public static final String NAME = "hibernate";
+	
+	public static final HibernateClientType INSTANCE = new HibernateClientType();
 	
 	@Override
 	public String getName(){

@@ -9,6 +9,7 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.memory.MemoryClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -29,10 +30,8 @@ implements MapStorageReader<PK,D>{
 	
 	protected Map<UniqueKey<PK>,D> backingMap = new ConcurrentHashMap<UniqueKey<PK>,D>();
 	
-	
-	public HashMapReaderNode(Class<D> databeanClass, Class<F> fielderClass, 
-			DataRouter router, MemoryClient client) {
-		super(databeanClass, fielderClass, router, client.getName());
+	public HashMapReaderNode(NodeParams<PK,D,F> params, MemoryClient client){
+		super(params);
 		client.registerNode(this);
 	}
 

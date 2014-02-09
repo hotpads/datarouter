@@ -7,6 +7,7 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.imp.http.HttpClientType;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -24,6 +25,8 @@ public class MemcachedClientType<
 implements DClientType<PK,D,F>{
 	
 	public static final String NAME = "memcached";
+	
+	public static final MemcachedClientType INSTANCE = new MemcachedClientType();
 	
 	@Override
 	public String getName(){

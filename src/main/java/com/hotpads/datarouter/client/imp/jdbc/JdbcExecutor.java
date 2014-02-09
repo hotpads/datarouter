@@ -47,7 +47,7 @@ public class JdbcExecutor {
 	
 	public Object executeTaskInSession(JdbcTask task){
 		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
-		DRCounters.incSuffixClientNode(clientType, taskName, client.getName(), node.getName());
+		DRCounters.incSuffixClientNode(client.getType(), taskName, client.getName(), node.getName());
 		Session session = existingSession;
 		boolean newSession = session==null;
 		Object result;

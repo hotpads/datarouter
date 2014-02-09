@@ -87,7 +87,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 
 	@Override
 	public ConnectionHandle reserveConnection(){
-		DRCounters.incSuffixClient(ClientType.hibernate, "connection open", getName());
+		DRCounters.incSuffixClient(type, "connection open", getName());
 		try {
 			ConnectionHandle existingHandle = getExistingHandle();
 			if(existingHandle != null){
@@ -112,7 +112,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 			logger.debug("new connection:"+handle);
 			return handle;
 		}catch(SQLException e){
-			DRCounters.incSuffixClient(ClientType.hibernate, "connection open "+e.getClass().getSimpleName(), getName());
+			DRCounters.incSuffixClient(type, "connection open "+e.getClass().getSimpleName(), getName());
 			throw new DataAccessException(e);
 		}
 	}
@@ -120,7 +120,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	protected void logIfSlowReserveConnection(long requestTimeMs){
 		long elapsedTime = System.currentTimeMillis() - requestTimeMs;
 		if(elapsedTime > 1){
-			DRCounters.incSuffixClient(ClientType.hibernate, "connection open > 1ms", getName());
+			DRCounters.incSuffixClient(type, "connection open > 1ms", getName());
 			logger.warn("slow reserveConnection:"+elapsedTime+"ms on "+getName());
 		}
 	}

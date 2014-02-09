@@ -28,10 +28,15 @@ public class NodeParams<
 	private final String physicalName;
 	private final String qualifiedPhysicalName;//weird hibernate requirement ("entity name")
 	
+	//for proxy nodes (like http node)
+	private final String remoteRouterName;
+	private final String remoteNodeName;
+	
 	
 	
 	public NodeParams(DataRouter router, String clientName, Class<D> databeanClass, Class<F> fielderClass,
-			Integer schemaVersion, Class<? super D> baseDatabeanClass, String physicalName, String qualifiedPhysicalName){
+			Integer schemaVersion, Class<? super D> baseDatabeanClass, String physicalName, String qualifiedPhysicalName,
+			String remoteRouterName, String remoteNodeName){
 		this.router = router;
 		this.clientName = clientName;
 		this.databeanClass = databeanClass;
@@ -40,6 +45,8 @@ public class NodeParams<
 		this.baseDatabeanClass = baseDatabeanClass;
 		this.physicalName = physicalName;
 		this.qualifiedPhysicalName = qualifiedPhysicalName;
+		this.remoteRouterName = remoteRouterName;
+		this.remoteNodeName = remoteNodeName;
 	}
 
 
@@ -61,6 +68,9 @@ public class NodeParams<
 		
 		private String physicalName;
 		private String qualifiedPhysicalName;
+
+		private String remoteRouterName;
+		private String remoteNodeName;
 		
 		
 		public NodeParamsBuilder(DataRouter router, String clientName, Class<D> databeanClass){
@@ -95,9 +105,15 @@ public class NodeParams<
 			return this;
 		}
 		
+		public NodeParamsBuilder<PK,D,F> withProxyDestination(String remoteRouterName, String remoteNodeName){
+			this.physicalName = remoteRouterName;
+			this.qualifiedPhysicalName = remoteNodeName;
+			return this;
+		}
+		
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(router, clientName, databeanClass, fielderClass, schemaVersion, baseDatabeanClass,
-					physicalName, qualifiedPhysicalName);
+					physicalName, qualifiedPhysicalName, remoteRouterName, remoteNodeName);
 		}
 	}
 
@@ -134,6 +150,14 @@ public class NodeParams<
 
 	public String getQualifiedPhysicalName(){
 		return qualifiedPhysicalName;
+	}
+
+	public String getRemoteRouterName(){
+		return remoteRouterName;
+	}
+
+	public String getRemoteNodeName(){
+		return remoteNodeName;
 	}
 	
 	

@@ -26,6 +26,8 @@ implements DClientType<PK,D,F>{
 	
 	public static final String NAME = "hbase";
 	
+	public static final HBaseClientType INSTANCE = new HBaseClientType();
+	
 	@Override
 	public String getName(){
 		return NAME;

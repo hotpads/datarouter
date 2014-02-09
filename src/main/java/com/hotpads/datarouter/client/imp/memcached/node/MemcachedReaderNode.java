@@ -14,14 +14,13 @@ import java.util.concurrent.TimeoutException;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.memcached.DataRouterMemcachedKey;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClient;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
-import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
@@ -47,23 +46,9 @@ implements MemcachedPhysicalNode<PK,D>,
 	
 	/******************************* constructors ************************************/
 
-	public MemcachedReaderNode(Class<D> databeanClass, Class<F> fielderClass,
-			DataRouter router, String clientName, 
-			String physicalName, String qualifiedPhysicalName, int databeanVersion) {
-		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
-		this.databeanVersion = Preconditions.checkNotNull(databeanVersion);
-	}
-	
-	public MemcachedReaderNode(Class<D> databeanClass,Class<F> fielderClass,
-			DataRouter router, String clientName, int databeanVersion) {
-		super(databeanClass, fielderClass, router, clientName);
-		this.databeanVersion = Preconditions.checkNotNull(databeanVersion);
-	}
-
-	public MemcachedReaderNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
-			Class<F> fielderClass, DataRouter router, String clientName, int databeanVersion){
-		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);
-		this.databeanVersion = Preconditions.checkNotNull(databeanVersion);
+	public MemcachedReaderNode(NodeParams<PK,D,F> params){
+		super(params);
+		this.databeanVersion = Preconditions.checkNotNull(params.getSchemaVersion());
 	}
 	
 	

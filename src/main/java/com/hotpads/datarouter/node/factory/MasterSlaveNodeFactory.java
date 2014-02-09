@@ -18,15 +18,15 @@ public class MasterSlaveNodeFactory{
 	//Map
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	BaseMasterSlaveNode<PK,D,?,MapStorageNode<PK,D>> 
-	newMasterSlaveMap(
+	create(
 			DataRouter router, Class<D> databeanClass, 
 			String masterClientName, Collection<String> slaveClientNames){
-		return newMasterSlaveMap(router, databeanClass, null, masterClientName, slaveClientNames);
+		return create(router, databeanClass, null, masterClientName, slaveClientNames);
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 	BaseMasterSlaveNode<PK,D,F,MapStorageNode<PK,D>> 
-	newMasterSlaveMap(
+	create(
 			DataRouter router, Class<D> databeanClass, Class<F> fielderClass,
 			String masterClientName, Collection<String> slaveClientNames){
 		
