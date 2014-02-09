@@ -18,6 +18,8 @@ import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetRangeUncheckedOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetWithPrefixesOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcLookupOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcLookupUniqueOp;
+import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcDatabeanScanner;
+import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcPrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
