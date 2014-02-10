@@ -15,7 +15,6 @@ import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.DClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.type.JdbcClient;
@@ -33,8 +32,6 @@ public class JdbcClientImp
 extends BaseClient
 implements JdbcConnectionClient, TxnClient, JdbcClient{
 	protected Logger logger = Logger.getLogger(this.getClass());
-
-	private final DClientType type = new JdbcClientType();
 	
 	String name;
 	public String getName(){
@@ -43,7 +40,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	
 	@Override
 	public DClientType getType(){
-		return type;
+		return JdbcClientType.INSTANCE;
 	}
 	
 	@Override
@@ -87,7 +84,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 
 	@Override
 	public ConnectionHandle reserveConnection(){
-		DRCounters.incSuffixClient(type, "connection open", getName());
+		DRCounters.incSuffixClient(getType(), "connection open", getName());
 		try {
 			ConnectionHandle existingHandle = getExistingHandle();
 			if(existingHandle != null){
@@ -112,7 +109,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 			logger.debug("new connection:"+handle);
 			return handle;
 		}catch(SQLException e){
-			DRCounters.incSuffixClient(type, "connection open "+e.getClass().getSimpleName(), getName());
+			DRCounters.incSuffixClient(getType(), "connection open "+e.getClass().getSimpleName(), getName());
 			throw new DataAccessException(e);
 		}
 	}
@@ -120,7 +117,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	protected void logIfSlowReserveConnection(long requestTimeMs){
 		long elapsedTime = System.currentTimeMillis() - requestTimeMs;
 		if(elapsedTime > 1){
-			DRCounters.incSuffixClient(type, "connection open > 1ms", getName());
+			DRCounters.incSuffixClient(getType(), "connection open > 1ms", getName());
 			logger.warn("slow reserveConnection:"+elapsedTime+"ms on "+getName());
 		}
 	}

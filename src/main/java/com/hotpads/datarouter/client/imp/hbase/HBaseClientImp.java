@@ -22,8 +22,6 @@ public class HBaseClientImp
 extends BaseClient
 implements HBaseClient{
 	protected Logger logger = Logger.getLogger(this.getClass());
-	
-	private final DClientType type = new HBaseClientType();
 
 	protected String name;
 	protected HBaseOptions options;
@@ -63,7 +61,7 @@ implements HBaseClient{
 
 	@Override
 	public DClientType getType(){
-		return type;
+		return HBaseClientType.INSTANCE;
 	}
 
 	@Override

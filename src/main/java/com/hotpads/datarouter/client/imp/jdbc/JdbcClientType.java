@@ -24,6 +24,8 @@ public class JdbcClientType<
 		F extends DatabeanFielder<PK,D>>
 implements DClientType<PK,D,F>{
 	
+	public static final JdbcClientType INSTANCE = new JdbcClientType();
+	
 	public static final String NAME = "jdbc";
 	
 	@Override

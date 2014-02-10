@@ -11,8 +11,6 @@ import com.hotpads.util.core.SetTool;
 
 public class MemoryClient extends BaseClient{
 	protected static Logger logger = Logger.getLogger(MemoryClient.class);
-	
-	private final DClientType type = new MemoryClientType();
 
 	protected String name;
 	protected NavigableSet<Node<?,?>> nodes = SetTool.createTreeSet();
@@ -34,7 +32,7 @@ public class MemoryClient extends BaseClient{
 
 	@Override
 	public DClientType getType(){
-		return type;
+		return MemoryClientType.INSTANCE;
 	}
 	
 	public NavigableSet<Node<?,?>> getNodes(){

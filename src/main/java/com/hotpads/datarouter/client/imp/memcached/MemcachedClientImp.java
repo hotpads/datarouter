@@ -10,8 +10,6 @@ import com.hotpads.util.core.concurrent.NamedThreadFactory;
 public class MemcachedClientImp 
 extends BaseClient
 implements MemcachedClient{
-	
-	private final DClientType type = new MemcachedClientType();
 
 	protected String name;
 	protected net.spy.memcached.MemcachedClient spyClient;
@@ -42,7 +40,7 @@ implements MemcachedClient{
 	
 	@Override
 	public DClientType getType(){
-		return type;
+		return MemcachedClientType.INSTANCE;
 	}
 	
 //	net.spy.memcached.MemcachedClient spyClient;

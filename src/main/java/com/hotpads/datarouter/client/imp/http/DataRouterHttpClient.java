@@ -11,7 +11,6 @@ import com.hotpads.util.core.SetTool;
 
 public class DataRouterHttpClient extends BaseClient{
 	protected static Logger logger = Logger.getLogger(DataRouterHttpClient.class);
-	private final DClientType type = new HttpClientType();
 	
 	private String name;
 	private String url;
@@ -38,7 +37,7 @@ public class DataRouterHttpClient extends BaseClient{
 
 	@Override
 	public DClientType getType(){
-		return type;
+		return HttpClientType.INSTANCE;
 	}
 	
 	public NavigableSet<Node<?,?>> getNodes(){

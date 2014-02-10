@@ -7,9 +7,9 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.DClientType;
-import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -42,7 +42,11 @@ implements DClientType<PK,D,F>{
 	
 	@Override
 	public Node<PK,D> createNode(NodeParams<PK,D,F> nodeParams){
-		return new HibernateNode<PK,D,F>(nodeParams);
+		if(nodeParams.getFielderClass() == null){
+			return new HibernateNode<PK,D,F>(nodeParams);
+		}else{
+			return new JdbcNode<PK,D,F>(nodeParams);
+		}
 	}
 	
 }

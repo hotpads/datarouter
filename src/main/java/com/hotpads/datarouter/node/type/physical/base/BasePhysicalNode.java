@@ -43,7 +43,7 @@ implements PhysicalNode<PK,D>
 		String explicitName = null;
 		if(StringTool.isEmpty(params.getPhysicalName())){
 			this.tableName = params.getDatabeanClass().getSimpleName();
-			this.packagedTableName = params.getDatabeanClass().getSimpleName();
+			this.packagedTableName = params.getDatabeanClass().getName();
 		}else{
 			this.tableName = params.getPhysicalName();
 			this.packagedTableName = params.getQualifiedPhysicalName();

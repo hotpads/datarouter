@@ -46,6 +46,14 @@ public class NodeWrapper{
 		return node;
 	}
 	
+	public String getClassName(){
+		return node.getClass().getName();
+	}
+	
+	public String getClassSimpleName(){
+		return node.getClass().getSimpleName();
+	}
+	
 	public HBaseNode<?,?,?> getHBaseNode(){
 		if(! getIsHBaseNode()){ return null; }
 		return (HBaseNode<?,?,?>)node;
