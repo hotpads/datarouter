@@ -21,26 +21,14 @@ import com.hotpads.util.core.ListTool;
 
 public class MasterSlaveNodeFactory{
 	
-	//Map
+	//no Fielder
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	BaseMasterSlaveNode<PK,D,?,?> 
 	create(
-			DataRouter router, Class<D> databeanClass, StorageType storageType,
+			DataRouter router, StorageType storageType, Class<D> databeanClass,
 			String masterClientName, Collection<String> slaveClientNames){
-		return create(router, databeanClass, null, storageType, masterClientName, slaveClientNames);
+		return create(router, storageType, databeanClass, null, masterClientName, slaveClientNames);
 	}
-	
-//	public static <
-//			PK extends PrimaryKey<PK>,
-//			D extends Databean<PK,D>,
-//			F extends DatabeanFielder<PK,D>,
-//			N extends MapStorageNode<PK,D>>
-//	//BaseMasterSlaveNode<PK,D,F,N> 
-//	N
-//	createMap(DataRouter router, Class<D> databeanClass, Class<F> fielderClass,
-//		StorageType storageType, String masterClientName, Collection<String> slaveClientNames){
-//			return createUnchecked(router, databeanClass, fielderClass, storageType, )
-//		}
 
 	public static <
 			PK extends PrimaryKey<PK>,
@@ -48,9 +36,10 @@ public class MasterSlaveNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends BaseNode<PK,D,F>>
 	BaseMasterSlaveNode<PK,D,F,?> 
-	create(DataRouter router, Class<D> databeanClass, Class<F> fielderClass,
-			StorageType storageType, String masterClientName, Collection<String> slaveClientNames){
+	create(DataRouter router, StorageType storageType, Class<D> databeanClass,
+			Class<F> fielderClass, String masterClientName, Collection<String> slaveClientNames){
 		
+		//create the backing nodes
 		N master = null;
 		if(masterClientName != null){
 			master = NodeFactory.create(masterClientName, databeanClass, fielderClass, router);
@@ -63,7 +52,7 @@ public class MasterSlaveNodeFactory{
 			slaves.add(slaveNode);
 		}
 		
-		//cast the master/slave nodes so we throw an error here if they aren't the right type
+		//create the parent node.  cast the master/slave nodes so we throw an error here if they aren't the right type
 		if(StorageType.map == storageType){
 			return new MasterSlaveMapStorageNode<PK,D,F,MapStorageNode<PK,D>>(
 					databeanClass, router, 
@@ -82,104 +71,5 @@ public class MasterSlaveNodeFactory{
 		
 	}
 	
-	
-//	//SortedMap
-//	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-//	MasterSlaveSortedMapStorageNode<PK,D,?,SortedMapStorageNode<PK,D>> 
-//	newMasterSlaveSortedMap(
-//			DataRouter router, Class<D> databeanClass,
-//			String masterClientName, Collection<String> slaveClientNames){
-//		return newMasterSlaveSortedMap(router, databeanClass, null, masterClientName, slaveClientNames);
-//	}
-//
-//	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-//	MasterSlaveSortedMapStorageNode<PK,D,F,SortedMapStorageNode<PK,D>> 
-//	newMasterSlaveSortedMap(
-//			DataRouter router, Class<D> databeanClass, Class<F> fielderClass,
-//			String masterClientName, Collection<String> slaveClientNames){
-//		
-//		SortedMapStorageNode<PK,D> master = null;
-//		if(masterClientName != null){
-//			master = new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, masterClientName);
-//		}
-//		
-//		List<SortedMapStorageNode<PK,D>> slaves = ListTool.createLinkedList();
-//		for(String slaveClientName : CollectionTool.nullSafe(slaveClientNames)){
-//			slaves.add(new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, slaveClientName));
-//		}
-//		
-//		return new MasterSlaveSortedMapStorageNode<PK,D,F,SortedMapStorageNode<PK,D>>(
-//				databeanClass, router, master, slaves);
-//	}
-//	
-//	
-//	//IndexedMap
-//	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-//	MasterSlaveIndexedMapStorageNode<PK,D,?,IndexedMapStorageNode<PK,D>> 
-//	newMasterSlaveIndexedMap(
-//			DataRouter router, Class<D> databeanClass, 
-//			String masterClientName, Collection<String> slaveClientNames){
-//		return newMasterSlaveIndexedMap(router, databeanClass, null, masterClientName, slaveClientNames);
-//	}
-//	
-//	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-//	MasterSlaveIndexedMapStorageNode<PK,D,F,IndexedMapStorageNode<PK,D>> 
-//	newMasterSlaveIndexedMap(
-//			DataRouter router, Class<D> databeanClass, Class<F> fielderClass,
-//			String masterClientName, Collection<String> slaveClientNames){
-//		
-//		IndexedMapStorageNode<PK,D> master = null;
-//		if(masterClientName != null){
-//			master = new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, masterClientName);
-//		}
-//		
-//		List<IndexedMapStorageNode<PK,D>> slaves = ListTool.createLinkedList();
-//		for(String slaveClientName : CollectionTool.nullSafe(slaveClientNames)){
-//			slaves.add(new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, slaveClientName));
-//		}
-//		
-//		return new MasterSlaveIndexedMapStorageNode<PK,D,F,IndexedMapStorageNode<PK,D>>(
-//				databeanClass, router, master, slaves);
-//	}
-//
-//	
-//	//IndexedSorted
-//	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-//	MasterSlaveIndexedSortedMapStorageNode<PK,D,?,IndexedSortedMapStorageNode<PK,D>> 
-//	create(DataRouter router,
-//					Class<D> databeanClass, IndexedSortedMapStorageNode<PK,D> master,
-//					Collection<IndexedSortedMapStorageNode<PK,D>> slaves){
-//		return new MasterSlaveIndexedSortedMapStorageNode<PK,D,F,IndexedSortedMapStorageNode<PK,D>>(databeanClass,
-//				router, master, slaves);
-//	}
-//	
-//	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-//	MasterSlaveIndexedSortedMapStorageNode<PK,D,?,IndexedSortedMapStorageNode<PK,D>> 
-//	newMasterSlaveIndexedSorted(
-//			DataRouter router, Class<D> databeanClass, 
-//			String masterClientName, Collection<String> slaveClientNames){
-//		return newMasterSlaveIndexedSorted(router, databeanClass, null, masterClientName, slaveClientNames);
-//	}
-//	
-//	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-//	MasterSlaveIndexedSortedMapStorageNode<PK,D,F,IndexedSortedMapStorageNode<PK,D>> 
-//	newMasterSlaveIndexedSorted(
-//			DataRouter router, Class<D> databeanClass, Class<F> fielderClass,
-//			String masterClientName, Collection<String> slaveClientNames){
-//		
-//		IndexedSortedMapStorageNode<PK,D> master = null;
-//		if(masterClientName != null){
-//			master = new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, masterClientName);
-//		}
-//		
-//		List<IndexedSortedMapStorageNode<PK,D>> slaves = ListTool.createLinkedList();
-//		for(String slaveClientName : CollectionTool.nullSafe(slaveClientNames)){
-//			slaves.add(new HibernateNode<PK,D,F>(databeanClass, fielderClass, router, slaveClientName));
-//		}
-//		
-//		return new MasterSlaveIndexedSortedMapStorageNode<PK,D,F,IndexedSortedMapStorageNode<PK,D>>(
-//				databeanClass, router, master, slaves);
-//		
-//	}
 
 }
