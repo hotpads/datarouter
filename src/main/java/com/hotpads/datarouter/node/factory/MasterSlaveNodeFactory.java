@@ -27,16 +27,54 @@ public class MasterSlaveNodeFactory{
 	create(
 			DataRouter router, StorageType storageType, Class<D> databeanClass,
 			String masterClientName, Collection<String> slaveClientNames){
-		return create(router, storageType, databeanClass, null, masterClientName, slaveClientNames);
+		return createInternal(router, storageType, databeanClass, null, masterClientName, slaveClientNames);
 	}
-
+	
+	
+	/************** convenience methods that (try to) cast to the desired type *****************/
+	
 	public static <
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends BaseNode<PK,D,F>>
-	BaseMasterSlaveNode<PK,D,F,?> 
-	create(DataRouter router, StorageType storageType, Class<D> databeanClass,
+	MasterSlaveMapStorageNode<PK,D,F,?> createMap(DataRouter router, Class<D> databeanClass,
+			Class<F> fielderClass, String masterClientName, Collection<String> slaveClientNames){
+		return (MasterSlaveMapStorageNode<PK,D,F,?>)createInternal(router, StorageType.map, databeanClass,
+				fielderClass, masterClientName, slaveClientNames);
+	}
+	
+	public static <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends BaseNode<PK,D,F>>
+	MasterSlaveSortedMapStorageNode<PK,D,F,?> createSorted(DataRouter router, Class<D> databeanClass,
+			Class<F> fielderClass, String masterClientName, Collection<String> slaveClientNames){
+		return (MasterSlaveSortedMapStorageNode<PK,D,F,?>)createInternal(router, StorageType.sortedMap, databeanClass,
+				fielderClass, masterClientName, slaveClientNames);
+	}
+	
+	public static <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends BaseNode<PK,D,F>>
+	MasterSlaveIndexedSortedMapStorageNode<PK,D,F,?> createIndexed(DataRouter router, Class<D> databeanClass,
+			Class<F> fielderClass, String masterClientName, Collection<String> slaveClientNames){
+		return (MasterSlaveIndexedSortedMapStorageNode<PK,D,F,?>)createInternal(router, StorageType.indexed,
+				databeanClass, fielderClass, masterClientName, slaveClientNames);
+	}
+
+	
+	/************** private ******************/
+	
+	private static <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends BaseNode<PK,D,F>>
+	BaseMasterSlaveNode<PK,D,F,?> createInternal(DataRouter router, StorageType storageType, Class<D> databeanClass,
 			Class<F> fielderClass, String masterClientName, Collection<String> slaveClientNames){
 		
 		//create the backing nodes
