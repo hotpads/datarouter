@@ -5,6 +5,7 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
@@ -37,6 +38,7 @@ extends BaseHibernateOp<D>{
 	
 	@Override
 	public D runOnce(){
+		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);

@@ -12,6 +12,7 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
@@ -53,6 +54,7 @@ extends BaseHibernateOp<List<PK>>{
 	
 	@Override
 	public List<PK> runOnce(){
+		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
 		if(node.getFieldInfo().getFieldAware()){ throw new NotImplementedException(); }
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
