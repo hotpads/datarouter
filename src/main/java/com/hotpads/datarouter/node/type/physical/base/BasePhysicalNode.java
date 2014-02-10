@@ -40,11 +40,19 @@ implements PhysicalNode<PK,D>
 	public BasePhysicalNode(NodeParams<PK,D,F> params){
 		super(params);
 		this.clientName = params.getClientName();
-		this.tableName = ObjectTool.nullSafe(params.getPhysicalName(), params.getDatabeanClass().getSimpleName());
-		this.packagedTableName = ObjectTool.nullSafe(params.getQualifiedPhysicalName(), params.getDatabeanClass().getSimpleName());
+		String explicitName = null;
+		if(StringTool.isEmpty(params.getPhysicalName())){
+			this.tableName = params.getDatabeanClass().getSimpleName();
+			this.packagedTableName = params.getDatabeanClass().getSimpleName();
+		}else{
+			this.tableName = params.getPhysicalName();
+			this.packagedTableName = params.getQualifiedPhysicalName();
+			explicitName = clientName+"."+tableName;
+			logger.info("client:"+this.clientName+" databean "+params.getDatabeanClass().getSimpleName()+" -> "+tableName);
+		}
 		this.fieldInfo.setBaseDatabeanClass(params.getBaseDatabeanClass());
 		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params.getDatabeanClass(), params.getRouter()
-				.getName(), clientName, null, null));
+				.getName(), clientName, null, explicitName));
 	}
 	
 	@Deprecated
