@@ -33,7 +33,7 @@ public class Clients{
 	protected NavigableSet<ClientId> clientIds = SetTool.createTreeSet();
 	protected List<Client> clients = ListTool.createArrayList();
 
-	protected Map<String,LazyClientInitializer> lazyClientInitializerByName = new ConcurrentHashMap<String,LazyClientInitializer>();
+	protected Map<String,LazyClientProvider> lazyClientInitializerByName = new ConcurrentHashMap<String,LazyClientProvider>();
 
 	public static final ClientType DEFAULT_CLIENT_TYPE = ClientType.hibernate;
 	
@@ -83,7 +83,7 @@ public class Clients{
 		DClientType clientTypeInstance = routerOptions.getClientTypeInstance(clientName);
 		List<PhysicalNode<?,?>> physicalNodesForClient = drContext.getNodes().getPhysicalNodesForClient(clientName);
 		ClientFactory clientFactory = clientTypeInstance.createClientFactory(drContext, clientName, physicalNodesForClient);
-		lazyClientInitializerByName.put(clientName, new LazyClientInitializer(clientFactory));
+		lazyClientInitializerByName.put(clientName, new LazyClientProvider(clientFactory));
 	}
 	
 	
