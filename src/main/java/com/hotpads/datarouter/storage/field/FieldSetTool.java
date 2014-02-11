@@ -18,17 +18,7 @@ import org.junit.Test;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
-import com.hotpads.datarouter.storage.field.imp.comparable.CharacterField;
-import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
-import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
-import com.hotpads.datarouter.storage.field.imp.comparable.ShortField;
-import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
-import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
-import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
-import com.hotpads.datarouter.storage.field.imp.dumb.DumbFloatField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
@@ -78,117 +68,23 @@ public class FieldSetTool{
 		return outs;
 	}
 
-	public static Map<String, Object> getDifferingFields(Collection<Field<?>> left,
-			Collection<Field<?>> right) {
+	public static Map<String, Object> getDifferingFields(Collection<Field<?>> left, Collection<Field<?>> right) {
 		
 		Map<String, Object> diffMap = Maps.newHashMap();
-
 		Iterator<Field<?>> leftIter = left.iterator(), rightIter = right.iterator();
 
 		while(leftIter.hasNext() && rightIter.hasNext()) {
 			Field<?> leftField = leftIter.next(), rightField = rightIter.next();
-			
-//			boolean equalsValues = equalsValues(leftField, rightField);
-//			
 			Object leftVal = leftField.getValue(), rightVal = rightField.getValue();
-			String fieldName = leftField.getName();
 			
-			if (leftVal == rightVal) { // both null
-				continue;
-			} else if (leftVal == null || rightVal == null) { // one is null
-				diffMap.put(fieldName, Pair.create(leftField, rightField));
-			} else if (leftField instanceof BooleanField) {
-				BooleanField f0 = (BooleanField) leftField, f1 = (BooleanField) rightField;
-				if(!f0.getValue().equals(f1.getValue())) {
-					diffMap.put(fieldName, Pair.create(leftField, rightField));
-				}
-			} else if (leftField instanceof CharacterField) {
-				CharacterField f0 = (CharacterField) leftField, f1 = (CharacterField) rightField;
-				if(!f0.getValue().equals(f1.getValue())) {
-					diffMap.put(fieldName, Pair.create(leftField, rightField));
-				}
-			} else if (leftField instanceof IntegerField) {
-				IntegerField f0 = (IntegerField) leftField, f1 = (IntegerField) rightField;
-				if(!f0.getValue().equals(f1.getValue())) {
-					diffMap.put(fieldName, Pair.create(leftField, rightField));
-				}
-			} else if (leftField instanceof LongField) {
-				LongField f0 = (LongField) leftField, f1 = (LongField) rightField;
-				if(!f0.getValue().equals(f1.getValue())) {
-					diffMap.put(fieldName, Pair.create(leftField, rightField));
-				}
-			} else if (leftField instanceof ShortField) {
-				ShortField f0 = (ShortField) leftField, f1 = (ShortField) rightField;
-				if(!f0.getValue().equals(f1.getValue())) {
-					diffMap.put(fieldName, Pair.create(leftField, rightField));
-				}
-			} else if (leftField instanceof SignedByteField) {
-				SignedByteField f0 = (SignedByteField) leftField, f1 = (SignedByteField) rightField;
-				if(!f0.getValue().equals(f1.getValue())) {
-					diffMap.put(fieldName, Pair.create(leftField, rightField));
-				}
-			} else if (leftField instanceof DumbDoubleField) {
-				DumbDoubleField f0 = (DumbDoubleField) leftField, f1 = (DumbDoubleField) rightField;
-				if(!f0.getValue().equals(f1.getValue())) {
-					diffMap.put(fieldName, Pair.create(leftField, rightField));
-				}
-			} else if (leftField instanceof DumbFloatField) {
-				DumbFloatField f0 = (DumbFloatField) leftField, f1 = (DumbFloatField) rightField;
-				if(!f0.getValue().equals(f1.getValue())) {
-					diffMap.put(fieldName, Pair.create(leftField, rightField));
-				}
-			} else if (leftField instanceof DateField) {
-				DateField f0 = (DateField) leftField, f1 = (DateField) rightField;
-				if(!f0.getValue().equals(f1.getValue())) {
-					diffMap.put(fieldName, Pair.create(leftField, rightField));
-				}
-			} else if (leftField instanceof LongDateField) {
-				LongDateField f0 = (LongDateField) leftField, f1 = (LongDateField) rightField;
-				if(!f0.getValue().equals(f1.getValue())) {
-					diffMap.put(fieldName, Pair.create(leftField, rightField));
-				}
-			} else if (leftField instanceof StringField) {
-				StringField f0 = (StringField) leftField, f1 = (StringField) rightField;
-				if(!f0.getValue().equals(f1.getValue())) {
-					diffMap.put(fieldName, Pair.create(leftField, rightField));
-				}
+			if (!ObjectTool.nullSafeEquals(leftVal, rightVal)) {
+				diffMap.put(leftField.getName(), Pair.create(leftField, rightField));
 			}
 		}
 		
 		return diffMap;
 	}
-	
-//	private static <T> boolean valuesDiffer(Field<T> a, Field<T> b) {
-//		if (ObjectTool.bothNull(a, b)) {
-//			return false;
-//		}
-//		if (ObjectTool.isOneNullButNotTheOther(a, b)) {
-//			return true;
-//		}
-//		return true;
-//	}
-//	
-//	public static boolean equalsValuesUnchecked(Field<?> a, Field<?> b) {
-//		Preconditions.checkArgument(ClassTool.sameClass(a, b));
-//		if (ObjectTool.bothNull(a, b)) {
-//			return true;
-//		}
-//		if (ObjectTool.isOneNullButNotTheOther(a, b)) {
-//			return false;
-//		}
-//		return ObjectTool.equals(a.getValue(), b.getValue());
-//	}
-//	
-//	public static <T> boolean equalsValues(Field<T> a, Field<T> b) {
-//		if (ObjectTool.bothNull(a, b)) {
-//			return true;
-//		}
-//		if (ObjectTool.isOneNullButNotTheOther(a, b)) {
-//			return false;
-//		}
-//		return ObjectTool.equals(a.getValue(), b.getValue());
-//	}
-	
+
 //	public static String getCsv(FieldSet<?> fieldSet){
 //		StringBuilder sb = new StringBuilder();
 //		for(Field<?> field : fieldSet.getFields()){
