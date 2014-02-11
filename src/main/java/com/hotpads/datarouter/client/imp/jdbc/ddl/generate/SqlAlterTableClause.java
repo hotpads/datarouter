@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl;
+package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
 
 
 public class SqlAlterTableClause{
