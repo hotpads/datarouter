@@ -12,6 +12,7 @@ import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ExceptionTool;
 
+@Deprecated
 public class HibernateExecutor {
 	private Logger logger = Logger.getLogger(HibernateExecutor.class);
 

@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.connection;
 
 import java.beans.PropertyVetoException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -9,7 +10,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
 import com.hotpads.util.core.ExceptionTool;
-
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
 
@@ -91,6 +91,17 @@ public class JdbcConnectionPool{
 		
 	}
 	
+	public Connection checkOut(){
+		try{
+			return pool.getConnection();
+		}catch(SQLException e){
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public void checkIn(Connection connection){
+		pool.
+	}
 	
 	public void shutdown(){
 		try{

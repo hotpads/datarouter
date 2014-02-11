@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.jdbc.factory;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -13,13 +12,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AnnotationConfiguration;
 
 import com.hotpads.datarouter.client.ClientId;
-import com.hotpads.datarouter.client.Clients;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
@@ -36,7 +30,6 @@ import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
-import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.util.core.BooleanTool;
@@ -58,15 +51,11 @@ public class JdbcSimpleClientFactory implements JdbcClientFactory{
 	public static final String 
 			SERVER_NAME = "server.name",
 			ADMINISTRATOR_EMAIL = "administrator.email",
-			hibernate_connection_prefix = "hibernate.connection.",
-			provider_class = hibernate_connection_prefix + "provider_class", // from org.hibernate.cfg.Environment.CONNECTION_PROVIDER
-			connectionPoolName = hibernate_connection_prefix + "connectionPoolName", // any name... SessionFactory simply passes them through
 			schemaUpdatePrintPrefix = "schemaUpdate.print",
 			schemaUpdateExecutePrefix = "schemaUpdate.execute";
 
 	public static final String 
-			paramConfigLocation = ".configLocation",
-			nestedParamSessionFactory = ".param.sessionFactory";
+			paramConfigLocation = ".configLocation";
 
 	protected DataRouterContext drContext;
 	protected String clientName;
@@ -141,48 +130,13 @@ public class JdbcSimpleClientFactory implements JdbcClientFactory{
 	public JdbcClientImp createFromScratch(DataRouterContext drContext, String clientName){
 		PhaseTimer timer = new PhaseTimer(clientName);
 
-		JdbcClientImp client = new JdbcClientImp(clientName);
-
-		AnnotationConfiguration sfConfig = new AnnotationConfiguration();
-
-		// base config file for a SessionFactory
-		String configFileLocation = PropertiesTool.getFirstOccurrence(multiProperties, Clients.prefixClient + clientName
-					+ paramConfigLocation);
-//		if(StringTool.isEmpty(configFileLocation)){
-//			configFileLocation = configLocationDefault;
-//		}
-		sfConfig.configure(configFileLocation);
-
-		// //hibernate databeans (register before connecting to db)
-		@SuppressWarnings("unchecked")
-		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = drContext.getNodes().getTypesForClient(
-				clientName);
-		for (Class<? extends Databean<?, ?>> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
-			// TODO skip fieldAware databeans
-			// logger.warn(clientName+":"+databeanClass);
-			try{
-				sfConfig.addClass(databeanClass);
-			} catch (org.hibernate.MappingNotFoundException mnfe){
-				sfConfig.addAnnotatedClass(databeanClass);
-			}
-		}
-		timer.add("SessionFactory");
 
 		// connect to the database
 		JdbcConnectionPool connectionPool = getConnectionPool(clientName, multiProperties);
-		client.setConnectionPool(connectionPool);
-		sfConfig.setProperty(provider_class,HibernateConnectionProvider.class.getName());
-		sfConfig.setProperty(connectionPoolName, connectionPool.getName());
 		timer.add("gotPool");
 
-		// only way to get the connection pool to the ConnectionProvider is
-		// ThreadLocal or JNDI... using ThreadLocal
-		HibernateConnectionProvider.bindDataSourceToThread(connectionPool);
-		SessionFactory sessionFactory = sfConfig.buildSessionFactory();
-		HibernateConnectionProvider.clearConnectionPoolFromThread();
-		client.setSessionFactory(sessionFactory);
-		timer.add("built " + connectionPool);
-
+		JdbcClientImp client = new JdbcClientImp(clientName, connectionPool);
+		
 		// datarouter fieldAware databeans (register after connecting to db)
 		Connection connection = null;
 		try{
@@ -203,8 +157,7 @@ public class JdbcSimpleClientFactory implements JdbcClientFactory{
 				}
 			}
 		} finally{
-			JdbcTool.closeConnection(connection);// is this how you return it to
-													// the pool?
+			JdbcTool.closeConnection(connection);// is this how you return it to the pool?
 		}
 		sendSchemaUpdateEmail();
 		timer.add("schema update");

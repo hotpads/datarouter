@@ -2,35 +2,28 @@ package com.hotpads.datarouter.client.imp.jdbc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.persistence.RollbackException;
-
 import org.apache.log4j.Logger;
-import org.hibernate.CacheMode;
-import org.hibernate.FlushMode;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 import com.hotpads.datarouter.client.DClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;
+import com.hotpads.datarouter.client.type.SessionClient;
 import com.hotpads.datarouter.client.type.TxnClient;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.MapTool;
 
 public class JdbcClientImp 
 extends BaseClient
-implements JdbcConnectionClient, TxnClient, JdbcClient{
+implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 	protected Logger logger = Logger.getLogger(this.getClass());
 	
 	String name;
@@ -49,27 +42,18 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	}
 	
 	protected JdbcConnectionPool connectionPool;
-	protected SessionFactory sessionFactory;
 	
-	protected Map<Long,ConnectionHandle> handleByThread = 
-			Collections.synchronizedMap(new ConcurrentHashMap<Long,ConnectionHandle>());
-	//		new ConcurrentHashMap<Long,ConnectionHandle>();
-	
-	protected Map<ConnectionHandle,Connection> connectionByHandle = 
-			Collections.synchronizedMap(new ConcurrentHashMap<ConnectionHandle,Connection>());
-	//		new ConcurrentHashMap<ConnectionHandle,Connection>();
-	
-	protected Map<ConnectionHandle,Session> sessionByConnectionHandle = 
-			Collections.synchronizedMap(new ConcurrentHashMap<ConnectionHandle,Session>());
-	//		new ConcurrentHashMap<ConnectionHandle,Session>();
+	protected Map<Long,ConnectionHandle> handleByThread = new ConcurrentHashMap<Long,ConnectionHandle>();
+	protected Map<ConnectionHandle,Connection> connectionByHandle = new ConcurrentHashMap<ConnectionHandle,Connection>();
 	
 	protected AtomicLong connectionCounter = new AtomicLong(-1L);
 	
 	
 	/**************************** constructor **********************************/
 	
-	public JdbcClientImp(String name){
+	public JdbcClientImp(String name, JdbcConnectionPool connectionPool){
 		this.name = name;
+		this.connectionPool = connectionPool;
 	}
 	
 	/******************************** methods **********************************/
@@ -79,7 +63,7 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 	@Override
 	public ConnectionHandle getExistingHandle(){
 		Thread currentThread = Thread.currentThread();
-		return this.handleByThread.get(currentThread.getId());
+		return handleByThread.get(currentThread.getId());
 	}
 
 	@Override
@@ -128,27 +112,23 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 			Thread currentThread = Thread.currentThread();
 			ConnectionHandle handle = getExistingHandle();
 			if(handle==null){ return null; }//the connection probably was never opened successfully
+			
+			//decrement counters
 			handle.decrementNumTickets();
 			if(handle.getNumTickets() > 0){
 //				logger.warn("KEEPING CONNECTION OPEN for "+handle+", "+this.getStats());
 				return handle;  //others are still using this connection
 			}
-			if(sessionByConnectionHandle.containsKey(handle)){
-				try{
-//					logger.warn("*************************************************************************************************");
-//					logger.warn("SESSION STILL EXISTS for "+handle+".  CLEANING UP");
-					this.cleanupSession();
-//					logger.warn("*************************************************************************************************");
-				}catch(Exception e){
-					logger.warn("*************************************************************************************************");
-					logger.warn("ERROR CLEANING UP SESSION for "+handle+", stats:"+this.getStats());
-					logger.warn("*************************************************************************************************");
-				}
-			}
+			
+			//cleanup session
+			cleanupSession();
+			
+			//release connection
 			Connection connection = connectionByHandle.get(handle);
 			//on close, there will be a network round trip if isolation needs to be set back to default
 			//on close, there will be another network round trip if autocommit needs to be disabled
 			connection.close();
+			
 			connectionByHandle.remove(handle);
 			handleByThread.remove(currentThread.getId());
 			return handle;
@@ -232,106 +212,40 @@ implements JdbcConnectionClient, TxnClient, JdbcClient{
 
 	
 	/****************************** SessionClient methods *************************/
-	
+
 	@Override
 	public ConnectionHandle openSession(){
-		Connection connection = getExistingConnection();
-		Session session = sessionFactory.openSession(connection);
-		session.setCacheMode(CacheMode.GET);
-		session.setFlushMode(FlushMode.MANUAL);
-		sessionByConnectionHandle.put(getExistingHandle(), session);
-		return this.getExistingHandle();
+		return null;
 	}
 	
 	@Override
 	public ConnectionHandle flushSession(){
-		ConnectionHandle handle = getExistingHandle();
-		if(handle==null){ return handle; }
-		Session session = sessionByConnectionHandle.get(handle);
-		if(session!=null){
-			try{
-				session.flush();
-			}catch(Exception e){
-				logger.warn("problem closing session.  flush() threw exception.  handle="+getExistingHandle());
-				logger.warn(getStats());
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
-				try{
-					logger.warn("ROLLING BACK TXN after failed flush().  handle="+getExistingHandle());
-					rollbackTxn();
-				}catch(Exception e2){
-					logger.warn("TXN ROLLBACK FAILED after flush() threw exception.  handle="+getExistingHandle());
-					logger.warn(name+" has "+MapTool.size(sessionByConnectionHandle)+" sessions");
-					logger.warn(ExceptionTool.getStackTraceAsString(e));
-				}
-				throw new RollbackException(e);
-			}
-		}
-		return handle;
+		return null;
 	}
 	
 	@Override
 	public ConnectionHandle cleanupSession(){
-		ConnectionHandle handle = getExistingHandle();
-		if(handle==null){ return handle; }
-		Session session = sessionByConnectionHandle.get(handle);
-		if(session != null){
-			try{
-				session.clear();//otherwise things get left in the session factory??
-			}catch(Exception e){
-				logger.warn("problem clearing session.  clear() threw exception.  handle="+getExistingHandle());
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
-			}
-			try{
-				session.disconnect();
-			}catch(Exception e){
-				logger.warn("problem closing session.  disconnect() threw exception.  handle="+getExistingHandle());
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
-			}
-			try{
-				session.close();//should not be necessary, but best to be safe
-			}catch(Exception e){
-				logger.warn("problem closing session.  close() threw exception.  handle="+getExistingHandle());
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
-			}
-		}
-		sessionByConnectionHandle.remove(handle);
-		return handle;
+		return null;
 	}
 
 	
 	/****************************** HibernateClient methods *************************/
-	
-	@Override
-	public Session getExistingSession(){
-		if(getExistingHandle()==null){ return null; }
-		return this.sessionByConnectionHandle.get(getExistingHandle());
-	}
-
-	@Override
-	public SessionFactory getSessionFactory() {
-		return sessionFactory;
-	}
 	
 	
 	/************************** private *********************************/
 	
 	public String getStats(){
 		return "client:"+name+" has "
-		+MapTool.size(handleByThread)+" threadHandles,"
-		+MapTool.size(connectionByHandle)+" connectionHandles,"
-		+MapTool.size(sessionByConnectionHandle)+" sessionHandles";
+		+MapTool.size(handleByThread)+" threadHandles"
+		+","+MapTool.size(connectionByHandle)+" connectionHandles";
 	}
 	
 	
 	/**************************** get/set ***************************************/
 
-	public void setConnectionPool(JdbcConnectionPool connectionPool){
-		this.connectionPool = connectionPool;
-	}
-
-	public void setSessionFactory(SessionFactory sessionFactory){
-		this.sessionFactory = sessionFactory;
-	}
+//	public void setConnectionPool(JdbcConnectionPool connectionPool){
+//		this.connectionPool = connectionPool;
+//	}
 	
 	
 }
