@@ -59,7 +59,7 @@ public class FieldSetTool{
 			++counter;
 		}
 	}
-	
+
 	public static List<String> getPersistentStrings(Collection<? extends FieldSet<?>> keys){
 		List<String> outs = ListTool.createArrayListWithSize(keys);
 		for(FieldSet<?> f : IterableTool.nullSafe(keys)){
@@ -69,19 +69,19 @@ public class FieldSetTool{
 	}
 
 	public static Map<String, Object> getDifferingFields(Collection<Field<?>> left, Collection<Field<?>> right) {
-		
+
 		Map<String, Object> diffMap = Maps.newHashMap();
 		Iterator<Field<?>> leftIter = left.iterator(), rightIter = right.iterator();
 
 		while(leftIter.hasNext() && rightIter.hasNext()) {
 			Field<?> leftField = leftIter.next(), rightField = rightIter.next();
 			Object leftVal = leftField.getValue(), rightVal = rightField.getValue();
-			
+
 			if (!ObjectTool.nullSafeEquals(leftVal, rightVal)) {
 				diffMap.put(leftField.getName(), Pair.create(leftField, rightField));
 			}
 		}
-		
+
 		return diffMap;
 	}
 
@@ -99,8 +99,8 @@ public class FieldSetTool{
 //		}
 //		return sb.toString();
 //	}
-	
-	
+
+
 	/***************************** construct fieldsets using reflection ***************************/
 
 	public static <F extends FieldSet<?>>F fieldSetFromHibernateResultUsingReflection(Class<F> cls,
@@ -138,7 +138,7 @@ public class FieldSetTool{
 				bytes.length);
 	}
 
-	public static <F extends FieldSet<?>> F fieldSetFromByteStreamKnownLength(Class<F> cls, 
+	public static <F extends FieldSet<?>> F fieldSetFromByteStreamKnownLength(Class<F> cls,
 			Map<String,Field<?>> fieldByPrefixedName, InputStream is, int numBytes) throws IOException{
 		F targetFieldSet = ReflectionTool.create(cls);
 		int numBytesThroughDatabean = 0;
@@ -165,10 +165,10 @@ public class FieldSetTool{
 		}
 		return targetFieldSet;
 	}
-	
+
 
 	/**************************** bytes ******************/
-	
+
 	/*
 	 * the trailingSeparatorAfterEndingString is for backwards compatibility with some early tables
 	 * that appended a trailing 0 to the byte[] even though it wasn't necessary
@@ -177,11 +177,11 @@ public class FieldSetTool{
 			boolean trailingSeparatorAfterEndingString){
 		int numFields = FieldTool.countNonNullLeadingFields(fields);
 		if(numFields==0){ return null; }
-		if(numFields==1){ 
+		if(numFields==1){
 			if(trailingSeparatorAfterEndingString){
-				return CollectionTool.getFirst(fields).getBytesWithSeparator(); 
+				return CollectionTool.getFirst(fields).getBytesWithSeparator();
 			}else{
-				return CollectionTool.getFirst(fields).getBytes(); 
+				return CollectionTool.getFirst(fields).getBytes();
 			}
 		}
 		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.size(fields)][];
@@ -201,7 +201,7 @@ public class FieldSetTool{
 		}
 		return ByteTool.concatenate(fieldArraysWithSeparators);
 	}
-	
+
 	/*
 	 * should combine this with getConcatenatedValueBytes
 	 */
@@ -219,20 +219,20 @@ public class FieldSetTool{
 		}
 		return ByteTool.concatenate(fieldArraysWithSeparators);
 	}
-	
+
 	/**
 	 * @param fields
 	 * @param includePrefix usually refers to the "key." prefix before a PK
 	 * @param skipNullValues important to include nulls in PK's, but usually skip them in normal fields
 	 * @return
 	 */
-	public static byte[] getSerializedKeyValues(Collection<Field<?>> fields, boolean includePrefix, 
+	public static byte[] getSerializedKeyValues(Collection<Field<?>> fields, boolean includePrefix,
 			boolean skipNullValues){
 		if(CollectionTool.isEmpty(fields)){ return new byte[0]; }
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			//prep the values
-			byte[] keyBytes = includePrefix ? 
+			byte[] keyBytes = includePrefix ?
 					StringByteTool.getUtf8Bytes(field.getPrefixedName()) : field.getColumnNameBytes();
 			VarLong keyLength = new VarLong(ArrayTool.length(keyBytes));
 			byte[] valueBytes = field.getBytes();
@@ -251,9 +251,9 @@ public class FieldSetTool{
 		}
 		return baos.toByteArray();
 	}
-	
+
 	/*************************** tests *********************************/
-	
+
 	public static class FieldSetToolTests{
 		@Test public void testGetConcatenatedValueBytes(){
 			int someInt = 55;
@@ -273,6 +273,6 @@ public class FieldSetTool{
 	}
 
 	/************************** field to byte helpers *****************************************/
-	
-	
+
+
 }
