@@ -1,13 +1,11 @@
 package com.hotpads.datarouter.client.imp.memcached;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.DClientType;
-import com.hotpads.datarouter.client.imp.http.HttpClientType;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -35,8 +33,8 @@ implements DClientType<PK,D,F>{
 
 	@Override
 	public ClientFactory createClientFactory(DataRouterContext drContext, String clientName,
-			List<PhysicalNode<?,?>> physicalNodes, ExecutorService executorService){
-		return new MemcachedSimpleClientFactory(drContext, clientName, executorService);
+			List<PhysicalNode<?,?>> physicalNodes){
+		return new MemcachedSimpleClientFactory(drContext, clientName);
 	}
 	
 	@Override

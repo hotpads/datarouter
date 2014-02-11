@@ -100,7 +100,12 @@ public class JdbcConnectionPool{
 	}
 	
 	public void checkIn(Connection connection){
-		pool.
+		if(connection==null){ return; }
+		try{
+			connection.close();
+		}catch(SQLException e){
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public void shutdown(){

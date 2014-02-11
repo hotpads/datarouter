@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -20,7 +19,7 @@ public interface DClientType<
 	String getName();
 	
 	ClientFactory createClientFactory(DataRouterContext drContext, String clientName, 
-			List<PhysicalNode<?,?>> physicalNodes, ExecutorService executorService);
+			List<PhysicalNode<?,?>> physicalNodes);
 	
 	Node<PK,D> createNode(NodeParams<PK,D,F> nodeParams);
 }

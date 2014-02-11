@@ -6,13 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
@@ -24,7 +22,6 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
-import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -43,8 +40,9 @@ import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 
-public class JdbcSimpleClientFactory implements JdbcClientFactory{
-	Logger logger = Logger.getLogger(getClass());
+public class JdbcSimpleClientFactory 
+implements ClientFactory{
+	private static Logger logger = Logger.getLogger(JdbcSimpleClientFactory.class);
 
 	public static Boolean SCHEMA_UPDATE = false;
 
@@ -65,15 +63,11 @@ public class JdbcSimpleClientFactory implements JdbcClientFactory{
 	protected SchemaUpdateOptions schemaUpdateExecuteOptions;
 	protected Set<String> updatedTables;
 	protected List<String> printedSchemaUpdates;	
-	protected ExecutorService executorService;
-	protected JdbcClient client;
 	
 
-	public JdbcSimpleClientFactory(DataRouterContext drContext, String clientName, 
-			ExecutorService executorService){
+	public JdbcSimpleClientFactory(DataRouterContext drContext, String clientName){
 		this.drContext = drContext;
 		this.clientName = clientName;
-		this.executorService = executorService;
 
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
@@ -83,73 +77,23 @@ public class JdbcSimpleClientFactory implements JdbcClientFactory{
 		this.printedSchemaUpdates = ListTool.createArrayList();
 		SCHEMA_UPDATE = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, "schemaUpdate.enable"));
 	}
-
-	protected static final boolean SEPARATE_THREAD = true;// why do we need this separate thread?
-
+		
 	@Override
-	public JdbcClient getClient(){
-		if(client != null){
-			return client;
-		}
-		// logger.warn("activating Hibernate client "+clientName);
-		if(SEPARATE_THREAD){
-			synchronized (this){
-				if(client != null){
-					return client;
-				}
-				if("event".equals(clientName)){
-					logger.warn("instantiating " + clientName);
-					int breakpoint = 1;
-				}
-				Future<JdbcClient> future = executorService
-						.submit(new Callable<JdbcClient>(){
-							@Override
-							public JdbcClient call(){
-								if(client != null){
-									return client;
-								}
-								logger.warn("activating Hibernate client "
-										+ clientName);
-								return createFromScratch(drContext, clientName);
-							}
-						});
-				try{
-					client = future.get();
-				} catch (InterruptedException e){
-					throw new RuntimeException(e);
-				} catch (ExecutionException e){
-					throw new RuntimeException(e);
-				}
-			}
-			return client;
-		} else{
-			return createFromScratch(drContext, clientName);
-		}
-	}
-
-	public JdbcClientImp createFromScratch(DataRouterContext drContext, String clientName){
+	public Client call(){
 		PhaseTimer timer = new PhaseTimer(clientName);
-
-
-		// connect to the database
+		
 		JdbcConnectionPool connectionPool = getConnectionPool(clientName, multiProperties);
 		timer.add("gotPool");
 
-		JdbcClientImp client = new JdbcClientImp(clientName, connectionPool);
-		
 		// datarouter fieldAware databeans (register after connecting to db)
 		Connection connection = null;
 		try{
-			connection = JdbcTool.checkOutConnectionFromPool(connectionPool);
+			connection = connectionPool.checkOut();
 			List<String> tableNames = JdbcTool.showTables(connection);
-//			System.out.println("table names : ");
-//			for (String s : tableNames){
-//				System.out.println(s);
-//			}
-			Nodes nodes = drContext.getNodes();
+			Nodes<?,?,?> nodes = drContext.getNodes();
 			List<? extends PhysicalNode<?, ?>> physicalNodes = nodes.getPhysicalNodesForClient(clientName);
 			for(PhysicalNode<?, ?> physicalNode : IterableTool.nullSafe(physicalNodes)){
-				String tableName = physicalNode.getTableName();
+//				String tableName = physicalNode.getTableName();
 				// logger.warn(clientName+":"+tableName);
 				DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 				if(SCHEMA_UPDATE && fieldInfo.getFieldAware()){
@@ -157,19 +101,17 @@ public class JdbcSimpleClientFactory implements JdbcClientFactory{
 				}
 			}
 		} finally{
-			JdbcTool.closeConnection(connection);// is this how you return it to the pool?
+			connectionPool.checkIn(connection);// is this how you return it to the pool?
 		}
+		
 		sendSchemaUpdateEmail();
 		timer.add("schema update");
-
+		
+		JdbcClientImp client = new JdbcClientImp(clientName, connectionPool);
+		timer.add("client");
+		
 		logger.warn(timer);
-
 		return client;
-	}
-
-	@Override
-	public boolean isInitialized(){
-		return client != null;
 	}
 
 	protected JdbcConnectionPool getConnectionPool(String clientName, List<Properties> multiProperties){

@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import javax.inject.Singleton;
 
@@ -35,8 +34,8 @@ implements DClientType<PK,D,F>{
 
 	@Override
 	public ClientFactory createClientFactory(DataRouterContext drContext, String clientName,
-			List<PhysicalNode<?,?>> physicalNodes, ExecutorService executorService){
-		return new JdbcSimpleClientFactory(drContext, clientName, executorService);
+			List<PhysicalNode<?,?>> physicalNodes){
+		return new JdbcSimpleClientFactory(drContext, clientName);
 	}
 	
 	@Override

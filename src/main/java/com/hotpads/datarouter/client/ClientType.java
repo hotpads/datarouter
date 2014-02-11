@@ -52,12 +52,12 @@ public enum ClientType {
 //				return new HBaseDynamicClientFactory(router, clientName, 
 //						configFileLocation, executorService);
 //			}else{
-				return new HBaseSimpleClientFactory(drContext, clientName, executorService);
+				return new HBaseSimpleClientFactory(drContext, clientName);
 //			}
 		}else if(hibernate==this){ 
-			return new HibernateSimpleClientFactory(drContext, clientName, executorService); 
+			return new HibernateSimpleClientFactory(drContext, clientName); 
 		}else if(memcached==this){ 
-			return new MemcachedSimpleClientFactory(drContext, clientName, executorService); 
+			return new MemcachedSimpleClientFactory(drContext, clientName); 
 		}else if(http==this){
 			return new DataRouterHttpClientFactory(drContext, clientName);
 		}

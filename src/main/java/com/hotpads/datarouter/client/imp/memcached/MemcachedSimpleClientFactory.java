@@ -4,80 +4,45 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 
 public class MemcachedSimpleClientFactory 
-implements MemcachedClientFactory{
+implements ClientFactory{
 	private static Logger logger = Logger.getLogger(MemcachedSimpleClientFactory.class);
 	
-	private DataRouterContext drContext;
 	private String clientName;
 	private Set<String> configFilePaths;
 	private List<Properties> multiProperties;
-	private ExecutorService executorService;
 	private MemcachedOptions options;
-	private MemcachedClient client;
 	
 	
-	public MemcachedSimpleClientFactory(
-			DataRouterContext drContext,
-			String clientName, 
-			ExecutorService executorService){
-		this.drContext = drContext;
+	public MemcachedSimpleClientFactory(DataRouterContext drContext, String clientName){
 		this.clientName = clientName;
-		this.executorService = executorService;
-
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
 		this.options = new MemcachedOptions(multiProperties, clientName);
 	}
 	
-	
 	@Override
-	public MemcachedClient getClient(){
-		if(client!=null){ return client; }
-		CountDownLatch latch = new CountDownLatch(1);
-		if(client!=null){ return client; }
-		Future<MemcachedClient> future = executorService.submit(new Callable<MemcachedClient>(){
-			@Override public MemcachedClient call(){//i forget why this is in a separate thread... timeout-able?
-				if(client!=null){ return client; }
-				logger.info("activating Memcached client "+clientName);
-				PhaseTimer timer = new PhaseTimer(clientName);
-				net.spy.memcached.MemcachedClient spyClient;
-				try{
-					spyClient = new net.spy.memcached.MemcachedClient(options.getServers());
-				}catch(IOException e){
-					throw new RuntimeException(e);
-				}
-				MemcachedClient newClient = new MemcachedClientImp(clientName, spyClient);
-				logger.warn(timer.add("done"));
-				return newClient;
-			}
-		});
+	public Client call(){
+		logger.info("activating Memcached client "+clientName);
+		PhaseTimer timer = new PhaseTimer(clientName);
+		net.spy.memcached.MemcachedClient spyClient;
 		try{
-			this.client = future.get();
-		}catch(InterruptedException e){
-			throw new RuntimeException(e);
-		}catch(ExecutionException e){
+			spyClient = new net.spy.memcached.MemcachedClient(options.getServers());
+		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
-		latch.countDown();
-		return client;
-	}
-	
-	@Override
-	public boolean isInitialized(){
-		return client != null;
+		MemcachedClient newClient = new MemcachedClientImp(clientName, spyClient);
+		logger.warn(timer.add("done"));
+		return newClient;
 	}
 }

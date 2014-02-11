@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import javax.inject.Singleton;
 
@@ -35,12 +34,12 @@ implements DClientType<PK,D,F>{
 	
 	@Override
 	public ClientFactory createClientFactory(DataRouterContext drContext, String clientName,
-			List<PhysicalNode<?,?>> physicalNodes, ExecutorService executorService){
+			List<PhysicalNode<?,?>> physicalNodes){
 		// if(USE_RECONNECTING_HBASE_CLIENT){
 		// return new HBaseDynamicClientFactory(router, clientName,
 		// configFileLocation, executorService);
 		// }else{
-		return new HBaseSimpleClientFactory(drContext, clientName, executorService);
+		return new HBaseSimpleClientFactory(drContext, clientName);
 		// }
 	}
 	

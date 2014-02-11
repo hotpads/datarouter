@@ -117,11 +117,6 @@ implements DataRouter{
 	public List<Client> getAllClients(){
 		return context.getClientPool().getClients(getClientNames());
 	}
-	
-	@Override
-	public List<Client> getAllInstantiatedClients(){
-		return context.getClientPool().getAllInstantiatedClients();
-	}
 
 	@Override
 	public List<Client> getClients(Collection<String> clientNames){
