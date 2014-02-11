@@ -110,7 +110,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 					return client;
 				}
 				if("event".equals(clientName)){
-					logger.warn("instantiating " + clientName);
+					logger.info("instantiating " + clientName);
 					int breakpoint = 1;
 				}
 				Future<HibernateClient> future = executorService
@@ -120,8 +120,7 @@ public class HibernateSimpleClientFactory implements HibernateClientFactory{
 								if(client != null){
 									return client;
 								}
-								logger.warn("activating Hibernate client "
-										+ clientName);
+								logger.info("activating Hibernate client " + clientName);
 								return createFromScratch(drContext, clientName);
 							}
 						});
