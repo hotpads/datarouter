@@ -87,13 +87,13 @@ public class FieldSetTool{
 
 		return diffMap;
 	}
-	
+
 	public static Map<String, Field<?>> generateFieldMap(Collection<Field<?>> fields) {
 		Map<String, Field<?>> fieldMap = Maps.newTreeMap();
 		if (fields == null) {
 			return fieldMap;
 		}
-		
+
 		Iterator<Field<?>> fieldIter = fields.iterator();
 		while (fieldIter.hasNext()) {
 			Field<?> field = fieldIter.next();
@@ -289,27 +289,27 @@ public class FieldSetTool{
 			Assert.assertEquals(lengthWith, withTrailingByte.getLength());
 			Assert.assertEquals(lengthWithout, withoutTrailingByte.getLength());
 		}
-		
+
 		@Test
 		public void testGenerateFieldMap() {
 			int testInt = 127;
 			String someStr0 = "first", someStr1 = "second";
-			
+
 			List<Field<?>> fields = FieldTool.createList(
 					new StringField("hahah", someStr0, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField("moose", someStr1, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new UInt31Field("integ", testInt));
-			
+
 			Map<String, Field<?>> fieldMap = generateFieldMap(fields);
 			Assert.assertEquals(fields.size(), fieldMap.size());
 			Assert.assertNotNull(fieldMap.get("hahah"));
 		}
-		
+
 		@Test
 		public <T> void testGetFieldDifferences() {
 			String one = "one", two = "two", three = "three", four = "four", five = "five", six = "six";
 			Long sameRefLong = new Long(123456789000l);
-			
+
 			List<Field<?>> left = FieldTool.createList(
 					new StringField(one, "help", MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(two, "smite", MySqlColumnType.MAX_LENGTH_VARCHAR),
@@ -317,7 +317,7 @@ public class FieldSetTool{
 					new LongField(four, sameRefLong),
 					new DumbDoubleField(five, 5e6));
 					// omitted six
-			
+
 			List<Field<?>> right = FieldTool.createList(
 					new StringField(one, "help", MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(two, two, MySqlColumnType.MAX_LENGTH_VARCHAR),
@@ -325,7 +325,7 @@ public class FieldSetTool{
 					new LongField(four, sameRefLong),
 					// omitted five
 					new UInt31Field(six, 55));
-			
+
 			Map<String, Pair<Field<T>, Field<T>>> diffs = getFieldDifferences(left, right);
 			Pair<Field<T>, Field<T>> test = null;
 
@@ -354,7 +354,7 @@ public class FieldSetTool{
 
 			test = diffs.get("this test does not exist");
 			Assert.assertNull(test);
-			
+
 		}
 	}
 
