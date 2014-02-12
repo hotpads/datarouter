@@ -64,6 +64,10 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>ch.fortysix</groupId>
+				<artifactId>maven-postman-plugin</artifactId>
+			</plugin>
 		</plugins>
 	</build>
 
