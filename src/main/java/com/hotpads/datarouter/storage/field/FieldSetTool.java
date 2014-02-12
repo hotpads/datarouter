@@ -13,16 +13,20 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.apache.log4j.Logger;
+import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -68,21 +72,36 @@ public class FieldSetTool{
 		return outs;
 	}
 
-	public static Map<String, Object> getDifferingFields(Collection<Field<?>> left, Collection<Field<?>> right) {
+	public static <T> Map<String, Pair<Field<T>, Field<T>>> getFieldDifferences(Collection<Field<?>> left,
+			Collection<Field<?>> right) {
 
-		Map<String, Object> diffMap = Maps.newHashMap();
-		Iterator<Field<?>> leftIter = left.iterator(), rightIter = right.iterator();
+		Map<String, Pair<Field<T>, Field<T>>> diffMap = Maps.newHashMap();
 
-		while(leftIter.hasNext() && rightIter.hasNext()) {
-			Field<?> leftField = leftIter.next(), rightField = rightIter.next();
-			Object leftVal = leftField.getValue(), rightVal = rightField.getValue();
+		Map<String, Field<?>> leftMap = generateFieldMap(left), rightMap = generateFieldMap(right);
+		for (String key : Sets.union(leftMap.keySet(), rightMap.keySet())) {
+			Field<T> leftField = (Field<T>) leftMap.get(key), rightField = (Field<T>) rightMap.get(key);
 
-			if (!ObjectTool.nullSafeEquals(leftVal, rightVal)) {
-				diffMap.put(leftField.getName(), Pair.create(leftField, rightField));
+			if (ObjectTool.isOneNullButNotTheOther(leftField, rightField)
+					|| ObjectTool.notEquals(leftField.getValue(), rightField.getValue())) {
+				diffMap.put(key, Pair.create(leftField, rightField));
 			}
 		}
 
 		return diffMap;
+	}
+	
+	public static Map<String, Field<?>> generateFieldMap(Collection<Field<?>> fields) {
+		Map<String, Field<?>> fieldMap = Maps.newTreeMap();
+		if (fields == null) {
+			return fieldMap;
+		}
+		
+		Iterator<Field<?>> fieldIter = fields.iterator();
+		while (fieldIter.hasNext()) {
+			Field<?> field = fieldIter.next();
+			fieldMap.put(field.getName(), field);
+		}
+		return fieldMap;
 	}
 
 //	public static String getCsv(FieldSet<?> fieldSet){
@@ -255,7 +274,9 @@ public class FieldSetTool{
 	/*************************** tests *********************************/
 
 	public static class FieldSetToolTests{
-		@Test public void testGetConcatenatedValueBytes(){
+
+		@Test
+		public void testGetConcatenatedValueBytes() {
 			int someInt = 55;
 			String someStringA = "abc";
 			String someStringB = "xyz";
@@ -269,6 +290,73 @@ public class FieldSetTool{
 			int lengthWith = lengthWithout + 1;
 			Assert.assertEquals(lengthWith, withTrailingByte.getLength());
 			Assert.assertEquals(lengthWithout, withoutTrailingByte.getLength());
+		}
+		
+		@Test
+		public void testGenerateFieldMap() {
+			int testInt = 127;
+			String someStr0 = "first", someStr1 = "second";
+			
+			List<Field<?>> fields = FieldTool.createList(
+					new StringField("hahah", someStr0, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField("moose", someStr1, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new UInt31Field("integ", testInt));
+			
+			Map<String, Field<?>> fieldMap = generateFieldMap(fields);
+			Assert.assertEquals(fields.size(), fieldMap.size());
+			Assert.assertNotNull(fieldMap.get("hahah"));
+		}
+		
+		@Test
+		public <T> void testGetFieldDifferences() {
+			String one = "one", two = "two", three = "three", four = "four", five = "five", six = "six";
+			Long sameRefLong = new Long(123456789000l);
+			
+			List<Field<?>> left = FieldTool.createList(
+					new StringField(one, "help", MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(two, "smite", MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new BooleanField(three, true),
+					new LongField(four, sameRefLong),
+					new DumbDoubleField(five, 5e6));
+					// omitted six
+			
+			List<Field<?>> right = FieldTool.createList(
+					new StringField(one, "help", MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(two, two, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new BooleanField(three, null),
+					new LongField(four, sameRefLong),
+					// omitted five
+					new UInt31Field(six, 55));
+			
+			Map<String, Pair<Field<T>, Field<T>>> diffs = getFieldDifferences(left, right);
+			Pair<Field<T>, Field<T>> test = null;
+			
+			test = diffs.get(one);
+			Assert.assertNull(test);
+			
+			test = diffs.get(two);
+			Assert.assertNotNull(test);
+			Assert.assertNotSame(test.getLeft().getValue(), test.getRight().getValue());
+			
+			test = diffs.get(three);
+			Assert.assertNotNull(test);
+			Assert.assertNull(test.getRight().getValue());
+			Assert.assertNotSame(test.getLeft().getValue(), test.getRight().getValue());
+			
+			test = diffs.get(four);
+			Assert.assertNull(test);
+			
+			test = diffs.get(five);
+			Assert.assertNotNull(test);
+			Assert.assertNull(test.getRight());
+			
+			test = diffs.get(six);
+			Assert.assertNotNull(test);
+			Assert.assertNull(test.getLeft());
+			
+			test = diffs.get("this test does not exist");
+			Assert.assertNull(test);
+			
 		}
 	}
 
