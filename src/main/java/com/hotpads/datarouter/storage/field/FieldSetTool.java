@@ -13,7 +13,6 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.apache.log4j.Logger;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
@@ -21,7 +20,6 @@ import com.google.common.collect.Sets;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
-import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
@@ -330,30 +328,30 @@ public class FieldSetTool{
 			
 			Map<String, Pair<Field<T>, Field<T>>> diffs = getFieldDifferences(left, right);
 			Pair<Field<T>, Field<T>> test = null;
-			
+
 			test = diffs.get(one);
 			Assert.assertNull(test);
-			
+
 			test = diffs.get(two);
 			Assert.assertNotNull(test);
 			Assert.assertNotSame(test.getLeft().getValue(), test.getRight().getValue());
-			
+
 			test = diffs.get(three);
 			Assert.assertNotNull(test);
 			Assert.assertNull(test.getRight().getValue());
 			Assert.assertNotSame(test.getLeft().getValue(), test.getRight().getValue());
-			
+
 			test = diffs.get(four);
 			Assert.assertNull(test);
-			
+
 			test = diffs.get(five);
 			Assert.assertNotNull(test);
 			Assert.assertNull(test.getRight());
-			
+
 			test = diffs.get(six);
 			Assert.assertNotNull(test);
 			Assert.assertNull(test.getLeft());
-			
+
 			test = diffs.get("this test does not exist");
 			Assert.assertNull(test);
 			
