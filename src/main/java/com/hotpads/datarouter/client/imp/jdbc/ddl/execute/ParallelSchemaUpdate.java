@@ -92,7 +92,7 @@ implements Callable<Void>{
 				singleTableUpdates.add(singleTableUpdate);
 			}
 		}
-		FutureTool.submitAll(singleTableUpdates, drContext.getExecutorService());
+		FutureTool.submitAndGetAll(singleTableUpdates, drContext.getExecutorService());
 		
 		sendEmail();
 		return null;
