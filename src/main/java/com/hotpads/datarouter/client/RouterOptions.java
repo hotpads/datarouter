@@ -16,16 +16,6 @@ import com.hotpads.util.core.properties.TypedProperties;
 
 public class RouterOptions extends TypedProperties{
 	
-	public static final Map<String,String> DEFAULT_TYPE_CLASS_BY_NAME = MapTool.createTreeMap();
-	static{
-		DEFAULT_TYPE_CLASS_BY_NAME.put("hbase", "com.hotpads.datarouter.client.imp.hbase.HBaseClientType");
-		DEFAULT_TYPE_CLASS_BY_NAME.put("hibernate", "com.hotpads.datarouter.client.imp.hibernate.HibernateClientType");
-		DEFAULT_TYPE_CLASS_BY_NAME.put("http", "com.hotpads.datarouter.client.imp.http.HttpClientType");
-		DEFAULT_TYPE_CLASS_BY_NAME.put("jdbc", "com.hotpads.datarouter.client.imp.jdbc.JdbcClientType");
-		DEFAULT_TYPE_CLASS_BY_NAME.put("memcached", "com.hotpads.datarouter.client.imp.memcached.MemcachedClientType");
-		DEFAULT_TYPE_CLASS_BY_NAME.put("memory", "com.hotpads.datarouter.client.imp.memory.MemoryClientType");
-	}
-	
 	public static final String CLIENT_NAME_memory = "memory";
 	
 	public static final ClientType CLIENT_TYPE_DEFAULT = HibernateClientType.INSTANCE;//for now, because our config files assume this
@@ -65,7 +55,7 @@ public class RouterOptions extends TypedProperties{
 		String typeName = getString(typeNameKey);
 		if(StringTool.isEmpty(typeName)){ return CLIENT_TYPE_DEFAULT; }
 		String typeClassNameKey = "clientType."+typeName;
-		String defaultClassNameForType = DEFAULT_TYPE_CLASS_BY_NAME.get(typeName);
+		String defaultClassNameForType = DefaultClientTypes.CLASS_BY_NAME.get(typeName);
 		String typeClassName = ObjectTool.nullSafe(getString(typeClassNameKey), defaultClassNameForType);
 		Preconditions.checkNotNull(typeClassName, "no implementation specified for type "+typeClassNameKey);
 		return ReflectionTool.create(typeClassName);
