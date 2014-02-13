@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -14,16 +15,23 @@ import junit.framework.Assert;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
+import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.number.VarLong;
 
@@ -53,7 +61,7 @@ public class FieldSetTool{
 			++counter;
 		}
 	}
-	
+
 	public static List<String> getPersistentStrings(Collection<? extends FieldSet<?>> keys){
 		List<String> outs = ListTool.createArrayListWithSize(keys);
 		for(FieldSet<?> f : IterableTool.nullSafe(keys)){
@@ -61,7 +69,39 @@ public class FieldSetTool{
 		}
 		return outs;
 	}
-	
+
+	public static <T> Map<String, Pair<Field<T>, Field<T>>> getFieldDifferences(Collection<Field<?>> left,
+			Collection<Field<?>> right) {
+
+		Map<String, Pair<Field<T>, Field<T>>> diffMap = Maps.newHashMap();
+
+		Map<String, Field<?>> leftMap = generateFieldMap(left), rightMap = generateFieldMap(right);
+		for (String key : Sets.union(leftMap.keySet(), rightMap.keySet())) {
+			Field<T> leftField = (Field<T>) leftMap.get(key), rightField = (Field<T>) rightMap.get(key);
+
+			if (ObjectTool.isOneNullButNotTheOther(leftField, rightField)
+					|| ObjectTool.notEquals(leftField.getValue(), rightField.getValue())) {
+				diffMap.put(key, Pair.create(leftField, rightField));
+			}
+		}
+
+		return diffMap;
+	}
+
+	public static Map<String, Field<?>> generateFieldMap(Collection<Field<?>> fields) {
+		Map<String, Field<?>> fieldMap = Maps.newTreeMap();
+		if (fields == null) {
+			return fieldMap;
+		}
+
+		Iterator<Field<?>> fieldIter = fields.iterator();
+		while (fieldIter.hasNext()) {
+			Field<?> field = fieldIter.next();
+			fieldMap.put(field.getName(), field);
+		}
+		return fieldMap;
+	}
+
 //	public static String getCsv(FieldSet<?> fieldSet){
 //		StringBuilder sb = new StringBuilder();
 //		for(Field<?> field : fieldSet.getFields()){
@@ -76,8 +116,8 @@ public class FieldSetTool{
 //		}
 //		return sb.toString();
 //	}
-	
-	
+
+
 	/***************************** construct fieldsets using reflection ***************************/
 
 	public static <F extends FieldSet<?>>F fieldSetFromHibernateResultUsingReflection(Class<F> cls,
@@ -115,7 +155,7 @@ public class FieldSetTool{
 				bytes.length);
 	}
 
-	public static <F extends FieldSet<?>> F fieldSetFromByteStreamKnownLength(Class<F> cls, 
+	public static <F extends FieldSet<?>> F fieldSetFromByteStreamKnownLength(Class<F> cls,
 			Map<String,Field<?>> fieldByPrefixedName, InputStream is, int numBytes) throws IOException{
 		F targetFieldSet = ReflectionTool.create(cls);
 		int numBytesThroughDatabean = 0;
@@ -142,10 +182,10 @@ public class FieldSetTool{
 		}
 		return targetFieldSet;
 	}
-	
+
 
 	/**************************** bytes ******************/
-	
+
 	/*
 	 * the trailingSeparatorAfterEndingString is for backwards compatibility with some early tables
 	 * that appended a trailing 0 to the byte[] even though it wasn't necessary
@@ -154,11 +194,11 @@ public class FieldSetTool{
 			boolean trailingSeparatorAfterEndingString){
 		int numFields = FieldTool.countNonNullLeadingFields(fields);
 		if(numFields==0){ return null; }
-		if(numFields==1){ 
+		if(numFields==1){
 			if(trailingSeparatorAfterEndingString){
-				return CollectionTool.getFirst(fields).getBytesWithSeparator(); 
+				return CollectionTool.getFirst(fields).getBytesWithSeparator();
 			}else{
-				return CollectionTool.getFirst(fields).getBytes(); 
+				return CollectionTool.getFirst(fields).getBytes();
 			}
 		}
 		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.size(fields)][];
@@ -178,7 +218,7 @@ public class FieldSetTool{
 		}
 		return ByteTool.concatenate(fieldArraysWithSeparators);
 	}
-	
+
 	/*
 	 * should combine this with getConcatenatedValueBytes
 	 */
@@ -196,20 +236,20 @@ public class FieldSetTool{
 		}
 		return ByteTool.concatenate(fieldArraysWithSeparators);
 	}
-	
+
 	/**
 	 * @param fields
 	 * @param includePrefix usually refers to the "key." prefix before a PK
 	 * @param skipNullValues important to include nulls in PK's, but usually skip them in normal fields
 	 * @return
 	 */
-	public static byte[] getSerializedKeyValues(Collection<Field<?>> fields, boolean includePrefix, 
+	public static byte[] getSerializedKeyValues(Collection<Field<?>> fields, boolean includePrefix,
 			boolean skipNullValues){
 		if(CollectionTool.isEmpty(fields)){ return new byte[0]; }
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			//prep the values
-			byte[] keyBytes = includePrefix ? 
+			byte[] keyBytes = includePrefix ?
 					StringByteTool.getUtf8Bytes(field.getPrefixedName()) : field.getColumnNameBytes();
 			VarLong keyLength = new VarLong(ArrayTool.length(keyBytes));
 			byte[] valueBytes = field.getBytes();
@@ -228,11 +268,13 @@ public class FieldSetTool{
 		}
 		return baos.toByteArray();
 	}
-	
+
 	/*************************** tests *********************************/
-	
+
 	public static class FieldSetToolTests{
-		@Test public void testGetConcatenatedValueBytes(){
+
+		@Test
+		public void testGetConcatenatedValueBytes() {
 			int someInt = 55;
 			String someStringA = "abc";
 			String someStringB = "xyz";
@@ -247,9 +289,76 @@ public class FieldSetTool{
 			Assert.assertEquals(lengthWith, withTrailingByte.getLength());
 			Assert.assertEquals(lengthWithout, withoutTrailingByte.getLength());
 		}
+
+		@Test
+		public void testGenerateFieldMap() {
+			int testInt = 127;
+			String someStr0 = "first", someStr1 = "second";
+
+			List<Field<?>> fields = FieldTool.createList(
+					new StringField("hahah", someStr0, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField("moose", someStr1, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new UInt31Field("integ", testInt));
+
+			Map<String, Field<?>> fieldMap = generateFieldMap(fields);
+			Assert.assertEquals(fields.size(), fieldMap.size());
+			Assert.assertNotNull(fieldMap.get("hahah"));
+		}
+
+		@Test
+		public <T> void testGetFieldDifferences() {
+			String one = "one", two = "two", three = "three", four = "four", five = "five", six = "six";
+			Long sameRefLong = new Long(123456789000l);
+
+			List<Field<?>> left = FieldTool.createList(
+					new StringField(one, "help", MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(two, "smite", MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new BooleanField(three, true),
+					new LongField(four, sameRefLong),
+					new DumbDoubleField(five, 5e6));
+					// omitted six
+
+			List<Field<?>> right = FieldTool.createList(
+					new StringField(one, "help", MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(two, two, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new BooleanField(three, null),
+					new LongField(four, sameRefLong),
+					// omitted five
+					new UInt31Field(six, 55));
+
+			Map<String, Pair<Field<T>, Field<T>>> diffs = getFieldDifferences(left, right);
+			Pair<Field<T>, Field<T>> test = null;
+
+			test = diffs.get(one);
+			Assert.assertNull(test);
+
+			test = diffs.get(two);
+			Assert.assertNotNull(test);
+			Assert.assertNotSame(test.getLeft().getValue(), test.getRight().getValue());
+
+			test = diffs.get(three);
+			Assert.assertNotNull(test);
+			Assert.assertNull(test.getRight().getValue());
+			Assert.assertNotSame(test.getLeft().getValue(), test.getRight().getValue());
+
+			test = diffs.get(four);
+			Assert.assertNull(test);
+
+			test = diffs.get(five);
+			Assert.assertNotNull(test);
+			Assert.assertNull(test.getRight());
+
+			test = diffs.get(six);
+			Assert.assertNotNull(test);
+			Assert.assertNull(test.getLeft());
+
+			test = diffs.get("this test does not exist");
+			Assert.assertNull(test);
+
+		}
 	}
 
 	/************************** field to byte helpers *****************************************/
-	
-	
+
+
 }
