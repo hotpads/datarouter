@@ -15,13 +15,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
+import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
-import com.hotpads.datarouter.test.node.basic.manyfield.test.ManyFieldTypeIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.util.core.CollectionTool;
@@ -35,33 +36,33 @@ public class SortedNodeIntegrationTests{
 	
 	/****************************** client types ***********************************/
 
-	public static List<ClientType> clientTypes = ListTool.create();
+	public static List<DClientType> clientTypes = ListTool.create();
 	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
 	static{
-		clientTypes.add(ClientType.hibernate);
-		clientTypes.add(ClientType.hbase);
-		for(ClientType clientType : clientTypes){
+		clientTypes.add(HibernateClientType.INSTANCE);
+		clientTypes.add(HBaseClientType.INSTANCE);
+		for(DClientType clientType : clientTypes){
 			clientTypeObjectArrays.add(new Object[]{clientType});
 		}
 	}
 	
 	/****************************** static setup ***********************************/
 
-	static Map<ClientType,SortedBasicNodeTestRouter> routerByClientType = MapTool.create();
+	static Map<DClientType,SortedBasicNodeTestRouter> routerByClientType = MapTool.create();
 	
 	@BeforeClass
 	public static void init() throws IOException{	
 		Class<?> cls = SortedNodeIntegrationTests.class;
 		
-		if(clientTypes.contains(ClientType.hibernate)){
+		if(clientTypes.contains(HibernateClientType.INSTANCE)){
 			routerByClientType.put(
-					ClientType.hibernate, 
+					HibernateClientType.INSTANCE, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls));
 		}
 
-		if(clientTypes.contains(ClientType.hbase)){
+		if(clientTypes.contains(HBaseClientType.INSTANCE)){
 			routerByClientType.put(
-					ClientType.hbase, 
+					HBaseClientType.INSTANCE, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls));
 		}
 		
@@ -104,7 +105,7 @@ public class SortedNodeIntegrationTests{
 	
 	/***************************** fields **************************************/
 	
-	protected ClientType clientType;
+	protected DClientType clientType;
 	protected SortedBasicNodeTestRouter router;
 
 	/***************************** constructors **************************************/
@@ -114,7 +115,7 @@ public class SortedNodeIntegrationTests{
 		return clientTypeObjectArrays;
 	}
 	
-	public SortedNodeIntegrationTests(ClientType clientType){
+	public SortedNodeIntegrationTests(DClientType clientType){
 		this.clientType = clientType;
 		this.router = routerByClientType.get(clientType);
 	}

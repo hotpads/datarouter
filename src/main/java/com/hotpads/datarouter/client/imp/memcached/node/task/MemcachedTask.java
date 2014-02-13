@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.memcached.node.task;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClient;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedPhysicalNode;
 import com.hotpads.datarouter.config.Config;

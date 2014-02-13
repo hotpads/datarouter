@@ -5,7 +5,6 @@ import java.util.Collection;
 import org.hibernate.Session;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;

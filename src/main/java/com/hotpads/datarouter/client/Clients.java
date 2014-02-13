@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -35,7 +36,7 @@ public class Clients{
 
 	protected Map<String,LazyClientProvider> lazyClientInitializerByName = new ConcurrentHashMap<String,LazyClientProvider>();
 
-	public static final ClientType DEFAULT_CLIENT_TYPE = ClientType.hibernate;
+	public static final DClientType DEFAULT_CLIENT_TYPE = HibernateClientType.INSTANCE;
 	
 	
 	public static final String

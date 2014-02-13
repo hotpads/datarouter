@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.client.imp.hibernate.op.read;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -11,8 +9,6 @@ import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.ClientType;
-import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
@@ -22,13 +18,10 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 public class HibernateGetPrefixedRangeOp<
 		PK extends PrimaryKey<PK>,

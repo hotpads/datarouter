@@ -5,7 +5,6 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.node.HBasePhysicalNode;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;

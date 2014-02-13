@@ -15,7 +15,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
+import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
+import com.hotpads.datarouter.client.imp.memcached.MemcachedClientType;
+import com.hotpads.datarouter.client.imp.memory.MemoryClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -28,6 +32,7 @@ import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
@@ -38,8 +43,8 @@ public class ManyFieldTypeIntegrationTests {
 	
 	/****************************** static ***********************************/
 
-	static Map<ClientType,BasicNodeTestRouter> routerByClientType = MapTool.create();
-	static Map<ClientType,List<ManyFieldTypeBeanKey>> keysByClientType = MapTool.create();
+	static Map<DClientType,BasicNodeTestRouter> routerByClientType = MapTool.create();
+	static Map<DClientType,List<ManyFieldTypeBeanKey>> keysByClientType = MapTool.create();
 
 	
 	@Parameters
@@ -51,32 +56,32 @@ public class ManyFieldTypeIntegrationTests {
 	public static void init() throws IOException{	
 		Class<?> cls = ManyFieldTypeIntegrationTests.class;
 		
-		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.memory)){
+		if(DRTestConstants.ALL_CLIENT_TYPES.contains(MemoryClientType.INSTANCE)){
 			routerByClientType.put(
-					ClientType.memory, 
+					MemoryClientType.INSTANCE, 
 					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemory, cls));
 		}
-		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.hibernate)){
+		if(DRTestConstants.ALL_CLIENT_TYPES.contains(HibernateClientType.INSTANCE)){
 			routerByClientType.put(
-					ClientType.hibernate, 
+					HibernateClientType.INSTANCE, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls));
 		}
 
-		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.hbase)){
+		if(DRTestConstants.ALL_CLIENT_TYPES.contains(HBaseClientType.INSTANCE)){
 			routerByClientType.put(
-					ClientType.hbase, 
+					HBaseClientType.INSTANCE, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls));
 		}
 
-		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.memcached)){
+		if(DRTestConstants.ALL_CLIENT_TYPES.contains(MemcachedClientType.INSTANCE)){
 			routerByClientType.put(
-					ClientType.memcached, 
+					MemcachedClientType.INSTANCE, 
 					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemcached, cls));
 		}
 		
-		for(ClientType clientType : routerByClientType.keySet()){
+		for(DClientType clientType : routerByClientType.keySet()){
 			BasicNodeTestRouter router = routerByClientType.get(clientType);
-			if(ClientType.memcached!=clientType){
+			if(ObjectTool.notEquals(MemcachedClientType.INSTANCE, clientType)){
 				router.manyFieldTypeBean().deleteAll(null);
 				Assert.assertEquals(0, CollectionTool.size(router.manyFieldTypeBean().getAll(null)));
 			}
@@ -86,12 +91,12 @@ public class ManyFieldTypeIntegrationTests {
 	
 	/***************************** fields **************************************/
 	
-	protected ClientType clientType;
+	protected DClientType clientType;
 	protected BasicNodeTestRouter router;
 
 	/***************************** constructors **************************************/
 	
-	public ManyFieldTypeIntegrationTests(ClientType clientType){
+	public ManyFieldTypeIntegrationTests(DClientType clientType){
 		this.clientType = clientType;
 		this.router = routerByClientType.get(clientType);
 		if( ! keysByClientType.containsKey(clientType)){
@@ -528,18 +533,18 @@ public class ManyFieldTypeIntegrationTests {
 	}
 	
 	public boolean isMemory(){
-		return ClientType.memory == clientType;
+		return MemoryClientType.INSTANCE.equals(clientType);
 	}
 
 	public boolean isHibernate(){
-		return ClientType.hibernate == clientType;
+		return HibernateClientType.INSTANCE.equals(clientType);
 	}
 
 	public boolean isHBase(){
-		return ClientType.hbase == clientType;
+		return HBaseClientType.INSTANCE.equals(clientType);
 	}
 
 	public boolean isMemcached(){
-		return ClientType.memcached == clientType;
+		return MemcachedClientType.INSTANCE.equals(clientType);
 	}
 }
