@@ -24,11 +24,11 @@ extends BaseJdbcOp<D>{
 	private String opName;
 	private Config config;
 	
-	public JdbcGetFirstOp(JdbcReaderNode<PK,D,F> node, String opName, Config config) {
+	public JdbcGetFirstOp(JdbcReaderNode<PK,D,F> node, String opName, Config pConfig) {
 		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;
-		this.config = config;
+		this.config = Config.nullSafe(pConfig);
 	}
 	
 	@Override
@@ -36,8 +36,7 @@ extends BaseJdbcOp<D>{
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
-			Config nullSafeConfig = Config.nullSafe(config);
-			nullSafeConfig.setLimit(1);
+			config.setLimit(1);
 			String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getFields(), null, 
 					node.getFieldInfo().getPrimaryKeyFields());
 			List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
