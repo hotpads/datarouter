@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClientType;
@@ -43,8 +43,8 @@ public class ManyFieldTypeIntegrationTests {
 	
 	/****************************** static ***********************************/
 
-	static Map<DClientType,BasicNodeTestRouter> routerByClientType = MapTool.create();
-	static Map<DClientType,List<ManyFieldTypeBeanKey>> keysByClientType = MapTool.create();
+	static Map<ClientType,BasicNodeTestRouter> routerByClientType = MapTool.create();
+	static Map<ClientType,List<ManyFieldTypeBeanKey>> keysByClientType = MapTool.create();
 
 	
 	@Parameters
@@ -79,7 +79,7 @@ public class ManyFieldTypeIntegrationTests {
 					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemcached, cls));
 		}
 		
-		for(DClientType clientType : routerByClientType.keySet()){
+		for(ClientType clientType : routerByClientType.keySet()){
 			BasicNodeTestRouter router = routerByClientType.get(clientType);
 			if(ObjectTool.notEquals(MemcachedClientType.INSTANCE, clientType)){
 				router.manyFieldTypeBean().deleteAll(null);
@@ -91,12 +91,12 @@ public class ManyFieldTypeIntegrationTests {
 	
 	/***************************** fields **************************************/
 	
-	protected DClientType clientType;
+	protected ClientType clientType;
 	protected BasicNodeTestRouter router;
 
 	/***************************** constructors **************************************/
 	
-	public ManyFieldTypeIntegrationTests(DClientType clientType){
+	public ManyFieldTypeIntegrationTests(ClientType clientType){
 		this.clientType = clientType;
 		this.router = routerByClientType.get(clientType);
 		if( ! keysByClientType.containsKey(clientType)){

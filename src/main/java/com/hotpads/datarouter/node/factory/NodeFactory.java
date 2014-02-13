@@ -3,7 +3,7 @@ package com.hotpads.datarouter.node.factory;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -43,7 +43,7 @@ public class NodeFactory{
 			Class<F> fielderClass,
 			Integer schemaVersion,
 			DataRouter router){		
-		DClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
+		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
 		
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, clientName, databeanClass)
@@ -76,7 +76,7 @@ public class NodeFactory{
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
 			DataRouter router){
-		DClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
+		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
 		
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, clientName, databeanClass)
@@ -95,7 +95,7 @@ public class NodeFactory{
 			Class<D> databeanClass, 
 			Class<? super D> baseDatabeanClass,
 			DataRouter router){
-		DClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
+		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
 		
 		NodeParamsBuilder<PK,D,?> paramsBuilder = new NodeParamsBuilder(router, clientName, databeanClass)

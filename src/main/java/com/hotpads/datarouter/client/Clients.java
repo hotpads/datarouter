@@ -36,7 +36,7 @@ public class Clients{
 
 	protected Map<String,LazyClientProvider> lazyClientInitializerByName = new ConcurrentHashMap<String,LazyClientProvider>();
 
-	public static final DClientType DEFAULT_CLIENT_TYPE = HibernateClientType.INSTANCE;
+	public static final ClientType DEFAULT_CLIENT_TYPE = HibernateClientType.INSTANCE;
 	
 	
 	public static final String
@@ -81,7 +81,7 @@ public class Clients{
 	protected synchronized void initClientFactoryIfNull(String clientName) {
 		if(lazyClientInitializerByName.containsKey(clientName)) { return; }
 		RouterOptions routerOptions = new RouterOptions(multiProperties);
-		DClientType clientTypeInstance = routerOptions.getClientTypeInstance(clientName);
+		ClientType clientTypeInstance = routerOptions.getClientTypeInstance(clientName);
 		List<PhysicalNode<?,?>> physicalNodesForClient = drContext.getNodes().getPhysicalNodesForClient(clientName);
 		ClientFactory clientFactory = clientTypeInstance.createClientFactory(drContext, clientName, physicalNodesForClient);
 		lazyClientInitializerByName.put(clientName, new LazyClientProvider(clientFactory));

@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.config.Config;
@@ -37,19 +37,19 @@ public class ScatteringPrefixIntegrationTests{
 	
 	/****************************** client types ***********************************/
 
-	public static List<DClientType> clientTypes = ListTool.create();
+	public static List<ClientType> clientTypes = ListTool.create();
 	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
 	static{
 		clientTypes.add(HBaseClientType.INSTANCE);
 		clientTypes.add(HibernateClientType.INSTANCE);
-		for(DClientType clientType : clientTypes){
+		for(ClientType clientType : clientTypes){
 			clientTypeObjectArrays.add(new Object[]{clientType});
 		}
 	}
 	
 	/****************************** static setup ***********************************/
 
-	static Map<DClientType,SortedBasicNodeTestRouter> routerByClientType = MapTool.create();
+	static Map<ClientType,SortedBasicNodeTestRouter> routerByClientType = MapTool.create();
 	
 	@BeforeClass
 	public static void init() throws IOException{	
@@ -101,7 +101,7 @@ public class ScatteringPrefixIntegrationTests{
 	
 	/***************************** fields **************************************/
 	
-	protected DClientType clientType;
+	protected ClientType clientType;
 	protected SortedBasicNodeTestRouter router;
 
 	/***************************** constructors **************************************/
@@ -111,7 +111,7 @@ public class ScatteringPrefixIntegrationTests{
 		return clientTypeObjectArrays;
 	}
 	
-	public ScatteringPrefixIntegrationTests(DClientType clientType){
+	public ScatteringPrefixIntegrationTests(ClientType clientType){
 		this.clientType = clientType;
 		this.router = routerByClientType.get(clientType);
 	}

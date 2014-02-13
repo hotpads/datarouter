@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
@@ -31,7 +31,7 @@ public class IndexedNodeIntegrationTests{
 	
 	/****************************** static setup ***********************************/
 
-	static Map<DClientType,IndexedBasicNodeTestRouter> routerByClientType = MapTool.create();
+	static Map<ClientType,IndexedBasicNodeTestRouter> routerByClientType = MapTool.create();
 	
 	@Parameters
 	public static Collection<Object[]> parameters(){
@@ -62,12 +62,12 @@ public class IndexedNodeIntegrationTests{
 	
 	/***************************** fields **************************************/
 	
-	protected DClientType clientType;
+	protected ClientType clientType;
 	protected IndexedBasicNodeTestRouter router;
 
 	/***************************** constructors **************************************/
 	
-	public IndexedNodeIntegrationTests(DClientType clientType){
+	public IndexedNodeIntegrationTests(ClientType clientType){
 		this.clientType = clientType;
 		this.router = routerByClientType.get(clientType);
 	}

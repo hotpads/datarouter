@@ -4,7 +4,7 @@ import java.util.NavigableSet;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.util.core.SetTool;
@@ -36,7 +36,7 @@ public class DataRouterHttpClient extends BaseClient{
 	}
 
 	@Override
-	public DClientType getType(){
+	public ClientType getType(){
 		return HttpClientType.INSTANCE;
 	}
 	

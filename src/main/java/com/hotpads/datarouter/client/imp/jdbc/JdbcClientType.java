@@ -5,7 +5,7 @@ import java.util.List;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientFactory;
-import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.node.Node;
@@ -21,7 +21,7 @@ public class JdbcClientType<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
-implements DClientType<PK,D,F>{
+implements ClientType<PK,D,F>{
 	
 	public static final JdbcClientType INSTANCE = new JdbcClientType();
 	

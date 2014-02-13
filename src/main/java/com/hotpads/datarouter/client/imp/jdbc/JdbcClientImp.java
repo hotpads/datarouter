@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;
@@ -32,7 +32,7 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 	}
 	
 	@Override
-	public DClientType getType(){
+	public ClientType getType(){
 		return JdbcClientType.INSTANCE;
 	}
 	

@@ -9,7 +9,7 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseOptions;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
@@ -60,7 +60,7 @@ implements HBaseClient{
 	}
 
 	@Override
-	public DClientType getType(){
+	public ClientType getType(){
 		return HBaseClientType.INSTANCE;
 	}
 

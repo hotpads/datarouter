@@ -3,13 +3,13 @@ package com.hotpads.datarouter.client;
 import com.hotpads.util.core.ClassTool;
 
 public abstract class BaseClientType
-implements Comparable<DClientType>{
+implements Comparable<ClientType>{
 
 	public BaseClientType(){
 	}
 
 	@Override
-	public int compareTo(DClientType that){
+	public int compareTo(ClientType that){
 		return ClassTool.compareClass(this, that);
 	}
 	

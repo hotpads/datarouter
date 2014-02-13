@@ -12,7 +12,7 @@ import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.client.type.SessionClient;
@@ -31,7 +31,7 @@ implements SessionClient, HibernateClient{
 	protected Map<ConnectionHandle,Session> sessionByConnectionHandle = new ConcurrentHashMap<ConnectionHandle,Session>();
 	
 	@Override
-	public DClientType getType(){
+	public ClientType getType(){
 		return HibernateClientType.INSTANCE;
 	}
 	

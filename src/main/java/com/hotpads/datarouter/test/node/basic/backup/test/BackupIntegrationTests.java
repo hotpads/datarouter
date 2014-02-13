@@ -24,7 +24,7 @@ import com.hotpads.datarouter.backup.imp.memory.BackupRegionToMemory;
 import com.hotpads.datarouter.backup.imp.memory.RestoreRegionFromMemory;
 import com.hotpads.datarouter.backup.imp.s3.BackupRegionToS3;
 import com.hotpads.datarouter.backup.imp.s3.RestoreRegionFromS3;
-import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.config.Config;
@@ -47,19 +47,19 @@ public class BackupIntegrationTests{
 	
 	/****************************** client types ***********************************/
 
-	public static List<DClientType> clientTypes = ListTool.create();
+	public static List<ClientType> clientTypes = ListTool.create();
 	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
 	static{
 		clientTypes.add(HibernateClientType.INSTANCE);
 		clientTypes.add(HBaseClientType.INSTANCE);
-		for(DClientType clientType : clientTypes){
+		for(ClientType clientType : clientTypes){
 			clientTypeObjectArrays.add(new Object[]{clientType});
 		}
 	}
 	
 	/************************************ routers ***************************************/
 
-	static Map<DClientType,SortedBasicNodeTestRouter> routerByClientType = MapTool.create();
+	static Map<ClientType,SortedBasicNodeTestRouter> routerByClientType = MapTool.create();
 	
 	@BeforeClass
 	public static void init() throws IOException{	
@@ -121,7 +121,7 @@ public class BackupIntegrationTests{
 	
 	/***************************** fields **************************************/
 	
-	protected DClientType clientType;
+	protected ClientType clientType;
 	protected BasicNodeTestRouter router;
 
 	/***************************** constructors **************************************/
@@ -131,7 +131,7 @@ public class BackupIntegrationTests{
 		return clientTypeObjectArrays;
 	}
 	
-	public BackupIntegrationTests(DClientType clientType){//passed in by junit from the "parameters"
+	public BackupIntegrationTests(ClientType clientType){//passed in by junit from the "parameters"
 		this.clientType = clientType;
 		this.router = routerByClientType.get(clientType);
 	}

@@ -28,7 +28,7 @@ public class RouterOptions extends TypedProperties{
 	
 	public static final String CLIENT_NAME_memory = "memory";
 	
-	public static final DClientType CLIENT_TYPE_DEFAULT = HibernateClientType.INSTANCE;//for now, because our config files assume this
+	public static final ClientType CLIENT_TYPE_DEFAULT = HibernateClientType.INSTANCE;//for now, because our config files assume this
 
 	public RouterOptions(Collection<Properties> propertiesList){
 		super(propertiesList);
@@ -59,7 +59,7 @@ public class RouterOptions extends TypedProperties{
 	
 	/***************** actual variables *********************************/
 	
-	public DClientType getClientTypeInstance(String clientName){
+	public ClientType getClientTypeInstance(String clientName){
 		if(CLIENT_NAME_memory.equals(clientName)){ return MemoryClientType.INSTANCE; }
 		String typeNameKey = prependClientPrefix(clientName, "type");
 		String typeName = getString(typeNameKey);

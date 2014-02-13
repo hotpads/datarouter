@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.memcached;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.hotpads.datarouter.client.DClientType;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
@@ -39,7 +39,7 @@ implements MemcachedClient{
 	}
 	
 	@Override
-	public DClientType getType(){
+	public ClientType getType(){
 		return MemcachedClientType.INSTANCE;
 	}
 	
