@@ -9,12 +9,12 @@ import org.junit.Assert;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.connection.ConnectionHandle;
+import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
@@ -52,7 +52,7 @@ public class NestedTxn extends BaseHibernateOp<Void>{
 			Assert.assertEquals(1, CollectionTool.size(all));
 		}else{
 			List<TxnBean> all = router.txnBeanHibernate().getAll(null);
-			if(outer.isFieldAware() || HibernateExecutor.EAGER_SESSION_FLUSH){
+			if(outer.isFieldAware() || SessionExecutorImpl.EAGER_SESSION_FLUSH){
 				Assert.assertEquals(1, CollectionTool.size(all));
 			}else{
 				Assert.assertEquals(0, CollectionTool.size(all));
@@ -96,7 +96,7 @@ public class NestedTxn extends BaseHibernateOp<Void>{
 				Assert.assertEquals(2, CollectionTool.size(all));//should not include TxnBean.outer
 			}else{
 				List<TxnBean> all = router.txnBeanHibernate().getAll(null);
-				if(inner.isFieldAware() || HibernateExecutor.EAGER_SESSION_FLUSH){
+				if(inner.isFieldAware() || SessionExecutorImpl.EAGER_SESSION_FLUSH){
 					Assert.assertEquals(2, CollectionTool.size(all));
 				}else{
 					Assert.assertEquals(1, CollectionTool.size(all));

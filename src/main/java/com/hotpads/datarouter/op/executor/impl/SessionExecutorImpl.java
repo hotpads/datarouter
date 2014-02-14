@@ -17,6 +17,8 @@ import com.hotpads.util.core.ListTool;
 public class SessionExecutorImpl<T>
 extends BaseTxnExecutor<T>
 implements SessionExecutor<T>, Callable<T>{
+
+	public static final boolean EAGER_SESSION_FLUSH = true;
 		
 	private TxnOp<T> parallelTxnOp;
 	
