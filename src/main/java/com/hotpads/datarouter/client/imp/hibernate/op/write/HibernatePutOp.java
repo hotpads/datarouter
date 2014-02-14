@@ -196,7 +196,6 @@ extends BaseHibernateOp<Void>{
 	}
 
 	private void jdbcInsert(Connection connection, String entityName, Databean<PK,D> databean){
-//		logger.warn("JDBC Insert");
 		StringBuilder sb = new StringBuilder();
 		sb.append("insert into "+node.getTableName()+" (");
 		FieldTool.appendCsvColumnNames(sb, node.getFieldInfo().getFields());
@@ -230,7 +229,6 @@ extends BaseHibernateOp<Void>{
 	}
 	
 	private void jdbcUpdate(Connection connection, String entityName, Databean<PK,D> databean){
-//		logger.warn("JDBC update");
 		StringBuilder sb = new StringBuilder();
 		sb.append("update "+node.getTableName()+" set ");
 		FieldTool.appendSqlUpdateClauses(sb, node.getFieldInfo().getNonKeyFields());
