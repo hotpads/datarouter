@@ -21,7 +21,7 @@ public class MemoryClient extends BaseClient{
 	}
 
 	
-	public void registerNode(Node<?,?> node){
+	public void registerMemoryNode(Node<?,?> node){
 		this.nodes.add(node);
 	}
 	

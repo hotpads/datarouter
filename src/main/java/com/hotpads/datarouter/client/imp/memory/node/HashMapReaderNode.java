@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.memory.MemoryClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
@@ -29,15 +28,17 @@ implements MapStorageReader<PK,D>{
 	
 	protected Map<UniqueKey<PK>,D> backingMap = new ConcurrentHashMap<UniqueKey<PK>,D>();
 	
-	public HashMapReaderNode(NodeParams<PK,D,F> params, MemoryClient client){
+	public HashMapReaderNode(NodeParams<PK,D,F> params){
 		super(params);
-		client.registerNode(this);
+		//TODO this doesn't work because router.activate() is called in the constructor after this node is potentially inited
+		MemoryClient client = (MemoryClient) params.getRouter().getClient(params.getClientName());
+		client.registerMemoryNode(this);
 	}
 
 	
 	@Override
-	public HibernateClientImp getClient(){
-		return (HibernateClientImp)getRouter().getClient(getClientName());
+	public MemoryClient getClient(){
+		return (MemoryClient)getRouter().getClient(getClientName());
 	}
 	
 	@Override

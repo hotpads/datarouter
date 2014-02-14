@@ -26,7 +26,8 @@ extends BaseClient
 implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 	protected Logger logger = Logger.getLogger(this.getClass());
 	
-	String name;
+	private String name;
+	
 	public String getName(){
 		return name;
 	}

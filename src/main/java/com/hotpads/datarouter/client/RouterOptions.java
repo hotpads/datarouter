@@ -50,7 +50,7 @@ public class RouterOptions extends TypedProperties{
 	/***************** actual variables *********************************/
 	
 	public ClientType getClientTypeInstance(String clientName){
-		if(CLIENT_NAME_memory.equals(clientName)){ return MemoryClientType.INSTANCE; }
+//		if(CLIENT_NAME_memory.equals(clientName)){ return MemoryClientType.INSTANCE; }
 		String typeNameKey = prependClientPrefix(clientName, "type");
 		String typeName = getString(typeNameKey);
 		if(StringTool.isEmpty(typeName)){ return CLIENT_TYPE_DEFAULT; }

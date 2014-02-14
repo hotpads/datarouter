@@ -17,15 +17,15 @@ public class HashMapNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F ex
 extends HashMapReaderNode<PK,D,F>
 implements MapStorageNode<PK,D>{
 	
-	public HashMapNode(NodeParams<PK,D,F> params, MemoryClient client){
-		super(params, client);
+	public HashMapNode(NodeParams<PK,D,F> params){
+		super(params);
 	}
 	
 
-	public HashMapNode(NodeParams<PK,D,F> params){
-		super(params, null);
-		throw new RuntimeException("constructor not supported yet.  must provide client");
-	}
+//	public HashMapNode(NodeParams<PK,D,F> params){
+//		super(params, null);
+//		throw new RuntimeException("constructor not supported yet.  must provide client");
+//	}
 	
 	@Override
 	public Node<PK,D> getMaster() {
