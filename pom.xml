@@ -65,8 +65,8 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>ch.fortysix</groupId>
-				<artifactId>maven-postman-plugin</artifactId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<groupId>org.codehaus.mojo</groupId>
 			</plugin>
 		</plugins>
 	</build>
