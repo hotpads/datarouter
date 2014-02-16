@@ -59,7 +59,7 @@ public class ManyFieldTypeIntegrationTests {
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(MemoryClientType.INSTANCE)){
 			routerByClientType.put(
 					MemoryClientType.INSTANCE, 
-					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemory, cls));
+					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemory0, cls));
 		}
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(HibernateClientType.INSTANCE)){
 			routerByClientType.put(
