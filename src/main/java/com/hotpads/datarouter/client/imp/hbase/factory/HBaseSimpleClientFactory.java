@@ -124,7 +124,7 @@ implements HBaseClientFactory{
 			if(client!=null){ return client; }
 			HBaseClientImp newClient = null;
 			try{
-				logger.warn("activating HBase client "+clientName);
+				logger.info("activating HBase client "+clientName);
 				PhaseTimer timer = new PhaseTimer(clientName);
 
 				String zkQuorum = options.zookeeperQuorum();
