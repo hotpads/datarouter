@@ -51,7 +51,7 @@ public class RoutersHandler extends BaseHandler {
 	protected Mav handleDefault() {
 		mav = new Mav("/jsp/admin/datarouter/dataRouterMenu.jsp");
 		List<DataRouter> routers = dataRouterContext.getRouters();
-//		initClients(routers);
+		initClients(routers);
 		mav.put("serverName", dataRouterContext.getServerName());
 		mav.put("administratorEmail", dataRouterContext.getAdministratorEmail());
 		Collections.sort(routers, new ComparatorDataRouter());
@@ -70,27 +70,27 @@ public class RoutersHandler extends BaseHandler {
 
 	}
 
-//	public static void initClients(Collection<DataRouter> routers) {
-//		List<String> allClientNames = ListTool.create();
-//		for (final DataRouter router : IterableTool.nullSafe(routers)) {
-//			allClientNames.addAll(CollectionTool.nullSafe(router
-//					.getClientNames()));
-//		}
-//		ExecutorService exec = Executors.newFixedThreadPool(CollectionTool
-//				.size(allClientNames));
-//		for (final DataRouter router : IterableTool.nullSafe(routers)) {
-//			for (final String clientName : IterableTool.nullSafe(router
-//					.getClientNames())) {
-//				exec.submit(new Callable<Void>() {
-//					public Void call() {
-//						router.getClient(clientName);
-//						return null;
-//					}
-//				});
-//			}
-//		}
-//		exec.shutdown();
-//	}
+	public static void initClients(Collection<DataRouter> routers) {
+		List<String> allClientNames = ListTool.create();
+		for (final DataRouter router : IterableTool.nullSafe(routers)) {
+			allClientNames.addAll(CollectionTool.nullSafe(router
+					.getClientNames()));
+		}
+		ExecutorService exec = Executors.newFixedThreadPool(CollectionTool
+				.size(allClientNames));
+		for (final DataRouter router : IterableTool.nullSafe(routers)) {
+			for (final String clientName : IterableTool.nullSafe(router
+					.getClientNames())) {
+				exec.submit(new Callable<Void>() {
+					public Void call() {
+						router.getClient(clientName);
+						return null;
+					}
+				});
+			}
+		}
+		exec.shutdown();
+	}
 
 	
 }

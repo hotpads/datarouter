@@ -73,17 +73,17 @@ public class DataRouterContext{
 		this.clients = new Clients(this);
 		this.nodes = new Nodes(this);
 		this.routers = ListTool.createArrayList();
-//		createDefaultMemoryClient();//do after this.clients and this.nodes have been instantiated
+		createDefaultMemoryClient();//do after this.clients and this.nodes have been instantiated
 	}
 	
 	
 	/********************** builder methods ****************************/
 
 	//always create a memory client beforehand so we add nodes to it as they are created
-//	protected void createDefaultMemoryClient(){
-//		ClientId memoryClientId = new ClientId(RouterOptions.CLIENT_NAME_memory, true);
-//		clients.registerClientIds(ListTool.wrap(memoryClientId), null);
-//	}
+	protected void createDefaultMemoryClient(){
+		ClientId memoryClientId = new ClientId(RouterOptions.CLIENT_NAME_memory, true);
+		clients.registerClientIds(ListTool.wrap(memoryClientId), null);
+	}
 	
 	public void register(DataRouter router) {
 		routers.add(router);

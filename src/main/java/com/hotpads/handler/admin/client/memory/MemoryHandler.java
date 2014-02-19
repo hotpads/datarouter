@@ -14,50 +14,54 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
 public class MemoryHandler extends BaseHandler {
-	
-	/**************** static **********************/
-
-	private static final List<String> NEEDS_CLIENT = ListTool.create();
-	static{
-		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
-	}
-
-	private static final List<String> NEEDS_ROUTER = ListTool.create();
-	static{
-		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
-		NEEDS_ROUTER.add(RoutersHandler.ACTION_inspectRouter);
-	}
-
-	private static final List<String> NEEDS_NODE = ListTool.create();
-	static{
-	}
-
-	private static final HashMap<String,List<String>> MEMORY_NEEDS = MapTool.createHashMap();
-	static{
-		MEMORY_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
-		MEMORY_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
-		MEMORY_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);
-	}
-	
-	
-	/******************** fields ************************/
-	
 	@Inject
 	private DataRouterContext dataRouterContext;
 
-	private RouterParams<MemoryClient> routerParams;
+	private RouterParams<MemoryClient> paramsRouter;
 
 	@Handler
 	protected Mav inspectClient() {
 		initialize();
-		Mav mav = new Mav("/jsp/admin/datarouter/memory/memoryClientSummary.jsp");
-		MemoryClient client = routerParams.getClient();
-		List nodes = routerParams.getNodes().getPhysicalNodesForClient(client.getName());
-		mav.put("nodes", nodes);
+		Mav mav = new Mav(
+				"/jsp/admin/datarouter/memory/memoryClientSummary.jsp");
+		mav.put("nodes", paramsRouter.getClient().getNodes());
 		return mav;
 	}
 
-	private void initialize(){
-		routerParams = new RouterParams<>(dataRouterContext, params, MEMORY_NEEDS);
+	private void initialize() {
+		paramsRouter = new RouterParams<>(dataRouterContext, params,
+				MEMORY_NEEDS);
+
+	}
+
+	protected static String ACTION_exportNodeToHFile = "exportNodeToHFile",
+			ACTION_moveRegionsToCorrectServer = "moveRegionsToCorrectServer";
+
+	private static final List<String> NEEDS_CLIENT = ListTool.create();
+	static {
+		NEEDS_CLIENT.add(ACTION_moveRegionsToCorrectServer);
+		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
+
+	}
+
+	private static final List<String> NEEDS_ROUTER = ListTool.create();
+	static {
+		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
+		NEEDS_ROUTER.add(RoutersHandler.ACTION_inspectRouter);
+		NEEDS_ROUTER.add(ACTION_exportNodeToHFile);
+	}
+
+	private static final List<String> NEEDS_NODE = ListTool.create();
+	static {
+		NEEDS_NODE.add(ACTION_exportNodeToHFile);
+		NEEDS_NODE.add(ACTION_moveRegionsToCorrectServer);
+	}
+
+	private static final HashMap<String, List<String>> MEMORY_NEEDS = MapTool
+			.createHashMap();
+	static {
+		MEMORY_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
+		MEMORY_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
+		MEMORY_NEEDS.put(RouterParams.NEEDS_NODE, NEEDS_NODE);
 	}
 }
