@@ -47,8 +47,9 @@ implements PhysicalNode<PK,D>
 			explicitName = clientName+"."+tableName;
 			logger.info("client:"+this.clientName+" databean "+params.getDatabeanClass().getSimpleName()+" -> "+tableName);
 		}else if(params.getBaseDatabeanClass() != null){
-			this.fieldInfo.setBaseDatabeanClass(params.getBaseDatabeanClass());
 			this.tableName = params.getBaseDatabeanClass().getSimpleName();
+			this.packagedTableName = params.getDatabeanClass().getName();
+			this.fieldInfo.setBaseDatabeanClass(params.getBaseDatabeanClass());
 		}else{
 			this.tableName = params.getDatabeanClass().getSimpleName();
 			this.packagedTableName = params.getDatabeanClass().getName();
