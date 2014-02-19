@@ -41,16 +41,18 @@ implements PhysicalNode<PK,D>
 		super(params);
 		this.clientName = params.getClientName();
 		String explicitName = null;
-		if(StringTool.isEmpty(params.getPhysicalName())){
-			this.tableName = params.getDatabeanClass().getSimpleName();
-			this.packagedTableName = params.getDatabeanClass().getName();
-		}else{
+		if(StringTool.notEmpty(params.getPhysicalName())){
 			this.tableName = params.getPhysicalName();
 			this.packagedTableName = params.getQualifiedPhysicalName();
 			explicitName = clientName+"."+tableName;
 			logger.info("client:"+this.clientName+" databean "+params.getDatabeanClass().getSimpleName()+" -> "+tableName);
+		}else if(params.getBaseDatabeanClass() != null){
+			this.fieldInfo.setBaseDatabeanClass(params.getBaseDatabeanClass());
+			this.tableName = params.getBaseDatabeanClass().getSimpleName();
+		}else{
+			this.tableName = params.getDatabeanClass().getSimpleName();
+			this.packagedTableName = params.getDatabeanClass().getName();
 		}
-		this.fieldInfo.setBaseDatabeanClass(params.getBaseDatabeanClass());
 		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params.getDatabeanClass(), params.getRouter()
 				.getName(), clientName, null, explicitName));
 	}
