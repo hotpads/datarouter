@@ -35,6 +35,29 @@ implements PhysicalNode<PK,D>
 	
 	/****************************** constructors ********************************/
 	
+//reverse merge
+//	public BasePhysicalNode(NodeParams<PK,D,F> params){
+//		super(params);
+//		this.clientName = params.getClientName();
+//		String explicitName = null;
+//		if(StringTool.notEmpty(params.getPhysicalName())){
+//			this.tableName = params.getPhysicalName();
+//			this.packagedTableName = params.getQualifiedPhysicalName();
+//			explicitName = clientName+"."+tableName;
+//			logger.info("client:"+this.clientName+" databean "+params.getDatabeanClass().getSimpleName()+" -> "+tableName);
+//		}else if(params.getBaseDatabeanClass() != null){
+//			this.tableName = params.getBaseDatabeanClass().getSimpleName();
+//			this.packagedTableName = params.getDatabeanClass().getName();
+//			this.fieldInfo.setBaseDatabeanClass(params.getBaseDatabeanClass());
+//		}else{
+//			this.tableName = params.getDatabeanClass().getSimpleName();
+//			this.packagedTableName = params.getDatabeanClass().getName();
+//		}
+//		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params.getDatabeanClass(), params.getRouter()
+//				.getName(), clientName, null, explicitName));
+//	}
+//	
+//	@Deprecated
 	public BasePhysicalNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName){
 		super(router, databeanClass, fielderClass);
