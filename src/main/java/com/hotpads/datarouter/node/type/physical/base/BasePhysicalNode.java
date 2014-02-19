@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeId;
-import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -19,7 +18,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.StringTool;
 
 public abstract class BasePhysicalNode<
 		PK extends PrimaryKey<PK>,
@@ -37,28 +35,29 @@ implements PhysicalNode<PK,D>
 	
 	/****************************** constructors ********************************/
 	
-	public BasePhysicalNode(NodeParams<PK,D,F> params){
-		super(params);
-		this.clientName = params.getClientName();
-		String explicitName = null;
-		if(StringTool.notEmpty(params.getPhysicalName())){
-			this.tableName = params.getPhysicalName();
-			this.packagedTableName = params.getQualifiedPhysicalName();
-			explicitName = clientName+"."+tableName;
-			logger.info("client:"+this.clientName+" databean "+params.getDatabeanClass().getSimpleName()+" -> "+tableName);
-		}else if(params.getBaseDatabeanClass() != null){
-			this.tableName = params.getBaseDatabeanClass().getSimpleName();
-			this.packagedTableName = params.getDatabeanClass().getName();
-			this.fieldInfo.setBaseDatabeanClass(params.getBaseDatabeanClass());
-		}else{
-			this.tableName = params.getDatabeanClass().getSimpleName();
-			this.packagedTableName = params.getDatabeanClass().getName();
-		}
-		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params.getDatabeanClass(), params.getRouter()
-				.getName(), clientName, null, explicitName));
-	}
-	
-	@Deprecated
+//reverse merge
+//	public BasePhysicalNode(NodeParams<PK,D,F> params){
+//		super(params);
+//		this.clientName = params.getClientName();
+//		String explicitName = null;
+//		if(StringTool.notEmpty(params.getPhysicalName())){
+//			this.tableName = params.getPhysicalName();
+//			this.packagedTableName = params.getQualifiedPhysicalName();
+//			explicitName = clientName+"."+tableName;
+//			logger.info("client:"+this.clientName+" databean "+params.getDatabeanClass().getSimpleName()+" -> "+tableName);
+//		}else if(params.getBaseDatabeanClass() != null){
+//			this.tableName = params.getBaseDatabeanClass().getSimpleName();
+//			this.packagedTableName = params.getDatabeanClass().getName();
+//			this.fieldInfo.setBaseDatabeanClass(params.getBaseDatabeanClass());
+//		}else{
+//			this.tableName = params.getDatabeanClass().getSimpleName();
+//			this.packagedTableName = params.getDatabeanClass().getName();
+//		}
+//		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params.getDatabeanClass(), params.getRouter()
+//				.getName(), clientName, null, explicitName));
+//	}
+//	
+//	@Deprecated
 	public BasePhysicalNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName){
 		super(router, databeanClass, fielderClass);
@@ -67,9 +66,11 @@ implements PhysicalNode<PK,D>
 		this.packagedTableName = databeanClass.getName();
 		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), clientName, 
 				null, null));
+//		if(this.fieldAware){
+//			logger.warn("Found fieldAware Databean:"+this.getName());
+//		}
 	}
-
-	@Deprecated
+	
 	//for things like the event.Event monthly partitioned tables
 	public BasePhysicalNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName, 
@@ -82,8 +83,7 @@ implements PhysicalNode<PK,D>
 				null, clientName+"."+tableName));
 		logger.info("client:"+this.clientName+" databean "+databeanClass.getSimpleName()+" -> "+tableName);
 	}
-
-	@Deprecated
+	
 	//for table-per-class hierarchy like the property.Photo hierarchy
 	public BasePhysicalNode(Class<? super D> baseDatabeanClass, 
 			Class<D> databeanClass, Class<F> fielderClass,

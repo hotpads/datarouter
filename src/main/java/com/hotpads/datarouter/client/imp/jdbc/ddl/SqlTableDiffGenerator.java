@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
+package com.hotpads.datarouter.client.imp.jdbc.ddl;
 
 import java.util.ArrayList;
 import java.util.Comparator;

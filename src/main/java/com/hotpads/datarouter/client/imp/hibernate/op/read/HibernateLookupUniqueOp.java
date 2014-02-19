@@ -11,7 +11,7 @@ import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 
-import com.google.common.base.Preconditions;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
@@ -52,9 +52,9 @@ extends BaseHibernateOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
 		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
+		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
@@ -66,7 +66,7 @@ extends BaseHibernateOp<List<D>>{
 			if(node.getFieldInfo().getFieldAware()){
 				String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), 
 						sortedKeys);
-				List<D> result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
+				List<D> result = JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
 				return result;
 			}else{
 				int batchSize = HibernateNode.DEFAULT_ITERATE_BATCH_SIZE;

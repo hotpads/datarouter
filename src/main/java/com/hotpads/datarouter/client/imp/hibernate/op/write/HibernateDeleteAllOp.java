@@ -2,7 +2,7 @@ package com.hotpads.datarouter.client.imp.hibernate.op.write;
 
 import org.hibernate.Session;
 
-import com.google.common.base.Preconditions;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
@@ -14,7 +14,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 
-@Deprecated//use Jdbc op
 public class HibernateDeleteAllOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
@@ -34,13 +33,13 @@ extends BaseHibernateOp<Long>{
 	
 	@Override
 	public Long runOnce(){
-		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
+		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
 			String sql = SqlBuilder.deleteAll(config, node.getTableName());
-			long numModified = JdbcTool.update(session.connection(), sql.toString());
+			long numModified = JdbcTool.update(session, sql.toString());
 			return numModified;
 		}finally{
 			TraceContext.finishSpan();

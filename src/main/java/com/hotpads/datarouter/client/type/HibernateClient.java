@@ -4,7 +4,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 public interface HibernateClient 
-extends JdbcClient{
+extends SessionClient{
 	
 	Session getExistingSession();
 	

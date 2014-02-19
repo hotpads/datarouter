@@ -40,7 +40,7 @@ implements MemcachedClient{
 	
 	@Override
 	public ClientType getType(){
-		return MemcachedClientType.INSTANCE;
+		return ClientType.memcached;
 	}
 	
 //	net.spy.memcached.MemcachedClient spyClient;

@@ -6,7 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -21,7 +27,7 @@ import org.apache.hadoop.hbase.io.hfile.Compression.Algorithm;
 import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.ClientFactory;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTableExecutorServicePool;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePerTablePool;
@@ -48,7 +54,7 @@ import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HBaseSimpleClientFactory 
-implements ClientFactory{
+implements HBaseClientFactory{
 	Logger logger = Logger.getLogger(getClass());
 	
 	public static final Boolean PER_TABLE_POOL = false;//per table is less efficient
@@ -67,6 +73,7 @@ implements ClientFactory{
 	protected String clientName;
 	protected Set<String> configFilePaths = SetTool.createTreeSet();
 	protected List<Properties> multiProperties = ListTool.createArrayList();
+	protected ExecutorService executorService;
 	protected HBaseOptions options;
 	protected volatile HBaseClient client;//volatile for double checked locking
 	protected Configuration hBaseConfig;
@@ -77,59 +84,85 @@ implements ClientFactory{
 	
 	public HBaseSimpleClientFactory(
 			DataRouterContext drContext,
-			String clientName){
+			String clientName, 
+			ExecutorService executorService){
 		this.drContext = drContext;
 		this.clientName = clientName;
+		this.executorService = executorService;
 
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
 		this.options = new HBaseOptions(multiProperties, clientName);
 	}
 	
+	@Override
+	public HBaseClient getClient(){
+		if(client!=null){ return client; }//make sure client is volatile
+		synchronized(this){
+			if(client!=null){ return client; }
+			Future<HBaseClient> future = executorService.submit(new HBaseClientBuilder());
+			try{
+				this.client = future.get(CREATE_CLIENT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+			}catch(InterruptedException e){
+				throw new RuntimeException(e);
+			}catch(ExecutionException e){
+				throw new RuntimeException(e);
+			} catch(TimeoutException e) {
+				logger.warn("couldn't instantiate client "+clientName+" in "+CREATE_CLIENT_TIMEOUT_MS+"ms");
+				future.cancel(false);
+				if(!ClientType.USE_RECONNECTING_HBASE_CLIENT){
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return client;
+	}
 	
-	@Override 
-	public HBaseClient call(){
-		if(client!=null){ return client; }
-		HBaseClientImp newClient = null;
-		try{
-			logger.info("activating HBase client "+clientName);
-			PhaseTimer timer = new PhaseTimer(clientName);
+	
+	public class HBaseClientBuilder implements Callable<HBaseClient>{
+		@Override public HBaseClient call(){
+			if(client!=null){ return client; }
+			HBaseClientImp newClient = null;
+			try{
+				logger.info("activating HBase client "+clientName);
+				PhaseTimer timer = new PhaseTimer(clientName);
 
-			String zkQuorum = options.zookeeperQuorum();
-			hBaseConfig = CONFIG_BY_ZK_QUORUM.get(zkQuorum);
-			if(hBaseConfig==null){
-				hBaseConfig = HBaseConfiguration.create();
-				hBaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
-			}
-			hBaseAdmin = new HBaseAdmin(hBaseConfig);
-			if(hBaseAdmin.getConnection().isClosed()){
-				CONFIG_BY_ZK_QUORUM.remove(zkQuorum);
-				ADMIN_BY_CONFIG.remove(hBaseConfig);
-				hBaseConfig = null;
-				hBaseAdmin = null;
-				String log = "couldn't open connection because hBaseAdmin.getConnection().isClosed()";
-				logger.warn(log);
-				throw new UnavailableException(log);
-			}else{//yay, the connection is open
-				CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
-				ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
-			}
-	
-			//databean config
-			Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> result = initTables();
-			timer.add("init HTables");
-			
-			newClient = new HBaseClientImp(clientName, options, hBaseConfig, hBaseAdmin, 
-					result.getLeft(), result.getRight());
-			logger.warn(timer.add("done"));
+				String zkQuorum = options.zookeeperQuorum();
+				hBaseConfig = CONFIG_BY_ZK_QUORUM.get(zkQuorum);
+				if(hBaseConfig==null){
+					hBaseConfig = HBaseConfiguration.create();
+					hBaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
+				}
+				hBaseAdmin = new HBaseAdmin(hBaseConfig);
+				if(hBaseAdmin.getConnection().isClosed()){
+					CONFIG_BY_ZK_QUORUM.remove(zkQuorum);
+					ADMIN_BY_CONFIG.remove(hBaseConfig);
+					hBaseConfig = null;
+					hBaseAdmin = null;
+					String log = "couldn't open connection because hBaseAdmin.getConnection().isClosed()";
+					logger.warn(log);
+					throw new UnavailableException(log);
+				}else{//yay, the connection is open
+					CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
+					ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
+				}
+		
+				//databean config
+				Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> result = initTables();
+				timer.add("init HTables");
+				
+				newClient = new HBaseClientImp(clientName, options, hBaseConfig, hBaseAdmin, 
+						result.getLeft(), result.getRight());
+				logger.warn(timer.add("done"));
 //					historicClientIds.add(System.identityHashCode(newClient)+"");
 //					logger.warn("historicClientIds"+historicClientIds);
-		}catch(ZooKeeperConnectionException e){
-			throw new UnavailableException(e);
-		}catch(MasterNotRunningException e){
-			throw new UnavailableException(e);
+			}catch(ZooKeeperConnectionException e){
+				throw new UnavailableException(e);
+			}catch(MasterNotRunningException e){
+				throw new UnavailableException(e);
+			}
+			return newClient;
 		}
-		return newClient;
 	}
 	
 	
@@ -222,6 +255,11 @@ implements ClientFactory{
 		return Pair.create(pool,primaryKeyClassByName);
 	}
 
+	
+	@Override
+	public boolean isInitialized(){
+		return client!=null;
+	}
 	
 	
 	/*

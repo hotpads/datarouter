@@ -2,13 +2,14 @@ package com.hotpads.datarouter.client.imp.memcached.node;
 
 import java.util.Collection;
 
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.memcached.DataRouterMemcachedKey;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
+import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
@@ -27,8 +28,20 @@ extends MemcachedReaderNode<PK,D,F>
 implements PhysicalMapStorageNode<PK,D>
 {
 	
-	public MemcachedNode(NodeParams<PK,D,F> params){
-		super(params);
+	public MemcachedNode(Class<D> databeanClass, Class<F> fielderClass,
+			DataRouter router, String clientName, 
+			String physicalName, String qualifiedPhysicalName, int databeanVersion) {
+		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName, databeanVersion);
+	}
+	
+	public MemcachedNode(Class<D> databeanClass, Class<F> fielderClass,
+			DataRouter router, String clientName, int databeanVersion) {
+		super(databeanClass, fielderClass, router, clientName, databeanVersion);
+	}
+	
+	public MemcachedNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
+			Class<F> fielderClass, DataRouter router, String clientName, int databeanVersion){
+		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName, databeanVersion);
 	}
 	
 	@Override
@@ -81,8 +94,8 @@ implements PhysicalMapStorageNode<PK,D>
 			}
 		}
 		String opName = "putMulti";
-		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
-		DRCounters.incSuffixClientNode(getClient().getType(), opName+" objects", getClientName(), getName(), databeans.size());
+		DRCounters.incSuffixClientNode(ClientType.memcached, opName, getClientName(), getName());
+		DRCounters.incSuffixClientNode(ClientType.memcached, opName+" objects", getClientName(), getName(), databeans.size());
 		TraceContext.appendToSpanInfo(CollectionTool.size(databeans)+"");
 	}
 	
@@ -111,8 +124,8 @@ implements PhysicalMapStorageNode<PK,D>
 		}
 		TraceContext.appendToSpanInfo(CollectionTool.size(keys)+"");
 		String opName = "deleteMulti";
-		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
-		DRCounters.incSuffixClientNode(getClient().getType(), opName+" objects", getClientName(), getName(), keys.size());
+		DRCounters.incSuffixClientNode(ClientType.memcached, opName, getClientName(), getName());
+		DRCounters.incSuffixClientNode(ClientType.memcached, opName+" objects", getClientName(), getName(), keys.size());
 	}
 	
 	

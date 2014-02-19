@@ -25,8 +25,6 @@ import com.hotpads.datarouter.backup.imp.memory.RestoreRegionFromMemory;
 import com.hotpads.datarouter.backup.imp.s3.BackupRegionToS3;
 import com.hotpads.datarouter.backup.imp.s3.RestoreRegionFromS3;
 import com.hotpads.datarouter.client.ClientType;
-import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -50,8 +48,8 @@ public class BackupIntegrationTests{
 	public static List<ClientType> clientTypes = ListTool.create();
 	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
 	static{
-		clientTypes.add(HibernateClientType.INSTANCE);
-		clientTypes.add(HBaseClientType.INSTANCE);
+		clientTypes.add(ClientType.hibernate);
+		clientTypes.add(ClientType.hbase);
 		for(ClientType clientType : clientTypes){
 			clientTypeObjectArrays.add(new Object[]{clientType});
 		}
@@ -65,15 +63,15 @@ public class BackupIntegrationTests{
 	public static void init() throws IOException{	
 		Class<?> cls = BackupIntegrationTests.class;
 
-		if(clientTypes.contains(HibernateClientType.INSTANCE)){
+		if(clientTypes.contains(ClientType.hibernate)){
 			routerByClientType.put(
-					HibernateClientType.INSTANCE, 
+					ClientType.hibernate, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls));
 		}
 
-		if(clientTypes.contains(HBaseClientType.INSTANCE)){
+		if(clientTypes.contains(ClientType.hbase)){
 			routerByClientType.put(
-					HBaseClientType.INSTANCE, 
+					ClientType.hbase, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls));
 		}
 		

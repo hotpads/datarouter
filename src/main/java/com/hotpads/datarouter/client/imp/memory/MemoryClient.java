@@ -21,7 +21,7 @@ public class MemoryClient extends BaseClient{
 	}
 
 	
-	public void registerMemoryNode(Node<?,?> node){
+	public void registerNode(Node<?,?> node){
 		this.nodes.add(node);
 	}
 	
@@ -32,7 +32,7 @@ public class MemoryClient extends BaseClient{
 
 	@Override
 	public ClientType getType(){
-		return MemoryClientType.INSTANCE;
+		return ClientType.memory;
 	}
 	
 	public NavigableSet<Node<?,?>> getNodes(){

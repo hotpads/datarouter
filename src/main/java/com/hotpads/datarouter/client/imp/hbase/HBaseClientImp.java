@@ -21,6 +21,7 @@ import com.hotpads.util.datastructs.MutableString;
 public class HBaseClientImp
 extends BaseClient
 implements HBaseClient{
+
 	protected Logger logger = Logger.getLogger(this.getClass());
 
 	protected String name;
@@ -61,7 +62,7 @@ implements HBaseClient{
 
 	@Override
 	public ClientType getType(){
-		return HBaseClientType.INSTANCE;
+		return ClientType.hbase;
 	}
 
 	@Override
