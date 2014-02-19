@@ -67,6 +67,6 @@ public class DRCounters{
 
 	private static Long incInternal(String aggregationLevel, ClientType clientType, String key, long delta) {
 		String clientTypeString = clientType != null ? clientType.getName() : CLIENT_TYPE_virtual;
-		return Counters.inc(PREFIX+" "+aggregationLevel+" "+clientTypeString+" "+key, delta);
+		return Counters.inc(PREFIX+" "+aggregationLevel+" "+clientType+" "+key, delta);
 	}
 }

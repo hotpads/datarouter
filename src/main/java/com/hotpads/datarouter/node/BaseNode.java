@@ -25,10 +25,28 @@ implements Node<PK,D>{
 	private NodeId<PK,D,F> id;
 	protected DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
+	
+	/*************** construct *********************/
+	
+	public BaseNode(NodeParams<PK,D,F> params){
+		this.drContext = params.getRouter().getContext();
+		this.router = params.getRouter();
+		this.id = new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params.getDatabeanClass(), router.getName(), 
+				null, null, null);
+		try{
+			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(getName(), params.getDatabeanClass(), params.getFielderClass());
+		}catch(Exception probablyNoPkInstantiated){
+			throw new IllegalArgumentException("could not instantiate "+getName()+" Check that the primary key is " +
+					"instantiated in the databean constructor.", probablyNoPkInstantiated);
+		}
+	}
+
+	@Deprecated
 	public BaseNode(DataRouter router, Class<D> databeanClass){
 		this(router, databeanClass, null);
 	}
 	
+	@Deprecated
 	public BaseNode(DataRouter router, Class<D> databeanClass, Class<F> fielderClass){
 		this.drContext = router.getContext();
 		this.router = router;

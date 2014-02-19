@@ -37,7 +37,7 @@ public class DataRouterHttpClient extends BaseClient{
 
 	@Override
 	public ClientType getType(){
-		return ClientType.http;
+		return HttpClientType.INSTANCE;
 	}
 	
 	public NavigableSet<Node<?,?>> getNodes(){

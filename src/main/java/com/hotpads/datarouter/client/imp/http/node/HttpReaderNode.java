@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.client.imp.http.DataRouterHttpClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Config.ConfigFielder;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -56,22 +57,15 @@ implements MapStorageReader<PK,D>{
 	
 	private String remoteRouterName;
 	private String remoteNodeName;
-		
-	/******************************* constructors ************************************/
-
-//	public HttpReaderNode(Class<D> databeanClass, Class<F> fielderClass,
-//			DataRouter router, String clientName, 
-//			String physicalName, String qualifiedPhysicalName) {
-//		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
-//		this.configFielder = new ConfigFielder();
-//	}
 	
-	public HttpReaderNode(Class<D> databeanClass,Class<F> fielderClass,
-			DataRouter router, String clientName, String remoteRouterName, String remoteNodeName) {
-		super(databeanClass, fielderClass, router, clientName);
+		
+	/******************************* construct ************************************/
+	
+	public HttpReaderNode(NodeParams<PK,D,F> params) {
+		super(params);
 		this.configFielder = new ConfigFielder();
-		this.remoteRouterName = remoteRouterName;
-		this.remoteNodeName = remoteNodeName;
+		this.remoteRouterName = params.getRemoteRouterName();
+		this.remoteNodeName = params.getRemoteNodeName();
 	}
 	
 	

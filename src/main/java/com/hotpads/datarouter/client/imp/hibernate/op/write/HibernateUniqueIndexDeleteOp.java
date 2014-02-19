@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import org.hibernate.Session;
 
-import com.hotpads.datarouter.client.ClientType;
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
@@ -18,6 +18,7 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 
+@Deprecated//use Jdbc op
 public class HibernateUniqueIndexDeleteOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
@@ -40,13 +41,13 @@ extends BaseHibernateOp<Long>{
 	
 	@Override
 	public Long runOnce(){
-		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
-		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
+		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
 			String sql = SqlBuilder.deleteMulti(config, node.getTableName(), uniqueKeys);
-			long numModified = JdbcTool.update(session, sql.toString());
+			long numModified = JdbcTool.update(session.connection(), sql.toString());
 			return numModified;
 		}finally{
 			TraceContext.finishSpan();

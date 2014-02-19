@@ -15,6 +15,8 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
+import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -38,8 +40,8 @@ public class ScatteringPrefixIntegrationTests{
 	public static List<ClientType> clientTypes = ListTool.create();
 	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
 	static{
-		clientTypes.add(ClientType.hbase);
-		clientTypes.add(ClientType.hibernate);
+		clientTypes.add(HBaseClientType.INSTANCE);
+		clientTypes.add(HibernateClientType.INSTANCE);
 		for(ClientType clientType : clientTypes){
 			clientTypeObjectArrays.add(new Object[]{clientType});
 		}
@@ -52,13 +54,13 @@ public class ScatteringPrefixIntegrationTests{
 	@BeforeClass
 	public static void init() throws IOException{	
 		
-		if(clientTypes.contains(ClientType.hibernate)){
-			routerByClientType.put(ClientType.hibernate, new SortedBasicNodeTestRouter(
+		if(clientTypes.contains(HibernateClientType.INSTANCE)){
+			routerByClientType.put(HibernateClientType.INSTANCE, new SortedBasicNodeTestRouter(
 					DRTestConstants.CLIENT_drTestHibernate0, ScatteringPrefixIntegrationTests.class));
 		}
 
-		if(clientTypes.contains(ClientType.hbase)){
-			routerByClientType.put(ClientType.hbase, new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase,
+		if(clientTypes.contains(HBaseClientType.INSTANCE)){
+			routerByClientType.put(HBaseClientType.INSTANCE, new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase,
 					ScatteringPrefixIntegrationTests.class));
 		}
 		

@@ -1,9 +1,9 @@
 package com.hotpads.datarouter.client;
 
+import java.util.concurrent.Callable;
 
-public interface ClientFactory {
-	
-	boolean isInitialized();
-	Client getClient();
+
+public interface ClientFactory
+extends Callable<Client>{
 	
 }

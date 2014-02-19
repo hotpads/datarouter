@@ -32,7 +32,7 @@ implements DynamicClientFactory{
 			DataRouterContext drContext,
 			String clientName, 
 			ExecutorService executorService){
-		super(drContext, clientName, executorService);
+		super(drContext, clientName);
 		this.keepAliveExecutor = Executors.newSingleThreadScheduledExecutor();
 		this.keepAliveExecutor.scheduleWithFixedDelay(
 				new HBaseClientKeepAliveTester(), 0, KEEP_ALIVE_TEST_PERIOD_MS, TimeUnit.MILLISECONDS); 

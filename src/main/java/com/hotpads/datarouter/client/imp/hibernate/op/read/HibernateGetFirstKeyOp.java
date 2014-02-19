@@ -7,7 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 
-import com.hotpads.datarouter.client.ClientType;
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
@@ -41,8 +41,8 @@ extends BaseHibernateOp<PK>{
 	
 	@Override
 	public PK runOnce(){
-		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
-		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
+		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
@@ -51,7 +51,7 @@ extends BaseHibernateOp<PK>{
 				nullSafeConfig.setLimit(1);
 				String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), null, 
 						node.getFieldInfo().getPrimaryKeyFields());
-				List<PK> result = JdbcTool.selectPrimaryKeys(session, node.getFieldInfo(), sql);
+				List<PK> result = JdbcTool.selectPrimaryKeys(session.connection(), node.getFieldInfo(), sql);
 				return CollectionTool.getFirst(result);
 			}else{
 				String entityName = node.getPackagedTableName();

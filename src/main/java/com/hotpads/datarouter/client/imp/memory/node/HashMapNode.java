@@ -5,8 +5,8 @@ import java.util.Collection;
 import com.hotpads.datarouter.client.imp.memory.MemoryClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
-import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
@@ -17,10 +17,15 @@ public class HashMapNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F ex
 extends HashMapReaderNode<PK,D,F>
 implements MapStorageNode<PK,D>{
 	
-	public HashMapNode(Class<D> databeanClass, Class<F> fielderClass, 
-			DataRouter router, MemoryClient client){
-		super(databeanClass, fielderClass, router, client);
+	public HashMapNode(NodeParams<PK,D,F> params){
+		super(params);
 	}
+	
+
+//	public HashMapNode(NodeParams<PK,D,F> params){
+//		super(params, null);
+//		throw new RuntimeException("constructor not supported yet.  must provide client");
+//	}
 	
 	@Override
 	public Node<PK,D> getMaster() {

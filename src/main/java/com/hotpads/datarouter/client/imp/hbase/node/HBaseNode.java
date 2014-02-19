@@ -10,13 +10,13 @@ import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -38,17 +38,24 @@ extends HBaseReaderNode<PK,D,F>
 implements PhysicalSortedMapStorageNode<PK,D>
 {
 	
+	public HBaseNode(NodeParams<PK,D,F> params){
+		super(params);
+	}
+
+	@Deprecated
 	public HBaseNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName, 
 			String physicalName, String qualifiedPhysicalName) {
 		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
 	}
-	
+
+	@Deprecated
 	public HBaseNode(Class<D> databeanClass, Class<F> fielderClass,
 			DataRouter router, String clientName) {
 		super(databeanClass, fielderClass, router, clientName);
 	}
-	
+
+	@Deprecated
 	public HBaseNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
 			Class<F> fielderClass, DataRouter router, String clientName){
 		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);
@@ -116,9 +123,9 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						if(!delete.isEmpty()){ actions.add(delete); }
 						++numRowsPut;
 					}
-					DRCounters.incSuffixClientNode(ClientType.hbase, "cells put", clientName, node.getName(), numCellsPut);
-					DRCounters.incSuffixClientNode(ClientType.hbase, "cells delete", clientName, node.getName(), numCellsDeleted);
-					DRCounters.incSuffixClientNode(ClientType.hbase, "rows put", clientName, node.getName(), numRowsPut);
+					DRCounters.incSuffixClientNode(client.getType(), "cells put", clientName, node.getName(), numCellsPut);
+					DRCounters.incSuffixClientNode(client.getType(), "cells delete", clientName, node.getName(), numCellsDeleted);
+					DRCounters.incSuffixClientNode(client.getType(), "rows put", clientName, node.getName(), numRowsPut);
 //					DRCounters.inc(node.getName()+" hbase cells put", numPuts);
 //					DRCounters.inc(node.getName()+" hbase cells delete", numDeletes);//deletes gets emptied by the hbase client, so count before flushing
 //					DRCounters.inc(node.getName()+" hbase cells put+delete", numPuts + numDeletes);

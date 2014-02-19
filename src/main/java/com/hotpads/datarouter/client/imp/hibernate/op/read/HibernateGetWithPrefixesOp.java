@@ -11,27 +11,19 @@ import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 
-import com.hotpads.datarouter.client.ClientType;
-import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.Key;
-import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 public class HibernateGetWithPrefixesOp<
 		PK extends PrimaryKey<PK>,
@@ -57,16 +49,16 @@ extends BaseHibernateOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
+		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
-		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
-		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
 			if(node.getFieldInfo().getFieldAware()){
 				String sql = SqlBuilder.getWithPrefixes(config, node.getTableName(), node.getFieldInfo().getFields(), prefixes, 
 						wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
-				List<D> result = JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
+				List<D> result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
 				return result;
 			}else{
 				Criteria criteria = node.getCriteriaForConfig(config, session);

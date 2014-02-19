@@ -11,6 +11,9 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
 
+/*
+ * TODO merge with BaseJdbcScanner
+ */
 public abstract class BaseHibernateScanner<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,

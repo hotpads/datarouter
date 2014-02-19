@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-import com.hotpads.datarouter.client.ClientType;
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
@@ -53,8 +53,8 @@ extends BaseHibernateOp<Void>{
 	
 	@Override
 	public Void runOnce(){
-		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
-		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
+		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
@@ -196,7 +196,6 @@ extends BaseHibernateOp<Void>{
 	}
 
 	private void jdbcInsert(Connection connection, String entityName, Databean<PK,D> databean){
-//		logger.warn("JDBC Insert");
 		StringBuilder sb = new StringBuilder();
 		sb.append("insert into "+node.getTableName()+" (");
 		FieldTool.appendCsvColumnNames(sb, node.getFieldInfo().getFields());
@@ -230,7 +229,6 @@ extends BaseHibernateOp<Void>{
 	}
 	
 	private void jdbcUpdate(Connection connection, String entityName, Databean<PK,D> databean){
-//		logger.warn("JDBC update");
 		StringBuilder sb = new StringBuilder();
 		sb.append("update "+node.getTableName()+" set ");
 		FieldTool.appendSqlUpdateClauses(sb, node.getFieldInfo().getNonKeyFields());

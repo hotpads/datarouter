@@ -31,8 +31,8 @@ implements MapStorageReader<PK,D>{
 	public HashMapReaderNode(NodeParams<PK,D,F> params){
 		super(params);
 		//TODO this doesn't work because router.activate() is called in the constructor after this node is potentially inited
-//		MemoryClient client = (MemoryClient) params.getRouter().getClient(params.getClientName());
-//		client.registerMemoryNode(this);
+		MemoryClient client = (MemoryClient) params.getRouter().getClient(params.getClientName());
+		client.registerMemoryNode(this);
 	}
 
 	

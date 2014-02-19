@@ -10,7 +10,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlAlterTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlAlterTableGenerator;
 
 
 public class ConnectionSqlTableGeneratorTest{

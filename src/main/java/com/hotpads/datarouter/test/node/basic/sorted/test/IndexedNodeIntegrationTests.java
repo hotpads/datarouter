@@ -15,6 +15,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.IndexedBasicNodeTestRouter;
@@ -34,7 +35,7 @@ public class IndexedNodeIntegrationTests{
 	
 	@Parameters
 	public static Collection<Object[]> parameters(){
-		return ListTool.wrap(new Object[]{ClientType.hibernate});
+		return ListTool.wrap(new Object[]{HibernateClientType.INSTANCE});
 //		return ListTool.create(
 //				new Object[]{ClientType.hibernate},
 //				new Object[]{ClientType.hbase});
@@ -46,7 +47,7 @@ public class IndexedNodeIntegrationTests{
 
 		IndexedBasicNodeTestRouter hibernateRouter = new IndexedBasicNodeTestRouter(
 				DRTestConstants.CLIENT_drTestHibernate0, cls);
-		routerByClientType.put(ClientType.hibernate, hibernateRouter);
+		routerByClientType.put(HibernateClientType.INSTANCE, hibernateRouter);
 		
 //		BasicNodeTestRouter hbaseRouter = new BasicNodeTestRouter(
 //				DRTestConstants.CLIENT_drTestHBase, 

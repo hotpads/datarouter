@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
@@ -160,17 +159,17 @@ implements MapStorageReaderNode<PK,D>{
 	/************** counters ***************************************/
 	
 	protected void countHits(int num){
-		DRCounters.incSuffixOp(ClientType.memory, getName()+" hit");
+		DRCounters.incSuffixOp(null, getName()+" hit");
 //		logger.warn("hit");
 	}
 	
 	protected void countMisses(int num){
-		DRCounters.incSuffixOp(ClientType.memory, getName()+" miss");
+		DRCounters.incSuffixOp(null, getName()+" miss");
 //		logger.warn("miss");
 	}
 	
 	protected void countExceptions(){
-		DRCounters.incSuffixOp(ClientType.memory, getName()+" exception");
+		DRCounters.incSuffixOp(null, getName()+" exception");
 //		logger.warn("exception");
 	}
 	

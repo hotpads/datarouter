@@ -16,12 +16,13 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
+import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
-import com.hotpads.datarouter.test.node.basic.manyfield.test.ManyFieldTypeIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.util.core.CollectionTool;
@@ -38,8 +39,8 @@ public class SortedNodeIntegrationTests{
 	public static List<ClientType> clientTypes = ListTool.create();
 	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
 	static{
-		clientTypes.add(ClientType.hibernate);
-		clientTypes.add(ClientType.hbase);
+		clientTypes.add(HibernateClientType.INSTANCE);
+		clientTypes.add(HBaseClientType.INSTANCE);
 		for(ClientType clientType : clientTypes){
 			clientTypeObjectArrays.add(new Object[]{clientType});
 		}
@@ -53,15 +54,15 @@ public class SortedNodeIntegrationTests{
 	public static void init() throws IOException{	
 		Class<?> cls = SortedNodeIntegrationTests.class;
 		
-		if(clientTypes.contains(ClientType.hibernate)){
+		if(clientTypes.contains(HibernateClientType.INSTANCE)){
 			routerByClientType.put(
-					ClientType.hibernate, 
+					HibernateClientType.INSTANCE, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls));
 		}
 
-		if(clientTypes.contains(ClientType.hbase)){
+		if(clientTypes.contains(HBaseClientType.INSTANCE)){
 			routerByClientType.put(
-					ClientType.hbase, 
+					HBaseClientType.INSTANCE, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls));
 		}
 		
