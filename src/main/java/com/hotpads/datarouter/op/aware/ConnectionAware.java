@@ -4,6 +4,7 @@ import java.sql.Connection;
 
 public interface ConnectionAware<T>{
 	
+	//TODO replace with a generic datarouter connection interface
 	Connection getConnection(String clientName);
 	
 }

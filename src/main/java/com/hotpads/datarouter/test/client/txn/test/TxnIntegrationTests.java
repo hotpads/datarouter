@@ -22,6 +22,8 @@ public class TxnIntegrationTests {
 	
 	private BasicClientTestRouter router;
 	private DataRouterContext drContext;
+//	private String clientName = DRTestConstants.CLIENT_drTestHibernate0;
+	private String clientName = DRTestConstants.CLIENT_drTestJdbc0;
 	
 	
 	
@@ -51,7 +53,7 @@ public class TxnIntegrationTests {
 		resetTable();	
 		int numExceptions = 0;
 		try{
-			router.run(new InsertRollback(drContext, ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0), Isolation.readCommitted, 
+			router.run(new InsertRollback(drContext, ListTool.wrap(clientName), Isolation.readCommitted, 
 					router, false));
 		}catch(RuntimeException re){
 			++numExceptions;
@@ -65,7 +67,7 @@ public class TxnIntegrationTests {
 		resetTable();
 		int numExceptions = 0;
 		try{
-			router.run(new InsertRollback(drContext, ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0), Isolation.readCommitted,
+			router.run(new InsertRollback(drContext, ListTool.wrap(clientName), Isolation.readCommitted,
 					router, true));
 		}catch(RuntimeException re){
 			++numExceptions;
@@ -85,7 +87,7 @@ public class TxnIntegrationTests {
 		router.txnBeanHibernate().put(b, null);
 		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 		try{
-			router.run(new MultiInsertRollback(drContext, ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0), 
+			router.run(new MultiInsertRollback(drContext, ListTool.wrap(clientName), 
 					Isolation.readCommitted, router, false));
 		}catch(RuntimeException re){
 			++numExceptions;
@@ -102,7 +104,7 @@ public class TxnIntegrationTests {
 		router.txnBeanHibernate().put(b, null);
 		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 		try{
-			router.run(new MultiInsertRollback(drContext, ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0), 
+			router.run(new MultiInsertRollback(drContext, ListTool.wrap(clientName), 
 					Isolation.readCommitted, router, true));
 		}catch(RuntimeException re){
 			++numExceptions;
@@ -120,7 +122,7 @@ public class TxnIntegrationTests {
 		resetTable();	
 		int numExceptions = 0;
 		try{
-			router.run(new NestedTxn(drContext, ListTool.wrap(DRTestConstants.CLIENT_drTestHibernate0), 
+			router.run(new NestedTxn(drContext, ListTool.wrap(clientName), 
 					Isolation.readCommitted, false, router, false));
 		}catch(RuntimeException re){
 			++numExceptions;
