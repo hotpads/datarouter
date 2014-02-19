@@ -6,10 +6,9 @@ import com.hotpads.profile.count.collection.Counters;
 public class DRCounters{
 	
 	public static final String
-		PREFIX = "DataRouter",
-		
-		CLIENT_TYPE_virtual = "virtual",
-		
+		PREFIX = "DataRouter";
+	
+	public static final String
 		AGGREGATION_op = "op",
 		AGGREGATION_client = "client",
 		AGGREGATION_table = "table",
@@ -38,12 +37,6 @@ public class DRCounters{
 	
 	/******** inc multi *************/
 	
-	public static void incSuffixNode(String key, String nodeName, long delta) {
-		incInternal(AGGREGATION_op, null, key, delta);
-		String compoundKey = nodeName+" "+key;
-		incInternal(AGGREGATION_node, null, compoundKey, delta);
-	}
-	
 	public static void incSuffixClient(ClientType type, String key, String clientName, long delta) {
 		incInternal(AGGREGATION_op, type, key, delta);
 		String compoundKey = clientName+" "+key;
@@ -66,7 +59,6 @@ public class DRCounters{
 	/********* private ***********/
 
 	private static Long incInternal(String aggregationLevel, ClientType clientType, String key, long delta) {
-		String clientTypeString = clientType != null ? clientType.getName() : CLIENT_TYPE_virtual;
-		return Counters.inc(PREFIX+" "+aggregationLevel+" "+clientType+" "+key, delta);
+		return Counters.inc(PREFIX+" "+aggregationLevel+" "+clientType.toString()+" "+key, delta);
 	}
 }

@@ -5,12 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.memory.MemoryClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
+import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
@@ -28,17 +29,17 @@ implements MapStorageReader<PK,D>{
 	
 	protected Map<UniqueKey<PK>,D> backingMap = new ConcurrentHashMap<UniqueKey<PK>,D>();
 	
-	public HashMapReaderNode(NodeParams<PK,D,F> params){
-		super(params);
-		//TODO this doesn't work because router.activate() is called in the constructor after this node is potentially inited
-		MemoryClient client = (MemoryClient) params.getRouter().getClient(params.getClientName());
-		client.registerMemoryNode(this);
+	
+	public HashMapReaderNode(Class<D> databeanClass, Class<F> fielderClass, 
+			DataRouter router, MemoryClient client) {
+		super(databeanClass, fielderClass, router, client.getName());
+		client.registerNode(this);
 	}
 
 	
 	@Override
-	public MemoryClient getClient(){
-		return (MemoryClient)getRouter().getClient(getClientName());
+	public HibernateClientImp getClient(){
+		return (HibernateClientImp)getRouter().getClient(getClientName());
 	}
 	
 	@Override

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -86,7 +85,6 @@ public class DatabeanFieldInfo<
 			this.prefixedPrimaryKeyFields = sampleDatabean.getKeyFields();
 			addPrimaryKeyFieldsToCollections();
 			if(fielderClass==null){
-				Preconditions.checkArgument(!fieldAware, nodeName+" is field aware but has no Fielder");
 				if(fieldAware){
 					throw new IllegalArgumentException("could not instantiate "+nodeName
 							+", fieldAware databean node must specify fielder class");
@@ -96,9 +94,8 @@ public class DatabeanFieldInfo<
 				this.sampleFielder = ReflectionTool.create(fielderClass);
 				this.primaryKeyFields = sampleFielder.getKeyFielder().getFields(sampleDatabean.getKey());
 				this.prefixedPrimaryKeyFields = sampleFielder.getKeyFields(sampleDatabean);
-
-				Preconditions.checkArgument(fieldAware, nodeName+" specified a Fielder but is not FieldAware");
-//				if(fieldAware){
+				
+				if(fieldAware){
 					this.fields = sampleFielder.getFields(sampleDatabean);//make sure there is a PK or this will NPE
 					addFieldsToCollections();
 					this.nonKeyFields = sampleFielder.getNonKeyFields(sampleDatabean);//only do these if the previous fields succeeded	
@@ -106,7 +103,7 @@ public class DatabeanFieldInfo<
 					this.indexes = sampleFielder.getIndexes(sampleDatabean);
 					this.character_set = sampleFielder.getCharacterSet(sampleDatabean);
 					this.collation = sampleFielder.getCollation(sampleDatabean);
-//				}
+				}
 				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
 			}
 			if(fieldAware){

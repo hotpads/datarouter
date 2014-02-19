@@ -10,9 +10,9 @@ import com.hotpads.datarouter.client.imp.hibernate.op.write.HibernatePutOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.write.HibernateUniqueIndexDeleteOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
+import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
@@ -28,9 +28,21 @@ public class HibernateNode<
 extends HibernateReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>
 {
-
-	public HibernateNode(NodeParams<PK,D,F> params){
-		super(params);
+	
+	public HibernateNode(Class<D> databeanClass, Class<F> fielderClass,
+			DataRouter router, String clientName, 
+			String physicalName, String qualifiedPhysicalName) {
+		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
+	}
+	
+	public HibernateNode(Class<D> databeanClass, Class<F> fielderClass,
+			DataRouter router, String clientName) {
+		super(databeanClass, fielderClass, router, clientName);
+	}
+	
+	public HibernateNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
+			Class<F> fielderClass, DataRouter router, String clientName){
+		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);
 	}
 	
 	@Override

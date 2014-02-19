@@ -11,8 +11,8 @@ import java.util.SortedSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableDiffGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlCreateTableGenerator;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.SqlTableDiffGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.test.TestParser;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;

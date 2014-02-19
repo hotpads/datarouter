@@ -12,6 +12,7 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateCountOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetAllOp;
@@ -28,12 +29,12 @@ import com.hotpads.datarouter.client.imp.hibernate.scan.HibernateDatabeanScanner
 import com.hotpads.datarouter.client.imp.hibernate.scan.HibernatePrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
+import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
@@ -58,12 +59,26 @@ extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>,
 		SortedStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
-	protected static Logger logger = Logger.getLogger(HibernateReaderNode.class);
+	
+	protected Logger logger = Logger.getLogger(getClass());
 	
 	/******************************* constructors ************************************/
 
-	public HibernateReaderNode(NodeParams<PK,D,F> params){
-		super(params);
+	public HibernateReaderNode(Class<D> databeanClass, Class<F> fielderClass,
+			DataRouter router, String clientName, 
+			String physicalName, String qualifiedPhysicalName) {
+		super(databeanClass, fielderClass, router, clientName, physicalName, qualifiedPhysicalName);
+	}
+	
+	public HibernateReaderNode(Class<D> databeanClass, Class<F> fielderClass,
+			DataRouter router, String clientName) {
+		super(databeanClass, fielderClass, router, clientName);
+	}
+
+	public HibernateReaderNode(Class<? super D> baseDatabeanClass, Class<D> databeanClass, 
+			Class<F> fielderClass,
+			DataRouter router, String clientName){
+		super(baseDatabeanClass, databeanClass, fielderClass, router, clientName);
 	}
 	
 	
@@ -105,7 +120,7 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){
-		DRCounters.incSuffixClientNode(getClient().getType(), "getMulti", getClientName(), getName());
+		DRCounters.incSuffixClientNode(ClientType.hibernate, "getMulti", getClientName(), getName());
 		List<D> result = ListTool.createArrayListWithSize(keys);
 		Config config = Config.nullSafe(pConfig);
 		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
@@ -119,7 +134,7 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig){
-		DRCounters.incSuffixClientNode(getClient().getType(), "getKeys", getClientName(), getName());
+		DRCounters.incSuffixClientNode(ClientType.hibernate, "getKeys", getClientName(), getName());
 		Config config = Config.nullSafe(pConfig);
 		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
 		List<PK> result = ListTool.createArrayListWithSize(keys);

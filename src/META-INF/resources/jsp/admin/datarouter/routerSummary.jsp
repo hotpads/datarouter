@@ -26,7 +26,6 @@
 					<th>data</th>
 					<th>count keys</th>
 					<th>count txn</th>
-					<th>node type</th>
 <!-- 					<th>export to S3</th> -->
 <!-- 					<th>import from S3</th> -->
 <!-- 					<th>copy table</th> -->
@@ -48,9 +47,7 @@
 								<a href="${contextPath}/datarouter/nodes/browseData?submitAction=countWhere&routerName=${param.routerName}
 								&nodeName=${nodeWrapper.node.name}"> count txn</a>
 							</c:if></td>
-						<td>${nodeWrapper.className}</td>
-						<!-- 					
-						<td> -->
+<!-- 						<td> -->
 <%-- 						<a href="/admin/dataRouter/export.htm?submitAction=exportToS3&routerName=${param.routerName} --%>
 <%-- 						&nodeName=${nodeWrapper.node.name}"> export to S3 </a></td> --%>
 <%-- 						<td><a href="/admin/dataRouter/export.htm?submitAction=showImportForm&routerName=${param.routerName} --%>

@@ -58,7 +58,7 @@ extends BaseHibernateOp<List<D>>{
 		String sql = SqlBuilder.getAll(config, tableName, node.getFieldInfo().getFields(), whereClause.toString(), 
 				node.getFieldInfo().getPrimaryKeyFields());
 		Session session = getSession(client.getName());
-		return JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
+		return JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
 	}
 	
 }

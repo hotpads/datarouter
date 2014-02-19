@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.memcached.node.task;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClient;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedPhysicalNode;
 import com.hotpads.datarouter.config.Config;
@@ -42,7 +43,7 @@ extends TracedCallable<V>{
 	@Override
 	public V wrappedCall(){
 		try{
-			DRCounters.incSuffixClientNode(client.getType(), taskName, client.getName(), node.getName());
+			DRCounters.incSuffixClientNode(ClientType.memcached, taskName, client.getName(), node.getName());
 			TraceContext.startSpan(node.getName()+" "+taskName);
 			if(NumberTool.nullSafe(numAttempts) > 1){ 
 				TraceContext.appendToThreadInfo("[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 

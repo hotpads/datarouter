@@ -16,10 +16,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.hotpads.datarouter.client.ClientType;
-import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
-import com.hotpads.datarouter.client.imp.memcached.MemcachedClientType;
-import com.hotpads.datarouter.client.imp.memory.MemoryClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -32,7 +28,6 @@ import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
@@ -56,32 +51,32 @@ public class ManyFieldTypeIntegrationTests {
 	public static void init() throws IOException{	
 		Class<?> cls = ManyFieldTypeIntegrationTests.class;
 		
-		if(DRTestConstants.ALL_CLIENT_TYPES.contains(MemoryClientType.INSTANCE)){
+		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.memory)){
 			routerByClientType.put(
-					MemoryClientType.INSTANCE, 
+					ClientType.memory, 
 					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemory, cls));
 		}
-		if(DRTestConstants.ALL_CLIENT_TYPES.contains(HibernateClientType.INSTANCE)){
+		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.hibernate)){
 			routerByClientType.put(
-					HibernateClientType.INSTANCE, 
+					ClientType.hibernate, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls));
 		}
 
-		if(DRTestConstants.ALL_CLIENT_TYPES.contains(HBaseClientType.INSTANCE)){
+		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.hbase)){
 			routerByClientType.put(
-					HBaseClientType.INSTANCE, 
+					ClientType.hbase, 
 					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls));
 		}
 
-		if(DRTestConstants.ALL_CLIENT_TYPES.contains(MemcachedClientType.INSTANCE)){
+		if(DRTestConstants.ALL_CLIENT_TYPES.contains(ClientType.memcached)){
 			routerByClientType.put(
-					MemcachedClientType.INSTANCE, 
+					ClientType.memcached, 
 					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemcached, cls));
 		}
 		
 		for(ClientType clientType : routerByClientType.keySet()){
 			BasicNodeTestRouter router = routerByClientType.get(clientType);
-			if(ObjectTool.notEquals(MemcachedClientType.INSTANCE, clientType)){
+			if(ClientType.memcached!=clientType){
 				router.manyFieldTypeBean().deleteAll(null);
 				Assert.assertEquals(0, CollectionTool.size(router.manyFieldTypeBean().getAll(null)));
 			}
@@ -533,18 +528,18 @@ public class ManyFieldTypeIntegrationTests {
 	}
 	
 	public boolean isMemory(){
-		return MemoryClientType.INSTANCE.equals(clientType);
+		return ClientType.memory == clientType;
 	}
 
 	public boolean isHibernate(){
-		return HibernateClientType.INSTANCE.equals(clientType);
+		return ClientType.hibernate == clientType;
 	}
 
 	public boolean isHBase(){
-		return HBaseClientType.INSTANCE.equals(clientType);
+		return ClientType.hbase == clientType;
 	}
 
 	public boolean isMemcached(){
-		return MemcachedClientType.INSTANCE.equals(clientType);
+		return ClientType.memcached == clientType;
 	}
 }

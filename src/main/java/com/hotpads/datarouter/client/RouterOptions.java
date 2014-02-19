@@ -1,24 +1,14 @@
 package com.hotpads.datarouter.client;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Properties;
 
-import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
-import com.hotpads.datarouter.client.imp.memory.MemoryClientType;
 import com.hotpads.datarouter.routing.BaseDataRouter;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.StringTool;
-import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class RouterOptions extends TypedProperties{
 	
 	public static final String CLIENT_NAME_memory = "memory";
-	
-	public static final ClientType CLIENT_TYPE_DEFAULT = HibernateClientType.INSTANCE;//for now, because our config files assume this
 
 	public RouterOptions(Collection<Properties> propertiesList){
 		super(propertiesList);
@@ -49,16 +39,12 @@ public class RouterOptions extends TypedProperties{
 	
 	/***************** actual variables *********************************/
 	
-	public ClientType getClientTypeInstance(String clientName){
-//		if(CLIENT_NAME_memory.equals(clientName)){ return MemoryClientType.INSTANCE; }
-		String typeNameKey = prependClientPrefix(clientName, "type");
-		String typeName = getString(typeNameKey);
-		if(StringTool.isEmpty(typeName)){ return CLIENT_TYPE_DEFAULT; }
-		String typeClassNameKey = "clientType."+typeName;
-		String defaultClassNameForType = DefaultClientTypes.CLASS_BY_NAME.get(typeName);
-		String typeClassName = ObjectTool.nullSafe(getString(typeClassNameKey), defaultClassNameForType);
-		Preconditions.checkNotNull(typeClassName, "no implementation specified for type "+typeClassNameKey);
-		return ReflectionTool.create(typeClassName);
+	public ClientType getClientType(String clientName){
+		if(CLIENT_NAME_memory.equals(clientName)){ return ClientType.memory; }
+		String type = getString(prependClientPrefix(clientName, "type"));
+		ClientType clientType = ClientType.fromString(type);
+//		return Preconditions.checkNotNull(clientType, "unknown clientType:"+clientType+" for clientName:"+clientName);
+		return clientType==null?ClientType.hibernate:clientType;
 	}
 	
 	public String getMode(String routerName){

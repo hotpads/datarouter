@@ -5,7 +5,7 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 
-import com.google.common.base.Preconditions;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
@@ -37,8 +37,8 @@ extends BaseHibernateOp<D>{
 	
 	@Override
 	public D runOnce(){
-		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		ClientType clientType = node.getFieldInfo().getFieldAware() ? ClientType.jdbc : ClientType.hibernate;
+		DRCounters.incSuffixClientNode(clientType, opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
@@ -47,7 +47,7 @@ extends BaseHibernateOp<D>{
 				nullSafeConfig.setLimit(1);
 				String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getFields(), null, 
 						node.getFieldInfo().getPrimaryKeyFields());
-				List<D> result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
+				List<D> result = JdbcTool.selectDatabeans(session, node.getFieldInfo(), sql);
 				return CollectionTool.getFirst(result);
 			}else{
 				Criteria criteria = node.getCriteriaForConfig(config, session);

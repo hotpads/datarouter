@@ -83,10 +83,10 @@ public class JdbcTool {
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	List<PK> selectPrimaryKeys(Connection connection, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
+	List<PK> selectPrimaryKeys(Session session, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
 //		System.out.println(sql);
 		try{
-			PreparedStatement ps = connection.prepareStatement(sql.toString());
+			PreparedStatement ps = session.connection().prepareStatement(sql.toString());
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
 			List<PK> primaryKeys = ListTool.createArrayList();
@@ -101,11 +101,12 @@ public class JdbcTool {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	List<D> selectDatabeans(Connection connection, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
+	List<D> selectDatabeans(Session session, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
 //		System.out.println(sql);
 		try{
-			PreparedStatement ps = connection.prepareStatement(sql.toString());
+			PreparedStatement ps = session.connection().prepareStatement(sql.toString());
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = ListTool.createArrayList();
@@ -159,7 +160,18 @@ public class JdbcTool {
 			throw new DataAccessException(message, e);			
 		}
 	}
-		
+	
+	@SuppressWarnings("deprecation")
+	public static int update(Session session, String sql){
+//		System.out.println(sql);
+		try{
+			PreparedStatement stmt = session.connection().prepareStatement(sql);
+			return stmt.executeUpdate();
+		}catch(SQLException e){
+			throw new DataAccessException(e);
+		}
+	}
+	
 	public static int update(Connection conn, String sql){
 //		System.out.println(sql);
 		try{

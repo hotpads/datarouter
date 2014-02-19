@@ -27,11 +27,11 @@ implements MapStorageNode<PK,D>{
 		initMixins();
 	}
 
-//	public MasterSlaveMapStorageNode(
-//			Class<D> databeanClass, DataRouter router) {
-//		super(databeanClass, router);
-//		initMixins();
-//	}
+	public MasterSlaveMapStorageNode(
+			Class<D> databeanClass, DataRouter router) {
+		super(databeanClass, router);
+		initMixins();
+	}
 
 	protected void initMixins(){
 		this.mixinMapWriteOps = new MasterSlaveMapStorageWriterMixin<PK,D,F,N>(this);

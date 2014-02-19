@@ -6,7 +6,7 @@ import java.util.concurrent.Callable;
 import javax.persistence.RollbackException;
 
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.client.type.JdbcClient;
+import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.SessionExecutor;
@@ -17,8 +17,6 @@ import com.hotpads.util.core.ListTool;
 public class SessionExecutorImpl<T>
 extends BaseTxnExecutor<T>
 implements SessionExecutor<T>, Callable<T>{
-
-	public static final boolean EAGER_SESSION_FLUSH = true;
 		
 	private TxnOp<T> parallelTxnOp;
 	
@@ -88,8 +86,8 @@ implements SessionExecutor<T>, Callable<T>{
 	@Override
 	public void openSessions(){
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
-			if( ! (client instanceof JdbcClient) ){ continue; }
-			JdbcClient sessionClient = (JdbcClient)client;
+			if( ! (client instanceof HibernateClient) ){ continue; }
+			HibernateClient sessionClient = (HibernateClient)client;
 			sessionClient.openSession();
 //			logger.debug("opened session on "+sessionClient.getExistingHandle());
 		}
@@ -98,8 +96,8 @@ implements SessionExecutor<T>, Callable<T>{
 	@Override
 	public void flushSessions(){
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
-			if( ! (client instanceof JdbcClient) ){ continue; }
-			JdbcClient sessionClient = (JdbcClient)client;
+			if( ! (client instanceof HibernateClient) ){ continue; }
+			HibernateClient sessionClient = (HibernateClient)client;
 			sessionClient.flushSession();
 		}
 	}
@@ -107,8 +105,8 @@ implements SessionExecutor<T>, Callable<T>{
 	@Override
 	public void cleanupSessions(){
 		for(Client client : CollectionTool.nullSafe(this.getClients())){
-			if( ! (client instanceof JdbcClient) ){ continue; }
-			JdbcClient sessionClient = (JdbcClient)client;
+			if( ! (client instanceof HibernateClient) ){ continue; }
+			HibernateClient sessionClient = (HibernateClient)client;
 			sessionClient.cleanupSession();
 		}
 	}

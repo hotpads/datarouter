@@ -8,11 +8,11 @@ import java.util.List;
 import org.junit.Assert;
 
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.imp.hibernate.HibernateExecutor;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.config.PutMethod;
-import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
@@ -39,7 +39,7 @@ public class InsertRollback extends BaseHibernateOp<Void>{
 			this.getSession(client.getName()).clear();
 			Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 		}else{
-			if(a.isFieldAware() || SessionExecutorImpl.EAGER_SESSION_FLUSH){
+			if(a.isFieldAware() || HibernateExecutor.EAGER_SESSION_FLUSH){
 				Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 			}else{
 				Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));

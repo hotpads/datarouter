@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -20,7 +19,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
-import com.hotpads.util.core.concurrent.FutureTool;
+import com.hotpads.util.core.ThrowableTool;
 
 public class Clients{
 	private static Logger logger = Logger.getLogger(Clients.class);
@@ -34,9 +33,9 @@ public class Clients{
 	protected NavigableSet<ClientId> clientIds = SetTool.createTreeSet();
 	protected List<Client> clients = ListTool.createArrayList();
 
-	protected Map<String,LazyClientProvider> lazyClientInitializerByName = new ConcurrentHashMap<String,LazyClientProvider>();
+	protected Map<String,ClientFactory> clientFactoryByName = new ConcurrentHashMap<String,ClientFactory>();
 
-	public static final ClientType DEFAULT_CLIENT_TYPE = HibernateClientType.INSTANCE;
+	public static final ClientType DEFAULT_CLIENT_TYPE = ClientType.hibernate;
 	
 	
 	public static final String
@@ -73,18 +72,62 @@ public class Clients{
 	
 	/********************************** initialize ******************************/
 	
-	public void initializeEagerClients(){
+	public void initializeEagerClients(){	
+		if(CollectionTool.isEmpty(clientIds)){ 
+			logger.warn("activate() called on Clients.java with no ClientIds");
+			return; 
+		}
 		final List<String> eagerClientNames = getClientNamesRequiringEagerInitialization();
-		getClients(eagerClientNames);
+		for(final ClientId clientId : CollectionTool.nullSafe(clientIds)){
+			String clientName = clientId.getName();
+//			ExecutorService exec = Executors.newSingleThreadExecutor(
+//					new NamedThreadFactory(drContext.getParentThreadGroup(), "Client-"+name, true));
+//			String typeString = PropertiesTool.getFirstOccurrence(multiProperties, prefixClient+name+paramType);
+//			if(StringTool.isEmpty(typeString)){ typeString = defaultTypeString; }
+//			ClientType clientType = ClientType.fromString(typeString);
+//			ClientFactory clientFactory = clientType.createClientFactory(drContext,
+//					name, drContext.getNodes().getPhysicalNodesForClient(name),
+//					drContext.getExecutorService());
+//			clientFactoryByName.put(name, clientFactory);
+			initClientFactoryIfNull(clientName);
+			boolean eager = CollectionTool.contains(eagerClientNames, clientName);
+			if(!eager){
+				String writableString = clientId.getWritable()?"":" (read-only)";
+				logger.info("registered:"+clientName+writableString);
+			}
+		}
+		for(final String clientName : CollectionTool.nullSafe(eagerClientNames)){
+			drContext.getExecutorService().submit(new Callable<Void>(){
+				public Void call(){
+					try{
+						clientFactoryByName.get(clientName).getClient();
+					}catch(Exception e){
+						logger.error("error activating client:"+clientName);
+						logger.error(ThrowableTool.getStackTraceAsString(e));
+					}
+					return null;
+				}
+			});
+//			executorService.setThreadFactory(threadFactory);//set it back to the default name
+		}
+		//TODO handle problems
+//		executor.shutdown();//i don't think this call blocks.  the invokeAll call does blcok
 	}
 	
-	protected synchronized void initClientFactoryIfNull(String clientName) {
-		if(lazyClientInitializerByName.containsKey(clientName)) { return; }
+	protected void initClientFactoryIfNull(String clientName) {
+		if(clientFactoryByName.containsKey(clientName)) { return; }
+//		String defaultTypeString = PropertiesTool.getFirstOccurrence(multiProperties, 
+//				prefixClient+clientDefault+paramType);
+//		if(StringTool.isEmpty(defaultTypeString)){ defaultTypeString = DEFAULT_CLIENT_TYPE.toString(); }
+//		String typeString = PropertiesTool.getFirstOccurrence(multiProperties, prefixClient+clientName+paramType);
+//		if(StringTool.isEmpty(typeString)){ typeString = defaultTypeString; }
+//		ClientType clientType = ClientType.fromString(typeString);
 		RouterOptions routerOptions = new RouterOptions(multiProperties);
-		ClientType clientTypeInstance = routerOptions.getClientTypeInstance(clientName);
+		ClientType clientType = routerOptions.getClientType(clientName);
 		List<PhysicalNode<?,?>> physicalNodesForClient = drContext.getNodes().getPhysicalNodesForClient(clientName);
-		ClientFactory clientFactory = clientTypeInstance.createClientFactory(drContext, clientName, physicalNodesForClient);
-		lazyClientInitializerByName.put(clientName, new LazyClientProvider(clientFactory));
+		ClientFactory clientFactory = clientType.createClientFactory(drContext, clientName, physicalNodesForClient,
+				drContext.getExecutorService());
+		clientFactoryByName.put(clientName, clientFactory);
 	}
 	
 	
@@ -133,19 +176,37 @@ public class Clients{
 	}
 	
 	public Client getClient(String clientName){
-		return lazyClientInitializerByName.get(clientName).call();
+		ClientFactory clientFactory = clientFactoryByName.get(clientName);
+		if(clientFactory!=null) { return clientFactory.getClient(); }
+		if(!getClientNames().contains(clientName)) { 
+			throw new IllegalArgumentException("unknown clientName:"+clientName); 
+		}
+		initClientFactoryIfNull(clientName);
+		clientFactory = clientFactoryByName.get(clientName);
+		return clientFactory.getClient();
 	}
 	
 	public List<Client> getClients(Collection<String> clientNames){
-		List<Callable<Client>> clientInitializers = ListTool.createArrayList();
+		List<Client> clients = ListTool.createLinkedList();
 		for(String clientName : CollectionTool.nullSafe(clientNames)){
-			clientInitializers.add(lazyClientInitializerByName.get(clientName));
+			clients.add(clientFactoryByName.get(clientName).getClient());
 		}
-		return FutureTool.submitAndGetAll(clientInitializers, drContext.getExecutorService());
+		return clients;
 	}
 	
 	public List<Client> getAllClients(){
 		return getClients(ClientId.getNames(clientIds));
+	}
+	
+	public List<Client> getAllInstantiatedClients(){
+		List<Client> clients = ListTool.createLinkedList();
+		for(ClientId clientId : CollectionTool.nullSafe(clientIds)){
+			String name = clientId.getName();
+			if(clientFactoryByName.get(name).isInitialized()){
+				clients.add(clientFactoryByName.get(name).getClient());
+			}
+		}
+		return clients;
 	}
 	
 	
