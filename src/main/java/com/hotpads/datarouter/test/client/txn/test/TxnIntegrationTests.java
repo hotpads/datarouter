@@ -62,74 +62,74 @@ public class TxnIntegrationTests {
 		Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 	}
 	
-	@Test 
-	public void testInsertRollbackWithFlush(){		
-		resetTable();
-		int numExceptions = 0;
-		try{
-			router.run(new InsertRollback(drContext, ListTool.wrap(clientName), Isolation.readCommitted,
-					router, true));
-		}catch(RuntimeException re){
-			++numExceptions;
-		}
-		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
-	}
-
-	
-	/************ MultiInsertRollback *********************/
-	
-	@Test 
-	public void testMoreComplexInsertRollbackNoFlush(){		
-		resetTable();
-		int numExceptions = 0;
-		TxnBean b = new TxnBean("b");
-		router.txnBeanHibernate().put(b, null);
-		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
-		try{
-			router.run(new MultiInsertRollback(drContext, ListTool.wrap(clientName), 
-					Isolation.readCommitted, router, false));
-		}catch(RuntimeException re){
-			++numExceptions;
-		}
-		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
-	}
-	
-	@Test 
-	public void testMoreComplexInsertRollbackWithFlush(){		
-		resetTable();
-		int numExceptions = 0;
-		TxnBean b = new TxnBean("b");
-		router.txnBeanHibernate().put(b, null);
-		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
-		try{
-			router.run(new MultiInsertRollback(drContext, ListTool.wrap(clientName), 
-					Isolation.readCommitted, router, true));
-		}catch(RuntimeException re){
-			++numExceptions;
-		}
-		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
-	}
-
-	
-	/************ NestedTxn *********************/
-	
-	@Test 
-	public void testNestedTxn(){
-		logger.warn("testNestedTxn()");
-		resetTable();	
-		int numExceptions = 0;
-		try{
-			router.run(new NestedTxn(drContext, ListTool.wrap(clientName), 
-					Isolation.readCommitted, false, router, false));
-		}catch(RuntimeException re){
-			++numExceptions;
-		}
-		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
-	}
+//	@Test 
+//	public void testInsertRollbackWithFlush(){		
+//		resetTable();
+//		int numExceptions = 0;
+//		try{
+//			router.run(new InsertRollback(drContext, ListTool.wrap(clientName), Isolation.readCommitted,
+//					router, true));
+//		}catch(RuntimeException re){
+//			++numExceptions;
+//		}
+//		Assert.assertEquals(1, numExceptions);
+//		Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+//	}
+//
+//	
+//	/************ MultiInsertRollback *********************/
+//	
+//	@Test 
+//	public void testMoreComplexInsertRollbackNoFlush(){		
+//		resetTable();
+//		int numExceptions = 0;
+//		TxnBean b = new TxnBean("b");
+//		router.txnBeanHibernate().put(b, null);
+//		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+//		try{
+//			router.run(new MultiInsertRollback(drContext, ListTool.wrap(clientName), 
+//					Isolation.readCommitted, router, false));
+//		}catch(RuntimeException re){
+//			++numExceptions;
+//		}
+//		Assert.assertEquals(1, numExceptions);
+//		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+//	}
+//	
+//	@Test 
+//	public void testMoreComplexInsertRollbackWithFlush(){		
+//		resetTable();
+//		int numExceptions = 0;
+//		TxnBean b = new TxnBean("b");
+//		router.txnBeanHibernate().put(b, null);
+//		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+//		try{
+//			router.run(new MultiInsertRollback(drContext, ListTool.wrap(clientName), 
+//					Isolation.readCommitted, router, true));
+//		}catch(RuntimeException re){
+//			++numExceptions;
+//		}
+//		Assert.assertEquals(1, numExceptions);
+//		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+//	}
+//
+//	
+//	/************ NestedTxn *********************/
+//	
+//	@Test 
+//	public void testNestedTxn(){
+//		logger.warn("testNestedTxn()");
+//		resetTable();	
+//		int numExceptions = 0;
+//		try{
+//			router.run(new NestedTxn(drContext, ListTool.wrap(clientName), 
+//					Isolation.readCommitted, false, router, false));
+//		}catch(RuntimeException re){
+//			++numExceptions;
+//		}
+//		Assert.assertEquals(1, numExceptions);
+//		Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+//	}
 }
 
 

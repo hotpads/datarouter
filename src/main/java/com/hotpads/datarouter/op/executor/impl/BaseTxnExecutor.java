@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.op.executor.impl;
 
+import org.apache.log4j.Logger;
+
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.TxnClient;
 import com.hotpads.datarouter.config.Isolation;
@@ -8,12 +10,14 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.TxnExecutor;
 import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 
 public abstract class BaseTxnExecutor<T>
 extends BaseClientExecutor<T>
 implements TxnExecutor<T>{
+	private static Logger logger = Logger.getLogger(BaseTxnExecutor.class);
 
 	private TxnOp<T> parallelTxnOp;
 	
@@ -36,9 +40,10 @@ implements TxnExecutor<T>{
 			TxnClient txnClient = (TxnClient)client;
 			ConnectionHandle connectionHandle = txnClient.getExistingHandle();
 			if(connectionHandle.isOutermostHandle()){
-				txnClient.beginTxn(this.getIsolation(), parallelTxnOp.isAutoCommit());
+				txnClient.beginTxn(getIsolation(), parallelTxnOp.isAutoCommit());
 			}
-//			logger.debug("began txn for "+txnClient.getExistingHandle());
+			logger.warn("beginTxn for "+txnClient.getExistingHandle());
+			DRCounters.incSuffixClient(txnClient.getType(), "beginTxn", txnClient.getName());
 		}
 	}
 	
@@ -51,7 +56,8 @@ implements TxnExecutor<T>{
 			if(connectionHandle.isOutermostHandle()){
 				txnClient.commitTxn();
 			}
-//			logger.debug("committed txn for "+txnClient.getExistingHandle());
+			logger.warn("commitTxn for "+txnClient.getExistingHandle());
+			DRCounters.incSuffixClient(txnClient.getType(), "commitTxn", txnClient.getName());
 		}
 	}
 	
@@ -62,8 +68,10 @@ implements TxnExecutor<T>{
 			TxnClient txnClient = (TxnClient)client;
 			try{
 				txnClient.rollbackTxn();
+				logger.warn("rollbackTxn for "+txnClient.getExistingHandle());
+				DRCounters.incSuffixClient(txnClient.getType(), "rollbackTxn", txnClient.getName());
 			}catch(Exception e){
-				getLogger().warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:"
 						+txnClient.getExistingHandle(), e);
 			}

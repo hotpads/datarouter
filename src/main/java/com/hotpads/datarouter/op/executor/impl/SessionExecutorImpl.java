@@ -5,11 +5,15 @@ import java.util.concurrent.Callable;
 
 import javax.persistence.RollbackException;
 
+import org.apache.log4j.Logger;
+
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.JdbcClient;
+import com.hotpads.datarouter.client.type.SessionClient;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.SessionExecutor;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
@@ -17,6 +21,7 @@ import com.hotpads.util.core.ListTool;
 public class SessionExecutorImpl<T>
 extends BaseTxnExecutor<T>
 implements SessionExecutor<T>, Callable<T>{
+	private static Logger logger = Logger.getLogger(SessionExecutorImpl.class);
 
 	public static final boolean EAGER_SESSION_FLUSH = true;
 		
@@ -35,7 +40,7 @@ implements SessionExecutor<T>, Callable<T>{
 	public T call(){
 		T onceResult = null;
 		Collection<T> clientResults = ListTool.createLinkedList();
-		Collection<Client> clients = this.getClients();
+		Collection<Client> clients = getClients();
 		try{
 			reserveConnections();
 			beginTxns();
@@ -87,29 +92,34 @@ implements SessionExecutor<T>, Callable<T>{
 	
 	@Override
 	public void openSessions(){
-		for(Client client : CollectionTool.nullSafe(this.getClients())){
-			if( ! (client instanceof JdbcClient) ){ continue; }
-			JdbcClient sessionClient = (JdbcClient)client;
+		for(Client client : CollectionTool.nullSafe(getClients())){
+			if( ! (client instanceof SessionClient) ){ continue; }
+			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.openSession();
-//			logger.debug("opened session on "+sessionClient.getExistingHandle());
+			logger.warn("opened session on "+sessionClient.getExistingHandle());
+			DRCounters.incSuffixClient(sessionClient.getType(), "openSession", sessionClient.getName());
 		}
 	}
 	
 	@Override
 	public void flushSessions(){
-		for(Client client : CollectionTool.nullSafe(this.getClients())){
-			if( ! (client instanceof JdbcClient) ){ continue; }
-			JdbcClient sessionClient = (JdbcClient)client;
+		for(Client client : CollectionTool.nullSafe(getClients())){
+			if( ! (client instanceof SessionClient) ){ continue; }
+			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.flushSession();
+			logger.warn("flushSession on "+sessionClient.getExistingHandle());
+			DRCounters.incSuffixClient(sessionClient.getType(), "flushSession", sessionClient.getName());
 		}
 	}
 	
 	@Override
 	public void cleanupSessions(){
-		for(Client client : CollectionTool.nullSafe(this.getClients())){
-			if( ! (client instanceof JdbcClient) ){ continue; }
-			JdbcClient sessionClient = (JdbcClient)client;
+		for(Client client : CollectionTool.nullSafe(getClients())){
+			if( ! (client instanceof SessionClient) ){ continue; }
+			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.cleanupSession();
+			logger.warn("cleanupSession on "+sessionClient.getExistingHandle());
+			DRCounters.incSuffixClient(sessionClient.getType(), "cleanupSession", sessionClient.getName());
 		}
 	}
 	

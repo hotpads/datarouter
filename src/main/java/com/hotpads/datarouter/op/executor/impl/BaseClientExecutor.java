@@ -6,16 +6,18 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.ConnectionClient;
+import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.op.ClientOp;
 import com.hotpads.datarouter.op.executor.ClientExecutor;
 import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 
 public abstract class BaseClientExecutor<T>
 implements ClientExecutor{
-	private Logger logger = Logger.getLogger(getClass());
+	private static Logger logger = Logger.getLogger(BaseClientExecutor.class);
 
 	private DataRouterContext drContext;
 	private ClientOp<T> parallelClientOp;
@@ -53,8 +55,9 @@ implements ClientExecutor{
 		for(Client client : CollectionTool.nullSafe(getClients())){
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;
-			connectionClient.reserveConnection();
-//			logger.debug("reserved "+handle);
+			ConnectionHandle handle = connectionClient.reserveConnection();
+			logger.warn("reserveConnection "+handle);
+			DRCounters.incSuffixClient(connectionClient.getType(), "reserveConnection", connectionClient.getName());
 		}
 	}
 
@@ -64,10 +67,11 @@ implements ClientExecutor{
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;
 			try{
-				connectionClient.releaseConnection();
-//				logger.debug("released "+handle);
+				ConnectionHandle handle = connectionClient.releaseConnection();
+				logger.warn("releaseConnection "+handle);
+				DRCounters.incSuffixClient(connectionClient.getType(), "releaseConnection", connectionClient.getName());
 			}catch(Exception e){
-				getLogger().warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF SINGLE CONNECTION, handle now=:"
 						+connectionClient.getExistingHandle(), e);
 			}
