@@ -50,23 +50,24 @@ extends BaseJdbcOp<List<D>>{
 				batchSize = config.getIterateBatchSize();
 			}
 			List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
-			Collections.sort(sortedKeys);
+			Collections.sort(sortedKeys);//should prob remove
 			int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
-			List<D> all = ListTool.createArrayList(keys.size());
+			List<D> result = ListTool.createArrayList(keys.size());
 			Connection connection = getConnection(node.getClientName());
 			for(int batchNum=0; batchNum < numBatches; ++batchNum){
 				List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
-				List<D> batch;
 				String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), keyBatch);
-				batch = JdbcTool.selectDatabeans(connection, node.getFieldInfo(), sql);
+				List<D> batch = JdbcTool.selectDatabeans(connection, node.getFieldInfo(), sql);
 				DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 				DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-						CollectionTool.size(keys));
-				Collections.sort(batch);//can sort here because batches were already sorted
-				ListTool.nullSafeArrayAddAll(all, batch);
+						CollectionTool.size(batch));//count the number of hits (arbitrary decision)
+				if(CollectionTool.notEmpty(batch)){
+					Collections.sort(batch);//should prob remove
+					result.addAll(batch);
+				}
 			}
-			TraceContext.appendToSpanInfo("[got "+CollectionTool.size(all)+"/"+CollectionTool.size(keys)+"]");
-			return all;
+			TraceContext.appendToSpanInfo("[got "+CollectionTool.size(result)+"/"+CollectionTool.size(keys)+"]");
+			return result;
 		}finally{
 			TraceContext.finishSpan();
 		}
