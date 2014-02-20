@@ -54,8 +54,9 @@ extends BaseJdbcOp<Void>{
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			final String entityName = node.getPackagedTableName();
+			Connection connection = getConnection(node.getClientName());
 			for(D databean : CollectionTool.nullSafe(databeans)){
-				jdbcPutUsingMethod(getConnection(node.getClientName()), entityName, databean, config, DEFAULT_PUT_METHOD);
+				jdbcPutUsingMethod(connection, entityName, databean, config, DEFAULT_PUT_METHOD);
 			}
 			return null;
 		}finally{

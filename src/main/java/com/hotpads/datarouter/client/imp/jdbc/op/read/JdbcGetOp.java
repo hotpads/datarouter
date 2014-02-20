@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
+import java.sql.Connection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -52,11 +53,12 @@ extends BaseJdbcOp<List<D>>{
 			Collections.sort(sortedKeys);
 			int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
 			List<D> all = ListTool.createArrayList(keys.size());
+			Connection connection = getConnection(node.getClientName());
 			for(int batchNum=0; batchNum < numBatches; ++batchNum){
 				List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
 				List<D> batch;
 				String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), keyBatch);
-				batch = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
+				batch = JdbcTool.selectDatabeans(connection, node.getFieldInfo(), sql);
 				DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 				DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
 						CollectionTool.size(keys));
