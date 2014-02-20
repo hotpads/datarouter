@@ -87,6 +87,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	}
 
 	public static final List<ClientId> CLIENT_IDS = ListTool.create(
+			new ClientId(DRTestConstants.CLIENT_drTestJdbc0, true),
 			new ClientId(DRTestConstants.CLIENT_drTestHibernate0, true),
 			new ClientId(DRTestConstants.CLIENT_drTestHBase, true),
 			new ClientId(DRTestConstants.CLIENT_drTestMemcached, true));

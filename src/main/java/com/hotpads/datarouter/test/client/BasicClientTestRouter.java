@@ -13,6 +13,7 @@ import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 @ImplementedBy(BasicClientTestRouterImp.class)
 public interface BasicClientTestRouter extends DataRouter{
 
+	MapStorage<TxnBeanKey,TxnBean> txnBeanJdbc();
 	MapStorage<TxnBeanKey,TxnBean> txnBeanHibernate();
 	MapStorage<TxnBeanKey,TxnBean> txnBeanHBase();
 

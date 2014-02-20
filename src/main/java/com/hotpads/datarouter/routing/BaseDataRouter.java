@@ -118,10 +118,10 @@ implements DataRouter{
 		return context.getClientPool().getClients(getClientNames());
 	}
 
-	@Override
-	public List<Client> getClients(Collection<String> clientNames){
-		return context.getClientPool().getClients(clientNames);
-	}
+//	@Override
+//	public List<Client> getClients(Collection<String> clientNames){
+//		return context.getClientPool().getClients(clientNames);
+//	}
 
 	@Override
 	@SuppressWarnings("unchecked")

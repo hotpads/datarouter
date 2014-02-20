@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
@@ -137,11 +136,20 @@ public class Clients{
 	}
 	
 	public List<Client> getClients(Collection<String> clientNames){
-		List<Callable<Client>> clientInitializers = ListTool.createArrayList();
+		List<Client> clients = ListTool.createArrayListWithSize(clientNames);
+		List<LazyClientProvider> providers = ListTool.createArrayList();
 		for(String clientName : CollectionTool.nullSafe(clientNames)){
-			clientInitializers.add(lazyClientInitializerByName.get(clientName));
+			LazyClientProvider provider = lazyClientInitializerByName.get(clientName);
+			if(provider.isInitialized()){
+				clients.add(provider.call());//these can be added immediately (normal code path)
+			}else{
+				providers.add(provider);//these must be initialized first
+			}
 		}
-		return FutureTool.submitAndGetAll(clientInitializers, drContext.getExecutorService());
+		if(CollectionTool.notEmpty(providers)){
+			clients.addAll(FutureTool.submitAndGetAll(providers, drContext.getExecutorService()));
+		}
+		return clients;
 	}
 	
 	public List<Client> getAllClients(){

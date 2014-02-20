@@ -44,7 +44,7 @@ public interface DataRouter {
 	List<String> getClientNames();
 	Client getClient(String clientName);
 	List<Client> getAllClients();
-	List<Client> getClients(Collection<String> clientNames);
+//	List<Client> getClients(Collection<String> clientNames);
 
 	<K extends Key<K>>List<String> getClientNamesForKeys(Collection<? extends Key<K>> keys);
 

@@ -24,7 +24,7 @@ import com.hotpads.util.core.MapTool;
 public class JdbcClientImp 
 extends BaseClient
 implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
-	protected Logger logger = Logger.getLogger(this.getClass());
+	private static Logger logger = Logger.getLogger(JdbcClientImp.class);
 	
 	private String name;
 	
@@ -73,7 +73,8 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 		try {
 			ConnectionHandle existingHandle = getExistingHandle();
 			if(existingHandle != null){
-				logger.debug("got existing connection:"+existingHandle);
+//				logger.warn("got existing connection:"+existingHandle);
+				DRCounters.incSuffixClient(getType(), "connection open existing", getName());
 				//Assert connection exists for handle
 				existingHandle.incrementNumTickets();
 				return existingHandle;
@@ -91,7 +92,8 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 				handleByThread.put(threadId, handle);
 			}
 			connectionByHandle.put(handle, newConnection);
-			logger.debug("new connection:"+handle);
+//			logger.warn("new connection:"+handle);
+			DRCounters.incSuffixClient(getType(), "connection open new", getName());
 			return handle;
 		}catch(SQLException e){
 			DRCounters.incSuffixClient(getType(), "connection open "+e.getClass().getSimpleName(), getName());
@@ -165,10 +167,10 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 			//jdbc standard says that autoCommit=true by default on each new connection
 			if(!autoCommit){
 				connection.setAutoCommit(false);
-				logger.debug("setAutoCommit="+false+" on "+this.getExistingHandle());
+				logger.debug("setAutoCommit="+false+" on "+getExistingHandle());
 				if(connection.getTransactionIsolation() != isolation.getJdbcVal().intValue()){
 					connection.setTransactionIsolation(isolation.getJdbcVal());
-					logger.debug("setTransactionIsolation="+isolation.toString()+" on "+this.getExistingHandle());
+					logger.debug("setTransactionIsolation="+isolation.toString()+" on "+getExistingHandle());
 				}
 			}
 			return getExistingHandle();

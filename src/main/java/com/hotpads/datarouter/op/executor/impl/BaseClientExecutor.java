@@ -36,10 +36,6 @@ implements ClientExecutor{
 	
 	/******************* get /*************************************/
 
-	public Logger getLogger(){
-		return logger;
-	}
-
 	public DataRouterContext getDrContext(){
 		return drContext;
 	}
@@ -56,7 +52,7 @@ implements ClientExecutor{
 			if( ! (client instanceof ConnectionClient) ){ continue; }
 			ConnectionClient connectionClient = (ConnectionClient)client;
 			ConnectionHandle handle = connectionClient.reserveConnection();
-			logger.warn("reserveConnection "+handle);
+//			logger.warn("reserveConnection "+handle);
 			DRCounters.incSuffixClient(connectionClient.getType(), "reserveConnection", connectionClient.getName());
 		}
 	}
@@ -68,7 +64,7 @@ implements ClientExecutor{
 			ConnectionClient connectionClient = (ConnectionClient)client;
 			try{
 				ConnectionHandle handle = connectionClient.releaseConnection();
-				logger.warn("releaseConnection "+handle);
+//				logger.warn("releaseConnection "+handle);
 				DRCounters.incSuffixClient(connectionClient.getType(), "releaseConnection", connectionClient.getName());
 			}catch(Exception e){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));

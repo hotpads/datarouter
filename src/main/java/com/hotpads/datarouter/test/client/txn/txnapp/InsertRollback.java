@@ -5,6 +5,7 @@ package com.hotpads.datarouter.test.client.txn.txnapp;
 
 import java.util.List;
 
+import org.hibernate.Session;
 import org.junit.Assert;
 
 import com.hotpads.datarouter.client.Client;
@@ -35,8 +36,9 @@ public class InsertRollback extends BaseHibernateOp<Void>{
 		TxnBean a = new TxnBean("a");
 		router.txnBeanHibernate().put(a, null);
 		if(flush){
-			this.getSession(client.getName()).flush();
-			this.getSession(client.getName()).clear();
+			Session session = getSession(client.getName());
+			session.flush();
+			session.clear();
 			Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 		}else{
 			if(a.isFieldAware() || SessionExecutorImpl.EAGER_SESSION_FLUSH){

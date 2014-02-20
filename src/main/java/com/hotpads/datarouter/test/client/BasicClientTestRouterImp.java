@@ -33,6 +33,7 @@ implements BasicClientTestRouter{
 
 	private MapStorage<KeepAliveKey,KeepAlive> keepAliveHBase;
 
+	private MapStorage<TxnBeanKey,TxnBean> txnBeanJdbc;
 	private MapStorage<TxnBeanKey,TxnBean> txnBeanHibernate;
 	private MapStorage<TxnBeanKey,TxnBean> txnBeanHBase;
 
@@ -46,7 +47,10 @@ implements BasicClientTestRouter{
 		keepAliveHBase = cast(register(
 				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, KeepAlive.class, KeepAliveFielder.class, this)));
 
+		txnBeanJdbc = cast(register(
+				NodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, TxnBean.class, TxnBeanFielder.class, this)));
 		txnBeanHibernate = cast(register(
+				//note this is not testing hibernate's serialization because we're specifying a fielder
 				NodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, TxnBean.class, TxnBeanFielder.class, this)));
 		txnBeanHBase = cast(register(
 				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, TxnBean.class, TxnBeanFielder.class, this)));
@@ -66,6 +70,7 @@ implements BasicClientTestRouter{
 	}
 
 	public static final List<ClientId> CLIENT_IDS = ListTool.create(
+			new ClientId(DRTestConstants.CLIENT_drTestJdbc0, true),
 			new ClientId(DRTestConstants.CLIENT_drTestHibernate0, true),
 			new ClientId(DRTestConstants.CLIENT_drTestHBase, true));
 	
@@ -77,6 +82,11 @@ implements BasicClientTestRouter{
 
 	/*************************** get/set ***********************************/
 
+
+	@Override
+	public MapStorage<TxnBeanKey,TxnBean> txnBeanJdbc(){
+		return txnBeanJdbc;
+	}
 
 	@Override
 	public MapStorage<TxnBeanKey,TxnBean> txnBeanHibernate(){

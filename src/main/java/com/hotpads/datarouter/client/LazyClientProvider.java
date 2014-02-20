@@ -31,4 +31,8 @@ implements Callable<Client>{
 			return client;
 		}
 	}
+	
+	public boolean isInitialized(){
+		return client != null;
+	}
 }

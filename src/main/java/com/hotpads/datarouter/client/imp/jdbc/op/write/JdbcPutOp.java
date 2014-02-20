@@ -188,6 +188,9 @@ extends BaseJdbcOp<Void>{
 	}
 	
 	private void jdbcUpdate(Connection connection, String entityName, Databean<PK,D> databean){
+		//it doesn't make sense to update a row without PK fields.  updating the PK will move the row
+		if(CollectionTool.isEmpty(node.getFieldInfo().getNonKeyFields())){ return; }
+		
 //		logger.warn("JDBC update");
 		StringBuilder sb = new StringBuilder();
 		sb.append("update "+node.getTableName()+" set ");
@@ -204,11 +207,11 @@ extends BaseJdbcOp<Void>{
 			}
 			numUpdated = ps.executeUpdate();
 		}catch(SQLException e){
-			throw new DataAccessException("error updating "+node.getTableName(),e);
+			throw new DataAccessException("error updating "+node.getTableName(), e);
 		}
 		if(numUpdated!=1){
-			throw new DataAccessException(node.getTableName()+" row "+databean.getKey().toString()+" not found so could not be " +
-					"updated");
+			throw new DataAccessException(node.getTableName()+" row "+databean.getKey().toString()
+					+" not found so could not be updated");
 		}
 	}
 }

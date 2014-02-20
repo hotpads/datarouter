@@ -8,7 +8,6 @@ import javax.persistence.RollbackException;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.client.type.SessionClient;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.op.TxnOp;
@@ -58,16 +57,17 @@ implements SessionExecutor<T>, Callable<T>{
 			commitTxns();
 			
 		}catch(Exception e){
-			getLogger().warn(ExceptionTool.getStackTraceAsString(e));
+			logger.warn(ExceptionTool.getStackTraceAsString(e));
 			try{
 				rollbackTxns();
 			}catch(Exception exceptionDuringRollback){
-				getLogger().warn("EXCEPTION THROWN DURING TXN ROLL-BACK");
-				getLogger().warn(ExceptionTool.getStackTraceAsString(exceptionDuringRollback));
+				logger.warn("EXCEPTION THROWN DURING TXN ROLL-BACK");
+				logger.warn(ExceptionTool.getStackTraceAsString(exceptionDuringRollback));
 				throw new DataAccessException(e);
 			}
 			throw new RollbackException(e);//don't throw in the try block because it will get caught immediately
 		}finally{
+			//i believe this is commented out until we figure out how to handle nested sessions
 //			try{
 //				cleanupSessions();
 //			}catch(Exception e){
@@ -78,8 +78,8 @@ implements SessionExecutor<T>, Callable<T>{
 				releaseConnections();
 			}catch(Exception e){
 				//This is an unexpected exception because each individual release is done in a try/catch block
-				getLogger().warn("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
-				getLogger().warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
+				logger.warn(ExceptionTool.getStackTraceAsString(e));
 			}
 		}
 		T mergedResult = parallelTxnOp.mergeResults(onceResult, clientResults);
@@ -96,7 +96,7 @@ implements SessionExecutor<T>, Callable<T>{
 			if( ! (client instanceof SessionClient) ){ continue; }
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.openSession();
-			logger.warn("opened session on "+sessionClient.getExistingHandle());
+//			logger.warn("opened session on "+sessionClient.getExistingHandle());
 			DRCounters.incSuffixClient(sessionClient.getType(), "openSession", sessionClient.getName());
 		}
 	}
@@ -107,7 +107,7 @@ implements SessionExecutor<T>, Callable<T>{
 			if( ! (client instanceof SessionClient) ){ continue; }
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.flushSession();
-			logger.warn("flushSession on "+sessionClient.getExistingHandle());
+//			logger.warn("flushSession on "+sessionClient.getExistingHandle());
 			DRCounters.incSuffixClient(sessionClient.getType(), "flushSession", sessionClient.getName());
 		}
 	}
@@ -118,7 +118,7 @@ implements SessionExecutor<T>, Callable<T>{
 			if( ! (client instanceof SessionClient) ){ continue; }
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.cleanupSession();
-			logger.warn("cleanupSession on "+sessionClient.getExistingHandle());
+//			logger.warn("cleanupSession on "+sessionClient.getExistingHandle());
 			DRCounters.incSuffixClient(sessionClient.getType(), "cleanupSession", sessionClient.getName());
 		}
 	}

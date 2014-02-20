@@ -24,11 +24,11 @@ import com.hotpads.util.core.MapTool;
 public class HibernateClientImp 
 extends JdbcClientImp
 implements SessionClient, HibernateClient{
-	protected Logger logger = Logger.getLogger(this.getClass());
+	private static Logger logger = Logger.getLogger(HibernateClientImp.class);
 
-	protected SessionFactory sessionFactory;
+	private SessionFactory sessionFactory;
 
-	protected Map<ConnectionHandle,Session> sessionByConnectionHandle = new ConcurrentHashMap<ConnectionHandle,Session>();
+	private Map<ConnectionHandle,Session> sessionByConnectionHandle = new ConcurrentHashMap<ConnectionHandle,Session>();
 	
 	@Override
 	public ClientType getType(){
