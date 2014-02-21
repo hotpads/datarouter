@@ -19,7 +19,7 @@ public class DatarouterSessionManager{
 	
 	/************* static fields **********************/
 
-	private final static String REQUEST_ATTRIBUTE_NAME = "userSession";
+	private final static String REQUEST_ATTRIBUTE_NAME = "datarouterSession";
 	private static final int 
 		TARGET_URL_COOKIE_EXPIRATION_SECONDS = 30 * 60,
 		USER_TOKEN_COOKIE_EXPIRATION_SECONDS = 365 * 24 * 3600;
