@@ -190,7 +190,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		}
 	}
 	
-	private static void handleSuccessfulLogin(HttpServletRequest request, HttpServletResponse response, URL targetUrl){
+	private void handleSuccessfulLogin(HttpServletRequest request, HttpServletResponse response, URL targetUrl){
 		String redirectTo;
 		if(targetUrl != null){
 			redirectTo = targetUrl.toExternalForm();
