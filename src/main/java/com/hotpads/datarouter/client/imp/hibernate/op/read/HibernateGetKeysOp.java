@@ -12,7 +12,6 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Config;
@@ -28,7 +27,6 @@ import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 public class HibernateGetKeysOp<
 		PK extends PrimaryKey<PK>,
@@ -51,8 +49,6 @@ extends BaseHibernateOp<List<PK>>{
 	
 	@Override
 	public List<PK> runOnce(){
-		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
-		if(node.getFieldInfo().getFieldAware()){ throw new NotImplementedException(); }
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);

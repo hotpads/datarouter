@@ -11,11 +11,8 @@ import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
-import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
-import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -49,34 +46,26 @@ extends BaseHibernateOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
 		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
 			//TODO undefined behavior on trailing nulls
-			if(node.getFieldInfo().getFieldAware()){
-				String sql = SqlBuilder.getWithPrefixes(config, node.getTableName(), node.getFieldInfo().getFields(), lookups, 
-						wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
-				List<D> result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
-				return result;
-			}else{
-				Criteria criteria = node.getCriteriaForConfig(config, session);
-				Disjunction or = Restrictions.disjunction();
-				for(Lookup<PK> lookup : lookups){
-					Conjunction prefixConjunction = node.getPrefixConjunction(false, lookup, wildcardLastField);
-					if(prefixConjunction==null){
-						throw new IllegalArgumentException("Lookup with all null fields would return entire " +
-								"table.  Please use getAll() instead.");
-					}
-					or.add(prefixConjunction);
+			Criteria criteria = node.getCriteriaForConfig(config, session);
+			Disjunction or = Restrictions.disjunction();
+			for(Lookup<PK> lookup : lookups){
+				Conjunction prefixConjunction = node.getPrefixConjunction(false, lookup, wildcardLastField);
+				if(prefixConjunction==null){
+					throw new IllegalArgumentException("Lookup with all null fields would return entire " +
+							"table.  Please use getAll() instead.");
 				}
-				criteria.add(or);
-				List<D> result = criteria.list();
-				Collections.sort(result);//TODO, make sure the datastore scans in order so we don't need to sort here
-				return result;
+				or.add(prefixConjunction);
 			}
+			criteria.add(or);
+			List<D> result = criteria.list();
+			Collections.sort(result);//TODO, make sure the datastore scans in order so we don't need to sort here
+			return result;
 		}finally{
 			TraceContext.finishSpan();
 		}

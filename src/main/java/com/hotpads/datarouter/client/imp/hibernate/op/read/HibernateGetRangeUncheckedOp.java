@@ -7,12 +7,9 @@ import org.hibernate.Session;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.CriteriaTool;
-import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
-import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -52,54 +49,39 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 	
 	@Override
 	public List<? extends FieldSet<?>> runOnce(){
-		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
-			if(node.getFieldInfo().getFieldAware()){
-				List<Field<?>> fieldsToSelect = keysOnly ? node.getFieldInfo().getPrimaryKeyFields() 
-						: node.getFieldInfo().getFields();
-				String sql = SqlBuilder.getInRange(config, node.getTableName(), fieldsToSelect, range, 
-						node.getFieldInfo().getPrimaryKeyFields());
-				List<? extends FieldSet<?>> result;
-				if(keysOnly){
-					result = JdbcTool.selectPrimaryKeys(session.connection(), node.getFieldInfo(), sql);
-				}else{
-					result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
+			Criteria criteria = node.getCriteriaForConfig(config, session);
+			if(keysOnly){
+				ProjectionList projectionList = Projections.projectionList();
+				for(Field<?> field : node.getFieldInfo().getPrefixedPrimaryKeyFields()){
+					projectionList.add(Projections.property(field.getPrefixedName()));
+				}
+				criteria.setProjection(projectionList);
+			}
+			node.addPrimaryKeyOrderToCriteria(criteria);
+			CriteriaTool.addRangesToCriteria(criteria, range, node.getFieldInfo());
+			if(keysOnly){
+				List<Object[]> rows = criteria.list();
+				List<PK> result = ListTool.createArrayList(CollectionTool.size(rows));
+				for(Object row : IterableTool.nullSafe(rows)){
+					// hibernate will return a plain Object if it's a single col PK
+					Object[] rowCells;
+					if(row instanceof Object[]){
+						rowCells = (Object[])row;
+					}else{
+						rowCells = new Object[]{row};
+					}
+					result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
+							node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), 
+							rowCells));
 				}
 				return result;
 			}else{
-				Criteria criteria = node.getCriteriaForConfig(config, session);
-				if(keysOnly){
-					ProjectionList projectionList = Projections.projectionList();
-					for(Field<?> field : node.getFieldInfo().getPrefixedPrimaryKeyFields()){
-						projectionList.add(Projections.property(field.getPrefixedName()));
-					}
-					criteria.setProjection(projectionList);
-				}
-				node.addPrimaryKeyOrderToCriteria(criteria);
-				CriteriaTool.addRangesToCriteria(criteria, range, node.getFieldInfo());
-				if(keysOnly){
-					List<Object[]> rows = criteria.list();
-					List<PK> result = ListTool.createArrayList(CollectionTool.size(rows));
-					for(Object row : IterableTool.nullSafe(rows)){
-						// hibernate will return a plain Object if it's a single col PK
-						Object[] rowCells;
-						if(row instanceof Object[]){
-							rowCells = (Object[])row;
-						}else{
-							rowCells = new Object[]{row};
-						}
-						result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
-								node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), 
-								rowCells));
-					}
-					return result;
-				}else{
-					List<? extends FieldSet<?>> result = (List<? extends FieldSet<?>>)criteria.list();
-					return result;
-				}
+				List<? extends FieldSet<?>> result = (List<? extends FieldSet<?>>)criteria.list();
+				return result;
 			}
 		}finally{
 			TraceContext.finishSpan();

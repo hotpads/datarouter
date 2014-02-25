@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.hibernate.op.read;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -11,12 +10,9 @@ import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
-import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
-import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -52,8 +48,6 @@ extends BaseHibernateOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
-		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
@@ -63,36 +57,29 @@ extends BaseHibernateOp<List<D>>{
 			List<? extends UniqueKey<PK>> sortedKeys = ListTool.createArrayList(uniqueKeys);
 			Collections.sort(sortedKeys);
 			
-			if(node.getFieldInfo().getFieldAware()){
-				String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), 
-						sortedKeys);
-				List<D> result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
-				return result;
-			}else{
-				int batchSize = HibernateNode.DEFAULT_ITERATE_BATCH_SIZE;
-				if(config!=null && config.getIterateBatchSize()!=null){
-					batchSize = config.getIterateBatchSize();
-				}
-				int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
-				List<D> all = ListTool.createArrayList(uniqueKeys.size());
-				for(int batchNum=0; batchNum < numBatches; ++batchNum){
-					List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
-					Criteria criteria = node.getCriteriaForConfig(config, session);
-					Disjunction orSeparatedIds = Restrictions.disjunction();
-					for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
-						Conjunction possiblyCompoundId = Restrictions.conjunction();
-						List<Field<?>> fields = key.getFields();
-						for(Field<?> field : fields){
-							possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-						}
-						orSeparatedIds.add(possiblyCompoundId);
-					}
-					criteria.add(orSeparatedIds);
-					List<D> batch = criteria.list();
-					all.addAll(CollectionTool.nullSafe(batch));
-				}
-				return all;	
+			int batchSize = HibernateNode.DEFAULT_ITERATE_BATCH_SIZE;
+			if(config!=null && config.getIterateBatchSize()!=null){
+				batchSize = config.getIterateBatchSize();
 			}
+			int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
+			List<D> all = ListTool.createArrayList(uniqueKeys.size());
+			for(int batchNum=0; batchNum < numBatches; ++batchNum){
+				List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
+				Criteria criteria = node.getCriteriaForConfig(config, session);
+				Disjunction orSeparatedIds = Restrictions.disjunction();
+				for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
+					Conjunction possiblyCompoundId = Restrictions.conjunction();
+					List<Field<?>> fields = key.getFields();
+					for(Field<?> field : fields){
+						possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+					}
+					orSeparatedIds.add(possiblyCompoundId);
+				}
+				criteria.add(orSeparatedIds);
+				List<D> batch = criteria.list();
+				all.addAll(CollectionTool.nullSafe(batch));
+			}
+			return all;
 		}finally{
 			TraceContext.finishSpan();
 		}

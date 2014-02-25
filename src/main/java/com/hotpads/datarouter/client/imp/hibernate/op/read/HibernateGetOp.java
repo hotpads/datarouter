@@ -10,11 +10,8 @@ import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
-import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
-import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -48,38 +45,28 @@ extends BaseHibernateOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
 			List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
 			Collections.sort(sortedKeys);//is this sorting at all beneficial?
-			List<D> result;
-			if(node.getFieldInfo().getFieldAware()){
-				String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), sortedKeys);
-				result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
-				DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-				DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-						CollectionTool.size(result));
-			}else{
-				Criteria criteria = node.getCriteriaForConfig(config, session);
-				Disjunction orSeparatedIds = Restrictions.disjunction();
-				for(Key<PK> key : CollectionTool.nullSafe(sortedKeys)){
-					Conjunction possiblyCompoundId = Restrictions.conjunction();
-					List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), 
-							key.getFields());
-					for(Field<?> field : fields){
-						possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-					}
-					orSeparatedIds.add(possiblyCompoundId);
+			Criteria criteria = node.getCriteriaForConfig(config, session);
+			Disjunction orSeparatedIds = Restrictions.disjunction();
+			for(Key<PK> key : CollectionTool.nullSafe(sortedKeys)){
+				Conjunction possiblyCompoundId = Restrictions.conjunction();
+				List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), 
+						key.getFields());
+				for(Field<?> field : fields){
+					possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 				}
-				criteria.add(orSeparatedIds);
-				result = criteria.list();
-				DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-				DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-						CollectionTool.size(result));
+				orSeparatedIds.add(possiblyCompoundId);
 			}
+			criteria.add(orSeparatedIds);
+			List<D> result = criteria.list();
+			DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
+					CollectionTool.size(result));
 			TraceContext.appendToSpanInfo("[got "+CollectionTool.size(result)+"/"+CollectionTool.size(keys)+"]");
 			return result;
 		}finally{

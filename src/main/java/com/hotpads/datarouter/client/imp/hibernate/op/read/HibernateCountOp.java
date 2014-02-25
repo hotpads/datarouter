@@ -5,11 +5,8 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
-import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
-import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -19,7 +16,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 public class HibernateCountOp<
 		PK extends PrimaryKey<PK>,
@@ -42,26 +38,19 @@ extends BaseHibernateOp<Long>{
 	
 	@Override
 	public Long runOnce(){
-		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		try{
 			TraceContext.startSpan(node.getName()+" "+opName);
 			Session session = getSession(node.getClientName());
-			if(node.getFieldInfo().getFieldAware()){
-				String sql = SqlBuilder.getCount(config, node.getTableName(), node.getFieldInfo().getFields(), 
-						ListTool.wrap(lookup));
-				return JdbcTool.count(session.connection(), sql);
-			}else{
-				Criteria criteria = node.getCriteriaForConfig(config, session);
-				criteria.setProjection(Projections.rowCount());
+			Criteria criteria = node.getCriteriaForConfig(config, session);
+			criteria.setProjection(Projections.rowCount());
 
-				for(Field<?> field : CollectionTool.nullSafe(lookup.getFields())){
-					criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-				}
-				
-				Number n = (Number)criteria.uniqueResult();						
-				return n.longValue();
+			for(Field<?> field : CollectionTool.nullSafe(lookup.getFields())){
+				criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 			}
+			
+			Number n = (Number)criteria.uniqueResult();						
+			return n.longValue();
 		}finally{
 			TraceContext.finishSpan();
 		}
