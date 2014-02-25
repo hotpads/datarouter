@@ -2,7 +2,6 @@ package com.hotpads.datarouter.client.imp.memory.node;
 
 import java.util.Collection;
 
-import com.hotpads.datarouter.client.imp.memory.MemoryClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -20,12 +19,6 @@ implements MapStorageNode<PK,D>{
 	public HashMapNode(NodeParams<PK,D,F> params){
 		super(params);
 	}
-	
-
-//	public HashMapNode(NodeParams<PK,D,F> params){
-//		super(params, null);
-//		throw new RuntimeException("constructor not supported yet.  must provide client");
-//	}
 	
 	@Override
 	public Node<PK,D> getMaster() {
