@@ -12,16 +12,10 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
-import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
-import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 @Singleton
-public class JdbcClientType<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>
-implements ClientType<PK,D,F>{
+public class JdbcClientType
+implements ClientType{
 	
 	public static final JdbcClientType INSTANCE = new JdbcClientType();
 	
@@ -39,8 +33,8 @@ implements ClientType<PK,D,F>{
 	}
 	
 	@Override
-	public Node<PK,D> createNode(NodeParams<PK,D,F> nodeParams){
-		return new JdbcNode<PK,D,F>(nodeParams);
+	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
+		return new JdbcNode(nodeParams);
 	}
 	
 }
