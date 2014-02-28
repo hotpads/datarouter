@@ -1,0 +1,43 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
+<html>
+<head>
+<title>Sign in</title>
+<%@ include file="/jsp/generic/head.jsp" %>
+<%@ include file="/jsp/css/css-import.jspf" %>
+</head>
+<body>
+<%@ include file="/jsp/menu/common-navbar.jsp" %>
+<%@ include file="/WEB-INF/jsp/menu/reputation-navbar.jsp"%>
+	<div class="container">
+		<h2>Admin: Create user</h2>
+		<form method="POST" action="${contextPath}/admin/editUserSubmit">
+		
+		<table>
+			<tr>
+				<td>Username:</td>
+				<td><input name="${authenticationConfig.usernameParam}" required/></td>
+			</tr>
+			<tr>
+				<td>Password:</td>
+				<td><input name="${authenticationConfig.passwordParam}" required/></td>
+			</tr>
+			<tr>
+				<td>Roles:</td>
+				<td>
+					<select multiple="multiple" name="${authenticationConfig.userRolesParam}">
+						<option value="user" selected>User</option>
+						<option value="admin">Admin</option>
+						<option value="datarouterAdmin">Datarouter Admin</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2"><input type="submit"/></td>
+			</tr>
+		</table>
+
+		</form>
+	</div>
+</body>
+</html>

@@ -18,7 +18,8 @@ implements DatarouterAuthenticationConfig{
 		PATH_SIGNOUT = "/signout",
 		
 		PARAM_USERNAME = "signinUsername",
-		PARAM_PASSWORD = "signinPassword";
+		PARAM_PASSWORD = "signinPassword",
+		PARAM_USERROLES = "userRoles";
 	
 	@Override
 	public String getSignupFormPath(){
@@ -53,6 +54,11 @@ implements DatarouterAuthenticationConfig{
 	@Override
 	public String getPasswordParam(){
 		return PARAM_PASSWORD;
+	}
+	
+	@Override
+	public String getUserRolesParam() {
+		return PARAM_USERROLES;
 	}
 	
 	@Override
