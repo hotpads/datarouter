@@ -9,9 +9,10 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
+import org.apache.log4j.Logger;
+
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
-import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -26,6 +27,7 @@ import com.hotpads.util.core.concurrent.FutureTool;
 
 public class ParallelSchemaUpdate 
 implements Callable<Void>{
+	private static Logger logger = Logger.getLogger(ParallelSchemaUpdate.class);
 	
 	/************ static fields *******************/
 	
@@ -88,7 +90,7 @@ implements Callable<Void>{
 			if(fieldInfo.getFieldAware()){
 				SingleTableSchemaUpdate singleTableUpdate = new SingleTableSchemaUpdate(clientName,
 						connectionPool, existingTableNames, printOptions, executeOptions, updatedTables,
-						existingTableNames, physicalNode);
+						printedSchemaUpdates, physicalNode);
 				singleTableUpdates.add(singleTableUpdate);
 			}
 		}
@@ -101,7 +103,11 @@ implements Callable<Void>{
 	
 	private void sendEmail(){
 		if(CollectionTool.isEmpty(printedSchemaUpdates)){ return; }
-		if(StringTool.isEmpty(drContext.getAdministratorEmail()) || StringTool.isEmpty(drContext.getServerName())){ return; }
+		if(StringTool.isEmpty(drContext.getAdministratorEmail()) || StringTool.isEmpty(drContext.getServerName())){ 
+			//note: this can be caused by not calling drContext.activate().  need to fix this startup flaw.
+			logger.warn("please set your datarouter administratorEmail and serverName");
+			return; 
+		}
 		String subject = "SchemaUpdate request from "+drContext.getServerName();
 		StringBuilder body = new StringBuilder();
 		for(String update : IterableTool.nullSafe(printedSchemaUpdates)){
