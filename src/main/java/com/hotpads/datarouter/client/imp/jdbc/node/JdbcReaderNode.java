@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
+import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcCountOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetAllOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstKeyOp;
@@ -60,8 +60,8 @@ implements MapStorageReader<PK,D>,
 	/***************************** plumbing methods ***********************************/
 
 	@Override
-	public HibernateClientImp getClient(){
-		return (HibernateClientImp)getRouter().getClient(getClientName());
+	public JdbcClientImp getClient(){
+		return (JdbcClientImp)getRouter().getClient(getClientName());
 	}
 	
 	@Override
