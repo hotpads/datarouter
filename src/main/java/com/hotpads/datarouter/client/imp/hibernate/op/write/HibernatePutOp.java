@@ -53,17 +53,12 @@ extends BaseHibernateOp<Void>{
 	@Override
 	public Void runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(node.getClientName());
-			final String entityName = node.getPackagedTableName();
-			for(D databean : CollectionTool.nullSafe(databeans)){
-				hibernatePutUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
-			}
-			return null;
-		}finally{
-			TraceContext.finishSpan();
+		Session session = getSession(node.getClientName());
+		final String entityName = node.getPackagedTableName();
+		for(D databean : CollectionTool.nullSafe(databeans)){
+			hibernatePutUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
 		}
+		return null;
 	}
 	
 

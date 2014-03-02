@@ -14,6 +14,12 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 public interface IndexedStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
+	public static final String
+		OP_indexDelete = "indexDelete",
+		OP_deleteUnique = "deleteUnique",
+		OP_deleteMultiUnique = "deleteMultiUnique";
+	
+	//TODO rename something different than MapStorageWriter.delete
 	void delete(Lookup<PK> lookup, Config config);
 	
 	void deleteUnique(UniqueKey<PK> uniqueKey, Config config);

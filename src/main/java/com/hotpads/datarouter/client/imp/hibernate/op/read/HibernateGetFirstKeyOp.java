@@ -14,7 +14,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 
 public class HibernateGetFirstKeyOp<
 		PK extends PrimaryKey<PK>,
@@ -36,31 +35,26 @@ extends BaseHibernateOp<PK>{
 	@Override
 	public PK runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(node.getClientName());
-			String entityName = node.getPackagedTableName();
-			Criteria criteria = session.createCriteria(entityName);
-			ProjectionList projectionList = Projections.projectionList();
-			int numFields = 0;
-			for(Field<?> field : node.getFieldInfo().getPrefixedPrimaryKeyFields()){
-				projectionList.add(Projections.property(field.getPrefixedName()));
-				++numFields;
-			}
-			criteria.setProjection(projectionList);
-			node.addPrimaryKeyOrderToCriteria(criteria);
-			criteria.setMaxResults(1);
-			Object rows = criteria.uniqueResult();
-			if(rows==null){ return null; }
-			if(numFields==1){
-				rows = new Object[]{rows};
-			}
-			PK pk = (PK)FieldSetTool.fieldSetFromHibernateResultUsingReflection(
-					node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), rows);
-			return pk;
-		}finally{
-			TraceContext.finishSpan();
+		Session session = getSession(node.getClientName());
+		String entityName = node.getPackagedTableName();
+		Criteria criteria = session.createCriteria(entityName);
+		ProjectionList projectionList = Projections.projectionList();
+		int numFields = 0;
+		for(Field<?> field : node.getFieldInfo().getPrefixedPrimaryKeyFields()){
+			projectionList.add(Projections.property(field.getPrefixedName()));
+			++numFields;
 		}
+		criteria.setProjection(projectionList);
+		node.addPrimaryKeyOrderToCriteria(criteria);
+		criteria.setMaxResults(1);
+		Object rows = criteria.uniqueResult();
+		if(rows==null){ return null; }
+		if(numFields==1){
+			rows = new Object[]{rows};
+		}
+		PK pk = (PK)FieldSetTool.fieldSetFromHibernateResultUsingReflection(
+				node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), rows);
+		return pk;
 	}
 	
 }

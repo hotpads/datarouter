@@ -19,7 +19,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 
 public class HibernateLookupOp<
@@ -48,27 +47,22 @@ extends BaseHibernateOp<List<D>>{
 	public List<D> runOnce(){
 		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(node.getClientName());
-			//TODO undefined behavior on trailing nulls
-			Criteria criteria = node.getCriteriaForConfig(config, session);
-			Disjunction or = Restrictions.disjunction();
-			for(Lookup<PK> lookup : lookups){
-				Conjunction prefixConjunction = node.getPrefixConjunction(false, lookup, wildcardLastField);
-				if(prefixConjunction==null){
-					throw new IllegalArgumentException("Lookup with all null fields would return entire " +
-							"table.  Please use getAll() instead.");
-				}
-				or.add(prefixConjunction);
+		Session session = getSession(node.getClientName());
+		//TODO undefined behavior on trailing nulls
+		Criteria criteria = node.getCriteriaForConfig(config, session);
+		Disjunction or = Restrictions.disjunction();
+		for(Lookup<PK> lookup : lookups){
+			Conjunction prefixConjunction = node.getPrefixConjunction(false, lookup, wildcardLastField);
+			if(prefixConjunction==null){
+				throw new IllegalArgumentException("Lookup with all null fields would return entire " +
+						"table.  Please use getAll() instead.");
 			}
-			criteria.add(or);
-			List<D> result = criteria.list();
-			Collections.sort(result);//TODO, make sure the datastore scans in order so we don't need to sort here
-			return result;
-		}finally{
-			TraceContext.finishSpan();
+			or.add(prefixConjunction);
 		}
+		criteria.add(or);
+		List<D> result = criteria.list();
+		Collections.sort(result);//TODO, make sure the datastore scans in order so we don't need to sort here
+		return result;
 	}
 	
 }

@@ -12,7 +12,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.ListTool;
 
 public class JdbcCountOp<
@@ -37,15 +36,10 @@ extends BaseJdbcOp<Long>{
 	@Override
 	public Long runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Connection connection = getConnection(node.getClientName());
-			String sql = SqlBuilder.getCount(config, node.getTableName(), node.getFieldInfo().getFields(), 
-					ListTool.wrap(lookup));
-			return JdbcTool.count(connection, sql);
-		}finally{
-			TraceContext.finishSpan();
-		}
+		Connection connection = getConnection(node.getClientName());
+		String sql = SqlBuilder.getCount(config, node.getTableName(), node.getFieldInfo().getFields(), 
+				ListTool.wrap(lookup));
+		return JdbcTool.count(connection, sql);
 	}
 	
 }

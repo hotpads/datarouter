@@ -9,7 +9,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 
 public class JdbcDeleteAllOp<
 		PK extends PrimaryKey<PK>,
@@ -31,14 +30,9 @@ extends BaseJdbcOp<Long>{
 	@Override
 	public Long runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			String sql = SqlBuilder.deleteAll(config, node.getTableName());
-			long numModified = JdbcTool.update(getConnection(node.getClientName()), sql.toString());
-			return numModified;
-		}finally{
-			TraceContext.finishSpan();
-		}
+		String sql = SqlBuilder.deleteAll(config, node.getTableName());
+		long numModified = JdbcTool.update(getConnection(node.getClientName()), sql.toString());
+		return numModified;
 	}
 	
 

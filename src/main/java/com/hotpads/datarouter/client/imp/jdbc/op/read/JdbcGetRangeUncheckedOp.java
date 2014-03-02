@@ -13,7 +13,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.collections.Range;
 
 public class JdbcGetRangeUncheckedOp<
@@ -41,22 +40,17 @@ extends BaseJdbcOp<List<? extends FieldSet<?>>>{
 	@Override
 	public List<? extends FieldSet<?>> runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			List<Field<?>> fieldsToSelect = keysOnly ? node.getFieldInfo().getPrimaryKeyFields() 
-					: node.getFieldInfo().getFields();
-			String sql = SqlBuilder.getInRange(config, node.getTableName(), fieldsToSelect, range, 
-					node.getFieldInfo().getPrimaryKeyFields());
-			List<? extends FieldSet<?>> result;
-			if(keysOnly){
-				result = JdbcTool.selectPrimaryKeys(getConnection(node.getClientName()), node.getFieldInfo(), sql);
-			}else{
-				result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
-			}
-			return result;
-		}finally{
-			TraceContext.finishSpan();
+		List<Field<?>> fieldsToSelect = keysOnly ? node.getFieldInfo().getPrimaryKeyFields() 
+				: node.getFieldInfo().getFields();
+		String sql = SqlBuilder.getInRange(config, node.getTableName(), fieldsToSelect, range, 
+				node.getFieldInfo().getPrimaryKeyFields());
+		List<? extends FieldSet<?>> result;
+		if(keysOnly){
+			result = JdbcTool.selectPrimaryKeys(getConnection(node.getClientName()), node.getFieldInfo(), sql);
+		}else{
+			result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
 		}
+		return result;
 	}
 	
 }

@@ -21,7 +21,6 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -49,40 +48,35 @@ extends BaseHibernateOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(node.getClientName());
-			
-			//i forget why we're doing this sorting.  prob not necessary
-			List<? extends UniqueKey<PK>> sortedKeys = ListTool.createArrayList(uniqueKeys);
-			Collections.sort(sortedKeys);
-			
-			int batchSize = HibernateNode.DEFAULT_ITERATE_BATCH_SIZE;
-			if(config!=null && config.getIterateBatchSize()!=null){
-				batchSize = config.getIterateBatchSize();
-			}
-			int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
-			List<D> all = ListTool.createArrayList(uniqueKeys.size());
-			for(int batchNum=0; batchNum < numBatches; ++batchNum){
-				List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
-				Criteria criteria = node.getCriteriaForConfig(config, session);
-				Disjunction orSeparatedIds = Restrictions.disjunction();
-				for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
-					Conjunction possiblyCompoundId = Restrictions.conjunction();
-					List<Field<?>> fields = key.getFields();
-					for(Field<?> field : fields){
-						possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-					}
-					orSeparatedIds.add(possiblyCompoundId);
-				}
-				criteria.add(orSeparatedIds);
-				List<D> batch = criteria.list();
-				all.addAll(CollectionTool.nullSafe(batch));
-			}
-			return all;
-		}finally{
-			TraceContext.finishSpan();
+		Session session = getSession(node.getClientName());
+		
+		//i forget why we're doing this sorting.  prob not necessary
+		List<? extends UniqueKey<PK>> sortedKeys = ListTool.createArrayList(uniqueKeys);
+		Collections.sort(sortedKeys);
+		
+		int batchSize = HibernateNode.DEFAULT_ITERATE_BATCH_SIZE;
+		if(config!=null && config.getIterateBatchSize()!=null){
+			batchSize = config.getIterateBatchSize();
 		}
+		int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
+		List<D> all = ListTool.createArrayList(uniqueKeys.size());
+		for(int batchNum=0; batchNum < numBatches; ++batchNum){
+			List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
+			Criteria criteria = node.getCriteriaForConfig(config, session);
+			Disjunction orSeparatedIds = Restrictions.disjunction();
+			for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
+				Conjunction possiblyCompoundId = Restrictions.conjunction();
+				List<Field<?>> fields = key.getFields();
+				for(Field<?> field : fields){
+					possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+				}
+				orSeparatedIds.add(possiblyCompoundId);
+			}
+			criteria.add(orSeparatedIds);
+			List<D> batch = criteria.list();
+			all.addAll(CollectionTool.nullSafe(batch));
+		}
+		return all;
 	}
 	
 }

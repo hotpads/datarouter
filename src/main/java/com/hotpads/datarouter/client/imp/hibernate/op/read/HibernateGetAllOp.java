@@ -12,7 +12,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 
 public class HibernateGetAllOp<
 		PK extends PrimaryKey<PK>,
@@ -34,16 +33,11 @@ extends BaseHibernateOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(node.getClientName());
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-			Criteria criteria = node.getCriteriaForConfig(config, session);
-			List<D> databeans = criteria.list();
-			return databeans;//assume they come back sorted due to innodb
-		}finally{
-			TraceContext.finishSpan();
-		}
+		Session session = getSession(node.getClientName());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		Criteria criteria = node.getCriteriaForConfig(config, session);
+		List<D> databeans = criteria.list();
+		return databeans;//assume they come back sorted due to innodb
 	}
 	
 }

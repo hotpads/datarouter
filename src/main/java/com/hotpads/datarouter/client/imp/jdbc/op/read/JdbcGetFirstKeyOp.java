@@ -11,7 +11,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 
 public class JdbcGetFirstKeyOp<
@@ -34,17 +33,12 @@ extends BaseJdbcOp<PK>{
 	@Override
 	public PK runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Config nullSafeConfig = Config.nullSafe(config);
-			nullSafeConfig.setLimit(1);
-			String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), null, 
-					node.getFieldInfo().getPrimaryKeyFields());
-			List<PK> result = JdbcTool.selectPrimaryKeys(getConnection(node.getClientName()), node.getFieldInfo(), sql);
-			return CollectionTool.getFirst(result);
-		}finally{
-			TraceContext.finishSpan();
-		}
+		Config nullSafeConfig = Config.nullSafe(config);
+		nullSafeConfig.setLimit(1);
+		String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), null, 
+				node.getFieldInfo().getPrimaryKeyFields());
+		List<PK> result = JdbcTool.selectPrimaryKeys(getConnection(node.getClientName()), node.getFieldInfo(), sql);
+		return CollectionTool.getFirst(result);
 	}
 	
 }
