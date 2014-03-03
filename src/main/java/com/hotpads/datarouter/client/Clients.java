@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
@@ -26,7 +27,7 @@ public class Clients{
 
 	protected DataRouterContext drContext;
 	
-	protected Collection<String> configFilePaths = ListTool.createArrayList();
+	protected Set<String> configFilePaths = SetTool.createTreeSet();
 	protected Collection<Properties> multiProperties = ListTool.createArrayList();
 	protected Map<String, Object> params;
 	
@@ -59,7 +60,7 @@ public class Clients{
 	
 	public void registerClientIds(Collection<ClientId> clientIdsToAdd, String configFilePath) {
 		clientIds.addAll(CollectionTool.nullSafe(clientIdsToAdd));
-		if(StringTool.notEmpty(configFilePath)){
+		if(StringTool.notEmpty(configFilePath) && !configFilePaths.contains(configFilePath)){
 			configFilePaths.add(configFilePath);
 			multiProperties.add(PropertiesTool.parse(configFilePath));
 		}
@@ -90,7 +91,6 @@ public class Clients{
 	/******************** getNames **********************************************/
 		
 	protected List<String> getClientNamesRequiringEagerInitialization(){
-		
 		ClientInitMode forceInitMode = ClientInitMode.fromString(
 				PropertiesTool.getFirstOccurrence(multiProperties, prefixClients+paramForceInitMode), null);
 		
@@ -137,7 +137,7 @@ public class Clients{
 	
 	public List<Client> getClients(Collection<String> clientNames){
 		List<Client> clients = ListTool.createArrayListWithSize(clientNames);
-		List<LazyClientProvider> providers = ListTool.createArrayList();
+		List<LazyClientProvider> providers = ListTool.createLinkedList();//TODO don't create until needed
 		for(String clientName : CollectionTool.nullSafe(clientNames)){
 			LazyClientProvider provider = lazyClientInitializerByName.get(clientName);
 			if(provider.isInitialized()){

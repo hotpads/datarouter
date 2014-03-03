@@ -25,7 +25,7 @@ public interface DataRouter {
 
 	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>, N extends Node<PK,D>> N register(N node);
 	
-	void activate() throws IOException;
+	void registerWithContext() throws IOException;
 
 	SortedSet<Node> getNodes();
 	DataRouterContext getContext();
