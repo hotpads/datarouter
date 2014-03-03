@@ -78,12 +78,6 @@ public class DataRouterContext{
 	
 	
 	/********************** builder methods ****************************/
-
-	//always create a memory client beforehand so we add nodes to it as they are created
-//	protected void createDefaultMemoryClient(){
-//		ClientId memoryClientId = new ClientId(RouterOptions.CLIENT_NAME_memory, true);
-//		clients.registerClientIds(ListTool.wrap(memoryClientId), null);
-//	}
 	
 	public synchronized void register(DataRouter router) {
 		routers.add(router);
@@ -97,7 +91,7 @@ public class DataRouterContext{
 		String configPath = router.getConfigLocation();
 		if(configFilePaths.contains(configPath)){ return; }
 		
-		logger.warn("adding datarouter config from "+configPath);
+		logger.warn("adding datarouter config from "+configPath+", currentRouters:"+routers);
 		configFilePaths.add(configPath);
 		multiProperties.add(PropertiesTool.parse(configPath));
 		
