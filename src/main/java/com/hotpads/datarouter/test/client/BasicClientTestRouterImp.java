@@ -58,8 +58,7 @@ implements BasicClientTestRouter{
 		poolTestBeanHBase = cast(register(
 				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, PoolTestBean.class, PoolTestBeanFielder.class, this)));
 
-		activate();//do after field inits
-		getContext().activate();
+		registerWithContext();//do after field inits
 	}
 
 	/********************************** config **********************************/

@@ -19,7 +19,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 
 public class HibernateGetWithPrefixesOp<
@@ -48,28 +47,23 @@ extends BaseHibernateOp<List<D>>{
 	public List<D> runOnce(){
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(node.getClientName());
-			Criteria criteria = node.getCriteriaForConfig(config, session);
-			Disjunction prefixesDisjunction = Restrictions.disjunction();
-			if(prefixesDisjunction != null){
-				for(Key<PK> prefix : prefixes){
-					Conjunction prefixConjunction = node.getPrefixConjunction(true, prefix, wildcardLastField);
-					if(prefixConjunction == null){
-						throw new IllegalArgumentException("cannot do a null prefix match.  Use getAll() " +
-								"instead");
-					}
-					prefixesDisjunction.add(prefixConjunction);
+		Session session = getSession(node.getClientName());
+		Criteria criteria = node.getCriteriaForConfig(config, session);
+		Disjunction prefixesDisjunction = Restrictions.disjunction();
+		if(prefixesDisjunction != null){
+			for(Key<PK> prefix : prefixes){
+				Conjunction prefixConjunction = node.getPrefixConjunction(true, prefix, wildcardLastField);
+				if(prefixConjunction == null){
+					throw new IllegalArgumentException("cannot do a null prefix match.  Use getAll() " +
+							"instead");
 				}
-				criteria.add(prefixesDisjunction);
+				prefixesDisjunction.add(prefixConjunction);
 			}
-			List<D> result = criteria.list();
-			Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
-			return result;
-		}finally{
-			TraceContext.finishSpan();
+			criteria.add(prefixesDisjunction);
 		}
+		List<D> result = criteria.list();
+		Collections.sort(result);//todo, make sure the datastore scans in order so we don't need to sort here
+		return result;
 	}
 	
 }

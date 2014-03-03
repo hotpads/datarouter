@@ -24,7 +24,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -53,17 +52,12 @@ extends BaseHibernateOp<Void>{
 	@Override
 	public Void runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(node.getClientName());
-			final String entityName = node.getPackagedTableName();
-			for(D databean : CollectionTool.nullSafe(databeans)){
-				hibernatePutUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
-			}
-			return null;
-		}finally{
-			TraceContext.finishSpan();
+		Session session = getSession(node.getClientName());
+		final String entityName = node.getPackagedTableName();
+		for(D databean : CollectionTool.nullSafe(databeans)){
+			hibernatePutUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
 		}
+		return null;
 	}
 	
 

@@ -10,7 +10,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 
 public class HibernateGetFirstOp<
 		PK extends PrimaryKey<PK>,
@@ -32,16 +31,11 @@ extends BaseHibernateOp<D>{
 	@Override
 	public D runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(node.getClientName());
-			Criteria criteria = node.getCriteriaForConfig(config, session);
-			criteria.setMaxResults(1);
-			D result = (D)criteria.uniqueResult();
-			return result;
-		}finally{
-			TraceContext.finishSpan();
-		}
+		Session session = getSession(node.getClientName());
+		Criteria criteria = node.getCriteriaForConfig(config, session);
+		criteria.setMaxResults(1);
+		D result = (D)criteria.uniqueResult();
+		return result;
 	}
 	
 }

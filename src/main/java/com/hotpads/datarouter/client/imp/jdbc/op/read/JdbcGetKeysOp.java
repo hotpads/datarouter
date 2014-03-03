@@ -34,12 +34,7 @@ extends BaseJdbcOp<List<PK>>{
 	public List<PK> runOnce(){
 		throw new NotImplementedException();
 //		DRCounters.incSuffixClientNode(ClientType.jdbc, opName, node.getClientName(), node.getName());
-//		try{
-//			TraceContext.startSpan(node.getName()+" "+opName);
-//			//TODO implement
-//		}finally{
-//			TraceContext.finishSpan();
-//		}
+		//TODO implement
 	}
 	
 }

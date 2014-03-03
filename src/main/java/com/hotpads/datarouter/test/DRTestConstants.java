@@ -16,7 +16,7 @@ public class DRTestConstants{
 	public static final String
 		CONFIG_PATH = "/hotpads/config/datarouter-test.properties",
 		DATABASE_drTest0 = "drTest0",
-		CLIENT_drTestMemory = RouterOptions.CLIENT_NAME_memory,
+		CLIENT_drTestMemory = "memory0",
 		CLIENT_drTestJdbc0 = "drTestJdbc0",
 		CLIENT_drTestHibernate0 = "drTestHibernate0",
 		CLIENT_drTestHBase = "drTestHBase",

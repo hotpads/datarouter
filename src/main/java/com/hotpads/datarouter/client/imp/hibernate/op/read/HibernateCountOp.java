@@ -14,7 +14,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 
 public class HibernateCountOp<
@@ -39,21 +38,16 @@ extends BaseHibernateOp<Long>{
 	@Override
 	public Long runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(node.getClientName());
-			Criteria criteria = node.getCriteriaForConfig(config, session);
-			criteria.setProjection(Projections.rowCount());
+		Session session = getSession(node.getClientName());
+		Criteria criteria = node.getCriteriaForConfig(config, session);
+		criteria.setProjection(Projections.rowCount());
 
-			for(Field<?> field : CollectionTool.nullSafe(lookup.getFields())){
-				criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-			}
-			
-			Number n = (Number)criteria.uniqueResult();						
-			return n.longValue();
-		}finally{
-			TraceContext.finishSpan();
+		for(Field<?> field : CollectionTool.nullSafe(lookup.getFields())){
+			criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 		}
+		
+		Number n = (Number)criteria.uniqueResult();						
+		return n.longValue();
 	}
 	
 }

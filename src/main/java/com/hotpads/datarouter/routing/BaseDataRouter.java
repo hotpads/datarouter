@@ -64,7 +64,7 @@ implements DataRouter{
 	 *  without databean configs, and Hibernate will silently return empty results (when called with entityName instead of class)
 	 */
 	@Override
-	public void activate(){
+	public void registerWithContext(){
 		context.register(this);
 	}
 

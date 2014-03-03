@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
+import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcCountOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetAllOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstKeyOp;
@@ -60,8 +60,8 @@ implements MapStorageReader<PK,D>,
 	/***************************** plumbing methods ***********************************/
 
 	@Override
-	public HibernateClientImp getClient(){
-		return (HibernateClientImp)getRouter().getClient(getClientName());
+	public JdbcClientImp getClient(){
+		return (JdbcClientImp)getRouter().getClient(getClientName());
 	}
 	
 	@Override
@@ -81,26 +81,30 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public D get(final PK key, final Config config){
-		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(this, "get", ListTool.wrap(key), config);
-		return CollectionTool.getFirst(new SessionExecutorImpl<List<D>>(op).call());
+		String opName = MapStorageReader.OP_get;
+		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(this, opName, ListTool.wrap(key), config);
+		return CollectionTool.getFirst(new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call());
 	}
 
 	@Override
 	public List<D> getAll(final Config config) {
-		JdbcGetAllOp<PK,D,F> op = new JdbcGetAllOp<PK,D,F>(this, "getAll", config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+		String opName = MapStorageReader.OP_getAll;
+		JdbcGetAllOp<PK,D,F> op = new JdbcGetAllOp<PK,D,F>(this, opName, config);
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config config) {
-		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(this, "getMulti", keys, config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+		String opName = MapStorageReader.OP_getMulti;
+		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(this, opName, keys, config);
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
-		JdbcGetKeysOp<PK,D,F> op = new JdbcGetKeysOp<PK,D,F>(this, "getKeys", keys, config);
-		return new SessionExecutorImpl<List<PK>>(op).call();
+		String opName = MapStorageReader.OP_getKeys;
+		JdbcGetKeysOp<PK,D,F> op = new JdbcGetKeysOp<PK,D,F>(this, opName, keys, config);
+		return new SessionExecutorImpl<List<PK>>(op, getTraceName(opName)).call();
 	}
 
 	
@@ -109,15 +113,17 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public Long count(final Lookup<PK> lookup, final Config config) {
-		JdbcCountOp<PK,D,F> op = new JdbcCountOp<PK,D,F>(this, "count", lookup, config);
-		return new SessionExecutorImpl<Long>(op).call();
+		String opName = IndexedStorageReader.OP_count;
+		JdbcCountOp<PK,D,F> op = new JdbcCountOp<PK,D,F>(this, opName, lookup, config);
+		return new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
 	@Override
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
-		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(this, "lookupUnique", 
+		String opName = IndexedStorageReader.OP_lookupUnique;
+		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(this, opName, 
 				ListTool.wrap(uniqueKey), config);
-		List<D> result = new SessionExecutorImpl<List<D>>(op).call();
+		List<D> result = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 		if(CollectionTool.size(result)>1){
 			throw new DataAccessException("found >1 databeans with unique index key="+uniqueKey);
 		}
@@ -126,26 +132,29 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
+		String opName = IndexedStorageReader.OP_lookupMultiUnique;
 		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
-		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(this, "lookupMultiUnique", uniqueKeys,
+		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(this, opName, uniqueKeys,
 				config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	@Override
 	//TODO pay attention to wildcardLastField
 	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config) {
-		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(this, "lookup", ListTool.wrap(lookup), 
+		String opName = IndexedStorageReader.OP_lookup;
+		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(this, opName, ListTool.wrap(lookup), 
 				wildcardLastField, config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	//TODO rename lookupMulti
 	@Override
 	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
+		String opName = IndexedStorageReader.OP_lookupMulti;
 		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
-		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(this, "lookupMulti", lookups, false, config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(this, opName, lookups, false, config);
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	
@@ -153,15 +162,17 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public D getFirst(final Config config) {
-		JdbcGetFirstOp<PK,D,F> op = new JdbcGetFirstOp<PK,D,F>(this, "getFirst", config);
-		return new SessionExecutorImpl<D>(op).call();
+		String opName = SortedStorageReader.OP_getFirst;
+		JdbcGetFirstOp<PK,D,F> op = new JdbcGetFirstOp<PK,D,F>(this, opName, config);
+		return new SessionExecutorImpl<D>(op, getTraceName(opName)).call();
 	}
 
 	
 	@Override
 	public PK getFirstKey(final Config config) {
-		JdbcGetFirstKeyOp<PK,D,F> op = new JdbcGetFirstKeyOp<PK,D,F>(this, "getFirstKey", config);
-		return new SessionExecutorImpl<PK>(op).call();
+		String opName = SortedStorageReader.OP_getFirstKey;
+		JdbcGetFirstKeyOp<PK,D,F> op = new JdbcGetFirstKeyOp<PK,D,F>(this, opName, config);
+		return new SessionExecutorImpl<PK>(op, getTraceName(opName)).call();
 	}
 
 	@Override
@@ -172,9 +183,10 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
 			final Config config) {
-		JdbcGetWithPrefixesOp<PK,D,F> op = new JdbcGetWithPrefixesOp<PK,D,F>(this, "getWithPrefixes", prefixes, 
+		String opName = SortedStorageReader.OP_getWithPrefixes;
+		JdbcGetWithPrefixesOp<PK,D,F> op = new JdbcGetWithPrefixesOp<PK,D,F>(this, opName, prefixes, 
 				wildcardLastField, config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 
 	@Deprecated
@@ -204,10 +216,10 @@ implements MapStorageReader<PK,D>,
 	//this gets ugly because we are dealing with PrimaryKeys/Databeans and Jdbc/Hibernate
 	public List<? extends FieldSet<?>> getRangeUnchecked(final Range<PK> range, final boolean keysOnly,
 			final Config config){
-		String opName = keysOnly ? "getKeysInRange" : "getRange";
+		String opName = keysOnly ? SortedStorageReader.OP_getKeysInRange : SortedStorageReader.OP_getRange;
 		JdbcGetRangeUncheckedOp<PK,D,F> op = new JdbcGetRangeUncheckedOp<PK,D,F>(this, opName, range, keysOnly,
 				config);
-		return new SessionExecutorImpl<List<? extends FieldSet<?>>>(op).call();
+		return new SessionExecutorImpl<List<? extends FieldSet<?>>>(op, getTraceName(opName)).call();
 	}
 
 	
@@ -216,9 +228,10 @@ implements MapStorageReader<PK,D>,
 			final PK prefix, final boolean wildcardLastField,
 			final PK start, final boolean startInclusive, 
 			final Config config) {
-		JdbcGetPrefixedRangeOp<PK,D,F> op = new JdbcGetPrefixedRangeOp<PK,D,F>(this, "getPrefixedRange", 
+		String opName = SortedStorageReader.OP_getPrefixedRange;
+		JdbcGetPrefixedRangeOp<PK,D,F> op = new JdbcGetPrefixedRangeOp<PK,D,F>(this, opName, 
 				prefix, wildcardLastField, start, startInclusive, config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	@Override
@@ -242,5 +255,10 @@ implements MapStorageReader<PK,D>,
 	}
 	
 	
+	/*********************** helper ******************************/
+	
+	protected String getTraceName(String opName){
+		return getName() + " " + opName;
+	}
 
 }

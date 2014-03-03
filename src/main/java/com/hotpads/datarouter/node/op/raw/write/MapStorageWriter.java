@@ -12,6 +12,14 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public interface MapStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
+	public static final String
+		OP_put = "put",
+		OP_putMulti = "putMulti",
+		OP_delete = "delete",
+		OP_deleteMulti = "deleteMulti",
+		OP_deleteAll = "deleteAll";
+	
+	
 	void put(D databean, Config config);
 	void putMulti(Collection<D> databeans, Config config);
 	

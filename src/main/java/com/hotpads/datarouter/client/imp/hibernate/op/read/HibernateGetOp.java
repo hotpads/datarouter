@@ -46,32 +46,27 @@ extends BaseHibernateOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(node.getClientName());
-			List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
-			Collections.sort(sortedKeys);//is this sorting at all beneficial?
-			Criteria criteria = node.getCriteriaForConfig(config, session);
-			Disjunction orSeparatedIds = Restrictions.disjunction();
-			for(Key<PK> key : CollectionTool.nullSafe(sortedKeys)){
-				Conjunction possiblyCompoundId = Restrictions.conjunction();
-				List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), 
-						key.getFields());
-				for(Field<?> field : fields){
-					possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-				}
-				orSeparatedIds.add(possiblyCompoundId);
+		Session session = getSession(node.getClientName());
+		List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
+		Collections.sort(sortedKeys);//is this sorting at all beneficial?
+		Criteria criteria = node.getCriteriaForConfig(config, session);
+		Disjunction orSeparatedIds = Restrictions.disjunction();
+		for(Key<PK> key : CollectionTool.nullSafe(sortedKeys)){
+			Conjunction possiblyCompoundId = Restrictions.conjunction();
+			List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), 
+					key.getFields());
+			for(Field<?> field : fields){
+				possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 			}
-			criteria.add(orSeparatedIds);
-			List<D> result = criteria.list();
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					CollectionTool.size(result));
-			TraceContext.appendToSpanInfo("[got "+CollectionTool.size(result)+"/"+CollectionTool.size(keys)+"]");
-			return result;
-		}finally{
-			TraceContext.finishSpan();
+			orSeparatedIds.add(possiblyCompoundId);
 		}
+		criteria.add(orSeparatedIds);
+		List<D> result = criteria.list();
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
+				CollectionTool.size(result));
+		TraceContext.appendToSpanInfo("[got "+CollectionTool.size(result)+"/"+CollectionTool.size(keys)+"]");
+		return result;
 	}
 	
 }

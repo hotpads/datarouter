@@ -15,7 +15,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
@@ -43,17 +42,12 @@ extends BaseJdbcOp<List<D>>{
 	public List<D> runOnce(){
 		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			List<? extends UniqueKey<PK>> sortedKeys = ListTool.createArrayList(uniqueKeys);
-			Collections.sort(sortedKeys);
-			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), 
-					uniqueKeys);
-			List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
-			return result;
-		}finally{
-			TraceContext.finishSpan();
-		}
+		List<? extends UniqueKey<PK>> sortedKeys = ListTool.createArrayList(uniqueKeys);
+		Collections.sort(sortedKeys);
+		String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), 
+				uniqueKeys);
+		List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
+		return result;
 	}
 	
 }

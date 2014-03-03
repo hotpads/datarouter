@@ -16,9 +16,8 @@ import com.hotpads.util.core.properties.TypedProperties;
 
 public class RouterOptions extends TypedProperties{
 	
-	public static final String CLIENT_NAME_memory = "memory";
-	
-	public static final ClientType CLIENT_TYPE_DEFAULT = HibernateClientType.INSTANCE;//for now, because our config files assume this
+	private static final boolean REQUIRE_CLIENT_TYPE = false;
+	private static final ClientType CLIENT_TYPE_DEFAULT = HibernateClientType.INSTANCE;//for now, because our config files assume this
 
 	public RouterOptions(Collection<Properties> propertiesList){
 		super(propertiesList);
@@ -50,10 +49,13 @@ public class RouterOptions extends TypedProperties{
 	/***************** actual variables *********************************/
 	
 	public ClientType getClientTypeInstance(String clientName){
-//		if(CLIENT_NAME_memory.equals(clientName)){ return MemoryClientType.INSTANCE; }
 		String typeNameKey = prependClientPrefix(clientName, "type");
 		String typeName = getString(typeNameKey);
-		if(StringTool.isEmpty(typeName)){ return CLIENT_TYPE_DEFAULT; }
+		if(REQUIRE_CLIENT_TYPE){
+			Preconditions.checkState(StringTool.notEmpty(typeName), "no value found for "+typeNameKey);
+		}else{
+			if(StringTool.isEmpty(typeName)){ return CLIENT_TYPE_DEFAULT; }
+		}
 		String typeClassNameKey = "clientType."+typeName;
 		String defaultClassNameForType = DefaultClientTypes.CLASS_BY_NAME.get(typeName);
 		String typeClassName = ObjectTool.nullSafe(getString(typeClassNameKey), defaultClassNameForType);
