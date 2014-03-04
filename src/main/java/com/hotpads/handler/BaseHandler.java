@@ -56,11 +56,6 @@ public abstract class BaseHandler{
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	public @interface Handler {
-		public enum RequestMethod {
-			GET, HEAD, POST, PUT, DELETE
-		}
-
-		RequestMethod method() default RequestMethod.GET;
 	}
 	
 	

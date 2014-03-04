@@ -21,6 +21,8 @@ public interface DatarouterAuthenticationConfig{
 	String getUsernameParam();
 	String getPasswordParam();
 	String getUserRolesParam();
+	String getEnabledParam();
+	String getUserIdParam();
 	
 	String getUserTokenCookieName();
 	String getSessionTokenCookieName();

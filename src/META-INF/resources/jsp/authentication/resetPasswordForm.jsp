@@ -2,7 +2,7 @@
 <%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
 <html>
 <head>
-<title>Reset Password</title>
+<title>${user.username} - Reset Password</title>
 <%@ include file="/jsp/generic/head.jsp" %>
 <%@ include file="/jsp/css/css-import.jspf" %>
 </head>
@@ -12,7 +12,7 @@
 	<div class="container">
 		<h2>Admin: Reset Password</h2>
 		<form method="POST" action="${contextPath}/admin/resetPasswordSubmit">
-		<input type="hidden" name="userId" value="${user.id}"/>
+		<input type="hidden" name="${authenticationConfig.userIdParam}" value="${user.id}"/>
 		
 		<table>
 			<tr>
@@ -20,7 +20,7 @@
 			</tr>
 			<tr>
 				<td>
-					<input type="signinPassword" name="${authenticationConfig.passwordParam}">
+					<input name="${authenticationConfig.passwordParam}"/>
 				</td>
 			</tr>
 			<tr>

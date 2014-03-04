@@ -8,7 +8,7 @@
 <%@ include file="/jsp/css/css-import.jspf"%>
 </head>
 <body>
-	<form class="form-horizontal" action="/reputation/signin/submit" method="post">
+	<form class="form-horizontal" action="${contextPath}/signin/submit" method="post">
 		<div id="login-box" class="well"> 
 			<div class="control-group">
 				<div class="controls login-controls">

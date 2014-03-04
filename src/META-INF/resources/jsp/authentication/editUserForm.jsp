@@ -2,9 +2,9 @@
 <%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
 <html>
 <head>
-<title>Sign in</title>
 <%@ include file="/jsp/generic/head.jsp" %>
 <%@ include file="/jsp/css/css-import.jspf" %>
+<title>${user.username} - Edit user</title>
 </head>
 <body>
 <%@ include file="/jsp/menu/common-navbar.jsp" %>
@@ -12,11 +12,17 @@
 	<div class="container">
 		<h2>Admin: Edit user</h2>
 		<form method="POST" action="${contextPath}/admin/editUserSubmit">
+		<input type="hidden" name="${authenticationConfig.userIdParam}" value="${user.id}"/>
 		<table>
 			<tr>
+				<td>
+					<label><input type="checkbox" name="${authenticationConfig.enabledParam}"
+					<c:if test="${user.isEnabled()}">checked</c:if>/> Enabled</label>
+				</td>
+			</tr>
+			<tr>
 				<td>Username:</td>
-				<c:set var="userNameParam" value="${authenticationConfig.usernameParam}"/>
-				<td><input name="${userNameParam}" value="${user.username}" required/></td>
+				<td><input name="${authenticationConfig.usernameParam}" value="${user.username}" required readonly/></td>
 			</tr>
 			<tr>
 				<td>Password:</td>
@@ -25,15 +31,14 @@
 			<tr>
 				<td>Roles:</td>
 				<td>
-					<select multiple="multiple" name="userRoles">
-						<c:foreach var="role" items="${dataRouterUserRolesList}">
-							<c:set var="roleName" value="${roleName}"/>
-							<option value="${roleName}"
-								<c:if test="${not empty userRoleMap && not empty userRoleMap.get(roleName)}">
+					<select multiple="multiple" name="${authenticationConfig.userRolesParam}">
+						<c:forEach var="role" items="${datarouterUserRoles}">
+							<option value="${role}"
+								<c:if test="${not empty userRoleSet && userRoleSet.contains(role)}">
 								selected
 								</c:if>
-								>${roleName}</option>
-						</c:foreach>
+								>${role}</option>
+						</c:forEach>
 					</select>
 				</td>
 			</tr>

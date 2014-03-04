@@ -19,7 +19,9 @@ implements DatarouterAuthenticationConfig{
 		
 		PARAM_USERNAME = "signinUsername",
 		PARAM_PASSWORD = "signinPassword",
-		PARAM_USERROLES = "userRoles";
+		PARAM_USERROLES = "userRoles",
+		PARAM_ENABLED = "isEnabled",
+		PARAM_USERID = "userId";
 	
 	@Override
 	public String getSignupFormPath(){
@@ -59,6 +61,15 @@ implements DatarouterAuthenticationConfig{
 	@Override
 	public String getUserRolesParam() {
 		return PARAM_USERROLES;
+	}
+	
+	@Override
+	public String getEnabledParam() {
+		return PARAM_ENABLED;
+	}
+	
+	public String getUserIdParam() {
+		return PARAM_USERID;
 	}
 	
 	@Override

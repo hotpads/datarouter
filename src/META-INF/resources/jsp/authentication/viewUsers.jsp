@@ -13,14 +13,14 @@
 <div class="container">
 	<table>
 		<c:forEach var="user" items="${userList}">
-			<c:set var="userId" value="${user.getId()}"/>
+			<c:set var="userId" value="${user.id}"/>
 			<tr>
 				<td>
 					<table class="datarouterUser">
 						<tr>
 							<th colspan="2">
 								<h4>
-									<a href="${contextPath}/admin/editUser?userId=${userId}">${user.getUsername()}</a>
+									<a href="${contextPath}/admin/editUser?${authenticationConfig.userIdParam}=${userId}">${user.username}</a>
 								</h4>
 							</th>
 						</tr>
@@ -30,7 +30,7 @@
 						</tr>
 						<tr>
 							<td>User token:</td>
-							<td>${user.getUserToken()}</td>
+							<td>${user.userToken}</td>
 						</tr>
 						<tr>
 							<td>Enabled:</td>
@@ -38,11 +38,11 @@
 						</tr>
 						<tr>
 							<td>Last sign in:</td>
-							<td>${user.getLastLoggedIn()}</td>
+							<td>${user.lastLoggedIn}</td>
 						</tr>
 						<tr>
 							<td>Roles:</td>
-							<td>${user.getRoles()}</td>
+							<td>${user.roles}</td>
 						</tr>
 					</table>
 				</td>

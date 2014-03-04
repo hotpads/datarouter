@@ -11,7 +11,7 @@
 <%@ include file="/WEB-INF/jsp/menu/reputation-navbar.jsp"%>
 	<div class="container">
 		<h2>Admin: Create user</h2>
-		<form method="POST" action="${contextPath}/admin/editUserSubmit">
+		<form method="POST" action="${contextPath}/admin/createUserSubmit">
 		
 		<table>
 			<tr>
@@ -26,9 +26,9 @@
 				<td>Roles:</td>
 				<td>
 					<select multiple="multiple" name="${authenticationConfig.userRolesParam}">
-						<option value="user" selected>User</option>
-						<option value="admin">Admin</option>
-						<option value="datarouterAdmin">Datarouter Admin</option>
+						<c:forEach var="role" items="${datarouterUserRoles}">
+							<option value="${role}">${role}</option>
+						</c:forEach>
 					</select>
 				</td>
 			</tr>
