@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +20,7 @@ import org.junit.runners.Parameterized.Parameters;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
+import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClientType;
 import com.hotpads.datarouter.client.imp.memory.MemoryClientType;
 import com.hotpads.datarouter.config.Config;
@@ -61,6 +64,11 @@ public class ManyFieldTypeIntegrationTests {
 					MemoryClientType.INSTANCE, 
 					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemory, cls));
 		}
+		if(DRTestConstants.ALL_CLIENT_TYPES.contains(JdbcClientType.INSTANCE)){
+			routerByClientType.put(
+					JdbcClientType.INSTANCE, 
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestJdbc0, cls));
+		}
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(HibernateClientType.INSTANCE)){
 			routerByClientType.put(
 					HibernateClientType.INSTANCE, 
@@ -79,13 +87,9 @@ public class ManyFieldTypeIntegrationTests {
 					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemcached, cls));
 		}
 		
-		for(ClientType clientType : routerByClientType.keySet()){
-			BasicNodeTestRouter router = routerByClientType.get(clientType);
-			if(ObjectTool.notEquals(MemcachedClientType.INSTANCE, clientType)){
-				router.manyFieldTypeBean().deleteAll(null);
-				Assert.assertEquals(0, CollectionTool.size(router.manyFieldTypeBean().getAll(null)));
-			}
-		}
+//		for(ClientType clientType : routerByClientType.keySet()){
+//			BasicNodeTestRouter router = routerByClientType.get(clientType);
+//		}
 
 	}
 	
@@ -96,11 +100,23 @@ public class ManyFieldTypeIntegrationTests {
 
 	/***************************** constructors **************************************/
 	
+	//runs before every @Test
 	public ManyFieldTypeIntegrationTests(ClientType clientType){
 		this.clientType = clientType;
 		this.router = routerByClientType.get(clientType);
+	}
+	
+	@Before
+	public void beforeEachTest(){
 		if( ! keysByClientType.containsKey(clientType)){
 			keysByClientType.put(clientType, new LinkedList<ManyFieldTypeBeanKey>());
+			
+			//only delete if no tests have been run yet
+			if(ObjectTool.notEquals(MemcachedClientType.INSTANCE, clientType)){
+				logger.warn("calling deleteAll on :"+router.manyFieldTypeBean().getClass());
+				router.manyFieldTypeBean().deleteAll(null);
+				Assert.assertEquals(0, CollectionTool.size(router.manyFieldTypeBean().getAll(null)));
+			}
 		}
 	}
 
@@ -108,7 +124,7 @@ public class ManyFieldTypeIntegrationTests {
 
 	@Test
 	public void testNullKey(){
-		if (!isHibernate()){
+		if (!isJdbcOrHibernate()){
 			return;
 		}
 		ManyFieldTypeBean bean = new ManyFieldTypeBean();
@@ -204,7 +220,7 @@ public class ManyFieldTypeIntegrationTests {
 			router.manyFieldTypeBean().put(bean, new Config().setPutMethod(PutMethod.INSERT_OR_UPDATE));
 		}
 		int expectedExceptions;
-		if(isHibernate()){
+		if(isJdbcOrHibernate()){
 			expectedExceptions = 1;
 		}else{
 			expectedExceptions = 0;
@@ -303,7 +319,7 @@ public class ManyFieldTypeIntegrationTests {
 		router.manyFieldTypeBean().put(bean, null);
 		
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
-		if(isHibernate()){//we're expecting the db to be in ASCII mode and strip out that weird character
+		if(isJdbcOrHibernate()){//we're expecting the db to be in ASCII mode and strip out that weird character
 			Assert.assertFalse(bean.getStringField().equals(roundTripped.getStringField()));
 		}else{//byte arrays should handle any string
 			Assert.assertEquals(bean.getStringField(), roundTripped.getStringField());
@@ -511,18 +527,18 @@ public class ManyFieldTypeIntegrationTests {
 	
 	/************************** tests for unmarshalling into databeans (a little out of place here **************/
 	
-	@Test 
+	@After 
 	public void testGetAll(){
 		if(!isMemcached()){
 			List<ManyFieldTypeBean> allBeans = router.manyFieldTypeBean().getAll(null);
-			Assert.assertTrue(CollectionTool.sameSize(keysByClientType.get(clientType), allBeans));
+			Assert.assertEquals(keysByClientType.get(clientType).size(), allBeans.size());
 		}
 	}
 	
-	@Test
+	@After
 	public void testGetMulti(){
 		List<ManyFieldTypeBean> allBeans = router.manyFieldTypeBean().getMulti(keysByClientType.get(clientType), null);
-		Assert.assertTrue(CollectionTool.sameSize(keysByClientType.get(clientType), allBeans));
+		Assert.assertEquals(keysByClientType.get(clientType).size(), allBeans.size());
 	}
 	
 	
@@ -536,8 +552,8 @@ public class ManyFieldTypeIntegrationTests {
 		return MemoryClientType.INSTANCE.equals(clientType);
 	}
 
-	public boolean isHibernate(){
-		return HibernateClientType.INSTANCE.equals(clientType);
+	public boolean isJdbcOrHibernate(){
+		return JdbcClientType.INSTANCE.equals(clientType) || HibernateClientType.INSTANCE.equals(clientType);
 	}
 
 	public boolean isHBase(){
