@@ -29,7 +29,7 @@ public class AdminEditUserHandler extends BaseHandler{
 	private DatarouterUserNodes userNodes;
 
 	@Override
-	protected Mav handleDefault(){
+	protected Mav handleDefault() {
 		return viewUsers();
 	}
 	
