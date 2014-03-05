@@ -33,11 +33,11 @@
 				<td>
 					<select multiple="multiple" name="${authenticationConfig.userRolesParam}">
 						<c:forEach var="role" items="${datarouterUserRoles}">
-							<option value="${role}"
-								<c:if test="${not empty userRoleSet && userRoleSet.contains(role)}">
+							<option value="${role.name()}"
+								<c:if test="${not empty userRoles && userRoles.contains(role)}">
 								selected
 								</c:if>
-								>${role}</option>
+								>${role.name()}</option>
 						</c:forEach>
 					</select>
 				</td>

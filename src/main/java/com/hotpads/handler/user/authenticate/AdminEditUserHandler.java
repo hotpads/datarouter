@@ -15,11 +15,16 @@ import com.hotpads.handler.user.DatarouterUserKey;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.handler.user.role.DatarouterUserRole;
-import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.number.RandomTool;
 
 public class AdminEditUserHandler extends BaseHandler{
+	
+	private static final String USER_ROLES = "userRoles";
+	private static final String USER_LIST = "userList";
+	private static final String USER = "user";
+	private static final String DATAROUTER_USER_ROLES = "datarouterUserRoles";
+	private static final String AUTHENTICATION_CONFIG = "authenticationConfig";
 	
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
@@ -27,7 +32,7 @@ public class AdminEditUserHandler extends BaseHandler{
 	private DatarouterPasswordService passwordService;
 	@Inject
 	private DatarouterUserNodes userNodes;
-
+	
 	@Override
 	protected Mav handleDefault() {
 		return viewUsers();
@@ -36,17 +41,17 @@ public class AdminEditUserHandler extends BaseHandler{
 	@Handler
 	private Mav viewUsers() {
 		Mav mav = new Mav("/jsp/authentication/viewUsers.jsp");
-		List<DatarouterUser> userList = IterableTool.createArrayListFromIterable(userNodes.getUserNode().getAll(null));
-		mav.put("authenticationConfig", authenticationConfig);
-		mav.put("userList", userList);
+		List<DatarouterUser> userList = userNodes.getUserNode().getAll(null);
+		mav.put(AUTHENTICATION_CONFIG, authenticationConfig);
+		mav.put(USER_LIST, userList);
 		return mav;
 	}
 	
 	@Handler
 	private Mav createUser() {
 		Mav mav = new Mav("/jsp/authentication/createUserForm.jsp");
-		mav.put("authenticationConfig", authenticationConfig);
-		mav.put("datarouterUserRoles", getDatarouterUserRoleNames());
+		mav.put(AUTHENTICATION_CONFIG, authenticationConfig);
+		mav.put(DATAROUTER_USER_ROLES, DatarouterUserRole.values());
 		return mav;
 	}
 	
@@ -67,8 +72,8 @@ public class AdminEditUserHandler extends BaseHandler{
 		String passwordSalt = passwordService.generateSaltForNewUser();
 		String passwordDigest = passwordService.digest(passwordSalt, password);
 		
-		DatarouterUser user = DatarouterUser
-				.create(id, userToken, username, passwordSalt, passwordDigest, userRolesSet);
+		DatarouterUser user = DatarouterUser.create(
+				id, userToken, username, passwordSalt, passwordDigest, userRolesSet);
 		user.setEnabled(enabled);
 		
 		assertUserDoesNotExist(id, userToken, username);
@@ -84,15 +89,10 @@ public class AdminEditUserHandler extends BaseHandler{
 		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
 		DatarouterUser user = getUserById(userId);
 		
-		mav.put("user", user);
-		mav.put("authenticationConfig", authenticationConfig);
-		mav.put("datarouterUserRoles", getDatarouterUserRoleNames());
-
-		Set<String> userRoleSet = SetTool.create();
-		for(DatarouterUserRole role : user.getRoles()) {
-			userRoleSet.add(role.name());
-		}
-		mav.put("userRoleSet", userRoleSet);
+		mav.put(USER, user);
+		mav.put(AUTHENTICATION_CONFIG, authenticationConfig);
+		mav.put(DATAROUTER_USER_ROLES, DatarouterUserRole.values());
+		mav.put(USER_ROLES, user.getRoles());
 		
 		return mav;
 	}
@@ -104,12 +104,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		Boolean enabled = params.optionalBoolean(authenticationConfig.getEnabledParam(), false);
 		
 		String[] userRoles = params.getRequest().getParameterValues(authenticationConfig.getUserRolesParam());
-		Set<DatarouterUserRole> userRolesSet = SetTool.wrap(DatarouterUserRole.user);
-		for(String s : userRoles) {
-			userRolesSet.add(DataRouterEnumTool.getEnumFromString(DatarouterUserRole.values(), s, DatarouterUserRole.user));
-		}
-		
-		user.setRoles(userRolesSet);
+		user.setRoles(DatarouterUserRole.fromStringArray(userRoles));
 		user.setEnabled(enabled);
 		
 		userNodes.getUserNode().put(user, null);
@@ -123,8 +118,8 @@ public class AdminEditUserHandler extends BaseHandler{
 		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
 		DatarouterUser user = getUserById(userId);
 		
-		mav.put("user", user);
-		mav.put("authenticationConfig", authenticationConfig);
+		mav.put(USER, user);
+		mav.put(AUTHENTICATION_CONFIG, authenticationConfig);
 		
 		return mav;
 	}
@@ -141,15 +136,6 @@ public class AdminEditUserHandler extends BaseHandler{
 	}
 	
 	/***************** helpers **********************/
-	
-	private Set<String> getDatarouterUserRoleNames() {
-		// TODO disable setting users of higher permissions than oneself ... cannot set datarouterAdmin
-		Set<String> datarouterUserRolesSet = SetTool.create();
-		for(DatarouterUserRole role : DatarouterUserRole.values()) {
-			datarouterUserRolesSet.add(role.name());
-		}
-		return datarouterUserRolesSet;
-	}
 	
 	private DatarouterUser getUserById(Long id) {
 		return userNodes.getUserNode().get(new DatarouterUserKey(id), null);
@@ -171,5 +157,4 @@ public class AdminEditUserHandler extends BaseHandler{
 			throw new IllegalArgumentException("DatarouterUser already exists with username=" + username);
 		}
 	}
-	
 }

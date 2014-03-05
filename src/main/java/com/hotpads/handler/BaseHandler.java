@@ -15,10 +15,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import junit.framework.Assert;
+
 import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
 
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
+import com.hotpads.handler.user.authenticate.AdminEditUserHandler;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.exception.PermissionException;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -116,7 +121,7 @@ public abstract class BaseHandler{
 	}
 	
 	String getLastPathSegment(final String uri) {
-		return uri.replaceAll(".*/([^/?]+)?.*", "$1");
+		return uri.replaceAll("[^?]*/([^/?]+)[/?]?.*", "$1");
 	}
 	
 	boolean matchesDefaultHandlerMethod(String methodName){
@@ -203,5 +208,26 @@ public abstract class BaseHandler{
 		this.response = response;
 	}
 	
+	public static class BaseHandlerTests {
+		
+		BaseHandler test;
+		
+		@Before
+		public void setup() {
+			test = new AdminEditUserHandler();
+		}
+		
+		@Test
+		public void testGetLastPathSegment() {
+			Assert.assertEquals("something", test.getLastPathSegment("/something"));
+			Assert.assertEquals("something", test.getLastPathSegment("~/something"));
+			Assert.assertEquals("viewUsers", test.getLastPathSegment("/admin/edit/reputation/viewUsers"));
+			Assert.assertEquals("viewUsers", test.getLastPathSegment("/admin/edit/reputation/viewUsers/"));
+			Assert.assertEquals("editUser", test.getLastPathSegment("/admin/edit/reputation/editUser?u=10"));
+			Assert.assertEquals("editUser", test.getLastPathSegment("/admin/edit/reputation/editUser/?u=10"));
+			Assert.assertEquals("rep", test.getLastPathSegment("https://fake.url/t/rep?querystring=path/path"));
+			Assert.assertEquals("rep", test.getLastPathSegment("https://fake.url/t/rep/?querystring=path/path"));
+		}
+	}
 	
 }

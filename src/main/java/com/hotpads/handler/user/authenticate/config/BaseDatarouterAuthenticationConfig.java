@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.handler.DatarouterCookieKeys;
+import com.hotpads.util.core.StringTool;
 
 public abstract class BaseDatarouterAuthenticationConfig
 implements DatarouterAuthenticationConfig{
@@ -23,47 +24,38 @@ implements DatarouterAuthenticationConfig{
 		PARAM_ENABLED = "isEnabled",
 		PARAM_USERID = "userId";
 	
-	@Override
 	public String getSignupFormPath(){
 		return PATH_SIGNUP_FORM;
 	}
 	
-	@Override
 	public String getSignupSubmitPath(){
 		return PATH_SIGNUP_SUBMIT;
 	}
 
-	@Override
 	public String getSigninFormPath(){
 		return PATH_SIGNIN_FORM;
 	}
 
-	@Override
 	public String getSigninSubmitPath(){
 		return PATH_SIGNIN_SUBMIT;
 	}
 	
-	@Override
 	public String getSignoutPath(){
 		return PATH_SIGNOUT;
 	}
 
-	@Override
 	public String getUsernameParam(){
 		return PARAM_USERNAME;
 	}
 
-	@Override
 	public String getPasswordParam(){
 		return PARAM_PASSWORD;
 	}
 	
-	@Override
 	public String getUserRolesParam() {
 		return PARAM_USERROLES;
 	}
 	
-	@Override
 	public String getEnabledParam() {
 		return PARAM_ENABLED;
 	}
@@ -72,24 +64,30 @@ implements DatarouterAuthenticationConfig{
 		return PARAM_USERID;
 	}
 	
-	@Override
-	public String getUserTokenCookieName(){
-		return DatarouterCookieKeys.userToken.toString();
-	}
-	
-	@Override
-	public String getSessionTokenCookieName(){
-		return DatarouterCookieKeys.sessionToken.toString();
-	}
-	
-	@Override
 	public Integer getUserTokenTimeoutSeconds(){
 		return 365 * 24 * 60 * 60;//365 days * 24 hours * 60 minutes * 60 seconds => 1 year
 	}
 	
-	@Override
 	public Integer getSessionTokenTimeoutSeconds(){
 		return 30 * 60;//30 minutes * 60 seconds => 30 minutes
+	}
+	
+	public abstract String getCookiePrefix();
+	
+	public String getUserTokenCookieName(){
+		return addCookiePrefix(DatarouterCookieKeys.userToken.toString());
+	}
+	
+	public String getSessionTokenCookieName(){
+		return addCookiePrefix(DatarouterCookieKeys.sessionToken.toString());
+	}
+	
+	public String getTargetUrlName() {
+		return addCookiePrefix(DatarouterCookieKeys.targetUrl.toString());
+	}
+	
+	private String addCookiePrefix(String cookieName) {
+		return getCookiePrefix() + StringTool.capitalizeFirstLetter(cookieName);
 	}
 	
 	public static String normalizePath(String rawPath){

@@ -24,8 +24,10 @@ public interface DatarouterAuthenticationConfig{
 	String getEnabledParam();
 	String getUserIdParam();
 	
+	String getCookiePrefix();
 	String getUserTokenCookieName();
 	String getSessionTokenCookieName();
+	String getTargetUrlName();
 
 	Integer getUserTokenTimeoutSeconds();
 	Integer getSessionTokenTimeoutSeconds();
