@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.inject.Singleton;
-
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.field.Field;
@@ -27,7 +25,6 @@ import com.hotpads.util.core.ListTool;
  * A single user may have multiple sessions via different computers, browsers, tabs, etc.  Create one of these for each
  * such session
  */
-@Singleton
 @SuppressWarnings("serial")
 public class DatarouterSession 
 extends BaseDatarouterSessionDatabean<DatarouterSessionKey, DatarouterSession> 
