@@ -15,6 +15,6 @@ public class DatarouterSignoutHandler extends BaseHandler{
 	protected Mav handleDefault(){
 		sessionManager.clearSessionTokenCookie(response);
 		sessionManager.clearUserTokenCookie(response);
-		return new Mav(Mav.REDIRECT+request.getContextPath());
+		return new Mav(Mav.REDIRECT + request.getContextPath() + "/");
 	}
 }

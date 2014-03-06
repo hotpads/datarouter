@@ -14,7 +14,7 @@
 	<table>
 		<c:forEach var="user" items="${userList}">
 			<c:set var="userId" value="${user.id}"/>
-			<tr>
+			<tr <c:if test="${not user.isEnabled()}"> bgcolor="#EEE" </c:if>>
 				<td>
 					<table class="datarouterUser">
 						<tr>
