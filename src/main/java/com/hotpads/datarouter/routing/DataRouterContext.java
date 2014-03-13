@@ -84,7 +84,6 @@ public class DataRouterContext{
 		addConfigIfNew(router);
 		connectionPools.registerClientIds(router.getClientIds(), router.getConfigLocation());
 		clients.registerClientIds(router.getClientIds(), router.getConfigLocation());
-		clients.initializeEagerClients();
 	}
 	
 	private void addConfigIfNew(DataRouter router){
@@ -109,6 +108,10 @@ public class DataRouterContext{
 			logger.warn("not replacing existing administratorEmail "+administratorEmail+" with "+newAdministratorEmail
 					+" from "+configPath);
 		}
+	}
+	
+	public void initializeEagerClients(){
+		clients.initializeEagerClients();
 	}
 	
 	
