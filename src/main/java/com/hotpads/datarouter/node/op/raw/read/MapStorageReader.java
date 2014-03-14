@@ -14,6 +14,12 @@ import com.hotpads.handler.mav.Mav;
 public interface MapStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
+	public static final String
+		OP_exists = "exists",
+		OP_get = "get",
+		OP_getMulti = "getMulti",
+		OP_getAll = "getAll",
+		OP_getKeys = "getKeys";
 	
 	@Deprecated//just check if get!=null
 	boolean exists(PK key, Config config);

@@ -14,6 +14,16 @@ import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 public interface SortedStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
+	public static final String
+		OP_getFirstKey = "getFirstKey",
+		OP_getFirst = "getFirst",
+		OP_getWithPrefix = "getWithPrefix",
+		OP_getWithPrefixes = "getWithPrefixes",
+		OP_getKeysInRange = "getKeysInRange",
+		OP_getRange = "getRange",
+		OP_getPrefixedRange = "getPrefixedRange",
+		OP_scanKeys = "scanKeys",
+		OP_scan = "scan";
 
 	PK getFirstKey(Config config);
 	D getFirst(Config config);

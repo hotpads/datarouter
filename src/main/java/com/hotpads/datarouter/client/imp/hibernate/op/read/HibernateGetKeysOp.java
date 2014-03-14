@@ -12,7 +12,6 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Config;
@@ -24,11 +23,9 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 public class HibernateGetKeysOp<
 		PK extends PrimaryKey<PK>,
@@ -51,44 +48,37 @@ extends BaseHibernateOp<List<PK>>{
 	
 	@Override
 	public List<PK> runOnce(){
-		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
-		if(node.getFieldInfo().getFieldAware()){ throw new NotImplementedException(); }
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(node.getClientName());
-			List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
-			Collections.sort(sortedKeys);//is this sorting at all beneficial?
-			List<PK> result = ListTool.createArrayList(keys.size());
-			Criteria criteria = node.getCriteriaForConfig(config, session);
-			//projection list
-			ProjectionList projectionList = Projections.projectionList();
-			int numFields = 0;
-			for(Field<?> field : node.getFieldInfo().getPrefixedPrimaryKeyFields()){
-				projectionList.add(Projections.property(field.getPrefixedName()));
-				++numFields;
-			}
-			criteria.setProjection(projectionList);
-			//where clause
-			Disjunction orSeparatedIds = Restrictions.disjunction();
-			for(Key<PK> key : CollectionTool.nullSafe(keys)){
-				Conjunction possiblyCompoundId = Restrictions.conjunction();
-				List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), key.getFields());
-				for(Field<?> field : fields){
-					possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
-				}
-				orSeparatedIds.add(possiblyCompoundId);
-			}
-			criteria.add(orSeparatedIds);
-			List<Object[]> rows = criteria.list();
-			for(Object[] row : IterableTool.nullSafe(rows)){
-				result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
-						node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), row));
-			}
-			return result;
-		}finally{
-			TraceContext.finishSpan();
+		Session session = getSession(node.getClientName());
+		List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
+		Collections.sort(sortedKeys);//is this sorting at all beneficial?
+		List<PK> result = ListTool.createArrayList(keys.size());
+		Criteria criteria = node.getCriteriaForConfig(config, session);
+		//projection list
+		ProjectionList projectionList = Projections.projectionList();
+		int numFields = 0;
+		for(Field<?> field : node.getFieldInfo().getPrefixedPrimaryKeyFields()){
+			projectionList.add(Projections.property(field.getPrefixedName()));
+			++numFields;
 		}
+		criteria.setProjection(projectionList);
+		//where clause
+		Disjunction orSeparatedIds = Restrictions.disjunction();
+		for(Key<PK> key : CollectionTool.nullSafe(keys)){
+			Conjunction possiblyCompoundId = Restrictions.conjunction();
+			List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), key.getFields());
+			for(Field<?> field : fields){
+				possiblyCompoundId.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
+			}
+			orSeparatedIds.add(possiblyCompoundId);
+		}
+		criteria.add(orSeparatedIds);
+		List<Object[]> rows = criteria.list();
+		for(Object[] row : IterableTool.nullSafe(rows)){
+			result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
+					node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), row));
+		}
+		return result;
 	}
 	
 }

@@ -14,7 +14,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 
 public class JdbcLookupOp<
@@ -43,16 +42,11 @@ extends BaseJdbcOp<List<D>>{
 	public List<D> runOnce(){
 		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			//TODO undefined behavior on trailing nulls
-			String sql = SqlBuilder.getWithPrefixes(config, node.getTableName(), node.getFieldInfo().getFields(), lookups, 
-					wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
-			List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
-			return result;
-		}finally{
-			TraceContext.finishSpan();
-		}
+		//TODO undefined behavior on trailing nulls
+		String sql = SqlBuilder.getWithPrefixes(config, node.getTableName(), node.getFieldInfo().getFields(), lookups, 
+				wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
+		List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
+		return result;
 	}
 	
 }

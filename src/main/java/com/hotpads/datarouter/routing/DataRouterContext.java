@@ -15,14 +15,13 @@ import javax.inject.Singleton;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
-import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
@@ -69,6 +68,7 @@ public class DataRouterContext{
 	            new SynchronousQueue<Runnable>(), threadFactory);
 
 		this.configFilePaths = SetTool.createTreeSet();
+		this.multiProperties = ListTool.createArrayList();
 		this.connectionPools = new ConnectionPools();
 		this.clients = new Clients(this);
 		this.nodes = new Nodes(this);
@@ -78,28 +78,39 @@ public class DataRouterContext{
 	
 	
 	/********************** builder methods ****************************/
-
-	//always create a memory client beforehand so we add nodes to it as they are created
-//	protected void createDefaultMemoryClient(){
-//		ClientId memoryClientId = new ClientId(RouterOptions.CLIENT_NAME_memory, true);
-//		clients.registerClientIds(ListTool.wrap(memoryClientId), null);
-//	}
 	
-	public void register(DataRouter router) {
+	public synchronized void register(DataRouter router) {
 		routers.add(router);
-		configFilePaths.add(router.getConfigLocation());
+		addConfigIfNew(router);
 		connectionPools.registerClientIds(router.getClientIds(), router.getConfigLocation());
 		clients.registerClientIds(router.getClientIds(), router.getConfigLocation());
-		//node registration happens in BaseDataRouter.register()
 	}
 	
-	public void activate() {
-		logger.warn("activating DataRouterContext with routers:"+routers+", configFiles:"+configFilePaths);
-		multiProperties = PropertiesTool.fromFiles(configFilePaths);
-		serverName = PropertiesTool.getFirstOccurrence(multiProperties, CONFIG_SERVER_NAME);
-		if(StringTool.isEmpty(serverName)){ logger.warn("server.name was not found in config files"); }
-		administratorEmail = PropertiesTool.getFirstOccurrence(multiProperties, CONFIG_ADMINISTRATOR_EMAIL);
-		if(StringTool.isEmpty(administratorEmail)){ logger.warn("administrator.email was not found in config files"); }
+	private void addConfigIfNew(DataRouter router){
+		String configPath = router.getConfigLocation();
+		if(configFilePaths.contains(configPath)){ return; }
+		
+		logger.warn("adding datarouter config from "+configPath+", currentRouters:"+routers);
+		configFilePaths.add(configPath);
+		multiProperties.add(PropertiesTool.parse(configPath));
+		
+		String newServerName = PropertiesTool.getFirstOccurrence(multiProperties, CONFIG_SERVER_NAME);
+		if(StringTool.isEmpty(serverName)){
+			serverName = newServerName;
+		}else if(ObjectTool.notEquals(serverName, newServerName)){
+			logger.warn("not replacing existing serverName "+serverName+" with "+newServerName+" from "+configPath);
+		}
+		
+		String newAdministratorEmail = PropertiesTool.getFirstOccurrence(multiProperties, CONFIG_ADMINISTRATOR_EMAIL);
+		if(StringTool.isEmpty(administratorEmail)){
+			administratorEmail = newAdministratorEmail;
+		}else if(ObjectTool.notEquals(administratorEmail, newAdministratorEmail)){
+			logger.warn("not replacing existing administratorEmail "+administratorEmail+" with "+newAdministratorEmail
+					+" from "+configPath);
+		}
+	}
+	
+	public void initializeEagerClients(){
 		clients.initializeEagerClients();
 	}
 	

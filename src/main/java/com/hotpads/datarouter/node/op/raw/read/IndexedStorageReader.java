@@ -15,12 +15,20 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 public interface IndexedStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
+	public static final String
+		OP_count = "count",
+		OP_lookupUnique = "lookupUnique",
+		OP_lookupMultiUnique = "lookupMultiUnique",
+		OP_lookup = "lookup",
+		OP_lookupMulti = "lookupMulti";
+	
 	Long count(Lookup<PK> lookup, Config config);
 	
 	D lookupUnique(UniqueKey<PK> uniqueKey, Config config);
 	List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config);
 	
 	List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config);
+	//TODO rename lookupMulti
 	List<D> lookup(Collection<? extends Lookup<PK>> lookup, Config config);
 	
 	

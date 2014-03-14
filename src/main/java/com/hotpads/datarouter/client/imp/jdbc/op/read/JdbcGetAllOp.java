@@ -11,7 +11,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 
 public class JdbcGetAllOp<
 		PK extends PrimaryKey<PK>,
@@ -33,16 +32,11 @@ extends BaseJdbcOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-			String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getFields(), null, 
-					node.getFieldInfo().getPrimaryKeyFields());
-			List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
-			return result;
-		}finally{
-			TraceContext.finishSpan();
-		}
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getFields(), null, 
+				node.getFieldInfo().getPrimaryKeyFields());
+		List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
+		return result;
 	}
 	
 }

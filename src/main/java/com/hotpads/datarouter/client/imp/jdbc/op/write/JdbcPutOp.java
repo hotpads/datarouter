@@ -22,7 +22,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -51,17 +50,12 @@ extends BaseJdbcOp<Void>{
 	@Override
 	public Void runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			final String entityName = node.getPackagedTableName();
-			Connection connection = getConnection(node.getClientName());
-			for(D databean : CollectionTool.nullSafe(databeans)){
-				jdbcPutUsingMethod(connection, entityName, databean, config, DEFAULT_PUT_METHOD);
-			}
-			return null;
-		}finally{
-			TraceContext.finishSpan();
+		final String entityName = node.getPackagedTableName();
+		Connection connection = getConnection(node.getClientName());
+		for(D databean : CollectionTool.nullSafe(databeans)){
+			jdbcPutUsingMethod(connection, entityName, databean, config, DEFAULT_PUT_METHOD);
 		}
+		return null;
 	}
 	
 
