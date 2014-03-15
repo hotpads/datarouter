@@ -131,13 +131,6 @@ implements FieldSet<F>{
 		return f.getFields();
 	}
 	
-	/**************************** json ******************/
-	
-	@Override
-	public String getJson(){
-		return JsonDatabeanTool.fieldsToJson(getFields()).toString();
-	}
-	
 	/**************************** sql ******************/
 
 	@Override
@@ -153,17 +146,6 @@ implements FieldSet<F>{
 	@Override
 	public String getSqlNameValuePairsEscapedConjunction(){
 		return FieldTool.getSqlNameValuePairsEscapedConjunction(getFields());
-	}
-	
-	/**************************** bytes ******************/
-	
-	@Override
-	public byte[] getBytes(boolean allowNulls){
-		try{
-			return FieldSetTool.getConcatenatedValueBytes(getFields(), allowNulls, false);
-		}catch(Exception e){
-			throw new IllegalArgumentException("error on getBytes(allowNulls="+allowNulls+") for "+this.toString());
-		}
 	}
 	
 	
