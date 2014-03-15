@@ -3,7 +3,6 @@ package com.hotpads.datarouter.storage.field;
 import java.util.Iterator;
 import java.util.List;
 
-import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.CollectionTool;
 
@@ -129,23 +128,6 @@ implements FieldSet<F>{
 	@Override
 	public List<Field<?>> getFields(F f){
 		return f.getFields();
-	}
-	
-	/**************************** sql ******************/
-
-	@Override
-	public List<String> getSqlValuesEscaped(){
-		return FieldTool.getSqlValuesEscaped(getFields());
-	}
-
-	@Override
-	public List<String> getSqlNameValuePairsEscaped(){
-		return FieldTool.getSqlNameValuePairsEscaped(getFields());
-	}
-
-	@Override
-	public String getSqlNameValuePairsEscapedConjunction(){
-		return FieldTool.getSqlNameValuePairsEscapedConjunction(getFields());
 	}
 	
 	
