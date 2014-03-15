@@ -57,11 +57,6 @@ public class BackupRecord extends BaseDatabean<BackupRecordKey,BackupRecord>{
 		}
 	}
 	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-	
 
 	/***************************** constructor **************************************/
 		

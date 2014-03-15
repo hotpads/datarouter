@@ -57,7 +57,7 @@ implements PhysicalMapStorageNode<PK,D>
 		if(CollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		for(D databean : databeans){
-			if( ! databean.isFieldAware()){ throw new IllegalArgumentException("databeans must be field aware"); }
+			if( ! fieldInfo.getFieldAware()){ throw new IllegalArgumentException("databeans must be field aware"); }
 			//TODO put only the nonKeyFields in the byte[] and figure out the keyFields from the key string
 			//  could big big savings for small or key-only databeans
 			byte[] bytes = DatabeanTool.getBytes(databean);

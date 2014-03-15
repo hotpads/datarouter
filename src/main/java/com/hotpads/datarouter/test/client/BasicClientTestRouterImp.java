@@ -10,6 +10,7 @@ import com.hotpads.datarouter.connection.keepalive.KeepAlive.KeepAliveFielder;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
+import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -34,7 +35,7 @@ implements BasicClientTestRouter{
 	private MapStorage<KeepAliveKey,KeepAlive> keepAliveHBase;
 
 	private MapStorage<TxnBeanKey,TxnBean> txnBeanJdbc;
-	private MapStorage<TxnBeanKey,TxnBean> txnBeanHibernate;
+	private MapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate;
 	private MapStorage<TxnBeanKey,TxnBean> txnBeanHBase;
 
 	private MapStorage<PoolTestBeanKey,PoolTestBean> poolTestBeanHBase;
@@ -88,7 +89,7 @@ implements BasicClientTestRouter{
 	}
 
 	@Override
-	public MapStorage<TxnBeanKey,TxnBean> txnBeanHibernate(){
+	public MapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate(){
 		return txnBeanHibernate;
 	}
 

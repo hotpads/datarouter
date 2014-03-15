@@ -93,11 +93,6 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 		}
 	}
 	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-	
 	/*********************** constructor **********************************/
 	
 	public Trace(){

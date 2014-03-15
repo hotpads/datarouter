@@ -156,11 +156,6 @@ public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldTypeBeanKey,ManyFi
 //		//same as default, so not necssary to override
 //	}
 	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-	
 	
 	/***************************** static methods *****************************/
 	

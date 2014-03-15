@@ -94,11 +94,6 @@ public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 		}
 	}
 	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-	
 	
 	/*********************** constructor **********************************/
 	

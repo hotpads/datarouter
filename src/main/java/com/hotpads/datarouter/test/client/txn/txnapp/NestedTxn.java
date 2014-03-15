@@ -52,7 +52,8 @@ public class NestedTxn extends BaseHibernateOp<Void>{
 			Assert.assertEquals(1, CollectionTool.size(all));
 		}else{
 			List<TxnBean> all = router.txnBeanHibernate().getAll(null);
-			if(outer.isFieldAware() || SessionExecutorImpl.EAGER_SESSION_FLUSH){
+			boolean fieldAware = router.txnBeanHibernate().getFieldInfo().getFieldAware();
+			if(fieldAware || SessionExecutorImpl.EAGER_SESSION_FLUSH){
 				Assert.assertEquals(1, CollectionTool.size(all));
 			}else{
 				Assert.assertEquals(0, CollectionTool.size(all));
@@ -96,7 +97,8 @@ public class NestedTxn extends BaseHibernateOp<Void>{
 				Assert.assertEquals(2, CollectionTool.size(all));//should not include TxnBean.outer
 			}else{
 				List<TxnBean> all = router.txnBeanHibernate().getAll(null);
-				if(inner.isFieldAware() || SessionExecutorImpl.EAGER_SESSION_FLUSH){
+				boolean fieldAware = router.txnBeanHibernate().getFieldInfo().getFieldAware();
+				if(fieldAware || SessionExecutorImpl.EAGER_SESSION_FLUSH){
 					Assert.assertEquals(2, CollectionTool.size(all));
 				}else{
 					Assert.assertEquals(1, CollectionTool.size(all));

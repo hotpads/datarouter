@@ -40,11 +40,6 @@ public class PoolTestBean extends BaseDatabean<PoolTestBeanKey,PoolTestBean>{
 		}
 	}
 
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-
 
 	/***************************** constructor **************************************/
 

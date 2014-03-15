@@ -123,11 +123,6 @@ implements Cloneable{
 		}
 	}
 	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-	
 	
 	/******************* clone ******************************************/
 	
