@@ -13,9 +13,11 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.SessionExecutor;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.StringTool;
 
 public class SessionExecutorImpl<T>
 extends BaseTxnExecutor<T>
@@ -25,10 +27,16 @@ implements SessionExecutor<T>, Callable<T>{
 	public static final boolean EAGER_SESSION_FLUSH = true;
 		
 	private TxnOp<T> parallelTxnOp;
+	private String traceName;
 	
 	public SessionExecutorImpl(TxnOp<T> parallelTxnOp) {
 		super(parallelTxnOp.getDataRouterContext(), parallelTxnOp);
 		this.parallelTxnOp = parallelTxnOp;
+	}
+	
+	public SessionExecutorImpl(TxnOp<T> parallelTxnOp, String traceName) {
+		this(parallelTxnOp);
+		this.traceName = traceName;
 	}
 
 
@@ -41,6 +49,7 @@ implements SessionExecutor<T>, Callable<T>{
 		Collection<T> clientResults = ListTool.createLinkedList();
 		Collection<Client> clients = getClients();
 		try{
+			startTrace();
 			reserveConnections();
 			beginTxns();
 			openSessions();
@@ -67,6 +76,7 @@ implements SessionExecutor<T>, Callable<T>{
 			}
 			throw new RollbackException(e);//don't throw in the try block because it will get caught immediately
 		}finally{
+			finishTrace();
 			//i believe this is commented out until we figure out how to handle nested sessions
 //			try{
 //				cleanupSessions();
@@ -121,6 +131,21 @@ implements SessionExecutor<T>, Callable<T>{
 //			logger.warn("cleanupSession on "+sessionClient.getExistingHandle());
 			DRCounters.incSuffixClient(sessionClient.getType(), "cleanupSession", sessionClient.getName());
 		}
+	}
+	
+	
+	/********************** helper ******************************/
+	
+	private boolean shouldTrace(){
+		return StringTool.notEmpty(traceName);
+	}
+	
+	private void startTrace(){
+		if(shouldTrace()){ TraceContext.startSpan(traceName); }
+	}
+	
+	private void finishTrace(){
+		if(shouldTrace()){ TraceContext.finishSpan(); }
 	}
 	
 }

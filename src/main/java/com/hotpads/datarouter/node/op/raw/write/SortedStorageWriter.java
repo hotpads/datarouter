@@ -10,6 +10,10 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public interface SortedStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
+	public static final String
+		OP_deleteRangeWithPrefix = "deleteRangeWithPrefix";
+	
+	
 	void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config);
 //	void deleteRange(Key<D> start, boolean startInclusive, Key<D> end, boolean endInclusive, Config config);
 	

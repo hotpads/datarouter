@@ -93,25 +93,28 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public D get(final PK key, final Config config){
-		HibernateGetOp<PK,D,F> op = new HibernateGetOp<PK,D,F>(this, "get", ListTool.wrap(key), config);
-		return CollectionTool.getFirst(new SessionExecutorImpl<List<D>>(op).call());
+		String opName = MapStorageReader.OP_get;
+		HibernateGetOp<PK,D,F> op = new HibernateGetOp<PK,D,F>(this, opName, ListTool.wrap(key), config);
+		return CollectionTool.getFirst(new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call());
 	}
 
 	@Override
 	public List<D> getAll(final Config config){
-		HibernateGetAllOp<PK,D,F> op = new HibernateGetAllOp<PK,D,F>(this, "getAll", config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+		String opName = MapStorageReader.OP_getAll;
+		HibernateGetAllOp<PK,D,F> op = new HibernateGetAllOp<PK,D,F>(this, opName, config);
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){
-		DRCounters.incSuffixClientNode(getClient().getType(), "getMulti", getClientName(), getName());
+		String opName = MapStorageReader.OP_getMulti;
+		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
 		List<D> result = ListTool.createArrayListWithSize(keys);
 		Config config = Config.nullSafe(pConfig);
 		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
 		for(List<PK> keyBatch : BatchTool.getBatches(keys, batchSize)){
-			HibernateGetOp<PK,D,F> op = new HibernateGetOp<PK,D,F>(this, "getMultiBatch", keyBatch, config);
-			List<D> resultBatch = new SessionExecutorImpl<List<D>>(op).call();
+			HibernateGetOp<PK,D,F> op = new HibernateGetOp<PK,D,F>(this, opName+"Batch", keyBatch, config);
+			List<D> resultBatch = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 			result.addAll(CollectionTool.nullSafe(resultBatch));
 		}
 		return result;
@@ -119,13 +122,14 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig){
-		DRCounters.incSuffixClientNode(getClient().getType(), "getKeys", getClientName(), getName());
+		String opName = MapStorageReader.OP_getKeys;
+		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
 		Config config = Config.nullSafe(pConfig);
 		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
 		List<PK> result = ListTool.createArrayListWithSize(keys);
 		for(List<PK> keyBatch : BatchTool.getBatches(keys, batchSize)){
-			HibernateGetKeysOp<PK,D,F> op = new HibernateGetKeysOp<PK,D,F>(this, "getKeysBatch", keyBatch, config);
-			result.addAll(new SessionExecutorImpl<List<PK>>(op).call());
+			HibernateGetKeysOp<PK,D,F> op = new HibernateGetKeysOp<PK,D,F>(this, opName+"Batch", keyBatch, config);
+			result.addAll(new SessionExecutorImpl<List<PK>>(op, getTraceName(opName)).call());
 		}
 		return result;
 	}
@@ -136,15 +140,17 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public Long count(final Lookup<PK> lookup, final Config config) {
-		HibernateCountOp<PK,D,F> op = new HibernateCountOp<PK,D,F>(this, "count", lookup, config);
-		return new SessionExecutorImpl<Long>(op).call();
+		String opName = IndexedStorageReader.OP_count;
+		HibernateCountOp<PK,D,F> op = new HibernateCountOp<PK,D,F>(this, opName, lookup, config);
+		return new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
 	@Override
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
-		HibernateLookupUniqueOp<PK,D,F> op = new HibernateLookupUniqueOp<PK,D,F>(this, "lookupUnique", 
+		String opName = IndexedStorageReader.OP_lookupUnique;
+		HibernateLookupUniqueOp<PK,D,F> op = new HibernateLookupUniqueOp<PK,D,F>(this, opName, 
 				ListTool.wrap(uniqueKey), config);
-		List<D> result = new SessionExecutorImpl<List<D>>(op).call();
+		List<D> result = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 		if(CollectionTool.size(result)>1){
 			throw new DataAccessException("found >1 databeans with unique index key="+uniqueKey);
 		}
@@ -153,26 +159,29 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
+		String opName = IndexedStorageReader.OP_lookupMultiUnique;
 		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
-		HibernateLookupUniqueOp<PK,D,F> op = new HibernateLookupUniqueOp<PK,D,F>(this, "lookupMultiUnique", uniqueKeys,
+		HibernateLookupUniqueOp<PK,D,F> op = new HibernateLookupUniqueOp<PK,D,F>(this, opName, uniqueKeys,
 				config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	@Override
 	//TODO pay attention to wildcardLastField
 	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config) {
-		HibernateLookupOp<PK,D,F> op = new HibernateLookupOp<PK,D,F>(this, "lookup", ListTool.wrap(lookup), 
+		String opName = IndexedStorageReader.OP_lookup;
+		HibernateLookupOp<PK,D,F> op = new HibernateLookupOp<PK,D,F>(this, opName, ListTool.wrap(lookup), 
 				wildcardLastField, config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	//TODO rename lookupMulti
 	@Override
 	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
+		String opName = IndexedStorageReader.OP_lookupMulti;
 		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
-		HibernateLookupOp<PK,D,F> op = new HibernateLookupOp<PK,D,F>(this, "lookupMulti", lookups, false, config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+		HibernateLookupOp<PK,D,F> op = new HibernateLookupOp<PK,D,F>(this, opName, lookups, false, config);
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	
@@ -180,15 +189,17 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public D getFirst(final Config config) {
-		HibernateGetFirstOp<PK,D,F> op = new HibernateGetFirstOp<PK,D,F>(this, "getFirst", config);
-		return new SessionExecutorImpl<D>(op).call();
+		String opName = SortedStorageReader.OP_getFirst;
+		HibernateGetFirstOp<PK,D,F> op = new HibernateGetFirstOp<PK,D,F>(this, opName, config);
+		return new SessionExecutorImpl<D>(op, getTraceName(opName)).call();
 	}
 
 	
 	@Override
 	public PK getFirstKey(final Config config) {
-		HibernateGetFirstKeyOp<PK,D,F> op = new HibernateGetFirstKeyOp<PK,D,F>(this, "getFirstKey", config);
-		return new SessionExecutorImpl<PK>(op).call();
+		String opName = SortedStorageReader.OP_getFirstKey;
+		HibernateGetFirstKeyOp<PK,D,F> op = new HibernateGetFirstKeyOp<PK,D,F>(this, opName, config);
+		return new SessionExecutorImpl<PK>(op, getTraceName(opName)).call();
 	}
 
 	@Override
@@ -199,9 +210,10 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
 			final Config config) {
-		HibernateGetWithPrefixesOp<PK,D,F> op = new HibernateGetWithPrefixesOp<PK,D,F>(this, "getWithPrefixes", prefixes, 
+		String opName = SortedStorageReader.OP_getWithPrefixes;
+		HibernateGetWithPrefixesOp<PK,D,F> op = new HibernateGetWithPrefixesOp<PK,D,F>(this, opName, prefixes, 
 				wildcardLastField, config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 
 	@Deprecated
@@ -231,10 +243,10 @@ implements MapStorageReader<PK,D>,
 	//this gets ugly because we are dealing with PrimaryKeys/Databeans and Jdbc/Hibernate
 	public List<? extends FieldSet<?>> getRangeUnchecked(final Range<PK> range, final boolean keysOnly,
 			final Config config){
-		String opName = keysOnly ? "getKeysInRange" : "getRange";
+		String opName = keysOnly ? SortedStorageReader.OP_getKeysInRange : SortedStorageReader.OP_getRange;
 		HibernateGetRangeUncheckedOp<PK,D,F> op = new HibernateGetRangeUncheckedOp<PK,D,F>(this, opName, range, keysOnly,
 				config);
-		return new SessionExecutorImpl<List<? extends FieldSet<?>>>(op).call();
+		return new SessionExecutorImpl<List<? extends FieldSet<?>>>(op, getTraceName(opName)).call();
 	}
 
 	
@@ -243,9 +255,10 @@ implements MapStorageReader<PK,D>,
 			final PK prefix, final boolean wildcardLastField,
 			final PK start, final boolean startInclusive, 
 			final Config config) {
-		HibernateGetPrefixedRangeOp<PK,D,F> op = new HibernateGetPrefixedRangeOp<PK,D,F>(this, "getPrefixedRange", 
+		String opName = SortedStorageReader.OP_getPrefixedRange;
+		HibernateGetPrefixedRangeOp<PK,D,F> op = new HibernateGetPrefixedRangeOp<PK,D,F>(this, opName, 
 				prefix, wildcardLastField, start, startInclusive, config);
-		return new SessionExecutorImpl<List<D>>(op).call();
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
 	@Override
@@ -266,6 +279,13 @@ implements MapStorageReader<PK,D>,
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
 		SortedScanner<D> scanner = new HibernateDatabeanScanner<PK,D>(this, fieldInfo, range, config);
 		return new SortedScannerIterable<D>(scanner);
+	}
+	
+	
+	/*********************** helper ******************************/
+	
+	protected String getTraceName(String opName){
+		return getName() + " " + opName;
 	}
 	
 	

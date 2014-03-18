@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -23,7 +24,7 @@ public class ConnectionPools {
 	private static Logger logger = Logger.getLogger(ConnectionPools.class);
 
 	protected NavigableSet<ClientId> clientIds = SetTool.createTreeSet();
-	protected Collection<String> configFilePaths = ListTool.createArrayList();
+	protected Set<String> configFilePaths = SetTool.createTreeSet();
 	protected Collection<Properties> multiProperties = ListTool.createArrayList();
 	protected Map<String,JdbcConnectionPool> connectionPoolByName = MapTool.createConcurrentHashMap();
 
@@ -39,8 +40,10 @@ public class ConnectionPools {
 	public void registerClientIds(Collection<ClientId> clientIdsToAdd, String configFilePath) {
 		Preconditions.checkNotNull(configFilePath);
 		clientIds.addAll(CollectionTool.nullSafe(clientIdsToAdd));
-		configFilePaths.add(configFilePath);
-		multiProperties.add(PropertiesTool.parse(configFilePath));
+		if(!configFilePaths.contains(configFilePath)){
+			configFilePaths.add(configFilePath);
+			multiProperties.add(PropertiesTool.parse(configFilePath));
+		}
 	}
 
 	/****************** shutdown ************************************/

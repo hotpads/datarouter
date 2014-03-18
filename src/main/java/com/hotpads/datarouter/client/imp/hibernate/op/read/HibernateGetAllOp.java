@@ -5,17 +5,13 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
-import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
-import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceContext;
 
 public class HibernateGetAllOp<
 		PK extends PrimaryKey<PK>,
@@ -36,26 +32,12 @@ extends BaseHibernateOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		Preconditions.checkArgument(!node.getFieldInfo().getFieldAware());
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		try{
-			TraceContext.startSpan(node.getName()+" "+opName);
-			Session session = getSession(node.getClientName());
-			if(node.getFieldInfo().getFieldAware()){
-				DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-				String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getFields(), null, 
-						node.getFieldInfo().getPrimaryKeyFields());
-				List<D> result = JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
-				return result;
-			}else{
-				DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-				Criteria criteria = node.getCriteriaForConfig(config, session);
-				List<D> databeans = criteria.list();
-				return databeans;//assume they come back sorted due to innodb
-			}
-		}finally{
-			TraceContext.finishSpan();
-		}
+		Session session = getSession(node.getClientName());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		Criteria criteria = node.getCriteriaForConfig(config, session);
+		List<D> databeans = criteria.list();
+		return databeans;//assume they come back sorted due to innodb
 	}
 	
 }

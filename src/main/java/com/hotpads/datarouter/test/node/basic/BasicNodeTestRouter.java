@@ -75,8 +75,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 		}
 		
 //		this.clientName = clientName;
-		activate();//do after field inits
-		getContext().activate();
+		registerWithContext();//do after field inits
 	}
 
 	/********************************** config **********************************/
