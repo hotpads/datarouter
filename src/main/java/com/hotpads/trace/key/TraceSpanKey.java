@@ -12,11 +12,11 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
-import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 
 @SuppressWarnings("serial")
 @Embeddable
-public class TraceSpanKey extends BasePrimaryKey<TraceSpanKey>{
+public class TraceSpanKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceSpanKey>{
 
 	/****************************** fields ********************************/
 	
@@ -30,26 +30,30 @@ public class TraceSpanKey extends BasePrimaryKey<TraceSpanKey>{
 		COL_traceId = "traceId",
 		COL_threadId = "threadId",
 		COL_sequence = "sequence";
-	
+
 	
 	@Override
-	public List<Field<?>> getFields(){
+	public TraceEntityKey getEntityKey(){
+		return new TraceEntityKey(traceId);
+	}
+	
+	@Override
+	public List<Field<?>> getPostEntityKeyFields(){
 		return FieldTool.createList(
-				new LongField(COL_traceId, traceId),
 				new LongField(COL_threadId, threadId),
 				new IntegerField(COL_sequence, sequence));
 	}
 	
-	public static class TraceSpanKeyFielder extends BaseFielder<TraceSpanKey>{
-		public TraceSpanKeyFielder(){}
-		@Override
-		public List<Field<?>> getFields(TraceSpanKey k){
-			return FieldTool.createList(
-					new LongField(COL_traceId, k.traceId),
-					new LongField(COL_threadId, k.threadId),
-					new IntegerField(COL_sequence, k.sequence));
-		}
-	}
+//	public static class TraceSpanKeyFielder extends BaseFielder<TraceSpanKey>{
+//		public TraceSpanKeyFielder(){}
+//		@Override
+//		public List<Field<?>> getFields(TraceSpanKey k){
+//			return FieldTool.createList(
+//					new LongField(COL_traceId, k.traceId),
+//					new LongField(COL_threadId, k.threadId),
+//					new IntegerField(COL_sequence, k.sequence));
+//		}
+//	}
 	
 
 	/****************************** constructor ********************************/
