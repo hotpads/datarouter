@@ -1,6 +1,8 @@
 package com.hotpads.handler.exception;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -15,11 +17,13 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Singleton;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.exception.http.HttpException;
 import com.hotpads.util.core.exception.http.imp.Http500InternalServerErrorException;
 
-@Singleton public class ExceptionHandlingFilter implements Filter{
+@Singleton
+public class ExceptionHandlingFilter implements Filter{
 	Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
 
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
@@ -27,18 +31,18 @@ import com.hotpads.util.core.exception.http.imp.Http500InternalServerErrorExcept
 	private static final String ERROR = "/error";
 
 	@Override
-	public void init(FilterConfig arg0) throws ServletException{
+	public void init(FilterConfig arg0) throws ServletException {
+		
 	}
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException{
 		HttpServletRequest request = (HttpServletRequest)req;
 		HttpServletResponse response = (HttpServletResponse)res;
-
-		try{
+		
+		try {
 			fc.doFilter(req, res);
-
-		}catch(Exception e){
+		} catch(Exception e) {
 			HttpException httpException;
 			if(e instanceof HttpException){
 				httpException = (HttpException)e;
@@ -61,8 +65,28 @@ import com.hotpads.util.core.exception.http.imp.Http500InternalServerErrorExcept
 //			}
 			// RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/generic/exception.jsp");
 			// dispatcher.forward(request, response);
-			response.sendRedirect(request.getContextPath() + ERROR);
-
+//			response.sendRedirect(request.getContextPath() + ERROR);
+			
+				
+			//create the databean and logit
+			
+			String serverName = (String)request.getServletContext().getAttribute("serverName");
+			
+			ExceptionRecord r = new ExceptionRecord(serverName, Arrays.toString(e.getStackTrace()));
+			
+			IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> n = (IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) request.getServletContext().getAttribute("recordNode");
+			
+			n.put(r, null);
+			
+//			if (CustomExceptionResolver.isInternal()) {
+			
+//			} else {
+				
+//			}
+			
+			PrintWriter out = response.getWriter();
+//			out.println("coucou");
+			//e.printStackTrace(out);
 		}finally{
 		}
 	}
