@@ -2,10 +2,14 @@ package com.hotpads.handler.exception;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
 
+import com.fasterxml.uuid.EthernetAddress;
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
@@ -17,40 +21,40 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 
 @SuppressWarnings("serial")
 public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionRecord> {
-	
+
 	public static String
-		COL_id = "id",
-		COL_created = "created",
-		COL_serverName = "serverName",
-		COL_stackTrace = "stackTrace";
+	COL_id = "id",
+	COL_created = "created",
+	COL_serverName = "serverName",
+	COL_stackTrace = "stackTrace";
 	public static int
-		LENGTH_id = MySqlColumnType.MAX_LENGTH_VARCHAR,
-		LENGTH_servName = MySqlColumnType.MAX_LENGTH_VARCHAR,
-		LENGTH_stackTrace = MySqlColumnType.MAX_LENGTH_MEDIUMTEXT;
-	
+	LENGTH_id = MySqlColumnType.MAX_LENGTH_VARCHAR,
+	LENGTH_servName = MySqlColumnType.MAX_LENGTH_VARCHAR,
+	LENGTH_stackTrace = MySqlColumnType.MAX_LENGTH_MEDIUMTEXT;
+
 	@Id
 	@Column(nullable = false)
 	private ExceptionRecordKey key;
 	private Date created;
 	private String serverName;
 	private String stackTrace;
-	
+
 	ExceptionRecord() {
 		this(null, null);
 	}
-	
+
 	public ExceptionRecord(String serverName, String stackTrace) {
 		key = new ExceptionRecordKey(generateUUID());
 		this.created = new Date();
 		this.serverName = serverName;
 		this.stackTrace = stackTrace;
 	}
-	
+
 	@Override
 	public boolean isFieldAware() {
 		return true;
 	}
-	
+
 	@Override
 	public List<Field<?>> getNonKeyFields() {
 		return FieldTool.createList(
@@ -59,13 +63,13 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 				new StringField(COL_stackTrace, stackTrace, LENGTH_stackTrace)
 				);
 	}
-	
+
 	public static class ExceptionRecordFielder extends BaseDatabeanFielder<ExceptionRecordKey, ExceptionRecord> {
 
 		ExceptionRecordFielder() {
-			
+
 		}
-		
+
 		@Override
 		public Class<? extends Fielder<ExceptionRecordKey>> getKeyFielderClass() {
 			return ExceptionRecordKey.class;
@@ -75,12 +79,14 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 		public List<Field<?>> getNonKeyFields(ExceptionRecord databean) {
 			return databean.getNonKeyFields();
 		}
-		
+
 	}
-	
+
 	private static String generateUUID() {
-		//TODO
-		return System.currentTimeMillis() + "";
+		EthernetAddress addr = EthernetAddress.fromInterface();
+		TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
+		UUID uuid = uuidGenerator.generate();
+		return uuid.toString();
 	}
 
 	@Override
