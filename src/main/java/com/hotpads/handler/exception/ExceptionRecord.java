@@ -7,6 +7,8 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Id;
 
+import org.junit.Test;
+
 import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
@@ -23,14 +25,14 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionRecord> {
 
 	public static String
-	COL_id = "id",
-	COL_created = "created",
-	COL_serverName = "serverName",
-	COL_stackTrace = "stackTrace";
+		COL_id = "id",
+		COL_created = "created",
+		COL_serverName = "serverName",
+		COL_stackTrace = "stackTrace";
 	public static int
-	LENGTH_id = MySqlColumnType.MAX_LENGTH_VARCHAR,
-	LENGTH_servName = MySqlColumnType.MAX_LENGTH_VARCHAR,
-	LENGTH_stackTrace = MySqlColumnType.MAX_LENGTH_MEDIUMTEXT;
+		LENGTH_id = MySqlColumnType.MAX_LENGTH_VARCHAR,
+		LENGTH_servName = MySqlColumnType.MAX_LENGTH_VARCHAR,
+		LENGTH_stackTrace = MySqlColumnType.MAX_LENGTH_MEDIUMTEXT;
 
 	@Id
 	@Column(nullable = false)
@@ -88,7 +90,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 		UUID uuid = uuidGenerator.generate();
 		return uuid.toString();
 	}
-
+	
 	@Override
 	public Class<ExceptionRecordKey> getKeyClass() {
 		return ExceptionRecordKey.class;
@@ -125,5 +127,20 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 
 	public void setStackTrace(String stackTrace) {
 		this.stackTrace = stackTrace;
+	}
+	
+	public static class UUIDTests {
+		
+		@Test
+		public void create() {
+			for (int i = 0; i < 10; i++) {
+				System.out.println(new Date() + "\t" + ExceptionRecord.generateUUID());
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }
