@@ -68,6 +68,7 @@ implements Databean<PK,D>{
 	}
 
 	@Override
+	@Deprecated//always use a Fielder
 	public List<Field<?>> getNonKeyFields(){
 		return new LinkedList<Field<?>>();
 //		throw new NotImplementedException("not implemented");

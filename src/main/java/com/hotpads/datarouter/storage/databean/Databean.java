@@ -23,6 +23,7 @@ extends FieldSet<D>
 	boolean isFieldAware();
 	
 	List<Field<?>> getKeyFields();
+	@Deprecated//always use a Fielder
 	List<Field<?>> getNonKeyFields();
 	MySqlCollation getCollation();
 	MySqlCharacterSet getCharacterSet();
