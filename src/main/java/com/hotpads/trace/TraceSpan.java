@@ -34,24 +34,22 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	@Id
-	protected TraceSpanKey key;
-	protected Integer parentSequence;
+	private TraceSpanKey key;
+	private Integer parentSequence;
 	@Column(length=DEFAULT_STRING_LENGTH)
-	protected String name;
-	protected Long created;
-	protected Long duration;
-	protected String info;
+	private String name;
+	private Long created;
+	private Long duration;
+	private String info;
 
 	@Transient 
-	protected Long nanoStart;
-	protected Long durationNano;
+	private Long nanoStart;
+	private Long durationNano;
 		
 	
-	/**************************** columns *******************************/
-	
-	public static class F{
+	public static class Fields{
 		public static final String
-			KEY_key = "key",
+			key = "key",
 			parentSequence = "parentSequence",
 			name = "name",
 			info = "info",
@@ -61,22 +59,10 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 	}
 	
 	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new UInt31Field(F.parentSequence, this.parentSequence),
-				new StringField(F.name, this.name, DEFAULT_STRING_LENGTH),
-				new StringField(F.info, this.info, DEFAULT_STRING_LENGTH),
-				new UInt63Field(F.created, this.created),
-				new UInt63Field(F.duration, this.duration),
-				new UInt63Field(F.durationNano, this.durationNano));
-	}
-	
-	@Override
 	public boolean isFieldAware(){
 		return true;
 	}
 	
-	//test implementation.  just repeats the built-in databean fields for now
 	public static class TraceSpanFielder extends BaseDatabeanFielder<TraceSpanKey,TraceSpan>{
 		public TraceSpanFielder(){super();}
 		@Override
@@ -86,12 +72,12 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 		@Override
 		public List<Field<?>> getNonKeyFields(TraceSpan d){
 			return FieldTool.createList(
-					new UInt31Field(F.parentSequence, d.parentSequence),
-					new StringField(F.name, d.name, DEFAULT_STRING_LENGTH),
-					new StringField(F.info, d.info, DEFAULT_STRING_LENGTH),
-					new UInt63Field(F.created, d.created),
-					new UInt63Field(F.duration, d.duration),
-					new UInt63Field(F.durationNano, d.durationNano));
+					new UInt31Field(Fields.parentSequence, d.parentSequence),
+					new StringField(Fields.name, d.name, DEFAULT_STRING_LENGTH),
+					new StringField(Fields.info, d.info, DEFAULT_STRING_LENGTH),
+					new UInt63Field(Fields.created, d.created),
+					new UInt63Field(Fields.duration, d.duration),
+					new UInt63Field(Fields.durationNano, d.durationNano));
 		}
 	}
 	

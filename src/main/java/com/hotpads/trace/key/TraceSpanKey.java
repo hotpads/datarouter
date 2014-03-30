@@ -21,15 +21,15 @@ public class TraceSpanKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceSpanK
 	/****************************** fields ********************************/
 	
 	//hibernate will create these in the wrong order
-	protected Long traceId;
-	protected Long threadId;
-	protected Integer sequence;
+	private Long traceId;
+	private Long threadId;
+	private Integer sequence;
 	
-	
-	public static final String
-		COL_traceId = "traceId",
-		COL_threadId = "threadId",
-		COL_sequence = "sequence";
+	public static class Fields{
+		public static final String
+			threadId = "threadId",
+			sequence = "sequence";
+	}
 
 	
 	@Override
@@ -40,20 +40,9 @@ public class TraceSpanKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceSpanK
 	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
 		return FieldTool.createList(
-				new LongField(COL_threadId, threadId),
-				new IntegerField(COL_sequence, sequence));
+				new LongField(Fields.threadId, threadId),
+				new IntegerField(Fields.sequence, sequence));
 	}
-	
-//	public static class TraceSpanKeyFielder extends BaseFielder<TraceSpanKey>{
-//		public TraceSpanKeyFielder(){}
-//		@Override
-//		public List<Field<?>> getFields(TraceSpanKey k){
-//			return FieldTool.createList(
-//					new LongField(COL_traceId, k.traceId),
-//					new LongField(COL_threadId, k.threadId),
-//					new IntegerField(COL_sequence, k.sequence));
-//		}
-//	}
 	
 
 	/****************************** constructor ********************************/
