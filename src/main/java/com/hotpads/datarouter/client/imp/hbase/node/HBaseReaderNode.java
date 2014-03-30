@@ -389,7 +389,8 @@ implements HBasePhysicalNode<PK,D>,
 			//maybe Assert the override fields match those returned for the key
 			keyPlusScatteringPrefixFields.addAll(fieldInfo.getSampleScatteringPrefix().getScatteringPrefixFields(key));
 		}
-		keyPlusScatteringPrefixFields.addAll(key.getFields());
+		List<Field<?>> keyFields = fieldInfo.getSamplePrimaryKeyFielder().getFields(key);
+		keyPlusScatteringPrefixFields.addAll(keyFields);
 		//allow nulls because people will pass in keys with only the left fields set
 		byte[] bytes = FieldSetTool.getConcatenatedValueBytes(keyPlusScatteringPrefixFields, true,
 				primaryKeyHasUnnecessaryTrailingSeparatorByte);

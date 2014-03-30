@@ -9,6 +9,7 @@ import java.util.Random;
 import javax.persistence.Embeddable;
 
 import com.hotpads.datarouter.serialize.fielder.Fielder;
+import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
@@ -43,7 +44,7 @@ public class TraceKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceKey>{
 	}
 	
 	//fielder for entity case
-	public static class TraceKeyEntityFielder implements Fielder<TraceKey>{
+	public static class TraceKeyEntityFielder implements PrimaryKeyFielder<TraceKey>{
 		@Override
 		public List<Field<?>> getFields(TraceKey k){
 			//3 options here
@@ -51,14 +52,22 @@ public class TraceKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceKey>{
 //			return k.getEntityKey().getFields();
 			return k.getEntityKeyFields();
 		}
+		@Override
+		public boolean isEntity(){
+			return true;
+		}
 	}
 	
 	//fielder for non-entity case: override the standard traceId col name
-	public static class TraceKeyFielder implements Fielder<TraceKey>{
+	public static class TraceKeyFielder implements PrimaryKeyFielder<TraceKey>{
 		@Override
 		public List<Field<?>> getFields(TraceKey k){
 			return FieldTool.createList(
 					new LongField(Fields.id, k.id));
+		}
+		@Override
+		public boolean isEntity(){
+			return false;
 		}
 	}
 	

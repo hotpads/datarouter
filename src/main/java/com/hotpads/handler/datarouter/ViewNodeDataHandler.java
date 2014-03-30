@@ -16,6 +16,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
 import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.serialize.PrimaryKeyStringSerializer;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -142,7 +143,9 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		Config config = new Config().setLimit(limit);
 		PK startAfterKey = null;
 		if(StringTool.notEmpty(startAfterKeyString)){
-			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
+//			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
+			startAfterKey = PrimaryKeyStringSerializer.primaryKeyFromString(node.getFieldInfo().getPrimaryKeyClass(), 
+					node.getFieldInfo().getSamplePrimaryKeyFielder(), startAfterKeyString);
 			startAfterKey.fromPersistentString(startAfterKeyString);
 			mav.put(PARAM_startAfterKey, startAfterKey.getPersistentString());
 		}
