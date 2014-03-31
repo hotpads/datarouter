@@ -1,11 +1,13 @@
 package com.hotpads.handler.exception;
 
+import static com.hotpads.handler.exception.NotificationApiConstants.EMAIL_NOTIFICATION_RECIPENT_TYPE;
+import static com.hotpads.handler.exception.NotificationApiConstants.SERVER_EXCEPTION_NOTIFICATION_TYPE;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -16,22 +18,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.util.core.ExceptionTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.exception.http.HttpException;
 import com.hotpads.util.core.exception.http.imp.Http500InternalServerErrorException;
@@ -45,19 +37,8 @@ public class ExceptionHandlingFilter implements Filter {
 	private static String serverName;
 
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
-	public static final String NOTIFICATION_API_ENDPOINT = "http://localhost:8080/job/api/notification";
 	
-	public static final String NOTIFICATION_TYPE = "com.hotpads.notification.type.ServerExceptionNotification";
-	public static final String NOTIFICATION_RECIPENT_TYPE = "EMAIL";
-	public static final String NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com";
-	
-	public static final String 
-			NOTIFICATION_API_PARAM_NAME = "requests",
-			NOTIFICATION_API_USER_TYPE = "usertype",
-			NOTIFICATION_API_USER_ID = "userid",
-			NOTIFICATION_API_TIME = "time",
-			NOTIFICATION_API_TYPE = "type",
-			NOTIFICATION_API_DATA = "data";
+	public static final String CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com";
 
 	// private static final String ERROR = "/error";
 
@@ -114,14 +95,17 @@ public class ExceptionHandlingFilter implements Filter {
 							.getServletContext().getAttribute("recordNode");
 				}
 
-				ExceptionRecord exceptionRecord = new ExceptionRecord(serverName,
+				ExceptionRecord exceptionRecord = new ExceptionRecord(
+						serverName,
 						ExceptionUtils.getStackTrace(httpException));
 				node.put(exceptionRecord, null);
 
-				// call the notification api
-				String data = exceptionRecord.getKey().getId();
-				String time = Long.toString(System.currentTimeMillis());
-				callNotificationApi(time, data);
+				new NotificationApiCaller().call(
+						EMAIL_NOTIFICATION_RECIPENT_TYPE,
+						CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL,
+						System.currentTimeMillis(),
+						SERVER_EXCEPTION_NOTIFICATION_TYPE,
+						exceptionRecord.getKey().getId());
 
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -149,25 +133,6 @@ public class ExceptionHandlingFilter implements Filter {
 		} finally {
 
 		}
-	}
-
-	private void callNotificationApi(String time, String data) throws IOException {
-		HttpClient client = new DefaultHttpClient();
-		HttpPost post = new HttpPost(NOTIFICATION_API_ENDPOINT);
-		List<NameValuePair> params = ListTool.create();
-
-		JSONArray requests = new JSONArray();
-		JSONObject notification = new JSONObject();
-		notification.put(NOTIFICATION_API_USER_TYPE, NOTIFICATION_RECIPENT_TYPE);
-		notification.put(NOTIFICATION_API_USER_ID, NOTIFICATION_RECIPENT_EMAIL);
-		notification.put(NOTIFICATION_API_TIME, time);
-		notification.put(NOTIFICATION_API_TYPE, NOTIFICATION_TYPE);
-		notification.put(NOTIFICATION_API_DATA, data);
-		requests.add(notification);
-
-		params.add(new BasicNameValuePair(NOTIFICATION_API_PARAM_NAME, requests.toString()));
-		post.setEntity(new UrlEncodedFormEntity(params));
-		client.execute(post);
 	}
 
 	@Override
