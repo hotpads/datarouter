@@ -126,8 +126,16 @@ public class Count extends BaseDatabean<CountKey,Count>{
 			return getValuePerSecond(value, periodMs);
 		}else if("minute".equals(frequency)){
 			return getValuePerMinute(value, periodMs);
-		}else if("hour".equals(frequency)){ return getValuePerHour(value, periodMs); }
-		throw new IllegalArgumentException("unknown frequency: " + frequency);
+		}else if("hour".equals(frequency)){ return getValuePerHour(value, periodMs); 
+		}else{
+			long totalMsInFrequency;
+			try{
+				totalMsInFrequency = Long.valueOf(frequency);
+			}catch(NumberFormatException e){
+				throw new IllegalArgumentException("unknown frequency: " + frequency);
+			}
+			return value * totalMsInFrequency / periodMs;
+		}
 	}
 
 	public static double getValuePerSecond(double value, Long periodMs){
