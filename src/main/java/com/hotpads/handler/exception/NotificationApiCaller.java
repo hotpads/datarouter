@@ -8,12 +8,15 @@ import static com.hotpads.handler.exception.NotificationApiConstants.NOTIFICATIO
 import static com.hotpads.handler.exception.NotificationApiConstants.NOTIFICATION_API_USER_ID;
 import static com.hotpads.handler.exception.NotificationApiConstants.NOTIFICATION_API_USER_TYPE;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -27,11 +30,11 @@ import com.hotpads.util.core.ObjectTool;
 public class NotificationApiCaller {
 
 	private HttpClient client;
-	
+
 	public NotificationApiCaller() {
-		
+
 	}
-	
+
 	public NotificationApiCaller(HttpClient client) {
 		super();
 		this.client = client;
@@ -54,6 +57,16 @@ public class NotificationApiCaller {
 
 		params.add(new BasicNameValuePair(NOTIFICATION_API_PARAM_NAME, requests.toString()));
 		post.setEntity(new UrlEncodedFormEntity(params));
-		client.execute(post);
+		HttpResponse response = client.execute(post);
+
+		boolean debug = false;
+
+		if (debug) {
+			BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+			String line = null;
+			while ((line = rd.readLine()) != null) {
+				System.out.println(line);
+			}
+		}
 	}
 }

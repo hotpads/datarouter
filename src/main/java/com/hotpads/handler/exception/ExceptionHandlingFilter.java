@@ -36,8 +36,8 @@ public class ExceptionHandlingFilter implements Filter {
 	private static IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> node;
 	private static String serverName;
 
-	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
-	
+//	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
+
 	public static final String CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com";
 
 	// private static final String ERROR = "/error";
@@ -111,11 +111,11 @@ public class ExceptionHandlingFilter implements Filter {
 				ex.printStackTrace();
 			}
 
-			// if (CustomExceptionResolver.isInternal()) {
-
-			// } else {
-
-			// }
+//			if (CustomExceptionResolver.isInternal()) {
+//
+//			} else {
+//
+//			}
 			try {
 				PrintWriter out = response.getWriter();
 				File f = new File("workspace/error.html");
