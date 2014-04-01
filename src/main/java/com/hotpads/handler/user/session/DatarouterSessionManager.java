@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.hotpads.handler.CookieTool;
-import com.hotpads.handler.DatarouterCookieKeys;
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.util.core.StringTool;
 
@@ -27,13 +26,13 @@ public class DatarouterSessionManager{
 	
 	/************* targetUrl *********************/
 	
-	public static void addTargetUrlCookie(HttpServletResponse response, String targetUrl){
-		CookieTool.addCookie(response, DatarouterCookieKeys.targetUrl.toString(), targetUrl, "/", 
+	public void addTargetUrlCookie(HttpServletResponse response, String targetUrl){
+		CookieTool.addCookie(response, config.getTargetUrlName(), targetUrl, "/", 
 				TARGET_URL_COOKIE_EXPIRATION_SECONDS);
 	}
 	
-	public static URL getTargetUrlFromCookie(HttpServletRequest request){
-		String targetUrlString = CookieTool.getCookieValue(request, DatarouterCookieKeys.targetUrl.toString());
+	public URL getTargetUrlFromCookie(HttpServletRequest request){
+		String targetUrlString = CookieTool.getCookieValue(request, config.getTargetUrlName());
 		if(StringTool.isEmpty(targetUrlString)){ return null; }
 		try{
 			return new URL(targetUrlString);
@@ -42,8 +41,8 @@ public class DatarouterSessionManager{
 		}
 	}
 	
-	public static void clearTargetUrlCookie(HttpServletResponse response){
-		CookieTool.deleteCookie(response, DatarouterCookieKeys.targetUrl.toString());
+	public void clearTargetUrlCookie(HttpServletResponse response){
+		CookieTool.deleteCookie(response, config.getTargetUrlName());
 	}
 	
 	
@@ -54,12 +53,12 @@ public class DatarouterSessionManager{
 				config.getSessionTokenTimeoutSeconds());
 	}
 	
-	public static String getSessionTokenFromCookie(HttpServletRequest request){
-		return CookieTool.getCookieValue(request, DatarouterCookieKeys.sessionToken.toString());
+	public String getSessionTokenFromCookie(HttpServletRequest request){
+		return CookieTool.getCookieValue(request, config.getSessionTokenCookieName());
 	}
 	
-	public static void clearSessionTokenCookie(HttpServletResponse response){
-		CookieTool.deleteCookie(response, DatarouterCookieKeys.sessionToken.toString());
+	public void clearSessionTokenCookie(HttpServletResponse response){
+		CookieTool.deleteCookie(response, config.getSessionTokenCookieName());
 	}
 
 	
@@ -70,22 +69,22 @@ public class DatarouterSessionManager{
 				USER_TOKEN_COOKIE_EXPIRATION_SECONDS);
 	}
 	
-	public static String getUserTokenFromCookie(HttpServletRequest request){
-		return CookieTool.getCookieValue(request, DatarouterCookieKeys.userToken.toString());
+	public String getUserTokenFromCookie(HttpServletRequest request){
+		return CookieTool.getCookieValue(request, config.getUserTokenCookieName());
 	}
 	
-	public static void clearUserTokenCookie(HttpServletResponse response){
-		CookieTool.deleteCookie(response, DatarouterCookieKeys.userToken.toString());
+	public void clearUserTokenCookie(HttpServletResponse response){
+		CookieTool.deleteCookie(response, config.getUserTokenCookieName());
 	}
 	
 	
 	/************ add/remove session from request *********/
 	
-	public static void addToRequest(HttpServletRequest request, DatarouterSession userSession) {
+	public void addToRequest(HttpServletRequest request, DatarouterSession userSession) {
 		request.setAttribute(REQUEST_ATTRIBUTE_NAME, userSession); 
 	}
 
-	public static DatarouterSession getFromRequest(HttpServletRequest request) {
+	public DatarouterSession getFromRequest(HttpServletRequest request) {
 		return (DatarouterSession)request.getAttribute(REQUEST_ATTRIBUTE_NAME);
 	}
 	

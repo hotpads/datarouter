@@ -10,13 +10,17 @@ import com.hotpads.util.core.StringTool;
 
 public class DatarouterUserTokenAuthenticator extends BaseDatarouterAuthenticator{
 	
-	public DatarouterUserTokenAuthenticator(HttpServletRequest request, HttpServletResponse response) {
+	private DatarouterSessionManager sessionManager;
+	
+	public DatarouterUserTokenAuthenticator(HttpServletRequest request, HttpServletResponse response,
+			DatarouterSessionManager sessionManager) {
 		super(request, response);
+		this.sessionManager = sessionManager;
 	}
 
 	@Override
 	public DatarouterSession getSession(){
-		String userToken = DatarouterSessionManager.getUserTokenFromCookie(request);
+		String userToken = sessionManager.getUserTokenFromCookie(request);
 		if(StringTool.isEmpty(userToken)){
 			return null;
 		}

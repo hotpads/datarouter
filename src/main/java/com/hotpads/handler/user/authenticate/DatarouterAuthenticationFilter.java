@@ -70,7 +70,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		
 		//special case where they clicked sign-in from a random page and we want to bounce them back to that page
 		if(shouldBounceBack(request, path, signinFormPath, referrerUrl, targetUrl)){
-			DatarouterSessionManager.addTargetUrlCookie(response, referrerUrl.toExternalForm());
+			sessionManager.addTargetUrlCookie(response, referrerUrl.toExternalForm());
 		}
 
 		
@@ -117,8 +117,8 @@ public class DatarouterAuthenticationFilter implements Filter{
 		}
 	}
 	
-	private static URL getValidTargetUrl(HttpServletRequest request, String signinFormPath){
-		URL targetUrl = DatarouterSessionManager.getTargetUrlFromCookie(request);
+	private URL getValidTargetUrl(HttpServletRequest request, String signinFormPath){
+		URL targetUrl = sessionManager.getTargetUrlFromCookie(request);
 		if(targetUrl==null){ return null; }
 		if(ObjectTool.equals(signinFormPath, targetUrl.getPath())){
 			logger.warn("ignoring targetUrl "+targetUrl.getPath());
@@ -143,7 +143,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		for(DatarouterAuthenticator authenticator : authenticators){
 			DatarouterSession session = authenticator.getSession();
 			if(session != null){
-				DatarouterSessionManager.addToRequest(request, session);
+				sessionManager.addToRequest(request, session);
 				sessionManager.addUserTokenCookie(response, session.getUserToken());
 				sessionManager.addSessionTokenCookie(response, session.getSessionToken());
 				userNodes.getSessionNode().put(session, null);
@@ -179,7 +179,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private void handleMissingRoles(HttpServletRequest request, HttpServletResponse response, String url,
 			String contextPath, String signinFormPath, DatarouterSession datarouterSession){
 		if(datarouterSession.isAnonymous()){// trump the referrer url
-			DatarouterSessionManager.addTargetUrlCookie(response, url);
+			sessionManager.addTargetUrlCookie(response, url);
 			ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, contextPath + signinFormPath);
 		}else{
 			try{
@@ -190,11 +190,11 @@ public class DatarouterAuthenticationFilter implements Filter{
 		}
 	}
 	
-	private static void handleSuccessfulLogin(HttpServletRequest request, HttpServletResponse response, URL targetUrl){
+	private void handleSuccessfulLogin(HttpServletRequest request, HttpServletResponse response, URL targetUrl){
 		String redirectTo;
 		if(targetUrl != null){
 			redirectTo = targetUrl.toExternalForm();
-			DatarouterSessionManager.clearTargetUrlCookie(response);
+			sessionManager.clearTargetUrlCookie(response);
 		}else{
 			redirectTo = request.getContextPath();
 		}
