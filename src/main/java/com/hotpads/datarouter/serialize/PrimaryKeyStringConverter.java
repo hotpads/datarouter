@@ -1,12 +1,11 @@
 package com.hotpads.datarouter.serialize;
 
-import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class PrimaryKeyStringSerializer{
+public class PrimaryKeyStringConverter{
 	
 	public static <PK extends PrimaryKey<PK>> 
 	String primaryKeyToString(PK pk, PrimaryKeyFielder<PK> fielder){

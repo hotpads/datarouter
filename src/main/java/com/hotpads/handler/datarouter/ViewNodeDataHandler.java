@@ -16,8 +16,9 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
 import com.hotpads.datarouter.routing.DataRouterContext;
-import com.hotpads.datarouter.serialize.PrimaryKeyStringSerializer;
+import com.hotpads.datarouter.serialize.PrimaryKeyStringConverter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
@@ -144,8 +145,9 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		PK startAfterKey = null;
 		if(StringTool.notEmpty(startAfterKeyString)){
 //			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
-			startAfterKey = PrimaryKeyStringSerializer.primaryKeyFromString(node.getFieldInfo().getPrimaryKeyClass(), 
-					node.getFieldInfo().getSamplePrimaryKeyFielder(), startAfterKeyString);
+			startAfterKey = PrimaryKeyStringConverter.primaryKeyFromString(
+					(Class<PK>)node.getFieldInfo().getPrimaryKe yClass(), //need to use the fielder in the jsp
+					(PrimaryKeyFielder<PK>)node.getFieldInfo().getSamplePrimaryKey(), startAfterKeyString);
 			startAfterKey.fromPersistentString(startAfterKeyString);
 			mav.put(PARAM_startAfterKey, startAfterKey.getPersistentString());
 		}
