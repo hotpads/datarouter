@@ -18,9 +18,7 @@ extends FieldSet<D>
 	
 	Class<PK> getKeyClass();
 	String getKeyFieldName();
-	PK getKey();  
-	
-	boolean isFieldAware();
+	PK getKey();
 	
 	List<Field<?>> getKeyFields();
 	@Deprecated//always use a Fielder

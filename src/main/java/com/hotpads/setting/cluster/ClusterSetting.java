@@ -67,11 +67,6 @@ extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 		return key;
 	}
     
-    @Override
-    public boolean isFieldAware(){
-    	return true;
-    }
-    
     /***************************** methods **************************************/
 
     

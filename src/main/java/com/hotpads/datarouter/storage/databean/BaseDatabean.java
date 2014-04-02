@@ -38,11 +38,6 @@ implements Databean<PK,D>{
 	}
 	
 	@Override
-	public boolean isFieldAware(){
-		return false;
-	}
-	
-	@Override
 	public MySqlCharacterSet getCharacterSet(){
 		return SqlTable.getDefaultCharacterSet();
 	}

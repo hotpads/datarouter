@@ -49,11 +49,6 @@ public class KeepAlive extends BaseDatabean<KeepAliveKey,KeepAlive>{
 		}
 	}
 	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-	
 
 	/***************************** constructor **************************************/
 		

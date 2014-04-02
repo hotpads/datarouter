@@ -78,11 +78,6 @@ implements Serializable {
 		}
 	}
 	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-	
 	public Class<DatarouterSessionKey> getKeyClass() {
 		return DatarouterSessionKey.class;
 	}

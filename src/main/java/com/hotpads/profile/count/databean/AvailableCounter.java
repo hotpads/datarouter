@@ -50,11 +50,6 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey,Available
 		}
 	}
 
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-
 	/*********************** constructor **********************************/
 
 	AvailableCounter(){

@@ -22,16 +22,18 @@ public class DatarouterSessionAuthenticator extends BaseDatarouterAuthenticator{
 		SESSION_TIMOUT_MS = 30L * DateTool.MILLISECONDS_IN_MINUTE;
 			
 	private DatarouterUserNodes userNodes;
+	private DatarouterSessionManager sessionManager;
 	
 	public DatarouterSessionAuthenticator(HttpServletRequest request, HttpServletResponse response,
-			DatarouterUserNodes userNodes) {
+			DatarouterUserNodes userNodes, DatarouterSessionManager sessionManager) {
 		super(request, response);
 		this.userNodes = userNodes;
+		this.sessionManager = sessionManager;
 	}
 
 	@Override
-	public DatarouterSession getSession(){		
-		String sessionToken = DatarouterSessionManager.getSessionTokenFromCookie(request);
+	public DatarouterSession getSession(){
+		String sessionToken = sessionManager.getSessionTokenFromCookie(request);
 		DatarouterSession session = userNodes.getSessionNode().get(new DatarouterSessionKey(sessionToken), null);
 		if(session == null){
 			return null;
@@ -42,12 +44,12 @@ public class DatarouterSessionAuthenticator extends BaseDatarouterAuthenticator{
 		}
 		
 		//verify session's userToken matches cookie userToken.  if not, delete session to be safe
-		String cookieUserToken = DatarouterSessionManager.getUserTokenFromCookie(request);
+		String cookieUserToken = sessionManager.getUserTokenFromCookie(request);
 		if(ObjectTool.notEquals(cookieUserToken, session.getUserToken())){
 			logger.warn("session userToken "+session.getUserToken()+" != cookie userToken "+cookieUserToken
 					+", deleting session");
 			userNodes.getSessionNode().delete(session.getKey(), null);
-			DatarouterSessionManager.clearSessionTokenCookie(response);
+			sessionManager.clearSessionTokenCookie(response);
 			return null;
 		}
 		

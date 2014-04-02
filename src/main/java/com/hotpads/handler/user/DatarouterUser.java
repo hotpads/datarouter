@@ -125,11 +125,6 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		return this.key;
 	}
 
-	@Override
-	public boolean isFieldAware() {
-		return true;
-	}
-
 
 	/***************** indexes *****************/
 

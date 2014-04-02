@@ -79,11 +79,6 @@ public class Dashboard extends BaseDatabean<DashboardKey,Dashboard>{
 	public DashboardKey getKey() {
 		return key;
 	}
-	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
 
 	/************************ ref ***************************************/
 

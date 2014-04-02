@@ -42,11 +42,6 @@ public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 		}
 	}
 	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-	
 
 	/***************************** constructor **************************************/
 		
