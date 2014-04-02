@@ -36,7 +36,7 @@ public class ExceptionHandlingFilter implements Filter {
 	private static IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> node;
 	private static String serverName;
 
-//	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
+	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 
 	public static final String CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com";
 
@@ -108,6 +108,7 @@ public class ExceptionHandlingFilter implements Filter {
 						exceptionRecord.getKey().getId());
 
 			} catch (Exception ex) {
+				logger.error("Exception while loging and requesting notification API");
 				ex.printStackTrace();
 			}
 
@@ -128,6 +129,7 @@ public class ExceptionHandlingFilter implements Filter {
 					br.close();
 				}
 			} catch (Exception ex) {
+				logger.error("Exception while writing html output");
 				ex.printStackTrace();
 			}
 		} finally {
