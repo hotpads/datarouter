@@ -52,7 +52,6 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 		this.stackTrace = stackTrace;
 	}
 
-	@Override
 	public boolean isFieldAware() {
 		return true;
 	}
