@@ -29,13 +29,9 @@ public class GlobalSetting extends BaseDatabean<GlobalSettingKey,GlobalSetting>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(GlobalSetting d){
-			return d.getNonKeyFields();
+			return FieldTool.createList(
+					new StringField(F.value, d.value, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
-	}
-
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(new StringField(F.value, value, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 
 	/************************* constructors ***************************/
