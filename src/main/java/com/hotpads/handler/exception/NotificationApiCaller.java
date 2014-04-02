@@ -23,12 +23,15 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.log4j.Logger;
 
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 
 public class NotificationApiCaller {
 
+	private static Logger logger = Logger.getLogger(NotificationApiCaller.class);
+	
 	private HttpClient client;
 
 	public NotificationApiCaller() {
@@ -36,7 +39,6 @@ public class NotificationApiCaller {
 	}
 
 	public NotificationApiCaller(HttpClient client) {
-		super();
 		this.client = client;
 	}
 
@@ -59,9 +61,8 @@ public class NotificationApiCaller {
 		post.setEntity(new UrlEncodedFormEntity(params));
 		HttpResponse response = client.execute(post);
 
-		boolean debug = false;
-
-		if (debug) {
+		if (response.getStatusLine().getStatusCode() != 200) {
+			logger.error("Error calling notification API (status code " + response.getStatusLine().getStatusCode() + ")");
 			BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 			String line = null;
 			while ((line = rd.readLine()) != null) {
