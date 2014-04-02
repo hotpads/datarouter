@@ -50,11 +50,6 @@ import com.hotpads.util.core.XMLStringTool;
 		}
 	}
 
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-
 	/*********************** constructor **********************************/
 
 	AvailableCounter(){

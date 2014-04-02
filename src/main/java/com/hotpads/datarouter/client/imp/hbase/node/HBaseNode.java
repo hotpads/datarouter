@@ -106,9 +106,6 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					DRCounters.incSuffixClientNode(client.getType(), "cells put", clientName, node.getName(), numCellsPut);
 					DRCounters.incSuffixClientNode(client.getType(), "cells delete", clientName, node.getName(), numCellsDeleted);
 					DRCounters.incSuffixClientNode(client.getType(), "rows put", clientName, node.getName(), numRowsPut);
-//					DRCounters.inc(node.getName()+" hbase cells put", numPuts);
-//					DRCounters.inc(node.getName()+" hbase cells delete", numDeletes);//deletes gets emptied by the hbase client, so count before flushing
-//					DRCounters.inc(node.getName()+" hbase cells put+delete", numPuts + numDeletes);
 					if(CollectionTool.notEmpty(actions)){
 						hTable.batch(actions);
 						hTable.flushCommits();
@@ -191,11 +188,5 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	public D getDatabean(Result row) {
 		return HBaseResultTool.getDatabean(row, fieldInfo);
 	}
-	
-//	public static void disableWal(Collection<Put> puts){
-//		for(Put put : CollectionTool.nullSafe(puts)){
-//			put.setWriteToWAL(false);
-//		}
-//	}
 
 }
