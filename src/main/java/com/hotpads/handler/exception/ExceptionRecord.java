@@ -72,6 +72,14 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 
 	}
 
+	@Override
+	public List<Field<?>> getNonKeyFields() {
+		return FieldTool.createList(
+				new DateField(F.created, created),
+				new StringField(F.serverName, serverName, LENGTH_servName),
+				new StringField(F.stackTrace, stackTrace, LENGTH_stackTrace)
+				);
+	}
 
 	private static String generateUUID() {
 		EthernetAddress addr = EthernetAddress.fromInterface();
