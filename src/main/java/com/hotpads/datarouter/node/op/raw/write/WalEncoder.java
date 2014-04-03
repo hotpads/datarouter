@@ -28,8 +28,8 @@ public class WalEncoder<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> impl
 	
 	@Override
 	public void put(D databean, Config config){
-		byte[] serializedDataBean = DatabeanTool.getBytes(databean);
-		wal.append(new WalMessage(new ByteRange(serializedDataBean)));
+//		byte[] serializedDataBean = DatabeanTool.getBytes(databean, fielder);
+//		wal.append(new WalMessage(new ByteRange(serializedDataBean)));
 	}
 
 	@Override

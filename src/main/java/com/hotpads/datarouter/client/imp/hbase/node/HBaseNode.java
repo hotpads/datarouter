@@ -81,7 +81,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key);
 						Put put = new Put(keyBytes);
 						Delete delete = new Delete(keyBytes);
-						List<Field<?>> fields = fieldInfo.getNonKeyFields(databean);
+						List<Field<?>> fields = fieldInfo.getNonKeyFieldsWithValues(databean);
 						for(Field<?> field : fields){//TODO only put modified fields
 							byte[] fieldBytes = field.getBytes();
 							if(fieldBytes==null){
