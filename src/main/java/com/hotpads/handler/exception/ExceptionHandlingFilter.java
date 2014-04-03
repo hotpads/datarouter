@@ -9,9 +9,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.inject.Singleton;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -21,9 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
-import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.exception.http.HttpException;
 import com.hotpads.util.core.exception.http.imp.Http500InternalServerErrorException;
@@ -31,7 +31,7 @@ import com.hotpads.util.core.exception.http.imp.Http500InternalServerErrorExcept
 @Singleton
 public class ExceptionHandlingFilter implements Filter {
 
-	Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
+	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
 
 	private static IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> node;
 	private static String serverName;
@@ -39,16 +39,21 @@ public class ExceptionHandlingFilter implements Filter {
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 
 	public static final String CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com";
+	
+	private NotificationApiCaller notificationApiCaller;
 
 	// private static final String ERROR = "/error";
-
+	
 	@Override
-	public void init(FilterConfig arg0) throws ServletException {
-
+	public void init(FilterConfig filterConfig) throws ServletException {
+		ServletContext servletContext = filterConfig.getServletContext();
+		NotificationApiConfig notificationApiConfig = (NotificationApiConfig) servletContext.getAttribute("notificationApiConfig");
+		notificationApiCaller = new NotificationApiCaller(notificationApiConfig);
 	}
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {
+		
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) res;
 
@@ -61,7 +66,7 @@ public class ExceptionHandlingFilter implements Filter {
 			} else {
 				httpException = new Http500InternalServerErrorException(null, e);
 			}
-			logger.warn(ExceptionTool.getStackTraceAsString(httpException));
+//			logger.warn(ExceptionTool.getStackTraceAsString(httpException));
 			// HttpSession session = request.getSession();
 			// session.setAttribute("statusCode",
 			// httpException.getStatusCode());
@@ -98,10 +103,10 @@ public class ExceptionHandlingFilter implements Filter {
 				ExceptionRecord exceptionRecord = new ExceptionRecord(
 						serverName,
 						ExceptionUtils.getStackTrace(httpException));
-				System.out.println(exceptionRecord);
+				
 				node.put(exceptionRecord, null);
 
-				new NotificationApiCaller().call(
+				notificationApiCaller.call(
 						EMAIL_NOTIFICATION_RECIPENT_TYPE,
 						CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL,
 						System.currentTimeMillis(),
@@ -110,6 +115,7 @@ public class ExceptionHandlingFilter implements Filter {
 
 			} catch (Exception ex) {
 				logger.error("Exception while loging and requesting notification API");
+				ex.printStackTrace();
 			}
 
 //			if (CustomExceptionResolver.isInternal()) {
