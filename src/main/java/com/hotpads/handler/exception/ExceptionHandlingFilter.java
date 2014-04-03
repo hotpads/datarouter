@@ -98,6 +98,7 @@ public class ExceptionHandlingFilter implements Filter {
 				ExceptionRecord exceptionRecord = new ExceptionRecord(
 						serverName,
 						ExceptionUtils.getStackTrace(httpException));
+				System.out.println(exceptionRecord);
 				node.put(exceptionRecord, null);
 
 				new NotificationApiCaller().call(
@@ -109,7 +110,6 @@ public class ExceptionHandlingFilter implements Filter {
 
 			} catch (Exception ex) {
 				logger.error("Exception while loging and requesting notification API");
-				ex.printStackTrace();
 			}
 
 //			if (CustomExceptionResolver.isInternal()) {
