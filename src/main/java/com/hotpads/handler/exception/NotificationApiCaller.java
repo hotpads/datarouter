@@ -1,17 +1,11 @@
 package com.hotpads.handler.exception;
 
-import static com.hotpads.handler.exception.NotificationApiConstants.NOTIFICATION_API_DATA;
-import static com.hotpads.handler.exception.NotificationApiConstants.NOTIFICATION_API_ENDPOINT;
-import static com.hotpads.handler.exception.NotificationApiConstants.NOTIFICATION_API_PARAM_NAME;
-import static com.hotpads.handler.exception.NotificationApiConstants.NOTIFICATION_API_TIME;
-import static com.hotpads.handler.exception.NotificationApiConstants.NOTIFICATION_API_TYPE;
-import static com.hotpads.handler.exception.NotificationApiConstants.NOTIFICATION_API_USER_ID;
-import static com.hotpads.handler.exception.NotificationApiConstants.NOTIFICATION_API_USER_TYPE;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -32,6 +26,9 @@ public class NotificationApiCaller {
 
 	private static Logger logger = Logger.getLogger(NotificationApiCaller.class);
 	
+	@Inject
+	private NotificationApiConfig notificationApiConfig;
+	
 	private HttpClient client;
 
 	public NotificationApiCaller() {
@@ -45,19 +42,19 @@ public class NotificationApiCaller {
 	public void call(String userType, String userId, Long time, String type, String data) throws IOException {
 		if (ObjectTool.anyNull(client))
 			client = new DefaultHttpClient();
-		HttpPost post = new HttpPost(NOTIFICATION_API_ENDPOINT);
+		HttpPost post = new HttpPost(notificationApiConfig.getEndPoint());
 		List<NameValuePair> params = ListTool.create();
 
 		JSONArray requests = new JSONArray();
 		JSONObject notification = new JSONObject();
-		notification.put(NOTIFICATION_API_USER_TYPE, userType);
-		notification.put(NOTIFICATION_API_USER_ID, userId);
-		notification.put(NOTIFICATION_API_TIME, time);
-		notification.put(NOTIFICATION_API_TYPE, type);
-		notification.put(NOTIFICATION_API_DATA, data);
+		notification.put(notificationApiConfig.getUserTypeKey(), userType);
+		notification.put(notificationApiConfig.getUserIdKey(), userId);
+		notification.put(notificationApiConfig.getTimeKey(), time);
+		notification.put(notificationApiConfig.getTypeKey(), type);
+		notification.put(notificationApiConfig.getDataKey(), data);
 		requests.add(notification);
 
-		params.add(new BasicNameValuePair(NOTIFICATION_API_PARAM_NAME, requests.toString()));
+		params.add(new BasicNameValuePair(notificationApiConfig.getParamName(), requests.toString()));
 		post.setEntity(new UrlEncodedFormEntity(params));
 		HttpResponse response = client.execute(post);
 
