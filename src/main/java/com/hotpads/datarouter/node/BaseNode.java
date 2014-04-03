@@ -104,7 +104,7 @@ implements Node<PK,D>{
 	
 	@Override
 	public List<Field<?>> getNonKeyFields(D d){
-		return fieldInfo.getNonKeyFields(d);
+		return fieldInfo.getNonKeyFieldsWithValues(d);
 	}
 	
 	@Override
