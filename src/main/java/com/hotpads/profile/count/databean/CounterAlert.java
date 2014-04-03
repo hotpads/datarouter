@@ -1,0 +1,208 @@
+package com.hotpads.profile.count.databean;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+import org.hibernate.annotations.AccessType;
+
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.Fielder;
+import com.hotpads.datarouter.storage.databean.BaseDatabean;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.FieldTool;
+import com.hotpads.datarouter.storage.field.imp.DateField;
+import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.key.multi.BaseLookup;
+import com.hotpads.profile.count.databean.key.CounterAlertKey;
+import com.hotpads.util.core.HashMethods;
+import com.hotpads.util.core.MapTool;
+
+@SuppressWarnings("serial")
+@Entity()
+@AccessType("field")
+public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
+	public static final int LEN_COUNTER_NAME = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int LEN_COMMENT= MySqlColumnType.MAX_LENGTH_VARCHAR;
+	
+	/************* fileds ************************/
+	@Id
+	private Long counterAlertId;
+	
+	private String counterName;// eg "get Listing" or "rawSearch"
+	private Long periodMs;
+	private Long minThreshold;
+	private Long maxThreshold;
+	private String comment;
+	private Date createdDate = new Date();
+	private Date lastNoticeDate = null;
+
+	CounterAlert(){
+		
+	}
+	
+	public CounterAlert(String counterName, Long periodMs, Long minThreshold, Long maxThreshold, String comment){
+		this.counterName = counterName;
+		this.periodMs = periodMs;
+		this.minThreshold = minThreshold;
+		this.maxThreshold = maxThreshold;
+		this.comment = comment;
+		buildId();
+	}
+	
+	public static class F{
+		public static final String
+		id = "counterAlertId",
+		counterName = "counterName",
+		periodMs = "periodMs",
+		minThreshold = "minThreshold",
+		maxThreshold = "maxThreshold",
+		comment = "comment",
+		createdDate = "createdDate",
+		lastNoticeDate = "lastNoticeDate"
+		;
+	}
+	
+	/********************* build Id **************************/
+	private void buildId(){
+		setId(HashMethods.longDJBHash(counterName + periodMs + minThreshold + maxThreshold ));
+	}
+	
+	/*************************** databean ****************************************/
+	@Override
+	public Class<CounterAlertKey> getKeyClass(){
+		return CounterAlertKey.class;
+	}
+
+	@Override
+	public CounterAlertKey getKey(){
+		return new CounterAlertKey(counterAlertId);
+	}	
+	
+	@Override
+	public String getKeyFieldName(){
+		return null;
+	}
+	
+	@Override
+	public boolean isFieldAware(){
+		return true;
+	}
+	
+	/***************************** MySQL fielder ******************************/	
+	public static class CounterAlertFielder extends BaseDatabeanFielder<CounterAlertKey, CounterAlert>{
+		public CounterAlertFielder(){}
+		@Override
+		public Class<? extends Fielder<CounterAlertKey>> getKeyFielderClass(){
+			return CounterAlertKey.class;
+		}
+
+		@Override
+		public List<Field<?>> getNonKeyFields(CounterAlert databean){
+			List<Field<?>> fields = FieldTool.createList(
+					new StringField(F.counterName, databean.counterName, LEN_COUNTER_NAME),
+					new LongField(F.periodMs, databean.periodMs), 
+					new LongField(F.minThreshold, databean.minThreshold), 
+					new LongField(F.maxThreshold, databean.maxThreshold),
+					new StringField(F.comment, databean.comment, LEN_COMMENT), 
+					new DateField(F.createdDate, databean.createdDate),
+					new DateField(F.lastNoticeDate, databean.lastNoticeDate)
+					);
+
+			return fields;
+		}
+		
+		@Override
+		public Map<String,List<Field<?>>> getIndexes(CounterAlert counterAlert){
+			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
+			indexesByName.put(F.counterName, new CounterAlertByCounterNameLookup(null).getFields());
+			return indexesByName;
+		}
+	}
+	
+	/******************************** indexes / lookup ******************************/
+	public static class CounterAlertByCounterNameLookup extends BaseLookup<CounterAlertKey>{
+		String counterName;
+		public CounterAlertByCounterNameLookup(String counterName){
+			this.counterName = counterName;
+		}
+		@Override
+		public List<Field<?>> getFields(){
+			return FieldTool.createList( new StringField(F.counterName, counterName, LEN_COUNTER_NAME));
+		}
+	}
+	
+	/******************************** getter/setter ***********************/
+	public Long getId(){
+		return counterAlertId;
+	}
+
+	public void setId(Long id){
+		this.counterAlertId = id;
+	}
+
+	public String getCounterName(){
+		return counterName;
+	}
+
+	public void setCounterName(String counterName){
+		this.counterName = counterName;
+	}
+
+	public Long getPeriodMs(){
+		return periodMs;
+	}
+
+	public void setPeriodMs(Long periodMs){
+		this.periodMs = periodMs;
+	}
+
+	public long getMinThreshold(){
+		return minThreshold;
+	}
+
+	public void setMinThreshold(long minThreshold){
+		this.minThreshold = minThreshold;
+	}
+
+	public long getMaxThreshold(){
+		return maxThreshold;
+	}
+
+	public void setMaxThreshold(long maxThreshold){
+		this.maxThreshold = maxThreshold;
+	}
+
+	public String getComment(){
+		return comment;
+	}
+
+	public void setComment(String comment){
+		this.comment = comment;
+	}
+
+	public Date getCreatedDate(){
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate){
+		this.createdDate = createdDate;
+	}
+
+	public Date getLastNoticeDate(){
+		return lastNoticeDate;
+	}
+
+	public void setLastNoticeDate(Date lastNoticeDate){
+		this.lastNoticeDate = lastNoticeDate;
+	}
+
+	public static void main(String[] args){
+		System.out.println(null + "ABC");
+	}
+}
