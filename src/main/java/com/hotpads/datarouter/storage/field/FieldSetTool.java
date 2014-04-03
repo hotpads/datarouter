@@ -57,7 +57,7 @@ public class FieldSetTool{
 				sql.append(" or ");
 			}
 			//heavy on parenthesis.  optimize later
-			sql.append("("+fieldSet.getSqlNameValuePairsEscapedConjunction()+")");
+			sql.append("("+FieldTool.getSqlNameValuePairsEscapedConjunction(fieldSet.getFields())+")");
 			++counter;
 		}
 	}

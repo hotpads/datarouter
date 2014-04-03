@@ -3,7 +3,6 @@ package com.hotpads.handler.user.authenticate;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
-import java.util.Random;
 
 import javax.inject.Inject;
 
@@ -12,14 +11,11 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUsernameLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.bytes.StringByteTool;
-import com.hotpads.util.core.number.RandomTool;
 
 /*
  * http://howtodoinjava.com/2013/07/22/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
@@ -62,6 +58,14 @@ public class DatarouterPasswordService{
         sr.nextBytes(salt);
         byte[] base64Salt = Base64.encodeBase64URLSafe(salt);
         return StringByteTool.fromUtf8Bytes(base64Salt);
+	}
+	
+	public void updateUserPassword(DatarouterUser user, String password) {
+		String passwordSalt = generateSaltForNewUser();
+		String passwordDigest = digest(passwordSalt, password);
+		user.setPasswordSalt(passwordSalt);
+		user.setPasswordDigest(passwordDigest);
+		userNodes.getUserNode().put(user, null);
 	}
 	
 	

@@ -65,11 +65,6 @@ public class BackupBean extends BaseDatabean<BackupBeanKey,BackupBean> implement
 		}
 	}
 	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-	
 
 	/***************************** constructor **************************************/
 		

@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.base.Preconditions;
+import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
@@ -91,6 +92,10 @@ public class Params{
 	
 	public String getContextPath(){
 		return request.getContextPath();
+	}
+	
+	public DatarouterSession getSession() {
+		return (DatarouterSession) request.getAttribute("datarouterSession");
 	}
 	
 	

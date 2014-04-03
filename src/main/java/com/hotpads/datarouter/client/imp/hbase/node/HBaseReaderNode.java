@@ -174,13 +174,6 @@ implements HBasePhysicalNode<PK,D>,
 					}
 					Result[] resultArray = hTable.get(gets);
 					return HBaseResultTool.getPrimaryKeys(Arrays.asList(resultArray), fieldInfo);
-//					List<PK> results = ListTool.createArrayListWithSize(keys);
-//					for(Result row : resultArray){
-//						if(row==null || row.isEmpty()){ continue; }
-//						PK result = HBaseResultTool.getPrimaryKey(row.getRow(), fieldInfo);
-//						results.add(result);
-//					}
-//					return results;
 				}
 			}).call();
 	}
@@ -277,19 +270,6 @@ implements HBasePhysicalNode<PK,D>,
 		List<D> results = IterableTool.createArrayListFromIterable(iterable, limit);
 		return results;
 	}
-
-	
-//	@Override
-//	public SortedScannerIterable<PK> scanKeys(final PK start, final boolean startInclusive, 
-//			final PK end, final boolean endInclusive, 
-//			final Config pConfig){
-//		final Config config = Config.nullSafe(pConfig);
-//		List<HBasePrimaryKeyScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder
-//				.getManualPrimaryKeyScannerForEachPrefix(this, fieldInfo, start, startInclusive, end, endInclusive, 
-//				config);
-//		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
-//		return new SortedScannerIterable<PK>(collator);
-//	}
 	
 	@Override
 	public SortedScannerIterable<PK> scanKeys(final PK start, final boolean startInclusive, 
@@ -303,20 +283,6 @@ implements HBasePhysicalNode<PK,D>,
 		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
 		return new SortedScannerIterable<PK>(collator);
 	}
-
-	
-//	@Override
-//	public SortedScannerIterable<D> scan(final PK start, final boolean startInclusive, 
-//			final PK end, final boolean endInclusive, 
-//			final Config pConfig){
-//		final Config config = Config.nullSafe(pConfig);
-//		List<HBaseDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder
-//				.getManualDatabeanScannerForEachPrefix(this, fieldInfo, start, startInclusive, end, endInclusive, 
-//				config);
-//		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
-//		return new SortedScannerIterable<D>(collator);
-//	}
-
 	
 	@Override
 	public SortedScannerIterable<D> scan(final PK start, final boolean startInclusive, 

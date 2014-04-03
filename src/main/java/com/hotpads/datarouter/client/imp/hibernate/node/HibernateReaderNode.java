@@ -340,8 +340,6 @@ implements MapStorageReader<PK,D>,
 			boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
 			boolean stringField = !(field instanceof BasePrimitiveField<?>);
 			boolean canDoPrefixMatchOnField = wildcardLastField && lastNonNullField && stringField;
-//			String fieldNameWithPrefixIfNecessary = usePrefixedFieldNames
-//					? field.getPrefixedName() : field.getName();
 			String fieldNameWithPrefixIfNecessary = field.getPrefixedName();
 			if(canDoPrefixMatchOnField){
 				conjunction.add(Restrictions.like(fieldNameWithPrefixIfNecessary, 

@@ -59,11 +59,6 @@ public class Count extends BaseDatabean<CountKey,Count>{
 		}
 	}
 	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-	
 	
 	/*********************** constructor **********************************/
 	
