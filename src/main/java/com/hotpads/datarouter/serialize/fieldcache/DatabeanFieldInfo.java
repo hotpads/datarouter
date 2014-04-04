@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Preconditions;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -18,6 +19,7 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.EmptyScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
+import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -108,6 +110,7 @@ public class DatabeanFieldInfo<
 					this.collation = sampleFielder.getCollation(sampleDatabean);
 //				}
 				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
+				assertNoScatteringPrefixOnDeprecatedTables();
 			}
 			if(fieldAware){
 //				FieldTool.cacheReflectionInfo(scatteringPrefixFields, sampleScatterPrefix);
@@ -125,6 +128,15 @@ public class DatabeanFieldInfo<
 	
 	
 	/***************************** methods **************************************************/
+	
+	//loose safety check
+	private void assertNoScatteringPrefixOnDeprecatedTables(){
+		String tableName = databeanClass.getSimpleName();
+		if(ClassTool.differentClass(scatteringPrefixClass, EmptyScatteringPrefix.class) 
+				&& HBaseReaderNode.TRAILING_BYTE_TABLES.contains(tableName)){
+			throw new IllegalArgumentException("don't add scattering prefix to broken table!:"+tableName);
+		}
+	}
 	
 	public FieldSet<?> getScatteringPrefixPlusPrimaryKey(PK key){
 		return new SimpleFieldSet(getKeyFieldsWithScatteringPrefix(key));

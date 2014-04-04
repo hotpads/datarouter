@@ -48,22 +48,28 @@ extends BaseBatchLoader<T>{
 		this.batchChainCounter = batchChainCounter;
 	}
 
-	protected abstract boolean isKeysOnly();
-	protected abstract T parseHBaseResult(Result result);
-	protected abstract PK getLastPrimaryKeyFromBatch();
+	abstract boolean isKeysOnly();
+	abstract T parseHBaseResult(Result result);
+	abstract PK getLastPrimaryKeyFromBatch();
 	
 
 	@Override
-	public BaseHBaseBatchLoader<PK,D,F,T> call(){		
+	public BaseHBaseBatchLoader<PK,D,F,T> call(){	
 		//these should handle null scattering prefixes and null pks
-		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart()));
+		boolean incrementStartBytes = !range.getStartInclusive();
+		ByteRange startBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getStart(),
+				incrementStartBytes));
 		ByteRange endBytes = null;
 		if(range.getEnd() != null){//if no end bytes, then the differentScatteringPrefix(row) below will stop the scanner
-			endBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getEnd()));
+			//don't increment endBytes here.  it will be taken care of later.  hard to follow =(
+			endBytes = new ByteRange(node.getKeyBytesWithScatteringPrefix(scatteringPrefix, range.getEnd(), false));
+			//TODO adjust endKey for scatteringPrefix and endInclusive???
+		}else{
+			//TODO stop at the next scatteringPrefix.  we may be way overshooting short scans
 		}
-		//we only care about the scattering prefix part of the range here, not the actual startKey
-		Range<ByteRange> byteRange = Range.create(startBytes, range.getStartInclusive(), endBytes, 
-				range.getEndInclusive());
+		
+		//startInclusive=true because we already adjusted for it above
+		Range<ByteRange> byteRange = Range.create(startBytes, true, endBytes, range.getEndInclusive());
 		
 		//do the RPC
 		List<Result> hBaseRows = node.getResultsInSubRange(byteRange, isKeysOnly(), config);
