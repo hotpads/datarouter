@@ -129,4 +129,5 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 	public void setEmails(String emails){
 		this.emails = emails;
 	}
+	
 }
