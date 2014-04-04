@@ -59,7 +59,6 @@ public class NotificationApiCaller {
 		params.add(new BasicNameValuePair(notificationApiConfig.getParamName(), requests.toString()));
 		post.setEntity(new UrlEncodedFormEntity(params));
 		HttpResponse response = client.execute(post);
-		EntityUtils.consume(response.getEntity());
 		
 		if (response.getStatusLine().getStatusCode() != 200) {
 			logger.error("Error calling notification API (status code " + response.getStatusLine().getStatusCode() + ")");
@@ -70,6 +69,8 @@ public class NotificationApiCaller {
 			}
 			rd.close();
 		}
+		
+		EntityUtils.consume(response.getEntity());
 	}
 
 }
