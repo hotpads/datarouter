@@ -50,10 +50,10 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 		;
 	}
 	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
+//	@Override
+//	public boolean isFieldAware(){
+//		return true;
+//	}
 	
 	@Override
 	public Class<CounterAlertDestinationKey> getKeyClass(){
@@ -69,6 +69,17 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 		this.key = key;
 	}
 	
+	@Override
+	public List<Field<?>> getNonKeyFields(){
+		List<Field<?>> fields = FieldTool.createList(
+				new StringField(F.texts, texts, LEN_COMMENT), 
+				new StringField(F.emails, emails, LEN_EMAILS)
+				);
+
+		return fields;
+	}
+	
+	/***************************** MySQL fielder ******************************/	
 	public static class CounterAlertDestinationFielder extends BaseDatabeanFielder<CounterAlertDestinationKey, CounterAlertDestination>{
 		public CounterAlertDestinationFielder(){}
 		@Override
@@ -78,12 +89,7 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 
 		@Override
 		public List<Field<?>> getNonKeyFields(CounterAlertDestination databean){
-			List<Field<?>> fields = FieldTool.createList(
-					new StringField(F.texts, databean.texts, LEN_COMMENT), 
-					new StringField(F.emails, databean.emails, LEN_EMAILS)
-					);
-
-			return fields;
+			return databean.getNonKeyFields();
 		}
 		
 		@Override

@@ -89,10 +89,27 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		return null;
 	}
 	
+//	@Override
+//	public boolean isFieldAware(){
+//		return true;
+//	}
+	
+	
 	@Override
-	public boolean isFieldAware(){
-		return true;
+	public List<Field<?>> getNonKeyFields(){
+		List<Field<?>> fields = FieldTool.createList(
+				new StringField(F.counterName, counterName, LEN_COUNTER_NAME),
+				new LongField(F.periodMs, periodMs), 
+				new LongField(F.minThreshold, minThreshold), 
+				new LongField(F.maxThreshold, maxThreshold),
+				new StringField(F.comment, comment, LEN_COMMENT), 
+				new DateField(F.createdDate, createdDate),
+				new DateField(F.lastNoticeDate, lastNoticeDate)
+				);
+
+		return fields;
 	}
+	
 	
 	/***************************** MySQL fielder ******************************/	
 	public static class CounterAlertFielder extends BaseDatabeanFielder<CounterAlertKey, CounterAlert>{
@@ -104,17 +121,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(CounterAlert databean){
-			List<Field<?>> fields = FieldTool.createList(
-					new StringField(F.counterName, databean.counterName, LEN_COUNTER_NAME),
-					new LongField(F.periodMs, databean.periodMs), 
-					new LongField(F.minThreshold, databean.minThreshold), 
-					new LongField(F.maxThreshold, databean.maxThreshold),
-					new StringField(F.comment, databean.comment, LEN_COMMENT), 
-					new DateField(F.createdDate, databean.createdDate),
-					new DateField(F.lastNoticeDate, databean.lastNoticeDate)
-					);
-
-			return fields;
+			return databean.getNonKeyFields();
 		}
 		
 		@Override
