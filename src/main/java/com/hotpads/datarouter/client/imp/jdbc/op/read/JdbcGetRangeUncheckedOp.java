@@ -13,6 +13,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.collections.Range;
 
 public class JdbcGetRangeUncheckedOp<
@@ -50,6 +51,8 @@ extends BaseJdbcOp<List<? extends FieldSet<?>>>{
 		}else{
 			result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
 		}
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
+				CollectionTool.size(result));
 		return result;
 	}
 	

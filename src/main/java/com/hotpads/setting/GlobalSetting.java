@@ -67,11 +67,6 @@ public class GlobalSetting extends BaseDatabean<GlobalSettingKey,GlobalSetting>{
 		return key;
 	}
 
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-
 	/******************************* getters/setters *****************************/
 
 	public String getValue(){

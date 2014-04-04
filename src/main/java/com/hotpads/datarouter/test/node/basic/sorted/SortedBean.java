@@ -64,11 +64,6 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 		}
 	}
 	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-	
 
 	/***************************** constructor **************************************/
 		

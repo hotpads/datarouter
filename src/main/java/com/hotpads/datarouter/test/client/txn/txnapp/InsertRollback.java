@@ -41,7 +41,8 @@ public class InsertRollback extends BaseHibernateOp<Void>{
 			session.clear();
 			Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 		}else{
-			if(a.isFieldAware() || SessionExecutorImpl.EAGER_SESSION_FLUSH){
+			boolean fieldAware = router.txnBeanHibernate().getFieldInfo().getFieldAware();
+			if(fieldAware || SessionExecutorImpl.EAGER_SESSION_FLUSH){
 				Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 			}else{
 				Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));

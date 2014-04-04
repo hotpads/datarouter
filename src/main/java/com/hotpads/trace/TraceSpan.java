@@ -72,11 +72,6 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 				new UInt63Field(F.durationNano, this.durationNano));
 	}
 	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-	
 	//test implementation.  just repeats the built-in databean fields for now
 	public static class TraceSpanFielder extends BaseDatabeanFielder<TraceSpanKey,TraceSpan>{
 		public TraceSpanFielder(){super();}
