@@ -69,7 +69,6 @@ implements HBasePhysicalNode<PK,D>,
 		TRAILING_BYTE_TABLES.add("AvailableCounter");
 		TRAILING_BYTE_TABLES.add("DocumentView");
 		TRAILING_BYTE_TABLES.add("JsonListingView");
-		TRAILING_BYTE_TABLES.add("KeepAlive");
 		TRAILING_BYTE_TABLES.add("ListingTrait");
 		TRAILING_BYTE_TABLES.add("ListingTraitByDate");
 		TRAILING_BYTE_TABLES.add("ListingTraitByState");
