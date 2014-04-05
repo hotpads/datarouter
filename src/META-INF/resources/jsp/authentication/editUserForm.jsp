@@ -26,7 +26,7 @@
 			</tr>
 			<tr>
 				<td>Password:</td>
-				<td><a href="${contextPath}/admin/resetPassword?userId=${user.id}">Reset Password</a></td>
+				<td><a href="${contextPath}/resetPassword?userId=${user.id}">Reset Password</a></td>
 			</tr>
 			<tr>
 				<td>Roles:</td>
@@ -34,7 +34,7 @@
 					<select multiple="multiple" name="${authenticationConfig.userRolesParam}">
 						<c:forEach var="role" items="${datarouterUserRoles}">
 							<option value="${role.name()}"
-								<c:if test="${not empty userRoles && userRoles.contains(role)}">
+								<c:if test="${userRoles.contains(role)}">
 								selected
 								</c:if>
 								>${role.name()}</option>

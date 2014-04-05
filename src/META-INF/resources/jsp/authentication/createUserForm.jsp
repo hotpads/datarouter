@@ -16,7 +16,7 @@
 		<table>
 			<tr>
 				<td>Username:</td>
-				<td><input name="${authenticationConfig.usernameParam}" required/></td>
+				<td><input type="email" name="${authenticationConfig.usernameParam}" required/></td>
 			</tr>
 			<tr>
 				<td>Password:</td>

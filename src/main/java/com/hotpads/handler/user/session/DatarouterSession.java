@@ -148,6 +148,12 @@ implements Serializable {
 		return CollectionTool.nullSafe(roles).contains(DatarouterUserRole.datarouterAdmin.getPersistentString());
 	}
 	
+	public boolean isAdmin() {
+		Collection<String> rolesNullSafe = CollectionTool.nullSafe(roles);
+		return rolesNullSafe.contains(DatarouterUserRole.datarouterAdmin.getPersistentString()) ||
+				rolesNullSafe.contains(DatarouterUserRole.admin.getPersistentString());
+	}
+	
 	
 	/*********************** get/set ************************************/
 	
@@ -198,5 +204,4 @@ implements Serializable {
 	public void setUserCreated(Date userCreated){
 		this.userCreated = userCreated;
 	}
-	
 }
