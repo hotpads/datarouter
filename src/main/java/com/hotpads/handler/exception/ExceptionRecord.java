@@ -21,14 +21,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 @SuppressWarnings("serial")
 public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionRecord> {
 
-	public static class F {
-		public static String
-			id = "id",
-			created = "created",
-			serverName = "serverName",
-			stackTrace = "stackTrace";
-	}
-
 	public static int
 		LENGTH_id = MySqlColumnType.MAX_LENGTH_VARCHAR,
 		LENGTH_servName = MySqlColumnType.MAX_LENGTH_VARCHAR,
@@ -39,15 +31,12 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 	private String serverName;
 	private String stackTrace;
 
-	ExceptionRecord() {
-		key = new ExceptionRecordKey();
-	}
-
-	public ExceptionRecord(String serverName, String stackTrace) {
-		key = new ExceptionRecordKey(generateUUID());
-		this.created = new Date();
-		this.serverName = serverName;
-		this.stackTrace = stackTrace;
+	public static class F {
+		public static String
+			id = "id",
+			created = "created",
+			serverName = "serverName",
+			stackTrace = "stackTrace";
 	}
 
 	public static class ExceptionRecordFielder extends BaseDatabeanFielder<ExceptionRecordKey, ExceptionRecord> {
@@ -81,16 +70,27 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 				);
 	}
 
-	private static String generateUUID() {
-		EthernetAddress addr = EthernetAddress.fromInterface();
-		TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
-		UUID uuid = uuidGenerator.generate();
-		return uuid.toString();
+	ExceptionRecord() {
+		key = new ExceptionRecordKey();
+	}
+
+	public ExceptionRecord(String serverName, String stackTrace) {
+		key = new ExceptionRecordKey(generateUUID());
+		this.created = new Date();
+		this.serverName = serverName;
+		this.stackTrace = stackTrace;
 	}
 
 	@Override
 	public Class<ExceptionRecordKey> getKeyClass() {
 		return ExceptionRecordKey.class;
+	}
+
+	private static String generateUUID() {
+		EthernetAddress addr = EthernetAddress.fromInterface();
+		TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
+		UUID uuid = uuidGenerator.generate();
+		return uuid.toString();
 	}
 
 	@Override
@@ -125,14 +125,14 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 	public void setStackTrace(String stackTrace) {
 		this.stackTrace = stackTrace;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ExceptionRecord(" + key + ", " + created + ", " + serverName + ", stackTrace(" + stackTrace.length() + "))";
 	}
 
 	public static class UUIDTests {
-		
+
 		@Test
 		public void create() {
 			for (int i = 0; i < 10; i++) {
