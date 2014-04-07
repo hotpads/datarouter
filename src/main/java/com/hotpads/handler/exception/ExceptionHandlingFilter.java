@@ -32,16 +32,15 @@ public class ExceptionHandlingFilter implements Filter {
 
 	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
 
-	private IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> node;
-	private String serverName;
-	private NotificationApiCaller notificationApiCaller;
-
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 
 	public static final String CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com";
 
-	// private static final String ERROR = "/error";
 
+	private IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> node;
+	private String serverName;
+	private NotificationApiCaller notificationApiCaller;
+	
 	@Override
 	public void init(FilterConfig arg0) throws ServletException {
 		
@@ -55,7 +54,7 @@ public class ExceptionHandlingFilter implements Filter {
 
 			if (ObjectTool.anyNull(serverName, node)) {
 				logger.warn("Missing attribute in ServletContext for ExceptionHandlingFilter initialization");
-			} 
+			}
 			notificationApiCaller = new NotificationApiCaller(notificationApiConfig);
 		}
 	}
@@ -68,55 +67,8 @@ public class ExceptionHandlingFilter implements Filter {
 		try {
 			fc.doFilter(req, res);
 		} catch (Exception e) {
-//			System.out.println("Filter catch it");
-//			System.out.println("contextPath" + request.getServletContext().getContextPath());
-			ServletContext sc = request.getServletContext();
-			initiate(sc);
-//			Enumeration<String> an = sc.getAttributeNames();
-			
-//			while (an.hasMoreElements()) {
-//				String string = an.nextElement();
-//				System.out.println(string);
-//			}
-			
-//			System.out.println("serverName");
-//			System.out.println(serverName);
-//			System.out.println(serverName);
-			
-//			System.out.println("node");
-//			System.out.println(node);
-			
-//			System.out.println(node);
-			
-//			HttpException httpException;
-//			if (e instanceof HttpException) {
-//				httpException = (HttpException) e;
-//			} else {
-//				httpException = new Http500InternalServerErrorException(null, e);
-//			}
+			initiate(request.getServletContext());
 			logger.warn(ExceptionTool.getStackTraceAsString(e));
-			// HttpSession session = request.getSession();
-			// session.setAttribute("statusCode",
-			// httpException.getStatusCode());
-
-			// something else needs to set this, like an AuthenticationFilter
-			// Object displayExceptionInfo =
-			// request.getAttribute(PARAM_DISPLAY_EXCEPTION_INFO);
-			// if(displayExceptionInfo != null &&
-			// ((Boolean)displayExceptionInfo)){
-			// String message = httpException.getClass().getSimpleName() + ": "
-			// + e.getMessage();
-			// session.setAttribute("message", message);
-			//
-			// session.setAttribute("stackTrace",
-			// httpException.getStackTrace());
-			// session.setAttribute("stackTraceString", ExceptionTool
-			// .getStackTraceStringForHtmlPreBlock(httpException));
-			// }
-			// RequestDispatcher dispatcher =
-			// request.getRequestDispatcher("/jsp/generic/exception.jsp");
-			// dispatcher.forward(request, response);
-			// response.sendRedirect(request.getContextPath() + ERROR);
 
 			try {
 				// Log the exception in database
