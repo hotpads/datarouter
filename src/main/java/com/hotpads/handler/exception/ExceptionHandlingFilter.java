@@ -36,16 +36,16 @@ public class ExceptionHandlingFilter implements Filter {
 
 	public static final String CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com";
 
-
 	private IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> node;
 	private String serverName;
 	private NotificationApiCaller notificationApiCaller;
 	
 	@Override
-	public void init(FilterConfig arg0) throws ServletException {
-		
+	public void init(FilterConfig filterConfig) throws ServletException {
+		initiate(filterConfig.getServletContext());
 	}
 
+	@SuppressWarnings("unchecked")
 	private void initiate(ServletContext sc) {
 		if (serverName == null) {
 			serverName = (String) sc.getAttribute("serverName");
@@ -76,10 +76,11 @@ public class ExceptionHandlingFilter implements Filter {
 						serverName,
 						ExceptionUtils.getStackTrace(e));
 				node.put(exceptionRecord, null);
-
+				//TODO log the request
+				//TODO if not internal
 				notificationApiCaller.call(
 						NOTIFICATION_RECIPENT_TYPE_EMAIL,
-						CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL,
+						CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL, //only for dev
 						System.currentTimeMillis(),
 						SERVER_EXCEPTION_NOTIFICATION_TYPE,
 						exceptionRecord.getKey().getId());
