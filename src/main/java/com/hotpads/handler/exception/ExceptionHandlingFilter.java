@@ -81,7 +81,6 @@ public class ExceptionHandlingFilter implements Filter {
 				notificationApiCaller.call(
 						NOTIFICATION_RECIPENT_TYPE_EMAIL,
 						CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL, //only for dev
-						System.currentTimeMillis(),
 						SERVER_EXCEPTION_NOTIFICATION_TYPE,
 						exceptionRecord.getKey().getId());
 

@@ -8,7 +8,6 @@ public interface NotificationApiConfig {
 
 	String getUserTypeKey();
 	String getUserIdKey();
-	String getTimeKey();
 	String getTypeKey();
 	String getDataKey();
 
