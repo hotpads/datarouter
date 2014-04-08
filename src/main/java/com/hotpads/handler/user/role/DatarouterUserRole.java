@@ -13,7 +13,8 @@ implements StringEnum<DatarouterUserRole>{
 
 	datarouterAdmin("datarouterAdmin"),
 	admin("admin"),
-	user("user");
+	user("user"),
+	apiUser("apiUser");
 	
 	private String persistentString;
 
