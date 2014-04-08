@@ -78,7 +78,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					for(D databean : databeans){//TODO obey Config.commitBatchSize
 						if(databean==null){ continue; }
 						PK key = databean.getKey();
-						byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key);
+						byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key, false);
 						Put put = new Put(keyBytes);
 						Delete delete = new Delete(keyBytes);
 						List<Field<?>> fields = fieldInfo.getNonKeyFields(databean);
@@ -158,7 +158,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					hTable.setAutoFlush(false);
 					List<Row> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList
 					for(PK key : keys){
-						byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key);
+						byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key, false);
 						Delete delete = new Delete(keyBytes);
 //						Delete delete = new Delete(key.getBytes(false));
 						deletes.add(delete);
