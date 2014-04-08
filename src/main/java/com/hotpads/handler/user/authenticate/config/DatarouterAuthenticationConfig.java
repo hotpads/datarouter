@@ -23,6 +23,7 @@ public interface DatarouterAuthenticationConfig{
 	String getUserRolesParam();
 	String getEnabledParam();
 	String getUserIdParam();
+	String getApiEnabledParam();
 	
 	String getCookiePrefix();
 	String getUserTokenCookieName();

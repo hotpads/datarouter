@@ -73,9 +73,14 @@ public class AdminEditUserHandler extends BaseHandler{
 		String passwordDigest = passwordService.digest(passwordSalt, password);
 		Set<DatarouterUserRole> userRolesSet = getAllowedUserRoles(currentUser, userRoles);
 		
+		String apiKey = passwordService.generateSaltForNewUser();
+		boolean apiEnabled = params.optionalBoolean(authenticationConfig.getApiEnabledParam(), true);
+		
 		DatarouterUser user = DatarouterUser.create(
-				id, userToken, username, passwordSalt, passwordDigest, userRolesSet);
+				id, userToken, username, passwordSalt, passwordDigest, userRolesSet, apiKey);
 		user.setEnabled(enabled);
+		user.setApiEnabled(apiEnabled);
+		
 		
 		assertUserDoesNotExist(id, userToken, username);
 		userNodes.getUserNode().put(user, null);
