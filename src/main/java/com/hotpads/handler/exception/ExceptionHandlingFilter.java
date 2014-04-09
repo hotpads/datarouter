@@ -54,8 +54,9 @@ public class ExceptionHandlingFilter implements Filter {
 
 			if (ObjectTool.anyNull(serverName, node, notificationApiConfig)) {
 				logger.warn("Missing attribute in ServletContext for ExceptionHandlingFilter initialization");
+			} else {
+				notificationApiCaller = new NotificationApiCaller(notificationApiConfig);
 			}
-			notificationApiCaller = new NotificationApiCaller(notificationApiConfig);
 		}
 	}
 
@@ -70,52 +71,57 @@ public class ExceptionHandlingFilter implements Filter {
 			initiate(request.getServletContext());
 			logger.warn(ExceptionTool.getStackTraceAsString(e));
 
-			try {
-				// Log the exception in database
-				ExceptionRecord exceptionRecord = new ExceptionRecord(
-						serverName,
-						ExceptionUtils.getStackTrace(e));
-				node.put(exceptionRecord, null);
-				//TODO log the request
-				//TODO if not internal
-				notificationApiCaller.call(
-						NOTIFICATION_RECIPENT_TYPE_EMAIL,
-						CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL, //only for dev
-						SERVER_EXCEPTION_NOTIFICATION_TYPE,
-						exceptionRecord.getKey().getId());
+			System.out.println(request.getServerName());
 
-			} catch (Exception ex) {
-				logger.error("Exception while loging and requesting notification API");
-				ex.printStackTrace();
-			}
+			PrintWriter out = response.getWriter();
 
-//			if (CustomExceptionResolver.isInternal()) {
-//
-//			} else {
-//
-//			}
-			try {
-				PrintWriter out = response.getWriter();
-				File f = new File("workspace/error.html");
-				if (f.exists()) {
-					BufferedReader br = new BufferedReader(new FileReader(f));
-					String line;
-					while ((line = br.readLine()) != null) {
-						out.println(line);
-					}
-					br.close();
+			if (isInternalUser(request)) {
+				out.println("<pre>");
+				out.println(ExceptionTool.getStackTraceStringForHtmlPreBlock(e));
+				out.println("</pre>");
+			} else {
+				try {
+					// Log the exception in database
+					ExceptionRecord exceptionRecord = new ExceptionRecord(
+							serverName,
+							ExceptionUtils.getStackTrace(e));
+					node.put(exceptionRecord, null);
+					
+					notificationApiCaller.call(
+							NOTIFICATION_RECIPENT_TYPE_EMAIL,
+							CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL, //only for dev
+							SERVER_EXCEPTION_NOTIFICATION_TYPE,
+							exceptionRecord.getKey().getId());
+
+				} catch (Exception ex) {
+					logger.error("Exception while loging and requesting notification API");
+					ex.printStackTrace();
 				}
-			} catch (Exception ex) {
-				logger.error("Exception while writing html output");
-				ex.printStackTrace();
+				
+				try {
+					File f = new File("workspace/datarouter/error.html"); //FIXME very bad
+					if (f.exists()) {
+						BufferedReader br = new BufferedReader(new FileReader(f));
+						String line;
+						while ((line = br.readLine()) != null) {
+							out.println(line);
+						}
+						br.close();
+					}
+				} catch (Exception ex) {
+					logger.error("Exception while writing html output");
+					ex.printStackTrace();
+				}
 			}
-		} finally {
-
 		}
 	}
 
 	@Override
 	public void destroy() {
 
+	}
+
+	public static boolean isInternalUser(HttpServletRequest request) {
+		return request.getServerName().contains("localhost") || request.getServerName().contains("192.168");
 	}
 }
