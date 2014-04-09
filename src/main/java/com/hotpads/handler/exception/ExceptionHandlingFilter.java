@@ -71,8 +71,6 @@ public class ExceptionHandlingFilter implements Filter {
 			initiate(request.getServletContext());
 			logger.warn(ExceptionTool.getStackTraceAsString(e));
 
-			System.out.println(request.getServerName());
-
 			PrintWriter out = response.getWriter();
 
 			if (isInternalUser(request)) {
