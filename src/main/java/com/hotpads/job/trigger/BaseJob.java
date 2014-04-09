@@ -7,11 +7,14 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import net.spy.memcached.protocol.GetCallbackWrapper;
+
 import org.apache.log4j.Logger;
 import org.quartz.CronExpression;
 
 import com.hotpads.setting.Setting;
 import com.hotpads.util.core.BooleanTool;
+import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.datastructs.MutableBoolean;
 
@@ -230,5 +233,13 @@ public abstract class BaseJob implements Job{
 		} catch (ParseException e) {
 			throw new IllegalArgumentException(e);
 		}
+	}
+	
+	@Override
+	public int compareTo(Job that){
+		if(that==null){ return 1; }
+		int diff = ComparableTool.nullFirstCompareTo(getJobCategory(), that.getJobCategory());
+		if(diff != 0){ return diff; }
+		return ComparableTool.nullFirstCompareTo(getClass().getCanonicalName(), that.getClass().getCanonicalName());
 	}
 }
