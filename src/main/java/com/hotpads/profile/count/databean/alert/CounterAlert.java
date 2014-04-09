@@ -1,4 +1,4 @@
-package com.hotpads.profile.count.databean;
+package com.hotpads.profile.count.databean.alert;
 
 import java.util.Date;
 import java.util.List;
@@ -27,8 +27,8 @@ import com.hotpads.util.core.MapTool;
 @Entity()
 @AccessType("field")
 public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
-	public static final int LEN_COUNTER_NAME = MySqlColumnType.MAX_LENGTH_VARCHAR;
-	public static final int LEN_COMMENT= MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int LENGTH_counterName = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int LENGTH_comment= MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	/************* fileds ************************/
 	@Id
@@ -89,20 +89,14 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		return null;
 	}
 	
-//	@Override
-//	public boolean isFieldAware(){
-//		return true;
-//	}
-	
-	
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		List<Field<?>> fields = FieldTool.createList(
-				new StringField(F.counterName, counterName, LEN_COUNTER_NAME),
+				new StringField(F.counterName, counterName, LENGTH_counterName),
 				new LongField(F.periodMs, periodMs), 
 				new LongField(F.minThreshold, minThreshold), 
 				new LongField(F.maxThreshold, maxThreshold),
-				new StringField(F.comment, comment, LEN_COMMENT), 
+				new StringField(F.comment, comment, LENGTH_comment), 
 				new DateField(F.createdDate, createdDate),
 				new DateField(F.lastNoticeDate, lastNoticeDate)
 				);
@@ -140,7 +134,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		}
 		@Override
 		public List<Field<?>> getFields(){
-			return FieldTool.createList( new StringField(F.counterName, counterName, LEN_COUNTER_NAME));
+			return FieldTool.createList( new StringField(F.counterName, counterName, LENGTH_counterName));
 		}
 	}
 	

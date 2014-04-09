@@ -1,4 +1,4 @@
-package com.hotpads.profile.count.databean;
+package com.hotpads.profile.count.databean.alert;
 
 import java.util.List;
 import java.util.Map;
@@ -15,27 +15,24 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.profile.count.databean.key.CounterAlertDestinationKey;
+import com.hotpads.profile.count.databean.key.CounterAlertDestinationKey.F;
 import com.hotpads.util.core.MapTool;
 
 @SuppressWarnings("serial")
 @Entity
 @AccessType("field")
 public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinationKey,CounterAlertDestination>{
-	
-	private static final int LEN_COMMENT = MySqlColumnType.MAX_LENGTH_VARCHAR;
-	private static final int LEN_EMAILS = MySqlColumnType.MAX_LENGTH_VARCHAR;
-	
+		
 	/********************* fields ***********************************/
 	@Id
 	private CounterAlertDestinationKey key;	
-	private String texts;
-	private String emails;
 	
 	/******************* constructors *****************************************/
-	public CounterAlertDestination(){
-		this.key = new CounterAlertDestinationKey();
+	CounterAlertDestination(){
+		this.key = new CounterAlertDestinationKey(null, null, null);
 	}
 	
 	public CounterAlertDestination(CounterAlertDestinationKey key){
@@ -43,17 +40,8 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 	}
 	
 	public static class F{
-		public static final String
-		key = "key",
-		texts = "texts",
-		emails = "emails"
-		;
+		public static final String	key = "key";
 	}
-	
-//	@Override
-//	public boolean isFieldAware(){
-//		return true;
-//	}
 	
 	@Override
 	public Class<CounterAlertDestinationKey> getKeyClass(){
@@ -71,11 +59,7 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 	
 	@Override
 	public List<Field<?>> getNonKeyFields(){
-		List<Field<?>> fields = FieldTool.createList(
-				new StringField(F.texts, texts, LEN_COMMENT), 
-				new StringField(F.emails, emails, LEN_EMAILS)
-				);
-
+		List<Field<?>> fields = FieldTool.createList();
 		return fields;
 	}
 	
@@ -95,39 +79,33 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 		@Override
 		public Map<String,List<Field<?>>> getIndexes(CounterAlertDestination counterAlertDestination){
 			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
-			indexesByName.put(F.emails, new CounterAlertDestinationByEmailLookup(null).getFields());
+			indexesByName.put(CounterAlertDestinationKey.F.notificationDestination, new CounterAlertDestinationByNotificationDestinationLookup(null).getFields());
+			indexesByName.put(CounterAlertDestinationKey.F.counterAlertId, new CounterAlertDestinationByCounterAlertIdLookup(null).getFields());
 			return indexesByName;
 		}
 	}
 	
 	/******************************** indexes / lookup ******************************/
-	public static class CounterAlertDestinationByEmailLookup extends BaseLookup<CounterAlertDestinationKey>{
-		String emails;
-		public CounterAlertDestinationByEmailLookup(String emails){
-			this.emails = emails;
+	public static class CounterAlertDestinationByNotificationDestinationLookup extends BaseLookup<CounterAlertDestinationKey>{
+		private String notificationDestination;
+		public CounterAlertDestinationByNotificationDestinationLookup(String notificationDestination){
+			this.notificationDestination = notificationDestination;
 		}
 		@Override
 		public List<Field<?>> getFields(){
-			return FieldTool.createList( new StringField(F.emails, emails, LEN_EMAILS));
+			return FieldTool.createList( new StringField(CounterAlertDestinationKey.F.notificationDestination, notificationDestination, CounterAlertDestinationKey.LENGTH_notificationDestination));
 		}
 	}
 
-	
-	/******************************** getter/setter *************************************/
-	public String getTexts(){
-		return texts;
-	}
-
-	public void setTexts(String comment){
-		this.texts = comment;
-	}
-
-	public String getEmails(){
-		return emails;
-	}
-
-	public void setEmails(String emails){
-		this.emails = emails;
+	public static class CounterAlertDestinationByCounterAlertIdLookup extends BaseLookup<CounterAlertDestinationKey>{
+		private Long counterAlertId;
+		public CounterAlertDestinationByCounterAlertIdLookup(Long counterAlertId){
+			this.counterAlertId = counterAlertId;
+		}
+		@Override
+		public List<Field<?>> getFields(){
+			return FieldTool.createList( new LongField(CounterAlertDestinationKey.F.counterAlertId, counterAlertId));
+		}
 	}
 	
 }
