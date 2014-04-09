@@ -206,4 +206,5 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 	public static void main(String[] args){
 		System.out.println(null + "ABC");
 	}
+	
 }
