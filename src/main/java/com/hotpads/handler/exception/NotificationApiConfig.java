@@ -10,5 +10,6 @@ public interface NotificationApiConfig {
 	String getUserIdKey();
 	String getTypeKey();
 	String getDataKey();
+	String getChannelKey();
 
 }

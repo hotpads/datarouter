@@ -38,8 +38,9 @@ public class ExceptionHandlingFilter implements Filter {
 
 	private IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> node;
 	private String serverName;
+	private NotificationApiConfig notificationApiConfig;
 	private NotificationApiCaller notificationApiCaller;
-	
+
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 		initiate(filterConfig.getServletContext());
@@ -50,7 +51,7 @@ public class ExceptionHandlingFilter implements Filter {
 		if (serverName == null) {
 			serverName = (String) sc.getAttribute("serverName");
 			node = (IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");
-			NotificationApiConfig notificationApiConfig = (NotificationApiConfig) sc.getAttribute("notificationApiConfig");
+			notificationApiConfig = (NotificationApiConfig) sc.getAttribute("notificationApiConfig");
 
 			if (ObjectTool.anyNull(serverName, node, notificationApiConfig)) {
 				logger.warn("Missing attribute in ServletContext for ExceptionHandlingFilter initialization");
@@ -84,18 +85,19 @@ public class ExceptionHandlingFilter implements Filter {
 							serverName,
 							ExceptionUtils.getStackTrace(e));
 					node.put(exceptionRecord, null);
-					
+
 					notificationApiCaller.call(
 							NOTIFICATION_RECIPENT_TYPE_EMAIL,
 							CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL, //only for dev
 							SERVER_EXCEPTION_NOTIFICATION_TYPE,
-							exceptionRecord.getKey().getId());
+							exceptionRecord.getKey().getId(),
+							e.getClass().getName());
 
 				} catch (Exception ex) {
 					logger.error("Exception while loging and requesting notification API");
 					ex.printStackTrace();
 				}
-				
+
 				try {
 					File f = new File("workspace/datarouter/error.html"); //FIXME very bad
 					if (f.exists()) {
@@ -120,6 +122,6 @@ public class ExceptionHandlingFilter implements Filter {
 	}
 
 	public static boolean isInternalUser(HttpServletRequest request) {
-		return request.getServerName().contains("localhost") || request.getServerName().contains("192.168");
+		return (request.getServerName().contains("localhost") || request.getServerName().contains("192.168"));
 	}
 }

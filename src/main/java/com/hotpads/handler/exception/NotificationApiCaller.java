@@ -41,7 +41,7 @@ public class NotificationApiCaller {
 		this.client = client;
 	}
 
-	public void call(String userType, String userId, String type, String data) throws IOException {
+	public void call(String userType, String userId, String type, String data, String channel) throws IOException {
 		if (client == null)
 			client = new DefaultHttpClient();
 		HttpPost post = new HttpPost(notificationApiConfig.getEndPoint());
@@ -53,6 +53,7 @@ public class NotificationApiCaller {
 		notification.put(notificationApiConfig.getUserIdKey(), userId);
 		notification.put(notificationApiConfig.getTypeKey(), type);
 		notification.put(notificationApiConfig.getDataKey(), data);
+		notification.put(notificationApiConfig.getChannelKey(), channel);
 		requests.add(notification);
 
 		params.add(new BasicNameValuePair(notificationApiConfig.getParamName(), requests.toString()));
