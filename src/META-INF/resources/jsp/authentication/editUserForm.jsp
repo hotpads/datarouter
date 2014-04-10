@@ -19,10 +19,15 @@
 					<label><input type="checkbox" name="${authenticationConfig.enabledParam}"
 					<c:if test="${user.isEnabled()}">checked</c:if>/> Enabled</label>
 				</td>
+				<td>
+					<label><input type="checkbox" name="${authenticationConfig.apiEnabledParam}"
+					<c:if test="${user.isApiEnabled()}">checked</c:if>/> API Enabled</label>
+				</td>
 			</tr>
 			<tr>
 				<td>Username:</td>
-				<td><input name="${authenticationConfig.usernameParam}" value="${user.username}" required readonly/></td>
+				<td><input type="text" name="${authenticationConfig.usernameParam}" value="${user.username}"
+				required readonly/></td>
 			</tr>
 			<tr>
 				<td>Password:</td>
@@ -40,6 +45,13 @@
 								>${role.name()}</option>
 						</c:forEach>
 					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>API Key:</td>
+				<td>
+					<input type="text" value="${user.apiKey}" readonly/><br/>
+					<a href="${contextPath}/admin/resetUserApiKey?userId=${user.id}">Reset API Key</a>
 				</td>
 			</tr>
 			<tr>
