@@ -124,6 +124,7 @@ implements Serializable {
 		return new DatarouterUserKey(userId);
 	}
 	
+	
 	/************** DatarouterUserRole methods *****************************/
 	/*
 	 * careful, these are stored as strings right now, so watch for unchecked methods
@@ -147,6 +148,12 @@ implements Serializable {
 	
 	public boolean isDatarouterAdmin(){
 		return CollectionTool.nullSafe(roles).contains(DatarouterUserRole.datarouterAdmin.getPersistentString());
+	}
+	
+	public boolean isAdmin() {
+		Collection<String> rolesNullSafe = CollectionTool.nullSafe(roles);
+		return rolesNullSafe.contains(DatarouterUserRole.datarouterAdmin.getPersistentString()) ||
+				rolesNullSafe.contains(DatarouterUserRole.admin.getPersistentString());
 	}
 	
 	
