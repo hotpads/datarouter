@@ -21,6 +21,7 @@
 							<th colspan="2">
 								<h4>
 									<a href="${contextPath}/admin/editUser?${authenticationConfig.userIdParam}=${userId}">${user.username}</a>
+									<c:if test="${not user.isEnabled()}">(disabled)</c:if>
 								</h4>
 							</th>
 						</tr>
@@ -33,10 +34,6 @@
 							<td>${user.userToken}</td>
 						</tr>
 						<tr>
-							<td>Enabled:</td>
-							<td>${user.isEnabled()}</td>
-						</tr>
-						<tr>
 							<td>Last sign in:</td>
 							<td>${user.lastLoggedIn}</td>
 						</tr>
@@ -44,6 +41,12 @@
 							<td>Roles:</td>
 							<td>${user.roles}</td>
 						</tr>
+						<c:if test="${user.isApiEnabled()}">
+						<tr>
+							<td>API Key:</td>
+							<td>${user.apiKey}</td>
+						</tr>
+						</c:if>
 					</table>
 				</td>
 			</tr>

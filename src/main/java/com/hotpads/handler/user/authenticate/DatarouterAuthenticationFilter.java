@@ -30,6 +30,7 @@ import com.hotpads.handler.user.session.DatarouterSessionManager;
 import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
+import com.hotpads.util.core.exception.BadApiCallException;
 import com.hotpads.util.core.exception.InvalidCredentialsException;
 import com.hotpads.util.core.io.RuntimeIOException;
 
@@ -81,6 +82,10 @@ public class DatarouterAuthenticationFilter implements Filter{
 		}catch(InvalidCredentialsException e){//authenticators should throw this exception for bad credentials
 			logger.warn(e.getMessage());
 			handleBadCredentials(request, response, contextPath, signinFormPath);
+			return;
+		} catch(BadApiCallException e) {
+			logger.warn(e.getMessage());
+			handleBadApiCall(response, e.getMessage());
 			return;
 		}
 
@@ -144,9 +149,11 @@ public class DatarouterAuthenticationFilter implements Filter{
 			DatarouterSession session = authenticator.getSession();
 			if(session != null){
 				sessionManager.addToRequest(request, session);
-				sessionManager.addUserTokenCookie(response, session.getUserToken());
-				sessionManager.addSessionTokenCookie(response, session.getSessionToken());
-				userNodes.getSessionNode().put(session, null);
+				if(session.isSessionPersistent()) {
+					sessionManager.addUserTokenCookie(response, session.getUserToken());
+					sessionManager.addSessionTokenCookie(response, session.getSessionToken());
+					userNodes.getSessionNode().put(session, null);
+				}
 				return session;
 			}
 		}
@@ -168,6 +175,10 @@ public class DatarouterAuthenticationFilter implements Filter{
 		String errorParam = "?error=true" + usernameParamAndValue;
 		ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, contextPath + signinFormPath 
 				+ errorParam);
+	}
+	
+	private void handleBadApiCall(HttpServletResponse response, String message) {
+		ResponseTool.sendError(response, HttpServletResponse.SC_BAD_REQUEST, message);
 	}
 
 	private boolean missingRequiredRoles(String path, DatarouterSession datarouterSession){

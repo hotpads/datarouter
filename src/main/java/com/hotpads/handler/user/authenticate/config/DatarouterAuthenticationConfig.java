@@ -18,6 +18,8 @@ public interface DatarouterAuthenticationConfig{
 	
 	String getSignoutPath();
 	
+	String getApiPath();
+	
 	String getUsernameParam();
 	String getPasswordParam();
 	String getUserRolesParam();

@@ -17,6 +17,7 @@ implements DatarouterAuthenticationConfig{
 		PATH_SIGNIN_FORM = "/signin",
 		PATH_SIGNIN_SUBMIT = "/signin/submit",
 		PATH_SIGNOUT = "/signout",
+		PATH_API = "/api",
 		
 		PARAM_USERNAME = "signinUsername",
 		PARAM_PASSWORD = "signinPassword",
@@ -48,6 +49,11 @@ implements DatarouterAuthenticationConfig{
 	@Override
 	public String getSignoutPath(){
 		return PATH_SIGNOUT;
+	}
+	
+	@Override
+	public String getApiPath() {
+		return PATH_API;
 	}
 
 	@Override

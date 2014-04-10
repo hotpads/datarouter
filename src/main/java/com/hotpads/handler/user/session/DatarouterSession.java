@@ -40,6 +40,7 @@ implements Serializable {
 	private String username;
 	private Date userCreated;
 	private List<String> roles;//TODO convert to List<DatarouterUserRole>
+	private Boolean sessionPersistent = true; // store cookies by default
 	
 	public class F {
 		public static final String
@@ -78,6 +79,7 @@ implements Serializable {
 		}
 	}
 	
+	@Override
 	public Class<DatarouterSessionKey> getKeyClass() {
 		return DatarouterSessionKey.class;
 	}
@@ -122,7 +124,6 @@ implements Serializable {
 		return new DatarouterUserKey(userId);
 	}
 	
-	
 	/************** DatarouterUserRole methods *****************************/
 	/*
 	 * careful, these are stored as strings right now, so watch for unchecked methods
@@ -151,10 +152,12 @@ implements Serializable {
 	
 	/*********************** get/set ************************************/
 	
+	@Override
 	public DatarouterSessionKey getKey() {
 		return key;
 	}
 	
+	@Override
 	public void setKey(DatarouterSessionKey key) {
 		this.key = key;
 	}
@@ -198,5 +201,12 @@ implements Serializable {
 	public void setUserCreated(Date userCreated){
 		this.userCreated = userCreated;
 	}
+
+	public boolean isSessionPersistent() {
+		return sessionPersistent;
+	}
 	
+	public void setSessionPersistent(Boolean sessionPersistent) {
+		this.sessionPersistent = sessionPersistent;
+	}
 }
