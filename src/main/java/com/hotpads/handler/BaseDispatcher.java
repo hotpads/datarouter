@@ -30,6 +30,7 @@ public abstract class BaseDispatcher{
 		this.dispatchRules = ListTool.create();
 	}
 
+	@Deprecated
 	protected BaseDispatcher handle(String regex, Class<? extends BaseHandler> handlerClass){
 		Pattern pattern = Pattern.compile(regex);
 		handlerByClass.put(pattern, handlerClass);
@@ -71,6 +72,7 @@ public abstract class BaseDispatcher{
 				break;
 			}
 		}
+		
 		if (handler == null){
 			if (defaultHandlerClass == null){
 				return false;// url not found
@@ -78,7 +80,7 @@ public abstract class BaseDispatcher{
 				handler = injector.getInstance(defaultHandlerClass);
 			}
 		}
-
+		
 		Params params = new Params(request, response);
 		handler.setRequest(request);
 		handler.setResponse(response);
