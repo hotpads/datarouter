@@ -77,7 +77,7 @@ public class ExceptionHandlingFilter implements Filter {
 					out.println(ExceptionTool.getStackTraceStringForHtmlPreBlock(e));
 					out.println("</pre>");
 				} else {
-					out.println(exceptionHandlingConfig.getErrorPage(e));
+					out.println(exceptionHandlingConfig.getHtmlErrorMessage(e));
 				}
 			} catch (Exception ex) {
 				logger.error("Exception while writing html output");

@@ -1,7 +1,5 @@
 package com.hotpads.handler.exception;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 
 public interface ExceptionHandlingConfig {
@@ -12,6 +10,6 @@ public interface ExceptionHandlingConfig {
 
 	boolean shouldLogException(HttpServletRequest request, Exception exception);
 
-	String getErrorPage(Exception exception) throws IOException;
+	String getHtmlErrorMessage(Exception exception);
 
 }
