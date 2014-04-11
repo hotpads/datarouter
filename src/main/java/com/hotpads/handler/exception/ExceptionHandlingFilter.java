@@ -50,7 +50,6 @@ public class ExceptionHandlingFilter implements Filter {
 			exceptionRecordNode = (IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");
 			NotificationApiConfig notificationApiConfig = (NotificationApiConfig) sc.getAttribute("notificationApiConfig");
 			exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute("exceptionHandlingConfig");
-//			System.out.println(serverName);System.out.println(exceptionRecordNode);System.out.println(notificationApiConfig);System.out.println(exceptionHandlingConfig);
 			if (ObjectTool.anyNull(serverName, exceptionRecordNode, notificationApiConfig, exceptionHandlingConfig)) {
 				logger.warn("Missing attribute in ServletContext for ExceptionHandlingFilter initialization");
 			} else {
