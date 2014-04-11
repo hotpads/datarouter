@@ -24,6 +24,7 @@ public class HotPadsHttpClientException extends RuntimeException{
 	}
 
 	public HotPadsHttpClientException(Exception e){
+		super(e);
 		e.printStackTrace();
 	}
 
