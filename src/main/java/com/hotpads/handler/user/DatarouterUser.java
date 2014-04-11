@@ -178,9 +178,9 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		return DataRouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
 	}
 	
-	public void setRoles(Collection<DatarouterUserRole> roleEnums){
+	public void setRoles(Collection<DatarouterUserRole> roleEnums) {
 		roles = DataRouterEnumTool.getPersistentStrings(roleEnums);
-		Collections.sort(roles);//for db readability, but don't rely on it
+		Collections.sort(roles);
 	}
 
 	/***************** get/ set ***********/

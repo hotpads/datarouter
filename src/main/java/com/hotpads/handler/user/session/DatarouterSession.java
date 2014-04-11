@@ -39,8 +39,8 @@ implements Serializable {
 	private String userToken;
 	private String username;
 	private Date userCreated;
-	private List<String> roles;//TODO convert to List<DatarouterUserRole>
-	private Boolean sessionPersistent = true; // store cookies by default
+	private List<String> roles;
+	private Boolean sessionPersistent = true;
 	
 	public class F {
 		public static final String
@@ -97,6 +97,7 @@ implements Serializable {
 		Date now = new Date();
 		session.setCreated(now);
 		session.setUpdated(now);
+		session.setRoles(null);
 		return session;
 	}
 	
@@ -105,7 +106,7 @@ implements Serializable {
 		session.setUserId(user.getId());
 		session.setUserCreated(user.getCreated());
 		session.setUsername(user.getUsername());
-		session.setRoles(user.getRoles());//remember to overwrite the anonymous role
+		session.setRoles(user.getRoles());
 		return session;
 	}
 	
@@ -126,20 +127,18 @@ implements Serializable {
 	
 	
 	/************** DatarouterUserRole methods *****************************/
-	/*
-	 * careful, these are stored as strings right now, so watch for unchecked methods
-	 */
-	public List<DatarouterUserRole> getRoles(){
+	
+	public Collection<DatarouterUserRole> getRoles(){
 		return DataRouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
 	}
 	
 	public void setRoles(Collection<DatarouterUserRole> roleEnums){
 		roles = DataRouterEnumTool.getPersistentStrings(roleEnums);
-		Collections.sort(roles);//for db readability, but don't rely on it
+		Collections.sort(roles);
 	}
 	
 	public boolean doesUserHaveRole(DatarouterUserRole requiredRole) {
-		return CollectionTool.nullSafe(roles).contains(requiredRole.getPersistentString());
+		return getRoles().contains(requiredRole);
 	}
 	
 	public boolean isAnonymous(){
@@ -147,13 +146,13 @@ implements Serializable {
 	}
 	
 	public boolean isDatarouterAdmin(){
-		return CollectionTool.nullSafe(roles).contains(DatarouterUserRole.datarouterAdmin.getPersistentString());
+		return getRoles().contains(DatarouterUserRole.datarouterAdmin);
 	}
 	
 	public boolean isAdmin() {
-		Collection<String> rolesNullSafe = CollectionTool.nullSafe(roles);
-		return rolesNullSafe.contains(DatarouterUserRole.datarouterAdmin.getPersistentString()) ||
-				rolesNullSafe.contains(DatarouterUserRole.admin.getPersistentString());
+		Collection<DatarouterUserRole> rolesNullSafe = getRoles();
+		return rolesNullSafe.contains(DatarouterUserRole.datarouterAdmin) ||
+				rolesNullSafe.contains(DatarouterUserRole.admin);
 	}
 	
 	
