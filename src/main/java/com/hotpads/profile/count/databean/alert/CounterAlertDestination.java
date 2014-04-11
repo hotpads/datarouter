@@ -40,7 +40,7 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 	}
 	
 	public static class F{
-		public static final String	key = "key";
+		public static final String key = "key";
 	}
 	
 	@Override
@@ -64,7 +64,8 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 	}
 	
 	/***************************** MySQL fielder ******************************/	
-	public static class CounterAlertDestinationFielder extends BaseDatabeanFielder<CounterAlertDestinationKey, CounterAlertDestination>{
+	public static class CounterAlertDestinationFielder extends
+			BaseDatabeanFielder<CounterAlertDestinationKey,CounterAlertDestination>{
 		public CounterAlertDestinationFielder(){}
 		@Override
 		public Class<? extends Fielder<CounterAlertDestinationKey>> getKeyFielderClass(){
@@ -79,21 +80,23 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 		@Override
 		public Map<String,List<Field<?>>> getIndexes(CounterAlertDestination counterAlertDestination){
 			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
-			indexesByName.put(CounterAlertDestinationKey.F.notificationDestination, new CounterAlertDestinationByNotificationDestinationLookup(null).getFields());
-			indexesByName.put(CounterAlertDestinationKey.F.counterAlertId, new CounterAlertDestinationByCounterAlertIdLookup(null).getFields());
+			indexesByName.put(CounterAlertDestinationKey.F.notificationDestination,
+					new CounterAlertDestinationByNotificationDestinationLookup(null).getFields());
 			return indexesByName;
 		}
 	}
 	
 	/******************************** indexes / lookup ******************************/
-	public static class CounterAlertDestinationByNotificationDestinationLookup extends BaseLookup<CounterAlertDestinationKey>{
+	public static class CounterAlertDestinationByNotificationDestinationLookup extends
+			BaseLookup<CounterAlertDestinationKey>{
 		private String notificationDestination;
 		public CounterAlertDestinationByNotificationDestinationLookup(String notificationDestination){
 			this.notificationDestination = notificationDestination;
 		}
 		@Override
 		public List<Field<?>> getFields(){
-			return FieldTool.createList( new StringField(CounterAlertDestinationKey.F.notificationDestination, notificationDestination, CounterAlertDestinationKey.LENGTH_notificationDestination));
+			return FieldTool.createList(new StringField(CounterAlertDestinationKey.F.notificationDestination,
+					notificationDestination, CounterAlertDestinationKey.LENGTH_notificationDestination));
 		}
 	}
 
