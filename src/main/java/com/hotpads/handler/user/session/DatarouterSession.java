@@ -209,7 +209,7 @@ implements Serializable {
 		this.userCreated = userCreated;
 	}
 
-	public boolean isSessionPersistent() {
+	public boolean getSessionPersistent() {
 		return sessionPersistent;
 	}
 	

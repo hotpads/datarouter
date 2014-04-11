@@ -115,10 +115,10 @@ public class AdminEditUserHandler extends BaseHandler{
 	@Handler
 	private Mav editUserSubmit() {
 		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
-		DatarouterUser currentUser = getCurrentUser(), userToEdit = getUserById(userId);
 		Boolean enabled = params.optionalBoolean(authenticationConfig.getEnabledParam(), false);
 		Boolean apiEnabled = params.optionalBoolean(authenticationConfig.getApiEnabledParam(), false);
 		String[] userRoles = params.getRequest().getParameterValues(authenticationConfig.getUserRolesParam());
+		DatarouterUser currentUser = getCurrentUser(), userToEdit = getUserById(userId);
 		boolean isSelf = currentUser.equals(userToEdit);
 		
 		if(!canEditUser(userToEdit, currentUser)) {

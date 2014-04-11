@@ -24,7 +24,8 @@ implements DatarouterAuthenticationConfig{
 		PARAM_USERROLES = "userRoles",
 		PARAM_ENABLED = "isEnabled",
 		PARAM_USERID = "userId",
-		PARAM_API_ENABLED = "isApiEnabled";
+		PARAM_API_ENABLED = "isApiEnabled",
+		PARAM_API_KEY = "apiKey";
 	
 	@Override
 	public String getSignupFormPath(){
@@ -84,6 +85,11 @@ implements DatarouterAuthenticationConfig{
 	@Override
 	public String getApiEnabledParam() {
 		return PARAM_API_ENABLED;
+	}
+	
+	@Override
+	public String getApiKeyParam() {
+		return PARAM_API_KEY;
 	}
 	
 	@Override
