@@ -12,7 +12,7 @@ public class ResponseTool{
 	public static void sendError(
 			HttpServletResponse response, int code, String message){
 		try{
-			response.sendError(code);
+			response.sendError(code, message);
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}

@@ -17,71 +17,105 @@ implements DatarouterAuthenticationConfig{
 		PATH_SIGNIN_FORM = "/signin",
 		PATH_SIGNIN_SUBMIT = "/signin/submit",
 		PATH_SIGNOUT = "/signout",
+		PATH_API = "/api",
 		
 		PARAM_USERNAME = "signinUsername",
 		PARAM_PASSWORD = "signinPassword",
 		PARAM_USERROLES = "userRoles",
 		PARAM_ENABLED = "isEnabled",
-		PARAM_USERID = "userId";
+		PARAM_USERID = "userId",
+		PARAM_API_ENABLED = "isApiEnabled",
+		PARAM_API_KEY = "apiKey";
 	
+	@Override
 	public String getSignupFormPath(){
 		return PATH_SIGNUP_FORM;
 	}
 	
+	@Override
 	public String getSignupSubmitPath(){
 		return PATH_SIGNUP_SUBMIT;
 	}
 
+	@Override
 	public String getSigninFormPath(){
 		return PATH_SIGNIN_FORM;
 	}
 
+	@Override
 	public String getSigninSubmitPath(){
 		return PATH_SIGNIN_SUBMIT;
 	}
 	
+	@Override
 	public String getSignoutPath(){
 		return PATH_SIGNOUT;
 	}
+	
+	@Override
+	public String getApiPath() {
+		return PATH_API;
+	}
 
+	@Override
 	public String getUsernameParam(){
 		return PARAM_USERNAME;
 	}
 
+	@Override
 	public String getPasswordParam(){
 		return PARAM_PASSWORD;
 	}
 	
+	@Override
 	public String getUserRolesParam() {
 		return PARAM_USERROLES;
 	}
 	
+	@Override
 	public String getEnabledParam() {
 		return PARAM_ENABLED;
 	}
 	
+	@Override
 	public String getUserIdParam() {
 		return PARAM_USERID;
 	}
 	
+	@Override
+	public String getApiEnabledParam() {
+		return PARAM_API_ENABLED;
+	}
+	
+	@Override
+	public String getApiKeyParam() {
+		return PARAM_API_KEY;
+	}
+	
+	@Override
 	public Integer getUserTokenTimeoutSeconds(){
 		return 365 * 24 * 60 * 60;//365 days * 24 hours * 60 minutes * 60 seconds => 1 year
 	}
 	
+	@Override
 	public Integer getSessionTokenTimeoutSeconds(){
 		return 30 * 60;//30 minutes * 60 seconds => 30 minutes
 	}
 	
+	@Override
 	public abstract String getCookiePrefix();
 	
+	@Override
 	public String getUserTokenCookieName(){
 		return addCookiePrefix(DatarouterCookieKeys.userToken.toString());
 	}
 	
+	@Override
 	public String getSessionTokenCookieName(){
 		return addCookiePrefix(DatarouterCookieKeys.sessionToken.toString());
 	}
 	
+	@Override
 	public String getTargetUrlName() {
 		return addCookiePrefix(DatarouterCookieKeys.targetUrl.toString());
 	}

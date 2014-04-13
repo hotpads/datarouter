@@ -39,6 +39,9 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 
 	private Date created;
 	private Date lastLoggedIn;
+	
+	private Boolean apiEnabled;
+	private String apiKey;
 
 
 	public static class F {
@@ -50,7 +53,9 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 			enabled = "enabled",
 			roles = "roles",
 			created = "created",
-			lastLoggedIn = "lastLoggedIn";
+			lastLoggedIn = "lastLoggedIn",
+			apiEnabled = "apiEnabled",
+			apiKey = "apiKey";
 	}
 
 	@Override
@@ -63,7 +68,9 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 			new BooleanField(F.enabled, enabled),
 			new DelimitedStringArrayField(F.roles, ",", roles),
 			new DateField(F.created, created),
-			new DateField(F.lastLoggedIn, lastLoggedIn));
+			new DateField(F.lastLoggedIn, lastLoggedIn),
+			new BooleanField(F.apiEnabled, apiEnabled),
+			new StringField(F.apiKey, apiKey, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 
 	/****************** fielder *****************************/
@@ -82,6 +89,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
 			indexesByName.put("index_username", new DatarouterUserByUsernameLookup(null).getFields());
 			indexesByName.put("index_userToken", new DatarouterUserByUserTokenLookup(null).getFields());
+			indexesByName.put("index_apiKey", new DatarouterUserByApiKeyLookup(null).getFields());
 			return indexesByName;
 		}
 	}
@@ -97,7 +105,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 	}
 	
 	public static DatarouterUser create(Long id, String userToken, String email, String passwordSalt,
-			String passwordDigest, Collection<DatarouterUserRole> roles){
+			String passwordDigest, Collection<DatarouterUserRole> roles, String apiKey){
 		DatarouterUser user = new DatarouterUser();
 		user.setId(id);
 		Date now = new Date();
@@ -110,6 +118,9 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		user.setPasswordSalt(passwordSalt);
 		user.setPasswordDigest(passwordDigest);
 		user.setRoles(roles);
+		
+		user.setApiEnabled(true);
+		user.setApiKey(apiKey);
 		return user;
 	}
 
@@ -132,9 +143,21 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		public DatarouterUserByUsernameLookup(String username){
 			super(username);
 		}
+		@Override
 		public List<Field<?>> getFields(){
 			return FieldTool.createList(
 				new StringField(F.username, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		}
+	}
+	
+	public static class DatarouterUserByApiKeyLookup extends BaseStringUniqueKey<DatarouterUserKey>{
+		public DatarouterUserByApiKeyLookup(String apiKey){
+			super(apiKey);
+		}
+		@Override
+		public List<Field<?>> getFields(){
+			return FieldTool.createList(
+				new StringField(F.apiKey, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 	}
 
@@ -142,6 +165,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		public DatarouterUserByUserTokenLookup(String userToken){
 			super(userToken);
 		}
+		@Override
 		public List<Field<?>> getFields(){
 			return FieldTool.createList(
 				new StringField(F.userToken, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
@@ -154,9 +178,9 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		return DataRouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
 	}
 	
-	public void setRoles(Collection<DatarouterUserRole> roleEnums){
+	public void setRoles(Collection<DatarouterUserRole> roleEnums) {
 		roles = DataRouterEnumTool.getPersistentStrings(roleEnums);
-		Collections.sort(roles);//for db readability, but don't rely on it
+		Collections.sort(roles);
 	}
 
 	/***************** get/ set ***********/
@@ -227,6 +251,22 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 
 	public void setLastLoggedIn(Date lastLoggedIn){
 		this.lastLoggedIn = lastLoggedIn;
+	}
+
+	public Boolean isApiEnabled() {
+		return apiEnabled;
+	}
+
+	public void setApiEnabled(Boolean apiEnabled) {
+		this.apiEnabled = apiEnabled;
+	}
+
+	public String getApiKey() {
+		return apiKey;
+	}
+
+	public void setApiKey(String apiKey) {
+		this.apiKey = apiKey;
 	}
 
 }

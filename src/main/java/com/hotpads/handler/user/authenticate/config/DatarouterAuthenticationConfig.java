@@ -18,11 +18,15 @@ public interface DatarouterAuthenticationConfig{
 	
 	String getSignoutPath();
 	
+	String getApiPath();
+	
 	String getUsernameParam();
 	String getPasswordParam();
 	String getUserRolesParam();
 	String getEnabledParam();
 	String getUserIdParam();
+	String getApiEnabledParam();
+	String getApiKeyParam();
 	
 	String getCookiePrefix();
 	String getUserTokenCookieName();
