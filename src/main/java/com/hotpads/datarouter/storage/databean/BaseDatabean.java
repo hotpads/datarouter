@@ -62,12 +62,12 @@ implements Databean<PK,D>{
 		return FieldTool.prependPrefixes(getKeyFieldName(), getKey().getFields());
 	}
 
-	@Override
-	@Deprecated//always use a Fielder
-	public List<Field<?>> getNonKeyFields(){
-		return new LinkedList<Field<?>>();
-//		throw new NotImplementedException("not implemented");
-	}
+//	@Override
+//	@Deprecated//always use a Fielder
+//	public List<Field<?>> getNonKeyFields(){
+//		return new LinkedList<Field<?>>();
+////		throw new NotImplementedException("not implemented");
+//	}
 
 	
 	//generally unused method that allows databean to implement the DatabeanFielder interface

@@ -21,8 +21,8 @@ extends FieldSet<D>
 	PK getKey();
 	
 	List<Field<?>> getKeyFields();
-	@Deprecated//always use a Fielder
-	List<Field<?>> getNonKeyFields();
+//	@Deprecated//always use a Fielder
+//	List<Field<?>> getNonKeyFields();
 	MySqlCollation getCollation();
 	MySqlCharacterSet getCharacterSet();
 	
