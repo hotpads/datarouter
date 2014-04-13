@@ -33,7 +33,6 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
-
 @SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
@@ -97,8 +96,8 @@ public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldTypeBeanKey,ManyFi
 	}
 	
 	
-	public static class ManyFieldTypeBeanFielder extends BaseDatabeanFielder<ManyFieldTypeBeanKey,ManyFieldTypeBean2>{
-		public ManyFieldTypeBeanFielder(){}
+	public static class ManyFieldTypeBean2Fielder extends BaseDatabeanFielder<ManyFieldTypeBeanKey,ManyFieldTypeBean2>{
+		public ManyFieldTypeBean2Fielder(){}
 		@Override
 		public Class<ManyFieldTypeBeanKey> getKeyFielderClass(){
 			return ManyFieldTypeBeanKey.class;

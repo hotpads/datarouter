@@ -33,12 +33,11 @@ extends BaseDatabean<PK,D>{
 			updated = "updated";
 	}
 	
-	@Override
-	public List<Field<?>> getNonKeyFields() {
-		return FieldTool.createList(
-			new DateField(F.created, created),
-			new DateField(F.updated, updated));//this should probably be LongDateField for mysql
-	}
+//	public List<Field<?>> getNonKeyFields() {
+//		return FieldTool.createList(
+//			new DateField(F.created, created),
+//			new DateField(F.updated, updated));//this should probably be LongDateField for mysql
+//	}
 	
 	protected BaseDatarouterSessionDatabean(PK key){
 		this.updated = new Date();
