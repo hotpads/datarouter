@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
@@ -15,17 +16,20 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.google.common.collect.Sets;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
+import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
@@ -290,6 +294,41 @@ public class SortedNodeIntegrationTests{
 		int expectedSize1 = RANGE_LENGTH_al_b * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
 		Assert.assertTrue(ListTool.isSorted(result1));
+	}
+	
+	@Test
+	public synchronized void testGet(){
+		Iterable<SortedBean> iterable = router.sortedBeanSorted().scan(null, true, null, true, null);
+		for(SortedBean sortedBean : iterable){
+			SortedBean sortedBean2 = router.sortedBean().get(sortedBean.getKey(), null);
+			Assert.assertEquals(sortedBean, sortedBean2);
+		}
+	}
+	
+	@Test
+	public synchronized void testGetMulti(){
+		Iterable<SortedBean> iterable = router.sortedBeanSorted().scan(null, true, null, true, null);
+		Set<SortedBean> allBeans = Sets.newHashSet(iterable);
+		Assert.assertEquals(TOTAL_RECORDS, allBeans.size());
+		List<SortedBean> getMultiResult = router.sortedBean().getMulti(KeyTool.getKeys(allBeans), null);
+		Assert.assertEquals(TOTAL_RECORDS, getMultiResult.size());
+		for(SortedBean sortedBeanResult : getMultiResult){
+			Assert.assertTrue(allBeans.contains(sortedBeanResult));
+		}
+	}
+	
+	@Test
+	public synchronized void testScanKeys(){
+		Iterable<SortedBeanKey> iterable = router.sortedBeanSorted().scanKeys(null, true, null, true, null);
+		long numKeys = IterableTool.count(iterable);
+		Assert.assertEquals(TOTAL_RECORDS, numKeys);
+	}
+	
+	@Test
+	public synchronized void testScan(){
+		Iterable<SortedBean> iterable = router.sortedBeanSorted().scan(null, true, null, true, null);
+		long numDatabeans = IterableTool.count(iterable);
+		Assert.assertEquals(TOTAL_RECORDS, numDatabeans);
 	}
 
 	@Test

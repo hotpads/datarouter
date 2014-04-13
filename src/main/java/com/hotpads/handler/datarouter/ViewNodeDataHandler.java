@@ -88,7 +88,9 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		long startMs = System.currentTimeMillis() - 1;
 		long batchStartMs = System.currentTimeMillis() - 1;
 		for(PK pk : iterable){
-			Assert.assertTrue(ComparableTool.gt(pk, last));
+			if(ComparableTool.lt(pk, last)){
+				logger.warn(pk+" was < "+last);//shouldn't happen, but seems to once in 10mm times
+			}
 			++count;
 			if(count > 0 && count % printBatchSize == 0){
 				long batchMs = System.currentTimeMillis() - batchStartMs;

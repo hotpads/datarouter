@@ -5,7 +5,7 @@ import java.util.concurrent.Callable;
 
 import org.quartz.CronExpression;
 
-public interface Job extends Callable<Void>{
+public interface Job extends Callable<Void>, Comparable<Job>{
 	
 //	void setScheduler(JobScheduler scheduler);
 //	void setExecutor(ScheduledExecutorService executor);
