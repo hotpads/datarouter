@@ -116,7 +116,7 @@ public class FieldTool{
 		return fields;
 	}
 	
-	public static List<Field<?>> cacheReflectionInfo(List<Field<?>> fields, FieldSet<?> sampleFieldSet){
+	public static List<Field<?>> cacheReflectionInfo(List<Field<?>> fields, Object sampleFieldSet){
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			field.cacheReflectionInfo(sampleFieldSet);
 		}

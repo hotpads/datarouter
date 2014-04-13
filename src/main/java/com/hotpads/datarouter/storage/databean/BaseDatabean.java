@@ -17,7 +17,7 @@ import com.hotpads.util.core.ListTool;
 
 @SuppressWarnings("serial")
 public abstract class BaseDatabean<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-extends BaseFieldSet<D>
+//extends BaseFieldSet<D>
 implements Databean<PK,D>{
 	
 	public static final String DEFAULT_KEY_FIELD_NAME = "key";
@@ -82,28 +82,28 @@ implements Databean<PK,D>{
 //		return databean.getNonKeyFields();
 //	}
 
-	@Override
-	public List<Field<?>> getFields(){
-		List<Field<?>> allFields = ListTool.createLinkedList();
-		allFields.addAll(getKeyFields());
-		allFields.addAll(getNonKeyFields());
-		return allFields;
-	}
-
-	@Override
-	public Object getFieldValue(String fieldName){
-		return FieldTool.getFieldValue(getFields(), fieldName);
-	}
+//	@Override
+//	public List<Field<?>> getFields(){
+//		List<Field<?>> allFields = ListTool.createLinkedList();
+//		allFields.addAll(getKeyFields());
+//		allFields.addAll(getNonKeyFields());
+//		return allFields;
+//	}
+//
+//	@Override
+//	public Object getFieldValue(String fieldName){
+//		return FieldTool.getFieldValue(getFields(), fieldName);
+//	}
 	
 	
 	/*************************** stringification ******************************/
 
-	@Override
+//	@Override
 	public String getPersistentString(){  //fuse multi-column field into one string, usually with "_" characters
 		return getKey().getPersistentString();
 	}
 	
-	@Override
+//	@Override
 	public String getTypedPersistentString(){  //usually getDatabeanName()+"."+getPersistentString()
 		return getClass().getSimpleName()+"."+getPersistentString();
 	}
@@ -125,7 +125,7 @@ implements Databean<PK,D>{
 	}
 	
 	@Override
-	public int compareTo(FieldSet that){
+	public int compareTo(D that){
 		if(!(that instanceof Databean)){
 			return 1;//put databeans after non-databeans.  no good reason
 		}

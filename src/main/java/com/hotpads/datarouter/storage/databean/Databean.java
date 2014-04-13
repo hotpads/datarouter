@@ -10,7 +10,8 @@ import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public interface Databean<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-extends FieldSet<D>
+extends Comparable<D>
+//extends FieldSet<D>
 //,DatabeanFielder<PK,D>
 {
 

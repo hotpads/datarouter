@@ -9,11 +9,13 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcCountOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetAllOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetRangeOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstKeyOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetKeysOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetPrefixedRangeOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetPrimaryKeyRangeOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetRangeUncheckedOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetWithPrefixesOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcLookupOp;
@@ -191,38 +193,30 @@ implements MapStorageReader<PK,D>,
 	}
 
 	@Deprecated
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<PK> getKeysInRange(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config config) {
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
-		return (List<PK>)getRangeUnchecked(range, true, config);
+		String opName = SortedStorageReader.OP_getKeysInRange;
+		JdbcGetPrimaryKeyRangeOp<PK,D,F> op = new JdbcGetPrimaryKeyRangeOp<PK,D,F>(this, opName, range, config);
+		return new SessionExecutorImpl<List<PK>>(op, getTraceName(opName)).call();
 	}
 	
 
 	@Deprecated
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<D> getRange(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
 			final Config config) {
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
-		return (List<D>)getRangeUnchecked(range, false, config);
+		String opName = SortedStorageReader.OP_getRange;
+		JdbcGetRangeOp<PK,D,F> op = new JdbcGetRangeOp<PK,D,F>(this, opName, range, config);
+		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
-	
-	//this gets ugly because we are dealing with PrimaryKeys/Databeans and Jdbc/Hibernate
-	public List<? extends FieldSet<?>> getRangeUnchecked(final Range<PK> range, final boolean keysOnly,
-			final Config config){
-		String opName = keysOnly ? SortedStorageReader.OP_getKeysInRange : SortedStorageReader.OP_getRange;
-		JdbcGetRangeUncheckedOp<PK,D,F> op = new JdbcGetRangeUncheckedOp<PK,D,F>(this, opName, range, keysOnly,
-				config);
-		return new SessionExecutorImpl<List<? extends FieldSet<?>>>(op, getTraceName(opName)).call();
-	}
-
 	
 	@Override
 	public List<D> getPrefixedRange(
