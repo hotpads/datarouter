@@ -1,8 +1,5 @@
 package com.hotpads.handler.exception;
 
-import static com.hotpads.handler.exception.NotificationApiConstants.NOTIFICATION_RECIPENT_TYPE_EMAIL;
-import static com.hotpads.handler.exception.NotificationApiConstants.SERVER_EXCEPTION_NOTIFICATION_TYPE;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -31,15 +28,14 @@ public class ExceptionHandlingFilter implements Filter {
 
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 
-	public static final String CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com";
-
 	private IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
 	private String serverName;
 	private ExceptionHandlingConfig exceptionHandlingConfig;
-	private NotificationApiCaller notificationApiCaller;
+	private ParallelApiCalling pac;
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
+		pac = new ParallelApiCalling();
 		initiateIfNeed(filterConfig.getServletContext());
 	}
 
@@ -53,7 +49,7 @@ public class ExceptionHandlingFilter implements Filter {
 			if (ObjectTool.anyNull(serverName, exceptionRecordNode, notificationApiConfig, exceptionHandlingConfig)) {
 				logger.warn("Missing attribute in ServletContext for ExceptionHandlingFilter initialization");
 			} else {
-				notificationApiCaller = new NotificationApiCaller(notificationApiConfig);
+				pac.setNotificationApiCaller(new NotificationApiCaller(notificationApiConfig));
 				logger.info("ExceptionHandlingFilter well initialized");
 			}
 		}
@@ -68,7 +64,6 @@ public class ExceptionHandlingFilter implements Filter {
 			fc.doFilter(req, res);
 		} catch (Exception e) {
 			logger.warn(ExceptionTool.getStackTraceAsString(e));
-
 
 			try {
 				PrintWriter out = response.getWriter();
@@ -93,18 +88,9 @@ public class ExceptionHandlingFilter implements Filter {
 					exceptionRecordNode.put(exceptionRecord, null);
 
 					if (exceptionHandlingConfig.shouldRepportError(request, e)) {
-						try {
-						notificationApiCaller.call(
-								NOTIFICATION_RECIPENT_TYPE_EMAIL,
-								CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL, //only for dev
-								SERVER_EXCEPTION_NOTIFICATION_TYPE,
-								exceptionRecord.getKey().getId(),
-								e.getClass().getName());
-						} catch (Exception  ex) {
-							logger.error("Exception while calling notification API");
-							ex.printStackTrace();
-						}
+						pac.add(exceptionRecord, e.getClass());
 					}
+
 				} catch (Exception ex) {
 					logger.error("Exception while loging");
 					ex.printStackTrace();
