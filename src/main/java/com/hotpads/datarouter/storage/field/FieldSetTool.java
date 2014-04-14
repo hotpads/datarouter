@@ -149,7 +149,7 @@ public class FieldSetTool{
 		return fieldSetFromByteStreamKnownLength(cls, fieldByPrefixedName, is, databeanLength);
 	}
 
-	public static <F extends FieldSet<?>>F fieldSetFromBytes(Class<F> cls, Map<String,Field<?>> fieldByPrefixedName,
+	public static <F> F fieldSetFromBytes(Class<F> cls, Map<String,Field<?>> fieldByPrefixedName,
 			byte[] bytes) throws IOException{
 		return fieldSetFromByteStreamKnownLength(cls, fieldByPrefixedName, new ByteArrayInputStream(bytes),
 				bytes.length);

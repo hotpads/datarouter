@@ -125,12 +125,11 @@ implements Databean<PK,D>{
 	}
 	
 	@Override
-	public int compareTo(D that){
-		if(!(that instanceof Databean)){
-			return 1;//put databeans after non-databeans.  no good reason
-		}
-		Databean other = (Databean)that;
-		return getKey().compareTo(other.getKey());
+	public int compareTo(Databean<?,?> that){
+		int diff = ClassTool.compareClass(this, that);
+		if(diff != 0){ return diff; }
+		//must be same class
+		return getKey().compareTo(((D)that).getKey());
 	}
 
 	@Override
