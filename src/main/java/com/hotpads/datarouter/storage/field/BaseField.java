@@ -141,13 +141,13 @@ public abstract class BaseField<T> implements Field<T>{
 	/******************************* reflective setters *******************************/
 
 	@Override
-	public void fromHibernateResultUsingReflection(FieldSet<?> targetFieldSet, Object col){
+	public void fromHibernateResultUsingReflection(Object targetFieldSet, Object col){
 		T v = parseJdbcValueButDoNotSet(col);
 		setUsingReflection(targetFieldSet, v);
 	}
 
 	@Override
-	public void fromJdbcResultSetUsingReflection(FieldSet<?> targetFieldSet, ResultSet resultSet){
+	public void fromJdbcResultSetUsingReflection(Object targetFieldSet, ResultSet resultSet){
 		T v = fromJdbcResultSetButDoNotSet(resultSet);
 		setUsingReflection(targetFieldSet, v);
 	}
