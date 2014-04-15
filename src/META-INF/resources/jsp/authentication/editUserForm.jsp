@@ -11,17 +11,17 @@
 <%@ include file="/WEB-INF/jsp/menu/reputation-navbar.jsp"%>
 	<div class="container">
 		<h2>Admin: Edit user</h2>
-		<form method="POST" action="${contextPath}/admin/editUserSubmit">
+		<form method="POST" action="${contextPath}${authenticationConfig.editUserSubmitPath}">
 		<input type="hidden" name="${authenticationConfig.userIdParam}" value="${user.id}"/>
 		<table>
 			<tr>
 				<td>
 					<label><input type="checkbox" name="${authenticationConfig.enabledParam}"
-					<c:if test="${user.isEnabled()}">checked</c:if>/> Enabled</label>
+					<c:if test="${user.enabled}">checked</c:if>/> Enabled</label>
 				</td>
 				<td>
 					<label><input type="checkbox" name="${authenticationConfig.apiEnabledParam}"
-					<c:if test="${user.isApiEnabled()}">checked</c:if>/> API Enabled</label>
+					<c:if test="${user.apiEnabled}">checked</c:if>/> API Enabled</label>
 				</td>
 			</tr>
 			<tr>
@@ -31,7 +31,10 @@
 			</tr>
 			<tr>
 				<td>Password:</td>
-				<td><a href="${contextPath}/resetPassword?userId=${user.id}">Reset Password</a></td>
+				<td>
+					<a href="${contextPath}${authenticationConfig.resetPasswordPath}?
+						${authenticationConfig.userIdParam}=${user.id}">Reset Password</a>
+				</td>
 			</tr>
 			<tr>
 				<td>Roles:</td>
@@ -51,7 +54,8 @@
 				<td>API Key:</td>
 				<td>
 					<input type="text" value="${user.apiKey}" readonly/><br/>
-					<a href="${contextPath}/admin/resetUserApiKey?userId=${user.id}">Reset API Key</a>
+					<a href="${contextPath}${authenticationConfig.resetApiKeySubmitPath}?
+						${authenticationConfig.userIdParam}=${user.id}">Reset API Key</a>
 				</td>
 			</tr>
 			<tr>

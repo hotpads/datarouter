@@ -25,12 +25,12 @@ public interface DatarouterAuthenticationConfig{
 	String getResetPasswordSubmitPath();
 
 	String getAdminPath();
-	String getAdminViewUsersPath();
-	String getAdminCreateUserPath();
-	String getAdminEditUserPath();
-	String getAdminResetUserApiKeyPath();
-	String getAdminCreateUserSubmitPath();
-	String getAdminEditUserSubmitPath();
+	String getViewUsersPath();
+	String getCreateUserPath();
+	String getEditUserPath();
+	String getResetApiKeySubmitPath();
+	String getCreateUserSubmitPath();
+	String getEditUserSubmitPath();
 
 	String getApiKeyParam();
 	String getUsernameParam();
@@ -39,6 +39,13 @@ public interface DatarouterAuthenticationConfig{
 	String getEnabledParam();
 	String getUserIdParam();
 	String getApiEnabledParam();
+	
+	String getKeepaliveJsp();
+	String getHomeJsp();
+	String getViewUsersJsp();
+	String getCreateUserJsp();
+	String getEditUserJsp();
+	String getResetPasswordJsp();
 	
 	String getCookiePrefix();
 	String getUserTokenCookieName();
@@ -52,5 +59,4 @@ public interface DatarouterAuthenticationConfig{
 			HttpServletResponse response);
 	
 	Collection<DatarouterUserRole> getRequiredRoles(String path);
-	
 }

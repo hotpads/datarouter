@@ -21,35 +21,34 @@ implements DatarouterAuthenticationConfig{
 	private static final String PATH_signin = "/signin";
 	private static final String PATH_signinSubmit = PATH_signin + "/submit";
 	private static final String PATH_signout = "/signout";
-		
+	
 	private static final String PATH_resetPassword = "/resetPassword";
 	private static final String PATH_resetPasswordSubmit = "/resetPasswordSubmit";
-
+	
 	private static final String PATH_admin = "/admin";
-	private static final String PATH_adminViewUsers = PATH_admin + "/viewUsers";
-	private static final String PATH_adminCreateUser = PATH_admin + "/createUser";
-	private static final String PATH_adminCreateUserSubmit = PATH_admin + "/createUserSubmit";
-	private static final String PATH_adminEditUser = PATH_admin + "/editUser";
-	private static final String PATH_adminEditUserSubmit = PATH_admin + "/editUserSubmit";
-	private static final String PATH_adminResetUserApiKey = PATH_admin + "/resetUserApiKey";
-
+	private static final String PATH_viewUsers = PATH_admin + "/viewUsers";
+	private static final String PATH_createUser = PATH_admin + "/createUser";
+	private static final String PATH_createUserSubmit = PATH_admin + "/createUserSubmit";
+	private static final String PATH_editUser = PATH_admin + "/editUser";
+	private static final String PATH_editUserSubmit = PATH_admin + "/editUserSubmit";
+	private static final String PATH_resetApiKeySubmit = PATH_admin + "/resetApiKeySubmit";
+	
 	private static final String PARAM_apiKey = "apiKey";
-	private static final String PARAM_username = "signinUsername";
-	private static final String PARAM_password = "signinPassword";
+	private static final String PARAM_username = "username";
+	private static final String PARAM_password = "password";
 	private static final String PARAM_userRoles = "userRoles";
 	private static final String PARAM_enabled = "isEnabled";
 	private static final String PARAM_userId = "userId";
 	private static final String PARAM_apiEnabled = "isApiEnabled";
-	
-	private static final String JSP_ROOT = "/WEB-INF/jsp";
-	
-	private static final String JSP_HOME = JSP_ROOT + "/home.jsp";
-	private static final String JSP_KEEP_ALIVE = "/generic/keepAliveTest.jsp";
 
-	private static final String JSP_ADMIN = "/admin";
-	private static final String JSP_VIEW_USERS = JSP_ROOT + JSP_ADMIN + "/viewUsers.jsp";
-	private static final String JSP_EDIT_USER = JSP_ROOT + JSP_ADMIN + "/editUsers.jsp";
-	private static final String JSP_RESET_PASSWORD = JSP_ROOT + JSP_ADMIN + "/resetPasswordForm.jsp";
+	private static final String JSP_keepalive = "/generic/keepAliveTest.jsp";
+	private static final String JSP_home = "/WEB-INF/jsp/home.jsp";
+	
+	private static final String JSP_authentication = "/jsp/authentication";
+	private static final String JSP_viewUsers = JSP_authentication + "/viewUsers.jsp";
+	private static final String JSP_createUser = JSP_authentication + "/createUserForm.jsp";
+	private static final String JSP_editUser = JSP_authentication + "/editUserForm.jsp";
+	private static final String JSP_resetPassword = JSP_authentication + "/resetPasswordForm.jsp";
 	
 	@Override
 	public String getHomePath() {
@@ -118,33 +117,33 @@ implements DatarouterAuthenticationConfig{
 	}
 	
 	@Override
-	public String getAdminViewUsersPath() {
-		return PATH_adminViewUsers;
+	public String getViewUsersPath() {
+		return PATH_viewUsers;
 	}
 	
 	@Override
-	public String getAdminCreateUserPath() {
-		return PATH_adminCreateUser;
+	public String getCreateUserPath() {
+		return PATH_createUser;
 	}
 	
 	@Override
-	public String getAdminCreateUserSubmitPath() {
-		return PATH_adminCreateUserSubmit;
+	public String getCreateUserSubmitPath() {
+		return PATH_createUserSubmit;
 	}
 	
 	@Override
-	public String getAdminEditUserPath() {
-		return PATH_adminEditUser;
+	public String getEditUserPath() {
+		return PATH_editUser;
 	}
 	
 	@Override
-	public String getAdminEditUserSubmitPath() {
-		return PATH_adminEditUserSubmit;
+	public String getEditUserSubmitPath() {
+		return PATH_editUserSubmit;
 	}
 	
 	@Override
-	public String getAdminResetUserApiKeyPath() {
-		return PATH_adminResetUserApiKey;
+	public String getResetApiKeySubmitPath() {
+		return PATH_resetApiKeySubmit;
 	}
 
 	/*********************** params ************************************/
@@ -182,6 +181,38 @@ implements DatarouterAuthenticationConfig{
 	@Override
 	public String getApiEnabledParam() {
 		return PARAM_apiEnabled;
+	}
+
+	/*********************** jsp ************************************/
+
+	@Override
+	public String getKeepaliveJsp() {
+		return JSP_keepalive;
+	}
+	
+	@Override
+	public String getHomeJsp() {
+		return JSP_home;
+	}
+	
+	@Override
+	public String getViewUsersJsp() {
+		return JSP_viewUsers;
+	}
+	
+	@Override
+	public String getCreateUserJsp() {
+		return JSP_createUser;
+	}
+	
+	@Override
+	public String getEditUserJsp() {
+		return JSP_editUser;
+	}
+	
+	@Override
+	public String getResetPasswordJsp() {
+		return JSP_resetPassword;
 	}
 	
 	/*********************** methods ************************************/

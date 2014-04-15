@@ -20,7 +20,8 @@
 						<tr>
 							<th colspan="2">
 								<h4>
-									<a href="${contextPath}/admin/editUser?${authenticationConfig.userIdParam}=${userId}">${user.username}</a>
+									<a href="${contextPath}${authenticationConfig.editUserPath}?
+									${authenticationConfig.userIdParam}=${userId}">${user.username}</a>
 									<c:if test="${not user.enabled}">(disabled)</c:if>
 								</h4>
 							</th>
