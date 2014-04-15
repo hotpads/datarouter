@@ -191,7 +191,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		return userToEdit.equals(currentUser)
 				|| !userToEdit.getRoles().contains(DatarouterUserRole.datarouterAdmin)
 				&& DatarouterUserRole.isUserAdmin(currentUser)
-				&& currentUser.isEnabled();
+				&& currentUser.getEnabled();
 	}
 	
 	private Set<DatarouterUserRole> getAllowedUserRoles(DatarouterUser currentUser, String[] userRoleStrings,

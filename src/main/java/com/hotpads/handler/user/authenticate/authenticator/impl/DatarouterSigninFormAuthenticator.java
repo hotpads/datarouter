@@ -69,7 +69,7 @@ public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticat
 		if(user==null){
 			throw new InvalidCredentialsException("user not found ("+username+")");
 		}
-		if(BooleanTool.isFalseOrNull(user.isEnabled())){
+		if(BooleanTool.isFalseOrNull(user.getEnabled())){
 			throw new InvalidCredentialsException("user not enabled ("+username+")");
 		}
 		if(StringTool.isEmpty(password)){
