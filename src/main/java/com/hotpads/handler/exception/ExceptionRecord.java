@@ -131,7 +131,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 		return "ExceptionRecord(" + key + ", " + created + ", " + serverName + ", stackTrace(" + stackTrace.length() + "))";
 	}
 
-	public static class UUIDTests {
+	public static class UUIDTester {
 
 		@Test
 		public void create() {
