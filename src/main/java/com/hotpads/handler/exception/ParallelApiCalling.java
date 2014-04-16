@@ -14,15 +14,19 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.log4j.Logger;
+
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 public class ParallelApiCalling {
 
+	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
+	
 	private static final String CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com";
 
-	private static final long FLUSHING_QUEUE_PERIODE = 5;//second
-	private static final long REQUEST_TIMEOUT = 1000;//millisecond
+	private static final long FLUSH_PERIOD_MS = 1000;//second
+	private static final long FLUSH_TIMEOUT_MS = 2 * 1000;//millisecond
 
 	private ScheduledExecutorService flusher;
 	private ExecutorService sender;
@@ -35,7 +39,7 @@ public class ParallelApiCalling {
 		NamedThreadFactory namedThreadFactory = new NamedThreadFactory(threadGroup, "notification", true);
 		flusher = Executors.newScheduledThreadPool(1, namedThreadFactory);
 		sender = Executors.newSingleThreadExecutor();
-		flusher.scheduleWithFixedDelay(new QueueFlusher(), 0, FLUSHING_QUEUE_PERIODE, TimeUnit.SECONDS);
+		flusher.scheduleWithFixedDelay(new QueueFlusher(), 0, FLUSH_PERIOD_MS, TimeUnit.MILLISECONDS);
 	}
 
 	public void setNotificationApiCaller(NotificationApiCaller notificationApiCaller) {
@@ -66,7 +70,6 @@ public class ParallelApiCalling {
 			while (CollectionTool.notEmpty(queue)) {
 				ExceptionRecordAndClass exceptionRecordAndClass = queue.poll();
 				Future<Boolean> future = sender.submit(new ApiCallAttempt(exceptionRecordAndClass));
-				System.out.println("One ApiCallAttempt submited " + exceptionRecordAndClass);
 				new FailedTester(future, exceptionRecordAndClass).start();
 			}
 		}
@@ -85,19 +88,18 @@ public class ParallelApiCalling {
 
 		@Override
 		public void run() {
-
+			long start = System.currentTimeMillis();
+			System.out.println("start " + start);
 			try {
-				if (future.get(REQUEST_TIMEOUT, TimeUnit.MILLISECONDS)) {
-					System.out.println("request sucssed " + exceptionRecordAndClass);
+				if (future.get(FLUSH_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+					logger.info("Request terminated in " + (System.currentTimeMillis() - start) + "ms");
 					return;
 				}
-				System.out.println("request failed " + exceptionRecordAndClass);
-				System.out.println("because of result");
+				logger.warn("Request to NotificationApi failed, email will be sent");
 			} catch (InterruptedException | ExecutionException | TimeoutException e) {
-				System.out.println("request failed " + exceptionRecordAndClass);
-				System.out.println(e);
+				logger.warn("Request to NotificationApi failed, email will be sent", e);
 			}
-			//send by classic mail
+			//TODO send by classic mail
 		}
 	}
 
