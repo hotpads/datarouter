@@ -21,45 +21,63 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
+import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.util.core.ListTool;
 
 @Singleton
 public class NotificationApiCaller {
 
 	private static Logger logger = Logger.getLogger(NotificationApiCaller.class);
-	
+
 	private NotificationApiConfig notificationApiConfig;
-	
+
 	private HttpClient client;
+
+	private boolean warmedup;
 
 	@Inject
 	public NotificationApiCaller(NotificationApiConfig notificationApiConfig) {
 		this.notificationApiConfig = notificationApiConfig;
+		client = new DefaultHttpClient();
 	}
 
 	public void setClient(HttpClient client) {
 		this.client = client;
+		warmedup = false;
+		warmup();
 	}
 
-	public void call(String userType, String userId, String type, String data, String channel) throws IOException {
-		if (client == null)
-			client = new DefaultHttpClient();
+	public void warmup() {
+		if (!warmedup) {
+			HttpPost post = new HttpPost(notificationApiConfig.getEndPoint());
+			try {
+				HttpResponse response = client.execute(post);
+				EntityUtils.consume(response.getEntity());
+				warmedup = true;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void call(List<NotificationRequest> requests) throws IOException {
 		HttpPost post = new HttpPost(notificationApiConfig.getEndPoint());
 		List<NameValuePair> params = ListTool.create();
 
-		JSONArray requests = new JSONArray();
-		JSONObject notification = new JSONObject();
-		notification.put(notificationApiConfig.getUserTypeKey(), userType);
-		notification.put(notificationApiConfig.getUserIdKey(), userId);
-		notification.put(notificationApiConfig.getTypeKey(), type);
-		notification.put(notificationApiConfig.getDataKey(), data);
-		notification.put(notificationApiConfig.getChannelKey(), channel);
-		requests.add(notification);
-
-		params.add(new BasicNameValuePair(notificationApiConfig.getParamName(), requests.toString()));
+		JSONArray requestsJsonArray= new JSONArray();
+		for (NotificationRequest request : requests) {
+			JSONObject notification = new JSONObject();
+			notification.put(notificationApiConfig.getUserTypeKey(), request.getKey().getUserType());
+			notification.put(notificationApiConfig.getUserIdKey(), request.getKey().getUserId());
+			notification.put(notificationApiConfig.getTypeKey(), request.getType());
+			notification.put(notificationApiConfig.getDataKey(), request.getData());
+			notification.put(notificationApiConfig.getChannelKey(), request.getChannel());
+			requestsJsonArray.add(notification);
+		}
+		params.add(new BasicNameValuePair(notificationApiConfig.getParamName(), requestsJsonArray.toString()));
 		post.setEntity(new UrlEncodedFormEntity(params));
 		HttpResponse response = client.execute(post);
-		
+
 		if (response.getStatusLine().getStatusCode() != 200) {
 			logger.error("Error calling notification API (status code " + response.getStatusLine().getStatusCode() + ")");
 			BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
@@ -69,7 +87,7 @@ public class NotificationApiCaller {
 			}
 			rd.close();
 		}
-		
+
 		EntityUtils.consume(response.getEntity());
 	}
 

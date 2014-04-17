@@ -18,6 +18,9 @@ import org.apache.log4j.Logger;
 
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import com.hotpads.notification.databean.NotificationRequest;
+import com.hotpads.notification.databean.NotificationUserId;
+import com.hotpads.notification.databean.NotificationUserType;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ObjectTool;
 
@@ -26,6 +29,8 @@ public class ExceptionHandlingFilter implements Filter {
 
 	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
 
+	private static final String SERVER_EXCEPTION_NOTIFICATION_TYPE = "com.hotpads.notification.type.ServerExceptionNotificationType";
+	private static final String CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com";
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 
 	private IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
@@ -56,15 +61,14 @@ public class ExceptionHandlingFilter implements Filter {
 	}
 
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
-
+	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {	
+		pac.warmupApiClient();
 		try {
 			fc.doFilter(req, res);
 		} catch (Exception e) {
+			HttpServletRequest request = (HttpServletRequest) req;
+			HttpServletResponse response = (HttpServletResponse) res;
 			logger.warn(ExceptionTool.getStackTraceAsString(e));
-
 			try {
 				PrintWriter out = response.getWriter();
 				if (exceptionHandlingConfig.shouldDisplayStackTrace(request, e)) {
@@ -86,9 +90,14 @@ public class ExceptionHandlingFilter implements Filter {
 							serverName,
 							ExceptionUtils.getStackTrace(e));
 					exceptionRecordNode.put(exceptionRecord, null);
-
 					if (exceptionHandlingConfig.shouldRepportError(request, e)) {
-						pac.add(exceptionRecord, e.getClass());
+						pac.add(new NotificationRequest(
+								new NotificationUserId(
+										NotificationUserType.EMAIL,
+										CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL), //TODO only for dev
+								SERVER_EXCEPTION_NOTIFICATION_TYPE,
+								exceptionRecord.getKey().getId(),
+								e.getClass().getName()));
 					}
 
 				} catch (Exception ex) {

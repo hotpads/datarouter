@@ -1,8 +1,6 @@
 package com.hotpads.handler.exception;
 
-import static com.hotpads.handler.exception.NotificationApiConstants.NOTIFICATION_RECIPENT_TYPE_EMAIL;
-import static com.hotpads.handler.exception.NotificationApiConstants.SERVER_EXCEPTION_NOTIFICATION_TYPE;
-
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -16,25 +14,25 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 public class ParallelApiCalling {
 
 	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
-	
-	private static final String CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com";
 
 	private static final long FLUSH_PERIOD_MS = 1000;//second
-	private static final long FLUSH_TIMEOUT_MS = 2 * 1000;//millisecond
+	private static final long FLUSH_TIMEOUT_MS = 1000;//millisecond
 
 	private ScheduledExecutorService flusher;
 	private ExecutorService sender;
-	private Queue<ExceptionRecordAndClass> queue;
+	private Queue<NotificationRequest> queue;
 	private NotificationApiCaller notificationApiCaller;
 
 	public ParallelApiCalling() {
-		queue = new LinkedBlockingQueue<ExceptionRecordAndClass> ();
+		queue = new LinkedBlockingQueue<NotificationRequest> ();
 		ThreadGroup threadGroup = new ThreadGroup("notification");
 		NamedThreadFactory namedThreadFactory = new NamedThreadFactory(threadGroup, "notification", true);
 		flusher = Executors.newScheduledThreadPool(1, namedThreadFactory);
@@ -46,31 +44,28 @@ public class ParallelApiCalling {
 		this.notificationApiCaller = notificationApiCaller;
 	}
 
-	public void add(ExceptionRecord exceptionRecord, Class<? extends Exception> clazz) {
-		queue.add(new ExceptionRecordAndClass(exceptionRecord, clazz));
-	}
-
-	public class ExceptionRecordAndClass { //We can not use NotificationRequest in this project
-
-		private ExceptionRecord record;
-
-		private Class<? extends Exception> clazz;
-
-		public ExceptionRecordAndClass(ExceptionRecord record, Class<? extends Exception> exception) {
-			this.record = record;
-			this.clazz = exception;
-		}
-
+	public void add(NotificationRequest request) {
+		queue.add(request);
 	}
 
 	private class QueueFlusher implements Runnable {
 
+		private static final int BATCH_SIZE = 100;
+
 		@Override
 		public void run() {
+			List<NotificationRequest> requests = ListTool.create();
 			while (CollectionTool.notEmpty(queue)) {
-				ExceptionRecordAndClass exceptionRecordAndClass = queue.poll();
-				Future<Boolean> future = sender.submit(new ApiCallAttempt(exceptionRecordAndClass));
-				new FailedTester(future, exceptionRecordAndClass).start();
+				if (requests.size() == BATCH_SIZE) {
+					Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
+					new FailedTester(future, requests).start();
+					requests = ListTool.create();
+				}
+				requests.add(queue.poll());
+			}
+			if (CollectionTool.notEmpty(requests)) {
+				Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
+				new FailedTester(future, requests).start();
 			}
 		}
 
@@ -79,20 +74,19 @@ public class ParallelApiCalling {
 	private class FailedTester extends Thread {
 
 		private Future<Boolean> future;
-		private ExceptionRecordAndClass exceptionRecordAndClass;
+		private List<NotificationRequest> requests;
 
-		public FailedTester(Future<Boolean> future, ExceptionRecordAndClass exceptionRecordAndClass) {
+		public FailedTester(Future<Boolean> future, List<NotificationRequest> requests) {
 			this.future = future;
-			this.exceptionRecordAndClass = exceptionRecordAndClass;
+			this.requests = requests;
 		}
 
 		@Override
 		public void run() {
 			long start = System.currentTimeMillis();
-			System.out.println("start " + start);
 			try {
 				if (future.get(FLUSH_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
-					logger.info("Request terminated in " + (System.currentTimeMillis() - start) + "ms");
+					logger.warn("Request terminated in " + (System.currentTimeMillis() - start) + "ms");
 					return;
 				}
 				logger.warn("Request to NotificationApi failed, email will be sent");
@@ -105,27 +99,29 @@ public class ParallelApiCalling {
 
 	private class ApiCallAttempt implements Callable<Boolean> {
 
-		private ExceptionRecordAndClass e;
+		private List<NotificationRequest> requests;
 
-		public ApiCallAttempt(ExceptionRecordAndClass e) {
-			this.e = e;
+		public ApiCallAttempt(List<NotificationRequest> requests) {
+			this.requests = requests;
 		}
 
 		@Override
 		public Boolean call() throws Exception {
 			try {
-				notificationApiCaller.call(
-						NOTIFICATION_RECIPENT_TYPE_EMAIL,
-						CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL, //only for dev
-						SERVER_EXCEPTION_NOTIFICATION_TYPE,
-						e.record.getKey().getId(),
-						e.clazz.getName());
+				notificationApiCaller.call(requests);
 				return true;
 			} catch(Exception e) {
+				e.printStackTrace();
 				return false;
 			}
 		}
 
+	}
+
+	public void warmupApiClient() {
+		if (notificationApiCaller != null) {
+			notificationApiCaller.warmup();
+		}
 	}
 
 }
