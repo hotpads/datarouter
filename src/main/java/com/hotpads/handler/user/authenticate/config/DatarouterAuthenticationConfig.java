@@ -10,19 +10,42 @@ import com.hotpads.handler.user.role.DatarouterUserRole;
 
 public interface DatarouterAuthenticationConfig{
 
-	String getSignupFormPath();
+	String getHomePath();
+	String getKeepalivePath();
+	String getDatarouterPath();
+	String getApiPath();
+	
+	String getSignupPath();
 	String getSignupSubmitPath();
-	
-	String getSigninFormPath();
+	String getSigninPath();
 	String getSigninSubmitPath();
-	
 	String getSignoutPath();
-	
+
+	String getResetPasswordPath();
+	String getResetPasswordSubmitPath();
+
+	String getAdminPath();
+	String getViewUsersPath();
+	String getCreateUserPath();
+	String getEditUserPath();
+	String getResetApiKeySubmitPath();
+	String getCreateUserSubmitPath();
+	String getEditUserSubmitPath();
+
+	String getApiKeyParam();
 	String getUsernameParam();
 	String getPasswordParam();
 	String getUserRolesParam();
 	String getEnabledParam();
 	String getUserIdParam();
+	String getApiEnabledParam();
+	
+	String getKeepaliveJsp();
+	String getHomeJsp();
+	String getViewUsersJsp();
+	String getCreateUserJsp();
+	String getEditUserJsp();
+	String getResetPasswordJsp();
 	
 	String getCookiePrefix();
 	String getUserTokenCookieName();
@@ -36,5 +59,4 @@ public interface DatarouterAuthenticationConfig{
 			HttpServletResponse response);
 	
 	Collection<DatarouterUserRole> getRequiredRoles(String path);
-	
 }

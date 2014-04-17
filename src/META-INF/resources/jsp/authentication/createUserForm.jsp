@@ -11,12 +11,12 @@
 <%@ include file="/WEB-INF/jsp/menu/reputation-navbar.jsp"%>
 	<div class="container">
 		<h2>Admin: Create user</h2>
-		<form method="POST" action="${contextPath}/admin/createUserSubmit">
+		<form method="POST" action="${contextPath}${authenticationConfig.createUserSubmitPath}">
 		
 		<table>
 			<tr>
 				<td>Username:</td>
-				<td><input name="${authenticationConfig.usernameParam}" required/></td>
+				<td><input type="email" name="${authenticationConfig.usernameParam}" required/></td>
 			</tr>
 			<tr>
 				<td>Password:</td>
