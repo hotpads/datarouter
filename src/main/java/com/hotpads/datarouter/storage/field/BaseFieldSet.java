@@ -56,9 +56,7 @@ implements FieldSet<F>{
 		Iterator<Field<?>> thatIterator = that.getFields().iterator();
 		while(thisIterator.hasNext()){//they will have the same number of fields
 			//if we got past the class checks above, then fields should be the same and arrive in the same order
-			@SuppressWarnings("unchecked")
 			Field thisField = thisIterator.next();
-			@SuppressWarnings("unchecked")
 			Field thatField = thatIterator.next();
 			@SuppressWarnings("unchecked")
 			int diff = thisField.compareTo(thatField);

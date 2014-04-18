@@ -210,10 +210,11 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 			Collection<? extends Databean<?,?>> databeans){
 		if(CollectionTool.isEmpty(databeans)){ return MapTool.create(); }
 		Databean<?,?> first = IterableTool.first(databeans);
-		List<Integer> maxLengths = ListTool.createArrayList();
+		List<String> fieldNames = FieldTool.getFieldNames(fielder.getFields(first));
+		List<Integer> maxLengths = ListTool.createArrayListAndInitialize(fieldNames.size());
 		Collections.fill(maxLengths, 0);
+		
 		for(Databean<?,?> d : IterableTool.nullSafe(databeans)){
-//			List<?> values = d.getFieldValues();
 			List<?> values = FieldTool.getFieldValues(fielder.getFields(d));
 			for(int i = 0; i < CollectionTool.size(values); ++i){
 				int length = values.get(i) == null ? 0 : StringTool.length(values.get(i).toString());
@@ -222,8 +223,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 				}
 			}
 		}
-//		List<String> fieldNames = first.getFieldNames();
-		List<String> fieldNames = FieldTool.getFieldNames(fielder.getFields(first));
+		
 		Map<String,String> abbreviatedNames = MapTool.create();
 		for(int i = 0; i < maxLengths.size(); ++i){
 			int length = maxLengths.get(i);
