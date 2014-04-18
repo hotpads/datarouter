@@ -31,7 +31,7 @@ public class ExceptionHandlingFilter implements Filter {
 	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
 
 	private static final String SERVER_EXCEPTION_NOTIFICATION_TYPE = "com.hotpads.notification.type.ServerExceptionNotificationType";
-	private static final String CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com";
+	private static final String NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com"; //TODO only for dev
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 
 	private IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
@@ -41,7 +41,7 @@ public class ExceptionHandlingFilter implements Filter {
 	@Inject
 	private NotificationApiClient notificationApiClient;
 	private ParallelApiCalling pac;
-	
+
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 		if (notificationApiClient == null) {//no spring here
@@ -68,11 +68,11 @@ public class ExceptionHandlingFilter implements Filter {
 	}
 
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {	
+	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {
 		try {
 			fc.doFilter(req, res);
 		} catch (Exception e) {
-			pac.warmupApiClient();//to be sure than the first request take less than 1s
+			pac.warmupApiClient();//to be sure than the first notificationRequest take less than 1s
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
 			logger.warn(ExceptionTool.getStackTraceAsString(e));
@@ -101,7 +101,7 @@ public class ExceptionHandlingFilter implements Filter {
 						pac.add(new NotificationRequest(
 								new NotificationUserId(
 										NotificationUserType.EMAIL,
-										CGUILLAUME_NOTIFICATION_RECIPENT_EMAIL), //TODO only for dev
+										NOTIFICATION_RECIPENT_EMAIL),
 								SERVER_EXCEPTION_NOTIFICATION_TYPE,
 								exceptionRecord.getKey().getId(),
 								e.getClass().getName()));
