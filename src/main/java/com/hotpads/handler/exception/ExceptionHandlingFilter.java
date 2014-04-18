@@ -3,6 +3,7 @@ package com.hotpads.handler.exception;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -35,12 +36,18 @@ public class ExceptionHandlingFilter implements Filter {
 
 	private IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
 	private String serverName;
+	@Inject
 	private ExceptionHandlingConfig exceptionHandlingConfig;
+	@Inject
+	private NotificationApiClient notificationApiClient;
 	private ParallelApiCalling pac;
-
+	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-		pac = new ParallelApiCalling();
+		if (notificationApiClient == null) {//no spring here
+			notificationApiClient = new NotificationApiClient();
+		}
+		pac = new ParallelApiCalling(notificationApiClient);
 		initiateIfNeed(filterConfig.getServletContext());
 	}
 
@@ -48,24 +55,24 @@ public class ExceptionHandlingFilter implements Filter {
 	private void initiateIfNeed(ServletContext sc) {
 		if (serverName == null) {
 			serverName = (String) sc.getAttribute("serverName");
-			exceptionRecordNode = (IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");
-			NotificationApiConfig notificationApiConfig = (NotificationApiConfig) sc.getAttribute("notificationApiConfig");
+		}
+		if (exceptionRecordNode == null) {
+			exceptionRecordNode = (IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");//FIXME no null only sur site app and cannot inject EventRouter here
+		}
+		if (exceptionHandlingConfig == null) {
 			exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute("exceptionHandlingConfig");
-			if (ObjectTool.anyNull(serverName, exceptionRecordNode, notificationApiConfig, exceptionHandlingConfig)) {
-				logger.warn("Missing attribute in ServletContext for ExceptionHandlingFilter initialization");
-			} else {
-				pac.setNotificationApiCaller(new NotificationApiCaller(notificationApiConfig));
-				logger.info("ExceptionHandlingFilter well initialized");
-			}
+		}
+		if (ObjectTool.anyNull(serverName, exceptionRecordNode, exceptionHandlingConfig)) {
+			logger.warn("Missing attribute in ServletContext for ExceptionHandlingFilter initialization");
 		}
 	}
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {	
-		pac.warmupApiClient();
 		try {
 			fc.doFilter(req, res);
 		} catch (Exception e) {
+			pac.warmupApiClient();//to be sure than the first request take less than 1s
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
 			logger.warn(ExceptionTool.getStackTraceAsString(e));
