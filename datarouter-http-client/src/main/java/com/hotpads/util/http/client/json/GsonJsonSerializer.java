@@ -1,6 +1,7 @@
 package com.hotpads.util.http.client.json;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 public class GsonJsonSerializer implements JsonSerializer{
 	
@@ -16,7 +17,7 @@ public class GsonJsonSerializer implements JsonSerializer{
 	}
 
 	@Override
-	public <T> T deserialize(String toDeserialize, Class<T> classOfT){
+	public <T> T deserialize(String toDeserialize, Class<T> classOfT) throws JsonSyntaxException {
 		return gson.fromJson(toDeserialize, classOfT);
 	}
 }
