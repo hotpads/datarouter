@@ -29,19 +29,16 @@ public class ParallelApiCalling {
 	private ScheduledExecutorService flusher;
 	private ExecutorService sender;
 	private Queue<NotificationRequest> queue;
-	private NotificationApiCaller notificationApiCaller;
+	private NotificationApiClient notificationApiClient;
 
-	public ParallelApiCalling() {
+	public ParallelApiCalling(NotificationApiClient notificationApiClient) {
+		this.notificationApiClient = notificationApiClient;
 		queue = new LinkedBlockingQueue<NotificationRequest> ();
 		ThreadGroup threadGroup = new ThreadGroup("notification");
 		NamedThreadFactory namedThreadFactory = new NamedThreadFactory(threadGroup, "notification", true);
 		flusher = Executors.newScheduledThreadPool(1, namedThreadFactory);
 		sender = Executors.newSingleThreadExecutor();
 		flusher.scheduleWithFixedDelay(new QueueFlusher(), 0, FLUSH_PERIOD_MS, TimeUnit.MILLISECONDS);
-	}
-
-	public void setNotificationApiCaller(NotificationApiCaller notificationApiCaller) {
-		this.notificationApiCaller = notificationApiCaller;
 	}
 
 	public void add(NotificationRequest request) {
@@ -108,7 +105,7 @@ public class ParallelApiCalling {
 		@Override
 		public Boolean call() throws Exception {
 			try {
-				notificationApiCaller.call(requests);
+				notificationApiClient.call(requests);
 				return true;
 			} catch(Exception e) {
 				e.printStackTrace();
@@ -119,9 +116,7 @@ public class ParallelApiCalling {
 	}
 
 	public void warmupApiClient() {
-		if (notificationApiCaller != null) {
-			notificationApiCaller.warmup();
-		}
+		notificationApiClient.warmup();
 	}
 
 }
