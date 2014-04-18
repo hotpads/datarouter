@@ -11,7 +11,7 @@
 <%@ include file="/WEB-INF/jsp/menu/reputation-navbar.jsp"%>
 	<div class="container">
 		<h2>Admin: Create user</h2>
-		<form method="POST" action="${contextPath}/admin/createUserSubmit">
+		<form method="POST" action="${contextPath}${authenticationConfig.createUserSubmitPath}">
 		
 		<table>
 			<tr>

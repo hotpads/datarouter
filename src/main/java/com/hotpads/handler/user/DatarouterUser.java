@@ -232,7 +232,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		this.userToken = userToken;
 	}
 
-	public Boolean isEnabled(){
+	public Boolean getEnabled(){
 		return enabled;
 	}
 
@@ -248,7 +248,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		this.lastLoggedIn = lastLoggedIn;
 	}
 
-	public Boolean isApiEnabled() {
+	public Boolean getApiEnabled() {
 		return apiEnabled;
 	}
 

@@ -14,14 +14,15 @@
 	<table>
 		<c:forEach var="user" items="${userList}">
 			<c:set var="userId" value="${user.id}"/>
-			<tr <c:if test="${not user.isEnabled()}"> bgcolor="#EEE" </c:if>>
+			<tr <c:if test="${not user.enabled}"> bgcolor="#EEE" </c:if>>
 				<td>
 					<table class="datarouterUser">
 						<tr>
 							<th colspan="2">
 								<h4>
-									<a href="${contextPath}/admin/editUser?${authenticationConfig.userIdParam}=${userId}">${user.username}</a>
-									<c:if test="${not user.isEnabled()}">(disabled)</c:if>
+									<a href="${contextPath}${authenticationConfig.editUserPath}?
+									${authenticationConfig.userIdParam}=${userId}">${user.username}</a>
+									<c:if test="${not user.enabled}">(disabled)</c:if>
 								</h4>
 							</th>
 						</tr>
@@ -41,7 +42,7 @@
 							<td>Roles:</td>
 							<td>${user.roles}</td>
 						</tr>
-						<c:if test="${user.isApiEnabled()}">
+						<c:if test="${user.apiEnabled}">
 						<tr>
 							<td>API Key:</td>
 							<td>${user.apiKey}</td>

@@ -18,7 +18,7 @@ public class DatarouterApiKeyAuthenticator extends BaseDatarouterAuthenticator {
 	public DatarouterApiKeyAuthenticator(HttpServletRequest request, HttpServletResponse response,
 			DatarouterAuthenticationConfig authenticationConfig, DatarouterUserNodes userNodes) {
 		super(request, response);
-		userDao = new DatarouterUserDao(userNodes);
+		userDao = new DatarouterUserDao();
 		this.authenticationConfig = authenticationConfig;
 	}
 	
@@ -30,7 +30,7 @@ public class DatarouterApiKeyAuthenticator extends BaseDatarouterAuthenticator {
 		String apiKey = request.getParameter(authenticationConfig.getApiKeyParam());
 		DatarouterUser user = userDao.lookupUserByApiKey(apiKey);
 		DatarouterSession session = DatarouterSession.createFromUser(user);
-		session.setSessionPersistent(false);
+		session.setIncludeSessionCookie(false);
 		return session;
 	}
 }

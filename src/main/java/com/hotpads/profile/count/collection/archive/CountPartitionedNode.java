@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
 import com.hotpads.datarouter.node.Node;
@@ -104,6 +107,21 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		}
 	}
 
+	/********************************** static methods ******************************/
+	
+	public static long findNearestTablePeriodMs(long periodMs, int numPeriods){
+		long result = d;
+		for(int i = suffixes.size()-1; i>=0; i--){
+			long totalMs = msBySuffix.get(suffixes.get(i));
+			if(periodMs > numPeriods * totalMs){
+				result = totalMs;
+				break;
+			}
+			result = totalMs;
+		}
+		return result;
+	}
+	
 	/********************************** required ************************************/
 	
 	@Override
@@ -163,11 +181,23 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		return ListTool.wrap(node);
 	}
 	
-	
 	/************************** helper **************************************/
 	
 	protected static boolean knowsPartition(Key<CountKey> key){
 		//TODO don't assume it's the PK
 		return ((CountKey)key).getPeriodMs()!=null;
+	}
+	
+	public static class CountPartitionedNodeTest{
+		@Test
+		public void testCalculateTablePeriodMs(){
+			long [] periods = {80000L, 7200000L, 86400000L, 604800000L, 3024000000L};
+			long [] expectedPeriods = {5000L, 1200000L, 14400000L, 86400000L, 86400000L};
+			for(int i=0; i < periods.length; i++){
+				long tablePeriodMs = findNearestTablePeriodMs(periods[i], 5);
+				Assert.assertEquals(expectedPeriods[i], tablePeriodMs);
+				Assert.assertEquals(expectedPeriods[i], tablePeriodMs);
+			}
+		}
 	}
 }

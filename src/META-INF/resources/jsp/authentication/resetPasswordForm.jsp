@@ -11,7 +11,7 @@
 <%@ include file="/WEB-INF/jsp/menu/reputation-navbar.jsp"%>
 	<div class="container">
 		<h2>Admin: Reset Password</h2>
-		<form method="POST" action="${contextPath}/resetPasswordSubmit">
+		<form method="POST" action="${contextPath}${authenticationConfig.resetPasswordSubmitPath}">
 		<input type="hidden" name="${authenticationConfig.userIdParam}" value="${user.id}"/>
 		
 		<table>

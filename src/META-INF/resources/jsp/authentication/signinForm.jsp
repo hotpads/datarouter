@@ -8,25 +8,25 @@
 <%@ include file="/jsp/css/css-import.jspf"%>
 </head>
 <body>
-	<form class="form-horizontal" action="${contextPath}/signin/submit" method="post">
+	<form class="form-horizontal" action="${contextPath}${authenticationConfig.signinSubmitPath}" method="post">
 		<div id="login-box" class="well"> 
 			<div class="control-group">
 				<div class="controls login-controls">
-					<input name="signinUsername" placeholder="Username" autofocus="autofocus" type="email" />
+					<input name="${authenticationConfig.usernameParam}" placeholder="Username" autofocus="autofocus" type="email" />
 				</div>
 			</div>
 			<div class="control-group">
 				<div class="controls login-controls">
 
-					<input name="signinPassword" placeholder="Password" type="password" />
+					<input name="${authenticationConfig.passwordParam}" placeholder="Password" type="password" />
 
 				</div>
 			</div>
 			<div class="control-group">
 				<div class="controls login-controls ">
-					<label for="_acegi_security_remember_me" class="checkbox">
-						<input type="checkbox" name="_acegi_security_remember_me" checked="checked"> Remember me
-					</label>
+<!-- 					<label for="_acegi_security_remember_me" class="checkbox"> -->
+<!-- 						<input type="checkbox" name="_acegi_security_remember_me" checked="checked"> Remember me -->
+<!-- 					</label> -->
 					<button type="submit" class="btn btn-primary">Sign in</button>
 				</div>
 			</div>

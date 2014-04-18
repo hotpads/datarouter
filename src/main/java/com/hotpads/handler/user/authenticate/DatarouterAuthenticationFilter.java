@@ -30,7 +30,7 @@ import com.hotpads.handler.user.session.DatarouterSessionManager;
 import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
-import com.hotpads.util.core.exception.BadApiCallException;
+import com.hotpads.util.core.exception.InvalidApiCallException;
 import com.hotpads.util.core.exception.InvalidCredentialsException;
 import com.hotpads.util.core.io.RuntimeIOException;
 
@@ -60,7 +60,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		final HttpServletResponse response = (HttpServletResponse)res;
 		
 		final String contextPath = request.getContextPath();
-		final String signinFormPath = authenticationConfig.getSigninFormPath();
+		final String signinFormPath = authenticationConfig.getSigninPath();
 		final String signinSubmitPath = authenticationConfig.getSigninSubmitPath();
 		final String path = request.getServletPath();
 //		final String uri = request.getRequestURI();// for debugging
@@ -83,7 +83,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 			logger.warn(e.getMessage());
 			handleBadCredentials(request, response, contextPath, signinFormPath);
 			return;
-		} catch(BadApiCallException e) {
+		} catch(InvalidApiCallException e) {
 			logger.warn(e.getMessage());
 			handleBadApiCall(response, e.getMessage());
 			return;
@@ -149,7 +149,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 			DatarouterSession session = authenticator.getSession();
 			if(session != null){
 				sessionManager.addToRequest(request, session);
-				if(session.getSessionPersistent()) {
+				if(session.getIncludeSessionCookies()) {
 					sessionManager.addUserTokenCookie(response, session.getUserToken());
 					sessionManager.addSessionTokenCookie(response, session.getSessionToken());
 					userNodes.getSessionNode().put(session, null);
