@@ -2,8 +2,6 @@ package com.hotpads.handler.exception;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
@@ -55,7 +53,7 @@ public class NotificationRequestDTO {
 		}
 	}
 
-	public List<NotificationRequest> checkTypeAndGetAll(NotificationTypeFactory notificationTypeFactory) {
+	public List<NotificationRequest> checkTypeAndGetAll(NotificationTypeFactory notificationTypeFactory) throws IllegalArgumentException {
 		List<NotificationRequest> requests = ListTool.create();
 		for (Shit request : this.notificationRequests) {
 			notificationTypeFactory.create(request.type);
