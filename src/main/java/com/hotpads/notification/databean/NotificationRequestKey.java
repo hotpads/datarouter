@@ -1,12 +1,10 @@
 package com.hotpads.notification.databean;
 
-import static com.hotpads.notification.databean.NotificationRequest.LENGTH_userId;
-import static com.hotpads.notification.databean.NotificationRequest.LENGTH_userType;
-
 import java.util.List;
 
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
@@ -19,15 +17,19 @@ import com.hotpads.notification.databean.NotificationRequest.F;
 @SuppressWarnings("serial")
 public class NotificationRequestKey extends BasePrimaryKey<NotificationRequestKey> {
 
+	public static final int
+			LENGTH_userType = MySqlColumnType.MAX_LENGTH_VARCHAR,
+			LENGTH_userId = MySqlColumnType.MAX_LENGTH_VARCHAR;
+
 	private NotificationUserType userType;
 	private String userId;
 	private Long sentAtMs;
 	private Integer nanoTime;
-	
+
 	public NotificationRequestKey() {
 		this(null, null);
 	}
-	
+
 	public NotificationRequestKey(NotificationUserId userId, Long sendAtMs) {
 		this.userType = userId == null ? null : userId.getType();
 		this.userId = userId == null ? null : userId.getId();
@@ -50,7 +52,7 @@ public class NotificationRequestKey extends BasePrimaryKey<NotificationRequestKe
 	public NotificationUserId getNotificationUserId() {
 		return new NotificationUserId(userType, userId);
 	}
-	
+
 	public NotificationUserType getUserType() {
 		return userType;
 	}
@@ -78,9 +80,9 @@ public class NotificationRequestKey extends BasePrimaryKey<NotificationRequestKe
 	public String toString() {
 		return "NotificationRequestKey (" + userType + ", " + userId + ", " + sentAtMs + ")";
 	}
-	
+
 	public static class Tester {
-		
+
 		@Test
 		public void nanoTest() {
 			System.out.println(new NotificationRequestKey(null, System.currentTimeMillis()).nanoTime);

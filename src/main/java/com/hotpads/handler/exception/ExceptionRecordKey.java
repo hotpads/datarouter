@@ -1,9 +1,8 @@
 package com.hotpads.handler.exception;
 
-import static com.hotpads.handler.exception.ExceptionRecord.LENGTH_id;
-
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
@@ -12,7 +11,10 @@ import com.hotpads.handler.exception.ExceptionRecord.F;
 
 @SuppressWarnings("serial")
 public class ExceptionRecordKey extends BasePrimaryKey<ExceptionRecordKey> {
-
+	
+	private static int
+		LENGTH_id = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	
 	private String id;
 	
 	ExceptionRecordKey() {

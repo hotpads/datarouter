@@ -17,15 +17,18 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
-
+/**
+ * The record of an Exception
+ */
 @SuppressWarnings("serial")
 public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionRecord> {
 
-	public static int
-		LENGTH_id = MySqlColumnType.MAX_LENGTH_VARCHAR,
+	private static int
 		LENGTH_servName = MySqlColumnType.MAX_LENGTH_VARCHAR,
 		LENGTH_stackTrace = MySqlColumnType.MAX_LENGTH_MEDIUMTEXT;
 
+	/******************* fields ************************/
+	
 	private ExceptionRecordKey key;
 	private Date created;
 	private String serverName;
@@ -70,12 +73,14 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 				);
 	}
 
+	/********************** construct ********************/
+
 	ExceptionRecord() {
 		key = new ExceptionRecordKey();
 	}
 
 	public ExceptionRecord(String serverName, String stackTrace) {
-		key = new ExceptionRecordKey(generateUUID());
+		key = new ExceptionRecordKey(generateUuid());
 		this.created = new Date();
 		this.serverName = serverName;
 		this.stackTrace = stackTrace;
@@ -86,13 +91,15 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 		return ExceptionRecordKey.class;
 	}
 
-	private static String generateUUID() {
+	private static String generateUuid() {
 		EthernetAddress addr = EthernetAddress.fromInterface();
 		TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
 		UUID uuid = uuidGenerator.generate();
 		return uuid.toString();
 	}
 
+	/*************** getters / setters ******************/
+	
 	@Override
 	public ExceptionRecordKey getKey() {
 		return key;
@@ -136,7 +143,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 		@Test
 		public void create() {
 			for (int i = 0; i < 10; i++) {
-				System.out.println(new Date() + "\t" + ExceptionRecord.generateUUID());
+				System.out.println(new Date() + "\t" + ExceptionRecord.generateUuid());
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {

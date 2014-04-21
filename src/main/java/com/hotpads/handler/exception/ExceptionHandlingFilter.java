@@ -20,6 +20,8 @@ import org.apache.log4j.Logger;
 
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import com.hotpads.notification.NotificationApiClient;
+import com.hotpads.notification.ParallelApiCalling;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
@@ -37,7 +39,7 @@ public class ExceptionHandlingFilter implements Filter {
 	private static final String NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com"; //TODO only for dev
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 	private static final String ERROR = "/error";
-	private static final boolean NOTIFICATION_REPORTING = false;
+	private static final boolean NOTIFICATION_REPORTING = true; //TODO only for dev
 
 	private IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
 	private String serverName;
@@ -50,27 +52,29 @@ public class ExceptionHandlingFilter implements Filter {
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 		if (NOTIFICATION_REPORTING) {
-			if (notificationApiClient == null) {//no spring here
-				notificationApiClient = new NotificationApiClient();
-			}
-			pac = new ParallelApiCalling(notificationApiClient);
 			initiateIfNeed(filterConfig.getServletContext());
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private void initiateIfNeed(ServletContext sc) {
-		if (serverName == null) {
-			serverName = (String) sc.getAttribute("serverName");
-		}
-		if (exceptionRecordNode == null) {
-			exceptionRecordNode = (IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");//FIXME no null only sur site app and cannot inject EventRouter here
-		}
-		if (exceptionHandlingConfig == null) {
-			exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute("exceptionHandlingConfig");
-		}
-		if (ObjectTool.anyNull(serverName, exceptionRecordNode, exceptionHandlingConfig)) {
-			logger.warn("Missing attribute in ServletContext for ExceptionHandlingFilter initialization");
+		if (NOTIFICATION_REPORTING) {
+			if (exceptionRecordNode == null) {
+				exceptionRecordNode = (IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");//FIXME no null only sur site app and cannot inject EventRouter here
+			}
+			if (exceptionHandlingConfig == null) {
+				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute("exceptionHandlingConfig");	
+				if (exceptionHandlingConfig != null) {
+					if (notificationApiClient == null) {
+						notificationApiClient = new NotificationApiClient(exceptionHandlingConfig);
+					}
+					pac = new ParallelApiCalling(notificationApiClient);
+					serverName = exceptionHandlingConfig.getServerName();
+				}
+			}
+			if (ObjectTool.anyNull(serverName, exceptionRecordNode, exceptionHandlingConfig)) {
+				logger.warn("Missing attribute in ServletContext for ExceptionHandlingFilter initialization");
+			}
 		}
 	}
 
@@ -85,19 +89,7 @@ public class ExceptionHandlingFilter implements Filter {
 			if (NOTIFICATION_REPORTING) {
 				pac.warmupApiClient();//to be sure than the first notificationRequest take less than 1s
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
-				try {
-					PrintWriter out = response.getWriter();
-					if (exceptionHandlingConfig.shouldDisplayStackTrace(request, e)) {
-						out.println("<pre>");
-						out.println(ExceptionTool.getStackTraceStringForHtmlPreBlock(e));
-						out.println("</pre>");
-					} else {
-						out.println(exceptionHandlingConfig.getHtmlErrorMessage(e));
-					}
-				} catch (Exception ex) {
-					logger.error("Exception while writing html output");
-					ex.printStackTrace();
-				}
+				writeExceptionToResponseWriter(response, e, request);
 	
 				if (exceptionHandlingConfig.shouldLogException(request, e)) {
 					initiateIfNeed(request.getServletContext());
@@ -106,15 +98,7 @@ public class ExceptionHandlingFilter implements Filter {
 								serverName,
 								ExceptionUtils.getStackTrace(e));
 						exceptionRecordNode.put(exceptionRecord, null);
-						if (exceptionHandlingConfig.shouldRepportError(request, e)) {
-							pac.add(new NotificationRequest(
-									new NotificationUserId(
-											NotificationUserType.EMAIL,
-											NOTIFICATION_RECIPENT_EMAIL),
-									SERVER_EXCEPTION_NOTIFICATION_TYPE,
-									exceptionRecord.getKey().getId(),
-									e.getClass().getName()));
-						}
+						addNotificationRequestToQueue(request, e, exceptionRecord);
 	
 					} catch (Exception ex) {
 						logger.error("Exception while loging");
@@ -146,6 +130,34 @@ public class ExceptionHandlingFilter implements Filter {
 				// dispatcher.forward(request, response);
 				response.sendRedirect(request.getContextPath() + ERROR);
 			}
+		}
+	}
+
+	private void addNotificationRequestToQueue(HttpServletRequest request, Exception exception, ExceptionRecord exceptionRecord) {
+		if (exceptionHandlingConfig.shouldRepportError(request, exception)) {
+			pac.add(new NotificationRequest(
+					new NotificationUserId(
+							NotificationUserType.EMAIL,
+							NOTIFICATION_RECIPENT_EMAIL),
+					SERVER_EXCEPTION_NOTIFICATION_TYPE,
+					exceptionRecord.getKey().getId(),
+					exception.getClass().getName()));
+		}
+	}
+
+	private void writeExceptionToResponseWriter(HttpServletResponse response, Exception exception, HttpServletRequest request) {
+		try {
+			PrintWriter out = response.getWriter();
+			if (exceptionHandlingConfig.shouldDisplayStackTrace(request, exception)) {
+				out.println("<pre>");
+				out.println(ExceptionTool.getStackTraceStringForHtmlPreBlock(exception));
+				out.println("</pre>");
+			} else {
+				out.println(exceptionHandlingConfig.getHtmlErrorMessage(exception));
+			}
+		} catch (Exception ex) {
+			logger.error("Exception while writing html output");
+			ex.printStackTrace();
 		}
 	}
 

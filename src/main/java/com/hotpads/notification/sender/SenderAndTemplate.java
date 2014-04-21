@@ -21,8 +21,9 @@ public class SenderAndTemplate<S extends NotificationSender> {
 	}
 
 	public Class<? extends NotificationTemplate<S>> getTemplate() throws IllegalStateException {
-		if (template == null)
+		if (template == null) {
 			throw new IllegalStateException("No template bound with " + sender.getSimpleName());
+		}
 		return template;
 	}
 

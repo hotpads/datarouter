@@ -1,4 +1,4 @@
-package com.hotpads.notification.strategy;
+package com.hotpads.notification.timing;
 
 public interface NotificationTimingStrategy {
 	/**

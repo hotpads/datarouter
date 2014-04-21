@@ -14,11 +14,11 @@ import com.hotpads.notification.type.NotificationType;
 public class NotificationRequest extends BaseDatabean<NotificationRequestKey,NotificationRequest> {	
 
 	public static final int
-			LENGTH_userType = MySqlColumnType.MAX_LENGTH_VARCHAR,
-			LENGTH_userId = MySqlColumnType.MAX_LENGTH_VARCHAR,
 			LENGHT_type = MySqlColumnType.MAX_LENGTH_VARCHAR,
 			LENGHT_data = MySqlColumnType.MAX_LENGTH_VARCHAR,
 			LENGHT_channel= MySqlColumnType.MAX_LENGTH_VARCHAR;
+
+	/****************** fields **************************/
 
 	private NotificationRequestKey key;
 	private String type;
@@ -67,6 +67,8 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 				);
 	}
 
+	/************************** construct *************************/
+
 	NotificationRequest() {
 		key = new NotificationRequestKey();
 	}
@@ -94,6 +96,8 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 	public Class<NotificationRequestKey> getKeyClass() {
 		return NotificationRequestKey.class;
 	}
+
+	/********************* getters / setters **************************/
 
 	@Override
 	public NotificationRequestKey getKey() {

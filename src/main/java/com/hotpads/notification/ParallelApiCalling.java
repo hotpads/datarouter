@@ -1,4 +1,4 @@
-package com.hotpads.handler.exception;
+package com.hotpads.notification;
 
 import java.util.List;
 import java.util.Queue;
@@ -21,7 +21,7 @@ import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 public class ParallelApiCalling {
 
-	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
+	private static Logger logger = Logger.getLogger(ParallelApiCalling.class);
 
 	private static final long FLUSH_PERIOD_MS = 1000;//second
 	private static final long FLUSH_TIMEOUT_MS = 1000;//millisecond
@@ -33,12 +33,12 @@ public class ParallelApiCalling {
 
 	public ParallelApiCalling(NotificationApiClient notificationApiClient) {
 		this.notificationApiClient = notificationApiClient;
-		queue = new LinkedBlockingQueue<NotificationRequest> ();
+		this.queue = new LinkedBlockingQueue<NotificationRequest> ();
 		ThreadGroup threadGroup = new ThreadGroup("notification");
 		NamedThreadFactory namedThreadFactory = new NamedThreadFactory(threadGroup, "notification", true);
-		flusher = Executors.newScheduledThreadPool(1, namedThreadFactory);
-		sender = Executors.newSingleThreadExecutor();
-		flusher.scheduleWithFixedDelay(new QueueFlusher(), 0, FLUSH_PERIOD_MS, TimeUnit.MILLISECONDS);
+		this.flusher = Executors.newScheduledThreadPool(1, namedThreadFactory);
+		this.sender = Executors.newSingleThreadExecutor();
+		this.flusher.scheduleWithFixedDelay(new QueueFlusher(), 0, FLUSH_PERIOD_MS, TimeUnit.MILLISECONDS);
 	}
 
 	public void add(NotificationRequest request) {

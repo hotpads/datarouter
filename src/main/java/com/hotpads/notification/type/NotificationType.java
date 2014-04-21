@@ -3,7 +3,7 @@ package com.hotpads.notification.type;
 import java.util.List;
 
 import com.hotpads.notification.sender.SenderAndTemplate;
-import com.hotpads.notification.strategy.NotificationTimingStrategy;
+import com.hotpads.notification.timing.NotificationTimingStrategy;
 
 public interface NotificationType {
 

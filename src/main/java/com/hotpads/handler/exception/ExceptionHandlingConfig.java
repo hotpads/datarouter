@@ -12,4 +12,10 @@ public interface ExceptionHandlingConfig {
 
 	String getHtmlErrorMessage(Exception exception);
 
+	String getServerName();
+	
+	String getRecipientEmail();
+
+	String getNotificationApiEndPoint();
+
 }

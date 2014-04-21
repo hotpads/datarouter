@@ -7,11 +7,11 @@ import com.hotpads.util.core.java.ReflectionTool;
 @Singleton
 public class NotificationTypeFactory {
 	
-	public NotificationType create(String typeString) throws IllegalArgumentException {
+	public NotificationType create(String typeString) {
 		try {
 			return ReflectionTool.create(typeString);
 		} catch (RuntimeException e) {
-			throw new IllegalArgumentException(typeString + " is not a NotificationType known");
+			throw new IllegalArgumentException(typeString + " is not a NotificationType known", e);
 		}
 	}
 
