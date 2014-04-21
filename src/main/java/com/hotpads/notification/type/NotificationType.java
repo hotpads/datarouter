@@ -1,8 +1,9 @@
 package com.hotpads.notification.type;
 
-import java.util.List;
+import java.util.Map;
 
-import com.hotpads.notification.sender.SenderAndTemplate;
+import com.hotpads.notification.sender.NotificationSender;
+import com.hotpads.notification.sender.template.NotificationTemplate;
 import com.hotpads.notification.timing.NotificationTimingStrategy;
 
 public interface NotificationType {
@@ -17,6 +18,6 @@ public interface NotificationType {
 
 	void makeSendersAndTemplates();
 	
-	List<SenderAndTemplate<?>> getSendresAndTemplates();
+	<S extends NotificationSender> Map<Class<S>, Class<? extends NotificationTemplate<S>>> getSendresAndTemplates();
 
 }
