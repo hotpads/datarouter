@@ -77,7 +77,20 @@ public class HotPadsHttpClient{
 
 	public <T> String post(String url, T dataTransferObjectToPost, boolean retrySafe){
 		Map<String, String> params = new HashMap<String, String>();
-		params.put("dataTransferObject", jsonSerializer.serialize(dataTransferObjectToPost));
+		String serializedDto, dtoType;
+		serializedDto = jsonSerializer.serialize(dataTransferObjectToPost);
+		if(dataTransferObjectToPost instanceof List){
+			List<?> list = (List<?>)dataTransferObjectToPost;
+			if(list.isEmpty()){
+				dtoType = "";
+			} else{
+				dtoType = list.get(0).getClass().getCanonicalName();
+			}
+		} else {
+			dtoType = dataTransferObjectToPost.getClass().getCanonicalName();
+		}
+		params.put("dataTransferObject", serializedDto);
+		params.put("dataTransferObjectType", dtoType);
 		return post(url, params, retrySafe);
 	}
 	

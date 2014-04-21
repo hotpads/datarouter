@@ -13,8 +13,11 @@ public class HotPadsHttpClientException extends RuntimeException{
 
 	private static Logger logger = Logger.getLogger(HotPadsHttpClientException.class.getCanonicalName());
 	
+	private int statusCode;
+	
 	public HotPadsHttpClientException(HttpResponse response){
-		logger.warning("Error Code : " + response.getStatusLine().getStatusCode());
+		statusCode = response.getStatusLine().getStatusCode();
+		logger.warning("Error Code : " + statusCode);
 		try{
 			logger.warning("Entity : " + EntityUtils.toString(response.getEntity()));
 		}catch (ParseException | IOException e){
@@ -26,6 +29,10 @@ public class HotPadsHttpClientException extends RuntimeException{
 	public HotPadsHttpClientException(Exception e){
 		super(e);
 		e.printStackTrace();
+	}
+	
+	public int getStatusCode(){
+		return statusCode;
 	}
 
 }
