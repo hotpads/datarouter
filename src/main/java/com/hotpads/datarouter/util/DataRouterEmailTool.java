@@ -63,6 +63,20 @@ public class DataRouterEmailTool{
 		}
 	}
 	
+	public static void sendHTMLEmail(String fromEmail, String toEmail, String subject, String body){
+		Session session = Session.getDefaultInstance(fMailServerConfig, null);
+		MimeMessage message = new MimeMessage(session);
+		try{
+			message.setFrom(new InternetAddress(fromEmail));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(toEmail));
+			message.setSubject(subject);
+			message.setContent(body, "text/html");
+			Transport.send(message);
+		}catch(MessagingException ex){
+			logger.error(ExceptionTool.getStackTraceAsString(ex));
+		}
+	}
+	
 	public static void sendEmail(String fromEmail, List<String> toEmails, String subject, String body){
 		Session session = Session.getDefaultInstance(fMailServerConfig, null);
 		MimeMessage message = new MimeMessage(session);

@@ -1,5 +1,7 @@
 package com.hotpads.notification;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Callable;
@@ -14,6 +16,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -97,7 +100,7 @@ public class ParallelApiCalling {
 			} catch (InterruptedException | ExecutionException | TimeoutException e) {
 				logger.warn("Request to NotificationApi failed, email will be sent", e);
 			}
-			//TODO send by classic mail
+			sendEmail(requests);
 		}
 	}
 
@@ -124,6 +127,24 @@ public class ParallelApiCalling {
 
 	public void warmupApiClient() {
 		notificationApiClient.warmup();
+	}
+
+	public void sendEmail(List<NotificationRequest> requests) {
+		String recipient = requests.get(0).getKey().getUserId();
+		String fromEmail = "HotPads<notifications@hotpads.com>";
+		String subject = "Error notification";
+		StringBuilder builder = new StringBuilder();
+		builder.append("<h1>" + requests.size() + " error" + (requests.size() > 1 ? "s" : "") + " occurred </h1>");
+		builder.append("<h2>You receive this e-mail because Job server does not respond on time</h2>");
+		for (NotificationRequest r : requests) {
+			builder.append("<p>");
+				builder.append("<span style=\"color: red;font-weight: bold;\">");
+					builder.append(r.getChannel());
+				builder.append("</span> at ");
+				builder.append(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z").format(new Date(r.getKey().getSentAtMs())));
+			builder.append("</p>");
+		}
+		DataRouterEmailTool.sendHTMLEmail(fromEmail, recipient, subject, builder.toString());
 	}
 
 }
