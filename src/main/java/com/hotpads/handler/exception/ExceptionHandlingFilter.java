@@ -19,9 +19,9 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Singleton;
-import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.notification.NotificationApiClient;
-import com.hotpads.notification.ParallelApiCalling;
+import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
@@ -40,13 +40,13 @@ public class ExceptionHandlingFilter implements Filter {
 	private static final String ERROR = "/error";
 	private static final boolean NOTIFICATION_REPORTING = true; //TODO only for dev
 
-	private IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
+	private SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
 	private String serverName;
 	@Inject
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
 	private NotificationApiClient notificationApiClient;
-	private ParallelApiCalling pac;
+	private ParallelApiCaller pac;
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -59,7 +59,7 @@ public class ExceptionHandlingFilter implements Filter {
 	private void initiateIfNeed(ServletContext sc) {
 		if (NOTIFICATION_REPORTING) {
 			if (exceptionRecordNode == null) {
-				exceptionRecordNode = (IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");//FIXME no null only on site and cannot inject EventRouter here
+				exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");//FIXME no null only on site and cannot inject EventRouter here
 			}
 			if (exceptionHandlingConfig == null) {
 				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute("exceptionHandlingConfig");	
@@ -67,7 +67,7 @@ public class ExceptionHandlingFilter implements Filter {
 					if (notificationApiClient == null) {
 						notificationApiClient = new NotificationApiClient(exceptionHandlingConfig);
 					}
-					pac = new ParallelApiCalling(notificationApiClient);
+					pac = new ParallelApiCaller(notificationApiClient);
 					serverName = exceptionHandlingConfig.getServerName();
 				}
 			}
@@ -90,18 +90,7 @@ public class ExceptionHandlingFilter implements Filter {
 				writeExceptionToResponseWriter(response, e, request);
 				initiateIfNeed(request.getServletContext());
 				if (exceptionHandlingConfig.shouldLogException(request, e)) {
-					try {
-						ExceptionRecord exceptionRecord = new ExceptionRecord(
-								serverName,
-								ExceptionUtils.getStackTrace(e));
-						exceptionRecordNode.put(exceptionRecord, null);
-
-						addNotificationRequestToQueue(request, e, exceptionRecord);
-
-					} catch (Exception ex) {
-						logger.error("Exception while loging");
-						ex.printStackTrace();
-					}
+					trySendingExceptionToNotificationService(request, e);
 				}
 			} else {
 				HttpException httpException;
@@ -128,6 +117,21 @@ public class ExceptionHandlingFilter implements Filter {
 				// dispatcher.forward(request, response);
 				response.sendRedirect(request.getContextPath() + ERROR);
 			}
+		}
+	}
+
+	private void trySendingExceptionToNotificationService(HttpServletRequest request, Exception e) {
+		try {
+			ExceptionRecord exceptionRecord = new ExceptionRecord(
+					serverName,
+					ExceptionUtils.getStackTrace(e));
+			exceptionRecordNode.put(exceptionRecord, null);
+
+			addNotificationRequestToQueue(request, e, exceptionRecord);
+
+		} catch (Exception ex) {
+			logger.error("Exception while loging");
+			ex.printStackTrace();
 		}
 	}
 

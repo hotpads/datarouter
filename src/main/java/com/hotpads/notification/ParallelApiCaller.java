@@ -22,9 +22,9 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
-public class ParallelApiCalling {
+public class ParallelApiCaller {
 
-	private static Logger logger = Logger.getLogger(ParallelApiCalling.class);
+	private static Logger logger = Logger.getLogger(ParallelApiCaller.class);
 
 	private static final long FLUSH_PERIOD_MS = 1000;//second
 	private static final long FLUSH_TIMEOUT_MS = 1000;//millisecond
@@ -36,7 +36,7 @@ public class ParallelApiCalling {
 
 	private boolean premier;
 
-	public ParallelApiCalling(NotificationApiClient notificationApiClient) {
+	public ParallelApiCaller(NotificationApiClient notificationApiClient) {
 		this.notificationApiClient = notificationApiClient;
 		this.queue = new LinkedBlockingQueue<NotificationRequest> ();
 		ThreadGroup threadGroup = new ThreadGroup("notification");
@@ -76,7 +76,7 @@ public class ParallelApiCalling {
 
 	}
 
-	private class FailedTester extends Thread {
+	private static class FailedTester extends Thread {
 
 		private Future<Boolean> future;
 		private List<NotificationRequest> requests;
@@ -113,7 +113,7 @@ public class ParallelApiCalling {
 		}
 
 		@Override
-		public Boolean call() throws Exception {
+		public Boolean call() {
 			try {
 				notificationApiClient.call(requests);
 				return true;
@@ -125,11 +125,7 @@ public class ParallelApiCalling {
 
 	}
 
-	public void warmupApiClient() {
-		notificationApiClient.warmup();
-	}
-
-	public void sendEmail(List<NotificationRequest> requests) {
+	public static void sendEmail(List<NotificationRequest> requests) {
 		String recipient = requests.get(0).getKey().getUserId();
 		String fromEmail = "HotPads<notifications@hotpads.com>";
 		String subject = "Error notification";
@@ -144,7 +140,7 @@ public class ParallelApiCalling {
 				builder.append(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z").format(new Date(r.getKey().getSentAtMs())));
 			builder.append("</p>");
 		}
-		DataRouterEmailTool.sendHTMLEmail(fromEmail, recipient, subject, builder.toString());
+		DataRouterEmailTool.trySendHtmlEmail(fromEmail, recipient, subject, builder.toString());
 	}
 
 }

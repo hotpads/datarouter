@@ -19,13 +19,15 @@ public class NotificationRequestDtoTool {
 	
 	public List<NotificationRequest> toDatabeans(NotificationRequestDto[] dtos) throws IllegalArgumentException {
 		List<NotificationRequest> notificationRequests = ListTool.create();
+		NotificationUserId userId;
 		for (NotificationRequestDto request : dtos) {
 			notificationTypeFactory.create(request.getType());
+			userId = new NotificationUserId(
+					NotificationUserType.valueOf(request.getUserType()),
+					request.getUserId());
 			notificationRequests.add(
 					new NotificationRequest(
-							new NotificationUserId(
-									NotificationUserType.valueOf(request.getUserType()),
-									request.getUserId()),
+							userId,
 							request.getType(),
 							request.getData(),
 							request.getChannel()));

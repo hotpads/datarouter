@@ -7,6 +7,7 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -63,20 +64,24 @@ public class DataRouterEmailTool{
 		}
 	}
 	
-	public static void sendHTMLEmail(String fromEmail, String toEmail, String subject, String body){
+	public static void sendHtmlEmail(String fromEmail, String toEmail, String subject, String body) throws MessagingException {
 		Session session = Session.getDefaultInstance(fMailServerConfig, null);
 		MimeMessage message = new MimeMessage(session);
-		try{
-			message.setFrom(new InternetAddress(fromEmail));
-			message.addRecipient(Message.RecipientType.TO, new InternetAddress(toEmail));
-			message.setSubject(subject);
-			message.setContent(body, "text/html");
-			Transport.send(message);
-		}catch(MessagingException ex){
-			logger.error(ExceptionTool.getStackTraceAsString(ex));
+		message.setFrom(new InternetAddress(fromEmail));
+		message.addRecipient(Message.RecipientType.TO, new InternetAddress(toEmail));
+		message.setSubject(subject);
+		message.setContent(body, "text/html");
+		Transport.send(message);
+	}
+
+	public static void trySendHtmlEmail(String fromEmail, String toEmail, String subject, String body) {
+		try {
+			sendHtmlEmail(fromEmail, toEmail, subject, body);
+		} catch (MessagingException e) {
+			e.printStackTrace();
 		}
 	}
-	
+
 	public static void sendEmail(String fromEmail, List<String> toEmails, String subject, String body){
 		Session session = Session.getDefaultInstance(fMailServerConfig, null);
 		MimeMessage message = new MimeMessage(session);
