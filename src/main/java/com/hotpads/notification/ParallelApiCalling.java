@@ -31,6 +31,8 @@ public class ParallelApiCalling {
 	private Queue<NotificationRequest> queue;
 	private NotificationApiClient notificationApiClient;
 
+	private boolean premier;
+
 	public ParallelApiCalling(NotificationApiClient notificationApiClient) {
 		this.notificationApiClient = notificationApiClient;
 		this.queue = new LinkedBlockingQueue<NotificationRequest> ();
@@ -39,6 +41,7 @@ public class ParallelApiCalling {
 		this.flusher = Executors.newScheduledThreadPool(1, namedThreadFactory);
 		this.sender = Executors.newSingleThreadExecutor();
 		this.flusher.scheduleWithFixedDelay(new QueueFlusher(), 0, FLUSH_PERIOD_MS, TimeUnit.MILLISECONDS);
+		this.premier = true;
 	}
 
 	public void add(NotificationRequest request) {
@@ -55,14 +58,16 @@ public class ParallelApiCalling {
 			while (CollectionTool.notEmpty(queue)) {
 				if (requests.size() == BATCH_SIZE) {
 					Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
-					new FailedTester(future, requests).start();
+					new FailedTester(future, requests, premier).start();
+					premier = false;
 					requests = ListTool.create();
 				}
 				requests.add(queue.poll());
 			}
 			if (CollectionTool.notEmpty(requests)) {
 				Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
-				new FailedTester(future, requests).start();
+				new FailedTester(future, requests, premier).start();
+				premier = false;
 			}
 		}
 
@@ -72,18 +77,20 @@ public class ParallelApiCalling {
 
 		private Future<Boolean> future;
 		private List<NotificationRequest> requests;
+		private long coef;
 
-		public FailedTester(Future<Boolean> future, List<NotificationRequest> requests) {
+		public FailedTester(Future<Boolean> future, List<NotificationRequest> requests, boolean premier) {
 			this.future = future;
 			this.requests = requests;
+			this.coef = premier ? 2l : 1l;
 		}
 
 		@Override
 		public void run() {
 			long start = System.currentTimeMillis();
 			try {
-				if (future.get(FLUSH_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
-					logger.warn("Request terminated in " + (System.currentTimeMillis() - start) + "ms");
+				if (future.get(coef * FLUSH_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+					logger.log("Request terminated in " + (System.currentTimeMillis() - start) + "ms");
 					return;
 				}
 				logger.warn("Request to NotificationApi failed, email will be sent");

@@ -36,7 +36,6 @@ public class ExceptionHandlingFilter implements Filter {
 	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
 
 	private static final String SERVER_EXCEPTION_NOTIFICATION_TYPE = "com.hotpads.notification.type.ServerExceptionNotificationType";
-	private static final String NOTIFICATION_RECIPENT_EMAIL = "cguillaume@hotpads.com"; //TODO only for dev
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 	private static final String ERROR = "/error";
 	private static final boolean NOTIFICATION_REPORTING = true; //TODO only for dev
@@ -60,7 +59,7 @@ public class ExceptionHandlingFilter implements Filter {
 	private void initiateIfNeed(ServletContext sc) {
 		if (NOTIFICATION_REPORTING) {
 			if (exceptionRecordNode == null) {
-				exceptionRecordNode = (IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");//FIXME no null only sur site app and cannot inject EventRouter here
+				exceptionRecordNode = (IndexedSortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");//FIXME no null only on site and cannot inject EventRouter here
 			}
 			if (exceptionHandlingConfig == null) {
 				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute("exceptionHandlingConfig");	
@@ -72,7 +71,7 @@ public class ExceptionHandlingFilter implements Filter {
 					serverName = exceptionHandlingConfig.getServerName();
 				}
 			}
-			if (ObjectTool.anyNull(serverName, exceptionRecordNode, exceptionHandlingConfig)) {
+			if (ObjectTool.anyNull(exceptionHandlingConfig, exceptionRecordNode)) {
 				logger.warn("Missing attribute in ServletContext for ExceptionHandlingFilter initialization");
 			}
 		}
@@ -85,21 +84,20 @@ public class ExceptionHandlingFilter implements Filter {
 		} catch (Exception e) {
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
-			
+
 			if (NOTIFICATION_REPORTING) {
-				pac.warmupApiClient();//to be sure than the first notificationRequest take less than 1s
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				writeExceptionToResponseWriter(response, e, request);
-	
+				initiateIfNeed(request.getServletContext());
 				if (exceptionHandlingConfig.shouldLogException(request, e)) {
-					initiateIfNeed(request.getServletContext());
 					try {
 						ExceptionRecord exceptionRecord = new ExceptionRecord(
 								serverName,
 								ExceptionUtils.getStackTrace(e));
 						exceptionRecordNode.put(exceptionRecord, null);
+
 						addNotificationRequestToQueue(request, e, exceptionRecord);
-	
+
 					} catch (Exception ex) {
 						logger.error("Exception while loging");
 						ex.printStackTrace();
@@ -138,7 +136,7 @@ public class ExceptionHandlingFilter implements Filter {
 			pac.add(new NotificationRequest(
 					new NotificationUserId(
 							NotificationUserType.EMAIL,
-							NOTIFICATION_RECIPENT_EMAIL),
+							exceptionHandlingConfig.getRecipientEmail()),
 					SERVER_EXCEPTION_NOTIFICATION_TYPE,
 					exceptionRecord.getKey().getId(),
 					exception.getClass().getName()));
