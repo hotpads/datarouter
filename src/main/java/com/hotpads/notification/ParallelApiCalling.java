@@ -90,7 +90,7 @@ public class ParallelApiCalling {
 			long start = System.currentTimeMillis();
 			try {
 				if (future.get(coef * FLUSH_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
-					logger.log("Request terminated in " + (System.currentTimeMillis() - start) + "ms");
+					logger.info("Request terminated in " + (System.currentTimeMillis() - start) + "ms");
 					return;
 				}
 				logger.warn("Request to NotificationApi failed, email will be sent");
