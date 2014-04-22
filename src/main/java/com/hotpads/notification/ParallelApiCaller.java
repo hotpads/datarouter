@@ -20,14 +20,13 @@ import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 public class ParallelApiCaller {
 
 	private static Logger logger = Logger.getLogger(ParallelApiCaller.class);
 
-	private static final long FLUSH_PERIOD_MS = 1000;//second
-	private static final long FLUSH_TIMEOUT_MS = 1000;//millisecond
+	private static final long FLUSH_PERIOD_MS = 1000;
+	private static final long FLUSH_TIMEOUT_MS = 1000;
 
 	private ScheduledExecutorService flusher;
 	private ExecutorService sender;
@@ -39,10 +38,8 @@ public class ParallelApiCaller {
 	public ParallelApiCaller(NotificationApiClient notificationApiClient) {
 		this.notificationApiClient = notificationApiClient;
 		this.queue = new LinkedBlockingQueue<NotificationRequest> ();
-		ThreadGroup threadGroup = new ThreadGroup("notification");
-		NamedThreadFactory namedThreadFactory = new NamedThreadFactory(threadGroup, "notification", true);
-		this.flusher = Executors.newScheduledThreadPool(1, namedThreadFactory);
-		this.sender = Executors.newSingleThreadExecutor();
+		this.sender = Executors.newSingleThreadExecutor(); //singleThread
+		this.flusher = Executors.newScheduledThreadPool(1); //singleThread
 		this.flusher.scheduleWithFixedDelay(new QueueFlusher(), 0, FLUSH_PERIOD_MS, TimeUnit.MILLISECONDS);
 		this.premier = true;
 	}

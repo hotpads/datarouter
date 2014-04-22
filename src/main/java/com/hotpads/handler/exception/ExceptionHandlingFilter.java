@@ -22,6 +22,7 @@ import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.notification.NotificationApiClient;
 import com.hotpads.notification.ParallelApiCaller;
+import com.hotpads.notification.RecordingAttempter;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
@@ -38,28 +39,29 @@ public class ExceptionHandlingFilter implements Filter {
 	private static final String SERVER_EXCEPTION_NOTIFICATION_TYPE = "com.hotpads.notification.type.ServerExceptionNotificationType";
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 	private static final String ERROR = "/error";
-	private static final boolean NOTIFICATION_REPORTING = true; //TODO only for dev
+	private static final boolean NOTIFICATION_ENABLED = true; //TODO only for dev
 
-	private SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
-	private String serverName;
 	@Inject
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
 	private NotificationApiClient notificationApiClient;
 	private ParallelApiCaller pac;
+	private RecordingAttempter ra;
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-		if (NOTIFICATION_REPORTING) {
+		if (NOTIFICATION_ENABLED) {
 			initiateIfNeed(filterConfig.getServletContext());
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private void initiateIfNeed(ServletContext sc) {
-		if (NOTIFICATION_REPORTING) {
-			if (exceptionRecordNode == null) {
-				exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");//FIXME no null only on site and cannot inject EventRouter here
+		if (NOTIFICATION_ENABLED) {
+			if (ra == null) {
+				SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");//FIXME no null only on site and cannot inject EventRouter here
+				if (exceptionRecordNode != null)
+					ra = new RecordingAttempter(exceptionRecordNode);
 			}
 			if (exceptionHandlingConfig == null) {
 				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute("exceptionHandlingConfig");	
@@ -68,10 +70,9 @@ public class ExceptionHandlingFilter implements Filter {
 						notificationApiClient = new NotificationApiClient(exceptionHandlingConfig);
 					}
 					pac = new ParallelApiCaller(notificationApiClient);
-					serverName = exceptionHandlingConfig.getServerName();
 				}
 			}
-			if (ObjectTool.anyNull(exceptionHandlingConfig, exceptionRecordNode)) {
+			if (ObjectTool.anyNull(exceptionHandlingConfig, ra)) {
 				logger.warn("Missing attribute in ServletContext for ExceptionHandlingFilter initialization");
 			}
 		}
@@ -85,7 +86,7 @@ public class ExceptionHandlingFilter implements Filter {
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
 
-			if (NOTIFICATION_REPORTING) {
+			if (NOTIFICATION_ENABLED) {
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				writeExceptionToResponseWriter(response, e, request);
 				initiateIfNeed(request.getServletContext());
@@ -123,9 +124,9 @@ public class ExceptionHandlingFilter implements Filter {
 	private void trySendingExceptionToNotificationService(HttpServletRequest request, Exception e) {
 		try {
 			ExceptionRecord exceptionRecord = new ExceptionRecord(
-					serverName,
+					exceptionHandlingConfig.getServerName(),
 					ExceptionUtils.getStackTrace(e));
-			exceptionRecordNode.put(exceptionRecord, null);
+			ra.rec(exceptionRecord);
 
 			addNotificationRequestToQueue(request, e, exceptionRecord);
 
