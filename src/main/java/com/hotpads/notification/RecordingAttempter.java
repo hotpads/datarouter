@@ -14,7 +14,7 @@ import com.hotpads.handler.exception.ExceptionRecordKey;
 
 public class RecordingAttempter {
 
-	private static final long RECORD_TIMEOUT_MS = 1000;
+	private static final long RECORD_TIMEOUT_MS = 200;
 
 	private SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
 	private ExecutorService executor;

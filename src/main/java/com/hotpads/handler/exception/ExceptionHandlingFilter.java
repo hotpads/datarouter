@@ -2,6 +2,10 @@ package com.hotpads.handler.exception;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import javax.inject.Inject;
 import javax.servlet.Filter;
@@ -18,6 +22,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
+import com.google.inject.BindingAnnotation;
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.notification.NotificationApiClient;
@@ -27,12 +32,16 @@ import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
 import com.hotpads.util.core.ExceptionTool;
-import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.exception.http.HttpException;
 import com.hotpads.util.core.exception.http.imp.Http500InternalServerErrorException;
 
 @Singleton
 public class ExceptionHandlingFilter implements Filter {
+
+	@BindingAnnotation
+	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD })
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface ExceptionRecordNode {}
 
 	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
 
@@ -45,35 +54,25 @@ public class ExceptionHandlingFilter implements Filter {
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
 	private NotificationApiClient notificationApiClient;
+	@Inject @ExceptionRecordNode
+	private SortedMapStorageNode exceptionRecordNode;
+
 	private ParallelApiCaller pac;
 	private RecordingAttempter ra;
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 		if (NOTIFICATION_ENABLED) {
-			initiateIfNeed(filterConfig.getServletContext());
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void initiateIfNeed(ServletContext sc) {
-		if (NOTIFICATION_ENABLED) {
-			if (ra == null) {
-				SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");//FIXME no null only on site and cannot inject EventRouter here
-				if (exceptionRecordNode != null)
-					ra = new RecordingAttempter(exceptionRecordNode);
-			}
-			if (exceptionHandlingConfig == null) {
-				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute("exceptionHandlingConfig");	
-				if (exceptionHandlingConfig != null) {
-					if (notificationApiClient == null) {
-						notificationApiClient = new NotificationApiClient(exceptionHandlingConfig);
-					}
-					pac = new ParallelApiCaller(notificationApiClient);
-				}
-			}
-			if (ObjectTool.anyNull(exceptionHandlingConfig, ra)) {
-				logger.warn("Missing attribute in ServletContext for ExceptionHandlingFilter initialization");
+			ServletContext sc = filterConfig.getServletContext();
+			if (exceptionRecordNode != null) {
+				ra = new RecordingAttempter(exceptionRecordNode);
+				pac = new ParallelApiCaller(notificationApiClient);
+			} else {
+				exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");//FIXME no null only on site and cannot inject EventRouter here
+				ra = new RecordingAttempter(exceptionRecordNode);
+				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute("exceptionHandlingConfig");
+				notificationApiClient = new NotificationApiClient(exceptionHandlingConfig);
+				pac = new ParallelApiCaller(notificationApiClient);
 			}
 		}
 	}
@@ -89,7 +88,6 @@ public class ExceptionHandlingFilter implements Filter {
 			if (NOTIFICATION_ENABLED) {
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				writeExceptionToResponseWriter(response, e, request);
-				initiateIfNeed(request.getServletContext());
 				if (exceptionHandlingConfig.shouldLogException(request, e)) {
 					trySendingExceptionToNotificationService(request, e);
 				}
@@ -105,15 +103,15 @@ public class ExceptionHandlingFilter implements Filter {
 				session.setAttribute("statusCode", httpException.getStatusCode());
 
 				// something else needs to set this, like an AuthenticationFilter
-//				Object displayExceptionInfo = request.getAttribute(PARAM_DISPLAY_EXCEPTION_INFO);
-//				if(displayExceptionInfo != null && ((Boolean)displayExceptionInfo)){
-					String message = httpException.getClass().getSimpleName() + ": " + e.getMessage();
-					session.setAttribute("message", message);
+				//				Object displayExceptionInfo = request.getAttribute(PARAM_DISPLAY_EXCEPTION_INFO);
+				//				if(displayExceptionInfo != null && ((Boolean)displayExceptionInfo)){
+				String message = httpException.getClass().getSimpleName() + ": " + e.getMessage();
+				session.setAttribute("message", message);
 
-					session.setAttribute("stackTrace", httpException.getStackTrace());
-					session.setAttribute("stackTraceString", ExceptionTool
-							.getStackTraceStringForHtmlPreBlock(httpException));
-//				}
+				session.setAttribute("stackTrace", httpException.getStackTrace());
+				session.setAttribute("stackTraceString", ExceptionTool
+						.getStackTraceStringForHtmlPreBlock(httpException));
+				//				}
 				// RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/generic/exception.jsp");
 				// dispatcher.forward(request, response);
 				response.sendRedirect(request.getContextPath() + ERROR);
@@ -122,6 +120,9 @@ public class ExceptionHandlingFilter implements Filter {
 	}
 
 	private void trySendingExceptionToNotificationService(HttpServletRequest request, Exception e) {
+		if (ra == null) {
+			return;
+		}
 		try {
 			ExceptionRecord exceptionRecord = new ExceptionRecord(
 					exceptionHandlingConfig.getServerName(),
@@ -142,19 +143,20 @@ public class ExceptionHandlingFilter implements Filter {
 					new NotificationUserId(
 							NotificationUserType.EMAIL,
 							exceptionHandlingConfig.getRecipientEmail()),
-					SERVER_EXCEPTION_NOTIFICATION_TYPE,
-					exceptionRecord.getKey().getId(),
-					exception.getClass().getName()));
+							SERVER_EXCEPTION_NOTIFICATION_TYPE,
+							exceptionRecord.getKey().getId(),
+							exception.getClass().getName()));
 		}
 	}
 
 	private void writeExceptionToResponseWriter(HttpServletResponse response, Exception exception, HttpServletRequest request) {
+		response.setContentType("text/html");
 		try {
 			PrintWriter out = response.getWriter();
 			if (exceptionHandlingConfig.shouldDisplayStackTrace(request, exception)) {
-				out.println("<pre>");
+				out.println("<html><body><pre>");
 				out.println(ExceptionTool.getStackTraceStringForHtmlPreBlock(exception));
-				out.println("</pre>");
+				out.println("</pre></body></html>");
 			} else {
 				out.println(exceptionHandlingConfig.getHtmlErrorMessage(exception));
 			}
