@@ -17,7 +17,7 @@ import com.hotpads.notification.databean.NotificationRequest.F;
 @SuppressWarnings("serial")
 public class NotificationRequestKey extends BasePrimaryKey<NotificationRequestKey> {
 
-	public static final int
+	private static final int
 			LENGTH_userType = MySqlColumnType.MAX_LENGTH_VARCHAR,
 			LENGTH_userId = MySqlColumnType.MAX_LENGTH_VARCHAR;
 

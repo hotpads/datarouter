@@ -13,7 +13,7 @@ import com.hotpads.notification.type.NotificationType;
 @SuppressWarnings("serial")
 public class NotificationRequest extends BaseDatabean<NotificationRequestKey,NotificationRequest> {	
 
-	public static final int
+	private static final int
 			LENGHT_type = MySqlColumnType.MAX_LENGTH_VARCHAR,
 			LENGHT_data = MySqlColumnType.MAX_LENGTH_VARCHAR,
 			LENGHT_channel= MySqlColumnType.MAX_LENGTH_VARCHAR;

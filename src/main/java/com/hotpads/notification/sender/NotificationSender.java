@@ -13,6 +13,6 @@ public abstract class NotificationSender {
 		this.userId = userId;
 	}
 	
-	public abstract void send() throws Exception;
+	public abstract void send() throws RuntimeException;
 
 }
