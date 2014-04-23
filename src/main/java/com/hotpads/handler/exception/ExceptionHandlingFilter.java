@@ -54,12 +54,15 @@ public class ExceptionHandlingFilter implements Filter {
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
 	private NotificationApiClient notificationApiClient;
-	@Inject @ExceptionRecordNode
+	@SuppressWarnings("rawtypes")
+	@Inject
+	@ExceptionRecordNode
 	private SortedMapStorageNode exceptionRecordNode;
 
 	private ParallelApiCaller pac;
 	private RecordingAttempter ra;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 		if (NOTIFICATION_ENABLED) {
