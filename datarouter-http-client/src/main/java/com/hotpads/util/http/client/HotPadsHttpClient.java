@@ -3,7 +3,9 @@ package com.hotpads.util.http.client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,26 +78,31 @@ public class HotPadsHttpClient{
 	}
 
 	public <T> String post(String url, T dataTransferObjectToPost, boolean retrySafe){
-		Map<String, String> params = new HashMap<String, String>();
-		String serializedDto, dtoType;
-		serializedDto = jsonSerializer.serialize(dataTransferObjectToPost);
-		if(dataTransferObjectToPost instanceof List){
-			List<?> list = (List<?>)dataTransferObjectToPost;
-			if(list.isEmpty()){
-				dtoType = "";
-			} else{
-				dtoType = list.get(0).getClass().getCanonicalName();
-			}
-		} else {
-			dtoType = dataTransferObjectToPost.getClass().getCanonicalName();
+		String serializedDto = jsonSerializer.serialize(dataTransferObjectToPost);
+		String dtoType = dataTransferObjectToPost.getClass().getCanonicalName();
+		return post(url, serializedDto, dtoType, retrySafe);
+	}
+	
+	public <T> String post(String url, Collection<T> dtoCollection, boolean retrySafe){
+		String serializedDtos = jsonSerializer.serialize(dtoCollection);
+		String dtoType;
+		if(dtoCollection.isEmpty()){
+			dtoType = "";
+		} else{
+			dtoType = dtoCollection.iterator().next().getClass().getCanonicalName();
 		}
-		params.put("dataTransferObject", serializedDto);
+		return post(url, serializedDtos, dtoType, retrySafe);
+	}
+	
+	private <T> String post(String url, String dto, String dtoType, boolean retrySafe){
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("dataTransferObject", dto);
 		params.put("dataTransferObjectType", dtoType);
 		return post(url, params, retrySafe);
 	}
 	
-	public <T,E> E post(String url, T dataTransferObjectToPost, Class<E> classOfDataTranferObjectExpected, boolean retrySafe){
-		return jsonSerializer.deserialize(post(url, dataTransferObjectToPost, retrySafe), classOfDataTranferObjectExpected);
+	public <T,E> E post(String url, T dataTransferObjectToPost, Type typeOfDataTranferObjectExpected, boolean retrySafe){
+		return jsonSerializer.deserialize(post(url, dataTransferObjectToPost, retrySafe), typeOfDataTranferObjectExpected);
 	}
 	
 	/***** private ******/

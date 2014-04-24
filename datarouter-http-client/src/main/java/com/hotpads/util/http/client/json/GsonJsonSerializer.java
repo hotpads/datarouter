@@ -1,5 +1,7 @@
 package com.hotpads.util.http.client.json;
 
+import java.lang.reflect.Type;
+
 import com.google.gson.Gson;
 
 public class GsonJsonSerializer implements JsonSerializer{
@@ -16,7 +18,7 @@ public class GsonJsonSerializer implements JsonSerializer{
 	}
 
 	@Override
-	public <T> T deserialize(String toDeserialize, Class<T> classOfT){
+	public <T> T deserialize(String toDeserialize, Type classOfT){
 		return gson.fromJson(toDeserialize, classOfT);
 	}
 }
