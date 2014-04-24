@@ -29,6 +29,8 @@ import com.hotpads.util.core.MapTool;
 public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 	public static final int LENGTH_counterName = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	public static final int LENGTH_comment= MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int LENGTH_creator= MySqlColumnType.MAX_LENGTH_VARCHAR;
+
 	
 	/************* fileds ************************/
 	@Id
@@ -38,6 +40,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 	private Long periodMs;
 	private Long minThreshold;
 	private Long maxThreshold;
+	private String creator;
 	private String comment;
 	private Date createdDate = new Date();
 	private Date lastNoticeDate = null;
@@ -46,11 +49,12 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		
 	}
 	
-	public CounterAlert(String counterName, Long periodMs, Long minThreshold, Long maxThreshold, String comment){
+	public CounterAlert(String counterName, Long periodMs, Long minThreshold, Long maxThreshold, String creator, String comment){
 		this.counterName = counterName;
 		this.periodMs = periodMs;
 		this.minThreshold = minThreshold;
 		this.maxThreshold = maxThreshold;
+		this.creator = creator;
 		this.comment = comment;
 		buildId();
 	}
@@ -62,6 +66,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		periodMs = "periodMs",
 		minThreshold = "minThreshold",
 		maxThreshold = "maxThreshold",
+		creator = "creator",
 		comment = "comment",
 		createdDate = "createdDate",
 		lastNoticeDate = "lastNoticeDate"
@@ -70,7 +75,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 	
 	/********************* build Id **************************/
 	private void buildId(){
-		setId(HashMethods.longDJBHash(counterName + periodMs + minThreshold + maxThreshold ));
+		setId(HashMethods.longDJBHash(counterName + periodMs + minThreshold + maxThreshold + creator ));
 	}
 	
 	/*************************** databean ****************************************/
@@ -96,6 +101,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 				new LongField(F.periodMs, periodMs), 
 				new LongField(F.minThreshold, minThreshold), 
 				new LongField(F.maxThreshold, maxThreshold),
+				new StringField(F.creator, creator, LENGTH_creator), 
 				new StringField(F.comment, comment, LENGTH_comment), 
 				new DateField(F.createdDate, createdDate),
 				new DateField(F.lastNoticeDate, lastNoticeDate)
@@ -122,6 +128,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		public Map<String,List<Field<?>>> getIndexes(CounterAlert counterAlert){
 			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
 			indexesByName.put(F.counterName, new CounterAlertByCounterNameLookup(null).getFields());
+			indexesByName.put(F.creator, new CounterAlertByCreatorLookup(null).getFields());
 			return indexesByName;
 		}
 	}
@@ -137,7 +144,17 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 			return FieldTool.createList( new StringField(F.counterName, counterName, LENGTH_counterName));
 		}
 	}
-	
+
+	public static class CounterAlertByCreatorLookup extends BaseLookup<CounterAlertKey>{
+		String creator;
+		public CounterAlertByCreatorLookup(String creator){
+			this.creator = creator;
+		}
+		@Override
+		public List<Field<?>> getFields(){
+			return FieldTool.createList( new StringField(F.creator, creator, LENGTH_creator));
+		}
+	}
 	/******************************** getter/setter ***********************/
 	public Long getId(){
 		return counterAlertId;
@@ -177,6 +194,14 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 
 	public void setMaxThreshold(long maxThreshold){
 		this.maxThreshold = maxThreshold;
+	}
+
+	public String getCreator(){
+		return creator;
+	}
+
+	public void setCreator(String creator){
+		this.creator = creator;
 	}
 
 	public String getComment(){
