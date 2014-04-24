@@ -10,6 +10,7 @@ import com.hotpads.handler.admin.client.hibernate.HibernateHandler;
 import com.hotpads.handler.admin.client.memchached.MemcachedHandler;
 import com.hotpads.handler.admin.client.memory.MemoryHandler;
 import com.hotpads.handler.datarouter.ViewNodeDataHandler;
+import com.hotpads.handler.setting.ClusterSettingsHandler;
 
 public class DataRouterDispatcher extends BaseDispatcher{
 
@@ -27,6 +28,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 	
 	public static final String URL_DATABEAN_CLASS_GENERATOR = URL_DATAROUTER + "/databeanGenerator";
 	private static final String CLIENTS = "/clients";
+	public static final String SETTING = "/setting";
 
 
 	public DataRouterDispatcher(Injector injector, String servletContextPath, String urlPrefix){
@@ -43,6 +45,9 @@ public class DataRouterDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + CLIENTS + MEMCACHED, MemcachedHandler.class);
 		handle(URL_DATAROUTER + ROUTERS, RoutersHandler.class);
 		handle(URL_DATAROUTER + "*", RoutersHandler.class);
+		
+		handle(URL_DATAROUTER + SETTING).withHandler(ClusterSettingsHandler.class);
+		
 	}
 
 }
