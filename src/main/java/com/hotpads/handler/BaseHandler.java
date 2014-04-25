@@ -61,6 +61,7 @@ public abstract class BaseHandler{
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	public @interface Handler {
+		Class<?>[] expectedParameterClasses() default {};
 	}
 	
 	
