@@ -21,7 +21,7 @@
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
-	<%@ include file="/WEB-INF/jsp/generic/navBar.jsp" %>
+	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
 		<a href="?submitAction=browseSettings" class="btn btn-primary">&rarr; Browse settings</a><br/>
 		<br/>

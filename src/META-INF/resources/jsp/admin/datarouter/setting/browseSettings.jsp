@@ -24,7 +24,7 @@ function stayFocus(object){
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
-	<%@ include file="/WEB-INF/jsp/generic/navBar.jsp" %>
+	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
 		<h2 class="page-header">Cluster Settings Browser</h2>
 		<ul class="breadcrumb">

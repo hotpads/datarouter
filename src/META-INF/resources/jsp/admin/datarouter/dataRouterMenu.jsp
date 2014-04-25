@@ -12,7 +12,8 @@
 <%@ include file="/jsp/css/css-import.jspf" %>
 </head>
 <body>
-	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
+<%@ include file="/jsp/menu/common-navbar.jsp" %>
+<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 <div class="container">
 <h2>Datarouter</h2>
 <%-- <c:if test="${not empty message-update}"> --%>

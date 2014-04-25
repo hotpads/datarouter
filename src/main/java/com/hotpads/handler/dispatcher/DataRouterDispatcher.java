@@ -33,21 +33,17 @@ public class DataRouterDispatcher extends BaseDispatcher{
 
 	public DataRouterDispatcher(Injector injector, String servletContextPath, String urlPrefix){
 		super(injector, servletContextPath, urlPrefix);
-		// DataRouter
 //		handle(URL_HTTP_CLIENT, DataRouterHttpClientHandler.class);
-		handle(URL_DATAROUTER_browse_NODE_DATA , ViewNodeDataHandler.class);
-		handle(URL_DATAROUTER + URL_STACKTRACES, StackTracesManagerHandler.class);
-		handle(URL_DATABEAN_CLASS_GENERATOR, DatabeanGeneratorHandler.class);
-		
-		handle(URL_DATAROUTER + CLIENTS + HBASE, HBaseHandler.class);
-		handle(URL_DATAROUTER + CLIENTS + HIBERNATE, HibernateHandler.class);
-		handle(URL_DATAROUTER + CLIENTS + MEMORY, MemoryHandler.class);
-		handle(URL_DATAROUTER + CLIENTS + MEMCACHED, MemcachedHandler.class);
-		handle(URL_DATAROUTER + ROUTERS, RoutersHandler.class);
-		handle(URL_DATAROUTER + "*", RoutersHandler.class);
-		
+		handle(URL_DATAROUTER_browse_NODE_DATA ).withHandler(ViewNodeDataHandler.class);
+		handle(URL_DATABEAN_CLASS_GENERATOR).withHandler(DatabeanGeneratorHandler.class);
+		handle(URL_DATAROUTER + "*").withHandler(RoutersHandler.class);
+		handle(URL_DATAROUTER + URL_STACKTRACES).withHandler(StackTracesManagerHandler.class);
+		handle(URL_DATAROUTER + ROUTERS).withHandler(RoutersHandler.class);
 		handle(URL_DATAROUTER + SETTING).withHandler(ClusterSettingsHandler.class);
-		
+		handle(URL_DATAROUTER + CLIENTS + HBASE).withHandler(HBaseHandler.class);
+		handle(URL_DATAROUTER + CLIENTS + HIBERNATE).withHandler(HibernateHandler.class);
+		handle(URL_DATAROUTER + CLIENTS + MEMORY).withHandler(MemoryHandler.class);
+		handle(URL_DATAROUTER + CLIENTS + MEMCACHED).withHandler(MemcachedHandler.class);
 	}
 
 }
