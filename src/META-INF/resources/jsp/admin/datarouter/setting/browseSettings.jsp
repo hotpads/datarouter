@@ -1,4 +1,4 @@
-<%@page import="com.hotpads.setting.HotPadsServerType"%>
+<%-- <%@page import="com.hotpads.config.server.enums.HotPadsServerType"%> --%>
 <%@page import="com.hotpads.util.core.web.HTMLSelectOptionBean"%>
 <%@page import="com.hotpads.setting.cluster.ClusterSettingScope"%>
 <%@ include file="/WEB-INF/prelude.jspf"%>

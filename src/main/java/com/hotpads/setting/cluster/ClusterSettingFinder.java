@@ -16,8 +16,8 @@ import org.quartz.CronExpression;
 
 import com.google.inject.BindingAnnotation;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.setting.HotPadsServerType;
 import com.hotpads.setting.ClusterSettingFinderConfig;
+import com.hotpads.setting.DatarouterServerType;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
@@ -37,13 +37,15 @@ public class ClusterSettingFinder {
 	public static final String PREFIX_trigger = "trigger.";
 	public static final String EMPTY_STRING = "";
 
+	@Inject
 	protected ClusterSettingFinderConfig clusterSettingFinderConfig;
+	@Inject
+	protected DatarouterServerType datarouterServerTypeTool;
 	protected SortedMapStorageNode<ClusterSettingKey,ClusterSetting> clusterSetting;
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Inject
-	public ClusterSettingFinder(ClusterSettingFinderConfig clusterSettingFinderConfig, @clusterSettingNode SortedMapStorageNode clusterSetting) {
-		this.clusterSettingFinderConfig = clusterSettingFinderConfig;
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public ClusterSettingFinder(@clusterSettingNode SortedMapStorageNode clusterSetting) {
 		this.clusterSetting = clusterSetting;
 	}
 	
@@ -103,10 +105,10 @@ public class ClusterSettingFinder {
 		List<ClusterSettingKey> keys = ListTool.createArrayList();
 		
 		//remember to use "" instead of null.  should probably make a new Field type to do that for you
-		keys.add(new ClusterSettingKey(name, ClusterSettingScope.defaultScope, HotPadsServerType.UNKNOWN.getPersistentString(), EMPTY_STRING,
+		keys.add(new ClusterSettingKey(name, ClusterSettingScope.defaultScope, datarouterServerTypeTool.getUNKNOWNPersistentString(), EMPTY_STRING,
 				EMPTY_STRING));
 
-		keys.add(new ClusterSettingKey(name, ClusterSettingScope.cluster, HotPadsServerType.ALL.getPersistentString(), EMPTY_STRING, EMPTY_STRING));
+		keys.add(new ClusterSettingKey(name, ClusterSettingScope.cluster, datarouterServerTypeTool.getALLPersistentString(), EMPTY_STRING, EMPTY_STRING));
 		
 		ClusterSettingKey serverTypeSetting = getKeyForServerType(name);
 		if(serverTypeSetting != null){ keys.add(serverTypeSetting); }
@@ -121,8 +123,8 @@ public class ClusterSettingFinder {
 	}
 	
 	protected ClusterSettingKey getKeyForServerType(String name){
-		HotPadsServerType serverType = clusterSettingFinderConfig.getServerType();
-		if(serverType==null || serverType==HotPadsServerType.UNKNOWN){ return null; }
+		DatarouterServerType serverType = clusterSettingFinderConfig.getServerType();
+		if(serverType == null || serverType.getPersistentString().equals(datarouterServerTypeTool.getUNKNOWNPersistentString())){ return null; }
 		return new ClusterSettingKey(name, ClusterSettingScope.serverType, serverType.getPersistentString(), EMPTY_STRING,
 				EMPTY_STRING);
 	}
@@ -130,13 +132,13 @@ public class ClusterSettingFinder {
 	protected ClusterSettingKey getKeyForInstance(String name){
 		String instance = clusterSettingFinderConfig.getInstanceId();
 		if(StringTool.isEmpty(instance)){ return null; }
-		return new ClusterSettingKey(name, ClusterSettingScope.instance, HotPadsServerType.UNKNOWN.getPersistentString(), instance, EMPTY_STRING);
+		return new ClusterSettingKey(name, ClusterSettingScope.instance, datarouterServerTypeTool.getUNKNOWNPersistentString(), instance, EMPTY_STRING);
 	}
 	
 	protected ClusterSettingKey getKeyForApplication(String name){
 		String application = clusterSettingFinderConfig.getApplication();
 		if(StringTool.isEmpty(application)){ return null; }
-		return new ClusterSettingKey(name, ClusterSettingScope.application, HotPadsServerType.UNKNOWN.getPersistentString(), application, 
+		return new ClusterSettingKey(name, ClusterSettingScope.application, datarouterServerTypeTool.getUNKNOWNPersistentString(), application, 
 				EMPTY_STRING);
 	}
 

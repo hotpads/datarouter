@@ -10,7 +10,7 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNod
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.dispatcher.DataRouterDispatcher;
 import com.hotpads.handler.mav.Mav;
-import com.hotpads.setting.HotPadsServerType;
+import com.hotpads.setting.DatarouterServerType;
 import com.hotpads.setting.Setting;
 import com.hotpads.setting.cluster.ClusterSetting;
 import com.hotpads.setting.cluster.ClusterSettingFinder;
@@ -50,8 +50,8 @@ public class ClusterSettingsHandler extends BaseHandler {
 	protected SettingNode settingNode;
 	@Inject
 	protected ClusterSettingFinder finder;
-	
-	@clusterSettingNode
+	@Inject
+	protected DatarouterServerType datarouterServerTypeTool;
 	protected  SortedMapStorageNode<ClusterSettingKey, ClusterSetting> clusterSettingNode;
 	
 	@Inject
@@ -79,7 +79,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 			settings = clusterSettingNode.getWithPrefix(settingPrefix, true, null);
 		}
 		mav.put(V_settings, settings);
-		mav.put("serverTypeOptions", HotPadsServerType.getHTMLSelectOptionsVarNames());
+		mav.put("serverTypeOptions", datarouterServerTypeTool.getHTMLSelectOptionsVarNames());
 		return mav;
 	}
 	
@@ -149,7 +149,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		}
 		mav.put(V_listSettings, settingsList);
 		mav.put(V_mapListsCustomSettings, mapListsCustom);
-		mav.put("serverTypeOptions", HotPadsServerType.getHTMLSelectOptionsVarNames());
+		mav.put("serverTypeOptions", datarouterServerTypeTool.getHTMLSelectOptionsVarNames());
 		return mav;
 	}
 	
@@ -157,7 +157,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 	
 	protected ClusterSettingKey parseClusterSettingKeyFromParams() {
 		String name = params.required(P_name);
-		HotPadsServerType serverType = HotPadsServerType.fromPersistentStringStatic(params.required(P_serverType));
+		DatarouterServerType serverType = datarouterServerTypeTool.fromPersistentStringStatic(params.required(P_serverType));
 		String instance = params.optional("instance", "");
 		String application = params.optional("application", "");
 		ClusterSettingScope scope = ClusterSettingScope.fromParams(serverType, instance, application);

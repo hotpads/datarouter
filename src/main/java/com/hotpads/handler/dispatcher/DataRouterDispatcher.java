@@ -27,8 +27,8 @@ public class DataRouterDispatcher extends BaseDispatcher{
 	private static final String MEMCACHED = "/memcached";
 	
 	public static final String URL_DATABEAN_CLASS_GENERATOR = URL_DATAROUTER + "/databeanGenerator";
-	private static final String CLIENTS = "/clients";
-	public static final String SETTING = "/setting";
+	public static final String CLIENTS = "/clients";
+	public static final String SETTING = "/settings";
 
 
 	public DataRouterDispatcher(Injector injector, String servletContextPath, String urlPrefix){
