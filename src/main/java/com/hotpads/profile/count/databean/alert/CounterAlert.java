@@ -1,5 +1,6 @@
 package com.hotpads.profile.count.databean.alert;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 import org.hibernate.annotations.AccessType;
+import org.quartz.CronExpression;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
@@ -30,7 +32,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 	public static final int LENGTH_counterName = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	public static final int LENGTH_comment= MySqlColumnType.MAX_LENGTH_VARCHAR;
 	public static final int LENGTH_creator= MySqlColumnType.MAX_LENGTH_VARCHAR;
-
+	public static final int LENGTH_alertTimeRange= MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	/************* fileds ************************/
 	@Id
@@ -41,20 +43,21 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 	private Long minThreshold;
 	private Long maxThreshold;
 	private String creator;
+	private String alertTimeRange;
 	private String comment;
 	private Date createdDate = new Date();
-	private Date lastNoticeDate = null;
 
 	CounterAlert(){
 		
 	}
 	
-	public CounterAlert(String counterName, Long periodMs, Long minThreshold, Long maxThreshold, String creator, String comment){
+	public CounterAlert(String counterName, Long periodMs, Long minThreshold, Long maxThreshold, String creator, String alertTimeRange, String comment){
 		this.counterName = counterName;
 		this.periodMs = periodMs;
 		this.minThreshold = minThreshold;
 		this.maxThreshold = maxThreshold;
 		this.creator = creator;
+		this.alertTimeRange = alertTimeRange;
 		this.comment = comment;
 		buildId();
 	}
@@ -67,15 +70,15 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		minThreshold = "minThreshold",
 		maxThreshold = "maxThreshold",
 		creator = "creator",
+		alertTimeRange = "alertTimeRange",
 		comment = "comment",
-		createdDate = "createdDate",
-		lastNoticeDate = "lastNoticeDate"
+		createdDate = "createdDate"
 		;
 	}
 	
 	/********************* build Id **************************/
 	private void buildId(){
-		setId(HashMethods.longDJBHash(counterName + periodMs + minThreshold + maxThreshold + creator ));
+		setId(HashMethods.longDJBHash(counterName + periodMs + minThreshold + maxThreshold + creator + alertTimeRange));
 	}
 	
 	/*************************** databean ****************************************/
@@ -102,9 +105,9 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 				new LongField(F.minThreshold, minThreshold), 
 				new LongField(F.maxThreshold, maxThreshold),
 				new StringField(F.creator, creator, LENGTH_creator), 
+				new StringField(F.alertTimeRange, alertTimeRange, LENGTH_alertTimeRange), 
 				new StringField(F.comment, comment, LENGTH_comment), 
-				new DateField(F.createdDate, createdDate),
-				new DateField(F.lastNoticeDate, lastNoticeDate)
+				new DateField(F.createdDate, createdDate)
 				);
 
 		return fields;
@@ -155,6 +158,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 			return FieldTool.createList( new StringField(F.creator, creator, LENGTH_creator));
 		}
 	}
+	
 	/******************************** getter/setter ***********************/
 	public Long getId(){
 		return counterAlertId;
@@ -204,6 +208,14 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		this.creator = creator;
 	}
 
+	public String getAlertTimeRange(){
+		return alertTimeRange;
+	}
+
+	public void setAlertTimeRange(String alertTimeRange){
+		this.alertTimeRange = alertTimeRange;
+	}
+
 	public String getComment(){
 		return comment;
 	}
@@ -220,16 +232,13 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		this.createdDate = createdDate;
 	}
 
-	public Date getLastNoticeDate(){
-		return lastNoticeDate;
+	public static void main(String[] args) throws ParseException{
+		CronExpression cron = new CronExpression("* * 11 25 * ?");
+		Date date = new Date();
+		System.out.println(date);
+		System.out.println(cron.isSatisfiedBy(date));
 	}
+	
 
-	public void setLastNoticeDate(Date lastNoticeDate){
-		this.lastNoticeDate = lastNoticeDate;
-	}
-
-	public static void main(String[] args){
-		System.out.println(null + "ABC");
-	}
 	
 }
