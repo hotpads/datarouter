@@ -2,6 +2,7 @@ package com.hotpads.datarouter.storage.field;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -9,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -54,6 +56,23 @@ public class FieldTool{
 			++appended;
 		}
 	}
+	
+	public static List<String> getCsvColumnNamesList(Iterable<Field<?>> fields) {
+		return getCsvColumnNamesList(fields, null);
+	}
+
+	public static List<String> getCsvColumnNamesList(Iterable<Field<?>> fields,
+			Map<String, FieldView> fieldColumnNameToFieldView) {
+		List<String> csvRow = ListTool.createLinkedList();
+		for (Field<?> field : IterableTool.nullSafe(fields)) {
+			String columnName = field.getColumnName();
+			if (fieldColumnNameToFieldView != null && fieldColumnNameToFieldView.containsKey(field.getColumnName())) {
+				columnName = fieldColumnNameToFieldView.get(field.getColumnName()).getViewColumnName(columnName);
+			}
+			csvRow.add(columnName);
+		}
+		return csvRow;
+	}
 
 	public static String getCsvValues(Iterable<Field<?>> fields){
 		StringBuilder sb = new StringBuilder();
@@ -70,6 +89,26 @@ public class FieldTool{
 			sb.append(StringEscapeUtils.escapeCsv(valueString));
 			++appended;
 		}
+	}
+	
+	public static List<String> getCsvValuesList(Iterable<Field<?>> fields) {
+		return getCsvValuesList(fields, null);
+	}
+
+	public static List<String> getCsvValuesList(Iterable<Field<?>> fields,
+			Map<String, FieldView> fieldColumnNameToFieldView) {
+		List<String> csvRow = ListTool.createLinkedList();
+		for (Field<?> field : IterableTool.nullSafe(fields)) {
+			String value = ObjectTool.nullSafeToString(field.getValue());
+			if(value == null){
+				value="";
+			}
+			if (fieldColumnNameToFieldView != null && fieldColumnNameToFieldView.containsKey(field.getColumnName())) {
+				value = fieldColumnNameToFieldView.get(field.getColumnName()).getViewValue(value);
+			}
+			csvRow.add(value);
+		}
+		return csvRow;
 	}
 
 	public static List<String> getFieldNames(List<Field<?>> fields){
