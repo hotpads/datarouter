@@ -15,7 +15,6 @@ import com.hotpads.handler.setting.ClusterSettingsHandler;
 public class DataRouterDispatcher extends BaseDispatcher{
 
 	private static final String ROUTERS = "/routers";
-	public static final String URL_STACKTRACES = "/stackTraces";
 	public static final String URL_DATAROUTER = "/datarouter";
 	public static final String URL_DATAROUTER_API = "/datarouterApi";
 	public static final String URL_DATAROUTER_browse_NODE_DATA = URL_DATAROUTER + "/nodes/browseData";
@@ -27,6 +26,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 	private static final String MEMCACHED = "/memcached";
 	
 	public static final String URL_DATABEAN_CLASS_GENERATOR = URL_DATAROUTER + "/databeanGenerator";
+	public static final String STACKTRACES = "/stackTraces";
 	public static final String CLIENTS = "/clients";
 	public static final String SETTING = "/settings";
 
@@ -37,7 +37,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER_browse_NODE_DATA ).withHandler(ViewNodeDataHandler.class);
 		handle(URL_DATABEAN_CLASS_GENERATOR).withHandler(DatabeanGeneratorHandler.class);
 		handle(URL_DATAROUTER + "*").withHandler(RoutersHandler.class);
-		handle(URL_DATAROUTER + URL_STACKTRACES).withHandler(StackTracesManagerHandler.class);
+		handle(URL_DATAROUTER + STACKTRACES).withHandler(StackTracesManagerHandler.class);
 		handle(URL_DATAROUTER + ROUTERS).withHandler(RoutersHandler.class);
 		handle(URL_DATAROUTER + SETTING).withHandler(ClusterSettingsHandler.class);
 		handle(URL_DATAROUTER + CLIENTS + HBASE).withHandler(HBaseHandler.class);

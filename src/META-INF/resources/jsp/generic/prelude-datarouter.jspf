@@ -2,7 +2,7 @@
 <%@ taglib prefix="x" uri="http://java.sun.com/jsp/jstl/xml"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql"%>
-<%@ taglib  uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <c:set var="contextPath" value="<%=request.getContextPath()%>" scope="request" />
 <c:set var="basePathNoPort" value="<%= request.getScheme() + \"://\" + request.getServerName() %>" scope="request" />
 <c:set var="basePath" value="<%= request.getScheme() + \"://\" + request.getServerName() + \":\" + request.getServerPort() %>" scope="request" />

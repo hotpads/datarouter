@@ -38,9 +38,9 @@ public class ClusterSettingsHandler extends BaseHandler {
 		V_mapListsCustomSettings = "mapListsCustomSettings",
 		V_nodeName = "nodeName",
 		
-		URL_settings = DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING,
-		URL_modify = DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING + "?submitAction=browseSettings&name=",
-		JSP_editSettings = "/jsp/admin/datarouter/setting/editSettings.jsp",//FIXME
+		URL_settings = "/job" + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING,
+		URL_modify = "/job" + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING + "?submitAction=browseSettings&name=",
+		JSP_editSettings = "/jsp/admin/datarouter/setting/editSettings.jsp",
 		JSP_browseSettings = "/jsp/admin/datarouter/setting/browseSettings.jsp",
 		JSP_detailSetting = "/jsp/admin/datarouter/setting/detailSetting.jsp";
 	
@@ -80,6 +80,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		}
 		mav.put(V_settings, settings);
 		mav.put("serverTypeOptions", datarouterServerTypeTool.getHTMLSelectOptionsVarNames());
+		System.out.println(mav.getModel());
 		return mav;
 	}
 	

@@ -2,6 +2,7 @@
 <%@page import="com.hotpads.util.core.web.HTMLSelectOptionBean"%>
 <%@page import="com.hotpads.setting.cluster.ClusterSettingScope"%>
 <%@ include file="/WEB-INF/prelude.jspf"%>
+<%@ include file="../../../generic/prelude-datarouter.jspf"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -10,7 +11,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Hotpads : Cluster settings</title>
 <%@ include file="/jsp/css/css-import.jspf" %>
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/job.css"/>
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script type="text/javascript">
@@ -97,7 +97,7 @@ function stayFocus(object){
 												items="${mapListsCustomSettings.get(setting.getName())}"
 												var="customSetting"
 												>
-												<form method="post" action="?">
+<!-- 												<form method="post" action="?"> -->
 												<tr>
 													<td>${customSetting.scope}</td>
 													<td>${customSetting.serverType}</td>
@@ -115,7 +115,7 @@ function stayFocus(object){
 														onclick="return confirm('Are you sure?');">delete</a>
 													</td>
 												</tr>
-												</form>
+<!-- 												</form> -->
 											</c:forEach>
 										</table>
 										</c:if>
