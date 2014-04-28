@@ -72,7 +72,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		List<ClusterSetting> settings;
 		String prefix = params.optional(P_prefix, null);
 		if(StringTool.isEmpty(prefix)) {
-//			settings = clusterSettingNode.getAll(null); dedcrepated
+//			settings = clusterSettingNode.getAll(null); deprecated
 			settings = ListTool.createArrayList(clusterSettingNode.scan(null, true, null, false, null));
 		} else {
 			ClusterSettingKey settingPrefix = new ClusterSettingKey(prefix, null, null, null, null);
@@ -80,7 +80,6 @@ public class ClusterSettingsHandler extends BaseHandler {
 		}
 		mav.put(V_settings, settings);
 		mav.put("serverTypeOptions", datarouterServerTypeTool.getHTMLSelectOptionsVarNames());
-		System.out.println(mav.getModel());
 		return mav;
 	}
 	

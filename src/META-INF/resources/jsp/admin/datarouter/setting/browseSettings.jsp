@@ -97,7 +97,6 @@ function stayFocus(object){
 												items="${mapListsCustomSettings.get(setting.getName())}"
 												var="customSetting"
 												>
-<!-- 												<form method="post" action="?"> -->
 												<tr>
 													<td>${customSetting.scope}</td>
 													<td>${customSetting.serverType}</td>
@@ -115,7 +114,6 @@ function stayFocus(object){
 														onclick="return confirm('Are you sure?');">delete</a>
 													</td>
 												</tr>
-<!-- 												</form> -->
 											</c:forEach>
 										</table>
 										</c:if>
@@ -132,7 +130,7 @@ function stayFocus(object){
 											<input type="hidden" name="name" value="${setting.getName()}">
 											<input type="text" name="instance" class="input-medium" placeholder="Instance">
 											<input type="text" name="value" class="input-medium" placeholder="Value">
-											<input class="btn btn-mini btn-warning" type="submit" name="submitAction" value="Add">
+											<input class="btn btn-mini btn-warning" type="submit" name="submitAction" value="create">
 										</form>
 									</div>
 								</c:when>
