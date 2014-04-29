@@ -86,8 +86,11 @@ public class ClusterSettingsHandler extends BaseHandler {
 		String value = params.optional("value", null);
 		ClusterSetting setting = new ClusterSetting(settingKey, value);
 		clusterSettingNode.put(setting, null);
-		String nodeName = settingKey.getName().substring(0, settingKey.getName().lastIndexOf(".") + 1);
-		return new Mav(Mav.REDIRECT+URL_modify+nodeName);
+		String nodeName = params.optional("nodeName", null);
+		if(nodeName != null){
+			return new Mav(Mav.REDIRECT+URL_modify+nodeName+"#"+settingKey.getName().replaceAll("\\.", "_"));
+		}
+		return new Mav(Mav.REDIRECT+URL_settings);
 	}
 	
 	@Handler Mav update() {
@@ -97,7 +100,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		clusterSettingNode.put(setting, null);
 		String nodeName = params.optional("nodeName", null);
 		if(nodeName != null){
-			return new Mav(Mav.REDIRECT+URL_modify+nodeName);
+			return new Mav(Mav.REDIRECT+URL_modify+nodeName+"#"+settingKey.getName().replaceAll("\\.", "_"));
 		}
 		return new Mav(Mav.REDIRECT+URL_settings);
 	}
@@ -116,7 +119,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		clusterSettingNode.delete(settingKey, null);
 		String nodeName = params.optional("nodeName", null);
 		if(nodeName != null){
-			return new Mav(Mav.REDIRECT+URL_modify+nodeName);
+			return new Mav(Mav.REDIRECT+URL_modify+nodeName+"#"+settingKey.getName().replaceAll("\\.", "_"));
 		}
 		return new Mav(Mav.REDIRECT+URL_settings);
 	}

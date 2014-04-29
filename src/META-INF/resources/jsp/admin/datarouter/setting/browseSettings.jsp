@@ -80,7 +80,7 @@ function showCreateForm(link) {
 						</c:choose>
 						>
 						<c:set var="customSettings" value="${mapListsCustomSettings.get(setting.getName())}"></c:set>
-						<td rowspan="${customSettings.size() + 2}">
+						<td rowspan="${customSettings.size() + 2}" id="${fn:replace(setting.getName(), '.', '_')}">
 							<p>
 								<c:choose>
 									<c:when test="${setting.getHasCustomValue()}">
@@ -104,32 +104,36 @@ function showCreateForm(link) {
 					</tr>
 					<c:forEach var="customSetting" items="${customSettings}">
 						<tr>
+							<form method="post" action="?">
+								<input type="hidden" name="nodeName" value="${nodeName}">
+								<input type="hidden" name="name" value="${customSetting.name}">
+								<input type="hidden" name="scope" value="${customSetting.scope}">
+								<input type="hidden" name="serverType" value="${customSetting.serverType}">
+								<input type="hidden" name="instance" value="${customSetting.instance}">
+								<input type="hidden" name="application" value="${customSetting.application}">
 							<td>${customSetting.scope}</td>
-							<td>${customSetting.serverType}</td>
-							<td>${customSetting.instance}</td>
-							<td>${customSetting.application}</td>
-							<td>
-								<input value="${customSetting.value}" class="input-mini"  placeholder="Value" id="valu_${customSetting.hashCode()}">
-							</td>
-							<td class="center">
-								<a
-									class="btn btn-mini btn-warning"
-									onclick="if (confirm('Are you sure?')) location='?submitAction=update&nodeName=${nodeName}&name=${customSetting.name}&scope=${customSetting.scope}&serverType=${customSetting.serverType}&instance=${customSetting.instance}&application=${customSetting.application}&value='+document.getElementById('valu_${customSetting.hashCode()}').value">
-									update
-								</a>
-								<a
-									class="btn btn-mini btn-danger"
-									href="?submitAction=delete
-										&nodeName=${nodeName}
-										&name=${customSetting.name}
-										&scope=${customSetting.scope}
-										&serverType=${customSetting.serverType}
-										&instance=${customSetting.instance}
-										&application=${customSetting.application}"
-									onclick="return confirm('Are you sure?');">
-									delete
-								</a>
-							</td>
+								<td>${customSetting.serverType}</td>
+								<td>${customSetting.instance}</td>
+								<td>${customSetting.application}</td>
+								<td>
+									<input value="${customSetting.value}" class="input-mini"  placeholder="Value" name="value" id="valu_${customSetting.hashCode()}">
+								</td>
+								<td class="center">
+									<input type="submit" name="submitAction" value="update" class="btn btn-mini btn-warning">
+									<a
+										class="btn btn-mini btn-danger"
+										href="?submitAction=delete
+											&nodeName=${nodeName}
+											&name=${customSetting.name}
+											&scope=${customSetting.scope}
+											&serverType=${customSetting.serverType}
+											&instance=${customSetting.instance}
+											&application=${customSetting.application}"
+										onclick="return confirm('Are you sure?');">
+										delete
+									</a>
+								</td>
+							</form>
 						</tr>
 					</c:forEach>
 					<tr>
