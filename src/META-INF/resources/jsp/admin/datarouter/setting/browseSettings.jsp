@@ -28,6 +28,7 @@ function showCreateForm(link) {
 	$('#appl_' + hash).show();
 	$('#valu_' + hash).show();
 	$('#acti_' + hash).show();
+	document.getElementById('inst_' + hash).parentNode.parentNode.removeAttribute('class');
 }
 </script>	
 </head>
@@ -42,8 +43,11 @@ function showCreateForm(link) {
 					<c:when test="${node.getName().equals(ancestor.getName())}">
 						<li class="active">${ancestor.getShortName()} <span class="divider">.</span></li>
 					</c:when>
-					<c:otherwise><li><a href="?submitAction=browseSettings&name=${ancestor.getName()}">
-						${ancestor.getShortName()}</a> <span class="divider">.</span></li>
+					<c:otherwise>
+						<li>
+							<a href="?submitAction=browseSettings&name=${ancestor.getName()}">${ancestor.getShortName()}</a>
+							<span class="divider">.</span>
+						</li>
 					</c:otherwise>
 				</c:choose>
 			</c:forEach>
@@ -52,8 +56,7 @@ function showCreateForm(link) {
 			<div class="btn-toolbar">
 				<div class="btn-group">
 					<c:forEach items="${children}" var="child">		
-						<a class="btn"
-							href="?submitAction=browseSettings&name=${child.getName()}">${child.getShortName()}</a>
+						<a class="btn" href="?submitAction=browseSettings&name=${child.getName()}">${child.getShortName()}</a>
 					</c:forEach>
 				</div>	
 			</div>
@@ -81,25 +84,26 @@ function showCreateForm(link) {
 						>
 						<c:set var="customSettings" value="${mapListsCustomSettings.get(setting.getName())}"></c:set>
 						<td rowspan="${customSettings.size() + 2}" id="${fn:replace(setting.getName(), '.', '_')}">
-							<p>
-								<c:choose>
-									<c:when test="${setting.getHasCustomValue()}">
-										<a href=?submitAction=detailSetting&name=${setting.getName()}>
-											<strong>${setting.getName()}</strong>
-										</a>
-									</c:when>
-									<c:otherwise>${setting.getName()}</c:otherwise>
-								</c:choose>
-							</p>
+							<c:choose>
+								<c:when test="${setting.getHasCustomValue()}">
+									<a href=?submitAction=detailSetting&name=${setting.getName()}>${setting.getName()}</a>
+								</c:when>
+								<c:otherwise>
+									${setting.getName()}
+								</c:otherwise>
+							</c:choose>
 						</td>
-						<td colspan="6" class="center">
+						<td colspan="5">
 							<span style="margin: 0 20px">
-								<strong>Current value : </strong>${setting.getValue()}
+								current : <strong>${setting.getValue()}</strong>
 							</span>
 							<wbr>
 							<span style="margin: 0 20px">
-								<strong>Default value : </strong>${setting.getDefaultValue()}
+								default : <strong>${setting.getDefaultValue()}</strong>
 							</span>
+						</td>
+						<td class="center">
+							<a id="link_${setting.hashCode()}" onclick="showCreateForm(this)">add</a>
 						</td>
 					</tr>
 					<c:forEach var="customSetting" items="${customSettings}">
@@ -136,13 +140,11 @@ function showCreateForm(link) {
 							</form>
 						</tr>
 					</c:forEach>
-					<tr>
+					<tr class="add_form">
 						<form method="post" action="?">
 							<input type="hidden" name="nodeName" value="${nodeName}">
 							<input type="hidden" name="name" value="${setting.getName()}">
-							<td>
-								<a id="link_${setting.hashCode()}" onclick="showCreateForm(this)">Add a custom setting</a>
-							</td>
+							<td/>
 							<td>
 								<select	name="serverType" id="type_${setting.hashCode()}" style="display: none;" class="setting-type input-small" required>
 									<option disabled selected>Type</option>
