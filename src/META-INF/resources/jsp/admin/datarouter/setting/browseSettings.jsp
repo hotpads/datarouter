@@ -61,7 +61,7 @@ function showCreateForm(link) {
 		<c:if test="${!listSettings.isEmpty()}">
 			<table class="table table-condensed center-header">
 				<tr>
-					<th rowspan="2">Default and current values</th>
+					<th rowspan="2">Name</th>
 					<th colspan="6">Custom values</th>
 				</tr>
 				<tr>
@@ -73,87 +73,84 @@ function showCreateForm(link) {
 					<th>Action</th>
 				</tr>
 				<c:forEach items="${listSettings}" var="setting">
-					<c:set var="customSettings" value="${mapListsCustomSettings.get(setting.getName())}"></c:set>
-					<c:forEach var="i" begin="0" end="${customSettings.size()}">
-						<tr
-							<c:choose>
-								<c:when test="${setting.getHasRedundantCustomValue()}">style="background: #F5FAFA;"</c:when>
-								<c:when test="${setting.getHasCustomValue()}">style="background: #ACD1E9;"</c:when>
-							</c:choose>
-							>
-							<c:choose>
-								<c:when test="${i == 0}">
-									<td rowspan="${customSettings.size() + 1}">
-										<p>
-											<c:choose>
-												<c:when test="${setting.getHasCustomValue()}">
-													<a href=?submitAction=detailSetting&name=${setting.getName()}>
-														<strong>${setting.getName()}</strong>
-													</a>
-												</c:when>
-												<c:otherwise>${setting.getName()}</c:otherwise>
-											</c:choose>
-											<br>
-											<strong>Current value : </strong>${setting.getValue()}
-											<br>
-											<strong>Default value : </strong>${setting.getDefaultValue()}
-										</p>
-									</td>
-								</c:when>
-							</c:choose>
-							<c:choose>
-								<c:when test="${i == customSettings.size()}">
-									<form method="post" action="?">
-										<input type="hidden" name="nodeName" value="${nodeName}">
-										<input type="hidden" name="name" value="${setting.getName()}">
-										<td>
-											<a id="link_${setting.hashCode()}" onclick="showCreateForm(this)">Add a custom setting</a>
-										</td>
-										
-										<td>
-											<select	name="serverType" class="input-small" id="type_${setting.hashCode()}" style="display: none;" >
-												<option disabled selected>Type</option>
-												<c:forEach items="${serverTypeOptions}" var="serverTypeOption">
-													<option value="${serverTypeOption.value}">${serverTypeOption.name}</option>
-												</c:forEach>
-											</select>
-										</td>
-										<td>
-												<input type="text" id="inst_${setting.hashCode()}" class="input-small" style="display: none;" name="instance" placeholder="Instance">
-										</td>
-										<td>
-												<input type="text" id="appl_${setting.hashCode()}" class="input-small" style="display: none;" name="application" placeholder="Application">
-										</td>
-										<td>
-												<input type="text" id="valu_${setting.hashCode()}" class="input-small" style="display: none;" name="value" placeholder="Value">
-										</td>
-										<td class="center">
-												<input type="submit" id="acti_${setting.hashCode()}" class="btn btn-mini btn-warning" style="display: none;" name="submitAction" value="create">
-										</td>
-									</form>
-								</c:when>
-								<c:otherwise>
-									<c:set var="customSetting" value="${customSettings[i]}"></c:set>
-									<td>${customSetting.scope}</td>
-									<td>${customSetting.serverType}</td>
-									<td>${customSetting.instance}</td>
-									<td>${customSetting.application}</td>
-									<td>${customSetting.value}</td>
-									<td class="center">
-										<a class="btn btn-mini btn-danger"
-										href="?submitAction=delete
-										&nodeName=${nodeName}
-										&name=${customSetting.name}
-										&scope=${customSetting.scope}
-										&serverType=${customSetting.serverType}
-										&instance=${customSetting.instance}
-										&application=${customSetting.application}"
-										onclick="return confirm('Are you sure?');">delete</a>
-									</td>
-								</c:otherwise>
-							</c:choose>
+					<tr
+						<c:choose>
+							<c:when test="${setting.getHasRedundantCustomValue()}">style="background: #F5FAFA;"</c:when>
+							<c:when test="${setting.getHasCustomValue()}">style="background: #ACD1E9;"</c:when>
+						</c:choose>
+						>
+						<c:set var="customSettings" value="${mapListsCustomSettings.get(setting.getName())}"></c:set>
+						<td rowspan="${customSettings.size() + 2}">
+							<p>
+								<c:choose>
+									<c:when test="${setting.getHasCustomValue()}">
+										<a href=?submitAction=detailSetting&name=${setting.getName()}>
+											<strong>${setting.getName()}</strong>
+										</a>
+									</c:when>
+									<c:otherwise>${setting.getName()}</c:otherwise>
+								</c:choose>
+							</p>
+						</td>
+						<td colspan="6" class="center">
+							<span style="margin: 0 20px">
+								<strong>Current value : </strong>${setting.getValue()}
+							</span>
+							<wbr>
+							<span style="margin: 0 20px">
+								<strong>Default value : </strong>${setting.getDefaultValue()}
+							</span>
+						</td>
+					</tr>
+					<c:forEach var="customSetting" items="${customSettings}">
+						<tr>
+							<td>${customSetting.scope}</td>
+							<td>${customSetting.serverType}</td>
+							<td>${customSetting.instance}</td>
+							<td>${customSetting.application}</td>
+							<td>${customSetting.value}</td>
+							<td class="center">
+								<a class="btn btn-mini btn-danger"
+								href="?submitAction=delete
+								&nodeName=${nodeName}
+								&name=${customSetting.name}
+								&scope=${customSetting.scope}
+								&serverType=${customSetting.serverType}
+								&instance=${customSetting.instance}
+								&application=${customSetting.application}"
+								onclick="return confirm('Are you sure?');">delete</a>
+							</td>
 						</tr>
-					</c:forEach>						
+					</c:forEach>
+					<tr>
+						<form method="post" action="?">
+							<input type="hidden" name="nodeName" value="${nodeName}">
+							<input type="hidden" name="name" value="${setting.getName()}">
+							<td>
+								<a id="link_${setting.hashCode()}" onclick="showCreateForm(this)">Add a custom setting</a>
+							</td>
+							<td>
+								<select	name="serverType" class="input-small" id="type_${setting.hashCode()}" style="display: none;" required>
+									<option disabled selected>Type</option>
+									<c:forEach items="${serverTypeOptions}" var="serverTypeOption">
+										<option value="${serverTypeOption.value}">${serverTypeOption.name}</option>
+									</c:forEach>
+								</select>
+							</td>
+							<td>
+									<input type="text" id="inst_${setting.hashCode()}" class="input-small" style="display: none;" name="instance" placeholder="Instance">
+							</td>
+							<td>
+									<input type="text" id="appl_${setting.hashCode()}" class="input-small" style="display: none;" name="application" placeholder="Application">
+							</td>
+							<td>
+									<input type="text" id="valu_${setting.hashCode()}" class="input-small" style="display: none;" name="value" placeholder="Value">
+							</td>
+							<td class="center">
+									<input type="submit" id="acti_${setting.hashCode()}" class="btn btn-mini btn-warning" style="display: none;" name="submitAction" value="create">
+							</td>
+						</form>
+					</tr>
 				</c:forEach>
 			</table>
 		</c:if>

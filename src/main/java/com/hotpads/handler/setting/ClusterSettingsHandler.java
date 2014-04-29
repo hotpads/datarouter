@@ -43,16 +43,14 @@ public class ClusterSettingsHandler extends BaseHandler {
 		JSP_editSettings = "/jsp/admin/datarouter/setting/editSettings.jsp",
 		JSP_browseSettings = "/jsp/admin/datarouter/setting/browseSettings.jsp",
 		JSP_detailSetting = "/jsp/admin/datarouter/setting/detailSetting.jsp";
-	
 
-	
 	@Inject
 	protected SettingNode settingNode;
 	@Inject
 	protected ClusterSettingFinder finder;
 	@Inject
 	protected DatarouterServerType datarouterServerTypeTool;
-	protected  SortedMapStorageNode<ClusterSettingKey, ClusterSetting> clusterSettingNode;
+	protected SortedMapStorageNode<ClusterSettingKey, ClusterSetting> clusterSettingNode;
 	
 	@Inject
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -88,7 +86,8 @@ public class ClusterSettingsHandler extends BaseHandler {
 		String value = params.optional("value", null);
 		ClusterSetting setting = new ClusterSetting(settingKey, value);
 		clusterSettingNode.put(setting, null);
-		return new Mav(Mav.REDIRECT+URL_settings);
+		String nodeName = settingKey.getName().substring(0, settingKey.getName().lastIndexOf(".") + 1);
+		return new Mav(Mav.REDIRECT+URL_modify+nodeName);
 	}
 	
 	@Handler Mav update() {
