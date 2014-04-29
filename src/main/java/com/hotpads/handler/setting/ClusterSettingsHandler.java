@@ -95,23 +95,26 @@ public class ClusterSettingsHandler extends BaseHandler {
 		String value = params.optional("value", null);
 		ClusterSetting setting = new ClusterSetting(settingKey, value);
 		clusterSettingNode.put(setting, null);
+		String nodeName = params.optional("nodeName", null);
+		if(nodeName != null){
+			return new Mav(Mav.REDIRECT+URL_modify+nodeName);
+		}
 		return new Mav(Mav.REDIRECT+URL_settings);
 	}
 	
 	@Handler Mav modify() {
 		ClusterSettingKey settingKey = parseClusterSettingKeyFromParams();
-		String nodeName = params.required("nodeName");
-		//String name = params.required("name");
 		String value = params.optional("value", null);
 		ClusterSetting setting = new ClusterSetting(settingKey, value);
 		clusterSettingNode.put(setting, null);
+		String nodeName = params.required("nodeName");
 		return new Mav(Mav.REDIRECT+URL_modify+nodeName);
 	}
 	
 	@Handler Mav delete() {
-		String nodeName = params.optional("nodeName", null);
 		ClusterSettingKey settingKey = parseClusterSettingKeyFromParams();
 		clusterSettingNode.delete(settingKey, null);
+		String nodeName = params.optional("nodeName", null);
 		if(nodeName != null){
 			return new Mav(Mav.REDIRECT+URL_modify+nodeName);
 		}

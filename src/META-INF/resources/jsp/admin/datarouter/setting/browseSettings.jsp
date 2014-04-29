@@ -108,17 +108,27 @@ function showCreateForm(link) {
 							<td>${customSetting.serverType}</td>
 							<td>${customSetting.instance}</td>
 							<td>${customSetting.application}</td>
-							<td>${customSetting.value}</td>
+							<td>
+								<input value="${customSetting.value}" class="input-mini"  placeholder="Value" id="valu_${customSetting.hashCode()}">
+							</td>
 							<td class="center">
-								<a class="btn btn-mini btn-danger"
-								href="?submitAction=delete
-								&nodeName=${nodeName}
-								&name=${customSetting.name}
-								&scope=${customSetting.scope}
-								&serverType=${customSetting.serverType}
-								&instance=${customSetting.instance}
-								&application=${customSetting.application}"
-								onclick="return confirm('Are you sure?');">delete</a>
+								<a
+									class="btn btn-mini btn-warning"
+									onclick="if (confirm('Are you sure?')) location='?submitAction=update&nodeName=${nodeName}&name=${customSetting.name}&scope=${customSetting.scope}&serverType=${customSetting.serverType}&instance=${customSetting.instance}&application=${customSetting.application}&value='+document.getElementById('valu_${customSetting.hashCode()}').value">
+									update
+								</a>
+								<a
+									class="btn btn-mini btn-danger"
+									href="?submitAction=delete
+										&nodeName=${nodeName}
+										&name=${customSetting.name}
+										&scope=${customSetting.scope}
+										&serverType=${customSetting.serverType}
+										&instance=${customSetting.instance}
+										&application=${customSetting.application}"
+									onclick="return confirm('Are you sure?');">
+									delete
+								</a>
 							</td>
 						</tr>
 					</c:forEach>
@@ -130,7 +140,7 @@ function showCreateForm(link) {
 								<a id="link_${setting.hashCode()}" onclick="showCreateForm(this)">Add a custom setting</a>
 							</td>
 							<td>
-								<select	name="serverType" class="input-small" id="type_${setting.hashCode()}" style="display: none;" required>
+								<select	name="serverType" id="type_${setting.hashCode()}" style="display: none;" class="setting-type input-small" required>
 									<option disabled selected>Type</option>
 									<c:forEach items="${serverTypeOptions}" var="serverTypeOption">
 										<option value="${serverTypeOption.value}">${serverTypeOption.name}</option>
@@ -138,13 +148,13 @@ function showCreateForm(link) {
 								</select>
 							</td>
 							<td>
-									<input type="text" id="inst_${setting.hashCode()}" class="input-small" style="display: none;" name="instance" placeholder="Instance">
+									<input id="inst_${setting.hashCode()}" style="display: none;" class="input-small" name="instance" placeholder="Instance">
 							</td>
 							<td>
-									<input type="text" id="appl_${setting.hashCode()}" class="input-small" style="display: none;" name="application" placeholder="Application">
+									<input id="appl_${setting.hashCode()}" style="display: none;" class="input-small" name="application" placeholder="Application">
 							</td>
 							<td>
-									<input type="text" id="valu_${setting.hashCode()}" class="input-small" style="display: none;" name="value" placeholder="Value">
+									<input id="valu_${setting.hashCode()}" style="display: none;" class="input-mini" name="value" placeholder="Value" required>
 							</td>
 							<td class="center">
 									<input type="submit" id="acti_${setting.hashCode()}" class="btn btn-mini btn-warning" style="display: none;" name="submitAction" value="create">
