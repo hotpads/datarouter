@@ -25,6 +25,7 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 	private String data;
 	private String channel;
 
+	
 	public static class F {
 		public static final String
 			userType = "userType",
@@ -36,10 +37,9 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 			nanoTime = "nanoTime";
 	}
 
+	
 	public static class NotificationRequestFielder extends BaseDatabeanFielder<NotificationRequestKey, NotificationRequest> {
-
 		public NotificationRequestFielder() {
-			
 		}
 
 		@Override
@@ -52,25 +52,23 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 			return FieldTool.createList(
 					new StringField(F.type, d.type, LENGHT_type),
 					new StringField(F.data, d.data, LENGHT_data),
-					new StringField(F.channel, d.channel, LENGHT_channel)
-					);
+					new StringField(F.channel, d.channel, LENGHT_channel));
 		}
-
 	}
 
+	
 	@Override
 	public List<Field<?>> getNonKeyFields(){
 		return FieldTool.createList(
 				new StringField(F.type, type, LENGHT_type),
 				new StringField(F.data, data, LENGHT_data),
-				new StringField(F.channel, channel, LENGHT_channel)
-				);
+				new StringField(F.channel, channel, LENGHT_channel));
 	}
 
 	/************************** construct *************************/
 
 	NotificationRequest() {
-		key = new NotificationRequestKey();
+		key = new NotificationRequestKey(null, null);
 	}
 
 	private NotificationRequest(NotificationUserId userId, Long sentAtMs , String type, String data, String channel) {

@@ -27,7 +27,7 @@ import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.notification.NotificationApiClient;
 import com.hotpads.notification.ParallelApiCaller;
-import com.hotpads.notification.RecordingAttempter;
+import com.hotpads.notification.ExceptionRecordPersister;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
@@ -37,16 +37,18 @@ import com.hotpads.util.core.exception.http.imp.Http500InternalServerErrorExcept
 
 @Singleton
 public class ExceptionHandlingFilter implements Filter {
+	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
 
 	@BindingAnnotation
 	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD })
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface ExceptionRecordNode {}
 
-	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
+	public static final String PARAM_RECORD_NODE = "recordNode";
+	public static final String EXCEPTION_HANDLING_CONFIG = "exceptionHandlingConfig";
+	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 
 	private static final String SERVER_EXCEPTION_NOTIFICATION_TYPE = "com.hotpads.notification.type.ServerExceptionNotificationType";
-	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 	private static final String ERROR = "/error";
 	private static final boolean NOTIFICATION_ENABLED = true; //TODO only for dev
 
@@ -59,8 +61,8 @@ public class ExceptionHandlingFilter implements Filter {
 	@ExceptionRecordNode
 	private SortedMapStorageNode exceptionRecordNode;
 
-	private ParallelApiCaller pac;
-	private RecordingAttempter ra;
+	private ParallelApiCaller apiCaller;
+	private ExceptionRecordPersister persister;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -68,16 +70,20 @@ public class ExceptionHandlingFilter implements Filter {
 		if (NOTIFICATION_ENABLED) {
 			ServletContext sc = filterConfig.getServletContext();
 			if (exceptionRecordNode != null) {
-				ra = new RecordingAttempter(exceptionRecordNode);
-				pac = new ParallelApiCaller(notificationApiClient);
+				persister = new ExceptionRecordPersister(exceptionRecordNode);
+				apiCaller = new ParallelApiCaller(notificationApiClient);
 			} else {
-				exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute("recordNode");//FIXME no null only on site and cannot inject EventRouter here
-				ra = new RecordingAttempter(exceptionRecordNode);
-				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute("exceptionHandlingConfig");
+				exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute(PARAM_RECORD_NODE);//FIXME no null only on site and cannot inject EventRouter here
+				persister = new ExceptionRecordPersister(exceptionRecordNode);
+				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(EXCEPTION_HANDLING_CONFIG);
 				notificationApiClient = new NotificationApiClient(exceptionHandlingConfig);
-				pac = new ParallelApiCaller(notificationApiClient);
+				apiCaller = new ParallelApiCaller(notificationApiClient);
 			}
 		}
+	}
+
+	@Override
+	public void destroy() {
 	}
 
 	@Override
@@ -88,13 +94,13 @@ public class ExceptionHandlingFilter implements Filter {
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
 
-			if (NOTIFICATION_ENABLED) {
+			if(NOTIFICATION_ENABLED){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				writeExceptionToResponseWriter(response, e, request);
-				if (exceptionHandlingConfig.shouldLogException(request, e)) {
-					trySendingExceptionToNotificationService(request, e);
+				if(exceptionHandlingConfig.shouldPersistExceptionRecords(request, e)) {
+					recordExceptionAndRequestNotification(request, e);
 				}
-			} else {
+			} else {//old redirect code we should delete
 				HttpException httpException;
 				if(e instanceof HttpException){
 					httpException = (HttpException)e;
@@ -122,27 +128,24 @@ public class ExceptionHandlingFilter implements Filter {
 		}
 	}
 
-	private void trySendingExceptionToNotificationService(HttpServletRequest request, Exception e) {
-		if (ra == null) {
-			return;
-		}
+	private void recordExceptionAndRequestNotification(HttpServletRequest request, Exception e) {
+		if(persister == null){ return; }
 		try {
-			ExceptionRecord exceptionRecord = new ExceptionRecord(
-					exceptionHandlingConfig.getServerName(),
+			ExceptionRecord exceptionRecord = new ExceptionRecord(exceptionHandlingConfig.getServerName(),
 					ExceptionUtils.getStackTrace(e));
-			ra.rec(exceptionRecord);
+			persister.addToQueue(exceptionRecord);
 
 			addNotificationRequestToQueue(request, e, exceptionRecord);
-
 		} catch (Exception ex) {
-			logger.error("Exception while loging");
+			logger.error("Exception while logging");
 			ex.printStackTrace();
 		}
 	}
 
-	private void addNotificationRequestToQueue(HttpServletRequest request, Exception exception, ExceptionRecord exceptionRecord) {
-		if (exceptionHandlingConfig.shouldRepportError(request, exception)) {
-			pac.add(new NotificationRequest(
+	private void addNotificationRequestToQueue(HttpServletRequest request, Exception exception,
+			ExceptionRecord exceptionRecord){
+		if (exceptionHandlingConfig.shouldReportError(request, exception)) {
+			apiCaller.add(new NotificationRequest(
 					new NotificationUserId(
 							NotificationUserType.EMAIL,
 							exceptionHandlingConfig.getRecipientEmail()),
@@ -152,7 +155,8 @@ public class ExceptionHandlingFilter implements Filter {
 		}
 	}
 
-	private void writeExceptionToResponseWriter(HttpServletResponse response, Exception exception, HttpServletRequest request) {
+	private void writeExceptionToResponseWriter(HttpServletResponse response, Exception exception, 
+			HttpServletRequest request) {
 		response.setContentType("text/html");
 		try {
 			PrintWriter out = response.getWriter();
@@ -167,11 +171,6 @@ public class ExceptionHandlingFilter implements Filter {
 			logger.error("Exception while writing html output");
 			ex.printStackTrace();
 		}
-	}
-
-	@Override
-	public void destroy() {
-
 	}
 
 }

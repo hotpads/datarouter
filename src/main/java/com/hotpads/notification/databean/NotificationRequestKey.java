@@ -26,8 +26,7 @@ public class NotificationRequestKey extends BasePrimaryKey<NotificationRequestKe
 	private Long sentAtMs;
 	private Integer nanoTime;
 
-	public NotificationRequestKey() {
-		this(null, null);
+	NotificationRequestKey(){
 	}
 
 	public NotificationRequestKey(NotificationUserId userId, Long sendAtMs) {
@@ -43,8 +42,7 @@ public class NotificationRequestKey extends BasePrimaryKey<NotificationRequestKe
 				new StringEnumField<NotificationUserType>(NotificationUserType.class, F.userType, userType, LENGTH_userType),
 				new StringField(F.userId, userId, LENGTH_userId),
 				new LongField(F.sentAtMs, sentAtMs),
-				new IntegerField(F.nanoTime, nanoTime)
-				);
+				new IntegerField(F.nanoTime, nanoTime));
 	}
 
 	/*****************************Getters and Setters**************************/

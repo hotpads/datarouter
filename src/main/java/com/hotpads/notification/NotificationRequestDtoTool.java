@@ -22,15 +22,9 @@ public class NotificationRequestDtoTool {
 		NotificationUserId userId;
 		for (NotificationRequestDto request : dtos) {
 			notificationTypeFactory.create(request.getType());
-			userId = new NotificationUserId(
-					NotificationUserType.valueOf(request.getUserType()),
-					request.getUserId());
-			notificationRequests.add(
-					new NotificationRequest(
-							userId,
-							request.getType(),
-							request.getData(),
-							request.getChannel()));
+			userId = new NotificationUserId(NotificationUserType.valueOf(request.getUserType()), request.getUserId());
+			notificationRequests.add(new NotificationRequest(userId, request.getType(), request.getData(), request
+					.getChannel()));
 		}
 		return notificationRequests;
 	}

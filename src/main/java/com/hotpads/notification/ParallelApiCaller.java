@@ -22,9 +22,9 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
 public class ParallelApiCaller {
-
 	private static Logger logger = Logger.getLogger(ParallelApiCaller.class);
 
+	private static final int QUEUE_CAPACITY = 4096;
 	private static final long FLUSH_PERIOD_MS = 1000;
 	private static final long FLUSH_TIMEOUT_MS = 1000;
 
@@ -37,24 +37,26 @@ public class ParallelApiCaller {
 
 	public ParallelApiCaller(NotificationApiClient notificationApiClient) {
 		this.notificationApiClient = notificationApiClient;
-		this.queue = new LinkedBlockingQueue<NotificationRequest> ();
+		this.queue = new LinkedBlockingQueue<NotificationRequest>(QUEUE_CAPACITY);
 		this.sender = Executors.newSingleThreadExecutor(); //singleThread
 		this.flusher = Executors.newScheduledThreadPool(1); //singleThread
 		this.flusher.scheduleWithFixedDelay(new QueueFlusher(), 0, FLUSH_PERIOD_MS, TimeUnit.MILLISECONDS);
 		this.premier = true;
 	}
 
-	public void add(NotificationRequest request) {
-		queue.add(request);
+	public void add(NotificationRequest request){
+		logger.warn("discarding NotificationRequest because queue is full");
+		//TODO should we dump the old entries and keep the newer ones?
+		queue.offer(request);
 	}
 
+	
 	private class QueueFlusher implements Runnable {
-
 		private static final int BATCH_SIZE = 100;
 
 		@Override
 		public void run() {
-			List<NotificationRequest> requests = ListTool.create();
+			List<NotificationRequest> requests = ListTool.createArrayList();
 			while (CollectionTool.notEmpty(queue)) {
 				if (requests.size() == BATCH_SIZE) {
 					Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
@@ -73,8 +75,8 @@ public class ParallelApiCaller {
 
 	}
 
+	
 	private static class FailedTester extends Thread {
-
 		private Future<Boolean> future;
 		private List<NotificationRequest> requests;
 		private long coef;
@@ -101,8 +103,8 @@ public class ParallelApiCaller {
 		}
 	}
 
+	
 	private class ApiCallAttempt implements Callable<Boolean> {
-
 		private List<NotificationRequest> requests;
 
 		public ApiCallAttempt(List<NotificationRequest> requests) {
