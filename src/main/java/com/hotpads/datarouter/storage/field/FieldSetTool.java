@@ -132,7 +132,7 @@ public class FieldSetTool{
 		return targetFieldSet;
 	}
 
-	public static <F extends FieldSet<?>>F fieldSetFromJdbcResultSetUsingReflection(Class<F> cls,
+	public static <F> F fieldSetFromJdbcResultSetUsingReflection(Class<F> cls,
 			List<Field<?>> fields, ResultSet rs, boolean ignorePrefix){
 		F targetFieldSet = ReflectionTool.create(cls);
 		int counter = 0;
@@ -143,19 +143,19 @@ public class FieldSetTool{
 		return targetFieldSet;
 	}
 
-	public static <F extends FieldSet<?>>F fieldSetFromByteStream(Class<F> cls,
+	public static <F> F fieldSetFromByteStream(Class<F> cls,
 			Map<String,Field<?>> fieldByPrefixedName, InputStream is) throws IOException{
 		int databeanLength = (int)new VarLong(is).getValue();
 		return fieldSetFromByteStreamKnownLength(cls, fieldByPrefixedName, is, databeanLength);
 	}
 
-	public static <F extends FieldSet<?>>F fieldSetFromBytes(Class<F> cls, Map<String,Field<?>> fieldByPrefixedName,
+	public static <F> F fieldSetFromBytes(Class<F> cls, Map<String,Field<?>> fieldByPrefixedName,
 			byte[] bytes) throws IOException{
 		return fieldSetFromByteStreamKnownLength(cls, fieldByPrefixedName, new ByteArrayInputStream(bytes),
 				bytes.length);
 	}
 
-	public static <F extends FieldSet<?>> F fieldSetFromByteStreamKnownLength(Class<F> cls,
+	public static <F> F fieldSetFromByteStreamKnownLength(Class<F> cls,
 			Map<String,Field<?>> fieldByPrefixedName, InputStream is, int numBytes) throws IOException{
 		F targetFieldSet = ReflectionTool.create(cls);
 		int numBytesThroughDatabean = 0;

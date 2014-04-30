@@ -61,17 +61,6 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 			durationNano = "durationNano";
 	}
 	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new UInt31Field(F.parentSequence, this.parentSequence),
-				new StringField(F.name, this.name, DEFAULT_STRING_LENGTH),
-				new StringField(F.info, this.info, DEFAULT_STRING_LENGTH),
-				new UInt63Field(F.created, this.created),
-				new UInt63Field(F.duration, this.duration),
-				new UInt63Field(F.durationNano, this.durationNano));
-	}
-	
 	//test implementation.  just repeats the built-in databean fields for now
 	public static class TraceSpanFielder extends BaseDatabeanFielder<TraceSpanKey,TraceSpan>{
 		public TraceSpanFielder(){super();}

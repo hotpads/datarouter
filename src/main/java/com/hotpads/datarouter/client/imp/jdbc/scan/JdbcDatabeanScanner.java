@@ -1,10 +1,11 @@
 package com.hotpads.datarouter.client.imp.jdbc.scan;
 
+import java.util.List;
+
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.collections.Range;
 
@@ -15,21 +16,20 @@ extends BaseJdbcScanner<PK,D,D>{
 			Range<PK> range, Config pConfig){
 		super(node, fieldInfo, range, pConfig);
 	}
-	
+
 	@Override
-	protected boolean isKeysOnly(){
-		return false;
+	protected List<D> doLoad(Range<PK> range, Config config){
+		return node.getRange(range.getStart(), range.getStartInclusive(), range.getEnd(), 
+				range.getEndInclusive(), config);
 	}
 
-	@SuppressWarnings("unchecked") 
 	@Override
-	protected PK getPrimaryKey(FieldSet<?> fieldSet){
-		return ((D)fieldSet).getKey();
+	protected PK getPrimaryKey(D databean){
+		return databean.getKey();
 	}
-	
-	@SuppressWarnings("unchecked") 
+	 
 	@Override
-	protected void setCurrentFromResult(FieldSet<?> result) {
-		current = (D)result;
+	protected void setCurrentFromResult(D result) {
+		current = result;
 	}
 }

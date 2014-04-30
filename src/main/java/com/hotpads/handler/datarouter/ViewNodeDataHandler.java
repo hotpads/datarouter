@@ -20,6 +20,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.datarouter.query.CountWhereTxn;
@@ -190,29 +191,31 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		DatabeanFielder fielder = node.getFieldInfo().getSampleFielder();
 		if(fielder != null){
 			for(Databean<?,?> databean : IterableTool.nullSafe(databeans)){
-				FieldSet<?> fieldSet = (FieldSet<?>)databean;
-				List<Field<?>> rowOfFields = fielder.getFields(fieldSet);// assumes there are no missing fields. should
-																			// use a Map instead
+//				FieldSet<?> fieldSet = (FieldSet<?>)databean;
+				List<Field<?>> rowOfFields = fielder.getFields(databean);
 				rowsOfFields.add(rowOfFields);
 			}
 			mav.put("rowsOfFields", rowsOfFields);
 		}
 
-		mav.put("abbreviatedFieldNameByFieldName", getFieldAbbreviationByFieldName(databeans));
+		mav.put("abbreviatedFieldNameByFieldName", getFieldAbbreviationByFieldName(fielder, databeans));
 		if(CollectionTool.size(databeans) >= limit){
-			mav.put(PARAM_nextKey, CollectionTool.getLast(databeans).getPersistentString());
+			mav.put(PARAM_nextKey, CollectionTool.getLast(databeans).getKey().getPersistentString());
 		}
 	}
 
 	public static final Integer MIN_FIELD_ABBREVIATION_LENGTH = 2;
 
-	private Map<String,String> getFieldAbbreviationByFieldName(Collection<? extends Databean<?,?>> databeans){
+	private Map<String,String> getFieldAbbreviationByFieldName(DatabeanFielder fielder, 
+			Collection<? extends Databean<?,?>> databeans){
 		if(CollectionTool.isEmpty(databeans)){ return MapTool.create(); }
 		Databean<?,?> first = IterableTool.first(databeans);
-		List<Integer> maxLengths = ListTool.createArrayListAndInitialize(first.getFieldNames().size());
+		List<String> fieldNames = FieldTool.getFieldNames(fielder.getFields(first));
+		List<Integer> maxLengths = ListTool.createArrayListAndInitialize(fieldNames.size());
 		Collections.fill(maxLengths, 0);
+		
 		for(Databean<?,?> d : IterableTool.nullSafe(databeans)){
-			List<?> values = d.getFieldValues();
+			List<?> values = FieldTool.getFieldValues(fielder.getFields(d));
 			for(int i = 0; i < CollectionTool.size(values); ++i){
 				int length = values.get(i) == null ? 0 : StringTool.length(values.get(i).toString());
 				if(length > maxLengths.get(i)){
@@ -220,7 +223,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 				}
 			}
 		}
-		List<String> fieldNames = first.getFieldNames();
+		
 		Map<String,String> abbreviatedNames = MapTool.create();
 		for(int i = 0; i < maxLengths.size(); ++i){
 			int length = maxLengths.get(i);

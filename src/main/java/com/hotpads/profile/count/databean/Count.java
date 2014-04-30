@@ -41,12 +41,6 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	public static final String
 		KEY_NAME = "key",
 		COL_value = "value";
-
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new UInt63Field(COL_value, this.value));
-	}
 	
 	public static class CountFielder extends BaseDatabeanFielder<CountKey,Count>{
 		public CountFielder(){}
@@ -56,7 +50,8 @@ public class Count extends BaseDatabean<CountKey,Count>{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(Count d){
-			return d.getNonKeyFields();
+			return FieldTool.createList(
+					new UInt63Field(COL_value, d.value));
 		}
 	}
 	
