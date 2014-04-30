@@ -86,10 +86,6 @@ extends BaseJdbcOp<Void>{
 			return false;
 		}else if(PutMethod.MERGE == putMethod){
 			return false;
-		}else if(PutMethod.INSERT_ON_DUPLICATE_UPDATE == putMethod){
-			return !CollectionTool.hasMultiple(databeans);
-		}else if(PutMethod.INSERT_IGNORE == putMethod){
-			return !CollectionTool.hasMultiple(databeans);
 		}else{
 			return false;
 		}
@@ -174,10 +170,12 @@ extends BaseJdbcOp<Void>{
 		sb.append(")");
 		if(onDuplicateKeyUpdate){
 			sb.append(" on duplicate key update ");
+			boolean doneOne = false;
 			for(Field<?> field : node.getFieldInfo().getFields()){
-				sb.append(field.getColumnName() + "=VALUES(" + field.getColumnName() + "),");
+				if(doneOne) { sb.append(","); }
+				sb.append(field.getColumnName() + "=VALUES(" + field.getColumnName() + ")");
+				doneOne = true;
 			}
-			sb.deleteCharAt(sb.length()-1);
 		}
 		try{
 			PreparedStatement ps = connection.prepareStatement(sb.toString(), Statement.RETURN_GENERATED_KEYS);
