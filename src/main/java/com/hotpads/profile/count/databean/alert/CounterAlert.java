@@ -239,6 +239,4 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		System.out.println(cron.isSatisfiedBy(date));
 	}
 	
-
-	
 }
