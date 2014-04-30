@@ -37,7 +37,6 @@ public class JobExecutors{
 		countArchiveFlusherMemory = createScheduled(flushers, "countArchiveFlusherMemory", 1),
 		countArchiveFlusherDb = createScheduled(flushers, "countArchiveFlusherDb", 1);
 	
-	
 	/**************************** convenience **********************************/
 	
 	public static Provider<ScheduledExecutorService> createScheduled(final ThreadGroup parentGroup, final String name,

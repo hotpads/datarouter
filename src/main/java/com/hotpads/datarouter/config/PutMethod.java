@@ -14,7 +14,9 @@ public enum PutMethod implements IntegerEnum<PutMethod>, StringEnum<PutMethod>{
 	INSERT_OR_UPDATE(21, "insertOrUpdate"),  // will overwrite whatever's there 
 	INSERT_OR_BUST(22, "insertOrBust"),
 	UPDATE_OR_BUST(23, "updateOrBust"),
-	MERGE(24, "merge");//use when the object could be on the session already in a different instance with the same identifier
+	MERGE(24, "merge"),//use when the object could be on the session already in a different instance with the same identifier
+	INSERT_IGNORE(25, "insertIgnore"),
+	INSERT_ON_DUPLICATE_UPDATE(26, "insertOnDuplicateUpdate");
 	
 	//need to flush immediately so we can catch insert/update exceptions if they are thrown, 
 	//   otherwise the exception will ruin the whole batch
