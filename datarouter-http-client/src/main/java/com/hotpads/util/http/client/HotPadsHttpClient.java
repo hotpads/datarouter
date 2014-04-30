@@ -39,13 +39,15 @@ public class HotPadsHttpClient{
 	private SignatureValidator signatureValidator;
 	private CsrfValidator csrfValidator;
 	private ApiKeyPredicate apiKeyPredicate;
+	private HotPadsHttpClientConfig config;
 	
-	HotPadsHttpClient(HttpClient httpClient, JsonSerializer jsonSerializer, SignatureValidator signatureValidator, CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate){
+	HotPadsHttpClient(HttpClient httpClient, JsonSerializer jsonSerializer, SignatureValidator signatureValidator, CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate, HotPadsHttpClientConfig config){
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureValidator = signatureValidator;
 		this.csrfValidator = csrfValidator;
 		this.apiKeyPredicate = apiKeyPredicate;
+		this.config = config;
 	}
 	
 	/**** HTTP GET request methods *****/
@@ -96,8 +98,8 @@ public class HotPadsHttpClient{
 	
 	private <T> String post(String url, String dto, String dtoType, boolean retrySafe){
 		Map<String, String> params = new HashMap<String, String>();
-		params.put("dataTransferObject", dto);
-		params.put("dataTransferObjectType", dtoType);
+		params.put(config.getDtoParameterName(), dto);
+		params.put(config.getDtoTypeParameterName(), dtoType);
 		return post(url, params, retrySafe);
 	}
 	

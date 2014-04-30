@@ -28,6 +28,7 @@ public class HotPadsHttpClientBuilder{
 	private SignatureValidator signatureValidator;
 	private CsrfValidator csrfValidator;
 	private ApiKeyPredicate apiKeyPredicate;
+	private HotPadsHttpClientConfig config;
 	
 	public HotPadsHttpClient createInstance(){
 		return this.create().build();
@@ -58,11 +59,15 @@ public class HotPadsHttpClientBuilder{
 		} else {
 			builtHttpClient = customHttpClient;
 		}
+		if(config == null){
+			config = new HotpadsHttpClientDefaultConfig();
+		}
 		HotPadsHttpClient httpClient = new HotPadsHttpClient(builtHttpClient, 
 				this.jsonSerializer, 
 				this.signatureValidator, 
 				this.csrfValidator,
-				this.apiKeyPredicate);
+				this.apiKeyPredicate,
+				this.config);
 		httpClient.setRetryHandler(retryHandler);
 		return httpClient;
 	}
@@ -97,6 +102,11 @@ public class HotPadsHttpClientBuilder{
 
 	public HotPadsHttpClientBuilder setApiKeyPredicate(ApiKeyPredicate apiKeyPredicate){
 		this.apiKeyPredicate = apiKeyPredicate;
+		return this;
+	}
+	
+	public HotPadsHttpClientBuilder setConfig(HotPadsHttpClientConfig config){
+		this.config = config;
 		return this;
 	}
 
