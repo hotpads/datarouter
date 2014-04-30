@@ -58,21 +58,6 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 			apiKey = "apiKey";
 	}
 
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-			new StringField(F.username, username, MySqlColumnType.MAX_LENGTH_VARCHAR),
-			new StringField(F.userToken, userToken, MySqlColumnType.MAX_LENGTH_VARCHAR),
-			new StringField(F.passwordSalt, passwordSalt, MySqlColumnType.MAX_LENGTH_VARCHAR),
-			new StringField(F.passwordDigest, passwordDigest, MySqlColumnType.MAX_LENGTH_TEXT),
-			new BooleanField(F.enabled, enabled),
-			new DelimitedStringArrayField(F.roles, ",", roles),
-			new DateField(F.created, created),
-			new DateField(F.lastLoggedIn, lastLoggedIn),
-			new BooleanField(F.apiEnabled, apiEnabled),
-			new StringField(F.apiKey, apiKey, MySqlColumnType.MAX_LENGTH_VARCHAR));
-	}
-
 	/****************** fielder *****************************/
 
 	public static class DatarouterUserFielder extends BaseDatabeanFielder<DatarouterUserKey,DatarouterUser>{
@@ -81,8 +66,18 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 			return DatarouterUserKey.class;
 		}
 		@Override
-		public List<Field<?>> getNonKeyFields(DatarouterUser reputationUser) {
-			return reputationUser.getNonKeyFields();
+		public List<Field<?>> getNonKeyFields(DatarouterUser d) {
+			return FieldTool.createList(
+					new StringField(F.username, d.username, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.userToken, d.userToken, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.passwordSalt, d.passwordSalt, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.passwordDigest, d.passwordDigest, MySqlColumnType.MAX_LENGTH_TEXT),
+					new BooleanField(F.enabled, d.enabled),
+					new DelimitedStringArrayField(F.roles, ",", d.roles),
+					new DateField(F.created, d.created),
+					new DateField(F.lastLoggedIn, d.lastLoggedIn),
+					new BooleanField(F.apiEnabled, d.apiEnabled),
+					new StringField(F.apiKey, d.apiKey, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 		@Override
 		public Map<String, List<Field<?>>> getIndexes(DatarouterUser databean){

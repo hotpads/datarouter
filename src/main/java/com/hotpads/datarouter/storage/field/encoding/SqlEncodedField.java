@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
-import com.hotpads.datarouter.storage.field.FieldSet;
 
 public interface SqlEncodedField<T>{
 	
@@ -15,7 +14,7 @@ public interface SqlEncodedField<T>{
 	T fromJdbcResultSetButDoNotSet(ResultSet rs);
 	void setPreparedStatementValue(PreparedStatement ps, int parameterIndex);
 	
-	void fromJdbcResultSetUsingReflection(FieldSet<?> targetFieldSet, ResultSet resultSet);
-	void fromHibernateResultUsingReflection(FieldSet<?> targetFieldSet, Object col);
+	void fromJdbcResultSetUsingReflection(Object targetFieldSet, ResultSet resultSet);
+	void fromHibernateResultUsingReflection(Object targetFieldSet, Object col);
 	
 }

@@ -23,11 +23,6 @@ public class PoolTestBean extends BaseDatabean<PoolTestBeanKey,PoolTestBean>{
 
 	/***************************** columns ******************************/
 
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList();
-	}
-
 	public static class PoolTestBeanFielder extends BaseDatabeanFielder<PoolTestBeanKey,PoolTestBean>{
 		public PoolTestBeanFielder(){}
 		@Override
@@ -36,7 +31,7 @@ public class PoolTestBean extends BaseDatabean<PoolTestBeanKey,PoolTestBean>{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(PoolTestBean d){
-			return d.getNonKeyFields();
+			return FieldTool.createList();
 		}
 	}
 

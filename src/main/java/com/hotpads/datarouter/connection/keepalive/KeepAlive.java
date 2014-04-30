@@ -31,11 +31,6 @@ public class KeepAlive extends BaseDatabean<KeepAliveKey,KeepAlive>{
 	private KeepAliveKey key;
 	
 	/***************************** columns ******************************/
-		
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList();
-	}
 	
 	public static class KeepAliveFielder extends BaseDatabeanFielder<KeepAliveKey,KeepAlive>{
 		public KeepAliveFielder(){}
@@ -45,7 +40,7 @@ public class KeepAlive extends BaseDatabean<KeepAliveKey,KeepAlive>{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(KeepAlive d){
-			return d.getNonKeyFields();
+			return FieldTool.createList();
 		}
 	}
 	

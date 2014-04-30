@@ -69,17 +69,6 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 			created = "created",
 			duration = "duration";
 	}
-
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new StringField(F.sessionId, sessionId,LEN_sessionId),
-				new StringField(F.context, context,LEN_context),
-				new StringField(F.type, type, DEFAULT_STRING_LENGTH),
-				new StringField(F.params, params, DEFAULT_STRING_LENGTH),
-				new UInt63Field(F.created, created),
-				new UInt63Field(F.duration, duration));
-	}
 	
 	public static class TraceFielder extends BaseDatabeanFielder<TraceKey,Trace>{
 		public TraceFielder(){}
@@ -89,7 +78,13 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(Trace d){
-			return d.getNonKeyFields();
+			return FieldTool.createList(
+					new StringField(F.sessionId, d.sessionId, LEN_sessionId),
+					new StringField(F.context, d.context, LEN_context),
+					new StringField(F.type, d.type, DEFAULT_STRING_LENGTH),
+					new StringField(F.params, d.params, DEFAULT_STRING_LENGTH),
+					new UInt63Field(F.created, d.created),
+					new UInt63Field(F.duration, d.duration));
 		}
 	}
 	

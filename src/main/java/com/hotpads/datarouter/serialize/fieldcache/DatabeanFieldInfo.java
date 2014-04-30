@@ -158,10 +158,18 @@ public class DatabeanFieldInfo<
 //		return fields;
 //	}
 	
-	public List<Field<?>> getNonKeyFields(D d){
-		if(d==null){ return ListTool.createLinkedList(); }
-		if(fielderClass==null){ return d.getFields(); }
-		return ReflectionTool.create(fielderClass).getNonKeyFields(d);
+	public List<Field<?>> getPrimaryKeyFieldsWithValues(D d){
+		return sampleFielder.getKeyFields(d);
+	}
+	
+	public List<Field<?>> getFieldsWithValues(D d){
+		return sampleFielder.getFields(d);
+	}
+	
+	public List<Field<?>> getNonKeyFieldsWithValues(D d){
+//		if(d==null){ return ListTool.createLinkedList(); }
+//		if(fielderClass==null){ return d.getFields(); }
+		return sampleFielder.getNonKeyFields(d);
 	}
 	
 	private void addPrimaryKeyFieldsToCollections(){

@@ -20,20 +20,19 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.XMLStringTool;
 
-@SuppressWarnings("serial") @Entity @AccessType("field") public class AvailableCounter extends
-		BaseDatabean<AvailableCounterKey,AvailableCounter>{
+@SuppressWarnings("serial") @Entity @AccessType("field") 
+public class AvailableCounter extends BaseDatabean<AvailableCounterKey,AvailableCounter>{
 
-	@Id protected AvailableCounterKey key;
+	@Id
+	protected AvailableCounterKey key;
 	protected Long lastUpdated;
 
 	/**************************** columns *******************************/
 
-	public static final String KEY_NAME = "key", COL_lastUpdated = "lastUpdated";
+	public static final String 
+			KEY_NAME = "key", 
+			COL_lastUpdated = "lastUpdated";
 
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(new UInt63Field(COL_lastUpdated, this.lastUpdated));
-	}
 
 	public static class AvailableCounterFielder extends BaseDatabeanFielder<AvailableCounterKey,AvailableCounter>{
 		public AvailableCounterFielder(){
@@ -46,7 +45,8 @@ import com.hotpads.util.core.XMLStringTool;
 
 		@Override
 		public List<Field<?>> getNonKeyFields(AvailableCounter d){
-			return d.getNonKeyFields();
+			return FieldTool.createList(
+					new UInt63Field(COL_lastUpdated, d.lastUpdated));
 		}
 	}
 
