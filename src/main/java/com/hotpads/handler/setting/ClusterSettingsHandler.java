@@ -123,7 +123,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 	@Handler Mav browseSettings(){
 		Mav mav = new Mav(JSP_browseSettings);
 		String context = request.getServletContext().getContextPath().replace("/", "");
-		String nodeName = params.optional(P_name, "");
+		String nodeName = params.optional(P_name, context + ".");
 		mav.put(V_nodeName, nodeName);
 		mav.put(V_node, settingNode.getDescendantByName(nodeName));
 		mav.put(V_ancestors, settingNode.getDescendanceByName(nodeName));
