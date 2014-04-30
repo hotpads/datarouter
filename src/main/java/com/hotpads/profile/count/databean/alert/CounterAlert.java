@@ -184,7 +184,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		this.periodMs = periodMs;
 	}
 
-	public long getMinThreshold(){
+	public Long getMinThreshold(){
 		return minThreshold;
 	}
 
@@ -192,7 +192,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		this.minThreshold = minThreshold;
 	}
 
-	public long getMaxThreshold(){
+	public Long getMaxThreshold(){
 		return maxThreshold;
 	}
 
