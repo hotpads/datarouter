@@ -35,7 +35,6 @@ public class HotPadsHttpClientBuilder{
 	}
 
 	public HotPadsHttpClientBuilder create(){
-		jsonSerializer = new GsonJsonSerializer();
 		retryHandler = new HotPadsRetryHandler();
 		RequestConfig defaultRequestConfig = RequestConfig.custom()
 				.setConnectTimeout(CONNECTION_TIMEOUT)
@@ -61,6 +60,9 @@ public class HotPadsHttpClientBuilder{
 		}
 		if(config == null){
 			config = new HotpadsHttpClientDefaultConfig();
+		}
+		if(jsonSerializer == null){
+			jsonSerializer = new GsonJsonSerializer();
 		}
 		HotPadsHttpClient httpClient = new HotPadsHttpClient(builtHttpClient, 
 				this.jsonSerializer, 

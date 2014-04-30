@@ -11,6 +11,10 @@ public class GsonJsonSerializer implements JsonSerializer{
 	public GsonJsonSerializer(){
 		gson = new Gson();
 	}
+	
+	public GsonJsonSerializer(Gson gson){
+		this.gson = gson;
+	}
 
 	@Override
 	public <T> String serialize(T toSerialize){
