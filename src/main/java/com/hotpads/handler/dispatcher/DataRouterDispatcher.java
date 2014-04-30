@@ -30,7 +30,6 @@ public class DataRouterDispatcher extends BaseDispatcher{
 	public static final String CLIENTS = "/clients";
 	public static final String SETTING = "/settings";
 
-
 	public DataRouterDispatcher(Injector injector, String servletContextPath, String urlPrefix){
 		super(injector, servletContextPath, urlPrefix);
 //		handle(URL_HTTP_CLIENT, DataRouterHttpClientHandler.class);
