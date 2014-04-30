@@ -86,6 +86,10 @@ extends BaseJdbcOp<Void>{
 			return false;
 		}else if(PutMethod.MERGE == putMethod){
 			return false;
+		}else if(PutMethod.INSERT_ON_DUPLICATE_UPDATE == putMethod){
+			return !CollectionTool.hasMultiple(databeans);
+		}else if(PutMethod.INSERT_IGNORE == putMethod){
+			return !CollectionTool.hasMultiple(databeans);
 		}else{
 			return false;
 		}
@@ -137,6 +141,10 @@ extends BaseJdbcOp<Void>{
 			}catch(RuntimeException e){
 				jdbcInsert(connection, entityName, databean);
 			}
+		}else if(PutMethod.INSERT_IGNORE == putMethod){
+			jdbcInsert(connection, entityName, databean, true, false);
+		}else if(PutMethod.INSERT_ON_DUPLICATE_UPDATE == putMethod){
+			jdbcInsert(connection, entityName, databean, false, true);
 		}else{
 			//TODO weird to call back to node.exists
 			boolean alreadyExists = node.exists(databean.getKey(), null);
@@ -149,13 +157,28 @@ extends BaseJdbcOp<Void>{
 	}
 
 	private void jdbcInsert(Connection connection, String entityName, D databean){
+		jdbcInsert(connection, entityName, databean, false, false);
+	}
+	
+	private void jdbcInsert(Connection connection, String entityName, D databean, boolean ignore, boolean onDuplicateKeyUpdate){
 //		logger.warn("JDBC Insert");
 		StringBuilder sb = new StringBuilder();
-		sb.append("insert into "+node.getTableName()+" (");
+		sb.append("insert");
+		if(ignore){
+			sb.append(" ignore");
+		}
+		sb.append(" into "+node.getTableName()+" (");
 		FieldTool.appendCsvColumnNames(sb, node.getFieldInfo().getFields());
 		sb.append(") values (");
 		JdbcTool.appendCsvQuestionMarks(sb, CollectionTool.size(node.getFieldInfo().getFields()));
 		sb.append(")");
+		if(onDuplicateKeyUpdate){
+			sb.append(" on duplicate key update ");
+			for(Field<?> field : node.getFieldInfo().getFields()){
+				sb.append(field.getColumnName() + "=VALUES(" + field.getColumnName() + "),");
+			}
+			sb.deleteCharAt(sb.length()-1);
+		}
 		try{
 			PreparedStatement ps = connection.prepareStatement(sb.toString(), Statement.RETURN_GENERATED_KEYS);
 			int parameterIndex = 1;//one based
