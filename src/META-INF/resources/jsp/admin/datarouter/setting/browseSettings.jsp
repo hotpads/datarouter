@@ -36,6 +36,8 @@ function showCreateForm(link) {
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
+		<a href="?" class="btn btn-primary">&rarr; All settings</a><br/>
+		<br>
 		<h2 class="page-header">Cluster Settings Browser</h2>
 		<ul class="breadcrumb">
 			<c:forEach items="${ancestors}" var="ancestor">	

@@ -38,8 +38,8 @@ public class ClusterSettingsHandler extends BaseHandler {
 		V_mapListsCustomSettings = "mapListsCustomSettings",
 		V_nodeName = "nodeName",
 		
-		URL_settings = "/job" + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING,
-		URL_modify = "/job" + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING + "?submitAction=browseSettings&name=",
+		URL_settings = DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING,
+		URL_modify = DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING + "?submitAction=browseSettings&name=",
 		JSP_editSettings = "/jsp/admin/datarouter/setting/editSettings.jsp",
 		JSP_browseSettings = "/jsp/admin/datarouter/setting/browseSettings.jsp",
 		JSP_detailSetting = "/jsp/admin/datarouter/setting/detailSetting.jsp";
@@ -88,9 +88,9 @@ public class ClusterSettingsHandler extends BaseHandler {
 		clusterSettingNode.put(setting, null);
 		String nodeName = params.optional("nodeName", null);
 		if(nodeName != null){
-			return new Mav(Mav.REDIRECT+URL_modify+nodeName+"#"+settingKey.getName().replaceAll("\\.", "_"));
+			return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_modify+nodeName+"#"+settingKey.getName().replaceAll("\\.", "_"));
 		}
-		return new Mav(Mav.REDIRECT+URL_settings);
+		return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_settings);
 	}
 	
 	@Handler Mav update() {
@@ -100,9 +100,9 @@ public class ClusterSettingsHandler extends BaseHandler {
 		clusterSettingNode.put(setting, null);
 		String nodeName = params.optional("nodeName", null);
 		if(nodeName != null){
-			return new Mav(Mav.REDIRECT+URL_modify+nodeName+"#"+settingKey.getName().replaceAll("\\.", "_"));
+			return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_modify+nodeName+"#"+settingKey.getName().replaceAll("\\.", "_"));
 		}
-		return new Mav(Mav.REDIRECT+URL_settings);
+		return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_settings);
 	}
 	
 	@Handler Mav modify() {
@@ -111,7 +111,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		ClusterSetting setting = new ClusterSetting(settingKey, value);
 		clusterSettingNode.put(setting, null);
 		String nodeName = params.required("nodeName");
-		return new Mav(Mav.REDIRECT+URL_modify+nodeName);
+		return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_modify+nodeName);
 	}
 	
 	@Handler Mav delete() {
@@ -119,9 +119,9 @@ public class ClusterSettingsHandler extends BaseHandler {
 		clusterSettingNode.delete(settingKey, null);
 		String nodeName = params.optional("nodeName", null);
 		if(nodeName != null){
-			return new Mav(Mav.REDIRECT+URL_modify+nodeName+"#"+settingKey.getName().replaceAll("\\.", "_"));
+			return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_modify+nodeName+"#"+settingKey.getName().replaceAll("\\.", "_"));
 		}
-		return new Mav(Mav.REDIRECT+URL_settings);
+		return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_settings);
 	}
 	
 	@Handler Mav detailSetting(){
@@ -139,7 +139,8 @@ public class ClusterSettingsHandler extends BaseHandler {
 	
 	@Handler Mav browseSettings(){
 		Mav mav = new Mav(JSP_browseSettings);
-		String nodeName = params.optional(P_name, "job.");
+		String context = request.getServletContext().getContextPath().replace("/", "");
+		String nodeName = params.optional(P_name, context + ".");
 		mav.put(V_nodeName, nodeName);
 		mav.put(V_node, settingNode.getDescendantByName(nodeName));
 		mav.put(V_ancestors, settingNode.getDescendanceByName(nodeName));

@@ -24,7 +24,7 @@
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
 		<a href="?submitAction=browseSettings" class="btn btn-primary">&rarr; Browse settings</a><br/>
-		<br/>
+		<br>
 		<h2 class="page-header">Create Cluster Settings</h2>
 		<form class="well form-inline" method="post" action="?">
 			<input type="text" name="name" class="input-medium" placeholder="Name" />
