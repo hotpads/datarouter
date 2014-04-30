@@ -40,8 +40,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		URL_settings = DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING,
 		URL_modify = DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING + "?submitAction=browseSettings&name=",
 		JSP_editSettings = "/jsp/admin/datarouter/setting/editSettings.jsp",
-		JSP_browseSettings = "/jsp/admin/datarouter/setting/browseSettings.jsp",
-		JSP_detailSetting = "/jsp/admin/datarouter/setting/detailSetting.jsp";
+		JSP_browseSettings = "/jsp/admin/datarouter/setting/browseSettings.jsp";
 
 	private SettingNode settingNode;
 	private DatarouterServerType datarouterServerTypeTool;
@@ -120,24 +119,11 @@ public class ClusterSettingsHandler extends BaseHandler {
 		}
 		return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_settings);
 	}
-	
-	@Handler Mav detailSetting(){
-		Mav mav = new Mav(JSP_detailSetting);
-		String settingName = params.required(P_name);
-		Setting<?> setting = settingNode.getDescendantSettingByName(settingName);
-		if(setting!=null){
-			mav.put(V_setting, setting);
-		}
-		ClusterSettingKey settingPrefix = new ClusterSettingKey(settingName, null, null, null, null);
-		List<ClusterSetting> settings = clusterSettingNode.getWithPrefix(settingPrefix, true, null);
-		mav.put(V_settings, settings);
-		return mav;
-	}
-	
+
 	@Handler Mav browseSettings(){
 		Mav mav = new Mav(JSP_browseSettings);
 		String context = request.getServletContext().getContextPath().replace("/", "");
-		String nodeName = params.optional(P_name, context + ".");
+		String nodeName = params.optional(P_name, "");
 		mav.put(V_nodeName, nodeName);
 		mav.put(V_node, settingNode.getDescendantByName(nodeName));
 		mav.put(V_ancestors, settingNode.getDescendanceByName(nodeName));

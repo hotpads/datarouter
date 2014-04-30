@@ -85,14 +85,7 @@ function showCreateForm(link) {
 						>
 						<c:set var="customSettings" value="${mapListsCustomSettings.get(setting.getName())}"></c:set>
 						<td rowspan="${customSettings.size() + 2}" id="${fn:replace(setting.getName(), '.', '_')}">
-							<c:choose>
-								<c:when test="${setting.getHasCustomValue()}">
-									<a href=?submitAction=detailSetting&name=${setting.getName()}>${setting.getName()}</a>
-								</c:when>
-								<c:otherwise>
-									${setting.getName()}
-								</c:otherwise>
-							</c:choose>
+							${setting.getName()}
 						</td>
 						<td colspan="5">
 							<span style="margin: 0 20px">
