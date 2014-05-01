@@ -25,9 +25,10 @@ import org.apache.log4j.Logger;
 import com.google.inject.BindingAnnotation;
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.notification.NotificationApiClient;
-import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.ExceptionRecordPersister;
+import com.hotpads.notification.NotificationApiClient;
+import com.hotpads.notification.NotificationRequestDtoTool;
+import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
@@ -73,10 +74,10 @@ public class ExceptionHandlingFilter implements Filter {
 				persister = new ExceptionRecordPersister(exceptionRecordNode);
 				apiCaller = new ParallelApiCaller(notificationApiClient);
 			} else {
-				exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute(PARAM_RECORD_NODE);//FIXME no null only on site and cannot inject EventRouter here
+				exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute(PARAM_RECORD_NODE);
 				persister = new ExceptionRecordPersister(exceptionRecordNode);
 				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(EXCEPTION_HANDLING_CONFIG);
-				notificationApiClient = new NotificationApiClient(exceptionHandlingConfig);
+				notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig);
 				apiCaller = new ParallelApiCaller(notificationApiClient);
 			}
 		}

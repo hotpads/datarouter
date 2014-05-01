@@ -2,11 +2,8 @@ package com.hotpads.setting.cluster;
 
 import java.util.List;
 
-import javax.inject.Singleton;
-
 import com.hotpads.util.core.ListTool;
 
-@Singleton
 public abstract class SettingRoot {
 
 	private List<SettingNode> rootNodes = ListTool.create();
