@@ -12,21 +12,20 @@ BaseLocalWebapps for example usage.
 	<div id="generic-navbar">${commonNavbarHtml}</div>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			var url = window.location.href;
 			var context = "${contextPath}";
 			context = context.replace("/", "");
 			$("#common-menu-" + context).addClass("underline");
+			if (location.href.indexOf(context + "/datarouter") > -1) {
+				$('#common-menu-datarouter').addClass("underline");
+			}
 		});
-
-		$('.isNotLocal')
-				.click(
-						function(event) {
-							event.preventDefault();
-							var r = confirm("Are you sure you want to be redirected to \n"
-									+ $(this).attr("href"));
-							if (r == true) {
-								window.location = $(this).attr('href');
-							}
-						});
+		$('.isNotLocal').click(function(event) {
+			event.preventDefault();
+			var r = confirm("Are you sure you want to be redirected to \n"
+					+ $(this).attr("href"));
+			if (r == true) {
+				location = $(this).attr('href');
+			}
+		});
 	</script>
 </c:if>
