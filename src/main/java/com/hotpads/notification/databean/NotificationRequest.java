@@ -10,13 +10,12 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.notification.type.NotificationType;
 
-@SuppressWarnings("serial")
 public class NotificationRequest extends BaseDatabean<NotificationRequestKey,NotificationRequest> {	
 
 	private static final int
-			LENGHT_type = MySqlColumnType.MAX_LENGTH_VARCHAR,
-			LENGHT_data = MySqlColumnType.MAX_LENGTH_VARCHAR,
-			LENGHT_channel= MySqlColumnType.MAX_LENGTH_VARCHAR;
+	LENGHT_type = MySqlColumnType.MAX_LENGTH_VARCHAR,
+	LENGHT_data = MySqlColumnType.MAX_LENGTH_VARCHAR,
+	LENGHT_channel= MySqlColumnType.MAX_LENGTH_VARCHAR;
 
 	/****************** fields **************************/
 
@@ -25,19 +24,19 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 	private String data;
 	private String channel;
 
-	
+
 	public static class F {
 		public static final String
-			userType = "userType",
-			userId = "userId",
-			sentAtMs = "sentAtMs",
-			type = "type",
-			data = "data",
-			channel = "channel",
-			nanoTime = "nanoTime";
+		userType = "userType",
+		userId = "userId",
+		sentAtMs = "sentAtMs",
+		type = "type",
+		data = "data",
+		channel = "channel",
+		nanoTime = "nanoTime";
 	}
 
-	
+
 	public static class NotificationRequestFielder extends BaseDatabeanFielder<NotificationRequestKey, NotificationRequest> {
 		public NotificationRequestFielder() {
 		}
@@ -54,15 +53,6 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 					new StringField(F.data, d.data, LENGHT_data),
 					new StringField(F.channel, d.channel, LENGHT_channel));
 		}
-	}
-
-	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new StringField(F.type, type, LENGHT_type),
-				new StringField(F.data, data, LENGHT_data),
-				new StringField(F.channel, channel, LENGHT_channel));
 	}
 
 	/************************** construct *************************/

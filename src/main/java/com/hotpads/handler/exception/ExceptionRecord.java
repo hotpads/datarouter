@@ -20,7 +20,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 /**
  * The record of an Exception
  */
-@SuppressWarnings("serial")
 public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionRecord> {
 
 	private static int
@@ -62,15 +61,6 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 					);
 		}
 
-	}
-
-	@Override
-	public List<Field<?>> getNonKeyFields() {
-		return FieldTool.createList(
-				new DateField(F.created, created),
-				new StringField(F.serverName, serverName, LENGTH_servName),
-				new StringField(F.stackTrace, stackTrace, LENGTH_stackTrace)
-				);
 	}
 
 	/********************** construct ********************/
