@@ -19,10 +19,10 @@ public class NotificationSettings extends SettingNode {
 	}
 
 	private void regidterSettings() {
-		apiEndPoint = register(new StringCachedSetting(finder, "apiEndPoint", "https://localhost:8443/job/notification"));
+		apiEndPoint = register(new StringCachedSetting(finder, "apiEndPoint", "https://localhost:8443/job/api/notification"));
 	}
 
-	public Setting<String> getEndPoint() {
+	public Setting<String> getApiEndPoint() {
 		return apiEndPoint;
 	}
 }
