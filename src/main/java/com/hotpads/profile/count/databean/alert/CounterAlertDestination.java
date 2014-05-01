@@ -64,14 +64,14 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 		this.key = key;
 	}
 	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		List<Field<?>> fields = FieldTool.createList(
-				new LongField(F.alertFrequencySecond, alertFrequencySecond), 
-				new DateField(F.lastNoticeDate, lastNoticeDate)				
-				);
-		return fields;
-	}
+//	@Override
+//	public List<Field<?>> getNonKeyFields(){
+//		List<Field<?>> fields = FieldTool.createList(
+//				new LongField(F.alertFrequencySecond, alertFrequencySecond), 
+//				new DateField(F.lastNoticeDate, lastNoticeDate)				
+//				);
+//		return fields;
+//	}
 	
 	/***************************** MySQL fielder ******************************/	
 	public static class CounterAlertDestinationFielder extends
@@ -83,8 +83,12 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(CounterAlertDestination databean){
-			return databean.getNonKeyFields();
+		public List<Field<?>> getNonKeyFields(CounterAlertDestination d){
+			List<Field<?>> fields = FieldTool.createList(
+					new LongField(F.alertFrequencySecond, d.alertFrequencySecond), 
+					new DateField(F.lastNoticeDate, d.lastNoticeDate)				
+					);
+			return fields;		
 		}
 		
 		@Override

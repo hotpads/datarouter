@@ -42,7 +42,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 	private Long periodMs;
 	private Long minThreshold;
 	private Long maxThreshold;
-	private String creator;
+	private String creatorEmail;
 	private String alertTimeRange;
 	private String comment;
 	private Date createdDate = new Date();
@@ -56,7 +56,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		this.periodMs = periodMs;
 		this.minThreshold = minThreshold;
 		this.maxThreshold = maxThreshold;
-		this.creator = creator;
+		this.creatorEmail = creator;
 		this.alertTimeRange = alertTimeRange;
 		this.comment = comment;
 		buildId();
@@ -78,7 +78,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 	
 	/********************* build Id **************************/
 	private void buildId(){
-		setId(HashMethods.longDJBHash(counterName + periodMs + minThreshold + maxThreshold + creator + alertTimeRange));
+		setId(HashMethods.longDJBHash(counterName + periodMs + minThreshold + maxThreshold + creatorEmail + alertTimeRange));
 	}
 	
 	/*************************** databean ****************************************/
@@ -97,21 +97,21 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		return null;
 	}
 	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		List<Field<?>> fields = FieldTool.createList(
-				new StringField(F.counterName, counterName, LENGTH_counterName),
-				new LongField(F.periodMs, periodMs), 
-				new LongField(F.minThreshold, minThreshold), 
-				new LongField(F.maxThreshold, maxThreshold),
-				new StringField(F.creator, creator, LENGTH_creator), 
-				new StringField(F.alertTimeRange, alertTimeRange, LENGTH_alertTimeRange), 
-				new StringField(F.comment, comment, LENGTH_comment), 
-				new DateField(F.createdDate, createdDate)
-				);
-
-		return fields;
-	}
+//	@Override
+//	public List<Field<?>> getNonKeyFields(){
+//		List<Field<?>> fields = FieldTool.createList(
+//				new StringField(F.counterName, counterName, LENGTH_counterName),
+//				new LongField(F.periodMs, periodMs), 
+//				new LongField(F.minThreshold, minThreshold), 
+//				new LongField(F.maxThreshold, maxThreshold),
+//				new StringField(F.creator, creatorEmail, LENGTH_creator), 
+//				new StringField(F.alertTimeRange, alertTimeRange, LENGTH_alertTimeRange), 
+//				new StringField(F.comment, comment, LENGTH_comment), 
+//				new DateField(F.createdDate, createdDate)
+//				);
+//
+//		return fields;
+//	}
 	
 	
 	/***************************** MySQL fielder ******************************/	
@@ -123,8 +123,19 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(CounterAlert databean){
-			return databean.getNonKeyFields();
+		public List<Field<?>> getNonKeyFields(CounterAlert d){
+			List<Field<?>> fields = FieldTool.createList(
+					new StringField(F.counterName, d.counterName, LENGTH_counterName),
+					new LongField(F.periodMs, d.periodMs), 
+					new LongField(F.minThreshold, d.minThreshold), 
+					new LongField(F.maxThreshold, d.maxThreshold),
+					new StringField(F.creator, d.creatorEmail, LENGTH_creator), 
+					new StringField(F.alertTimeRange, d.alertTimeRange, LENGTH_alertTimeRange), 
+					new StringField(F.comment, d.comment, LENGTH_comment), 
+					new DateField(F.createdDate, d.createdDate)
+					);
+
+			return fields;		
 		}
 		
 		@Override
@@ -200,12 +211,12 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		this.maxThreshold = maxThreshold;
 	}
 
-	public String getCreator(){
-		return creator;
+	public String getCreatorEmail(){
+		return creatorEmail;
 	}
 
-	public void setCreator(String creator){
-		this.creator = creator;
+	public void setCreatorEmail(String creator){
+		this.creatorEmail = creator;
 	}
 
 	public String getAlertTimeRange(){
