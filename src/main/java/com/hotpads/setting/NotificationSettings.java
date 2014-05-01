@@ -15,11 +15,11 @@ public class NotificationSettings extends SettingNode {
 	@Inject
 	public NotificationSettings(ClusterSettingFinder finder) {
 		super(finder, "datarouter.notification.", "datarouter.");
-		regidterSettings();
+		regidter();
 	}
 
-	private void regidterSettings() {
-		apiEndPoint = register(new StringCachedSetting(finder, "apiEndPoint", "https://localhost:8443/job/notification"));
+	private void regidter() {
+		apiEndPoint = register(new StringCachedSetting(finder, "apiEndPoint", "https://localhost:8443/job/api/notification"));
 	}
 
 	public Setting<String> getEndPoint() {
