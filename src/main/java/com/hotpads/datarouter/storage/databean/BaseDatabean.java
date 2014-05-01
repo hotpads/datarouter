@@ -17,7 +17,7 @@ import com.hotpads.util.core.ListTool;
 
 @SuppressWarnings("serial")
 public abstract class BaseDatabean<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-extends BaseFieldSet<D>
+//extends BaseFieldSet<D>
 implements Databean<PK,D>{
 	
 	public static final String DEFAULT_KEY_FIELD_NAME = "key";
@@ -62,11 +62,12 @@ implements Databean<PK,D>{
 		return FieldTool.prependPrefixes(getKeyFieldName(), getKey().getFields());
 	}
 
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return new LinkedList<Field<?>>();
-//		throw new NotImplementedException("not implemented");
-	}
+//	@Override
+//	@Deprecated//always use a Fielder
+//	public List<Field<?>> getNonKeyFields(){
+//		return new LinkedList<Field<?>>();
+////		throw new NotImplementedException("not implemented");
+//	}
 
 	
 	//generally unused method that allows databean to implement the DatabeanFielder interface
@@ -81,28 +82,28 @@ implements Databean<PK,D>{
 //		return databean.getNonKeyFields();
 //	}
 
-	@Override
-	public List<Field<?>> getFields(){
-		List<Field<?>> allFields = ListTool.createLinkedList();
-		allFields.addAll(getKeyFields());
-		allFields.addAll(getNonKeyFields());
-		return allFields;
-	}
-
-	@Override
-	public Object getFieldValue(String fieldName){
-		return FieldTool.getFieldValue(getFields(), fieldName);
-	}
+//	@Override
+//	public List<Field<?>> getFields(){
+//		List<Field<?>> allFields = ListTool.createLinkedList();
+//		allFields.addAll(getKeyFields());
+//		allFields.addAll(getNonKeyFields());
+//		return allFields;
+//	}
+//
+//	@Override
+//	public Object getFieldValue(String fieldName){
+//		return FieldTool.getFieldValue(getFields(), fieldName);
+//	}
 	
 	
 	/*************************** stringification ******************************/
 
-	@Override
+//	@Override
 	public String getPersistentString(){  //fuse multi-column field into one string, usually with "_" characters
 		return getKey().getPersistentString();
 	}
 	
-	@Override
+//	@Override
 	public String getTypedPersistentString(){  //usually getDatabeanName()+"."+getPersistentString()
 		return getClass().getSimpleName()+"."+getPersistentString();
 	}
@@ -124,12 +125,11 @@ implements Databean<PK,D>{
 	}
 	
 	@Override
-	public int compareTo(FieldSet that){
-		if(!(that instanceof Databean)){
-			return 1;//put databeans after non-databeans.  no good reason
-		}
-		Databean other = (Databean)that;
-		return getKey().compareTo(other.getKey());
+	public int compareTo(Databean<?,?> that){
+		int diff = ClassTool.compareClass(this, that);
+		if(diff != 0){ return diff; }
+		//must be same class
+		return getKey().compareTo(((D)that).getKey());
 	}
 
 	@Override

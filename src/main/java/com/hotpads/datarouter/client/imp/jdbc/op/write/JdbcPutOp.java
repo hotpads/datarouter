@@ -105,7 +105,7 @@ extends BaseJdbcOp<Void>{
 		return false;
 	}
 	
-	private void jdbcPutUsingMethod(Connection connection, String entityName, Databean<PK,D> databean,
+	private void jdbcPutUsingMethod(Connection connection, String entityName, D databean,
 			final Config config, PutMethod defaultPutMethod){
 		PutMethod putMethod = defaultPutMethod;
 		if(config!=null && config.getPutMethod()!=null){
@@ -139,7 +139,8 @@ extends BaseJdbcOp<Void>{
 			}
 		}else{
 			//TODO weird to call back to node.exists
-			if(node.exists(databean.getKey(), null) && !generateId){//select before update like hibernate's saveOrUpdate
+			boolean alreadyExists = node.exists(databean.getKey(), null);
+			if(alreadyExists && !generateId){//select before update like hibernate's saveOrUpdate
 				jdbcUpdate(connection, entityName, databean);
 			}else{
 				jdbcInsert(connection, entityName, databean);
@@ -147,7 +148,7 @@ extends BaseJdbcOp<Void>{
 		}
 	}
 
-	private void jdbcInsert(Connection connection, String entityName, Databean<PK,D> databean){
+	private void jdbcInsert(Connection connection, String entityName, D databean){
 //		logger.warn("JDBC Insert");
 		StringBuilder sb = new StringBuilder();
 		sb.append("insert into "+node.getTableName()+" (");
@@ -158,7 +159,8 @@ extends BaseJdbcOp<Void>{
 		try{
 			PreparedStatement ps = connection.prepareStatement(sb.toString(), Statement.RETURN_GENERATED_KEYS);
 			int parameterIndex = 1;//one based
-			for(Field<?> field : databean.getFields()){
+			List<Field<?>> fields = node.getFieldInfo().getFieldsWithValues(databean);
+			for(Field<?> field : fields){
 				field.setPreparedStatementValue(ps, parameterIndex);
 				++parameterIndex;
 			}
@@ -181,21 +183,23 @@ extends BaseJdbcOp<Void>{
 		}
 	}
 	
-	private void jdbcUpdate(Connection connection, String entityName, Databean<PK,D> databean){
+	private void jdbcUpdate(Connection connection, String entityName, D databean){
 		//it doesn't make sense to update a row without PK fields.  updating the PK will move the row
-		if(CollectionTool.isEmpty(node.getFieldInfo().getNonKeyFields())){ return; }
+		List<Field<?>> emptyNonKeyFields = node.getFieldInfo().getNonKeyFields();
+		if(CollectionTool.isEmpty(emptyNonKeyFields)){ return; }
 		
 //		logger.warn("JDBC update");
 		StringBuilder sb = new StringBuilder();
 		sb.append("update "+node.getTableName()+" set ");
-		FieldTool.appendSqlUpdateClauses(sb, node.getFieldInfo().getNonKeyFields());
+		FieldTool.appendSqlUpdateClauses(sb, emptyNonKeyFields);
 		sb.append(" where ");
 		sb.append(FieldTool.getSqlNameValuePairsEscapedConjunction(databean.getKeyFields()));
 		int numUpdated;
 		try{
 			PreparedStatement ps = connection.prepareStatement(sb.toString());
 			int parameterIndex = 1;
-			for(Field<?> field : databean.getNonKeyFields()){
+			List<Field<?>> nonKeyFields = node.getFieldInfo().getNonKeyFieldsWithValues(databean);
+			for(Field<?> field : nonKeyFields){
 				field.setPreparedStatementValue(ps, parameterIndex);
 				++parameterIndex;
 			}

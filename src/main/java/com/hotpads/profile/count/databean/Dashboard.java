@@ -34,19 +34,9 @@ public class Dashboard extends BaseDatabean<DashboardKey,Dashboard>{
 			userId = "userId",
 			publicAccess = "publicAccess",
 			name = "name",
-		defaultDashboard = "defaultDashboard";
+			defaultDashboard = "defaultDashboard";
 	}
-	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-			new DateField(F.created, created),
-			new LongField(F.userId, userId),
-			new BooleanField(F.publicAccess, publicAccess),
-			new StringField(F.name, name, 255),
-			new BooleanField(F.defaultDashboard, isDefaultDashboard()));
-	}
-	
+		
 	public static class DashboardFielder extends BaseDatabeanFielder<DashboardKey,Dashboard>{
 		public DashboardFielder(){}
 		@Override
@@ -55,7 +45,12 @@ public class Dashboard extends BaseDatabean<DashboardKey,Dashboard>{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(Dashboard d){
-			return d.getNonKeyFields();
+			return FieldTool.createList(
+					new DateField(F.created, d.created),
+					new LongField(F.userId, d.userId),
+					new BooleanField(F.publicAccess, d.publicAccess),
+					new StringField(F.name, d.name, 255),
+					new BooleanField(F.defaultDashboard, d.isDefaultDashboard()));
 		}
 	}
 	

@@ -10,7 +10,8 @@ import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public interface Databean<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-extends FieldSet<D>
+extends Comparable<Databean<?,?>>
+//extends FieldSet<D>
 //,DatabeanFielder<PK,D>
 {
 
@@ -21,7 +22,8 @@ extends FieldSet<D>
 	PK getKey();
 	
 	List<Field<?>> getKeyFields();
-	List<Field<?>> getNonKeyFields();
+//	@Deprecated//always use a Fielder
+//	List<Field<?>> getNonKeyFields();
 	MySqlCollation getCollation();
 	MySqlCharacterSet getCharacterSet();
 	

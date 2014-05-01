@@ -11,7 +11,7 @@ import com.hotpads.setting.Setting;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
-public abstract class SettingNode{
+public abstract class SettingNode {
 	
 	
 	/*********** fields ***********/

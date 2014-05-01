@@ -11,8 +11,6 @@ import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.profile.count.databean.Count;
-import com.hotpads.profile.count.databean.key.CountKey;
 
 
 @SuppressWarnings("serial")
@@ -23,13 +21,6 @@ public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 	@Id
 	private TxnBeanKey key;
 	
-	/***************************** columns ******************************/
-		
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList();
-	}
-	
 	public static class TxnBeanFielder extends BaseDatabeanFielder<TxnBeanKey,TxnBean>{
 		public TxnBeanFielder(){}
 		@Override
@@ -38,7 +29,7 @@ public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(TxnBean d){
-			return d.getNonKeyFields();
+			return FieldTool.createList();
 		}
 	}
 	
