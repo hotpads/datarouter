@@ -52,20 +52,6 @@ implements Serializable {
 				roles = "roles";
 	}
 	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		List<Field<?>> nonKeyFields = ListTool.createArrayList();
-//		fields.add(new DateField(BaseDatarouterSessionDatabean.F.created, getCreated()));
-		nonKeyFields.add(new DateField(BaseDatarouterSessionDatabean.F.updated, getUpdated()));
-		
-//		List<Field<?>> nonKeyFields = super.getNonKeyFields();
-		nonKeyFields.add(new UInt63Field(F.userId, userId));
-		nonKeyFields.add(new StringField(F.userToken, userToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
-		nonKeyFields.add(new StringField(F.username, username, MySqlColumnType.MAX_LENGTH_VARCHAR));
-		nonKeyFields.add(new DelimitedStringArrayField(F.roles, ",", roles));
-		nonKeyFields.add(new DateField(F.userCreated, userCreated));
-		return nonKeyFields;
-	}
 	
 	public static class DatarouterSessionFielder extends BaseDatabeanFielder<DatarouterSessionKey,DatarouterSession>{
 		public DatarouterSessionFielder(){}
@@ -75,7 +61,17 @@ implements Serializable {
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterSession d){
-			return d.getNonKeyFields();
+			List<Field<?>> nonKeyFields = ListTool.createArrayList();
+//			fields.add(new DateField(BaseDatarouterSessionDatabean.F.created, getCreated()));
+			nonKeyFields.add(new DateField(BaseDatarouterSessionDatabean.F.updated, d.getUpdated()));
+			
+//			List<Field<?>> nonKeyFields = super.getNonKeyFields();
+			nonKeyFields.add(new UInt63Field(F.userId, d.userId));
+			nonKeyFields.add(new StringField(F.userToken, d.userToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			nonKeyFields.add(new StringField(F.username, d.username, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			nonKeyFields.add(new DelimitedStringArrayField(F.roles, ",", d.roles));
+			nonKeyFields.add(new DateField(F.userCreated, d.userCreated));
+			return nonKeyFields;
 		}
 	}
 	

@@ -97,22 +97,6 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		return null;
 	}
 	
-//	@Override
-//	public List<Field<?>> getNonKeyFields(){
-//		List<Field<?>> fields = FieldTool.createList(
-//				new StringField(F.counterName, counterName, LENGTH_counterName),
-//				new LongField(F.periodMs, periodMs), 
-//				new LongField(F.minThreshold, minThreshold), 
-//				new LongField(F.maxThreshold, maxThreshold),
-//				new StringField(F.creator, creatorEmail, LENGTH_creator), 
-//				new StringField(F.alertTimeRange, alertTimeRange, LENGTH_alertTimeRange), 
-//				new StringField(F.comment, comment, LENGTH_comment), 
-//				new DateField(F.createdDate, createdDate)
-//				);
-//
-//		return fields;
-//	}
-	
 	
 	/***************************** MySQL fielder ******************************/	
 	public static class CounterAlertFielder extends BaseDatabeanFielder<CounterAlertKey, CounterAlert>{

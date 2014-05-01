@@ -9,7 +9,6 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.AccessType;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -20,7 +19,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.profile.count.databean.key.CounterAlertDestinationKey;
-import com.hotpads.profile.count.databean.key.CounterAlertDestinationKey.F;
 import com.hotpads.util.core.MapTool;
 
 @SuppressWarnings("serial")
@@ -64,14 +62,6 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 		this.key = key;
 	}
 	
-//	@Override
-//	public List<Field<?>> getNonKeyFields(){
-//		List<Field<?>> fields = FieldTool.createList(
-//				new LongField(F.alertFrequencySecond, alertFrequencySecond), 
-//				new DateField(F.lastNoticeDate, lastNoticeDate)				
-//				);
-//		return fields;
-//	}
 	
 	/***************************** MySQL fielder ******************************/	
 	public static class CounterAlertDestinationFielder extends

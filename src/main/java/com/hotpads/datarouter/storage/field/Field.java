@@ -26,11 +26,11 @@ extends Comparable<Field<T>>,
 	T getValue();
 	
 	/*************** useful methods *************************/
-	void cacheReflectionInfo(FieldSet<?> sampleFieldSet);
+	void cacheReflectionInfo(Object sampleFieldSet);
 	
 	boolean isCollection();
 	String getPrefixedName();
-	void setUsingReflection(FieldSet<?> targetFieldSet, Object value);
+	void setUsingReflection(Object targetFieldSet, Object value);
 
 	@Deprecated
 	String getValueString();

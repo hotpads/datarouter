@@ -2,13 +2,16 @@ package com.hotpads.datarouter.storage.field;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.Functor;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -54,6 +57,23 @@ public class FieldTool{
 			++appended;
 		}
 	}
+	
+	public static List<String> getCsvColumnNamesList(Iterable<Field<?>> fields) {
+		return getCsvColumnNamesList(fields, null);
+	}
+
+	public static List<String> getCsvColumnNamesList(Iterable<Field<?>> fields,
+			Map<String, String> columnNameToCsvHeaderName) {
+		List<String> csvRow = ListTool.createLinkedList();
+		for (Field<?> field : IterableTool.nullSafe(fields)) {
+			String columnName = field.getColumnName();
+			if (columnNameToCsvHeaderName != null && columnNameToCsvHeaderName.containsKey(field.getColumnName())) {
+				columnName = columnNameToCsvHeaderName.get(field.getColumnName());
+			}
+			csvRow.add(columnName);
+		}
+		return csvRow;
+	}
 
 	public static String getCsvValues(Iterable<Field<?>> fields){
 		StringBuilder sb = new StringBuilder();
@@ -70,6 +90,26 @@ public class FieldTool{
 			sb.append(StringEscapeUtils.escapeCsv(valueString));
 			++appended;
 		}
+	}
+	
+	public static List<String> getCsvValuesList(Iterable<Field<?>> fields, boolean emptyForNullValue) {
+		return getCsvValuesList(fields, null, emptyForNullValue);
+	}
+
+	public static List<String> getCsvValuesList(Iterable<Field<?>> fields,
+			Map<String, Functor<String, String>> columnNameToCsvValueFunctor, boolean emptyForNullValue) {
+		List<String> csvRow = ListTool.createLinkedList();
+		for (Field<?> field : IterableTool.nullSafe(fields)) {
+			String value = ObjectTool.nullSafeToString(field.getValue());
+			if (columnNameToCsvValueFunctor != null && columnNameToCsvValueFunctor.containsKey(field.getColumnName())) {
+				value = columnNameToCsvValueFunctor.get(field.getColumnName()).invoke(value);
+			}
+			if (value == null && emptyForNullValue) {
+				value = "";
+			}
+			csvRow.add(value);
+		}
+		return csvRow;
 	}
 
 	public static List<String> getFieldNames(List<Field<?>> fields){
@@ -116,7 +156,7 @@ public class FieldTool{
 		return fields;
 	}
 	
-	public static List<Field<?>> cacheReflectionInfo(List<Field<?>> fields, FieldSet<?> sampleFieldSet){
+	public static List<Field<?>> cacheReflectionInfo(List<Field<?>> fields, Object sampleFieldSet){
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			field.cacheReflectionInfo(sampleFieldSet);
 		}

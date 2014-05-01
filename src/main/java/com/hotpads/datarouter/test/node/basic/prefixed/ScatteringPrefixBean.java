@@ -37,12 +37,6 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 		KEY_NAME = "key",
 		COL_f1 = "f1";
 	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new StringField(COL_f1, f1, MySqlColumnType.MAX_LENGTH_VARCHAR));
-	}
-	
 	public static class ScatteringPrefixBeanFielder extends BaseDatabeanFielder<ScatteringPrefixBeanKey,ScatteringPrefixBean>{	
 		
 		public static class ScatteringPrefixBeanScatterer extends BaseScatteringPrefix{			
@@ -89,7 +83,8 @@ public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,S
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(ScatteringPrefixBean d){
-			return d.getNonKeyFields();
+			return FieldTool.createList(
+					new StringField(COL_f1, d.f1, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 	}
 	
