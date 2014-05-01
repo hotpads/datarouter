@@ -57,28 +57,33 @@
 			</tr>
 			<c:forEach items="${settings}" var="setting">
 				<form method="post" action="?">
+					<input type="hidden" name="name" value="${setting.name}">
+					<input type="hidden" name="scope" value="${setting.scope}">
+					<input type="hidden" name="serverType" value="${setting.serverType}">
+					<input type="hidden" name="instance" value="${setting.instance}">
+					<input type="hidden" name="application" value="${setting.application}">
 					<tr>
-						<td><input type="hidden" name="name" value="${setting.name}">${setting.name}</td>
-						<td><input type="hidden" name="scope"
-							value="${setting.scope}">${setting.scope}</td>
-						<td><input type="hidden" name="serverType"
-							value="${setting.serverType}">${setting.serverType}</td>
-						<td><input type="hidden" name="instance"
-							value="${setting.instance}">${setting.instance}</td>
-						<td><input type="hidden" name="application"
-							value="${setting.application}">${setting.application}</td>
-						<td><input type="text" name="value" class="input-medium" value="${setting.value}"
-							class="span2" /></td>
-						<td><a class="btn btn-mini btn-danger"
+						<td>${setting.name}</td>
+						<td>${setting.scope}</td>
+						<td>${setting.serverType}</td>
+						<td>${setting.instance}</td>
+						<td>${setting.application}</td>
+						<td>
+							<input name="value" class="input-medium" value="${setting.value}">
+						</td>
+						<td class="center" >
+							<a class="btn btn-mini btn-danger"
 							href="?submitAction=delete
 							&name=${setting.name}
 							&scope=${setting.scope}
 							&serverType=${setting.serverType}
 							&instance=${setting.instance}
 							&application=${setting.application}"
-							onclick="return window.confirm('Are you sure?');">delete</a></td>
-						<td><input class="btn btn-mini btn-warning" type="submit"
-							name="submitAction" value="update" /></td>
+							onclick="return window.confirm('Are you sure?');">delete</a>
+						</td>
+						<td class="center">
+							<input class="btn btn-mini btn-warning" type="submit" name="submitAction" value="update">
+						</td>
 					</tr>
 				</form>
 			</c:forEach>

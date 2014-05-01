@@ -38,6 +38,15 @@ function showCreateForm(link) {
 		<a href="?" class="btn btn-primary">&rarr; All settings</a><br/>
 		<br>
 		<h2 class="page-header">Cluster Settings Browser</h2>
+		<c:if test="${!roots.isEmpty()}">
+			<div class="btn-toolbar">
+				<div class="btn-group">
+					<c:forEach items="${roots}" var="root">		
+						<a class="btn" href="?submitAction=browseSettings&name=${root.getName()}">${root.getName()}</a>
+					</c:forEach>
+				</div>	
+			</div>
+		</c:if>
 		<ul class="breadcrumb">
 			<c:forEach items="${ancestors}" var="ancestor">	
 				<c:choose>
