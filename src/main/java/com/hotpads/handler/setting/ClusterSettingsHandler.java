@@ -44,14 +44,14 @@ public class ClusterSettingsHandler extends BaseHandler {
 		JSP_editSettings = "/jsp/admin/datarouter/setting/editSettings.jsp",
 		JSP_browseSettings = "/jsp/admin/datarouter/setting/browseSettings.jsp";
 
-	private SettingRoot settingRegister;
+	private SettingRoot settingRoot;
 	private DatarouterServerType datarouterServerTypeTool;
 	private SortedMapStorageNode<ClusterSettingKey, ClusterSetting> clusterSettingNode;
 	
 	@Inject
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ClusterSettingsHandler(SettingRoot settingRegister, DatarouterServerType datarouterServerTypeTool, @clusterSettingNode SortedMapStorageNode clusterSettingNode) {
-		this.settingRegister = settingRegister;
+	public ClusterSettingsHandler(SettingRoot settingRoot, DatarouterServerType datarouterServerTypeTool, @clusterSettingNode SortedMapStorageNode clusterSettingNode) {
+		this.settingRoot = settingRoot;
 		this.datarouterServerTypeTool = datarouterServerTypeTool;
 		this.clusterSettingNode = clusterSettingNode;
 	}
@@ -128,9 +128,9 @@ public class ClusterSettingsHandler extends BaseHandler {
 		String nodeName = params.optional(P_name, context + ".");
 		mav.put(V_nodeName, nodeName);
 		
-		SettingNode node = settingRegister.getNodeByName(nodeName);
+		SettingNode node = settingRoot.getNodeByName(nodeName);
 		mav.put(V_node, node);
-		mav.put(V_ancestors, settingRegister.getDescendanceByName(nodeName));
+		mav.put(V_ancestors, settingRoot.getDescendanceByName(nodeName));
 		mav.put(V_children, node.getListChildren());
 		ArrayList<Setting<?>> settingsList = (ArrayList<Setting<?>>)node
 				.getListSettings();
@@ -142,7 +142,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		}
 		mav.put(V_listSettings, settingsList);
 		mav.put(V_mapListsCustomSettings, mapListsCustom);
-		mav.put(V_roots, settingRegister.getRootNodes());
+		mav.put(V_roots, settingRoot.getRootNodes());
 		mav.put("serverTypeOptions", datarouterServerTypeTool.getHTMLSelectOptionsVarNames());
 		return mav;
 	}
