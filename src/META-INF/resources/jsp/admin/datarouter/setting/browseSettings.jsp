@@ -2,10 +2,9 @@
 <%@page import="com.hotpads.setting.cluster.ClusterSettingScope"%>
 <%@ include file="/WEB-INF/prelude.jspf"%>
 <%@ include file="../../../generic/prelude-datarouter.jspf"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Hotpads : Cluster settings</title>
@@ -35,7 +34,7 @@ function showCreateForm(link) {
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
-		<a href="?" class="btn btn-primary">&rarr; All settings</a><br/>
+		<a href="?" class="btn btn-primary">&rarr; All settings</a>
 		<br>
 		<h2 class="page-header">Cluster Settings Browser</h2>
 		<c:if test="${!roots.isEmpty()}">
@@ -106,7 +105,7 @@ function showCreateForm(link) {
 							</span>
 						</td>
 						<td class="center">
-							<a id="link_${setting.hashCode()}" onclick="showCreateForm(this)">add</a>
+							<a id="link_${fn:replace(setting.getName(), '.', '_')}" onclick="showCreateForm(this)">add</a>
 						</td>
 					</tr>
 					<c:forEach var="customSetting" items="${customSettings}">
@@ -118,7 +117,7 @@ function showCreateForm(link) {
 								<input type="hidden" name="serverType" value="${customSetting.serverType}">
 								<input type="hidden" name="instance" value="${customSetting.instance}">
 								<input type="hidden" name="application" value="${customSetting.application}">
-							<td>${customSetting.scope}</td>
+								<td>${customSetting.scope}</td>
 								<td>${customSetting.serverType}</td>
 								<td>${customSetting.instance}</td>
 								<td>${customSetting.application}</td>
@@ -149,24 +148,24 @@ function showCreateForm(link) {
 							<input type="hidden" name="name" value="${setting.getName()}">
 							<td/>
 							<td>
-								<select	name="serverType" id="type_${setting.hashCode()}" style="display: none;" class="setting-type input-small" required>
-									<option disabled selected>Type</option>
+								<select	name="serverType" id="type_${fn:replace(setting.getName(), '.', '_')}" style="display: none;" class="setting-type input-small" required>
+									<option value="" disabled selected>Type</option>
 									<c:forEach items="${serverTypeOptions}" var="serverTypeOption">
 										<option value="${serverTypeOption.value}">${serverTypeOption.name}</option>
 									</c:forEach>
 								</select>
 							</td>
 							<td>
-									<input id="inst_${setting.hashCode()}" style="display: none;" class="input-small" name="instance" placeholder="Instance">
+									<input id="inst_${fn:replace(setting.getName(), '.', '_')}" style="display: none;" class="input-small" name="instance" placeholder="Instance">
 							</td>
 							<td>
-									<input id="appl_${setting.hashCode()}" style="display: none;" class="input-small" name="application" placeholder="Application">
+									<input id="appl_${fn:replace(setting.getName(), '.', '_')}" style="display: none;" class="input-small" name="application" placeholder="Application">
 							</td>
 							<td>
-									<input id="valu_${setting.hashCode()}" style="display: none;" class="input-mini" name="value" placeholder="Value" required>
+									<input id="valu_${fn:replace(setting.getName(), '.', '_')}" style="display: none;" class="input-mini" name="value" placeholder="Value" required>
 							</td>
 							<td class="center">
-									<input type="submit" id="acti_${setting.hashCode()}" class="btn btn-mini btn-warning" style="display: none;" name="submitAction" value="create">
+									<input type="submit" id="acti_${fn:replace(setting.getName(), '.', '_')}" class="btn btn-mini btn-warning" style="display: none;" name="submitAction" value="create">
 							</td>
 						</form>
 					</tr>
