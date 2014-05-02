@@ -31,7 +31,7 @@ import com.hotpads.util.core.MapTool;
 public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 	public static final int LENGTH_counterName = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	public static final int LENGTH_comment= MySqlColumnType.MAX_LENGTH_VARCHAR;
-	public static final int LENGTH_creator= MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int LENGTH_creatorEmail= MySqlColumnType.MAX_LENGTH_VARCHAR;
 	public static final int LENGTH_alertTimeRange= MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	/************* fileds ************************/
@@ -51,12 +51,12 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		
 	}
 	
-	public CounterAlert(String counterName, Long periodMs, Long minThreshold, Long maxThreshold, String creator, String alertTimeRange, String comment){
+	public CounterAlert(String counterName, Long periodMs, Long minThreshold, Long maxThreshold, String creatorEmail, String alertTimeRange, String comment){
 		this.counterName = counterName;
 		this.periodMs = periodMs;
 		this.minThreshold = minThreshold;
 		this.maxThreshold = maxThreshold;
-		this.creatorEmail = creator;
+		this.creatorEmail = creatorEmail;
 		this.alertTimeRange = alertTimeRange;
 		this.comment = comment;
 		buildId();
@@ -69,7 +69,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		periodMs = "periodMs",
 		minThreshold = "minThreshold",
 		maxThreshold = "maxThreshold",
-		creator = "creator",
+		creatorEmail = "creatorEmail",
 		alertTimeRange = "alertTimeRange",
 		comment = "comment",
 		createdDate = "createdDate"
@@ -113,7 +113,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 					new LongField(F.periodMs, d.periodMs), 
 					new LongField(F.minThreshold, d.minThreshold), 
 					new LongField(F.maxThreshold, d.maxThreshold),
-					new StringField(F.creator, d.creatorEmail, LENGTH_creator), 
+					new StringField(F.creatorEmail, d.creatorEmail, LENGTH_creatorEmail), 
 					new StringField(F.alertTimeRange, d.alertTimeRange, LENGTH_alertTimeRange), 
 					new StringField(F.comment, d.comment, LENGTH_comment), 
 					new DateField(F.createdDate, d.createdDate)
@@ -126,7 +126,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		public Map<String,List<Field<?>>> getIndexes(CounterAlert counterAlert){
 			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
 			indexesByName.put(F.counterName, new CounterAlertByCounterNameLookup(null).getFields());
-			indexesByName.put(F.creator, new CounterAlertByCreatorLookup(null).getFields());
+			indexesByName.put(F.creatorEmail, new CounterAlertByCreatorEmailLookup(null).getFields());
 			return indexesByName;
 		}
 	}
@@ -143,14 +143,14 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		}
 	}
 
-	public static class CounterAlertByCreatorLookup extends BaseLookup<CounterAlertKey>{
-		String creator;
-		public CounterAlertByCreatorLookup(String creator){
-			this.creator = creator;
+	public static class CounterAlertByCreatorEmailLookup extends BaseLookup<CounterAlertKey>{
+		String creatorEmail;
+		public CounterAlertByCreatorEmailLookup(String creatorEmail){
+			this.creatorEmail = creatorEmail;
 		}
 		@Override
 		public List<Field<?>> getFields(){
-			return FieldTool.createList( new StringField(F.creator, creator, LENGTH_creator));
+			return FieldTool.createList( new StringField(F.creatorEmail, creatorEmail, LENGTH_creatorEmail));
 		}
 	}
 	
@@ -199,8 +199,8 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		return creatorEmail;
 	}
 
-	public void setCreatorEmail(String creator){
-		this.creatorEmail = creator;
+	public void setCreatorEmail(String creatorEmail){
+		this.creatorEmail = creatorEmail;
 	}
 
 	public String getAlertTimeRange(){

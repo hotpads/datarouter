@@ -17,8 +17,8 @@ public class CounterAlertTimeRange{
 	THURSDAY = "Thursday",
 	FRIDAY = "Friday";
 	
-	public static Boolean isInTimeRange(CounterAlert counterAlert, Date date){
-		String alertTimeRangeStr = counterAlert.getAlertTimeRange();
+	String alertTimeRangeStr;
+	public static Boolean isInTimeRange(String alertTimeRangeStr, Date date){
 		if(StringTool.isEmpty(alertTimeRangeStr)){
 			return true;
 		}
