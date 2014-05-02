@@ -118,7 +118,7 @@ function showCreateForm(link) {
 								<input type="hidden" name="serverType" value="${customSetting.serverType}">
 								<input type="hidden" name="instance" value="${customSetting.instance}">
 								<input type="hidden" name="application" value="${customSetting.application}">
-							<td>${customSetting.scope}</td>
+								<td>${customSetting.scope}</td>
 								<td>${customSetting.serverType}</td>
 								<td>${customSetting.instance}</td>
 								<td>${customSetting.application}</td>
@@ -150,7 +150,7 @@ function showCreateForm(link) {
 							<td/>
 							<td>
 								<select	name="serverType" id="type_${setting.hashCode()}" style="display: none;" class="setting-type input-small" required>
-									<option disabled selected>Type</option>
+									<option value="" disabled selected>Type</option>
 									<c:forEach items="${serverTypeOptions}" var="serverTypeOption">
 										<option value="${serverTypeOption.value}">${serverTypeOption.name}</option>
 									</c:forEach>
