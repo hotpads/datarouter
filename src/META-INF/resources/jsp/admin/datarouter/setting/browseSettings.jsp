@@ -19,13 +19,13 @@ function stayFocus(object){
 	setTimeout(function(){object.form.instance.focus();},10);
 }
 function showCreateForm(link) {
-	var hash = link.id.substring(5);
+	var name = link.id.substring(5);
 	$(link).hide();
-	$('#type_' + hash).show();
-	$('#inst_' + hash).show();
-	$('#appl_' + hash).show();
-	$('#valu_' + hash).show();
-	$('#acti_' + hash).show();
+	$('#type_' + name).show();
+	$('#inst_' + name).show();
+	$('#appl_' + name).show();
+	$('#valu_' + name).show();
+	$('#acti_' + name).show();
 	document.getElementById('inst_' + hash).parentNode.parentNode.removeAttribute('class');
 }
 </script>	
