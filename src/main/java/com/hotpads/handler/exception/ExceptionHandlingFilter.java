@@ -6,6 +6,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Arrays;
+import java.util.Map.Entry;
 
 import javax.inject.Inject;
 import javax.servlet.Filter;
@@ -15,6 +17,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -69,11 +72,11 @@ public class ExceptionHandlingFilter implements Filter {
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 		if (NOTIFICATION_ENABLED) {
-			ServletContext sc = filterConfig.getServletContext();
 			if (exceptionRecordNode != null) {
 				persister = new ExceptionRecordPersister(exceptionRecordNode);
 				apiCaller = new ParallelApiCaller(notificationApiClient);
 			} else {
+				ServletContext sc = filterConfig.getServletContext();
 				exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute(PARAM_RECORD_NODE);
 				persister = new ExceptionRecordPersister(exceptionRecordNode);
 				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(EXCEPTION_HANDLING_CONFIG);
@@ -135,7 +138,39 @@ public class ExceptionHandlingFilter implements Filter {
 			ExceptionRecord exceptionRecord = new ExceptionRecord(exceptionHandlingConfig.getServerName(),
 					ExceptionUtils.getStackTrace(e));
 			persister.addToQueue(exceptionRecord);
-
+			StackTraceElement firstElem = e.getStackTrace()[0];
+			StringBuilder paramString = new StringBuilder("[");
+			for (Entry<String, String[]> param : request.getParameterMap().entrySet()) {
+				paramString.append(param.getKey());
+				paramString.append(":");
+				paramString.append(Arrays.toString(param.getValue()));
+				paramString.append(",");
+			}
+			paramString.append("]");
+			StringBuilder cookieString = new StringBuilder("[");
+			for (Cookie c : request.getCookies()) {
+				cookieString.append(c.getName());
+				cookieString.append(":");
+				cookieString.append(c.getValue());
+				cookieString.append(",");
+			}
+			cookieString.append("]");
+//			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
+//					new HttpRequestRecordKey(exceptionRecord.getKey().getId()),
+//					handler.getClass().getName(),
+//					firstElem.getMethodName(),
+//					firstElem.getLineNumber(),
+//					request.getRequestURL().toString() + "?" + request.getQueryString(),
+//					request.getMethod(),
+//					paramString.toString(),
+//					ServletUtils.getIpAddress(request),
+//					request.getHeader("user-agent"),
+//					"XMLHttpRequest".equals(request.getHeader("x-requested-with")),
+//					request.getHeader("referer"),
+//					cookieString.toString(),
+//					UserSession.getUserSession(request).getUserRoles().toString()
+//					);
+//			this.httpRequestRecordNode.put(httpRequestRecord, null);
 			addNotificationRequestToQueue(request, e, exceptionRecord);
 		} catch (Exception ex) {
 			logger.error("Exception while logging");
