@@ -34,5 +34,10 @@ public class HotPadsHttpClientException extends RuntimeException{
 	public String getEntity(){
 		return entity;
 	}
+	
+	@Override
+	public String toString(){
+		return super.toString() + "(" + getStatusCode() + ", " + getEntity() + ")";
+	}
 
 }
