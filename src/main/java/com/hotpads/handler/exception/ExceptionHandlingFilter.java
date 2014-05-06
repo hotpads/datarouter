@@ -28,7 +28,11 @@ import org.apache.log4j.Logger;
 import com.google.inject.BindingAnnotation;
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.notification.ExceptionRecordPersister;
+import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
+import com.hotpads.exception.analysis.HttpRequestRecord;
+import com.hotpads.exception.analysis.HttpRequestRecordKey;
+import com.hotpads.handler.util.RequestTool;
+import com.hotpads.notification.DatabaseInsertionPersister;
 import com.hotpads.notification.NotificationApiClient;
 import com.hotpads.notification.NotificationRequestDtoTool;
 import com.hotpads.notification.ParallelApiCaller;
@@ -48,8 +52,15 @@ public class ExceptionHandlingFilter implements Filter {
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface ExceptionRecordNode {}
 
-	public static final String PARAM_RECORD_NODE = "recordNode";
-	public static final String EXCEPTION_HANDLING_CONFIG = "exceptionHandlingConfig";
+	@BindingAnnotation
+	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD })
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface HttpRecordRecordNode {}
+
+	public static final String ATTRIBUTE_EXCEPTION_RECORD_NODE = "exceptionRecordNode";
+	public static final String ATTRIBUTE_REQUEST_RECORD_NODE = "requestRecordNode";
+	public static final String ATTRIBUTE_EXCEPTION_HANDLING_CONFIG = "exceptionHandlingConfig";
+	
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 
 	private static final String SERVER_EXCEPTION_NOTIFICATION_TYPE = "com.hotpads.notification.type.ServerExceptionNotificationType";
@@ -60,29 +71,33 @@ public class ExceptionHandlingFilter implements Filter {
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
 	private NotificationApiClient notificationApiClient;
-	@SuppressWarnings("rawtypes")
 	@Inject
 	@ExceptionRecordNode
+	@SuppressWarnings("rawtypes")
 	private SortedMapStorageNode exceptionRecordNode;
-
+	@Inject
+	@HttpRecordRecordNode
+	@SuppressWarnings("rawtypes")
+	private MapStorageNode httpRequestRecordNode;
+	
 	private ParallelApiCaller apiCaller;
-	private ExceptionRecordPersister persister;
+	private DatabaseInsertionPersister<ExceptionRecord, ExceptionRecordKey> persister;
+	private DatabaseInsertionPersister<HttpRequestRecord, HttpRequestRecordKey> requestPersister;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 		if (NOTIFICATION_ENABLED) {
-			if (exceptionRecordNode != null) {
-				persister = new ExceptionRecordPersister(exceptionRecordNode);
-				apiCaller = new ParallelApiCaller(notificationApiClient);
-			} else {
+			if (exceptionRecordNode == null) {
 				ServletContext sc = filterConfig.getServletContext();
-				exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute(PARAM_RECORD_NODE);
-				persister = new ExceptionRecordPersister(exceptionRecordNode);
-				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(EXCEPTION_HANDLING_CONFIG);
+				exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute(ATTRIBUTE_EXCEPTION_RECORD_NODE);
+				httpRequestRecordNode = (MapStorageNode<HttpRequestRecordKey, HttpRequestRecord>) sc.getAttribute(ATTRIBUTE_REQUEST_RECORD_NODE);
+				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
 				notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig);
-				apiCaller = new ParallelApiCaller(notificationApiClient);
 			}
+			persister = new DatabaseInsertionPersister<ExceptionRecord, ExceptionRecordKey>(exceptionRecordNode);
+			requestPersister = new DatabaseInsertionPersister<HttpRequestRecord, HttpRequestRecordKey>(httpRequestRecordNode);
+			apiCaller = new ParallelApiCaller(notificationApiClient);
 		}
 	}
 
@@ -138,7 +153,6 @@ public class ExceptionHandlingFilter implements Filter {
 			ExceptionRecord exceptionRecord = new ExceptionRecord(exceptionHandlingConfig.getServerName(),
 					ExceptionUtils.getStackTrace(e));
 			persister.addToQueue(exceptionRecord);
-			StackTraceElement firstElem = e.getStackTrace()[0];
 			StringBuilder paramString = new StringBuilder("[");
 			for (Entry<String, String[]> param : request.getParameterMap().entrySet()) {
 				paramString.append(param.getKey());
@@ -155,27 +169,70 @@ public class ExceptionHandlingFilter implements Filter {
 				cookieString.append(",");
 			}
 			cookieString.append("]");
-//			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
-//					new HttpRequestRecordKey(exceptionRecord.getKey().getId()),
-//					handler.getClass().getName(),
-//					firstElem.getMethodName(),
-//					firstElem.getLineNumber(),
-//					request.getRequestURL().toString() + "?" + request.getQueryString(),
-//					request.getMethod(),
-//					paramString.toString(),
-//					ServletUtils.getIpAddress(request),
-//					request.getHeader("user-agent"),
-//					"XMLHttpRequest".equals(request.getHeader("x-requested-with")),
-//					request.getHeader("referer"),
-//					cookieString.toString(),
-//					UserSession.getUserSession(request).getUserRoles().toString()
-//					);
-//			this.httpRequestRecordNode.put(httpRequestRecord, null);
+			String jspName = null;
+			int lineNumber = 0;
+			Throwable next;
+			next = e;
+			whileLoop: do {
+				String key = "An exception occurred processing JSP page ";
+				if (next.getMessage().contains(key)) {
+					String key2 = " at line ";
+					int i = next.getMessage().indexOf(key2);
+					int endLine = next.getMessage().indexOf("\n");
+					jspName = next.getMessage().substring(key.length(), i);
+					lineNumber = Integer.parseInt(next.getMessage().substring(i + key2.length(), endLine));
+					break;
+				}				
+				jspName = getJSPName(next.getMessage());
+				if (jspName != null) {
+					break;
+				}
+				for (StackTraceElement element : next.getStackTrace()) {
+					jspName = getJSPName(element.getClassName());
+					if (jspName != null) {
+						break whileLoop;
+					}
+				}
+				next = next.getCause();
+			} while (next != null);
+			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
+					new HttpRequestRecordKey(exceptionRecord.getKey().getId()),
+					jspName,
+					"",
+					lineNumber,
+					request.getRequestURL().toString() + "?" + request.getQueryString(),
+					request.getMethod(),
+					paramString.toString(),
+					RequestTool.getIpAddress(request),
+					request.getHeader("user-agent"),
+					"XMLHttpRequest".equals(request.getHeader("x-requested-with")),
+					request.getHeader("referer"),
+					cookieString.toString(),
+					"unkown roles"
+					);
+			requestPersister.addToQueue(httpRequestRecord);
 			addNotificationRequestToQueue(request, e, exceptionRecord);
 		} catch (Exception ex) {
 			logger.error("Exception while logging");
 			ex.printStackTrace();
 		}
+	}
+
+	private String getJSPName(String string) {
+		if (string == null) {
+			return null;
+		}
+		String key = "WEB_002dINF";
+		int i;
+		i = string.indexOf(key);
+		if (i > -1) {
+			String jspName = string.substring(i);
+			jspName = jspName.replaceAll("\\.", "/");
+			jspName = jspName.replaceAll("_002d", "-");
+			jspName = jspName.replaceAll("_", ".");
+			return jspName;
+		}
+		return null;
 	}
 
 	private void addNotificationRequestToQueue(HttpServletRequest request, Exception exception,

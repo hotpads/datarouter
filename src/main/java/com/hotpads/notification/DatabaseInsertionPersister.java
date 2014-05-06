@@ -15,35 +15,35 @@ import java.util.concurrent.TimeoutException;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.node.op.raw.MapStorage;
-import com.hotpads.handler.exception.ExceptionRecord;
-import com.hotpads.handler.exception.ExceptionRecordKey;
+import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 
-public class ExceptionRecordPersister{
-	private static Logger logger = Logger.getLogger(ExceptionRecordPersister.class);
+public class DatabaseInsertionPersister<D extends Databean<PK,D>, PK extends PrimaryKey<PK>>{
+	private static Logger logger = Logger.getLogger(DatabaseInsertionPersister.class);
 
 	private static final int QUEUE_CAPACITY = 4096;
 
-	private MapStorage<ExceptionRecordKey,ExceptionRecord> exceptionRecordNode;
-	private BlockingQueue<ExceptionRecord> queue;
+	private MapStorage<PK,D> node;
+	private BlockingQueue<D> queue;
 
 	private ScheduledExecutorService flushScheduler;
 	private ExecutorService flushExecutor;
 
-	public ExceptionRecordPersister(MapStorage<ExceptionRecordKey,ExceptionRecord> exceptionRecordNode) {
-		this.exceptionRecordNode = exceptionRecordNode;
-		this.queue = new LinkedBlockingDeque<ExceptionRecord>(QUEUE_CAPACITY);
+	public DatabaseInsertionPersister(MapStorage<PK, D> node) {
+		this.node = node;
+		this.queue = new LinkedBlockingDeque<D>(QUEUE_CAPACITY);
 		this.flushScheduler = Executors.newScheduledThreadPool(1);
 		this.flushExecutor = Executors.newCachedThreadPool();
 		flushScheduler.scheduleWithFixedDelay(new Flusher(), 1000, 1000, TimeUnit.MILLISECONDS);
 	}
 	
-	public boolean addToQueue(ExceptionRecord exceptionRecord) {
+	public boolean addToQueue(D databean) {
 		logger.warn("discarding ExceptionRecord because queue is full");
 		//TODO should we dump the old entries and keep the newer ones?
-		return queue.offer(exceptionRecord);
+		return queue.offer(databean);
 	}
 	
 	
@@ -54,7 +54,7 @@ public class ExceptionRecordPersister{
 		@Override
 		public void run(){
 			while(CollectionTool.notEmpty(queue)){
-				List<ExceptionRecord> flushBatch = ListTool.createArrayList();
+				List<D> flushBatch = ListTool.createArrayList();
 				queue.drainTo(flushBatch, FLUSH_BATCH_SIZE);
 				Future<Boolean> future = flushExecutor.submit(new FlushAttempt(flushBatch));
 				try {
@@ -68,16 +68,16 @@ public class ExceptionRecordPersister{
 	
 	
 	private class FlushAttempt implements Callable<Boolean> {
-		private List<ExceptionRecord> flushBatch;
+		private List<D> flushBatch;
 
-		public FlushAttempt(List<ExceptionRecord> flushBatch) {
+		public FlushAttempt(List<D> flushBatch) {
 			this.flushBatch = flushBatch;
 		}
 
 		@Override
 		public Boolean call() throws Exception {
 			try {
-				exceptionRecordNode.putMulti(flushBatch, null);
+				node.putMulti(flushBatch, null);
 				return true;
 			} catch (Exception e) {
 				logger.warn(ExceptionTool.getStackTraceAsString(e));

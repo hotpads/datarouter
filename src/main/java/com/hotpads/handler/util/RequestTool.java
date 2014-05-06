@@ -19,7 +19,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Joiner;
-
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
@@ -500,6 +499,60 @@ public class RequestTool {
 		return request.getHeader("user-agent");
 	}
 	
+	public static String getIpAddress(HttpServletRequest request){
+		if(request == null){
+			return null;
+		}
+		String xForwardedFor = null;
+		
+		Enumeration<String> xForwards = request.getHeaders("x-forwarded-for");
+
+		//haproxy adds x-forwarded-for headers to the http request for the originating ip.
+		//if the client already had a x-forwarded-for header, 
+		// java's request.getHeader() chooses the wrong header (the first one, which is the client's),
+		// which can contain useless ips (like 127.0.0.1).  so instead use the last one that haproxy put on
+
+		while (xForwards.hasMoreElements()) {
+			xForwardedFor = xForwards.nextElement();
+		}
+
+		if (!StringTool.isNullOrEmptyOrWhitespace(xForwardedFor)){
+			String[] proxyChain = xForwardedFor.split(", ");
+			String clientIp = proxyChain[proxyChain.length - 1];
+			try {
+				getLongValue(clientIp);
+				return clientIp;
+			} catch (IllegalArgumentException e){
+				return request.getRemoteAddr();
+			}
+		} else {
+			String remoteAddr = request.getRemoteAddr();
+			if ("127.0.0.1".equals(remoteAddr)) {//dev server
+				remoteAddr = "98.204.67.1"; //FIXME why this adresse ?
+			}
+			return remoteAddr;
+		}
+	}
+
+	/**
+	 * Convert ipv4 octet string into long ip representation.
+	 * Same as mysql's INET_ATON(dottedDecimal)
+	 * @param dottedDecimal
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	public static long getLongValue(String dottedDecimal) {
+		String[] octets = dottedDecimal.split("\\.");
+		if(octets==null || octets.length!=4){
+    		throw new IllegalArgumentException();
+    	}
+		long part1 = Long.parseLong(octets[0]);
+		long part2 = Long.parseLong(octets[1]);
+		long part3 = Long.parseLong(octets[2]);
+		long part4 = Long.parseLong(octets[3]);
+		return (part1 << 24) + (part2 << 16) + (part3 << 8) + part4;
+	}
+
 	/** tests *****************************************************************/
 	public static class Tests {
 		@Test public void testCheckDouble(){
