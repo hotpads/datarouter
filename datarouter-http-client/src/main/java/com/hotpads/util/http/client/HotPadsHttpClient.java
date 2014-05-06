@@ -41,7 +41,8 @@ public class HotPadsHttpClient{
 	private ApiKeyPredicate apiKeyPredicate;
 	private HotPadsHttpClientConfig config;
 	
-	HotPadsHttpClient(HttpClient httpClient, JsonSerializer jsonSerializer, SignatureValidator signatureValidator, CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate, HotPadsHttpClientConfig config){
+	HotPadsHttpClient(HttpClient httpClient, JsonSerializer jsonSerializer, SignatureValidator signatureValidator, 
+			CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate, HotPadsHttpClientConfig config){
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureValidator = signatureValidator;
@@ -80,18 +81,29 @@ public class HotPadsHttpClient{
 	}
 
 	public <T> String post(String url, T dataTransferObjectToPost, boolean retrySafe){
+		return post(url, dataTransferObjectToPost, retrySafe, null);
+	}
+	public <T> String post(String url, T dataTransferObjectToPost, boolean retrySafe, String dataTransferObjectType){
 		String serializedDto = jsonSerializer.serialize(dataTransferObjectToPost);
-		String dtoType = dataTransferObjectToPost.getClass().getCanonicalName();
+		String dtoType = dataTransferObjectType;
+		if(dtoType == null){
+			dtoType = dataTransferObjectToPost.getClass().getCanonicalName();
+		}
 		return post(url, serializedDto, dtoType, retrySafe);
 	}
 	
 	public <T> String post(String url, Collection<T> dtoCollection, boolean retrySafe){
+		return post(url, dtoCollection, retrySafe, null);
+	}
+	public <T> String post(String url, Collection<T> dtoCollection, boolean retrySafe, String dataTransferObjectType){
 		String serializedDtos = jsonSerializer.serialize(dtoCollection);
-		String dtoType;
-		if(dtoCollection.isEmpty()){
-			dtoType = "";
-		} else{
-			dtoType = dtoCollection.iterator().next().getClass().getCanonicalName();
+		String dtoType = dataTransferObjectType;
+		if(dtoType == null){
+			if(dtoCollection.isEmpty()){
+				dtoType = "";
+			} else{
+				dtoType = dtoCollection.iterator().next().getClass().getCanonicalName();
+			}
 		}
 		return post(url, serializedDtos, dtoType, retrySafe);
 	}
@@ -104,7 +116,11 @@ public class HotPadsHttpClient{
 	}
 	
 	public <T,E> E post(String url, T dataTransferObjectToPost, Type typeOfDataTranferObjectExpected, boolean retrySafe){
-		return jsonSerializer.deserialize(post(url, dataTransferObjectToPost, retrySafe), typeOfDataTranferObjectExpected);
+		return post(url, dataTransferObjectToPost, null, typeOfDataTranferObjectExpected, retrySafe);
+	}
+	
+	public <T,E> E post(String url, T dataTransferObjectToPost, String dataTransferObjectToPostType, Type typeOfDataTranferObjectExpected, boolean retrySafe){
+		return jsonSerializer.deserialize(post(url, dataTransferObjectToPost, retrySafe, dataTransferObjectToPostType), typeOfDataTranferObjectExpected);
 	}
 	
 	/***** private ******/
