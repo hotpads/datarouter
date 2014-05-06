@@ -413,7 +413,6 @@ public class RequestTool {
 		return getCheckedBoxes(request,prefix,new IdentityFunctor<String>());
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static <T> List<T> getCheckedBoxes(HttpServletRequest request, String prefix, Functor<T,String> converter){
 		Enumeration<String> paramNames = request.getParameterNames();
 		List<T> selecteds = ListTool.createArrayList();
@@ -519,10 +518,9 @@ public class RequestTool {
 		if (!StringTool.isNullOrEmptyOrWhitespace(xForwardedFor)){
 			String[] proxyChain = xForwardedFor.split(", ");
 			String clientIp = proxyChain[proxyChain.length - 1];
-			try {
-				getLongValue(clientIp);
+			if (isAValidIpV4(clientIp)) {
 				return clientIp;
-			} catch (IllegalArgumentException e){
+			} else {
 				return request.getRemoteAddr();
 			}
 		} else {
@@ -541,16 +539,9 @@ public class RequestTool {
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
-	public static long getLongValue(String dottedDecimal) {
-		String[] octets = dottedDecimal.split("\\.");
-		if(octets==null || octets.length!=4){
-    		throw new IllegalArgumentException();
-    	}
-		long part1 = Long.parseLong(octets[0]);
-		long part2 = Long.parseLong(octets[1]);
-		long part3 = Long.parseLong(octets[2]);
-		long part4 = Long.parseLong(octets[3]);
-		return (part1 << 24) + (part2 << 16) + (part3 << 8) + part4;
+	public static boolean isAValidIpV4(String dottedDecimal){
+		String ipv4Pattern = "\\A(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}\\z";
+		return dottedDecimal != null && dottedDecimal.matches(ipv4Pattern);
 	}
 
 	/** tests *****************************************************************/
@@ -603,6 +594,16 @@ public class RequestTool {
 					getFullyQualifiedUrl("","http://x.com:8080","x.com",8080).toString());
 			Assert.assertEquals("https://x.com:8443/snack",
 					getFullyQualifiedUrl("snack","https://x.com","x.com",8443).toString());
+		}
+
+		@Test public void testIsAVildIpV4() {
+			Assert.assertTrue(isAValidIpV4("1.0.1.1"));
+			Assert.assertTrue(isAValidIpV4("0.0.0.0"));
+			Assert.assertTrue(isAValidIpV4("124.159.0.18"));
+			Assert.assertFalse(isAValidIpV4("256.159.0.18"));
+			Assert.assertFalse(isAValidIpV4("blabla"));
+			Assert.assertFalse(isAValidIpV4(""));
+			Assert.assertFalse(isAValidIpV4(null));
 		}
 	}	
 }
