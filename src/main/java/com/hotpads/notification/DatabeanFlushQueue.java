@@ -21,8 +21,8 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 
-public class DatabaseInsertionPersister<D extends Databean<PK,D>, PK extends PrimaryKey<PK>>{
-	private static Logger logger = Logger.getLogger(DatabaseInsertionPersister.class);
+public class DatabeanFlushQueue<D extends Databean<PK,D>, PK extends PrimaryKey<PK>>{
+	private static Logger logger = Logger.getLogger(DatabeanFlushQueue.class);
 
 	private static final int QUEUE_CAPACITY = 4096;
 
@@ -32,7 +32,7 @@ public class DatabaseInsertionPersister<D extends Databean<PK,D>, PK extends Pri
 	private ScheduledExecutorService flushScheduler;
 	private ExecutorService flushExecutor;
 
-	public DatabaseInsertionPersister(MapStorage<PK, D> node) {
+	public DatabeanFlushQueue(MapStorage<PK, D> node) {
 		this.node = node;
 		this.queue = new LinkedBlockingDeque<D>(QUEUE_CAPACITY);
 		this.flushScheduler = Executors.newScheduledThreadPool(1);

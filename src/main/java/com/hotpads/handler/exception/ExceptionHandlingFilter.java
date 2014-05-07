@@ -32,7 +32,7 @@ import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.exception.analysis.HttpRequestRecord;
 import com.hotpads.exception.analysis.HttpRequestRecordKey;
 import com.hotpads.handler.util.RequestTool;
-import com.hotpads.notification.DatabaseInsertionPersister;
+import com.hotpads.notification.DatabeanFlushQueue;
 import com.hotpads.notification.NotificationApiClient;
 import com.hotpads.notification.NotificationRequestDtoTool;
 import com.hotpads.notification.ParallelApiCaller;
@@ -81,8 +81,8 @@ public class ExceptionHandlingFilter implements Filter {
 	private MapStorageNode httpRequestRecordNode;
 	
 	private ParallelApiCaller apiCaller;
-	private DatabaseInsertionPersister<ExceptionRecord, ExceptionRecordKey> persister;
-	private DatabaseInsertionPersister<HttpRequestRecord, HttpRequestRecordKey> requestPersister;
+	private DatabeanFlushQueue<ExceptionRecord, ExceptionRecordKey> persister;
+	private DatabeanFlushQueue<HttpRequestRecord, HttpRequestRecordKey> requestPersister;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -95,8 +95,8 @@ public class ExceptionHandlingFilter implements Filter {
 				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
 				notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig);
 			}
-			persister = new DatabaseInsertionPersister<ExceptionRecord, ExceptionRecordKey>(exceptionRecordNode);
-			requestPersister = new DatabaseInsertionPersister<HttpRequestRecord, HttpRequestRecordKey>(httpRequestRecordNode);
+			persister = new DatabeanFlushQueue<ExceptionRecord, ExceptionRecordKey>(exceptionRecordNode);
+			requestPersister = new DatabeanFlushQueue<HttpRequestRecord, HttpRequestRecordKey>(httpRequestRecordNode);
 			apiCaller = new ParallelApiCaller(notificationApiClient);
 		}
 	}
