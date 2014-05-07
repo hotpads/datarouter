@@ -137,7 +137,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		Map<String,List<ClusterSetting>> mapListsCustom = MapTool.createHashMap();
 		for(Setting<?> setting : settingsList){
 			ClusterSettingKey settingKey = new ClusterSettingKey(setting.getName(), null, null, null, null);
-			List<ClusterSetting> clusterSettings = clusterSettingNode.getWithPrefix(settingKey, true, null);
+			List<ClusterSetting> clusterSettings = clusterSettingNode.getWithPrefix(settingKey, false, null);
 			mapListsCustom.put(setting.getName(), clusterSettings);
 		}
 		mav.put(V_listSettings, settingsList);
