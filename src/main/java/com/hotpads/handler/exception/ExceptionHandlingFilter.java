@@ -196,7 +196,7 @@ public class ExceptionHandlingFilter implements Filter {
 				next = next.getCause();
 			} while (next != null);
 			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
-					new HttpRequestRecordKey(exceptionRecord.getKey().getId()),
+					exceptionRecord.getKey().getId(),
 					jspName,
 					"",
 					lineNumber,

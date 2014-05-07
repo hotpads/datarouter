@@ -2,13 +2,7 @@ package com.hotpads.handler.exception;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
-import org.junit.Test;
-
-import com.fasterxml.uuid.EthernetAddress;
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
@@ -17,6 +11,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.util.UuidTool;
 /**
  * The record of an Exception
  */
@@ -70,7 +65,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 	}
 
 	public ExceptionRecord(String serverName, String stackTrace) {
-		key = new ExceptionRecordKey(generateUuid());
+		key = new ExceptionRecordKey(UuidTool.generateUuid());
 		this.created = new Date();
 		this.serverName = serverName;
 		this.stackTrace = stackTrace;
@@ -79,13 +74,6 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 	@Override
 	public Class<ExceptionRecordKey> getKeyClass() {
 		return ExceptionRecordKey.class;
-	}
-
-	private static String generateUuid() {
-		EthernetAddress addr = EthernetAddress.fromInterface();
-		TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
-		UUID uuid = uuidGenerator.generate();
-		return uuid.toString();
 	}
 
 	/*************** getters / setters ******************/
@@ -126,22 +114,6 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 	@Override
 	public String toString() {
 		return "ExceptionRecord(" + key + ", " + created + ", " + serverName + ", stackTrace(" + stackTrace.length() + "))";
-	}
-
-	public static class UUIDTester {
-
-		@Test
-		public void create() {
-			for (int i = 0; i < 10; i++) {
-				System.out.println(new Date() + "\t" + ExceptionRecord.generateUuid());
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-
 	}
 
 }

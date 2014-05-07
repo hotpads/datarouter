@@ -1,5 +1,6 @@
 package com.hotpads.exception.analysis;
 
+import java.util.Date;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -8,24 +9,28 @@ import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
+import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
+import com.hotpads.datarouter.util.UuidTool;
 
 public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRequestRecord>{
 
 	/******************* fields ************************/
 
 	private HttpRequestRecordKey key;
+	private Date created;
 	
+	private String exceptionRecordId;
 	private String exceptionPlace;
 	private String methodName;
 	private int lineNumber;
-	
+
 	private String urlRequested;
 	private String httpMethod;
 	private String httpParams;
-	
+
 	private String ip;
 	private String userAgent;
 	private boolean fromAjax;
@@ -35,15 +40,18 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	public static class F {
 		public static String
+			id = "id",
+			created = "created",
+
 			exceptionRecordId = "exceptionRecordId",
 			exceptionPlace = "exceptionPlace",
 			methodName = "methodName",
 			lineNumber="lineNumber",
-			
+
 			urlRequested="urlRequested",
 			httpMethod="httpMethod",
 			httpParams="httpParams",
-			
+
 			ip="ip",
 			userAgent="userAgent",
 			fromAjax="fromAjax",
@@ -64,20 +72,23 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		@Override
 		public List<Field<?>> getNonKeyFields(HttpRequestRecord d) {
 			return FieldTool.createList(
-						new StringField(F.exceptionPlace, d.exceptionPlace, MySqlColumnType.MAX_LENGTH_VARCHAR),
-						new StringField(F.methodName, d.methodName, MySqlColumnType.MAX_LENGTH_VARCHAR),
-						new IntegerField(F.lineNumber, d.lineNumber),
+					new DateField(F.created, d.created),
 
-						new StringField(F.urlRequested, d.urlRequested, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
-						new StringField(F.httpMethod, d.httpMethod, 16),
-						new StringField(F.httpParams, d.httpParams, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
+					new StringField(F.exceptionRecordId, d.exceptionRecordId, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.exceptionPlace, d.exceptionPlace, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.methodName, d.methodName, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new IntegerField(F.lineNumber, d.lineNumber),
 
-						new StringField(F.ip, d.ip, 39),
-						new StringField(F.userAgent, d.userAgent, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
-						new BooleanField(F.fromAjax, d.fromAjax),
-						new StringField(F.httpReferer, d.httpReferer, MySqlColumnType.MAX_LENGTH_VARCHAR),
-						new StringField(F.cookies, d.cookies, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
-						new StringField(F.sessionRoles, d.sessionRoles, MySqlColumnType.MAX_LENGTH_VARCHAR)
+					new StringField(F.urlRequested, d.urlRequested, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
+					new StringField(F.httpMethod, d.httpMethod, 16),
+					new StringField(F.httpParams, d.httpParams, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
+
+					new StringField(F.ip, d.ip, 39),
+					new StringField(F.userAgent, d.userAgent, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
+					new BooleanField(F.fromAjax, d.fromAjax),
+					new StringField(F.httpReferer, d.httpReferer, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.cookies, d.cookies, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
+					new StringField(F.sessionRoles, d.sessionRoles, MySqlColumnType.MAX_LENGTH_VARCHAR)
 					);
 		}
 
@@ -89,10 +100,12 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		key = new HttpRequestRecordKey();
 	}
 
-	public HttpRequestRecord(HttpRequestRecordKey key, String exceptionPlace, String methodName, int lineNumber,
+	public HttpRequestRecord(String exceptionRecordId, String exceptionPlace, String methodName, int lineNumber,
 			String urlRequested, String httpMethod, String httpParams, String ip, String userAgent, boolean fromAjax,
 			String httpReferer, String cookies, String sessionRoles) {
-		this.key = key;
+		this.key = new HttpRequestRecordKey(UuidTool.generateUuid());
+		this.created = new Date();
+		this.exceptionRecordId = exceptionRecordId;
 		this.exceptionPlace = exceptionPlace;
 		this.methodName = methodName;
 		this.lineNumber = lineNumber;
@@ -106,7 +119,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.cookies = cookies;
 		this.sessionRoles = sessionRoles;
 	}
-
+	
 	@Override
 	public Class<HttpRequestRecordKey> getKeyClass() {
 		return HttpRequestRecordKey.class;
@@ -121,6 +134,22 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	public void setKey(HttpRequestRecordKey key) {
 		this.key = key;
+	}
+
+	public Date getCreated() {
+		return created;
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
+	public String getExceptionRecordId() {
+		return exceptionRecordId;
+	}
+
+	public void setExceptionRecordId(String exceptionRecordId) {
+		this.exceptionRecordId = exceptionRecordId;
 	}
 
 	public String getExceptionPlace() {

@@ -12,28 +12,25 @@ import com.hotpads.exception.analysis.HttpRequestRecord.F;
 @SuppressWarnings("serial")
 public class HttpRequestRecordKey extends BasePrimaryKey<HttpRequestRecordKey>{
 
-	private static int
-		LENGTH_exceptionRecordId = MySqlColumnType.MAX_LENGTH_VARCHAR;
-
-	private String exceptionRecordId;
+	private String id;
 
 	HttpRequestRecordKey() {}
 
 	public HttpRequestRecordKey(String id) {
-		this.exceptionRecordId = id;
+		this.id = id;
 	}
 
 	@Override
 	public List<Field<?>> getFields() {
-		return FieldTool.createList(new StringField(F.exceptionRecordId, exceptionRecordId, LENGTH_exceptionRecordId));
+		return FieldTool.createList(new StringField(F.id, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 
-	public String getExceptionRecordId() {
-		return exceptionRecordId;
+	public String getId() {
+		return id;
 	}
 
-	public void setExceptionRecordId(String exceptionRecordId) {
-		this.exceptionRecordId = exceptionRecordId;
+	public void setId(String id) {
+		this.id = id;
 	}
 
 }
