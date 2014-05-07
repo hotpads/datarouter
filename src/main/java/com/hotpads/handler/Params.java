@@ -51,6 +51,12 @@ public class Params{
 		if(value==null){ return defaultValue; }
 		return Long.valueOf(value);
 	}
+
+	public Long optionalLongEmptySafe(String key, Long defaultValue){
+		String value = request.getParameter(key);
+		if(StringTool.isNullOrEmptyOrWhitespace(value)){ return defaultValue; }
+		return Long.valueOf(value);
+	}
 	
 	public Integer requiredInteger(String key){
 		return Integer.valueOf(
