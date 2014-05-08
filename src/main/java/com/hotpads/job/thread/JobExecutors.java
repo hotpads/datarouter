@@ -25,7 +25,9 @@ public class JobExecutors{
 	
 	public static final ScheduledExecutorService 
 		jobExecutor = createScheduled(jobScheduler, "jobExecutor", 10).get();
-
+	
+	public static final ScheduledExecutorService 
+		reputationJobExecutor = createScheduled(jobScheduler, "jobExecutor", 2).get();
 	
 	/************************* providers **********************************/
 	
