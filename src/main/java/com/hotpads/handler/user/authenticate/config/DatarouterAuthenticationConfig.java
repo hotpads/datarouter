@@ -13,7 +13,9 @@ public interface DatarouterAuthenticationConfig{
 	String getHomePath();
 	String getKeepalivePath();
 	String getDatarouterPath();
+	
 	String getApiPath();
+	String getApiWebClientPath();
 	
 	String getSignupPath();
 	String getSignupSubmitPath();
@@ -46,6 +48,7 @@ public interface DatarouterAuthenticationConfig{
 	String getCreateUserJsp();
 	String getEditUserJsp();
 	String getResetPasswordJsp();
+	String getApiWebClientJsp();
 	
 	String getCookiePrefix();
 	String getUserTokenCookieName();
