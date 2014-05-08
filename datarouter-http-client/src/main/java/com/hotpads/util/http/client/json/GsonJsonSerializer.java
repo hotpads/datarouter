@@ -3,7 +3,6 @@ package com.hotpads.util.http.client.json;
 import java.lang.reflect.Type;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 
 public class GsonJsonSerializer implements JsonSerializer{
 	
