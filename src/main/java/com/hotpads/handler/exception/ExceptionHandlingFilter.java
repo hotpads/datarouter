@@ -32,7 +32,6 @@ import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.exception.analysis.HttpRequestRecord;
 import com.hotpads.exception.analysis.HttpRequestRecordKey;
 import com.hotpads.handler.util.RequestTool;
-import com.hotpads.notification.DatabeanFlushQueue;
 import com.hotpads.notification.NotificationApiClient;
 import com.hotpads.notification.NotificationRequestDtoTool;
 import com.hotpads.notification.ParallelApiCaller;
@@ -81,8 +80,6 @@ public class ExceptionHandlingFilter implements Filter {
 	private MapStorageNode httpRequestRecordNode;
 	
 	private ParallelApiCaller apiCaller;
-	private DatabeanFlushQueue<ExceptionRecord, ExceptionRecordKey> persister;
-	private DatabeanFlushQueue<HttpRequestRecord, HttpRequestRecordKey> requestPersister;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -95,8 +92,6 @@ public class ExceptionHandlingFilter implements Filter {
 				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
 				notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig);
 			}
-			persister = new DatabeanFlushQueue<ExceptionRecord, ExceptionRecordKey>(exceptionRecordNode);
-			requestPersister = new DatabeanFlushQueue<HttpRequestRecord, HttpRequestRecordKey>(httpRequestRecordNode);
 			apiCaller = new ParallelApiCaller(notificationApiClient);
 		}
 	}
@@ -148,11 +143,10 @@ public class ExceptionHandlingFilter implements Filter {
 	}
 
 	private void recordExceptionAndRequestNotification(HttpServletRequest request, Exception e) {
-		if(persister == null){ return; }
 		try {
 			ExceptionRecord exceptionRecord = new ExceptionRecord(exceptionHandlingConfig.getServerName(),
 					ExceptionUtils.getStackTrace(e));
-			persister.addToQueue(exceptionRecord);
+			exceptionRecordNode.put(exceptionRecord, null);
 			StringBuilder paramString = new StringBuilder("[");
 			for (Entry<String, String[]> param : request.getParameterMap().entrySet()) {
 				paramString.append(param.getKey());
@@ -210,7 +204,7 @@ public class ExceptionHandlingFilter implements Filter {
 					cookieString.toString(),
 					"unkown roles"
 					);
-			requestPersister.addToQueue(httpRequestRecord);
+			httpRequestRecordNode.put(httpRequestRecord, null);
 			addNotificationRequestToQueue(request, e, exceptionRecord);
 		} catch (Exception ex) {
 			logger.error("Exception while logging");
