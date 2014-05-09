@@ -8,7 +8,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 import com.hotpads.util.http.client.json.GsonJsonSerializer;
 import com.hotpads.util.http.client.json.JsonSerializer;
-import com.hotpads.util.http.client.security.ApiKeyPredicate;
+import com.hotpads.util.http.client.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.client.security.CsrfValidator;
 import com.hotpads.util.http.client.security.SignatureValidator;
 
@@ -27,7 +27,7 @@ public class HotPadsHttpClientBuilder{
 	private HttpClient customHttpClient;
 	private SignatureValidator signatureValidator;
 	private CsrfValidator csrfValidator;
-	private ApiKeyPredicate apiKeyPredicate;
+	private DefaultApiKeyPredicate apiKeyPredicate;
 	private HotPadsHttpClientConfig config;
 	
 	public HotPadsHttpClient createInstance(){
@@ -102,7 +102,7 @@ public class HotPadsHttpClientBuilder{
 		return this;
 	}
 
-	public HotPadsHttpClientBuilder setApiKeyPredicate(ApiKeyPredicate apiKeyPredicate){
+	public HotPadsHttpClientBuilder setApiKeyPredicate(DefaultApiKeyPredicate apiKeyPredicate){
 		this.apiKeyPredicate = apiKeyPredicate;
 		return this;
 	}

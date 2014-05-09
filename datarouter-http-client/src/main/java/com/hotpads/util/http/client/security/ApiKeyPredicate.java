@@ -1,19 +1,9 @@
 package com.hotpads.util.http.client.security;
 
-public class ApiKeyPredicate{
+public interface ApiKeyPredicate{
 
-	private String apiKey;
+	boolean check(String parameter);
 
-	public ApiKeyPredicate(String apiKey){
-		this.apiKey = apiKey;
-	}
-
-	public boolean check(String apiKeyCandidate){
-		return apiKey.equals(apiKeyCandidate);
-	}
-
-	public String getApiKey(){
-		return apiKey;
-	}
+	String getApiKey();
 
 }
