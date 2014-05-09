@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.ResponseTool;
 import com.hotpads.handler.mav.Mav;
-import com.hotpads.handler.mav.imp.GlobalRedirectMav;
+import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByApiKeyLookup;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUserTokenLookup;
@@ -194,7 +194,7 @@ public class AdminEditUserHandler extends BaseHandler{
 	}
 	
 	private Mav redirectWithContext(String path) {
-		return new GlobalRedirectMav(params.getContextPath() + path);
+		return new InContextRedirectMav(params, path);
 	}
 	
 	private void handleInvalidRequest() {
