@@ -3,7 +3,6 @@ package com.hotpads.datarouter.test;
 import java.util.List;
 
 import com.hotpads.datarouter.client.ClientType;
-import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
