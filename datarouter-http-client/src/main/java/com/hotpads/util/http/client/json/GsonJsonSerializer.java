@@ -1,5 +1,7 @@
 package com.hotpads.util.http.client.json;
 
+import java.lang.reflect.Type;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
@@ -10,6 +12,10 @@ public class GsonJsonSerializer implements JsonSerializer{
 	public GsonJsonSerializer(){
 		gson = new Gson();
 	}
+	
+	public GsonJsonSerializer(Gson gson){
+		this.gson = gson;
+	}
 
 	@Override
 	public <T> String serialize(T toSerialize){
@@ -17,7 +23,7 @@ public class GsonJsonSerializer implements JsonSerializer{
 	}
 
 	@Override
-	public <T> T deserialize(String toDeserialize, Class<T> classOfT) throws JsonSyntaxException {
+	public <T> T deserialize(String toDeserialize, Type classOfT){
 		return gson.fromJson(toDeserialize, classOfT);
 	}
 }
