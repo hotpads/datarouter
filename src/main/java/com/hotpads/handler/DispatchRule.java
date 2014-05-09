@@ -63,6 +63,22 @@ public class DispatchRule{
 		return handlerClass;
 	}
 	
+	public boolean hasApiKey(){
+		return apiKeyPredicate != null;
+	}
+	
+	public boolean hasCsrfToken(){
+		return csrfValidator != null;
+	}
+	
+	public boolean hasSignature(){
+		return signatureValidator != null;
+	}
+	
+	public boolean hasHttps(){
+		return requireHttps;
+	}
+	
 	private boolean checkApiKey(HttpServletRequest request){
 		boolean result = apiKeyPredicate == null || apiKeyPredicate.check(request.getParameter(SecurityParameters.API_KEY));
 		if(!result)
