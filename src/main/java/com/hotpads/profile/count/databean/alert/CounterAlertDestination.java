@@ -1,5 +1,6 @@
 package com.hotpads.profile.count.databean.alert;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
+import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
@@ -27,6 +29,8 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 	/********************* fields ***********************************/
 	@Id
 	private CounterAlertDestinationKey key;	
+	private Long alertFrequencySecond;
+	private Date lastNoticeDate;
 	
 	/******************* constructors *****************************************/
 	CounterAlertDestination(){
@@ -38,7 +42,10 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 	}
 	
 	public static class F{
-		public static final String key = "key";
+		public static final String 
+		key = "key",
+		alertFrequencySecond = "alertFrequencySecond",
+		lastNoticeDate = "lastNoticeDate";
 	}
 	
 	@Override
@@ -66,8 +73,12 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(CounterAlertDestination databean){
-			return FieldTool.createList();
+		public List<Field<?>> getNonKeyFields(CounterAlertDestination d){
+			List<Field<?>> fields = FieldTool.createList(
+					new LongField(F.alertFrequencySecond, d.alertFrequencySecond), 
+					new DateField(F.lastNoticeDate, d.lastNoticeDate)				
+					);
+			return fields;		
 		}
 		
 		@Override
@@ -102,6 +113,22 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 		public List<Field<?>> getFields(){
 			return FieldTool.createList( new LongField(CounterAlertDestinationKey.F.counterAlertId, counterAlertId));
 		}
+	}
+
+	public Long getAlertFrequencySecond(){
+		return alertFrequencySecond;
+	}
+
+	public void setAlertFrequencySecond(Long alertFrequencySecond){
+		this.alertFrequencySecond = alertFrequencySecond;
+	}
+
+	public Date getLastNoticeDate(){
+		return lastNoticeDate;
+	}
+
+	public void setLastNoticeDate(Date lastNoticeDate){
+		this.lastNoticeDate = lastNoticeDate;
 	}
 	
 }

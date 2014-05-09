@@ -151,6 +151,10 @@ implements Serializable {
 				rolesNullSafe.contains(DatarouterUserRole.admin);
 	}
 	
+	public boolean isApiUser() {
+		return getRoles().contains(DatarouterUserRole.apiUser);
+	}
+	
 	
 	/*********************** get/set ************************************/
 	
