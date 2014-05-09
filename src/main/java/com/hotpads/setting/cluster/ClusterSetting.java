@@ -9,7 +9,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 
-@SuppressWarnings("serial")
 public class ClusterSetting
 extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 
