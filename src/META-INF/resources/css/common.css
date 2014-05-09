@@ -208,6 +208,11 @@ select.setting-type {
 .titeled-btn-toolbar {
 	font-size: 1em;
 }
+.background-btn-toolbar {
+	background-color: #f5f5f5;
+	padding: 10px 15px;
+	border-radius: 4px;
+}
 .small-divider>li>.divider {
 	padding: 0;
 }

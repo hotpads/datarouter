@@ -37,7 +37,7 @@
 		<a href="?" class="btn btn-primary">&rarr; All settings</a>
 		<h2 class="page-header">Cluster Settings Browser</h2>
 		<c:if test="${!roots.isEmpty()}">
-			<div class="btn-toolbar titeled-btn-toolbar">
+			<div class="btn-toolbar titeled-btn-toolbar background-btn-toolbar">
 				Project :
 				<div class="btn-group">
 					<c:forEach items="${roots}" var="root">		
@@ -57,7 +57,6 @@
 				</div>
 			</div>
 		</c:if>
-		<br>
 		<ul class="breadcrumb small-divider">
 			<c:forEach items="${ancestors}" var="ancestor">	
 				<c:choose>
