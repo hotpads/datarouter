@@ -40,7 +40,7 @@ function showCreateForm(link) {
 		<c:if test="${!roots.isEmpty()}">
 			<div class="btn-toolbar">
 				<div class="btn-group">
-					<c:forEach items="${roots}" var="root">		
+					<c:forEach items="${roots}" var="root">
 						<a class="btn" href="?submitAction=browseSettings&name=${root.getName()}">${root.getName()}</a>
 					</c:forEach>
 				</div>	

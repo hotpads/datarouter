@@ -22,12 +22,6 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 
-/*
- * currently implements queuing functionality by wrapping each call into a "Callable" and 
- *  putting it into the ExecutorService's queue.  
- *  
- * a more efficient version might batch writes together, requiring a customized queuing system
- */
 public class WriteBehindMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
@@ -44,7 +38,7 @@ implements MapStorageWriter<PK,D>{
 		this.node = node;
 		this.queue = new LinkedBlockingDeque<PutWrapper<PK, D>>();
 		this.flushScheduler = Executors.newScheduledThreadPool(1);
-		this.flushScheduler.scheduleWithFixedDelay(new Flusher(), 1000, 1000, TimeUnit.MILLISECONDS);
+		this.flushScheduler.scheduleWithFixedDelay(new Flusher(), 500, 500, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
