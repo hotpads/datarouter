@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.hotpads.setting.cluster;
 
 import java.util.List;

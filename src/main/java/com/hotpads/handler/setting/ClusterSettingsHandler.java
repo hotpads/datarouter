@@ -13,7 +13,7 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.setting.DatarouterServerType;
 import com.hotpads.setting.Setting;
 import com.hotpads.setting.cluster.ClusterSetting;
-import com.hotpads.setting.cluster.ClusterSettingFinder.clusterSettingNode;
+import com.hotpads.setting.cluster.ClusterSettingFinder.ClusterSettingNode;
 import com.hotpads.setting.cluster.ClusterSettingKey;
 import com.hotpads.setting.cluster.ClusterSettingScope;
 import com.hotpads.setting.cluster.SettingNode;
@@ -50,7 +50,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 	
 	@Inject
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ClusterSettingsHandler(SettingRoot settingRoot, DatarouterServerType datarouterServerTypeTool, @clusterSettingNode SortedMapStorageNode clusterSettingNode) {
+	public ClusterSettingsHandler(SettingRoot settingRoot, DatarouterServerType datarouterServerTypeTool, @ClusterSettingNode SortedMapStorageNode clusterSettingNode) {
 		this.settingRoot = settingRoot;
 		this.datarouterServerTypeTool = datarouterServerTypeTool;
 		this.clusterSettingNode = clusterSettingNode;
