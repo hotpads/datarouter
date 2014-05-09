@@ -110,9 +110,10 @@ extends BaseHibernateOp<Void>{
 			}
 		}else if(PutMethod.MERGE == putMethod){
 			session.merge(entityName, databean);
+		}else if(PutMethod.INSERT_ON_DUPLICATE_UPDATE == putMethod){
+			session.saveOrUpdate(entityName, databean);
 		}else{
 			session.saveOrUpdate(entityName, databean);
 		}
 	}
-	
 }

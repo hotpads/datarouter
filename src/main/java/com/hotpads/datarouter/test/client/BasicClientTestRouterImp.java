@@ -14,6 +14,9 @@ import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.client.insert.PutOpTestBean;
+import com.hotpads.datarouter.test.client.insert.PutOpTestBean.PutOpTestBeanFielder;
+import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean.PoolTestBeanFielder;
 import com.hotpads.datarouter.test.client.pool.PoolTestBeanKey;
@@ -40,6 +43,8 @@ implements BasicClientTestRouter{
 
 	private MapStorage<PoolTestBeanKey,PoolTestBean> poolTestBeanHBase;
 
+	private MapStorage<PutOpTestBeanKey, PutOpTestBean> putOptTest;
+
 	/********************************* constructor *****************************/
 
 	@Inject
@@ -58,6 +63,9 @@ implements BasicClientTestRouter{
 
 		poolTestBeanHBase = cast(register(
 				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, PoolTestBean.class, PoolTestBeanFielder.class, this)));
+		
+		putOptTest = cast(register(
+				NodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, PutOpTestBean.class, PutOpTestBeanFielder.class, this)));
 
 		registerWithContext();//do after field inits
 	}
@@ -106,6 +114,11 @@ implements BasicClientTestRouter{
 	@Override
 	public MapStorage<PoolTestBeanKey,PoolTestBean> poolTestBeanHBase(){
 		return poolTestBeanHBase;
+	}
+
+	@Override
+	public MapStorage<PutOpTestBeanKey, PutOpTestBean> putOptTest(){
+		return putOptTest;
 	}
 }
 

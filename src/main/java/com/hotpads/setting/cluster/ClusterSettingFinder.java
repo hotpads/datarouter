@@ -29,7 +29,7 @@ public class ClusterSettingFinder {
 	@BindingAnnotation 
 	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD }) 
 	@Retention(RetentionPolicy.RUNTIME)
-	public @interface clusterSettingNode {}
+	public @interface ClusterSettingNode {}
 
 	protected static Logger logger = Logger.getLogger(ClusterSettingFinder.class);
 
@@ -42,7 +42,7 @@ public class ClusterSettingFinder {
 
 	@Inject
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public ClusterSettingFinder(ClusterSettingFinderConfig clusterSettingFinderConfig, DatarouterServerType datarouterServerTypeTool ,@clusterSettingNode SortedMapStorageNode clusterSetting) {
+	public ClusterSettingFinder(ClusterSettingFinderConfig clusterSettingFinderConfig, DatarouterServerType datarouterServerTypeTool ,@ClusterSettingNode SortedMapStorageNode clusterSetting) {
 		this.clusterSettingFinderConfig = clusterSettingFinderConfig;
 		this.datarouterServerTypeTool = datarouterServerTypeTool;
 		this.clusterSetting = clusterSetting;

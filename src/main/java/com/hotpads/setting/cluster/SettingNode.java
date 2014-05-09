@@ -102,8 +102,7 @@ public abstract class SettingNode {
 	
 	public String getShortName(){
 		String shortName = getName().substring(getParentName().length());
-		shortName = shortName.substring(0, shortName.length()-1);
-		return shortName;
+		return shortName.substring(0, shortName.length()-1);
 	}
 	
 	

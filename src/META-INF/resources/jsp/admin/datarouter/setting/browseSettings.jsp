@@ -6,47 +6,58 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Hotpads : Cluster settings</title>
-<%@ include file="/jsp/css/css-import.jspf" %>
-<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<script type="text/javascript">
- 		require(["bootstrap/bootstrap"], function($) {});
-</script>
-<script type="text/javascript">
-function stayFocus(object){
-	setTimeout(function(){object.form.instance.focus();},10);
-}
-function showCreateForm(link) {
-	var name = link.id.substring(5);
-	$(link).hide();
-	$('#type_' + name).show();
-	$('#inst_' + name).show();
-	$('#appl_' + name).show();
-	$('#valu_' + name).show();
-	$('#acti_' + name).show();
-	document.getElementById('inst_' + hash).parentNode.parentNode.removeAttribute('class');
-}
-</script>	
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Hotpads : Cluster settings</title>
+	<%@ include file="/jsp/css/css-import.jspf" %>
+	<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script type="text/javascript">
+	 		require(["bootstrap/bootstrap"], function($) {});
+	</script>
+	<script type="text/javascript">
+	function stayFocus(object){
+		setTimeout(function(){object.form.instance.focus();},10);
+	}
+	function showCreateForm(link) {
+		var name = link.id.substring(5);
+		$(link).hide();
+		$('#type_' + name).show();
+		$('#inst_' + name).show();
+		$('#appl_' + name).show();
+		$('#valu_' + name).show();
+		$('#acti_' + name).show();
+		document.getElementById('inst_' + hash).parentNode.parentNode.removeAttribute('class');
+	}
+	</script>	
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
 		<a href="?" class="btn btn-primary">&rarr; All settings</a>
-		<br>
 		<h2 class="page-header">Cluster Settings Browser</h2>
 		<c:if test="${!roots.isEmpty()}">
-			<div class="btn-toolbar">
+			<div class="btn-toolbar titeled-btn-toolbar background-btn-toolbar">
+				Project :
 				<div class="btn-group">
 					<c:forEach items="${roots}" var="root">		
-						<a class="btn" href="?submitAction=browseSettings&name=${root.getName()}">${root.getName()}</a>
+						<a
+							<c:choose>
+								<c:when test="${root.getShortName() == currentRootName}">
+									class="btn active"
+								</c:when>
+								<c:otherwise>
+									class="btn"
+								</c:otherwise>
+							</c:choose>
+							href="?submitAction=browseSettings&name=${root.getName()}">
+							${root.getShortName()}
+						</a>
 					</c:forEach>
-				</div>	
+				</div>
 			</div>
 		</c:if>
-		<ul class="breadcrumb">
+		<ul class="breadcrumb small-divider">
 			<c:forEach items="${ancestors}" var="ancestor">	
 				<c:choose>
 					<c:when test="${node.getName().equals(ancestor.getName())}">
@@ -71,7 +82,7 @@ function showCreateForm(link) {
 			</div>
 		</c:if>
 		<c:if test="${!listSettings.isEmpty()}">
-			<table class="table table-condensed center-header">
+			<table class="table table-condensed center-header setting-table">
 				<tr>
 					<th rowspan="2">Name</th>
 					<th colspan="6">Custom values</th>

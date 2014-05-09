@@ -13,7 +13,7 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.setting.DatarouterServerType;
 import com.hotpads.setting.Setting;
 import com.hotpads.setting.cluster.ClusterSetting;
-import com.hotpads.setting.cluster.ClusterSettingFinder.clusterSettingNode;
+import com.hotpads.setting.cluster.ClusterSettingFinder.ClusterSettingNode;
 import com.hotpads.setting.cluster.ClusterSettingKey;
 import com.hotpads.setting.cluster.ClusterSettingScope;
 import com.hotpads.setting.cluster.SettingNode;
@@ -38,6 +38,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		V_mapListsCustomSettings = "mapListsCustomSettings",
 		V_nodeName = "nodeName",
 		V_roots = "roots",
+		V_currentRootName = "currentRootName",
 		
 		URL_settings = DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING,
 		URL_modify = DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING + "?submitAction=browseSettings&name=",
@@ -50,7 +51,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 	
 	@Inject
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ClusterSettingsHandler(SettingRoot settingRoot, DatarouterServerType datarouterServerTypeTool, @clusterSettingNode SortedMapStorageNode clusterSettingNode) {
+	public ClusterSettingsHandler(SettingRoot settingRoot, DatarouterServerType datarouterServerTypeTool, @ClusterSettingNode SortedMapStorageNode clusterSettingNode) {
 		this.settingRoot = settingRoot;
 		this.datarouterServerTypeTool = datarouterServerTypeTool;
 		this.clusterSettingNode = clusterSettingNode;
@@ -132,16 +133,16 @@ public class ClusterSettingsHandler extends BaseHandler {
 		mav.put(V_node, node);
 		mav.put(V_ancestors, settingRoot.getDescendanceByName(nodeName));
 		mav.put(V_children, node.getListChildren());
-		ArrayList<Setting<?>> settingsList = (ArrayList<Setting<?>>)node
-				.getListSettings();
+		ArrayList<Setting<?>> settingsList = (ArrayList<Setting<?>>)node.getListSettings();
 		Map<String,List<ClusterSetting>> mapListsCustom = MapTool.createHashMap();
 		for(Setting<?> setting : settingsList){
 			ClusterSettingKey settingKey = new ClusterSettingKey(setting.getName(), null, null, null, null);
-			List<ClusterSetting> clusterSettings = clusterSettingNode.getWithPrefix(settingKey, true, null);
+			List<ClusterSetting> clusterSettings = clusterSettingNode.getWithPrefix(settingKey, false, null);
 			mapListsCustom.put(setting.getName(), clusterSettings);
 		}
 		mav.put(V_listSettings, settingsList);
 		mav.put(V_mapListsCustomSettings, mapListsCustom);
+		mav.put(V_currentRootName, node.getName().substring(0, node.getName().indexOf('.')));
 		mav.put(V_roots, settingRoot.getRootNodes());
 		mav.put("serverTypeOptions", datarouterServerTypeTool.getHTMLSelectOptionsVarNames());
 		return mav;
