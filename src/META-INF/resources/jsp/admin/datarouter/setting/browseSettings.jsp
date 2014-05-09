@@ -2,43 +2,62 @@
 <%@page import="com.hotpads.setting.cluster.ClusterSettingScope"%>
 <%@ include file="/WEB-INF/prelude.jspf"%>
 <%@ include file="../../../generic/prelude-datarouter.jspf"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Hotpads : Cluster settings</title>
-<%@ include file="/jsp/css/css-import.jspf" %>
-<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<script type="text/javascript">
- 		require(["bootstrap/bootstrap"], function($) {});
-</script>
-<script type="text/javascript">
-function stayFocus(object){
-	setTimeout(function(){object.form.instance.focus();},10);
-}
-function showCreateForm(link) {
-	var hash = link.id.substring(5);
-	$(link).hide();
-	$('#type_' + hash).show();
-	$('#inst_' + hash).show();
-	$('#appl_' + hash).show();
-	$('#valu_' + hash).show();
-	$('#acti_' + hash).show();
-	document.getElementById('inst_' + hash).parentNode.parentNode.removeAttribute('class');
-}
-</script>	
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Hotpads : Cluster settings</title>
+	<%@ include file="/jsp/css/css-import.jspf" %>
+	<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script type="text/javascript">
+	 		require(["bootstrap/bootstrap"], function($) {});
+	</script>
+	<script type="text/javascript">
+	function stayFocus(object){
+		setTimeout(function(){object.form.instance.focus();},10);
+	}
+	function showCreateForm(link) {
+		var name = link.id.substring(5);
+		$(link).hide();
+		$('#type_' + name).show();
+		$('#inst_' + name).show();
+		$('#appl_' + name).show();
+		$('#valu_' + name).show();
+		$('#acti_' + name).show();
+		document.getElementById('inst_' + hash).parentNode.parentNode.removeAttribute('class');
+	}
+	</script>	
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
-		<a href="?" class="btn btn-primary">&rarr; All settings</a><br/>
-		<br>
+		<a href="?" class="btn btn-primary">&rarr; All settings</a>
 		<h2 class="page-header">Cluster Settings Browser</h2>
-		<ul class="breadcrumb">
+		<c:if test="${!roots.isEmpty()}">
+			<div class="btn-toolbar titeled-btn-toolbar background-btn-toolbar">
+				Project :
+				<div class="btn-group">
+					<c:forEach items="${roots}" var="root">		
+						<a
+							<c:choose>
+								<c:when test="${root.getShortName() == currentRootName}">
+									class="btn active"
+								</c:when>
+								<c:otherwise>
+									class="btn"
+								</c:otherwise>
+							</c:choose>
+							href="?submitAction=browseSettings&name=${root.getName()}">
+							${root.getShortName()}
+						</a>
+					</c:forEach>
+				</div>
+			</div>
+		</c:if>
+		<ul class="breadcrumb small-divider">
 			<c:forEach items="${ancestors}" var="ancestor">	
 				<c:choose>
 					<c:when test="${node.getName().equals(ancestor.getName())}">
@@ -63,7 +82,7 @@ function showCreateForm(link) {
 			</div>
 		</c:if>
 		<c:if test="${!listSettings.isEmpty()}">
-			<table class="table table-condensed center-header">
+			<table class="table table-condensed center-header setting-table">
 				<tr>
 					<th rowspan="2">Name</th>
 					<th colspan="6">Custom values</th>
@@ -85,14 +104,7 @@ function showCreateForm(link) {
 						>
 						<c:set var="customSettings" value="${mapListsCustomSettings.get(setting.getName())}"></c:set>
 						<td rowspan="${customSettings.size() + 2}" id="${fn:replace(setting.getName(), '.', '_')}">
-							<c:choose>
-								<c:when test="${setting.getHasCustomValue()}">
-									<a href=?submitAction=detailSetting&name=${setting.getName()}>${setting.getName()}</a>
-								</c:when>
-								<c:otherwise>
-									${setting.getName()}
-								</c:otherwise>
-							</c:choose>
+							${setting.getName()}
 						</td>
 						<td colspan="5">
 							<span style="margin: 0 20px">
@@ -104,7 +116,7 @@ function showCreateForm(link) {
 							</span>
 						</td>
 						<td class="center">
-							<a id="link_${setting.hashCode()}" onclick="showCreateForm(this)">add</a>
+							<a id="link_${fn:replace(setting.getName(), '.', '_')}" onclick="showCreateForm(this)">add</a>
 						</td>
 					</tr>
 					<c:forEach var="customSetting" items="${customSettings}">
@@ -116,7 +128,7 @@ function showCreateForm(link) {
 								<input type="hidden" name="serverType" value="${customSetting.serverType}">
 								<input type="hidden" name="instance" value="${customSetting.instance}">
 								<input type="hidden" name="application" value="${customSetting.application}">
-							<td>${customSetting.scope}</td>
+								<td>${customSetting.scope}</td>
 								<td>${customSetting.serverType}</td>
 								<td>${customSetting.instance}</td>
 								<td>${customSetting.application}</td>
@@ -147,24 +159,24 @@ function showCreateForm(link) {
 							<input type="hidden" name="name" value="${setting.getName()}">
 							<td/>
 							<td>
-								<select	name="serverType" id="type_${setting.hashCode()}" style="display: none;" class="setting-type input-small" required>
-									<option disabled selected>Type</option>
+								<select	name="serverType" id="type_${fn:replace(setting.getName(), '.', '_')}" style="display: none;" class="setting-type input-small" required>
+									<option value="" disabled selected>Type</option>
 									<c:forEach items="${serverTypeOptions}" var="serverTypeOption">
 										<option value="${serverTypeOption.value}">${serverTypeOption.name}</option>
 									</c:forEach>
 								</select>
 							</td>
 							<td>
-									<input id="inst_${setting.hashCode()}" style="display: none;" class="input-small" name="instance" placeholder="Instance">
+									<input id="inst_${fn:replace(setting.getName(), '.', '_')}" style="display: none;" class="input-small" name="instance" placeholder="Instance">
 							</td>
 							<td>
-									<input id="appl_${setting.hashCode()}" style="display: none;" class="input-small" name="application" placeholder="Application">
+									<input id="appl_${fn:replace(setting.getName(), '.', '_')}" style="display: none;" class="input-small" name="application" placeholder="Application">
 							</td>
 							<td>
-									<input id="valu_${setting.hashCode()}" style="display: none;" class="input-mini" name="value" placeholder="Value" required>
+									<input id="valu_${fn:replace(setting.getName(), '.', '_')}" style="display: none;" class="input-mini" name="value" placeholder="Value" required>
 							</td>
 							<td class="center">
-									<input type="submit" id="acti_${setting.hashCode()}" class="btn btn-mini btn-warning" style="display: none;" name="submitAction" value="create">
+									<input type="submit" id="acti_${fn:replace(setting.getName(), '.', '_')}" class="btn btn-mini btn-warning" style="display: none;" name="submitAction" value="create">
 							</td>
 						</form>
 					</tr>

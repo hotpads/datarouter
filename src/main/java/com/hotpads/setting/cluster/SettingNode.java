@@ -43,7 +43,7 @@ public abstract class SettingNode {
 		return setting;
 	}
 	
-	public SettingNode getDescendantByName(String nameParam){
+	public SettingNode getNodeByName(String nameParam){
 		if(getName().equals(nameParam)){
 			return this;
 		}
@@ -54,7 +54,7 @@ public abstract class SettingNode {
 		int index = nextChildShortName.indexOf('.');
 		String nextChildPath = getName()+nextChildShortName.substring(0, index+1);
 		if(getChildren().containsKey(nextChildPath)){
-			return getChildren().get(nextChildPath).getDescendantByName(nameParam);
+			return getChildren().get(nextChildPath).getNodeByName(nameParam);
 		}
 		return null;
 	}
@@ -102,8 +102,7 @@ public abstract class SettingNode {
 	
 	public String getShortName(){
 		String shortName = getName().substring(getParentName().length());
-		shortName = shortName.substring(0, shortName.length()-1);
-		return shortName;
+		return shortName.substring(0, shortName.length()-1);
 	}
 	
 	
