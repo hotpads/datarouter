@@ -32,6 +32,7 @@ import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
+import com.hotpads.setting.NotificationSettings;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.exception.http.HttpException;
 import com.hotpads.util.core.exception.http.imp.Http500InternalServerErrorException;
@@ -48,11 +49,12 @@ public class ExceptionHandlingFilter implements Filter {
 	public static final String PARAM_RECORD_NODE = "recordNode";
 	public static final String EXCEPTION_HANDLING_CONFIG = "exceptionHandlingConfig";
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
+	public static final String NOTIFICATION_SETTINGS = "notificationSettings";
 
-	private static final String SERVER_EXCEPTION_NOTIFICATION_TYPE = "com.hotpads.notification.type.ServerExceptionNotificationType";
 	private static final String ERROR = "/error";
-	private static final boolean NOTIFICATION_ENABLED = true; //TODO only for dev
 
+	@Inject
+	private NotificationSettings notificationSettings;
 	@Inject
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
@@ -68,8 +70,12 @@ public class ExceptionHandlingFilter implements Filter {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-		if (NOTIFICATION_ENABLED) {
-			ServletContext sc = filterConfig.getServletContext();
+		ServletContext sc = null;
+		if (notificationSettings == null) {
+			sc = filterConfig.getServletContext();
+			notificationSettings = (NotificationSettings) sc.getAttribute(NOTIFICATION_SETTINGS);
+		}
+		if (notificationSettings.getExceptionHandling().getValue()) {
 			if (exceptionRecordNode != null) {
 				persister = new ExceptionRecordPersister(exceptionRecordNode);
 				apiCaller = new ParallelApiCaller(notificationApiClient);
@@ -95,7 +101,7 @@ public class ExceptionHandlingFilter implements Filter {
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
 
-			if(NOTIFICATION_ENABLED){
+			if(notificationSettings.getExceptionHandling().getValue()){
 				logger.warn(ExceptionTool.getStackTraceAsString(e));
 				writeExceptionToResponseWriter(response, e, request);
 				if(exceptionHandlingConfig.shouldPersistExceptionRecords(request, e)) {
@@ -150,7 +156,7 @@ public class ExceptionHandlingFilter implements Filter {
 					new NotificationUserId(
 							NotificationUserType.EMAIL,
 							exceptionHandlingConfig.getRecipientEmail()),
-							SERVER_EXCEPTION_NOTIFICATION_TYPE,
+							exceptionHandlingConfig.getNotificationType(),
 							exceptionRecord.getKey().getId(),
 							exception.getClass().getName()));
 		}
