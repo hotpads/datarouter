@@ -83,7 +83,7 @@ public class ExceptionHandlingFilter implements Filter {
 				exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute(PARAM_RECORD_NODE);
 				persister = new ExceptionRecordPersister(exceptionRecordNode);
 				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(EXCEPTION_HANDLING_CONFIG);
-				notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig);
+				notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig, notificationSettings);
 				apiCaller = new ParallelApiCaller(notificationApiClient);
 			}
 		}
