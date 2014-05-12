@@ -33,7 +33,7 @@ public class NotificationApiClient {
 	@Inject
 	public NotificationApiClient(NotificationRequestDtoTool dtoTool, ExceptionHandlingConfig exceptionHandlingConfig, NotificationSettings settings) {
 		CloseableHttpClient httpClient;
-		if (settings.getSslIgnored().getValue()) {
+		if (settings.getIgnoreSsl().getValue()) {
 			try{
 				SSLContextBuilder builder = new SSLContextBuilder();
 				builder.loadTrustMaterial(null, new TrustStrategy(){

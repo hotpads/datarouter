@@ -14,7 +14,7 @@ public class NotificationSettings extends SettingNode {
 	private Setting<String> apiEndPoint;
 	private Setting<Boolean> forceHideStackTrace;
 	private Setting<Boolean> exceptionHandling;
-	private Setting<Boolean> sslIgnored;
+	private Setting<Boolean> ignoreSsl;
 
 	@Inject
 	public NotificationSettings(ClusterSettingFinder finder) {
@@ -23,10 +23,10 @@ public class NotificationSettings extends SettingNode {
 	}
 
 	private void register() {
-		apiEndPoint = register(new StringCachedSetting(finder, "apiEndPoint", "https://localhost:8443/job/api/notification"));
-		forceHideStackTrace = register(new BooleanCachedSetting(finder, "forceHideStackTrace", false));
-		exceptionHandling = register(new BooleanCachedSetting(finder, "exceptionHandling", false));
-		sslIgnored = register(new BooleanCachedSetting(finder, "sslIgnored", false));
+		apiEndPoint = register(new StringCachedSetting(finder, getName() + "apiEndPoint", "https://localhost:8443/job/api/notification"));
+		forceHideStackTrace = register(new BooleanCachedSetting(finder, getName() + "forceHideStackTrace", false));
+		exceptionHandling = register(new BooleanCachedSetting(finder, getName() + "exceptionHandling", false));
+		ignoreSsl = register(new BooleanCachedSetting(finder, getName() + "ignoreSsl", false));
 	}
 
 	public Setting<String> getApiEndPoint() {
@@ -41,7 +41,7 @@ public class NotificationSettings extends SettingNode {
 		return exceptionHandling;
 	}
 
-	public Setting<Boolean> getSslIgnored() {
-		return sslIgnored;
+	public Setting<Boolean> getIgnoreSsl() {
+		return ignoreSsl;
 	}
 }
