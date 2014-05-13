@@ -30,10 +30,16 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	private String methodName;
 	private int lineNumber;
 
-	private String urlRequested;
 	private String httpMethod;
 	private String httpParams;
-
+	
+	private String protocol;
+	private String hostname;
+	private int port;
+	private String contextPath;
+	private String path;
+	private String queryString;
+	
 	private String ip;
 	private String userAgent;
 	private boolean fromAjax;
@@ -49,11 +55,17 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 			exceptionRecordId = "exceptionRecordId",
 			exceptionPlace = "exceptionPlace",
 			methodName = "methodName",
-			lineNumber="lineNumber",
+			lineNumber = "lineNumber",
 
-			urlRequested="urlRequested",
-			httpMethod="httpMethod",
-			httpParams="httpParams",
+			httpMethod = "httpMethod",
+			httpParams = "httpParams",
+			
+			protocolString = "protocol",
+			hostname = "hostname",
+			port = "port",
+			contextPath = "contextPath",
+			path = "path",
+			queryString = "queryString",
 
 			ip="ip",
 			userAgent="userAgent",
@@ -82,9 +94,15 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 					new StringField(F.methodName, d.methodName, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new IntegerField(F.lineNumber, d.lineNumber),
 
-					new StringField(F.urlRequested, d.urlRequested, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
 					new StringField(F.httpMethod, d.httpMethod, 16),
 					new StringField(F.httpParams, d.httpParams, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
+					
+					new StringField(F.protocolString, d.protocol, 10),
+					new StringField(F.hostname, d.hostname, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new IntegerField(F.port, d.port),
+					new StringField(F.contextPath, d.contextPath, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.path, d.path, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.queryString, d.queryString, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
 
 					new StringField(F.ip, d.ip, 39),
 					new StringField(F.userAgent, d.userAgent, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
@@ -104,17 +122,23 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	}
 
 	public HttpRequestRecord(String exceptionRecordId, String exceptionPlace, String methodName, int lineNumber,
-			String urlRequested, String httpMethod, String httpParams, String ip, String userAgent, boolean fromAjax,
-			String httpReferer, String cookies, String sessionRoles) {
+			String httpMethod, String httpParams, String protocol, String hostname, int port, String contextPath,
+			String path, String queryString, String ip, String userAgent, boolean fromAjax, String httpReferer,
+			String cookies, String sessionRoles) {
 		this.key = new HttpRequestRecordKey(UuidTool.generateUuid());
 		this.created = new Date();
 		this.exceptionRecordId = exceptionRecordId;
 		this.exceptionPlace = exceptionPlace;
 		this.methodName = methodName;
 		this.lineNumber = lineNumber;
-		this.urlRequested = urlRequested;
 		this.httpMethod = httpMethod;
 		this.httpParams = httpParams;
+		this.protocol = protocol;
+		this.hostname = hostname;
+		this.port = port;
+		this.contextPath = contextPath;
+		this.path = path;
+		this.queryString = queryString;
 		this.ip = ip;
 		this.userAgent = userAgent;
 		this.fromAjax = fromAjax;
@@ -122,7 +146,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.cookies = cookies;
 		this.sessionRoles = sessionRoles;
 	}
-	
+
 	@Override
 	public Class<HttpRequestRecordKey> getKeyClass() {
 		return HttpRequestRecordKey.class;
@@ -197,14 +221,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.lineNumber = lineNumber;
 	}
 
-	public String getUrlRequested() {
-		return urlRequested;
-	}
-
-	public void setUrlRequested(String urlRequested) {
-		this.urlRequested = urlRequested;
-	}
-
 	public String getHttpMethod() {
 		return httpMethod;
 	}
@@ -219,6 +235,54 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	public void setHttpParams(String httpParams) {
 		this.httpParams = httpParams;
+	}
+
+	public String getProtocol() {
+		return protocol;
+	}
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
+
+	public String getHostname() {
+		return hostname;
+	}
+
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public String getContextPath() {
+		return contextPath;
+	}
+
+	public void setContextPath(String contextPath) {
+		this.contextPath = contextPath;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public String getQueryString() {
+		return queryString;
+	}
+
+	public void setQueryString(String queryString) {
+		this.queryString = queryString;
 	}
 
 	public String getIp() {
