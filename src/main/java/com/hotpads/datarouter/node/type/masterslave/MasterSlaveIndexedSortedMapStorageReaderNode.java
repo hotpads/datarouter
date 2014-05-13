@@ -13,7 +13,6 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
-
 public class MasterSlaveIndexedSortedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
