@@ -60,9 +60,9 @@ public class ExceptionHandlingFilter implements Filter {
 	public static final String ATTRIBUTE_EXCEPTION_RECORD_NODE = "exceptionRecordNode";
 	public static final String ATTRIBUTE_REQUEST_RECORD_NODE = "requestRecordNode";
 	public static final String ATTRIBUTE_EXCEPTION_HANDLING_CONFIG = "exceptionHandlingConfig";
+	public static final String ATTRIBUTE_NOTIFICATION_SETTINGS = "notificationSettings";
 	
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
-	public static final String NOTIFICATION_SETTINGS = "notificationSettings";
 
 	private static final String ERROR = "/error";
 
@@ -90,6 +90,7 @@ public class ExceptionHandlingFilter implements Filter {
 			ServletContext sc = filterConfig.getServletContext();
 			exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute(ATTRIBUTE_EXCEPTION_RECORD_NODE);
 			httpRequestRecordNode = (MapStorageNode<HttpRequestRecordKey, HttpRequestRecord>) sc.getAttribute(ATTRIBUTE_REQUEST_RECORD_NODE);
+			notificationSettings = (NotificationSettings) sc.getAttribute(ATTRIBUTE_NOTIFICATION_SETTINGS);
 			exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
 			notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig, notificationSettings);
 		}
