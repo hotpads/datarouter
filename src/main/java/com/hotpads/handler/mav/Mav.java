@@ -18,6 +18,7 @@ public class Mav {
 	protected String contentType = "text/html";
 	protected Map<String,Object> model = new HashMap<String,Object>();
 	protected String globalRedirectUrl;
+	protected int statusCode = 200;
 	
 	/********************** constructors ****************************************/
 	
@@ -159,6 +160,14 @@ public class Mav {
 
 	public void setContentType(String contentType){
 		this.contentType = contentType;
+	}
+
+	public int getStatusCode() {
+		return statusCode;
+	}
+
+	public void setStatusCode(int statusCode) {
+		this.statusCode = statusCode;
 	}
 	
 	

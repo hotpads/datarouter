@@ -16,12 +16,12 @@ public class JsonMav extends Mav{
 	
 	public JsonMav(String data){
 		super(JSP_PATH);
-		addObject(VAR_NAME, data);
+		put(VAR_NAME, data);
 	}
 	
 	public JsonMav(JSON json){
 		super(JSP_PATH);
-		addObject(VAR_NAME, json.toString());
+		put(VAR_NAME, json.toString());
 	}
 	
 }
