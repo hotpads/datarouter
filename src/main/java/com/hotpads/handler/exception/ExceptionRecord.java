@@ -7,11 +7,13 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
+import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.util.UuidTool;
+import com.hotpads.util.core.ClassTool;
 /**
  * The record of an Exception
  */
@@ -116,4 +118,10 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 		return "ExceptionRecord(" + key + ", " + created + ", " + serverName + ", stackTrace(" + stackTrace.length() + "))";
 	}
 
+	@Override
+	public int compareTo(Databean<?, ?> that) {
+		int diff = ClassTool.compareClass(this, that);
+		if(diff != 0){ return diff; }
+		return created.compareTo(((ExceptionRecord)that).getCreated());
+	}
 }

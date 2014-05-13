@@ -13,7 +13,10 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
+import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.key.unique.BaseUniqueKey;
 import com.hotpads.datarouter.util.UuidTool;
+import com.hotpads.handler.exception.ExceptionRecord;
 
 public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRequestRecord>{
 
@@ -123,6 +126,24 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	@Override
 	public Class<HttpRequestRecordKey> getKeyClass() {
 		return HttpRequestRecordKey.class;
+	}
+
+	/********************************Lookup*************************************/
+	@SuppressWarnings("serial")
+	public static class HttpRequestRecordByExceptionRecord extends BaseUniqueKey<HttpRequestRecordKey> implements Lookup<HttpRequestRecordKey> {
+
+		private ExceptionRecord exceptionRecord;
+		
+		public HttpRequestRecordByExceptionRecord(ExceptionRecord exceptionRecord) {
+			this.exceptionRecord = exceptionRecord;
+		}
+
+		@Override
+		public List<Field<?>> getFields() {
+			return FieldTool.createList(
+					new StringField(F.exceptionRecordId, exceptionRecord.getKey().getId(), MySqlColumnType.MAX_LENGTH_VARCHAR)
+					);
+		}
 	}
 
 	/*************** getters / setters ******************/
