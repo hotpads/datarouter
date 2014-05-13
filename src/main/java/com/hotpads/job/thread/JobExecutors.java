@@ -32,7 +32,7 @@ public class JobExecutors{
 	
 	public static final ExecutorService 
 		reputationJobExecutor = new ThreadPoolExecutor(5, 5, 0L, TimeUnit.MILLISECONDS,
-				new ArrayBlockingQueue<Runnable>(5));
+				new ArrayBlockingQueue<Runnable>(5), new ThreadPoolExecutor.CallerRunsPolicy());
 	
 	/************************* providers **********************************/
 	
