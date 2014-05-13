@@ -2,6 +2,8 @@ package com.hotpads.handler.exception;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.hotpads.notification.type.NotificationType;
+
 public interface ExceptionHandlingConfig {
 
 	boolean shouldDisplayStackTrace(HttpServletRequest request, Exception exception);
@@ -12,5 +14,6 @@ public interface ExceptionHandlingConfig {
 	String getServerName();
 	String getRecipientEmail();
 	String getNotificationApiEndPoint();
+	Class<? extends NotificationType> getNotificationType();
 
 }
