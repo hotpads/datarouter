@@ -70,22 +70,17 @@ public class ExceptionHandlingFilter implements Filter {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-		ServletContext sc = null;
-		if (notificationSettings == null) {
-			sc = filterConfig.getServletContext();
+		if (exceptionRecordNode != null) {
+			persister = new ExceptionRecordPersister(exceptionRecordNode);
+			apiCaller = new ParallelApiCaller(notificationApiClient);
+		} else {
+			ServletContext sc = filterConfig.getServletContext();
 			notificationSettings = (NotificationSettings) sc.getAttribute(NOTIFICATION_SETTINGS);
-		}
-		if (notificationSettings.getExceptionHandling().getValue()) {
-			if (exceptionRecordNode != null) {
-				persister = new ExceptionRecordPersister(exceptionRecordNode);
-				apiCaller = new ParallelApiCaller(notificationApiClient);
-			} else {
-				exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute(PARAM_RECORD_NODE);
-				persister = new ExceptionRecordPersister(exceptionRecordNode);
-				exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(EXCEPTION_HANDLING_CONFIG);
-				notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig, notificationSettings);
-				apiCaller = new ParallelApiCaller(notificationApiClient);
-			}
+			exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute(PARAM_RECORD_NODE);
+			persister = new ExceptionRecordPersister(exceptionRecordNode);
+			exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(EXCEPTION_HANDLING_CONFIG);
+			notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig, notificationSettings);
+			apiCaller = new ParallelApiCaller(notificationApiClient);
 		}
 	}
 
