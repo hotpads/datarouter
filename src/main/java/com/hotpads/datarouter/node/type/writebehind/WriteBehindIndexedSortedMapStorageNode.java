@@ -20,7 +20,7 @@ public class WriteBehindIndexedSortedMapStorageNode <
 	N extends IndexedSortedMapStorageNode<PK, D>>
 extends WriteBehindIndexedMapStorageReaderNode<PK, D, N>
 implements IndexedSortedMapStorageNode<PK, D> {
-
+	
 	protected WriteBehindMapStorageWriterMixin<PK,D,N> mixinMapWriteOps;
 	protected WriteBehindSortedStorageWriterMixin<PK,D,N> mixinSortedWriteOps;
 	protected WriteBehindIndexedStorageWriterMixin<PK,D,N> mixinIndexedWriteOps;
@@ -28,6 +28,9 @@ implements IndexedSortedMapStorageNode<PK, D> {
 	public WriteBehindIndexedSortedMapStorageNode(Class<D> databeanClass, DataRouter router, N backingNode,
 			ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
 		super(databeanClass, router, backingNode, writeExecutor, cancelExecutor);
+		mixinMapWriteOps = new WriteBehindMapStorageWriterMixin<PK,D,N>(this);
+		mixinSortedWriteOps = new WriteBehindSortedStorageWriterMixin<PK,D,N>(this);
+		mixinIndexedWriteOps = new WriteBehindIndexedStorageWriterMixin<PK,D,N>(this);
 	}
 
 	@Override
