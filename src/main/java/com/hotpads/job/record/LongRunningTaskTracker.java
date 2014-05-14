@@ -1,12 +1,22 @@
 package com.hotpads.job.record;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Date;
 
+import com.google.inject.BindingAnnotation;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class LongRunningTaskTracker {
 
+	@BindingAnnotation 
+	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD }) 
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface LongRunningTaskNode {}
+	
 	static long HEARTBEAT_PERSIST_PERIOD_MS = 2000L;
 	
 	private IndexedSortedMapStorageNode node;

@@ -4,7 +4,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
-import com.hotpads.job.record.LongRunningTask.LongRunningTaskNode;
+import com.hotpads.job.record.LongRunningTaskTracker.LongRunningTaskNode;
 
 
 @Singleton
