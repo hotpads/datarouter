@@ -41,8 +41,6 @@ public class ExceptionRecordPersister{
 	}
 	
 	public boolean addToQueue(ExceptionRecord exceptionRecord) {
-		logger.warn("discarding ExceptionRecord because queue is full");
-		//TODO should we dump the old entries and keep the newer ones?
 		return queue.offer(exceptionRecord);
 	}
 	

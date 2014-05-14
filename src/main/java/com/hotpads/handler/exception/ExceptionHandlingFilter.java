@@ -135,7 +135,9 @@ public class ExceptionHandlingFilter implements Filter {
 		try {
 			ExceptionRecord exceptionRecord = new ExceptionRecord(exceptionHandlingConfig.getServerName(),
 					ExceptionUtils.getStackTrace(e));
-			persister.addToQueue(exceptionRecord);
+			if(!persister.addToQueue(exceptionRecord)){
+				logger.warn("queue did not accept exceptionRecord");
+			}
 
 			addNotificationRequestToQueue(request, e, exceptionRecord);
 		} catch (Exception ex) {

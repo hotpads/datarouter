@@ -45,8 +45,6 @@ public class ParallelApiCaller {
 	}
 
 	public void add(NotificationRequest request){
-		logger.warn("discarding NotificationRequest because queue is full");
-		//TODO should we dump the old entries and keep the newer ones?
 		queue.offer(request);
 	}
 
