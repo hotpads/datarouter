@@ -12,11 +12,12 @@ public class LongRunningTaskTracker {
 	private IndexedSortedMapStorageNode node;
 	private LongRunningTask task;
 	private MutableBoolean interrupted;
-	Date lastPersistedHeartbeat;
+	private Date lastPersistedHeartbeat;
 	
 	public LongRunningTaskTracker(IndexedSortedMapStorageNode node, LongRunningTask task){
 		this.node = node;
 		this.task = task;
+		this.interrupted = new MutableBoolean(false);
 	}
 	
 //	private void requestInterrupt(){
@@ -28,8 +29,10 @@ public class LongRunningTaskTracker {
 	
 	private void heartbeat(){
 		if(shouldPersistHeartbeat()){
-			task.setHeartbeatTime(new Date(System.currentTimeMillis()));
+			Date heartbeat = new Date();
+			task.setHeartbeatTime(heartbeat);
 			node.put(task, null);
+			lastPersistedHeartbeat = heartbeat;
 		}
 	}
 	

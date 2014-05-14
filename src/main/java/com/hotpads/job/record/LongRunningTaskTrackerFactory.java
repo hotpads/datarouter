@@ -4,7 +4,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
-import com.hotpads.job.record.LongRunningTask.longRunningTaskNode;
+import com.hotpads.job.record.LongRunningTask.LongRunningTaskNode;
 
 
 @Singleton
@@ -13,7 +13,7 @@ public class LongRunningTaskTrackerFactory {
 	private IndexedSortedMapStorageNode longRunningTaskNode;
 	
 	@Inject
-	public LongRunningTaskTrackerFactory(@longRunningTaskNode IndexedSortedMapStorageNode longRunningTaskNode){
+	public LongRunningTaskTrackerFactory(@LongRunningTaskNode IndexedSortedMapStorageNode longRunningTaskNode){
 		this.longRunningTaskNode = longRunningTaskNode;
 	}
 	

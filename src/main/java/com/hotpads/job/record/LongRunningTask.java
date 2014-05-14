@@ -7,11 +7,6 @@ import java.lang.annotation.Target;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
-import org.hibernate.annotations.AccessType;
-
 import com.google.inject.BindingAnnotation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
@@ -23,19 +18,15 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 
-@SuppressWarnings("serial")
-@Entity()
-@AccessType("field")
 public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunningTask>{
 
 	@BindingAnnotation 
 	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD }) 
 	@Retention(RetentionPolicy.RUNTIME)
-	public @interface longRunningTaskNode {}
+	public @interface LongRunningTaskNode {}
 	
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
-	@Id
 	private LongRunningTaskKey key;
 	
 	private Date startTime;
