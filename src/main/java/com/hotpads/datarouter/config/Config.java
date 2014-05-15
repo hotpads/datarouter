@@ -90,27 +90,6 @@ implements Cloneable{
 			cacheTimeoutMs = "cacheTimeoutMs";
 	}
 	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new StringEnumField<ConnectMethod>(ConnectMethod.class, F.connectMethod, connectMethod, LEN_default),
-				new BooleanField(F.useSession, useSession),
-				new StringEnumField<Isolation>(Isolation.class, F.isolation, isolation, LEN_default),
-				new BooleanField(F.slaveOk, slaveOk),
-				new StringEnumField<PutMethod>(PutMethod.class, F.putMethod, putMethod, LEN_default),
-				new BooleanField(F.ignoreNullFields, ignoreNullFields),
-				new UInt31Field(F.commitBatchSize, commitBatchSize),
-				new BooleanField(F.persistentPut, persistentPut),
-				new BooleanField(F.scannerCaching, scannerCaching),
-				new UInt31Field(F.iterateBatchSize, iterateBatchSize),
-				new UInt63Field(F.timeoutMs, timeoutMs),
-				new UInt31Field(F.numAttempts, numAttempts),
-				new UInt31Field(F.limit, limit),
-				new UInt31Field(F.offset, offset),
-				new BooleanField(F.cacheOk, cacheOk),
-				new UInt63Field(F.cacheTimeoutMs, cacheTimeoutMs));
-	}
-	
 	public static class ConfigFielder extends BaseDatabeanFielder<ConfigKey,Config>{
 		public ConfigFielder(){}
 		@Override
@@ -119,13 +98,24 @@ implements Cloneable{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(Config d){
-			return d.getNonKeyFields();
+			return FieldTool.createList(
+					new StringEnumField<ConnectMethod>(ConnectMethod.class, F.connectMethod, d.connectMethod, LEN_default),
+					new BooleanField(F.useSession, d.useSession),
+					new StringEnumField<Isolation>(Isolation.class, F.isolation, d.isolation, LEN_default),
+					new BooleanField(F.slaveOk, d.slaveOk),
+					new StringEnumField<PutMethod>(PutMethod.class, F.putMethod, d.putMethod, LEN_default),
+					new BooleanField(F.ignoreNullFields, d.ignoreNullFields),
+					new UInt31Field(F.commitBatchSize, d.commitBatchSize),
+					new BooleanField(F.persistentPut, d.persistentPut),
+					new BooleanField(F.scannerCaching, d.scannerCaching),
+					new UInt31Field(F.iterateBatchSize, d.iterateBatchSize),
+					new UInt63Field(F.timeoutMs, d.timeoutMs),
+					new UInt31Field(F.numAttempts, d.numAttempts),
+					new UInt31Field(F.limit, d.limit),
+					new UInt31Field(F.offset, d.offset),
+					new BooleanField(F.cacheOk, d.cacheOk),
+					new UInt63Field(F.cacheTimeoutMs, d.cacheTimeoutMs));
 		}
-	}
-	
-	@Override
-	public boolean isFieldAware(){
-		return true;
 	}
 	
 	

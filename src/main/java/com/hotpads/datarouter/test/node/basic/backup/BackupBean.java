@@ -44,14 +44,6 @@ public class BackupBean extends BaseDatabean<BackupBeanKey,BackupBean> implement
 		COL_f3 = "f3",
 		COL_f4 = "f4";
 	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new StringField(COL_f1, f1, DEFAULT_STRING_LENGTH),
-				new LongField(COL_f2, f2),
-				new StringField(COL_f3, f3, DEFAULT_STRING_LENGTH),
-				new DumbDoubleField(COL_f4, f4));
-	}
 	
 	public static class BackupBeanFielder extends BaseDatabeanFielder<BackupBeanKey,BackupBean>{
 		public BackupBeanFielder(){}
@@ -61,13 +53,12 @@ public class BackupBean extends BaseDatabean<BackupBeanKey,BackupBean> implement
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(BackupBean d){
-			return d.getNonKeyFields();
+			return FieldTool.createList(
+					new StringField(COL_f1, d.f1, DEFAULT_STRING_LENGTH),
+					new LongField(COL_f2, d.f2),
+					new StringField(COL_f3, d.f3, DEFAULT_STRING_LENGTH),
+					new DumbDoubleField(COL_f4, d.f4));
 		}
-	}
-	
-	@Override
-	public boolean isFieldAware(){
-		return true;
 	}
 	
 

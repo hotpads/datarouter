@@ -11,22 +11,30 @@
 <%@ include file="/WEB-INF/jsp/menu/reputation-navbar.jsp"%>
 	<div class="container">
 		<h2>Admin: Edit user</h2>
-		<form method="POST" action="${contextPath}/admin/editUserSubmit">
+		<form method="POST" action="${contextPath}${authenticationConfig.editUserSubmitPath}">
 		<input type="hidden" name="${authenticationConfig.userIdParam}" value="${user.id}"/>
 		<table>
 			<tr>
 				<td>
 					<label><input type="checkbox" name="${authenticationConfig.enabledParam}"
-					<c:if test="${user.isEnabled()}">checked</c:if>/> Enabled</label>
+					<c:if test="${user.enabled}">checked</c:if>/> Enabled</label>
+				</td>
+				<td>
+					<label><input type="checkbox" name="${authenticationConfig.apiEnabledParam}"
+					<c:if test="${user.apiEnabled}">checked</c:if>/> API Enabled</label>
 				</td>
 			</tr>
 			<tr>
 				<td>Username:</td>
-				<td><input name="${authenticationConfig.usernameParam}" value="${user.username}" required readonly/></td>
+				<td><input type="text" name="${authenticationConfig.usernameParam}" value="${user.username}"
+				required readonly/></td>
 			</tr>
 			<tr>
 				<td>Password:</td>
-				<td><a href="${contextPath}/admin/resetPassword?userId=${user.id}">Reset Password</a></td>
+				<td>
+					<a href="${contextPath}${authenticationConfig.resetPasswordPath}?
+						${authenticationConfig.userIdParam}=${user.id}">Reset Password</a>
+				</td>
 			</tr>
 			<tr>
 				<td>Roles:</td>
@@ -34,12 +42,20 @@
 					<select multiple="multiple" name="${authenticationConfig.userRolesParam}">
 						<c:forEach var="role" items="${datarouterUserRoles}">
 							<option value="${role.name()}"
-								<c:if test="${not empty userRoles && userRoles.contains(role)}">
+								<c:if test="${userRoles.contains(role)}">
 								selected
 								</c:if>
 								>${role.name()}</option>
 						</c:forEach>
 					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>API Key:</td>
+				<td>
+					<input type="text" value="${user.apiKey}" readonly/><br/>
+					<a href="${contextPath}${authenticationConfig.resetApiKeySubmitPath}?
+						${authenticationConfig.userIdParam}=${user.id}">Reset API Key</a>
 				</td>
 			</tr>
 			<tr>

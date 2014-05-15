@@ -124,35 +124,6 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 			testSchemaUpdateField = "testSchemaUpdateField";
 	}
 	
-	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		List<Field<?>> fields = ListTool.createLinkedList();
-		fields.add(new BooleanField(F.booleanField, booleanField));
-		fields.add(new SignedByteField(F.byteField, byteField));
-		fields.add(new ShortField(F.shortField, shortField));
-		fields.add(new IntegerField(F.integerField, integerField));
-		fields.add(new LongField(F.longField, longField));
-		fields.add(new DumbFloatField(F.floatField, floatField));
-		fields.add(new DumbDoubleField(F.doubleField, doubleField));
-		fields.add(new LongDateField(F.longDateField, longDateField));
-		fields.add(new CharacterField(F.characterField, characterField));
-		fields.add(new StringField(F.stringField, stringField, DEFAULT_STRING_LENGTH));
-		fields.add(new VarIntField(F.varIntField, varIntField));
-		fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, intEnumField));
-		fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, varIntEnumField));
-		fields.add(new StringEnumField<TestEnum>(TestEnum.class, F.stringEnumField, stringEnumField, LEN_STRING_ENUM_FIELD));
-		fields.add(new ByteArrayField(F.stringByteField, stringByteField));
-		fields.add(new ByteArrayField(F.data, data));
-		fields.add(new UInt63ArrayField(F.longArrayField, longArrayField));
-		fields.add(new BooleanArrayField(F.booleanArrayField, booleanArrayField));
-		fields.add(new IntegerArrayField(F.integerArrayField, integerArrayField));
-		fields.add(new DoubleArrayField(F.doubleArrayField, doubleArrayField));
-		fields.add(new DelimitedStringArrayField(F.delimitedStringArrayField, ",", delimitedStringArrayField));
-		fields.add(new StringField(F.testSchemaUpdateField, testSchemaUpdateField, DEFAULT_STRING_LENGTH));
-		return fields;
-	}
-	
 	public boolean equalsAllPersistentFields(ManyFieldTypeBean that){
 		if(ObjectTool.notEquals(key, that.key)){ return false; }
 		if(ObjectTool.notEquals(booleanField, that.booleanField)){ return false; }
@@ -188,7 +159,30 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(ManyFieldTypeBean d){
-			return d.getNonKeyFields();
+			List<Field<?>> fields = ListTool.createArrayList();
+			fields.add(new BooleanField(F.booleanField, d.booleanField));
+			fields.add(new SignedByteField(F.byteField, d.byteField));
+			fields.add(new ShortField(F.shortField, d.shortField));
+			fields.add(new IntegerField(F.integerField, d.integerField));
+			fields.add(new LongField(F.longField, d.longField));
+			fields.add(new DumbFloatField(F.floatField, d.floatField));
+			fields.add(new DumbDoubleField(F.doubleField, d.doubleField));
+			fields.add(new LongDateField(F.longDateField, d.longDateField));
+			fields.add(new CharacterField(F.characterField, d.characterField));
+			fields.add(new StringField(F.stringField, d.stringField, DEFAULT_STRING_LENGTH));
+			fields.add(new VarIntField(F.varIntField, d.varIntField));
+			fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, d.intEnumField));
+			fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, d.varIntEnumField));
+			fields.add(new StringEnumField<TestEnum>(TestEnum.class, F.stringEnumField, d.stringEnumField, LEN_STRING_ENUM_FIELD));
+			fields.add(new ByteArrayField(F.stringByteField, d.stringByteField));
+			fields.add(new ByteArrayField(F.data, d.data));
+			fields.add(new UInt63ArrayField(F.longArrayField, d.longArrayField));
+			fields.add(new BooleanArrayField(F.booleanArrayField, d.booleanArrayField));
+			fields.add(new IntegerArrayField(F.integerArrayField, d.integerArrayField));
+			fields.add(new DoubleArrayField(F.doubleArrayField, d.doubleArrayField));
+			fields.add(new DelimitedStringArrayField(F.delimitedStringArrayField, ",", d.delimitedStringArrayField));
+			fields.add(new StringField(F.testSchemaUpdateField, d.testSchemaUpdateField, DEFAULT_STRING_LENGTH));
+			return fields;
 		}
 		@Override
 		public Map<String,List<Field<?>>> getIndexes(ManyFieldTypeBean d){
@@ -231,11 +225,6 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 //	public String getKeyFieldName(){
 //		//same as default, so not necssary to override
 //	}
-	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
 	
 	
 	/***************************** static methods *****************************/

@@ -6,8 +6,11 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.ResponseTool;
 import com.hotpads.handler.mav.Mav;
+import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.user.DatarouterUser;
+import com.hotpads.handler.user.DatarouterUser.DatarouterUserByApiKeyLookup;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUserTokenLookup;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUsernameLookup;
 import com.hotpads.handler.user.DatarouterUserKey;
@@ -18,10 +21,10 @@ import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.util.core.number.RandomTool;
 
 public class AdminEditUserHandler extends BaseHandler{
-	
+
+	private static final String USER = "user";
 	private static final String USER_ROLES = "userRoles";
 	private static final String USER_LIST = "userList";
-	private static final String USER = "user";
 	private static final String DATAROUTER_USER_ROLES = "datarouterUserRoles";
 	private static final String AUTHENTICATION_CONFIG = "authenticationConfig";
 	
@@ -34,12 +37,12 @@ public class AdminEditUserHandler extends BaseHandler{
 	
 	@Override
 	protected Mav handleDefault() {
-		return viewUsers();
+		return redirectWithContext("");
 	}
 	
 	@Handler
 	private Mav viewUsers() {
-		Mav mav = new Mav("/jsp/authentication/viewUsers.jsp");
+		Mav mav = new Mav(authenticationConfig.getViewUsersJsp());
 		List<DatarouterUser> userList = userNodes.getUserNode().getAll(null);
 		mav.put(AUTHENTICATION_CONFIG, authenticationConfig);
 		mav.put(USER_LIST, userList);
@@ -48,14 +51,14 @@ public class AdminEditUserHandler extends BaseHandler{
 	
 	@Handler
 	private Mav createUser() {
-		Mav mav = new Mav("/jsp/authentication/createUserForm.jsp");
+		Mav mav = new Mav(authenticationConfig.getCreateUserJsp());
 		mav.put(AUTHENTICATION_CONFIG, authenticationConfig);
-		mav.put(DATAROUTER_USER_ROLES, DatarouterUserRole.getPermissibleRolesForUser(getCurrentUser()));
+		mav.put(DATAROUTER_USER_ROLES, DatarouterUserRole.getPermissibleRolesForUser(getCurrentUser(), false));
 		return mav;
 	}
 	
 	@Handler
-	private Mav createUserSubmit() throws Exception {
+	private Mav createUserSubmit() {
 
 		DatarouterUser currentUser = getCurrentUser();
 		if(!DatarouterUserRole.isUserAdmin(currentUser)) {
@@ -71,24 +74,30 @@ public class AdminEditUserHandler extends BaseHandler{
 		String userToken = DatarouterTokenGenerator.generateRandomToken();
 		String passwordSalt = passwordService.generateSaltForNewUser();
 		String passwordDigest = passwordService.digest(passwordSalt, password);
-		Set<DatarouterUserRole> userRolesSet = getAllowedUserRoles(currentUser, userRoles);
+		Set<DatarouterUserRole> userRolesSet = getAllowedUserRoles(currentUser, userRoles, false);
+		
+		String apiKey = passwordService.generateSaltForNewUser();
+		boolean apiEnabled = params.optionalBoolean(authenticationConfig.getApiEnabledParam(), true);
 		
 		DatarouterUser user = DatarouterUser.create(
-				id, userToken, username, passwordSalt, passwordDigest, userRolesSet);
+				id, userToken, username, passwordSalt, passwordDigest, userRolesSet, apiKey);
 		user.setEnabled(enabled);
+		user.setApiEnabled(apiEnabled);
 		
-		assertUserDoesNotExist(id, userToken, username);
+		assertUserDoesNotExist(id, userToken, username, apiKey);
 		userNodes.getUserNode().put(user, null);
 		
-		return redirectMav(viewUsers());
+		Mav mav = redirectWithContext(authenticationConfig.getViewUsersPath());
+		return mav;
 	}
 	
 	@Handler
-	private Mav editUser() throws Exception {
-		Mav mav = new Mav("/jsp/authentication/editUserForm.jsp");
+	private Mav editUser() {
+		Mav mav = new Mav(authenticationConfig.getEditUserJsp());
 		
 		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
 		DatarouterUser currentUser = getCurrentUser(), userToEdit = getUserById(userId);
+		boolean isSelf = userToEdit.equals(currentUser);
 
 		if(!canEditUser(userToEdit, currentUser)) {
 			handleInvalidRequest();
@@ -96,34 +105,38 @@ public class AdminEditUserHandler extends BaseHandler{
 		
 		mav.put(USER, userToEdit);
 		mav.put(AUTHENTICATION_CONFIG, authenticationConfig);
-		mav.put(DATAROUTER_USER_ROLES, DatarouterUserRole.getPermissibleRolesForUser(currentUser));
+		mav.put(DATAROUTER_USER_ROLES, DatarouterUserRole.getPermissibleRolesForUser(currentUser, isSelf));
 		mav.put(USER_ROLES, userToEdit.getRoles());
 		
 		return mav;
 	}
 
 	@Handler
-	private Mav editUserSubmit() throws Exception {
+	private Mav editUserSubmit() {
 		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
-		DatarouterUser currentUser = getCurrentUser(), userToEdit = getUserById(userId);
 		Boolean enabled = params.optionalBoolean(authenticationConfig.getEnabledParam(), false);
+		Boolean apiEnabled = params.optionalBoolean(authenticationConfig.getApiEnabledParam(), false);
 		String[] userRoles = params.getRequest().getParameterValues(authenticationConfig.getUserRolesParam());
-
+		DatarouterUser currentUser = getCurrentUser(), userToEdit = getUserById(userId);
+		boolean isSelf = currentUser.equals(userToEdit);
+		
 		if(!canEditUser(userToEdit, currentUser)) {
 			handleInvalidRequest();
 		}
 		
 		userToEdit.setEnabled(enabled);
-		userToEdit.setRoles(getAllowedUserRoles(currentUser, userRoles));
+		userToEdit.setApiEnabled(apiEnabled);
+		userToEdit.setRoles(getAllowedUserRoles(currentUser, userRoles, isSelf));
 		
 		userNodes.getUserNode().put(userToEdit, null);
-
-		return redirectMav(viewUsers());
+		
+		Mav mav = redirectWithContext(authenticationConfig.getViewUsersPath());
+		return mav;
 	}
 	
 	@Handler
-	private Mav resetPassword() throws Exception {
-		Mav mav = new Mav("/jsp/authentication/resetPasswordForm.jsp");
+	private Mav resetPassword() {
+		Mav mav = new Mav(authenticationConfig.getResetPasswordJsp());
 		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
 		DatarouterUser currentUser = getCurrentUser(), userToEdit = getUserById(userId);
 		
@@ -138,7 +151,7 @@ public class AdminEditUserHandler extends BaseHandler{
 	}
 	
 	@Handler
-	private Mav resetPasswordSubmit() throws Exception {
+	private Mav resetPasswordSubmit() {
 		String password = params.required(authenticationConfig.getPasswordParam());
 		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
 		DatarouterUser currentUser = getCurrentUser(), userToEdit = getUserById(userId);
@@ -149,33 +162,56 @@ public class AdminEditUserHandler extends BaseHandler{
 		
 		passwordService.updateUserPassword(userToEdit, password);
 		
-		return redirectMav(editUser());
-	}
-	
-	/***************** helpers **********************/
-
-	private Mav redirectMav(Mav mav) {
-		//TODO redirect to desired view, mav.setRedirect expects a URL, not view
-		//mav.setRedirect(true);
+		String path = pathBuilder(authenticationConfig.getEditUserPath(), authenticationConfig.getUserIdParam(),
+				userId.toString());
+		Mav mav = redirectWithContext(path);
 		return mav;
 	}
 	
-	private void handleInvalidRequest() throws Exception {
-		//TODO add a service or authenticator to handle this automatically
-		params.getResponse().sendError(403);
+	@Handler
+	private Mav resetApiKeySubmit() {
+		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
+		DatarouterUser currentUser = getCurrentUser(), userToEdit = getUserById(userId);
+
+		if(!canEditUser(userToEdit, currentUser)) {
+			handleInvalidRequest();
+		}
+		
+		String newApiKey = passwordService.generateSaltForNewUser();
+		userToEdit.setApiKey(newApiKey);
+		userNodes.getUserNode().put(userToEdit, null);
+		
+		String path = pathBuilder(authenticationConfig.getEditUserPath(), authenticationConfig.getUserIdParam(),
+				userId.toString());
+		Mav mav = redirectWithContext(path);
+		return mav;
+	}
+	
+	/***************** helpers **********************/
+	
+	private String pathBuilder(String path, String param, String value) {
+		return path + "?" + param + "=" + value;
+	}
+	
+	private Mav redirectWithContext(String path) {
+		return new InContextRedirectMav(params, path);
+	}
+	
+	private void handleInvalidRequest() {
+		ResponseTool.sendError(response, 403, "invalid request");
 	}
 	
 	private boolean canEditUser(DatarouterUser userToEdit, DatarouterUser currentUser) {
-		// datarouterAdmins can only be added/edited directly from the database
-		// current user must be either admin or datarouterAdmin and enabled
-		return !userToEdit.getRoles().contains(DatarouterUserRole.datarouterAdmin)
+		return userToEdit.equals(currentUser)
+				|| !userToEdit.getRoles().contains(DatarouterUserRole.datarouterAdmin)
 				&& DatarouterUserRole.isUserAdmin(currentUser)
-				&& currentUser.isEnabled();
+				&& currentUser.getEnabled();
 	}
 	
-	private Set<DatarouterUserRole> getAllowedUserRoles(DatarouterUser currentUser, String[] userRoleStrings) {
+	private Set<DatarouterUserRole> getAllowedUserRoles(DatarouterUser currentUser, String[] userRoleStrings,
+			boolean isSelf) {
 		Set<DatarouterUserRole> userRoles = DatarouterUserRole.fromStringArray(userRoleStrings);
-		Set<DatarouterUserRole> validRoles = DatarouterUserRole.getPermissibleRolesForUser(currentUser);
+		Set<DatarouterUserRole> validRoles = DatarouterUserRole.getPermissibleRolesForUser(currentUser, isSelf);
 		userRoles.retainAll(validRoles);
 		return userRoles;
 	}
@@ -192,7 +228,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		return getUserById(session.getUserId());
 	}
 	
-	private void assertUserDoesNotExist(Long id, String userToken, String username) {
+	private void assertUserDoesNotExist(Long id, String userToken, String username, String apiKey) {
 		DatarouterUser userWithId = getUserById(id);
 		if (userWithId != null) {
 			throw new IllegalArgumentException("DatarouterUser already exists with id=" + id);
@@ -206,6 +242,11 @@ public class AdminEditUserHandler extends BaseHandler{
 				new DatarouterUserByUsernameLookup(username), null);
 		if (userWithEmail != null) {
 			throw new IllegalArgumentException("DatarouterUser already exists with username=" + username);
+		}
+		DatarouterUser userWithApiKey = userNodes.getUserNode().lookupUnique(
+				new DatarouterUserByApiKeyLookup(apiKey), null);
+		if (userWithApiKey != null) {
+			throw new IllegalArgumentException("DatarouterUser already exists with apiKey=" + apiKey);
 		}
 	}
 }

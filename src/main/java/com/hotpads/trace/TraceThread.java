@@ -68,19 +68,6 @@ public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 			runningDurationNano = "runningDurationNano";
 	}
 
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new UInt63Field(F.parentId, parentId),
-				new StringField(F.name, name, DEFAULT_STRING_LENGTH),
-				new StringField(F.info, info, DEFAULT_STRING_LENGTH),
-				new StringField(F.serverId, serverId,20),
-				new UInt63Field(F.created, created),
-				new UInt63Field(F.queuedDuration, queuedDuration),
-				new UInt63Field(F.runningDuration, runningDuration),
-				new UInt63Field(F.queuedDurationNano, queuedDurationNano),
-				new UInt63Field(F.runningDurationNano, runningDurationNano));
-	}
 	
 	public static class TraceThreadFielder extends BaseDatabeanFielder<TraceThreadKey,TraceThread>{
 		public TraceThreadFielder(){}
@@ -90,13 +77,17 @@ public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(TraceThread d){
-			return d.getNonKeyFields();
+			return FieldTool.createList(
+					new UInt63Field(F.parentId, d.parentId),
+					new StringField(F.name, d.name, DEFAULT_STRING_LENGTH),
+					new StringField(F.info, d.info, DEFAULT_STRING_LENGTH),
+					new StringField(F.serverId, d.serverId, 20),
+					new UInt63Field(F.created, d.created),
+					new UInt63Field(F.queuedDuration, d.queuedDuration),
+					new UInt63Field(F.runningDuration, d.runningDuration),
+					new UInt63Field(F.queuedDurationNano, d.queuedDurationNano),
+					new UInt63Field(F.runningDurationNano, d.runningDurationNano));
 		}
-	}
-	
-	@Override
-	public boolean isFieldAware(){
-		return true;
 	}
 	
 	

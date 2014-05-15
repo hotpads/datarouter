@@ -1,4 +1,5 @@
-<%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
+<%@ include file="/WEB-INF/prelude.jspf"%>
+<%@ include file="../generic/prelude-datarouter.jspf"%>
 <html>
 <head>
 <title>DataRouter</title>
@@ -8,8 +9,9 @@
 <style>
 </style>
 </head>
-<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 <body>
+	<%@ include file="/jsp/menu/common-navbar.jsp" %>
+	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 	<h2 class="container">DataRouter</h2>
 	<div class="wide-container">
 		<a href="${contextPath}/datarouter/routers">DataRouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;&#62;&#62; &nbsp;&nbsp;

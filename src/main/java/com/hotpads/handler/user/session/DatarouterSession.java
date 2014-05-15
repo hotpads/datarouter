@@ -39,7 +39,8 @@ implements Serializable {
 	private String userToken;
 	private String username;
 	private Date userCreated;
-	private List<String> roles;//TODO convert to List<DatarouterUserRole>
+	private List<String> roles;
+	private Boolean includeSessionCookies = true;
 	
 	public class F {
 		public static final String
@@ -51,20 +52,6 @@ implements Serializable {
 				roles = "roles";
 	}
 	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		List<Field<?>> nonKeyFields = ListTool.createArrayList();
-//		fields.add(new DateField(BaseDatarouterSessionDatabean.F.created, getCreated()));
-		nonKeyFields.add(new DateField(BaseDatarouterSessionDatabean.F.updated, getUpdated()));
-		
-//		List<Field<?>> nonKeyFields = super.getNonKeyFields();
-		nonKeyFields.add(new UInt63Field(F.userId, userId));
-		nonKeyFields.add(new StringField(F.userToken, userToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
-		nonKeyFields.add(new StringField(F.username, username, MySqlColumnType.MAX_LENGTH_VARCHAR));
-		nonKeyFields.add(new DelimitedStringArrayField(F.roles, ",", roles));
-		nonKeyFields.add(new DateField(F.userCreated, userCreated));
-		return nonKeyFields;
-	}
 	
 	public static class DatarouterSessionFielder extends BaseDatabeanFielder<DatarouterSessionKey,DatarouterSession>{
 		public DatarouterSessionFielder(){}
@@ -74,15 +61,21 @@ implements Serializable {
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterSession d){
-			return d.getNonKeyFields();
+			List<Field<?>> nonKeyFields = ListTool.createArrayList();
+//			fields.add(new DateField(BaseDatarouterSessionDatabean.F.created, getCreated()));
+			nonKeyFields.add(new DateField(BaseDatarouterSessionDatabean.F.updated, d.getUpdated()));
+			
+//			List<Field<?>> nonKeyFields = super.getNonKeyFields();
+			nonKeyFields.add(new UInt63Field(F.userId, d.userId));
+			nonKeyFields.add(new StringField(F.userToken, d.userToken, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			nonKeyFields.add(new StringField(F.username, d.username, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			nonKeyFields.add(new DelimitedStringArrayField(F.roles, ",", d.roles));
+			nonKeyFields.add(new DateField(F.userCreated, d.userCreated));
+			return nonKeyFields;
 		}
 	}
 	
 	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
-	
 	public Class<DatarouterSessionKey> getKeyClass() {
 		return DatarouterSessionKey.class;
 	}
@@ -100,6 +93,7 @@ implements Serializable {
 		Date now = new Date();
 		session.setCreated(now);
 		session.setUpdated(now);
+		session.setRoles(null);
 		return session;
 	}
 	
@@ -108,7 +102,7 @@ implements Serializable {
 		session.setUserId(user.getId());
 		session.setUserCreated(user.getCreated());
 		session.setUsername(user.getUsername());
-		session.setRoles(user.getRoles());//remember to overwrite the anonymous role
+		session.setRoles(user.getRoles());
 		return session;
 	}
 	
@@ -129,20 +123,18 @@ implements Serializable {
 	
 	
 	/************** DatarouterUserRole methods *****************************/
-	/*
-	 * careful, these are stored as strings right now, so watch for unchecked methods
-	 */
-	public List<DatarouterUserRole> getRoles(){
+	
+	public Collection<DatarouterUserRole> getRoles(){
 		return DataRouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
 	}
 	
 	public void setRoles(Collection<DatarouterUserRole> roleEnums){
 		roles = DataRouterEnumTool.getPersistentStrings(roleEnums);
-		Collections.sort(roles);//for db readability, but don't rely on it
+		Collections.sort(roles);
 	}
 	
 	public boolean doesUserHaveRole(DatarouterUserRole requiredRole) {
-		return CollectionTool.nullSafe(roles).contains(requiredRole.getPersistentString());
+		return getRoles().contains(requiredRole);
 	}
 	
 	public boolean isAnonymous(){
@@ -150,16 +142,28 @@ implements Serializable {
 	}
 	
 	public boolean isDatarouterAdmin(){
-		return CollectionTool.nullSafe(roles).contains(DatarouterUserRole.datarouterAdmin.getPersistentString());
+		return getRoles().contains(DatarouterUserRole.datarouterAdmin);
+	}
+	
+	public boolean isAdmin() {
+		Collection<DatarouterUserRole> rolesNullSafe = getRoles();
+		return rolesNullSafe.contains(DatarouterUserRole.datarouterAdmin) ||
+				rolesNullSafe.contains(DatarouterUserRole.admin);
+	}
+	
+	public boolean isApiUser() {
+		return getRoles().contains(DatarouterUserRole.apiUser);
 	}
 	
 	
 	/*********************** get/set ************************************/
 	
+	@Override
 	public DatarouterSessionKey getKey() {
 		return key;
 	}
 	
+	@Override
 	public void setKey(DatarouterSessionKey key) {
 		this.key = key;
 	}
@@ -203,5 +207,12 @@ implements Serializable {
 	public void setUserCreated(Date userCreated){
 		this.userCreated = userCreated;
 	}
+
+	public boolean getIncludeSessionCookies() {
+		return includeSessionCookies;
+	}
 	
+	public void setIncludeSessionCookie(Boolean includeSessionCookies) {
+		this.includeSessionCookies = includeSessionCookies;
+	}
 }

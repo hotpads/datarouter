@@ -1,16 +1,16 @@
-<%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
+<%@ include file="/WEB-INF/prelude.jspf"%>
+<%@ include file="../../generic/prelude-datarouter.jspf"%>
 <html>
 <head>
 <%@ include file="/jsp/generic/head.jsp" %>
-<link href="${contextPath}/js/google-code-prettify/prettify.css" rel="stylesheet">
-<link href="${contextPath}/css/datatables/TableTools.css" rel="stylesheet">
-<link href="${contextPath}/css/bootstrap/bootstrap.css" rel="stylesheet" />
-<link href="${contextPath}/css/bootstrap/bootstrap-responsive.css" rel="stylesheet">
-<link rel="stylesheet" href="${contextPath}/css/datatables/datatables-bootstrap2.css" />
-<link rel="stylesheet" href="${contextPath}/css/common.css" />
-<link rel="stylesheet" href="${contextPath}/assets/css/analytics.css" />
-<link rel="stylesheet" href="${contextPath}/css/other/databeanGenerator.css" />
-<title>Home</title>
+<%@ include file="/jsp/css/css-import.jspf"%>
+
+<link rel="stylesheet" href="${contextPath}/js/google-code-prettify/prettify.css" rel="stylesheet">
+<link rel="stylesheet" href="${contextPath}/css/datatables/TableTools.css">
+<link rel="stylesheet" href="${contextPath}/css/datatables/datatables-bootstrap2.css">
+<link rel="stylesheet" href="${contextPath}/assets/css/analytics.css">
+<link rel="stylesheet" href="${contextPath}/css/other/databeanGenerator.css">
+<title>Databean class generator</title>
 <script type="text/javascript" data-main="${contextPath}/js/core-analytics" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
 var numKeyFields = 0;
@@ -348,6 +348,7 @@ function endsWith(str1, str2){
 <base href="${contextPath}" />
 </head>
 <body>
+	<%@ include file="/jsp/menu/common-navbar.jsp" %>
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
 		<h2>Databean class generator</h2>

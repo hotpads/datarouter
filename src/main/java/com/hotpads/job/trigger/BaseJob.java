@@ -10,8 +10,10 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.quartz.CronExpression;
 
+import com.hotpads.job.record.LongRunningTaskTracker;
 import com.hotpads.setting.Setting;
 import com.hotpads.util.core.BooleanTool;
+import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.datastructs.MutableBoolean;
 
@@ -24,15 +26,20 @@ public abstract class BaseJob implements Job{
 	protected Setting<Boolean> processJobsSetting;
 	protected boolean isAlreadyScheduled;
 	protected MutableBoolean interrupted = new MutableBoolean(false);
+	private LongRunningTaskTracker longRunningTaskTracker;
 
 
 	/************************* constructors *******************/
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Inject
 	public BaseJob(JobEnvironment jobEnvironment) {
 		this.scheduler = jobEnvironment.getScheduler();
 		this.executor = jobEnvironment.getExecutor();
 		this.processJobsSetting = jobEnvironment.getProcessJobsSetting();
+		String jobClass = this.getClass().getName();
+		String serverName = jobEnvironment.getServerName();
+		this.longRunningTaskTracker = jobEnvironment.getLongRunningTaskTrackerFactory().createLongRunningTaskTracker(jobClass, serverName);
 	}
 
 	/*********************** methods ******************************/
@@ -99,7 +106,9 @@ public abstract class BaseJob implements Job{
 			scheduler.getTracker().get(this.getClass()).setRunning(true);
 			scheduler.getTracker().get(this.getClass()).setJob(this);
 			long startTimeMs = System.currentTimeMillis();
+			
 			run();
+			
 			long endTimeMs = System.currentTimeMillis();
 			long durationMs = endTimeMs - startTimeMs;
 			scheduler.getTracker().get(this.getClass()).setLastExecutionDurationMs(durationMs);
@@ -230,5 +239,17 @@ public abstract class BaseJob implements Job{
 		} catch (ParseException e) {
 			throw new IllegalArgumentException(e);
 		}
+	}
+	
+	@Override
+	public int compareTo(Job that){
+		if(that==null){ return 1; }
+		int diff = ComparableTool.nullFirstCompareTo(getJobCategory(), that.getJobCategory());
+		if(diff != 0){ return diff; }
+		return ComparableTool.nullFirstCompareTo(getClass().getCanonicalName(), that.getClass().getCanonicalName());
+	}
+	
+	public LongRunningTaskTracker getLongRunningTaskTracker(){
+		return longRunningTaskTracker;
 	}
 }

@@ -34,7 +34,6 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 	protected Integer rollPeriod;
 	
 
-
 	public static class F{
 		public static final String
 			type = "type",
@@ -47,20 +46,6 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 			rollPeriod = "rollPeriod";
 	}
 	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new StringEnumField<DashboardEntryType>(DashboardEntryType.class, F.type, type, DEFAULT_STRING_LENGTH),
-				new StringField(F.entry, entry, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
-				new StringField(F.entryArchive, entryArchive, DEFAULT_STRING_LENGTH),
-				new IntegerField(F.entryOrder, entryOrder),
-				new StringField(F.serverName, serverName, DEFAULT_STRING_LENGTH),
-				new StringField(F.webAppName, webAppName, DEFAULT_STRING_LENGTH),
-				new StringField(F.frequency, getFrequency(), DEFAULT_STRING_LENGTH),
-				new IntegerField(F.rollPeriod, rollPeriod));
-			
-	}
-	
 	public static class DashboardEntryFielder extends BaseDatabeanFielder<DashboardEntryKey,DashboardEntry>{
 		public DashboardEntryFielder(){}
 		@Override
@@ -69,7 +54,15 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(DashboardEntry d){
-			return d.getNonKeyFields();
+			return FieldTool.createList(
+					new StringEnumField<DashboardEntryType>(DashboardEntryType.class, F.type, d.type, DEFAULT_STRING_LENGTH),
+					new StringField(F.entry, d.entry, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
+					new StringField(F.entryArchive, d.entryArchive, DEFAULT_STRING_LENGTH),
+					new IntegerField(F.entryOrder, d.entryOrder),
+					new StringField(F.serverName, d.serverName, DEFAULT_STRING_LENGTH),
+					new StringField(F.webAppName, d.webAppName, DEFAULT_STRING_LENGTH),
+					new StringField(F.frequency, d.getFrequency(), DEFAULT_STRING_LENGTH),
+					new IntegerField(F.rollPeriod, d.rollPeriod));
 		}
 	}
 	
@@ -106,11 +99,6 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 	@Override
 	public DashboardEntryKey getKey() {
 		return key;
-	}
-	
-	@Override
-	public boolean isFieldAware(){
-		return true;
 	}
 
 	/************************ ref ***************************************/

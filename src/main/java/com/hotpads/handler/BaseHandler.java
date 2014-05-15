@@ -48,7 +48,7 @@ public abstract class BaseHandler{
 	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 	
 	@Handler
-	protected Mav handleDefault(){
+	protected Mav handleDefault() throws Exception {
 		return new MessageMav().addObject("message", "no default handler method found, please specify "
 				+handlerMethodParamName());
 	}
@@ -61,6 +61,8 @@ public abstract class BaseHandler{
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	public @interface Handler {
+		Class<?>[] expectedParameterClasses() default {};
+		Class<?> expectedParameterClassesProvider() default Object.class;
 	}
 	
 	

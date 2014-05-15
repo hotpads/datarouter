@@ -13,8 +13,6 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
-import com.hotpads.profile.count.databean.Count;
-import com.hotpads.profile.count.databean.key.CountKey;
 
 
 @SuppressWarnings("serial")
@@ -37,13 +35,6 @@ public class BackupRecord extends BaseDatabean<BackupRecordKey,BackupRecord>{
 		COL_compressedBytes = "compressedBytes",
 		COL_numRecords = "numRecords";
 	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new LongField(COL_rawBytes, rawBytes),
-				new LongField(COL_compressedBytes, compressedBytes),
-				new LongField(COL_numRecords, numRecords));
-	}
 	
 	public static class BackupRecordFielder extends BaseDatabeanFielder<BackupRecordKey,BackupRecord>{
 		public BackupRecordFielder(){}
@@ -53,13 +44,11 @@ public class BackupRecord extends BaseDatabean<BackupRecordKey,BackupRecord>{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(BackupRecord d){
-			return d.getNonKeyFields();
+			return FieldTool.createList(
+					new LongField(COL_rawBytes, d.rawBytes),
+					new LongField(COL_compressedBytes, d.compressedBytes),
+					new LongField(COL_numRecords, d.numRecords));
 		}
-	}
-	
-	@Override
-	public boolean isFieldAware(){
-		return true;
 	}
 	
 

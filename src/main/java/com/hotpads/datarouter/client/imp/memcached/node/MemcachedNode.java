@@ -9,6 +9,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
+import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
@@ -57,10 +58,10 @@ implements PhysicalMapStorageNode<PK,D>
 		if(CollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		for(D databean : databeans){
-			if( ! databean.isFieldAware()){ throw new IllegalArgumentException("databeans must be field aware"); }
+			if( ! fieldInfo.getFieldAware()){ throw new IllegalArgumentException("databeans must be field aware"); }
 			//TODO put only the nonKeyFields in the byte[] and figure out the keyFields from the key string
 			//  could big big savings for small or key-only databeans
-			byte[] bytes = DatabeanTool.getBytes(databean);
+			byte[] bytes = DatabeanTool.getBytes(databean, fieldInfo.getSampleFielder());
 			String key = new DataRouterMemcachedKey<PK>(getName(), databeanVersion, databean.getKey()).getVersionedKeyString();
 			//memcachedClient uses an integer for cache timeout
 			Long timeoutLong = config.getCacheTimeoutMs() == null 
@@ -71,7 +72,8 @@ implements PhysicalMapStorageNode<PK,D>
 								: timeoutLong.intValue());
 			if (bytes.length > 2 * MEGABYTE) {
 				//memcached max size is 1mb for a compressed object, so don't PUT things that won't compress down that well 
-				logger.error("memcached object too big for memcached!" + databean.getDatabeanName() + ", key:" + databean.getKey().getJson());
+				String json = JsonDatabeanTool.fieldsToJson(databean.getKey().getFields()).toString();
+				logger.error("memcached object too big for memcached!" + databean.getDatabeanName() + ", key:" + json);
 				return;
 			}
 			try {

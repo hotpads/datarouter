@@ -33,7 +33,6 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
-
 @SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
@@ -97,37 +96,32 @@ public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldTypeBeanKey,ManyFi
 	}
 	
 	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		List<Field<?>> fields = ListTool.createLinkedList();
-		fields.add(new DumbDoubleField(F.doubleField, doubleField));
-		//fields.add(new LongDateField(F.longDateField, longDateField));
-		//fields.add(new ByteField(F.byteField, byteField));
-		fields.add(new ShortField(F.shortField, shortField));
-		fields.add(new IntegerField(F.integerField, integerField));
-		fields.add(new LongField(F.longField, longField));
-		fields.add(new DumbFloatField(F.floatField, floatField));
-		fields.add(new CharacterField(F.characterField, characterField));
-		fields.add(new StringField(F.stringField, stringField, MySqlColumnType.MAX_LENGTH_VARCHAR));
-		fields.add(new VarIntField(F.varIntField, varIntField));
-		fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, intEnumField));
-		fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, varIntEnumField));
-		fields.add(new StringEnumField<TestEnum>(TestEnum.class, F.stringEnumField, stringEnumField, LEN_STRING_ENUM_FIELD));
-		fields.add(new ByteArrayField(F.stringByteField, stringByteField));
-		fields.add(new ByteArrayField(F.data, data));
-		fields.add(new UInt63ArrayField(F.longArrayField, longArrayField));
-		return fields;
-	}
-	
-	public static class ManyFieldTypeBeanFielder extends BaseDatabeanFielder<ManyFieldTypeBeanKey,ManyFieldTypeBean2>{
-		public ManyFieldTypeBeanFielder(){}
+	public static class ManyFieldTypeBean2Fielder extends BaseDatabeanFielder<ManyFieldTypeBeanKey,ManyFieldTypeBean2>{
+		public ManyFieldTypeBean2Fielder(){}
 		@Override
 		public Class<ManyFieldTypeBeanKey> getKeyFielderClass(){
 			return ManyFieldTypeBeanKey.class;
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(ManyFieldTypeBean2 d){
-			return d.getNonKeyFields();
+			List<Field<?>> fields = ListTool.createLinkedList();
+			fields.add(new DumbDoubleField(F.doubleField, d.doubleField));
+			//fields.add(new LongDateField(F.longDateField, d.longDateField));
+			//fields.add(new ByteField(F.byteField, d.byteField));
+			fields.add(new ShortField(F.shortField, d.shortField));
+			fields.add(new IntegerField(F.integerField, d.integerField));
+			fields.add(new LongField(F.longField, d.longField));
+			fields.add(new DumbFloatField(F.floatField, d.floatField));
+			fields.add(new CharacterField(F.characterField, d.characterField));
+			fields.add(new StringField(F.stringField, d.stringField, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			fields.add(new VarIntField(F.varIntField, d.varIntField));
+			fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, d.intEnumField));
+			fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, d.varIntEnumField));
+			fields.add(new StringEnumField<TestEnum>(TestEnum.class, F.stringEnumField, d.stringEnumField, LEN_STRING_ENUM_FIELD));
+			fields.add(new ByteArrayField(F.stringByteField, d.stringByteField));
+			fields.add(new ByteArrayField(F.data, d.data));
+			fields.add(new UInt63ArrayField(F.longArrayField, d.longArrayField));
+			return fields;
 		}
 	}
 
@@ -155,11 +149,6 @@ public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldTypeBeanKey,ManyFi
 //	public String getKeyFieldName(){
 //		//same as default, so not necssary to override
 //	}
-	
-	@Override
-	public boolean isFieldAware(){
-		return true;
-	}
 	
 	
 	/***************************** static methods *****************************/

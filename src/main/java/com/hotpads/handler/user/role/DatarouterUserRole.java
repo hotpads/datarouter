@@ -13,7 +13,8 @@ implements StringEnum<DatarouterUserRole>{
 
 	datarouterAdmin("datarouterAdmin"),
 	admin("admin"),
-	user("user");
+	user("user"),
+	apiUser("apiUser");
 	
 	private String persistentString;
 
@@ -42,11 +43,14 @@ implements StringEnum<DatarouterUserRole>{
 		return userRolesSet;
 	}
 	
-	public static Set<DatarouterUserRole> getPermissibleRolesForUser(DatarouterUser datarouterUser) {
+	public static Set<DatarouterUserRole> getPermissibleRolesForUser(DatarouterUser datarouterUser, boolean isSelf) {
 		Set<DatarouterUserRole> userRoles = SetTool.create(datarouterUser.getRoles());
-		if(userRoles.remove(datarouterAdmin)) { return userRoles; }
-		if(userRoles.remove(admin)) { return userRoles; }
-		userRoles.remove(user);
+		if(isSelf && userRoles.contains(datarouterAdmin)) { return userRoles; }
+		
+		userRoles.remove(datarouterAdmin);
+		if(userRoles.contains(admin)) { return userRoles; }
+		
+		userRoles.remove(admin);
 		return userRoles;
 	}
 	

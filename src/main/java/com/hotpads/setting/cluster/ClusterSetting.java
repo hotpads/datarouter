@@ -9,7 +9,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 
-@SuppressWarnings("serial")
 public class ClusterSetting
 extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 
@@ -24,12 +23,6 @@ extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 	    	value = "value";
 	}
 	
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new StringField(F.value, value, MySqlColumnType.MAX_LENGTH_VARCHAR));
-	}
-	
 	public static class ClusterSettingFielder extends BaseDatabeanFielder<ClusterSettingKey,ClusterSetting>{
 		public ClusterSettingFielder(){}
 		@Override
@@ -38,7 +31,8 @@ extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(ClusterSetting d){
-			return d.getNonKeyFields();
+			return FieldTool.createList(
+					new StringField(F.value, d.value, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 	}
 	
@@ -71,11 +65,6 @@ extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 	public ClusterSettingKey getKey() {
 		return key;
 	}
-    
-    @Override
-    public boolean isFieldAware(){
-    	return true;
-    }
     
     /***************************** methods **************************************/
 

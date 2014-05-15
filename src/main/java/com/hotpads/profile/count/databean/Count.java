@@ -21,6 +21,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.NumberTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.XMLStringTool;
 
@@ -40,12 +41,6 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	public static final String
 		KEY_NAME = "key",
 		COL_value = "value";
-
-	@Override
-	public List<Field<?>> getNonKeyFields(){
-		return FieldTool.createList(
-				new UInt63Field(COL_value, this.value));
-	}
 	
 	public static class CountFielder extends BaseDatabeanFielder<CountKey,Count>{
 		public CountFielder(){}
@@ -55,13 +50,9 @@ public class Count extends BaseDatabean<CountKey,Count>{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(Count d){
-			return d.getNonKeyFields();
+			return FieldTool.createList(
+					new UInt63Field(COL_value, d.value));
 		}
-	}
-	
-	@Override
-	public boolean isFieldAware(){
-		return true;
 	}
 	
 	
@@ -120,14 +111,22 @@ public class Count extends BaseDatabean<CountKey,Count>{
 		return ((double)value) * 3600000 / getPeriodMs();
 	}
 	
-	public static double getValuePer(double value, Long periodMs, String frequency){
-		if("period".equals(frequency)){			return value;
-		}else if("second".equals(frequency)){
+	public static double getValuePer(double value, Long periodMs, String frequencyString){
+		if("period".equals(frequencyString)){			
+			return value;
+		}else if("second".equals(frequencyString)){
 			return getValuePerSecond(value, periodMs);
-		}else if("minute".equals(frequency)){
+		}else if("minute".equals(frequencyString)){
 			return getValuePerMinute(value, periodMs);
-		}else if("hour".equals(frequency)){ return getValuePerHour(value, periodMs); }
-		throw new IllegalArgumentException("unknown frequency: " + frequency);
+		}else if("hour".equals(frequencyString)){ 
+			return getValuePerHour(value, periodMs); 
+		}else{
+			Long frequencyInMs = NumberTool.getLongNullSafe(frequencyString, null);
+			if(frequencyInMs == null || frequencyInMs < 1L){ 
+				throw new IllegalArgumentException("unknown frequency or bad frequency: " + frequencyString); 
+			}
+			return value * frequencyInMs / periodMs;
+		}
 	}
 
 	public static double getValuePerSecond(double value, Long periodMs){

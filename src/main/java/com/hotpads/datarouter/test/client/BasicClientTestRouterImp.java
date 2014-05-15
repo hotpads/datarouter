@@ -10,9 +10,13 @@ import com.hotpads.datarouter.connection.keepalive.KeepAlive.KeepAliveFielder;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
+import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.client.insert.PutOpTestBean;
+import com.hotpads.datarouter.test.client.insert.PutOpTestBean.PutOpTestBeanFielder;
+import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean.PoolTestBeanFielder;
 import com.hotpads.datarouter.test.client.pool.PoolTestBeanKey;
@@ -34,10 +38,12 @@ implements BasicClientTestRouter{
 	private MapStorage<KeepAliveKey,KeepAlive> keepAliveHBase;
 
 	private MapStorage<TxnBeanKey,TxnBean> txnBeanJdbc;
-	private MapStorage<TxnBeanKey,TxnBean> txnBeanHibernate;
+	private MapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate;
 	private MapStorage<TxnBeanKey,TxnBean> txnBeanHBase;
 
 	private MapStorage<PoolTestBeanKey,PoolTestBean> poolTestBeanHBase;
+
+	private MapStorage<PutOpTestBeanKey, PutOpTestBean> putOptTest;
 
 	/********************************* constructor *****************************/
 
@@ -57,6 +63,9 @@ implements BasicClientTestRouter{
 
 		poolTestBeanHBase = cast(register(
 				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, PoolTestBean.class, PoolTestBeanFielder.class, this)));
+		
+		putOptTest = cast(register(
+				NodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, PutOpTestBean.class, PutOpTestBeanFielder.class, this)));
 
 		registerWithContext();//do after field inits
 	}
@@ -88,7 +97,7 @@ implements BasicClientTestRouter{
 	}
 
 	@Override
-	public MapStorage<TxnBeanKey,TxnBean> txnBeanHibernate(){
+	public MapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate(){
 		return txnBeanHibernate;
 	}
 
@@ -105,6 +114,11 @@ implements BasicClientTestRouter{
 	@Override
 	public MapStorage<PoolTestBeanKey,PoolTestBean> poolTestBeanHBase(){
 		return poolTestBeanHBase;
+	}
+
+	@Override
+	public MapStorage<PutOpTestBeanKey, PutOpTestBean> putOptTest(){
+		return putOptTest;
 	}
 }
 

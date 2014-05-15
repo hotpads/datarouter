@@ -43,7 +43,8 @@ public class MultiInsertRollback extends BaseHibernateOp<Void>{
 			Assert.assertEquals(4, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
 		}else{
 			List<TxnBean> all = router.txnBeanHibernate().getAll(null);
-			if(CollectionTool.getFirst(beans).isFieldAware() || SessionExecutorImpl.EAGER_SESSION_FLUSH){
+			boolean fieldAware = router.txnBeanHibernate().getFieldInfo().getFieldAware();
+			if(fieldAware || SessionExecutorImpl.EAGER_SESSION_FLUSH){
 				Assert.assertEquals(4, CollectionTool.size(all));
 			}else{
 				Assert.assertEquals(1, CollectionTool.size(all));

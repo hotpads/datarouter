@@ -72,10 +72,10 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					for(D databean : databeans){//TODO obey Config.commitBatchSize
 						if(databean==null){ continue; }
 						PK key = databean.getKey();
-						byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key);
+						byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key, false);
 						Put put = new Put(keyBytes);
 						Delete delete = new Delete(keyBytes);
-						List<Field<?>> fields = fieldInfo.getNonKeyFields(databean);
+						List<Field<?>> fields = fieldInfo.getNonKeyFieldsWithValues(databean);
 						for(Field<?> field : fields){//TODO only put modified fields
 							byte[] fieldBytes = field.getBytes();
 							if(fieldBytes==null){
@@ -152,7 +152,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					hTable.setAutoFlush(false);
 					List<Row> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList
 					for(PK key : keys){
-						byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key);
+						byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key, false);
 						Delete delete = new Delete(keyBytes);
 //						Delete delete = new Delete(key.getBytes(false));
 						deletes.add(delete);
@@ -182,11 +182,5 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	public D getDatabean(Result row) {
 		return HBaseResultTool.getDatabean(row, fieldInfo);
 	}
-	
-//	public static void disableWal(Collection<Put> puts){
-//		for(Put put : CollectionTool.nullSafe(puts)){
-//			put.setWriteToWAL(false);
-//		}
-//	}
 
 }
