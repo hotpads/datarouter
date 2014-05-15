@@ -97,12 +97,12 @@ public class FieldTool{
 	}
 
 	public static List<String> getCsvValuesList(Iterable<Field<?>> fields,
-			Map<String, Functor<String, String>> columnNameToCsvValueFunctor, boolean emptyForNullValue) {
+			Map<String, Functor<String, Object>> columnNameToCsvValueFunctor, boolean emptyForNullValue) {
 		List<String> csvRow = ListTool.createLinkedList();
 		for (Field<?> field : IterableTool.nullSafe(fields)) {
 			String value = ObjectTool.nullSafeToString(field.getValue());
 			if (columnNameToCsvValueFunctor != null && columnNameToCsvValueFunctor.containsKey(field.getColumnName())) {
-				value = columnNameToCsvValueFunctor.get(field.getColumnName()).invoke(value);
+				value = columnNameToCsvValueFunctor.get(field.getColumnName()).invoke(field.getValue());
 			}
 			if (value == null && emptyForNullValue) {
 				value = "";
