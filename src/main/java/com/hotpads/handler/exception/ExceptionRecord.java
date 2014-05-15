@@ -14,6 +14,7 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.util.UuidTool;
 import com.hotpads.util.core.ClassTool;
+import com.hotpads.util.core.ExceptionTool;
 /**
  * The record of an Exception
  */
@@ -21,7 +22,8 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 
 	private static int
 		LENGTH_servName = MySqlColumnType.MAX_LENGTH_VARCHAR,
-		LENGTH_stackTrace = MySqlColumnType.MAX_LENGTH_MEDIUMTEXT;
+		LENGTH_stackTrace = MySqlColumnType.MAX_LENGTH_MEDIUMTEXT,
+		LENGTH_type = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
 	/******************* fields ************************/
 	
@@ -29,20 +31,20 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 	private Date created;
 	private String serverName;
 	private String stackTrace;
+	private String type;
 
 	public static class F {
 		public static String
 			id = "id",
 			created = "created",
 			serverName = "serverName",
-			stackTrace = "stackTrace";
+			stackTrace = "stackTrace",
+			type = "type";
 	}
 
 	public static class ExceptionRecordFielder extends BaseDatabeanFielder<ExceptionRecordKey, ExceptionRecord> {
 
-		ExceptionRecordFielder() {
-
-		}
+		ExceptionRecordFielder() {}
 
 		@Override
 		public Class<? extends Fielder<ExceptionRecordKey>> getKeyFielderClass() {
@@ -54,7 +56,8 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 			return FieldTool.createList(
 					new DateField(F.created, d.created),
 					new StringField(F.serverName, d.serverName, LENGTH_servName),
-					new StringField(F.stackTrace, d.stackTrace, LENGTH_stackTrace)
+					new StringField(F.stackTrace, d.stackTrace, LENGTH_stackTrace),
+					new StringField(F.type, d.type, LENGTH_type)
 					);
 		}
 
@@ -66,11 +69,12 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 		key = new ExceptionRecordKey();
 	}
 
-	public ExceptionRecord(String serverName, String stackTrace) {
+	public ExceptionRecord(String serverName, String stackTrace, String type) {
 		key = new ExceptionRecordKey(UuidTool.generateUuid());
 		this.created = new Date();
 		this.serverName = serverName;
 		this.stackTrace = stackTrace;
+		this.type = type;
 	}
 
 	@Override
@@ -109,8 +113,19 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 		return stackTrace;
 	}
 
+	public String getColoredStackTrace() {
+		return ExceptionTool.getColorized(stackTrace);
+	}
 	public void setStackTrace(String stackTrace) {
 		this.stackTrace = stackTrace;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	@Override

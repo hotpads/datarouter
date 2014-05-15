@@ -145,8 +145,10 @@ public class ExceptionHandlingFilter implements Filter {
 
 	private void recordExceptionAndRequestNotification(HttpServletRequest request, Exception e) {
 		try {
-			ExceptionRecord exceptionRecord = new ExceptionRecord(exceptionHandlingConfig.getServerName(),
-					ExceptionUtils.getStackTrace(e));
+			ExceptionRecord exceptionRecord = new ExceptionRecord(
+					exceptionHandlingConfig.getServerName(),
+					ExceptionUtils.getStackTrace(e),
+					e.getClass().getName());
 			exceptionRecordNode.put(exceptionRecord, null);
 			StringBuilder paramString = new StringBuilder("[");
 			for (Entry<String, String[]> param : request.getParameterMap().entrySet()) {
@@ -197,11 +199,11 @@ public class ExceptionHandlingFilter implements Filter {
 					lineNumber,
 					request.getMethod(),
 					paramString.toString(),
-					request.getProtocol(),
+					request.getScheme(),
 					request.getServerName(),
 					request.getServerPort(),
 					request.getContextPath(),
-					request.getRequestURI(),
+					request.getRequestURI().substring(request.getContextPath().length()),
 					request.getQueryString(),
 					RequestTool.getIpAddress(request),
 					request.getHeader("user-agent"),
