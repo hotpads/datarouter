@@ -20,7 +20,8 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
-
+//FIXME delete me
+@Deprecated
 public class DatabeanFlushQueue<D extends Databean<PK,D>, PK extends PrimaryKey<PK>>{
 	private static Logger logger = Logger.getLogger(DatabeanFlushQueue.class);
 
@@ -40,8 +41,8 @@ public class DatabeanFlushQueue<D extends Databean<PK,D>, PK extends PrimaryKey<
 		flushScheduler.scheduleWithFixedDelay(new Flusher(), 1000, 1000, TimeUnit.MILLISECONDS);
 	}
 	
-	public boolean addToQueue(ExceptionRecord exceptionRecord) {
-		return queue.offer(exceptionRecord);
+	public boolean addToQueue(D databean) {
+		return queue.offer(databean);
 	}
 	
 	
