@@ -2,6 +2,7 @@ package com.hotpads.exception.analysis;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
@@ -17,6 +18,8 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.unique.BaseUniqueKey;
 import com.hotpads.datarouter.util.UuidTool;
 import com.hotpads.handler.exception.ExceptionRecord;
+import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.StringTool;
 
 public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRequestRecord>{
 
@@ -233,6 +236,19 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		return httpParams;
 	}
 
+	public Map<String, String> getHttpParamsMap() {
+		String[] tab = httpParams.substring(1, httpParams.length() - 1).split(",");
+		String[] keyValue;
+		Map<String, String> params = MapTool.create();
+		for (String string : tab) {
+			if (StringTool.notEmpty(string)) {
+				keyValue = string.split(":");
+				params.put(keyValue[0], keyValue[1].substring(1, keyValue[1].length() - 1));
+			}
+		}
+		return params;
+	}
+
 	public void setHttpParams(String httpParams) {
 		this.httpParams = httpParams;
 	}
@@ -320,6 +336,19 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	public String getCookies() {
 		return cookies;
 	}
+	
+	public Map<String, String> getCokkiesMap() {
+		String[] tab = cookies.substring(1, cookies.length() - 1).split(",");
+		String[] keyValue;
+		Map<String, String> params = MapTool.create();
+		for (String string : tab) {
+			if (StringTool.notEmpty(string)) {
+				keyValue = string.split(":");
+				params.put(keyValue[0], keyValue[1].substring(1, keyValue[1].length() - 1));
+			}
+		}
+		return params;
+	}
 
 	public void setCookies(String cookies) {
 		this.cookies = cookies;
@@ -329,8 +358,15 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		return sessionRoles;
 	}
 
+	public String getSorterRoles() {
+		return sessionRoles.substring(1, sessionRoles.length() - 1);
+	}
+
 	public void setSessionRoles(String sessionRoles) {
 		this.sessionRoles = sessionRoles;
 	}
 
+	public String getUrl() {
+		return getProtocol()+ "://" + hostname + ":" + port + contextPath + path + (queryString != null ? "?" + queryString : "");
+	}
 }
