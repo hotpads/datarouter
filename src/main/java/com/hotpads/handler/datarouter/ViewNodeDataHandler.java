@@ -149,7 +149,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		if(StringTool.notEmpty(startAfterKeyString)){
 //			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
 			startAfterKey = PrimaryKeyStringConverter.primaryKeyFromString(
-					(Class<PK>)node.getFieldInfo().getPrimaryKe yClass(), //need to use the fielder in the jsp
+					(Class<PK>)node.getFieldInfo().getPrimaryKeyClass(), //need to use the fielder in the jsp
 					(PrimaryKeyFielder<PK>)node.getFieldInfo().getSamplePrimaryKey(), startAfterKeyString);
 			startAfterKey.fromPersistentString(startAfterKeyString);
 			mav.put(PARAM_startAfterKey, startAfterKey.getPersistentString());
