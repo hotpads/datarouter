@@ -165,25 +165,6 @@ public class HBaseScatteringPrefixQueryBuilder {
 		return ranges;
 	}
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
-	ArrayList<HBasePrimaryKeyScanner<PK,D>> getManualPrimaryKeyScannerForEachPrefix(
-			HBaseReaderNode<PK,D,?> node,
-			DatabeanFieldInfo<PK,D,?> fieldInfo,
-			FieldSet<?> start, boolean startInclusive, 
-			FieldSet<?> end, boolean endInclusive,
-			final Config pConfig){
-			Config config = Config.nullSafe(pConfig);
-		List<Pair<byte[],byte[]>> ranges = getRangeForEachScatteringPrefix(
-				fieldInfo, start, startInclusive, end, endInclusive, config);
-		ArrayList<HBasePrimaryKeyScanner<PK,D>> scanners = ListTool.createArrayList();
-		for(Pair<byte[],byte[]> range : ranges){
-			HBasePrimaryKeyScanner<PK,D> scanner = new HBasePrimaryKeyScanner<PK,D>(node, fieldInfo, 
-					range.getLeft(), range.getRight(), config);
-			scanners.add(scanner);
-		}
-		return scanners;
-	}
-	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 	ArrayList<BatchingSortedScanner<PK>> getBatchingPrimaryKeyScannerForEachPrefix(
 			ExecutorService executorService,

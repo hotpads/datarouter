@@ -125,13 +125,12 @@ implements SortedMapStorageReaderNode<PK,D>{
 	
 	//TODO add option to the BasePartitionedNode to skip filtering when not needed
 	@Override
-	public SortedScannerIterable<PK> scanKeys(PK start, boolean startInclusive, PK end, boolean endInclusive, 
-			Config config){
+	public SortedScannerIterable<PK> scanKeys(Range<PK> pRange, Config config){
+		Range<PK> range = Range.nullSafe(pRange);
 		List<SortedScanner<PK>> subScanners = ListTool.createArrayList();
-		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
 		List<N> nodes = getPhysicalNodesForRange(range);
 		for(N node : IterableTool.nullSafe(nodes)){
-			SortedScannerIterable<PK> iterable = node.scanKeys(start, startInclusive, end, endInclusive, config);
+			SortedScannerIterable<PK> iterable = node.scanKeys(range, config);
 			Filter<PK> filter = partitions.getPrimaryKeyFilterForNode(node);
 			FilteringSortedScanner<PK> filteredScanner = new FilteringSortedScanner<PK>(iterable.getScanner(), filter);
 			subScanners.add(filteredScanner);

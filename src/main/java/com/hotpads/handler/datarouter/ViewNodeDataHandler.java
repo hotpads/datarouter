@@ -83,7 +83,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		if(!(node instanceof SortedStorageWriter<?,?>)){ return new MessageMav("Cannot browse unsorted node"); }
 		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
 		int iterateBatchSize = 10000;
-		Iterable<PK> iterable = sortedNode.scanKeys(null, true, null, true, new Config().setIterateBatchSize(
+		Iterable<PK> iterable = sortedNode.scanKeys(null, new Config().setIterateBatchSize(
 				iterateBatchSize).setScannerCaching(false).setTimeout(10, TimeUnit.SECONDS).setNumAttempts(5));
 		int printBatchSize = 10000;
 		long count = 0;

@@ -30,6 +30,7 @@ import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.collections.Range;
 
 @RunWith(Parameterized.class)
 public class ScatteringPrefixIntegrationTests{
@@ -130,7 +131,7 @@ public class ScatteringPrefixIntegrationTests{
 	public synchronized void testGetAll(){
 		int iterateBatchSize = 2; 
 		Iterable<ScatteringPrefixBeanKey> iter = router.scatteringPrefixBean().scanKeys(
-				null, true, null, true, new Config().setIterateBatchSize(iterateBatchSize));
+				null, new Config().setIterateBatchSize(iterateBatchSize));
 		Iterable<ScatteringPrefixBeanKey> all = IterableTool.createArrayListFromIterable(iter);
 		long count = IterableTool.count(all);
 		Assert.assertTrue(TOTAL_RECORDS == count);
@@ -194,7 +195,7 @@ public class ScatteringPrefixIntegrationTests{
 		int expectedSize1 = 2;//confusing... just looked at mysql
 		
 		Iterable<ScatteringPrefixBeanKey> scanner0 = router.scatteringPrefixBean().scanKeys(
-				a190, true, b6, true, null);
+				Range.create(a190, true, b6, true), null);
 		List<ScatteringPrefixBeanKey> result0 = ListTool.createArrayList(scanner0);
 		Assert.assertEquals(expectedSize1, CollectionTool.size(result0));
 		Assert.assertTrue(ListTool.isSorted(result0));
