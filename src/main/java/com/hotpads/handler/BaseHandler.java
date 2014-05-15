@@ -8,6 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -23,10 +24,16 @@ import org.junit.Test;
 
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
+import com.hotpads.handler.types.HandlerOutputType;
+import com.hotpads.handler.types.HandlerTypingHelper;
 import com.hotpads.handler.user.authenticate.AdminEditUserHandler;
+import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
+import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.exception.PermissionException;
 import com.hotpads.util.core.java.ReflectionTool;
+import com.hotpads.util.http.client.json.GsonJsonSerializer;
+import com.hotpads.util.http.client.json.JsonSerializer;
 
 /*
  * a dispatcher servlet sets necessary parameters and then calls "handle()"
@@ -40,6 +47,7 @@ public abstract class BaseHandler{
 	protected HttpServletResponse response;
 	protected Params params;
 	protected PrintWriter out;
+	protected JsonSerializer jsonSerializer;
 	
 	//returns url match regex.  dispatcher servlet calls this on container startup to build url mappings
 	//..could also map the url's externally so they're in a centralized place
@@ -47,12 +55,14 @@ public abstract class BaseHandler{
 	
 	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 	
-	@Handler
-	protected Mav handleDefault(){
-		return new MessageMav().addObject("message", "no default handler method found, please specify "
-				+handlerMethodParamName());
+	protected BaseHandler(){
+		this.jsonSerializer = new GsonJsonSerializer();
 	}
 	
+	@Handler
+	protected Mav handleDefault(){
+		return new MessageMav("no default handler method found, please specify " + handlerMethodParamName());
+	}
 	
 	/*
 	 * handler methods in sub-classes will need this annotation as a security measure, 
@@ -63,17 +73,20 @@ public abstract class BaseHandler{
 	public @interface Handler {
 		Class<?>[] expectedParameterClasses() default {};
 		Class<?> expectedParameterClassesProvider() default Object.class;
+		HandlerOutputType output() default HandlerOutputType.MAV;
 	}
-	
 	
 	void handleWrapper(){//dispatcher servlet calls this
 		try{
 			permitted();
 			Method method = null;
+			List<Object> args = ListTool.create();
 			try{
 				String methodName = handlerMethodName();
 				if (!StringTool.isNullOrEmpty(methodName)) {
-					method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), methodName);
+					Pair<Method, List<Object>> pair = HandlerTypingHelper.findMethodByName(this, methodName, jsonSerializer);
+					method = pair.getLeft();
+					args = pair.getRight();
 				}
 				if (method == null) {
 					methodName = DEFAULT_HANDLER_METHOD_NAME;
@@ -89,9 +102,11 @@ public abstract class BaseHandler{
 			}catch(SecurityException e){
 				throw new RuntimeException(e);
 			}
-			Mav resultMav;
+			
+			
+			Object result;
 			try{
-				resultMav = (Mav)method.invoke(this, new Object[]{});
+				result = method.invoke(this, args.toArray());
 			}catch(IllegalAccessException e){
 				throw new RuntimeException(e);
 			}catch(InvocationTargetException e){
@@ -101,6 +116,7 @@ public abstract class BaseHandler{
 				}
 				throw new RuntimeException(cause);
 			}
+			Mav resultMav = HandlerTypingHelper.computeMav(method, result, jsonSerializer);
 			finishRequest(resultMav);
 		}catch(Exception e){
 			if(e instanceof RuntimeException){ throw (RuntimeException)e; }
@@ -188,7 +204,12 @@ public abstract class BaseHandler{
 		}
 	}
 	
-	/****************** get/set *******************************************/
+	/****************** get/set 
+	 * @return *******************************************/
+	
+	public Params getParams(){
+		return params;
+	}
 	
 	public void setParams(Params params){
 		this.params = params;
@@ -208,6 +229,10 @@ public abstract class BaseHandler{
 
 	public void setResponse(HttpServletResponse response){
 		this.response = response;
+	}
+	
+	public void setJsonSerializer(JsonSerializer jsonSerializer){
+		this.jsonSerializer = jsonSerializer;
 	}
 	
 	public static class BaseHandlerTests {
