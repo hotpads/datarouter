@@ -12,14 +12,15 @@ import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
-import com.hotpads.profile.count.databean.Count;
-import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.trace.key.TraceKey;
+import com.hotpads.trace.key.TraceKey.TraceKeyEntityFielder;
+import com.hotpads.trace.key.TraceKey.TraceKeyFielder;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.StringTool;
 
@@ -31,23 +32,23 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	@Id
-	protected TraceKey key;
+	private TraceKey key;
 	
 	@Column(length=32)
-	protected String sessionId;
+	private String sessionId;
 	@Column(length=20)
-	protected String context;
+	private String context;
 	@Column(length=DEFAULT_STRING_LENGTH)
-	protected String type;
+	private String type;
 	@Column(length=DEFAULT_STRING_LENGTH)
-	protected String params;
+	private String params;
 	
-	protected Long created;
-	protected Long duration;
+	private Long created;
+	private Long duration;
 	
 	@Transient
-	protected Long nanoStart;
-	protected Long durationNano;
+	private Long nanoStart;
+	private Long durationNano;
 		
 	
 	/**************************** columns *******************************/
@@ -59,9 +60,9 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 		LEN_type = 255,
 		LEN_params = 255;
 	
-	public static class F{
+	public static class Fields{
 		public static final String
-			KEY_key = "key",
+			key = "key",
 			sessionId = "sessionId",
 			context = "context",
 			type = "type",
@@ -70,21 +71,31 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 			duration = "duration";
 	}
 	
-	public static class TraceFielder extends BaseDatabeanFielder<TraceKey,Trace>{
-		public TraceFielder(){}
+	public static class TraceEntityFielder extends BaseDatabeanFielder<TraceKey,Trace>{
+		public TraceEntityFielder(){
+		}
 		@Override
-		public Class<TraceKey> getKeyFielderClass(){
-			return TraceKey.class;
+		public Class<? extends Fielder<TraceKey>> getKeyFielderClass(){
+			return TraceKeyEntityFielder.class;
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(Trace d){
 			return FieldTool.createList(
-					new StringField(F.sessionId, d.sessionId, LEN_sessionId),
-					new StringField(F.context, d.context, LEN_context),
-					new StringField(F.type, d.type, DEFAULT_STRING_LENGTH),
-					new StringField(F.params, d.params, DEFAULT_STRING_LENGTH),
-					new UInt63Field(F.created, d.created),
-					new UInt63Field(F.duration, d.duration));
+					new StringField(Fields.sessionId, d.sessionId,LEN_sessionId),
+					new StringField(Fields.context, d.context,LEN_context),
+					new StringField(Fields.type, d.type, DEFAULT_STRING_LENGTH),
+					new StringField(Fields.params, d.params, DEFAULT_STRING_LENGTH),
+					new UInt63Field(Fields.created, d.created),
+					new UInt63Field(Fields.duration, d.duration));
+		}
+	}
+	
+	public static class TraceFielder extends TraceEntityFielder{
+		public TraceFielder(){
+		}
+		@Override
+		public Class<? extends Fielder<TraceKey>> getKeyFielderClass(){
+			return TraceKeyFielder.class;
 		}
 	}
 	

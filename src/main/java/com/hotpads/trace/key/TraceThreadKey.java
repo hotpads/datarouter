@@ -11,11 +11,11 @@ import javax.persistence.Embeddable;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
-import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 
 @SuppressWarnings("serial")
 @Embeddable
-public class TraceThreadKey extends BasePrimaryKey<TraceThreadKey>{
+public class TraceThreadKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceThreadKey>{
 	
 	private static Random random = new Random();
 	
@@ -32,9 +32,13 @@ public class TraceThreadKey extends BasePrimaryKey<TraceThreadKey>{
 
 	
 	@Override
-	public List<Field<?>> getFields(){
+	public TraceEntityKey getEntityKey(){
+		return new TraceEntityKey(traceId);
+	}
+	
+	@Override
+	public List<Field<?>> getPostEntityKeyFields(){
 		return FieldTool.createList(
-				new LongField(COL_traceId, traceId),
 				new LongField(COL_id, id));
 	}
 

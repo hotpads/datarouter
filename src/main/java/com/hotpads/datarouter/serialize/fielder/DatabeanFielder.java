@@ -18,6 +18,7 @@ public interface DatabeanFielder<
 
 	Class<? extends ScatteringPrefix> getScatteringPrefixClass();
 	
+	//TODO require PrimaryKeyFielder (requires find/replace in all Databeans
 	Class<? extends Fielder<PK>> getKeyFielderClass();
 	Fielder<PK> getKeyFielder();
 

@@ -319,7 +319,7 @@ public class SortedNodeIntegrationTests{
 	
 	@Test
 	public synchronized void testScanKeys(){
-		Iterable<SortedBeanKey> iterable = router.sortedBeanSorted().scanKeys(null, true, null, true, null);
+		Iterable<SortedBeanKey> iterable = router.sortedBeanSorted().scanKeys(null, null);
 		long numKeys = IterableTool.count(iterable);
 		Assert.assertEquals(TOTAL_RECORDS, numKeys);
 	}
