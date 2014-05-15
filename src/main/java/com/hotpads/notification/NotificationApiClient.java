@@ -18,8 +18,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
+import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.setting.NotificationSettings;
+import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.http.client.HotPadsHttpClient;
 import com.hotpads.util.http.client.HotPadsHttpClientBuilder;
 import com.hotpads.util.http.client.security.ApiKeyPredicate;
@@ -37,9 +39,29 @@ public class NotificationApiClient {
 	private HotPadsHttpClient client;
 	private NotificationRequestDtoTool dtoTool;
 	private ExceptionHandlingConfig exceptionHandlingConfig;
+	private NotificationSettings settings;
+	private Boolean last;
 
 	@Inject
 	public NotificationApiClient(NotificationRequestDtoTool dtoTool, ExceptionHandlingConfig exceptionHandlingConfig, NotificationSettings settings) {
+		this.settings = settings;
+		this.exceptionHandlingConfig = exceptionHandlingConfig;
+		this.dtoTool = dtoTool;
+	}
+
+	public void call(List<Pair<NotificationRequest, ExceptionRecord>> requests) throws IOException {
+		getClient(settings.getIgnoreSsl().getValue()).post(exceptionHandlingConfig.getNotificationApiEndPoint(), dtoTool.toDtos(requests), false);
+	}
+
+	private HotPadsHttpClient getClient(Boolean ignoreSsl) {
+		if (last == null || last != ignoreSsl) {
+			 buildClient(ignoreSsl);
+			 last = ignoreSsl;
+		}
+		return client;
+	}
+
+	private void buildClient(Boolean ignoreSsl) {
 		HotPadsHttpClientBuilder httpClientBuilder = null;
 		if (settings.getIgnoreSsl().getValue()) {
 			try{
@@ -61,17 +83,11 @@ public class NotificationApiClient {
 		} else {
 			httpClientBuilder = new HotPadsHttpClientBuilder().create();
 		}
-		this.client = httpClientBuilder
+		client = httpClientBuilder
 				.setSignatureValidator(new SignatureValidator(SALT))
 				.setCsrfValidator(new CsrfValidator(CIPHER_KEY, CIPHER_IV))
 				.setApiKeyPredicate(new ApiKeyPredicate(API_KEY))
 				.build();
-		this.exceptionHandlingConfig = exceptionHandlingConfig;
-		this.dtoTool = dtoTool;
-	}
-
-	public void call(List<NotificationRequest> requests) throws IOException {
-		client.post(exceptionHandlingConfig.getNotificationApiEndPoint(), dtoTool.toDtos(requests), false);
 	}
 
 }
