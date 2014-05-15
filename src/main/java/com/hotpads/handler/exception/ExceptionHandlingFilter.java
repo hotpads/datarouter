@@ -145,6 +145,7 @@ public class ExceptionHandlingFilter implements Filter {
 
 	private void recordExceptionAndRequestNotification(HttpServletRequest request, Exception e) {
 		try {
+<<<<<<< HEAD
 			ExceptionRecord exceptionRecord = new ExceptionRecord(
 					exceptionHandlingConfig.getServerName(),
 					ExceptionUtils.getStackTrace(e),
@@ -213,6 +214,14 @@ public class ExceptionHandlingFilter implements Filter {
 					"unknown roles"
 					);
 			httpRequestRecordNode.put(httpRequestRecord, null);
+=======
+			ExceptionRecord exceptionRecord = new ExceptionRecord(exceptionHandlingConfig.getServerName(),
+					ExceptionUtils.getStackTrace(e));
+			if(!persister.addToQueue(exceptionRecord)){
+				logger.warn("queue did not accept exceptionRecord");
+			}
+
+>>>>>>> origin/master
 			addNotificationRequestToQueue(request, e, exceptionRecord);
 		} catch (Exception ex) {
 			logger.error("Exception while logging");

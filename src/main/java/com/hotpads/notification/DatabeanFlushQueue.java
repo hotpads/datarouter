@@ -40,10 +40,8 @@ public class DatabeanFlushQueue<D extends Databean<PK,D>, PK extends PrimaryKey<
 		flushScheduler.scheduleWithFixedDelay(new Flusher(), 1000, 1000, TimeUnit.MILLISECONDS);
 	}
 	
-	public boolean addToQueue(D databean) {
-		logger.warn("discarding ExceptionRecord because queue is full");
-		//TODO should we dump the old entries and keep the newer ones?
-		return queue.offer(databean);
+	public boolean addToQueue(ExceptionRecord exceptionRecord) {
+		return queue.offer(exceptionRecord);
 	}
 	
 	
