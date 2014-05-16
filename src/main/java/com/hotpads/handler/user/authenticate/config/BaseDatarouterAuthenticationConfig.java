@@ -33,7 +33,6 @@ implements DatarouterAuthenticationConfig{
 	private static final String PATH_resetApiKeySubmit = PATH_admin + "/resetApiKeySubmit";
 
 	private static final String PATH_api = "/api";
-	private static final String PATH_apiWebClient = PATH_admin + PATH_api + "/web";
 	
 	private static final String PARAM_apiKey = "apiKey";
 	private static final String PARAM_username = "username";
@@ -52,7 +51,6 @@ implements DatarouterAuthenticationConfig{
 	private static final String JSP_editUser = JSP_authentication + "/editUserForm.jsp";
 	private static final String JSP_resetPassword = JSP_authentication + "/resetPasswordForm.jsp";
 	
-	private static final String JSP_apiWebClient = "/WEB-INF/jsp/api/webClient.jsp";
 	
 	@Override
 	public String getHomePath() {
@@ -72,11 +70,6 @@ implements DatarouterAuthenticationConfig{
 	@Override
 	public String getApiPath() {
 		return PATH_api;
-	}
-	
-	@Override
-	public String getApiWebClientPath() {
-		return PATH_apiWebClient;
 	}
 	
 	/*********************** signin/out/up ************************************/
@@ -222,11 +215,6 @@ implements DatarouterAuthenticationConfig{
 	@Override
 	public String getResetPasswordJsp() {
 		return JSP_resetPassword;
-	}
-	
-	@Override
-	public String getApiWebClientJsp() {
-		return JSP_apiWebClient;
 	}
 	
 	/*********************** methods ************************************/
