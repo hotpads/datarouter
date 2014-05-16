@@ -45,10 +45,7 @@ extends NodeOps<PK,D>
 			final Config config);
 
 	SortedScannerIterable<PK> scanKeys(final Range<PK> range, final Config config);
-	SortedScannerIterable<D> scan(
-			final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, 
-			final Config config);
+	SortedScannerIterable<D> scan(final Range<PK> range, final Config config);
 
 	
 	

@@ -72,9 +72,8 @@ implements SortedStorageReaderNode<PK,D>{
 	};
 	
 	@Override
-	public SortedScannerIterable<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, 
-			Config config){
-		return mainNode.scan(startKey,startInclusive, end, endInclusive, config);
+	public SortedScannerIterable<D> scan(Range<PK> range, Config config){
+		return mainNode.scan(range, config);
 	};
 	
 }
