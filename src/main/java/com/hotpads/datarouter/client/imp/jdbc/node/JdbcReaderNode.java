@@ -235,11 +235,8 @@ implements MapStorageReader<PK,D>,
 	}
 	
 	@Override
-	public SortedScannerIterable<D> scan(
-			PK start, boolean startInclusive, 
-			PK end, boolean endInclusive, 
-			Config config){
-		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
+	public SortedScannerIterable<D> scan(Range<PK> pRange, Config config){
+		Range<PK> range = Range.nullSafe(pRange);
 		SortedScanner<D> scanner = new JdbcDatabeanScanner<PK,D>(this, fieldInfo, range, config);
 		return new SortedScannerIterable<D>(scanner);
 	}

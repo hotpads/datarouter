@@ -14,11 +14,11 @@ import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader.SortedStorage
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.NumberFormatter;
+import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.number.VarLong;
 
 public abstract class BackupRegion<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
@@ -51,7 +51,7 @@ public abstract class BackupRegion<PK extends PrimaryKey<PK>,D extends Databean<
 	public abstract void execute() throws IOException;
 	
 	protected void exportWithoutClosingOutputStream() throws IOException{
-		Iterable<D> iterable = node.scan(startKeyInclusive, true, endKeyExclusive, false, 
+		Iterable<D> iterable = node.scan(Range.create(startKeyInclusive, true, endKeyExclusive, false), 
 				new Config().setIterateBatchSize(1000).setNumAttempts(30).setTimeout(10, TimeUnit.SECONDS));
 		if( ! node.getFieldInfo().getFieldAware()){ throw new IllegalArgumentException("databeans must be field aware"); }
 		for(D databean : IterableTool.nullSafe(iterable)){

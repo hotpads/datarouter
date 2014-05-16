@@ -70,7 +70,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		String prefix = params.optional(P_prefix, null);
 		if(StringTool.isEmpty(prefix)) {
 //			settings = clusterSettingNode.getAll(null); deprecated
-			settings = ListTool.createArrayList(clusterSettingNode.scan(null, true, null, false, null));
+			settings = ListTool.createArrayList(clusterSettingNode.scan(null, null));
 		} else {
 			ClusterSettingKey settingPrefix = new ClusterSettingKey(prefix, null, null, null, null);
 			settings = clusterSettingNode.getWithPrefix(settingPrefix, true, null);
