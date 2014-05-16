@@ -89,11 +89,10 @@ implements SortedMapStorageReaderNode<PK,D>{
 	};
 	
 	@Override
-	public SortedScannerIterable<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, 
-			Config config){
+	public SortedScannerIterable<D> scan(Range<PK> range, Config config){
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? chooseSlave(config) : master;
-		return node.scan(startKey,startInclusive, end, endInclusive, config);
+		return node.scan(range, config);
 	};
 	
 }
