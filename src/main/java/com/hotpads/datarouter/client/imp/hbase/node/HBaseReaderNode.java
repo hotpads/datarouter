@@ -248,7 +248,7 @@ implements HBasePhysicalNode<PK,D>,
 	public List<D> getRange(final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		PeekableIterable<D> iter = scan(start, startInclusive, end, endInclusive, pConfig);
+		PeekableIterable<D> iter = scan(Range.create(start, startInclusive, end, endInclusive), pConfig);
 		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
 		List<D> results = IterableTool.createArrayListFromIterable(iter, limit);
 		return results;
@@ -283,12 +283,10 @@ implements HBasePhysicalNode<PK,D>,
 	}
 	
 	@Override
-	public SortedScannerIterable<D> scan(final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, 
-			final Config pConfig){
-		Range<PK> pkRange = Range.create(start, startInclusive, end, endInclusive);
+	public SortedScannerIterable<D> scan(final Range<PK> pRange, final Config pConfig){
+		Range<PK> range = Range.nullSafe(pRange);
 		List<BatchingSortedScanner<D>> scanners = HBaseScatteringPrefixQueryBuilder
-				.getBatchingDatabeanScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, pkRange,
+				.getBatchingDatabeanScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, range,
 						pConfig);
 		//TODO can omit the collator if only one scanner
 		Collator<D> collator = new PriorityQueueCollator<D>(scanners);

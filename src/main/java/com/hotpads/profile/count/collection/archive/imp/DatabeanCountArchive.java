@@ -25,6 +25,7 @@ import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class DatabeanCountArchive extends BaseCountArchive{
@@ -71,7 +72,8 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		Config configLongTimeout = new Config().setTimeout(1, TimeUnit.MINUTES);
 		AvailableCounterKey start = new AvailableCounterKey(webApp, this.periodMs, startingAt, null);
 		AvailableCounterKey end = new AvailableCounterKey(webApp, this.periodMs, null, null);
-		SortedScannerIterable<AvailableCounter> counters = availableCounterNode.scan(start, true, end, true, configLongTimeout);
+		SortedScannerIterable<AvailableCounter> counters = availableCounterNode.scan(Range.create(start, true, end, true),
+				configLongTimeout);
 		return ListTool.createArrayList(counters.iterator());
 	}
 
@@ -83,7 +85,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		CountKey end = new CountKey(name, webApp, periodMs, System.currentTimeMillis(), null, null);
 		PhysicalSortedMapStorageNode<CountKey,Count> physicalSortedMapStorageNode = ((CountPartitionedNode)countNode)
 				.getPhysicalNode(start);
-		SortedScannerIterable<Count> scanner = physicalSortedMapStorageNode.scan(start, true, end, true, null);
+		SortedScannerIterable<Count> scanner = physicalSortedMapStorageNode.scan(Range.create(start, true, end, true), null);
 		return Count.getListWithGapsFilled(name, webApp, getSource(), periodMs, scanner, startMs, endMs);
 
 	}
@@ -94,7 +96,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		CountKey end = new CountKey(name, WebApp, periodMs, System.currentTimeMillis(), null, Long.MAX_VALUE);
 		PhysicalSortedMapStorageNode<CountKey,Count> physicalSortedMapStorageNode = ((CountPartitionedNode)countNode)
 				.getPhysicalNode(start);
-		SortedScannerIterable<Count> scanner = physicalSortedMapStorageNode.scan(start, true, end, true, null);
+		SortedScannerIterable<Count> scanner = physicalSortedMapStorageNode.scan(Range.create(start, true, end, true), null);
 		Predicate<Count> predicate = new FilterCountByServer(source);
 		Iterable<Count> filtered = Iterables.filter(scanner, predicate);
 		return ListTool.createArrayList(filtered);
@@ -106,7 +108,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		CountKey end = new CountKey(name, WebApp, periodMs, System.currentTimeMillis(), null, Long.MAX_VALUE);
 		PhysicalSortedMapStorageNode<CountKey,Count> physicalSortedMapStorageNode = ((CountPartitionedNode)countNode)
 				.getPhysicalNode(start);
-		SortedScannerIterable<Count> scanner = physicalSortedMapStorageNode.scan(start, true, end, true, null);
+		SortedScannerIterable<Count> scanner = physicalSortedMapStorageNode.scan(Range.create(start, true, end, true), null);
 		Predicate<Count> predicate = new FilterCountByServer(source);
 		Iterable<Count> filtered = Iterables.filter(scanner, predicate);
 		return Count.getListWithGapsFilled(name, WebApp, getSource(), periodMs, filtered, startMs, endMs);
