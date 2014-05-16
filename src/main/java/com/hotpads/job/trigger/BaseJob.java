@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.quartz.CronExpression;
 
+import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTaskTracker;
 import com.hotpads.setting.Setting;
 import com.hotpads.util.core.BooleanTool;
@@ -26,20 +27,21 @@ public abstract class BaseJob implements Job{
 	protected Setting<Boolean> processJobsSetting;
 	protected boolean isAlreadyScheduled;
 	protected MutableBoolean interrupted = new MutableBoolean(false);
-	private LongRunningTaskTracker longRunningTaskTracker;
+	protected LongRunningTaskTracker longRunningTaskTracker;
+	protected Setting<Boolean> shouldSaveJobRecords;
 
 
 	/************************* constructors *******************/
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Inject
 	public BaseJob(JobEnvironment jobEnvironment) {
 		this.scheduler = jobEnvironment.getScheduler();
 		this.executor = jobEnvironment.getExecutor();
 		this.processJobsSetting = jobEnvironment.getProcessJobsSetting();
+		this.shouldSaveJobRecords = jobEnvironment.getShouldSaveJobRecords();
 		String jobClass = this.getClass().getName();
 		String serverName = jobEnvironment.getServerName();
-		this.longRunningTaskTracker = jobEnvironment.getLongRunningTaskTrackerFactory().createLongRunningTaskTracker(jobClass, serverName);
+		this.longRunningTaskTracker = jobEnvironment.getLongRunningTaskTrackerFactory().createLongRunningTaskTracker(jobClass, serverName, jobEnvironment.getShouldSaveJobRecords());
 	}
 
 	/*********************** methods ******************************/
@@ -65,7 +67,13 @@ public abstract class BaseJob implements Job{
 			baseJobLogger.warn("couldn't schedule "+getClass()+" because is already scheduled");
 			return;
 		}
-		Job nextJobInstance = scheduler.getJobInstance(getClass(), getTrigger().getCronExpression());
+		BaseJob nextJobInstance = scheduler.getJobInstance(getClass(), getTrigger().getCronExpression());
+		Long triggerTime = System.currentTimeMillis() + delay;
+		
+			nextJobInstance.getLongRunningTaskTracker().getTask().getKey().setTriggerTime(new Date(triggerTime));
+		if(shouldSaveJobRecords.getValue()){
+			nextJobInstance.getLongRunningTaskTracker().getNode().put(nextJobInstance.getLongRunningTaskTracker().getTask(), null);
+		}
 		executor.schedule(nextJobInstance, delay, TimeUnit.MILLISECONDS);
 		isAlreadyScheduled = true;
 //		logger.warn("scheduled next execution of "+getClass()+" for "
@@ -106,9 +114,17 @@ public abstract class BaseJob implements Job{
 			scheduler.getTracker().get(this.getClass()).setRunning(true);
 			scheduler.getTracker().get(this.getClass()).setJob(this);
 			long startTimeMs = System.currentTimeMillis();
-			
+				longRunningTaskTracker.getTask().setStartTime(new Date());
+				longRunningTaskTracker.getTask().setJobExecutionStatus(JobExecutionStatus.running);
+			if(shouldSaveJobRecords.getValue()){
+				longRunningTaskTracker.getNode().put(longRunningTaskTracker.getTask(), null);
+			}
 			run();
-			
+				longRunningTaskTracker.getTask().setFinishTime(new Date());
+				longRunningTaskTracker.getTask().setJobExecutionStatus(JobExecutionStatus.success);
+			if(shouldSaveJobRecords.getValue()){
+				longRunningTaskTracker.getNode().put(longRunningTaskTracker.getTask(), null);
+			}
 			long endTimeMs = System.currentTimeMillis();
 			long durationMs = endTimeMs - startTimeMs;
 			scheduler.getTracker().get(this.getClass()).setLastExecutionDurationMs(durationMs);

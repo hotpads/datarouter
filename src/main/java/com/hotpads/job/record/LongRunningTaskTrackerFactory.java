@@ -5,6 +5,7 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.job.record.LongRunningTaskTracker.LongRunningTaskNode;
+import com.hotpads.setting.Setting;
 
 
 @Singleton
@@ -17,8 +18,8 @@ public class LongRunningTaskTrackerFactory {
 		this.longRunningTaskNode = longRunningTaskNode;
 	}
 	
-	public LongRunningTaskTracker createLongRunningTaskTracker(String jobClass, String serverName){
+	public LongRunningTaskTracker createLongRunningTaskTracker(String jobClass, String serverName, Setting<Boolean> shouldSaveJobRecords){
 		LongRunningTask task = new LongRunningTask(jobClass, serverName);
-		return new LongRunningTaskTracker(longRunningTaskNode, task);
+		return new LongRunningTaskTracker(longRunningTaskNode, task, shouldSaveJobRecords);
 	}
 }

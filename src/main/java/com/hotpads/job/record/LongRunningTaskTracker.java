@@ -8,6 +8,7 @@ import java.util.Date;
 
 import com.google.inject.BindingAnnotation;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import com.hotpads.setting.Setting;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class LongRunningTaskTracker {
@@ -23,11 +24,13 @@ public class LongRunningTaskTracker {
 	private LongRunningTask task;
 	private MutableBoolean interrupted;
 	private Date lastPersistedHeartbeat;
+	private Setting<Boolean> shouldSaveJobRecords;
 	
-	public LongRunningTaskTracker(IndexedSortedMapStorageNode node, LongRunningTask task){
+	public LongRunningTaskTracker(IndexedSortedMapStorageNode node, LongRunningTask task, Setting<Boolean> shouldSaveJobRecords){
 		this.node = node;
 		this.task = task;
 		this.interrupted = new MutableBoolean(false);
+		this.shouldSaveJobRecords = shouldSaveJobRecords;
 	}
 	
 //	private void requestInterrupt(){
@@ -37,7 +40,7 @@ public class LongRunningTaskTracker {
 //		return false;
 //	}
 	
-	private void heartbeat(){
+	public void heartbeat(){
 		if(shouldPersistHeartbeat()){
 			Date heartbeat = new Date();
 			task.setHeartbeatTime(heartbeat);
@@ -47,6 +50,12 @@ public class LongRunningTaskTracker {
 	}
 	
 	private boolean shouldPersistHeartbeat(){
+		if(!shouldSaveJobRecords.getValue()){
+			return false;
+		}
+		if(lastPersistedHeartbeat == null){
+			return true;
+		}
 		return System.currentTimeMillis() - lastPersistedHeartbeat.getTime() > HEARTBEAT_PERSIST_PERIOD_MS;
 	}
 
@@ -76,5 +85,13 @@ public class LongRunningTaskTracker {
 
 	public void setLastPersistedHeartbeat(Date lastPersistedHeartbeat) {
 		this.lastPersistedHeartbeat = lastPersistedHeartbeat;
+	}
+
+	public Setting<Boolean> getShouldSaveJobRecords() {
+		return shouldSaveJobRecords;
+	}
+
+	public void setShouldSaveJobRecords(Setting<Boolean> shouldSaveJobRecords) {
+		this.shouldSaveJobRecords = shouldSaveJobRecords;
 	}
 }

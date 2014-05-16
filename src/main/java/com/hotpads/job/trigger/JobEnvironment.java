@@ -17,6 +17,7 @@ public class JobEnvironment{
 	private Setting<Boolean> processJobsSetting;
 	private LongRunningTaskTrackerFactory longRunningTaskTrackerFactory;
 	private String serverName;
+	private Setting<Boolean> shouldSaveJobRecords;
 
 	@Inject
 	public JobEnvironment(JobScheduler jobScheduler, @JobExecutor ScheduledExecutorService executorService,
@@ -53,4 +54,14 @@ public class JobEnvironment{
 	public final LongRunningTaskTrackerFactory getLongRunningTaskTrackerFactory(){
 		return longRunningTaskTrackerFactory;
 	}
+
+	public Setting<Boolean> getShouldSaveJobRecords() {
+		return shouldSaveJobRecords;
+	}
+
+	public void setShouldSaveJobRecords(Setting<Boolean> shouldSaveJobRecords) {
+		this.shouldSaveJobRecords = shouldSaveJobRecords;
+	}
+	
+	
 }

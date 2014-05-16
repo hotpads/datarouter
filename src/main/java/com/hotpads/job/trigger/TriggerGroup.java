@@ -4,6 +4,6 @@ import java.util.Map;
 
 public interface TriggerGroup{
 
-	Map<Class<? extends Job>, String> getJobClasses();
+	Map<Class<? extends BaseJob>, String> getJobClasses();
 	
 }
