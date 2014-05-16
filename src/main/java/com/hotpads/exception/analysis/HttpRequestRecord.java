@@ -27,7 +27,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	private HttpRequestRecordKey key;
 	private Date created;
-	
+
 	private String exceptionRecordId;
 	private String exceptionPlace;
 	private String methodName;
@@ -35,14 +35,14 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	private String httpMethod;
 	private String httpParams;
-	
+
 	private String protocol;
 	private String hostname;
 	private int port;
 	private String contextPath;
 	private String path;
 	private String queryString;
-	
+
 	private String ip;
 	private String userAgent;
 	private boolean fromAjax;
@@ -62,7 +62,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 			httpMethod = "httpMethod",
 			httpParams = "httpParams",
-			
+
 			protocolString = "protocol",
 			hostname = "hostname",
 			port = "port",

@@ -94,7 +94,7 @@ public class ExceptionHandlingFilter implements Filter {
 			exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
 			notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig, notificationSettings);
 		}
-		apiCaller = new ParallelApiCaller(notificationApiClient);
+		apiCaller = new ParallelApiCaller(notificationApiClient, notificationSettings);
 	}
 
 	@Override
@@ -199,29 +199,29 @@ public class ExceptionHandlingFilter implements Filter {
 				place = jspName;
 			}
 			//search for other error in com.hotpads
-			next = e;
-			whileLoop: do {
-				String key = "com.hotpads";
-				if (next.getMessage().contains(key)) {
-					String key2 = " at line ";
-					int i = next.getMessage().indexOf(key2);
-					int endLine = next.getMessage().indexOf("\n");
-					jspName = next.getMessage().substring(key.length(), i);
-					lineNumber = Integer.parseInt(next.getMessage().substring(i + key2.length(), endLine));
-					break;
-				}				
-				jspName = getJSPName(next.getMessage());
-				if (jspName != null) {
-					break;
-				}
-				for (StackTraceElement element : next.getStackTrace()) {
-					jspName = getJSPName(element.getClassName());
-					if (jspName != null) {
-						break whileLoop;
-					}
-				}
-				next = next.getCause();
-			} while (next != null);
+//			next = e;
+//			whileLoop: do {
+//				String key = "com.hotpads";
+//				if (next.getMessage().contains(key)) {
+//					String key2 = " at line ";
+//					int i = next.getMessage().indexOf(key2);
+//					int endLine = next.getMessage().indexOf("\n");
+//					jspName = next.getMessage().substring(key.length(), i);
+//					lineNumber = Integer.parseInt(next.getMessage().substring(i + key2.length(), endLine));
+//					break;
+//				}				
+//				jspName = getJSPName(next.getMessage());
+//				if (jspName != null) {
+//					break;
+//				}
+//				for (StackTraceElement element : next.getStackTrace()) {
+//					jspName = getJSPName(element.getClassName());
+//					if (jspName != null) {
+//						break whileLoop;
+//					}
+//				}
+//				next = next.getCause();
+//			} while (next != null);
 			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
 					exceptionRecord.getKey().getId(),
 					place,
@@ -274,9 +274,10 @@ public class ExceptionHandlingFilter implements Filter {
 					new NotificationUserId(
 							NotificationUserType.EMAIL,
 							exceptionHandlingConfig.getRecipientEmail()),
-							exceptionHandlingConfig.getNotificationType(),
-							exceptionRecord.getKey().getId(),
-							exception.getClass().getName()));
+					exceptionHandlingConfig.getNotificationType(),
+					exceptionRecord.getKey().getId(),
+					exception.getClass().getName()),
+					exceptionRecord);
 		}
 	}
 

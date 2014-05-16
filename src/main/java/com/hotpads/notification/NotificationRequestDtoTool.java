@@ -5,11 +5,13 @@ import java.util.List;
 import javax.inject.Inject;
 
 import com.google.inject.Singleton;
+import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
 import com.hotpads.notification.type.NotificationTypeFactory;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.collections.Pair;
 
 @Singleton
 public class NotificationRequestDtoTool {
@@ -29,15 +31,15 @@ public class NotificationRequestDtoTool {
 		return notificationRequests;
 	}
 
-	public List<NotificationRequestDto> toDtos(List<NotificationRequest> requests) {
+	public List<NotificationRequestDto> toDtos(List<Pair<NotificationRequest, ExceptionRecord>> requests) {
 		List<NotificationRequestDto> dtos = ListTool.create();
-		for (NotificationRequest request : requests) {
+		for (Pair<NotificationRequest, ExceptionRecord> request : requests) {
 			dtos.add(new NotificationRequestDto(
-					request.getKey().getUserType().toString(),
-					request.getKey().getUserId(),
-					request.getType(),
-					request.getData(), 
-					request.getChannel()));
+					request.getLeft().getKey().getUserType().toString(),
+					request.getLeft().getKey().getUserId(),
+					request.getLeft().getType(),
+					request.getLeft().getData(), 
+					request.getLeft().getChannel()));
 		}
 		return dtos;
 	}
