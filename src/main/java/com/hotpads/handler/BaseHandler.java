@@ -63,6 +63,7 @@ public abstract class BaseHandler{
 	public @interface Handler {
 		Class<?>[] expectedParameterClasses() default {};
 		Class<?> expectedParameterClassesProvider() default Object.class;
+		String description() default "";
 	}
 	
 	
