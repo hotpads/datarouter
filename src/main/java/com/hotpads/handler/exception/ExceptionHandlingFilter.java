@@ -17,7 +17,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -29,6 +28,7 @@ import com.google.inject.BindingAnnotation;
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
+import com.hotpads.exception.analysis.HeadersWrapper;
 import com.hotpads.exception.analysis.HttpRequestRecord;
 import com.hotpads.exception.analysis.HttpRequestRecordKey;
 import com.hotpads.handler.util.RequestTool;
@@ -150,85 +150,71 @@ public class ExceptionHandlingFilter implements Filter {
 					ExceptionUtils.getStackTrace(e),
 					e.getClass().getName());
 			exceptionRecordNode.put(exceptionRecord, null);
-			StringBuilder paramString = new StringBuilder("[");
+			StringBuilder paramStringBuilder = new StringBuilder();
 			for (Entry<String, String[]> param : request.getParameterMap().entrySet()) {
-				paramString.append(param.getKey());
-				paramString.append(":");
-				paramString.append(Arrays.toString(param.getValue()));
-				paramString.append(",");
+				paramStringBuilder.append(param.getKey());
+				paramStringBuilder.append(":");
+				paramStringBuilder.append(Arrays.toString(param.getValue()));
+				paramStringBuilder.append(",");
 			}
-			paramString.append("]");
-			StringBuilder cookieString = new StringBuilder("[");
-			for (Cookie c : request.getCookies()) {
-				cookieString.append(c.getName());
-				cookieString.append(":");
-				cookieString.append(c.getValue());
-				cookieString.append(",");
-			}
-			cookieString.append("]");
-			
-			String place = null;
+			String paramString = paramStringBuilder.toString();
 			//search for jsp error
-			String jspName = null;
-			int lineNumber = 0;
-			Throwable next;
-			next = e;
+			String place = null;
+			int lineNumber = -1;
+			Throwable cause;
+			cause = e;
 			whileLoop: do {
 				String key = "An exception occurred processing JSP page ";
-				if (next.getMessage().contains(key)) {
+				if (cause.getMessage() == null) {
+					cause = cause.getCause();
+					continue;
+				}
+				int indexOfBegin = cause.getMessage().indexOf(key);
+				if (indexOfBegin > -1) {
 					String key2 = " at line ";
-					int i = next.getMessage().indexOf(key2);
-					int endLine = next.getMessage().indexOf("\n");
-					jspName = next.getMessage().substring(key.length(), i);
-					lineNumber = Integer.parseInt(next.getMessage().substring(i + key2.length(), endLine));
+					int i = cause.getMessage().indexOf(key2);
+					int endLine = cause.getMessage().indexOf("\n");
+					place = cause.getMessage().substring(indexOfBegin + key.length(), i);
+					try {
+						lineNumber = Integer.parseInt(cause.getMessage().substring(i + key2.length(), endLine));
+					} catch(NumberFormatException ex) {
+						
+					}
 					break;
 				}				
-				jspName = getJSPName(next.getMessage());
-				if (jspName != null) {
+				place = getJSPName(cause.getMessage());
+				if (place != null) {
 					break;
 				}
-				for (StackTraceElement element : next.getStackTrace()) {
-					jspName = getJSPName(element.getClassName());
-					if (jspName != null) {
+				for (StackTraceElement element : cause.getStackTrace()) {
+					place = getJSPName(element.getClassName());
+					if (place != null) {
 						break whileLoop;
 					}
 				}
-				next = next.getCause();
-			} while (next != null);
-			if (jspName != null) {
-				place = jspName;
+				cause = cause.getCause();
+			} while (cause != null);
+			if (place == null) {
+				//search for other error in com.hotpads
+				cause = e;
+				whileLoop: do {
+					for (StackTraceElement element : cause.getStackTrace()) {
+						if (element.getClassName().contains("com.hotpads")) {
+							lineNumber = element.getLineNumber();
+							place = element.getClassName();
+							break whileLoop;
+						}
+					}
+					cause = cause.getCause();
+				} while (cause != null);
 			}
-			//search for other error in com.hotpads
-//			next = e;
-//			whileLoop: do {
-//				String key = "com.hotpads";
-//				if (next.getMessage().contains(key)) {
-//					String key2 = " at line ";
-//					int i = next.getMessage().indexOf(key2);
-//					int endLine = next.getMessage().indexOf("\n");
-//					jspName = next.getMessage().substring(key.length(), i);
-//					lineNumber = Integer.parseInt(next.getMessage().substring(i + key2.length(), endLine));
-//					break;
-//				}				
-//				jspName = getJSPName(next.getMessage());
-//				if (jspName != null) {
-//					break;
-//				}
-//				for (StackTraceElement element : next.getStackTrace()) {
-//					jspName = getJSPName(element.getClassName());
-//					if (jspName != null) {
-//						break whileLoop;
-//					}
-//				}
-//				next = next.getCause();
-//			} while (next != null);
 			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
 					exceptionRecord.getKey().getId(),
 					place,
-					"",
+					null,
 					lineNumber,
 					request.getMethod(),
-					paramString.toString(),
+					paramString.length() > 0 ? paramString : null,
 					request.getScheme(),
 					request.getServerName(),
 					request.getServerPort(),
@@ -236,11 +222,9 @@ public class ExceptionHandlingFilter implements Filter {
 					request.getRequestURI().substring(request.getContextPath().length()),
 					request.getQueryString(),
 					RequestTool.getIpAddress(request),
-					request.getHeader("user-agent"),
-					"XMLHttpRequest".equals(request.getHeader("x-requested-with")),
-					request.getHeader("referer"),
-					cookieString.toString(),
-					"unknown roles"
+					"unknown user roles",
+					-1l,
+					new HeadersWrapper(request)
 					);
 			httpRequestRecordNode.put(httpRequestRecord, null);
 			addNotificationRequestToQueue(request, e, exceptionRecord);

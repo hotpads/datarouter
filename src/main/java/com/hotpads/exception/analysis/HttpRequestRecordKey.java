@@ -7,12 +7,15 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.exception.analysis.HttpRequestRecord.F;
 
 @SuppressWarnings("serial")
 public class HttpRequestRecordKey extends BasePrimaryKey<HttpRequestRecordKey>{
 
 	private String id;
+
+	private static class F {
+		public static String id = "id";
+	}
 
 	HttpRequestRecordKey() {}
 

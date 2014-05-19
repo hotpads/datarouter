@@ -40,8 +40,9 @@ public class HeadersWrapper {
 		Joiner listJoiner = Joiner.on(", ");
 		List<String> tmpHeaders = Collections.list(request.getHeaderNames());
 		for (String headerKey : recordedHeaders) {
-			tmpHeaders.remove(headerKey);
-			headerMap.put(headerKey, listJoiner.join(Collections.list(request.getHeaders(headerKey))));
+			if (tmpHeaders.remove(headerKey)) {
+				headerMap.put(headerKey, listJoiner.join(Collections.list(request.getHeaders(headerKey))));
+			}
 		}
 		StringBuilder othersBuilder = new StringBuilder();
 		for (String header : tmpHeaders) {
@@ -50,7 +51,8 @@ public class HeadersWrapper {
 			othersBuilder.append(listJoiner.join(Collections.list(request.getHeaders(header))));
 			othersBuilder.append(", ");
 		}
-		headerMap.put("others", othersBuilder.toString());
+		String others = othersBuilder.toString();
+		headerMap.put("others", others);
 	}
 
 	public String getAcceptCharset(){

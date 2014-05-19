@@ -12,8 +12,8 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.unique.BaseUniqueKey;
 import com.hotpads.datarouter.util.UuidTool;
@@ -44,38 +44,75 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	private String queryString;
 
 	private String ip;
+	private String userRoles;
+	private Long userId;
+
+	private String acceptCharset;
+	private String acceptEncoding;
+	private String acceptLanguage;
+	private String accept;
+	private String cacheControl;
+	private String connection;
+	private String contentEncoding;
+	private String contentLanguage;
+	private String contentLength;
+	private String contentType;
+	private String cookie;
+	private String dnt;
+	private String host;
+	private String ifModifiedSince;
+	private String origin;
+	private String pragma;
+	private String referer;
 	private String userAgent;
-	private boolean fromAjax;
-	private String httpReferer;
-	private String cookies;
-	private String sessionRoles;
+	private String xForwardedFor;
+	private String xRequestedWith;
+	private String others;
 
-	public static class F {
+	private static class F {
 		public static String
-			id = "id",
-			created = "created",
+		created = "created",
 
-			exceptionRecordId = "exceptionRecordId",
-			exceptionPlace = "exceptionPlace",
-			methodName = "methodName",
-			lineNumber = "lineNumber",
+		exceptionRecordId = "exceptionRecordId",
+		exceptionPlace = "exceptionPlace",
+		methodName = "methodName",
+		lineNumber = "lineNumber",
 
-			httpMethod = "httpMethod",
-			httpParams = "httpParams",
+		httpMethod = "httpMethod",
+		httpParams = "httpParams",
 
-			protocolString = "protocol",
-			hostname = "hostname",
-			port = "port",
-			contextPath = "contextPath",
-			path = "path",
-			queryString = "queryString",
+		protocolString = "protocol",
+		hostname = "hostname",
+		port = "port",
+		contextPath = "contextPath",
+		path = "path",
+		queryString = "queryString",
 
-			ip="ip",
-			userAgent="userAgent",
-			fromAjax="fromAjax",
-			httpReferer="httpReferer",
-			cookies="cookies",
-			sessionRoles="sessionRoles";
+		ip = "ip",
+		userRoles="userRoles",
+		userId = "userId",
+
+		acceptCharset = "acceptCharset",
+		acceptEncoding = "acceptEncoding",
+		acceptLanguage = "acceptLanguage",
+		accept = "accept",
+		cacheControl = "cacheControl",
+		connection = "connection",
+		contentEncoding = "contentEncoding",
+		contentLanguage = "contentLanguage",
+		contentLength = "contentLength",
+		contentType = "contentType",
+		cookie = "cookie",
+		dnt = "dnt",
+		host = "host",
+		ifModifiedSince = "ifModifiedSince",
+		origin = "origin",
+		pragma = "pragma",
+		referer = "referer",
+		userAgent = "userAgent",
+		xForwardedFor = "xForwardedFor",
+		xRequestedWith = "xRequestedWith",
+		others = "others";
 	}
 
 	public static class HttpRequestRecordFielder extends BaseDatabeanFielder<HttpRequestRecordKey, HttpRequestRecord>{
@@ -87,6 +124,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 			return HttpRequestRecordKey.class;
 		}
 
+		//TODO adapt field size
 		@Override
 		public List<Field<?>> getNonKeyFields(HttpRequestRecord d) {
 			return FieldTool.createList(
@@ -99,7 +137,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 					new StringField(F.httpMethod, d.httpMethod, 16),
 					new StringField(F.httpParams, d.httpParams, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
-					
+
 					new StringField(F.protocolString, d.protocol, 10),
 					new StringField(F.hostname, d.hostname, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new IntegerField(F.port, d.port),
@@ -108,11 +146,30 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 					new StringField(F.queryString, d.queryString, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
 
 					new StringField(F.ip, d.ip, 39),
+					new StringField(F.userRoles, d.userRoles, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new LongField(F.userId, d.userId),
+					
+					new StringField(F.acceptCharset, d.acceptCharset, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.acceptEncoding, d.acceptEncoding, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.acceptLanguage, d.acceptLanguage, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.accept, d.accept, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.cacheControl, d.cacheControl, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.connection, d.connection, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.contentEncoding, d.contentEncoding, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.contentLanguage, d.contentLanguage, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.contentLength, d.contentLength, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.contentType, d.contentType, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.cookie, d.cookie, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
+					new StringField(F.dnt, d.dnt, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.host, d.host, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.ifModifiedSince, d.ifModifiedSince, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.origin, d.origin, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.pragma, d.pragma, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.referer, d.referer, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.userAgent, d.userAgent, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
-					new BooleanField(F.fromAjax, d.fromAjax),
-					new StringField(F.httpReferer, d.httpReferer, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.cookies, d.cookies, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
-					new StringField(F.sessionRoles, d.sessionRoles, MySqlColumnType.MAX_LENGTH_VARCHAR)
+					new StringField(F.xForwardedFor, d.xForwardedFor, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.xRequestedWith, d.xRequestedWith, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.others, d.others, MySqlColumnType.MAX_LENGTH_VARCHAR)
 					);
 		}
 
@@ -126,28 +183,51 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	public HttpRequestRecord(String exceptionRecordId, String exceptionPlace, String methodName, int lineNumber,
 			String httpMethod, String httpParams, String protocol, String hostname, int port, String contextPath,
-			String path, String queryString, String ip, String userAgent, boolean fromAjax, String httpReferer,
-			String cookies, String sessionRoles) {
+			String path, String queryString, String ip, String sessionRoles, long userId, HeadersWrapper headersWrapper) {
 		this.key = new HttpRequestRecordKey(UuidTool.generateUuid());
 		this.created = new Date();
+
 		this.exceptionRecordId = exceptionRecordId;
 		this.exceptionPlace = exceptionPlace;
 		this.methodName = methodName;
 		this.lineNumber = lineNumber;
+
 		this.httpMethod = httpMethod;
 		this.httpParams = httpParams;
+
 		this.protocol = protocol;
 		this.hostname = hostname;
 		this.port = port;
 		this.contextPath = contextPath;
 		this.path = path;
 		this.queryString = queryString;
+
 		this.ip = ip;
-		this.userAgent = userAgent;
-		this.fromAjax = fromAjax;
-		this.httpReferer = httpReferer;
-		this.cookies = cookies;
-		this.sessionRoles = sessionRoles;
+		this.userRoles = sessionRoles;
+		this.userId = userId;
+
+		this.acceptCharset = headersWrapper.getAcceptCharset();
+		this.acceptEncoding = headersWrapper.getAcceptEncoding();
+		this.acceptLanguage = headersWrapper.getAcceptLanguage();
+		this.accept = headersWrapper.getAccept();
+		this.cacheControl = headersWrapper.getCacheControl();
+		this.connection = headersWrapper.getConnection();
+		this.contentEncoding = headersWrapper.getContentEncoding();
+		this.contentLanguage = headersWrapper.getContentLanguage();
+		this.contentLength = headersWrapper.getContentLength();
+		this.contentType = headersWrapper.getContentType();
+		this.cookie = headersWrapper.getCookie();
+		this.dnt = headersWrapper.getDnt();
+		this.host = headersWrapper.getHost();
+		this.ifModifiedSince = headersWrapper.getIfModifiedSince();
+		this.origin = headersWrapper.getOrigin();
+		this.pragma = headersWrapper.getPragma();
+		this.referer = headersWrapper.getReferer();
+		this.userAgent = headersWrapper.getUserAgent();
+		this.xForwardedFor = headersWrapper.getXForwardedFor();
+		this.xRequestedWith = headersWrapper.getXRequestedWith();
+
+		this.others = headersWrapper.getOthers();
 	}
 
 	@Override
@@ -160,7 +240,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	public static class HttpRequestRecordByExceptionRecord extends BaseUniqueKey<HttpRequestRecordKey> implements Lookup<HttpRequestRecordKey> {
 
 		private ExceptionRecord exceptionRecord;
-		
+
 		public HttpRequestRecordByExceptionRecord(ExceptionRecord exceptionRecord) {
 			this.exceptionRecord = exceptionRecord;
 		}
@@ -237,7 +317,8 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	}
 
 	public Map<String, String> getHttpParamsMap() {
-		String[] tab = httpParams.substring(1, httpParams.length() - 1).split(",");
+		if (httpParams == null) { return null;}
+		String[] tab = httpParams.split(",");
 		String[] keyValue;
 		Map<String, String> params = MapTool.create();
 		for (String string : tab) {
@@ -309,6 +390,186 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.ip = ip;
 	}
 
+	public String getUserRoles() {
+		return userRoles;
+	}
+
+	public void setUserRoles(String userRoles) {
+		this.userRoles = userRoles;
+	}
+
+	public String getShorterRoles() {
+		return userRoles.substring(1, userRoles.length() - 1);
+	}
+	
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Map<String, String> getHeaders() {
+		Map<String, String> map = MapTool.createTreeMap();
+		map.put("accept-charset", acceptCharset);
+		map.put("accept-encoding", acceptEncoding);
+		map.put("accept-language", acceptLanguage);
+		map.put("accept", accept);
+		map.put("cache-control", cacheControl);
+		map.put("connection", connection);
+		map.put("content-encoding", contentEncoding);
+		map.put("content-language", contentLanguage);
+		map.put("content-length", contentLength);
+		map.put("content-type", contentType);
+		map.put("dnt", dnt);
+		map.put("host", host);
+		map.put("if-modified-since", ifModifiedSince);
+		map.put("origin", origin);
+		map.put("pragma", pragma);
+		map.put("referer", referer);
+		map.put("userAgent", userAgent);
+		map.put("x-forwarded-for", xForwardedFor);
+		map.put("x-requested-with", xRequestedWith);
+		return map;
+	}
+
+	public String getAcceptCharset() {
+		return acceptCharset;
+	}
+
+	public void setAcceptCharset(String acceptCharset) {
+		this.acceptCharset = acceptCharset;
+	}
+
+	public String getAcceptEncoding() {
+		return acceptEncoding;
+	}
+
+	public void setAcceptEncoding(String acceptEncoding) {
+		this.acceptEncoding = acceptEncoding;
+	}
+
+	public String getAcceptLanguage() {
+		return acceptLanguage;
+	}
+
+	public void setAcceptLanguage(String acceptLanguage) {
+		this.acceptLanguage = acceptLanguage;
+	}
+
+	public String getAccept() {
+		return accept;
+	}
+
+	public void setAccept(String accept) {
+		this.accept = accept;
+	}
+
+	public String getCacheControl() {
+		return cacheControl;
+	}
+
+	public void setCacheControl(String cacheControl) {
+		this.cacheControl = cacheControl;
+	}
+
+	public String getConnection() {
+		return connection;
+	}
+
+	public void setConnection(String connection) {
+		this.connection = connection;
+	}
+
+	public String getContentEncoding() {
+		return contentEncoding;
+	}
+
+	public void setContentEncoding(String contentEncoding) {
+		this.contentEncoding = contentEncoding;
+	}
+
+	public String getContentLanguage() {
+		return contentLanguage;
+	}
+
+	public void setContentLanguage(String contentLanguage) {
+		this.contentLanguage = contentLanguage;
+	}
+
+	public String getContentLength() {
+		return contentLength;
+	}
+
+	public void setContentLength(String contentLength) {
+		this.contentLength = contentLength;
+	}
+
+	public String getContentType() {
+		return contentType;
+	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+
+	public String getCookie() {
+		return cookie;
+	}
+
+	public void setCookie(String cookie) {
+		this.cookie = cookie;
+	}
+
+	public String getDnt() {
+		return dnt;
+	}
+
+	public void setDnt(String dnt) {
+		this.dnt = dnt;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public String getIfModifiedSince() {
+		return ifModifiedSince;
+	}
+
+	public void setIfModifiedSince(String ifModifiedSince) {
+		this.ifModifiedSince = ifModifiedSince;
+	}
+
+	public String getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(String origin) {
+		this.origin = origin;
+	}
+
+	public String getPragma() {
+		return pragma;
+	}
+
+	public void setPragma(String pragma) {
+		this.pragma = pragma;
+	}
+
+	public String getReferer() {
+		return referer;
+	}
+
+	public void setReferer(String referer) {
+		this.referer = referer;
+	}
+
 	public String getUserAgent() {
 		return userAgent;
 	}
@@ -317,53 +578,61 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.userAgent = userAgent;
 	}
 
+	public String getxForwardedFor() {
+		return xForwardedFor;
+	}
+
+	public void setxForwardedFor(String xForwardedFor) {
+		this.xForwardedFor = xForwardedFor;
+	}
+
+	public String getxRequestedWith() {
+		return xRequestedWith;
+	}
+
+	public void setxRequestedWith(String xRequestedWith) {
+		this.xRequestedWith = xRequestedWith;
+	}
+
+	public String getOthers() {
+		return others;
+	}
+
+	public void setOthers(String others) {
+		this.others = others;
+	}
+
+	public Map<String , String> getOthersHeaders() {
+		if (StringTool.isEmpty(others)) {return null;}
+		Map<String, String> map = MapTool.createTreeMap();
+		String[] tab = others.split(", ");
+		String[] keyVal;
+		String val;
+		for (String string : tab) {
+			keyVal = string.split(": ");
+			if (keyVal.length > 0 ) {
+				val = (keyVal.length > 1 ? keyVal[1] : null);
+				map.put(keyVal[0], val);
+			}
+		}
+		return map;
+	}
+
 	public boolean isFromAjax() {
-		return fromAjax;
+		return "XMLHttpRequest".equals(xRequestedWith);
 	}
 
-	public void setFromAjax(boolean fromAjax) {
-		this.fromAjax = fromAjax;
-	}
-
-	public String getHttpReferer() {
-		return httpReferer;
-	}
-
-	public void setHttpReferer(String httpReferer) {
-		this.httpReferer = httpReferer;
-	}
-
-	public String getCookies() {
-		return cookies;
-	}
-	
-	public Map<String, String> getCokkiesMap() {
-		String[] tab = cookies.substring(1, cookies.length() - 1).split(",");
+	public Map<String, String> getCookiesMap() {
+		String[] tab = cookie.split("; ");
 		String[] keyValue;
 		Map<String, String> params = MapTool.create();
 		for (String string : tab) {
 			if (StringTool.notEmpty(string)) {
-				keyValue = string.split(":");
+				keyValue = string.split("=");
 				params.put(keyValue[0], keyValue[1].substring(1, keyValue[1].length() - 1));
 			}
 		}
 		return params;
-	}
-
-	public void setCookies(String cookies) {
-		this.cookies = cookies;
-	}
-
-	public String getSessionRoles() {
-		return sessionRoles;
-	}
-
-	public String getSorterRoles() {
-		return sessionRoles.substring(1, sessionRoles.length() - 1);
-	}
-
-	public void setSessionRoles(String sessionRoles) {
-		this.sessionRoles = sessionRoles;
 	}
 
 	public String getUrl() {
