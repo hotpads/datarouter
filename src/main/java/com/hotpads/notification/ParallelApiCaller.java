@@ -17,9 +17,13 @@ import java.util.concurrent.TimeoutException;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.util.DataRouterEmailTool;
+import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.notification.databean.NotificationRequest;
+import com.hotpads.setting.NotificationSettings;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.collections.Pair;
 
 public class ParallelApiCaller {
 	private static Logger logger = Logger.getLogger(ParallelApiCaller.class);
@@ -30,22 +34,22 @@ public class ParallelApiCaller {
 
 	private ScheduledExecutorService flusher;
 	private ExecutorService sender;
-	private Queue<NotificationRequest> queue;
+	private Queue<Pair<NotificationRequest, ExceptionRecord>> queue;
 	private NotificationApiClient notificationApiClient;
+	private NotificationSettings notificationSettings;
+	private Boolean last;
 
-	private boolean premier;
-
-	public ParallelApiCaller(NotificationApiClient notificationApiClient) {
+	public ParallelApiCaller(NotificationApiClient notificationApiClient, NotificationSettings notificationSettings) {
 		this.notificationApiClient = notificationApiClient;
-		this.queue = new LinkedBlockingQueue<NotificationRequest>(QUEUE_CAPACITY);
+		this.queue = new LinkedBlockingQueue<Pair<NotificationRequest, ExceptionRecord>>(QUEUE_CAPACITY);
 		this.sender = Executors.newSingleThreadExecutor(); //singleThread
 		this.flusher = Executors.newScheduledThreadPool(1); //singleThread
 		this.flusher.scheduleWithFixedDelay(new QueueFlusher(), 0, FLUSH_PERIOD_MS, TimeUnit.MILLISECONDS);
-		this.premier = true;
+		this.notificationSettings = notificationSettings;
 	}
 
-	public void add(NotificationRequest request){
-		queue.offer(request);
+	public void add(NotificationRequest request, ExceptionRecord exceptionRecord){
+		queue.offer(new Pair<NotificationRequest, ExceptionRecord>(request, exceptionRecord));
 	}
 
 	
@@ -54,35 +58,45 @@ public class ParallelApiCaller {
 
 		@Override
 		public void run() {
-			List<NotificationRequest> requests = ListTool.createArrayList();
+			List<Pair<NotificationRequest, ExceptionRecord>> requests = ListTool.createArrayList();
 			while (CollectionTool.notEmpty(queue)) {
 				if (requests.size() == BATCH_SIZE) {
 					Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
-					new FailedTester(future, requests, premier).start();
-					premier = false;
+					new FailedTester(future, requests, getCoef()).start();
 					requests = ListTool.create();
 				}
 				requests.add(queue.poll());
 			}
 			if (CollectionTool.notEmpty(requests)) {
 				Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
-				new FailedTester(future, requests, premier).start();
-				premier = false;
+				new FailedTester(future, requests, getCoef()).start();
 			}
 		}
 
 	}
 
-	
+	/**
+	 * double the timeout when the httpclient need to be rebuild
+	 * @return
+	 */
+	private long getCoef() {
+		if (last == null || last != notificationSettings.getIgnoreSsl().getValue()) {
+			last = notificationSettings.getIgnoreSsl().getValue();
+			return 2l;
+		} else {
+			return 1l;
+		}
+	}
+
 	private static class FailedTester extends Thread {
 		private Future<Boolean> future;
-		private List<NotificationRequest> requests;
+		private List<Pair<NotificationRequest, ExceptionRecord>> requests;
 		private long coef;
 
-		public FailedTester(Future<Boolean> future, List<NotificationRequest> requests, boolean premier) {
+		public FailedTester(Future<Boolean> future, List<Pair<NotificationRequest, ExceptionRecord>> requests, long coef) {
 			this.future = future;
 			this.requests = requests;
-			this.coef = premier ? 2l : 1l;
+			this.coef = coef;
 		}
 
 		@Override
@@ -103,9 +117,9 @@ public class ParallelApiCaller {
 
 	
 	private class ApiCallAttempt implements Callable<Boolean> {
-		private List<NotificationRequest> requests;
+		private List<Pair<NotificationRequest, ExceptionRecord>> requests;
 
-		public ApiCallAttempt(List<NotificationRequest> requests) {
+		public ApiCallAttempt(List<Pair<NotificationRequest, ExceptionRecord>> requests) {
 			this.requests = requests;
 		}
 
@@ -122,20 +136,22 @@ public class ParallelApiCaller {
 
 	}
 
-	public static void sendEmail(List<NotificationRequest> requests) {
-		String recipient = requests.get(0).getKey().getUserId();
-		String fromEmail = "HotPads<notifications@hotpads.com>";
-		String subject = "Error notification";
+	private static void sendEmail(List<Pair<NotificationRequest, ExceptionRecord>> requests) {
+		String recipient = requests.get(0).getLeft().getKey().getUserId();
+		String fromEmail = "HotPads Errors<admin@hotpads.com>";
+		String subject = "Emergency error notification";
 		StringBuilder builder = new StringBuilder();
 		builder.append("<h1>" + requests.size() + " error" + (requests.size() > 1 ? "s" : "") + " occurred </h1>");
 		builder.append("<h2>You receive this e-mail because Job server does not respond on time</h2>");
-		for (NotificationRequest r : requests) {
+		for (Pair<NotificationRequest, ExceptionRecord> r : requests) {
 			builder.append("<p>");
-				builder.append("<span style=\"color: red;font-weight: bold;\">");
-					builder.append(r.getChannel());
-				builder.append("</span> at ");
-				builder.append(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z").format(new Date(r.getKey().getSentAtMs())));
+			builder.append(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z").format(new Date(r.getLeft().getKey().getSentAtMs())));
+			builder.append(" on ");
+			builder.append(r.getRight().getServerName());
 			builder.append("</p>");
+			builder.append("<pre>");
+			builder.append(ExceptionTool.getColorized(r.getRight().getStackTrace()));
+			builder.append("</pre>");
 		}
 		DataRouterEmailTool.trySendHtmlEmail(fromEmail, recipient, subject, builder.toString());
 	}
