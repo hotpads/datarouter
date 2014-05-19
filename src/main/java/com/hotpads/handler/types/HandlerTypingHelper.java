@@ -6,42 +6,12 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.BaseHandler.Handler;
-import com.hotpads.handler.mav.Mav;
-import com.hotpads.handler.mav.imp.JsonMav;
-import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.http.client.json.JsonSerializer;
 
 public class HandlerTypingHelper{
-
-	public static Mav computeMav(Method method, Object result, JsonSerializer jsonSerializer){
-		Mav resultMav = null;
-		if(method == null){
-			return null;
-		}
-		HandlerOutputType output;
-		if(!method.isAnnotationPresent(Handler.class)){
-			output = HandlerOutputType.MAV;
-		}else{
-			output = method.getAnnotation(Handler.class).output();
-		}
-		switch (output){
-		case MAV:
-			try{
-				resultMav = (Mav) result;
-			}catch(ClassCastException e){
-				resultMav = new MessageMav("Please specify an output type for your @Handler.");
-			}
-			break;
-		case JSON:
-			resultMav = new JsonMav(jsonSerializer.serialize(result));
-			break;
-		}
-		return resultMav;
-	}
 
 	/**
 	 * This methods goes through all methods who are named like methodName and tries to find the one that has the

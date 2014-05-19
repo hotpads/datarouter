@@ -7,9 +7,9 @@ import java.util.Date;
 
 import com.google.gson.reflect.TypeToken;
 import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
-import com.hotpads.handler.types.HandlerOutputType;
 import com.hotpads.handler.types.P;
 import com.hotpads.handler.types.TypeProvider;
 import com.hotpads.util.core.ListTool;
@@ -62,22 +62,22 @@ public class TestApiHandler extends BaseHandler{
 
 	/*
 	 * These examples show the possibility to return another type than Mav.
-	 * - Just specify the output value with @Handler
+	 * - Just specify the encoder with @Handler
 	 * - If you are not pleased with the default JSON serializer, you are welcome to build one and activate it
 	 * with the setJsonSerializer() method.
 	 */
-	@Handler(output=HandlerOutputType.JSON)
+	@Handler(encoder=JsonEncoder.class)
 	public Date now(){
 		return Calendar.getInstance().getTime();
 	}
 	
-	@Handler(output=HandlerOutputType.JSON)
+	@Handler(encoder=JsonEncoder.class)
 	public FooBar banana(){
 		FooBar dto = new FooBar("hello", 42, Calendar.getInstance().getTime());
 		return dto;
 	}
 	
-	@Handler(output=HandlerOutputType.JSON)
+	@Handler(encoder=JsonEncoder.class)
 	public Collection<FooBar> bananas(){
 		FooBar dto = new FooBar("hello", 42, Calendar.getInstance().getTime());
 		FooBar otd = new FooBar("world", 24, Calendar.getInstance().getTime());
@@ -87,7 +87,7 @@ public class TestApiHandler extends BaseHandler{
 	/*
 	 * COMBO
 	 */
-	@Handler(output=HandlerOutputType.JSON)
+	@Handler(encoder=JsonEncoder.class)
 	public FooBar first(@P("fooBars") FooBar[] fooBars){
 		if(fooBars.length == 0){
 			return null;
@@ -118,7 +118,7 @@ public class TestApiHandler extends BaseHandler{
 	/*
 	 * MEGA COMBO
 	 */
-	@Handler(output=HandlerOutputType.JSON)
+	@Handler(encoder=JsonEncoder.class)
 	public int size(@P(value = "fooBars", typeProvider = FooBarCollectionTypeProvider.class) Collection<FooBar> fooBars){
 		return fooBars.size();
 	}

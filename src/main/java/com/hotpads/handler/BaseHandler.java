@@ -1,6 +1,5 @@
 package com.hotpads.handler;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,9 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,9 +19,10 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.hotpads.handler.encoder.Encoder;
+import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
-import com.hotpads.handler.types.HandlerOutputType;
 import com.hotpads.handler.types.HandlerTypingHelper;
 import com.hotpads.handler.user.authenticate.AdminEditUserHandler;
 import com.hotpads.util.core.ListTool;
@@ -47,7 +45,7 @@ public abstract class BaseHandler{
 	protected HttpServletResponse response;
 	protected Params params;
 	protected PrintWriter out;
-	protected JsonSerializer jsonSerializer;
+	protected JsonSerializer paramDeserializer;
 	
 	//returns url match regex.  dispatcher servlet calls this on container startup to build url mappings
 	//..could also map the url's externally so they're in a centralized place
@@ -56,7 +54,7 @@ public abstract class BaseHandler{
 	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 	
 	protected BaseHandler(){
-		this.jsonSerializer = new GsonJsonSerializer();
+		this.paramDeserializer = new GsonJsonSerializer();
 	}
 	
 	@Handler
@@ -73,7 +71,7 @@ public abstract class BaseHandler{
 	public @interface Handler {
 		Class<?>[] expectedParameterClasses() default {};
 		Class<?> expectedParameterClassesProvider() default Object.class;
-		HandlerOutputType output() default HandlerOutputType.MAV;
+		Class<?> encoder() default MavEncoder.class;
 	}
 	
 	void handleWrapper(){//dispatcher servlet calls this
@@ -84,7 +82,7 @@ public abstract class BaseHandler{
 			try{
 				String methodName = handlerMethodName();
 				if (!StringTool.isNullOrEmpty(methodName)) {
-					Pair<Method, List<Object>> pair = HandlerTypingHelper.findMethodByName(this, methodName, jsonSerializer);
+					Pair<Method, List<Object>> pair = HandlerTypingHelper.findMethodByName(this, methodName, paramDeserializer);
 					method = pair.getLeft();
 					args = pair.getRight();
 				}
@@ -102,8 +100,7 @@ public abstract class BaseHandler{
 			}catch(SecurityException e){
 				throw new RuntimeException(e);
 			}
-			
-			
+
 			Object result;
 			try{
 				result = method.invoke(this, args.toArray());
@@ -116,8 +113,15 @@ public abstract class BaseHandler{
 				}
 				throw new RuntimeException(cause);
 			}
-			Mav resultMav = HandlerTypingHelper.computeMav(method, result, jsonSerializer);
-			finishRequest(resultMav);
+			
+			Encoder encoder;
+			try{
+				encoder = (Encoder) method.getAnnotation(Handler.class).encoder().newInstance();
+			}catch(Exception e){
+				encoder = new MavEncoder();
+			}
+			encoder.finishRequest(result, servletContext, response, request);
+			
 		}catch(Exception e){
 			if(e instanceof RuntimeException){ throw (RuntimeException)e; }
 			throw new RuntimeException(e);
@@ -154,54 +158,12 @@ public abstract class BaseHandler{
 		return 100L; 
 	}
 	
-	void finishRequest(Mav mav) throws ServletException{
-		try{
-			if(mav==null){
-				
-			}else if(mav.isRedirect()){
-				response.sendRedirect(mav.getRedirectUrl());
-				
-			}else{
-				response.setContentType(mav.getContentType());
-				//add the model variables as request attributes
-				appendMavToRequest(request, mav);
-				
-				//forward to the jsp
-				String targetContextName = mav.getContext();
-				String viewName = mav.getViewName();
-				ServletContext targetContext = servletContext;
-				if(targetContextName != null){
-					targetContext = servletContext.getContext(targetContextName);
-					if(targetContext==null){
-						logger.error("Could not acquire servletContext="+targetContextName
-								+".  Make sure context has crossContext=true enabled.");
-					}
-				}
-				RequestDispatcher dispatcher = targetContext.getRequestDispatcher(viewName);
-				dispatcher.include(request, response);
-			}
-			
-			//the container should take care of this...
-//			out.flush();
-//			out.close();
-		}catch(IOException e){
-			throw new RuntimeException(e);
-		}
-	}
-	
 	protected void p(String s){
 //		try{
 			out.write(s);
 //		}catch(IOException e){
 //			throw new RuntimeException(e);
 //		}
-	}
-
-
-	protected void appendMavToRequest(HttpServletRequest request, Mav mav){
-		for(String key : mav.getModel().keySet()){
-			request.setAttribute(key, mav.getModel().get(key));
-		}
 	}
 	
 	/****************** get/set 
@@ -231,8 +193,8 @@ public abstract class BaseHandler{
 		this.response = response;
 	}
 	
-	public void setJsonSerializer(JsonSerializer jsonSerializer){
-		this.jsonSerializer = jsonSerializer;
+	public void setParamSerializer(JsonSerializer paramDeserializer){
+		this.paramDeserializer = paramDeserializer;
 	}
 	
 	public static class BaseHandlerTests {
