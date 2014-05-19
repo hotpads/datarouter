@@ -4,7 +4,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 import com.hotpads.util.http.client.json.GsonJsonSerializer;
 import com.hotpads.util.http.client.json.JsonSerializer;
@@ -42,12 +41,11 @@ public class HotPadsHttpClientBuilder{
 				.setSocketTimeout(SOCKET_TIMEOUT)
 				.build();
 		httpClientBuilder = HttpClientBuilder.create()
-				.setDefaultRequestConfig(defaultRequestConfig )
-				.setMaxConnTotal(MAX_TOTAL_CONNECTION)
-				.setMaxConnPerRoute(MAX_CONNECTION_PER_ROUTE)
-				.setConnectionManager(new PoolingHttpClientConnectionManager())
+				.setDefaultRequestConfig(defaultRequestConfig)
 				.setRetryHandler(retryHandler)
-				.setRedirectStrategy(new LaxRedirectStrategy());
+				.setRedirectStrategy(new LaxRedirectStrategy())
+				.setMaxConnPerRoute(MAX_CONNECTION_PER_ROUTE)
+				.setMaxConnTotal(MAX_TOTAL_CONNECTION);
 		return this;
 	}
 	
@@ -109,6 +107,16 @@ public class HotPadsHttpClientBuilder{
 	
 	public HotPadsHttpClientBuilder setConfig(HotPadsHttpClientConfig config){
 		this.config = config;
+		return this;
+	}
+	
+	public HotPadsHttpClientBuilder setMaxTotalConnections(int maxTotalConnections){
+		this.httpClientBuilder.setMaxConnTotal(maxTotalConnections);
+		return this;
+	}
+	
+	public HotPadsHttpClientBuilder setMaxConnectionsPerRoute(int maxConnectionsPerRoute){
+		this.httpClientBuilder.setMaxConnPerRoute(maxConnectionsPerRoute);
 		return this;
 	}
 
