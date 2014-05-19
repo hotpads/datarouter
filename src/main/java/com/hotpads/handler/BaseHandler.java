@@ -58,7 +58,7 @@ public abstract class BaseHandler{
 	}
 	
 	@Handler
-	protected Mav handleDefault(){
+	protected Mav handleDefault() throws Exception {
 		return new MessageMav("no default handler method found, please specify " + handlerMethodParamName());
 	}
 	

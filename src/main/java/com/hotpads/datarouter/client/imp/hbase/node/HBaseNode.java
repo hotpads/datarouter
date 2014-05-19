@@ -65,13 +65,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		if(CollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "putMulti", this, config){
-				public Void hbaseCall() throws Exception{
-					
-					//debugging code because getting NPE's on hTable at the bottom of this method.  trying to see
-					//if it's been nullified after the Future times out
-					Preconditions.checkNotNull(hTable);
-					//end debugging
-					
+				public Void hbaseCall() throws Exception{					
 					List<Row> actions = ListTool.createArrayList();
 					int numCellsPut = 0, numCellsDeleted = 0, numRowsPut = 0;;
 					long batchStartTime = System.currentTimeMillis();

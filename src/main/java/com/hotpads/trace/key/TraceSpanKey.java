@@ -12,43 +12,36 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
-import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 
 @SuppressWarnings("serial")
 @Embeddable
-public class TraceSpanKey extends BasePrimaryKey<TraceSpanKey>{
+public class TraceSpanKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceSpanKey>{
 
 	/****************************** fields ********************************/
 	
 	//hibernate will create these in the wrong order
-	protected Long traceId;
-	protected Long threadId;
-	protected Integer sequence;
+	private Long traceId;
+	private Long threadId;
+	private Integer sequence;
 	
-	
-	public static final String
-		COL_traceId = "traceId",
-		COL_threadId = "threadId",
-		COL_sequence = "sequence";
-	
+	public static class Fields{
+		public static final String
+			threadId = "threadId",
+			sequence = "sequence";
+	}
+
 	
 	@Override
-	public List<Field<?>> getFields(){
-		return FieldTool.createList(
-				new LongField(COL_traceId, traceId),
-				new LongField(COL_threadId, threadId),
-				new IntegerField(COL_sequence, sequence));
+	public TraceEntityKey getEntityKey(){
+		return new TraceEntityKey(traceId);
 	}
 	
-	public static class TraceSpanKeyFielder extends BaseFielder<TraceSpanKey>{
-		public TraceSpanKeyFielder(){}
-		@Override
-		public List<Field<?>> getFields(TraceSpanKey k){
-			return FieldTool.createList(
-					new LongField(COL_traceId, k.traceId),
-					new LongField(COL_threadId, k.threadId),
-					new IntegerField(COL_sequence, k.sequence));
-		}
+	@Override
+	public List<Field<?>> getPostEntityKeyFields(){
+		return FieldTool.createList(
+				new LongField(Fields.threadId, threadId),
+				new IntegerField(Fields.sequence, sequence));
 	}
 	
 

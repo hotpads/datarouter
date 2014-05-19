@@ -298,7 +298,7 @@ public class SortedNodeIntegrationTests{
 	
 	@Test
 	public synchronized void testGet(){
-		Iterable<SortedBean> iterable = router.sortedBeanSorted().scan(null, true, null, true, null);
+		Iterable<SortedBean> iterable = router.sortedBeanSorted().scan(null, null);
 		for(SortedBean sortedBean : iterable){
 			SortedBean sortedBean2 = router.sortedBean().get(sortedBean.getKey(), null);
 			Assert.assertEquals(sortedBean, sortedBean2);
@@ -307,7 +307,7 @@ public class SortedNodeIntegrationTests{
 	
 	@Test
 	public synchronized void testGetMulti(){
-		Iterable<SortedBean> iterable = router.sortedBeanSorted().scan(null, true, null, true, null);
+		Iterable<SortedBean> iterable = router.sortedBeanSorted().scan(null, null);
 		Set<SortedBean> allBeans = Sets.newHashSet(iterable);
 		Assert.assertEquals(TOTAL_RECORDS, allBeans.size());
 		List<SortedBean> getMultiResult = router.sortedBean().getMulti(KeyTool.getKeys(allBeans), null);
@@ -319,14 +319,14 @@ public class SortedNodeIntegrationTests{
 	
 	@Test
 	public synchronized void testScanKeys(){
-		Iterable<SortedBeanKey> iterable = router.sortedBeanSorted().scanKeys(null, true, null, true, null);
+		Iterable<SortedBeanKey> iterable = router.sortedBeanSorted().scanKeys(null, null);
 		long numKeys = IterableTool.count(iterable);
 		Assert.assertEquals(TOTAL_RECORDS, numKeys);
 	}
 	
 	@Test
 	public synchronized void testScan(){
-		Iterable<SortedBean> iterable = router.sortedBeanSorted().scan(null, true, null, true, null);
+		Iterable<SortedBean> iterable = router.sortedBeanSorted().scan(null, null);
 		long numDatabeans = IterableTool.count(iterable);
 		Assert.assertEquals(TOTAL_RECORDS, numDatabeans);
 	}

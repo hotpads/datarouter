@@ -16,4 +16,8 @@ implements PrimaryKey<PK>{
 		return this;
 	}
 	
+	@Override
+	public boolean isEntity(){
+		return false;
+	}
 }

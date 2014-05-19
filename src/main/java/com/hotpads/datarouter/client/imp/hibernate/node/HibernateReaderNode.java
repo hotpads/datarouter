@@ -262,21 +262,15 @@ implements MapStorageReader<PK,D>,
 	}
 	
 	@Override
-	public SortedScannerIterable<PK> scanKeys(
-			PK start, boolean startInclusive, 
-			PK end, boolean endInclusive, 
-			Config config){
-		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
+	public SortedScannerIterable<PK> scanKeys(Range<PK> pRange, Config config){
+		Range<PK> range = Range.nullSafe(pRange);
 		SortedScanner<PK> scanner = new HibernatePrimaryKeyScanner<PK,D>(this, fieldInfo, range, config);
 		return new SortedScannerIterable<PK>(scanner);
 	}
 	
 	@Override
-	public SortedScannerIterable<D> scan(
-			PK start, boolean startInclusive, 
-			PK end, boolean endInclusive, 
-			Config config){
-		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
+	public SortedScannerIterable<D> scan(Range<PK> pRange, Config config){
+		Range<PK> range = Range.nullSafe(pRange);
 		SortedScanner<D> scanner = new HibernateDatabeanScanner<PK,D>(this, fieldInfo, range, config);
 		return new SortedScannerIterable<D>(scanner);
 	}

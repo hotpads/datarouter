@@ -9,7 +9,7 @@ import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader.SortedStorage
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.iterable.PeekableIterable;
+import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class IndexingSortedMapStorageReaderNode<
@@ -67,15 +67,13 @@ implements SortedStorageReaderNode<PK,D>{
 	}
 	
 	@Override
-	public SortedScannerIterable<PK> scanKeys(PK startKey, boolean startInclusive, PK end, boolean endInclusive, 
-			Config config){
-		return mainNode.scanKeys(startKey,startInclusive, end, endInclusive, config);
+	public SortedScannerIterable<PK> scanKeys(Range<PK> range, Config config){
+		return mainNode.scanKeys(range, config);
 	};
 	
 	@Override
-	public SortedScannerIterable<D> scan(PK startKey, boolean startInclusive, PK end, boolean endInclusive, 
-			Config config){
-		return mainNode.scan(startKey,startInclusive, end, endInclusive, config);
+	public SortedScannerIterable<D> scan(Range<PK> range, Config config){
+		return mainNode.scan(range, config);
 	};
 	
 }

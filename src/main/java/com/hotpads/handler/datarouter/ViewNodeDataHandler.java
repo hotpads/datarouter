@@ -16,7 +16,9 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
 import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.serialize.PrimaryKeyStringConverter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
@@ -81,7 +83,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		if(!(node instanceof SortedStorageWriter<?,?>)){ return new MessageMav("Cannot browse unsorted node"); }
 		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
 		int iterateBatchSize = 10000;
-		Iterable<PK> iterable = sortedNode.scanKeys(null, true, null, true, new Config().setIterateBatchSize(
+		Iterable<PK> iterable = sortedNode.scanKeys(null, new Config().setIterateBatchSize(
 				iterateBatchSize).setScannerCaching(false).setTimeout(10, TimeUnit.SECONDS).setNumAttempts(5));
 		int printBatchSize = 10000;
 		long count = 0;
@@ -145,7 +147,10 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		Config config = new Config().setLimit(limit);
 		PK startAfterKey = null;
 		if(StringTool.notEmpty(startAfterKeyString)){
-			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
+//			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
+			startAfterKey = PrimaryKeyStringConverter.primaryKeyFromString(
+					(Class<PK>)node.getFieldInfo().getPrimaryKeyClass(), //need to use the fielder in the jsp
+					(PrimaryKeyFielder<PK>)node.getFieldInfo().getSamplePrimaryKey(), startAfterKeyString);
 			startAfterKey.fromPersistentString(startAfterKeyString);
 			mav.put(PARAM_startAfterKey, startAfterKey.getPersistentString());
 		}
