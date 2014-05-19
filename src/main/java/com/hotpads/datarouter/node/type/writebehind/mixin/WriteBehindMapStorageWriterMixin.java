@@ -112,7 +112,7 @@ implements MapStorageWriter<PK,D>{
 			while(CollectionTool.notEmpty(queue)){
 				putWrapper = queue.poll();
 				if (putWrapper.getConfig() == null) {
-					flushBatch.addAll(putWrapper.getDatabeans());
+					flushBatch.addAll(putWrapper.getDatabeans());//FIXME can excedd batch size
 				} else {
 					writeMulti(putWrapper.getDatabeans(), putWrapper.getConfig());
 				}
