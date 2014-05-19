@@ -72,7 +72,7 @@ public class ExceptionHandlingFilter implements Filter {
 	public void init(FilterConfig filterConfig) throws ServletException {
 		if (exceptionRecordNode != null) {
 			persister = new ExceptionRecordPersister(exceptionRecordNode);
-			apiCaller = new ParallelApiCaller(notificationApiClient);
+			apiCaller = new ParallelApiCaller(notificationApiClient, notificationSettings);
 		} else {
 			ServletContext sc = filterConfig.getServletContext();
 			notificationSettings = (NotificationSettings) sc.getAttribute(NOTIFICATION_SETTINGS);
@@ -80,7 +80,7 @@ public class ExceptionHandlingFilter implements Filter {
 			persister = new ExceptionRecordPersister(exceptionRecordNode);
 			exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(EXCEPTION_HANDLING_CONFIG);
 			notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig, notificationSettings);
-			apiCaller = new ParallelApiCaller(notificationApiClient);
+			apiCaller = new ParallelApiCaller(notificationApiClient, notificationSettings);
 		}
 	}
 
@@ -153,9 +153,10 @@ public class ExceptionHandlingFilter implements Filter {
 					new NotificationUserId(
 							NotificationUserType.EMAIL,
 							exceptionHandlingConfig.getRecipientEmail()),
-							exceptionHandlingConfig.getNotificationType(),
-							exceptionRecord.getKey().getId(),
-							exception.getClass().getName()));
+					exceptionHandlingConfig.getNotificationType(),
+					exceptionRecord.getKey().getId(),
+					exception.getClass().getName()),
+					exceptionRecord);
 		}
 	}
 
