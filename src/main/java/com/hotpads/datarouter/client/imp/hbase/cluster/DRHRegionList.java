@@ -53,38 +53,34 @@ public class DRHRegionList{
 		this.compactionInfo = compactionInfo;
 		this.regions = ListTool.create();
 		this.scatteringPrefixClass = node.getFieldInfo().getScatteringPrefixClass();
-		try{
-			HTable hTable = new HTable(config, tableName);
-			Class<PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
-			Map<HRegionInfo,ServerName> serverNameByHRegionInfo = hTable.getRegionLocations();
-
-			//this got reorganized in hbase 0.92... just making quick fix for now
-			Map<String,RegionLoad> regionLoadByName = MapTool.createTreeMap();
-			for(DRHServerInfo server : IterableTool.nullSafe(servers.getServers())){
-				HServerLoad serverLoad = server.gethServerLoad();
-				Map<byte[],HServerLoad.RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
-				for(RegionLoad regionLoad : regionsLoad.values()){
+		
+		//TODO do less in constructor
+		Class<PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
+		Map<HRegionInfo,ServerName> serverNameByHRegionInfo = getServerNameByHRegionInfo(client, config, tableName);
+		//this got reorganized in hbase 0.92... just making quick fix for now
+		Map<String,RegionLoad> regionLoadByName = MapTool.createTreeMap();
+		for(DRHServerInfo server : IterableTool.nullSafe(servers.getServers())){
+			HServerLoad serverLoad = server.gethServerLoad();
+			Map<byte[],HServerLoad.RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
+			for(RegionLoad regionLoad : regionsLoad.values()){
 //					String name = new String(regionLoad.getName());
-					String name = HRegionInfo.encodeRegionName(regionLoad.getName());
-					regionLoadByName.put(name, regionLoad);
-				}
+				String name = HRegionInfo.encodeRegionName(regionLoad.getName());
+				regionLoadByName.put(name, regionLoad);
 			}
-			int regionNum = 0;
-			for(HRegionInfo hRegionInfo : MapTool.nullSafe(serverNameByHRegionInfo).keySet()){
-				try{
-					RegionLoad regionLoad = regionLoadByName.get(hRegionInfo.getEncodedName());
-					ServerName serverName = serverNameByHRegionInfo.get(hRegionInfo);
-					HServerLoad hServerLoad = servers.getHServerLoad(serverName);
-					regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, 
-							hRegionInfo, serverName, hServerLoad,
-							this, regionLoad, compactionInfo));
-				}catch(RuntimeException e){
-					logger.warn("couldn't build DRHRegionList for region:"+hRegionInfo.getEncodedName());
-					throw e;
-				}
+		}
+		int regionNum = 0;
+		for(HRegionInfo hRegionInfo : MapTool.nullSafe(serverNameByHRegionInfo).keySet()){
+			try{
+				RegionLoad regionLoad = regionLoadByName.get(hRegionInfo.getEncodedName());
+				ServerName serverName = serverNameByHRegionInfo.get(hRegionInfo);
+				HServerLoad hServerLoad = servers.getHServerLoad(serverName);
+				regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, 
+						hRegionInfo, serverName, hServerLoad,
+						this, regionLoad, compactionInfo));
+			}catch(RuntimeException e){
+				logger.warn("couldn't build DRHRegionList for region:"+hRegionInfo.getEncodedName());
+				throw e;
 			}
-		}catch(IOException e){
-			throw new DataAccessException(e);
 		}
 		Collections.sort(regions);//ensure sorted for getRegionsSorted
 		this.balancerStrategy = balancerStrategy.init(scatteringPrefixClass, servers, this);
@@ -92,6 +88,28 @@ public class DRHRegionList{
 		balancerStrategy.assertRegionCountsConsistent();
 		for(DRHRegionInfo<?> drhRegionInfo : regions){
 			drhRegionInfo.setBalancerDestinationServer(targetServerNameByRegion.get(drhRegionInfo));
+		}
+	}
+	
+	private Map<HRegionInfo,ServerName> getServerNameByHRegionInfo(HBaseClient client, Configuration config, 
+			String tableName){
+		HTable hTable = null;
+		try{
+			hTable = new HTable(config, tableName);
+			logger.warn("got table "+tableName);
+			Map<HRegionInfo,ServerName> serverNameByHRegionInfo = hTable.getRegionLocations();
+			logger.warn("got hTable.getRegionLocations()");
+			return serverNameByHRegionInfo;
+		}catch(IOException e){
+			throw new DataAccessException(e);
+		}finally{
+			if(hTable != null){
+				try{
+					hTable.close();
+				}catch(IOException e){
+					throw new DataAccessException(e);
+				}
+			}
 		}
 	}
 	
