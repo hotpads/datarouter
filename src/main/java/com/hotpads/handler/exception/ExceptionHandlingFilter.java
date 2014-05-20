@@ -145,6 +145,11 @@ public class ExceptionHandlingFilter implements Filter {
 
 	private void recordExceptionAndRequestNotification(HttpServletRequest request, Exception e) {
 		try {
+			ExceptionRecord exceptionRecord = new ExceptionRecord(
+					exceptionHandlingConfig.getServerName(),
+					ExceptionUtils.getStackTrace(e),
+					e.getClass().getName());
+			exceptionRecordNode.put(exceptionRecord, null);
 			StringBuilder paramStringBuilder = new StringBuilder();
 			for (Entry<String, String[]> param : request.getParameterMap().entrySet()) {
 				paramStringBuilder.append(param.getKey());
@@ -203,11 +208,6 @@ public class ExceptionHandlingFilter implements Filter {
 					cause = cause.getCause();
 				} while (cause != null);
 			}
-			ExceptionRecord exceptionRecord = new ExceptionRecord(
-					exceptionHandlingConfig.getServerName(),
-					ExceptionUtils.getStackTrace(e),
-					place);
-			exceptionRecordNode.put(exceptionRecord, null);
 			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
 					exceptionRecord.getKey().getId(),
 					place,
@@ -227,7 +227,7 @@ public class ExceptionHandlingFilter implements Filter {
 					new HeadersWrapper(request)
 					);
 			httpRequestRecordNode.put(httpRequestRecord, null);
-			addNotificationRequestToQueue(request, e, exceptionRecord);
+			addNotificationRequestToQueue(request, e, exceptionRecord, place);
 		} catch (Exception ex) {
 			logger.error("Exception while logging");
 			ex.printStackTrace();
@@ -252,7 +252,7 @@ public class ExceptionHandlingFilter implements Filter {
 	}
 
 	private void addNotificationRequestToQueue(HttpServletRequest request, Exception exception,
-			ExceptionRecord exceptionRecord){
+			ExceptionRecord exceptionRecord, String exceptionPlace){
 		if (exceptionHandlingConfig.shouldReportError(request, exception)) {
 			apiCaller.add(new NotificationRequest(
 					new NotificationUserId(
@@ -260,7 +260,7 @@ public class ExceptionHandlingFilter implements Filter {
 							exceptionHandlingConfig.getRecipientEmail()),
 					exceptionHandlingConfig.getNotificationType(),
 					exceptionRecord.getKey().getId(),
-					exception.getClass().getName()),
+					exceptionPlace),
 					exceptionRecord);
 		}
 	}
