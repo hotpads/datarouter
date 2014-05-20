@@ -7,8 +7,8 @@ import org.apache.http.impl.client.LaxRedirectStrategy;
 
 import com.hotpads.util.http.client.json.GsonJsonSerializer;
 import com.hotpads.util.http.client.json.JsonSerializer;
-import com.hotpads.util.http.client.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.client.security.CsrfValidator;
+import com.hotpads.util.http.client.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.client.security.SignatureValidator;
 
 public class HotPadsHttpClientBuilder{
@@ -17,8 +17,8 @@ public class HotPadsHttpClientBuilder{
 	private static final int SOCKET_TIMEOUT = DEFAULT_TIMEOUT;
 	private static final int CONNECTION_REQUEST_TIMEOUT = DEFAULT_TIMEOUT;
 	private static final int CONNECTION_TIMEOUT = DEFAULT_TIMEOUT;
-	private static final int MAX_TOTAL_CONNECTION = 50;
-	private static final int MAX_CONNECTION_PER_ROUTE = 50;
+	private static final int MAX_TOTAL_CONNECTION = 20;
+	private static final int MAX_CONNECTION_PER_ROUTE = 2;
 	
 	private HttpClientBuilder httpClientBuilder;
 	private HotPadsRetryHandler retryHandler;
