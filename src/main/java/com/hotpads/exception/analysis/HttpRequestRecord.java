@@ -638,4 +638,8 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	public String getUrl() {
 		return getProtocol()+ "://" + hostname + ":" + port + contextPath + path + (queryString != null ? "?" + queryString : "");
 	}
+
+	public static HttpRequestRecord createEmptyForTesting() {
+		return new HttpRequestRecord(null, null, null, 0, null, null, null, null, 0, null, null, null, null, null, 0, null);
+	}
 }

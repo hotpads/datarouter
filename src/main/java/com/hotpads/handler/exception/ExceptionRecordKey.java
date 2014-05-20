@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
@@ -18,9 +17,7 @@ public class ExceptionRecordKey extends BasePrimaryKey<ExceptionRecordKey> {
 	
 	private String id;
 	
-	ExceptionRecordKey() {
-		
-	}
+	ExceptionRecordKey() {}
 	
 	public ExceptionRecordKey(String id) {
 		this.id = id;
