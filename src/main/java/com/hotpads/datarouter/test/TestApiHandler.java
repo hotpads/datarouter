@@ -10,8 +10,9 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
+import com.hotpads.handler.types.DefaultDecoder;
+import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.P;
-import com.hotpads.handler.types.TypeProvider;
 import com.hotpads.util.core.ListTool;
 import com.ibm.icu.util.Calendar;
 
@@ -96,22 +97,23 @@ public class TestApiHandler extends BaseHandler{
 	}
 	
 	/*
-	 * When you want generic types like Collection as parameters, you have to define a static no-arg TypeProvider.
+	 * When you want generic types like Collection as parameters, you have to define a static no-arg decoder.
 	 */
-	public static class FooBarCollectionTypeProvider implements TypeProvider{
+	public static class FooBarCollectionDecoder extends DefaultDecoder{
 		
-		public FooBarCollectionTypeProvider(){
+		public FooBarCollectionDecoder(){
 			
 		}
-		
+
 		@Override
-		public Type get(){
-			return new TypeToken<Collection<FooBar>>(){}.getType();
+		public <T> T deserialize(String toDeserialize, Type classOfT){
+			return super.deserialize(toDeserialize, new TypeToken<Collection<FooBar>>(){}.getType());
 		}
+		
 	}
 	
 	@Handler
-	public Mav count(@P(value = "fooBars", typeProvider = FooBarCollectionTypeProvider.class) Collection<FooBar> fooBars){
+	public Mav count(@P(value = "fooBars", decoder = FooBarCollectionDecoder.class) Collection<FooBar> fooBars){
 		return new MessageMav("There are/is " + fooBars.size() + " element(s) in this list.");
 	}
 	
@@ -119,8 +121,23 @@ public class TestApiHandler extends BaseHandler{
 	 * MEGA COMBO
 	 */
 	@Handler(encoder=JsonEncoder.class)
-	public int size(@P(value = "fooBars", typeProvider = FooBarCollectionTypeProvider.class) Collection<FooBar> fooBars){
+	public int size(@P(value = "fooBars", decoder = FooBarCollectionDecoder.class) Collection<FooBar> fooBars){
 		return fooBars.size();
+	}
+	
+	public static class XmlFooBarDecoder implements HandlerDecoder{
+
+		@Override
+		public <T> T deserialize(String toDeserialize, Type classOfT){
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	}
+	
+	@Handler(encoder=JsonEncoder.class, decoder=XmlFooBarDecoder.class)
+	public int length(String string){
+		return string.length();
 	}
 	
 	public class FooBar{
@@ -148,6 +165,12 @@ public class TestApiHandler extends BaseHandler{
 			return "Hello " + name;
 		}
 		
+	}
+
+	@Override
+	public <T> T deserialize(String toDeserialize, Type classOfT){
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

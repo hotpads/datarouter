@@ -19,10 +19,12 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.hotpads.handler.encoder.Encoder;
+import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
+import com.hotpads.handler.types.DefaultDecoder;
+import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.HandlerTypingHelper;
 import com.hotpads.handler.user.authenticate.AdminEditUserHandler;
 import com.hotpads.util.core.ListTool;
@@ -30,8 +32,6 @@ import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.exception.PermissionException;
 import com.hotpads.util.core.java.ReflectionTool;
-import com.hotpads.util.http.client.json.GsonJsonSerializer;
-import com.hotpads.util.http.client.json.JsonSerializer;
 
 /*
  * a dispatcher servlet sets necessary parameters and then calls "handle()"
@@ -45,7 +45,7 @@ public abstract class BaseHandler{
 	protected HttpServletResponse response;
 	protected Params params;
 	protected PrintWriter out;
-	protected JsonSerializer paramDeserializer;
+	protected HandlerDecoder paramDeserializer;
 	
 	//returns url match regex.  dispatcher servlet calls this on container startup to build url mappings
 	//..could also map the url's externally so they're in a centralized place
@@ -54,7 +54,7 @@ public abstract class BaseHandler{
 	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
 	
 	protected BaseHandler(){
-		this.paramDeserializer = new GsonJsonSerializer();
+		this.paramDeserializer = new DefaultDecoder();
 	}
 	
 	@Handler
@@ -72,6 +72,7 @@ public abstract class BaseHandler{
 		Class<?>[] expectedParameterClasses() default {};
 		Class<?> expectedParameterClassesProvider() default Object.class;
 		Class<?> encoder() default MavEncoder.class;
+		Class<?> decoder() default Object.class;
 	}
 	
 	void handleWrapper(){//dispatcher servlet calls this
@@ -114,9 +115,9 @@ public abstract class BaseHandler{
 				throw new RuntimeException(cause);
 			}
 			
-			Encoder encoder;
+			HandlerEncoder encoder;
 			try{
-				encoder = (Encoder) method.getAnnotation(Handler.class).encoder().newInstance();
+				encoder = (HandlerEncoder) method.getAnnotation(Handler.class).encoder().newInstance();
 			}catch(Exception e){
 				encoder = new MavEncoder();
 			}
@@ -193,7 +194,7 @@ public abstract class BaseHandler{
 		this.response = response;
 	}
 	
-	public void setParamSerializer(JsonSerializer paramDeserializer){
+	public void setParamSerializer(HandlerDecoder paramDeserializer){
 		this.paramDeserializer = paramDeserializer;
 	}
 	

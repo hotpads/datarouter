@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.hotpads.util.http.client.json.GsonJsonSerializer;
 import com.hotpads.util.http.client.json.JsonSerializer;
 
-public class JsonEncoder implements Encoder{
+public class JsonEncoder implements HandlerEncoder{
 
 	private JsonSerializer jsonSerializer;
 	

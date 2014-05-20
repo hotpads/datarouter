@@ -9,7 +9,6 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
-import com.hotpads.util.http.client.json.JsonSerializer;
 
 public class HandlerTypingHelper{
 
@@ -18,10 +17,10 @@ public class HandlerTypingHelper{
 	 * largest number of parameters. It generates the array of arguments at the same time.
 	 * @param handler
 	 * @param methodName
-	 * @param jsonSerializer
+	 * @param decoder
 	 * @return
 	 */
-	public static Pair<Method, List<Object>> findMethodByName(BaseHandler handler, String methodName, JsonSerializer jsonSerializer){
+	public static Pair<Method, List<Object>> findMethodByName(BaseHandler handler, String methodName, HandlerDecoder handlerDecoder){
 		Method method = null;
 		List<Object> args = ListTool.create();
 		for(Method possibleMethod : ReflectionTool.getDeclaredMethodsWithName(handler.getClass(), methodName)){
@@ -34,17 +33,11 @@ public class HandlerTypingHelper{
 						String param = handler.getParams().optional(((P)paramAnnotation).value(), null);
 						if(param != null){
 							Type paramClass = possibleMethod.getParameterTypes()[i];
-							if(((P)paramAnnotation).typeProvider() != null){
-								try{
-									TypeProvider typeProvider = (TypeProvider) ((P)paramAnnotation).typeProvider().newInstance();
-									if(typeProvider.get() != null){
-										paramClass = typeProvider.get();
-									}
-								}catch(Exception e){
-									throw new RuntimeException("Make sure your type provider is static and has a no-arg constructor", e);
-								}
+							HandlerDecoder paramDecoder = handlerDecoder;
+							if(!((P)paramAnnotation).decoder().equals(Object.class)){
+								paramDecoder = (HandlerDecoder) ReflectionTool.create(((P)paramAnnotation).decoder());
 							}
-							currentArgs.add(jsonSerializer.deserialize(param, paramClass));
+							currentArgs.add(paramDecoder.deserialize(param, paramClass));
 							validParam = true;
 						}
 						break;

@@ -11,21 +11,16 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.hotpads.handler.mav.Mav;
-import com.hotpads.handler.mav.imp.MessageMav;
 
-public class MavEncoder implements Encoder{
+public class MavEncoder implements HandlerEncoder{
 	
-	private Logger logger = Logger.getLogger(MavEncoder.class);
+	private static Logger logger = Logger.getLogger(MavEncoder.class);
 	
 	@Override
 	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
 			HttpServletRequest request) throws ServletException{
-		Mav mav;
-		try{
-			mav = (Mav) result;
-		}catch(ClassCastException e){
-			mav = new MessageMav("Please specify an encoder for your @Handler.");
-		}
+		Mav mav = (Mav) result;
+
 		try{
 			if(mav==null){
 				
