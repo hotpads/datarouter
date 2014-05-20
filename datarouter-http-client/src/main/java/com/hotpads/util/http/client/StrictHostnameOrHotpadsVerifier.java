@@ -8,7 +8,7 @@ public class StrictHostnameOrHotpadsVerifier extends AbstractVerifier{
 
 	@Override
 	public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException {
-		if(!host.equals("hotpads.com") || !host.endsWith(".hotpads.com")){
+		if(!host.equals("hotpads.com") && !host.endsWith(".hotpads.com")){
 			verify(host, cns, subjectAlts, true);
 		}
 	}
