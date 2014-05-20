@@ -174,6 +174,10 @@ public abstract class BaseHandler{
 		return params;
 	}
 	
+	public HttpServletRequest getRequest(){
+		return request;
+	}
+	
 	public void setParams(Params params){
 		this.params = params;
 	}

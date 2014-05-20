@@ -3,9 +3,12 @@ package com.hotpads.handler.types;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.BaseHandler.Handler;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -23,7 +26,8 @@ public class HandlerTypingHelper{
 	public static Pair<Method, List<Object>> findMethodByName(BaseHandler handler, String methodName, HandlerDecoder handlerDecoder){
 		Method method = null;
 		List<Object> args = ListTool.create();
-		for(Method possibleMethod : ReflectionTool.getDeclaredMethodsWithName(handler.getClass(), methodName)){
+		Collection<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(handler.getClass(), methodName);
+		for(Method possibleMethod : possibleMethods){
 			List<Object> currentArgs = ListTool.create();
 			int i = 0;
 			for(Annotation[] paramAnnotations : possibleMethod.getParameterAnnotations()){
@@ -55,6 +59,29 @@ public class HandlerTypingHelper{
 			if(currentArgs.size() > args.size() || (args.size() == 0)){
 				method = possibleMethod;
 				args = currentArgs;
+			}
+		}
+		
+		if(method == null){
+			for(Method possibleMethod : possibleMethods){
+				if(!possibleMethod.isAnnotationPresent(Handler.class)){
+					continue;
+				}
+				if(possibleMethod.getAnnotation(Handler.class).decoder().equals(Object.class)){
+					continue;
+				}
+				try{
+					MethodDecoder decoder = (MethodDecoder) ReflectionTool.create(possibleMethod.getAnnotation(Handler.class).decoder());
+					List<Object> newArgs = Arrays.asList(decoder.decode(handler.getRequest()));
+					if(possibleMethod.getParameterTypes().length != newArgs.size()){
+						continue;
+					}
+					args = newArgs;
+					method = possibleMethod;
+					break;
+				}catch(Exception e){
+					continue;
+				}
 			}
 		}
 		return new Pair<Method, List<Object>>(method, args);
