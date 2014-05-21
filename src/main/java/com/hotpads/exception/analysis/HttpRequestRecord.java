@@ -302,30 +302,16 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		return map;
 	}
 
-	public static Map<String, String> getMapFromString(String string, String entrySeperator, String keyValueSeparator) {
-		Map<String, String> map = MapTool.createTreeMap();
-		if (StringTool.isEmpty(string)) {return map;}
-		String[] entries = string.split(entrySeperator);
-		String[] keyVal;
-		for (String entry : entries) {
-			if (StringTool.notEmpty(entry)) {
-				keyVal = entry.split(keyValueSeparator);
-				map.put(keyVal[0], keyVal.length > 1 ? keyVal[1] : null);
-			}
-		}
-		return map;
-	}
-
 	public Map<String, String> getOtherHeadersMap() {
-		return getMapFromString(otherHeaders, ", ", ": ");
+		return MapTool.getMapFromString(otherHeaders, ", ", ": ");
 	}
 
 	public Map<String, String> getHttpParamsMap() {
-		return getMapFromString(httpParams, ", ", ": ");
+		return MapTool.getMapFromString(httpParams, ", ", ": ");
 	}
 
 	public Map<String, String> getCookiesMap() {
-		return getMapFromString(cookie, "; ", "=");
+		return MapTool.getMapFromString(cookie, "; ", "=");
 	}
 
 	public boolean isFromAjax() {

@@ -6,7 +6,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Arrays;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
@@ -41,6 +40,7 @@ import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
 import com.hotpads.setting.NotificationSettings;
 import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.exception.http.HttpException;
 import com.hotpads.util.core.exception.http.imp.Http500InternalServerErrorException;
 
@@ -160,61 +160,19 @@ public class ExceptionHandlingFilter implements Filter {
 				paramStringBuilder.append(", ");
 			}
 			String paramString = paramStringBuilder.toString();
-			//search for jsp error
 			String place = null;
-			int lineNumber = -1;
-			Throwable cause;
-			cause = e;
-			whileLoop: do {
-				String key = "An exception occurred processing JSP page ";
-				if (cause.getMessage() == null) {
-					cause = cause.getCause();
-					continue;
-				}
-				int indexOfBegin = cause.getMessage().indexOf(key);
-				if (indexOfBegin > -1) {
-					String key2 = " at line ";
-					int i = cause.getMessage().indexOf(key2);
-					int endLine = cause.getMessage().indexOf("\n");
-					place = cause.getMessage().substring(indexOfBegin + key.length(), i);
-					try {
-						lineNumber = Integer.parseInt(cause.getMessage().substring(i + key2.length(), endLine));
-					} catch(NumberFormatException ex) {
-						
-					}
-					break;
-				}				
-				place = getJSPName(cause.getMessage());
-				if (place != null) {
-					break;
-				}
-				for (StackTraceElement element : cause.getStackTrace()) {
-					place = getJSPName(element.getClassName());
-					if (place != null) {
-						break whileLoop;
-					}
-				}
-				cause = cause.getCause();
-			} while (cause != null);
-			if (place == null) {
-				//search for other error in com.hotpads
-				cause = e;
-				whileLoop: do {
-					for (StackTraceElement element : cause.getStackTrace()) {
-						if (element.getClassName().contains("com.hotpads")) {
-							lineNumber = element.getLineNumber();
-							place = element.getClassName();
-							break whileLoop;
-						}
-					}
-					cause = cause.getCause();
-				} while (cause != null);
+			Integer lineNumber = null;
+			Pair<String, Integer> pair = searchJspName(e);
+			if (pair.getLeft() == null) {
+				pair = searchClassName(e);
 			}
+			place = pair.getLeft();
+			lineNumber = pair.getRight();
 			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
 					exceptionRecord.getKey().getId(),
 					place,
 					null,
-					lineNumber,
+					lineNumber == null ? -1 : lineNumber,
 					request.getMethod(),
 					paramString.length() > 0 ? paramString : null,
 					request.getScheme(),
@@ -236,6 +194,61 @@ public class ExceptionHandlingFilter implements Filter {
 		}
 	}
 
+	private Pair<String, Integer> searchClassName(Exception e) {
+		String place;
+		Integer lineNumber = null;
+		Throwable cause = e;
+		do {
+			for (StackTraceElement element : cause.getStackTrace()) {
+				if (element.getClassName().contains("com.hotpads")) {
+					lineNumber = element.getLineNumber();
+					place = element.getClassName();
+					return Pair.create(place, lineNumber);
+				}
+			}
+			cause = cause.getCause();
+		} while (cause != null);
+		return Pair.create(null, null);
+	}
+
+	private Pair<String, Integer> searchJspName(Throwable e) {
+		String place;
+		Integer lineNumber = null;
+		Throwable cause = e;
+		do {
+			String key = "An exception occurred processing JSP page ";
+			if (cause.getMessage() == null) {
+				cause = cause.getCause();
+				continue;
+			}
+			int indexOfBegin = cause.getMessage().indexOf(key);
+			if (indexOfBegin > -1) {
+				String key2 = " at line ";
+				int i = cause.getMessage().indexOf(key2);
+				int endLine = cause.getMessage().indexOf("\n");
+				place = cause.getMessage().substring(indexOfBegin + key.length(), i);
+				try {
+					lineNumber = Integer.parseInt(cause.getMessage().substring(i + key2.length(), endLine));
+				} catch(NumberFormatException ex) {
+					
+				}
+				return Pair.create(place, lineNumber);
+			}				
+			place = getJSPName(cause.getMessage());
+			if (place != null) {
+				return Pair.create(place, lineNumber);
+			}
+			for (StackTraceElement element : cause.getStackTrace()) {
+				place = getJSPName(element.getClassName());
+				if (place != null) {
+					return Pair.create(place, lineNumber);
+				}
+			}
+			cause = cause.getCause();
+		} while (cause != null);
+		return Pair.create(null, null);
+	}
+
 	private String getJSPName(String string) {
 		if (string == null) {
 			return null;
@@ -248,7 +261,7 @@ public class ExceptionHandlingFilter implements Filter {
 			jspName = jspName.replaceAll("\\.", "/");
 			jspName = jspName.replaceAll("_002d", "-");
 			jspName = jspName.replaceAll("_", ".");
-			return jspName;
+			return "/" + jspName;
 		}
 		return null;
 	}

@@ -532,13 +532,6 @@ public class RequestTool {
 		}
 	}
 
-	/**
-	 * Convert ipv4 octet string into long ip representation.
-	 * Same as mysql's INET_ATON(dottedDecimal)
-	 * @param dottedDecimal
-	 * @return
-	 * @throws IllegalArgumentException
-	 */
 	public static boolean isAValidIpV4(String dottedDecimal){
 		String ipv4Pattern = "\\A(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}\\z";
 		return dottedDecimal != null && dottedDecimal.matches(ipv4Pattern);
