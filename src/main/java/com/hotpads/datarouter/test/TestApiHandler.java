@@ -24,6 +24,11 @@ import com.ibm.icu.util.Calendar;
 
 public class TestApiHandler extends BaseHandler{
 	
+	@Handler
+	public Mav before(){
+		return new MessageMav("Before !");
+	}
+	
 	/*
 	 * These examples show the possibility to pass the query parameters directly as method parameters
 	 * - Note the use of the @P annotation to specify the name of the parameter.
@@ -75,6 +80,33 @@ public class TestApiHandler extends BaseHandler{
 		return Calendar.getInstance().getTime();
 	}
 	
+	public class FooBar{
+		private String firstField;
+		private int intField;
+		private Date created;
+		
+		public FooBar(String firstField, int intField, Date created){
+			super();
+			this.firstField = firstField;
+			this.intField = intField;
+			this.created = created;
+		}
+		
+		public String getFirstField(){
+			return firstField;
+		}
+		public int getIntField(){
+			return intField;
+		}
+		public Date getCreated(){
+			return created;
+		}
+		public String getHello(String name){
+			return "Hello " + name;
+		}
+		
+	}
+	
 	@Handler(encoder=JsonEncoder.class)
 	public FooBar banana(){
 		FooBar dto = new FooBar("hello", 42, Calendar.getInstance().getTime());
@@ -100,14 +132,10 @@ public class TestApiHandler extends BaseHandler{
 	}
 	
 	/*
-	 * When you want generic types like Collection as parameters, you have to define a static no-arg type provider.
+	 * When you want generic types like Collection as parameters, you have to define a static type provider.
 	 */
 	public static class FooBarCollectionTypeProvider implements TypeProvider{
 		
-		public FooBarCollectionTypeProvider(){
-			
-		}
-
 		@Override
 		public Type get(){
 			return new TypeToken<Collection<FooBar>>(){}.getType();
@@ -156,33 +184,6 @@ public class TestApiHandler extends BaseHandler{
 	@Handler(encoder=JsonEncoder.class, decoder=RawStreamDecoder.class)
 	public int length(String string){
 		return string.length();
-	}
-	
-	public class FooBar{
-		private String firstField;
-		private int intField;
-		private Date created;
-		
-		public FooBar(String firstField, int intField, Date created){
-			super();
-			this.firstField = firstField;
-			this.intField = intField;
-			this.created = created;
-		}
-		
-		public String getFirstField(){
-			return firstField;
-		}
-		public int getIntField(){
-			return intField;
-		}
-		public Date getCreated(){
-			return created;
-		}
-		public String getHello(String name){
-			return "Hello " + name;
-		}
-		
 	}
 
 }
