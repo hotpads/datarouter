@@ -24,7 +24,6 @@ import com.hotpads.setting.NotificationSettings;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.http.client.HotPadsHttpClient;
 import com.hotpads.util.http.client.HotPadsHttpClientBuilder;
-import com.hotpads.util.http.client.security.ApiKeyPredicate;
 import com.hotpads.util.http.client.security.CsrfValidator;
 import com.hotpads.util.http.client.security.SignatureValidator;
 
@@ -86,7 +85,7 @@ public class NotificationApiClient {
 		client = httpClientBuilder
 				.setSignatureValidator(new SignatureValidator(SALT))
 				.setCsrfValidator(new CsrfValidator(CIPHER_KEY, CIPHER_IV))
-				.setApiKeyPredicate(new ApiKeyPredicate(API_KEY))
+//				.setApiKeyPredicate(new ApiKeyPredicate(API_KEY))
 				.build();
 	}
 
