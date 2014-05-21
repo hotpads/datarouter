@@ -94,4 +94,8 @@ public abstract class BaseDispatcher{
 		handler.handleWrapper();
 		return true;
 	}
+	
+	public List<DispatchRule> getDispatchRules(){
+		return this.dispatchRules;
+	}
 }
