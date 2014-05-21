@@ -3,6 +3,7 @@ package com.hotpads.datarouter.test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Date;
@@ -15,9 +16,9 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
-import com.hotpads.handler.types.DefaultDecoder;
-import com.hotpads.handler.types.MethodDecoder;
+import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.P;
+import com.hotpads.handler.types.TypeProvider;
 import com.hotpads.util.core.ListTool;
 import com.ibm.icu.util.Calendar;
 
@@ -68,9 +69,6 @@ public class TestApiHandler extends BaseHandler{
 
 	/*
 	 * These examples show the possibility to return another type than Mav.
-	 * - Just specify the encoder with @Handler
-	 * - If you are not pleased with the default JSON serializer, you are welcome to build one and activate it
-	 * with the setJsonSerializer() method.
 	 */
 	@Handler(encoder=JsonEncoder.class)
 	public Date now(){
@@ -102,23 +100,23 @@ public class TestApiHandler extends BaseHandler{
 	}
 	
 	/*
-	 * When you want generic types like Collection as parameters, you have to define a static no-arg decoder.
+	 * When you want generic types like Collection as parameters, you have to define a static no-arg type provider.
 	 */
-	public static class FooBarCollectionDecoder extends DefaultDecoder{
+	public static class FooBarCollectionTypeProvider implements TypeProvider{
 		
-		public FooBarCollectionDecoder(){
+		public FooBarCollectionTypeProvider(){
 			
 		}
 
 		@Override
-		public <T> T deserialize(String toDeserialize, Type classOfT){
-			return super.deserialize(toDeserialize, new TypeToken<Collection<FooBar>>(){}.getType());
+		public Type get(){
+			return new TypeToken<Collection<FooBar>>(){}.getType();
 		}
 		
 	}
 	
 	@Handler
-	public Mav count(@P(value = "fooBars", decoder = FooBarCollectionDecoder.class) Collection<FooBar> fooBars){
+	public Mav count(@P(value = "fooBars", typeProvider = FooBarCollectionTypeProvider.class) Collection<FooBar> fooBars){
 		return new MessageMav("There are/is " + fooBars.size() + " element(s) in this list.");
 	}
 	
@@ -126,14 +124,17 @@ public class TestApiHandler extends BaseHandler{
 	 * MEGA COMBO
 	 */
 	@Handler(encoder=JsonEncoder.class)
-	public int size(@P(value = "fooBars", decoder = FooBarCollectionDecoder.class) Collection<FooBar> fooBars){
+	public int size(@P(value = "fooBars", typeProvider = FooBarCollectionTypeProvider.class) Collection<FooBar> fooBars){
 		return fooBars.size();
 	}
 	
-	public static class RawStreamDecoder implements MethodDecoder{
+	public static class RawStreamDecoder implements HandlerDecoder{
 
 		@Override
-		public Object[] decode(HttpServletRequest request){
+		public Object[] decode(HttpServletRequest request, Method method){
+			if(method.getParameterTypes().length != 1){
+				return null;
+			}
 			String entity;
 			try{
 				entity = streamToString(request.getInputStream());
@@ -152,7 +153,6 @@ public class TestApiHandler extends BaseHandler{
 		}
 	}
 	
-	//Method decoder, for low-level usage
 	@Handler(encoder=JsonEncoder.class, decoder=RawStreamDecoder.class)
 	public int length(String string){
 		return string.length();

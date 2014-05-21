@@ -1,15 +1,10 @@
 package com.hotpads.handler.types;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.BaseHandler.Handler;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -23,68 +18,29 @@ public class HandlerTypingHelper{
 	 * @param decoder
 	 * @return
 	 */
-	public static Pair<Method, List<Object>> findMethodByName(BaseHandler handler, String methodName, HandlerDecoder handlerDecoder){
+	public static Pair<Method, Object[]> findMethodByName(BaseHandler handler, String methodName){
 		Method method = null;
-		List<Object> args = ListTool.create();
+		Object[] args = new Object[]{};
 		Collection<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(handler.getClass(), methodName);
 		for(Method possibleMethod : possibleMethods){
-			List<Object> currentArgs = ListTool.create();
-			int i = 0;
-			for(Annotation[] paramAnnotations : possibleMethod.getParameterAnnotations()){
-				boolean validParam = false;
-				for(Annotation paramAnnotation : paramAnnotations){
-					if(paramAnnotation instanceof P){
-						String param = handler.getParams().optional(((P)paramAnnotation).value(), null);
-						if(param != null){
-							Type paramClass = possibleMethod.getParameterTypes()[i];
-							HandlerDecoder paramDecoder = handlerDecoder;
-							if(!((P)paramAnnotation).decoder().equals(Object.class)){
-								paramDecoder = (HandlerDecoder) ReflectionTool.create(((P)paramAnnotation).decoder());
-							}
-							currentArgs.add(paramDecoder.deserialize(param, paramClass));
-							validParam = true;
-						}
-						break;
-					}
-				}
-				if(!validParam){
-					possibleMethod = null;
-					break;
-				}
-				i++;
-			}
-			if(possibleMethod == null){
+			if(!possibleMethod.isAnnotationPresent(Handler.class)){
 				continue;
 			}
-			if(currentArgs.size() > args.size() || (args.size() == 0)){
-				method = possibleMethod;
-				args = currentArgs;
-			}
-		}
-		
-		if(method == null){
-			for(Method possibleMethod : possibleMethods){
-				if(!possibleMethod.isAnnotationPresent(Handler.class)){
+			try{
+				HandlerDecoder decoder = (HandlerDecoder) ReflectionTool.create(possibleMethod.getAnnotation(Handler.class).decoder());
+				Object[] newArgs = decoder.decode(handler.getRequest(), possibleMethod);
+				if(newArgs == null){
 					continue;
 				}
-				if(possibleMethod.getAnnotation(Handler.class).decoder().equals(Object.class)){
-					continue;
-				}
-				try{
-					MethodDecoder decoder = (MethodDecoder) ReflectionTool.create(possibleMethod.getAnnotation(Handler.class).decoder());
-					List<Object> newArgs = Arrays.asList(decoder.decode(handler.getRequest()));
-					if(possibleMethod.getParameterTypes().length != newArgs.size()){
-						continue;
-					}
+				if(args.length < newArgs.length || args.length == 0){
 					args = newArgs;
 					method = possibleMethod;
-					break;
-				}catch(Exception e){
-					continue;
 				}
+			}catch(Exception e){
+				continue;
 			}
 		}
-		return new Pair<Method, List<Object>>(method, args);
+		return new Pair<Method, Object[]>(method, args);
 	}
 
 }

@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 public @interface P{
 	String value();
-	Class<?> decoder() default Object.class;
+	Class<?> typeProvider() default Object.class;
 }

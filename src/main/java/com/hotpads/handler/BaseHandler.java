@@ -7,7 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -24,10 +23,8 @@ import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.types.DefaultDecoder;
-import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.HandlerTypingHelper;
 import com.hotpads.handler.user.authenticate.AdminEditUserHandler;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.exception.PermissionException;
@@ -45,17 +42,12 @@ public abstract class BaseHandler{
 	protected HttpServletResponse response;
 	protected Params params;
 	protected PrintWriter out;
-	protected HandlerDecoder paramDeserializer;
 	
 	//returns url match regex.  dispatcher servlet calls this on container startup to build url mappings
 	//..could also map the url's externally so they're in a centralized place
 //	abstract String handles();
 	
 	protected static final String DEFAULT_HANDLER_METHOD_NAME = "handleDefault";
-	
-	protected BaseHandler(){
-		this.paramDeserializer = new DefaultDecoder();
-	}
 	
 	@Handler
 	protected Mav handleDefault() throws Exception {
@@ -72,18 +64,18 @@ public abstract class BaseHandler{
 		Class<?>[] expectedParameterClasses() default {};
 		Class<?> expectedParameterClassesProvider() default Object.class;
 		Class<?> encoder() default MavEncoder.class;
-		Class<?> decoder() default Object.class;
+		Class<?> decoder() default DefaultDecoder.class;
 	}
 	
 	void handleWrapper(){//dispatcher servlet calls this
 		try{
 			permitted();
 			Method method = null;
-			List<Object> args = ListTool.create();
+			Object[] args = null;
 			try{
 				String methodName = handlerMethodName();
 				if (!StringTool.isNullOrEmpty(methodName)) {
-					Pair<Method, List<Object>> pair = HandlerTypingHelper.findMethodByName(this, methodName, paramDeserializer);
+					Pair<Method, Object[]> pair = HandlerTypingHelper.findMethodByName(this, methodName);
 					method = pair.getLeft();
 					args = pair.getRight();
 				}
@@ -104,7 +96,10 @@ public abstract class BaseHandler{
 
 			Object result;
 			try{
-				result = method.invoke(this, args.toArray());
+				if(args == null){
+					args = new Object[]{};
+				}
+				result = method.invoke(this, args);
 			}catch(IllegalAccessException e){
 				throw new RuntimeException(e);
 			}catch(InvocationTargetException e){
@@ -196,10 +191,6 @@ public abstract class BaseHandler{
 
 	public void setResponse(HttpServletResponse response){
 		this.response = response;
-	}
-	
-	public void setParamSerializer(HandlerDecoder paramDeserializer){
-		this.paramDeserializer = paramDeserializer;
 	}
 	
 	public static class BaseHandlerTests {
