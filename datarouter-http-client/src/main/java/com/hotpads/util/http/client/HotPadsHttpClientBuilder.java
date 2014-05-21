@@ -4,12 +4,11 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 import com.hotpads.util.http.client.json.GsonJsonSerializer;
 import com.hotpads.util.http.client.json.JsonSerializer;
-import com.hotpads.util.http.client.security.ApiKeyPredicate;
 import com.hotpads.util.http.client.security.CsrfValidator;
+import com.hotpads.util.http.client.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.client.security.SignatureValidator;
 
 public class HotPadsHttpClientBuilder{
@@ -18,8 +17,8 @@ public class HotPadsHttpClientBuilder{
 	private static final int SOCKET_TIMEOUT = DEFAULT_TIMEOUT;
 	private static final int CONNECTION_REQUEST_TIMEOUT = DEFAULT_TIMEOUT;
 	private static final int CONNECTION_TIMEOUT = DEFAULT_TIMEOUT;
-	private static final int MAX_TOTAL_CONNECTION = 50;
-	private static final int MAX_CONNECTION_PER_ROUTE = 50;
+	private static final int MAX_TOTAL_CONNECTION = 20;
+	private static final int MAX_CONNECTION_PER_ROUTE = 2;
 	
 	private HttpClientBuilder httpClientBuilder;
 	private HotPadsRetryHandler retryHandler;
@@ -27,7 +26,7 @@ public class HotPadsHttpClientBuilder{
 	private HttpClient customHttpClient;
 	private SignatureValidator signatureValidator;
 	private CsrfValidator csrfValidator;
-	private ApiKeyPredicate apiKeyPredicate;
+	private DefaultApiKeyPredicate apiKeyPredicate;
 	private HotPadsHttpClientConfig config;
 	
 	public HotPadsHttpClient createInstance(){
@@ -42,12 +41,11 @@ public class HotPadsHttpClientBuilder{
 				.setSocketTimeout(SOCKET_TIMEOUT)
 				.build();
 		httpClientBuilder = HttpClientBuilder.create()
-				.setDefaultRequestConfig(defaultRequestConfig )
-				.setMaxConnTotal(MAX_TOTAL_CONNECTION)
-				.setMaxConnPerRoute(MAX_CONNECTION_PER_ROUTE)
-				.setConnectionManager(new PoolingHttpClientConnectionManager())
+				.setDefaultRequestConfig(defaultRequestConfig)
 				.setRetryHandler(retryHandler)
-				.setRedirectStrategy(new LaxRedirectStrategy());
+				.setRedirectStrategy(new LaxRedirectStrategy())
+				.setMaxConnPerRoute(MAX_CONNECTION_PER_ROUTE)
+				.setMaxConnTotal(MAX_TOTAL_CONNECTION);
 		return this;
 	}
 	
@@ -102,13 +100,23 @@ public class HotPadsHttpClientBuilder{
 		return this;
 	}
 
-	public HotPadsHttpClientBuilder setApiKeyPredicate(ApiKeyPredicate apiKeyPredicate){
+	public HotPadsHttpClientBuilder setApiKeyPredicate(DefaultApiKeyPredicate apiKeyPredicate){
 		this.apiKeyPredicate = apiKeyPredicate;
 		return this;
 	}
 	
 	public HotPadsHttpClientBuilder setConfig(HotPadsHttpClientConfig config){
 		this.config = config;
+		return this;
+	}
+	
+	public HotPadsHttpClientBuilder setMaxTotalConnections(int maxTotalConnections){
+		this.httpClientBuilder.setMaxConnTotal(maxTotalConnections);
+		return this;
+	}
+	
+	public HotPadsHttpClientBuilder setMaxConnectionsPerRoute(int maxConnectionsPerRoute){
+		this.httpClientBuilder.setMaxConnPerRoute(maxConnectionsPerRoute);
 		return this;
 	}
 

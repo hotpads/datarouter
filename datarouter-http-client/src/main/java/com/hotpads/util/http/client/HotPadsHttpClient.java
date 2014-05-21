@@ -143,14 +143,14 @@ public class HotPadsHttpClient{
 		return responseString;
 	}
 
-	private String streamToString(InputStream input){
+	private static String streamToString(InputStream input){
 		try(Scanner s = new Scanner(input)){
 			s.useDelimiter("\\A");
 			return s.hasNext() ? s.next() : "";
 		}
 	}
 	
-	private List<NameValuePair> urlEncodeFromMap(Map<String, String> data){
+	private static List<NameValuePair> urlEncodeFromMap(Map<String, String> data){
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		for(Entry<String, String> entry : data.entrySet()){
 			params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
@@ -161,4 +161,5 @@ public class HotPadsHttpClient{
 	void setRetryHandler(HotPadsRetryHandler retryHandler){
 		this.retryHandler = retryHandler;
 	}
+
 }
