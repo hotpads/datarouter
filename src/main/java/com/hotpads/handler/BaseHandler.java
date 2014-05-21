@@ -63,6 +63,7 @@ public abstract class BaseHandler{
 	public @interface Handler {
 		Class<?>[] expectedParameterClasses() default {};
 		Class<?> expectedParameterClassesProvider() default Object.class;
+		String description() default "";
 		Class<?> encoder() default MavEncoder.class;
 		Class<?> decoder() default DefaultDecoder.class;
 	}
@@ -162,12 +163,7 @@ public abstract class BaseHandler{
 //		}
 	}
 	
-	/****************** get/set 
-	 * @return *******************************************/
-	
-	public Params getParams(){
-		return params;
-	}
+	/****************** get/set *******************************************/
 	
 	public HttpServletRequest getRequest(){
 		return request;
