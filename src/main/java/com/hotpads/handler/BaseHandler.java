@@ -63,6 +63,7 @@ public abstract class BaseHandler{
 	public @interface Handler {
 		Class<?>[] expectedParameterClasses() default {};
 		Class<?> expectedParameterClassesProvider() default Object.class;
+		String description() default "";
 	}
 	
 	
@@ -147,6 +148,7 @@ public abstract class BaseHandler{
 				
 			}else{
 				response.setContentType(mav.getContentType());
+				response.setStatus(mav.getStatusCode());
 				//add the model variables as request attributes
 				appendMavToRequest(request, mav);
 				
