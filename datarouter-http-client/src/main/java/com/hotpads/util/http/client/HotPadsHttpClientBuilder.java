@@ -57,7 +57,7 @@ public class HotPadsHttpClientBuilder{
 			builtHttpClient = customHttpClient;
 		}
 		if(config == null){
-			config = new HotpadsHttpClientDefaultConfig();
+			config = new HotPadsHttpClientDefaultConfig();
 		}
 		if(jsonSerializer == null){
 			jsonSerializer = new GsonJsonSerializer();

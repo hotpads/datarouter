@@ -1,6 +1,6 @@
 package com.hotpads.util.http.client;
 
-public class HotpadsHttpClientDefaultConfig implements HotPadsHttpClientConfig{
+public class HotPadsHttpClientDefaultConfig implements HotPadsHttpClientConfig{
 
 	@Override
 	public String getDtoParameterName(){
