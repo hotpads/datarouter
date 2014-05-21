@@ -24,11 +24,12 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Joiner;
 import com.google.inject.BindingAnnotation;
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
-import com.hotpads.exception.analysis.HeadersWrapper;
+import com.hotpads.exception.analysis.HttpHeaders;
 import com.hotpads.exception.analysis.HttpRequestRecord;
 import com.hotpads.exception.analysis.HttpRequestRecordKey;
 import com.hotpads.handler.util.RequestTool;
@@ -151,11 +152,12 @@ public class ExceptionHandlingFilter implements Filter {
 					e.getClass().getName());
 			exceptionRecordNode.put(exceptionRecord, null);
 			StringBuilder paramStringBuilder = new StringBuilder();
+			Joiner listJoiner = Joiner.on("; ");
 			for (Entry<String, String[]> param : request.getParameterMap().entrySet()) {
 				paramStringBuilder.append(param.getKey());
-				paramStringBuilder.append(":");
-				paramStringBuilder.append(Arrays.toString(param.getValue()));
-				paramStringBuilder.append(",");
+				paramStringBuilder.append(": ");
+				paramStringBuilder.append(listJoiner.join(param.getValue()));
+				paramStringBuilder.append(", ");
 			}
 			String paramString = paramStringBuilder.toString();
 			//search for jsp error
@@ -224,7 +226,7 @@ public class ExceptionHandlingFilter implements Filter {
 					RequestTool.getIpAddress(request),
 					"unknown user roles",
 					-1l,
-					new HeadersWrapper(request)
+					new HttpHeaders(request)
 					);
 			httpRequestRecordNode.put(httpRequestRecord, null);
 			addNotificationRequestToQueue(request, e, exceptionRecord, place);

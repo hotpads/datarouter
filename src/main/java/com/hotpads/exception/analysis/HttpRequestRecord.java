@@ -1,5 +1,25 @@
 package com.hotpads.exception.analysis;
 
+import static com.hotpads.exception.analysis.HttpHeaders.ACCEPT;
+import static com.hotpads.exception.analysis.HttpHeaders.ACCEPT_CHARSET;
+import static com.hotpads.exception.analysis.HttpHeaders.ACCEPT_ENCODING;
+import static com.hotpads.exception.analysis.HttpHeaders.ACCEPT_LANGUAGE;
+import static com.hotpads.exception.analysis.HttpHeaders.CACHE_CONTROL;
+import static com.hotpads.exception.analysis.HttpHeaders.CONNECTION;
+import static com.hotpads.exception.analysis.HttpHeaders.CONTENT_ENCODING;
+import static com.hotpads.exception.analysis.HttpHeaders.CONTENT_LANGUAGE;
+import static com.hotpads.exception.analysis.HttpHeaders.CONTENT_LENGTH;
+import static com.hotpads.exception.analysis.HttpHeaders.CONTENT_TYPE;
+import static com.hotpads.exception.analysis.HttpHeaders.DNT;
+import static com.hotpads.exception.analysis.HttpHeaders.HOST;
+import static com.hotpads.exception.analysis.HttpHeaders.IF_MODIFIED_SINCE;
+import static com.hotpads.exception.analysis.HttpHeaders.ORIGIN;
+import static com.hotpads.exception.analysis.HttpHeaders.PRAGMA;
+import static com.hotpads.exception.analysis.HttpHeaders.REFERER;
+import static com.hotpads.exception.analysis.HttpHeaders.USER_AGENT;
+import static com.hotpads.exception.analysis.HttpHeaders.X_FORWARDED_FOR;
+import static com.hotpads.exception.analysis.HttpHeaders.X_REQUESTED_WITH;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +42,11 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.StringTool;
 
 public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRequestRecord>{
+
+	private static final int
+		LENGHT_httpMethod = 16,
+		LENGHT_protocol = 5,
+		LENGHT_ip = 39;
 
 	/******************* fields ************************/
 
@@ -67,7 +92,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	private String userAgent;
 	private String xForwardedFor;
 	private String xRequestedWith;
-	private String others;
+	private String otherHeaders;
 
 	private static class F {
 		public static String
@@ -81,7 +106,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		httpMethod = "httpMethod",
 		httpParams = "httpParams",
 
-		protocolString = "protocol",
+		protocol = "protocol",
 		hostname = "hostname",
 		port = "port",
 		contextPath = "contextPath",
@@ -112,19 +137,18 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		userAgent = "userAgent",
 		xForwardedFor = "xForwardedFor",
 		xRequestedWith = "xRequestedWith",
-		others = "others";
+		others = "otherHeaders";
 	}
 
 	public static class HttpRequestRecordFielder extends BaseDatabeanFielder<HttpRequestRecordKey, HttpRequestRecord>{
 
-		public HttpRequestRecordFielder() {}
+		HttpRequestRecordFielder() {}
 
 		@Override
 		public Class<? extends Fielder<HttpRequestRecordKey>> getKeyFielderClass() {
 			return HttpRequestRecordKey.class;
 		}
 
-		//TODO adapt field size
 		@Override
 		public List<Field<?>> getNonKeyFields(HttpRequestRecord d) {
 			return FieldTool.createList(
@@ -135,17 +159,17 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 					new StringField(F.methodName, d.methodName, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new IntegerField(F.lineNumber, d.lineNumber),
 
-					new StringField(F.httpMethod, d.httpMethod, 16),
+					new StringField(F.httpMethod, d.httpMethod, LENGHT_httpMethod),
 					new StringField(F.httpParams, d.httpParams, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
 
-					new StringField(F.protocolString, d.protocol, 10),
+					new StringField(F.protocol, d.protocol, LENGHT_protocol),
 					new StringField(F.hostname, d.hostname, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new IntegerField(F.port, d.port),
 					new StringField(F.contextPath, d.contextPath, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.path, d.path, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.queryString, d.queryString, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
 
-					new StringField(F.ip, d.ip, 39),
+					new StringField(F.ip, d.ip, LENGHT_ip),
 					new StringField(F.userRoles, d.userRoles, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new LongField(F.userId, d.userId),
 					
@@ -169,7 +193,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 					new StringField(F.userAgent, d.userAgent, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
 					new StringField(F.xForwardedFor, d.xForwardedFor, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.xRequestedWith, d.xRequestedWith, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.others, d.others, MySqlColumnType.MAX_LENGTH_VARCHAR)
+					new StringField(F.others, d.otherHeaders, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT)
 					);
 		}
 
@@ -183,7 +207,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	public HttpRequestRecord(String exceptionRecordId, String exceptionPlace, String methodName, int lineNumber,
 			String httpMethod, String httpParams, String protocol, String hostname, int port, String contextPath,
-			String path, String queryString, String ip, String sessionRoles, long userId, HeadersWrapper headersWrapper) {
+			String path, String queryString, String ip, String sessionRoles, long userId, HttpHeaders headersWrapper) {
 		this.key = new HttpRequestRecordKey(UuidTool.generateUuid());
 		this.created = new Date();
 
@@ -227,7 +251,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.xForwardedFor = headersWrapper.getXForwardedFor();
 		this.xRequestedWith = headersWrapper.getXRequestedWith();
 
-		this.others = headersWrapper.getOthers();
+		this.otherHeaders = headersWrapper.getOthers();
 	}
 
 	@Override
@@ -253,8 +277,70 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		}
 	}
 
-	/*************** getters / setters ******************/
+	/******* tools *****/
+	public Map<String, String> getHeaders() {
+		Map<String, String> map = MapTool.createTreeMap();
+		map.put(ACCEPT_CHARSET, acceptCharset);
+		map.put(ACCEPT_ENCODING, acceptEncoding);
+		map.put(ACCEPT_LANGUAGE, acceptLanguage);
+		map.put(ACCEPT, accept);
+		map.put(CACHE_CONTROL, cacheControl);
+		map.put(CONNECTION, connection);
+		map.put(CONTENT_ENCODING, contentEncoding);
+		map.put(CONTENT_LANGUAGE, contentLanguage);
+		map.put(CONTENT_LENGTH, contentLength);
+		map.put(CONTENT_TYPE, contentType);
+		map.put(DNT, dnt);
+		map.put(HOST, host);
+		map.put(IF_MODIFIED_SINCE, ifModifiedSince);
+		map.put(ORIGIN, origin);
+		map.put(PRAGMA, pragma);
+		map.put(REFERER, referer);
+		map.put(USER_AGENT, userAgent);
+		map.put(X_FORWARDED_FOR, xForwardedFor);
+		map.put(X_REQUESTED_WITH, xRequestedWith);
+		return map;
+	}
 
+	public static Map<String, String> getMapFromString(String string, String entrySeperator, String keyValueSeparator) {
+		Map<String, String> map = MapTool.createTreeMap();
+		if (StringTool.isEmpty(string)) {return map;}
+		String[] entries = string.split(entrySeperator);
+		String[] keyVal;
+		for (String entry : entries) {
+			if (StringTool.notEmpty(entry)) {
+				keyVal = entry.split(keyValueSeparator);
+				map.put(keyVal[0], keyVal.length > 1 ? keyVal[1] : null);
+			}
+		}
+		return map;
+	}
+
+	public Map<String, String> getOtherHeadersMap() {
+		return getMapFromString(otherHeaders, ", ", ": ");
+	}
+
+	public Map<String, String> getHttpParamsMap() {
+		return getMapFromString(httpParams, ", ", ": ");
+	}
+
+	public Map<String, String> getCookiesMap() {
+		return getMapFromString(cookie, "; ", "=");
+	}
+
+	public boolean isFromAjax() {
+		return "XMLHttpRequest".equals(xRequestedWith);
+	}
+
+	public String getUrl() {
+		return getProtocol()+ "://" + hostname + ":" + port + contextPath + path + (queryString != null ? "?" + queryString : "");
+	}
+
+	public static HttpRequestRecord createEmptyForTesting() {
+		return new HttpRequestRecord(null, null, null, 0, null, null, null, null, 0, null, null, null, null, null, 0, null);
+	}
+
+	/*************** getters / setters ******************/
 	@Override
 	public HttpRequestRecordKey getKey() {
 		return key;
@@ -314,20 +400,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	public String getHttpParams() {
 		return httpParams;
-	}
-
-	public Map<String, String> getHttpParamsMap() {
-		if (httpParams == null) { return null;}
-		String[] tab = httpParams.split(",");
-		String[] keyValue;
-		Map<String, String> params = MapTool.create();
-		for (String string : tab) {
-			if (StringTool.notEmpty(string)) {
-				keyValue = string.split(":");
-				params.put(keyValue[0], keyValue[1].substring(1, keyValue[1].length() - 1));
-			}
-		}
-		return params;
 	}
 
 	public void setHttpParams(String httpParams) {
@@ -408,30 +480,6 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	public void setUserId(Long userId) {
 		this.userId = userId;
-	}
-
-	public Map<String, String> getHeaders() {
-		Map<String, String> map = MapTool.createTreeMap();
-		map.put("accept-charset", acceptCharset);
-		map.put("accept-encoding", acceptEncoding);
-		map.put("accept-language", acceptLanguage);
-		map.put("accept", accept);
-		map.put("cache-control", cacheControl);
-		map.put("connection", connection);
-		map.put("content-encoding", contentEncoding);
-		map.put("content-language", contentLanguage);
-		map.put("content-length", contentLength);
-		map.put("content-type", contentType);
-		map.put("dnt", dnt);
-		map.put("host", host);
-		map.put("if-modified-since", ifModifiedSince);
-		map.put("origin", origin);
-		map.put("pragma", pragma);
-		map.put("referer", referer);
-		map.put("userAgent", userAgent);
-		map.put("x-forwarded-for", xForwardedFor);
-		map.put("x-requested-with", xRequestedWith);
-		return map;
 	}
 
 	public String getAcceptCharset() {
@@ -594,52 +642,12 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.xRequestedWith = xRequestedWith;
 	}
 
-	public String getOthers() {
-		return others;
+	public String getOtherHeaders() {
+		return otherHeaders;
 	}
 
-	public void setOthers(String others) {
-		this.others = others;
+	public void setOtherHeaders(String otherHeaders) {
+		this.otherHeaders = otherHeaders;
 	}
 
-	public Map<String , String> getOthersHeaders() {
-		if (StringTool.isEmpty(others)) {return null;}
-		Map<String, String> map = MapTool.createTreeMap();
-		String[] tab = others.split(", ");
-		String[] keyVal;
-		String val;
-		for (String string : tab) {
-			keyVal = string.split(": ");
-			if (keyVal.length > 0 ) {
-				val = (keyVal.length > 1 ? keyVal[1] : null);
-				map.put(keyVal[0], val);
-			}
-		}
-		return map;
-	}
-
-	public boolean isFromAjax() {
-		return "XMLHttpRequest".equals(xRequestedWith);
-	}
-
-	public Map<String, String> getCookiesMap() {
-		String[] tab = cookie.split("; ");
-		String[] keyValue;
-		Map<String, String> params = MapTool.create();
-		for (String string : tab) {
-			if (StringTool.notEmpty(string)) {
-				keyValue = string.split("=");
-				params.put(keyValue[0], keyValue[1].substring(1, keyValue[1].length() - 1));
-			}
-		}
-		return params;
-	}
-
-	public String getUrl() {
-		return getProtocol()+ "://" + hostname + ":" + port + contextPath + path + (queryString != null ? "?" + queryString : "");
-	}
-
-	public static HttpRequestRecord createEmptyForTesting() {
-		return new HttpRequestRecord(null, null, null, 0, null, null, null, null, 0, null, null, null, null, null, 0, null);
-	}
 }

@@ -9,34 +9,56 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.common.base.Joiner;
 import com.hotpads.util.core.MapTool;
 
-public class HeadersWrapper {
+public class HttpHeaders {
+	
+	public static String
+		ACCEPT_CHARSET = "accept-charset",
+		ACCEPT_ENCODING = "accept-encoding",
+		ACCEPT_LANGUAGE = "accept-language",
+		ACCEPT = "accept",
+		CACHE_CONTROL = "cache-control",
+		CONNECTION = "connection",
+		CONTENT_ENCODING = "content-encoding",
+		CONTENT_LANGUAGE = "content-language",
+		CONTENT_LENGTH = "content-length",
+		CONTENT_TYPE = "content-type",
+		COOKIE = "cookie",
+		DNT = "dnt",
+		HOST = "host",
+		IF_MODIFIED_SINCE = "if-modified-since",
+		ORIGIN = "origin",
+		PRAGMA = "pragma",
+		REFERER = "referer",
+		USER_AGENT = "user-agent",
+		X_FORWARDED_FOR = "x-forwarded-for",
+		X_REQUESTED_WITH = "x-requested-with";
 	
 	private static final String[] recordedHeaders = {
-			"accept-charset",
-			"accept-encoding",
-			"accept-language",
-			"accept",
-			"cache-control",
-			"connection",
-			"content-encoding",
-			"content-language",
-			"content-length",
-			"content-type",
-			"cookie",
-			"dnt",
-			"host",
-			"if-modified-since",
-			"origin",
-			"pragma",
-			"referer",
-			"user-agent",
-			"x-forwarded-for",
-			"x-requested-with"
+		ACCEPT_CHARSET,
+		ACCEPT_ENCODING,
+		ACCEPT_LANGUAGE,
+		ACCEPT,
+		CACHE_CONTROL,
+		CONNECTION,
+		CONTENT_ENCODING,
+		CONTENT_LANGUAGE,
+		CONTENT_LENGTH,
+		CONTENT_TYPE,
+		COOKIE,
+		DNT,
+		HOST,
+		IF_MODIFIED_SINCE,
+		ORIGIN,
+		PRAGMA,
+		REFERER,
+		USER_AGENT,
+		X_FORWARDED_FOR,
+		X_REQUESTED_WITH
 	};
 	
 	private Map<String, String> headerMap = MapTool.create();
 	
-	public HeadersWrapper(HttpServletRequest request) {
+	public HttpHeaders(HttpServletRequest request) {
 		Joiner listJoiner = Joiner.on(", ");
 		List<String> tmpHeaders = Collections.list(request.getHeaderNames());
 		for (String headerKey : recordedHeaders) {
@@ -56,83 +78,83 @@ public class HeadersWrapper {
 	}
 
 	public String getAcceptCharset(){
-		return headerMap.get("accept-charset");
+		return headerMap.get(ACCEPT_CHARSET);
 	}
 
 	public String getAcceptEncoding(){
-		return headerMap.get("accept-encoding");
+		return headerMap.get(ACCEPT_ENCODING);
 	}
 
 	public String getAcceptLanguage(){
-		return headerMap.get("accept-language");
+		return headerMap.get(ACCEPT_LANGUAGE);
 	}
 
 	public String getAccept(){
-		return headerMap.get("accept");
+		return headerMap.get(ACCEPT);
 	}
 
 	public String getCacheControl(){
-		return headerMap.get("cache-control");
+		return headerMap.get(CACHE_CONTROL);
 	}
 
 	public String getConnection(){
-		return headerMap.get("connection");
+		return headerMap.get(CONNECTION);
 	}
 
 	public String getContentEncoding(){
-		return headerMap.get("content-encoding");
+		return headerMap.get(CONTENT_ENCODING);
 	}
 
 	public String getContentLanguage(){
-		return headerMap.get("content-language");
+		return headerMap.get(CONTENT_LANGUAGE);
 	}
 
 	public String getContentLength(){
-		return headerMap.get("content-length");
+		return headerMap.get(CONTENT_LENGTH);
 	}
 
 	public String getContentType(){
-		return headerMap.get("content-type");
+		return headerMap.get(CONTENT_TYPE);
 	}
 
 	public String getCookie(){
-		return headerMap.get("cookie");
+		return headerMap.get(COOKIE);
 	}
 
 	public String getDnt(){
-		return headerMap.get("dnt");
+		return headerMap.get(DNT);
 	}
 
 	public String getHost(){
-		return headerMap.get("host");
+		return headerMap.get(HOST);
 	}
 
 	public String getIfModifiedSince(){
-		return headerMap.get("if-modified-since");
+		return headerMap.get(IF_MODIFIED_SINCE);
 	}
 
 	public String getOrigin(){
-		return headerMap.get("origin");
+		return headerMap.get(ORIGIN);
 	}
 
 	public String getPragma(){
-		return headerMap.get("pragma");
+		return headerMap.get(PRAGMA);
 	}
 
 	public String getReferer(){
-		return headerMap.get("referer");
+		return headerMap.get(REFERER);
 	}
 
 	public String getUserAgent(){
-		return headerMap.get("user-agent");
+		return headerMap.get(USER_AGENT);
 	}
 
 	public String getXForwardedFor(){
-		return headerMap.get("x-forwarded-for");
+		return headerMap.get(X_FORWARDED_FOR);
 	}
 
 	public String getXRequestedWith() {
-		return headerMap.get("x-requested-with");
+		return headerMap.get(X_REQUESTED_WITH);
 	}
 
 	public String getOthers() {

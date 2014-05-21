@@ -1,8 +1,5 @@
 package com.hotpads.handler.exception;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Date;
 import java.util.List;
 
@@ -121,32 +118,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 	}
 
 	public String getShortStackTrace() {
-		BufferedReader br = new BufferedReader(new StringReader(stackTrace));
-		String line;
-		String key = "com.hotpads";
-		boolean none = false;
-		int nb = 0;
-		StringBuilder builder = new StringBuilder();
-		try {
-			while ((line = br.readLine()) != null) {
-				if (line.contains(key) && nb < 10) {
-					none = false;
-					nb++;
-					builder.append(line);
-					builder.append('\n');
-				} else {
-					if (!none) {
-						builder.append("[...]");
-						builder.append('\n');
-						none = true;
-					}
-				}
-			}
-			return ExceptionTool.getColorized(builder.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-			return stackTrace;
-		}
+		return ExceptionTool.getShortStackTrace(stackTrace);
 	}
 	public void setStackTrace(String stackTrace) {
 		this.stackTrace = stackTrace;
