@@ -139,7 +139,7 @@ public class ParallelApiCaller {
 	private static void sendEmail(List<Pair<NotificationRequest, ExceptionRecord>> requests) {
 		String recipient = requests.get(0).getLeft().getKey().getUserId();
 		String fromEmail = "HotPads Errors<admin@hotpads.com>";
-		String subject = "Emergency error notification";
+		String subject = "EMERGENCY ERROR : " + requests.get(0).getLeft().getChannel();
 		StringBuilder builder = new StringBuilder();
 		builder.append("<h1>" + requests.size() + " error" + (requests.size() > 1 ? "s" : "") + " occurred </h1>");
 		builder.append("<h2>You receive this e-mail because Job server does not respond on time</h2>");

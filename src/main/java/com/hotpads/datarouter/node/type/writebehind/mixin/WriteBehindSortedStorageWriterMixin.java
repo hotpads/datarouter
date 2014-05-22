@@ -18,7 +18,7 @@ public class WriteBehindSortedStorageWriterMixin<
 		D extends Databean<PK,D>,
 		N extends SortedStorageWriterNode<PK,D>>
 implements SortedStorageWriter<PK,D>{
-	Logger logger = Logger.getLogger(getClass());
+	private Logger logger = Logger.getLogger(getClass());
 
 	protected BaseWriteBehindNode<PK,D,N> node;
 	

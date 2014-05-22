@@ -1,4 +1,4 @@
-package com.hotpads.handler.exception;
+package com.hotpads.exception.analysis;
 
 import java.util.List;
 
@@ -7,25 +7,25 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.handler.exception.ExceptionRecord.F;
 
 @SuppressWarnings("serial")
-public class ExceptionRecordKey extends BasePrimaryKey<ExceptionRecordKey> {
-	
-	private static int
-		LENGTH_id = MySqlColumnType.MAX_LENGTH_VARCHAR;
-	
+public class HttpRequestRecordKey extends BasePrimaryKey<HttpRequestRecordKey>{
+
 	private String id;
-	
-	ExceptionRecordKey() {}
-	
-	public ExceptionRecordKey(String id) {
+
+	private static class F {
+		public static String id = "id";
+	}
+
+	HttpRequestRecordKey() {}
+
+	public HttpRequestRecordKey(String id) {
 		this.id = id;
 	}
 
 	@Override
 	public List<Field<?>> getFields() {
-		return FieldTool.createList(new StringField(F.id, id, LENGTH_id));
+		return FieldTool.createList(new StringField(F.id, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 
 	public String getId() {

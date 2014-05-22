@@ -19,7 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Joiner;
-
+import com.hotpads.exception.analysis.HttpHeaders;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
@@ -414,7 +414,6 @@ public class RequestTool {
 		return getCheckedBoxes(request,prefix,new IdentityFunctor<String>());
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static <T> List<T> getCheckedBoxes(HttpServletRequest request, String prefix, Functor<T,String> converter){
 		Enumeration<String> paramNames = request.getParameterNames();
 		List<T> selecteds = ListTool.createArrayList();
@@ -500,6 +499,45 @@ public class RequestTool {
 		return request.getHeader("user-agent");
 	}
 	
+	public static String getIpAddress(HttpServletRequest request){
+		if(request == null){
+			return null;
+		}
+		String xForwardedFor = null;
+		
+		Enumeration<String> xForwards = request.getHeaders(HttpHeaders.X_FORWARDED_FOR);
+
+		//haproxy adds x-forwarded-for headers to the http request for the originating ip.
+		//if the client already had a x-forwarded-for header, 
+		// java's request.getHeader() chooses the wrong header (the first one, which is the client's),
+		// which can contain useless ips (like 127.0.0.1).  so instead use the last one that haproxy put on
+
+		while (xForwards.hasMoreElements()) {
+			xForwardedFor = xForwards.nextElement();
+		}
+
+		if (!StringTool.isNullOrEmptyOrWhitespace(xForwardedFor)){
+			String[] proxyChain = xForwardedFor.split(", ");
+			String clientIp = proxyChain[proxyChain.length - 1];
+			if (isAValidIpV4(clientIp)) {
+				return clientIp;
+			} else {
+				return request.getRemoteAddr();
+			}
+		} else {
+			String remoteAddr = request.getRemoteAddr();
+			if ("127.0.0.1".equals(remoteAddr)) {//dev server
+				remoteAddr = "98.204.67.1"; //FIXME why this adresse ?
+			}
+			return remoteAddr;
+		}
+	}
+
+	public static boolean isAValidIpV4(String dottedDecimal){
+		String ipv4Pattern = "\\A(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}\\z";
+		return dottedDecimal != null && dottedDecimal.matches(ipv4Pattern);
+	}
+
 	/** tests *****************************************************************/
 	public static class Tests {
 		@Test public void testCheckDouble(){
@@ -550,6 +588,16 @@ public class RequestTool {
 					getFullyQualifiedUrl("","http://x.com:8080","x.com",8080).toString());
 			Assert.assertEquals("https://x.com:8443/snack",
 					getFullyQualifiedUrl("snack","https://x.com","x.com",8443).toString());
+		}
+
+		@Test public void testIsAVildIpV4() {
+			Assert.assertTrue(isAValidIpV4("1.0.1.1"));
+			Assert.assertTrue(isAValidIpV4("0.0.0.0"));
+			Assert.assertTrue(isAValidIpV4("124.159.0.18"));
+			Assert.assertFalse(isAValidIpV4("256.159.0.18"));
+			Assert.assertFalse(isAValidIpV4("blabla"));
+			Assert.assertFalse(isAValidIpV4(""));
+			Assert.assertFalse(isAValidIpV4(null));
 		}
 	}	
 }

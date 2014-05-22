@@ -10,7 +10,7 @@ import com.hotpads.profile.count.collection.archive.CountArchiveFlusher;
 import com.hotpads.util.core.ExceptionTool;
 
 public class OverdueWriteCanceller implements Runnable{
-	static Logger logger = Logger.getLogger(CountArchiveFlusher.class);
+	private static Logger logger = Logger.getLogger(CountArchiveFlusher.class);
 	
 	protected final BaseWriteBehindNode<?,?,?> node;
 	
