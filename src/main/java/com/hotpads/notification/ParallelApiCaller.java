@@ -32,6 +32,9 @@ import com.hotpads.util.core.collections.Pair;
 public class ParallelApiCaller {
 	private static Logger logger = Logger.getLogger(ParallelApiCaller.class);
 
+	//weird I know, see ParallelApiCaller.sendEmail() for explanation
+	private static NotificationSettings staticNotificationSettings;
+
 	private static final int QUEUE_CAPACITY = 4096;
 	private static final long FLUSH_PERIOD_MS = 1000;
 	private static final long FLUSH_TIMEOUT_MS = 1000;
@@ -51,6 +54,7 @@ public class ParallelApiCaller {
 		this.flusher = Executors.newScheduledThreadPool(1); //singleThread
 		this.flusher.scheduleWithFixedDelay(new QueueFlusher(), 0, FLUSH_PERIOD_MS, TimeUnit.MILLISECONDS);
 		this.notificationSettings = notificationSettings;
+		ParallelApiCaller.staticNotificationSettings = notificationSettings;
 	}
 
 	public void add(NotificationRequest request, ExceptionRecord exceptionRecord){
@@ -142,21 +146,43 @@ public class ParallelApiCaller {
 	}
 
 	private static void sendEmail(List<Pair<NotificationRequest, ExceptionRecord>> requests) {
+		//small tricks to get the right domain see ErrorEmailTemplate for better way to do this
+		//the static fiel is very bad, don't know how to do this
+		String domain = ParallelApiCaller.staticNotificationSettings.getApiEndPoint().getValue().contains("localhost") ? "localhost:8443" : "hotpads.com";
 		String recipient = requests.get(0).getLeft().getKey().getUserId();
 		String fromEmail = "HotPads Errors<admin@hotpads.com>";
-		String subject = "EMERGENCY ERROR : " + requests.get(0).getLeft().getChannel();
+		String object = requests.get(0).getRight() != null ? "ERROR : " : "";
+		String subject = "(EMERGENCY notification) " + object + requests.get(0).getLeft().getChannel();
 		StringBuilder builder = new StringBuilder();
 		builder.append("<h1>" + requests.size() + " error" + (requests.size() > 1 ? "s" : "") + " occurred </h1>");
 		builder.append("<h2>You receive this e-mail because Job server does not respond on time</h2>");
+		if (requests.get(0).getRight() == null) {
+			builder.append("<p>Type : ");
+			builder.append(requests.get(0).getLeft().getType());
+			builder.append("</p>");
+			builder.append("<p>Channel : ");
+			builder.append(requests.get(0).getLeft().getChannel());
+			builder.append("</p>");
+		}
 		for (Pair<NotificationRequest, ExceptionRecord> r : requests) {
 			builder.append("<p>");
 			builder.append(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z").format(new Date(r.getLeft().getKey().getSentAtMs())));
-			builder.append(" on ");
-			builder.append(r.getRight().getServerName());
-			builder.append("</p>");
-			builder.append("<pre>");
-			builder.append(ExceptionTool.getColorized(r.getRight().getStackTrace()));
-			builder.append("</pre>");
+			if (r.getRight() != null) {
+				builder.append(" on ");
+				builder.append(r.getRight().getServerName());
+				builder.append("</p>");
+				builder.append("<p>");
+				builder.append("<a href=\"https://" + domain + "/analytics/exception/details?exceptionRecord=" + r.getRight().getKey().getId() + "\">Details</a>");
+				builder.append("</p>");
+				builder.append("<pre>");
+				builder.append(ExceptionTool.getColorized(r.getRight().getStackTrace()));
+				builder.append("</pre>");
+			} else {
+				builder.append("</p>");
+				builder.append("<p>Data : ");
+				builder.append(requests.get(0).getLeft().getData());
+				builder.append("</p>");
+			}
 		}
 		DataRouterEmailTool.trySendHtmlEmail(fromEmail, recipient, subject, builder.toString());
 	}

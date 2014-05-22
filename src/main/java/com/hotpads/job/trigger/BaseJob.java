@@ -131,7 +131,7 @@ public abstract class BaseJob implements Job{
 				exceptionHandlingConfig.getJobErrorNotificationType(),
 				exceptionRecord.getKey().getId(),
 				getClass().getName());
-		apiCaller.add(notificationRequest, null);
+		apiCaller.add(notificationRequest, exceptionRecord);
 	}
 
 	@Override
