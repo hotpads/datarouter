@@ -39,14 +39,13 @@ import com.hotpads.datarouter.storage.key.unique.BaseUniqueKey;
 import com.hotpads.datarouter.util.UuidTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.StringTool;
 
 public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRequestRecord>{
 
 	private static final int
-		LENGHT_httpMethod = 16,
-		LENGHT_protocol = 5,
-		LENGHT_ip = 39;
+		LENGTH_httpMethod = 16,
+		LENGTH_protocol = 5,
+		LENGTH_ip = 39;
 
 	/******************* fields ************************/
 
@@ -159,17 +158,17 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 					new StringField(F.methodName, d.methodName, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new IntegerField(F.lineNumber, d.lineNumber),
 
-					new StringField(F.httpMethod, d.httpMethod, LENGHT_httpMethod),
+					new StringField(F.httpMethod, d.httpMethod, LENGTH_httpMethod),
 					new StringField(F.httpParams, d.httpParams, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
 
-					new StringField(F.protocol, d.protocol, LENGHT_protocol),
+					new StringField(F.protocol, d.protocol, LENGTH_protocol),
 					new StringField(F.hostname, d.hostname, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new IntegerField(F.port, d.port),
 					new StringField(F.contextPath, d.contextPath, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.path, d.path, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.queryString, d.queryString, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
 
-					new StringField(F.ip, d.ip, LENGHT_ip),
+					new StringField(F.ip, d.ip, LENGTH_ip),
 					new StringField(F.userRoles, d.userRoles, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new LongField(F.userId, d.userId),
 					
@@ -323,7 +322,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	}
 
 	public static HttpRequestRecord createEmptyForTesting() {
-		return new HttpRequestRecord(null, null, null, 0, null, null, null, null, 0, null, null, null, null, null, 0, null);
+		return new HttpRequestRecord(null, null, null, 0, null, null, null, null, 0, null, null, null, null, null, 0, new HttpHeaders(null));
 	}
 
 	/*************** getters / setters ******************/

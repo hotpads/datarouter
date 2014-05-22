@@ -60,21 +60,23 @@ public class HttpHeaders {
 	
 	public HttpHeaders(HttpServletRequest request) {
 		Joiner listJoiner = Joiner.on(", ");
-		List<String> tmpHeaders = Collections.list(request.getHeaderNames());
-		for (String headerKey : recordedHeaders) {
-			if (tmpHeaders.remove(headerKey)) {
-				headerMap.put(headerKey, listJoiner.join(Collections.list(request.getHeaders(headerKey))));
+		if (request != null) {
+			List<String> tmpHeaders = Collections.list(request.getHeaderNames());
+			for (String headerKey : recordedHeaders) {
+				if (tmpHeaders.remove(headerKey)) {
+					headerMap.put(headerKey, listJoiner.join(Collections.list(request.getHeaders(headerKey))));
+				}
 			}
+			StringBuilder othersBuilder = new StringBuilder();
+			for (String header : tmpHeaders) {
+				othersBuilder.append(header);
+				othersBuilder.append(": ");
+				othersBuilder.append(listJoiner.join(Collections.list(request.getHeaders(header))));
+				othersBuilder.append(", ");
+			}
+			String others = othersBuilder.toString();
+			headerMap.put("others", others);
 		}
-		StringBuilder othersBuilder = new StringBuilder();
-		for (String header : tmpHeaders) {
-			othersBuilder.append(header);
-			othersBuilder.append(": ");
-			othersBuilder.append(listJoiner.join(Collections.list(request.getHeaders(header))));
-			othersBuilder.append(", ");
-		}
-		String others = othersBuilder.toString();
-		headerMap.put("others", others);
 	}
 
 	public String getAcceptCharset(){

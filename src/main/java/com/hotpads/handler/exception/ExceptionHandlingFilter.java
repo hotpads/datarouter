@@ -189,8 +189,7 @@ public class ExceptionHandlingFilter implements Filter {
 			httpRequestRecordNode.put(httpRequestRecord, null);
 			addNotificationRequestToQueue(request, e, exceptionRecord, place);
 		} catch (Exception ex) {
-			logger.error("Exception while logging");
-			ex.printStackTrace();
+			logger.error("Exception while logging", ex);
 		}
 	}
 
