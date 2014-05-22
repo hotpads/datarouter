@@ -31,8 +31,8 @@ public class JobExecutors{
 		jobExecutor = createScheduled(jobScheduler, "jobExecutor", 10).get();
 	
 	public static final ExecutorService 
-		reputationJobExecutor = new ThreadPoolExecutor(15, 15, 0L, TimeUnit.MILLISECONDS,
-				new ArrayBlockingQueue<Runnable>(1000), new ThreadPoolExecutor.CallerRunsPolicy());
+		reputationJobExecutor = new ThreadPoolExecutor(20, 20, 0L, TimeUnit.MILLISECONDS,
+				new ArrayBlockingQueue<Runnable>(2000), new ThreadPoolExecutor.CallerRunsPolicy());
 	
 	/************************* providers **********************************/
 	
