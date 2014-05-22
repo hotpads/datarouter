@@ -12,6 +12,7 @@ public interface ExceptionHandlingConfig {
 
 	String getHtmlErrorMessage(Exception exception);
 	String getServerName();
+	boolean isDevServer();
 	String getRecipientEmail();
 	String getNotificationApiEndPoint();
 	Class<? extends NotificationType> getServerErrorNotificationType();

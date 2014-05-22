@@ -94,7 +94,7 @@ public class ExceptionHandlingFilter implements Filter {
 			notificationSettings = (NotificationSettings) sc.getAttribute(ATTRIBUTE_NOTIFICATION_SETTINGS);
 			exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
 			notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig, notificationSettings);
-			apiCaller = new ParallelApiCaller(notificationApiClient, notificationSettings);
+			apiCaller = new ParallelApiCaller(notificationApiClient, notificationSettings, exceptionHandlingConfig);
 		}
 	}
 
