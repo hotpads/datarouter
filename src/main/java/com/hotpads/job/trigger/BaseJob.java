@@ -240,20 +240,8 @@ public abstract class BaseJob implements Job{
 	}
 	
 	@Override
-	public void interrupt(){
-		if(getFromTracker().isRunning()){
-			interrupted.set(true);
-		}
-	}
-	
-	@Override
 	public CronExpression getTrigger(){
 		return getDefaultTrigger();
-	}
-	
-	@Override
-	public boolean isInterrupted(){
-		return interrupted.isTrue();
 	}
 	
 	protected TriggerInfo getFromTracker(){

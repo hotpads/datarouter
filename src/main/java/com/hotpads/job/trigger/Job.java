@@ -36,7 +36,4 @@ public interface Job extends Callable<Void>, Comparable<Job>{
 	LongRunningTaskTracker getLongRunningTaskTracker();
 	void trackBeforeRun(Long starttime);
 	void trackAfterRun(Long endTime);
-	
-	void interrupt();
-	boolean isInterrupted();
 }
