@@ -33,20 +33,26 @@ public class LongRunningTaskTracker {
 		this.shouldSaveJobRecords = shouldSaveJobRecords;
 	}
 	
-//	private void requestInterrupt(){
-//	}
-//	
-//	private boolean isInterruptRequested(){
-//		return false;
-//	}
+	public void requestInterrupt(){
+		interrupted.set(true);
+	}
 	
-	public void heartbeat(){
+	public boolean isInterruptRequested(){
+		if(interrupted.get()){
+			task.setJobExecutionStatus(JobExecutionStatus.interrupted);
+			node.put(task, null);
+		}
+		return interrupted.get();
+	}
+	
+	public LongRunningTaskTracker heartbeat(){
 		if(shouldPersistHeartbeat()){
 			Date heartbeat = new Date();
 			task.setHeartbeatTime(heartbeat);
 			node.put(task, null);
 			lastPersistedHeartbeat = heartbeat;
 		}
+		return this;
 	}
 	
 	private boolean shouldPersistHeartbeat(){
@@ -58,7 +64,7 @@ public class LongRunningTaskTracker {
 		}
 		return System.currentTimeMillis() - lastPersistedHeartbeat.getTime() > HEARTBEAT_PERSIST_PERIOD_MS;
 	}
-
+	
 	public IndexedSortedMapStorageNode getNode() {
 		return node;
 	}

@@ -5,6 +5,8 @@ import java.util.concurrent.Callable;
 
 import org.quartz.CronExpression;
 
+import com.hotpads.job.record.LongRunningTaskTracker;
+
 public interface Job extends Callable<Void>, Comparable<Job>{
 	
 //	void setScheduler(JobScheduler scheduler);
@@ -30,6 +32,10 @@ public interface Job extends Callable<Void>, Comparable<Job>{
 	boolean getIsDisabled();
 	void disableJob();
 	void enableJob();
+	
+	LongRunningTaskTracker getLongRunningTaskTracker();
+	void trackBeforeRun(Long starttime);
+	void trackAfterRun(Long endTime);
 	
 	void interrupt();
 	boolean isInterrupted();
