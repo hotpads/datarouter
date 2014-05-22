@@ -43,14 +43,16 @@ public class NotificationApiClient {
 	private Boolean last;
 
 	@Inject
-	public NotificationApiClient(NotificationRequestDtoTool dtoTool, ExceptionHandlingConfig exceptionHandlingConfig, NotificationSettings settings) {
+	public NotificationApiClient(NotificationRequestDtoTool dtoTool, ExceptionHandlingConfig exceptionHandlingConfig,
+			NotificationSettings settings) {
 		this.settings = settings;
 		this.exceptionHandlingConfig = exceptionHandlingConfig;
 		this.dtoTool = dtoTool;
 	}
 
 	public void call(List<Pair<NotificationRequest, ExceptionRecord>> requests) throws IOException {
-		getClient(settings.getIgnoreSsl().getValue()).post(exceptionHandlingConfig.getNotificationApiEndPoint(), dtoTool.toDtos(requests), false);
+		getClient(settings.getIgnoreSsl().getValue()).post(exceptionHandlingConfig.getNotificationApiEndPoint(),
+				dtoTool.toDtos(requests), false);
 	}
 
 	private HotPadsHttpClient getClient(Boolean ignoreSsl) {
@@ -74,7 +76,8 @@ public class NotificationApiClient {
 					}
 	
 				});
-				SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+				SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(),
+						SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 				CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(sslsf).build();
 				httpClientBuilder = new HotPadsHttpClientBuilder().create().setCustomHttpClient(httpClient);
 			}catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e){

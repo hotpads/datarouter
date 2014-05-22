@@ -19,6 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Joiner;
+import com.hotpads.exception.analysis.HttpHeaders;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
@@ -504,7 +505,7 @@ public class RequestTool {
 		}
 		String xForwardedFor = null;
 		
-		Enumeration<String> xForwards = request.getHeaders("x-forwarded-for");
+		Enumeration<String> xForwards = request.getHeaders(HttpHeaders.X_FORWARDED_FOR);
 
 		//haproxy adds x-forwarded-for headers to the http request for the originating ip.
 		//if the client already had a x-forwarded-for header, 
