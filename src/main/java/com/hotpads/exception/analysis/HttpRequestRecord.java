@@ -39,7 +39,6 @@ import com.hotpads.datarouter.storage.key.unique.BaseUniqueKey;
 import com.hotpads.datarouter.util.UuidTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.StringTool;
 
 public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRequestRecord>{
 

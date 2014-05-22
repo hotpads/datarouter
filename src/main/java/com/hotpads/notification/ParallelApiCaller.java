@@ -14,6 +14,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.util.DataRouterEmailTool;
@@ -25,6 +28,7 @@ import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Pair;
 
+@Singleton
 public class ParallelApiCaller {
 	private static Logger logger = Logger.getLogger(ParallelApiCaller.class);
 
@@ -39,6 +43,7 @@ public class ParallelApiCaller {
 	private NotificationSettings notificationSettings;
 	private Boolean last;
 
+	@Inject
 	public ParallelApiCaller(NotificationApiClient notificationApiClient, NotificationSettings notificationSettings) {
 		this.notificationApiClient = notificationApiClient;
 		this.queue = new LinkedBlockingQueue<Pair<NotificationRequest, ExceptionRecord>>(QUEUE_CAPACITY);

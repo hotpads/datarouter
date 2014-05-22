@@ -81,7 +81,7 @@ public class ExceptionHandlingFilter implements Filter {
 	@HttpRecordRecordNode
 	@SuppressWarnings("rawtypes")
 	private MapStorageNode httpRequestRecordNode;
-	
+	@Inject
 	private ParallelApiCaller apiCaller;
 
 	@SuppressWarnings("unchecked")
@@ -94,8 +94,8 @@ public class ExceptionHandlingFilter implements Filter {
 			notificationSettings = (NotificationSettings) sc.getAttribute(ATTRIBUTE_NOTIFICATION_SETTINGS);
 			exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
 			notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig, notificationSettings);
+			apiCaller = new ParallelApiCaller(notificationApiClient, notificationSettings);
 		}
-		apiCaller = new ParallelApiCaller(notificationApiClient, notificationSettings);
 	}
 
 	@Override
@@ -273,7 +273,7 @@ public class ExceptionHandlingFilter implements Filter {
 					new NotificationUserId(
 							NotificationUserType.EMAIL,
 							exceptionHandlingConfig.getRecipientEmail()),
-					exceptionHandlingConfig.getNotificationType(),
+					exceptionHandlingConfig.getServerErrorNotificationType(),
 					exceptionRecord.getKey().getId(),
 					exceptionPlace),
 					exceptionRecord);

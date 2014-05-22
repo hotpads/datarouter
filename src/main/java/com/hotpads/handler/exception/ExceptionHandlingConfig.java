@@ -14,6 +14,7 @@ public interface ExceptionHandlingConfig {
 	String getServerName();
 	String getRecipientEmail();
 	String getNotificationApiEndPoint();
-	Class<? extends NotificationType> getNotificationType();
+	Class<? extends NotificationType> getServerErrorNotificationType();
+	Class<? extends NotificationType> getJobErrorNotificationType();
 
 }
