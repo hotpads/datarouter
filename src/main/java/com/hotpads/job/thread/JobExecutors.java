@@ -1,7 +1,11 @@
 package com.hotpads.job.thread;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -25,7 +29,10 @@ public class JobExecutors{
 	
 	public static final ScheduledExecutorService 
 		jobExecutor = createScheduled(jobScheduler, "jobExecutor", 10).get();
-
+	
+	public static final ExecutorService 
+		reputationJobExecutor = new ThreadPoolExecutor(15, 15, 0L, TimeUnit.MILLISECONDS,
+				new ArrayBlockingQueue<Runnable>(1000), new ThreadPoolExecutor.CallerRunsPolicy());
 	
 	/************************* providers **********************************/
 	

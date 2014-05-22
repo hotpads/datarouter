@@ -24,8 +24,8 @@ import com.hotpads.setting.NotificationSettings;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.http.client.HotPadsHttpClient;
 import com.hotpads.util.http.client.HotPadsHttpClientBuilder;
-import com.hotpads.util.http.client.security.ApiKeyPredicate;
 import com.hotpads.util.http.client.security.CsrfValidator;
+import com.hotpads.util.http.client.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.client.security.SignatureValidator;
 
 @Singleton
@@ -43,14 +43,16 @@ public class NotificationApiClient {
 	private Boolean last;
 
 	@Inject
-	public NotificationApiClient(NotificationRequestDtoTool dtoTool, ExceptionHandlingConfig exceptionHandlingConfig, NotificationSettings settings) {
+	public NotificationApiClient(NotificationRequestDtoTool dtoTool, ExceptionHandlingConfig exceptionHandlingConfig,
+			NotificationSettings settings) {
 		this.settings = settings;
 		this.exceptionHandlingConfig = exceptionHandlingConfig;
 		this.dtoTool = dtoTool;
 	}
 
 	public void call(List<Pair<NotificationRequest, ExceptionRecord>> requests) throws IOException {
-		getClient(settings.getIgnoreSsl().getValue()).post(exceptionHandlingConfig.getNotificationApiEndPoint(), dtoTool.toDtos(requests), false);
+		getClient(settings.getIgnoreSsl().getValue()).post(exceptionHandlingConfig.getNotificationApiEndPoint(),
+				dtoTool.toDtos(requests), false);
 	}
 
 	private HotPadsHttpClient getClient(Boolean ignoreSsl) {
@@ -74,7 +76,8 @@ public class NotificationApiClient {
 					}
 	
 				});
-				SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+				SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(),
+						SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 				CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(sslsf).build();
 				httpClientBuilder = new HotPadsHttpClientBuilder().create().setCustomHttpClient(httpClient);
 			}catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e){
@@ -86,7 +89,7 @@ public class NotificationApiClient {
 		client = httpClientBuilder
 				.setSignatureValidator(new SignatureValidator(SALT))
 				.setCsrfValidator(new CsrfValidator(CIPHER_KEY, CIPHER_IV))
-				.setApiKeyPredicate(new ApiKeyPredicate(API_KEY))
+				.setApiKeyPredicate(new DefaultApiKeyPredicate(API_KEY))
 				.build();
 	}
 

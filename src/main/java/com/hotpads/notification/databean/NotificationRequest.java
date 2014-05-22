@@ -13,9 +13,9 @@ import com.hotpads.notification.type.NotificationType;
 public class NotificationRequest extends BaseDatabean<NotificationRequestKey,NotificationRequest> {	
 
 	private static final int
-	LENGHT_type = MySqlColumnType.MAX_LENGTH_VARCHAR,
-	LENGHT_data = MySqlColumnType.MAX_LENGTH_VARCHAR,
-	LENGHT_channel= MySqlColumnType.MAX_LENGTH_VARCHAR;
+		LENGHT_type = MySqlColumnType.MAX_LENGTH_VARCHAR,
+		LENGHT_data = MySqlColumnType.MAX_LENGTH_VARCHAR,
+		LENGHT_channel= MySqlColumnType.MAX_LENGTH_VARCHAR;
 
 	/****************** fields **************************/
 
