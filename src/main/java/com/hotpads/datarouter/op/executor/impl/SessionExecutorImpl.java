@@ -66,7 +66,7 @@ implements SessionExecutor<T>, Callable<T>{
 			commitTxns();
 			
 		}catch(Exception e){
-			logger.warn(ExceptionTool.getStackTraceAsString(e));
+			//logger.warn(ExceptionTool.getStackTraceAsString(e));
 			try{
 				rollbackTxns();
 			}catch(Exception exceptionDuringRollback){
