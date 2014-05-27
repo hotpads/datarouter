@@ -1,6 +1,7 @@
 package com.hotpads.handler.dispatcher;
 
 import com.google.inject.Injector;
+import com.hotpads.datarouter.test.TestApiHandler;
 import com.hotpads.handler.BaseDispatcher;
 import com.hotpads.handler.admin.DatabeanGeneratorHandler;
 import com.hotpads.handler.admin.RoutersHandler;
@@ -43,6 +44,8 @@ public class DataRouterDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + CLIENTS + HIBERNATE).withHandler(HibernateHandler.class);
 		handle(URL_DATAROUTER + CLIENTS + MEMORY).withHandler(MemoryHandler.class);
 		handle(URL_DATAROUTER + CLIENTS + MEMCACHED).withHandler(MemcachedHandler.class);
+		
+		handle(URL_DATAROUTER + "/testApi[/]?[^/]*").withHandler(TestApiHandler.class);
 	}
 
 }
