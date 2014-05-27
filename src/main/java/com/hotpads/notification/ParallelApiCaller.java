@@ -45,7 +45,8 @@ public class ParallelApiCaller {
 	private Boolean last;
 
 	@Inject
-	public ParallelApiCaller(NotificationApiClient notificationApiClient, NotificationSettings notificationSettings, ExceptionHandlingConfig exceptionHandlingConfig) {
+	public ParallelApiCaller(NotificationApiClient notificationApiClient, NotificationSettings notificationSettings, 
+			ExceptionHandlingConfig exceptionHandlingConfig) {
 		this.notificationApiClient = notificationApiClient;
 		this.queue = new LinkedBlockingQueue<Pair<NotificationRequest, ExceptionRecord>>(QUEUE_CAPACITY);
 		this.sender = Executors.newSingleThreadExecutor(); //singleThread
