@@ -1,36 +1,35 @@
 package com.hotpads.notification.timing;
 
 public interface NotificationTimingStrategy {
+
+	//TODO Same as getMinDelaySeconds = 0 ? so we can remove it.
 	/**
-	 * NOT USED
-	 * should the first message be rate-limited?
-	 * @return
+	 * NOT USED <br>
+	 * Should the first message be rate-limited?
 	 */
 	boolean shouldDelayFirstMessage();
 
 	/**
-	 * usually something like 60 seconds
-	 * @return
+	 * Minimum delay between the requesting and the sending of the Notification (in seconds)
 	 */
 	int getMinDelaySeconds();
 
 
 	/**
-	 * fixed delay between notification
+	 * Minimum delay between two Notification sending (in seconds)
 	 */
 	int getStandardDelay();
 	
 	/**
-	 * NOT USED
+	 * NOT USED <br>
 	 * exponential growth rate.  something like 2, 3, or 4
-	 * @return
 	 */
 	int getDelayGrowthRate();
 
 	/**
-	 * NOT USED
+	 * NOT USED <br>
 	 * saved search may be 1 hour, feeds 1 day, etc
-	 * @return
 	 */
 	int getMaxDelaySeconds();
+
 }
