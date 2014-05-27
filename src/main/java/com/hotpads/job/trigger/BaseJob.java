@@ -13,6 +13,14 @@ import org.quartz.CronExpression;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTaskTracker;
 import com.hotpads.job.record.LongRunningTaskType;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import com.hotpads.handler.exception.ExceptionHandlingConfig;
+import com.hotpads.handler.exception.ExceptionHandlingFilter.ExceptionRecordNode;
+import com.hotpads.handler.exception.ExceptionRecord;
+import com.hotpads.notification.ParallelApiCaller;
+import com.hotpads.notification.databean.NotificationRequest;
+import com.hotpads.notification.databean.NotificationUserId;
+import com.hotpads.notification.databean.NotificationUserType;
 import com.hotpads.setting.Setting;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ComparableTool;
@@ -30,7 +38,16 @@ public abstract class BaseJob implements Job{
 	protected MutableBoolean interrupted = new MutableBoolean(false);
 	protected LongRunningTaskTracker tracker;
 	protected Setting<Boolean> shouldSaveJobRecords;
-
+	private String serverName;
+	
+	@Inject
+	@ExceptionRecordNode
+	@SuppressWarnings("rawtypes")
+	private SortedMapStorageNode exceptionRecordNode;
+	@Inject
+	private ParallelApiCaller apiCaller;
+	@Inject
+	private ExceptionHandlingConfig exceptionHandlingConfig;
 
 	/************************* constructors *******************/
 
@@ -41,7 +58,7 @@ public abstract class BaseJob implements Job{
 		this.processJobsSetting = jobEnvironment.getProcessJobsSetting();
 		this.shouldSaveJobRecords = jobEnvironment.getShouldSaveJobRecords();
 		String jobClass = this.getClass().getName();
-		String serverName = jobEnvironment.getServerName();
+		this.serverName = jobEnvironment.getServerName();
 		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, serverName, 
 				jobEnvironment.getShouldSaveJobRecords(), LongRunningTaskType.job);
 	}
@@ -92,6 +109,7 @@ public abstract class BaseJob implements Job{
 			getFromTracker().setLastErrorTime(new Date());
 			baseJobLogger.warn("exception executing "+getClass());
 			baseJobLogger.warn(ExceptionTool.getStackTraceAsString(e));
+			recordException(e);
 		}finally{
 			try{
 				getFromTracker().setRunning(false);
@@ -108,6 +126,23 @@ public abstract class BaseJob implements Job{
 			}
 		}
 		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void recordException(RuntimeException e) {
+		ExceptionRecord exceptionRecord = new ExceptionRecord(
+				serverName,
+				ExceptionTool.getStackTraceAsString(e),
+				e.getClass().getName());
+		exceptionRecordNode.put(exceptionRecord, null);
+		NotificationRequest notificationRequest = new NotificationRequest(
+				new NotificationUserId(
+						NotificationUserType.EMAIL,
+						exceptionHandlingConfig.getRecipientEmail()),
+				exceptionHandlingConfig.getJobErrorNotificationType(),
+				exceptionRecord.getKey().getId(),
+				getClass().getName());
+		apiCaller.add(notificationRequest, exceptionRecord);
 	}
 
 	@Override

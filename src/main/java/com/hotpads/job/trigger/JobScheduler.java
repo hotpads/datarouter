@@ -16,7 +16,7 @@ import com.hotpads.util.core.ObjectTool;
 
 @Singleton
 public class JobScheduler {
-	protected static Logger logger = Logger.getLogger(JobScheduler.class);
+	private static Logger logger = Logger.getLogger(JobScheduler.class);
 
 	private Injector injector;
 	private ScheduledExecutorService executor;
