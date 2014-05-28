@@ -1,6 +1,5 @@
 package com.hotpads.handler;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,9 +8,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,10 +18,15 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.hotpads.handler.encoder.HandlerEncoder;
+import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
+import com.hotpads.handler.types.DefaultDecoder;
+import com.hotpads.handler.types.HandlerTypingHelper;
 import com.hotpads.handler.user.authenticate.AdminEditUserHandler;
 import com.hotpads.util.core.StringTool;
+import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.exception.PermissionException;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -49,10 +51,8 @@ public abstract class BaseHandler{
 	
 	@Handler
 	protected Mav handleDefault() throws Exception {
-		return new MessageMav().addObject("message", "no default handler method found, please specify "
-				+handlerMethodParamName());
+		return new MessageMav("no default handler method found, please specify " + handlerMethodParamName());
 	}
-	
 	
 	/*
 	 * handler methods in sub-classes will need this annotation as a security measure, 
@@ -64,17 +64,21 @@ public abstract class BaseHandler{
 		Class<?>[] expectedParameterClasses() default {};
 		Class<?> expectedParameterClassesProvider() default Object.class;
 		String description() default "";
+		Class<?> encoder() default MavEncoder.class;
+		Class<?> decoder() default DefaultDecoder.class;
 	}
-	
 	
 	void handleWrapper(){//dispatcher servlet calls this
 		try{
 			permitted();
 			Method method = null;
+			Object[] args = null;
 			try{
 				String methodName = handlerMethodName();
 				if (!StringTool.isNullOrEmpty(methodName)) {
-					method = ReflectionTool.getDeclaredMethodFromHierarchy(getClass(), methodName);
+					Pair<Method, Object[]> pair = HandlerTypingHelper.findMethodByName(this, methodName);
+					method = pair.getLeft();
+					args = pair.getRight();
 				}
 				if (method == null) {
 					methodName = DEFAULT_HANDLER_METHOD_NAME;
@@ -90,9 +94,13 @@ public abstract class BaseHandler{
 			}catch(SecurityException e){
 				throw new RuntimeException(e);
 			}
-			Mav resultMav;
+
+			Object result;
 			try{
-				resultMav = (Mav)method.invoke(this, new Object[]{});
+				if(args == null){
+					args = new Object[]{};
+				}
+				result = method.invoke(this, args);
 			}catch(IllegalAccessException e){
 				throw new RuntimeException(e);
 			}catch(InvocationTargetException e){
@@ -102,7 +110,15 @@ public abstract class BaseHandler{
 				}
 				throw new RuntimeException(cause);
 			}
-			finishRequest(resultMav);
+			
+			HandlerEncoder encoder;
+			try{
+				encoder = (HandlerEncoder) method.getAnnotation(Handler.class).encoder().newInstance();
+			}catch(Exception e){
+				encoder = new MavEncoder();
+			}
+			encoder.finishRequest(result, servletContext, response, request);
+			
 		}catch(Exception e){
 			if(e instanceof RuntimeException){ throw (RuntimeException)e; }
 			throw new RuntimeException(e);
@@ -139,42 +155,6 @@ public abstract class BaseHandler{
 		return 100L; 
 	}
 	
-	void finishRequest(Mav mav) throws ServletException{
-		try{
-			if(mav==null){
-				
-			}else if(mav.isRedirect()){
-				response.sendRedirect(mav.getRedirectUrl());
-				
-			}else{
-				response.setContentType(mav.getContentType());
-				response.setStatus(mav.getStatusCode());
-				//add the model variables as request attributes
-				appendMavToRequest(request, mav);
-				
-				//forward to the jsp
-				String targetContextName = mav.getContext();
-				String viewName = mav.getViewName();
-				ServletContext targetContext = servletContext;
-				if(targetContextName != null){
-					targetContext = servletContext.getContext(targetContextName);
-					if(targetContext==null){
-						logger.error("Could not acquire servletContext="+targetContextName
-								+".  Make sure context has crossContext=true enabled.");
-					}
-				}
-				RequestDispatcher dispatcher = targetContext.getRequestDispatcher(viewName);
-				dispatcher.include(request, response);
-			}
-			
-			//the container should take care of this...
-//			out.flush();
-//			out.close();
-		}catch(IOException e){
-			throw new RuntimeException(e);
-		}
-	}
-	
 	protected void p(String s){
 //		try{
 			out.write(s);
@@ -182,15 +162,12 @@ public abstract class BaseHandler{
 //			throw new RuntimeException(e);
 //		}
 	}
-
-
-	protected void appendMavToRequest(HttpServletRequest request, Mav mav){
-		for(String key : mav.getModel().keySet()){
-			request.setAttribute(key, mav.getModel().get(key));
-		}
-	}
 	
 	/****************** get/set *******************************************/
+	
+	public HttpServletRequest getRequest(){
+		return request;
+	}
 	
 	public void setParams(Params params){
 		this.params = params;

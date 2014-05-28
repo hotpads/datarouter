@@ -18,6 +18,6 @@ public interface NotificationType {
 
 	void makeSendersAndTemplates();
 	
-	<S extends NotificationSender> Map<Class<S>, Class<? extends NotificationTemplate<S>>> getSendresAndTemplates();
+	<S extends NotificationSender> Map<Class<S>, Class<? extends NotificationTemplate<S>>> getSendersAndTemplates();
 
 }
