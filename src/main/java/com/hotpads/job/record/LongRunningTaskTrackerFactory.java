@@ -18,10 +18,9 @@ public class LongRunningTaskTrackerFactory {
 		this.longRunningTaskNode = longRunningTaskNode;
 	}
 	
-	public LongRunningTaskTracker create(String jobClass, String serverName, Setting<Boolean> shouldSaveJobRecords,
+	public LongRunningTaskTracker create(String jobClass, String serverName, Setting<Boolean> shouldSaveLongRunningTasks,
 			LongRunningTaskType type){
-		LongRunningTask task = new LongRunningTask(jobClass, serverName);
-		task.setType(type);
-		return new LongRunningTaskTracker(longRunningTaskNode, task, shouldSaveJobRecords);
+		LongRunningTask task = new LongRunningTask(jobClass, serverName, type);
+		return new LongRunningTaskTracker(longRunningTaskNode, task, shouldSaveLongRunningTasks);
 	}
 }

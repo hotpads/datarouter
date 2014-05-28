@@ -37,7 +37,7 @@ public abstract class BaseJob implements Job{
 	protected boolean isAlreadyScheduled;
 	protected MutableBoolean interrupted = new MutableBoolean(false);
 	protected LongRunningTaskTracker tracker;
-	protected Setting<Boolean> shouldSaveJobRecords;
+	protected Setting<Boolean> shouldSaveLongRunningTasks;
 	private String serverName;
 	
 	@Inject
@@ -56,11 +56,11 @@ public abstract class BaseJob implements Job{
 		this.scheduler = jobEnvironment.getScheduler();
 		this.executor = jobEnvironment.getExecutor();
 		this.processJobsSetting = jobEnvironment.getProcessJobsSetting();
-		this.shouldSaveJobRecords = jobEnvironment.getShouldSaveJobRecords();
+		this.shouldSaveLongRunningTasks = jobEnvironment.getShouldSaveLongRunningTasks();
 		String jobClass = this.getClass().getName();
 		this.serverName = jobEnvironment.getServerName();
 		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, serverName, 
-				jobEnvironment.getShouldSaveJobRecords(), LongRunningTaskType.job);
+				jobEnvironment.getShouldSaveLongRunningTasks(), LongRunningTaskType.job);
 	}
 
 	/*********************** methods ******************************/
@@ -90,7 +90,7 @@ public abstract class BaseJob implements Job{
 		Long triggerTime = System.currentTimeMillis() + delay;
 		
 		nextJobInstance.getLongRunningTaskTracker().getTask().setTriggerTime(new Date(triggerTime));
-		if(shouldSaveJobRecords.getValue()){
+		if(shouldSaveLongRunningTasks.getValue()){
 			nextJobInstance.getLongRunningTaskTracker().getNode().put(nextJobInstance.getLongRunningTaskTracker().getTask(), null);
 		}
 		executor.schedule(nextJobInstance, delay, TimeUnit.MILLISECONDS);
@@ -149,7 +149,7 @@ public abstract class BaseJob implements Job{
 	public void trackBeforeRun(Long startTime){
 		tracker.getTask().setStartTime(new Date(startTime));
 		tracker.getTask().setJobExecutionStatus(JobExecutionStatus.running);
-		if(shouldSaveJobRecords.getValue()){
+		if(shouldSaveLongRunningTasks.getValue()){
 			tracker.getNode().put(tracker.getTask(), null);
 		}
 	}
@@ -177,7 +177,7 @@ public abstract class BaseJob implements Job{
 	public void trackAfterRun(Long endTime){
 		tracker.getTask().setFinishTime(new Date(endTime));
 		tracker.getTask().setJobExecutionStatus(JobExecutionStatus.success);
-		if(shouldSaveJobRecords.getValue()){
+		if(shouldSaveLongRunningTasks.getValue()){
 			tracker.getNode().put(tracker.getTask(), null);
 		}
 	}

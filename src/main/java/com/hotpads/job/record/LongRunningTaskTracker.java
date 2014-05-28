@@ -24,20 +24,20 @@ public class LongRunningTaskTracker {
 	private LongRunningTask task;
 	private MutableBoolean interrupted;
 	private Date lastPersistedHeartbeat;
-	private Setting<Boolean> shouldSaveJobRecords;
+	private Setting<Boolean> shouldSaveLongRunningTasks;
 	
-	public LongRunningTaskTracker(IndexedSortedMapStorageNode node, LongRunningTask task, Setting<Boolean> shouldSaveJobRecords){
+	public LongRunningTaskTracker(IndexedSortedMapStorageNode node, LongRunningTask task, Setting<Boolean> shouldSaveLongRunningTasks){
 		this.node = node;
 		this.task = task;
 		this.interrupted = new MutableBoolean(false);
-		this.shouldSaveJobRecords = shouldSaveJobRecords;
+		this.shouldSaveLongRunningTasks = shouldSaveLongRunningTasks;
 	}
 	
-	public void requestInterrupt(){
+	public void requestStop(){
 		interrupted.set(true);
 	}
 	
-	public boolean isInterruptRequested(){
+	public boolean isStopRequested(){
 		if(interrupted.get()){
 			task.setJobExecutionStatus(JobExecutionStatus.interrupted);
 			node.put(task, null);
@@ -56,7 +56,7 @@ public class LongRunningTaskTracker {
 	}
 	
 	private boolean shouldPersistHeartbeat(){
-		if(!shouldSaveJobRecords.getValue()){
+		if(!shouldSaveLongRunningTasks.getValue()){
 			return false;
 		}
 		if(lastPersistedHeartbeat == null){
@@ -93,11 +93,11 @@ public class LongRunningTaskTracker {
 		this.lastPersistedHeartbeat = lastPersistedHeartbeat;
 	}
 
-	public Setting<Boolean> getShouldSaveJobRecords() {
-		return shouldSaveJobRecords;
+	public Setting<Boolean> getShouldSaveLongRunningTasks() {
+		return shouldSaveLongRunningTasks;
 	}
 
-	public void setShouldSaveJobRecords(Setting<Boolean> shouldSaveJobRecords) {
-		this.shouldSaveJobRecords = shouldSaveJobRecords;
+	public void setShouldSaveLongRunningTasks(Setting<Boolean> shouldSaveLongRunningTasks) {
+		this.shouldSaveLongRunningTasks = shouldSaveLongRunningTasks;
 	}
 }

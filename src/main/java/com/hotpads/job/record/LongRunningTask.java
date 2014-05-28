@@ -76,8 +76,9 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		this.key = new LongRunningTaskKey();
 	}
 	
-	public LongRunningTask(String jobClass, String serverName){
+	public LongRunningTask(String jobClass, String serverName, LongRunningTaskType type){
 		this.key = new LongRunningTaskKey(jobClass, serverName);
+		this.type = type;
 	}
 	
 	/****************** get/set ************************/
