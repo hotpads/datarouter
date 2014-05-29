@@ -6,19 +6,19 @@ import java.util.Map;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Row;
 
-import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.bytes.StringByteTool;
 
 
 public class HBaseIncrementOp<
@@ -27,34 +27,32 @@ public class HBaseIncrementOp<
 		F extends DatabeanFielder<PK,D>>
 extends HBaseTask<Void>{
 	
+	public static final String OP_increment = "increment";
+	
 	private HBaseNode<PK,D,F> node;
-	private Multimap<PK,LongField> incrementFieldByKey;
+	private Map<PK,Map<String,Long>> countByColumnByKey;
 	private Config config;
 	
-	public HBaseIncrementOp(HBaseNode<PK,D,F> node, String taskName, Multimap<PK,LongField> incrementFieldByKey, Config pConfig){
-		super(node.getDataRouterContext(), "HBaseTask."+taskName, node, pConfig);
-		this.incrementFieldByKey = incrementByKey;
+	public HBaseIncrementOp(HBaseNode<PK,D,F> node, Map<PK,Map<String,Long>> countByColumnByKey, Config pConfig){
+		super(node.getDataRouterContext(), "HBaseTask."+OP_increment, node, pConfig);
+		this.node = node;
+		this.countByColumnByKey = countByColumnByKey;
 		this.config = Config.nullSafe(pConfig);
 	}
 	
 	public Void hbaseCall() throws Exception{
-		if(MapTool.isEmpty(incrementByKey)){ return null; }
+		if(countByColumnByKey==null){ return null; }
 		List<Row> actions = ListTool.createArrayList();
 		int numCellsIncremented = 0, numRowsIncremented = 0;
-		long batchStartTime = System.currentTimeMillis();
-		for(Map.Entry<PK,Long> entry : incrementByKey.entrySet()){//TODO obey Config.commitBatchSize
-			byte[] keyBytes = node.getKeyBytesWithScatteringPrefix(null, entry.getKey(), false);
+		for(Map.Entry<PK,Map<String,Long>> row : countByColumnByKey.entrySet()){//TODO obey Config.commitBatchSize
+			byte[] keyBytes = node.getKeyBytesWithScatteringPrefix(null, row.getKey(), false);
 			Increment increment = new Increment(keyBytes);
-			List<Field<?>> fields = ;
-			for(Field<?> field : fields){
-				if(!(field instanceof LongField)){
-					throw new IllegalArgumentException("you can only increment a LongField");
-				}
-				//TODO also verify that fieldInfo uses a LongField for this column
-				LongField longField = (LongField)field;
-				increment.addColumn(node.FAM, field.getColumnNameBytes(), longField.getValue());
-				put.add(FAM, field.getColumnNameBytes(), field.getBytes());
-				++numCellsPut;
+			for(Map.Entry<String,Long> columnCount : row.getValue().entrySet()){
+				String columnName = columnCount.getKey();
+				assertColumnIsUInt63Field(columnName);
+				byte[] columnNameBytes = StringByteTool.getUtf8Bytes(columnName);
+				increment.addColumn(node.FAM, columnNameBytes, columnCount.getValue());
+				++numCellsIncremented;
 			}
 			increment.setWriteToWAL(config.getPersistentPut());
 			actions.add(increment);
@@ -68,6 +66,14 @@ extends HBaseTask<Void>{
 		}
 		return null;
 	}
-}).call();
+	
+	//try to prevent making a mistake with columnName and incrementing a non-counter column
+	private void assertColumnIsUInt63Field(String columnName){
+		Class<? extends Field> columnType = node.getFieldInfo().getFieldTypeForColumn(columnName);
+		if(ClassTool.differentClass(columnType, UInt63Field.class)){
+			throw new IllegalArgumentException(columnName+" is a "+columnType.getClass()
+					+", but you can only increment a LongField");
+		}
+	}
 
 }

@@ -19,6 +19,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClientType;
@@ -521,6 +522,36 @@ public class ManyFieldTypeIntegrationTests {
 		
 		ManyFieldTypeBean roundTripped = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertTrue(0==ListTool.compare(bean.getLongArrayField(), roundTripped.getLongArrayField()));
+		recordKey(bean.getKey());
+	}
+	
+	@Test
+	public void testIncrement(){
+		if(!isHBase()){ return; }
+		HBaseNode node = (HBaseNode)router.manyFieldTypeBean();
+		ManyFieldTypeBean bean = new ManyFieldTypeBean();
+		
+		//increment by 3
+		Map<ManyFieldTypeBeanKey,Map<String,Long>> increments = MapTool.create();
+		MapTool.increment(increments, bean.getKey(), ManyFieldTypeBean.F.incrementField, 3L);
+		node.increment(increments, null);
+		ManyFieldTypeBean result1 = router.manyFieldTypeBean().get(bean.getKey(), null);
+		Assert.assertEquals(new Long(3), result1.getIncrementField());
+		
+		//decrement by 11 (expecting noop
+		increments.clear();
+		MapTool.increment(increments, bean.getKey(), ManyFieldTypeBean.F.incrementField, -11L);
+		node.increment(increments, null);
+		ManyFieldTypeBean result2 = router.manyFieldTypeBean().get(bean.getKey(), null);
+		Assert.assertEquals(new Long(-8), result2.getIncrementField());
+		
+		//increment by 17 (expecting 3 + noop + 17 => 20)
+		increments.clear();
+		MapTool.increment(increments, bean.getKey(), ManyFieldTypeBean.F.incrementField, 17L);
+		node.increment(increments, null);
+		ManyFieldTypeBean result3 = router.manyFieldTypeBean().get(bean.getKey(), null);
+		Assert.assertEquals(new Long(9), result3.getIncrementField());
+		
 		recordKey(bean.getKey());
 	}
 	
