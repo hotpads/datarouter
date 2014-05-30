@@ -538,14 +538,14 @@ public class ManyFieldTypeIntegrationTests {
 		ManyFieldTypeBean result1 = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertEquals(new Long(3), result1.getIncrementField());
 		
-		//decrement by 11 (expecting noop
+		//decrement by 11
 		increments.clear();
 		MapTool.increment(increments, bean.getKey(), ManyFieldTypeBean.F.incrementField, -11L);
 		node.increment(increments, null);
 		ManyFieldTypeBean result2 = router.manyFieldTypeBean().get(bean.getKey(), null);
 		Assert.assertEquals(new Long(-8), result2.getIncrementField());
 		
-		//increment by 17 (expecting 3 + noop + 17 => 20)
+		//increment by 17 (expecting 3 - 11 + 17 => 9)
 		increments.clear();
 		MapTool.increment(increments, bean.getKey(), ManyFieldTypeBean.F.incrementField, 17L);
 		node.increment(increments, null);
