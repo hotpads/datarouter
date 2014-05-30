@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.hbase.node;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
@@ -9,8 +10,8 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
+import com.hotpads.datarouter.client.imp.hbase.op.write.HBaseIncrementOp;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
@@ -107,6 +108,12 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					return null;
 				}
 			}).call();
+	}
+	
+//	@Override  //not in the parent interface yet
+	public void increment(Map<PK,Map<String,Long>> countByColumnByKey, Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		new HBaseMultiAttemptTask<Void>(new HBaseIncrementOp<PK,D,F>(this, countByColumnByKey, config)).call();
 	}
 	
 

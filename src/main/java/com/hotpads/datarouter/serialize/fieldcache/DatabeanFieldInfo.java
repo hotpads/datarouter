@@ -159,6 +159,11 @@ public class DatabeanFieldInfo<
 		return fields;
 	}
 	
+	public Class<? extends Field> getFieldTypeForColumn(String columnName){
+		Field<?> field = fieldByColumnName.get(columnName);
+		return field.getClass();//throw NPE for invalid column name
+	}
+	
 //	public List<Field<?>> getStartOfNextScatteringPrefix(PK key){
 //		List<Field<?>> fields = ListTool.createLinkedList();
 //		fields.addAll(sampleScatteringPrefix.getScatteringPrefixFields(key));
