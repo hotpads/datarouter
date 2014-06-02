@@ -136,7 +136,7 @@ public class ParallelApiCaller {
 			String subject = "(EMERGENCY notification) " + object + requests.get(0).getLeft().getChannel();
 			StringBuilder builder = new StringBuilder();
 			builder.append("<h1>" + requests.size() + " error" + (requests.size() > 1 ? "s" : "") + " occurred </h1>");
-			builder.append("<h2>You receive this e-mail because Job server does not respond on time</h2>");
+			builder.append("<h2>You received this direct e-mail because the notification service did not respond in time</h2>");
 			if (requests.get(0).getRight() == null) {
 				builder.append("<p>Type : ");
 				builder.append(requests.get(0).getLeft().getType());

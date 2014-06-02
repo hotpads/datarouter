@@ -129,7 +129,7 @@ public abstract class BaseJob implements Job{
 	}
 
 	@SuppressWarnings("unchecked")
-	public void recordException(RuntimeException e) {
+	public void recordException(Exception e) {
 		ExceptionRecord exceptionRecord = new ExceptionRecord(
 				serverName,
 				ExceptionTool.getStackTraceAsString(e),
