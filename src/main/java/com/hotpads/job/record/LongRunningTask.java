@@ -18,7 +18,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	private LongRunningTaskKey key;
-	
+	private LongRunningTaskType type;
 	private Date startTime;
 	private Boolean interrupt;
 	private Date finishTime;
@@ -35,7 +35,8 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 			finishTime = "finishTime",
 			heartbeatTime = "heartbeatTime",
 			jobExecutionStatus = "jobExecutionStatus",
-			triggeredByUserEmail = "triggeredByUserEmail";
+			triggeredByUserEmail = "triggeredByUserEmail",
+			type = "type";
 	}
 	
 	/********************** databean *****************************************/
@@ -49,6 +50,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		@Override
 		public List<Field<?>> getNonKeyFields(LongRunningTask d){
 			return FieldTool.createList(
+					new StringEnumField<LongRunningTaskType>(LongRunningTaskType.class, F.type, d.type, DEFAULT_STRING_LENGTH),
 					new DateField(F.startTime, d.startTime),
 					new BooleanField(F.interrupt, d.interrupt),
 					new DateField(F.finishTime, d.finishTime),
@@ -74,11 +76,16 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		this.key = new LongRunningTaskKey();
 	}
 	
-	public LongRunningTask(String jobClass, String serverName){
+	public LongRunningTask(String jobClass, String serverName, LongRunningTaskType type){
 		this.key = new LongRunningTaskKey(jobClass, serverName);
+		this.type = type;
 	}
 	
 	/****************** get/set ************************/
+	
+	public void setTriggerTime(Date date){
+		key.setTriggerTime(date);
+	}
 	
 	public Date getStartTime() {
 		return startTime;
@@ -130,5 +137,13 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 
 	public void setKey(LongRunningTaskKey key) {
 		this.key = key;
+	}
+
+	public LongRunningTaskType getType() {
+		return type;
+	}
+
+	public void setType(LongRunningTaskType type) {
+		this.type = type;
 	}
 }

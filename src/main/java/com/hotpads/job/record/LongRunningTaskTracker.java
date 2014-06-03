@@ -8,6 +8,7 @@ import java.util.Date;
 
 import com.google.inject.BindingAnnotation;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import com.hotpads.setting.Setting;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class LongRunningTaskTracker {
@@ -23,33 +24,47 @@ public class LongRunningTaskTracker {
 	private LongRunningTask task;
 	private MutableBoolean interrupted;
 	private Date lastPersistedHeartbeat;
+	private Setting<Boolean> shouldSaveLongRunningTasks;
 	
-	public LongRunningTaskTracker(IndexedSortedMapStorageNode node, LongRunningTask task){
+	public LongRunningTaskTracker(IndexedSortedMapStorageNode node, LongRunningTask task, Setting<Boolean> shouldSaveLongRunningTasks){
 		this.node = node;
 		this.task = task;
 		this.interrupted = new MutableBoolean(false);
+		this.shouldSaveLongRunningTasks = shouldSaveLongRunningTasks;
 	}
 	
-//	private void requestInterrupt(){
-//	}
-//	
-//	private boolean isInterruptRequested(){
-//		return false;
-//	}
+	public void requestStop(){
+		interrupted.set(true);
+	}
 	
-	private void heartbeat(){
+	public boolean isStopRequested(){
+		if(interrupted.get()){
+			task.setJobExecutionStatus(JobExecutionStatus.interrupted);
+			node.put(task, null);
+		}
+		return interrupted.get();
+	}
+	
+	public LongRunningTaskTracker heartbeat(){
 		if(shouldPersistHeartbeat()){
 			Date heartbeat = new Date();
 			task.setHeartbeatTime(heartbeat);
 			node.put(task, null);
 			lastPersistedHeartbeat = heartbeat;
 		}
+		return this;
 	}
 	
 	private boolean shouldPersistHeartbeat(){
+		if(!shouldSaveLongRunningTasks.getValue()){
+			return false;
+		}
+		if(lastPersistedHeartbeat == null){
+			return true;
+		}
 		return System.currentTimeMillis() - lastPersistedHeartbeat.getTime() > HEARTBEAT_PERSIST_PERIOD_MS;
 	}
-
+	
 	public IndexedSortedMapStorageNode getNode() {
 		return node;
 	}
@@ -76,5 +91,13 @@ public class LongRunningTaskTracker {
 
 	public void setLastPersistedHeartbeat(Date lastPersistedHeartbeat) {
 		this.lastPersistedHeartbeat = lastPersistedHeartbeat;
+	}
+
+	public Setting<Boolean> getShouldSaveLongRunningTasks() {
+		return shouldSaveLongRunningTasks;
+	}
+
+	public void setShouldSaveLongRunningTasks(Setting<Boolean> shouldSaveLongRunningTasks) {
+		this.shouldSaveLongRunningTasks = shouldSaveLongRunningTasks;
 	}
 }

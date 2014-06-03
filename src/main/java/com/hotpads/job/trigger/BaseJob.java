@@ -10,11 +10,13 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.quartz.CronExpression;
 
+import com.hotpads.job.record.JobExecutionStatus;
+import com.hotpads.job.record.LongRunningTaskTracker;
+import com.hotpads.job.record.LongRunningTaskType;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionHandlingFilter.ExceptionRecordNode;
 import com.hotpads.handler.exception.ExceptionRecord;
-import com.hotpads.job.record.LongRunningTaskTracker;
 import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
@@ -34,7 +36,8 @@ public abstract class BaseJob implements Job{
 	protected Setting<Boolean> processJobsSetting;
 	protected boolean isAlreadyScheduled;
 	protected MutableBoolean interrupted = new MutableBoolean(false);
-	private LongRunningTaskTracker longRunningTaskTracker;
+	protected LongRunningTaskTracker tracker;
+	protected Setting<Boolean> shouldSaveLongRunningTasks;
 	private String serverName;
 	
 	@Inject
@@ -45,7 +48,7 @@ public abstract class BaseJob implements Job{
 	private ParallelApiCaller apiCaller;
 	@Inject
 	private ExceptionHandlingConfig exceptionHandlingConfig;
-	
+
 	/************************* constructors *******************/
 
 	@Inject
@@ -53,9 +56,11 @@ public abstract class BaseJob implements Job{
 		this.scheduler = jobEnvironment.getScheduler();
 		this.executor = jobEnvironment.getExecutor();
 		this.processJobsSetting = jobEnvironment.getProcessJobsSetting();
+		this.shouldSaveLongRunningTasks = jobEnvironment.getShouldSaveLongRunningTasksSetting();
 		String jobClass = this.getClass().getName();
 		this.serverName = jobEnvironment.getServerName();
-		this.longRunningTaskTracker = jobEnvironment.getLongRunningTaskTrackerFactory().createLongRunningTaskTracker(jobClass, serverName);
+		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, serverName, 
+				jobEnvironment.getShouldSaveLongRunningTasksSetting(), LongRunningTaskType.job);
 	}
 
 	/*********************** methods ******************************/
@@ -82,6 +87,12 @@ public abstract class BaseJob implements Job{
 			return;
 		}
 		Job nextJobInstance = scheduler.getJobInstance(getClass(), getTrigger().getCronExpression());
+		Long triggerTime = System.currentTimeMillis() + delay;
+		
+		nextJobInstance.getLongRunningTaskTracker().getTask().setTriggerTime(new Date(triggerTime));
+		if(shouldSaveLongRunningTasks.getValue()){
+			nextJobInstance.getLongRunningTaskTracker().getNode().put(nextJobInstance.getLongRunningTaskTracker().getTask(), null);
+		}
 		executor.schedule(nextJobInstance, delay, TimeUnit.MILLISECONDS);
 		isAlreadyScheduled = true;
 //		logger.warn("scheduled next execution of "+getClass()+" for "
@@ -135,21 +146,39 @@ public abstract class BaseJob implements Job{
 	}
 
 	@Override
+	public void trackBeforeRun(Long startTime){
+		tracker.getTask().setStartTime(new Date(startTime));
+		tracker.getTask().setJobExecutionStatus(JobExecutionStatus.running);
+		if(shouldSaveLongRunningTasks.getValue()){
+			tracker.getNode().put(tracker.getTask(), null);
+		}
+	}
+	
+	@Override
 	public void runInternal() throws RuntimeException{
 		if(shouldRunInternal()){
 			scheduler.getTracker().get(this.getClass()).setRunning(true);
 			scheduler.getTracker().get(this.getClass()).setJob(this);
 			long startTimeMs = System.currentTimeMillis();
-			
+			trackBeforeRun(startTimeMs);
 			run();
-			
 			long endTimeMs = System.currentTimeMillis();
+			trackAfterRun(endTimeMs);
 			long durationMs = endTimeMs - startTimeMs;
 			scheduler.getTracker().get(this.getClass()).setLastExecutionDurationMs(durationMs);
 			scheduler.getTracker().get(this.getClass()).incrementNumberOfSuccesses();
 			baseJobLogger.warn("Finished "+getClass().getSimpleName()+" in "+durationMs+"ms");
 		}else{
 //			baseJobLogger.warn(getClass()+" shouldRun=false");
+		}
+	}
+	
+	@Override
+	public void trackAfterRun(Long endTime){
+		tracker.getTask().setFinishTime(new Date(endTime));
+		tracker.getTask().setJobExecutionStatus(JobExecutionStatus.success);
+		if(shouldSaveLongRunningTasks.getValue()){
+			tracker.getNode().put(tracker.getTask(), null);
 		}
 	}
 	
@@ -246,20 +275,8 @@ public abstract class BaseJob implements Job{
 	}
 	
 	@Override
-	public void interrupt(){
-		if(getFromTracker().isRunning()){
-			interrupted.set(true);
-		}
-	}
-	
-	@Override
 	public CronExpression getTrigger(){
 		return getDefaultTrigger();
-	}
-	
-	@Override
-	public boolean isInterrupted(){
-		return interrupted.isTrue();
 	}
 	
 	protected TriggerInfo getFromTracker(){
@@ -283,7 +300,8 @@ public abstract class BaseJob implements Job{
 		return ComparableTool.nullFirstCompareTo(getClass().getCanonicalName(), that.getClass().getCanonicalName());
 	}
 	
+	@Override
 	public LongRunningTaskTracker getLongRunningTaskTracker(){
-		return longRunningTaskTracker;
+		return tracker;
 	}
 }
