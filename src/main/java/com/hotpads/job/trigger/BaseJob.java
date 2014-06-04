@@ -87,7 +87,7 @@ public abstract class BaseJob implements Job{
 			return;
 		}
 		Job nextJobInstance = scheduler.getJobInstance(getClass(), getTrigger().getCronExpression());
-		Long triggerTime = System.currentTimeMillis() + delay;
+		Long triggerTime = System.currentTimeMillis();
 		
 		nextJobInstance.getLongRunningTaskTracker().getTask().setTriggerTime(new Date(triggerTime));
 		if(shouldSaveLongRunningTasks.getValue()){
