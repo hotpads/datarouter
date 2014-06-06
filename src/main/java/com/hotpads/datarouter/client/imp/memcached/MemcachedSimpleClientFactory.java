@@ -1,9 +1,12 @@
 package com.hotpads.datarouter.client.imp.memcached;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
+import net.spy.memcached.KetamaConnectionFactory;
 
 import org.apache.log4j.Logger;
 
@@ -37,7 +40,8 @@ implements ClientFactory{
 		PhaseTimer timer = new PhaseTimer(clientName);
 		net.spy.memcached.MemcachedClient spyClient;
 		try{
-			spyClient = new net.spy.memcached.MemcachedClient(options.getServers());
+			//use KetamaConnectionFactory for consistent hashing between memcached servers
+			spyClient = new net.spy.memcached.MemcachedClient(new KetamaConnectionFactory(), Arrays.asList(options.getServers()));
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}

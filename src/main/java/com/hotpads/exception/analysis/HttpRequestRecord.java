@@ -206,7 +206,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	public HttpRequestRecord(String exceptionRecordId, String exceptionPlace, String methodName, int lineNumber,
 			String httpMethod, String httpParams, String protocol, String hostname, int port, String contextPath,
-			String path, String queryString, String ip, String sessionRoles, long userId, HttpHeaders headersWrapper) {
+			String path, String queryString, String ip, String sessionRoles, Long userId, HttpHeaders headersWrapper) {
 		this.key = new HttpRequestRecordKey(UuidTool.generateUuid());
 		this.created = new Date();
 
@@ -322,7 +322,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	}
 
 	public static HttpRequestRecord createEmptyForTesting() {
-		return new HttpRequestRecord(null, null, null, 0, null, null, null, null, 0, null, null, null, null, null, 0, new HttpHeaders(null));
+		return new HttpRequestRecord(null, null, null, 0, null, null, null, null, 0, null, null, null, null, null, 0l, new HttpHeaders(null));
 	}
 
 	/*************** getters / setters ******************/
