@@ -39,6 +39,7 @@ public abstract class BaseJob implements Job{
 	protected LongRunningTaskTracker tracker;
 	protected Setting<Boolean> shouldSaveLongRunningTasks;
 	private String serverName;
+	private Date triggerTime;
 	
 	@Inject
 	@ExceptionRecordNode
@@ -87,12 +88,12 @@ public abstract class BaseJob implements Job{
 			return;
 		}
 		Job nextJobInstance = scheduler.getJobInstance(getClass(), getTrigger().getCronExpression());
-		Long triggerTime = System.currentTimeMillis() + delay;
-		
-		nextJobInstance.getLongRunningTaskTracker().getTask().setTriggerTime(new Date(triggerTime));
-		if(shouldSaveLongRunningTasks.getValue()){
-			nextJobInstance.getLongRunningTaskTracker().getNode().put(nextJobInstance.getLongRunningTaskTracker().getTask(), null);
-		}
+		Long nextTriggerTime = System.currentTimeMillis() + delay;
+		nextJobInstance.setTriggerTime(new Date(nextTriggerTime));
+//		nextJobInstance.getLongRunningTaskTracker().getTask().setTriggerTime(new Date(nextTriggerTime));
+//		if(shouldSaveLongRunningTasks.getValue()){
+//			nextJobInstance.getLongRunningTaskTracker().getNode().put(nextJobInstance.getLongRunningTaskTracker().getTask(), null);
+//		}
 		executor.schedule(nextJobInstance, delay, TimeUnit.MILLISECONDS);
 		isAlreadyScheduled = true;
 //		logger.warn("scheduled next execution of "+getClass()+" for "
@@ -149,7 +150,9 @@ public abstract class BaseJob implements Job{
 	public void trackBeforeRun(Long startTime){
 		tracker.getTask().setStartTime(new Date(startTime));
 		tracker.getTask().setJobExecutionStatus(JobExecutionStatus.running);
+		tracker.getTask().setTriggerTime(triggerTime);
 		if(shouldSaveLongRunningTasks.getValue()){
+			logger.warn("putting " + tracker.getTask());
 			tracker.getNode().put(tracker.getTask(), null);
 		}
 	}
@@ -303,5 +306,10 @@ public abstract class BaseJob implements Job{
 	@Override
 	public LongRunningTaskTracker getLongRunningTaskTracker(){
 		return tracker;
+	}
+	
+	@Override
+	public void setTriggerTime(Date triggerTime){
+		this.triggerTime = triggerTime;
 	}
 }
