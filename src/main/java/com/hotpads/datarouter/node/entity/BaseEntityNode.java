@@ -26,9 +26,8 @@ implements EntityNode<EK>{
 		return name;
 	}
 	
-	private <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>> Map<PK,Node<PK,D>> register(Class<PK> pkClass,
+	protected <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>> void register(Class<PK> pkClass,
 			Node<PK,D> node){
 		nodeByPkClass.put(pkClass, node);
-		return nodeByPkClass;
 	}
 }
