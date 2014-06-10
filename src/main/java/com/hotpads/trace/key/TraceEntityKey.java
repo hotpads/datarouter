@@ -2,7 +2,6 @@ package com.hotpads.trace.key;
 
 import java.util.List;
 
-import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;

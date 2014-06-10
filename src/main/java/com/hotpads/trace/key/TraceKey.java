@@ -8,7 +8,6 @@ import java.util.Random;
 
 import javax.persistence.Embeddable;
 
-import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;

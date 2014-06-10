@@ -26,7 +26,6 @@ import com.hotpads.util.core.StringTool;
 
 @Entity
 @AccessType("field")
-@SuppressWarnings("serial")
 public class Trace extends BaseDatabean<TraceKey,Trace>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
