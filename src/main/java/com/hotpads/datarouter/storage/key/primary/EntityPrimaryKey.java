@@ -9,6 +9,7 @@ public interface EntityPrimaryKey<EK extends EntityKey<EK>,PK extends PrimaryKey
 extends PrimaryKey<PK>{
 
 	EK getEntityKey();
+	PK prefixFromEntityKey(EK entityKey);
 	List<Field<?>> getEntityKeyFields();
 	List<Field<?>> getPostEntityKeyFields();
 	

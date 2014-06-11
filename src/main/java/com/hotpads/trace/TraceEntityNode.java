@@ -1,5 +1,7 @@
 package com.hotpads.trace;
 
+import java.util.List;
+
 import com.hotpads.datarouter.node.entity.BaseEntityNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -13,10 +15,11 @@ import com.hotpads.trace.key.TraceEntityKey;
 import com.hotpads.trace.key.TraceKey;
 import com.hotpads.trace.key.TraceSpanKey;
 import com.hotpads.trace.key.TraceThreadKey;
+import com.hotpads.util.core.java.ReflectionTool;
 
-public class TraceEntityNode extends BaseEntityNode<TraceEntityKey>{
+public class TraceEntityNode extends BaseEntityNode<TraceEntityKey,TraceEntity>{
 
-	public MapStorageNode<TraceKey,Trace> trace;
+	public SortedMapStorageNode<TraceKey,Trace> trace;
 	public SortedMapStorageNode<TraceThreadKey,TraceThread> traceThread;
 	public SortedMapStorageNode<TraceSpanKey,TraceSpan> traceSpan;
 	
@@ -28,15 +31,35 @@ public class TraceEntityNode extends BaseEntityNode<TraceEntityKey>{
 	private void initNodes(DataRouter router, String clientName){
 		trace = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
 				Trace.class, TraceFielder.class, router)));
-		register(TraceKey.class, trace);
+		register(trace);
 		
 		traceThread = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
 				TraceThread.class, TraceThreadFielder.class, router)));
-		register(TraceThreadKey.class, traceThread);
+		register(traceThread);
 		
 		traceSpan = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
 				TraceSpan.class, TraceSpanFielder.class, router)));
-		register(TraceSpanKey.class, traceSpan);	
+		register(traceSpan);	
+	}
+	
+	
+	@Override
+	public TraceEntity getEntity(TraceEntityKey key){
+		TraceEntity entity = new TraceEntity(key);
+		
+		TraceKey tracePrefix = ReflectionTool.create(TraceKey.class).prefixFromEntityKey(key);
+		List<Trace> traces = trace.getWithPrefix(tracePrefix, false, null);
+		entity.add(traces);
+		
+		TraceThreadKey traceThreadPrefix = ReflectionTool.create(TraceThreadKey.class).prefixFromEntityKey(key);
+		List<TraceThread> traceThreads = traceThread.getWithPrefix(traceThreadPrefix, false, null);
+		entity.add(traceThreads);
+		
+		TraceSpanKey traceSpanPrefix = ReflectionTool.create(TraceSpanKey.class).prefixFromEntityKey(key);
+		List<TraceSpan> traceSpans = traceSpan.getWithPrefix(traceSpanPrefix, false, null);
+		entity.add(traceSpans);
+		
+		return entity;
 	}
 	
 	

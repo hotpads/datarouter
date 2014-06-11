@@ -37,6 +37,11 @@ public class TraceThreadKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceThr
 	}
 	
 	@Override
+	public TraceThreadKey prefixFromEntityKey(TraceEntityKey entityKey){
+		return new TraceThreadKey(entityKey.getTraceId(), null);
+	}
+	
+	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
 		return FieldTool.createList(
 				new LongField(COL_id, id));

@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.persistence.Embeddable;
 
-import com.hotpads.datarouter.serialize.fielder.BaseFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
@@ -35,6 +34,11 @@ public class TraceSpanKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceSpanK
 	@Override
 	public TraceEntityKey getEntityKey(){
 		return new TraceEntityKey(traceId);
+	}
+	
+	@Override
+	public TraceSpanKey prefixFromEntityKey(TraceEntityKey entityKey){
+		return new TraceSpanKey(entityKey.getTraceId(), null, null);
 	}
 	
 	@Override

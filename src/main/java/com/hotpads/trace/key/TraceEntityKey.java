@@ -40,5 +40,13 @@ extends BaseEntityKey<TraceEntityKey>{
 	public TraceEntityKey(Long traceId){
 		this.traceId = traceId;
 	}
+
 	
+	/********************** get/set ***************************/
+	
+	public Long getTraceId(){
+		return traceId;
+	}
+	
+
 }

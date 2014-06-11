@@ -33,6 +33,11 @@ public class TraceKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceKey>{
 	}
 	
 	@Override
+	public TraceKey prefixFromEntityKey(TraceEntityKey entityKey){
+		return new TraceKey(entityKey.getTraceId());
+	}
+	
+	@Override
 	public List<Field<?>> getEntityKeyFields(){
 		return getEntityKey().getFields(getEntityKey());
 	}
