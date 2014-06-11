@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -29,8 +30,9 @@ extends BaseNode<IK,IE,DatabeanFielder<IK,IE>>{
 	protected N indexNode;
 	
 	public BaseIndexNode(Class<IE> indexEntryClass, N backingNode){
-		super(backingNode.getRouter(), indexEntryClass, 
-				(Class<DatabeanFielder<IK,IE>>)backingNode.getFieldInfo().getFielderClass());
+		super(new NodeParamsBuilder<IK,IE,DatabeanFielder<IK,IE>>(backingNode.getRouter(), indexEntryClass)
+				.withFielder((Class<DatabeanFielder<IK,IE>>)backingNode.getFieldInfo().getFielderClass())
+				.build());
 		this.indexNode = backingNode;
 	}
 
