@@ -75,13 +75,6 @@ public class NodeParams<
 		
 		/************** construct **************/
 		
-		@Deprecated//don't require clientName
-		public NodeParamsBuilder(DataRouter router, String clientName, Class<D> databeanClass){
-			this.router = router;
-			this.clientName = clientName;
-			this.databeanClass = databeanClass;
-		}
-		
 		public NodeParamsBuilder(DataRouter router, Class<D> databeanClass){
 			this.router = router;
 			this.databeanClass = databeanClass;

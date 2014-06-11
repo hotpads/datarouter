@@ -109,8 +109,6 @@ public class JdbcTool {
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = ListTool.createArrayList();
-			Class<?> clazz = fieldInfo.getBaseDatabeanClass();
-			List<Field<?>> fields = fieldInfo.getFields();
 			while(rs.next()){
 				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);

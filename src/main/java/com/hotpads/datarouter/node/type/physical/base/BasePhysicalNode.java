@@ -12,14 +12,12 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeId;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.StringTool;
 
 public abstract class BasePhysicalNode<
 		PK extends PrimaryKey<PK>,
@@ -30,32 +28,17 @@ implements PhysicalNode<PK,D>
 {
 	protected Logger logger = Logger.getLogger(getClass());
 	
-	protected String clientName;
-	protected String tableName;
-	protected String packagedTableName;
+//	protected String clientName;
+//	protected String tableName;
+//	protected String packagedTableName;
 
 	
 	/****************************** constructors ********************************/
 	
 	public BasePhysicalNode(NodeParams<PK,D,F> params){
 		super(params);
-		this.clientName = params.getClientName();
-		String explicitName = null;
-		if(StringTool.notEmpty(params.getPhysicalName())){
-			this.tableName = params.getPhysicalName();
-			this.packagedTableName = params.getQualifiedPhysicalName();
-			explicitName = clientName+"."+tableName;
-			logger.info("client:"+this.clientName+" databean "+params.getDatabeanClass().getSimpleName()+" -> "+tableName);
-		}else if(params.getBaseDatabeanClass() != null){
-			this.tableName = params.getBaseDatabeanClass().getSimpleName();
-			this.packagedTableName = params.getDatabeanClass().getName();
-			this.fieldInfo.setBaseDatabeanClass(params.getBaseDatabeanClass());
-		}else{
-			this.tableName = params.getDatabeanClass().getSimpleName();
-			this.packagedTableName = params.getDatabeanClass().getName();
-		}
 		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params.getDatabeanClass(), params.getRouter()
-				.getName(), clientName, null, explicitName));
+				.getName(), fieldInfo.getClientName(), null, fieldInfo.getExplicitNodeName()));
 	}
 	
 
@@ -63,13 +46,13 @@ implements PhysicalNode<PK,D>
 	
 	@Override
 	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
-		return ListTool.createLinkedList(this.clientName);
+		return ListTool.createLinkedList(fieldInfo.getClientName());
 	}
 
 	/********************** physical node methods *********************************/
 	
 	public String getClientName() {
-		return clientName;
+		return fieldInfo.getClientName();
 	}
 
 	@Override
@@ -80,13 +63,13 @@ implements PhysicalNode<PK,D>
 	@Override
 	public List<String> getClientNames() {
 		SortedSet<String> clientNames = SetTool.createTreeSet();
-		clientNames.add(this.clientName);
+		clientNames.add(getClientName());
 		return ListTool.createArrayList(clientNames);
 	}
 
 	@Override
 	public boolean usesClient(String clientName) {
-		return ObjectTool.nullSafeEquals(this.clientName, clientName);
+		return ObjectTool.nullSafeEquals(getClientName(), clientName);
 	}
 	
 	@Override
@@ -109,7 +92,7 @@ implements PhysicalNode<PK,D>
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
 		List<PhysicalNode<PK,D>> physicalNodes = ListTool.createLinkedList();
-		if(clientName.equals(this.clientName)){
+		if(clientName.equals(getClientName())){
 			physicalNodes.add(this);
 		}
 		return physicalNodes;
@@ -117,12 +100,12 @@ implements PhysicalNode<PK,D>
 
 	@Override
 	public String getTableName() {
-		return this.tableName;
+		return fieldInfo.getTableName();
 	}
 	
 	@Override
 	public String getPackagedTableName(){
-		return this.packagedTableName;
+		return fieldInfo.getPackagedTableName();
 	}
 	
 	@Override

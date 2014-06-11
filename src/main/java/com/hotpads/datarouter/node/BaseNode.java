@@ -34,7 +34,7 @@ implements Node<PK,D>{
 		this.id = new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params.getDatabeanClass(), router.getName(), 
 				null, null, null);
 		try{
-			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(getName(), params.getDatabeanClass(), params.getFielderClass());
+			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(getName(), params);
 		}catch(Exception probablyNoPkInstantiated){
 			throw new IllegalArgumentException("could not instantiate "+getName()+" Check that the primary key is " +
 					"instantiated in the databean constructor.", probablyNoPkInstantiated);
