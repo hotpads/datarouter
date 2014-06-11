@@ -6,19 +6,21 @@ import java.util.NavigableSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 
 public abstract class BaseEntity<EK extends EntityKey<EK>> implements Entity<EK>{
 
 	private EK key;
-	private NavigableMap databeansByNodeName;
+	private NavigableMap<String,EntitySection<?,?>> databeansByNodeName;
 	
 	public BaseEntity(EK key){
 		this.key = key;
-		this.databeansByNodeName = new TreeMap();
+		this.databeansByNodeName = new TreeMap<String,EntitySection<?,?>>();
 	}
 	
 	@Override
@@ -26,10 +28,22 @@ public abstract class BaseEntity<EK extends EntityKey<EK>> implements Entity<EK>
 		return key;
 	}
 	
+	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
+	void add(Node<PK,D> node, Collection<D> databeans){
+		String nodeName = node.getName();
+		@SuppressWarnings("unchecked") //types enforced externally
+		EntitySection<PK,D> section = (EntitySection<PK,D>)databeansByNodeName.get(nodeName);
+		if(section==null){
+			section = new EntitySection<PK,D>();
+			databeansByNodeName.put(nodeName, section);
+		}
+		section.add(databeans);
+	}
 	
 	
+	/******************* inner class *****************************/
 	
-	public class EntitySection<PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>> {
+	public class EntitySection<PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>{
 
 		protected NavigableSet<D> databeans = new TreeSet<D>();
 		

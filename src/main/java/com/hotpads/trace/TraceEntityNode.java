@@ -49,15 +49,15 @@ public class TraceEntityNode extends BaseEntityNode<TraceEntityKey,TraceEntity>{
 		
 		TraceKey tracePrefix = ReflectionTool.create(TraceKey.class).prefixFromEntityKey(key);
 		List<Trace> traces = trace.getWithPrefix(tracePrefix, false, null);
-		entity.add(traces);
+		entity.add(trace, traces);
 		
 		TraceThreadKey traceThreadPrefix = ReflectionTool.create(TraceThreadKey.class).prefixFromEntityKey(key);
 		List<TraceThread> traceThreads = traceThread.getWithPrefix(traceThreadPrefix, false, null);
-		entity.add(traceThreads);
+		entity.add(traceThread, traceThreads);
 		
 		TraceSpanKey traceSpanPrefix = ReflectionTool.create(TraceSpanKey.class).prefixFromEntityKey(key);
 		List<TraceSpan> traceSpans = traceSpan.getWithPrefix(traceSpanPrefix, false, null);
-		entity.add(traceSpans);
+		entity.add(traceSpan, traceSpans);
 		
 		return entity;
 	}
