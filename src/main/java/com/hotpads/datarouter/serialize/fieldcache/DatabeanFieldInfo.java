@@ -148,12 +148,12 @@ public class DatabeanFieldInfo<
 			this.tableName = params.getPhysicalName();
 			this.packagedTableName = params.getQualifiedPhysicalName();
 			explicitNodeName = clientName+"."+tableName;
-			logger.warn("client:"+clientName+" "+params.getDatabeanClass().getSimpleName()+" overridden -> "+tableName);
+			logger.info("client:"+clientName+" "+params.getDatabeanClass().getSimpleName()+" overridden -> "+tableName);
 		}else if(params.getBaseDatabeanClass() != null){//table-per-class-hierarchy (use superclass's table)
 			this.tableName = params.getBaseDatabeanClass().getSimpleName();
 			this.packagedTableName = params.getDatabeanClass().getName();
 			this.baseDatabeanClass = params.getBaseDatabeanClass();
-			logger.warn("client:"+clientName+" "+params.getDatabeanClass().getSimpleName()+" in superclass -> "+tableName);
+			logger.info("client:"+clientName+" "+params.getDatabeanClass().getSimpleName()+" in superclass -> "+tableName);
 		}else{//default to using the databean's name as the table name
 			this.tableName = params.getDatabeanClass().getSimpleName();
 			this.packagedTableName = params.getDatabeanClass().getName();
