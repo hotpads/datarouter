@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -33,7 +34,8 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	
 	
 	public BaseThreadCachingNode(N backingNode){
-		super(backingNode.getRouter(), backingNode.getDatabeanType());
+		super(new NodeParamsBuilder<PK,D,DatabeanFielder<PK,D>>(backingNode.getRouter(), 
+				backingNode.getDatabeanType()).build());
 		this.backingNode = backingNode;
 	}
 

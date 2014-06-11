@@ -40,24 +40,6 @@ implements Node<PK,D>{
 					"instantiated in the databean constructor.", probablyNoPkInstantiated);
 		}
 	}
-
-	@Deprecated
-	public BaseNode(DataRouter router, Class<D> databeanClass){
-		this(router, databeanClass, null);
-	}
-	
-	@Deprecated
-	public BaseNode(DataRouter router, Class<D> databeanClass, Class<F> fielderClass){
-		this.drContext = router.getContext();
-		this.router = router;
-		this.id = new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), null, null, null);
-		try{
-			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(getName(), databeanClass, fielderClass);
-		}catch(Exception probablyNoPkInstantiated){
-			throw new IllegalArgumentException("could not instantiate "+getName()+" Check that the primary key is " +
-					"instantiated in the databean constructor.", probablyNoPkInstantiated);
-		}
-	}
 	
 	@Override
 	public DataRouterContext getDataRouterContext(){

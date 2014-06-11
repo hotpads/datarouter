@@ -58,43 +58,6 @@ implements PhysicalNode<PK,D>
 				.getName(), clientName, null, explicitName));
 	}
 	
-	@Deprecated
-	public BasePhysicalNode(Class<D> databeanClass, Class<F> fielderClass,
-			DataRouter router, String clientName){
-		super(router, databeanClass, fielderClass);
-		this.clientName = clientName;
-		this.tableName = databeanClass.getSimpleName();
-		this.packagedTableName = databeanClass.getName();
-		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), clientName, 
-				null, null));
-	}
-
-	@Deprecated
-	//for things like the event.Event monthly partitioned tables
-	public BasePhysicalNode(Class<D> databeanClass, Class<F> fielderClass,
-			DataRouter router, String clientName, 
-			String tableName, String packagedTableName){
-		this(databeanClass, fielderClass, router, clientName);
-		//overwrite the default values
-		this.tableName = tableName;
-		this.packagedTableName = packagedTableName;
-		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), clientName, 
-				null, clientName+"."+tableName));
-		logger.info("client:"+this.clientName+" databean "+databeanClass.getSimpleName()+" -> "+tableName);
-	}
-
-	@Deprecated
-	//for table-per-class hierarchy like the property.Photo hierarchy
-	public BasePhysicalNode(Class<? super D> baseDatabeanClass, 
-			Class<D> databeanClass, Class<F> fielderClass,
-			DataRouter router, String clientName){
-		this(databeanClass, fielderClass, router, clientName);
-		//overwrite the default values
-		this.fieldInfo.setBaseDatabeanClass(baseDatabeanClass);
-		this.tableName = baseDatabeanClass.getSimpleName();
-		logger.info("client:"+this.clientName+" databean "+databeanClass.getSimpleName()+" -> "+tableName);
-	}
-	
 
 	/****************************** node methods ********************************/
 	
