@@ -2,6 +2,7 @@ package com.hotpads.datarouter.node.entity;
 
 import java.util.Map;
 
+import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.Entity.Entity;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -13,16 +14,17 @@ public abstract class BaseEntityNode<EK extends EntityKey<EK>,E extends Entity<E
 implements EntityNode<EK,E>{
 
 	private String name;
-	private Map<String,Node<?,?>> nodeByName;
+	private Map<String,Node<?,?>> nodeByTableName;
 	
 	
 	public BaseEntityNode(String name){
 		this.name = name;
-		this.nodeByName = MapTool.createHashMap();
+		this.nodeByTableName = MapTool.createHashMap();
 	}
 
 	protected <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>> void register(Node<PK,D> node){
-		nodeByName.put(node.getName(), node);
+		String tableName = Preconditions.checkNotNull(node.getFieldInfo().getTableName());
+		nodeByTableName.put(tableName, node);
 	}
 	
 	@Override

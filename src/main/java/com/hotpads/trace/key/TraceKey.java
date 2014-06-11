@@ -48,6 +48,7 @@ public class TraceKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceKey>{
 	}
 	
 	//fielder for entity case
+	//this may not actually matter since column names
 	public static class TraceKeyEntityFielder implements PrimaryKeyFielder<TraceKey>{
 		@Override
 		public List<Field<?>> getFields(TraceKey k){
