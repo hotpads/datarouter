@@ -22,12 +22,14 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.EmptyScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
+import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.StringTool;
+import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class DatabeanFieldInfo<
@@ -41,6 +43,7 @@ public class DatabeanFieldInfo<
 	private String tableName;
 	private String packagedTableName;
 	private String explicitNodeName;
+	private byte[] entityColumnPrefixBytes;
 	
 	private boolean entity = false;
 	private Class<EntityKey<?>> entityKeyClass;
@@ -157,7 +160,9 @@ public class DatabeanFieldInfo<
 		}else{//default to using the databean's name as the table name
 			this.tableName = params.getDatabeanClass().getSimpleName();
 			this.packagedTableName = params.getDatabeanClass().getName();
-		}		
+		}
+		this.entityColumnPrefixBytes = ByteTool.concatenate(StringByteTool.getUtf8Bytes(tableName), 
+				ByteTool.SINGLE_ZERO_BYTE);
 		
 		assertAssertions();
 	}
@@ -427,6 +432,10 @@ public class DatabeanFieldInfo<
 
 	public String getClientName(){
 		return clientName;
+	}
+
+	public byte[] getEntityColumnPrefixBytes(){
+		return entityColumnPrefixBytes;
 	}
 	
 
