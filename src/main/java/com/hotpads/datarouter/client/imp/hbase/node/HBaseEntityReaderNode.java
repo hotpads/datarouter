@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultTool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.client.type.HBaseClient;
@@ -84,11 +85,16 @@ implements HBasePhysicalNode<PK,D>,
 				public D hbaseCall() throws Exception{
 					byte[] rowBytes = getRowBytes(key.getEntityKey());
 					Get get = new Get(rowBytes);
-					get.setFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
+					byte[] qualifierPkBytes = getQualifierPkBytes(key);
+					byte[] qualifierPrefix = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), qualifierPkBytes);
+					get.setFilter(new ColumnPrefixFilter(qualifierPrefix));
 					Result row = hTable.get(get);
 					if(row.isEmpty()){ return null; }
-					D result = HBaseResultTool.getDatabean(row, fieldInfo);
-					return result;
+					List<D> results = HBaseEntityResultTool.getDatabeansWithMatchingQualifierPrefix(row, fieldInfo);
+					if(CollectionTool.hasMultiple(results)){ 
+						throw new RuntimeException("shouldn't have multiple databeans"); 
+					}
+					return CollectionTool.getFirst(results);
 				}
 			}).call();
 	}
@@ -189,6 +195,11 @@ implements HBasePhysicalNode<PK,D>,
 	private byte[] getRowBytes(EK entityKey){
 		if(entityKey==null){ return new byte[]{}; }
 		return FieldSetTool.getConcatenatedValueBytes(entityKey.getFields(), true, false);
+	}
+	
+	private byte[] getQualifierPkBytes(PK primaryKey){
+		if(primaryKey==null){ return new byte[]{}; }
+		return FieldSetTool.getConcatenatedValueBytes(primaryKey.getPostEntityKeyFields(), true, true);
 	}
 	
 }
