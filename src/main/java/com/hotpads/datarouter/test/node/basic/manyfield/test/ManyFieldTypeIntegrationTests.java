@@ -34,6 +34,7 @@ import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
 import com.hotpads.datarouter.test.node.basic.manyfield.TestEnum;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
@@ -116,7 +117,7 @@ public class ManyFieldTypeIntegrationTests {
 			if(ObjectTool.notEquals(MemcachedClientType.INSTANCE, clientType)){
 				logger.warn("calling deleteAll on :"+router.manyFieldTypeBean().getClass());
 				router.manyFieldTypeBean().deleteAll(null);
-				Assert.assertEquals(0, CollectionTool.size(router.manyFieldTypeBean().getAll(null)));
+				Assert.assertEquals(0, IterableTool.count(router.manyFieldTypeBean().scan(null, null)).intValue());
 			}
 		}
 	}
@@ -561,8 +562,8 @@ public class ManyFieldTypeIntegrationTests {
 	@After 
 	public void testGetAll(){
 		if(!isMemcached()){
-			List<ManyFieldTypeBean> allBeans = router.manyFieldTypeBean().getAll(null);
-			Assert.assertEquals(keysByClientType.get(clientType).size(), allBeans.size());
+			Assert.assertEquals(keysByClientType.get(clientType).size(), IterableTool.count(
+					router.manyFieldTypeBean().scan(null, null)).intValue());
 		}
 	}
 	

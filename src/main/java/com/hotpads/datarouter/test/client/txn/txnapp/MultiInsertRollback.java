@@ -15,6 +15,7 @@ import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
 public class MultiInsertRollback extends BaseHibernateOp<Void>{
@@ -40,9 +41,9 @@ public class MultiInsertRollback extends BaseHibernateOp<Void>{
 		
 		if(flush){//tests calling this should already have 1 bean existing
 			this.getSession(client.getName()).flush();
-			Assert.assertEquals(4, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+			Assert.assertEquals(4, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
 		}else{
-			List<TxnBean> all = router.txnBeanHibernate().getAll(null);
+			List<TxnBean> all = ListTool.createArrayList(router.txnBeanHibernate().scan(null, null));
 			boolean fieldAware = router.txnBeanHibernate().getFieldInfo().getFieldAware();
 			if(fieldAware || SessionExecutorImpl.EAGER_SESSION_FLUSH){
 				Assert.assertEquals(4, CollectionTool.size(all));

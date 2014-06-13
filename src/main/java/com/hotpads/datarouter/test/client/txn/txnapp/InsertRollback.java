@@ -17,7 +17,7 @@ import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 
 public class InsertRollback extends BaseHibernateOp<Void>{
 	
@@ -39,13 +39,13 @@ public class InsertRollback extends BaseHibernateOp<Void>{
 			Session session = getSession(client.getName());
 			session.flush();
 			session.clear();
-			Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+			Assert.assertEquals(1, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
 		}else{
 			boolean fieldAware = router.txnBeanHibernate().getFieldInfo().getFieldAware();
 			if(fieldAware || SessionExecutorImpl.EAGER_SESSION_FLUSH){
-				Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+				Assert.assertEquals(1, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
 			}else{
-				Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+				Assert.assertEquals(0, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
 			}
 		}
 		TxnBean a2 = new TxnBean("a2");

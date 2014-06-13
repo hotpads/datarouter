@@ -106,18 +106,6 @@ implements MapStorageReader<PK,D>{
 	}
 	
 	@Override
-	public List<D> getAll(final Config config){
-		Map<String,String> params = MapTool.createHashMap();
-		addConfigParam(params, config);
-
-		StringBuilder uriBuilder = getOpUrl(METHOD_getAll);
-		JSONArray jsonArray = getClient().getApacheHttpClient().request(params, uriBuilder.toString(), JSONArray.class);
-		List<D> databeans = JsonDatabeanTool.databeansFromJson(fieldInfo.getDatabeanClass(), fieldInfo.getSampleFielder(), 
-				jsonArray);
-		return databeans;
-	}
-	
-	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config config){
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 		

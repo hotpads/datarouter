@@ -52,13 +52,6 @@ implements MapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getAll(Config config) {
-		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
-		N node = slaveOk ? this.chooseSlave(config) : this.master;
-		return node.getAll(config);
-	}
-
-	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config) {
 		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
 		N node = slaveOk ? this.chooseSlave(config) : this.master;

@@ -82,8 +82,7 @@ public class ScatteringPrefixIntegrationTests{
 	
 	public static void resetTable(BasicNodeTestRouter routerToReset){
 		routerToReset.scatteringPrefixBean().deleteAll(null);
-		List<ScatteringPrefixBean> remainingAfterDelete = routerToReset.scatteringPrefixBean().getAll(null);
-		Assert.assertEquals(0, CollectionTool.size(remainingAfterDelete));
+		Assert.assertEquals(0, IterableTool.count(routerToReset.scatteringPrefixBean().scan(null, null)).intValue());
 		
 		List<ScatteringPrefixBean> toSave = ListTool.createArrayList();
 		for(int a=0; a < NUM_BATCHES; ++a){
@@ -240,8 +239,7 @@ public class ScatteringPrefixIntegrationTests{
 	@Test
 	public synchronized void testDelete(){
 		router.scatteringPrefixBean().delete(new ScatteringPrefixBeanKey("a", 10L), null);
-		List<ScatteringPrefixBean> remainingAfterDelete = router.scatteringPrefixBean().getAll(null);
-		Assert.assertEquals(TOTAL_RECORDS - 1, CollectionTool.size(remainingAfterDelete));
+		Assert.assertEquals(TOTAL_RECORDS - 1, IterableTool.count(router.scatteringPrefixBean().scan(null, null)).intValue());
 	}
 	
 }
