@@ -27,8 +27,11 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.BooleanTool;
+import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.MapTool;
 
 public class HBaseEntityNode<
 		EK extends EntityKey<EK>,
@@ -67,41 +70,46 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		if(CollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "putMulti", this, config){
-				public Void hbaseCall() throws Exception{					
+				public Void hbaseCall() throws Exception{
 					List<Row> actions = ListTool.createArrayList();
-					int numCellsPut = 0, numCellsDeleted = 0, numRowsPut = 0;;
+					int numCellsPut = 0, numCellsDeleted = 0, numDatabeansPut = 0, numEntitiesPut = 0;
 					long batchStartTime = System.currentTimeMillis();
-					for(D databean : databeans){//TODO obey Config.commitBatchSize
-						if(databean==null){ continue; }
-						PK key = databean.getKey();
-						byte[] keyBytes = getRowBytesWithScatteringPrefix(null, key, false);
-						Put put = new Put(keyBytes);
-						Delete delete = new Delete(keyBytes);
-						List<Field<?>> fields = fieldInfo.getNonKeyFieldsWithValues(databean);
-						for(Field<?> field : fields){//TODO only put modified fields
-							byte[] fieldBytes = field.getBytes();
-							if(fieldBytes==null){
-								if(BooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
-									delete.deleteColumn(FAM, field.getColumnNameBytes(), batchStartTime);
-									++numCellsDeleted;
+					Map<EK,List<D>> databeansByEntityKey = getDatabeansByEntityKey(databeans);
+					for(EK ek : databeansByEntityKey.keySet()){
+						byte[] ekBytes = getRowBytes(ek);
+						Put put = new Put(ekBytes);
+						Delete delete = new Delete(ekBytes);
+						for(D databean : databeansByEntityKey.get(ek)){
+							PK pk = databean.getKey();
+							byte[] qualifierPkBytes = getQualifierPkBytes(pk);
+							List<Field<?>> fields = fieldInfo.getNonKeyFieldsWithValues(databean);
+							for(Field<?> field : fields){//TODO only put modified fields
+								byte[] fullQualifierBytes = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
+										qualifierPkBytes, field.getColumnNameBytes());
+								byte[] fieldValueBytes = field.getBytes();
+								if(fieldValueBytes==null){
+									if(BooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
+										delete.deleteColumn(FAM, fullQualifierBytes, batchStartTime);
+										++numCellsDeleted;
+									}
+								}else{
+									put.add(FAM, fullQualifierBytes, fieldValueBytes);
+									++numCellsPut;
 								}
-							}else{
-								put.add(FAM, field.getColumnNameBytes(), field.getBytes());
-								++numCellsPut;
 							}
+							if(put.isEmpty()){ 
+								Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
+								put.add(FAM, dummyField.getColumnNameBytes(), dummyField.getBytes());
+							}
+							put.setWriteToWAL(config.getPersistentPut());
+							actions.add(put);
+							if(!delete.isEmpty()){ actions.add(delete); }
+							++numDatabeansPut;
 						}
-						if(put.isEmpty()){ 
-							Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
-							put.add(FAM, dummyField.getColumnNameBytes(), dummyField.getBytes());
-						}
-						put.setWriteToWAL(config.getPersistentPut());
-						actions.add(put);
-						if(!delete.isEmpty()){ actions.add(delete); }
-						++numRowsPut;
 					}
 					DRCounters.incSuffixClientNode(client.getType(), "cells put", getClientName(), node.getName(), numCellsPut);
 					DRCounters.incSuffixClientNode(client.getType(), "cells delete", getClientName(), node.getName(), numCellsDeleted);
-					DRCounters.incSuffixClientNode(client.getType(), "rows put", getClientName(), node.getName(), numRowsPut);
+					DRCounters.incSuffixClientNode(client.getType(), "rows put", getClientName(), node.getName(), numDatabeansPut);
 					if(CollectionTool.notEmpty(actions)){
 						hTable.batch(actions);
 						hTable.flushCommits();
@@ -109,12 +117,6 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					return null;
 				}
 			}).call();
-	}
-	
-//	@Override  //not in the parent interface yet
-	public void increment(Map<PK,Map<String,Long>> countByColumnByKey, Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseIncrementOp<PK,D,F>(this, countByColumnByKey, config)).call();
 	}
 	
 
@@ -186,6 +188,20 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	
 	
 	/*************************** util **************************************/
+	
+	private Map<EK,List<D>> getDatabeansByEntityKey(Iterable<D> databeans){
+		Map<EK,List<D>> databeansByEntityKey = MapTool.createTreeMap();
+		for(D databean : IterableTool.nullSafe(databeans)){
+			EK ek = databean.getKey().getEntityKey();
+			List<D> databeansForEntity = databeansByEntityKey.get(ek);
+			if(databeansForEntity==null){
+				databeansForEntity = ListTool.createArrayList();
+				databeansByEntityKey.put(ek, databeansForEntity);
+			}
+			databeansForEntity.add(databean);
+		}
+		return databeansByEntityKey;
+	}
 	
 	public D getDatabean(Result row) {
 		return HBaseResultTool.getDatabean(row, fieldInfo);

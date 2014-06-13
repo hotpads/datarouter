@@ -167,12 +167,12 @@ implements HBasePhysicalNode<PK,D>,
 	
 	/***************************** helper methods **********************************/
 	
-	private byte[] getRowBytes(EK entityKey){
+	protected byte[] getRowBytes(EK entityKey){
 		if(entityKey==null){ return new byte[]{}; }
 		return FieldSetTool.getConcatenatedValueBytes(entityKey.getFields(), true, false);
 	}
 	
-	private byte[] getQualifierPkBytes(PK primaryKey){
+	protected byte[] getQualifierPkBytes(PK primaryKey){
 		if(primaryKey==null){ return new byte[]{}; }
 		return FieldSetTool.getConcatenatedValueBytes(primaryKey.getPostEntityKeyFields(), true, true);
 	}
