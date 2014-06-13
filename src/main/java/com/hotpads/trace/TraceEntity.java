@@ -2,7 +2,7 @@ package com.hotpads.trace;
 
 import java.util.NavigableSet;
 
-import com.hotpads.datarouter.storage.Entity.BaseEntity;
+import com.hotpads.datarouter.storage.entity.BaseEntity;
 import com.hotpads.trace.key.TraceEntityKey;
 
 public class TraceEntity extends BaseEntity<TraceEntityKey>{

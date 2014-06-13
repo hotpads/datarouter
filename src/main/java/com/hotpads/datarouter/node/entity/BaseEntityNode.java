@@ -4,8 +4,8 @@ import java.util.Map;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.storage.Entity.Entity;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.util.core.MapTool;

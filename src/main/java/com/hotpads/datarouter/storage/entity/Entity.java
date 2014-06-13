@@ -1,8 +1,8 @@
-package com.hotpads.datarouter.storage.Entity;
+package com.hotpads.datarouter.storage.entity;
 
 import java.util.NavigableMap;
 
-import com.hotpads.datarouter.storage.Entity.BaseEntity.EntitySection;
+import com.hotpads.datarouter.storage.entity.BaseEntity.EntitySection;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 
 public interface Entity<EK extends EntityKey<EK>>{

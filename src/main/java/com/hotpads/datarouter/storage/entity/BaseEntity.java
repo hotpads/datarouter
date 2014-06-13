@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.storage.Entity;
+package com.hotpads.datarouter.storage.entity;
 
 import java.util.Collection;
 import java.util.NavigableMap;

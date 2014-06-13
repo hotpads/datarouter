@@ -10,7 +10,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
 
-import com.hotpads.datarouter.client.imp.hbase.op.write.HBaseIncrementOp;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
@@ -72,7 +71,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "putMulti", this, config){
 				public Void hbaseCall() throws Exception{
 					List<Row> actions = ListTool.createArrayList();
-					int numCellsPut = 0, numCellsDeleted = 0, numDatabeansPut = 0, numEntitiesPut = 0;
+					int numCellsPut = 0, numCellsDeleted = 0;
 					long batchStartTime = System.currentTimeMillis();
 					Map<EK,List<D>> databeansByEntityKey = getDatabeansByEntityKey(databeans);
 					for(EK ek : databeansByEntityKey.keySet()){
@@ -99,17 +98,21 @@ implements PhysicalSortedMapStorageNode<PK,D>
 							}
 							if(put.isEmpty()){ 
 								Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
-								put.add(FAM, dummyField.getColumnNameBytes(), dummyField.getBytes());
+								byte[] dummyQualifierBytes = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
+										qualifierPkBytes, dummyField.getColumnNameBytes());
+								put.add(FAM, dummyQualifierBytes, dummyField.getBytes());
 							}
 							put.setWriteToWAL(config.getPersistentPut());
 							actions.add(put);
 							if(!delete.isEmpty()){ actions.add(delete); }
-							++numDatabeansPut;
 						}
 					}
+					int numEntitiesPut = MapTool.size(databeansByEntityKey);
+					int numDatabeansPut = CollectionTool.getTotalSizeOfMapOfCollections(databeansByEntityKey);
 					DRCounters.incSuffixClientNode(client.getType(), "cells put", getClientName(), node.getName(), numCellsPut);
 					DRCounters.incSuffixClientNode(client.getType(), "cells delete", getClientName(), node.getName(), numCellsDeleted);
 					DRCounters.incSuffixClientNode(client.getType(), "rows put", getClientName(), node.getName(), numDatabeansPut);
+					DRCounters.incSuffixClientNode(client.getType(), "entities put", getClientName(), node.getName(), numEntitiesPut);
 					if(CollectionTool.notEmpty(actions)){
 						hTable.batch(actions);
 						hTable.flushCommits();
