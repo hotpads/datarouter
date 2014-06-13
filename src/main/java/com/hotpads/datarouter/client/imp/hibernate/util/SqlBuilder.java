@@ -25,8 +25,7 @@ public class SqlBuilder{
 		StringBuilder sql = new StringBuilder();
 		sql.append("select count(*) from " + tableName);
 		if (fields.size() > 0) {
-			sql.append(" where ");
-			FieldSetTool.appendWhereClauseDisjunction(sql, keys);			
+			FieldSetTool.appendWhereClauseDisjunction(sql, keys);
 		}
 		return sql.toString();
 	}
@@ -56,7 +55,6 @@ public class SqlBuilder{
 		}
 		StringBuilder sql = new StringBuilder();
 		addSelectFromClause(sql, tableName, selectFields);
-		sql.append(" where ");
 		FieldSetTool.appendWhereClauseDisjunction(sql, keys);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
@@ -68,7 +66,6 @@ public class SqlBuilder{
 		}
 		StringBuilder sql = new StringBuilder();
 		addDeleteFromClause(sql, tableName);
-		sql.append(" where ");
 		FieldSetTool.appendWhereClauseDisjunction(sql, keys);
 		addLimitOffsetClause(sql, config);
 		return sql.toString();
