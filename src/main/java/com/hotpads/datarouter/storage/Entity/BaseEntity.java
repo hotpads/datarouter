@@ -15,11 +15,11 @@ import com.hotpads.util.core.CollectionTool;
 public abstract class BaseEntity<EK extends EntityKey<EK>> implements Entity<EK>{
 
 	private EK key;
-	private NavigableMap<String,EntitySection<EK,?,?>> databeansByNodeName;
+	private NavigableMap<String,EntitySection<EK,?,?>> databeansByTableName;
 	
 	public BaseEntity(EK key){
 		this.key = key;
-		this.databeansByNodeName = new TreeMap<String,EntitySection<EK,?,?>>();
+		this.databeansByTableName = new TreeMap<String,EntitySection<EK,?,?>>();
 	}
 	
 	@Override
@@ -29,20 +29,35 @@ public abstract class BaseEntity<EK extends EntityKey<EK>> implements Entity<EK>
 
 	@Override
 	public NavigableMap<String,EntitySection<EK,?,?>> getDatabeansByNodeName(){
-		return databeansByNodeName;
+		return databeansByTableName;
 	}
 	
 	
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
 	void add(Node<PK,D> node, Collection<D> databeans){
-		String nodeName = node.getName();
+		String tableName = node.getFieldInfo().getTableName();
 		@SuppressWarnings("unchecked") //types enforced externally
-		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByNodeName.get(nodeName);
+		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByTableName.get(tableName);
 		if(section==null){
 			section = new EntitySection<EK,PK,D>();
-			databeansByNodeName.put(nodeName, section);
+			databeansByTableName.put(tableName, section);
 		}
 		section.add(databeans);
+	}
+
+	//default table name
+	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
+	NavigableSet<D> getDatabeans(Class<D> type){
+		String tableName = type.getSimpleName();
+		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByTableName.get(tableName);
+		return section==null ? null : section.getDatabeans();
+	}
+
+	//custom table name
+	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
+	NavigableSet<D> getDatabeans(Class<D> type, String tableName){
+		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByTableName.get(tableName);
+		return section==null ? null : section.getDatabeans();
 	}
 	
 	
@@ -60,10 +75,8 @@ public abstract class BaseEntity<EK extends EntityKey<EK>> implements Entity<EK>
 			databeans.add(databean);
 		}
 
-		public void add(Collection<D> databeans){
-			for(D databean : CollectionTool.nullSafe(databeans)){
-				add(databean);
-			}
+		public void add(Collection<D> toAdd){
+			databeans.addAll(CollectionTool.nullSafe(toAdd));
 		}
 		
 		public NavigableSet<D> getDatabeans(){

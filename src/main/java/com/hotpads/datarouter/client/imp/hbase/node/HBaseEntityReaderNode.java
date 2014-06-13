@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,13 +7,13 @@ import java.util.List;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
-import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultTool;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
@@ -77,31 +76,26 @@ implements HBasePhysicalNode<PK,D>,
 	public D get(final PK key, final Config pConfig){
 		if(key==null){ return null; }
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<D>(new HBaseTask<D>(getDataRouterContext(), "get", this, config){
-				public D hbaseCall() throws Exception{
-					byte[] rowBytes = getRowBytes(key.getEntityKey());
-					Get get = new Get(rowBytes);
-					byte[] qualifierPkBytes = getQualifierPkBytes(key);
-					byte[] qualifierPrefix = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), 
-							qualifierPkBytes);
-					get.setFilter(new ColumnPrefixFilter(qualifierPrefix));
-					Result row = hTable.get(get);
-					if(row.isEmpty()){ return null; }
-					List<D> results = HBaseEntityResultTool.getDatabeansWithMatchingQualifierPrefix(row, fieldInfo);
-					if(CollectionTool.hasMultiple(results)){ 
-						throw new RuntimeException("shouldn't have multiple databeans"); 
-					}
-					return CollectionTool.getFirst(results);
-				}
-			}).call();
+//		return new HBaseMultiAttemptTask<D>(new HBaseTask<D>(getDataRouterContext(), "get", this, config){
+//				public D hbaseCall() throws Exception{
+//					byte[] rowBytes = getRowBytes(key.getEntityKey());
+//					Get get = new Get(rowBytes);
+//					byte[] qualifierPkBytes = getQualifierPkBytes(key);
+//					byte[] qualifierPrefix = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), 
+//							qualifierPkBytes);
+//					get.setFilter(new ColumnPrefixFilter(qualifierPrefix));
+//					Result row = hTable.get(get);
+//					if(row.isEmpty()){ return null; }
+//					List<D> results = HBaseEntityResultTool.getDatabeansWithMatchingQualifierPrefix(row, fieldInfo);
+//					if(CollectionTool.hasMultiple(results)){ 
+//						throw new RuntimeException("shouldn't have multiple databeans"); 
+//					}
+//					return CollectionTool.getFirst(results);
+//				}
+//			}).call();
+		return CollectionTool.getFirst(getMulti(ListTool.wrap(key), config));
 	}
 	
-	
-	@Override
-	public List<D> getAll(final Config pConfig){
-		return getRange(null, true, null, true, pConfig);
-	}
-
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){	
@@ -145,14 +139,26 @@ implements HBasePhysicalNode<PK,D>,
 							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
-						byte[] rowBytes = getRowBytesWithScatteringPrefix(null, key, false);
+						byte[] rowBytes = getRowBytes(key.getEntityKey());
+						byte[] qualifierPkBytes = getQualifierPkBytes(key);
+						byte[] qualifierPrefix = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), 
+								qualifierPkBytes);
+						FilterList filters = new FilterList();
+						filters.addFilter(new KeyOnlyFilter());
+						filters.addFilter(new ColumnPrefixFilter(qualifierPrefix));
 						Get get = new Get(rowBytes);
-						//FirstKeyOnlyFilter returns value too, so it's better if value in each row is not large
-						get.setFilter(new FirstKeyOnlyFilter());
+						get.setFilter(filters);
 						gets.add(get);
 					}
-					Result[] resultArray = hTable.get(gets);
-					return HBaseResultTool.getPrimaryKeys(Arrays.asList(resultArray), fieldInfo);
+					Result[] hBaseResults = hTable.get(gets);
+					List<PK> results = ListTool.createArrayList();
+					for(Result row : hBaseResults){
+						if(row.isEmpty()){ continue; }
+						List<PK> pksFromSingleGet = HBaseEntityResultTool.getPrimaryKeysWithMatchingQualifierPrefix(
+								row, fieldInfo);
+						results.addAll(CollectionTool.nullSafe(pksFromSingleGet));
+					}
+					return results;
 				}
 			}).call();
 	}
