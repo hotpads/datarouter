@@ -19,6 +19,7 @@ import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.entity.EntityTool;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.storage.key.KeyTool;
@@ -73,7 +74,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					List<Row> actions = ListTool.createArrayList();
 					int numCellsPut = 0, numCellsDeleted = 0;
 					long batchStartTime = System.currentTimeMillis();
-					Map<EK,List<D>> databeansByEntityKey = getDatabeansByEntityKey(databeans);
+					Map<EK,List<D>> databeansByEntityKey = EntityTool.getDatabeansByEntityKey(databeans);
 					for(EK ek : databeansByEntityKey.keySet()){
 						byte[] ekBytes = getRowBytes(ek);
 						Put put = new Put(ekBytes);
@@ -163,12 +164,15 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "deleteMulti", this, config){
 				public Void hbaseCall() throws Exception{
 					hTable.setAutoFlush(false);
-					List<Row> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList
-					for(PK key : keys){
-						byte[] keyBytes = getRowBytesWithScatteringPrefix(null, key, false);
-						Delete delete = new Delete(keyBytes);
-//						Delete delete = new Delete(key.getBytes(false));
-						deletes.add(delete);
+					Map<EK,List<PK>> pksByEk = EntityTool.getPrimaryKeysByEntityKey(keys);
+					List<Row> deletes = ListTool.createArrayList();//api requires ArrayList
+					for(EK ek : pksByEk.keySet()){
+						for(PK key : pksByEk.get(ek)){
+							byte[] keyBytes = getRowBytesWithScatteringPrefix(null, key, false);
+							Delete delete = new Delete(keyBytes);
+	//						Delete delete = new Delete(key.getBytes(false));
+							deletes.add(delete);
+						}
 					}
 					hTable.batch(deletes);
 					hTable.flushCommits();
