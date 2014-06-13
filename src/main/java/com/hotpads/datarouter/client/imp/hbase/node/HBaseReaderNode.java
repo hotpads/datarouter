@@ -131,12 +131,6 @@ implements HBasePhysicalNode<PK,D>,
 	
 	
 	@Override
-	public List<D> getAll(final Config pConfig){
-		return getRange(null, true, null, true, pConfig);
-	}
-
-	
-	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){	
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);

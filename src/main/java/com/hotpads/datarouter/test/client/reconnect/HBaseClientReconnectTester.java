@@ -9,14 +9,14 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.node.op.raw.MapStorage;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.BasicClientTestRouterImp;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 import com.hotpads.util.annotation.DoNotCommit;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 //you must run this manually, starting and stopping hbase to verify it reconnects, at least for now
@@ -29,14 +29,14 @@ public class HBaseClientReconnectTester {
 	
 	static BasicClientTestRouter router;
 	static TxnBeanKey testReconnectBeanKey = new TxnBeanKey("testReconnectBean");
-	static MapStorage<TxnBeanKey,TxnBean> node;
+	static SortedMapStorage<TxnBeanKey,TxnBean> node;
 
 	public static void resetTable(){
 //		node.deleteAll(null);
 //		Assert.assertEquals(0, CollectionTool.size(node.getAll(null)));
 		TxnBean txnBean = new TxnBean(testReconnectBeanKey.getId());
 		node.put(txnBean, null);
-		Assert.assertEquals(1, CollectionTool.size(node.getAll(null)));
+		Assert.assertEquals(1, IterableTool.count(node.scan(null, null)).intValue());
 	}
 	
 	@BeforeClass

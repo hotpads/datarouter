@@ -84,11 +84,6 @@ implements MapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getAll(Config config) {
-		return backingNode.getAll(config);
-	}
-
-	@Override
 	public List<D> getMulti(final Collection<PK> keys, Config config) {
 		if(!useCache(config)){ return backingNode.getMulti(keys, config); }
 		List<D> resultBuilder = ListTool.createLinkedList();
