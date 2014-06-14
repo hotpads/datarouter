@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase.node;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NavigableSet;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
@@ -154,7 +155,7 @@ implements HBasePhysicalNode<PK,D>,
 					List<PK> results = ListTool.createArrayList();
 					for(Result row : hBaseResults){
 						if(row.isEmpty()){ continue; }
-						List<PK> pksFromSingleGet = HBaseEntityResultTool.getPrimaryKeysWithMatchingQualifierPrefix(
+						NavigableSet<PK> pksFromSingleGet = HBaseEntityResultTool.getPrimaryKeysWithMatchingQualifierPrefix(
 								row, fieldInfo);
 						results.addAll(CollectionTool.nullSafe(pksFromSingleGet));
 					}

@@ -2,6 +2,8 @@ package com.hotpads.datarouter.client.imp.hbase.util;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
+import java.util.SortedSet;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
@@ -17,13 +19,35 @@ import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class HBaseEntityResultTool{
 
-	/****************** multiple databeans in one hbase row ********************/
+	
+	public static <EK extends EntityKey<EK>,
+			PK extends EntityPrimaryKey<EK,PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>> 
+	NavigableSet<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row, DatabeanFieldInfo<PK,D,F> fieldInfo){
+		if(row==null){ return SetTool.createTreeSet(); }
+		byte[] entityColumnPrefixBytes = fieldInfo.getEntityColumnPrefixBytes();//the table name with separator byte
+		NavigableSet<PK> pks = SetTool.createTreeSet();
+		for(KeyValue kv : row.list()){
+			byte[] qualifier = kv.getQualifier();
+			if(!Bytes.startsWith(qualifier, entityColumnPrefixBytes)){ continue; }
+			int numNonColumnPrefixBytes = qualifier.length - entityColumnPrefixBytes.length;
+			byte[] postEkPkPlusColumnBytes = ByteTool.copyOfRange(qualifier, entityColumnPrefixBytes.length, 
+					numNonColumnPrefixBytes);
+			byte[] pkPlusFieldNameBytes = ByteTool.concatenate(row.getRow(), postEkPkPlusColumnBytes);
+			Pair<PK,String> pkAndFieldName = getPrimaryKeyAndFieldName(pkPlusFieldNameBytes, fieldInfo);
+			PK pk = pkAndFieldName.getLeft();
+			pks.add(pk);
+		}
+		return pks;
+	}
 		
 	public static <EK extends EntityKey<EK>,
 			PK extends EntityPrimaryKey<EK,PK>,

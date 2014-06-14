@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.bytes.StringByteTool;
 
 public class HBaseEntityNode<
 		EK extends EntityKey<EK>,
@@ -157,6 +159,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	}
 
 	
+	//TODO this only deletes columns known to the current fielder.  could leave orphan columns from an old fielder
 	@Override
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
 		if(CollectionTool.isEmpty(keys)){ return; }
@@ -164,14 +167,19 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "deleteMulti", this, config){
 				public Void hbaseCall() throws Exception{
 					hTable.setAutoFlush(false);
+					Collection<String> nonKeyColumnNames = fieldInfo.getNonKeyFieldByColumnName().keySet();
 					Map<EK,List<PK>> pksByEk = EntityTool.getPrimaryKeysByEntityKey(keys);
-					List<Row> deletes = ListTool.createArrayList();//api requires ArrayList
+					ArrayList<Row> deletes = ListTool.createArrayList();//api requires ArrayList
 					for(EK ek : pksByEk.keySet()){
-						for(PK key : pksByEk.get(ek)){
-							byte[] keyBytes = getRowBytesWithScatteringPrefix(null, key, false);
-							Delete delete = new Delete(keyBytes);
-	//						Delete delete = new Delete(key.getBytes(false));
-							deletes.add(delete);
+						byte[] rowBytes = getRowBytes(ek);
+						for(PK pk : pksByEk.get(ek)){
+							for(String columnName : nonKeyColumnNames){//TODO only put modified fields
+								Delete delete = new Delete(rowBytes);
+								byte[] qualifier = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
+										getQualifierPkBytes(pk), StringByteTool.getUtf8Bytes(columnName));
+								delete.deleteColumns(FAM, qualifier);
+								deletes.add(delete);
+							}
 						}
 					}
 					hTable.batch(deletes);
