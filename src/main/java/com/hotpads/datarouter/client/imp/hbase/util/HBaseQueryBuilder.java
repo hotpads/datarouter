@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.util;
 
+import java.util.List;
+
 import org.apache.hadoop.hbase.client.Scan;
 
 import com.hotpads.datarouter.config.Config;
@@ -7,6 +9,7 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
@@ -28,7 +31,7 @@ public class HBaseQueryBuilder{
 
 	public static Scan getPrefixScanner(FieldSet<?> prefix, 
 			boolean wildcardLastField, Config config){
-		Pair<byte[],byte[]> byteRange = getStartEndBytesForPrefix(prefix, wildcardLastField);
+		Pair<byte[],byte[]> byteRange = getStartEndBytesForPrefix(prefix.getFields(), wildcardLastField);
 		Scan scan = getScanForRange(byteRange.getLeft(), true, byteRange.getRight(), false, config);
 		return scan;
 	}
@@ -38,7 +41,7 @@ public class HBaseQueryBuilder{
 			FieldSet<?> startKey, boolean startInclusive, 
 			FieldSet<?> endKey, boolean endInclusive,
 			Config config){
-		Pair<byte[],byte[]> prefixBounds = getStartEndBytesForPrefix(prefix, wildcardLastField);
+		Pair<byte[],byte[]> prefixBounds = getStartEndBytesForPrefix(prefix.getFields(), wildcardLastField);
 		Pair<byte[],byte[]> rangeBounds = getStartEndBytesForRange(startKey, startInclusive, endKey, endInclusive);
 		Pair<byte[],byte[]> intersection = getRangeIntersection(prefixBounds, rangeBounds);
 		Scan scan = getScanForRange(intersection.getLeft(), true, intersection.getRight(), false, config);
@@ -93,15 +96,14 @@ public class HBaseQueryBuilder{
 		return new Pair<byte[],byte[]>(startBytes, endBytes);
 	}
 	
-	public static Pair<byte[],byte[]> getStartEndBytesForPrefix(FieldSet<?> prefix, boolean wildcardLastField){
-		int numNonNullFields = FieldSetTool.getNumNonNullFields(prefix);
+	public static Pair<byte[],byte[]> getStartEndBytesForPrefix(List<Field<?>> prefix, boolean wildcardLastField){
+		int numNonNullFields = FieldTool.countNonNullLeadingFields(prefix);
 		byte[][] fieldBytes = new byte[numNonNullFields][];
 		int numFullFieldsFinished = 0;
-		for(Field<?> field : CollectionTool.nullSafe(prefix.getFields())){
-			if(numFullFieldsFinished >= numNonNullFields) break;
+		for(Field<?> field : CollectionTool.nullSafe(prefix)){
+			if(numFullFieldsFinished >= numNonNullFields){ break; }
 			if(field.getValue()==null) {
-				throw new DataAccessException("Prefix query on "+
-						prefix.getClass()+" cannot contain intermediate nulls.");
+				throw new DataAccessException("Prefix query cannot contain intermediate nulls.");
 			}
 			boolean lastNonNullField = (numFullFieldsFinished == numNonNullFields-1);
 			boolean doPrefixMatchOnField = wildcardLastField && lastNonNullField;

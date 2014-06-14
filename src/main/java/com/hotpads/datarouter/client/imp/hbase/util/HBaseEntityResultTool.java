@@ -3,7 +3,6 @@ package com.hotpads.datarouter.client.imp.hbase.util;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
-import java.util.SortedSet;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
@@ -17,6 +16,7 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
@@ -26,6 +26,25 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 public class HBaseEntityResultTool{
 
+
+	/****************** parse multiple hbase rows ********************/
+
+	public static <EK extends EntityKey<EK>,
+			PK extends EntityPrimaryKey<EK,PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>> 
+	List<D> getDatabeansWithMatchingQualifierPrefix(Result[] rows, DatabeanFieldInfo<PK,D,F> fieldInfo){
+		List<D> results = ListTool.createArrayList();
+		for(Result row : rows){
+			if(row.isEmpty()){ continue; }
+			List<D> databeansFromSingleGet = getDatabeansWithMatchingQualifierPrefix(row, fieldInfo);
+			results.addAll(CollectionTool.nullSafe(databeansFromSingleGet));
+		}
+		return results;
+	}
+
+	
+	/****************** parse single hbase row ********************/
 	
 	public static <EK extends EntityKey<EK>,
 			PK extends EntityPrimaryKey<EK,PK>,
@@ -86,7 +105,7 @@ public class HBaseEntityResultTool{
 	
 
 	
-	/****************** parse single result ********************/
+	/****************** private ********************/
 
 	
 	private static <EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>> 

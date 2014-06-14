@@ -310,7 +310,7 @@ implements MapStorageReader<PK,D>,
 	
 	public Conjunction getPrefixConjunction(boolean usePrefixedFieldNames,
 			Key<PK> prefix, final boolean wildcardLastField){
-		int numNonNullFields = FieldSetTool.getNumNonNullFields(prefix);
+		int numNonNullFields = FieldSetTool.getNumNonNullLeadingFields(prefix);
 		if(numNonNullFields==0){ return null; }
 		Conjunction conjunction = Restrictions.conjunction();
 		int numFullFieldsFinished = 0;
@@ -319,7 +319,7 @@ implements MapStorageReader<PK,D>,
 			fields = FieldTool.prependPrefixes(fieldInfo.getKeyFieldName(), fields);
 		}
 		for(Field<?> field : fields){
-			if(numFullFieldsFinished >= numNonNullFields) break;
+			if(numFullFieldsFinished >= numNonNullFields){ break; }
 			if(field.getValue()==null) {
 				throw new DataAccessException("Prefix query on "+
 						prefix.getClass()+" cannot contain intermediate nulls.");

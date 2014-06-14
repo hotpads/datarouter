@@ -173,7 +173,7 @@ public class SqlBuilder{
 	}
 	
 	public static void addPrefixWhereClause(StringBuilder sql, FieldSet<?> prefix, boolean wildcardLastField){
-		int numNonNullFields = FieldSetTool.getNumNonNullFields(prefix);
+		int numNonNullFields = FieldSetTool.getNumNonNullLeadingFields(prefix);
 		if(numNonNullFields==0){ return; }
 		int numFullFieldsFinished = 0;
 		for(Field<?> field : CollectionTool.nullSafe(prefix.getFields())){

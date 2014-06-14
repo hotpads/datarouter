@@ -204,22 +204,5 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	
 	/*************************** util **************************************/
 	
-	private Map<EK,List<D>> getDatabeansByEntityKey(Iterable<D> databeans){
-		Map<EK,List<D>> databeansByEntityKey = MapTool.createTreeMap();
-		for(D databean : IterableTool.nullSafe(databeans)){
-			EK ek = databean.getKey().getEntityKey();
-			List<D> databeansForEntity = databeansByEntityKey.get(ek);
-			if(databeansForEntity==null){
-				databeansForEntity = ListTool.createArrayList();
-				databeansByEntityKey.put(ek, databeansForEntity);
-			}
-			databeansForEntity.add(databean);
-		}
-		return databeansByEntityKey;
-	}
-	
-	public D getDatabean(Result row) {
-		return HBaseResultTool.getDatabean(row, fieldInfo);
-	}
 
 }

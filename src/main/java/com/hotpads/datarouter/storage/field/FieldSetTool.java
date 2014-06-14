@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.storage.field;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
@@ -23,7 +22,6 @@ import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
-import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
@@ -38,12 +36,12 @@ import com.hotpads.util.core.number.VarLong;
 public class FieldSetTool{
 	static Logger logger = Logger.getLogger(FieldSetTool.class);
 
-	public static int getNumNonNullFields(FieldSet<?> prefix){
+	public static int getNumNonNullLeadingFields(FieldSet<?> prefix){
 		int numNonNullFields = 0;
 		for(Object value : CollectionTool.nullSafe(prefix.getFieldValues())){
-			if(value != null){
-				++numNonNullFields;
-			}
+			if(value == null){ break; }
+			++numNonNullFields;
+			
 		}
 		return numNonNullFields;
 	}
@@ -190,51 +188,18 @@ public class FieldSetTool{
 	 * the trailingSeparatorAfterEndingString is for backwards compatibility with some early tables
 	 * that appended a trailing 0 to the byte[] even though it wasn't necessary
 	 */
+	@Deprecated//inline me
 	public static byte[] getConcatenatedValueBytes(Collection<Field<?>> fields, boolean allowNulls,
 			boolean trailingSeparatorAfterEndingString){
-		int numFields = FieldTool.countNonNullLeadingFields(fields);
-		if(numFields==0){ return null; }
-		if(numFields==1){
-			if(trailingSeparatorAfterEndingString){
-				return CollectionTool.getFirst(fields).getBytesWithSeparator();
-			}else{
-				return CollectionTool.getFirst(fields).getBytes();
-			}
-		}
-		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.size(fields)][];
-		int fieldIdx=-1;
-		for(Field<?> field : IterableTool.nullSafe(fields)){
-			++fieldIdx;
-			boolean lastField = fieldIdx == numFields - 1;
-			if(!allowNulls && field.getValue()==null){
-				throw new IllegalArgumentException("field:"+field.getName()+" cannot be null in");
-			}
-			if(!lastField || trailingSeparatorAfterEndingString){
-				fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
-			}else{
-				fieldArraysWithSeparators[fieldIdx] = field.getBytes();
-			}
-			if(lastField){ break; }
-		}
-		return ByteTool.concatenate(fieldArraysWithSeparators);
+		return FieldTool.getConcatenatedValueBytes(fields, allowNulls, trailingSeparatorAfterEndingString);
 	}
 
 	/*
 	 * should combine this with getConcatenatedValueBytes
 	 */
-	public static byte[] getBytesForNonNullFieldsWithNoTrailingSeparator(FieldSet<?> fields){
-		int numNonNullFields = getNumNonNullFields(fields);
-		byte[][] fieldArraysWithSeparators = new byte[numNonNullFields][];
-		int fieldIdx=-1;
-		for(Field<?> field : IterableTool.nullSafe(fields.getFields())){
-			++fieldIdx;
-			if(fieldIdx == numNonNullFields - 1){//last field
-				fieldArraysWithSeparators[fieldIdx] = field.getBytes();
-				break;
-			}
-			fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
-		}
-		return ByteTool.concatenate(fieldArraysWithSeparators);
+	@Deprecated//inline me
+	public static byte[] getBytesForNonNullFieldsWithNoTrailingSeparator(FieldSet<?> fieldSet){
+		return FieldTool.getBytesForNonNullFieldsWithNoTrailingSeparator(fieldSet.getFields());
 	}
 
 	/**
@@ -243,30 +208,10 @@ public class FieldSetTool{
 	 * @param skipNullValues important to include nulls in PK's, but usually skip them in normal fields
 	 * @return
 	 */
+	@Deprecated//inline me
 	public static byte[] getSerializedKeyValues(Collection<Field<?>> fields, boolean includePrefix,
 			boolean skipNullValues){
-		if(CollectionTool.isEmpty(fields)){ return new byte[0]; }
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		for(Field<?> field : IterableTool.nullSafe(fields)){
-			//prep the values
-			byte[] keyBytes = includePrefix ?
-					StringByteTool.getUtf8Bytes(field.getPrefixedName()) : field.getColumnNameBytes();
-			VarLong keyLength = new VarLong(ArrayTool.length(keyBytes));
-			byte[] valueBytes = field.getBytes();
-			VarLong valueLength = new VarLong(ArrayTool.length(valueBytes));
-			//abort if value is 0 bytes
-			if(ArrayTool.isEmpty(valueBytes) && skipNullValues){ continue; }
-			try{
-				//write out the bytes
-				baos.write(keyLength.getBytes());
-				baos.write(keyBytes);
-				baos.write(valueLength.getBytes());
-				baos.write(valueBytes);
-			}catch(IOException e){
-				throw new RuntimeException("a ByteArrayOutputStream threw an IOException... not sure how that could happen");
-			}
-		}
-		return baos.toByteArray();
+		return FieldTool.getSerializedKeyValues(fields, includePrefix, skipNullValues);
 	}
 
 	/*************************** tests *********************************/

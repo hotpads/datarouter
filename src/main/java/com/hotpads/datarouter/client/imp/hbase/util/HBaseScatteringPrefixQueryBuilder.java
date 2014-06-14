@@ -53,7 +53,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 		}
 		List<Scan> outs = ListTool.createArrayList();
 		for(FieldSet<?> fieldSet : scatteringPrefixesPlusPrefix){
-			Pair<byte[],byte[]> byteRange = HBaseQueryBuilder.getStartEndBytesForPrefix(fieldSet, wildcardLastField);
+			Pair<byte[],byte[]> byteRange = HBaseQueryBuilder.getStartEndBytesForPrefix(fieldSet.getFields(), wildcardLastField);
 			Scan scan = HBaseQueryBuilder.getScanForRange(byteRange.getLeft(), true, byteRange.getRight(), false, config);
 			outs.add(scan);
 		}
@@ -83,7 +83,8 @@ public class HBaseScatteringPrefixQueryBuilder {
 			FieldSet<?> scatteringPrefixPlusPrefix = scatteringPrefixesPlusPrefix.get(i);
 			FieldSet<?> scatteringPrefixPlusStartKey = scatteringPrefixesPlusStartKey.get(i);
 			FieldSet<?> scatteringPrefixPlusEndKey = scatteringPrefixesPlusEndKey.get(i);
-			Pair<byte[],byte[]> prefixBounds = HBaseQueryBuilder.getStartEndBytesForPrefix(scatteringPrefixPlusPrefix, wildcardLastField);
+			Pair<byte[],byte[]> prefixBounds = HBaseQueryBuilder.getStartEndBytesForPrefix(scatteringPrefixPlusPrefix
+					.getFields(), wildcardLastField);
 			Pair<byte[],byte[]> rangeBounds = HBaseQueryBuilder.getStartEndBytesForRange(
 					scatteringPrefixPlusStartKey, startInclusive, scatteringPrefixPlusEndKey, endInclusive);
 			Pair<byte[],byte[]> intersection = HBaseQueryBuilder.getRangeIntersection(prefixBounds, rangeBounds);

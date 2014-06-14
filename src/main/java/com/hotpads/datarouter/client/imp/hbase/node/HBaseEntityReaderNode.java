@@ -14,11 +14,12 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultTool;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
+import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -37,7 +38,7 @@ public class HBaseEntityReaderNode<
 		F extends DatabeanFielder<PK,D>> 
 extends BasePhysicalNode<PK,D,F>
 implements HBasePhysicalNode<PK,D>,
-		MapStorageReader<PK,D>
+		SortedMapStorageReader<PK,D>
 {
 	protected Logger logger = Logger.getLogger(getClass());
 	
@@ -77,23 +78,6 @@ implements HBasePhysicalNode<PK,D>,
 	public D get(final PK key, final Config pConfig){
 		if(key==null){ return null; }
 		final Config config = Config.nullSafe(pConfig);
-//		return new HBaseMultiAttemptTask<D>(new HBaseTask<D>(getDataRouterContext(), "get", this, config){
-//				public D hbaseCall() throws Exception{
-//					byte[] rowBytes = getRowBytes(key.getEntityKey());
-//					Get get = new Get(rowBytes);
-//					byte[] qualifierPkBytes = getQualifierPkBytes(key);
-//					byte[] qualifierPrefix = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), 
-//							qualifierPkBytes);
-//					get.setFilter(new ColumnPrefixFilter(qualifierPrefix));
-//					Result row = hTable.get(get);
-//					if(row.isEmpty()){ return null; }
-//					List<D> results = HBaseEntityResultTool.getDatabeansWithMatchingQualifierPrefix(row, fieldInfo);
-//					if(CollectionTool.hasMultiple(results)){ 
-//						throw new RuntimeException("shouldn't have multiple databeans"); 
-//					}
-//					return CollectionTool.getFirst(results);
-//				}
-//			}).call();
 		return CollectionTool.getFirst(getMulti(ListTool.wrap(key), config));
 	}
 	
@@ -116,15 +100,8 @@ implements HBasePhysicalNode<PK,D>,
 						get.setFilter(new ColumnPrefixFilter(qualifierPrefix));
 						gets.add(get);
 					}
-					Result[] hBaseResults = hTable.get(gets);
-					List<D> results = ListTool.createArrayList();
-					for(Result row : hBaseResults){
-						if(row.isEmpty()){ continue; }
-						List<D> databeansFromSingleGet = HBaseEntityResultTool.getDatabeansWithMatchingQualifierPrefix(
-								row, fieldInfo);
-						results.addAll(CollectionTool.nullSafe(databeansFromSingleGet));
-					}
-					return results;
+					Result[] rows = hTable.get(gets);
+					return HBaseEntityResultTool.getDatabeansWithMatchingQualifierPrefix(rows, fieldInfo);
 				}
 			}).call();
 	}
@@ -164,6 +141,49 @@ implements HBasePhysicalNode<PK,D>,
 			}).call();
 	}
 
+	
+	/************************* sorted **********************************/
+	
+	@Override
+	public PK getFirstKey(Config pConfig){
+		Config config = Config.nullSafe(pConfig).setLimit(1);
+		return CollectionTool.getFirst(
+				getKeysInRange(null, true, null, true, config));
+	}
+
+	
+	@Override
+	public D getFirst(Config pConfig){
+		Config config = Config.nullSafe(pConfig).setLimit(1);
+		return CollectionTool.getFirst(
+				getRange(null, true, null, true, config));
+	}
+	
+	
+	@Override
+	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config){
+		return getWithPrefixes(ListTool.wrap(prefix), wildcardLastField, config);
+	}
+
+	
+	@Override
+	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
+			final Config pConfig){
+		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
+		final Config config = Config.nullSafe(pConfig);
+		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDataRouterContext(), "getWithPrefixes", this, config){
+				public List<D> hbaseCall() throws Exception{
+					List<Get> gets = ListTool.createArrayList();
+					for(PK prefix : prefixes){
+						Get get = new HBaseEntityQueryBuilder<EK,PK,D,F>(fieldInfo).getPrefixQuery(prefix, 
+								wildcardLastField, config);
+						gets.add(get);
+					}
+					Result[] hbaseRows = hTable.get(gets);
+					return HBaseEntityResultTool.getDatabeansWithMatchingQualifierPrefix(hbaseRows, fieldInfo);
+				}
+			}).call();
+	}
 		
 	
 	/***************************** helper methods **********************************/
