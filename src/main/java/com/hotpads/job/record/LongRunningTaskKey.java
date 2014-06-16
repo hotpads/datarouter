@@ -8,6 +8,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 @SuppressWarnings("serial")
@@ -32,7 +33,7 @@ public class LongRunningTaskKey extends BasePrimaryKey<LongRunningTaskKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new DateField(F.triggerTime, triggerTime),
+				new LongDateField(F.triggerTime, triggerTime),
 				new StringField(F.jobClass, jobClass, LENGTH_jobClass),
 				new StringField(F.serverName, serverName, LENGTH_serverName));
 	}

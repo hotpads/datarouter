@@ -85,10 +85,10 @@ implements HBasePhysicalNode<PK,D>,
 	}
 	
 	protected void detectPrimaryKeyHasUnnecessaryTrailingSeparatorByte(){
-		Assert.assertTrue(StringTool.notEmpty(tableName));
-		primaryKeyHasUnnecessaryTrailingSeparatorByte = TRAILING_BYTE_TABLES.contains(tableName);
+		Assert.assertTrue(StringTool.notEmpty(fieldInfo.getTableName()));
+		primaryKeyHasUnnecessaryTrailingSeparatorByte = TRAILING_BYTE_TABLES.contains(fieldInfo.getTableName());
 		if(primaryKeyHasUnnecessaryTrailingSeparatorByte){
-			logger.warn("primaryKeyHasUnnecessaryTrailingSeparatorByte for table "+tableName);
+			logger.warn("primaryKeyHasUnnecessaryTrailingSeparatorByte for table "+fieldInfo.getTableName());
 		}
 	}
 	
@@ -142,7 +142,7 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDataRouterContext(), "getMulti", this, config){
 				public List<D> hbaseCall() throws Exception{
-					DRCounters.incSuffixClientNode(client.getType(), "getMulti rows", clientName, node.getName(), 
+					DRCounters.incSuffixClientNode(client.getType(), "getMulti rows", getClientName(), node.getName(), 
 							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
@@ -162,7 +162,7 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDataRouterContext(), "getKeys", this, config){
 				public List<PK> hbaseCall() throws Exception{
-					DRCounters.incSuffixClientNode(client.getType(), "getKeys rows", clientName, node.getName(), 
+					DRCounters.incSuffixClientNode(client.getType(), "getKeys rows", getClientName(), node.getName(), 
 							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
@@ -329,7 +329,7 @@ implements HBasePhysicalNode<PK,D>,
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}
 					managedResultScanner.close();
-					DRCounters.incSuffixClientNode(client.getType(), scanKeysVsRowsNumRows, clientName, node.getName(),  
+					DRCounters.incSuffixClientNode(client.getType(), scanKeysVsRowsNumRows, getClientName(), node.getName(),  
 							CollectionTool.size(results));
 					return results;
 				}

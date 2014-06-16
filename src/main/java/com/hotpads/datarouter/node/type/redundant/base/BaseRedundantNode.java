@@ -8,6 +8,7 @@ import java.util.SortedSet;
 
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -28,7 +29,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	protected N readNode;//needs to be one of the write nodes
 	
 	public BaseRedundantNode(Class<D> databeanClass, DataRouter router, Collection<N> writeNodes, N readNode){
-		super(router, databeanClass);
+		super(new NodeParamsBuilder<PK,D,DatabeanFielder<PK,D>>(router, databeanClass).build());
 		
 		if(CollectionTool.isEmpty(writeNodes)){ throw new IllegalArgumentException("writeNodes cannont be empty."); }
 		if(readNode==null){ throw new IllegalArgumentException("readNode cannont be null."); }

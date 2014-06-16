@@ -7,6 +7,7 @@ import java.util.SortedSet;
 
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.op.raw.index.IndexListener;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -27,8 +28,9 @@ extends BaseNode<PK,D,F>{
 	protected List<IndexListener<PK,D>> indexListeners;
 	
 	public BaseIndexingNode(N mainNode) {
-		super(mainNode.getRouter(), mainNode.getDatabeanType(), 
-				(Class<F>)mainNode.getFieldInfo().getFielderClass());
+		super(new NodeParamsBuilder<PK,D,F>(mainNode.getRouter(), mainNode.getDatabeanType())
+				.withFielder((Class<F>)mainNode.getFieldInfo().getFielderClass())
+				.build());
 		this.mainNode = mainNode;
 		this.indexListeners = ListTool.createArrayList();
 	}

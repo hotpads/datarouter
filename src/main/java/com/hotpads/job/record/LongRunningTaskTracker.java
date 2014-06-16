@@ -6,6 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 import com.google.inject.BindingAnnotation;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.setting.Setting;
@@ -13,6 +15,8 @@ import com.hotpads.util.datastructs.MutableBoolean;
 
 public class LongRunningTaskTracker {
 
+	private static Logger logger = Logger.getLogger(LongRunningTaskTracker.class);
+	
 	@BindingAnnotation 
 	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD }) 
 	@Retention(RetentionPolicy.RUNTIME)

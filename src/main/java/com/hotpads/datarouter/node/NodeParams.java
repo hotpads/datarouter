@@ -73,10 +73,19 @@ public class NodeParams<
 		private String remoteNodeName;
 		
 		
-		public NodeParamsBuilder(DataRouter router, String clientName, Class<D> databeanClass){
+		/************** construct **************/
+		
+		public NodeParamsBuilder(DataRouter router, Class<D> databeanClass){
 			this.router = router;
-			this.clientName = clientName;
 			this.databeanClass = databeanClass;
+		}
+		
+		
+		/************* with *******************/
+
+		public NodeParamsBuilder<PK,D,F> withClientName(String clientName){
+			this.clientName = clientName;
+			return this;
 		}
 		
 		public NodeParamsBuilder<PK,D,F> withFielder(Class<F> fielderClass){
@@ -110,6 +119,9 @@ public class NodeParams<
 			this.qualifiedPhysicalName = remoteNodeName;
 			return this;
 		}
+		
+		
+		/******************* build ***************************/
 		
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(router, clientName, databeanClass, fielderClass, schemaVersion, baseDatabeanClass,

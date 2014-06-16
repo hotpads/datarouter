@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -35,7 +36,9 @@ extends BaseNode<PK,D,F>{
 	protected AtomicInteger slaveRequestCounter = new AtomicInteger(0);
 	
 	public BaseMasterSlaveNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router){
-		super(router, databeanClass, fielderClass);
+		super(new NodeParamsBuilder<PK,D,F>(router, databeanClass)
+				.withFielder(fielderClass)
+				.build());
 	}
 	
 	public BaseMasterSlaveNode(Class<D> databeanClass, DataRouter router){
