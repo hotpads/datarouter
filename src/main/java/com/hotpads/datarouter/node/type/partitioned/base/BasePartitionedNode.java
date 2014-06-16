@@ -9,6 +9,7 @@ import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeId;
+import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.type.partitioned.Partitions;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -40,7 +41,9 @@ extends BaseNode<PK,D,F>{
 	protected Partitions<PK,D,N> partitions;
 		
 	public BasePartitionedNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router){
-		super(router, databeanClass, fielderClass);
+		super(new NodeParamsBuilder<PK,D,F>(router, databeanClass)
+				.withFielder(fielderClass)
+				.build());
 		this.partitions = new Partitions<PK,D,N>(this);
 		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), null, null, null));
 	}

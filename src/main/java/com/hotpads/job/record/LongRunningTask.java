@@ -11,6 +11,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
+import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 
 public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunningTask>{
@@ -25,6 +26,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	private Date heartbeatTime;
 	private JobExecutionStatus jobExecutionStatus;
 	private String triggeredByUserEmail;
+//	private Integer numItemsProcessed;
 	
 	/**************************** columns ****************************************/
 	
@@ -36,7 +38,8 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 			heartbeatTime = "heartbeatTime",
 			jobExecutionStatus = "jobExecutionStatus",
 			triggeredByUserEmail = "triggeredByUserEmail",
-			type = "type";
+			type = "type",
+			numItemsProcessed = "numItemsProcessed";
 	}
 	
 	/********************** databean *****************************************/
@@ -57,6 +60,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 					new DateField(F.heartbeatTime, d.heartbeatTime),
 					new StringEnumField<JobExecutionStatus>(JobExecutionStatus.class, F.jobExecutionStatus, d.jobExecutionStatus, DEFAULT_STRING_LENGTH),
 					new StringField(F.triggeredByUserEmail, d.triggeredByUserEmail, DEFAULT_STRING_LENGTH));
+//					new IntegerField(F.numItemsProcessed, d.numItemsProcessed));
 		}
 	}
 	
@@ -79,6 +83,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	public LongRunningTask(String jobClass, String serverName, LongRunningTaskType type){
 		this.key = new LongRunningTaskKey(jobClass, serverName);
 		this.type = type;
+//		this.numItemsProcessed = 0;
 	}
 	
 	/****************** get/set ************************/
@@ -146,4 +151,12 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	public void setType(LongRunningTaskType type) {
 		this.type = type;
 	}
+
+//	public Integer getNumItemsProcessed() {
+//		return numItemsProcessed;
+//	}
+//
+//	public void setNumItemsProcessed(Integer numItemsProcessed) {
+//		this.numItemsProcessed = numItemsProcessed;
+//	}
 }
