@@ -177,8 +177,10 @@ public abstract class BaseJob implements Job{
 	
 	@Override
 	public void trackAfterRun(Long endTime){
-		tracker.getTask().setFinishTime(new Date(endTime));
-		tracker.getTask().setJobExecutionStatus(JobExecutionStatus.success);
+		if(tracker.getTask().getJobExecutionStatus() != JobExecutionStatus.interrupted){
+			tracker.getTask().setFinishTime(new Date(endTime));
+			tracker.getTask().setJobExecutionStatus(JobExecutionStatus.success);
+		}
 		if(shouldSaveLongRunningTasks.getValue()){
 			tracker.getNode().put(tracker.getTask(), null);
 		}
