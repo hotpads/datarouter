@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.hotpads.datarouter.backup.imp.s3.BackupRegionToS3;
 
 public class S3PutTool{
 
@@ -26,6 +27,19 @@ public class S3PutTool{
 		}catch(Exception e){
 			throw new S3Exception(e);
 		}
+	}
+	
+	public static void main(String[] args) throws IOException{
+		String localFileFolder = "/mnt/hdd/zillowData/regionData/";
+		String localFileName = "RegionGeometryModified.out";
+		String BUCKET_files = "files.hotpads.com";
+		String remoteFileFolder = "zillow/areas/regionData";
+		File localFile = new File(localFileFolder + localFileName);
+		putFile(false, BUCKET_files, localFile,
+			remoteFileFolder + localFileName,
+			CannedAccessControlList.Private,
+			S3Headers.ContentType.GZIP.getMimeType(), 
+			S3Headers.CACHE_CONTROL_NO_CACHE);
 	}
 	
 }
