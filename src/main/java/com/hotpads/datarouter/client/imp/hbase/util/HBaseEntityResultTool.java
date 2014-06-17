@@ -24,20 +24,27 @@ import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class HBaseEntityResultTool{
+public class HBaseEntityResultTool<
+		EK extends EntityKey<EK>,
+		PK extends EntityPrimaryKey<EK,PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>>{
+
+	private DatabeanFieldInfo<PK,D,F> fieldInfo;
+	
+	
+	public HBaseEntityResultTool(DatabeanFieldInfo<PK,D,F> fieldInfo){
+		this.fieldInfo = fieldInfo;
+	}
 
 
 	/****************** parse multiple hbase rows ********************/
 
-	public static <EK extends EntityKey<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>> 
-	List<D> getDatabeansWithMatchingQualifierPrefix(Result[] rows, DatabeanFieldInfo<PK,D,F> fieldInfo){
+	public List<D> getDatabeansWithMatchingQualifierPrefix(Result[] rows){
 		List<D> results = ListTool.createArrayList();
 		for(Result row : rows){
 			if(row.isEmpty()){ continue; }
-			List<D> databeansFromSingleGet = getDatabeansWithMatchingQualifierPrefix(row, fieldInfo);
+			List<D> databeansFromSingleGet = getDatabeansWithMatchingQualifierPrefix(row);
 			results.addAll(CollectionTool.nullSafe(databeansFromSingleGet));
 		}
 		return results;
@@ -46,11 +53,7 @@ public class HBaseEntityResultTool{
 	
 	/****************** parse single hbase row ********************/
 	
-	public static <EK extends EntityKey<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>> 
-	NavigableSet<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row, DatabeanFieldInfo<PK,D,F> fieldInfo){
+	public NavigableSet<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row){
 		if(row==null){ return SetTool.createTreeSet(); }
 		byte[] entityColumnPrefixBytes = fieldInfo.getEntityColumnPrefixBytes();//the table name with separator byte
 		NavigableSet<PK> pks = SetTool.createTreeSet();
@@ -61,18 +64,14 @@ public class HBaseEntityResultTool{
 			byte[] postEkPkPlusColumnBytes = ByteTool.copyOfRange(qualifier, entityColumnPrefixBytes.length, 
 					numNonColumnPrefixBytes);
 			byte[] pkPlusFieldNameBytes = ByteTool.concatenate(row.getRow(), postEkPkPlusColumnBytes);
-			Pair<PK,String> pkAndFieldName = getPrimaryKeyAndFieldName(pkPlusFieldNameBytes, fieldInfo);
+			Pair<PK,String> pkAndFieldName = getPrimaryKeyAndFieldName(pkPlusFieldNameBytes);
 			PK pk = pkAndFieldName.getLeft();
 			pks.add(pk);
 		}
 		return pks;
 	}
 		
-	public static <EK extends EntityKey<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>> 
-	List<D> getDatabeansWithMatchingQualifierPrefix(Result row, DatabeanFieldInfo<PK,D,F> fieldInfo){
+	public List<D> getDatabeansWithMatchingQualifierPrefix(Result row){
 		if(row==null){ return ListTool.createLinkedList(); }
 		byte[] entityColumnPrefixBytes = fieldInfo.getEntityColumnPrefixBytes();//the table name with separator byte
 		Map<PK,D> databeanByKey = MapTool.createTreeMap();
@@ -83,7 +82,7 @@ public class HBaseEntityResultTool{
 			byte[] postEkPkPlusColumnBytes = ByteTool.copyOfRange(qualifier, entityColumnPrefixBytes.length, 
 					numNonColumnPrefixBytes);
 			byte[] pkPlusFieldNameBytes = ByteTool.concatenate(row.getRow(), postEkPkPlusColumnBytes);
-			Pair<PK,String> pkAndFieldName = getPrimaryKeyAndFieldName(pkPlusFieldNameBytes, fieldInfo);
+			Pair<PK,String> pkAndFieldName = getPrimaryKeyAndFieldName(pkPlusFieldNameBytes);
 			PK pk = pkAndFieldName.getLeft();
 			
 			//get or create the databean, and set the pk which we already parsed
@@ -108,8 +107,7 @@ public class HBaseEntityResultTool{
 	/****************** private ********************/
 
 	
-	private static <EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>> 
-	Pair<PK,String> getPrimaryKeyAndFieldName(byte[] pkPlusFieldNameBytes, DatabeanFieldInfo<PK,?,?> fieldInfo){
+	private Pair<PK,String> getPrimaryKeyAndFieldName(byte[] pkPlusFieldNameBytes){
 		if(ArrayTool.isEmpty(pkPlusFieldNameBytes)){ throw new IllegalArgumentException("pkPlusFieldNameBytes is empty"); }
 		PK primaryKey = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
 		

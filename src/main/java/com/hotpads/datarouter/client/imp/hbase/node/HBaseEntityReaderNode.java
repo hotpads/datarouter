@@ -7,15 +7,21 @@ import java.util.NavigableSet;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.client.imp.hbase.batching.HBaseDatabeanBatchLoader;
+import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultTool;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseScatteringPrefixQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
@@ -23,13 +29,23 @@ import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.bytes.ByteRange;
+import com.hotpads.util.core.collections.Pair;
+import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.iterable.PeekableIterable;
+import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
+import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
+import com.hotpads.util.core.iterable.scanner.collate.Collator;
+import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
+import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class HBaseEntityReaderNode<
 		EK extends EntityKey<EK>,
@@ -101,7 +117,7 @@ implements HBasePhysicalNode<PK,D>,
 						gets.add(get);
 					}
 					Result[] rows = hTable.get(gets);
-					return HBaseEntityResultTool.getDatabeansWithMatchingQualifierPrefix(rows, fieldInfo);
+					return new HBaseEntityResultTool<EK,PK,D,F>(fieldInfo).getDatabeansWithMatchingQualifierPrefix(rows);
 				}
 			}).call();
 	}
@@ -132,8 +148,8 @@ implements HBasePhysicalNode<PK,D>,
 					List<PK> results = ListTool.createArrayList();
 					for(Result row : hBaseResults){
 						if(row.isEmpty()){ continue; }
-						NavigableSet<PK> pksFromSingleGet = HBaseEntityResultTool.getPrimaryKeysWithMatchingQualifierPrefix(
-								row, fieldInfo);
+						NavigableSet<PK> pksFromSingleGet = new HBaseEntityResultTool<EK,PK,D,F>(fieldInfo)
+								.getPrimaryKeysWithMatchingQualifierPrefix(row);
 						results.addAll(CollectionTool.nullSafe(pksFromSingleGet));
 					}
 					return results;
@@ -170,32 +186,132 @@ implements HBasePhysicalNode<PK,D>,
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
 			final Config pConfig){
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
+		if(wildcardLastField){
+			throw new IllegalArgumentException("currently cannot wildcardLastField in HBaseEntityNode");
+		}
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDataRouterContext(), "getWithPrefixes", this, config){
 				public List<D> hbaseCall() throws Exception{
-					List<Get> gets = ListTool.createArrayList();
-					for(PK prefix : prefixes){
-						Get get = new HBaseEntityQueryBuilder<EK,PK,D,F>(fieldInfo).getPrefixQuery(prefix, 
-								wildcardLastField, config);
-						gets.add(get);
-					}
+					List<Get> gets = new HBaseEntityQueryBuilder<EK,PK,D,F>(fieldInfo).getPrefixQueries(prefixes, config);
 					Result[] hbaseRows = hTable.get(gets);
-					return HBaseEntityResultTool.getDatabeansWithMatchingQualifierPrefix(hbaseRows, fieldInfo);
+					return new HBaseEntityResultTool<EK,PK,D,F>(fieldInfo).getDatabeansWithMatchingQualifierPrefix(hbaseRows);
 				}
 			}).call();
+	}
+	
+
+	@Deprecated
+	@Override
+	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, 
+			final PK end, final boolean endInclusive, final Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		PeekableIterable<PK> iter = scanKeys(Range.create(start, startInclusive, end, endInclusive), pConfig);
+		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
+		List<PK> results = IterableTool.createArrayListFromIterable(iter, limit);
+		return results;
+	}
+	
+
+	@Deprecated
+	@Override
+	public List<D> getRange(final PK start, final boolean startInclusive, 
+			final PK end, final boolean endInclusive, final Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		PeekableIterable<D> iter = scan(Range.create(start, startInclusive, end, endInclusive), pConfig);
+		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
+		List<D> results = IterableTool.createArrayListFromIterable(iter, limit);
+		return results;
+		
+	}
+
+	@Override
+	public List<D> getPrefixedRange(final PK prefix, final boolean wildcardLastField, 
+			final PK start, final boolean startInclusive, 
+			final Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		List<Pair<byte[],byte[]>> prefixedRanges = HBaseScatteringPrefixQueryBuilder.getPrefixedRanges(fieldInfo,  
+				prefix, wildcardLastField, start, startInclusive, null, true, config);
+		List<HBaseDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder
+				.getManualDatabeanScannersForRanges(this, fieldInfo, prefixedRanges, pConfig);
+		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
+		Iterable<D> iterable = new SortedScannerIterable<D>(collator);
+		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
+		List<D> results = IterableTool.createArrayListFromIterable(iterable, limit);
+		return results;
+	}
+	
+	@Override
+	public SortedScannerIterable<PK> scanKeys(final Range<PK> pRange, final Config pConfig){
+		Range<PK> range = Range.nullSafe(pRange);
+		List<BatchingSortedScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder
+				.getBatchingPrimaryKeyScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, range,
+						pConfig);
+		//TODO can omit the collator if only one scanner
+		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
+		return new SortedScannerIterable<PK>(collator);
+	}
+	
+	@Override
+	public SortedScannerIterable<D> scan(final Range<PK> pRange, final Config pConfig){
+		Range<PK> range = Range.nullSafe(pRange);
+		BatchLoader<D> firstBatchLoader = new HBaseDatabeanBatchLoader<PK,D,F>(this, scatteringPrefix, 
+				range, pConfig, 1L);//start the counter at 1
+		BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(getClient().getExecutorService(), firstBatchLoader);
+		return new SortedScannerIterable<D>(collator);
 	}
 		
 	
 	/***************************** helper methods **********************************/
 	
-	protected byte[] getRowBytes(EK entityKey){
+	public byte[] getRowBytes(EK entityKey){
 		if(entityKey==null){ return new byte[]{}; }
-		return FieldSetTool.getConcatenatedValueBytes(entityKey.getFields(), true, false);
+		return FieldTool.getConcatenatedValueBytes(entityKey.getFields(), true, false);
 	}
 	
-	protected byte[] getQualifierPkBytes(PK primaryKey){
+	public byte[] getQualifierPkBytes(PK primaryKey){
 		if(primaryKey==null){ return new byte[]{}; }
-		return FieldSetTool.getConcatenatedValueBytes(primaryKey.getPostEntityKeyFields(), true, true);
+		return FieldTool.getConcatenatedValueBytes(primaryKey.getPostEntityKeyFields(), true, true);
+	}
+	
+	/*
+	 * internal method to fetch a single batch of hbase rows/keys.  only public so that iterators in other packages
+	 * can use it
+	 */
+	public List<Result> getResultsInSubRange(final Range<ByteRange> rowRange, final Range<ByteRange> qualifierRange, 
+			final boolean keysOnly, final Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		final String scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "key" : "row") + " numBatches";
+		final String scanKeysVsRowsNumRows = "scan " + (keysOnly ? "key" : "row") + " numRows";
+//		final String scanKeysVsRowsNumCells = "scan " + (keysOnly ? "key" : "row") + " numCells";//need a clean way to get cell count
+		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(getDataRouterContext(), scanKeysVsRowsNumBatches,
+				this, config){
+				public List<Result> hbaseCall() throws Exception{
+					byte[] start = rowRange.getStart().copyToNewArray();
+					if(start!=null && !rowRange.getStartInclusive()){//careful: this may have already been set by scatteringPrefix logic
+						start = ByteTool.unsignedIncrement(start);
+					}
+					byte[] end = rowRange.getEnd() == null? null : rowRange.getEnd().copyToNewArray();
+//					if(end!=null && range.getEndInclusive()){//careful: this may have already been set by scatteringPrefix logic
+//						end = ByteTool.unsignedIncrement(end);
+//					}
+					
+					//start/endInclusive already adjusted for
+					Scan scan = HBaseQueryBuilder.getScanForRange(start, true, end, rowRange.getEndInclusive(), config);
+					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }
+					managedResultScanner = hTable.getScanner(scan);
+					List<Result> results = ListTool.createArrayList();
+					for(Result row : managedResultScanner){
+						if(row.isEmpty()){ continue; }
+						results.add(row);
+						if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){ break; }
+						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
+					}
+					managedResultScanner.close();
+					DRCounters.incSuffixClientNode(client.getType(), scanKeysVsRowsNumRows, getClientName(), node.getName(),  
+							CollectionTool.size(results));
+					return results;
+				}
+			}).call();
 	}
 	
 }
