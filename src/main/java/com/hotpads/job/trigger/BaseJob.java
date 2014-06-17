@@ -58,7 +58,7 @@ public abstract class BaseJob implements Job{
 		this.executor = jobEnvironment.getExecutor();
 		this.processJobsSetting = jobEnvironment.getProcessJobsSetting();
 		this.shouldSaveLongRunningTasks = jobEnvironment.getShouldSaveLongRunningTasksSetting();
-		String jobClass = this.getClass().getName();
+		String jobClass = this.getClass().getSimpleName();
 		this.serverName = jobEnvironment.getServerName();
 		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, serverName, 
 				jobEnvironment.getShouldSaveLongRunningTasksSetting(), LongRunningTaskType.job);
@@ -177,8 +177,10 @@ public abstract class BaseJob implements Job{
 	
 	@Override
 	public void trackAfterRun(Long endTime){
-		tracker.getTask().setFinishTime(new Date(endTime));
-		tracker.getTask().setJobExecutionStatus(JobExecutionStatus.success);
+		if(tracker.getTask().getJobExecutionStatus() != JobExecutionStatus.interrupted){
+			tracker.getTask().setFinishTime(new Date(endTime));
+			tracker.getTask().setJobExecutionStatus(JobExecutionStatus.success);
+		}
 		if(shouldSaveLongRunningTasks.getValue()){
 			tracker.getNode().put(tracker.getTask(), null);
 		}
