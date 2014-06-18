@@ -10,13 +10,13 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.quartz.CronExpression;
 
-import com.hotpads.job.record.JobExecutionStatus;
-import com.hotpads.job.record.LongRunningTaskTracker;
-import com.hotpads.job.record.LongRunningTaskType;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionHandlingFilter.ExceptionRecordNode;
 import com.hotpads.handler.exception.ExceptionRecord;
+import com.hotpads.job.record.JobExecutionStatus;
+import com.hotpads.job.record.LongRunningTaskTracker;
+import com.hotpads.job.record.LongRunningTaskType;
 import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
@@ -58,7 +58,7 @@ public abstract class BaseJob implements Job{
 		this.executor = jobEnvironment.getExecutor();
 		this.processJobsSetting = jobEnvironment.getProcessJobsSetting();
 		this.shouldSaveLongRunningTasks = jobEnvironment.getShouldSaveLongRunningTasksSetting();
-		String jobClass = this.getClass().getName();
+		String jobClass = this.getClass().getSimpleName();
 		this.serverName = jobEnvironment.getServerName();
 		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, serverName, 
 				jobEnvironment.getShouldSaveLongRunningTasksSetting(), LongRunningTaskType.job);
@@ -152,7 +152,6 @@ public abstract class BaseJob implements Job{
 		tracker.getTask().setJobExecutionStatus(JobExecutionStatus.running);
 		tracker.getTask().setTriggerTime(triggerTime);
 		if(shouldSaveLongRunningTasks.getValue()){
-			logger.warn("putting " + tracker.getTask());
 			tracker.getNode().put(tracker.getTask(), null);
 		}
 	}
@@ -178,8 +177,10 @@ public abstract class BaseJob implements Job{
 	
 	@Override
 	public void trackAfterRun(Long endTime){
-		tracker.getTask().setFinishTime(new Date(endTime));
-		tracker.getTask().setJobExecutionStatus(JobExecutionStatus.success);
+		if(tracker.getTask().getJobExecutionStatus() != JobExecutionStatus.interrupted){
+			tracker.getTask().setFinishTime(new Date(endTime));
+			tracker.getTask().setJobExecutionStatus(JobExecutionStatus.success);
+		}
 		if(shouldSaveLongRunningTasks.getValue()){
 			tracker.getNode().put(tracker.getTask(), null);
 		}

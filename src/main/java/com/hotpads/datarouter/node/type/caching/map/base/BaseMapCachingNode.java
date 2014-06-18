@@ -5,12 +5,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
-import junit.framework.Assert;
-
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeId;
+import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -36,8 +35,9 @@ extends BaseNode<PK,D,F>{
 	protected Long lastContact = 0L;
 	
 	public BaseMapCachingNode(N cacheNode, N backingNode){
-		super(backingNode.getRouter(), backingNode.getDatabeanType(), 
-				(Class<F>)backingNode.getFieldInfo().getFielderClass());
+		super(new NodeParamsBuilder<PK,D,F>(backingNode.getRouter(), backingNode.getDatabeanType())
+				.withFielder((Class<F>)backingNode.getFieldInfo().getFielderClass())
+				.build());
 		this.cachingNode = cacheNode;
 		this.backingNode = backingNode;
 		//use the inputs to make a unique name.  randomness will not place nicely with the counters

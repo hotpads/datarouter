@@ -46,7 +46,8 @@ public class NodeFactory{
 		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
 		
-		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, clientName, databeanClass)
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
+				.withClientName(clientName)
 				.withFielder(fielderClass)
 				.withSchemaVersion(schemaVersion);
 		N node = (N)clientType.createNode(paramsBuilder.build());
@@ -79,7 +80,8 @@ public class NodeFactory{
 		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
 		
-		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, clientName, databeanClass)
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
+				.withClientName(clientName)
 				.withFielder(fielderClass)
 				.withHibernateTableName(tableName, entityName);
 		N node = (N)clientType.createNode(paramsBuilder.build());
@@ -98,7 +100,8 @@ public class NodeFactory{
 		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
 		
-		NodeParamsBuilder<PK,D,?> paramsBuilder = new NodeParamsBuilder(router, clientName, databeanClass)
+		NodeParamsBuilder<PK,D,?> paramsBuilder = new NodeParamsBuilder(router, databeanClass)
+				.withClientName(clientName)
 				.withBaseDatabean(baseDatabeanClass);
 		N node = (N)clientType.createNode(paramsBuilder.build());
 		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);

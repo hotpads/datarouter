@@ -29,6 +29,7 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
@@ -36,6 +37,7 @@ import com.hotpads.datarouter.storage.field.imp.geo.SQuadStringField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.handler.admin.DatabeanGeneratorHandler;
+import com.hotpads.handler.admin.DatabeanGeneratorHandler.UnknownField;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -51,6 +53,7 @@ public class DatabeanGenerator {
 	private List<FieldDefinition<?>> fieldDefinitions;
 	private List<FieldDefinition<?>> keyFieldDefinitions;
 	private List<IndexDefinition> indexDefinitions;
+	private Set<IndexDefinition> uniqueIndexDefinitions;
 	private Map<String, FieldDefinition<?>> nonKeyFieldNameToFieldDefinition;
 	private Map<String, FieldDefinition<?>> keyFieldNameToFieldDefinition;
 	
@@ -71,15 +74,18 @@ public class DatabeanGenerator {
 	
 	private static class IndexDefinition{
 		List<FieldDefinition<?>> fields; 
+		Set<String> sortedFieldNames;
 		public IndexDefinition(){
 			fields = ListTool.createLinkedList();
+			sortedFieldNames = SetTool.createTreeSet();
 		}
 		public String toString(){
-			return null;
+			return getCreateScriptString();
 		}
 		
 		public void add(FieldDefinition<?> field){
 			fields.add(field);
+			sortedFieldNames.add(field.name);
 		}
 		
 		public String getCreateScriptString(){
@@ -121,12 +127,39 @@ public class DatabeanGenerator {
 			}
 			return sb.toString();
 		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null) {
+				return false;
+			}
+			if (!(obj instanceof IndexDefinition)) {
+				return false;
+			}
+			String thisFieldNames = getStringForCompare();
+			String otherFieldNames = ((IndexDefinition) obj).getStringForCompare();
+			return thisFieldNames.equals(otherFieldNames);
+		}
+
+		private String getStringForCompare() {
+			StringBuilder thisFieldNames = new StringBuilder();
+			for (String fieldName : sortedFieldNames) {
+				thisFieldNames.append(fieldName + "_");
+			}
+			return thisFieldNames.toString();
+		}
+
+		@Override
+		public int hashCode() {
+			return getStringForCompare().hashCode();
+		}
 	}
 	
 	private static class FieldDefinition<T>{
 		Class<T> type;
 		String name;
 		String genericType = null;
+		
 		public FieldDefinition(Class<T> type, String name, String genericType){
 			this.type = type;
 			this.name = name;
@@ -136,28 +169,41 @@ public class DatabeanGenerator {
 			return "private "+type.getSimpleName()+" "+name+";\n";
 		}
 		public String getPrimitiveTypeDeclarationString(){
+			if(StringTool.notEmpty(genericType)){
+				return "private "+genericType+" "+name +";";
+			};
 			String primitiveType = getSuperClassGenericParameterString();
 			return "private "+primitiveType+" "+name +";";
 		}
 		
 		public String getCreateScriptString(){
-			return type.getSimpleName()+" "+name;
+			if(type == null){
+				return name + " Field";
+			}
+			return type.getSimpleName() + (StringTool.notEmpty(genericType)?"<"+genericType+">":"") + " "+name;
 		}
 		
 		public String getJavaParamName(){
-			if(StringTool.isEmpty(name)){
-				return name;
-			}
-			StringBuilder sb = new StringBuilder();
-			for(int i = 0; i< name.length(); i++){
-				if( i> 0 && name.charAt(i) >= 65 && name.charAt(i) <=90){
-					sb.append("_");
-				}
-				sb.append(name.charAt(i));
-			}
-			return sb.toString().toUpperCase(); 
+			return StringTool.lowercaseFirstCharacter(name);
+//			if(StringTool.isEmpty(name)){
+//				return name;
+//			}
+//			StringBuilder sb = new StringBuilder();
+//			for(int i = 0; i< name.length(); i++){
+//				if( i> 0 && name.charAt(i) >= 65 && name.charAt(i) <=90){
+//					sb.append("_");
+//				}
+//				sb.append(name.charAt(i));
+//			}
+//			return sb.toString().toUpperCase(); 
 		}
 		public String getSuperClassGenericParameterString(){
+			if(StringTool.notEmpty(genericType)){
+				return StringTool.nullSafe(genericType);
+			}
+			if(type.getName().compareTo(UnknownField.class.getName()) == 0){
+				return type.getSimpleName();
+			}
 			ParameterizedType superClass = (ParameterizedType) type.getGenericSuperclass();
 			int numGenericParams = superClass.getActualTypeArguments().length;
 			String primitiveClass = superClass.getActualTypeArguments()[numGenericParams - 1].toString().replace(
@@ -193,6 +239,7 @@ public class DatabeanGenerator {
 		this.fieldDefinitions = Lists.newLinkedList();
 		this.keyFieldDefinitions = Lists.newLinkedList();
 		this.indexDefinitions = Lists.newLinkedList();
+		this.uniqueIndexDefinitions = Sets.newHashSet();
 		this.nonKeyFieldNameToFieldDefinition = Maps.newHashMap();
 		this.keyFieldNameToFieldDefinition = Maps.newHashMap();
 	}
@@ -248,7 +295,7 @@ public class DatabeanGenerator {
 			if(fieldDefinition == null){
 				return;//drop the index
 			}
-			indexDefinition.add(new FieldDefinition(fieldDefinition.type, fieldName, null));
+			indexDefinition.add(new FieldDefinition(fieldDefinition.type, fieldName, fieldDefinition.genericType));
 		}
 		
 		if(CollectionTool.notEmpty(indexDefinition.getFieldDefinitions())){
@@ -257,7 +304,11 @@ public class DatabeanGenerator {
 	}
 	
 	private void addIndex(IndexDefinition index){
+		if(uniqueIndexDefinitions.contains(index)){
+			return;
+		}
 		indexDefinitions.add(index);
+		uniqueIndexDefinitions.add(index);
 	}
 	
 	private boolean isKeyField(String fieldName){
@@ -292,7 +343,7 @@ public class DatabeanGenerator {
 			.addLine("@SuppressWarnings(\"serial\")")
 			.addLine("@"+Entity.class.getSimpleName())
 			.addLine("@"+AccessType.class.getSimpleName()+"(\"field\")")
-			.addLine("public class "+name+" extends " +BaseDatabean.class.getSimpleName()+"<"+keyClassName+", "+name+"> {")
+			.addLine("public class "+name+" extends " +BaseDatabean.class.getSimpleName()+"<"+keyClassName+","+name+"> {")
 			.add(EMPTY_LINE);
 		
 //		javaCode
@@ -325,42 +376,44 @@ public class DatabeanGenerator {
 		List<String> nonkeyDefs = Lists.newLinkedList();
 		for(FieldDefinition<?> f : 	fieldDefinitions){
 			if(STRING_ENUM_FIELDS.contains(f.type)){
-				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"<"+f.getSuperClassGenericParameterString()+">("+f.getSuperClassGenericParameterString()+".class, F."+f.getJavaParamName()+", "+f.name+", "+MySqlColumnType.class.getSimpleName()+".MAX_LENGTH_VARCHAR)");
+				nonkeyDefs.add("\t\t\t\tnew "+ f.type.getSimpleName()+"<"+f.getSuperClassGenericParameterString()+">("+f.getSuperClassGenericParameterString()+".class, F."+f.getJavaParamName()+", d."+f.name+", "+MySqlColumnType.class.getSimpleName()+".MAX_LENGTH_VARCHAR)");
 			} else  if(INTEGER_ENUM_FIELDS.contains(f.type)){
-				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"<"+f.getSuperClassGenericParameterString()+">("+f.getSuperClassGenericParameterString()+".class, F."+f.getJavaParamName()+", "+f.name+")");
-			} else if(f.type.equals(StringField.class)){
-				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"(F."+f.getJavaParamName()+", " + f.name + ", "+MySqlColumnType.class.getSimpleName()+".MAX_LENGTH_VARCHAR)");
+				nonkeyDefs.add("\t\t\t\tnew "+ f.type.getSimpleName()+"<"+f.getSuperClassGenericParameterString()+">("+f.getSuperClassGenericParameterString()+".class, F."+f.getJavaParamName()+", d."+f.name+")");
+			} else if(StringField.class.equals(f.type)){
+				nonkeyDefs.add("\t\t\t\tnew "+ f.type.getSimpleName()+"(F."+f.getJavaParamName()+", d." + f.name + ", "+MySqlColumnType.class.getSimpleName()+".MAX_LENGTH_VARCHAR)");
+			} else  if(DelimitedStringArrayField.class.equals(f.type)){
+				nonkeyDefs.add("\t\t\t\tnew "+ f.type.getSimpleName()+"(F."+f.getJavaParamName()+", \",\", d."+f.name+")");
 			} else {
-				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"(F."+f.getJavaParamName()+", "+f.name+")");	
+				nonkeyDefs.add("\t\t\t\tnew "+ f.type.getSimpleName()+"(F."+f.getJavaParamName()+", d."+f.name+")");	
 			}
 			
 		}
 		
 		javaCode
 			.add(NEW_LINE)
+			.addStarCommentLine(1, "columns")
+			.add(NEW_LINE)
 			.addLine(1, "public static class F {")
 			.addLine(2, "public static final String")
 			.addLine(Joiner.on("," + NEW_LINE).join(colDefs)+";")
 			.addLine(1, "}")
 			.add(NEW_LINE)
-			.addLine(1, "@Override")
-			.addLine(1, "public List<Field<?>> getNonKeyFields(){")
-			.addLine(2, "return FieldTool.createList(")
-			.addLine(Joiner.on("," + NEW_LINE).join(nonkeyDefs)+");")
-			.addLine(1, "}")
-			.add(NEW_LINE)
 			.addStarCommentLine(1, "fielder")
-			.add(NEW_LINE)
+			.add(EMPTY_LINE)
 			.addLine(1, "public static class "+name+"Fielder")
 			.addLine(2, "extends BaseDatabeanFielder<"+keyClassName+", "+name+">{")
+			.addLine(2, "public "+name+"Fielder(){")
+			.addLine(2, "}")
+			.addEmptyLine()
 			.addLine(2, "@Override")
 			.addLine(2, "public Class<"+keyClassName+"> getKeyFielderClass() {")
 			.addLine(3, "return "+keyClassName+".class;")
 			.addLine(2, "}")
 			.add(NEW_LINE)
-			.addLine(2, "@Override")		
-			.addLine(2, "public List<Field<?>> getNonKeyFields("+name+" "+StringTool.lowercaseFirstCharacter(name)+") {")
-			.addLine(3, "return "+StringTool.lowercaseFirstCharacter(name)+".getNonKeyFields();")
+			.addLine(2, "@Override")
+			.addLine(2, "public List<Field<?>> getNonKeyFields("+name+" d){")
+			.addLine(3, "return FieldTool.createList(")
+			.addLine(Joiner.on("," + NEW_LINE).join(nonkeyDefs)+");")
 			.addLine(2, "}")
 			.addEmptyLine();
 		
@@ -371,8 +424,9 @@ public class DatabeanGenerator {
 			.addLine(3,"Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();");
 		
 		for(IndexDefinition i: indexDefinitions){
-			javaCode.addLine(3, "indexesByName.put(\"" + i.getMySqlNameString() + "\", new "
-					+ i.getIndexClassNameString(name) + "("+makeMethodArguments(i.getFieldDefinitions())+")" + ".getFields());");
+			String indexDefinition = "indexesByName.put(\"" + i.getMySqlNameString() + "\", new "
+					+ i.getIndexClassNameString(name) + "("+makeMethodArguments(i.getFieldDefinitions())+")" + ".getFields());";
+			javaCode.addLine(3, indexDefinition);
 		}
 			
 		javaCode
@@ -395,10 +449,11 @@ public class DatabeanGenerator {
 		}
 		String keyArgs = Joiner.on(", ").join(keyArgsList);
 		javaCode
-			.addStarCommentLine(1, "constructors")
-			.add(NEW_LINE)
+			.addStarCommentLine(1, "construct")
+			.add(EMPTY_LINE)
 			.addLine(1, "public "+name+"(){")
 			.addLine(2, "this.key = new "+keyClassName+"();")
+			.add(NEW_LINE)
 			.addLine(1, "}")
 			.add(NEW_LINE)
 			.addLine(1, "public "+name+"(" +makeMethodParameters(keyFieldDefinitions) + "){")
@@ -409,7 +464,7 @@ public class DatabeanGenerator {
 		/** Keyclass methods **************************************************/
 		javaCode
 			.addStarCommentLine(1, "databean")
-			.add(NEW_LINE)
+			.add(EMPTY_LINE)
 			.addLine(1, "@Override")
 			.addLine(1, "public Class<"+keyClassName+"> getKeyClass() {")
 			.addLine(2, "return "+keyClassName+".class;")
@@ -417,12 +472,7 @@ public class DatabeanGenerator {
 			.addEmptyLine()
 			.addLine(1, "@Override")
 			.addLine(1, "public "+keyClassName+" getKey() {")
-			.addLine(2, "return this.key;")
-			.addLine(1, "}")
-			.addEmptyLine()
-			.addLine(1, "@Override")
-			.addLine(1, "public boolean isFieldAware() {")
-			.addLine(2, "return true;")
+			.addLine(2, "return key;")
 			.addLine(1, "}")
 			.addEmptyLine();
 		
@@ -461,6 +511,8 @@ public class DatabeanGenerator {
 					fDefs.add("\t\t\t\tnew "+ f.type.getSimpleName()+"<"+f.getSuperClassGenericParameterString()+">("+f.getSuperClassGenericParameterString()+".class, "+keyFieldArgument+"F."+f.getJavaParamName()+", "+f.name+")");
 				} else if(f.type.equals(StringField.class)){
 					fDefs.add("\t\t\t\tnew "+ f.type.getSimpleName()+"("+keyFieldArgument+"F."+f.getJavaParamName()+", " + f.name + ", "+MySqlColumnType.class.getSimpleName()+".MAX_LENGTH_VARCHAR)");
+				} else  if(DelimitedStringArrayField.class.equals(f.type)){
+					fDefs.add("\t\t\t\tnew "+ f.type.getSimpleName()+"("+keyFieldArgument+"F."+f.getJavaParamName()+", \",\", "+f.name+")");
 				} else {
 					fDefs.add("\t\t\t\tnew "+ f.type.getSimpleName()+"("+keyFieldArgument+"F."+f.getJavaParamName()+", "+f.name+")");	
 				}
@@ -478,8 +530,8 @@ public class DatabeanGenerator {
 				
 		/** Getters and Setters ***********************************************/
 		javaCode
-			.addStarCommentLine(1, "getters/setters")
-			.add(NEW_LINE)
+			.addStarCommentLine(1, "get/set")
+			.add(EMPTY_LINE)
 			.addLine(1, "public void setKey("+keyClassName+" key) {")
 			.addLine(2, "this.key = key;")
 			.addLine(1, "}")
@@ -491,7 +543,7 @@ public class DatabeanGenerator {
 			//get
 			javaCode
 				.addLine(1, "public "+type+" get"+capField+"(){")
-				.addLine(2, "return this."+f.name+";")
+				.addLine(2, "return "+f.name+";")
 				.addLine(1,  "}")
 				.addEmptyLine()
 			//set
@@ -506,7 +558,7 @@ public class DatabeanGenerator {
 			//get
 			javaCode
 				.addLine(1, "public "+type+" get"+capField+"(){")
-				.addLine(2, "return this.key.get"+capField+"();")
+				.addLine(2, "return key.get"+capField+"();")
 				.addLine(1, "}")
 				.addEmptyLine()
 			//set
@@ -568,15 +620,15 @@ public class DatabeanGenerator {
 		
 		List<String> colDefs = Lists.newLinkedList();
 		for(FieldDefinition<?> f : 	keyFieldDefinitions){
-			colDefs.add("\t\t" + f.getCreateScriptString());
+			colDefs.add("    " + f.getCreateScriptString());
 		}
 		createScript
-				.addLine(1, "PK{")
+				.addLine(1, "PK{", SPACE_TAB)
 				.addLine(Joiner.on("," + NEW_LINE).join(colDefs))
-				.addLine(1, "}");
+				.addLine(1, "}", SPACE_TAB);
 		colDefs = Lists.newLinkedList();
 		for(FieldDefinition<?> f : 	fieldDefinitions){
-			colDefs.add("\t" + f.getCreateScriptString());
+			colDefs.add("  " + f.getCreateScriptString());
 		}
 		if(CollectionTool.notEmpty(indexDefinitions)){
 			createScript
@@ -589,7 +641,7 @@ public class DatabeanGenerator {
 				
 		colDefs = Lists.newLinkedList();
 		for(IndexDefinition f : 	indexDefinitions){
-			colDefs.add("\t" + f.getCreateScriptString());
+			colDefs.add("  " + f.getCreateScriptString());
 		}
 		createScript
 				.addLine(Joiner.on("," + NEW_LINE).join(colDefs));
@@ -639,6 +691,8 @@ public class DatabeanGenerator {
 				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"<"+f.getSuperClassGenericParameterString()+">("+f.getSuperClassGenericParameterString()+".class, F."+f.getJavaParamName()+", "+f.name+")");
 			} else if(f.type.equals(StringField.class)){
 				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"(F."+f.getJavaParamName()+", " + f.name + ", "+MySqlColumnType.class.getSimpleName()+".MAX_LENGTH_VARCHAR)");
+			} else  if(DelimitedStringArrayField.class.equals(f.type)){
+				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"(F."+f.getJavaParamName()+", \",\", "+f.name+")");
 			} else {
 				nonkeyDefs.add("\t\t\tnew "+ f.type.getSimpleName()+"(F."+f.getJavaParamName()+", "+f.name+")");	
 			}
@@ -646,6 +700,7 @@ public class DatabeanGenerator {
 		}
 		javaCode
 			.addStarCommentLine(1, "fields")
+			.add(NEW_LINE)
 			;
 		
 		for(FieldDefinition<?> kf : keyFieldDefinitions){
@@ -654,6 +709,8 @@ public class DatabeanGenerator {
 				;
 		}
 		javaCode
+			.add(NEW_LINE)
+			.addStarCommentLine(1, "columns")
 			.add(NEW_LINE)
 			.addLine(1, "public static class F {")
 			.addLine(2, "public static final String")
@@ -669,8 +726,10 @@ public class DatabeanGenerator {
 		
 		/** Constructors ******************************************************/
 		javaCode
-			.addStarCommentLine(1, "constructors")
-			.addLine(1, keyClassName+"(){}")
+			.addStarCommentLine(1, "construct")
+			.add(NEW_LINE)
+			.addLine(1, keyClassName+"(){")
+			.addLine(1, "}")
 			.addEmptyLine()
 			.addLine(1, "public "+keyClassName+"(" + makeMethodParameters(keyFieldDefinitions) + "){")
 			;
@@ -684,7 +743,9 @@ public class DatabeanGenerator {
 			;
 
 		/** Getters and Setters ***********************************************/
-		javaCode.addStarCommentLine(1, "getters/setters");
+		javaCode
+			.addStarCommentLine(1, "get/set")
+			.add(NEW_LINE);
 		
 		for(FieldDefinition<?> kf : keyFieldDefinitions){
 			String capField = StringTool.capitalizeFirstLetter(kf.name);
@@ -692,7 +753,7 @@ public class DatabeanGenerator {
 			//get
 			javaCode
 				.addLine(1, "public "+type+" get"+capField+"(){")
-				.addLine(2, "return this." +kf.name+";")
+				.addLine(2, "return " +kf.name+";")
 				.addLine(1, "}")
 				.addEmptyLine()
 			//set
@@ -743,8 +804,10 @@ public class DatabeanGenerator {
 //			}
 			
 			String canonical = f.type.getCanonicalName();
-			if(canonical.startsWith(String.class.getPackage().getName()))
+			if(canonical.startsWith(String.class.getPackage().getName()) || 
+					canonical.equals(UnknownField.class.getCanonicalName())){
 				continue;
+			}
 			cannonicalClassNames.add(canonical);
 			if(STRING_ENUM_FIELDS.contains(f.type)){
 				containsStringEnum = true;
@@ -766,6 +829,9 @@ public class DatabeanGenerator {
 		CodeStringBuilder javaCode  = new CodeStringBuilder();
 		String lastPackagePrefix = null;
 		for(String canonical : cannonicalClassNames){
+			if(StringTool.isEmpty(canonical)){
+				continue;
+			}
 			int firstDot = canonical.indexOf('.');
 			int secondDot = canonical.indexOf('.', firstDot+1);
 			String packagePrefix = 
@@ -848,7 +914,8 @@ public class DatabeanGenerator {
 	private static final String EMPTY_LINE = "\n";
 	private static final String NEW_LINE = EMPTY_LINE;
 	private static final String TAB = "\t";
-	private static final int maxCommentLine = 114;
+	private static final String SPACE_TAB = "  ";
+	private static final int maxCommentLine = 74;
 
 	private static class CodeStringBuilder{
 		StringBuilder sb ;
@@ -866,7 +933,11 @@ public class DatabeanGenerator {
 		}
 		
 		public CodeStringBuilder addLine(int numTabs, String line){
-			addTab(numTabs);
+			return addLine(numTabs, line, TAB);
+		}
+		
+		public CodeStringBuilder addLine(int numTabs, String line, String tab){
+			addTab(numTabs, tab);
 			if(StringTool.isEmpty(line)){
 				addEmptyLine();
 				return this;
@@ -898,8 +969,12 @@ public class DatabeanGenerator {
 		}
 		
 		public CodeStringBuilder addTab(int numTabs){
+			return addTab(numTabs, TAB);
+		}
+		
+		public CodeStringBuilder addTab(int numTabs, String tab){
 			for (int i = 0; i< numTabs; i++){
-				sb.append(TAB);
+				sb.append(tab);
 			}
 			return this;
 		}

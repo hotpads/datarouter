@@ -18,7 +18,7 @@ public interface NotificationTimingStrategy {
 	/**
 	 * Minimum delay between two Notification sending (in seconds)
 	 */
-	int getStandardDelay();
+	int getStandardDelaySeconds();
 	
 	/**
 	 * NOT USED <br>

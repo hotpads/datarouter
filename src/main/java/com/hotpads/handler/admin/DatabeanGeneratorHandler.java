@@ -26,6 +26,7 @@ import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbFloatField;
 import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 import com.hotpads.datarouter.storage.field.imp.geo.SQuadStringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt15Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
@@ -61,6 +62,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		FIELD_TYPES.add(DumbFloatField.class);
 		FIELD_TYPES.add(IntegerEnumField.class);
 		FIELD_TYPES.add(StringEnumField.class);
+		FIELD_TYPES.add(VarIntEnumField.class);
 		FIELD_TYPES.add(VarIntField.class);
 		FIELD_TYPES.add(SQuadStringField.class);
 		FIELD_TYPES.add(UInt15Field.class);
@@ -140,12 +142,16 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 				for(Class<?> c: DatabeanGeneratorHandler.FIELD_TYPES){
 					String genericType = null;
 					if(DatabeanGenerator.INTEGER_ENUM_FIELDS.contains(c)){
-						continue;
+						genericType = "TempEnum";
+						//continue;
 					} else if(DatabeanGenerator.STRING_ENUM_FIELDS.contains(c)){
-						continue;
-					} else if(c.equals(UInt8Field.class)){
+						genericType = "TempEnum";
+						//continue;
+					} else 
+						if(c.equals(UInt8Field.class)){
 						continue;
 					}
+						
 					g.addKeyField(c, StringTool.lowercaseFirstCharacter(c.getSimpleName()) +"DemoKey", genericType);
 					g.addField(c, StringTool.lowercaseFirstCharacter(c.getSimpleName())+"Demo", genericType);
 				}
@@ -214,7 +220,11 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 				databeanParams.setDataBeanPackage(packageName);
 			} else if (isPKField) { //pk field line
 				line = line.replace(",", "");
-				databeanParams.addKeyField(line.split(" ")[1], line.split(" ")[0], "");
+				String enumType = StringTool.getStringSurroundedWith(line, "<", ">");
+				if (StringTool.notEmpty(enumType)) {
+					line = line.replace("<" + enumType + ">", "");
+				}
+				databeanParams.addKeyField(line.split(" ")[1], line.split(" ")[0], enumType);
 			} else if(line.startsWith("index(") || line.startsWith("index (")){ //index line
 				if(line.contains("(") && line.contains(")")){
 					line = line.substring(line.indexOf("(")+1, line.lastIndexOf(")"));
@@ -227,7 +237,11 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 				if(StringTool.isEmpty(line)) {
 					continue;
 				}
-				databeanParams.addField(line.split(" ")[1], line.split(" ")[0], "");
+				String enumType = StringTool.getStringSurroundedWith(line, "<", ">");
+				if (StringTool.notEmpty(enumType)) {
+					line = line.replace("<" + enumType + ">", "");
+				}
+				databeanParams.addField(line.split(" ")[1], line.split(" ")[0], enumType);
 			}
 		}
 	}
@@ -276,9 +290,6 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		}
 		
 		public String getJavaCode(){
-			//return toString();
-			
-			
 			DatabeanGenerator generator = new DatabeanGenerator(dataBeanName);
 			generator.setPackageName(dataBeanPackage);
 			for(int i =0; i< keyFieldNames.size(); i++){
@@ -341,7 +352,12 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 			cls = Class.forName(canonicalName);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
+			return UnknownField.class;
 		}
 		return cls;
 	}
+	
+	public static final class UnknownField {
+	}
+	
 }

@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -40,7 +41,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	
 	public BaseWriteBehindNode(Class<D> databeanClass, DataRouter router,
 			N backingNode, ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
-		super(router, databeanClass);
+		super(new NodeParamsBuilder<PK,D,DatabeanFielder<PK,D>>(router, databeanClass).build());
 		if(backingNode==null){ throw new IllegalArgumentException("backingNode cannont be null."); }
 		this.backingNode = backingNode;
 		

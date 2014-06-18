@@ -141,6 +141,12 @@ function endsWith(str1, str2){
 				var fieldName = line.split(" ")[1];
 				var fieldType = line.split(" ")[0];
 				var fieldGenericType = '';
+				var genericTypeRegExp = /<([^>]+)>/;
+				var matchResult = genericTypeRegExp.exec(fieldType);
+				if(matchResult != null){
+					fieldGenericType = matchResult[1];
+					fieldType = fieldType.replace("<" + fieldGenericType + ">", "");
+				}
 				var inputNamePrefix = 'field_';
 				var inputNamePostFix = '_' + numFields;
 				if(tableId==='keyFieldsTable'){
@@ -180,6 +186,12 @@ function endsWith(str1, str2){
 				var fieldName = line.split(" ")[1];;
 				var fieldType = line.split(" ")[0];;
 				var fieldGenericType = '';
+				var genericTypeRegExp = /<([^>]+)>/;
+				var matchResult = genericTypeRegExp.exec(fieldType);
+				if(matchResult != null){
+					fieldGenericType = matchResult[1];
+					fieldType = fieldType.replace("<" + fieldGenericType + ">", "");
+				}
 				var inputNamePrefix = 'field_';
 				var inputNamePostFix = '_' + numFields;
 				if(tableId==='keyFieldsTable'){
@@ -359,13 +371,14 @@ function endsWith(str1, str2){
 					<div>
 						<textarea id="" class="fieldTypes" spellcheck=false readonly="readonly">${fieldTypesAsString}</textarea>
 						<textarea id="createScript" class="createScriptCode" spellcheck=false>com.hotpads.demo.ClassName{
-    PK{
-        StringField stringFieldDemoKey
-    }
-        DateField dateFieldDemo,
-        LongField longFieldDemo,
-        index(dateFieldDemo), 
-        index(stringFieldDemoKey, longFieldDemo) 
+  PK{
+    StringField stringFieldDemoKey
+  }
+  DateField dateFieldDemo,
+  LongField longFieldDemo,
+  StringEnumField<TestEnum> stringEnumFieldDemo,
+  index(dateFieldDemo), 
+  index(stringFieldDemoKey, longFieldDemo) 
 }
 </textarea>
 					</div>
