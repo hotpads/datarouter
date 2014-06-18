@@ -53,17 +53,12 @@ public class FieldSetTool{
 		if(CollectionTool.isEmpty(fieldSets)){ return; }
 		int counter = 0;
 		for(FieldSet<?> fieldSet : IterableTool.nullSafe(fieldSets)){
-			//heavy on parenthesis.  optimize later
-			String conjunction = FieldTool.getSqlNameValuePairsEscapedConjunction(fieldSet.getFields());
-			if(conjunction != null){
-				if(counter == 0){
-					sql.append(" where ");
-				}else{
-					sql.append(" or ");
-				}
-				sql.append("("+conjunction+")");
-				++counter;
+			if(counter > 0){
+				sql.append(" or ");
 			}
+			//heavy on parenthesis.  optimize later
+			sql.append("("+FieldTool.getSqlNameValuePairsEscapedConjunction(fieldSet.getFields())+")");
+			++counter;
 		}
 	}
 

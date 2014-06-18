@@ -3,7 +3,7 @@ package com.hotpads.datarouter.test.client;
 import com.google.inject.ImplementedBy;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
-import com.hotpads.datarouter.node.op.combo.IndexedMapStorage;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -29,6 +29,6 @@ public interface BasicClientTestRouter extends DataRouter{
 	
 	MapStorage<PutOpTestBeanKey, PutOpTestBean> putOptTest();
 	
-	IndexedMapStorage<PutOpIdGeneratedTestBeanKey, PutOpIdGeneratedTestBean> getPutOpIdGeneratedTest();
+	IndexedSortedMapStorage<PutOpIdGeneratedTestBeanKey, PutOpIdGeneratedTestBean> getPutOpIdGeneratedTest();
 
 }

@@ -9,7 +9,7 @@ import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive.KeepAliveFielder;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
 import com.hotpads.datarouter.node.factory.NodeFactory;
-import com.hotpads.datarouter.node.op.combo.IndexedMapStorage;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
@@ -49,7 +49,7 @@ implements BasicClientTestRouter{
 
 	private MapStorage<PutOpTestBeanKey, PutOpTestBean> putOptTest;
 
-	private IndexedMapStorage<PutOpIdGeneratedTestBeanKey, PutOpIdGeneratedTestBean> putOpIdGeneratedTest;
+	private IndexedSortedMapStorage<PutOpIdGeneratedTestBeanKey, PutOpIdGeneratedTestBean> putOpIdGeneratedTest;
 
 	/********************************* constructor *****************************/
 
@@ -131,7 +131,7 @@ implements BasicClientTestRouter{
 	}
 
 	@Override
-	public IndexedMapStorage<PutOpIdGeneratedTestBeanKey, PutOpIdGeneratedTestBean> getPutOpIdGeneratedTest(){
+	public IndexedSortedMapStorage<PutOpIdGeneratedTestBeanKey, PutOpIdGeneratedTestBean> getPutOpIdGeneratedTest(){
 		return putOpIdGeneratedTest;
 	}
 
