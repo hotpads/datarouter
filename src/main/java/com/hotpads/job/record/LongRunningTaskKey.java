@@ -33,8 +33,8 @@ public class LongRunningTaskKey extends BasePrimaryKey<LongRunningTaskKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-				new LongDateField(F.triggerTime, triggerTime),
 				new StringField(F.jobClass, jobClass, LENGTH_jobClass),
+				new LongDateField(F.triggerTime, triggerTime),
 				new StringField(F.serverName, serverName, LENGTH_serverName));
 	}
 	
