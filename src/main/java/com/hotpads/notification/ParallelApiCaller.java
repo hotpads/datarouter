@@ -23,7 +23,7 @@ import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.notification.databean.NotificationRequest;
-import com.hotpads.setting.NotificationSettings;
+import com.hotpads.setting.DatarouterNotificationSettings;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
@@ -41,11 +41,11 @@ public class ParallelApiCaller {
 	private ExecutorService sender;
 	private Queue<Pair<NotificationRequest, ExceptionRecord>> queue;
 	private NotificationApiClient notificationApiClient;
-	private NotificationSettings notificationSettings;
+	private DatarouterNotificationSettings notificationSettings;
 	private Boolean last;
 
 	@Inject
-	public ParallelApiCaller(NotificationApiClient notificationApiClient, NotificationSettings notificationSettings, 
+	public ParallelApiCaller(NotificationApiClient notificationApiClient, DatarouterNotificationSettings notificationSettings, 
 			ExceptionHandlingConfig exceptionHandlingConfig) {
 		this.notificationApiClient = notificationApiClient;
 		this.queue = new LinkedBlockingQueue<Pair<NotificationRequest, ExceptionRecord>>(QUEUE_CAPACITY);

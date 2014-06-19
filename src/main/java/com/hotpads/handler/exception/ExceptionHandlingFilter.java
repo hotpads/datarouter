@@ -38,7 +38,7 @@ import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
-import com.hotpads.setting.NotificationSettings;
+import com.hotpads.setting.DatarouterNotificationSettings;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.exception.http.HttpException;
@@ -68,7 +68,7 @@ public class ExceptionHandlingFilter implements Filter {
 	private static final String ERROR = "/error";
 
 	@Inject
-	private NotificationSettings notificationSettings;
+	private DatarouterNotificationSettings notificationSettings;
 	@Inject
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
@@ -91,7 +91,7 @@ public class ExceptionHandlingFilter implements Filter {
 			ServletContext sc = filterConfig.getServletContext();
 			exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute(ATTRIBUTE_EXCEPTION_RECORD_NODE);
 			httpRequestRecordNode = (MapStorageNode<HttpRequestRecordKey, HttpRequestRecord>) sc.getAttribute(ATTRIBUTE_REQUEST_RECORD_NODE);
-			notificationSettings = (NotificationSettings) sc.getAttribute(ATTRIBUTE_NOTIFICATION_SETTINGS);
+			notificationSettings = (DatarouterNotificationSettings) sc.getAttribute(ATTRIBUTE_NOTIFICATION_SETTINGS);
 			exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
 			notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig, notificationSettings);
 			apiCaller = new ParallelApiCaller(notificationApiClient, notificationSettings, exceptionHandlingConfig);
