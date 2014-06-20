@@ -5,7 +5,7 @@ public interface NotificationTimingStrategy {
 	/**
 	 * @return The minimum age that should have a request to be process by the notification service
 	 */
-	int getMinHandelableAge();
+	int getMinSendableAgeSeconds();
 	
 	//TODO Same as getMinDelaySeconds = 0 ? so we can remove it.
 	/**
