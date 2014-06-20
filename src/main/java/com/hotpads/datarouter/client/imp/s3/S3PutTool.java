@@ -33,7 +33,7 @@ public class S3PutTool{
 //		String localFileFolder = "/mnt/hdd/zillowData/regionData/";
 //		String localFileName = "RegionGeometryModified.out";
 //		String BUCKET_files = "files.hotpads.com";
-//		String remoteFileFolder = "zillow/areas/regionData";
+//		String remoteFileFolder = "zillow/areas/regionData/";
 //		File localFile = new File(localFileFolder + localFileName);
 //		putFile(false, BUCKET_files, localFile,
 //			remoteFileFolder + localFileName,

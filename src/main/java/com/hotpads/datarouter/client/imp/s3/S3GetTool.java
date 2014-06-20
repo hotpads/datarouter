@@ -20,4 +20,14 @@ public class S3GetTool{
 		}
 	}
 	
+//	public static void main(String[] args) throws IOException{
+//		String localFileFolder = "/mnt/hdd/zillowData/regionData1/";
+//		String localFileName = "RegionGeometryModified.out";
+//		String BUCKET_files = "files.hotpads.com";
+//		String remoteFileFolder = "zillow/areas/regionData/";
+//		File localFile = new File(localFileFolder + localFileName);
+//		
+//		getFile(BUCKET_files, remoteFileFolder + localFileName, localFile);
+//	}
+	
 }
