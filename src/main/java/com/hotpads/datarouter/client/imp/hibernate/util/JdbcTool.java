@@ -16,6 +16,7 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
@@ -111,6 +112,25 @@ public class JdbcTool {
 			while(rs.next()){
 				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
+				databeans.add(databean);
+			}
+			return databeans;
+		}catch(Exception e){
+			String message = "error executing sql:"+sql.toString();
+			throw new DataAccessException(message, e);
+		}
+	}
+	
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
+	List<D> selectDatabeansAndAllowNulls(Connection connection, List<Field<?>> selectedFields, Class<D> databeanClass, String sql){
+		try{
+			PreparedStatement ps = connection.prepareStatement(sql.toString());
+			ps.execute();
+			ResultSet rs = ps.getResultSet();
+			List<D> databeans = ListTool.createArrayList();
+			while(rs.next()){
+				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
+						databeanClass, selectedFields, rs, false);
 				databeans.add(databean);
 			}
 			return databeans;

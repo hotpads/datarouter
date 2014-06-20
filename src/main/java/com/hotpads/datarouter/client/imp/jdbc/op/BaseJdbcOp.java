@@ -37,6 +37,9 @@ implements TxnOp<T>, ConnectionAware<T> {
 		if(client instanceof JdbcConnectionClient){
 			JdbcConnectionClient jdbcConnectionClient = (JdbcConnectionClient)client;
 			Connection connection = jdbcConnectionClient.getExistingConnection();
+			if(connection == null){
+				connection = jdbcConnectionClient.acquireConnection();
+			}
 			return connection;
 		}
 		return null;
