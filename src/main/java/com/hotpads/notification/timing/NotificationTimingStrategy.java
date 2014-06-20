@@ -2,6 +2,11 @@ package com.hotpads.notification.timing;
 
 public interface NotificationTimingStrategy {
 
+	/**
+	 * @return The minimum age that should have a request to be process by the notification service
+	 */
+	int getMinHandelableAge();
+	
 	//TODO Same as getMinDelaySeconds = 0 ? so we can remove it.
 	/**
 	 * NOT USED <br>
@@ -10,9 +15,11 @@ public interface NotificationTimingStrategy {
 	boolean shouldDelayFirstMessage();
 
 	/**
-	 * Minimum delay between the requesting and the sending of the Notification (in seconds)
+	 * A group where the last request is older than this age will be sent
+	 * 
+	 * If any new notification Request have been received during this delay the group is sent
 	 */
-	int getMinDelaySeconds();
+	int getMinDelaySeconds();//TODO should be renamed
 
 
 	/**
@@ -27,8 +34,9 @@ public interface NotificationTimingStrategy {
 	int getDelayGrowthRate();
 
 	/**
-	 * NOT USED <br>
-	 * saved search may be 1 hour, feeds 1 day, etc
+	 * A group where the first request is older than this age will be sent
+	 * 
+	 * Any request older than this delays will definitely trigger the sent for its group
 	 */
 	int getMaxDelaySeconds();
 
