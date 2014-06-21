@@ -23,7 +23,7 @@ import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.notification.databean.NotificationRequest;
-import com.hotpads.setting.NotificationSettings;
+import com.hotpads.setting.DatarouterNotificationSettings;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
@@ -41,11 +41,11 @@ public class ParallelApiCaller {
 	private ExecutorService sender;
 	private Queue<Pair<NotificationRequest, ExceptionRecord>> queue;
 	private NotificationApiClient notificationApiClient;
-	private NotificationSettings notificationSettings;
+	private DatarouterNotificationSettings notificationSettings;
 	private Boolean last;
 
 	@Inject
-	public ParallelApiCaller(NotificationApiClient notificationApiClient, NotificationSettings notificationSettings, 
+	public ParallelApiCaller(NotificationApiClient notificationApiClient, DatarouterNotificationSettings notificationSettings, 
 			ExceptionHandlingConfig exceptionHandlingConfig) {
 		this.notificationApiClient = notificationApiClient;
 		this.queue = new LinkedBlockingQueue<Pair<NotificationRequest, ExceptionRecord>>(QUEUE_CAPACITY);
@@ -94,7 +94,7 @@ public class ParallelApiCaller {
 	private long getCoef() {
 		if (last == null || last != notificationSettings.getIgnoreSsl().getValue()) {
 			last = notificationSettings.getIgnoreSsl().getValue();
-			return 2l;
+			return 2l;//TODO may be 3 (or 4)
 		} else {
 			return 1l;
 		}
@@ -136,7 +136,7 @@ public class ParallelApiCaller {
 			String subject = "(EMERGENCY notification) " + object + requests.get(0).getLeft().getChannel();
 			StringBuilder builder = new StringBuilder();
 			builder.append("<h1>" + requests.size() + " error" + (requests.size() > 1 ? "s" : "") + " occurred </h1>");
-			builder.append("<h2>You received this direct e-mail because the notification service did not respond in time</h2>");
+			builder.append("<h2>You received this direct e-mail because the notification service did not respond in time.</h2>");
 			if (requests.get(0).getRight() == null) {
 				builder.append("<p>Type : ");
 				builder.append(requests.get(0).getLeft().getType());

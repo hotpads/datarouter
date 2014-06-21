@@ -12,6 +12,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 
 public class S3PutTool{
 
+	//can only upload upto 5GB for a single file.
 	public static void putFile(boolean createBucket, String bucketName, File file, String key,
 			CannedAccessControlList acl, String contentType, String cacheControl) throws IOException{
 		try{
@@ -27,5 +28,18 @@ public class S3PutTool{
 			throw new S3Exception(e);
 		}
 	}
+	
+//	public static void main(String[] args) throws IOException{
+//		String localFileFolder = "/mnt/hdd/zillowData/regionData/";
+//		String localFileName = "RegionGeometryModified.out";
+//		String BUCKET_files = "files.hotpads.com";
+//		String remoteFileFolder = "zillow/areas/regionData/";
+//		File localFile = new File(localFileFolder + localFileName);
+//		putFile(false, BUCKET_files, localFile,
+//			remoteFileFolder + localFileName,
+//			CannedAccessControlList.Private,
+//			S3Headers.ContentType.GZIP.getMimeType(), 
+//			S3Headers.CACHE_CONTROL_NO_CACHE);
+//	}
 	
 }
