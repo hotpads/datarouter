@@ -9,16 +9,16 @@ import com.hotpads.setting.cluster.SettingNode;
 @Singleton
 public class DatarouterSettings extends SettingNode {
 
-	private NotificationSettings notificationSettings;
+	private DatarouterNotificationSettings notificationSettings;
 
 	@Inject
-	public DatarouterSettings(ClusterSettingFinder finder, NotificationSettings notificationSettings) {
+	public DatarouterSettings(ClusterSettingFinder finder, DatarouterNotificationSettings notificationSettings) {
 		super(finder, "datarouter.", "");
 		this.notificationSettings = notificationSettings;
 		children.put(notificationSettings.getName(), notificationSettings);
 	}
 
-	public NotificationSettings getNotificationSettings() {
+	public DatarouterNotificationSettings getNotificationSettings() {
 		return notificationSettings;
 	}
 
