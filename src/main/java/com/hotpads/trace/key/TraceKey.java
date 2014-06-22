@@ -27,26 +27,6 @@ public class TraceKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceKey>{
 			id = "id";
 	}
 	
-	@Override
-	public TraceEntityKey getEntityKey(){
-		return new TraceEntityKey(id);
-	}
-	
-	@Override
-	public TraceKey prefixFromEntityKey(TraceEntityKey entityKey){
-		return new TraceKey(entityKey.getTraceId());
-	}
-	
-	@Override
-	public List<Field<?>> getEntityKeyFields(){
-		return getEntityKey().getFields(getEntityKey());
-	}
-	
-	@Override
-	public List<Field<?>> getPostEntityKeyFields(){
-		return FieldTool.createList();
-	}
-	
 	//fielder for entity case
 	//this may not actually matter since column names
 	public static class TraceKeyEntityFielder implements PrimaryKeyFielder<TraceKey>{
@@ -74,6 +54,23 @@ public class TraceKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceKey>{
 		public boolean isEntity(){
 			return false;
 		}
+	}
+	
+	/********************** entity ************************/
+	
+	@Override
+	public TraceEntityKey getEntityKey(){
+		return new TraceEntityKey(id);
+	}
+	
+	@Override
+	public TraceKey prefixFromEntityKey(TraceEntityKey entityKey){
+		return new TraceKey(entityKey.getTraceId());
+	}
+	
+	@Override
+	public List<Field<?>> getPostEntityKeyFields(){
+		return FieldTool.createList();
 	}
 	
 	
