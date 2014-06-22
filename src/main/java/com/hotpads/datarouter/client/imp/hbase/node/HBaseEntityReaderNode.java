@@ -273,6 +273,9 @@ implements HBasePhysicalNode<PK,D>,
 	/*
 	 * internal method to fetch a single batch of hbase rows/keys.  only public so that iterators in other packages
 	 * can use it
+	 * 
+	 * warning: we cannot currently limit the number of databeans/pks, only hbase rows.  be aware that it will probably
+	 * return more databeans/pks than iterateBatchSize
 	 */
 	public List<Result> getResultsInSubRange(final Range<PK> rowRange, final boolean keysOnly, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
