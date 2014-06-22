@@ -42,8 +42,11 @@ public class DatabeanFieldInfo<
 	private String clientName;
 	private String tableName;
 	private String packagedTableName;
+	private String entityName;
+	private String entityNodePrefix;
+	private byte[] entityNodeColumnPrefixBytes;
 	private String explicitNodeName;
-	private byte[] entityColumnPrefixBytes;
+	
 	
 	private boolean entity = false;
 	private Class<EntityKey<?>> entityKeyClass;
@@ -163,7 +166,9 @@ public class DatabeanFieldInfo<
 			this.tableName = params.getDatabeanClass().getSimpleName();
 			this.packagedTableName = params.getDatabeanClass().getName();
 		}
-		this.entityColumnPrefixBytes = ByteTool.concatenate(StringByteTool.getUtf8Bytes(tableName), 
+		this.entityName = params.getEntityName();
+		this.entityNodePrefix = params.getEntityNodePrefix();
+		this.entityNodeColumnPrefixBytes = ByteTool.concatenate(StringByteTool.getUtf8Bytes(entityNodePrefix), 
 				ByteTool.SINGLE_ZERO_BYTE);
 		
 		assertAssertions();
@@ -436,13 +441,20 @@ public class DatabeanFieldInfo<
 		return clientName;
 	}
 
+	public String getEntityName(){
+		return entityName;
+	}
+
+	public String getEntityNodePrefix(){
+		return entityNodePrefix;
+	}
+
 	public byte[] getEntityColumnPrefixBytes(){
-		return entityColumnPrefixBytes;
+		return entityNodeColumnPrefixBytes;
 	}
 
 	public java.lang.reflect.Field getKeyJavaField(){
 		return keyJavaField;
 	}
-	
 
 }

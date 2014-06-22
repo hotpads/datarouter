@@ -11,11 +11,29 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
-import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 
 public class NodeFactory{
-	static Logger logger = Logger.getLogger(NodeFactory.class);
+	private static Logger logger = Logger.getLogger(NodeFactory.class);
+	
+	/********************* pass any params *****************/
+	
+	public static <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>> 
+	N create(NodeParams<PK,D,F> params){
+		String clientName = params.getClientName();
+		ClientType clientType = params.getRouter().getClientOptions().getClientTypeInstance(clientName);
+		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
+		N node = (N)clientType.createNode(params);
+		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+	}
+	
+	
+	/*************** simple helpers *********************/
 	
 	//minimum required fields
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> 
@@ -30,10 +48,10 @@ public class NodeFactory{
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
 	N create(//4 args
-		String clientName, 
-		Class<D> databeanClass, 
-		Class<F> fielderClass,
-		DataRouter router){
+			String clientName, 
+			Class<D> databeanClass, 
+			Class<F> fielderClass,
+			DataRouter router){
 		return create(clientName, databeanClass, fielderClass, null, router);
 	}
 	
@@ -45,16 +63,12 @@ public class NodeFactory{
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
 			Integer schemaVersion,
-			DataRouter router){		
-		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
-		
+			DataRouter router){				
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
 				.withFielder(fielderClass)
 				.withSchemaVersion(schemaVersion);
-		N node = (N)clientType.createNode(paramsBuilder.build());
-		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+		return create(paramsBuilder.build());
 	}
 	
 	
@@ -80,21 +94,17 @@ public class NodeFactory{
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
 			DataRouter router){
-		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
-		
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
 				.withFielder(fielderClass)
 				.withHibernateTableName(tableName, entityName);
-		N node = (N)clientType.createNode(paramsBuilder.build());
-		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+		return create(paramsBuilder.build());
 	}
 	
 	
 	/***************** entity ***************************/
 
-	public static <EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>,
+	public static <EK extends EntityKey<EK>,PK extends BaseEntityPrimaryKey<EK,PK>,D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
 	N entityNode(//specify entityName and entityNodePrefix
 			DataRouter router,
@@ -104,15 +114,12 @@ public class NodeFactory{
 			String entityName,
 			String entityNodePrefix
 			){
-		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
-
-		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
-				.withClientName(clientName)
-				.withFielder(fielderClass)
-				.withEntity(entityName, entityNodePrefix);
-		N node = (N)clientType.createNode(paramsBuilder.build());
-		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+//		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
+//				.withClientName(clientName)
+//				.withFielder(fielderClass)
+//				.withEntity(entityName, entityNodePrefix);
+//		return create(paramsBuilder.build());
+		return null;
 	}	
 	
 	
@@ -124,13 +131,9 @@ public class NodeFactory{
 			Class<D> databeanClass, 
 			Class<? super D> baseDatabeanClass,
 			DataRouter router){
-		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
-		
 		NodeParamsBuilder<PK,D,?> paramsBuilder = new NodeParamsBuilder(router, databeanClass)
 				.withClientName(clientName)
 				.withBaseDatabean(baseDatabeanClass);
-		N node = (N)clientType.createNode(paramsBuilder.build());
-		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+		return create(paramsBuilder.build());
 	}
 }

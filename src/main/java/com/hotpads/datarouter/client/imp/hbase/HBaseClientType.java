@@ -7,11 +7,13 @@ import javax.inject.Singleton;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.util.core.StringTool;
 
 @Singleton
 public class HBaseClientType
@@ -39,6 +41,12 @@ implements ClientType{
 	
 	@Override
 	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
+		if(StringTool.notEmpty(nodeParams.getEntityName())){
+			if(StringTool.isEmpty(nodeParams.getEntityNodePrefix())){
+				throw new IllegalArgumentException("must specify entityNodePrefix with entityName");
+			}
+			return new HBaseEntityNode(nodeParams);
+		}
 		return new HBaseNode(nodeParams);
 	}
 
