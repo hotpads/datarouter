@@ -39,9 +39,8 @@ extends BaseHBaseEntityBatchLoader<EK,PK,D,F,PK>{
 	
 	@Override
 	protected List<PK> parseHBaseResult(Result result){
-		NavigableSet<PK> pks = new HBaseEntityResultParser<EK,PK,D,F>(node.getFieldInfo())
-				.getPrimaryKeysWithMatchingQualifierPrefix(result);
-		return ListTool.createArrayList(pks);
+		//the first and last entity may include results outside the range
+		return range.filter(node.getResultParser().getPrimaryKeysWithMatchingQualifierPrefix(result));
 	}
 	
 	@Override

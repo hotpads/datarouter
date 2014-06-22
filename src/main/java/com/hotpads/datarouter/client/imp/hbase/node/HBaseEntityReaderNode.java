@@ -39,6 +39,7 @@ import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
+import com.hotpads.util.core.iterable.scanner.imp.ListBackedSortedScanner;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class HBaseEntityReaderNode<
@@ -229,7 +230,7 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		final Range<PK> range = Range.nullSafe(pRange);
 		final Range<EK> ekRange = queryBuilder.getEkRange(range);
-		if(ekRange.hasStart() && ekRange.equalsStartEnd()){//single row, use Get
+		if(ekRange.hasStart() && ekRange.equalsStartEnd()){//single row.  use Get.  gets all pks in entity.  no way to limit rows
 			List<PK> pks = new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDataRouterContext(), "scanPksInEntity", this, config){
 				public List<PK> hbaseCall() throws Exception{
 					Get get = queryBuilder.getSingleRowRange(range.getStart().getEntityKey(), range, true);
@@ -237,7 +238,7 @@ implements HBasePhysicalNode<PK,D>,
 					return ListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(
 							result));	
 				}}).call();
-			return pks;
+			return new SortedScannerIterable<PK>(new ListBackedSortedScanner<PK>(pks));
 		}else{
 			BatchLoader<PK> firstBatchLoader = new HBaseEntityPrimaryKeyBatchLoader<EK,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
 			BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(getClient().getExecutorService(), firstBatchLoader);
@@ -250,7 +251,7 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		final Range<PK> range = Range.nullSafe(pRange);
 		final Range<EK> ekRange = queryBuilder.getEkRange(range);
-		if(ekRange.hasStart() && ekRange.equalsStartEnd()){//single row, use Get
+		if(ekRange.hasStart() && ekRange.equalsStartEnd()){//single row.  use Get.  gets all databeans in entity.  no way to limit rows
 			List<D> databeans = new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDataRouterContext(), "scanInEntity", this, config){
 				public List<D> hbaseCall() throws Exception{
 					Get get = queryBuilder.getSingleRowRange(range.getStart().getEntityKey(), range, false);
@@ -258,7 +259,7 @@ implements HBasePhysicalNode<PK,D>,
 					return resultParser.getDatabeansWithMatchingQualifierPrefix(
 							result);	
 				}}).call();
-			return databeans;
+			return new SortedScannerIterable<D>(new ListBackedSortedScanner<D>(databeans));
 		}else{
 			BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<EK,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
 			BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(getClient().getExecutorService(), firstBatchLoader);
@@ -302,5 +303,12 @@ implements HBasePhysicalNode<PK,D>,
 				}
 			}).call();
 	}
+	
+	
+	/********************* get/set *******************************/
+
+	public HBaseEntityResultParser<EK,PK,D,F> getResultParser(){
+		return resultParser;
+	}	
 	
 }
