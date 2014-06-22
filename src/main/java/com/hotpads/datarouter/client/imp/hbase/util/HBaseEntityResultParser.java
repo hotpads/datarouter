@@ -24,7 +24,7 @@ import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class HBaseEntityResultTool<
+public class HBaseEntityResultParser<
 		EK extends EntityKey<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
@@ -33,7 +33,7 @@ public class HBaseEntityResultTool<
 	private DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
 	
-	public HBaseEntityResultTool(DatabeanFieldInfo<PK,D,F> fieldInfo){
+	public HBaseEntityResultParser(DatabeanFieldInfo<PK,D,F> fieldInfo){
 		this.fieldInfo = fieldInfo;
 	}
 

@@ -13,7 +13,6 @@ import org.apache.hadoop.hbase.client.Scan;
 
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -30,10 +29,8 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.bytes.StringByteTool;
 
 public class HBaseEntityNode<
 		EK extends EntityKey<EK>,
@@ -78,12 +75,12 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					long batchStartTime = System.currentTimeMillis();
 					Map<EK,List<D>> databeansByEntityKey = EntityTool.getDatabeansByEntityKey(databeans);
 					for(EK ek : databeansByEntityKey.keySet()){
-						byte[] ekBytes = getRowBytes(ek);
+						byte[] ekBytes = queryBuilder.getRowBytes(ek);
 						Put put = new Put(ekBytes);
 						Delete delete = new Delete(ekBytes);
 						for(D databean : databeansByEntityKey.get(ek)){
 							PK pk = databean.getKey();
-							byte[] qualifierPkBytes = getQualifierPkBytes(pk);
+							byte[] qualifierPkBytes = queryBuilder.getQualifierPkBytes(pk);
 							List<Field<?>> fields = fieldInfo.getNonKeyFieldsWithValues(databean);
 							for(Field<?> field : fields){//TODO only put modified fields
 								byte[] fullQualifierBytes = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
@@ -171,12 +168,11 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					Map<EK,List<PK>> pksByEk = EntityTool.getPrimaryKeysByEntityKey(keys);
 					ArrayList<Row> deletes = ListTool.createArrayList();//api requires ArrayList
 					for(EK ek : pksByEk.keySet()){
-						byte[] rowBytes = getRowBytes(ek);
+						byte[] rowBytes = queryBuilder.getRowBytes(ek);
 						for(PK pk : pksByEk.get(ek)){
 							for(String columnName : nonKeyColumnNames){//TODO only put modified fields
 								Delete delete = new Delete(rowBytes);
-								byte[] qualifier = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
-										getQualifierPkBytes(pk), StringByteTool.getUtf8Bytes(columnName));
+								byte[] qualifier = queryBuilder.getQualifier(pk, columnName);
 								delete.deleteColumns(FAM, qualifier);
 								deletes.add(delete);
 							}

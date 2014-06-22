@@ -7,7 +7,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultTool;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultParser;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -39,7 +39,7 @@ extends BaseHBaseEntityBatchLoader<EK,PK,D,F,PK>{
 	
 	@Override
 	protected List<PK> parseHBaseResult(Result result){
-		NavigableSet<PK> pks = new HBaseEntityResultTool<EK,PK,D,F>(node.getFieldInfo())
+		NavigableSet<PK> pks = new HBaseEntityResultParser<EK,PK,D,F>(node.getFieldInfo())
 				.getPrimaryKeysWithMatchingQualifierPrefix(result);
 		return ListTool.createArrayList(pks);
 	}

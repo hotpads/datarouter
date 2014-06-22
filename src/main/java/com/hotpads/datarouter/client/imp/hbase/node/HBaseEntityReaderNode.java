@@ -18,7 +18,7 @@ import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityPrimar
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityQueryBuilder;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultTool;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultParser;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
@@ -27,11 +27,9 @@ import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -56,12 +54,15 @@ implements HBasePhysicalNode<PK,D>,
 	
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = HBaseReaderNode.DEFAULT_ITERATE_BATCH_SIZE;
 	
-	protected byte[] columnPrefixBytes;
+	protected HBaseEntityQueryBuilder<EK,PK,D,F> queryBuilder;
+	protected HBaseEntityResultParser<EK,PK,D,F> resultParser;
 	
 	/******************************* constructors ************************************/
 	
 	public HBaseEntityReaderNode(NodeParams<PK,D,F> params){
 		super(params);
+		this.queryBuilder = new HBaseEntityQueryBuilder<EK,PK,D,F>(fieldInfo);
+		this.resultParser = new HBaseEntityResultParser<EK,PK,D,F>(fieldInfo);
 	}
 	
 	
@@ -103,17 +104,15 @@ implements HBasePhysicalNode<PK,D>,
 					DRCounters.incSuffixClientNode(client.getType(), "getMulti rows", getClientName(), node.getName(), 
 							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
-					for(PK key : keys){
-						byte[] rowBytes = getRowBytes(key.getEntityKey());
+					for(PK pk : keys){
+						byte[] rowBytes = queryBuilder.getRowBytes(pk.getEntityKey());
 						Get get = new Get(rowBytes);
-						byte[] qualifierPkBytes = getQualifierPkBytes(key);
-						byte[] qualifierPrefix = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), 
-								qualifierPkBytes);
+						byte[] qualifierPrefix = queryBuilder.getQualifierPrefix(pk);
 						get.setFilter(new ColumnPrefixFilter(qualifierPrefix));
 						gets.add(get);
 					}
 					Result[] rows = hTable.get(gets);
-					return new HBaseEntityResultTool<EK,PK,D,F>(fieldInfo).getDatabeansWithMatchingQualifierPrefix(rows);
+					return resultParser.getDatabeansWithMatchingQualifierPrefix(rows);
 				}
 			}).call();
 	}
@@ -128,11 +127,9 @@ implements HBasePhysicalNode<PK,D>,
 					DRCounters.incSuffixClientNode(client.getType(), "getKeys rows", getClientName(), node.getName(), 
 							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
-					for(PK key : keys){
-						byte[] rowBytes = getRowBytes(key.getEntityKey());
-						byte[] qualifierPkBytes = getQualifierPkBytes(key);
-						byte[] qualifierPrefix = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), 
-								qualifierPkBytes);
+					for(PK pk : keys){
+						byte[] rowBytes = queryBuilder.getRowBytes(pk.getEntityKey());
+						byte[] qualifierPrefix = queryBuilder.getQualifierPrefix(pk);
 						FilterList filters = new FilterList();
 						filters.addFilter(new KeyOnlyFilter());
 						filters.addFilter(new ColumnPrefixFilter(qualifierPrefix));
@@ -144,8 +141,7 @@ implements HBasePhysicalNode<PK,D>,
 					List<PK> results = ListTool.createArrayList();
 					for(Result row : hBaseResults){
 						if(row.isEmpty()){ continue; }
-						NavigableSet<PK> pksFromSingleGet = new HBaseEntityResultTool<EK,PK,D,F>(fieldInfo)
-								.getPrimaryKeysWithMatchingQualifierPrefix(row);
+						NavigableSet<PK> pksFromSingleGet = resultParser.getPrimaryKeysWithMatchingQualifierPrefix(row);
 						results.addAll(CollectionTool.nullSafe(pksFromSingleGet));
 					}
 					return results;
@@ -190,7 +186,7 @@ implements HBasePhysicalNode<PK,D>,
 				public List<D> hbaseCall() throws Exception{
 					List<Get> gets = new HBaseEntityQueryBuilder<EK,PK,D,F>(fieldInfo).getPrefixQueries(prefixes, config);
 					Result[] hbaseRows = hTable.get(gets);
-					return new HBaseEntityResultTool<EK,PK,D,F>(fieldInfo).getDatabeansWithMatchingQualifierPrefix(hbaseRows);
+					return resultParser.getDatabeansWithMatchingQualifierPrefix(hbaseRows);
 				}
 			}).call();
 	}
@@ -230,32 +226,48 @@ implements HBasePhysicalNode<PK,D>,
 	
 	@Override
 	public SortedScannerIterable<PK> scanKeys(final Range<PK> pRange, final Config pConfig){
-		Range<PK> range = Range.nullSafe(pRange);
-		BatchLoader<PK> firstBatchLoader = new HBaseEntityPrimaryKeyBatchLoader<EK,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
-		BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(getClient().getExecutorService(), firstBatchLoader);
-		return new SortedScannerIterable<PK>(scanner);
+		final Config config = Config.nullSafe(pConfig);
+		final Range<PK> range = Range.nullSafe(pRange);
+		final Range<EK> ekRange = queryBuilder.getEkRange(range);
+		if(ekRange.hasStart() && ekRange.equalsStartEnd()){//single row, use Get
+			List<PK> pks = new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDataRouterContext(), "scanPksInEntity", this, config){
+				public List<PK> hbaseCall() throws Exception{
+					Get get = queryBuilder.getSingleRowRange(range.getStart().getEntityKey(), range, true);
+					Result result = hTable.get(get);
+					return ListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(
+							result));	
+				}}).call();
+			return pks;
+		}else{
+			BatchLoader<PK> firstBatchLoader = new HBaseEntityPrimaryKeyBatchLoader<EK,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
+			BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(getClient().getExecutorService(), firstBatchLoader);
+			return new SortedScannerIterable<PK>(scanner);
+		}
 	}
 	
 	@Override
 	public SortedScannerIterable<D> scan(final Range<PK> pRange, final Config pConfig){
-		Range<PK> range = Range.nullSafe(pRange);
-		BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<EK,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
-		BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(getClient().getExecutorService(), firstBatchLoader);
-		return new SortedScannerIterable<D>(scanner);
+		final Config config = Config.nullSafe(pConfig);
+		final Range<PK> range = Range.nullSafe(pRange);
+		final Range<EK> ekRange = queryBuilder.getEkRange(range);
+		if(ekRange.hasStart() && ekRange.equalsStartEnd()){//single row, use Get
+			List<D> databeans = new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDataRouterContext(), "scanInEntity", this, config){
+				public List<D> hbaseCall() throws Exception{
+					Get get = queryBuilder.getSingleRowRange(range.getStart().getEntityKey(), range, false);
+					Result result = hTable.get(get);
+					return resultParser.getDatabeansWithMatchingQualifierPrefix(
+							result);	
+				}}).call();
+			return databeans;
+		}else{
+			BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<EK,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
+			BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(getClient().getExecutorService(), firstBatchLoader);
+			return new SortedScannerIterable<D>(scanner);
+		}
 	}
 		
 	
 	/***************************** helper methods **********************************/
-	
-	public byte[] getRowBytes(EK entityKey){
-		if(entityKey==null){ return new byte[]{}; }
-		return FieldTool.getConcatenatedValueBytes(entityKey.getFields(), true, false);
-	}
-	
-	public byte[] getQualifierPkBytes(PK primaryKey){
-		if(primaryKey==null){ return new byte[]{}; }
-		return FieldTool.getConcatenatedValueBytes(primaryKey.getPostEntityKeyFields(), true, true);
-	}
 	
 	/*
 	 * internal method to fetch a single batch of hbase rows/keys.  only public so that iterators in other packages
@@ -269,19 +281,12 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(getDataRouterContext(), scanKeysVsRowsNumBatches,
 				this, config){
 				public List<Result> hbaseCall() throws Exception{
-					ByteRange rowStartBytes = null;
-					if(rowRange.hasStart()){
-						rowStartBytes = new ByteRange(getRowBytes(rowRange.getStart().getEntityKey()));
-					}
-					ByteRange rowEndBytes = null;
-					if(rowRange.hasEnd()){
-						rowEndBytes = new ByteRange(getRowBytes(rowRange.getEnd().getEntityKey()));
-					}
-					Range<ByteRange> rowByteRange = Range.create(rowStartBytes, rowRange.getStartInclusive(), 
-							rowEndBytes, rowRange.getEndInclusive());
-					//start/endInclusive already adjusted for
-					Scan scan = HBaseQueryBuilder.getScanForRange(rowByteRange, config);
-					if(keysOnly){ scan.setFilter(new KeyOnlyFilter()); }
+					Range<ByteRange> rowBytesRange = queryBuilder.getRowRange(rowRange);
+					Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, config);
+					FilterList filterList = new FilterList();
+					if(keysOnly){ filterList.addFilter(new KeyOnlyFilter()); }
+					filterList.addFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
+					scan.setFilter(filterList);
 					managedResultScanner = hTable.getScanner(scan);
 					List<Result> results = ListTool.createArrayList();
 					for(Result row : managedResultScanner){
