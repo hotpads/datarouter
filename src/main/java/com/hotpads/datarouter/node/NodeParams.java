@@ -28,6 +28,9 @@ public class NodeParams<
 	private final String physicalName;
 	private final String qualifiedPhysicalName;//weird hibernate requirement ("entity name")
 	
+	private final String entityName;
+	private final String entityNodePrefix;
+	
 	//for proxy nodes (like http node)
 	private final String remoteRouterName;
 	private final String remoteNodeName;
@@ -36,7 +39,7 @@ public class NodeParams<
 	
 	public NodeParams(DataRouter router, String clientName, Class<D> databeanClass, Class<F> fielderClass,
 			Integer schemaVersion, Class<? super D> baseDatabeanClass, String physicalName, String qualifiedPhysicalName,
-			String remoteRouterName, String remoteNodeName){
+			String entityName, String entityNodePrefix, String remoteRouterName, String remoteNodeName){
 		this.router = router;
 		this.clientName = clientName;
 		this.databeanClass = databeanClass;
@@ -45,6 +48,8 @@ public class NodeParams<
 		this.baseDatabeanClass = baseDatabeanClass;
 		this.physicalName = physicalName;
 		this.qualifiedPhysicalName = qualifiedPhysicalName;
+		this.entityName = entityName;
+		this.entityNodePrefix = entityNodePrefix;
 		this.remoteRouterName = remoteRouterName;
 		this.remoteNodeName = remoteNodeName;
 	}
@@ -68,6 +73,9 @@ public class NodeParams<
 		
 		private String physicalName;
 		private String qualifiedPhysicalName;
+		
+		private String entityName;
+		private String entityNodePrefix;
 
 		private String remoteRouterName;
 		private String remoteNodeName;
@@ -79,6 +87,15 @@ public class NodeParams<
 			this.router = router;
 			this.databeanClass = databeanClass;
 		}
+		
+		//save the caller from specifying generics
+//		public static <
+//				PK extends PrimaryKey<PK>,
+//				D extends Databean<PK,D>,
+//				F extends DatabeanFielder<PK,D>> 
+//		NodeParamsBuilder<PK,D,F> create(DataRouter router, Class<D> databeanClass){
+//			return new NodeParamsBuilder<PK,D,F>(router, databeanClass);
+//		}
 		
 		
 		/************* with *******************/
@@ -101,7 +118,7 @@ public class NodeParams<
 		public NodeParamsBuilder<PK,D,F> withBaseDatabean(Class<? super D> baseDatabeanClass){
 			this.baseDatabeanClass = baseDatabeanClass;
 			return this;
-		}	
+		}
 		
 		public NodeParamsBuilder<PK,D,F> withTableName(String physicalName){
 			this.physicalName = physicalName;
@@ -111,6 +128,12 @@ public class NodeParams<
 		public NodeParamsBuilder<PK,D,F> withHibernateTableName(String physicalName, String qualifiedPhysicalName){
 			this.physicalName = physicalName;
 			this.qualifiedPhysicalName = qualifiedPhysicalName;
+			return this;
+		}
+
+		public NodeParamsBuilder<PK,D,F> withEntity(String entityName, String entityNodePrefix){
+			this.entityName = entityName;
+			this.entityNodePrefix = entityNodePrefix;
 			return this;
 		}
 		
@@ -125,7 +148,7 @@ public class NodeParams<
 		
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(router, clientName, databeanClass, fielderClass, schemaVersion, baseDatabeanClass,
-					physicalName, qualifiedPhysicalName, remoteRouterName, remoteNodeName);
+					physicalName, qualifiedPhysicalName, entityName, entityNodePrefix, remoteRouterName, remoteNodeName);
 		}
 	}
 
@@ -170,6 +193,14 @@ public class NodeParams<
 
 	public String getRemoteNodeName(){
 		return remoteNodeName;
+	}
+
+	public String getEntityName(){
+		return entityName;
+	}
+
+	public String getEntityNodePrefix(){
+		return entityNodePrefix;
 	}
 	
 	

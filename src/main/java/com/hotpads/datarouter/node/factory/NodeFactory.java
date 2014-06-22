@@ -5,10 +5,13 @@ import org.apache.log4j.Logger;
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.entity.EntityKey;
+import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class NodeFactory{
@@ -87,6 +90,30 @@ public class NodeFactory{
 		N node = (N)clientType.createNode(paramsBuilder.build());
 		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
 	}
+	
+	
+	/***************** entity ***************************/
+
+	public static <EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
+	N entityNode(//specify entityName and entityNodePrefix
+			DataRouter router,
+			String clientName,
+			Class<D> databeanClass, 
+			Class<F> fielderClass,
+			String entityName,
+			String entityNodePrefix
+			){
+		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
+		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
+
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
+				.withClientName(clientName)
+				.withFielder(fielderClass)
+				.withEntity(entityName, entityNodePrefix);
+		N node = (N)clientType.createNode(paramsBuilder.build());
+		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+	}	
 	
 	
 	/*************** baseDatabeanClass ********************/

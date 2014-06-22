@@ -18,6 +18,12 @@ import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class TraceEntityNode extends BaseEntityNode<TraceEntityKey,TraceEntity>{
+	
+	private static final String
+		ENTITY_TraceEntity = "TraceEntity",
+		NODE_PREFIX_Trace = "T",
+		NODE_PREFIX_TraceThread = "TT",
+		NODE_PREFIX_TraceSpan = "TS";
 
 	public SortedMapStorageNode<TraceKey,Trace> trace;
 	public SortedMapStorageNode<TraceThreadKey,TraceThread> traceThread;
@@ -29,16 +35,16 @@ public class TraceEntityNode extends BaseEntityNode<TraceEntityKey,TraceEntity>{
 	}
 	
 	private void initNodes(DataRouter router, String clientName){
-		trace = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
-				Trace.class, TraceFielder.class, router)));
+		trace = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
+				Trace.class, TraceFielder.class, ENTITY_TraceEntity, NODE_PREFIX_Trace)));
 		register(trace);
 		
-		traceThread = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
-				TraceThread.class, TraceThreadFielder.class, router)));
+		traceThread = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
+				TraceThread.class, TraceThreadFielder.class, ENTITY_TraceEntity, NODE_PREFIX_TraceThread)));
 		register(traceThread);
 		
-		traceSpan = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
-				TraceSpan.class, TraceSpanFielder.class, router)));
+		traceSpan = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
+				TraceSpan.class, TraceSpanFielder.class, ENTITY_TraceEntity, NODE_PREFIX_TraceSpan)));
 		register(traceSpan);	
 	}
 	
