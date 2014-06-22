@@ -11,8 +11,8 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
+import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 
 public class NodeFactory{
 	private static Logger logger = Logger.getLogger(NodeFactory.class);
@@ -104,22 +104,22 @@ public class NodeFactory{
 	
 	/***************** entity ***************************/
 
-	public static <EK extends EntityKey<EK>,PK extends BaseEntityPrimaryKey<EK,PK>,D extends Databean<PK,D>,
+	public static <EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
 	N entityNode(//specify entityName and entityNodePrefix
 			DataRouter router,
 			String clientName,
+			Class<EK> entityKeyClass,//TODO can we do without this?  i couldn't figure out how
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
 			String entityName,
 			String entityNodePrefix
 			){
-//		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
-//				.withClientName(clientName)
-//				.withFielder(fielderClass)
-//				.withEntity(entityName, entityNodePrefix);
-//		return create(paramsBuilder.build());
-		return null;
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
+				.withClientName(clientName)
+				.withFielder(fielderClass)
+				.withEntity(entityName, entityNodePrefix);
+		return create(paramsBuilder.build());
 	}	
 	
 	

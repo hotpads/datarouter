@@ -36,15 +36,18 @@ public class TraceEntityNode extends BaseEntityNode<TraceEntityKey,TraceEntity>{
 	
 	private void initNodes(DataRouter router, String clientName){
 		trace = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
-				Trace.class, TraceFielder.class, ENTITY_TraceEntity, NODE_PREFIX_Trace)));
+				TraceEntityKey.class, Trace.class, TraceFielder.class, 
+				ENTITY_TraceEntity, NODE_PREFIX_Trace)));
 		register(trace);
 		
 		traceThread = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
-				TraceThread.class, TraceThreadFielder.class, ENTITY_TraceEntity, NODE_PREFIX_TraceThread)));
+				TraceEntityKey.class, TraceThread.class, TraceThreadFielder.class, 
+				ENTITY_TraceEntity, NODE_PREFIX_TraceThread)));
 		register(traceThread);
 		
 		traceSpan = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
-				TraceSpan.class, TraceSpanFielder.class, ENTITY_TraceEntity, NODE_PREFIX_TraceSpan)));
+				TraceEntityKey.class, TraceSpan.class, TraceSpanFielder.class, 
+				ENTITY_TraceEntity, NODE_PREFIX_TraceSpan)));
 		register(traceSpan);	
 	}
 	
