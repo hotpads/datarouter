@@ -43,8 +43,10 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
+import com.hotpads.util.core.collections.Twin;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HBaseSimpleClientFactory 
@@ -238,10 +240,9 @@ implements ClientFactory{
 		int counter = 0;
 		for(List<Field<?>> prefixFields : allPrefixes){
 			++counter;
-			FieldSet<?> prefixFieldSet = new SimpleFieldSet(prefixFields);
-			Pair<byte[],byte[]> range = HBaseQueryBuilder.getStartEndBytesForPrefix(prefixFieldSet, false);
-			if( ! isSingleEmptyByte(range.getLeft())){
-				splitPoints.add(range.getLeft());
+			Twin<ByteRange> range = HBaseQueryBuilder.getStartEndBytesForPrefix(prefixFields, false);
+			if( ! isSingleEmptyByte(range.getLeft().getTruncatedArrayCopyIfNecessary())){
+				splitPoints.add(range.getLeft().getTruncatedArrayCopyIfNecessary());
 			}
 //			try{
 //				hBaseAdmin.split(StringByteTool.getUtf8Bytes(tableName), range.getLeft());

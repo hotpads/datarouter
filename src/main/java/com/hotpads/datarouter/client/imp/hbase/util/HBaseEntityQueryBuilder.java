@@ -1,12 +1,14 @@
 package com.hotpads.datarouter.client.imp.hbase.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
-import org.apache.hadoop.hbase.filter.Filter;
 
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
+import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -16,6 +18,7 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.collections.Pair;
 
 public class HBaseEntityQueryBuilder<
 		EK extends EntityKey<EK>,
@@ -47,7 +50,5 @@ public class HBaseEntityQueryBuilder<
 		//TODO obey config.getLimit()
 		return get;
 	}
-	
-	
 	
 }

@@ -90,7 +90,7 @@ implements Node<PK,D>{
 	}
 	
 	@Override
-	public DatabeanFieldInfo<PK,D,?> getFieldInfo(){
+	public DatabeanFieldInfo<PK,D,F> getFieldInfo(){
 		return fieldInfo;
 	}
 	

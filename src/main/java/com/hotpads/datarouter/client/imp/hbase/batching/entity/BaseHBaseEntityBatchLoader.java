@@ -25,7 +25,7 @@ public abstract class BaseHBaseEntityBatchLoader<
 		F extends DatabeanFielder<PK,D>,
 		T> //T will be either PK or D, but not going to express that (or think about how to)
 extends BaseBatchLoader<T>{
-	private static Logger logger = Logger.getLogger(BaseBatchLoader.class);
+	private static Logger logger = Logger.getLogger(BaseHBaseEntityBatchLoader.class);
 
 	private static final int DEFAULT_iterateBatchSize = 1000;
 	
@@ -52,25 +52,8 @@ extends BaseBatchLoader<T>{
 
 	@Override
 	public BaseHBaseEntityBatchLoader<EK,PK,D,F,T> call(){
-		ByteRange startBytes = null;
-		if(range.hasStart()){
-			startBytes = new ByteRange(node.getRowBytes(range.getStart().getEntityKey()));
-			//don't increment the hbase entity row because there may still be databeans in there
-//			if(!range.getStartInclusive()){
-//				startBytes = new ByteRange(ByteTool.unsignedIncrement(startBytes.copyToNewArray()));
-//			}
-		}
-		ByteRange endBytes = null;
-		if(range.hasEnd()){
-			endBytes = new ByteRange(node.getRowBytes(range.getEnd().getEntityKey()));
-			//TODO ???
-		}
-		
-		//startInclusive=true because we already adjusted for it above
-		Range<ByteRange> rowByteRange = Range.create(startBytes, true, endBytes, range.getEndInclusive());
-		
 		//do the RPC
-		List<Result> hBaseRows = node.getResultsInSubRange(rowByteRange, isKeysOnly(), config);
+		List<Result> hBaseRows = node.getResultsInSubRange(range, isKeysOnly(), config);
 		
 		List<T> outs = ListTool.createArrayListWithSize(hBaseRows);
 		for(Result row : hBaseRows){
@@ -96,10 +79,4 @@ extends BaseBatchLoader<T>{
 	}
 
 	
-	//TODO same as PrimaryKeyBatchLoader.differentScatteringPrefix
-	protected boolean differentScatteringPrefix(Result row){
-		if(scatteringPrefixBytes==null || row==null){ return false; }
-		return ! ByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length, 
-				row.getRow(), 0, scatteringPrefixBytes.length);
-	}
 }

@@ -302,17 +302,15 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(getDataRouterContext(), scanKeysVsRowsNumBatches,
 				this, config){
 				public List<Result> hbaseCall() throws Exception{
-					byte[] start = range.getStart().copyToNewArray();
+					ByteRange start = range.getStart();
 					if(start!=null && !range.getStartInclusive()){//careful: this may have already been set by scatteringPrefix logic
-						start = ByteTool.unsignedIncrement(start);
+						start = new ByteRange(ByteTool.unsignedIncrement(start.getTruncatedArrayCopyIfNecessary()));
 					}
-					byte[] end = range.getEnd() == null? null : range.getEnd().copyToNewArray();
-//					if(end!=null && range.getEndInclusive()){//careful: this may have already been set by scatteringPrefix logic
-//						end = ByteTool.unsignedIncrement(end);
-//					}
+					ByteRange end = range.getEnd();
 					
-					//start/endInclusive already adjusted for
-					Scan scan = HBaseQueryBuilder.getScanForRange(start, true, end, range.getEndInclusive(), config);
+					//startInclusive already adjusted for
+					Range<ByteRange> scanRange = Range.create(start, true, end, range.getEndInclusive());
+					Scan scan = HBaseQueryBuilder.getScanForRange(scanRange, config);
 					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }
 					managedResultScanner = hTable.getScanner(scan);
 					List<Result> results = ListTool.createArrayList();

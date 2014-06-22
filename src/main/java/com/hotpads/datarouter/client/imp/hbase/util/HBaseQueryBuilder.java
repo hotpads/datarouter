@@ -14,7 +14,10 @@ import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ObjectTool;
+import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Pair;
+import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.collections.Twin;
 
 
 public class HBaseQueryBuilder{
@@ -24,14 +27,14 @@ public class HBaseQueryBuilder{
 	public static Scan getRangeScanner(
 			final FieldSet<?> startKey, final boolean startInclusive, 
 			final FieldSet<?> endKey, final boolean endInclusive, Config config){
-		Pair<byte[],byte[]> byteRange = getStartEndBytesForRange(startKey, startInclusive, endKey, endInclusive);
+		Twin<ByteRange> byteRange = getStartEndBytesForRange(startKey, startInclusive, endKey, endInclusive);
 		Scan scan = getScanForRange(byteRange.getLeft(), true, byteRange.getRight(), false, config);
 		return scan;
 	}
 
 	public static Scan getPrefixScanner(FieldSet<?> prefix, 
 			boolean wildcardLastField, Config config){
-		Pair<byte[],byte[]> byteRange = getStartEndBytesForPrefix(prefix.getFields(), wildcardLastField);
+		Twin<ByteRange> byteRange = getStartEndBytesForPrefix(prefix.getFields(), wildcardLastField);
 		Scan scan = getScanForRange(byteRange.getLeft(), true, byteRange.getRight(), false, config);
 		return scan;
 	}
@@ -41,32 +44,42 @@ public class HBaseQueryBuilder{
 			FieldSet<?> startKey, boolean startInclusive, 
 			FieldSet<?> endKey, boolean endInclusive,
 			Config config){
-		Pair<byte[],byte[]> prefixBounds = getStartEndBytesForPrefix(prefix.getFields(), wildcardLastField);
-		Pair<byte[],byte[]> rangeBounds = getStartEndBytesForRange(startKey, startInclusive, endKey, endInclusive);
-		Pair<byte[],byte[]> intersection = getRangeIntersection(prefixBounds, rangeBounds);
-		Scan scan = getScanForRange(intersection.getLeft(), true, intersection.getRight(), false, config);
+		Twin<ByteRange> prefixBounds = getStartEndBytesForPrefix(prefix.getFields(), wildcardLastField);
+		Twin<ByteRange> rangeBounds = getStartEndBytesForRange(startKey, startInclusive, endKey, endInclusive);
+		Pair<byte[],byte[]> intersection = getRangeIntersection(
+				new Pair<byte[],byte[]>(prefixBounds.getLeft().getTruncatedArrayCopyIfNecessary(), prefixBounds.getRight().getTruncatedArrayCopyIfNecessary()), 
+				new Pair<byte[],byte[]>(rangeBounds.getLeft().getTruncatedArrayCopyIfNecessary(), rangeBounds.getRight().getTruncatedArrayCopyIfNecessary()));
+		Range<ByteRange> range = Range.create(new ByteRange(intersection.getLeft()), true, 
+				new ByteRange(intersection.getRight()), false);
+		Scan scan = getScanForRange(range, config);
 		return scan;
 	}
 	
 	/****************************** scan helpers ************************************/
-
-	public static Scan getScanForRange(byte[] pStart, boolean startInclusive, byte[] pEnd, boolean endInclusive, 
-			Config pConfig){
+	
+	public static Scan getScanForRange(Range<ByteRange> range, Config pConfig){
 		Config config = Config.nullSafe(pConfig);
-		byte[] start = pStart;
-		if( ! startInclusive){
-			start = ByteTool.unsignedIncrement(start); 
+		byte[] start = null;
+		if(range.hasStart()){
+			start = range.getStart().getTruncatedArrayCopyIfNecessary();
+			if( ! range.getStartInclusive()){
+				start = ByteTool.unsignedIncrement(start); 
+			}
 		}
-		byte[] end = pEnd;
-		if(endInclusive && end != null){
-			end = ByteTool.unsignedIncrement(end);
+		byte[] end = null;
+		if(range.hasEnd()){
+			end = range.getEnd().getTruncatedArrayCopyIfNecessary();
+			if(range.getEndInclusive()){
+				end = ByteTool.unsignedIncrement(end);
+			}
 		}
+		
 		Scan scan;
-		if(start!=null && pEnd!=null){
+		if(range.hasStart() && range.hasEnd()){
 			scan = new Scan(start, end);
-		}else if(start!=null){
+		}else if(range.hasStart()){
 			scan = new Scan(start);
-		}else if(pEnd!=null){
+		}else if(range.hasEnd()){
 			scan = new Scan(new byte[]{}, end);
 		}else{
 			scan = new Scan();//whole table
@@ -75,10 +88,16 @@ public class HBaseQueryBuilder{
 		scan.setCacheBlocks(BooleanTool.isTrue(config.getScannerCaching()));
 		return scan;
 	}
+
+	@Deprecated//pass in a Range
+	public static Scan getScanForRange(ByteRange pStart, boolean startInclusive, ByteRange pEnd, boolean endInclusive, 
+			Config pConfig){
+		return getScanForRange(Range.create(pStart, startInclusive, pEnd, endInclusive), pConfig);
+	}
 	
 	/****************************** primary helpers **********************************/
 
-	protected static Pair<byte[],byte[]> getStartEndBytesForRange(
+	protected static Twin<ByteRange> getStartEndBytesForRange(
 			final FieldSet<?> startKey, final boolean startInclusive, 
 			final FieldSet<?> endKey, final boolean endInclusive){
 		byte[] startBytes = null;
@@ -93,10 +112,10 @@ public class HBaseQueryBuilder{
 			endBytes = FieldSetTool.getBytesForNonNullFieldsWithNoTrailingSeparator(endKey);
 			if(endInclusive){ endBytes = ByteTool.unsignedIncrement(endBytes); }
 		}
-		return new Pair<byte[],byte[]>(startBytes, endBytes);
+		return new Twin<ByteRange>(new ByteRange(startBytes), new ByteRange(endBytes));
 	}
 	
-	public static Pair<byte[],byte[]> getStartEndBytesForPrefix(List<Field<?>> prefix, boolean wildcardLastField){
+	public static Twin<ByteRange> getStartEndBytesForPrefix(List<Field<?>> prefix, boolean wildcardLastField){
 		int numNonNullFields = FieldTool.countNonNullLeadingFields(prefix);
 		byte[][] fieldBytes = new byte[numNonNullFields][];
 		int numFullFieldsFinished = 0;
@@ -117,7 +136,7 @@ public class HBaseQueryBuilder{
 		}
 		byte[] startBytes = ByteTool.concatenate(fieldBytes);
 		byte[] endBytes = ByteTool.unsignedIncrementOverflowToNull(startBytes);
-		return new Pair<byte[],byte[]>(startBytes, endBytes);
+		return new Twin<ByteRange>(new ByteRange(startBytes), new ByteRange(endBytes));
 	}
 	
 	/************************** pure byte helpers *****************************************/

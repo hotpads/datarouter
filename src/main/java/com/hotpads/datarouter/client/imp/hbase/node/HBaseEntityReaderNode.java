@@ -10,18 +10,16 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
-import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.imp.hbase.batching.HBaseDatabeanBatchLoader;
-import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
+import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityDatabeanBatchLoader;
+import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityPrimaryKeyBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultTool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseScatteringPrefixQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
@@ -38,13 +36,11 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.ByteRange;
-import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
-import com.hotpads.util.core.iterable.scanner.collate.Collator;
-import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class HBaseEntityReaderNode<
@@ -224,40 +220,28 @@ implements HBasePhysicalNode<PK,D>,
 		
 	}
 
+	@Deprecated
 	@Override
 	public List<D> getPrefixedRange(final PK prefix, final boolean wildcardLastField, 
 			final PK start, final boolean startInclusive, 
 			final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		List<Pair<byte[],byte[]>> prefixedRanges = HBaseScatteringPrefixQueryBuilder.getPrefixedRanges(fieldInfo,  
-				prefix, wildcardLastField, start, startInclusive, null, true, config);
-		List<HBaseDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder
-				.getManualDatabeanScannersForRanges(this, fieldInfo, prefixedRanges, pConfig);
-		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
-		Iterable<D> iterable = new SortedScannerIterable<D>(collator);
-		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
-		List<D> results = IterableTool.createArrayListFromIterable(iterable, limit);
-		return results;
+		throw new NotImplementedException("apologies");
 	}
 	
 	@Override
 	public SortedScannerIterable<PK> scanKeys(final Range<PK> pRange, final Config pConfig){
 		Range<PK> range = Range.nullSafe(pRange);
-		List<BatchingSortedScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder
-				.getBatchingPrimaryKeyScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, range,
-						pConfig);
-		//TODO can omit the collator if only one scanner
-		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
-		return new SortedScannerIterable<PK>(collator);
+		BatchLoader<PK> firstBatchLoader = new HBaseEntityPrimaryKeyBatchLoader<EK,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
+		BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(getClient().getExecutorService(), firstBatchLoader);
+		return new SortedScannerIterable<PK>(scanner);
 	}
 	
 	@Override
 	public SortedScannerIterable<D> scan(final Range<PK> pRange, final Config pConfig){
 		Range<PK> range = Range.nullSafe(pRange);
-		BatchLoader<D> firstBatchLoader = new HBaseDatabeanBatchLoader<PK,D,F>(this, scatteringPrefix, 
-				range, pConfig, 1L);//start the counter at 1
+		BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<EK,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
 		BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(getClient().getExecutorService(), firstBatchLoader);
-		return new SortedScannerIterable<D>(collator);
+		return new SortedScannerIterable<D>(scanner);
 	}
 		
 	
@@ -277,8 +261,7 @@ implements HBasePhysicalNode<PK,D>,
 	 * internal method to fetch a single batch of hbase rows/keys.  only public so that iterators in other packages
 	 * can use it
 	 */
-	public List<Result> getResultsInSubRange(final Range<ByteRange> rowRange, final Range<ByteRange> qualifierRange, 
-			final boolean keysOnly, final Config pConfig){
+	public List<Result> getResultsInSubRange(final Range<PK> rowRange, final boolean keysOnly, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		final String scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "key" : "row") + " numBatches";
 		final String scanKeysVsRowsNumRows = "scan " + (keysOnly ? "key" : "row") + " numRows";
@@ -286,18 +269,19 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(getDataRouterContext(), scanKeysVsRowsNumBatches,
 				this, config){
 				public List<Result> hbaseCall() throws Exception{
-					byte[] start = rowRange.getStart().copyToNewArray();
-					if(start!=null && !rowRange.getStartInclusive()){//careful: this may have already been set by scatteringPrefix logic
-						start = ByteTool.unsignedIncrement(start);
+					ByteRange rowStartBytes = null;
+					if(rowRange.hasStart()){
+						rowStartBytes = new ByteRange(getRowBytes(rowRange.getStart().getEntityKey()));
 					}
-					byte[] end = rowRange.getEnd() == null? null : rowRange.getEnd().copyToNewArray();
-//					if(end!=null && range.getEndInclusive()){//careful: this may have already been set by scatteringPrefix logic
-//						end = ByteTool.unsignedIncrement(end);
-//					}
-					
+					ByteRange rowEndBytes = null;
+					if(rowRange.hasEnd()){
+						rowEndBytes = new ByteRange(getRowBytes(rowRange.getEnd().getEntityKey()));
+					}
+					Range<ByteRange> rowByteRange = Range.create(rowStartBytes, rowRange.getStartInclusive(), 
+							rowEndBytes, rowRange.getEndInclusive());
 					//start/endInclusive already adjusted for
-					Scan scan = HBaseQueryBuilder.getScanForRange(start, true, end, rowRange.getEndInclusive(), config);
-					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }
+					Scan scan = HBaseQueryBuilder.getScanForRange(rowByteRange, config);
+					if(keysOnly){ scan.setFilter(new KeyOnlyFilter()); }
 					managedResultScanner = hTable.getScanner(scan);
 					List<Result> results = ListTool.createArrayList();
 					for(Result row : managedResultScanner){

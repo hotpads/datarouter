@@ -24,7 +24,7 @@ public abstract class BaseHBaseBatchLoader<
 		F extends DatabeanFielder<PK,D>,
 		T> //T will be either PK or D, but not going to express that (or think about how to)
 extends BaseBatchLoader<T>{
-	private static Logger logger = Logger.getLogger(BaseBatchLoader.class);
+	private static Logger logger = Logger.getLogger(BaseHBaseBatchLoader.class);
 
 	private static final int DEFAULT_iterateBatchSize = 1000;
 	
