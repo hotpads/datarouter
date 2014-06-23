@@ -39,43 +39,33 @@ import com.hotpads.util.core.SetTool;
 public class SortedNodeIntegrationTests{
 	private static Logger logger = Logger.getLogger(SortedNodeIntegrationTests.class);
 	
-	/****************************** client types ***********************************/
-
-//	public static List<ClientType> clientTypes = ListTool.create();
-//	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
-//	static{
-//		clientTypes.add(HibernateClientType.INSTANCE);
-//		clientTypes.add(HBaseClientType.INSTANCE);
-//		for(ClientType clientType : clientTypes){
-//			clientTypeObjectArrays.add(new Object[]{clientType});
-//		}
-//	}
-//	
-//	/****************************** static setup ***********************************/
-//
-//	static Map<ClientType,SortedBasicNodeTestRouter> routerByClientType = MapTool.create();
-//	
-//	@BeforeClass
-//	public static void init() throws IOException{	
-//		Class<?> cls = SortedNodeIntegrationTests.class;
-//		
-//		if(clientTypes.contains(HibernateClientType.INSTANCE)){
-//			routerByClientType.put(
-//					HibernateClientType.INSTANCE, 
-//					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls));
-//		}
-//
-//		if(clientTypes.contains(HBaseClientType.INSTANCE)){
-//			routerByClientType.put(
-//					HBaseClientType.INSTANCE, 
-//					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls));
-//		}
-//		
-//		for(BasicNodeTestRouter router : routerByClientType.values()){
-//			resetTable(router);
-//		}
-//	}
 	
+	/***************************** fields **************************************/
+	
+	private SortedBasicNodeTestRouter router;
+	private SortedMapStorage<SortedBeanKey,SortedBean> node;
+
+	
+	/***************************** construct **************************************/
+
+	@Parameters
+	public static Collection<Object[]> parameters(){
+		List<Object[]> params = ListTool.create();
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true});
+		return params;
+	}
+	
+	
+	public SortedNodeIntegrationTests(String clientName, ClientType clientType, boolean entity){
+		this.router = new SortedBasicNodeTestRouter(clientName, getClass(), entity);
+		this.node = router.sortedBeanSorted();
+		resetTable();
+	}
+	
+
 	public void resetTable(){
 		node.deleteAll(null);
 		List<SortedBean> remainingAfterDelete = ListTool.createArrayList(node.scan(null, null));
@@ -106,29 +96,6 @@ public class SortedNodeIntegrationTests{
 		}
 		List<SortedBean> roundTripped = ListTool.createArrayList(node.scan(null, null));
 		Assert.assertEquals(TOTAL_RECORDS, roundTripped.size());
-	}
-	
-	/***************************** fields **************************************/
-	
-	private SortedBasicNodeTestRouter router;
-	private SortedMapStorage<SortedBeanKey,SortedBean> node;
-
-	/***************************** construct **************************************/
-
-	@Parameters
-	public static Collection<Object[]> parameters(){
-		List<Object[]> params = ListTool.create();
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true});
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true});
-		return params;
-	}
-	
-	public SortedNodeIntegrationTests(String clientName, ClientType clientType, boolean entity){
-		this.router = new SortedBasicNodeTestRouter(clientName, getClass(), entity);
-		this.node = router.sortedBeanSorted();
-		resetTable();
 	}
 	
 	
@@ -180,6 +147,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	public static final int TOTAL_RECORDS = NUM_ELEMENTS*NUM_ELEMENTS*NUM_ELEMENTS*NUM_ELEMENTS;
+	
 	
 	/********************** junit methods *********************************************/
 	
