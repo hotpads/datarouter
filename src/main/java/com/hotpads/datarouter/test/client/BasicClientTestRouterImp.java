@@ -9,6 +9,9 @@ import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive.KeepAliveFielder;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
 import com.hotpads.datarouter.node.factory.NodeFactory;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
@@ -17,6 +20,9 @@ import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean.PutOpTestBeanFielder;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
+import com.hotpads.datarouter.test.client.insert.generated.PutOpIdGeneratedTestBean;
+import com.hotpads.datarouter.test.client.insert.generated.PutOpIdGeneratedTestBean.PutOpIdGeneratedTestBeanFielder;
+import com.hotpads.datarouter.test.client.insert.generated.PutOpIdGeneratedTestBeanKey;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean.PoolTestBeanFielder;
 import com.hotpads.datarouter.test.client.pool.PoolTestBeanKey;
@@ -38,12 +44,14 @@ implements BasicClientTestRouter{
 	private MapStorage<KeepAliveKey,KeepAlive> keepAliveHBase;
 
 	private MapStorage<TxnBeanKey,TxnBean> txnBeanJdbc;
-	private MapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate;
-	private MapStorage<TxnBeanKey,TxnBean> txnBeanHBase;
+	private SortedMapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate;
+	private SortedMapStorage<TxnBeanKey,TxnBean> txnBeanHBase;
 
 	private MapStorage<PoolTestBeanKey,PoolTestBean> poolTestBeanHBase;
 
 	private MapStorage<PutOpTestBeanKey, PutOpTestBean> putOptTest;
+
+	private IndexedSortedMapStorage<PutOpIdGeneratedTestBeanKey, PutOpIdGeneratedTestBean> putOpIdGeneratedTest;
 
 	/********************************* constructor *****************************/
 
@@ -66,6 +74,9 @@ implements BasicClientTestRouter{
 		
 		putOptTest = cast(register(
 				NodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, PutOpTestBean.class, PutOpTestBeanFielder.class, this)));
+		
+		putOpIdGeneratedTest = cast(register(NodeFactory.create(
+				DRTestConstants.CLIENT_drTestHibernate0, PutOpIdGeneratedTestBean.class, PutOpIdGeneratedTestBeanFielder.class, this)));
 
 		registerWithContext();//do after field inits
 	}
@@ -97,12 +108,12 @@ implements BasicClientTestRouter{
 	}
 
 	@Override
-	public MapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate(){
+	public SortedMapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate(){
 		return txnBeanHibernate;
 	}
 
 	@Override
-	public MapStorage<TxnBeanKey,TxnBean> txnBeanHBase(){
+	public SortedMapStorage<TxnBeanKey,TxnBean> txnBeanHBase(){
 		return txnBeanHBase;
 	}
 
@@ -120,6 +131,12 @@ implements BasicClientTestRouter{
 	public MapStorage<PutOpTestBeanKey, PutOpTestBean> putOptTest(){
 		return putOptTest;
 	}
+
+	@Override
+	public IndexedSortedMapStorage<PutOpIdGeneratedTestBeanKey, PutOpIdGeneratedTestBean> getPutOpIdGeneratedTest(){
+		return putOpIdGeneratedTest;
+	}
+
 }
 
 

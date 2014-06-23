@@ -97,13 +97,6 @@ implements MapStorageReader<PK,D>,
 		HibernateGetOp<PK,D,F> op = new HibernateGetOp<PK,D,F>(this, opName, ListTool.wrap(key), config);
 		return CollectionTool.getFirst(new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call());
 	}
-
-	@Override
-	public List<D> getAll(final Config config){
-		String opName = MapStorageReader.OP_getAll;
-		HibernateGetAllOp<PK,D,F> op = new HibernateGetAllOp<PK,D,F>(this, opName, config);
-		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
-	}
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){

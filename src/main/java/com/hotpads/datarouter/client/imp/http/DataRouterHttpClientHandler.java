@@ -137,15 +137,6 @@ implements MapStorageReaderHttpNode<PK,D>{
 
 	@Override
 	@Handler
-	public JsonMav getAll(){
-		preHandle();
-		List<D> databeans = node.getAll(config);
-		JSON jsonDatabeans = JsonDatabeanTool.databeansToJson(databeans, fieldInfo.getSampleFielder());
-		return new JsonMav(jsonDatabeans);
-	}
-
-	@Override
-	@Handler
 	public JsonMav getKeys(){
 		preHandle();
 		List<PK> keys = JsonDatabeanTool.primaryKeysFromJson(

@@ -9,7 +9,7 @@ import com.hotpads.setting.cluster.ClusterSettingFinder;
 import com.hotpads.setting.cluster.SettingNode;
 
 @Singleton
-public class NotificationSettings extends SettingNode {
+public class DatarouterNotificationSettings extends SettingNode {
 
 	private Setting<String> apiEndPoint;
 	private Setting<Boolean> forceHideStackTrace;
@@ -17,7 +17,7 @@ public class NotificationSettings extends SettingNode {
 	private Setting<Boolean> ignoreSsl;
 
 	@Inject
-	public NotificationSettings(ClusterSettingFinder finder) {
+	public DatarouterNotificationSettings(ClusterSettingFinder finder) {
 		super(finder, "datarouter.notification.", "datarouter.");
 		register();
 	}

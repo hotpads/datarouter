@@ -27,8 +27,8 @@ extends NodeOps<PK,D>
 	D get(PK key, Config config);
 	List<D> getMulti(Collection<PK> keys, Config config);
 	
-	@Deprecated//replace with iterator
-	List<D> getAll(Config config);
+//	@Deprecated//replace with iterator
+//	List<D> getAll(Config config);
 	
 	List<PK> getKeys(final Collection<PK> keys, final Config config);
 //	List<K> getAllKeys(Config config);
@@ -48,7 +48,6 @@ extends NodeOps<PK,D>
 		Mav exists();
 		Mav get();
 		Mav getMulti();
-		Mav getAll();
 		Mav getKeys();
 	}
 }

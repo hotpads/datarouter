@@ -26,7 +26,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	private Date heartbeatTime;
 	private JobExecutionStatus jobExecutionStatus;
 	private String triggeredByUserEmail;
-//	private Integer numItemsProcessed;
+	private Integer numItemsProcessed;
 	
 	/**************************** columns ****************************************/
 	
@@ -59,8 +59,8 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 					new DateField(F.finishTime, d.finishTime),
 					new DateField(F.heartbeatTime, d.heartbeatTime),
 					new StringEnumField<JobExecutionStatus>(JobExecutionStatus.class, F.jobExecutionStatus, d.jobExecutionStatus, DEFAULT_STRING_LENGTH),
-					new StringField(F.triggeredByUserEmail, d.triggeredByUserEmail, DEFAULT_STRING_LENGTH));
-//					new IntegerField(F.numItemsProcessed, d.numItemsProcessed));
+					new StringField(F.triggeredByUserEmail, d.triggeredByUserEmail, DEFAULT_STRING_LENGTH),
+					new IntegerField(F.numItemsProcessed, d.numItemsProcessed));
 		}
 	}
 	
@@ -83,7 +83,6 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	public LongRunningTask(String jobClass, String serverName, LongRunningTaskType type){
 		this.key = new LongRunningTaskKey(jobClass, serverName);
 		this.type = type;
-//		this.numItemsProcessed = 0;
 	}
 	
 	/****************** get/set ************************/
@@ -152,11 +151,11 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		this.type = type;
 	}
 
-//	public Integer getNumItemsProcessed() {
-//		return numItemsProcessed;
-//	}
-//
-//	public void setNumItemsProcessed(Integer numItemsProcessed) {
-//		this.numItemsProcessed = numItemsProcessed;
-//	}
+	public Integer getNumItemsProcessed() {
+		return numItemsProcessed;
+	}
+
+	public void setNumItemsProcessed(Integer numItemsProcessed) {
+		this.numItemsProcessed = numItemsProcessed;
+	}
 }

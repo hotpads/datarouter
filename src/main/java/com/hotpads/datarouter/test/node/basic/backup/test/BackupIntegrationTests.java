@@ -35,7 +35,7 @@ import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBeanKey;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
@@ -111,12 +111,12 @@ public class BackupIntegrationTests{
 		}
 		routerToReset.backupBeanNode().putMulti(toSave, 
 				new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
-		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(routerToReset.backupBeanNode().getAll(null)));
+		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(routerToReset.backupBeanNode().scan(null, null)).intValue());
 	}
 	
 	public static void clearTable(BasicNodeTestRouter routerToReset){
 		routerToReset.backupBeanNode().deleteAll(null);
-		Assert.assertEquals(0, CollectionTool.size(routerToReset.backupBeanNode().getAll(null)));
+		Assert.assertEquals(0, IterableTool.count(routerToReset.backupBeanNode().scan(null, null)).intValue());
 	}
 	
 	/***************************** fields **************************************/
@@ -203,7 +203,7 @@ public class BackupIntegrationTests{
 		RestoreRegionFromMemory<BackupBeanKey,BackupBean> restore = new RestoreRegionFromMemory<BackupBeanKey,BackupBean>(
 				backup.getResult(), BackupBean.class, router, node, false);
 		restore.call();
-		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(node.getAll(null)));
+		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(node.scan(null, null)).intValue());
 	}
 
 	//basically a debug test
@@ -222,7 +222,7 @@ public class BackupIntegrationTests{
 		RestoreRegionFromMemory<BackupBeanKey,BackupBean> restore = new RestoreRegionFromMemory<BackupBeanKey,BackupBean>(
 				backup.getResult(), BackupBean.class, router, node, true);
 		restore.call();
-		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(node.getAll(null)));
+		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(node.scan(null, null)).intValue());
 	}
 
 	//basically a debug test
@@ -251,7 +251,7 @@ public class BackupIntegrationTests{
 		RestoreRegionFromMemory<BackupBeanKey,BackupBean> restore = new RestoreRegionFromMemory<BackupBeanKey,BackupBean>(
 				roundTripped, BackupBean.class, router, node, false);
 		restore.call();
-		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(node.getAll(null)));
+		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(node.scan(null, null)).intValue());
 	}
 	
 	//basically a debug test
@@ -304,7 +304,7 @@ public class BackupIntegrationTests{
 		String s3Key = BackupRegionToS3.getS3Key("test", router, node);
 		new RestoreRegionFromS3<BackupBeanKey,BackupBean>(
 				BackupRegionToS3.DEFAULT_BUCKET, s3Key, BackupBean.class, router, node, 100, false, true, gzip, true).call();
-		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(node.getAll(null)));
+		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(node.scan(null, null)).intValue());
 	}
 	
 }
