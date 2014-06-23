@@ -304,7 +304,7 @@ implements HBasePhysicalNode<PK,D>,
 				public List<Result> hbaseCall() throws Exception{
 					ByteRange start = range.getStart();
 					if(start!=null && !range.getStartInclusive()){//careful: this may have already been set by scatteringPrefix logic
-						start = new ByteRange(ByteTool.unsignedIncrement(start.getTruncatedArrayCopyIfNecessary()));
+						start = new ByteRange(ByteTool.unsignedIncrement(start.toArray()));
 					}
 					ByteRange end = range.getEnd();
 					

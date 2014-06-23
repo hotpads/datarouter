@@ -241,8 +241,8 @@ implements ClientFactory{
 		for(List<Field<?>> prefixFields : allPrefixes){
 			++counter;
 			Twin<ByteRange> range = HBaseQueryBuilder.getStartEndBytesForPrefix(prefixFields, false);
-			if( ! isSingleEmptyByte(range.getLeft().getTruncatedArrayCopyIfNecessary())){
-				splitPoints.add(range.getLeft().getTruncatedArrayCopyIfNecessary());
+			if( ! isSingleEmptyByte(range.getLeft().toArray())){
+				splitPoints.add(range.getLeft().toArray());
 			}
 //			try{
 //				hBaseAdmin.split(StringByteTool.getUtf8Bytes(tableName), range.getLeft());

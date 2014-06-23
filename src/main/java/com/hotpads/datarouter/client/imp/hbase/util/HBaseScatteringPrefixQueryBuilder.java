@@ -89,10 +89,12 @@ public class HBaseScatteringPrefixQueryBuilder {
 					.getFields(), wildcardLastField);
 			Twin<ByteRange> rangeBounds = HBaseQueryBuilder.getStartEndBytesForRange(
 					scatteringPrefixPlusStartKey, startInclusive, scatteringPrefixPlusEndKey, endInclusive);
-			Pair<byte[],byte[]> prefixBoundsArrays = Pair.create(prefixBounds.getLeft().getTruncatedArrayCopyIfNecessary(),
-					prefixBounds.getRight().getTruncatedArrayCopyIfNecessary());
-			Pair<byte[],byte[]> rangeBoundsArrays = Pair.create(rangeBounds.getLeft().getTruncatedArrayCopyIfNecessary(),
-					rangeBounds.getRight().getTruncatedArrayCopyIfNecessary());
+			Pair<byte[],byte[]> prefixBoundsArrays = Pair.create(
+					ByteRange.nullSafeToArray(prefixBounds.getLeft(), false),
+					ByteRange.nullSafeToArray(prefixBounds.getRight(), false));
+			Pair<byte[],byte[]> rangeBoundsArrays = Pair.create(
+					ByteRange.nullSafeToArray(rangeBounds.getLeft(), false),
+					ByteRange.nullSafeToArray(rangeBounds.getRight(), false));
 			Pair<byte[],byte[]> intersection = HBaseQueryBuilder.getRangeIntersection(prefixBoundsArrays, rangeBoundsArrays);
 			outs.add(intersection);
 		}

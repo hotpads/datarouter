@@ -47,8 +47,10 @@ public class HBaseQueryBuilder{
 		Twin<ByteRange> prefixBounds = getStartEndBytesForPrefix(prefix.getFields(), wildcardLastField);
 		Twin<ByteRange> rangeBounds = getStartEndBytesForRange(startKey, startInclusive, endKey, endInclusive);
 		Pair<byte[],byte[]> intersection = getRangeIntersection(
-				new Pair<byte[],byte[]>(prefixBounds.getLeft().getTruncatedArrayCopyIfNecessary(), prefixBounds.getRight().getTruncatedArrayCopyIfNecessary()), 
-				new Pair<byte[],byte[]>(rangeBounds.getLeft().getTruncatedArrayCopyIfNecessary(), rangeBounds.getRight().getTruncatedArrayCopyIfNecessary()));
+				new Pair<byte[],byte[]>(prefixBounds.getLeft().toArray(), 
+						prefixBounds.getRight().toArray()), 
+				new Pair<byte[],byte[]>(rangeBounds.getLeft().toArray(), 
+						rangeBounds.getRight().toArray()));
 		Range<ByteRange> range = Range.create(new ByteRange(intersection.getLeft()), true, 
 				new ByteRange(intersection.getRight()), false);
 		Scan scan = getScanForRange(range, config);
@@ -61,14 +63,14 @@ public class HBaseQueryBuilder{
 		Config config = Config.nullSafe(pConfig);
 		byte[] start = null;
 		if(range.hasStart()){
-			start = range.getStart().getTruncatedArrayCopyIfNecessary();
+			start = range.getStart().toArray();
 			if( ! range.getStartInclusive()){
 				start = ByteTool.unsignedIncrement(start); 
 			}
 		}
 		byte[] end = null;
 		if(range.hasEnd()){
-			end = range.getEnd().getTruncatedArrayCopyIfNecessary();
+			end = range.getEnd().toArray();
 			if(range.getEndInclusive()){
 				end = ByteTool.unsignedIncrement(end);
 			}
@@ -100,19 +102,19 @@ public class HBaseQueryBuilder{
 	protected static Twin<ByteRange> getStartEndBytesForRange(
 			final FieldSet<?> startKey, final boolean startInclusive, 
 			final FieldSet<?> endKey, final boolean endInclusive){
-		byte[] startBytes = null;
+		ByteRange startBytes = null;
 		if(startKey!=null){
-			startBytes = FieldSetTool.getBytesForNonNullFieldsWithNoTrailingSeparator(startKey);
+			startBytes = new ByteRange(FieldSetTool.getBytesForNonNullFieldsWithNoTrailingSeparator(startKey));
 			if( ! startInclusive){
-				startBytes = ByteTool.unsignedIncrement(startBytes); 
+				startBytes = startBytes.cloneAndIncrement(); 
 			}
 		}
-		byte[] endBytes = null;
+		ByteRange endBytes = null;
 		if(endKey!=null){
-			endBytes = FieldSetTool.getBytesForNonNullFieldsWithNoTrailingSeparator(endKey);
-			if(endInclusive){ endBytes = ByteTool.unsignedIncrement(endBytes); }
+			endBytes = new ByteRange(FieldSetTool.getBytesForNonNullFieldsWithNoTrailingSeparator(endKey));
+			if(endInclusive){ endBytes = endBytes.cloneAndIncrement(); }
 		}
-		return new Twin<ByteRange>(new ByteRange(startBytes), new ByteRange(endBytes));
+		return new Twin<ByteRange>(startBytes, endBytes);
 	}
 	
 	public static Twin<ByteRange> getStartEndBytesForPrefix(List<Field<?>> prefix, boolean wildcardLastField){
