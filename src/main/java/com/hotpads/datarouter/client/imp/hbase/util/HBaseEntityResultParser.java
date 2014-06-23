@@ -57,11 +57,9 @@ public class HBaseEntityResultParser<
 	
 	public NavigableSet<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row){
 		if(row==null){ return SetTool.createTreeSet(); }
-		byte[] entityColumnPrefixBytes = fieldInfo.getEntityColumnPrefixBytes();//the table name with separator byte
-		NavigableSet<PK> pks = SetTool.createTreeSet();
+		NavigableSet<PK> pks = SetTool.createTreeSet();//unfortunately, we expect a bunch of duplicate PK's, so throw them in a set
 		for(KeyValue kv : row.list()){
-			byte[] qualifier = kv.getQualifier();
-			if(!Bytes.startsWith(qualifier, entityColumnPrefixBytes)){ continue; }
+			if(!matchesNodePrefix(kv)){ continue; }
 			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
 			PK pk = pkAndFieldName.getLeft();
 			pks.add(pk);
@@ -71,19 +69,11 @@ public class HBaseEntityResultParser<
 		
 	public List<D> getDatabeansWithMatchingQualifierPrefix(Result row){
 		if(row==null){ return ListTool.createLinkedList(); }
-		byte[] entityColumnPrefixBytes = fieldInfo.getEntityColumnPrefixBytes();//the table name with separator byte
 		Map<PK,D> databeanByKey = MapTool.createTreeMap();
 		for(KeyValue kv : row.list()){
-			byte[] qualifier = kv.getQualifier();
-			if(!Bytes.startsWith(qualifier, entityColumnPrefixBytes)){ continue; }
+			if(!matchesNodePrefix(kv)){ continue; }
 			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
 			PK pk = pkAndFieldName.getLeft();
-			
-//			/*************** start debug code *********************/
-//			logger.warn(kv);
-//			logger.warn(pk);
-//			parsePrimaryKeyAndFieldName(kv);
-//			/*************** end debug code *********************/
 			
 			//get or create the databean, and set the pk which we already parsed
 			D databean = databeanByKey.get(pk);
@@ -100,19 +90,29 @@ public class HBaseEntityResultParser<
 			field.setUsingReflection(databean, value);
 		}
 		return ListTool.createArrayList(databeanByKey.values());
-	}
-	
+	}	
 
 	
 	/****************** private ********************/
 	
+	private boolean matchesNodePrefix(KeyValue kv){
+		byte[] qualifier = kv.getQualifier();
+		return Bytes.startsWith(qualifier, fieldInfo.getEntityColumnPrefixBytes());
+	}
+	
 	private Pair<PK,String> parsePrimaryKeyAndFieldName(KeyValue kv){
 		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
-		byte[] rowBytes = kv.getRow();//TODO don't copy
+		//EK
+		byte[] rowBytes = kv.getRow();
 		parseFieldsFromBytesToPk(fieldInfo.getEntityKeyFields(), rowBytes, pk);
-		byte[] qualifierBytes = kv.getQualifier();//TODO don't copy
-		int fieldNameOffset = parseFieldsFromBytesToPk(fieldInfo.getPostEkPkKeyFields(), qualifierBytes, pk);
-		String fieldName = StringByteTool.fromUtf8BytesOffset(qualifierBytes, fieldNameOffset);
+		//post-EK
+		byte[] qualifier = kv.getQualifier();
+		byte[] postPrefixQualifierBytes = ByteTool.copyOfRangeFromOffset(qualifier, 
+				fieldInfo.getEntityColumnPrefixBytes().length);
+		//fieldName
+		int fieldNameOffset = parseFieldsFromBytesToPk(fieldInfo.getPostEkPkKeyFields(), 
+				postPrefixQualifierBytes, pk);
+		String fieldName = StringByteTool.fromUtf8BytesOffset(postPrefixQualifierBytes, fieldNameOffset);
 		return Pair.create(pk, fieldName);
 	}
 	
