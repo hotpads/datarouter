@@ -60,33 +60,34 @@ public class ManyFieldTypeIntegrationTests {
 	@BeforeClass
 	public static void init() throws IOException{	
 		Class<?> cls = ManyFieldTypeIntegrationTests.class;
+		boolean entity = false;
 		
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(MemoryClientType.INSTANCE)){
 			routerByClientType.put(
 					MemoryClientType.INSTANCE, 
-					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemory, cls));
+					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemory, cls, entity));
 		}
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(JdbcClientType.INSTANCE)){
 			routerByClientType.put(
 					JdbcClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestJdbc0, cls));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestJdbc0, cls, entity));
 		}
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(HibernateClientType.INSTANCE)){
 			routerByClientType.put(
 					HibernateClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls, entity));
 		}
 
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(HBaseClientType.INSTANCE)){
 			routerByClientType.put(
 					HBaseClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls, entity));
 		}
 
 		if(DRTestConstants.ALL_CLIENT_TYPES.contains(MemcachedClientType.INSTANCE)){
 			routerByClientType.put(
 					MemcachedClientType.INSTANCE, 
-					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemcached, cls));
+					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemcached, cls, entity));
 		}
 		
 //		for(ClientType clientType : routerByClientType.keySet()){

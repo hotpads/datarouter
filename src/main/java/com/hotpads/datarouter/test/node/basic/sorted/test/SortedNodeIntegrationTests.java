@@ -22,6 +22,7 @@ import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
@@ -36,48 +37,48 @@ import com.hotpads.util.core.SetTool;
 
 @RunWith(Parameterized.class)
 public class SortedNodeIntegrationTests{
-	static Logger logger = Logger.getLogger(SortedNodeIntegrationTests.class);
+	private static Logger logger = Logger.getLogger(SortedNodeIntegrationTests.class);
 	
 	/****************************** client types ***********************************/
 
-	public static List<ClientType> clientTypes = ListTool.create();
-	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
-	static{
-		clientTypes.add(HibernateClientType.INSTANCE);
-		clientTypes.add(HBaseClientType.INSTANCE);
-		for(ClientType clientType : clientTypes){
-			clientTypeObjectArrays.add(new Object[]{clientType});
-		}
-	}
+//	public static List<ClientType> clientTypes = ListTool.create();
+//	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
+//	static{
+//		clientTypes.add(HibernateClientType.INSTANCE);
+//		clientTypes.add(HBaseClientType.INSTANCE);
+//		for(ClientType clientType : clientTypes){
+//			clientTypeObjectArrays.add(new Object[]{clientType});
+//		}
+//	}
+//	
+//	/****************************** static setup ***********************************/
+//
+//	static Map<ClientType,SortedBasicNodeTestRouter> routerByClientType = MapTool.create();
+//	
+//	@BeforeClass
+//	public static void init() throws IOException{	
+//		Class<?> cls = SortedNodeIntegrationTests.class;
+//		
+//		if(clientTypes.contains(HibernateClientType.INSTANCE)){
+//			routerByClientType.put(
+//					HibernateClientType.INSTANCE, 
+//					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls));
+//		}
+//
+//		if(clientTypes.contains(HBaseClientType.INSTANCE)){
+//			routerByClientType.put(
+//					HBaseClientType.INSTANCE, 
+//					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls));
+//		}
+//		
+//		for(BasicNodeTestRouter router : routerByClientType.values()){
+//			resetTable(router);
+//		}
+//	}
 	
-	/****************************** static setup ***********************************/
-
-	static Map<ClientType,SortedBasicNodeTestRouter> routerByClientType = MapTool.create();
-	
-	@BeforeClass
-	public static void init() throws IOException{	
-		Class<?> cls = SortedNodeIntegrationTests.class;
-		
-		if(clientTypes.contains(HibernateClientType.INSTANCE)){
-			routerByClientType.put(
-					HibernateClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls));
-		}
-
-		if(clientTypes.contains(HBaseClientType.INSTANCE)){
-			routerByClientType.put(
-					HBaseClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls));
-		}
-		
-		for(BasicNodeTestRouter router : routerByClientType.values()){
-			resetTable(router);
-		}
-	}
-	
-	public static void resetTable(BasicNodeTestRouter routerToReset){
-		routerToReset.sortedBean().deleteAll(null);
-		List<SortedBean> remainingAfterDelete = ListTool.createArrayList(routerToReset.sortedBean().scan(null, null));
+	public void resetTable(){
+		node.deleteAll(null);
+		List<SortedBean> remainingAfterDelete = ListTool.createArrayList(node.scan(null, null));
 		Assert.assertEquals(0, CollectionTool.size(remainingAfterDelete));
 		
 		List<String> as = ListTool.createArrayList(STRINGS);
@@ -102,26 +103,32 @@ public class SortedNodeIntegrationTests{
 				}
 			}
 		}
-		routerToReset.sortedBean().putMulti(toSave, 
+		node.putMulti(toSave, 
 				new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
-		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(routerToReset.sortedBean().scan(null, null)).intValue());
+		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(node.scan(null, null)).intValue());
 	}
 	
 	/***************************** fields **************************************/
 	
-	protected ClientType clientType;
-	protected SortedBasicNodeTestRouter router;
+	private SortedBasicNodeTestRouter router;
+	private SortedMapStorage<SortedBeanKey,SortedBean> node;
 
-	/***************************** constructors **************************************/
+	/***************************** construct **************************************/
 
 	@Parameters
 	public static Collection<Object[]> parameters(){
-		return clientTypeObjectArrays;
+		List<Object[]> params = ListTool.create();
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true});
+		return params;
 	}
 	
-	public SortedNodeIntegrationTests(ClientType clientType){
-		this.clientType = clientType;
-		this.router = routerByClientType.get(clientType);
+	public SortedNodeIntegrationTests(String clientName, ClientType clientType, boolean entity){
+		this.router = new SortedBasicNodeTestRouter(clientName, getClass(), entity);
+		this.node = router.sortedBeanSorted();
+		resetTable();
 	}
 	
 	
@@ -184,7 +191,7 @@ public class SortedNodeIntegrationTests{
 	
 	@Test
 	public synchronized void testGetFirstKey(){
-		SortedBeanKey firstKey = router.sortedBeanSorted().getFirstKey(null);
+		SortedBeanKey firstKey = node.getFirstKey(null);
 		Assert.assertEquals(STRINGS.first(), firstKey.getA());
 		Assert.assertEquals(STRINGS.first(), firstKey.getB());
 		Assert.assertEquals(new Integer(0), firstKey.getC());
@@ -193,7 +200,7 @@ public class SortedNodeIntegrationTests{
 	
 	@Test
 	public synchronized void testGetFirst(){
-		SortedBean firstBean = router.sortedBeanSorted().getFirst(null);
+		SortedBean firstBean = node.getFirst(null);
 		Assert.assertEquals(STRINGS.first(), firstBean.getKey().getA());
 		Assert.assertEquals(STRINGS.first(), firstBean.getKey().getB());
 		Assert.assertEquals(new Integer(0), firstBean.getKey().getC());
@@ -204,19 +211,19 @@ public class SortedNodeIntegrationTests{
 	public synchronized void testGetWithPrefix(){
 		//first 3 fields fixed
 		SortedBeanKey prefix1 = new SortedBeanKey(STRINGS.first(), STRINGS.last(), 2, null);
-		List<SortedBean> result1 = router.sortedBeanSorted().getWithPrefix(prefix1, false, null);
+		List<SortedBean> result1 = node.getWithPrefix(prefix1, false, null);
 		Assert.assertEquals(NUM_ELEMENTS, CollectionTool.size(result1));
 		Assert.assertTrue(ListTool.isSorted(result1));
 
 		//first 3 fields fixed, last field wildcard
 		SortedBeanKey prefix2 = new SortedBeanKey(STRINGS.first(), STRINGS.last(), 2, PREFIX_a);
-		List<SortedBean> result2 = router.sortedBeanSorted().getWithPrefix(prefix2, true, null);
+		List<SortedBean> result2 = node.getWithPrefix(prefix2, true, null);
 		Assert.assertEquals(NUM_PREFIX_a, CollectionTool.size(result2));
 		Assert.assertTrue(ListTool.isSorted(result2));
 
 		//first field fixed, second field wildcard
 		SortedBeanKey prefix3 = new SortedBeanKey(STRINGS.first(), PREFIX_a, null, null);
-		List<SortedBean> result3 = router.sortedBeanSorted().getWithPrefix(prefix3, true, null);
+		List<SortedBean> result3 = node.getWithPrefix(prefix3, true, null);
 		int expectedSize3 = NUM_PREFIX_a * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize3, CollectionTool.size(result3));
 		Assert.assertTrue(ListTool.isSorted(result3));
@@ -227,7 +234,7 @@ public class SortedNodeIntegrationTests{
 		SortedBeanKey prefixA = new SortedBeanKey(STRINGS.first(), PREFIX_a, null, null);
 		SortedBeanKey prefixCh = new SortedBeanKey(STRINGS.first(), PREFIX_ch, null, null);
 		List<SortedBeanKey> prefixes = ListTool.create(prefixA, prefixCh);
-		List<SortedBean> result = router.sortedBeanSorted().getWithPrefixes(prefixes, true, null);
+		List<SortedBean> result = node.getWithPrefixes(prefixes, true, null);
 		int expectedSizeA = NUM_PREFIX_a * NUM_ELEMENTS * NUM_ELEMENTS;
 		int expectedSizeCh = NUM_PREFIX_ch * NUM_ELEMENTS * NUM_ELEMENTS;
 		int expectedSizeTotal = expectedSizeA + expectedSizeCh;
@@ -239,13 +246,13 @@ public class SortedNodeIntegrationTests{
 	public synchronized void testGetKeysInRange(){
 		SortedBeanKey alp1 = new SortedBeanKey(RANGE_alp, null, null, null);
 		SortedBeanKey emu1 = new SortedBeanKey(RANGE_emu, null, null, null);
-		List<SortedBeanKey> result1 = router.sortedBeanSorted().getKeysInRange(
+		List<SortedBeanKey> result1 = node.getKeysInRange(
 				alp1, true, emu1, true, null);
 		int expectedSize1 = RANGE_LENGTH_alp_emu_inc * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
 		Assert.assertTrue(ListTool.isSorted(result1));
 		
-		List<SortedBeanKey> result1b = router.sortedBeanSorted().getKeysInRange(
+		List<SortedBeanKey> result1b = node.getKeysInRange(
 				alp1, true, emu1, false, null);
 		int expectedSize1b = (RANGE_LENGTH_alp_emu_inc - 1) * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize1b, CollectionTool.size(result1b));
@@ -253,7 +260,7 @@ public class SortedNodeIntegrationTests{
 		
 		SortedBeanKey alp2 = new SortedBeanKey(STRINGS.first(), RANGE_alp, null, null);
 		SortedBeanKey emu2 = new SortedBeanKey(STRINGS.first(), RANGE_emu, null, null);
-		List<SortedBeanKey> result2 = router.sortedBeanSorted().getKeysInRange(
+		List<SortedBeanKey> result2 = node.getKeysInRange(
 				alp2, true, emu2, true, null);
 		int expectedSize2 = RANGE_LENGTH_alp_emu_inc * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize2, CollectionTool.size(result2));
@@ -264,13 +271,13 @@ public class SortedNodeIntegrationTests{
 	public synchronized void testGetInRange(){
 		SortedBeanKey alp1 = new SortedBeanKey(RANGE_alp, null, null, null);
 		SortedBeanKey emu1 = new SortedBeanKey(RANGE_emu, null, null, null);
-		List<SortedBean> result1 = router.sortedBeanSorted().getRange(
+		List<SortedBean> result1 = node.getRange(
 				alp1, true, emu1, true, null);
 		int expectedSize1 = RANGE_LENGTH_alp_emu_inc * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
 		Assert.assertTrue(ListTool.isSorted(result1));
 		
-		List<SortedBean> result1b = router.sortedBeanSorted().getRange(
+		List<SortedBean> result1b = node.getRange(
 				alp1, true, emu1, false, null);
 		int expectedSize1b = (RANGE_LENGTH_alp_emu_inc-1) * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize1b, CollectionTool.size(result1b));
@@ -278,7 +285,7 @@ public class SortedNodeIntegrationTests{
 		
 		SortedBeanKey alp2 = new SortedBeanKey(STRINGS.first(), RANGE_alp, null, null);
 		SortedBeanKey emu2 = new SortedBeanKey(STRINGS.first(), RANGE_emu, null, null);
-		List<SortedBean> result2 = router.sortedBeanSorted().getRange(
+		List<SortedBean> result2 = node.getRange(
 				alp2, true, emu2, true, null);
 		int expectedSize2 = RANGE_LENGTH_alp_emu_inc * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize2, CollectionTool.size(result2));
@@ -289,7 +296,7 @@ public class SortedNodeIntegrationTests{
 	public synchronized void testPrefixedRange(){
 		SortedBeanKey prefix = new SortedBeanKey(PREFIX_a, null, null, null);
 		SortedBeanKey al = new SortedBeanKey(RANGE_al, null, null, null);
-		List<SortedBean> result1 = router.sortedBeanSorted().getPrefixedRange(
+		List<SortedBean> result1 = node.getPrefixedRange(
 				prefix, true, al, true, null);
 		int expectedSize1 = RANGE_LENGTH_al_b * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
@@ -298,7 +305,7 @@ public class SortedNodeIntegrationTests{
 	
 	@Test
 	public synchronized void testGet(){
-		Iterable<SortedBean> iterable = router.sortedBeanSorted().scan(null, null);
+		Iterable<SortedBean> iterable = node.scan(null, null);
 		for(SortedBean sortedBean : iterable){
 			SortedBean sortedBean2 = router.sortedBean().get(sortedBean.getKey(), null);
 			Assert.assertEquals(sortedBean, sortedBean2);
@@ -307,7 +314,7 @@ public class SortedNodeIntegrationTests{
 	
 	@Test
 	public synchronized void testGetMulti(){
-		Iterable<SortedBean> iterable = router.sortedBeanSorted().scan(null, null);
+		Iterable<SortedBean> iterable = node.scan(null, null);
 		Set<SortedBean> allBeans = Sets.newHashSet(iterable);
 		Assert.assertEquals(TOTAL_RECORDS, allBeans.size());
 		List<SortedBean> getMultiResult = router.sortedBean().getMulti(KeyTool.getKeys(allBeans), null);
@@ -319,14 +326,14 @@ public class SortedNodeIntegrationTests{
 	
 	@Test
 	public synchronized void testScanKeys(){
-		Iterable<SortedBeanKey> iterable = router.sortedBeanSorted().scanKeys(null, null);
+		Iterable<SortedBeanKey> iterable = node.scanKeys(null, null);
 		long numKeys = IterableTool.count(iterable);
 		Assert.assertEquals(TOTAL_RECORDS, numKeys);
 	}
 	
 	@Test
 	public synchronized void testScan(){
-		Iterable<SortedBean> iterable = router.sortedBeanSorted().scan(null, null);
+		Iterable<SortedBean> iterable = node.scan(null, null);
 		long numDatabeans = IterableTool.count(iterable);
 		Assert.assertEquals(TOTAL_RECORDS, numDatabeans);
 	}
@@ -356,11 +363,11 @@ public class SortedNodeIntegrationTests{
 		//deleteWithPrefix
 		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());
 		SortedBeanKey prefix = new SortedBeanKey(PREFIX_a, null, null, null);
-		router.sortedBeanSorted().deleteRangeWithPrefix(prefix, true, null);
+		node.deleteRangeWithPrefix(prefix, true, null);
 		remainingElements -= NUM_PREFIX_a * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());
 
-		resetTable(router);//in case this one doesn't run last
+		resetTable();//in case this one doesn't run last
 	}
 	
 }

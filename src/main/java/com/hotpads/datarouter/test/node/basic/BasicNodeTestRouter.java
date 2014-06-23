@@ -34,8 +34,8 @@ import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBeanKey;
 import com.hotpads.datarouter.test.node.basic.prefixed.test.ScatteringPrefixIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
-import com.hotpads.datarouter.test.node.basic.sorted.test.IndexedNodeIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.test.SortedNodeIntegrationTests;
 import com.hotpads.trace.TraceEntityNode;
 import com.hotpads.util.core.ListTool;
@@ -46,11 +46,13 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 
 	public static final String 
 			name = "basicNodeTest",
-			ENTITY_TraceEntity = "TraceEntity";
+			ENTITY_TraceEntity = "TraceEntity",
+			ENTITY_SortedBeanEntity = "SortedBeanEntity",
+			NODE_PREFIX_SortedBean = "SB";
 	
 //	protected String clientName;
 	
-	public BasicNodeTestRouter(String clientName, Class<?> testType){
+	public BasicNodeTestRouter(String clientName, Class<?> testType, boolean entity){
 		super(new DataRouterContext(), name);
 		
 		if(ManyFieldTypeIntegrationTests.class.equals(testType)){
@@ -58,10 +60,13 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 					new Random().nextInt(), this));
 		}
 		if(SortedNodeIntegrationTests.class.equals(testType)){
-			sortedBeanNode = register(NodeFactory.create(clientName, SortedBean.class, SortedBeanFielder.class, this));
-		}
-		if(IndexedNodeIntegrationTests.class.equals(testType)){
-			sortedBeanNode = register(NodeFactory.create(clientName, SortedBean.class, SortedBeanFielder.class, this));
+			if(entity){
+				sortedBeanNode = register(NodeFactory.entityNode(this, clientName, 
+						SortedBeanEntityKey.class, SortedBean.class, SortedBeanFielder.class,
+						ENTITY_SortedBeanEntity, NODE_PREFIX_SortedBean));
+			}else{
+				sortedBeanNode = register(NodeFactory.create(clientName, SortedBean.class, SortedBeanFielder.class, this));
+			}
 		}
 		if(BackupIntegrationTests.class.equals(testType)){
 			backupBeanNode = register(NodeFactory.create(clientName, BackupBean.class, BackupBeanFielder.class, this));
@@ -146,10 +151,10 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	/************************ sorted and indexed versions of this router *****************/
 	
 	public static class SortedBasicNodeTestRouter extends BasicNodeTestRouter{
-		public SortedBasicNodeTestRouter(String client, Class<?> testType){
-			super(client, testType);
+		public SortedBasicNodeTestRouter(String client, Class<?> testType, boolean entity){
+			super(client, testType, entity);
 		}
-		public SortedStorage<SortedBeanKey,SortedBean> sortedBeanSorted(){
+		public SortedMapStorage<SortedBeanKey,SortedBean> sortedBeanSorted(){
 			return cast(sortedBeanNode);
 		}
 		public SortedStorage<ScatteringPrefixBeanKey,ScatteringPrefixBean> scatteringPrefixBeanSorted(){
@@ -158,8 +163,8 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	}
 	
 	public static class IndexedBasicNodeTestRouter extends SortedBasicNodeTestRouter{
-		public IndexedBasicNodeTestRouter(String client, Class<?> testType){
-			super(client, testType);
+		public IndexedBasicNodeTestRouter(String client, Class<?> testType, boolean entity){
+			super(client, testType, entity);
 		}
 		public IndexedStorage<SortedBeanKey,SortedBean> sortedBeanIndexed(){
 			return cast(sortedBeanNode);
