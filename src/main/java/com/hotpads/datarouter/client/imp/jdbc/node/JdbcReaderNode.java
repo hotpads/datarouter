@@ -87,13 +87,6 @@ implements MapStorageReader<PK,D>,
 		List<D> databeans = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();//should only be one
 		return CollectionTool.getFirst(databeans);
 	}
-
-	@Override
-	public List<D> getAll(final Config config) {
-		String opName = MapStorageReader.OP_getAll;
-		JdbcGetAllOp<PK,D,F> op = new JdbcGetAllOp<PK,D,F>(this, opName, config);
-		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
-	}
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config config) {

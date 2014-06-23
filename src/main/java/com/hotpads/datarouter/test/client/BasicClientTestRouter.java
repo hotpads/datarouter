@@ -3,9 +3,10 @@ package com.hotpads.datarouter.test.client;
 import com.google.inject.ImplementedBy;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
-import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
@@ -20,8 +21,8 @@ import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 public interface BasicClientTestRouter extends DataRouter{
 
 	MapStorage<TxnBeanKey,TxnBean> txnBeanJdbc();
-	MapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate();
-	MapStorage<TxnBeanKey,TxnBean> txnBeanHBase();
+	SortedMapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate();
+	SortedMapStorage<TxnBeanKey,TxnBean> txnBeanHBase();
 
 	MapStorage<KeepAliveKey,KeepAlive> keepAliveHBase();
 

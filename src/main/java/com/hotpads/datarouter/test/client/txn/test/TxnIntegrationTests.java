@@ -18,6 +18,7 @@ import com.hotpads.datarouter.test.client.txn.txnapp.MultiInsertRollback;
 import com.hotpads.datarouter.test.client.txn.txnapp.NestedTxn;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
 public class TxnIntegrationTests {
@@ -45,7 +46,7 @@ public class TxnIntegrationTests {
 	
 	public void resetTable(){
 		router.txnBeanHibernate().deleteAll(null);
-		Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+		Assert.assertEquals(0, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
 		logger.warn("resetTable complete");
 	}
 	
@@ -63,7 +64,7 @@ public class TxnIntegrationTests {
 			++numExceptions;
 		}
 		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+		Assert.assertEquals(0, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
 	}
 	
 	@Test 
@@ -79,7 +80,7 @@ public class TxnIntegrationTests {
 			++numExceptions;
 		}
 		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+		Assert.assertEquals(0, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
 	}
 
 	
@@ -91,7 +92,7 @@ public class TxnIntegrationTests {
 		int numExceptions = 0;
 		TxnBean b = new TxnBean("b");
 		router.txnBeanHibernate().put(b, null);
-		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+		Assert.assertEquals(1, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
 		try{
 			router.run(new MultiInsertRollback(drContext, ListTool.wrap(clientName), 
 					Isolation.readCommitted, router, false));
@@ -99,7 +100,7 @@ public class TxnIntegrationTests {
 			++numExceptions;
 		}
 		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+		Assert.assertEquals(1, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
 	}
 	
 	@Test 
@@ -108,7 +109,7 @@ public class TxnIntegrationTests {
 		int numExceptions = 0;
 		TxnBean b = new TxnBean("b");
 		router.txnBeanHibernate().put(b, null);
-		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+		Assert.assertEquals(1, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
 		try{
 			router.run(new MultiInsertRollback(drContext, ListTool.wrap(clientName), 
 					Isolation.readCommitted, router, true));
@@ -116,7 +117,7 @@ public class TxnIntegrationTests {
 			++numExceptions;
 		}
 		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(1, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+		Assert.assertEquals(1, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
 	}
 
 	
@@ -134,7 +135,7 @@ public class TxnIntegrationTests {
 			++numExceptions;
 		}
 		Assert.assertEquals(1, numExceptions);
-		Assert.assertEquals(0, CollectionTool.size(router.txnBeanHibernate().getAll(null)));
+		Assert.assertEquals(0, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
 	}
 	
 	public static void main(String... args){

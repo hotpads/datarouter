@@ -35,11 +35,6 @@ implements MapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<D> getAll(Config config) {
-		return readNode.getAll(config);
-	}
-
-	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config) {
 		return readNode.getMulti(keys, config);
 	}

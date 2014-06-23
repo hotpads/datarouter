@@ -9,6 +9,8 @@ import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive.KeepAliveFielder;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
 import com.hotpads.datarouter.node.factory.NodeFactory;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
@@ -42,8 +44,8 @@ implements BasicClientTestRouter{
 	private MapStorage<KeepAliveKey,KeepAlive> keepAliveHBase;
 
 	private MapStorage<TxnBeanKey,TxnBean> txnBeanJdbc;
-	private MapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate;
-	private MapStorage<TxnBeanKey,TxnBean> txnBeanHBase;
+	private SortedMapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate;
+	private SortedMapStorage<TxnBeanKey,TxnBean> txnBeanHBase;
 
 	private MapStorage<PoolTestBeanKey,PoolTestBean> poolTestBeanHBase;
 
@@ -106,12 +108,12 @@ implements BasicClientTestRouter{
 	}
 
 	@Override
-	public MapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate(){
+	public SortedMapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate(){
 		return txnBeanHibernate;
 	}
 
 	@Override
-	public MapStorage<TxnBeanKey,TxnBean> txnBeanHBase(){
+	public SortedMapStorage<TxnBeanKey,TxnBean> txnBeanHBase(){
 		return txnBeanHBase;
 	}
 

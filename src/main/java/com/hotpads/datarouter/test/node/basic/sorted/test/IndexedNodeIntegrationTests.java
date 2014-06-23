@@ -22,6 +22,7 @@ import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.IndexedBasicNo
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanByDCBLookup;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
@@ -116,12 +117,12 @@ public class IndexedNodeIntegrationTests{
 		int remainingElements = TOTAL_RECORDS;
 		
 		//delete via lookup
-		Assert.assertEquals(remainingElements, CollectionTool.size(router.sortedBean().getAll(null)));
+		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());
 		SortedBeanByDCBLookup lookup = new SortedBeanByDCBLookup(
 				SortedNodeIntegrationTests.S_gopher, 0, SortedNodeIntegrationTests.S_gopher);
 		router.sortedBeanIndexed().delete(lookup, null);
 		remainingElements -= (NUM_ELEMENTS);
-		Assert.assertEquals(remainingElements, CollectionTool.size(router.sortedBean().getAll(null)));
+		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());
 	}
 	
 }

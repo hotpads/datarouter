@@ -69,6 +69,11 @@ public class LongRunningTaskTracker {
 		return System.currentTimeMillis() - lastPersistedHeartbeat.getTime() > HEARTBEAT_PERSIST_PERIOD_MS;
 	}
 	
+	public LongRunningTaskTracker setNumItemsProcessed(int numItems){
+		task.setNumItemsProcessed(numItems);
+		return this;
+	}
+	
 	public IndexedSortedMapStorageNode getNode() {
 		return node;
 	}

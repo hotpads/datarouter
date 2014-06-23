@@ -20,7 +20,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.notification.databean.NotificationRequest;
-import com.hotpads.setting.NotificationSettings;
+import com.hotpads.setting.DatarouterNotificationSettings;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.http.client.HotPadsHttpClient;
 import com.hotpads.util.http.client.HotPadsHttpClientBuilder;
@@ -39,12 +39,12 @@ public class NotificationApiClient {
 	private HotPadsHttpClient client;
 	private NotificationRequestDtoTool dtoTool;
 	private ExceptionHandlingConfig exceptionHandlingConfig;
-	private NotificationSettings settings;
+	private DatarouterNotificationSettings settings;
 	private Boolean last;
 
 	@Inject
 	public NotificationApiClient(NotificationRequestDtoTool dtoTool, ExceptionHandlingConfig exceptionHandlingConfig,
-			NotificationSettings settings) {
+			DatarouterNotificationSettings settings) {
 		this.settings = settings;
 		this.exceptionHandlingConfig = exceptionHandlingConfig;
 		this.dtoTool = dtoTool;

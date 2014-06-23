@@ -65,16 +65,6 @@ implements MapStorageReader<PK,D>{
 	public D get(final PK key, Config config) {
 		return backingMap.get(key);
 	}
-	
-	
-	@Override
-	public List<D> getAll(final Config config) {		
-		List<D> result = ListTool.createArrayList(backingMap.size());
-		for(D d : backingMap.values()){
-			result.add(d);
-		}
-		return result;
-	}
 
 	
 	@Override

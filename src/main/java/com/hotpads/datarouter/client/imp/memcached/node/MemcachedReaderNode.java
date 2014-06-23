@@ -110,12 +110,6 @@ implements MemcachedPhysicalNode<PK,D>,
 				return null;
 			}
 	}
-	
-	
-	@Override
-	public List<D> getAll(final Config pConfig){
-		throw new UnsupportedOperationException();
-	}
 
 	
 	@Override
