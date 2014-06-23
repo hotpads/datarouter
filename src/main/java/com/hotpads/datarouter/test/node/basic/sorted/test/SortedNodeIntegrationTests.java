@@ -103,9 +103,9 @@ public class SortedNodeIntegrationTests{
 				}
 			}
 		}
-		node.putMulti(toSave, 
-				new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
-		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(node.scan(null, null)).intValue());
+		node.putMulti(toSave, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
+		List<SortedBean> roundTripped = ListTool.createArrayList(node.scan(null, null));
+		Assert.assertEquals(TOTAL_RECORDS, roundTripped.size());
 	}
 	
 	/***************************** fields **************************************/

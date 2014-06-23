@@ -7,6 +7,7 @@ import java.util.NavigableSet;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -29,6 +30,7 @@ public class HBaseEntityResultParser<
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>{
+	private static Logger logger = Logger.getLogger(HBaseEntityResultParser.class);
 
 	private DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
@@ -60,11 +62,7 @@ public class HBaseEntityResultParser<
 		for(KeyValue kv : row.list()){
 			byte[] qualifier = kv.getQualifier();
 			if(!Bytes.startsWith(qualifier, entityColumnPrefixBytes)){ continue; }
-			int numNonColumnPrefixBytes = qualifier.length - entityColumnPrefixBytes.length;
-			byte[] postEkPkPlusColumnBytes = ByteTool.copyOfRange(qualifier, entityColumnPrefixBytes.length, 
-					numNonColumnPrefixBytes);
-			byte[] pkPlusFieldNameBytes = ByteTool.concatenate(row.getRow(), postEkPkPlusColumnBytes);
-			Pair<PK,String> pkAndFieldName = getPrimaryKeyAndFieldName(pkPlusFieldNameBytes);
+			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
 			PK pk = pkAndFieldName.getLeft();
 			pks.add(pk);
 		}
@@ -78,12 +76,14 @@ public class HBaseEntityResultParser<
 		for(KeyValue kv : row.list()){
 			byte[] qualifier = kv.getQualifier();
 			if(!Bytes.startsWith(qualifier, entityColumnPrefixBytes)){ continue; }
-			int numNonColumnPrefixBytes = qualifier.length - entityColumnPrefixBytes.length;
-			byte[] postEkPkPlusColumnBytes = ByteTool.copyOfRange(qualifier, entityColumnPrefixBytes.length, 
-					numNonColumnPrefixBytes);
-			byte[] pkPlusFieldNameBytes = ByteTool.concatenate(row.getRow(), postEkPkPlusColumnBytes);
-			Pair<PK,String> pkAndFieldName = getPrimaryKeyAndFieldName(pkPlusFieldNameBytes);
+			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
 			PK pk = pkAndFieldName.getLeft();
+			
+//			/*************** start debug code *********************/
+//			logger.warn(kv);
+//			logger.warn(pk);
+//			parsePrimaryKeyAndFieldName(kv);
+//			/*************** end debug code *********************/
 			
 			//get or create the databean, and set the pk which we already parsed
 			D databean = databeanByKey.get(pk);
@@ -105,22 +105,25 @@ public class HBaseEntityResultParser<
 
 	
 	/****************** private ********************/
-
 	
-	private Pair<PK,String> getPrimaryKeyAndFieldName(byte[] pkPlusFieldNameBytes){
-		if(ArrayTool.isEmpty(pkPlusFieldNameBytes)){ throw new IllegalArgumentException("pkPlusFieldNameBytes is empty"); }
-		PK primaryKey = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
-		
-		//copied from above
+	private Pair<PK,String> parsePrimaryKeyAndFieldName(KeyValue kv){
+		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
+		byte[] rowBytes = kv.getRow();//TODO don't copy
+		parseFieldsFromBytesToPk(fieldInfo.getEntityKeyFields(), rowBytes, pk);
+		byte[] qualifierBytes = kv.getQualifier();//TODO don't copy
+		int fieldNameOffset = parseFieldsFromBytesToPk(fieldInfo.getPostEkPkKeyFields(), qualifierBytes, pk);
+		String fieldName = StringByteTool.fromUtf8BytesOffset(qualifierBytes, fieldNameOffset);
+		return Pair.create(pk, fieldName);
+	}
+	
+	private int parseFieldsFromBytesToPk(List<Field<?>> fields, byte[] fromBytes, PK targetPk){
 		int byteOffset = 0;
-		for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
-			if(byteOffset==pkPlusFieldNameBytes.length){ break; }//ran out of bytes.  leave remaining fields blank
-			int numBytesWithSeparator = field.numBytesWithSeparator(pkPlusFieldNameBytes, byteOffset);
-			Object value = field.fromBytesWithSeparatorButDoNotSet(pkPlusFieldNameBytes, byteOffset);
-			field.setUsingReflection(primaryKey, value);
-			byteOffset += numBytesWithSeparator;
+		for(Field<?> field : fields){
+			Object value = field.fromBytesWithSeparatorButDoNotSet(fromBytes, byteOffset);
+			field.setUsingReflection(targetPk, value);
+			byteOffset += field.numBytesWithSeparator(fromBytes, byteOffset);
+			if(byteOffset==fromBytes.length){ break; }//ran out of bytes.  leave remaining fields blank
 		}
-		String fieldName = StringByteTool.fromUtf8BytesOffset(pkPlusFieldNameBytes, byteOffset);
-		return Pair.create(primaryKey, fieldName);
+		return byteOffset;
 	}
 }
