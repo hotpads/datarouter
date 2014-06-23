@@ -90,9 +90,9 @@ public class SortedNodeIntegrationTests{
 		Collections.shuffle(cs);
 		Collections.shuffle(ds);
 		
-		List<SortedBean> toSave = ListTool.createArrayList();
 		for(int a=0; a < NUM_ELEMENTS; ++a){
 			for(int b=0; b < NUM_ELEMENTS; ++b){
+				List<SortedBean> toSave = ListTool.createArrayList();//save in periodic batches
 				for(int c=0; c < NUM_ELEMENTS; ++c){
 					for(int d=0; d < NUM_ELEMENTS; ++d){
 						SortedBean bean = new SortedBean(
@@ -101,9 +101,9 @@ public class SortedNodeIntegrationTests{
 						toSave.add(bean);
 					}
 				}
+				node.putMulti(toSave, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 			}
 		}
-		node.putMulti(toSave, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 		List<SortedBean> roundTripped = ListTool.createArrayList(node.scan(null, null));
 		Assert.assertEquals(TOTAL_RECORDS, roundTripped.size());
 	}
