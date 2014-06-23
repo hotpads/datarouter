@@ -42,13 +42,13 @@ public class DatabeanFieldInfo<
 	private String clientName;
 	private String tableName;
 	private String packagedTableName;
+	private boolean entity = false;
 	private String entityName;
 	private String entityNodePrefix;
 	private byte[] entityNodeColumnPrefixBytes;
 	private String explicitNodeName;
 	
 	
-	private boolean entity = false;
 	private Class<EntityKey<?>> entityKeyClass;
 	private Class<PK> primaryKeyClass;
 	private PK samplePrimaryKey;
@@ -92,6 +92,17 @@ public class DatabeanFieldInfo<
 	
 //	public DatabeanFieldInfo(String nodeName, Class<D> databeanClass, Class<F> fielderClass){
 	public DatabeanFieldInfo(String nodeName, NodeParams<PK,D,F> params){
+		this.entityName = params.getEntityName();
+		this.entity = StringTool.notEmpty(entityName);
+		if(entity){
+			if(StringTool.isEmpty(params.getEntityNodePrefix())){
+				throw new IllegalArgumentException("must specify entityNodePrefix for entity nodes");
+			}
+			this.entityNodePrefix = params.getEntityNodePrefix();
+			this.entityNodeColumnPrefixBytes = ByteTool.concatenate(StringByteTool.getUtf8Bytes(entityNodePrefix), 
+					ByteTool.SINGLE_ZERO_BYTE);
+		}
+		
 		this.databeanClass = params.getDatabeanClass();
 		this.sampleDatabean = ReflectionTool.create(databeanClass);
 		this.primaryKeyClass = this.sampleDatabean.getKeyClass();
@@ -120,7 +131,6 @@ public class DatabeanFieldInfo<
 				//TODO remove the cast after fixing the DatabeanFielder interface and changing all databeans
 				this.primaryKeyFielderClass = (Class<PrimaryKeyFielder<PK>>)sampleFielder.getKeyFielderClass();
 				this.samplePrimaryKeyFielder = ReflectionTool.create(primaryKeyFielderClass);
-				this.entity = samplePrimaryKeyFielder.isEntity();
 				this.primaryKeyFields = samplePrimaryKeyFielder.getFields(sampleDatabean.getKey());
 				this.prefixedPrimaryKeyFields = sampleFielder.getKeyFields(sampleDatabean);
 
@@ -157,6 +167,9 @@ public class DatabeanFieldInfo<
 			this.packagedTableName = params.getQualifiedPhysicalName();
 			explicitNodeName = clientName+"."+tableName;
 			logger.info("client:"+clientName+" "+params.getDatabeanClass().getSimpleName()+" overridden -> "+tableName);
+		}else if(entity){
+			this.tableName = entityName;
+			this.packagedTableName = null;//what to do here
 		}else if(params.getBaseDatabeanClass() != null){//table-per-class-hierarchy (use superclass's table)
 			this.tableName = params.getBaseDatabeanClass().getSimpleName();
 			this.packagedTableName = params.getDatabeanClass().getName();
@@ -166,10 +179,6 @@ public class DatabeanFieldInfo<
 			this.tableName = params.getDatabeanClass().getSimpleName();
 			this.packagedTableName = params.getDatabeanClass().getName();
 		}
-		this.entityName = params.getEntityName();
-		this.entityNodePrefix = params.getEntityNodePrefix();
-		this.entityNodeColumnPrefixBytes = ByteTool.concatenate(StringByteTool.getUtf8Bytes(entityNodePrefix), 
-				ByteTool.SINGLE_ZERO_BYTE);
 		
 		assertAssertions();
 	}

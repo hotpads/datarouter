@@ -118,9 +118,9 @@ public class SortedNodeIntegrationTests{
 	@Parameters
 	public static Collection<Object[]> parameters(){
 		List<Object[]> params = ListTool.create();
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
 		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true});
 		return params;
 	}
@@ -185,7 +185,7 @@ public class SortedNodeIntegrationTests{
 	
 	@Test
 	public synchronized void testGetAll(){
-		List<SortedBean> allBeans = ListTool.createArrayList(router.sortedBean().scan(null, null));
+		List<SortedBean> allBeans = ListTool.createArrayList(node.scan(null, null));
 		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(allBeans));
 	}
 	
@@ -307,7 +307,7 @@ public class SortedNodeIntegrationTests{
 	public synchronized void testGet(){
 		Iterable<SortedBean> iterable = node.scan(null, null);
 		for(SortedBean sortedBean : iterable){
-			SortedBean sortedBean2 = router.sortedBean().get(sortedBean.getKey(), null);
+			SortedBean sortedBean2 = node.get(sortedBean.getKey(), null);
 			Assert.assertEquals(sortedBean, sortedBean2);
 		}
 	}
@@ -317,7 +317,7 @@ public class SortedNodeIntegrationTests{
 		Iterable<SortedBean> iterable = node.scan(null, null);
 		Set<SortedBean> allBeans = Sets.newHashSet(iterable);
 		Assert.assertEquals(TOTAL_RECORDS, allBeans.size());
-		List<SortedBean> getMultiResult = router.sortedBean().getMulti(KeyTool.getKeys(allBeans), null);
+		List<SortedBean> getMultiResult = node.getMulti(KeyTool.getKeys(allBeans), null);
 		Assert.assertEquals(TOTAL_RECORDS, getMultiResult.size());
 		for(SortedBean sortedBeanResult : getMultiResult){
 			Assert.assertTrue(allBeans.contains(sortedBeanResult));
@@ -343,29 +343,29 @@ public class SortedNodeIntegrationTests{
 		int remainingElements = TOTAL_RECORDS;
 		
 		//delete
-		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());
+		Assert.assertEquals(remainingElements, IterableTool.count(node.scan(null, null)).intValue());
 		SortedBeanKey key = new SortedBeanKey(STRINGS.last(), STRINGS.last(), 0, STRINGS.last());
-		router.sortedBean().delete(key, null);
+		node.delete(key, null);
 		--remainingElements;
-		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());
+		Assert.assertEquals(remainingElements, IterableTool.count(node.scan(null, null)).intValue());
 
 		//deleteMulti
-		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());
+		Assert.assertEquals(remainingElements, IterableTool.count(node.scan(null, null)).intValue());
 		List<SortedBeanKey> keys = ListTool.create(
 				new SortedBeanKey(STRINGS.last(), STRINGS.last(), 1, STRINGS.last()),
 				new SortedBeanKey(STRINGS.last(), STRINGS.last(), 2, STRINGS.last()),
 				new SortedBeanKey(STRINGS.last(), STRINGS.last(), 3, STRINGS.last()));
-		router.sortedBean().deleteMulti(keys, null);
+		node.deleteMulti(keys, null);
 		remainingElements -= 3;
-		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());
+		Assert.assertEquals(remainingElements, IterableTool.count(node.scan(null, null)).intValue());
 		
 		
 		//deleteWithPrefix
-		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());
+		Assert.assertEquals(remainingElements, IterableTool.count(node.scan(null, null)).intValue());
 		SortedBeanKey prefix = new SortedBeanKey(PREFIX_a, null, null, null);
 		node.deleteRangeWithPrefix(prefix, true, null);
 		remainingElements -= NUM_PREFIX_a * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
-		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());
+		Assert.assertEquals(remainingElements, IterableTool.count(node.scan(null, null)).intValue());
 
 		resetTable();//in case this one doesn't run last
 	}

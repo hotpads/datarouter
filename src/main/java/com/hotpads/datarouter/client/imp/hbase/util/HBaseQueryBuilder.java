@@ -138,7 +138,9 @@ public class HBaseQueryBuilder{
 		}
 		byte[] startBytes = ByteTool.concatenate(fieldBytes);
 		byte[] endBytes = ByteTool.unsignedIncrementOverflowToNull(startBytes);
-		return new Twin<ByteRange>(new ByteRange(startBytes), new ByteRange(endBytes));
+		ByteRange startByteRange = startBytes==null ? null : new ByteRange(startBytes);
+		ByteRange endByteRange = endBytes==null ? null : new ByteRange(endBytes);
+		return new Twin<ByteRange>(startByteRange, endByteRange);
 	}
 	
 	/************************** pure byte helpers *****************************************/
