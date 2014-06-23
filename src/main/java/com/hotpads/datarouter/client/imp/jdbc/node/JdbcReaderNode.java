@@ -242,8 +242,8 @@ implements MapStorageReader<PK,D>,
 		return new SortedScannerIterable<D>(scanner);
 	}
 	
-	public <L extends Lookup<PK>> SortedScannerIterable<D> scanIndex(L index, boolean retreiveAllFields){
-		SortedScanner<D> scanner = new JdbcIndexScanner<PK,D,F,L>(this, null, retreiveAllFields);
+	public <L extends Lookup<PK>> SortedScannerIterable<D> scanIndex(Class<L> indexClass, boolean retreiveAllFields){
+		SortedScanner<D> scanner = new JdbcIndexScanner<PK,D,F,L>(this, indexClass, retreiveAllFields);
 		return new SortedScannerIterable<D>(scanner);
 	}
 	
