@@ -26,6 +26,7 @@ import com.hotpads.datarouter.client.imp.memcached.MemcachedClientType;
 import com.hotpads.datarouter.client.imp.memory.MemoryClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
+import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
@@ -33,7 +34,6 @@ import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
 import com.hotpads.datarouter.test.node.basic.manyfield.TestEnum;
 import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -48,65 +48,78 @@ public class ManyFieldTypeIntegrationTests {
 	
 	/****************************** static ***********************************/
 
-	static Map<ClientType,BasicNodeTestRouter> routerByClientType = MapTool.create();
+//	static Map<ClientType,BasicNodeTestRouter> routerByClientType = MapTool.create();
 	static Map<ClientType,List<ManyFieldTypeBeanKey>> keysByClientType = MapTool.create();
 
 	
 	@Parameters
 	public static Collection<Object[]> parameters(){
-		return DRTestConstants.CLIENT_TYPE_OBJECT_ARRAYS;
+		List<Object[]> params = ListTool.createArrayList();
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, true});
+		return params;
 	}
 	
-	@BeforeClass
-	public static void init() throws IOException{	
-		Class<?> cls = ManyFieldTypeIntegrationTests.class;
-		boolean entity = false;
-		
-		if(DRTestConstants.ALL_CLIENT_TYPES.contains(MemoryClientType.INSTANCE)){
-			routerByClientType.put(
-					MemoryClientType.INSTANCE, 
-					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemory, cls, entity));
-		}
-		if(DRTestConstants.ALL_CLIENT_TYPES.contains(JdbcClientType.INSTANCE)){
-			routerByClientType.put(
-					JdbcClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestJdbc0, cls, entity));
-		}
-		if(DRTestConstants.ALL_CLIENT_TYPES.contains(HibernateClientType.INSTANCE)){
-			routerByClientType.put(
-					HibernateClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls, entity));
-		}
-
-		if(DRTestConstants.ALL_CLIENT_TYPES.contains(HBaseClientType.INSTANCE)){
-			routerByClientType.put(
-					HBaseClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls, entity));
-		}
-
-		if(DRTestConstants.ALL_CLIENT_TYPES.contains(MemcachedClientType.INSTANCE)){
-			routerByClientType.put(
-					MemcachedClientType.INSTANCE, 
-					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemcached, cls, entity));
-		}
-		
-//		for(ClientType clientType : routerByClientType.keySet()){
-//			BasicNodeTestRouter router = routerByClientType.get(clientType);
+//	@BeforeClass
+//	public static void init() throws IOException{	
+//		Class<?> cls = ManyFieldTypeIntegrationTests.class;
+//		boolean entity = false;
+//		
+//		if(DRTestConstants.ALL_CLIENT_TYPES.contains(MemoryClientType.INSTANCE)){
+//			routerByClientType.put(
+//					MemoryClientType.INSTANCE, 
+//					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemory, cls, entity));
 //		}
-
-	}
+//		if(DRTestConstants.ALL_CLIENT_TYPES.contains(JdbcClientType.INSTANCE)){
+//			routerByClientType.put(
+//					JdbcClientType.INSTANCE, 
+//					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestJdbc0, cls, entity));
+//		}
+//		if(DRTestConstants.ALL_CLIENT_TYPES.contains(HibernateClientType.INSTANCE)){
+//			routerByClientType.put(
+//					HibernateClientType.INSTANCE, 
+//					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls, entity));
+//		}
+//
+//		if(DRTestConstants.ALL_CLIENT_TYPES.contains(HBaseClientType.INSTANCE)){
+//			routerByClientType.put(
+//					HBaseClientType.INSTANCE, 
+//					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls, entity));
+//		}
+//
+//		if(DRTestConstants.ALL_CLIENT_TYPES.contains(MemcachedClientType.INSTANCE)){
+//			routerByClientType.put(
+//					MemcachedClientType.INSTANCE, 
+//					new BasicNodeTestRouter(DRTestConstants.CLIENT_drTestMemcached, cls, entity));
+//		}
+//		
+////		for(ClientType clientType : routerByClientType.keySet()){
+////			BasicNodeTestRouter router = routerByClientType.get(clientType);
+////		}
+//
+//	}
 	
 	/***************************** fields **************************************/
 	
-	protected ClientType clientType;
-	protected BasicNodeTestRouter router;
+	private ClientType clientType;
+	private BasicNodeTestRouter router;
+	private MapStorage<ManyFieldTypeBeanKey,ManyFieldTypeBean> node;
 
 	/***************************** constructors **************************************/
 	
 	//runs before every @Test
-	public ManyFieldTypeIntegrationTests(ClientType clientType){
+	public ManyFieldTypeIntegrationTests(String clientName, ClientType clientType, boolean entity){
 		this.clientType = clientType;
-		this.router = routerByClientType.get(clientType);
+		this.router = new SortedBasicNodeTestRouter(clientName, getClass(), entity);
+		this.node = router.manyFieldTypeBean();
 	}
 	
 	@Before

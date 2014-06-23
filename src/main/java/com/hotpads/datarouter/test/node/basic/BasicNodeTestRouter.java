@@ -47,6 +47,8 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	public static final String 
 			name = "basicNodeTest",
 			ENTITY_TraceEntity = "TraceEntity",
+			ENTITY_ManyFieldTypeBeanEntity = "ManyFieldTypeBeanEntity",
+			NODE_PREFIX_ManyFieldTypeBean = "MFTB",
 			ENTITY_SortedBeanEntity = "SortedBeanEntity",
 			NODE_PREFIX_SortedBean = "SB";
 	
@@ -56,8 +58,13 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 		super(new DataRouterContext(), name);
 		
 		if(ManyFieldTypeIntegrationTests.class.equals(testType)){
-			manyFieldTypeBeanNode = register(NodeFactory.create(clientName, ManyFieldTypeBean.class, ManyFieldTypeBeanFielder.class, 
-					new Random().nextInt(), this));
+			if(entity){
+				manyFieldTypeBeanNode = register(NodeFactory.create(clientName, ManyFieldTypeBean.class, ManyFieldTypeBeanFielder.class, 
+						new Random().nextInt(), this));
+			}else{
+				manyFieldTypeBeanNode = register(NodeFactory.create(clientName, ManyFieldTypeBean.class, ManyFieldTypeBeanFielder.class, 
+						new Random().nextInt(), this));
+			}
 		}
 		if(SortedNodeIntegrationTests.class.equals(testType)){
 			if(entity){
