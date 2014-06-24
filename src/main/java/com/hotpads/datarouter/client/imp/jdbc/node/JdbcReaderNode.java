@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcCountOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetAllOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstKeyOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetKeysOp;
@@ -236,7 +235,8 @@ implements MapStorageReader<PK,D>,
 	}
 	
 	public <L extends Lookup<PK>> SortedScannerIterable<D> scanIndex(Class<L> indexClass, boolean retreiveAllFields){
-		SortedScanner<D> scanner = new JdbcIndexScanner<PK,D,F,L>(this, indexClass, retreiveAllFields);
+		SortedScanner<D> scanner = new JdbcIndexScanner<PK, D, F, L>(this, indexClass, retreiveAllFields,
+				getTraceName("scanIndex"));
 		return new SortedScannerIterable<D>(scanner);
 	}
 	

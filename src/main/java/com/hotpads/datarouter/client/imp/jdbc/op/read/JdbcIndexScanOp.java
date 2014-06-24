@@ -14,6 +14,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.collections.Range;
@@ -28,19 +29,22 @@ extends BaseJdbcOp<List<D>>{
 	private L index;
 	private Config config;
 	private boolean retreiveAllFields;
+	private String traceName;
 	
-	public JdbcIndexScanOp(JdbcReaderNode<PK, D, F> node,
-			Range<L> start, Class<L> indexClass, Config config, boolean retreiveAllFields){
+	public JdbcIndexScanOp(JdbcReaderNode<PK, D, F> node, Range<L> start, Class<L> indexClass, Config config,
+			boolean retreiveAllFields, String traceName){
 		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.start = start;
 		this.node = node;
 		this.config = config;
 		this.index = ReflectionTool.create(indexClass);
 		this.retreiveAllFields = retreiveAllFields;
+		this.traceName = traceName;
 	}
 	
 	@Override
 	public List<D> runOnce(){
+		DRCounters.incSuffixClientNode(node.getClient().getType(), traceName, node.getClientName(), node.getName());
 		List<Field<?>> selectableFields;
 		if(retreiveAllFields){
 			Set<Field<?>> selectableFieldSet = SetTool.create(node.getFieldInfo().getFields());
@@ -50,15 +54,8 @@ extends BaseJdbcOp<List<D>>{
 		}else{
 			selectableFields = node.getFields();
 		}
-		String sql = SqlBuilder.getInRange(
-				config,
-				node.getTableName(),
-				selectableFields,
-				start.getStart(),
-				start.getStartInclusive(),
-				start.getEnd(),
-				start.getEndInclusive(),
-				index.getFields());
+		String sql = SqlBuilder.getInRange(config, node.getTableName(), selectableFields, start.getStart(),
+				start.getStartInclusive(), start.getEnd(), start.getEndInclusive(), index.getFields());
 		Connection connection = getConnection(node.getClientName());
 		List<D> result = JdbcTool.selectDatabeansAndAllowNulls(connection, selectableFields, node.getDatabeanType(), sql);
 		return result;
