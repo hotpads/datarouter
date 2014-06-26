@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.jdbc.scan;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
@@ -16,27 +15,25 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
 
-public class JdbcIndexScanner<PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>, L extends Lookup<PK>>
-		extends BaseBatchingSortedScanner<D, D>{
+public class JdbcIndexScanner<PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>, PKLookup extends Lookup<PK>>
+		extends BaseBatchingSortedScanner<PKLookup,PKLookup>{
 
 	private static final Integer BATCH_SIZE = 1000;
 	
 	private JdbcReaderNode<PK, D, F> node;
-	private Class<L> indexClass;
-	private boolean retreiveAllFields;
+	private Class<PKLookup> indexClass;
 	private String traceName;
 
-	public JdbcIndexScanner(JdbcReaderNode<PK, D, F> node, Class<L> indexClass, boolean retreiveAllFields, String traceName){
+	public JdbcIndexScanner(JdbcReaderNode<PK, D, F> node, Class<PKLookup> indexClass, String traceName){
 		this.node = node;
 		this.indexClass = indexClass;
-		this.retreiveAllFields = retreiveAllFields;
 		this.traceName = traceName;
 	}
 
 	@Override
 	protected void loadNextBatch(){
 		currentBatchIndex = 0;
-		L lastRowOfPreviousBatch;
+		PKLookup lastRowOfPreviousBatch;
 		try{
 			lastRowOfPreviousBatch = indexClass.newInstance();
 		}catch (InstantiationException | IllegalAccessException e){
@@ -44,22 +41,15 @@ public class JdbcIndexScanner<PK extends PrimaryKey<PK>, D extends Databean<PK, 
 		}
 		boolean isStartInclusive = true;
 		if (currentBatch != null){
-			D endOfLastBatch = CollectionTool.getLast(currentBatch);
+			PKLookup endOfLastBatch = CollectionTool.getLast(currentBatch);
 			if (endOfLastBatch == null){
 				currentBatch = null;
 				return;
 			}
-			try{
-				lastRowOfPreviousBatch = indexClass.getDeclaredConstructor(endOfLastBatch.getClass()).newInstance(
-						endOfLastBatch);
-			}catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException e){
-				throw new RuntimeException(indexClass.getCanonicalName() + " must have a constructor with "
-						+ endOfLastBatch.getClass().getCanonicalName() + " as the unique parameter", e);
-			}
+			lastRowOfPreviousBatch = endOfLastBatch;
 			isStartInclusive = false;
 		}
-		Range<L> range = new Range<L>(lastRowOfPreviousBatch, isStartInclusive);
+		Range<PKLookup> range = new Range<PKLookup>(lastRowOfPreviousBatch, isStartInclusive);
 
 		currentBatch = doLoad(range);
 		if (CollectionTool.size(currentBatch) < BATCH_SIZE_DEFAULT){
@@ -68,15 +58,15 @@ public class JdbcIndexScanner<PK extends PrimaryKey<PK>, D extends Databean<PK, 
 	}
 
 	@Override
-	protected void setCurrentFromResult(D result){
+	protected void setCurrentFromResult(PKLookup result){
 		this.current = result;
 	}
 
-	private List<D> doLoad(Range<L> start){
+	private List<PKLookup> doLoad(Range<PKLookup> start){
 		Config config = Configs.slaveOk().setLimit(BATCH_SIZE);
-		JdbcIndexScanOp<PK, D, F, L> op = new JdbcIndexScanOp<PK, D, F, L>(node, start, indexClass, config,
-				retreiveAllFields, traceName);
-		return new SessionExecutorImpl<List<D>>(op, traceName).call();
+		JdbcIndexScanOp<PK, D, F, PKLookup> op = new JdbcIndexScanOp<PK, D, F, PKLookup>(node, start, indexClass, config,
+				traceName);
+		return new SessionExecutorImpl<List<PKLookup>>(op, traceName).call();
 	}
 	
 }

@@ -18,6 +18,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
+import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
@@ -121,19 +122,19 @@ public class JdbcTool {
 		}
 	}
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	List<D> selectDatabeansAndAllowNulls(Connection connection, List<Field<?>> selectedFields, Class<D> databeanClass, String sql){
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,PKLookup extends Lookup<PK>> 
+	List<PKLookup> selectLookups(Connection connection, List<Field<?>> selectedFields, Class<PKLookup> lookupClass, String sql, Class<PK> keyClass){
 		try{
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
-			List<D> databeans = ListTool.createArrayList();
+			List<PKLookup> lookups = ListTool.createArrayList();
 			while(rs.next()){
-				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
-						databeanClass, selectedFields, rs, false);
-				databeans.add(databean);
+				PKLookup lookup = (PKLookup) FieldSetTool.lookupFromJdbcResultSetUsingReflection(lookupClass,
+						selectedFields, rs, keyClass);
+				lookups.add(lookup);
 			}
-			return databeans;
+			return lookups;
 		}catch(Exception e){
 			String message = "error executing sql:"+sql.toString();
 			throw new DataAccessException(message, e);
