@@ -13,6 +13,7 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.util.core.DateTool;
 
 public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunningTask>{
 	
@@ -83,6 +84,16 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	public LongRunningTask(String jobClass, String serverName, LongRunningTaskType type){
 		this.key = new LongRunningTaskKey(jobClass, serverName);
 		this.type = type;
+	}
+	
+	/****************** helper methods ************************/
+	
+	public String getDurationString(){
+		return DateTool.getAgoString(startTime);
+	}
+	
+	public String getLastHeartbeatString(){
+		return DateTool.getAgoString(heartbeatTime);
 	}
 	
 	/****************** get/set ************************/
