@@ -12,6 +12,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.IndexedStorage;
+import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.SortedStorage;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -126,7 +127,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	
 	/*************************** get/set ***********************************/
 
-	public SortedMapStorage<ManyFieldTypeBeanKey,ManyFieldTypeBean> manyFieldTypeBean() {
+	public MapStorageNode<ManyFieldTypeBeanKey,ManyFieldTypeBean> manyFieldTypeBean() {
 		return cast(manyFieldTypeBeanNode);
 	}
 
