@@ -20,6 +20,8 @@ import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultParser;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseScatteringPrefixQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
@@ -35,6 +37,7 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.collections.Twin;
 import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
@@ -179,17 +182,51 @@ implements HBasePhysicalNode<PK,D>,
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
 			final Config pConfig){
 		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
-		if(wildcardLastField){
-			throw new IllegalArgumentException("currently cannot wildcardLastField in HBaseEntityNode");
-		}
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDataRouterContext(), "getWithPrefixes", this, config){
+
+		//segment prefixes into single vs multi-row queries
+		final List<PK> singleEntityPrefixes = ListTool.createArrayList();
+		final List<PK> multiEntityPrefixes = ListTool.createArrayList();
+		for(PK prefix : prefixes){
+			if(queryBuilder.isSingleEkPrefixQuery(prefix, wildcardLastField)){
+				singleEntityPrefixes.add(prefix);
+			}else{
+				multiEntityPrefixes.add(prefix);
+			}
+		}
+		
+		//execute the single-row queries in a big multi-Get
+		List<D> singleEntityResults = new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(
+				getDataRouterContext(), "getWithPrefixes", this, config){
 				public List<D> hbaseCall() throws Exception{
-					List<Get> gets = new HBaseEntityQueryBuilder<EK,PK,D,F>(fieldInfo).getPrefixQueries(prefixes, config);
+					List<Get> gets = queryBuilder.getPrefixGets(singleEntityPrefixes, wildcardLastField, config);
 					Result[] hbaseRows = hTable.get(gets);
 					return resultParser.getDatabeansWithMatchingQualifierPrefix(hbaseRows);
 				}
 			}).call();
+
+		//execute the multi-row queries in individual Scans
+		List<D> multiEntityResults = ListTool.createArrayList();
+		for(final PK prefix : multiEntityPrefixes){		
+			final Scan scan = queryBuilder.getPrefixScan(prefix, wildcardLastField, config);
+			List<D> singleScanResults = new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(
+					getDataRouterContext(), "getWithPrefixes", this, config){
+					public List<D> hbaseCall() throws Exception{
+						List<D> results = ListTool.createArrayList();
+						managedResultScanner = hTable.getScanner(scan);
+						for(Result row : managedResultScanner){
+							if(row.isEmpty()){ continue; }
+							List<D> singleRowResults = resultParser.getDatabeansWithMatchingQualifierPrefix(row);
+							results.addAll(singleRowResults);
+							if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
+						}
+						return results;
+					}
+				}).call();
+			multiEntityResults.addAll(singleScanResults);
+		}
+		
+		return ListTool.concatenate(singleEntityResults, multiEntityResults);
 	}
 	
 

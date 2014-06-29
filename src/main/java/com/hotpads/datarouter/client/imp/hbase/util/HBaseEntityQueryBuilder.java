@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 import org.apache.hadoop.hbase.filter.ColumnRangeFilter;
-import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 
@@ -14,6 +14,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
@@ -85,22 +86,40 @@ public class HBaseEntityQueryBuilder<
 	
 	/*********************** Get ****************************/
 	
-	public List<Get> getPrefixQueries(Collection<PK> prefixes, Config config){
+	public List<Get> getPrefixGets(Collection<PK> prefixes, boolean wildcardLastField, Config config){
 		List<Get> gets = ListTool.createArrayList();
 		for(PK prefix : prefixes){
-			gets.add(getPrefixQuery(prefix, config));
+			gets.add(getPrefixGet(prefix, wildcardLastField, config));
 		}
 		return gets;
 	}
 	
-	public Get getPrefixQuery(PK pkPrefix, Config config){
+	public Get getPrefixGet(PK pkPrefix, boolean wildcardLastField, Config config){
 		byte[] rowBytes = FieldTool.getConcatenatedValueBytes(pkPrefix.getEntityKeyFields(), false, false);//don't allow nulls in EK
-		byte[] pkQualifierBytes = FieldTool.getConcatenatedValueBytes(pkPrefix.getPostEntityKeyFields(), true, false);
+		boolean includeTrailingSeparator = !wildcardLastField;
+		byte[] pkQualifierBytes = FieldTool.getConcatenatedValueBytes(pkPrefix.getPostEntityKeyFields(), true, 
+				includeTrailingSeparator);
 		byte[] qualifierPrefix = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), pkQualifierBytes);
 		Get get = new Get(rowBytes);
 		get.setFilter(new ColumnPrefixFilter(qualifierPrefix));
 		//TODO obey config.getLimit()
 		return get;
+	}
+
+	public Scan getPrefixScan(PK pkPrefix, boolean wildcardLastField, Config config){
+		Scan scan = HBaseQueryBuilder.getPrefixScanner(pkPrefix, wildcardLastField, config);
+		scan.setFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
+		return scan;
+	}
+	
+	public boolean isSingleEkPrefixQuery(PK pk, boolean wildcardLastField){
+		EK ek = pk.getEntityKey();
+		List<Field<?>> ekFields = ek.getFields();
+		List<Field<?>> pkFields = pk.getFields();
+		int numNonNullPkFields = FieldTool.countNonNullLeadingFields(pkFields);
+		if(numNonNullPkFields > ekFields.size()){ return true; }
+		if(numNonNullPkFields == ekFields.size() && ! wildcardLastField){ return true; }
+		return false;//spans multiple entities
 	}
 	
 	public Get getSingleRowRange(EK ek, Range<PK> pkRange, boolean keysOnly){
