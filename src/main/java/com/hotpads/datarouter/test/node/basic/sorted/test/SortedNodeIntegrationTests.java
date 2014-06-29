@@ -1,16 +1,13 @@
 package com.hotpads.datarouter.test.node.basic.sorted.test;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -20,20 +17,20 @@ import com.google.common.collect.Sets;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
+import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.test.DRTestConstants;
-import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.iterable.BatchingIterable;
 
 @RunWith(Parameterized.class)
 public class SortedNodeIntegrationTests{
@@ -51,9 +48,9 @@ public class SortedNodeIntegrationTests{
 	@Parameters
 	public static Collection<Object[]> parameters(){
 		List<Object[]> params = ListTool.create();
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true});
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
 		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true});
 		return params;
 	}
@@ -71,29 +68,11 @@ public class SortedNodeIntegrationTests{
 		List<SortedBean> remainingAfterDelete = ListTool.createArrayList(node.scan(null, null));
 		Assert.assertEquals(0, CollectionTool.size(remainingAfterDelete));
 		
-		List<String> as = ListTool.createArrayList(STRINGS);
-		List<String> bs = ListTool.createArrayList(STRINGS);
-		List<Integer> cs = ListTool.createArrayList(INTEGERS);
-		List<String> ds = ListTool.createArrayList(STRINGS);
-		Collections.shuffle(as);
-		Collections.shuffle(bs);
-		Collections.shuffle(cs);
-		Collections.shuffle(ds);
-		
-		for(int a=0; a < NUM_ELEMENTS; ++a){
-			for(int b=0; b < NUM_ELEMENTS; ++b){
-				List<SortedBean> toSave = ListTool.createArrayList();//save in periodic batches
-				for(int c=0; c < NUM_ELEMENTS; ++c){
-					for(int d=0; d < NUM_ELEMENTS; ++d){
-						SortedBean bean = new SortedBean(
-								as.get(a), bs.get(b), cs.get(c), ds.get(d), 
-								"string so hbase has at least one field", null, null, null);
-						toSave.add(bean);
-					}
-				}
-				node.putMulti(toSave, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
-			}
+		List<SortedBean> allBeans = generatedSortedBeans();
+		for(List<SortedBean> batch : new BatchingIterable<SortedBean>(allBeans, 1000)){
+			node.putMulti(batch, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 		}
+		
 		List<SortedBean> roundTripped = ListTool.createArrayList(node.scan(null, null));
 		Assert.assertEquals(TOTAL_RECORDS, roundTripped.size());
 	}
@@ -148,6 +127,31 @@ public class SortedNodeIntegrationTests{
 	
 	public static final int TOTAL_RECORDS = NUM_ELEMENTS*NUM_ELEMENTS*NUM_ELEMENTS*NUM_ELEMENTS;
 	
+	public static List<SortedBean> generatedSortedBeans(){
+		List<String> as = ListTool.createArrayList(STRINGS);
+		List<String> bs = ListTool.createArrayList(STRINGS);
+		List<Integer> cs = ListTool.createArrayList(INTEGERS);
+		List<String> ds = ListTool.createArrayList(STRINGS);
+		Collections.shuffle(as);
+		Collections.shuffle(bs);
+		Collections.shuffle(cs);
+		Collections.shuffle(ds);
+		
+		List<SortedBean> beans = ListTool.createArrayList();//save in periodic batches
+		for(int a=0; a < NUM_ELEMENTS; ++a){
+			for(int b=0; b < NUM_ELEMENTS; ++b){
+				for(int c=0; c < NUM_ELEMENTS; ++c){
+					for(int d=0; d < NUM_ELEMENTS; ++d){
+						SortedBean bean = new SortedBean(
+								as.get(a), bs.get(b), cs.get(c), ds.get(d), 
+								"string so hbase has at least one field", null, null, null);
+						beans.add(bean);
+					}
+				}
+			}
+		}
+		return beans;
+	}
 	
 	/********************** junit methods *********************************************/
 	

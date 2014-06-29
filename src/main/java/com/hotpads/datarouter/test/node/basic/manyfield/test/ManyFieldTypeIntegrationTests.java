@@ -52,11 +52,16 @@ public class ManyFieldTypeIntegrationTests {
 	@Parameters
 	public static Collection<Object[]> parameters(){
 		List<Object[]> params = ListTool.createArrayList();
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true});
 		return params;
 	}
 	
@@ -76,10 +81,10 @@ public class ManyFieldTypeIntegrationTests {
 	/***************************** constructors **************************************/
 	
 	//runs before every @Test
-	public ManyFieldTypeIntegrationTests(String clientName, ClientType clientType, boolean sorted){
+	public ManyFieldTypeIntegrationTests(String clientName, ClientType clientType, boolean sorted, boolean entity){
 		this.clientType = clientType;
 		this.sorted = sorted;
-		this.router = new SortedBasicNodeTestRouter(clientName, getClass());
+		this.router = new SortedBasicNodeTestRouter(clientName, getClass(), entity);
 		this.mapNode = router.manyFieldTypeBean();
 		if(sorted){
 			this.sortedNode = BaseDataRouter.cast(mapNode);

@@ -16,15 +16,20 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
+import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.config.PutMethod;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.test.DRTestConstants;
-import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.IndexedBasicNodeTestRouter;
+import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanByDCBLookup;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.iterable.BatchingIterable;
 
 @RunWith(Parameterized.class)
 public class IndexedNodeIntegrationTests{
@@ -36,41 +41,56 @@ public class IndexedNodeIntegrationTests{
 	
 	@Parameters
 	public static Collection<Object[]> parameters(){
-		return ListTool.wrap(new Object[]{HibernateClientType.INSTANCE});
-//		return ListTool.create(
-//				new Object[]{ClientType.hibernate},
-//				new Object[]{ClientType.hbase});
+		List<Object[]> params = ListTool.create();
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE});
+		return params;
 	}
 	
 	@BeforeClass
 	public static void init() throws IOException{
-		Class<?> cls = IndexedNodeIntegrationTests.class;
-
-		IndexedBasicNodeTestRouter hibernateRouter = new IndexedBasicNodeTestRouter(
-				DRTestConstants.CLIENT_drTestHibernate0, cls, false);
-		routerByClientType.put(HibernateClientType.INSTANCE, hibernateRouter);
-		
-//		BasicNodeTestRouter hbaseRouter = new BasicNodeTestRouter(
-//				DRTestConstants.CLIENT_drTestHBase, 
-//				DRTestConstants.CLIENT_drTestHibernate0);
-//		routerByClientType.put(ClientType.hbase, hbaseRouter);
-		
-		for(BasicNodeTestRouter router : routerByClientType.values()){
-			SortedNodeIntegrationTests.resetTable(router);
-		}
+//		Class<?> cls = IndexedNodeIntegrationTests.class;
+//
+//		IndexedBasicNodeTestRouter hibernateRouter = new IndexedBasicNodeTestRouter(
+//				DRTestConstants.CLIENT_drTestHibernate0, cls, false);
+//		routerByClientType.put(HibernateClientType.INSTANCE, hibernateRouter);
+//		
+////		BasicNodeTestRouter hbaseRouter = new BasicNodeTestRouter(
+////				DRTestConstants.CLIENT_drTestHBase, 
+////				DRTestConstants.CLIENT_drTestHibernate0);
+////		routerByClientType.put(ClientType.hbase, hbaseRouter);
+//		
+//		for(BasicNodeTestRouter router : routerByClientType.values()){
+//			SortedNodeIntegrationTests.resetTable();
+//		}
 	}
 	
 	
 	/***************************** fields **************************************/
 	
-	protected ClientType clientType;
-	protected IndexedBasicNodeTestRouter router;
+	private IndexedBasicNodeTestRouter router;
+	private SortedMapStorage<SortedBeanKey,SortedBean> node;
 
 	/***************************** constructors **************************************/
-	
-	public IndexedNodeIntegrationTests(ClientType clientType){
-		this.clientType = clientType;
-		this.router = routerByClientType.get(clientType);
+
+	public IndexedNodeIntegrationTests(String clientName, ClientType clientType){
+		this.router = new IndexedBasicNodeTestRouter(clientName, getClass(), false);
+		this.node = router.sortedBean();
+		resetTable();
+	}
+
+
+	public void resetTable(){
+		node.deleteAll(null);
+		List<SortedBean> remainingAfterDelete = ListTool.createArrayList(node.scan(null, null));
+		Assert.assertEquals(0, CollectionTool.size(remainingAfterDelete));
+		
+		List<SortedBean> allBeans = SortedNodeIntegrationTests.generatedSortedBeans();
+		for(List<SortedBean> batch : new BatchingIterable<SortedBean>(allBeans, 1000)){
+			node.putMulti(batch, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
+		}
+		
+		List<SortedBean> roundTripped = ListTool.createArrayList(node.scan(null, null));
+		Assert.assertEquals(TOTAL_RECORDS, roundTripped.size());
 	}
 	
 	
@@ -112,7 +132,7 @@ public class IndexedNodeIntegrationTests{
 
 	@Test
 	public void testDelete(){
-		SortedNodeIntegrationTests.resetTable(router);
+		resetTable();
 		
 		int remainingElements = TOTAL_RECORDS;
 		
