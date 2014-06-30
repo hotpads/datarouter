@@ -9,7 +9,7 @@ import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.compare.PrefixFieldSetComparator;
+import com.hotpads.datarouter.storage.field.compare.EndOfRangeFieldSetComparator;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.util.core.IterableTool;
@@ -42,8 +42,8 @@ extends BaseHBaseEntityBatchLoader<EK,PK,D,F,D>{
 		List<D> unfilteredResults = node.getResultParser().getDatabeansWithMatchingQualifierPrefix(result);
 		List<D> filteredResults = ListTool.createArrayList();
 		for(D candidate : IterableTool.nullSafe(unfilteredResults)){
-			if(PrefixFieldSetComparator.isCandidateIncludedForEndOfRange(range.getEnd(), range.getEndInclusive(), 
-					candidate.getKey())){
+			if(EndOfRangeFieldSetComparator.isCandidateIncludedForEndOfRange(candidate.getKey(), range.getEnd(), 
+					range.getEndInclusive())){
 				filteredResults.add(candidate);
 			}
 		}

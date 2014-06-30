@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.storage.field.compare;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -20,13 +21,29 @@ import com.hotpads.util.core.ObjectTool;
  * HBaseEntityReaderNode may return results beyond our endKey.  This happens when we have a multi-Entity scan that stops
  * in the middle of the last Entity
  */
-public class PrefixFieldSetComparator{
+public class EndOfRangeFieldSetComparator<FS extends FieldSet<?>>
+implements Comparator<FS>{
 	
-	public static <FS extends FieldSet<?>> List<FS> filterOnEndOfRange(FS endOfRange, boolean inclusive, 
-			Iterable<FS> candidates){
+	private boolean inclusive;
+	
+	
+	public EndOfRangeFieldSetComparator(boolean inclusive){
+		this.inclusive = inclusive;
+	}
+
+	@Override//warning: not tested or used yet
+	public int compare(FS candidate, FS endOfRange){
+		return isCandidateIncludedForEndOfRange(candidate, endOfRange, inclusive) ? -1 : 1;
+	}
+	
+	
+	/********************* static **************************/
+	
+	public static <FS extends FieldSet<?>> List<FS> filterOnEndOfRange(Iterable<FS> candidates, FS endOfRange, 
+			boolean inclusive){
 		List<FS> matches = ListTool.createArrayList();
 		for(FS candidate : IterableTool.nullSafe(candidates)){
-			if(isCandidateIncludedForEndOfRange(endOfRange, inclusive, candidate)){
+			if(isCandidateIncludedForEndOfRange(candidate, endOfRange, inclusive)){
 				matches.add(candidate);
 			}
 		}
@@ -34,19 +51,19 @@ public class PrefixFieldSetComparator{
 	}
 
 	
-	public static boolean isCandidateIncludedForEndOfRange(FieldSet<?> endOfRange, boolean inclusive, 
-			FieldSet<?> candidate){
+	public static boolean isCandidateIncludedForEndOfRange(FieldSet<?> candidate, FieldSet<?> endOfRange, 
+			boolean inclusive){
 		if(endOfRange == null){ return true; }
 		if(ObjectTool.noNulls(endOfRange, candidate) && ClassTool.differentClass(endOfRange, candidate)){
 			throw new IllegalArgumentException("currently expecting same class");//should subclasses be ok?
 		}
 		//if we got past the class checks above, then fields should be the same and arrive in the same order
-		return isCandidateIncludedForEndOfRange(endOfRange.getFields(), candidate.getFields(), inclusive);
+		return isCandidateIncludedForEndOfRange(candidate.getFields(), endOfRange.getFields(), inclusive);
 	}
 	
 	
-	private static boolean isCandidateIncludedForEndOfRange(List<Field<?>> endOfRangeFields, 
-			List<Field<?>> candidateFields, boolean inclusive){
+	private static boolean isCandidateIncludedForEndOfRange(List<Field<?>> candidateFields, 
+			List<Field<?>> endOfRangeFields, boolean inclusive){
 		if(endOfRangeFields == null){ return true; }
 		if(CollectionTool.differentSize(endOfRangeFields, candidateFields)){
 			throw new IllegalArgumentException("inputs must have identical field count");
@@ -89,7 +106,7 @@ public class PrefixFieldSetComparator{
 		public void testObviousFailure(){
 			SortedBeanKey candidate1 = new SortedBeanKey("zzz", "zzz", 55, "zzz");
 			Assert.assertTrue(candidate1.compareTo(endOfRange1) > 0);//sanity check
-			Assert.assertFalse(isCandidateIncludedForEndOfRange(endOfRange1, true, candidate1));
+			Assert.assertFalse(isCandidateIncludedForEndOfRange(candidate1, endOfRange1, true));
 		}
 
 		@Test
@@ -97,17 +114,18 @@ public class PrefixFieldSetComparator{
 			//the candidate would normally compare after the endOfRange, but should be included here
 			SortedBeanKey candidate2 = new SortedBeanKey("emu", "zzz", 55, "zzz");
 			Assert.assertTrue(candidate2.compareTo(endOfRange1) > 0);//candidate is after end of range with normal comparison
-			Assert.assertTrue(isCandidateIncludedForEndOfRange(endOfRange1, true, candidate2));//but in the prefix range
-			Assert.assertTrue(isCandidateIncludedForEndOfRange(endOfRange1, false, candidate2));//even with inclusive=false
+			Assert.assertTrue(isCandidateIncludedForEndOfRange(candidate2, endOfRange1, true));//but in the prefix range
+			Assert.assertTrue(isCandidateIncludedForEndOfRange(candidate2, endOfRange1, false));//even with inclusive=false
 		}
 
 		@Test
 		public void testInclusiveExclusive(){
+			SortedBeanKey endOfRange2 = new SortedBeanKey("emu", "d", 5, "g");
 			//the candidate would normally compare after the endOfRange, but should be included here
-			SortedBeanKey candidate3 = new SortedBeanKey("emu", null, null, null);
-			Assert.assertTrue(candidate3.compareTo(endOfRange1) == 0);//candidate is after end of range with normal comparison
-			Assert.assertTrue(isCandidateIncludedForEndOfRange(endOfRange1, true, candidate3));//but in the prefix range
-			Assert.assertFalse(isCandidateIncludedForEndOfRange(endOfRange1, false, candidate3));//even with inclusive=false
+			SortedBeanKey candidate3 = new SortedBeanKey("emu", "d", 5, "g");
+			Assert.assertTrue(candidate3.compareTo(endOfRange2) == 0);
+			Assert.assertTrue(isCandidateIncludedForEndOfRange(candidate3, endOfRange2, true));//but in the prefix range
+			Assert.assertFalse(isCandidateIncludedForEndOfRange(candidate3, endOfRange2, false));//even with inclusive=false
 		}
 	}
 }

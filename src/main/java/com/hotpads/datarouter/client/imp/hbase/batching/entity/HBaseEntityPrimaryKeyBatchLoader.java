@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.compare.PrefixFieldSetComparator;
+import com.hotpads.datarouter.storage.field.compare.EndOfRangeFieldSetComparator;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.util.core.collections.Range;
@@ -39,8 +39,8 @@ extends BaseHBaseEntityBatchLoader<EK,PK,D,F,PK>{
 	protected List<PK> parseHBaseResult(Result result){
 		//the first and last entity may include results outside the range
 		NavigableSet<PK> unfilteredResults = node.getResultParser().getPrimaryKeysWithMatchingQualifierPrefix(result);
-		List<PK> filteredResults = PrefixFieldSetComparator.filterOnEndOfRange(range.getEnd(), range.getEndInclusive(), 
-				unfilteredResults);
+		List<PK> filteredResults = EndOfRangeFieldSetComparator.filterOnEndOfRange(unfilteredResults, range.getEnd(), 
+				range.getEndInclusive());
 		return filteredResults;
 	}
 	
