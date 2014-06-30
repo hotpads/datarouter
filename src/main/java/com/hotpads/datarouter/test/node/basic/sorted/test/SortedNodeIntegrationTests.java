@@ -16,8 +16,7 @@ import org.junit.runners.Parameterized.Parameters;
 import com.google.common.collect.Sets;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
-import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
@@ -30,6 +29,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
 @RunWith(Parameterized.class)
@@ -259,8 +259,40 @@ public class SortedNodeIntegrationTests{
 		Assert.assertTrue(ListTool.isSorted(result2));
 	}
 	
+	@Test //small batch sizes to make sure we're resuming each batch from the correct spot
+	public synchronized void testIncrementalScan(){
+		Config smallIterateBatchSize = new Config().setIterateBatchSize(3);
+
+		int expectedSize1 = RANGE_LENGTH_alp_emu_inc * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
+//		logger.warn("expecting "+expectedSize1);
+		SortedBeanKey alp1 = new SortedBeanKey(RANGE_alp, null, null, null);
+		SortedBeanKey emu1 = new SortedBeanKey(RANGE_emu, null, null, null);
+		List<SortedBeanKey> result1 = ListTool.createArrayList(node.scanKeys(Range.create(alp1, true, emu1, true), 
+				smallIterateBatchSize));
+		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
+		Assert.assertTrue(ListTool.isSorted(result1));
+
+		int expectedSize1b = (RANGE_LENGTH_alp_emu_inc - 1) * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
+//		logger.warn("expecting "+expectedSize1b);
+		List<SortedBeanKey> result1b = ListTool.createArrayList(node.scanKeys(Range.create(alp1, true, emu1, false), 
+				smallIterateBatchSize));
+		Assert.assertEquals(expectedSize1b, CollectionTool.size(result1b));
+		Assert.assertTrue(ListTool.isSorted(result1b));
+
+		int expectedSize2 = RANGE_LENGTH_alp_emu_inc * NUM_ELEMENTS * NUM_ELEMENTS;
+//		logger.warn("expecting "+expectedSize2);
+		SortedBeanKey alp2 = new SortedBeanKey(STRINGS.first(), RANGE_alp, null, null);
+		SortedBeanKey emu2 = new SortedBeanKey(STRINGS.first(), RANGE_emu, null, null);
+		List<SortedBeanKey> result2 = ListTool.createArrayList(node.scanKeys(Range.create(alp2, true, emu2, true), 
+				smallIterateBatchSize));
+		Assert.assertEquals(expectedSize2, CollectionTool.size(result2));
+		Assert.assertTrue(ListTool.isSorted(result2));
+//		logger.warn("finished incremental scan");
+	}
+	
 	@Test
 	public synchronized void testPrefixedRange(){
+		if(isHBaseEntity()){ return; }//not implemented
 		SortedBeanKey prefix = new SortedBeanKey(PREFIX_a, null, null, null);
 		SortedBeanKey al = new SortedBeanKey(RANGE_al, null, null, null);
 		List<SortedBean> result1 = node.getPrefixedRange(prefix, true, al, true, null);
@@ -291,14 +323,14 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public synchronized void testScanKeys(){
+	public synchronized void testFullScanKeys(){
 		Iterable<SortedBeanKey> iterable = node.scanKeys(null, null);
 		long numKeys = IterableTool.count(iterable);
 		Assert.assertEquals(TOTAL_RECORDS, numKeys);
 	}
 	
 	@Test
-	public synchronized void testScan(){
+	public synchronized void testFullScan(){
 		Iterable<SortedBean> iterable = node.scan(null, null);
 		long numDatabeans = IterableTool.count(iterable);
 		Assert.assertEquals(TOTAL_RECORDS, numDatabeans);
@@ -336,6 +368,13 @@ public class SortedNodeIntegrationTests{
 		resetTable();//in case this one doesn't run last
 	}
 	
+	
+
+	/************************* helper ****************************/
+	
+	public boolean isHBaseEntity(){
+		return node instanceof HBaseEntityReaderNode;
+	}
 }
 
 
