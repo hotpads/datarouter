@@ -99,6 +99,9 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	}
 	
 	public int getStatus(){
+		if(heartbeatTime == null){
+			return 0;
+		}
 		long millisAgo = System.currentTimeMillis() - heartbeatTime.getTime();
 		if(millisAgo > LAST_HEARTBEAT_STALLED_THRESHOLD){
 			return 2;
