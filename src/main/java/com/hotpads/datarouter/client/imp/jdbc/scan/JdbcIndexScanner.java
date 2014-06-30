@@ -14,6 +14,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
+import com.hotpads.util.core.java.ReflectionTool;
 
 public class JdbcIndexScanner<PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>, PKLookup extends Lookup<PK>>
 		extends BaseBatchingSortedScanner<PKLookup,PKLookup>{
@@ -33,12 +34,7 @@ public class JdbcIndexScanner<PK extends PrimaryKey<PK>, D extends Databean<PK, 
 	@Override
 	protected void loadNextBatch(){
 		currentBatchIndex = 0;
-		PKLookup lastRowOfPreviousBatch;
-		try{
-			lastRowOfPreviousBatch = indexClass.newInstance();
-		}catch (InstantiationException | IllegalAccessException e){
-			throw new RuntimeException(indexClass.getCanonicalName() + " must have a no-arg constructor", e);
-		}
+		PKLookup lastRowOfPreviousBatch = ReflectionTool.create(indexClass, indexClass.getCanonicalName() + " must have a no-arg constructor");
 		boolean isStartInclusive = true;
 		if (currentBatch != null){
 			PKLookup endOfLastBatch = CollectionTool.getLast(currentBatch);

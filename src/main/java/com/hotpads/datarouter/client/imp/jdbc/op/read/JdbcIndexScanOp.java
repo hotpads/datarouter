@@ -19,6 +19,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.java.ReflectionTool;
 
 public class JdbcIndexScanOp
 <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,PKLookup extends Lookup<PK>>
@@ -44,12 +45,7 @@ extends BaseJdbcOp<List<PKLookup>>{
 	public List<PKLookup> runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), traceName, node.getClientName(), node.getName());
 		
-		PKLookup index;
-		try{
-			index = indexClass.newInstance();
-		}catch (InstantiationException | IllegalAccessException e){
-			throw new RuntimeException(indexClass.getCanonicalName() + " must have a no-arg constructor", e);
-		}
+		PKLookup index = ReflectionTool.create(indexClass, indexClass.getCanonicalName() + " must have a no-arg constructor");
 		
 		Set<Field<?>> selectableFieldSet = new TreeSet<Field<?>>(new FieldColumnNameComparator());
 		selectableFieldSet.addAll(node.getFieldInfo().getPrefixedPrimaryKeyFields());
