@@ -7,14 +7,12 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultParser;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.compare.PrefixFieldSetComparator;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 
@@ -40,7 +38,10 @@ extends BaseHBaseEntityBatchLoader<EK,PK,D,F,PK>{
 	@Override
 	protected List<PK> parseHBaseResult(Result result){
 		//the first and last entity may include results outside the range
-		return range.filter(node.getResultParser().getPrimaryKeysWithMatchingQualifierPrefix(result));
+		NavigableSet<PK> unfilteredResults = node.getResultParser().getPrimaryKeysWithMatchingQualifierPrefix(result);
+		List<PK> filteredResults = PrefixFieldSetComparator.filterOnEndOfRange(range.getEnd(), range.getEndInclusive(), 
+				unfilteredResults);
+		return filteredResults;
 	}
 	
 	@Override

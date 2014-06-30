@@ -48,9 +48,9 @@ public class SortedNodeIntegrationTests{
 	@Parameters
 	public static Collection<Object[]> parameters(){
 		List<Object[]> params = ListTool.create();
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, false});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
 		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true});
 		return params;
 	}
@@ -132,6 +132,7 @@ public class SortedNodeIntegrationTests{
 		List<String> bs = ListTool.createArrayList(STRINGS);
 		List<Integer> cs = ListTool.createArrayList(INTEGERS);
 		List<String> ds = ListTool.createArrayList(STRINGS);
+		//shuffle them for fun.  they should end up sorted in the table
 		Collections.shuffle(as);
 		Collections.shuffle(bs);
 		Collections.shuffle(cs);
@@ -218,22 +219,19 @@ public class SortedNodeIntegrationTests{
 	public synchronized void testGetKeysInRange(){
 		SortedBeanKey alp1 = new SortedBeanKey(RANGE_alp, null, null, null);
 		SortedBeanKey emu1 = new SortedBeanKey(RANGE_emu, null, null, null);
-		List<SortedBeanKey> result1 = node.getKeysInRange(
-				alp1, true, emu1, true, null);
+		List<SortedBeanKey> result1 = node.getKeysInRange(alp1, true, emu1, true, null);
 		int expectedSize1 = RANGE_LENGTH_alp_emu_inc * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
 		Assert.assertTrue(ListTool.isSorted(result1));
 		
-		List<SortedBeanKey> result1b = node.getKeysInRange(
-				alp1, true, emu1, false, null);
+		List<SortedBeanKey> result1b = node.getKeysInRange(alp1, true, emu1, false, null);
 		int expectedSize1b = (RANGE_LENGTH_alp_emu_inc - 1) * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize1b, CollectionTool.size(result1b));
 		Assert.assertTrue(ListTool.isSorted(result1b));
 		
 		SortedBeanKey alp2 = new SortedBeanKey(STRINGS.first(), RANGE_alp, null, null);
 		SortedBeanKey emu2 = new SortedBeanKey(STRINGS.first(), RANGE_emu, null, null);
-		List<SortedBeanKey> result2 = node.getKeysInRange(
-				alp2, true, emu2, true, null);
+		List<SortedBeanKey> result2 = node.getKeysInRange(alp2, true, emu2, true, null);
 		int expectedSize2 = RANGE_LENGTH_alp_emu_inc * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize2, CollectionTool.size(result2));
 		Assert.assertTrue(ListTool.isSorted(result2));
@@ -243,22 +241,19 @@ public class SortedNodeIntegrationTests{
 	public synchronized void testGetInRange(){
 		SortedBeanKey alp1 = new SortedBeanKey(RANGE_alp, null, null, null);
 		SortedBeanKey emu1 = new SortedBeanKey(RANGE_emu, null, null, null);
-		List<SortedBean> result1 = node.getRange(
-				alp1, true, emu1, true, null);
+		List<SortedBean> result1 = node.getRange(alp1, true, emu1, true, null);
 		int expectedSize1 = RANGE_LENGTH_alp_emu_inc * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
 		Assert.assertTrue(ListTool.isSorted(result1));
 		
-		List<SortedBean> result1b = node.getRange(
-				alp1, true, emu1, false, null);
+		List<SortedBean> result1b = node.getRange(alp1, true, emu1, false, null);
 		int expectedSize1b = (RANGE_LENGTH_alp_emu_inc-1) * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize1b, CollectionTool.size(result1b));
 		Assert.assertTrue(ListTool.isSorted(result1b));
 		
 		SortedBeanKey alp2 = new SortedBeanKey(STRINGS.first(), RANGE_alp, null, null);
 		SortedBeanKey emu2 = new SortedBeanKey(STRINGS.first(), RANGE_emu, null, null);
-		List<SortedBean> result2 = node.getRange(
-				alp2, true, emu2, true, null);
+		List<SortedBean> result2 = node.getRange(alp2, true, emu2, true, null);
 		int expectedSize2 = RANGE_LENGTH_alp_emu_inc * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize2, CollectionTool.size(result2));
 		Assert.assertTrue(ListTool.isSorted(result2));
@@ -268,8 +263,7 @@ public class SortedNodeIntegrationTests{
 	public synchronized void testPrefixedRange(){
 		SortedBeanKey prefix = new SortedBeanKey(PREFIX_a, null, null, null);
 		SortedBeanKey al = new SortedBeanKey(RANGE_al, null, null, null);
-		List<SortedBean> result1 = node.getPrefixedRange(
-				prefix, true, al, true, null);
+		List<SortedBean> result1 = node.getPrefixedRange(prefix, true, al, true, null);
 		int expectedSize1 = RANGE_LENGTH_al_b * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
 		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
 		Assert.assertTrue(ListTool.isSorted(result1));
