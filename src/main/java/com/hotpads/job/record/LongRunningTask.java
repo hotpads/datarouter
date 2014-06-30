@@ -13,10 +13,13 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.util.core.DateTool;
 
 public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunningTask>{
 	
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final long LAST_HEARTBEAT_WARNING_THRESHOLD = 2l * DateTool.MILLISECONDS_IN_SECOND,
+							LAST_HEARTBEAT_STALLED_THRESHOLD = 10l * DateTool.MILLISECONDS_IN_SECOND;
 	
 	private LongRunningTaskKey key;
 	private LongRunningTaskType type;
@@ -83,6 +86,33 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	public LongRunningTask(String jobClass, String serverName, LongRunningTaskType type){
 		this.key = new LongRunningTaskKey(jobClass, serverName);
 		this.type = type;
+	}
+	
+	/****************** helper methods ************************/
+	
+	public String getDurationString(){
+		return DateTool.getAgoString(startTime);
+	}
+	
+	public String getLastHeartbeatString(){
+		if(heartbeatTime == null){
+			return "";
+		}
+		return DateTool.getAgoString(heartbeatTime);
+	}
+	
+	public int getStatus(){
+		if(heartbeatTime == null){
+			return 0;
+		}
+		long millisAgo = System.currentTimeMillis() - heartbeatTime.getTime();
+		if(millisAgo > LAST_HEARTBEAT_STALLED_THRESHOLD){
+			return 2;
+		}
+		else if(millisAgo > LAST_HEARTBEAT_WARNING_THRESHOLD){
+			return 1;
+		}
+		return 0;
 	}
 	
 	/****************** get/set ************************/
