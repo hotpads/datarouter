@@ -8,6 +8,7 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNod
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.trace.Trace.TraceFielder;
 import com.hotpads.trace.TraceSpan.TraceSpanFielder;
 import com.hotpads.trace.TraceThread.TraceThreadFielder;
@@ -26,8 +27,8 @@ public class TraceEntityNode extends BaseEntityNode<TraceEntityKey,TraceEntity>{
 		NODE_PREFIX_TraceSpan = "TS";
 
 	public SortedMapStorageNode<TraceKey,Trace> trace;
-	public SortedMapStorageNode<TraceThreadKey,TraceThread> traceThread;
-	public SortedMapStorageNode<TraceSpanKey,TraceSpan> traceSpan;
+	public SortedMapStorageNode<TraceThreadKey,TraceThread> thread;
+	public SortedMapStorageNode<TraceSpanKey,TraceSpan> span;
 	
 	public TraceEntityNode(String name, DataRouter router, String clientName){
 		super(name);
@@ -40,15 +41,15 @@ public class TraceEntityNode extends BaseEntityNode<TraceEntityKey,TraceEntity>{
 				ENTITY_TraceEntity, NODE_PREFIX_Trace)));
 		register(trace);
 		
-		traceThread = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
+		thread = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
 				TraceEntityKey.class, TraceThread.class, TraceThreadFielder.class, 
 				ENTITY_TraceEntity, NODE_PREFIX_TraceThread)));
-		register(traceThread);
+		register(thread);
 		
-		traceSpan = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
+		span = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
 				TraceEntityKey.class, TraceSpan.class, TraceSpanFielder.class, 
 				ENTITY_TraceEntity, NODE_PREFIX_TraceSpan)));
-		register(traceSpan);	
+		register(span);	
 	}
 	
 	
@@ -61,12 +62,12 @@ public class TraceEntityNode extends BaseEntityNode<TraceEntityKey,TraceEntity>{
 		entity.add(trace, traces);
 		
 		TraceThreadKey traceThreadPrefix = ReflectionTool.create(TraceThreadKey.class).prefixFromEntityKey(key);
-		List<TraceThread> traceThreads = traceThread.getWithPrefix(traceThreadPrefix, false, null);
-		entity.add(traceThread, traceThreads);
+		List<TraceThread> traceThreads = thread.getWithPrefix(traceThreadPrefix, false, null);
+		entity.add(thread, traceThreads);
 		
 		TraceSpanKey traceSpanPrefix = ReflectionTool.create(TraceSpanKey.class).prefixFromEntityKey(key);
-		List<TraceSpan> traceSpans = traceSpan.getWithPrefix(traceSpanPrefix, false, null);
-		entity.add(traceSpan, traceSpans);
+		List<TraceSpan> traceSpans = span.getWithPrefix(traceSpanPrefix, false, null);
+		entity.add(span, traceSpans);
 		
 		return entity;
 	}
@@ -78,14 +79,13 @@ public class TraceEntityNode extends BaseEntityNode<TraceEntityKey,TraceEntity>{
 		return trace;
 	}
 
-	public SortedMapStorageNode<TraceThreadKey,TraceThread> traceThread(){
-		return traceThread;
+	public SortedMapStorageNode<TraceThreadKey,TraceThread> thread(){
+		return thread;
 	}
 
-	public SortedMapStorageNode<TraceSpanKey,TraceSpan> traceSpan(){
-		return traceSpan;
+	public SortedMapStorageNode<TraceSpanKey,TraceSpan> span(){
+		return span;
 	}
-	
 	
 	
 }

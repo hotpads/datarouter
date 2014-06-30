@@ -119,7 +119,8 @@ public class DatabeanFieldInfo<
 			EntityPrimaryKey<?,?> sampleEntityPrimaryKey = (EntityPrimaryKey<?,?>)samplePrimaryKey;
 			this.sampleEntityKey = sampleEntityPrimaryKey.getEntityKey();
 			this.entityKeyClass = sampleEntityKey.getClass();
-			this.entityKeyFields = sampleEntityKey.getFields();
+			//careful to call sampleEntityPrimarykey.getEntityKeyFields vs sampleEntityKey.getFields().  the pk may override the ek
+			this.entityKeyFields = sampleEntityPrimaryKey.getEntityKeyFields();
 			this.postEkPkKeyFields = sampleEntityPrimaryKey.getPostEntityKeyFields();
 		}
 		

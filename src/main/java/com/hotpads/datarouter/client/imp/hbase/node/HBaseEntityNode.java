@@ -10,6 +10,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
@@ -129,7 +130,9 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "deleteAll", this, config){
 				public Void hbaseCall() throws Exception{
-					managedResultScanner = hTable.getScanner(new Scan());
+					Scan scan = new Scan();
+					scan.setFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
+					managedResultScanner = hTable.getScanner(scan);
 					List<Row> batchToDelete = ListTool.createArrayList(1000);
 					for(Result row : managedResultScanner){
 						if(row.isEmpty()){ continue; }
@@ -196,9 +199,6 @@ implements PhysicalSortedMapStorageNode<PK,D>
 			deleteMulti(KeyTool.getKeys(databeansToDelete), null);
 		}
 	}
-	
-	
-	/*************************** util **************************************/
 	
 
 }

@@ -19,8 +19,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.trace.key.TraceKey;
-import com.hotpads.trace.key.TraceKey.TraceKeyEntityFielder;
-import com.hotpads.trace.key.TraceKey.TraceKeyFielder;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.StringTool;
 
@@ -75,7 +73,8 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 		}
 		@Override
 		public Class<? extends Fielder<TraceKey>> getKeyFielderClass(){
-			return TraceKeyEntityFielder.class;
+//			return TraceKeyEntityFielder.class;
+			return TraceKey.class;
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(Trace d){
@@ -94,7 +93,7 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 		}
 		@Override
 		public Class<? extends Fielder<TraceKey>> getKeyFielderClass(){
-			return TraceKeyFielder.class;
+			return TraceKey.class;
 		}
 	}
 	
