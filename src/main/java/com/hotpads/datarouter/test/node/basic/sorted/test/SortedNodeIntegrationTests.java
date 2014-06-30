@@ -17,6 +17,8 @@ import com.google.common.collect.Sets;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
+import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
+import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
@@ -48,9 +50,9 @@ public class SortedNodeIntegrationTests{
 	@Parameters
 	public static Collection<Object[]> parameters(){
 		List<Object[]> params = ListTool.create();
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, false});
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
 		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true});
 		return params;
 	}

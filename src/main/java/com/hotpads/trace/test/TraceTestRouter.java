@@ -6,7 +6,8 @@ import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
-import com.hotpads.trace.TraceEntityNode;
+import com.hotpads.trace.node.TraceCompoundNode;
+import com.hotpads.trace.node.TraceEntityNode;
 import com.hotpads.util.core.ListTool;
 
 
@@ -15,7 +16,8 @@ public class TraceTestRouter extends BaseDataRouter{
 
 	public static final String 
 			NAME = "TraceRouter",
-			ENTITY_TraceEntity = "TraceEntity";
+			NODE_TraceEntity = "TraceEntity",
+			NODE_TraceCompound = "TraceCompound";
 	
 	public TraceTestRouter(){
 		super(new DataRouterContext(), NAME);
@@ -42,17 +44,23 @@ public class TraceTestRouter extends BaseDataRouter{
 	
 	/********************************** nodes **********************************/
 	
+	private TraceCompoundNode traceCompound;
 	private TraceEntityNode traceEntity;
 	
 	
 	private void initNodes(){
-		traceEntity = new TraceEntityNode(ENTITY_TraceEntity, this, DRTestConstants.CLIENT_drTestHBase);
+		traceCompound = new TraceCompoundNode(NODE_TraceCompound, this, DRTestConstants.CLIENT_drTestHBase);
+		traceEntity = new TraceEntityNode(NODE_TraceEntity, this, DRTestConstants.CLIENT_drTestHBase);
 	}
 	
 	/*************************** get/set ***********************************/
 
 	public TraceEntityNode traceEntity(){
 		return traceEntity;
+	}
+	
+	public TraceCompoundNode traceCompound(){
+		return traceCompound;
 	}
 
 }

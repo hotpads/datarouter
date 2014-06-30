@@ -1,16 +1,18 @@
-package com.hotpads.trace;
+package com.hotpads.trace.node;
 
 import java.util.List;
 
 import com.hotpads.datarouter.node.entity.BaseEntityNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouter;
-import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
+import com.hotpads.trace.Trace;
 import com.hotpads.trace.Trace.TraceFielder;
+import com.hotpads.trace.TraceEntity;
+import com.hotpads.trace.TraceSpan;
 import com.hotpads.trace.TraceSpan.TraceSpanFielder;
+import com.hotpads.trace.TraceThread;
 import com.hotpads.trace.TraceThread.TraceThreadFielder;
 import com.hotpads.trace.key.TraceEntityKey;
 import com.hotpads.trace.key.TraceKey;
@@ -18,10 +20,12 @@ import com.hotpads.trace.key.TraceSpanKey;
 import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class TraceEntityNode extends BaseEntityNode<TraceEntityKey,TraceEntity>{
+public class TraceEntityNode 
+extends BaseEntityNode<TraceEntityKey,TraceEntity>
+implements TraceNodes{
 	
 	private static final String
-		ENTITY_TraceEntity = "TraceEntity",
+		ENTITY_TraceEntity = "TestTraceEntity",
 		NODE_PREFIX_Trace = "T",
 		NODE_PREFIX_TraceThread = "TT",
 		NODE_PREFIX_TraceSpan = "TS";
@@ -75,7 +79,7 @@ public class TraceEntityNode extends BaseEntityNode<TraceEntityKey,TraceEntity>{
 	
 	/*********************** get nodes ******************************/
 
-	public MapStorageNode<TraceKey,Trace> trace(){
+	public SortedMapStorageNode<TraceKey,Trace> trace(){
 		return trace;
 	}
 

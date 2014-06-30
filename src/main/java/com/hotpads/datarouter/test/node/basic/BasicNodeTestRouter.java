@@ -38,7 +38,7 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielde
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.test.SortedNodeIntegrationTests;
-import com.hotpads.trace.TraceEntityNode;
+import com.hotpads.trace.node.TraceEntityNode;
 import com.hotpads.util.core.ListTool;
 
 
