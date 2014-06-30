@@ -14,10 +14,6 @@ implements Lookup<PK>{
 	public BaseLookup() {
 	}
 	
-	public BaseLookup(PK primaryKey){
-		this.key = primaryKey;
-	}
-	
 	public PK getPrimaryKey(){
 		return key;
 	}
