@@ -95,6 +95,9 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	}
 	
 	public String getLastHeartbeatString(){
+		if(heartbeatTime == null){
+			return "";
+		}
 		return DateTool.getAgoString(heartbeatTime);
 	}
 	
