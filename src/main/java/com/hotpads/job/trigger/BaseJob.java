@@ -157,7 +157,7 @@ public abstract class BaseJob implements Job{
 	}
 	
 	@Override
-	public void runInternal() throws RuntimeException{
+	public void runInternal(){
 		if(shouldRunInternal()){
 			scheduler.getTracker().get(this.getClass()).setRunning(true);
 			scheduler.getTracker().get(this.getClass()).setJob(this);
