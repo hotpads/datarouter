@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcCountOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetAllOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstKeyOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetKeysOp;
@@ -20,6 +19,7 @@ import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetWithPrefixesOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcLookupOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcLookupUniqueOp;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcDatabeanScanner;
+import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcIndexScanner;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcPrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -232,6 +232,11 @@ implements MapStorageReader<PK,D>,
 		Range<PK> range = Range.nullSafe(pRange);
 		SortedScanner<D> scanner = new JdbcDatabeanScanner<PK,D>(this, fieldInfo, range, config);
 		return new SortedScannerIterable<D>(scanner);
+	}
+	
+	public <PKLookup extends Lookup<PK>> SortedScannerIterable<PKLookup> scanIndex(Class<PKLookup> indexClass){
+		SortedScanner<PKLookup> scanner = new JdbcIndexScanner<PK, D, F, PKLookup>(this, indexClass, getTraceName("scanIndex"));
+		return new SortedScannerIterable<PKLookup>(scanner);
 	}
 	
 	

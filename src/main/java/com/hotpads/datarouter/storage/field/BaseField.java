@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.storage.field;
 
 import java.sql.ResultSet;
+import java.util.Comparator;
 import java.util.List;
 
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -271,6 +272,14 @@ public abstract class BaseField<T> implements Field<T>{
 		this.nullable = b;
 		return this;
 	}
+
+	public static class FieldColumnNameComparator implements Comparator<Field<?>>{
+		@Override
+		public int compare(Field<?> o1, Field<?> o2){
+			return o1.getColumnName().hashCode() - o2.getColumnName().hashCode();
+		}
+	}
+	
 }
 
 
