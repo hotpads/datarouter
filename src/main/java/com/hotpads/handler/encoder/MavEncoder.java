@@ -29,6 +29,7 @@ public class MavEncoder implements HandlerEncoder{
 				
 			}else{
 				response.setContentType(mav.getContentType());
+				response.setStatus(mav.getStatusCode());
 				//add the model variables as request attributes
 				appendMavToRequest(request, mav);
 				
