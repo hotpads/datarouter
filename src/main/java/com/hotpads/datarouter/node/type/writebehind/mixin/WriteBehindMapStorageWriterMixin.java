@@ -18,6 +18,7 @@ import com.hotpads.datarouter.node.type.writebehind.base.BaseWriteBehindNode;
 import com.hotpads.datarouter.node.type.writebehind.base.OutstandingWriteWrapper;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
@@ -112,13 +113,16 @@ implements MapStorageWriter<PK,D>{
 			while(CollectionTool.notEmpty(queue)){
 				putWrapper = queue.poll();
 				if (putWrapper.getConfig() == null) {
-					flushBatch.addAll(putWrapper.getDatabeans());//FIXME can excedd batch size
+					List<List<D>> batches = BatchTool.getBatches(putWrapper.getDatabeans(), FLUSH_BATCH_SIZE);
+					for(List<D> batche : batches){
+						flushBatch.addAll(batche);
+						if (flushBatch.size() >= FLUSH_BATCH_SIZE) {
+							writeMulti(flushBatch, null);
+							flushBatch.clear();
+						}
+					}
 				} else {
 					writeMulti(putWrapper.getDatabeans(), putWrapper.getConfig());
-				}
-				if (flushBatch.size() >= FLUSH_BATCH_SIZE) {
-					writeMulti(flushBatch, null);
-					flushBatch.clear();
 				}
 			}
 			if (!CollectionTool.isEmpty(flushBatch)) {
