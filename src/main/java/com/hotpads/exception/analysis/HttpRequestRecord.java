@@ -34,8 +34,8 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
-import com.hotpads.datarouter.storage.key.multi.Lookup;
-import com.hotpads.datarouter.storage.key.unique.BaseUniqueKey;
+import com.hotpads.datarouter.storage.key.multi.BaseLookup;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.UuidTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.util.core.MapTool;
@@ -260,7 +260,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	/********************************Lookup*************************************/
 	@SuppressWarnings("serial")
-	public static class HttpRequestRecordByExceptionRecord extends BaseUniqueKey<HttpRequestRecordKey> implements Lookup<HttpRequestRecordKey> {
+	public static class HttpRequestRecordByExceptionRecord extends BaseLookup<HttpRequestRecordKey> implements UniqueKey<HttpRequestRecordKey> {
 
 		private ExceptionRecord exceptionRecord;
 
