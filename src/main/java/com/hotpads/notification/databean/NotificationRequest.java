@@ -100,6 +100,11 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 		return type;
 	}
 
+	public String getShortType() {
+		String[] tab = type.split("\\.");
+		return tab[tab.length - 1];
+	}
+
 	public void setType(String type) {
 		this.type = type;
 	}
