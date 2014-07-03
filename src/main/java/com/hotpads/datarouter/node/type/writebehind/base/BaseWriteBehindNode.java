@@ -38,6 +38,8 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	protected long timeoutMs;//TODO also limit by queue length
 	protected Queue<OutstandingWriteWrapper> outstandingWrites;
 	protected ScheduledExecutorService cancelExecutor;
+	private ScheduledExecutorService flushScheduler;
+
 	
 	public BaseWriteBehindNode(Class<D> databeanClass, DataRouter router,
 			N backingNode, ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
@@ -73,6 +75,15 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 				}
 			});
 		}
+		
+
+		this.flushScheduler = Executors.newScheduledThreadPool(1);
+		this.flushScheduler.submit(new Callable<Void>(){
+			public Void call(){
+				Thread.currentThread().setName("NonBlockingWriteNode multiOp flusher:"+getName());
+				return null; 
+			}
+		});
 	}
 	
 	
@@ -85,7 +96,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		names.addAll(CollectionTool.nullSafe(backingNode.getAllNames()));
 		return names;
 	}
-	
+
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodes(){
 		List<PhysicalNode<PK,D>> all = ListTool.createLinkedList();
@@ -99,7 +110,6 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		all.addAll(ListTool.nullSafe(backingNode.getPhysicalNodesForClient(clientName)));
 		return all;
 	}
-	
 
 	@Override
 	public List<String> getClientNames() {
@@ -119,36 +129,36 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		clientNames.addAll(CollectionTool.nullSafe(backingNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
 		return ListTool.createArrayList(clientNames);
 	}
-	
+
 	@Override
 	public void clearThreadSpecificState(){
 		backingNode.clearThreadSpecificState();
 	}
-	
+
 	@Override
 	public List<N> getChildNodes(){
 		return ListTool.wrap(backingNode);
 	}
-	
+
 	@Override
 	public Node<PK,D> getMaster() {
 		return this;
 	}
 
-
 	public ExecutorService getWriteExecutor(){
 		return writeExecutor;
 	}
 
+	public ScheduledExecutorService getFlushScheduler(){
+		return flushScheduler;
+	}
 
 	public Queue<OutstandingWriteWrapper> getOutstandingWrites(){
 		return outstandingWrites;
 	}
 
-
 	public N getBackingNode(){
 		return backingNode;
 	}
-	
-	
+
 }

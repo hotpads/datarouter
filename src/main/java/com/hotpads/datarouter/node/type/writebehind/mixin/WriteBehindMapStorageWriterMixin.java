@@ -4,16 +4,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
-import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
@@ -35,7 +30,6 @@ implements MapStorageWriter<PK,D>{
 	private static final int FLUSH_BATCH_SIZE = 100;
 
 	protected BaseWriteBehindNode<PK,D,N> node;
-	private ScheduledExecutorService flushScheduler;
 
 	private BlockingQueue<PutWrapper<PK, D>> putQueue;
 	private BlockingQueue<DeleteWrapper<PK>> deleteQueue;
@@ -44,9 +38,8 @@ implements MapStorageWriter<PK,D>{
 		this.node = node;
 		this.putQueue = new LinkedBlockingDeque<PutWrapper<PK, D>>();
 		this.deleteQueue = new LinkedBlockingDeque<DeleteWrapper<PK>>();
-		this.flushScheduler = Executors.newScheduledThreadPool(1);
-		this.flushScheduler.scheduleWithFixedDelay(new PutFlusher(), 500, 500, TimeUnit.MILLISECONDS);
-		this.flushScheduler.scheduleWithFixedDelay(new DeleteFlusher(), 500, 500, TimeUnit.MILLISECONDS);
+		this.node.getFlushScheduler().scheduleWithFixedDelay(new PutFlusher(), 500, 500, TimeUnit.MILLISECONDS);
+		this.node.getFlushScheduler().scheduleWithFixedDelay(new DeleteFlusher(), 500, 500, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
@@ -85,7 +78,7 @@ implements MapStorageWriter<PK,D>{
 		putQueue.offer(new PutWrapper<PK, D>(databeans, config));
 	}
 
-	private class PutFlusher implements Runnable{
+	public class PutFlusher implements Runnable{
 
 		@Override
 		public void run(){
@@ -112,7 +105,7 @@ implements MapStorageWriter<PK,D>{
 
 	}
 	
-	private class DeleteFlusher implements Runnable{
+	public class DeleteFlusher implements Runnable{
 
 		@Override
 		public void run(){
@@ -139,7 +132,7 @@ implements MapStorageWriter<PK,D>{
 
 	}
 
-	private void writeMulti(final Collection<D> flushBatch, final Config config){
+	public void writeMulti(final Collection<D> flushBatch, final Config config){
 		node.getOutstandingWrites().add(
 				new OutstandingWriteWrapper(System.currentTimeMillis(), node.getWriteExecutor().submit(
 						new Callable<Void>(){
@@ -171,13 +164,5 @@ implements MapStorageWriter<PK,D>{
 							}
 						})));
 	}
-//
-//	public static class Tests {
-//		
-//		@Test
-//		public void test() {
-//			Injector injector = Guice.createInjector(new Ser);
-//		}
-//	}
 
 }
