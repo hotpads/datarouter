@@ -18,6 +18,7 @@ import com.google.inject.BindingAnnotation;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.setting.ClusterSettingFinderConfig;
 import com.hotpads.setting.DatarouterServerType;
+import com.hotpads.setting.DatarouterServerType.DatarouterServerTypeTool;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -37,12 +38,12 @@ public class ClusterSettingFinder {
 	public static final String EMPTY_STRING = "";
 
 	protected ClusterSettingFinderConfig clusterSettingFinderConfig;
-	protected DatarouterServerType datarouterServerTypeTool;
+	protected DatarouterServerTypeTool datarouterServerTypeTool;
 	protected SortedMapStorageNode<ClusterSettingKey,ClusterSetting> clusterSetting;
 
 	@Inject
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public ClusterSettingFinder(ClusterSettingFinderConfig clusterSettingFinderConfig, DatarouterServerType datarouterServerTypeTool ,@ClusterSettingNode SortedMapStorageNode clusterSetting) {
+	public ClusterSettingFinder(ClusterSettingFinderConfig clusterSettingFinderConfig, DatarouterServerTypeTool datarouterServerTypeTool ,@ClusterSettingNode SortedMapStorageNode clusterSetting) {
 		this.clusterSettingFinderConfig = clusterSettingFinderConfig;
 		this.datarouterServerTypeTool = datarouterServerTypeTool;
 		this.clusterSetting = clusterSetting;
