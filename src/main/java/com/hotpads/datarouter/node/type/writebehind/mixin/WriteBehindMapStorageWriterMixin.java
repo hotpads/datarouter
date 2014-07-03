@@ -10,7 +10,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
+import org.junit.Test;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
@@ -20,7 +23,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 
 public class WriteBehindMapStorageWriterMixin<
@@ -29,94 +31,72 @@ public class WriteBehindMapStorageWriterMixin<
 		N extends MapStorageNode<PK,D>>
 implements MapStorageWriter<PK,D>{
 	private Logger logger = Logger.getLogger(getClass());
-	
+
+	private static final int FLUSH_BATCH_SIZE = 100;
+
 	protected BaseWriteBehindNode<PK,D,N> node;
 	private ScheduledExecutorService flushScheduler;
 
-	private BlockingQueue<PutWrapper<PK, D>> queue;
+	private BlockingQueue<PutWrapper<PK, D>> putQueue;
+	private BlockingQueue<DeleteWrapper<PK>> deleteQueue;
 	
 	public WriteBehindMapStorageWriterMixin(BaseWriteBehindNode<PK,D,N> node){
 		this.node = node;
-		this.queue = new LinkedBlockingDeque<PutWrapper<PK, D>>();
+		this.putQueue = new LinkedBlockingDeque<PutWrapper<PK, D>>();
+		this.deleteQueue = new LinkedBlockingDeque<DeleteWrapper<PK>>();
 		this.flushScheduler = Executors.newScheduledThreadPool(1);
-		this.flushScheduler.scheduleWithFixedDelay(new Flusher(), 500, 500, TimeUnit.MILLISECONDS);
+		this.flushScheduler.scheduleWithFixedDelay(new PutFlusher(), 500, 500, TimeUnit.MILLISECONDS);
+		this.flushScheduler.scheduleWithFixedDelay(new DeleteFlusher(), 500, 500, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
-	public void delete(final PK key, final Config config) {
-		node.getOutstandingWrites().add(new OutstandingWriteWrapper(
-				System.currentTimeMillis(), 
-				node.getWriteExecutor().submit(new Callable<Void>(){
-			public Void call(){
-				try{
-					node.getBackingNode().delete(key, config);
-				}catch(Exception e){
-					logger.error("error on delete["+key.toString()+"]");
-					logger.error(ExceptionTool.getStackTraceAsString(e));
-				}
-				return null; 
-			}
-		})));
+	public void delete(final PK key, final Config config){
+		deleteQueue.offer(new DeleteWrapper<PK>(ListTool.wrap(key), config));
 	}
 
 	@Override
-	public void deleteAll(final Config config) {
-		node.getOutstandingWrites().add(new OutstandingWriteWrapper(
-				System.currentTimeMillis(), 
-				node.getWriteExecutor().submit(new Callable<Void>(){
-			public Void call(){
-				try{
-					node.getBackingNode().deleteAll(config);
-				}catch(Exception e){
-					logger.error("error on deleteAll");
-					logger.error(ExceptionTool.getStackTraceAsString(e));
-				}
-				return null; 
-			}
-		})));
+	public void deleteMulti(final Collection<PK> keys, final Config config){
+		deleteQueue.offer(new DeleteWrapper<PK>(keys, config));
 	}
 
 	@Override
-	public void deleteMulti(final Collection<PK> keys, final Config config) {
-		node.getOutstandingWrites().add(new OutstandingWriteWrapper(
-				System.currentTimeMillis(), 
-				node.getWriteExecutor().submit(new Callable<Void>(){
-			public Void call(){
-				try{
-					node.getBackingNode().deleteMulti(keys, config);
-				}catch(Exception e){
-					logger.error("error on deleteMulti including["+CollectionTool.getFirst(keys)+"]");
-					logger.error(ExceptionTool.getStackTraceAsString(e));
-				}
-				return null; 
-			}
-		})));
+	public void deleteAll(final Config config){
+		node.getOutstandingWrites().add(
+				new OutstandingWriteWrapper(System.currentTimeMillis(), node.getWriteExecutor().submit(
+						new Callable<Void>(){
+							public Void call(){
+								try{
+									node.getBackingNode().deleteAll(config);
+								}catch(Exception e){
+									logger.error("error on deleteAll", e);
+								}
+								return null;
+							}
+						})));
 	}
 
 	@Override
 	public void put(D databean, Config config) {
-		queue.offer(new PutWrapper<PK, D>(ListTool.wrap(databean), config));
+		putQueue.offer(new PutWrapper<PK, D>(ListTool.wrap(databean), config));
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config) {
-		queue.offer(new PutWrapper<PK, D>(databeans, config));
+		putQueue.offer(new PutWrapper<PK, D>(databeans, config));
 	}
 
-	private class Flusher implements Runnable{
-		private static final int FLUSH_BATCH_SIZE = 100;
+	private class PutFlusher implements Runnable{
 
 		@Override
 		public void run(){
 			final List<D> flushBatch = ListTool.createArrayList();
-			PutWrapper<PK, D> putWrapper;
-			while(CollectionTool.notEmpty(queue)){
-				putWrapper = queue.poll();
+			while(CollectionTool.notEmpty(putQueue)){
+				PutWrapper<PK,D> putWrapper = putQueue.poll();
 				if (putWrapper.getConfig() == null) {
 					List<List<D>> batches = BatchTool.getBatches(putWrapper.getDatabeans(), FLUSH_BATCH_SIZE);
 					for(List<D> batche : batches){
 						flushBatch.addAll(batche);
-						if (flushBatch.size() >= FLUSH_BATCH_SIZE) {
+						if (flushBatch.size() == FLUSH_BATCH_SIZE) {
 							writeMulti(flushBatch, null);
 							flushBatch.clear();
 						}
@@ -131,22 +111,73 @@ implements MapStorageWriter<PK,D>{
 		}
 
 	}
+	
+	private class DeleteFlusher implements Runnable{
 
-	private void writeMulti(final Collection<D> flushBatch, final Config config) {
-		node.getOutstandingWrites().add(new OutstandingWriteWrapper(
-				System.currentTimeMillis(), 
-				node.getWriteExecutor().submit(new Callable<Void>(){
-
-					public Void call(){
-						try{
-							node.getBackingNode().putMulti(flushBatch, config);
-						}catch(Exception e){
-							logger.error("error on putMulti");
-							logger.error(ExceptionTool.getStackTraceAsString(e));
+		@Override
+		public void run(){
+			final List<PK> flushBatch = ListTool.createArrayList();
+			while(CollectionTool.notEmpty(deleteQueue)){
+				DeleteWrapper<PK> deleteWrapper = deleteQueue.poll();
+				if (deleteWrapper.getConfig() == null) {
+					List<List<PK>> batches = BatchTool.getBatches(deleteWrapper.getKeys(), FLUSH_BATCH_SIZE);
+					for(List<PK> batche : batches){
+						flushBatch.addAll(batche);
+						if (flushBatch.size() == FLUSH_BATCH_SIZE) {
+							removeMulti(flushBatch, null);
+							flushBatch.clear();
 						}
-						return null; 
 					}
+				} else {
+					removeMulti(deleteWrapper.getKeys(), deleteWrapper.getConfig());
+				}
+			}
+			if (!CollectionTool.isEmpty(flushBatch)) {
+				removeMulti(flushBatch, null);//don't forget the last not full batch
+			}
+		}
 
-				})));
 	}
+
+	private void writeMulti(final Collection<D> flushBatch, final Config config){
+		node.getOutstandingWrites().add(
+				new OutstandingWriteWrapper(System.currentTimeMillis(), node.getWriteExecutor().submit(
+						new Callable<Void>(){
+
+							public Void call(){
+								try{
+									node.getBackingNode().putMulti(flushBatch, config);
+								}catch(Exception e){
+									logger.error("error on putMulti", e);
+								}
+								return null;
+							}
+
+						})));
+	}
+
+	private void removeMulti(final Collection<PK> keys, final Config config){
+		node.getOutstandingWrites().add(
+				new OutstandingWriteWrapper(System.currentTimeMillis(), node.getWriteExecutor().submit(
+						new Callable<Void>(){
+							public Void call(){
+								try{
+									node.getBackingNode().deleteMulti(keys, config);
+								}catch(Exception e){
+									logger.error("error on deleteMulti including[" + CollectionTool.getFirst(keys)
+											+ "]", e);
+								}
+								return null;
+							}
+						})));
+	}
+//
+//	public static class Tests {
+//		
+//		@Test
+//		public void test() {
+//			Injector injector = Guice.createInjector(new Ser);
+//		}
+//	}
+
 }
