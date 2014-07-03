@@ -14,7 +14,8 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.BaseField.FieldColumnNameComparator;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.field.FieldSet;
+import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ListTool;
@@ -22,7 +23,7 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class JdbcIndexScanOp
-<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,PKLookup extends Lookup<PK>>
+<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,PKLookup extends BaseLookup<PK>>
 extends BaseJdbcOp<List<PKLookup>>{
 
 	private Range<PKLookup> start;
@@ -51,8 +52,21 @@ extends BaseJdbcOp<List<PKLookup>>{
 		selectableFieldSet.addAll(node.getFieldInfo().getPrefixedPrimaryKeyFields());
 		selectableFieldSet.addAll(index.getFields());
 		
+		@SuppressWarnings("serial")
+		FieldSet<?> fullStart = new BaseLookup<PK>(){
+
+			@Override
+			public List<Field<?>> getFields(){
+				List<Field<?>> fields = ListTool.create();
+				fields.addAll(start.getStart().getFields());
+				fields.addAll(start.getStart().getPrimaryKey().getFields());
+				return fields;
+			}
+
+		};
+		
 		List<Field<?>> selectableFields = ListTool.createArrayList(selectableFieldSet);
-		String sql = SqlBuilder.getInRange(config, node.getTableName(), selectableFields, start.getStart(),
+		String sql = SqlBuilder.getInRange(config, node.getTableName(), selectableFields, fullStart,
 				start.getStartInclusive(), start.getEnd(), start.getEndInclusive(), index.getFields());
 		Connection connection = getConnection(node.getClientName());
 		List<PKLookup> result = JdbcTool.selectLookups(connection, selectableFields, indexClass, sql, node.getFieldInfo().getPrimaryKeyClass());

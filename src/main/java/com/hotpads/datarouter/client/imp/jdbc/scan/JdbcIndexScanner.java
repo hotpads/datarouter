@@ -9,14 +9,14 @@ import com.hotpads.datarouter.config.Configs;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class JdbcIndexScanner<PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>, PKLookup extends Lookup<PK>>
+public class JdbcIndexScanner<PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>, PKLookup extends BaseLookup<PK>>
 		extends BaseBatchingSortedScanner<PKLookup,PKLookup>{
 
 	private static final Integer BATCH_SIZE = 1000;
