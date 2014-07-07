@@ -8,6 +8,8 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindMapStorageWriterMixin;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindSortedStorageWriterMixin;
+import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindSortedStorageWriterMixin.DeleteRangeWithPrefixWraper;
+import com.hotpads.datarouter.node.type.writebehind.mixin.WriteWrapper;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
@@ -77,4 +79,45 @@ implements IndexedSortedMapStorageNode<PK, D> {
 	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
 		mixinIndexedWriteOps.deleteMultiUnique(uniqueKeys, config);
 	}
+	
+	@SuppressWarnings("unchecked") @Override
+	protected boolean handlewriteWrapperInternal(WriteWrapper<?> writeWrapper){
+		boolean parentRes = super.handlewriteWrapperInternal(writeWrapper);
+		if(parentRes){
+			return true;
+		}else{
+			switch(writeWrapper.getOp()){
+			case OP_put:
+				backingNode.putMulti((Collection<D>)writeWrapper.getObjects(), writeWrapper.getConfig());
+				break;
+			case OP_delete:
+				backingNode.deleteMulti((Collection<PK>)writeWrapper.getObjects(), writeWrapper.getConfig());
+				break;
+			case OP_deleteAll:
+				backingNode.deleteAll(writeWrapper.getConfig());
+				break;
+			case OP_deleteRangeWithPrefix:
+				Collection<DeleteRangeWithPrefixWraper<PK>> deleteRangeWithPrefixWrapers =
+					(Collection<DeleteRangeWithPrefixWraper<PK>>)writeWrapper.getObjects();
+				for(DeleteRangeWithPrefixWraper<PK> deleteRangeWithPrefixWraper : deleteRangeWithPrefixWrapers){
+					backingNode.deleteRangeWithPrefix(deleteRangeWithPrefixWraper.getPrefix(),
+							deleteRangeWithPrefixWraper.isWildcardLastField(), writeWrapper.getConfig());
+				}
+				break;
+			case OP_deleteUnique:
+				backingNode.deleteMultiUnique((Collection<? extends UniqueKey<PK>>)writeWrapper.getObjects(), writeWrapper.getConfig());
+				break;
+			case OP_indexDelete:
+				Collection<Lookup<PK>> lookups = (Collection<Lookup<PK>>)writeWrapper.getObjects();
+				for(Lookup<PK> lookup : lookups){
+					backingNode.delete(lookup, writeWrapper.getConfig());
+				}
+				break;
+			default:
+				return false;
+			}
+			return true;
+		}
+	}
+
 }

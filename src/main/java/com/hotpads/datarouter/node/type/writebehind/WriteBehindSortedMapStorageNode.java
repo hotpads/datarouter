@@ -8,6 +8,8 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindMapStorageWriterMixin;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindSortedStorageWriterMixin;
+import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindSortedStorageWriterMixin.DeleteRangeWithPrefixWraper;
+import com.hotpads.datarouter.node.type.writebehind.mixin.WriteWrapper;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -65,4 +67,35 @@ implements SortedMapStorageNode<PK,D>{
 		mixinSortedWriteOps.deleteRangeWithPrefix(prefix, wildcardLastField, config);
 	}
 	
+	@SuppressWarnings("unchecked") @Override
+	protected boolean handlewriteWrapperInternal(WriteWrapper<?> writeWrapper){
+		boolean parentRes = super.handlewriteWrapperInternal(writeWrapper);
+		if(parentRes){
+			return true;
+		}else{
+			switch(writeWrapper.getOp()){
+			case OP_put:
+				backingNode.putMulti((Collection<D>)writeWrapper.getObjects(), writeWrapper.getConfig());
+				break;
+			case OP_delete:
+				backingNode.deleteMulti((Collection<PK>)writeWrapper.getObjects(), writeWrapper.getConfig());
+				break;
+			case OP_deleteAll:
+				backingNode.deleteAll(writeWrapper.getConfig());
+				break;
+			case OP_deleteRangeWithPrefix:
+				Collection<DeleteRangeWithPrefixWraper<PK>> deleteRangeWithPrefixWrapers =
+					(Collection<DeleteRangeWithPrefixWraper<PK>>)writeWrapper.getObjects();
+				for(DeleteRangeWithPrefixWraper<PK> deleteRangeWithPrefixWraper : deleteRangeWithPrefixWrapers){
+					backingNode.deleteRangeWithPrefix(deleteRangeWithPrefixWraper.getPrefix(),
+							deleteRangeWithPrefixWraper.isWildcardLastField(), writeWrapper.getConfig());
+				}
+				break;
+			default:
+				return false;
+			}
+			return true;
+		}
+	}
+
 }

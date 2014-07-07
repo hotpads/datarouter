@@ -7,6 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindMapStorageWriterMixin;
+import com.hotpads.datarouter.node.type.writebehind.mixin.WriteWrapper;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -18,7 +19,7 @@ public class WriteBehindMapStorageNode<
 extends WriteBehindMapStorageReaderNode<PK,D,N>
 implements MapStorageNode<PK,D>{
 
-	protected WriteBehindMapStorageWriterMixin<PK,D,N> mixinMapWriteOps;
+	private WriteBehindMapStorageWriterMixin<PK,D,N> mixinMapWriteOps;
 	
 	public WriteBehindMapStorageNode(Class<D> databeanClass, DataRouter router,
 			N backingNode, ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
@@ -58,5 +59,27 @@ implements MapStorageNode<PK,D>{
 		mixinMapWriteOps.putMulti(databeans, config);
 	}
 	
-	
+	@SuppressWarnings("unchecked") @Override
+	protected boolean handlewriteWrapperInternal(WriteWrapper<?> writeWrapper){
+		boolean parentRes = super.handlewriteWrapperInternal(writeWrapper);
+		if(parentRes){
+			return true;
+		}else{
+			switch(writeWrapper.getOp()){
+			case OP_put:
+				backingNode.putMulti((Collection<D>)writeWrapper.getObjects(), writeWrapper.getConfig());
+				break;
+			case OP_delete:
+				backingNode.deleteMulti((Collection<PK>)writeWrapper.getObjects(), writeWrapper.getConfig());
+				break;
+			case OP_deleteAll:
+				backingNode.deleteAll(writeWrapper.getConfig());
+				break;
+			default:
+				return false;
+			}
+			return true;
+		}
+	}
+
 }

@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.writebehind.base;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
@@ -9,6 +10,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -16,6 +18,7 @@ import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
+import com.hotpads.datarouter.node.type.writebehind.mixin.WriteWrapper;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -29,7 +32,9 @@ public abstract class BaseWriteBehindNode<
 		D extends Databean<PK,D>,
 		N extends Node<PK,D>> 
 extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
-	
+
+	private static final int FLUSH_BATCH_SIZE = 100;
+
 	public static final int DEFAULT_WRITE_BEHIND_THREADS = 1;
 	public static final long DEFAULT_TIMEOUT_MS = 60*1000;
 	
@@ -39,6 +44,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	protected Queue<OutstandingWriteWrapper> outstandingWrites;
 	protected ScheduledExecutorService cancelExecutor;
 	private ScheduledExecutorService flushScheduler;
+	private Queue<WriteWrapper<?>> queue;
 
 	
 	public BaseWriteBehindNode(Class<D> databeanClass, DataRouter router,
@@ -77,13 +83,16 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		}
 		
 
-		this.flushScheduler = Executors.newScheduledThreadPool(1);
+		this.flushScheduler = Executors.newSingleThreadScheduledExecutor();
+		this.flushScheduler.scheduleWithFixedDelay(new QueuFlucher(), 500, 500, TimeUnit.MILLISECONDS);
 		this.flushScheduler.submit(new Callable<Void>(){
 			public Void call(){
-				Thread.currentThread().setName("NonBlockingWriteNode multiOp flusher:"+getName());
+				Thread.currentThread().setName("NonBlockingWriteNode write op flusher:"+getName());
 				return null; 
 			}
 		});
+		
+		queue = new LinkedBlockingQueue<WriteWrapper<?>>();
 	}
 	
 	
@@ -145,20 +154,86 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		return this;
 	}
 
-	public ExecutorService getWriteExecutor(){
-		return writeExecutor;
-	}
-
-	public ScheduledExecutorService getFlushScheduler(){
-		return flushScheduler;
-	}
-
-	public Queue<OutstandingWriteWrapper> getOutstandingWrites(){
-		return outstandingWrites;
+	public Queue<WriteWrapper<?>> getQueue(){
+		return queue;
 	}
 
 	public N getBackingNode(){
 		return backingNode;
 	}
 
+	public class QueuFlucher implements Runnable{
+
+		private WriteWrapper<Object> previousWriteWrapper;
+
+		@Override
+		public void run(){
+			previousWriteWrapper = new WriteWrapper<Object>();
+			while(CollectionTool.notEmpty(queue)){
+				WriteWrapper<?> writeWrapper = queue.poll();
+				if(!writeWrapper.getOp().equals(previousWriteWrapper.getOp()) || writeWrapper.getConfig() != null){
+					handlePrevious();
+				}
+				if(writeWrapper.getConfig() != null){
+					handlewriteWrapper(writeWrapper);
+				}else{
+					List<?> list = asList(writeWrapper.getObjects());
+					int previousSize = previousWriteWrapper.getObjects().size();
+					previousWriteWrapper.getObjects().addAll(list.subList(0, FLUSH_BATCH_SIZE - previousSize));
+					previousWriteWrapper.setOp(writeWrapper.getOp());
+					if(previousWriteWrapper.getObjects().size() == FLUSH_BATCH_SIZE){
+						handlePrevious();
+					}
+					int i = 1;
+					while(i * FLUSH_BATCH_SIZE - previousSize < list.size()){
+						previousWriteWrapper.setOp(writeWrapper.getOp());
+						previousWriteWrapper.getObjects()
+								.addAll(list.subList(i * FLUSH_BATCH_SIZE - previousSize, ++i * FLUSH_BATCH_SIZE - previousSize));
+						if(previousWriteWrapper.getObjects().size() == FLUSH_BATCH_SIZE){
+							handlePrevious();
+						}
+					}
+				}
+
+			}
+			handlePrevious();//don't forget the last batch
+		}
+
+		private <T> List<T> asList(Collection<T> coll){ //TODO should be in CollectionTool
+			if(coll instanceof List){
+				return (List<T>)coll;
+			}else{
+				return new ArrayList<T>(coll);
+			}
+		}
+
+
+		private void handlePrevious(){
+			handlewriteWrapper(previousWriteWrapper);
+			previousWriteWrapper.clear();
+		}
+
+		private void handlewriteWrapper(final WriteWrapper<?> writeWrapper){
+			if(!CollectionTool.isEmpty(writeWrapper.getObjects())){
+				outstandingWrites.add(new OutstandingWriteWrapper(System.currentTimeMillis(), writeExecutor
+						.submit(new Callable<Void>(){
+
+							public Void call(){
+								try{
+									if(!handlewriteWrapperInternal(writeWrapper)){
+										logger.error("Not able to handle this op: " + writeWrapper.getOp());
+									}
+								}catch(Exception e){
+									logger.error("error on " + writeWrapper.getOp() + " with "
+											+ writeWrapper.getObjects().size() + " element(s)", e);
+								}
+								return null;
+							}
+						})));
+			}
+		}
+
+	}
+
+	protected abstract boolean handlewriteWrapperInternal(WriteWrapper<?> writeWrapper);
 }
