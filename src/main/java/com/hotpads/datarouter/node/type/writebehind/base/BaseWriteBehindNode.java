@@ -213,8 +213,8 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 			previousWriteWrapper.clearObjects();
 		}
 
-		private void handleWriteWrapper(final WriteWrapper<?> writeWrapperClone){
-//			final WriteWrapper<?> writeWrapperClone = new WriteWrapper<>(writeWrapper);
+		private void handleWriteWrapper(WriteWrapper<?> writeWrapper){
+			final WriteWrapper<?> writeWrapperClone = new WriteWrapper<>(writeWrapper);
 			if(CollectionTool.notEmpty(writeWrapperClone.getObjects())){
 				outstandingWrites.add(new OutstandingWriteWrapper(System.currentTimeMillis(), writeExecutor
 						.submit(new Callable<Void>(){
