@@ -33,7 +33,7 @@ public abstract class BaseWriteBehindNode<
 		N extends Node<PK,D>> 
 extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
-	private static final int FLUSH_BATCH_SIZE = 100;
+	private static final int FLUSH_BATCH_SIZE = 2;
 
 	public static final int DEFAULT_WRITE_BEHIND_THREADS = 1;
 	public static final long DEFAULT_TIMEOUT_MS = 60*1000;
@@ -87,7 +87,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		this.flushScheduler.scheduleWithFixedDelay(new QueuFlucher(), 500, 500, TimeUnit.MILLISECONDS);
 		this.flushScheduler.submit(new Callable<Void>(){
 			public Void call(){
-				Thread.currentThread().setName("NonBlockingWriteNode write op flusher:"+getName());
+				Thread.currentThread().setName("NonBlockingWriteNode writer:"+getName());
 				return null; 
 			}
 		});
@@ -168,38 +168,57 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 		@Override
 		public void run(){
-			previousWriteWrapper = new WriteWrapper<Object>();
-			while(CollectionTool.notEmpty(queue)){
-				WriteWrapper<?> writeWrapper = queue.poll();
-				if(!writeWrapper.getOp().equals(previousWriteWrapper.getOp()) || writeWrapper.getConfig() != null){
-					handlePrevious();
-				}
-				if(writeWrapper.getConfig() != null){
-					handlewriteWrapper(writeWrapper);
-				}else{
-					List<?> list = asList(writeWrapper.getObjects());
-					int previousSize = previousWriteWrapper.getObjects().size();
-					previousWriteWrapper.getObjects().addAll(list.subList(0, FLUSH_BATCH_SIZE - previousSize));
-					previousWriteWrapper.setOp(writeWrapper.getOp());
-					if(previousWriteWrapper.getObjects().size() == FLUSH_BATCH_SIZE){
+			try{
+				previousWriteWrapper = new WriteWrapper<Object>();
+				while(CollectionTool.notEmpty(queue)){
+					System.out.println("QUEUE: " + queue);
+					WriteWrapper<?> writeWrapper = queue.poll();
+					if(!writeWrapper.getOp().equals(previousWriteWrapper.getOp()) || writeWrapper.getConfig() != null){
 						handlePrevious();
 					}
-					int i = 1;
-					while(i * FLUSH_BATCH_SIZE - previousSize < list.size()){
+					if(writeWrapper.getConfig() != null){
+						handleWriteWrapper(writeWrapper);
+					}else{
+						System.out.println(writeWrapper);
+						List<?> list = asList(writeWrapper.getObjects());
+						int previousSize = previousWriteWrapper.getObjects().size();
+//						System.out.println(previousSize);
+						int end = Math.min(FLUSH_BATCH_SIZE - previousSize, list.size());
+						System.out.println("list.size():" + list.size());
+						System.out.println("previousSize :" + previousSize);
+						System.out.println("End :" + end);
+						previousWriteWrapper.addObjects(list.subList(0, end));
 						previousWriteWrapper.setOp(writeWrapper.getOp());
-						previousWriteWrapper.getObjects()
-								.addAll(list.subList(i * FLUSH_BATCH_SIZE - previousSize, ++i * FLUSH_BATCH_SIZE - previousSize));
+						System.out.println("batch size:" + previousWriteWrapper.getObjects().size());
 						if(previousWriteWrapper.getObjects().size() == FLUSH_BATCH_SIZE){
 							handlePrevious();
 						}
+						int i = 1;
+						while(i * FLUSH_BATCH_SIZE - previousSize < list.size()){
+							int beginning = i * FLUSH_BATCH_SIZE - previousSize;
+							end = Math.min(++i * FLUSH_BATCH_SIZE - previousSize, list.size());
+							previousWriteWrapper.addObjects(list.subList(beginning, end));
+							previousWriteWrapper.setOp(writeWrapper.getOp());
+							if(previousWriteWrapper.getObjects().size() == FLUSH_BATCH_SIZE){
+								handlePrevious();
+							}
+						}
+						System.out.println();
+						System.out.println();
+						System.out.println();
+						System.out.println();
 					}
 				}
-
+				handlePrevious();// don't forget the last batch
+			}catch(Exception exception){
+				System.err.println("Exit 1");
+				exception.printStackTrace();
+				System.err.println("Exit 2");
+				System.exit(0);
 			}
-			handlePrevious();//don't forget the last batch
 		}
 
-		private <T> List<T> asList(Collection<T> coll){ //TODO should be in CollectionTool
+		private <T> List<T> asList(Collection<T> coll){ //TODO should be in CollectionTool?
 			if(coll instanceof List){
 				return (List<T>)coll;
 			}else{
@@ -207,25 +226,29 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 			}
 		}
 
-
 		private void handlePrevious(){
-			handlewriteWrapper(previousWriteWrapper);
-			previousWriteWrapper.clear();
+			if(previousWriteWrapper.getOp() != null){
+				handleWriteWrapper(previousWriteWrapper);
+			}
+			previousWriteWrapper = new WriteWrapper<>();
 		}
 
-		private void handlewriteWrapper(final WriteWrapper<?> writeWrapper){
-			if(!CollectionTool.isEmpty(writeWrapper.getObjects())){
+		private void handleWriteWrapper(WriteWrapper<?> writeWrapper){
+			final WriteWrapper<?> writeWrapperClone = new WriteWrapper<>(writeWrapper.getOp(), writeWrapper
+					.getObjects(), writeWrapper.getConfig());
+			if(CollectionTool.notEmpty(writeWrapperClone.getObjects())){
 				outstandingWrites.add(new OutstandingWriteWrapper(System.currentTimeMillis(), writeExecutor
 						.submit(new Callable<Void>(){
 
 							public Void call(){
 								try{
-									if(!handlewriteWrapperInternal(writeWrapper)){
-										logger.error("Not able to handle this op: " + writeWrapper.getOp());
+									System.out.println("sending order");
+									if(!handlewriteWrapperInternal(writeWrapperClone)){
+										logger.error("Not able to handle this op: " + writeWrapperClone.getOp());
 									}
 								}catch(Exception e){
-									logger.error("error on " + writeWrapper.getOp() + " with "
-											+ writeWrapper.getObjects().size() + " element(s)", e);
+									logger.error("error on " + writeWrapperClone.getOp() + " with "
+											+ writeWrapperClone.getObjects().size() + " element(s)", e);
 								}
 								return null;
 							}

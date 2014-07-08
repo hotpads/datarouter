@@ -30,12 +30,15 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
-		node.getQueue().offer(new WriteWrapper<PK>(OP_delete, keys, config));
+		WriteWrapper<PK> writeWrapper = new WriteWrapper<PK>(OP_delete, keys, config);
+		System.out.println("Deletmulti request:" + writeWrapper);
+		node.getQueue().offer(writeWrapper);
+		System.out.println("Update queue: " + node.getQueue());
 	}
 
 	@Override
 	public void deleteAll(Config config){
-		node.getQueue().offer(new WriteWrapper<Object>(OP_deleteAll, null, config));
+		node.getQueue().offer(new WriteWrapper<Object>(OP_deleteAll, ListTool.createLinkedList(), config));
 	}
 
 	@Override
@@ -46,11 +49,6 @@ implements MapStorageWriter<PK,D>{
 	@Override
 	public void putMulti(Collection<D> databeans, Config config) {
 		node.getQueue().offer(new WriteWrapper<D>(OP_put, databeans, config));
-	}
-
-	public void writeMulti(final Collection<D> flushBatch, final Config config){
-		N a = node.getBackingNode();
-		a.putMulti(flushBatch, config);
 	}
 
 }

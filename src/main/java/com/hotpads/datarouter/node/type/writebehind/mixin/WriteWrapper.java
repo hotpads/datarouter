@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.util.core.ListTool;
 
 public class WriteWrapper<T>{
 
@@ -14,6 +15,7 @@ public class WriteWrapper<T>{
 	private Config config;
 
 	public WriteWrapper(){
+		this.objects = ListTool.createLinkedList();
 	}
 
 	public WriteWrapper(String op, List<T> objects, Config config){
@@ -27,12 +29,6 @@ public class WriteWrapper<T>{
 		this.objects = objects;
 		this.config = config;
 	}
-	
-	public void clear(){
-		op = null;
-		objects.clear();
-		config = null;
-	}
 
 	public void setOp(String op){
 		this.op = op;
@@ -43,11 +39,25 @@ public class WriteWrapper<T>{
 	}
 
 	public Collection<T> getObjects(){
-		return objects;
+		System.out.println("bafore: "+objects.size());
+		Collection<T> batchClone = ListTool.createLinkedList();
+		batchClone.addAll(objects);
+		System.out.println("after: " + batchClone.size());
+		return batchClone;
+	}
+	
+	public synchronized boolean addObjects(Collection<? extends T> c) {
+		return objects.addAll(c);
 	}
 
 	public Config getConfig(){
 		return config;
+	}
+
+	@Override
+	public String toString(){
+		return "WriteWrapper {hashCode=" + Integer.toHexString(hashCode()) + "}[op=" + op + ", objects=" + objects
+				+ ", config=" + config + "]";
 	}
 
 }

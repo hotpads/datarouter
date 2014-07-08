@@ -91,7 +91,9 @@ implements IndexedSortedMapStorageNode<PK, D> {
 				backingNode.putMulti((Collection<D>)writeWrapper.getObjects(), writeWrapper.getConfig());
 				break;
 			case OP_delete:
+				System.out.println("recieved a delete order of " + writeWrapper.getObjects().size());
 				backingNode.deleteMulti((Collection<PK>)writeWrapper.getObjects(), writeWrapper.getConfig());
+				System.out.println("order done");
 				break;
 			case OP_deleteAll:
 				backingNode.deleteAll(writeWrapper.getConfig());
