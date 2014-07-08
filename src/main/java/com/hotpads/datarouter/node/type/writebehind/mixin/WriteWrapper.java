@@ -38,6 +38,10 @@ public class WriteWrapper<T>{
 		return objects;
 	}
 
+	public void clearObjects(){
+		objects = new ArrayList<>();
+	}
+
 	public Config getConfig(){
 		return config;
 	}
