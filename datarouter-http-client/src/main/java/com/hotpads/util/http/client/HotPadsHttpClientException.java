@@ -1,6 +1,7 @@
 package com.hotpads.util.http.client;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
@@ -37,7 +38,13 @@ public class HotPadsHttpClientException extends RuntimeException{
 	
 	@Override
 	public String toString(){
-		return super.toString() + "(" + getStatusCode() + ", " + getEntity() + ")";
+		String firstLine = "";
+		Scanner scanner = new Scanner(getEntity());
+		while(scanner.hasNextLine() && firstLine.trim().isEmpty()){
+			firstLine = scanner.nextLine();
+		}
+		scanner.close();
+		return super.toString() + "(" + getStatusCode() + ", " + firstLine + ")";
 	}
 
 }
