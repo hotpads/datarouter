@@ -1,22 +1,16 @@
 package com.hotpads.datarouter.node.type.writebehind.mixin;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.util.core.ListTool;
 
 public class WriteWrapper<T>{
 
 	private String op;
-
 	private Collection<T> objects;
-
 	private Config config;
-
-	public WriteWrapper(){
-		this.objects = ListTool.createLinkedList();
-	}
 
 	public WriteWrapper(String op, List<T> objects, Config config){
 		this.op = op;
@@ -30,8 +24,10 @@ public class WriteWrapper<T>{
 		this.config = config;
 	}
 
-	public void setOp(String op){
-		this.op = op;
+	public WriteWrapper(WriteWrapper<T> writeWrapper){
+		this.op = writeWrapper.op;
+		this.objects = new ArrayList<>(writeWrapper.objects);
+		this.config = writeWrapper.config;
 	}
 
 	public String getOp(){
