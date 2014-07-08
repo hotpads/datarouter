@@ -18,7 +18,6 @@ implements MapStorageWriter<PK,D>{
 
 	protected BaseWriteBehindNode<PK,D,N> node;
 
-
 	public WriteBehindMapStorageWriterMixin(BaseWriteBehindNode<PK,D,N> node){
 		this.node = node;
 	}
@@ -30,15 +29,12 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
-		WriteWrapper<PK> writeWrapper = new WriteWrapper<PK>(OP_delete, keys, config);
-		System.out.println("Deletmulti request:" + writeWrapper);
-		node.getQueue().offer(writeWrapper);
-		System.out.println("Update queue: " + node.getQueue());
+		node.getQueue().offer(new WriteWrapper<PK>(OP_delete, keys, config));
 	}
 
 	@Override
 	public void deleteAll(Config config){
-		node.getQueue().offer(new WriteWrapper<Object>(OP_deleteAll, ListTool.createLinkedList(), config));
+		node.getQueue().offer(new WriteWrapper<Object>(OP_deleteAll, ListTool.wrap(new Object()), config));
 	}
 
 	@Override

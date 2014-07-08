@@ -39,15 +39,7 @@ public class WriteWrapper<T>{
 	}
 
 	public Collection<T> getObjects(){
-		System.out.println("bafore: "+objects.size());
-		Collection<T> batchClone = ListTool.createLinkedList();
-		batchClone.addAll(objects);
-		System.out.println("after: " + batchClone.size());
-		return batchClone;
-	}
-	
-	public synchronized boolean addObjects(Collection<? extends T> c) {
-		return objects.addAll(c);
+		return objects;
 	}
 
 	public Config getConfig(){
@@ -56,8 +48,8 @@ public class WriteWrapper<T>{
 
 	@Override
 	public String toString(){
-		return "WriteWrapper {hashCode=" + Integer.toHexString(hashCode()) + "}[op=" + op + ", objects=" + objects
-				+ ", config=" + config + "]";
+		return "WriteWrapper {hashCode=" + Integer.toHexString(hashCode()) + "}[op=" + op + ", objectsNb="
+				+ objects.size() + ", config=" + config + "]";
 	}
 
 }
