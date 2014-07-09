@@ -211,7 +211,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 						public Void call(){
 							try{
-								if(!handlewriteWrapperInternal(writeWrapperClone)){
+								if(!handleWriteWrapperInternal(writeWrapperClone)){
 									logger.error("Not able to handle this op: " + writeWrapperClone.getOp());
 								}
 							}catch(Exception e){
@@ -225,5 +225,5 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	}
 
-	protected abstract boolean handlewriteWrapperInternal(WriteWrapper<?> writeWrapper);
+	protected abstract boolean handleWriteWrapperInternal(WriteWrapper<?> writeWrapper);
 }

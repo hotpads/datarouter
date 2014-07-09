@@ -58,28 +58,21 @@ implements MapStorageNode<PK,D>{
 	public void putMulti(final Collection<D> databeans, final Config config) {
 		mixinMapWriteOps.putMulti(databeans, config);
 	}
-	
-	@SuppressWarnings("unchecked") @Override
-	protected boolean handlewriteWrapperInternal(WriteWrapper<?> writeWrapper){
-		boolean parentRes = super.handlewriteWrapperInternal(writeWrapper);
-		if(parentRes){
-			return true;
+
+	@SuppressWarnings("unchecked")
+	@Override
+	protected boolean handleWriteWrapperInternal(WriteWrapper<?> writeWrapper){
+		if(super.handleWriteWrapperInternal(writeWrapper)){ return true; }
+		if(writeWrapper.getOp().equals(OP_put)){
+			backingNode.putMulti((Collection<D>)writeWrapper.getObjects(), writeWrapper.getConfig());
+		}else if(writeWrapper.getOp().equals(OP_delete)){
+			backingNode.deleteMulti((Collection<PK>)writeWrapper.getObjects(), writeWrapper.getConfig());
+		}else if(writeWrapper.getOp().equals(OP_deleteAll)){
+			backingNode.deleteAll(writeWrapper.getConfig());
 		}else{
-			switch(writeWrapper.getOp()){
-			case OP_put:
-				backingNode.putMulti((Collection<D>)writeWrapper.getObjects(), writeWrapper.getConfig());
-				break;
-			case OP_delete:
-				backingNode.deleteMulti((Collection<PK>)writeWrapper.getObjects(), writeWrapper.getConfig());
-				break;
-			case OP_deleteAll:
-				backingNode.deleteAll(writeWrapper.getConfig());
-				break;
-			default:
-				return false;
-			}
-			return true;
+			return false;
 		}
+		return true;
 	}
 
 }

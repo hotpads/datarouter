@@ -47,7 +47,7 @@ implements MapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	protected boolean handlewriteWrapperInternal(WriteWrapper<?> writeWrapper){
+	protected boolean handleWriteWrapperInternal(WriteWrapper<?> writeWrapper){
 		return false;
 	}
 
