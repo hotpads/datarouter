@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.node.type.writebehind;
+package com.hotpads.datarouter.node.type.writebehind.mixin;
 
 import java.util.Collection;
 
@@ -6,7 +6,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.write.IndexedStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.IndexedStorageWriter.IndexedStorageWriterNode;
 import com.hotpads.datarouter.node.type.writebehind.base.BaseWriteBehindNode;
-import com.hotpads.datarouter.node.type.writebehind.mixin.WriteWrapper;
+import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;

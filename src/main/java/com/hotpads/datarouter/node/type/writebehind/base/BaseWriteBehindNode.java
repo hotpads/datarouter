@@ -19,7 +19,6 @@ import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.node.type.writebehind.mixin.WriteWrapper;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -214,7 +213,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		}
 
 		private void handleWriteWrapper(WriteWrapper<?> writeWrapper){
-			final WriteWrapper<?> writeWrapperClone = new WriteWrapper<>(writeWrapper);
+			final WriteWrapper<?> writeWrapperClone = new WriteWrapper<>(writeWrapper); //cloning to solve concurrency issues
 			if(CollectionTool.notEmpty(writeWrapperClone.getObjects())){
 				outstandingWrites.add(new OutstandingWriteWrapper(System.currentTimeMillis(), writeExecutor
 						.submit(new Callable<Void>(){

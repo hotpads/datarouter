@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.node.type.writebehind.mixin;
+package com.hotpads.datarouter.node.type.writebehind.base;
 
 import java.util.ArrayList;
 import java.util.Collection;
