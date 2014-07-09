@@ -71,7 +71,6 @@ implements SortedMapStorageNode<PK,D>{
 	@Override
 	protected boolean handleWriteWrapperInternal(WriteWrapper<?> writeWrapper){
 		if(super.handleWriteWrapperInternal(writeWrapper)){ return true; }
-
 		if(writeWrapper.getOp().equals(OP_put)){
 			backingNode.putMulti((Collection<D>)writeWrapper.getObjects(), writeWrapper.getConfig());
 		}else if(writeWrapper.getOp().equals(OP_delete)){
