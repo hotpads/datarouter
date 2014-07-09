@@ -18,7 +18,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -41,8 +40,6 @@ import com.hotpads.notification.databean.NotificationUserType;
 import com.hotpads.setting.DatarouterNotificationSettings;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.collections.Pair;
-import com.hotpads.util.core.exception.http.HttpException;
-import com.hotpads.util.core.exception.http.imp.Http500InternalServerErrorException;
 
 @Singleton
 public class ExceptionHandlingFilter implements Filter {
@@ -65,8 +62,6 @@ public class ExceptionHandlingFilter implements Filter {
 	
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 
-	private static final String ERROR = "/error";
-
 	@Inject
 	private DatarouterNotificationSettings notificationSettings;
 	@Inject
@@ -75,11 +70,9 @@ public class ExceptionHandlingFilter implements Filter {
 	private NotificationApiClient notificationApiClient;
 	@Inject
 	@ExceptionRecordNode
-	@SuppressWarnings("rawtypes")
 	private SortedMapStorageNode exceptionRecordNode;
 	@Inject
 	@HttpRecordRecordNode
-	@SuppressWarnings("rawtypes")
 	private MapStorageNode httpRequestRecordNode;
 	@Inject
 	private ParallelApiCaller apiCaller;
@@ -109,37 +102,10 @@ public class ExceptionHandlingFilter implements Filter {
 		} catch (Exception e) {
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
-
-			if(notificationSettings.getExceptionHandling().getValue()){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
-				writeExceptionToResponseWriter(response, e, request);
-				if(exceptionHandlingConfig.shouldPersistExceptionRecords(request, e)) {
-					recordExceptionAndRequestNotification(request, e);
-				}
-			} else {//old redirect code we should delete
-				HttpException httpException;
-				if(e instanceof HttpException){
-					httpException = (HttpException)e;
-				}else{
-					httpException = new Http500InternalServerErrorException(null, e);
-				}
-				logger.warn(ExceptionTool.getStackTraceAsString(httpException));
-				HttpSession session = request.getSession();
-				session.setAttribute("statusCode", httpException.getStatusCode());
-
-				// something else needs to set this, like an AuthenticationFilter
-				//				Object displayExceptionInfo = request.getAttribute(PARAM_DISPLAY_EXCEPTION_INFO);
-				//				if(displayExceptionInfo != null && ((Boolean)displayExceptionInfo)){
-				String message = httpException.getClass().getSimpleName() + ": " + e.getMessage();
-				session.setAttribute("message", message);
-
-				session.setAttribute("stackTrace", httpException.getStackTrace());
-				session.setAttribute("stackTraceString", ExceptionTool
-						.getStackTraceStringForHtmlPreBlock(httpException));
-				//				}
-				// RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/generic/exception.jsp");
-				// dispatcher.forward(request, response);
-				response.sendRedirect(request.getContextPath() + ERROR);
+			logger.warn("ExceptionHandlingFilter caught an exception: ", e);
+			writeExceptionToResponseWriter(response, e, request);
+			if(exceptionHandlingConfig.shouldPersistExceptionRecords(request, e)) {
+				recordExceptionAndRequestNotification(request, e);
 			}
 		}
 	}
