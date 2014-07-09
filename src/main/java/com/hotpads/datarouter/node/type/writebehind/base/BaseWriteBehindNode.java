@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.node.type.writebehind.base;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,7 +83,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		
 
 		this.flushScheduler = Executors.newSingleThreadScheduledExecutor();
-		this.flushScheduler.scheduleWithFixedDelay(new QueuFlucher(), 500, 500, TimeUnit.MILLISECONDS);
+		this.flushScheduler.scheduleWithFixedDelay(new QueueFlusher(), 500, 500, TimeUnit.MILLISECONDS);
 		this.flushScheduler.submit(new Callable<Void>(){
 			public Void call(){
 				Thread.currentThread().setName("NonBlockingWriteNode writer:"+getName());
@@ -162,7 +161,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		return backingNode;
 	}
 
-	public class QueuFlucher implements Runnable{
+	public class QueueFlusher implements Runnable{
 
 		private WriteWrapper<Object> previousWriteWrapper;
 
@@ -178,7 +177,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 				if(writeWrapper.getConfig() != null){
 					handleWriteWrapper(writeWrapper);
 				}else{
-					List<?> list = asList(writeWrapper.getObjects());
+					List<?> list = ListTool.asList(writeWrapper.getObjects());
 					int previousSize = previousWriteWrapper.getObjects().size();
 					int end = Math.min(FLUSH_BATCH_SIZE - previousSize, list.size());
 					previousWriteWrapper.getObjects().addAll(list.subList(0, end));
@@ -199,38 +198,29 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 			handlePrevious();// don't forget the last batch
 		}
 
-		private <T>List<T> asList(Collection<T> coll){ // TODO should be in CollectionTool?
-			if(coll instanceof List){
-				return (List<T>)coll;
-			}else{
-				return new ArrayList<T>(coll);
-			}
-		}
-
 		private void handlePrevious(){
 			handleWriteWrapper(previousWriteWrapper);
 			previousWriteWrapper.clearObjects();
 		}
 
 		private void handleWriteWrapper(WriteWrapper<?> writeWrapper){
-			final WriteWrapper<?> writeWrapperClone = new WriteWrapper<>(writeWrapper); //cloning to solve concurrency issues
-			if(CollectionTool.notEmpty(writeWrapperClone.getObjects())){
-				outstandingWrites.add(new OutstandingWriteWrapper(System.currentTimeMillis(), writeExecutor
-						.submit(new Callable<Void>(){
+			if(CollectionTool.isEmpty(writeWrapper.getObjects())){ return; }
+			final WriteWrapper<?> writeWrapperClone = new WriteWrapper<>(writeWrapper); // cloning to prevent from concurrency issues
+			outstandingWrites.add(new OutstandingWriteWrapper(System.currentTimeMillis(), writeExecutor
+					.submit(new Callable<Void>(){
 
-							public Void call(){
-								try{
-									if(!handlewriteWrapperInternal(writeWrapperClone)){
-										logger.error("Not able to handle this op: " + writeWrapperClone.getOp());
-									}
-								}catch(Exception e){
-									logger.error("error on " + writeWrapperClone.getOp() + " with "
-											+ writeWrapperClone.getObjects().size() + " element(s)", e);
+						public Void call(){
+							try{
+								if(!handlewriteWrapperInternal(writeWrapperClone)){
+									logger.error("Not able to handle this op: " + writeWrapperClone.getOp());
 								}
-								return null;
+							}catch(Exception e){
+								logger.error("error on " + writeWrapperClone.getOp() + " with "
+										+ writeWrapperClone.getObjects().size() + " element(s)", e);
 							}
-						})));
-			}
+							return null;
+						}
+					})));
 		}
 
 	}

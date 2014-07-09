@@ -26,7 +26,11 @@ public class WriteWrapper<T>{
 
 	public WriteWrapper(WriteWrapper<T> writeWrapper){
 		this.op = writeWrapper.op;
-		this.objects = new ArrayList<>(writeWrapper.objects);
+		if(writeWrapper.objects == null) {
+			this.objects = new ArrayList<>();
+		} else {
+			this.objects = new ArrayList<>(writeWrapper.objects);
+		}
 		this.config = writeWrapper.config;
 	}
 

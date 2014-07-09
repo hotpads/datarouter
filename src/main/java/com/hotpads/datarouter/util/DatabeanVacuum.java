@@ -47,13 +47,15 @@ public class DatabeanVacuum<PK extends PrimaryKey<PK>, D extends Databean<PK, D>
 			if(pkBatch.size() >= batchSize ) {
 				storage.deleteMulti(pkBatch, null);
 				deletionCount += pkBatch.size();
-				logger.warn("DatabeanVacuum deleted "+NumberFormatter.addCommas(deletionCount)+" of " + NumberFormatter.addCommas(scanCount) + " " + storage.getDatabeanType().getSimpleName());
+				logger.warn("DatabeanVacuum deleted " + NumberFormatter.addCommas(deletionCount) + " of "
+						+ NumberFormatter.addCommas(scanCount) + " " + storage.getDatabeanType().getSimpleName());
 				pkBatch = ListTool.create();
 			}
 		}
 		storage.deleteMulti(pkBatch, null);
 		deletionCount += pkBatch.size();
-		logger.warn("DatabeanVacuum deleted "+NumberFormatter.addCommas(deletionCount)+" of " + NumberFormatter.addCommas(scanCount) + " " + storage.getDatabeanType().getSimpleName());	
+		logger.warn("DatabeanVacuum deleted " + NumberFormatter.addCommas(deletionCount) + " of "
+				+ NumberFormatter.addCommas(scanCount) + " " + storage.getDatabeanType().getSimpleName());
 		return null;
 	}
 
