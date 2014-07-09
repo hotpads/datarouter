@@ -39,11 +39,13 @@ public class HotPadsHttpClientException extends RuntimeException{
 	@Override
 	public String toString(){
 		String firstLine = "";
-		Scanner scanner = new Scanner(getEntity());
-		while(scanner.hasNextLine() && firstLine.trim().isEmpty()){
-			firstLine = scanner.nextLine();
+		if(getEntity() != null){
+			Scanner scanner = new Scanner(getEntity());
+			while(scanner.hasNextLine() && firstLine.trim().isEmpty()){
+				firstLine = scanner.nextLine();
+			}
+			scanner.close();
 		}
-		scanner.close();
 		return super.toString() + "(" + getStatusCode() + ", " + firstLine + ")";
 	}
 
