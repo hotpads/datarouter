@@ -80,7 +80,8 @@ public class IndexingNodeFactory {
 					IK extends PrimaryKey<IK>,
 					IE extends UniqueIndexEntry<IK,IE,PK,D>,
 					IF extends DatabeanFielder<IK,IE>>
-	ManagedUniqueIndexNode<PK, D, F, IK, IE,IF> newManagedUnique(JdbcNode<PK, D, F> backingMapNode, Class<IF> indexFielder, Class<IE> indexEntryClass){
+	ManagedUniqueIndexNode<PK, D, F, IK, IE, IF> newManagedUnique(
+			JdbcNode<PK, D, F> backingMapNode, Class<IF> indexFielder, Class<IE> indexEntryClass){
 		return new ManagedUniqueIndexNode<PK,D,F,IK,IE,IF>(backingMapNode, indexFielder, indexEntryClass);
 	}
 }
