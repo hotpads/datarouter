@@ -22,25 +22,17 @@ import com.hotpads.util.core.StringTool;
 @Singleton
 public class ClusterSettingFinder {
 
-	protected static Logger logger = Logger.getLogger(ClusterSettingFinder.class);
+	private static final Logger logger = Logger.getLogger(ClusterSettingFinder.class);
 
 	public static final String PREFIX_trigger = "trigger.";
 	public static final String EMPTY_STRING = "";
 
 	@Inject
-	protected ClusterSettingFinderConfig clusterSettingFinderConfig;
+	private ClusterSettingFinderConfig clusterSettingFinderConfig;
 	@Inject
-	protected DatarouterServerTypeTool datarouterServerTypeTool;
+	private DatarouterServerTypeTool datarouterServerTypeTool;
 	@Inject
-	protected SortedMapStorageNode<ClusterSettingKey,ClusterSetting> clusterSetting;
-
-	public SortedMapStorageNode<ClusterSettingKey, ClusterSetting> getClusterSetting() {
-		return clusterSetting;
-	}
-
-	public void setClusterSetting(SortedMapStorageNode<ClusterSettingKey, ClusterSetting> clusterSetting) {
-		this.clusterSetting = clusterSetting;
-	}
+	private SortedMapStorageNode<ClusterSettingKey,ClusterSetting> clusterSetting;
 
 	public Integer getInteger(String name, Integer defaultValue){
 		String valueString = getMostSpecificValue(name);
