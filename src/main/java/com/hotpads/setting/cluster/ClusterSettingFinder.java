@@ -1,9 +1,5 @@
 package com.hotpads.setting.cluster;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +10,6 @@ import javax.inject.Singleton;
 import org.apache.log4j.Logger;
 import org.quartz.CronExpression;
 
-import com.google.inject.BindingAnnotation;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.setting.ClusterSettingFinderConfig;
 import com.hotpads.setting.DatarouterServerType;
@@ -27,27 +22,17 @@ import com.hotpads.util.core.StringTool;
 @Singleton
 public class ClusterSettingFinder {
 
-	@BindingAnnotation 
-	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD }) 
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface ClusterSettingNode {}
-
 	protected static Logger logger = Logger.getLogger(ClusterSettingFinder.class);
 
 	public static final String PREFIX_trigger = "trigger.";
 	public static final String EMPTY_STRING = "";
 
-	protected ClusterSettingFinderConfig clusterSettingFinderConfig;
-	protected DatarouterServerTypeTool datarouterServerTypeTool;
-	protected SortedMapStorageNode<ClusterSettingKey,ClusterSetting> clusterSetting;
-
 	@Inject
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public ClusterSettingFinder(ClusterSettingFinderConfig clusterSettingFinderConfig, DatarouterServerTypeTool datarouterServerTypeTool ,@ClusterSettingNode SortedMapStorageNode clusterSetting) {
-		this.clusterSettingFinderConfig = clusterSettingFinderConfig;
-		this.datarouterServerTypeTool = datarouterServerTypeTool;
-		this.clusterSetting = clusterSetting;
-	}
+	protected ClusterSettingFinderConfig clusterSettingFinderConfig;
+	@Inject
+	protected DatarouterServerTypeTool datarouterServerTypeTool;
+	@Inject
+	protected SortedMapStorageNode<ClusterSettingKey,ClusterSetting> clusterSetting;
 
 	public SortedMapStorageNode<ClusterSettingKey, ClusterSetting> getClusterSetting() {
 		return clusterSetting;

@@ -2,10 +2,6 @@ package com.hotpads.handler.exception;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
@@ -23,7 +19,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Joiner;
-import com.google.inject.BindingAnnotation;
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
@@ -31,13 +26,10 @@ import com.hotpads.exception.analysis.HttpHeaders;
 import com.hotpads.exception.analysis.HttpRequestRecord;
 import com.hotpads.exception.analysis.HttpRequestRecordKey;
 import com.hotpads.handler.util.RequestTool;
-import com.hotpads.notification.NotificationApiClient;
-import com.hotpads.notification.NotificationRequestDtoTool;
 import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
-import com.hotpads.setting.DatarouterNotificationSettings;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.collections.Pair;
 
@@ -45,49 +37,33 @@ import com.hotpads.util.core.collections.Pair;
 public class ExceptionHandlingFilter implements Filter {
 	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
 
-	@BindingAnnotation
-	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD })
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface ExceptionRecordNode {}
-
-	@BindingAnnotation
-	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD })
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface HttpRecordRecordNode {}
-
 	public static final String ATTRIBUTE_EXCEPTION_RECORD_NODE = "exceptionRecordNode";
 	public static final String ATTRIBUTE_REQUEST_RECORD_NODE = "requestRecordNode";
 	public static final String ATTRIBUTE_EXCEPTION_HANDLING_CONFIG = "exceptionHandlingConfig";
-	public static final String ATTRIBUTE_NOTIFICATION_SETTINGS = "notificationSettings";
+	public static final String ATTRIBUTE_PARALLEL_API_CALLER = "parallelApiCaller";
 	
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 
 	@Inject
-	private DatarouterNotificationSettings notificationSettings;
-	@Inject
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
-	private NotificationApiClient notificationApiClient;
+	private SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
 	@Inject
-	@ExceptionRecordNode
-	private SortedMapStorageNode exceptionRecordNode;
-	@Inject
-	@HttpRecordRecordNode
-	private MapStorageNode httpRequestRecordNode;
+	private MapStorageNode<HttpRequestRecordKey, HttpRequestRecord> httpRequestRecordNode;
 	@Inject
 	private ParallelApiCaller apiCaller;
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
-		if (exceptionRecordNode == null) {
+	public void init(FilterConfig filterConfig) throws ServletException{
+		if(exceptionRecordNode == null){
 			ServletContext sc = filterConfig.getServletContext();
-			exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute(ATTRIBUTE_EXCEPTION_RECORD_NODE);
-			httpRequestRecordNode = (MapStorageNode<HttpRequestRecordKey, HttpRequestRecord>) sc.getAttribute(ATTRIBUTE_REQUEST_RECORD_NODE);
-			notificationSettings = (DatarouterNotificationSettings) sc.getAttribute(ATTRIBUTE_NOTIFICATION_SETTINGS);
-			exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
-			notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig, notificationSettings);
-			apiCaller = new ParallelApiCaller(notificationApiClient, notificationSettings, exceptionHandlingConfig);
+			exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey,ExceptionRecord>)sc
+					.getAttribute(ATTRIBUTE_EXCEPTION_RECORD_NODE);
+			httpRequestRecordNode = (MapStorageNode<HttpRequestRecordKey,HttpRequestRecord>)sc
+					.getAttribute(ATTRIBUTE_REQUEST_RECORD_NODE);
+			exceptionHandlingConfig = (ExceptionHandlingConfig)sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
+			apiCaller = (ParallelApiCaller)sc.getAttribute(ATTRIBUTE_PARALLEL_API_CALLER);
 		}
 	}
 
