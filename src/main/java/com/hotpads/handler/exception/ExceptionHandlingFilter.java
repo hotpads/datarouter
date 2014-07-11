@@ -20,8 +20,8 @@ import org.apache.log4j.Logger;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Singleton;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.exception.analysis.HttpHeaders;
 import com.hotpads.exception.analysis.HttpRequestRecord;
 import com.hotpads.exception.analysis.HttpRequestRecordKey;
@@ -49,7 +49,7 @@ public class ExceptionHandlingFilter implements Filter {
 	@Inject
 	private SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
 	@Inject
-	private MapStorageNode<HttpRequestRecordKey, HttpRequestRecord> httpRequestRecordNode;
+	private IndexedSortedMapStorageNode<HttpRequestRecordKey, HttpRequestRecord> httpRequestRecordNode;
 	@Inject
 	private ParallelApiCaller apiCaller;
 	
@@ -60,7 +60,7 @@ public class ExceptionHandlingFilter implements Filter {
 			ServletContext sc = filterConfig.getServletContext();
 			exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey,ExceptionRecord>)sc
 					.getAttribute(ATTRIBUTE_EXCEPTION_RECORD_NODE);
-			httpRequestRecordNode = (MapStorageNode<HttpRequestRecordKey,HttpRequestRecord>)sc
+			httpRequestRecordNode = (IndexedSortedMapStorageNode<HttpRequestRecordKey,HttpRequestRecord>)sc
 					.getAttribute(ATTRIBUTE_REQUEST_RECORD_NODE);
 			exceptionHandlingConfig = (ExceptionHandlingConfig)sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
 			apiCaller = (ParallelApiCaller)sc.getAttribute(ATTRIBUTE_PARALLEL_API_CALLER);

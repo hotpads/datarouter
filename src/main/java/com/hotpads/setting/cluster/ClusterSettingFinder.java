@@ -34,6 +34,14 @@ public class ClusterSettingFinder {
 	@Inject
 	private SortedMapStorageNode<ClusterSettingKey,ClusterSetting> clusterSetting;
 
+	public SortedMapStorageNode<ClusterSettingKey,ClusterSetting> getClusterSetting(){
+		return clusterSetting;
+	}
+
+	public void setClusterSetting(SortedMapStorageNode<ClusterSettingKey,ClusterSetting> clusterSetting){
+		this.clusterSetting = clusterSetting;
+	}
+
 	public Integer getInteger(String name, Integer defaultValue){
 		String valueString = getMostSpecificValue(name);
 		if(valueString==null){ return defaultValue; }
