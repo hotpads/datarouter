@@ -48,7 +48,7 @@ public class ParallelApiCaller {
 	public ParallelApiCaller(NotificationApiClient notificationApiClient, DatarouterNotificationSettings notificationSettings, 
 			ExceptionHandlingConfig exceptionHandlingConfig) {
 		this.notificationApiClient = notificationApiClient;
-		this.queue = new LinkedBlockingQueue<Pair<NotificationRequest, ExceptionRecord>>(QUEUE_CAPACITY);
+		this.queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
 		this.sender = Executors.newSingleThreadExecutor(); //singleThread
 		this.flusher = Executors.newScheduledThreadPool(1); //singleThread
 		this.flusher.scheduleWithFixedDelay(new QueueFlusher(exceptionHandlingConfig), 0, FLUSH_PERIOD_MS, TimeUnit.MILLISECONDS);
@@ -59,7 +59,6 @@ public class ParallelApiCaller {
 		queue.offer(new Pair<NotificationRequest, ExceptionRecord>(request, exceptionRecord));
 	}
 
-	
 	private class QueueFlusher implements Runnable {
 		private static final int BATCH_SIZE = 100;
 		private ExceptionHandlingConfig exceptionHandlingConfig;
