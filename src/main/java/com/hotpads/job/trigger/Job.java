@@ -17,8 +17,8 @@ public interface Job extends Callable<Void>, Comparable<Job>{
 	Long getDelayBeforeNextFireTimeMs();
 	void scheduleNextRun();
 	boolean shouldRun();
-	void run() throws RuntimeException;
-	void runInternal() throws RuntimeException;
+	void run();
+	void runInternal();
 	
 	String getJobCategory();
 	Date getNextScheduled();

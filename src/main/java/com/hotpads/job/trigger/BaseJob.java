@@ -40,6 +40,7 @@ public abstract class BaseJob implements Job{
 	protected Setting<Boolean> shouldSaveLongRunningTasks;
 	private String serverName;
 	private Date triggerTime;
+	private String jobClass;
 	
 	@Inject
 	@ExceptionRecordNode
@@ -58,7 +59,7 @@ public abstract class BaseJob implements Job{
 		this.executor = jobEnvironment.getExecutor();
 		this.processJobsSetting = jobEnvironment.getProcessJobsSetting();
 		this.shouldSaveLongRunningTasks = jobEnvironment.getShouldSaveLongRunningTasksSetting();
-		String jobClass = this.getClass().getSimpleName();
+		this.jobClass = getClass().getSimpleName();
 		this.serverName = jobEnvironment.getServerName();
 		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, serverName, 
 				jobEnvironment.getShouldSaveLongRunningTasksSetting(), LongRunningTaskType.job);
@@ -66,6 +67,10 @@ public abstract class BaseJob implements Job{
 
 	/*********************** methods ******************************/
 
+	public String getJobClass(){
+		return jobClass;
+	}
+	
 	@Override
 	public Long getDelayBeforeNextFireTimeMs(){
 		CronExpression trigger = getTrigger();
@@ -157,7 +162,7 @@ public abstract class BaseJob implements Job{
 	}
 	
 	@Override
-	public void runInternal() throws RuntimeException{
+	public void runInternal(){
 		if(shouldRunInternal()){
 			scheduler.getTracker().get(this.getClass()).setRunning(true);
 			scheduler.getTracker().get(this.getClass()).setJob(this);

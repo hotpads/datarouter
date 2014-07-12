@@ -22,6 +22,9 @@ import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
+import com.hotpads.datarouter.storage.key.multi.Lookup;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
@@ -42,6 +45,16 @@ public class FieldSetTool{
 			if(value == null){ break; }
 			++numNonNullFields;
 			
+		}
+		return numNonNullFields;
+	}
+
+	public static int getNumNonNullFields(FieldSet<?> prefix){
+		int numNonNullFields = 0;
+		for(Object value : CollectionTool.nullSafe(prefix.getFieldValues())){
+			if(value != null){
+				++numNonNullFields;
+			}
 		}
 		return numNonNullFields;
 	}
@@ -137,6 +150,16 @@ public class FieldSetTool{
 		for(Field<?> field : fields){
 			field.fromJdbcResultSetUsingReflection(targetFieldSet, rs);
 			++counter;
+		}
+		return targetFieldSet;
+	}
+	
+	public static <PK extends PrimaryKey<PK>, PKLookup extends Lookup<PK>> PKLookup lookupFromJdbcResultSetUsingReflection(Class<PKLookup> cls,
+			List<Field<?>> fields, ResultSet rs, Class<PK> keyClass){
+		PKLookup targetFieldSet = ReflectionTool.create(cls);
+		targetFieldSet.setPrimaryKey(ReflectionTool.create(keyClass));
+		for(Field<?> field : fields){
+			field.fromJdbcResultSetUsingReflection(targetFieldSet, rs);
 		}
 		return targetFieldSet;
 	}

@@ -1,45 +1,50 @@
 package com.hotpads.datarouter.node.type.writebehind.mixin;
 
-import java.util.concurrent.Callable;
-
-import org.apache.log4j.Logger;
-
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter.SortedStorageWriterNode;
 import com.hotpads.datarouter.node.type.writebehind.base.BaseWriteBehindNode;
-import com.hotpads.datarouter.node.type.writebehind.base.OutstandingWriteWrapper;
+import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.util.core.ListTool;
 
 public class WriteBehindSortedStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		N extends SortedStorageWriterNode<PK,D>>
 implements SortedStorageWriter<PK,D>{
-	private Logger logger = Logger.getLogger(getClass());
 
-	protected BaseWriteBehindNode<PK,D,N> node;
-	
+	private BaseWriteBehindNode<PK,D,N> node;
+
 	public WriteBehindSortedStorageWriterMixin(BaseWriteBehindNode<PK,D,N> node){
 		this.node = node;
 	}
-	
+
 	@Override
-	public void deleteRangeWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
-		node.getOutstandingWrites().add(new OutstandingWriteWrapper(
-				System.currentTimeMillis(), 
-				node.getWriteExecutor().submit(new Callable<Void>(){
-			public Void call(){
-				try{
-					node.getBackingNode().deleteRangeWithPrefix(prefix, wildcardLastField, config);
-				}catch(Exception e){
-					logger.error("error on deleteRangeWithPrefix["+prefix.toString()+"]");
-					logger.error(ExceptionTool.getStackTraceAsString(e));
-				}
-				return null; 
-			}
-		})));
+	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
+		node.getQueue().offer(
+				new WriteWrapper<DeleteRangeWithPrefixWraper<PK>>(OP_deleteRangeWithPrefix, ListTool
+						.wrap(new DeleteRangeWithPrefixWraper<PK>(prefix, wildcardLastField)), config));
+	}
+
+	public static class DeleteRangeWithPrefixWraper<PK extends PrimaryKey<PK>> {
+		
+		private PK prefix;
+		private boolean wildcardLastField;
+
+		public DeleteRangeWithPrefixWraper(PK prefix, boolean wildcardLastField){
+			this.prefix = prefix;
+			this.wildcardLastField = wildcardLastField;
+		}
+
+		public PK getPrefix(){
+			return prefix;
+		}
+
+		public boolean isWildcardLastField(){
+			return wildcardLastField;
+		}
+
 	}
 }

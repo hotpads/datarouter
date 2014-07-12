@@ -20,6 +20,10 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	public static final long LAST_HEARTBEAT_WARNING_THRESHOLD = 2l * DateTool.MILLISECONDS_IN_SECOND,
 							LAST_HEARTBEAT_STALLED_THRESHOLD = 10l * DateTool.MILLISECONDS_IN_SECOND;
+	public static final int NULL = 3,
+							OK = 0,
+							WARNING = 1,
+							STALLED = 2;
 	
 	private LongRunningTaskKey key;
 	private LongRunningTaskType type;
@@ -101,18 +105,27 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		return DateTool.getAgoString(heartbeatTime);
 	}
 	
+	public String getFinishTimeString(){
+		if(finishTime == null){
+			return "";
+		}
+		return DateTool.getAgoString(finishTime);
+	}
+	
 	public int getStatus(){
 		if(heartbeatTime == null){
-			return 0;
+			return NULL;
 		}
 		long millisAgo = System.currentTimeMillis() - heartbeatTime.getTime();
 		if(millisAgo > LAST_HEARTBEAT_STALLED_THRESHOLD){
-			return 2;
+			return STALLED;
 		}
 		else if(millisAgo > LAST_HEARTBEAT_WARNING_THRESHOLD){
-			return 1;
+			return WARNING;
 		}
-		return 0;
+		else{
+			return OK;
+		}
 	}
 	
 	/****************** get/set ************************/

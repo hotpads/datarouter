@@ -7,13 +7,11 @@ import com.hotpads.util.core.web.HTMLSelectOptionBean;
 public interface DatarouterServerType {
 
 	String getPersistentString();
-
-	String getUNKNOWNPersistentString();
-
-	String getALLPersistentString();
-
 	DatarouterServerType fromPersistentStringStatic(String required);
-
 	List<HTMLSelectOptionBean> getHTMLSelectOptionsVarNames();
 
+	public static interface DatarouterServerTypeTool {
+		String getUNKNOWNPersistentString();
+		String getALLPersistentString();
+	}
 }
