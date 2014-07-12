@@ -16,7 +16,7 @@ import org.junit.runners.Parameterized.Parameters;
 import com.google.common.collect.Sets;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
-import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
 import com.hotpads.datarouter.config.Config;
@@ -375,7 +375,7 @@ public class SortedNodeIntegrationTests{
 	/************************* helper ****************************/
 	
 	public boolean isHBaseEntity(){
-		return node instanceof HBaseEntityReaderNode;
+		return node instanceof HBaseSubEntityReaderNode;
 	}
 }
 

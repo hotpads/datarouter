@@ -45,7 +45,7 @@ import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
 import com.hotpads.util.core.iterable.scanner.imp.ListBackedSortedScanner;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
-public class HBaseEntityReaderNode<
+public class HBaseSubEntityReaderNode<
 		EK extends EntityKey<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
@@ -63,7 +63,7 @@ implements HBasePhysicalNode<PK,D>,
 	
 	/******************************* constructors ************************************/
 	
-	public HBaseEntityReaderNode(NodeParams<PK,D,F> params){
+	public HBaseSubEntityReaderNode(NodeParams<PK,D,F> params){
 		super(params);
 		this.queryBuilder = new HBaseEntityQueryBuilder<EK,PK,D,F>(fieldInfo);
 		this.resultParser = new HBaseEntityResultParser<EK,PK,D,F>(fieldInfo);

@@ -33,16 +33,16 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
-public class HBaseEntityNode<
+public class HBaseSubEntityNode<
 		EK extends EntityKey<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
-extends HBaseEntityReaderNode<EK,PK,D,F>
+extends HBaseSubEntityReaderNode<EK,PK,D,F>
 implements PhysicalSortedMapStorageNode<PK,D>
 {
 	
-	public HBaseEntityNode(NodeParams<PK,D,F> params){
+	public HBaseSubEntityNode(NodeParams<PK,D,F> params){
 		super(params);
 	}
 	

@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -29,13 +29,13 @@ extends BaseBatchLoader<T>{
 
 	private static final int DEFAULT_iterateBatchSize = 1000;
 	
-	protected final HBaseEntityReaderNode<EK,PK,D,F> node;
+	protected final HBaseSubEntityReaderNode<EK,PK,D,F> node;
 	protected final Range<PK> range;
 	protected final Config config;
 	protected final Integer iterateBatchSize;//break this out of config for safety
 	protected Long batchChainCounter;
 	
-	public BaseHBaseEntityBatchLoader(final HBaseEntityReaderNode<EK,PK,D,F> node,
+	public BaseHBaseEntityBatchLoader(final HBaseSubEntityReaderNode<EK,PK,D,F> node,
 			final Range<PK> range, final Config pConfig, Long batchChainCounter){
 		this.node = node;
 		this.range = range;
