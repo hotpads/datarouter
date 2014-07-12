@@ -69,7 +69,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
 		if(CollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "putMulti", this, config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), getTaskNameParams(), "putMulti", config){
 				public Void hbaseCall() throws Exception{
 					List<Row> actions = ListTool.createArrayList();
 					int numCellsPut = 0, numCellsDeleted = 0;
@@ -110,10 +110,10 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					}
 					int numEntitiesPut = MapTool.size(databeansByEntityKey);
 					int numDatabeansPut = CollectionTool.getTotalSizeOfMapOfCollections(databeansByEntityKey);
-					DRCounters.incSuffixClientNode(client.getType(), "cells put", getClientName(), node.getName(), numCellsPut);
-					DRCounters.incSuffixClientNode(client.getType(), "cells delete", getClientName(), node.getName(), numCellsDeleted);
-					DRCounters.incSuffixClientNode(client.getType(), "rows put", getClientName(), node.getName(), numDatabeansPut);
-					DRCounters.incSuffixClientNode(client.getType(), "entities put", getClientName(), node.getName(), numEntitiesPut);
+					DRCounters.incSuffixClientNode(client.getType(), "cells put", getClientName(), getNodeName(), numCellsPut);
+					DRCounters.incSuffixClientNode(client.getType(), "cells delete", getClientName(), getNodeName(), numCellsDeleted);
+					DRCounters.incSuffixClientNode(client.getType(), "rows put", getClientName(), getNodeName(), numDatabeansPut);
+					DRCounters.incSuffixClientNode(client.getType(), "entities put", getClientName(), getNodeName(), numEntitiesPut);
 					if(CollectionTool.notEmpty(actions)){
 						hTable.batch(actions);
 						hTable.flushCommits();
@@ -128,7 +128,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	@Override
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "deleteAll", this, config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), getTaskNameParams(), "deleteAll", config){
 				public Void hbaseCall() throws Exception{
 					Scan scan = new Scan();
 					scan.setFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
@@ -164,7 +164,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
 		if(CollectionTool.isEmpty(keys)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "deleteMulti", this, config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), getTaskNameParams(), "deleteMulti", config){
 				public Void hbaseCall() throws Exception{
 					hTable.setAutoFlush(false);
 					Collection<String> nonKeyColumnNames = fieldInfo.getNonKeyFieldByColumnName().keySet();

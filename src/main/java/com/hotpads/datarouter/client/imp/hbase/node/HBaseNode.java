@@ -65,7 +65,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
 		if(CollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "putMulti", this, config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), getTaskNameParams(), "putMulti", config){
 				public Void hbaseCall() throws Exception{					
 					List<Row> actions = ListTool.createArrayList();
 					int numCellsPut = 0, numCellsDeleted = 0, numRowsPut = 0;;
@@ -98,9 +98,9 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						if(!delete.isEmpty()){ actions.add(delete); }
 						++numRowsPut;
 					}
-					DRCounters.incSuffixClientNode(client.getType(), "cells put", getClientName(), node.getName(), numCellsPut);
-					DRCounters.incSuffixClientNode(client.getType(), "cells delete", getClientName(), node.getName(), numCellsDeleted);
-					DRCounters.incSuffixClientNode(client.getType(), "rows put", getClientName(), node.getName(), numRowsPut);
+					DRCounters.incSuffixClientNode(client.getType(), "cells put", getClientName(), getName(), numCellsPut);
+					DRCounters.incSuffixClientNode(client.getType(), "cells delete", getClientName(), getName(), numCellsDeleted);
+					DRCounters.incSuffixClientNode(client.getType(), "rows put", getClientName(), getName(), numRowsPut);
 					if(CollectionTool.notEmpty(actions)){
 						hTable.batch(actions);
 						hTable.flushCommits();
@@ -121,7 +121,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	@Override
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "deleteAll", this, config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), getTaskNameParams(), "deleteAll", config){
 				public Void hbaseCall() throws Exception{
 					managedResultScanner = hTable.getScanner(new Scan());
 					List<Row> batchToDelete = ListTool.createArrayList(1000);
@@ -154,7 +154,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
 		if(CollectionTool.isEmpty(keys)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), "deleteMulti", this, config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), getTaskNameParams(), "deleteMulti", config){
 				public Void hbaseCall() throws Exception{
 					hTable.setAutoFlush(false);
 					List<Row> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList

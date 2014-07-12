@@ -39,7 +39,6 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	protected DataRouterContext drContext;
 		
 	protected HBaseTask<V> task;
-	protected HBaseClient client;
 	protected ExecutorService executorService;
 	protected Config config;
 	protected Long timeoutMs;
@@ -64,10 +63,10 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		for(int i=1; i <= numAttempts; ++i){
 			try{
 				//do this client stuff here so inaccessible clients count as normal failures
-				client = task.node.getClient();
+				HBaseClient client = (HBaseClient)drContext.getClientPool().getClient(task.getClientName());
 				if(client==null){
 					Thread.sleep(timeoutMs);//otherwise will loop through numAttempts as fast as possible
-					throw new DataAccessException("client "+this.task.node.getClientName()+" not active"); 
+					throw new DataAccessException("client "+task.getClientName()+" not active"); 
 				}
 				executorService = client.getExecutorService();
 				

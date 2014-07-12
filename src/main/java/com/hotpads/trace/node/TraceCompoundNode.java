@@ -2,6 +2,8 @@ package com.hotpads.trace.node;
 
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
+import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.entity.BaseEntityNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -25,6 +27,7 @@ extends BaseEntityNode<TraceEntityKey,TraceEntity>
 implements TraceNodes{
 	
 	private static final String
+		NODE_NAME = "TraceCompoundNode",
 		TABLE_Trace = "TestTrace",
 		TABLE_TraceThread = "TestTraceThread",
 		TABLE_TraceSpan = "TestTraceSpan";
@@ -34,7 +37,7 @@ implements TraceNodes{
 	public SortedMapStorageNode<TraceSpanKey,TraceSpan> span;
 	
 	public TraceCompoundNode(String name, DataRouter router, String clientName){
-		super(name);
+		super(router.getContext(), new HBaseTaskNameParams(clientName, TABLE_Trace, NODE_NAME));
 		initNodes(router, clientName);
 	}
 	
@@ -57,7 +60,7 @@ implements TraceNodes{
 	
 	
 	@Override
-	public TraceEntity getEntity(TraceEntityKey key){
+	public TraceEntity getEntity(TraceEntityKey key, Config pConfig){
 		TraceEntity entity = new TraceEntity(key);
 		
 		TraceKey tracePrefix = ReflectionTool.create(TraceKey.class).prefixFromEntityKey(key);

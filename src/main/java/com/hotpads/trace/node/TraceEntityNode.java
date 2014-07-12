@@ -1,8 +1,7 @@
 package com.hotpads.trace.node;
 
-import java.util.List;
-
-import com.hotpads.datarouter.node.entity.BaseEntityNode;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
+import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
@@ -18,10 +17,9 @@ import com.hotpads.trace.key.TraceEntityKey;
 import com.hotpads.trace.key.TraceKey;
 import com.hotpads.trace.key.TraceSpanKey;
 import com.hotpads.trace.key.TraceThreadKey;
-import com.hotpads.util.core.java.ReflectionTool;
 
 public class TraceEntityNode 
-extends BaseEntityNode<TraceEntityKey,TraceEntity>
+extends HBaseEntityReaderNode<TraceEntityKey,TraceEntity>
 implements TraceNodes{
 	
 	private static final String
@@ -34,8 +32,8 @@ implements TraceNodes{
 	public SortedMapStorageNode<TraceThreadKey,TraceThread> thread;
 	public SortedMapStorageNode<TraceSpanKey,TraceSpan> span;
 	
-	public TraceEntityNode(String name, DataRouter router, String clientName){
-		super(name);
+	public TraceEntityNode(DataRouter router, String clientName, String name){
+		super(router.getContext(), new HBaseTaskNameParams(clientName, ENTITY_TraceEntity, name));
 		initNodes(router, clientName);
 	}
 	
@@ -56,25 +54,38 @@ implements TraceNodes{
 		register(span);	
 	}
 	
+//	@Override
+//	public TraceEntity getEntity(TraceEntityKey key, Config pConfig){
+//		final Config config = Config.nullSafe(pConfig);
+//		return new HBaseMultiAttemptTask<TraceEntity>(new HBaseTask<TraceEntity>(getContext(), taskNameParams, "getEntity", config){
+//				public List<D> hbaseCall() throws Exception{
+//					byte[] rowBytes = queryBuilder.getRowBytes(pk.getEntityKey());
+//					Get get = new Get(rowBytes);
+//					Result hBaseResult = hTable.get(get);
+//					return resultParser.getDatabeansWithMatchingQualifierPrefix(rows);
+//				}
+//			}).call();
+//	}
 	
-	@Override
-	public TraceEntity getEntity(TraceEntityKey key){
-		TraceEntity entity = new TraceEntity(key);
-		
-		TraceKey tracePrefix = ReflectionTool.create(TraceKey.class).prefixFromEntityKey(key);
-		List<Trace> traces = trace.getWithPrefix(tracePrefix, false, null);
-		entity.add(trace, traces);
-		
-		TraceThreadKey traceThreadPrefix = ReflectionTool.create(TraceThreadKey.class).prefixFromEntityKey(key);
-		List<TraceThread> traceThreads = thread.getWithPrefix(traceThreadPrefix, false, null);
-		entity.add(thread, traceThreads);
-		
-		TraceSpanKey traceSpanPrefix = ReflectionTool.create(TraceSpanKey.class).prefixFromEntityKey(key);
-		List<TraceSpan> traceSpans = span.getWithPrefix(traceSpanPrefix, false, null);
-		entity.add(span, traceSpans);
-		
-		return entity;
-	}
+	
+//	@Override
+//	public TraceEntity getEntity(TraceEntityKey key){
+//		TraceEntity entity = new TraceEntity(key);
+//		
+//		TraceKey tracePrefix = ReflectionTool.create(TraceKey.class).prefixFromEntityKey(key);
+//		List<Trace> traces = trace.getWithPrefix(tracePrefix, false, null);
+//		entity.add(trace, traces);
+//		
+//		TraceThreadKey traceThreadPrefix = ReflectionTool.create(TraceThreadKey.class).prefixFromEntityKey(key);
+//		List<TraceThread> traceThreads = thread.getWithPrefix(traceThreadPrefix, false, null);
+//		entity.add(thread, traceThreads);
+//		
+//		TraceSpanKey traceSpanPrefix = ReflectionTool.create(TraceSpanKey.class).prefixFromEntityKey(key);
+//		List<TraceSpan> traceSpans = span.getWithPrefix(traceSpanPrefix, false, null);
+//		entity.add(span, traceSpans);
+//		
+//		return entity;
+//	}
 	
 	
 	/*********************** get nodes ******************************/
