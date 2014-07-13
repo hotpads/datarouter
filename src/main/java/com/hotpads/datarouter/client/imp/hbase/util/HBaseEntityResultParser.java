@@ -39,7 +39,7 @@ public class HBaseEntityResultParser<
 			Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>> databeanByPk = databeansByQualifierPrefix.get(
 					qualifierPrefix);
 			HBaseSubEntityReaderNode<EK,?,?,?> subNode = nodeByQualifierPrefix.get(qualifierPrefix);
-			entity.addDatabeansForSubEntityTableNameUnchecked(subNode.getTableName(), databeanByPk.values());
+			entity.addDatabeansForQualifierPrefixUnchecked(subNode.getEntityNodePrefix(), databeanByPk.values());
 		}
 		return entity;
 	}

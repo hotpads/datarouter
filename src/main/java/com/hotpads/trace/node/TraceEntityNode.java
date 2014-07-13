@@ -24,17 +24,14 @@ extends HBaseEntityReaderNode<TraceEntityKey,TraceEntity>
 implements TraceNodes{
 	
 	private static final String
-		ENTITY_TraceEntity = "TestTraceEntity",
-		NODE_PREFIX_Trace = "T",
-		NODE_PREFIX_TraceThread = "TT",
-		NODE_PREFIX_TraceSpan = "TS";
+		ENTITY_TABLE_NAME_TraceEntity = "TestTraceEntity";
 
 	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceKey,Trace,TraceFielder> trace;
 	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceThreadKey,TraceThread,TraceThreadFielder> thread;
 	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceSpanKey,TraceSpan,TraceSpanFielder> span;
 	
 	public TraceEntityNode(DataRouter router, String clientName, String name){
-		super(router, new HBaseTaskNameParams(clientName, ENTITY_TraceEntity, name));
+		super(router, new HBaseTaskNameParams(clientName, ENTITY_TABLE_NAME_TraceEntity, name));
 	}
 	
 	
@@ -42,17 +39,17 @@ implements TraceNodes{
 	protected void initNodes(DataRouter router, String clientName){
 		trace = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
 				TraceEntityKey.class, Trace.class, TraceFielder.class, 
-				TraceEntity.class, ENTITY_TraceEntity, NODE_PREFIX_Trace)));
+				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_Trace)));
 		register(trace);
 		
 		thread = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
 				TraceEntityKey.class, TraceThread.class, TraceThreadFielder.class, 
-				TraceEntity.class, ENTITY_TraceEntity, NODE_PREFIX_TraceThread)));
+				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_TraceThread)));
 		register(thread);
 		
 		span = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
 				TraceEntityKey.class, TraceSpan.class, TraceSpanFielder.class, 
-				TraceEntity.class, ENTITY_TraceEntity, NODE_PREFIX_TraceSpan)));
+				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_TraceSpan)));
 		register(span);	
 	}
 	

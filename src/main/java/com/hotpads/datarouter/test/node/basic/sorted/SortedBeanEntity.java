@@ -7,7 +7,7 @@ import com.hotpads.datarouter.storage.entity.BaseEntity;
 public class SortedBeanEntity extends BaseEntity<SortedBeanEntityKey>{
 
 	public static final String
-			TABLE_SortedBean = SortedBean.class.getSimpleName();//
+			QUALIFIER_PREFIX_SortedBean = "SB";
 	
 	private SortedBeanEntity(){//required no-arg
 		super(null);
@@ -21,7 +21,7 @@ public class SortedBeanEntity extends BaseEntity<SortedBeanEntityKey>{
 	/********************* get databeans ************************/
 	
 	public NavigableSet<SortedBean> getSortedBeans(){
-		return getDatabeansForTableName(SortedBean.class, TABLE_SortedBean);
+		return getDatabeansForQualifierPrefix(SortedBean.class, QUALIFIER_PREFIX_SortedBean);
 	}
 
 }

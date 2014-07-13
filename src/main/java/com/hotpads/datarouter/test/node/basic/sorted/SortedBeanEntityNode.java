@@ -13,8 +13,7 @@ public class SortedBeanEntityNode
 extends HBaseEntityReaderNode<SortedBeanEntityKey,SortedBeanEntity>{
 	
 	public static final String
-		ENTITY_SortedBeanEntity = "SortedBeanEntity",
-		NODE_PREFIX_SortedBean = "SB";
+		ENTITY_SortedBeanEntity = "SortedBeanEntity";
 
 	private SubEntitySortedMapStorageNode<SortedBeanEntityKey,SortedBeanKey,SortedBean,SortedBeanFielder> sortedBean;
 	
@@ -27,7 +26,7 @@ extends HBaseEntityReaderNode<SortedBeanEntityKey,SortedBeanEntity>{
 	protected void initNodes(DataRouter router, String clientName){
 		sortedBean = BaseDataRouter.cast(NodeFactory.entityNode(router, clientName, 
 				SortedBeanEntityKey.class, SortedBean.class, SortedBeanFielder.class,
-				SortedBeanEntity.class, ENTITY_SortedBeanEntity, NODE_PREFIX_SortedBean));
+				SortedBeanEntity.class, ENTITY_SortedBeanEntity, SortedBeanEntity.QUALIFIER_PREFIX_SortedBean));
 		register(sortedBean);
 	}
 	

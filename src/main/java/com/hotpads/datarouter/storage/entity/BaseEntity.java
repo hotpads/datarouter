@@ -15,11 +15,11 @@ public abstract class BaseEntity<EK extends EntityKey<EK>>
 implements Entity<EK>{
 
 	private EK key;
-	private NavigableMap<String,EntitySection<EK,?,?>> databeansBySubEntityTableName;
+	private NavigableMap<String,EntitySection<EK,?,?>> databeansByQualifierPrefix;
 	
 	public BaseEntity(EK key){
 		this.key = key;
-		this.databeansBySubEntityTableName = new TreeMap<String,EntitySection<EK,?,?>>();
+		this.databeansByQualifierPrefix = new TreeMap<String,EntitySection<EK,?,?>>();
 	}
 	
 	@Override
@@ -35,17 +35,17 @@ implements Entity<EK>{
 	@SuppressWarnings("unchecked") 
 	@Override
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
-	void addDatabeansForSubEntityTableNameUnchecked(String subEntityTableName, Collection<? extends Databean<?,?>> databeans){
-		addDatabeansForSubEntityTableName(subEntityTableName, (Collection<D>)databeans);
+	void addDatabeansForQualifierPrefixUnchecked(String qualifierPrefix, Collection<? extends Databean<?,?>> databeans){
+		addDatabeansForQualifierPrefix(qualifierPrefix, (Collection<D>)databeans);
 	}
 	
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
-	void addDatabeansForSubEntityTableName(String subEntityTableName, Collection<D> databeans){
+	void addDatabeansForQualifierPrefix(String qualifierPrefix, Collection<D> databeans){
 		@SuppressWarnings("unchecked") //types enforced by subclasses
-		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansBySubEntityTableName.get(subEntityTableName);
+		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByQualifierPrefix.get(qualifierPrefix);
 		if(section==null){
 			section = new EntitySection<EK,PK,D>();
-			databeansBySubEntityTableName.put(subEntityTableName, section);
+			databeansByQualifierPrefix.put(qualifierPrefix, section);
 		}
 		section.add(databeans);
 	}
@@ -67,8 +67,8 @@ implements Entity<EK>{
 //
 //	//custom table name
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
-	NavigableSet<D> getDatabeansForTableName(Class<D> databeanClass, String subEntityTableName){
-		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansBySubEntityTableName.get(subEntityTableName);
+	NavigableSet<D> getDatabeansForQualifierPrefix(Class<D> databeanClass, String qualifierPrefix){
+		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByQualifierPrefix.get(qualifierPrefix);
 		return section==null ? null : section.getDatabeans();
 	}
 	

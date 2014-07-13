@@ -9,9 +9,13 @@ public class TraceEntity extends BaseEntity<TraceEntityKey>{
 	
 	//BaseEntity relies on these to store databeans, so they must be used by Trace Nodes to add databeans to the entity
 	public static final String
-		TABLE_Trace = "TestTrace",
-		TABLE_TraceThread = "TestTraceThread",
-		TABLE_TraceSpan = "TestTraceSpan";
+		QUALIFIER_PREFIX_Trace = "T",
+		QUALIFIER_PREFIX_TraceThread = "TT",
+		QUALIFIER_PREFIX_TraceSpan = "TS";
+	
+	private TraceEntity(){
+		super(null);
+	}
 
 	public TraceEntity(TraceEntityKey key){
 		super(key);
@@ -21,15 +25,15 @@ public class TraceEntity extends BaseEntity<TraceEntityKey>{
 	/********************* get databeans ************************/
 	
 	public NavigableSet<Trace> getTraces(){
-		return getDatabeansForTableName(Trace.class, TABLE_Trace);
+		return getDatabeansForQualifierPrefix(Trace.class, QUALIFIER_PREFIX_Trace);
 	}
 	
 	public NavigableSet<TraceThread> getTraceThreads(){
-		return getDatabeansForTableName(TraceThread.class, TABLE_TraceThread);
+		return getDatabeansForQualifierPrefix(TraceThread.class, QUALIFIER_PREFIX_TraceThread);
 	}
 	
 	public NavigableSet<TraceSpan> getTraceSpans(){
-		return getDatabeansForTableName(TraceSpan.class, TABLE_TraceSpan);
+		return getDatabeansForQualifierPrefix(TraceSpan.class, QUALIFIER_PREFIX_TraceSpan);
 	}
 
 }
