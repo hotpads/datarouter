@@ -41,7 +41,7 @@ implements ClientType{
 	
 	@Override
 	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
-		if(StringTool.notEmpty(nodeParams.getEntityName())){
+		if(StringTool.notEmpty(nodeParams.getEntityTableName())){
 			if(StringTool.isEmpty(nodeParams.getEntityNodePrefix())){
 				throw new IllegalArgumentException("must specify entityNodePrefix with entityName");
 			}

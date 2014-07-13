@@ -35,10 +35,11 @@ import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBeanKey;
 import com.hotpads.datarouter.test.node.basic.prefixed.test.ScatteringPrefixIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntity;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityNode;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.test.SortedNodeIntegrationTests;
-import com.hotpads.trace.node.TraceEntityNode;
 import com.hotpads.util.core.ListTool;
 
 
@@ -50,8 +51,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 //			ENTITY_TraceEntity = "TraceEntity",
 			ENTITY_ManyFieldTypeBeanEntity = "ManyFieldTypeBeanEntity",
 			NODE_PREFIX_ManyFieldTypeBean = "MFTB",
-			ENTITY_SortedBeanEntity = "SortedBeanEntity",
-			NODE_PREFIX_SortedBean = "SB";
+			NODE_NAME_SortedBeanEntity = "TestSortedBeanEntity";
 	
 //	protected String clientName;
 	
@@ -69,9 +69,10 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 		}
 		if(SortedNodeIntegrationTests.class.equals(testType)){
 			if(entity){
-				sortedBeanNode = register(NodeFactory.entityNode(this, clientName, 
-						SortedBeanEntityKey.class, SortedBean.class, SortedBeanFielder.class,
-						ENTITY_SortedBeanEntity, NODE_PREFIX_SortedBean));
+//				sortedBeanNode = register(NodeFactory.entityNode(this, clientName, 
+//						SortedBeanEntityKey.class, SortedBean.class, SortedBeanFielder.class,
+//						SortedBeanEntity.class, SortedBeanEntityNode.ENTITY_SortedBeanEntity, NODE_PREFIX_SortedBean));
+				sortedBeanNode = new SortedBeanEntityNode(this, clientName, NODE_NAME_SortedBeanEntity).sortedBean();
 			}else{
 				sortedBeanNode = register(NodeFactory.create(clientName, SortedBean.class, SortedBeanFielder.class, this));
 			}

@@ -54,7 +54,7 @@ extends BasePhysicalEntityNode<EK,E>{
 //		return nodeByQualifierPrefix;
 //	}
 	
-	protected abstract E parseHBaseResult(EK ek, Result result);
+//	protected abstract E parseHBaseResult(EK ek, Result result);
 
 	
 	@Override
@@ -65,7 +65,7 @@ extends BasePhysicalEntityNode<EK,E>{
 					byte[] rowBytes = queryBuilder.getRowBytes(ek);
 					Get get = new Get(rowBytes);
 					Result hBaseResult = hTable.get(get);
-					E entity = parseHBaseResult(ek, hBaseResult);
+					E entity = resultParser.parseEntity(ek, hBaseResult);
 					return entity;
 				}
 			}).call();

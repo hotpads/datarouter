@@ -12,7 +12,9 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
+import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
+import com.hotpads.util.core.java.ReflectionTool;
 
 public class HBaseEntityResultParser<
 		EK extends EntityKey<EK>,
@@ -20,9 +22,26 @@ public class HBaseEntityResultParser<
 
 
 	private Map<String,HBaseSubEntityReaderNode<EK,?,?,?>> nodeByQualifierPrefix;
+	private HBaseSubEntityReaderNode<EK,?,?,?> anyNode;
 
 	public HBaseEntityResultParser(Map<String,HBaseSubEntityReaderNode<EK,?,?,?>> nodeByQualifierPrefix){
 		this.nodeByQualifierPrefix = nodeByQualifierPrefix;
+		this.anyNode = MapTool.getFirstValue(nodeByQualifierPrefix);
+	}
+	
+	public E parseEntity(EK ek, Result row){
+		Class<E> entityClass = (Class<E>)anyNode.getFieldInfo().getEntityClass();
+		E entity = ReflectionTool.create(entityClass);
+		entity.setKey(ek);
+		Map<String,Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>>> databeansByQualifierPrefix
+				= getDatabeansByQualifierPrefix(row);
+		for(String qualifierPrefix : MapTool.nullSafe(databeansByQualifierPrefix).keySet()){
+			Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>> databeanByPk = databeansByQualifierPrefix.get(
+					qualifierPrefix);
+			HBaseSubEntityReaderNode<EK,?,?,?> subNode = nodeByQualifierPrefix.get(qualifierPrefix);
+			entity.addDatabeansForSubEntityTableNameUnchecked(subNode.getTableName(), databeanByPk.values());
+		}
+		return entity;
 	}
 	
 	public Map<String,Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>>> getDatabeansByQualifierPrefix(Result row){

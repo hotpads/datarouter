@@ -3,6 +3,7 @@ package com.hotpads.datarouter.node;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class NodeParams<
@@ -28,7 +29,8 @@ public class NodeParams<
 	private final String physicalName;
 	private final String qualifiedPhysicalName;//weird hibernate requirement ("entity name")
 	
-	private final String entityName;
+	private final Class<? extends Entity<?>> entityClass;
+	private final String entityTableName;
 	private final String entityNodePrefix;
 	
 	//for proxy nodes (like http node)
@@ -39,7 +41,8 @@ public class NodeParams<
 	
 	public NodeParams(DataRouter router, String clientName, Class<D> databeanClass, Class<F> fielderClass,
 			Integer schemaVersion, Class<? super D> baseDatabeanClass, String physicalName, String qualifiedPhysicalName,
-			String entityName, String entityNodePrefix, String remoteRouterName, String remoteNodeName){
+			Class<? extends Entity<?>> entityClass, String entityTableName, String entityNodePrefix, 
+			String remoteRouterName, String remoteNodeName){
 		this.router = router;
 		this.clientName = clientName;
 		this.databeanClass = databeanClass;
@@ -48,7 +51,8 @@ public class NodeParams<
 		this.baseDatabeanClass = baseDatabeanClass;
 		this.physicalName = physicalName;
 		this.qualifiedPhysicalName = qualifiedPhysicalName;
-		this.entityName = entityName;
+		this.entityClass = entityClass;
+		this.entityTableName = entityTableName;
 		this.entityNodePrefix = entityNodePrefix;
 		this.remoteRouterName = remoteRouterName;
 		this.remoteNodeName = remoteNodeName;
@@ -74,7 +78,8 @@ public class NodeParams<
 		private String physicalName;
 		private String qualifiedPhysicalName;
 		
-		private String entityName;
+		private Class<? extends Entity<?>> entityClass;
+		private String entityTableName;
 		private String entityNodePrefix;
 
 		private String remoteRouterName;
@@ -131,8 +136,10 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withEntity(String entityName, String entityNodePrefix){
-			this.entityName = entityName;
+		public NodeParamsBuilder<PK,D,F> withEntity(Class<? extends Entity<?>> entityClass, String entityTableName, 
+				String entityNodePrefix){
+			this.entityClass = entityClass;
+			this.entityTableName = entityTableName;
 			this.entityNodePrefix = entityNodePrefix;
 			return this;
 		}
@@ -148,7 +155,9 @@ public class NodeParams<
 		
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(router, clientName, databeanClass, fielderClass, schemaVersion, baseDatabeanClass,
-					physicalName, qualifiedPhysicalName, entityName, entityNodePrefix, remoteRouterName, remoteNodeName);
+					physicalName, qualifiedPhysicalName, 
+					entityClass, entityTableName, entityNodePrefix, 
+					remoteRouterName, remoteNodeName);
 		}
 	}
 
@@ -194,9 +203,13 @@ public class NodeParams<
 	public String getRemoteNodeName(){
 		return remoteNodeName;
 	}
+	
+	public Class<? extends Entity<?>> getEntityClass(){
+		return entityClass;
+	}
 
-	public String getEntityName(){
-		return entityName;
+	public String getEntityTableName(){
+		return entityTableName;
 	}
 
 	public String getEntityNodePrefix(){

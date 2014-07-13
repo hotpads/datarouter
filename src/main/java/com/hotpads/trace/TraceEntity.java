@@ -6,6 +6,12 @@ import com.hotpads.datarouter.storage.entity.BaseEntity;
 import com.hotpads.trace.key.TraceEntityKey;
 
 public class TraceEntity extends BaseEntity<TraceEntityKey>{
+	
+	//BaseEntity relies on these to store databeans, so they must be used by Trace Nodes to add databeans to the entity
+	public static final String
+		TABLE_Trace = "TestTrace",
+		TABLE_TraceThread = "TestTraceThread",
+		TABLE_TraceSpan = "TestTraceSpan";
 
 	public TraceEntity(TraceEntityKey key){
 		super(key);
@@ -15,15 +21,15 @@ public class TraceEntity extends BaseEntity<TraceEntityKey>{
 	/********************* get databeans ************************/
 	
 	public NavigableSet<Trace> getTraces(){
-		return getDatabeans(Trace.class);
+		return getDatabeansForTableName(Trace.class, TABLE_Trace);
 	}
 	
 	public NavigableSet<TraceThread> getTraceThreads(){
-		return getDatabeans(TraceThread.class);
+		return getDatabeansForTableName(TraceThread.class, TABLE_TraceThread);
 	}
 	
 	public NavigableSet<TraceSpan> getTraceSpans(){
-		return getDatabeans(TraceSpan.class);
+		return getDatabeansForTableName(TraceSpan.class, TABLE_TraceSpan);
 	}
 
 }

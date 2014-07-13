@@ -25,11 +25,6 @@ import com.hotpads.util.core.java.ReflectionTool;
 public class TraceCompoundNode 
 extends BaseEntityNode<TraceEntityKey,TraceEntity>
 implements TraceNodes{
-	
-	private static final String
-		TABLE_Trace = "TestTrace",
-		TABLE_TraceThread = "TestTraceThread",
-		TABLE_TraceSpan = "TestTraceSpan";
 
 	public SortedMapStorageNode<TraceKey,Trace> trace;
 	public SortedMapStorageNode<TraceThreadKey,TraceThread> thread;
@@ -42,17 +37,17 @@ implements TraceNodes{
 	
 	private void initNodes(DataRouter router, String clientName){
 		trace = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
-				TABLE_Trace, Trace.class.getName(),
+				TraceEntity.TABLE_Trace, Trace.class.getName(),
 				Trace.class, TraceFielder.class, router)));
 		register(trace);
 		
 		thread = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
-				TABLE_TraceThread, TraceThread.class.getName(),
+				TraceEntity.TABLE_TraceThread, TraceThread.class.getName(),
 				TraceThread.class, TraceThreadFielder.class, router)));
 		register(thread);
 		
 		span = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
-				TABLE_TraceSpan, TraceSpan.class.getName(),
+				TraceEntity.TABLE_TraceSpan, TraceSpan.class.getName(),
 				TraceSpan.class, TraceSpanFielder.class, router)));
 		register(span);	
 	}
@@ -64,15 +59,15 @@ implements TraceNodes{
 		
 		TraceKey tracePrefix = ReflectionTool.create(TraceKey.class).prefixFromEntityKey(key);
 		List<Trace> traces = trace.getWithPrefix(tracePrefix, false, null);
-		entity.add(trace, traces);
+		entity.addDatabeansForSubEntityTableName(TraceEntity.TABLE_Trace, traces);
 		
 		TraceThreadKey traceThreadPrefix = ReflectionTool.create(TraceThreadKey.class).prefixFromEntityKey(key);
 		List<TraceThread> traceThreads = thread.getWithPrefix(traceThreadPrefix, false, null);
-		entity.add(thread, traceThreads);
+		entity.addDatabeansForSubEntityTableName(TraceEntity.TABLE_TraceThread, traceThreads);
 		
 		TraceSpanKey traceSpanPrefix = ReflectionTool.create(TraceSpanKey.class).prefixFromEntityKey(key);
 		List<TraceSpan> traceSpans = span.getWithPrefix(traceSpanPrefix, false, null);
-		entity.add(span, traceSpans);
+		entity.addDatabeansForSubEntityTableName(TraceEntity.TABLE_TraceSpan, traceSpans);
 		
 		return entity;
 	}

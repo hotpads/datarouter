@@ -6,62 +6,69 @@ import java.util.NavigableSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 
-public abstract class BaseEntity<EK extends EntityKey<EK>> implements Entity<EK>{
+public abstract class BaseEntity<EK extends EntityKey<EK>>
+implements Entity<EK>{
 
 	private EK key;
-	private NavigableMap<String,EntitySection<EK,?,?>> databeansByTableName;
+	private NavigableMap<String,EntitySection<EK,?,?>> databeansBySubEntityTableName;
 	
 	public BaseEntity(EK key){
 		this.key = key;
-		this.databeansByTableName = new TreeMap<String,EntitySection<EK,?,?>>();
+		this.databeansBySubEntityTableName = new TreeMap<String,EntitySection<EK,?,?>>();
+	}
+	
+	@Override
+	public void setKey(EK key){
+		this.key = key;
 	}
 	
 	@Override
 	public EK getKey(){
 		return key;
 	}
-
-	@Override
-	public NavigableMap<String,EntitySection<EK,?,?>> getDatabeansByNodeName(){
-		return databeansByTableName;
-	}
 	
 	@SuppressWarnings("unchecked") 
+	@Override
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
-	void addUnchecked(Node<?,?> node, Collection<? extends Databean<?,?>> databeans){
-		add((Node<PK,D>)node, (Collection<D>)databeans);
+	void addDatabeansForSubEntityTableNameUnchecked(String subEntityTableName, Collection<? extends Databean<?,?>> databeans){
+		addDatabeansForSubEntityTableName(subEntityTableName, (Collection<D>)databeans);
 	}
 	
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
-	void add(Node<PK,D> node, Collection<D> databeans){
-		String tableName = node.getFieldInfo().getTableName();
-		@SuppressWarnings("unchecked") //types enforced externally
-		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByTableName.get(tableName);
+	void addDatabeansForSubEntityTableName(String subEntityTableName, Collection<D> databeans){
+		@SuppressWarnings("unchecked") //types enforced by subclasses
+		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansBySubEntityTableName.get(subEntityTableName);
 		if(section==null){
 			section = new EntitySection<EK,PK,D>();
-			databeansByTableName.put(tableName, section);
+			databeansBySubEntityTableName.put(subEntityTableName, section);
 		}
 		section.add(databeans);
 	}
 
-	//default table name
-	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
-	NavigableSet<D> getDatabeans(Class<D> type){
-		String tableName = type.getSimpleName();
-		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByTableName.get(tableName);
-		return section==null ? null : section.getDatabeans();
-	}
+//	//default table name
+//	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
+//	NavigableSet<D> getDatabeansByNodeName(String nodeName){
+//		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByNodeName.get(nodeName);
+//		return section==null ? null : section.getDatabeans();
+//	}
 
-	//custom table name
+//	//default table name
+//	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
+//	NavigableSet<D> getDatabeans(Class<D> type){
+//		String tableName = type.getSimpleName();
+//		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByNodeName.get(tableName);
+//		return section==null ? null : section.getDatabeans();
+//	}
+//
+//	//custom table name
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
-	NavigableSet<D> getDatabeans(Class<D> type, String tableName){
-		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByTableName.get(tableName);
+	NavigableSet<D> getDatabeansForTableName(Class<D> databeanClass, String subEntityTableName){
+		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansBySubEntityTableName.get(subEntityTableName);
 		return section==null ? null : section.getDatabeans();
 	}
 	
