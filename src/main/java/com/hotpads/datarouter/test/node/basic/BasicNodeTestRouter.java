@@ -8,6 +8,7 @@ import com.hotpads.datarouter.backup.databean.BackupRecord.BackupRecordFielder;
 import com.hotpads.datarouter.backup.databean.BackupRecordKey;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.entity.EntityNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -72,7 +73,8 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 //				sortedBeanNode = register(NodeFactory.entityNode(this, clientName, 
 //						SortedBeanEntityKey.class, SortedBean.class, SortedBeanFielder.class,
 //						SortedBeanEntity.class, SortedBeanEntityNode.ENTITY_SortedBeanEntity, NODE_PREFIX_SortedBean));
-				sortedBeanNode = new SortedBeanEntityNode(this, clientName, NODE_NAME_SortedBeanEntity).sortedBean();
+				sortedBeanEntityNode = new SortedBeanEntityNode(this, clientName, NODE_NAME_SortedBeanEntity);
+				sortedBeanNode = sortedBeanEntityNode.sortedBean();
 			}else{
 				sortedBeanNode = register(NodeFactory.create(clientName, SortedBean.class, SortedBeanFielder.class, this));
 			}
@@ -118,6 +120,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	
 	protected Node<ManyFieldTypeBeanKey,ManyFieldTypeBean> manyFieldTypeBeanNode;
 	protected Node<SortedBeanKey,SortedBean> sortedBeanNode;
+	protected SortedBeanEntityNode sortedBeanEntityNode;
 	protected Node<ScatteringPrefixBeanKey,ScatteringPrefixBean> scatteringPrefixBeanNode;
 	protected Node<BackupBeanKey,BackupBean> backupBeanNode;
 	protected Node<BackupRecordKey,BackupRecord> backupRecordNode;
@@ -134,6 +137,10 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 
 	public SortedMapStorage<SortedBeanKey,SortedBean> sortedBean(){
 		return cast(sortedBeanNode);
+	}
+	
+	public SortedBeanEntityNode sortedBeanEntity(){
+		return sortedBeanEntityNode;
 	}
 
 	public SortedMapStorage<ScatteringPrefixBeanKey,ScatteringPrefixBean> scatteringPrefixBean(){

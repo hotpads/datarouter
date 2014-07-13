@@ -17,8 +17,6 @@ import com.google.common.collect.Sets;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
-import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
@@ -26,6 +24,9 @@ import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntity;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityNode;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
@@ -43,6 +44,7 @@ public class SortedNodeIntegrationTests{
 	
 	private SortedBasicNodeTestRouter router;
 	private SortedMapStorage<SortedBeanKey,SortedBean> node;
+	private SortedBeanEntityNode entityNode;
 
 	
 	/***************************** construct **************************************/
@@ -50,9 +52,9 @@ public class SortedNodeIntegrationTests{
 	@Parameters
 	public static Collection<Object[]> parameters(){
 		List<Object[]> params = ListTool.create();
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, false});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
 		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true});
 		return params;
 	}
@@ -61,6 +63,7 @@ public class SortedNodeIntegrationTests{
 	public SortedNodeIntegrationTests(String clientName, ClientType clientType, boolean entity){
 		this.router = new SortedBasicNodeTestRouter(clientName, getClass(), entity);
 		this.node = router.sortedBeanSorted();
+		this.entityNode = router.sortedBeanEntity();
 		resetTable();
 	}
 	
@@ -157,6 +160,17 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	/********************** junit methods *********************************************/
+	
+	@Test
+	public synchronized void testGetEntity(){
+		if(!isHBaseEntity()){ return; }
+		SortedBeanEntityKey ek1 = new SortedBeanEntityKey(S_albatross, S_ostrich);
+		SortedBeanEntity albatrossOstrich = entityNode.getEntity(ek1, null);
+		int numExpected = NUM_ELEMENTS * NUM_ELEMENTS;
+		Assert.assertEquals(numExpected, albatrossOstrich.getSortedBeans().size());
+		Assert.assertEquals(S_albatross, CollectionTool.getFirst(albatrossOstrich.getSortedBeans()).getA());
+		Assert.assertEquals(S_ostrich, CollectionTool.getFirst(albatrossOstrich.getSortedBeans()).getB());
+	}
 	
 	@Test
 	public synchronized void testGetAll(){

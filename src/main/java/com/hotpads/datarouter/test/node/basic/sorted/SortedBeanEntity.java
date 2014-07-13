@@ -9,6 +9,10 @@ public class SortedBeanEntity extends BaseEntity<SortedBeanEntityKey>{
 	public static final String
 			TABLE_SortedBean = SortedBean.class.getSimpleName();//
 	
+	private SortedBeanEntity(){//required no-arg
+		super(null);
+	}
+	
 	public SortedBeanEntity(SortedBeanEntityKey key){
 		super(key);
 	}

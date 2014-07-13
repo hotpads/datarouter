@@ -1,10 +1,10 @@
 package com.hotpads.datarouter.node.entity;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
-import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
@@ -24,6 +24,7 @@ implements PhysicalEntityNode<EK,E>{
 	public BasePhysicalEntityNode(DataRouterContext drContext, HBaseTaskNameParams taskNameParams){
 		super(drContext, taskNameParams.getNodeName());
 		this.taskNameParams = taskNameParams;
+		this.nodeByQualifierPrefix = new HashMap<>();
 	}
 
 

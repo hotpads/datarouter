@@ -31,6 +31,7 @@ extends BasePhysicalEntityNode<EK,E>{
 		this.taskNameParams = taskNameParams;
 		initNodes(router, taskNameParams.getClientName());
 		//need to call initNodes before this so nodeByQualifierPrefix gets initialized
+		this.queryBuilder = new HBaseEntityQueryBuilder<>();
 		this.resultParser = new HBaseEntityResultParser<EK,E>((Map<String,HBaseSubEntityReaderNode<EK,?,?,?>>)getNodeByQualifierPrefix());
 	}
 	

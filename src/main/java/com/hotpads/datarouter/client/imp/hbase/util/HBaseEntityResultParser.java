@@ -51,9 +51,12 @@ public class HBaseEntityResultParser<
 			String qualifierPrefix = getQualifierPrefix(kv);
 			HBaseSubEntityReaderNode<EK,?,?,?> subNode = nodeByQualifierPrefix.get(qualifierPrefix);
 			if(subNode==null){ continue; }//hopefully just orphaned data
-			HBaseSubEntityResultParser<EK,? extends EntityPrimaryKey<EK,?>,?,?> subParser = subNode.getResultParser();			
-			Map<? extends EntityPrimaryKey<?,?>,? extends Databean<?,?>> databeanByPk = databeanByPkByQualifierPrefix
-					.get(qualifierPrefix);
+			HBaseSubEntityResultParser<EK,? extends EntityPrimaryKey<EK,?>,?,?> subParser = subNode.getResultParser();
+			Map/*tough generics*/ databeanByPk = databeanByPkByQualifierPrefix.get(qualifierPrefix);
+			if(databeanByPk==null){
+				databeanByPk = new HashMap<>();
+				databeanByPkByQualifierPrefix.put(qualifierPrefix, databeanByPk);
+			}
 			subParser.addKeyValueToResultsUnchecked(databeanByPk, kv);
 		}
 		return databeanByPkByQualifierPrefix;
