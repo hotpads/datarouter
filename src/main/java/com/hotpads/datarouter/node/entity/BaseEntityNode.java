@@ -19,6 +19,7 @@ implements EntityNode<EK,E>{
 
 	private DataRouterContext drContext;
 	private String name;
+	@Deprecated
 	private Map<String,Node<?,?>> nodeByTableName;
 	
 	
@@ -28,6 +29,7 @@ implements EntityNode<EK,E>{
 		this.nodeByTableName = new HashMap<>();
 	}
 
+	@Deprecated//is this needed?  maybe for browsing nodes in the web console
 	protected <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>> void register(SortedMapStorageReaderNode<PK,D> node){
 		String tableName = Preconditions.checkNotNull(node.getFieldInfo().getTableName());
 		nodeByTableName.put(tableName, node);
@@ -43,7 +45,8 @@ implements EntityNode<EK,E>{
 	public String getName(){
 		return name;
 	}
-	
+
+	@Deprecated
 	@Override
 	public Map<String,Node<?,?>> getNodeByTableName(){
 		return nodeByTableName;
