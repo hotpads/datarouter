@@ -18,15 +18,13 @@ import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityPrimar
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityQueryBuilder;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultParser;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityQueryBuilder;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityResultParser;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseScatteringPrefixQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader;
+import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageReaderNode;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -38,7 +36,6 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.collections.Twin;
 import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
@@ -53,7 +50,7 @@ public class HBaseSubEntityReaderNode<
 		F extends DatabeanFielder<PK,D>> 
 extends BasePhysicalNode<PK,D,F>
 implements HBasePhysicalNode<PK,D>,
-		SortedMapStorageReader<PK,D>
+		SubEntitySortedMapStorageReaderNode<EK,PK,D,F>
 {
 	protected Logger logger = Logger.getLogger(getClass());
 	
@@ -61,16 +58,16 @@ implements HBasePhysicalNode<PK,D>,
 
 	private HBaseTaskNameParams taskNameParams;
 	
-	protected HBaseEntityQueryBuilder<EK,PK,D,F> queryBuilder;
-	protected HBaseEntityResultParser<EK,PK,D,F> resultParser;
+	protected HBaseSubEntityQueryBuilder<EK,PK,D,F> queryBuilder;
+	protected HBaseSubEntityResultParser<EK,PK,D,F> resultParser;
 	
 	/******************************* constructors ************************************/
 	
 	public HBaseSubEntityReaderNode(NodeParams<PK,D,F> params){
 		super(params);
 		this.taskNameParams = new HBaseTaskNameParams(getClientName(), getTableName(), getName());
-		this.queryBuilder = new HBaseEntityQueryBuilder<EK,PK,D,F>(fieldInfo);
-		this.resultParser = new HBaseEntityResultParser<EK,PK,D,F>(fieldInfo);
+		this.queryBuilder = new HBaseSubEntityQueryBuilder<EK,PK,D,F>(fieldInfo);
+		this.resultParser = new HBaseSubEntityResultParser<EK,PK,D,F>(fieldInfo);
 	}
 	
 	
@@ -79,6 +76,11 @@ implements HBasePhysicalNode<PK,D>,
 	@Override
 	public HBaseClient getClient(){
 		return (HBaseClient)getRouter().getClient(getClientName());
+	}
+	
+	@Override
+	public String getEntityNodePrefix(){
+		return fieldInfo.getEntityNodePrefix();
 	}
 	
 	@Override
@@ -351,7 +353,7 @@ implements HBasePhysicalNode<PK,D>,
 	
 	/********************* get/set *******************************/
 
-	public HBaseEntityResultParser<EK,PK,D,F> getResultParser(){
+	public HBaseSubEntityResultParser<EK,PK,D,F> getResultParser(){
 		return resultParser;
 	}
 

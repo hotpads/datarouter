@@ -1,30 +1,68 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
+import java.util.Map;
+
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Result;
+
+import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
+import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityQueryBuilder;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultParser;
 import com.hotpads.datarouter.client.type.HBaseClient;
-import com.hotpads.datarouter.node.entity.BaseEntityNode;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.entity.BasePhysicalEntityNode;
+import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageReaderNode;
+import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 
 public abstract class HBaseEntityReaderNode<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>>
-extends BaseEntityNode<EK,E>{
+extends BasePhysicalEntityNode<EK,E>{
 
-	public HBaseEntityReaderNode(DataRouterContext drContext, HBaseTaskNameParams taskNameParams){
-		super(drContext, taskNameParams);
+	private HBaseTaskNameParams taskNameParams;//currently acting as a cache of superclass fields
+	private HBaseEntityQueryBuilder<EK,E> queryBuilder;
+	private HBaseEntityResultParser<EK,E> resultParser;
+	
+	public HBaseEntityReaderNode(DataRouter router, HBaseTaskNameParams taskNameParams){
+		super(router.getContext(), taskNameParams);
+		this.taskNameParams = taskNameParams;
+		initNodes(router, taskNameParams.getClientName());
+		this.resultParser = new HBaseEntityResultParser<EK,E>(getNodeByQualifierPrefix());
 	}
+	
+
+	protected abstract void initNodes(DataRouter router, String clientName);
 
 	@Override
 	public HBaseClient getClient(){
-		return (HBaseClient)getContext().getClientPool().getClient(getClientName());
+		return (HBaseClient)super.getClient();
 	}
 	
-//	@Override
-//	public E getEntity(EK key){
-//		// TODO Auto-generated method stub
-//		return null;
+	public HBaseTaskNameParams getTaskNameParams(){
+		return taskNameParams;
+	}
+	
+//	public Map<String,SubEntitySortedMapStorageReaderNode<EK,?,?,?>> getNodeByQualifierPrefix(){
+//		return nodeByQualifierPrefix;
 //	}
+
+	
+	@Override
+	public E getEntity(final EK ek, Config pConfig){
+		final Config config = Config.nullSafe(pConfig);
+		return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getTaskNameParams(), 
+				"getEntity", config){
+				public E hbaseCall() throws Exception{
+					byte[] rowBytes = queryBuilder.getRowBytes(ek);
+					Get get = new Get(rowBytes);
+					Result hBaseResult = hTable.get(get);
+					return resultParser.getDatabeansWithMatchingQualifierPrefix(rows);
+				}
+			}).call();
+	}
 	
 }

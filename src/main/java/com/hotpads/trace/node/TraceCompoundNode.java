@@ -27,7 +27,6 @@ extends BaseEntityNode<TraceEntityKey,TraceEntity>
 implements TraceNodes{
 	
 	private static final String
-		NODE_NAME = "TraceCompoundNode",
 		TABLE_Trace = "TestTrace",
 		TABLE_TraceThread = "TestTraceThread",
 		TABLE_TraceSpan = "TestTraceSpan";
@@ -37,7 +36,7 @@ implements TraceNodes{
 	public SortedMapStorageNode<TraceSpanKey,TraceSpan> span;
 	
 	public TraceCompoundNode(String name, DataRouter router, String clientName){
-		super(router.getContext(), new HBaseTaskNameParams(clientName, TABLE_Trace, NODE_NAME));
+		super(router.getContext(), name);
 		initNodes(router, clientName);
 	}
 	

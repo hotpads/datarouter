@@ -17,6 +17,7 @@ import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -39,7 +40,8 @@ public class HBaseSubEntityNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
 extends HBaseSubEntityReaderNode<EK,PK,D,F>
-implements PhysicalSortedMapStorageNode<PK,D>
+implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
+		PhysicalSortedMapStorageNode<PK,D>
 {
 	
 	public HBaseSubEntityNode(NodeParams<PK,D,F> params){

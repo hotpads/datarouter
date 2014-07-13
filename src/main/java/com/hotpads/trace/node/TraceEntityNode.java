@@ -2,6 +2,7 @@ package com.hotpads.trace.node;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
+import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
@@ -28,16 +29,17 @@ implements TraceNodes{
 		NODE_PREFIX_TraceThread = "TT",
 		NODE_PREFIX_TraceSpan = "TS";
 
-	public SortedMapStorageNode<TraceKey,Trace> trace;
-	public SortedMapStorageNode<TraceThreadKey,TraceThread> thread;
-	public SortedMapStorageNode<TraceSpanKey,TraceSpan> span;
+	public SubEntitySortedMapStorageNode<TraceEntityKey,TraceKey,Trace,TraceFielder> trace;
+	public SubEntitySortedMapStorageNode<TraceEntityKey,TraceThreadKey,TraceThread,TraceThreadFielder> thread;
+	public SubEntitySortedMapStorageNode<TraceEntityKey,TraceSpanKey,TraceSpan,TraceSpanFielder> span;
 	
 	public TraceEntityNode(DataRouter router, String clientName, String name){
-		super(router.getContext(), new HBaseTaskNameParams(clientName, ENTITY_TraceEntity, name));
-		initNodes(router, clientName);
+		super(router, new HBaseTaskNameParams(clientName, ENTITY_TraceEntity, name));
 	}
 	
-	private void initNodes(DataRouter router, String clientName){
+	
+	@Override
+	protected void initNodes(DataRouter router, String clientName){
 		trace = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
 				TraceEntityKey.class, Trace.class, TraceFielder.class, 
 				ENTITY_TraceEntity, NODE_PREFIX_Trace)));
@@ -57,8 +59,9 @@ implements TraceNodes{
 //	@Override
 //	public TraceEntity getEntity(TraceEntityKey key, Config pConfig){
 //		final Config config = Config.nullSafe(pConfig);
-//		return new HBaseMultiAttemptTask<TraceEntity>(new HBaseTask<TraceEntity>(getContext(), taskNameParams, "getEntity", config){
-//				public List<D> hbaseCall() throws Exception{
+//		return new HBaseMultiAttemptTask<TraceEntity>(new HBaseTask<TraceEntity>(getContext(), getTaskNameParams(), 
+//				"getEntity", config){
+//				public E hbaseCall() throws Exception{
 //					byte[] rowBytes = queryBuilder.getRowBytes(pk.getEntityKey());
 //					Get get = new Get(rowBytes);
 //					Result hBaseResult = hTable.get(get);
