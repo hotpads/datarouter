@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.util;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -72,33 +73,49 @@ public class HBaseSubEntityResultParser<
 		Map<PK,D> databeanByKey = MapTool.createTreeMap();
 		for(KeyValue kv : row.list()){
 			if(!matchesNodePrefix(kv)){ continue; }
-			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
-			PK pk = pkAndFieldName.getLeft();
-			
-			//get or create the databean, and set the pk which we already parsed
-			D databean = databeanByKey.get(pk);
-			if(databean==null){
-				databean = ReflectionTool.create(fieldInfo.getDatabeanClass());
-				ReflectionTool.set(fieldInfo.getKeyJavaField(), databean, pk);
-				databeanByKey.put(pk, databean);
-			}
-			
-			//set the databean field value for this hbase cell
-			Field<?> field = fieldInfo.getNonKeyFieldByColumnName().get(pkAndFieldName.getRight());//skip key fields which may have been accidenally inserted
-			if(field==null){ continue; }//skip dummy fields and fields that may have existed in the past
-			Object value = field.fromBytesButDoNotSet(kv.getValue(), 0);
-			field.setUsingReflection(databean, value);
+//			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
+//			PK pk = pkAndFieldName.getLeft();
+//			
+//			//get or create the databean, and set the pk which we already parsed
+//			D databean = databeanByKey.get(pk);
+//			if(databean==null){
+//				databean = ReflectionTool.create(fieldInfo.getDatabeanClass());
+//				ReflectionTool.set(fieldInfo.getKeyJavaField(), databean, pk);
+//				databeanByKey.put(pk, databean);
+//			}
+//			
+//			//set the databean field value for this hbase cell
+//			Field<?> field = fieldInfo.getNonKeyFieldByColumnName().get(pkAndFieldName.getRight());//skip key fields which may have been accidenally inserted
+//			if(field==null){ continue; }//skip dummy fields and fields that may have existed in the past
+//			Object value = field.fromBytesButDoNotSet(kv.getValue(), 0);
+//			field.setUsingReflection(databean, value);
+			addKeyValueToResultsUnchecked(databeanByKey, kv);
 		}
 		return ListTool.createArrayList(databeanByKey.values());
 	}	
+	
+	
+	public void addKeyValueToResultsUnchecked(Map<? extends EntityPrimaryKey<?,?>,? extends Databean<?,?>> uncheckedDatabeanByPk, 
+			KeyValue kv){
+		@SuppressWarnings("unchecked") Map<PK,D> databeanByPk = (Map<PK,D>)uncheckedDatabeanByPk;
+		Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
+		Field<?> field = fieldInfo.getNonKeyFieldByColumnName().get(pkAndFieldName.getRight());//skip key fields which may have been accidenally inserted
+		if(field==null){ return; }//skip dummy fields and fields that may have existed in the past
+		PK pk = pkAndFieldName.getLeft();
+		D databean = databeanByPk.get(pk);
+		if(databean==null){
+			databean = ReflectionTool.create(fieldInfo.getDatabeanClass());
+			ReflectionTool.set(fieldInfo.getKeyJavaField(), databean, pk);
+			databeanByPk.put(pk, databean);
+		}
+		
+		//set the databean field value for this hbase cell
+		Object value = field.fromBytesButDoNotSet(kv.getValue(), 0);
+		field.setUsingReflection(databean, value);
+	}
 
 	
 	/****************** private ********************/
-	
-	private boolean matchesNodePrefix(KeyValue kv){
-		byte[] qualifier = kv.getQualifier();
-		return Bytes.startsWith(qualifier, fieldInfo.getEntityColumnPrefixBytes());
-	}
 	
 	private Pair<PK,String> parsePrimaryKeyAndFieldName(KeyValue kv){
 		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
@@ -114,6 +131,11 @@ public class HBaseSubEntityResultParser<
 				postPrefixQualifierBytes, pk);
 		String fieldName = StringByteTool.fromUtf8BytesOffset(postPrefixQualifierBytes, fieldNameOffset);
 		return Pair.create(pk, fieldName);
+	}
+	
+	private boolean matchesNodePrefix(KeyValue kv){
+		byte[] qualifier = kv.getQualifier();
+		return Bytes.startsWith(qualifier, fieldInfo.getEntityColumnPrefixBytes());
 	}
 	
 	private int parseFieldsFromBytesToPk(List<Field<?>> fields, byte[] fromBytes, PK targetPk){

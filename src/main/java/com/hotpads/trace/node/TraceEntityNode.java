@@ -1,12 +1,20 @@
 package com.hotpads.trace.node;
 
+import java.util.Collection;
+import java.util.Map;
+
+import org.apache.hadoop.hbase.client.Result;
+
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
 import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageNode;
+import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageReaderNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.trace.Trace;
 import com.hotpads.trace.Trace.TraceFielder;
 import com.hotpads.trace.TraceEntity;
@@ -54,6 +62,20 @@ implements TraceNodes{
 				TraceEntityKey.class, TraceSpan.class, TraceSpanFielder.class, 
 				ENTITY_TraceEntity, NODE_PREFIX_TraceSpan)));
 		register(span);	
+	}
+	
+	@Override
+	protected TraceEntity parseHBaseResult(TraceEntityKey ek, Result result){
+		Map<String,Map<? extends EntityPrimaryKey<TraceEntityKey,?>,? extends Databean<?,?>>> databeansByQualifierPrefix
+				= getResultParser().getDatabeansByQualifierPrefix(result);
+		TraceEntity entity = new TraceEntity(ek);
+		for(String qualifierPrefix : databeansByQualifierPrefix.keySet()){
+			SubEntitySortedMapStorageReaderNode<TraceEntityKey,?,?,?> node = getNodeByQualifierPrefix().get(qualifierPrefix);
+			Map<? extends EntityPrimaryKey<TraceEntityKey,?>,? extends Databean<?,?>> databeansByPk
+					= databeansByQualifierPrefix.get(qualifierPrefix);
+			entity.addUnchecked(node, databeansByPk.values());
+		}
+		return entity;
 	}
 	
 //	@Override

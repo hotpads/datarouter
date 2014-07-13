@@ -32,6 +32,11 @@ public abstract class BaseEntity<EK extends EntityKey<EK>> implements Entity<EK>
 		return databeansByTableName;
 	}
 	
+	@SuppressWarnings("unchecked") 
+	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
+	void addUnchecked(Node<?,?> node, Collection<? extends Databean<?,?>> databeans){
+		add((Node<PK,D>)node, (Collection<D>)databeans);
+	}
 	
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
 	void add(Node<PK,D> node, Collection<D> databeans){

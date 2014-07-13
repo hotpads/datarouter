@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
+import java.util.Map;
+
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 
@@ -29,7 +31,7 @@ extends BasePhysicalEntityNode<EK,E>{
 		this.taskNameParams = taskNameParams;
 		initNodes(router, taskNameParams.getClientName());
 		//need to call initNodes before this so nodeByQualifierPrefix gets initialized
-		this.resultParser = new HBaseEntityResultParser<EK,E>(getNodeByQualifierPrefix());
+		this.resultParser = new HBaseEntityResultParser<EK,E>((Map<String,HBaseSubEntityReaderNode<EK,?,?,?>>)getNodeByQualifierPrefix());
 	}
 	
 
@@ -44,11 +46,15 @@ extends BasePhysicalEntityNode<EK,E>{
 		return taskNameParams;
 	}
 	
+	public HBaseEntityResultParser<EK,E> getResultParser(){
+		return resultParser;
+	}
+	
 //	public Map<String,SubEntitySortedMapStorageReaderNode<EK,?,?,?>> getNodeByQualifierPrefix(){
 //		return nodeByQualifierPrefix;
 //	}
 	
-	protected abstract E parseHBaseResult(Result result);
+	protected abstract E parseHBaseResult(EK ek, Result result);
 
 	
 	@Override
@@ -59,7 +65,7 @@ extends BasePhysicalEntityNode<EK,E>{
 					byte[] rowBytes = queryBuilder.getRowBytes(ek);
 					Get get = new Get(rowBytes);
 					Result hBaseResult = hTable.get(get);
-					E entity = parseHBaseResult(hBaseResult);
+					E entity = parseHBaseResult(ek, hBaseResult);
 					return entity;
 				}
 			}).call();

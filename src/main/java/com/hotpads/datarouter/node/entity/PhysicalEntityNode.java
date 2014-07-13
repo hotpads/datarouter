@@ -3,7 +3,6 @@ package com.hotpads.datarouter.node.entity;
 import java.util.Map;
 
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 
@@ -15,7 +14,7 @@ extends EntityNode<EK,E>{
 	String getClientName();
 	String getTableName();
 
-	Map<String,Node<?,?>> getNodeByQualifierPrefix();
+	Map<String,? extends SubEntitySortedMapStorageReaderNode<EK,?,?,?>> getNodeByQualifierPrefix();
 	
 	Client getClient();
 	

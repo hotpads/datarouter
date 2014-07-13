@@ -39,6 +39,8 @@ public class DatabeanFieldInfo<
 		F extends DatabeanFielder<PK,D>> {
 	private static Logger logger = Logger.getLogger(DatabeanFieldInfo.class);
 	
+	public static final byte ENTITY_PREFIX_TERMINATOR = 0;
+	
 	//these 4 fields only apply to physical nodes, but cleanest to add them here for now
 	private String clientName;
 	private String tableName;
@@ -115,7 +117,7 @@ public class DatabeanFieldInfo<
 			}
 			this.entityNodePrefix = params.getEntityNodePrefix();
 			this.entityNodeColumnPrefixBytes = ByteTool.concatenate(StringByteTool.getUtf8Bytes(entityNodePrefix), 
-					ByteTool.SINGLE_ZERO_BYTE);
+					new byte[]{ENTITY_PREFIX_TERMINATOR});
 			EntityPrimaryKey<?,?> sampleEntityPrimaryKey = (EntityPrimaryKey<?,?>)samplePrimaryKey;
 			this.sampleEntityKey = sampleEntityPrimaryKey.getEntityKey();
 			this.entityKeyClass = sampleEntityKey.getClass();

@@ -18,7 +18,7 @@ extends BaseEntityNode<EK,E>
 implements PhysicalEntityNode<EK,E>{
 
 	private HBaseTaskNameParams taskNameParams;//currently acting as a cache of superclass fields
-	private Map<String,Node<?,?>> nodeByQualifierPrefix;
+	private Map<String,SubEntitySortedMapStorageReaderNode<EK,?,?,?>> nodeByQualifierPrefix;
 	
 	
 	public BasePhysicalEntityNode(DataRouterContext drContext, HBaseTaskNameParams taskNameParams){
@@ -49,7 +49,7 @@ implements PhysicalEntityNode<EK,E>{
 	}
 	
 	@Override
-	public Map<String,Node<?,?>> getNodeByQualifierPrefix(){
+	public Map<String,? extends SubEntitySortedMapStorageReaderNode<EK,?,?,?>> getNodeByQualifierPrefix(){
 		return nodeByQualifierPrefix;
 	}
 	
