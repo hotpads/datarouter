@@ -1,7 +1,5 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
-import java.util.Map;
-
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 
@@ -13,7 +11,6 @@ import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultParser;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.entity.BasePhysicalEntityNode;
-import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
@@ -31,6 +28,7 @@ extends BasePhysicalEntityNode<EK,E>{
 		super(router.getContext(), taskNameParams);
 		this.taskNameParams = taskNameParams;
 		initNodes(router, taskNameParams.getClientName());
+		//need to call initNodes before this so nodeByQualifierPrefix gets initialized
 		this.resultParser = new HBaseEntityResultParser<EK,E>(getNodeByQualifierPrefix());
 	}
 	
@@ -49,18 +47,20 @@ extends BasePhysicalEntityNode<EK,E>{
 //	public Map<String,SubEntitySortedMapStorageReaderNode<EK,?,?,?>> getNodeByQualifierPrefix(){
 //		return nodeByQualifierPrefix;
 //	}
+	
+	protected abstract E parseHBaseResult(Result result);
 
 	
 	@Override
 	public E getEntity(final EK ek, Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getTaskNameParams(), 
-				"getEntity", config){
+		return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getTaskNameParams(), "getEntity", config){
 				public E hbaseCall() throws Exception{
 					byte[] rowBytes = queryBuilder.getRowBytes(ek);
 					Get get = new Get(rowBytes);
 					Result hBaseResult = hTable.get(get);
-					return resultParser.getDatabeansWithMatchingQualifierPrefix(rows);
+					E entity = parseHBaseResult(hBaseResult);
+					return entity;
 				}
 			}).call();
 	}
