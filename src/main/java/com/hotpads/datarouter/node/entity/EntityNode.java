@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.node.entity;
 
-import java.util.Map;
+import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
@@ -15,7 +15,7 @@ public interface EntityNode<
 	DataRouterContext getContext();
 	String getName();
 	
-	Map<String,Node<?,?>> getNodeByTableName();
+	Collection<Node<?,?>> getSubEntityNodes();
 	
 	E getEntity(EK key, Config pConfig);
 	

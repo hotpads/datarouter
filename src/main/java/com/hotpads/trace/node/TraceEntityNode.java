@@ -24,7 +24,7 @@ extends HBaseEntityReaderNode<TraceEntityKey,TraceEntity>
 implements TraceNodes{
 	
 	private static final String
-		NAME = "TraceEntity",
+		NODE_NAME = "TraceEntity",
 		ENTITY_TABLE_NAME_TraceEntity = "TraceEntity";
 
 	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceKey,Trace,TraceFielder> trace;
@@ -38,17 +38,17 @@ implements TraceNodes{
 	
 	@Override
 	protected void initNodes(DataRouter router, String clientName){
-		trace = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NAME,
+		trace = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NODE_NAME,
 				TraceEntityKey.class, Trace.class, TraceFielder.class, 
 				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_Trace)));
 		register(trace);
 		
-		thread = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NAME,
+		thread = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NODE_NAME,
 				TraceEntityKey.class, TraceThread.class, TraceThreadFielder.class, 
 				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_TraceThread)));
 		register(thread);
 		
-		span = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NAME,
+		span = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NODE_NAME,
 				TraceEntityKey.class, TraceSpan.class, TraceSpanFielder.class, 
 				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_TraceSpan)));
 		register(span);	

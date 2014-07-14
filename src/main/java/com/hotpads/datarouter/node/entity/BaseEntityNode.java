@@ -1,9 +1,9 @@
 package com.hotpads.datarouter.node.entity;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.SortedMapStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -19,20 +19,18 @@ implements EntityNode<EK,E>{
 
 	private DataRouterContext drContext;
 	private String name;
-	@Deprecated
-	private Map<String,Node<?,?>> nodeByTableName;
+	private List<Node<?,?>> subEntityNodes;
 	
 	
 	public BaseEntityNode(DataRouterContext drContext, String name){
 		this.drContext = drContext;
 		this.name = name;
-		this.nodeByTableName = new HashMap<>();
+		this.subEntityNodes = new ArrayList<>();
 	}
 
-	@Deprecated//is this needed?  maybe for browsing nodes in the web console
-	protected <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>> void register(SortedMapStorageReaderNode<PK,D> node){
-		String tableName = Preconditions.checkNotNull(node.getFieldInfo().getTableName());
-		nodeByTableName.put(tableName, node);
+	//registering doesn't currently do much, but gives us access to a list of subEntityNodes
+	protected <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>> void register(SortedMapStorageReaderNode<PK,D> subEntityNode){
+		subEntityNodes.add(subEntityNode);
 	}
 
 
@@ -46,10 +44,9 @@ implements EntityNode<EK,E>{
 		return name;
 	}
 
-	@Deprecated
 	@Override
-	public Map<String,Node<?,?>> getNodeByTableName(){
-		return nodeByTableName;
+	public Collection<Node<?,?>> getSubEntityNodes(){
+		return subEntityNodes;
 	}
 	
 }
