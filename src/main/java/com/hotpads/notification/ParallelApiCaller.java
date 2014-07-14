@@ -55,8 +55,12 @@ public class ParallelApiCaller {
 		this.notificationSettings = notificationSettings;
 	}
 
+	public void add(NotificationRequest request){
+		add(request, null);
+	}
+
 	public void add(NotificationRequest request, ExceptionRecord exceptionRecord){
-		queue.offer(new Pair<NotificationRequest, ExceptionRecord>(request, exceptionRecord));
+		queue.offer(new Pair<>(request, exceptionRecord));
 	}
 
 	private class QueueFlusher implements Runnable {

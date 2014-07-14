@@ -12,12 +12,15 @@ public interface NotificationType {
 
 	int getMaxItems();
 
+	@Deprecated
 	NotificationTimingStrategy getTimingStrategy();
+
+	Class<? extends NotificationTimingStrategy> getTimingStrategyClass();
 
 	boolean isMergeableWith(NotificationType that);
 
 	void makeSendersAndTemplates();
-	
+
 	<S extends NotificationSender> Map<Class<S>, Class<? extends NotificationTemplate<S>>> getSendersAndTemplates();
 
 }
