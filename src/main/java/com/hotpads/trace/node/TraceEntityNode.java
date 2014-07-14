@@ -24,7 +24,8 @@ extends HBaseEntityReaderNode<TraceEntityKey,TraceEntity>
 implements TraceNodes{
 	
 	private static final String
-		ENTITY_TABLE_NAME_TraceEntity = "TestTraceEntity";
+		NAME = "TraceEntity",
+		ENTITY_TABLE_NAME_TraceEntity = "TraceEntity";
 
 	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceKey,Trace,TraceFielder> trace;
 	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceThreadKey,TraceThread,TraceThreadFielder> thread;
@@ -37,17 +38,17 @@ implements TraceNodes{
 	
 	@Override
 	protected void initNodes(DataRouter router, String clientName){
-		trace = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
+		trace = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NAME,
 				TraceEntityKey.class, Trace.class, TraceFielder.class, 
 				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_Trace)));
 		register(trace);
 		
-		thread = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
+		thread = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NAME,
 				TraceEntityKey.class, TraceThread.class, TraceThreadFielder.class, 
 				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_TraceThread)));
 		register(thread);
 		
-		span = BaseDataRouter.cast(router.register(NodeFactory.entityNode(router, clientName, 
+		span = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NAME,
 				TraceEntityKey.class, TraceSpan.class, TraceSpanFielder.class, 
 				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_TraceSpan)));
 		register(span);	
@@ -56,14 +57,17 @@ implements TraceNodes{
 	
 	/*********************** get nodes ******************************/
 
+	@Override
 	public SortedMapStorageNode<TraceKey,Trace> trace(){
 		return trace;
 	}
 
+	@Override
 	public SortedMapStorageNode<TraceThreadKey,TraceThread> thread(){
 		return thread;
 	}
 
+	@Override
 	public SortedMapStorageNode<TraceSpanKey,TraceSpan> span(){
 		return span;
 	}

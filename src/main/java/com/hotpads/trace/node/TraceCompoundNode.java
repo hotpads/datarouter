@@ -34,7 +34,7 @@ implements TraceNodes{
 	public SortedMapStorageNode<TraceThreadKey,TraceThread> thread;
 	public SortedMapStorageNode<TraceSpanKey,TraceSpan> span;
 	
-	public TraceCompoundNode(String name, DataRouter router, String clientName){
+	public TraceCompoundNode(DataRouter router, String clientName, String name){
 		super(router.getContext(), name);
 		initNodes(router, clientName);
 	}
@@ -79,14 +79,17 @@ implements TraceNodes{
 	
 	/*********************** get nodes ******************************/
 
+	@Override
 	public SortedMapStorageNode<TraceKey,Trace> trace(){
 		return trace;
 	}
 
+	@Override
 	public SortedMapStorageNode<TraceThreadKey,TraceThread> thread(){
 		return thread;
 	}
 
+	@Override
 	public SortedMapStorageNode<TraceSpanKey,TraceSpan> span(){
 		return span;
 	}

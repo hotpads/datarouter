@@ -32,7 +32,7 @@ implements Node<PK,D>{
 		this.drContext = params.getRouter().getContext();
 		this.router = params.getRouter();
 		this.id = new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params.getDatabeanClass(), router.getName(), 
-				null, null, null);
+				params.getClientName(), params.getParentName(), null);
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(getName(), params);
 		}catch(Exception probablyNoPkInstantiated){

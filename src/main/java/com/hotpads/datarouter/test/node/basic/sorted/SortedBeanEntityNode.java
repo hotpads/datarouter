@@ -24,7 +24,7 @@ extends HBaseEntityReaderNode<SortedBeanEntityKey,SortedBeanEntity>{
 	
 	@Override
 	protected void initNodes(DataRouter router, String clientName){
-		sortedBean = BaseDataRouter.cast(NodeFactory.entityNode(router, clientName, 
+		sortedBean = BaseDataRouter.cast(NodeFactory.subEntityNode(router, clientName, 
 				SortedBeanEntityKey.class, SortedBean.class, SortedBeanFielder.class,
 				SortedBeanEntity.class, ENTITY_SortedBeanEntity, SortedBeanEntity.QUALIFIER_PREFIX_SortedBean));
 		register(sortedBean);

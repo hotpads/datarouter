@@ -14,6 +14,7 @@ public class NodeParams<
 	//required
 	private final DataRouter router;
 	private final String clientName;
+	private final String parentName;
 	private final Class<D> databeanClass;
 	
 	//sometimes optional, like with hibernate
@@ -39,12 +40,14 @@ public class NodeParams<
 	
 	
 	
-	public NodeParams(DataRouter router, String clientName, Class<D> databeanClass, Class<F> fielderClass,
+	public NodeParams(DataRouter router, String clientName, String parentName, 
+			Class<D> databeanClass, Class<F> fielderClass,
 			Integer schemaVersion, Class<? super D> baseDatabeanClass, String physicalName, String qualifiedPhysicalName,
 			Class<? extends Entity<?>> entityClass, String entityTableName, String entityNodePrefix, 
 			String remoteRouterName, String remoteNodeName){
 		this.router = router;
 		this.clientName = clientName;
+		this.parentName = parentName;
 		this.databeanClass = databeanClass;
 		this.fielderClass = fielderClass;
 		this.schemaVersion = schemaVersion;
@@ -66,6 +69,7 @@ public class NodeParams<
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>{
 		private DataRouter router;
+		private String parentName;
 		private String clientName;
 		private Class<D> databeanClass;
 		
@@ -107,6 +111,11 @@ public class NodeParams<
 
 		public NodeParamsBuilder<PK,D,F> withClientName(String clientName){
 			this.clientName = clientName;
+			return this;
+		}
+
+		public NodeParamsBuilder<PK,D,F> withParentName(String parentName){
+			this.parentName = parentName;
 			return this;
 		}
 		
@@ -154,7 +163,8 @@ public class NodeParams<
 		/******************* build ***************************/
 		
 		public NodeParams<PK,D,F> build(){
-			return new NodeParams<>(router, clientName, databeanClass, fielderClass, schemaVersion, baseDatabeanClass,
+			return new NodeParams<>(router, clientName, parentName, 
+					databeanClass, fielderClass, schemaVersion, baseDatabeanClass,
 					physicalName, qualifiedPhysicalName, 
 					entityClass, entityTableName, entityNodePrefix, 
 					remoteRouterName, remoteNodeName);
@@ -170,6 +180,10 @@ public class NodeParams<
 
 	public String getClientName(){
 		return clientName;
+	}
+	
+	public String getParentName(){
+		return parentName;
 	}
 
 	public Class<D> getDatabeanClass(){

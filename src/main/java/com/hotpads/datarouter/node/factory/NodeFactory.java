@@ -108,9 +108,10 @@ public class NodeFactory{
 	public static <EK extends EntityKey<EK>,E extends Entity<EK>,
 			PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
-	N entityNode(//specify entityName and entityNodePrefix
+	N subEntityNode(//specify entityName and entityNodePrefix
 			DataRouter router,
 			String clientName,
+			String parentName,
 			Class<EK> entityKeyClass,//TODO can we do without this?  i couldn't figure out how
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
@@ -120,6 +121,7 @@ public class NodeFactory{
 			){
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
+				.withParentName(parentName)
 				.withFielder(fielderClass)
 				.withEntity(entityClass, entityName, entityNodePrefix);
 		return create(paramsBuilder.build());

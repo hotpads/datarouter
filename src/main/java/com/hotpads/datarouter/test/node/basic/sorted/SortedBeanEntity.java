@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.test.node.basic.sorted;
 
-import java.util.NavigableSet;
+import java.util.List;
 
 import com.hotpads.datarouter.storage.entity.BaseEntity;
 
@@ -20,7 +20,7 @@ public class SortedBeanEntity extends BaseEntity<SortedBeanEntityKey>{
 	
 	/********************* get databeans ************************/
 	
-	public NavigableSet<SortedBean> getSortedBeans(){
+	public List<SortedBean> getSortedBeans(){
 		return getDatabeansForQualifierPrefix(SortedBean.class, QUALIFIER_PREFIX_SortedBean);
 	}
 

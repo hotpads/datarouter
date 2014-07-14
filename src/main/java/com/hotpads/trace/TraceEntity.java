@@ -1,9 +1,10 @@
 package com.hotpads.trace;
 
-import java.util.NavigableSet;
+import java.util.ArrayList;
 
 import com.hotpads.datarouter.storage.entity.BaseEntity;
 import com.hotpads.trace.key.TraceEntityKey;
+import com.hotpads.util.core.CollectionTool;
 
 public class TraceEntity extends BaseEntity<TraceEntityKey>{
 	
@@ -24,15 +25,15 @@ public class TraceEntity extends BaseEntity<TraceEntityKey>{
 	
 	/********************* get databeans ************************/
 	
-	public NavigableSet<Trace> getTraces(){
-		return getDatabeansForQualifierPrefix(Trace.class, QUALIFIER_PREFIX_Trace);
+	public Trace getTrace(){
+		return CollectionTool.getFirst(getDatabeansForQualifierPrefix(Trace.class, QUALIFIER_PREFIX_Trace));
 	}
 	
-	public NavigableSet<TraceThread> getTraceThreads(){
+	public ArrayList<TraceThread> getTraceThreads(){
 		return getDatabeansForQualifierPrefix(TraceThread.class, QUALIFIER_PREFIX_TraceThread);
 	}
 	
-	public NavigableSet<TraceSpan> getTraceSpans(){
+	public ArrayList<TraceSpan> getTraceSpans(){
 		return getDatabeansForQualifierPrefix(TraceSpan.class, QUALIFIER_PREFIX_TraceSpan);
 	}
 

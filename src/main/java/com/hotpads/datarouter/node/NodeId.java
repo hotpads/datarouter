@@ -38,7 +38,8 @@ public class NodeId<
 		//for PhysicalNodes that have a specific client.  this can distinguish a databean class between many masters,
 		// slaves, partitions, etc
 		if(StringTool.notEmpty(clientName)){
-			return clientName+"."+databeanClass.getSimpleName();
+			String parentPrefix = StringTool.isEmpty(parentNodeName) ? "" : parentNodeName + ".";
+			return parentPrefix+clientName+"."+databeanClass.getSimpleName();
 		}
 		
 		//default case where there is no clientName

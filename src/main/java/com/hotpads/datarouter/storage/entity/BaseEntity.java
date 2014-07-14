@@ -1,10 +1,10 @@
 package com.hotpads.datarouter.storage.entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
@@ -67,7 +67,7 @@ implements Entity<EK>{
 //
 //	//custom table name
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
-	NavigableSet<D> getDatabeansForQualifierPrefix(Class<D> databeanClass, String qualifierPrefix){
+	ArrayList<D> getDatabeansForQualifierPrefix(Class<D> databeanClass, String qualifierPrefix){
 		EntitySection<EK,PK,D> section = (EntitySection<EK,PK,D>)databeansByQualifierPrefix.get(qualifierPrefix);
 		return section==null ? null : section.getDatabeans();
 	}
@@ -80,7 +80,7 @@ implements Entity<EK>{
 			PK extends EntityPrimaryKey<EK,PK>,
 			D extends Databean<PK,D>>{
 
-		protected NavigableSet<D> databeans = new TreeSet<D>();
+		protected ArrayList<D> databeans = new ArrayList<>();
 		
 		public void add(D databean){
 			if(databean==null){ return; }
@@ -91,7 +91,7 @@ implements Entity<EK>{
 			databeans.addAll(CollectionTool.nullSafe(toAdd));
 		}
 		
-		public NavigableSet<D> getDatabeans(){
+		public ArrayList<D> getDatabeans(){
 			return databeans;
 		}
 		
