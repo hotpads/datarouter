@@ -6,8 +6,11 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
+import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindIndexedStorageWriterMixin;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindMapStorageWriterMixin;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindSortedStorageWriterMixin;
+import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindSortedStorageWriterMixin.DeleteRangeWithPrefixWraper;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
@@ -77,4 +80,36 @@ implements IndexedSortedMapStorageNode<PK, D> {
 	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
 		mixinIndexedWriteOps.deleteMultiUnique(uniqueKeys, config);
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	protected boolean handleWriteWrapperInternal(WriteWrapper<?> writeWrapper){
+		if(super.handleWriteWrapperInternal(writeWrapper)){ return true; }
+		if(writeWrapper.getOp().equals(OP_put)){
+			backingNode.putMulti((Collection<D>)writeWrapper.getObjects(), writeWrapper.getConfig());
+		}else if(writeWrapper.getOp().equals(OP_delete)){
+			backingNode.deleteMulti((Collection<PK>)writeWrapper.getObjects(), writeWrapper.getConfig());
+		}else if(writeWrapper.getOp().equals(OP_deleteAll)){
+			backingNode.deleteAll(writeWrapper.getConfig());
+		}else if(writeWrapper.getOp().equals(OP_deleteRangeWithPrefix)){
+			Collection<DeleteRangeWithPrefixWraper<PK>> deleteRangeWithPrefixWrapers = (Collection<DeleteRangeWithPrefixWraper<PK>>)writeWrapper
+					.getObjects();
+			for(DeleteRangeWithPrefixWraper<PK> deleteRangeWithPrefixWraper : deleteRangeWithPrefixWrapers){
+				backingNode.deleteRangeWithPrefix(deleteRangeWithPrefixWraper.getPrefix(), deleteRangeWithPrefixWraper
+						.isWildcardLastField(), writeWrapper.getConfig());
+			}
+		}else if(writeWrapper.getOp().equals(OP_deleteUnique)){
+			backingNode.deleteMultiUnique((Collection<? extends UniqueKey<PK>>)writeWrapper.getObjects(), writeWrapper
+					.getConfig());
+		}else if(writeWrapper.getOp().equals(OP_indexDelete)){
+			Collection<Lookup<PK>> lookups = (Collection<Lookup<PK>>)writeWrapper.getObjects();
+			for(Lookup<PK> lookup : lookups){
+				backingNode.delete(lookup, writeWrapper.getConfig());
+			}
+		}else{
+			return false;
+		}
+		return true;
+	}
+
 }

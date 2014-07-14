@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.node.type.writebehind.base;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
@@ -9,6 +10,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +31,9 @@ public abstract class BaseWriteBehindNode<
 		D extends Databean<PK,D>,
 		N extends Node<PK,D>> 
 extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
-	
+
+	private static final int FLUSH_BATCH_SIZE = 100;
+
 	public static final int DEFAULT_WRITE_BEHIND_THREADS = 1;
 	public static final long DEFAULT_TIMEOUT_MS = 60*1000;
 	
@@ -38,6 +42,9 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	protected long timeoutMs;//TODO also limit by queue length
 	protected Queue<OutstandingWriteWrapper> outstandingWrites;
 	protected ScheduledExecutorService cancelExecutor;
+	private ScheduledExecutorService flushScheduler;
+	private Queue<WriteWrapper<?>> queue;
+
 	
 	public BaseWriteBehindNode(Class<D> databeanClass, DataRouter router,
 			N backingNode, ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
@@ -73,6 +80,18 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 				}
 			});
 		}
+		
+
+		this.flushScheduler = Executors.newSingleThreadScheduledExecutor();
+		this.flushScheduler.scheduleWithFixedDelay(new QueueFlusher(), 500, 500, TimeUnit.MILLISECONDS);
+		this.flushScheduler.submit(new Callable<Void>(){
+			public Void call(){
+				Thread.currentThread().setName("NonBlockingWriteNode writer:"+getName());
+				return null; 
+			}
+		});
+		
+		queue = new LinkedBlockingQueue<WriteWrapper<?>>();
 	}
 	
 	
@@ -85,7 +104,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		names.addAll(CollectionTool.nullSafe(backingNode.getAllNames()));
 		return names;
 	}
-	
+
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodes(){
 		List<PhysicalNode<PK,D>> all = ListTool.createLinkedList();
@@ -99,7 +118,6 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		all.addAll(ListTool.nullSafe(backingNode.getPhysicalNodesForClient(clientName)));
 		return all;
 	}
-	
 
 	@Override
 	public List<String> getClientNames() {
@@ -119,36 +137,93 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		clientNames.addAll(CollectionTool.nullSafe(backingNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
 		return ListTool.createArrayList(clientNames);
 	}
-	
+
 	@Override
 	public void clearThreadSpecificState(){
 		backingNode.clearThreadSpecificState();
 	}
-	
+
 	@Override
 	public List<N> getChildNodes(){
 		return ListTool.wrap(backingNode);
 	}
-	
+
 	@Override
 	public Node<PK,D> getMaster() {
 		return this;
 	}
 
-
-	public ExecutorService getWriteExecutor(){
-		return writeExecutor;
+	public Queue<WriteWrapper<?>> getQueue(){
+		return queue;
 	}
-
-
-	public Queue<OutstandingWriteWrapper> getOutstandingWrites(){
-		return outstandingWrites;
-	}
-
 
 	public N getBackingNode(){
 		return backingNode;
 	}
-	
-	
+
+	public class QueueFlusher implements Runnable{
+
+		private WriteWrapper<Object> previousWriteWrapper;
+
+		@SuppressWarnings("unchecked") @Override
+		public void run(){
+			previousWriteWrapper = new WriteWrapper<>(null, new LinkedList<>(), null);
+			while(CollectionTool.notEmpty(queue)){
+				WriteWrapper<?> writeWrapper = queue.poll();
+				if(!writeWrapper.getOp().equals(previousWriteWrapper.getOp()) || writeWrapper.getConfig() != null){
+					handlePrevious();
+					previousWriteWrapper = (WriteWrapper<Object>)new WriteWrapper<>(writeWrapper);
+				}
+				if(writeWrapper.getConfig() != null){
+					handleWriteWrapper(writeWrapper);
+				}else{
+					List<?> list = ListTool.asList(writeWrapper.getObjects());
+					int previousSize = previousWriteWrapper.getObjects().size();
+					int end = Math.min(FLUSH_BATCH_SIZE - previousSize, list.size());
+					previousWriteWrapper.getObjects().addAll(list.subList(0, end));
+					if(previousWriteWrapper.getObjects().size() == FLUSH_BATCH_SIZE){
+						handlePrevious();
+					}
+					int i = 1;
+					while(i * FLUSH_BATCH_SIZE - previousSize < list.size()){
+						int beginning = i * FLUSH_BATCH_SIZE - previousSize;
+						end = Math.min(++i * FLUSH_BATCH_SIZE - previousSize, list.size());
+						previousWriteWrapper.getObjects().addAll(list.subList(beginning, end));
+						if(previousWriteWrapper.getObjects().size() == FLUSH_BATCH_SIZE){
+							handlePrevious();
+						}
+					}
+				}
+			}
+			handlePrevious();// don't forget the last batch
+		}
+
+		private void handlePrevious(){
+			handleWriteWrapper(previousWriteWrapper);
+			previousWriteWrapper.clearObjects();
+		}
+
+		private void handleWriteWrapper(WriteWrapper<?> writeWrapper){
+			if(CollectionTool.isEmpty(writeWrapper.getObjects())){ return; }
+			final WriteWrapper<?> writeWrapperClone = new WriteWrapper<>(writeWrapper); // cloning to prevent from concurrency issues
+			outstandingWrites.add(new OutstandingWriteWrapper(System.currentTimeMillis(), writeExecutor
+					.submit(new Callable<Void>(){
+
+						public Void call(){
+							try{
+								if(!handleWriteWrapperInternal(writeWrapperClone)){
+									logger.error("Not able to handle this op: " + writeWrapperClone.getOp());
+								}
+							}catch(Exception e){
+								logger.error("error on " + writeWrapperClone.getOp() + " with "
+										+ writeWrapperClone.getObjects().size() + " element(s)", e);
+							}
+							return null;
+						}
+					})));
+		}
+
+	}
+
+	protected abstract boolean handleWriteWrapperInternal(WriteWrapper<?> writeWrapper);
 }
