@@ -45,20 +45,27 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 	private DataRouterContext drContext;
 	private Node<?,?> node;
 	private Integer limit;
-	private Integer offset;
 
 	@Inject
 	public ViewNodeDataHandler(DataRouterContext drContext){
 		this.drContext = drContext;
 	}
 
-	public static final String ACTION_summary = "summary", ACTION_countRows = "countRows",
-			ACTION_countKeys = "countKeys", ACTION_countCells = "countKeys", ACTION_browseData = "browseData",
+	public static final String 
+			ACTION_summary = "summary", 
+			ACTION_countRows = "countRows",
+			ACTION_countKeys = "countKeys", 
+			ACTION_countCells = "countKeys", 
+			ACTION_browseData = "browseData",
 
-			PARAM_routerName = "routerName", PARAM_nodeName = "nodeName", PARAM_where = "where",
-
-			PARAM_backKey = "backKey", PARAM_startAfterKey = "startAfterKey", PARAM_nextKey = "nextKey",
-			PARAM_limit = "limit", PARAM_offset = "offset";
+			PARAM_routerName = "routerName", 
+			PARAM_nodeName = "nodeName", 
+			PARAM_where = "where",
+			PARAM_backKey = "backKey", 
+			PARAM_startAfterKey = "startAfterKey", 
+			PARAM_nextKey = "nextKey",
+			PARAM_limit = "limit", 
+			PARAM_offset = "offset";
 
 	private Mav preHandle(){
 		Mav mav = new Mav("/jsp/admin/viewNodeData.jsp");
@@ -68,7 +75,6 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		mav.put("node", node);
 
 		limit = RequestTool.getIntegerAndPut(request, PARAM_limit, 100, mav);
-		offset = RequestTool.getIntegerAndPut(request, PARAM_offset, 0, mav);// offset is for display purposes only
 		return mav;
 	}
 
