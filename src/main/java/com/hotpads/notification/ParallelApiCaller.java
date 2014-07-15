@@ -77,6 +77,7 @@ public class ParallelApiCaller {
 			while (CollectionTool.notEmpty(queue)) {
 				if (requests.size() == BATCH_SIZE) {
 					Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
+					//TODO only if type error
 					new FailedTester(future, requests, getCoef(), exceptionHandlingConfig).start();
 					requests = ListTool.create();
 				}
