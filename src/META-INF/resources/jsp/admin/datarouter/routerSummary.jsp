@@ -39,31 +39,24 @@
 					<tr>
 						<td><a style="color: black;" href="${contextPath}/datarouter/nodes/browseData?submitAction=browseData&routerName=${param.routerName}
 							&nodeName=${nodeWrapper.node.name}"> ${nodeWrapper.indentHtml}${nodeWrapper.node.name}</a></td>
-						<td><a href="${contextPath}/datarouter/nodes/browseData?submitAction=browseData&routerName=${param.routerName}
-							&nodeName=${nodeWrapper.node.name}"> data</a></td>
+						<td><a href="${contextPath}/datarouter/nodes/browseData?submitAction=browseData&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> data</a></td>
 						<td><c:if test="${nodeWrapper.sorted}">
-								<a href="${contextPath}/datarouter/nodes/browseData?submitAction=countKeys&routerName=${param.routerName}
-								&nodeName=${nodeWrapper.node.name}"> count keys</a>
+								<a href="${contextPath}/datarouter/nodes/browseData?submitAction=countKeys&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> count keys</a>
 							</c:if></td>
 						<td><c:if test="${true}">
-								<a href="${contextPath}/datarouter/nodes/browseData?submitAction=countWhere&routerName=${param.routerName}
-								&nodeName=${nodeWrapper.node.name}"> count txn</a>
+								<a href="${contextPath}/datarouter/nodes/browseData?submitAction=countWhere&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> count txn</a>
 							</c:if></td>
 						<td>${nodeWrapper.className}</td>
-						<!-- 					
-						<td> -->
-<%-- 						<a href="/admin/dataRouter/export.htm?submitAction=exportToS3&routerName=${param.routerName} --%>
-<%-- 						&nodeName=${nodeWrapper.node.name}"> export to S3 </a></td> --%>
-<%-- 						<td><a href="/admin/dataRouter/export.htm?submitAction=showImportForm&routerName=${param.routerName} --%>
-<%-- 						&nodeName=${nodeWrapper.node.name}"> import from S3 </a></td> --%>
-<%-- 						<td><c:if test="${nodeWrapper.isHBaseNode}"> --%>
-<%-- 								<a href="/admin/dataRouter/menu.htm?submitAction=copyHBaseTable&routerName=${param.routerName} --%>
-<%-- 							&nodeName=${nodeWrapper.node.name}&destinationTableName="> copy table </a> --%>
-<%-- 							</c:if></td> --%>
-<%-- 						<td><c:if test="${nodeWrapper.isHBaseNode}"> --%>
-<%-- 								<a href="/admin/dataRouter/menu.htm?submitAction=exportNodeToHFile&routerName=${param.routerName} --%>
-<%-- 							&nodeName=${nodeWrapper.node.name}"> export to HFile </a> --%>
-<%-- 							</c:if></td> --%>
+										
+						<td>
+ 						<a href="/admin/dataRouter/export.htm?submitAction=exportToS3&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> export to S3 </a></td> 
+ 						<td><a href="/admin/dataRouter/export.htm?submitAction=showImportForm&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> import from S3 </a></td>
+ 						<td><c:if test="${nodeWrapper.isHBaseNode}">
+ 								<a href="/admin/dataRouter/menu.htm?submitAction=copyHBaseTable&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}&destinationTableName="> copy table </a>
+ 							</c:if></td>
+ 						<td><c:if test="${nodeWrapper.isHBaseNode}">
+ 								<a href="/admin/dataRouter/menu.htm?submitAction=exportNodeToHFile&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> export to HFile </a>
+ 							</c:if></td>
 					</tr>
 				</c:forEach>
 			</tbody>
