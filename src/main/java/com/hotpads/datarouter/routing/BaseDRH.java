@@ -52,7 +52,7 @@ public abstract class BaseDRH{
 	
 	public DataRouter getRouter(String name){
 		for(DataRouter router : CollectionTool.nullSafe(routers)){
-			if(name.equals(router.getName())){
+			if(name.trim().equals(router.getName())){
 				return router;
 			}
 		}
