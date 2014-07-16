@@ -23,7 +23,7 @@ public class ManagedUniqueIndexNode<PK extends PrimaryKey<PK>,
 									IK extends PrimaryKey<IK>, 
 									IE extends UniqueIndexEntry<IK, IE, PK, D>,
 									IF extends DatabeanFielder<IK,IE>>
-									implements UniqueIndexReader<PK,D,IK>, UniqueIndexWriter<PK,D,IK>{
+		implements UniqueIndexReader<PK, D, IK>, UniqueIndexWriter<PK, D, IK>{
 	
 	private JdbcNode<PK, D, F> mainNode;
 	private Class<IE> indexEntryClass;

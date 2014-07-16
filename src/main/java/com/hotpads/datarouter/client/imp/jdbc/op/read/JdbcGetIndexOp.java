@@ -7,10 +7,10 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
-import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
@@ -29,13 +29,13 @@ public class JdbcGetIndexOp<PK extends PrimaryKey<PK>,
 							extends BaseJdbcOp<List<IE>>{
 	
 	private Config config;
-	private JdbcNode<PK,D,F> mainNode;
+	private BasePhysicalNode<PK, D, F> mainNode;
 	private Class<IE> indexEntryClass;
 	private DatabeanFielder<IK, IE> indexFielder;
 	private IE indexEntry;
 	private Collection<IK> uniqueKeys;
 
-	public JdbcGetIndexOp(JdbcNode<PK, D, F> node, Config config, Class<IE> indexEntryClass,
+	public JdbcGetIndexOp(BasePhysicalNode<PK, D, F> node, Config config, Class<IE> indexEntryClass,
 			Class<IF> indexFielderClass, Collection<IK> uniqueKeys){
 		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.mainNode = node;
