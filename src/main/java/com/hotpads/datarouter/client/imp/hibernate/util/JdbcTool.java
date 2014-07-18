@@ -24,6 +24,7 @@ import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
+import com.hotpads.util.core.profile.PhaseTimer;
 
 public class JdbcTool {
 	
@@ -102,18 +103,38 @@ public class JdbcTool {
 		}
 	}
 	
+	private static PhaseTimer timer = new PhaseTimer();
+	private static int c = 0;
+	private static long slowest = 0;
+	private static String sql_slowest = "";
+	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 	List<D> selectDatabeans(Connection connection, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
 //		System.out.println(sql);
+		timer.sum("tomato");
 		try{
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
+			timer.sum("prepare");
+			long time = System.currentTimeMillis();
 			ps.execute();
+			long elapsed = System.currentTimeMillis() - time;
+			if(elapsed > slowest){
+				slowest = elapsed;
+				sql_slowest = sql;
+			}
+			timer.sum("execute");
 			ResultSet rs = ps.getResultSet();
+			timer.sum("rs");
 			List<D> databeans = ListTool.createArrayList();
 			while(rs.next()){
 				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
 				databeans.add(databean);
+			}
+			timer.sum("buildObjects");
+			if(c++%500 == 0){
+				//System.out.println(timer);
+				//System.out.println(slowest + "\t" + sql_slowest.length());
 			}
 			return databeans;
 		}catch(Exception e){

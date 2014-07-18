@@ -73,7 +73,7 @@ implements MapStorageReader<PK,D>,
 	
 	/************************************ MapStorageReader methods ****************************/
 	
-	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
+	public static final int DEFAULT_ITERATE_BATCH_SIZE = 100;
 	
 	@Override
 	public boolean exists(PK key, Config config) {

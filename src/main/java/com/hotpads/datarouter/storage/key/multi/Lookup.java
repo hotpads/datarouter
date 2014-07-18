@@ -7,5 +7,6 @@ public interface Lookup<PK extends PrimaryKey<PK>>
 extends Key<PK>{
 	
 	void setPrimaryKey(PK primaryKey);
+	PK getPrimaryKey();
 	
 }
