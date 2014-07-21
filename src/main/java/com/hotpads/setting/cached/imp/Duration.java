@@ -45,6 +45,9 @@ public class Duration{
 
 	@Override
 	public String toString(){
+		if(nano == 0) {
+			return "0";
+		}
 		long rest = nano;
 		StringBuilder builder = new StringBuilder();
 		for(int i = 0; i < timeUnits.length; i++){

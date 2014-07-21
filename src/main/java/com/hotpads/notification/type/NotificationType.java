@@ -12,9 +12,6 @@ public interface NotificationType {
 
 	int getMaxItems();
 
-	@Deprecated
-	NotificationTimingStrategy getTimingStrategy();
-
 	Class<? extends NotificationTimingStrategy> getTimingStrategyClass();
 
 	boolean isMergeableWith(NotificationType that);
