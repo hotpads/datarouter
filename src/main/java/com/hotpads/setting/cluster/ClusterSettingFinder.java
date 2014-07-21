@@ -97,7 +97,7 @@ public class ClusterSettingFinder {
 		if(valueString==null){ return defaultValue; }
 		try{
 			return new Duration(valueString);
-		}catch(ParseException e){
+		}catch(RuntimeException e){
 			logger.warn("ParseException on "+name+" with value "+valueString);
 			throw new RuntimeException(e);
 		}

@@ -1,6 +1,5 @@
 package com.hotpads.setting.cached.imp;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -10,22 +9,24 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 public class Duration{
-	
-	public static final TimeUnit[] timeUnits = new TimeUnit[]{
-			TimeUnit.DAYS,
-			TimeUnit.HOURS,
-			TimeUnit.MINUTES,
-			TimeUnit.SECONDS,
+
+	private static final TimeUnit[] timeUnits = new TimeUnit[]{
+		TimeUnit.DAYS,
+		TimeUnit.HOURS,
+		TimeUnit.MINUTES,
+		TimeUnit.SECONDS,
+		TimeUnit.MILLISECONDS
 	};
-	public static final String[] strings = new String[]{
-			"d",
-			"h",
-			"m",
-			"s"
+	private static final String[] strings = new String[]{
+		"d",
+		"h",
+		"m",
+		"s",
+		"ms"
 	};
 	private long nano;
 
-	public Duration(String string) throws ParseException{
+	public Duration(String string) throws RuntimeException{
 		String[] values = string.toLowerCase().split("[a-z]");
 		String[] unites = string.toLowerCase().split("\\d+");
 		List<String> asList = Arrays.asList(strings);
@@ -36,6 +37,10 @@ public class Duration{
 
 	public Duration(long d, TimeUnit u){
 		nano = u.toNanos(d);
+	}
+
+	public long toSecond(){
+		return TimeUnit.NANOSECONDS.toSeconds(nano);
 	}
 
 	@Override
@@ -52,20 +57,23 @@ public class Duration{
 		}
 		return builder.toString();
 	}
-	
+
 	public static class DurationTests{
-		
+
 		@Test
 		public void toStrsingTest(){
 			Duration d = new Duration(3, TimeUnit.DAYS);
 			Assert.assertEquals("3d", d.toString());
-			try{
-				d = new Duration("1d2h65m15s");
-				System.out.println(d.toString());
-			}catch(ParseException e){
-				Assert.fail();
-			}
+			d = new Duration("1d2h65m15s");
+			Assert.assertEquals("1d3h5m15s", d.toString());
+			d = new Duration("15s");
+			Assert.assertEquals(15, d.toSecond());
+			Assert.assertEquals("15s", d.toString());
+			d = new Duration("100000d5s123ms");
+			Assert.assertEquals("100000d5s123ms", d.toString());
+			d = new Duration("48h");
+			Assert.assertEquals("2d", d.toString());
 		}
 	}
-	
+
 }
