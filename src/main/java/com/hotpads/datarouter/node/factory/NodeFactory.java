@@ -12,6 +12,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
+import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -113,6 +114,7 @@ public class NodeFactory{
 			String clientName,
 			String parentName,
 			Class<EK> entityKeyClass,//TODO can we do without this?  i couldn't figure out how
+			Class<? extends EntityPartitioner<EK>> entityPartitionerClass,
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
 			Class<E> entityClass,
@@ -123,7 +125,7 @@ public class NodeFactory{
 				.withClientName(clientName)
 				.withParentName(parentName)
 				.withFielder(fielderClass)
-				.withEntity(entityClass, entityName, entityNodePrefix);
+				.withEntity(entityClass, entityPartitionerClass, entityName, entityNodePrefix);
 		return create(paramsBuilder.build());
 	}	
 	

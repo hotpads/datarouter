@@ -4,6 +4,7 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
+import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class NodeParams<
@@ -31,6 +32,7 @@ public class NodeParams<
 	private final String qualifiedPhysicalName;//weird hibernate requirement ("entity name")
 	
 	private final Class<? extends Entity<?>> entityClass;
+	private final Class<? extends EntityPartitioner<?>> entityPartitionerClass;
 	private final String entityTableName;
 	private final String entityNodePrefix;
 	
@@ -43,7 +45,8 @@ public class NodeParams<
 	public NodeParams(DataRouter router, String clientName, String parentName, 
 			Class<D> databeanClass, Class<F> fielderClass,
 			Integer schemaVersion, Class<? super D> baseDatabeanClass, String physicalName, String qualifiedPhysicalName,
-			Class<? extends Entity<?>> entityClass, String entityTableName, String entityNodePrefix, 
+			Class<? extends Entity<?>> entityClass, Class<? extends EntityPartitioner<?>> entityPartitionerClass, 
+			String entityTableName, String entityNodePrefix, 
 			String remoteRouterName, String remoteNodeName){
 		this.router = router;
 		this.clientName = clientName;
@@ -55,6 +58,7 @@ public class NodeParams<
 		this.physicalName = physicalName;
 		this.qualifiedPhysicalName = qualifiedPhysicalName;
 		this.entityClass = entityClass;
+		this.entityPartitionerClass = entityPartitionerClass;
 		this.entityTableName = entityTableName;
 		this.entityNodePrefix = entityNodePrefix;
 		this.remoteRouterName = remoteRouterName;
@@ -83,6 +87,7 @@ public class NodeParams<
 		private String qualifiedPhysicalName;
 		
 		private Class<? extends Entity<?>> entityClass;
+		private Class<? extends EntityPartitioner<?>> entityPartitionerClass;
 		private String entityTableName;
 		private String entityNodePrefix;
 
@@ -145,9 +150,11 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withEntity(Class<? extends Entity<?>> entityClass, String entityTableName, 
-				String entityNodePrefix){
+		public NodeParamsBuilder<PK,D,F> withEntity(Class<? extends Entity<?>> entityClass, 
+				Class<? extends EntityPartitioner<?>> entityPartitionerClass,
+				String entityTableName, String entityNodePrefix){
 			this.entityClass = entityClass;
+			this.entityPartitionerClass = entityPartitionerClass;
 			this.entityTableName = entityTableName;
 			this.entityNodePrefix = entityNodePrefix;
 			return this;
@@ -166,7 +173,7 @@ public class NodeParams<
 			return new NodeParams<>(router, clientName, parentName, 
 					databeanClass, fielderClass, schemaVersion, baseDatabeanClass,
 					physicalName, qualifiedPhysicalName, 
-					entityClass, entityTableName, entityNodePrefix, 
+					entityClass, entityPartitionerClass, entityTableName, entityNodePrefix, 
 					remoteRouterName, remoteNodeName);
 		}
 	}
@@ -220,6 +227,10 @@ public class NodeParams<
 	
 	public Class<? extends Entity<?>> getEntityClass(){
 		return entityClass;
+	}
+	
+	public Class<? extends EntityPartitioner<?>> getEntityPartitionerClass(){
+		return entityPartitionerClass;
 	}
 
 	public String getEntityTableName(){

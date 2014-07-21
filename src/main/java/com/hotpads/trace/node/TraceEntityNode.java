@@ -15,6 +15,7 @@ import com.hotpads.trace.TraceSpan.TraceSpanFielder;
 import com.hotpads.trace.TraceThread;
 import com.hotpads.trace.TraceThread.TraceThreadFielder;
 import com.hotpads.trace.key.TraceEntityKey;
+import com.hotpads.trace.key.TraceEntityKey.TraceEntityPartitioner;
 import com.hotpads.trace.key.TraceKey;
 import com.hotpads.trace.key.TraceSpanKey;
 import com.hotpads.trace.key.TraceThreadKey;
@@ -39,17 +40,20 @@ implements TraceNodes{
 	@Override
 	protected void initNodes(DataRouter router, String clientName){
 		trace = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NODE_NAME,
-				TraceEntityKey.class, Trace.class, TraceFielder.class, 
+				TraceEntityKey.class, TraceEntityPartitioner.class, 
+				Trace.class, TraceFielder.class, 
 				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_Trace)));
 		register(trace);
 		
 		thread = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NODE_NAME,
-				TraceEntityKey.class, TraceThread.class, TraceThreadFielder.class, 
+				TraceEntityKey.class, TraceEntityPartitioner.class, 
+				TraceThread.class, TraceThreadFielder.class, 
 				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_TraceThread)));
 		register(thread);
 		
 		span = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NODE_NAME,
-				TraceEntityKey.class, TraceSpan.class, TraceSpanFielder.class, 
+				TraceEntityKey.class, TraceEntityPartitioner.class, 
+				TraceSpan.class, TraceSpanFielder.class, 
 				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_TraceSpan)));
 		register(span);	
 	}
