@@ -10,8 +10,6 @@ public interface NotificationType {
 
 	String getName();
 
-	int getMaxItems();
-
 	Class<? extends NotificationTimingStrategy> getTimingStrategyClass();
 
 	boolean isMergeableWith(NotificationType that);
