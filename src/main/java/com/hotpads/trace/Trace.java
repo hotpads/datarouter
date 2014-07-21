@@ -68,12 +68,11 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 			duration = "duration";
 	}
 	
-	public static class TraceEntityFielder extends BaseDatabeanFielder<TraceKey,Trace>{
-		public TraceEntityFielder(){
+	public static class TraceFielder extends BaseDatabeanFielder<TraceKey,Trace>{
+		public TraceFielder(){
 		}
 		@Override
 		public Class<? extends Fielder<TraceKey>> getKeyFielderClass(){
-//			return TraceKeyEntityFielder.class;
 			return TraceKey.class;
 		}
 		@Override
@@ -85,15 +84,6 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 					new StringField(Fields.params, d.params, DEFAULT_STRING_LENGTH),
 					new UInt63Field(Fields.created, d.created),
 					new UInt63Field(Fields.duration, d.duration));
-		}
-	}
-	
-	public static class TraceFielder extends TraceEntityFielder{
-		public TraceFielder(){
-		}
-		@Override
-		public Class<? extends Fielder<TraceKey>> getKeyFielderClass(){
-			return TraceKey.class;
 		}
 	}
 	
