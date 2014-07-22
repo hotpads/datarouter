@@ -39,7 +39,7 @@ extends BaseJdbcOp<List<D>>{
 		this.keys = keys;
 		this.config = config;
 	}
-
+	
 	@Override
 	public List<D> runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
