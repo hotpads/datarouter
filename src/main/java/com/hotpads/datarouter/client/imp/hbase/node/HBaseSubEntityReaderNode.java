@@ -115,7 +115,7 @@ implements HBasePhysicalNode<PK,D>,
 							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK pk : keys){
-						byte[] rowBytes = queryBuilder.getRowBytes(pk.getEntityKey());
+						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(pk.getEntityKey());
 						Get get = new Get(rowBytes);
 						byte[] qualifierPrefix = queryBuilder.getQualifierPrefix(pk);
 						get.setFilter(new ColumnPrefixFilter(qualifierPrefix));
@@ -138,7 +138,7 @@ implements HBasePhysicalNode<PK,D>,
 							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
 					for(PK pk : keys){
-						byte[] rowBytes = queryBuilder.getRowBytes(pk.getEntityKey());
+						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(pk.getEntityKey());
 						byte[] qualifierPrefix = queryBuilder.getQualifierPrefix(pk);
 						FilterList filters = new FilterList();
 						filters.addFilter(new KeyOnlyFilter());

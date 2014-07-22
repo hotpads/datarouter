@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
+import com.hotpads.util.core.bytes.IntegerByteTool;
 
 public abstract class BaseEntityPartitioner<EK extends EntityKey<EK>>
 implements EntityPartitioner<EK>{
@@ -17,6 +18,18 @@ implements EntityPartitioner<EK>{
 	@Override
 	public int getNumPrefixBytes(){
 		return getNumPrefixBytesStatic(getNumPartitions());
+	}
+	
+	@Override
+	//TODO skip intermediate array
+	public byte[] getPrefix(EK ek){
+		int partition = getPartition(ek);
+		byte[] fourBytePrefix = IntegerByteTool.getComparableBytes(partition);
+		int numPrefixBytes = getNumPrefixBytes();
+		byte[] prefix = new byte[numPrefixBytes];
+		int offset = 4 - numPrefixBytes;
+		System.arraycopy(fourBytePrefix, offset, prefix, 0, numPrefixBytes);
+		return prefix;
 	}
 	
 	/*********** static for testing *************/

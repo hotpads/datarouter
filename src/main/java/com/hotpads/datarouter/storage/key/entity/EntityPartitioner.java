@@ -5,5 +5,6 @@ public interface EntityPartitioner<EK extends EntityKey<EK>>{
 	int getNumPartitions();
 	int getNumPrefixBytes();
 	int getPartition(EK ek);
+	byte[] getPrefix(EK ek);
 	
 }

@@ -21,6 +21,7 @@ import com.hotpads.datarouter.storage.field.SimpleFieldSet;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
+import com.hotpads.datarouter.storage.key.entity.base.NoOpEntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.EmptyScatteringPrefix;
@@ -176,7 +177,11 @@ public class DatabeanFieldInfo<
 			this.sampleEntityKey = sampleEntityPrimaryKey.getEntityKey();
 			this.entityKeyClass = sampleEntityKey.getClass();
 			this.entityPartitionerClass = params.getEntityPartitionerClass();
-			this.entityPartitioner = ReflectionTool.create(entityPartitionerClass);
+			if(entityPartitionerClass==null){
+				this.entityPartitioner = new NoOpEntityPartitioner<>();
+			}else{
+				this.entityPartitioner = ReflectionTool.create(entityPartitionerClass);
+			}
 			//careful to call sampleEntityPrimarykey.getEntityKeyFields vs sampleEntityKey.getFields().  the pk may override the ek
 			this.entityKeyFields = sampleEntityPrimaryKey.getEntityKeyFields();
 			this.postEkPkKeyFields = sampleEntityPrimaryKey.getPostEntityKeyFields();

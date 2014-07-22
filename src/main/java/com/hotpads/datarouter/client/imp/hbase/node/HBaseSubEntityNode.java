@@ -78,7 +78,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 					long batchStartTime = System.currentTimeMillis();
 					Map<EK,List<D>> databeansByEntityKey = EntityTool.getDatabeansByEntityKey(databeans);
 					for(EK ek : databeansByEntityKey.keySet()){
-						byte[] ekBytes = queryBuilder.getRowBytes(ek);
+						byte[] ekBytes = queryBuilder.getRowBytesWithPartition(ek);
 						Put put = new Put(ekBytes);
 						Delete delete = new Delete(ekBytes);
 						for(D databean : databeansByEntityKey.get(ek)){
@@ -173,7 +173,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 					Map<EK,List<PK>> pksByEk = EntityTool.getPrimaryKeysByEntityKey(keys);
 					ArrayList<Row> deletes = ListTool.createArrayList();//api requires ArrayList
 					for(EK ek : pksByEk.keySet()){
-						byte[] rowBytes = queryBuilder.getRowBytes(ek);
+						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
 						for(PK pk : pksByEk.get(ek)){
 							for(String columnName : nonKeyColumnNames){//TODO only put modified fields
 								Delete delete = new Delete(rowBytes);

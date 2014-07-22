@@ -46,9 +46,14 @@ public class HBaseSubEntityQueryBuilder<
 		return Range.create(start, pkRange.getStartInclusive(), end, pkRange.getEndInclusive());
 	}
 	
-	public byte[] getRowBytes(EK entityKey){
-		if(entityKey==null){ return new byte[]{}; }
-		return FieldTool.getConcatenatedValueBytes(entityKey.getFields(), true, false);
+	public byte[] getRowBytes(EK ek){
+		if(ek==null){ throw new IllegalArgumentException("no nulls"); }
+		return FieldTool.getConcatenatedValueBytes(ek.getFields(), true, false);
+	}
+	
+	public byte[] getRowBytesWithPartition(EK ek){
+		byte[] partitionPrefix = fieldInfo.getEntityPartitioner().getPrefix(ek);
+		return ByteTool.concatenate(partitionPrefix, getRowBytes(ek));
 	}
 	
 	public byte[] getQualifier(PK primaryKey, String fieldName){
@@ -68,11 +73,11 @@ public class HBaseSubEntityQueryBuilder<
 	public Range<ByteRange> getRowRange(Range<PK> pkRange){
 		ByteRange startBytes = null;
 		if(pkRange.hasStart()){
-			startBytes = new ByteRange(getRowBytes(pkRange.getStart().getEntityKey()));
+			startBytes = new ByteRange(getRowBytesWithPartition(pkRange.getStart().getEntityKey()));
 		}
 		ByteRange endBytes = null;
 		if(pkRange.hasEnd()){
-			endBytes = new ByteRange(getRowBytes(pkRange.getEnd().getEntityKey()));
+			endBytes = new ByteRange(getRowBytesWithPartition(pkRange.getEnd().getEntityKey()));
 		}
 		return Range.create(startBytes, pkRange.getStartInclusive(), endBytes, pkRange.getEndInclusive());
 	}
@@ -123,7 +128,7 @@ public class HBaseSubEntityQueryBuilder<
 	}
 	
 	public Get getSingleRowRange(EK ek, Range<PK> pkRange, boolean keysOnly){
-		Get get = new Get(getRowBytes(ek));
+		Get get = new Get(getRowBytesWithPartition(ek));
 		ColumnRangeFilter columnRangeFilter = getColumnRangeFilter(pkRange);
 		if(keysOnly){
 			FilterList filterList = new FilterList();
