@@ -13,7 +13,6 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.setting.DatarouterServerType;
 import com.hotpads.setting.Setting;
 import com.hotpads.setting.cluster.ClusterSetting;
-import com.hotpads.setting.cluster.ClusterSettingFinder.ClusterSettingNode;
 import com.hotpads.setting.cluster.ClusterSettingKey;
 import com.hotpads.setting.cluster.ClusterSettingScope;
 import com.hotpads.setting.cluster.SettingNode;
@@ -45,18 +44,13 @@ public class ClusterSettingsHandler extends BaseHandler {
 		JSP_editSettings = "/jsp/admin/datarouter/setting/editSettings.jsp",
 		JSP_browseSettings = "/jsp/admin/datarouter/setting/browseSettings.jsp";
 
-	private SettingRoot settingRoot;
-	private DatarouterServerType datarouterServerTypeTool;
-	private SortedMapStorageNode<ClusterSettingKey, ClusterSetting> clusterSettingNode;
-	
 	@Inject
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ClusterSettingsHandler(SettingRoot settingRoot, DatarouterServerType datarouterServerTypeTool, @ClusterSettingNode SortedMapStorageNode clusterSettingNode) {
-		this.settingRoot = settingRoot;
-		this.datarouterServerTypeTool = datarouterServerTypeTool;
-		this.clusterSettingNode = clusterSettingNode;
-	}
-	
+	private SettingRoot settingRoot;
+	@Inject
+	private DatarouterServerType datarouterServerTypeTool;
+	@Inject
+	private SortedMapStorageNode<ClusterSettingKey, ClusterSetting> clusterSettingNode;
+
 	@Override
 	protected Mav handleDefault() {
 		return edit();

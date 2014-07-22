@@ -12,8 +12,8 @@ import org.quartz.CronExpression;
 
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
-import com.hotpads.handler.exception.ExceptionHandlingFilter.ExceptionRecordNode;
 import com.hotpads.handler.exception.ExceptionRecord;
+import com.hotpads.handler.exception.ExceptionRecordKey;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTaskTracker;
 import com.hotpads.job.record.LongRunningTaskType;
@@ -43,9 +43,7 @@ public abstract class BaseJob implements Job{
 	private String jobClass;
 	
 	@Inject
-	@ExceptionRecordNode
-	@SuppressWarnings("rawtypes")
-	private SortedMapStorageNode exceptionRecordNode;
+	private SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
 	@Inject
 	private ParallelApiCaller apiCaller;
 	@Inject
@@ -134,7 +132,6 @@ public abstract class BaseJob implements Job{
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	public void recordException(Exception e) {
 		ExceptionRecord exceptionRecord = new ExceptionRecord(
 				serverName,
