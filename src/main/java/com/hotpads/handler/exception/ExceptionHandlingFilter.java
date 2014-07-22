@@ -2,10 +2,6 @@ package com.hotpads.handler.exception;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
@@ -18,83 +14,56 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Joiner;
-import com.google.inject.BindingAnnotation;
 import com.google.inject.Singleton;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.exception.analysis.HttpHeaders;
 import com.hotpads.exception.analysis.HttpRequestRecord;
 import com.hotpads.exception.analysis.HttpRequestRecordKey;
 import com.hotpads.handler.util.RequestTool;
-import com.hotpads.notification.NotificationApiClient;
-import com.hotpads.notification.NotificationRequestDtoTool;
 import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
-import com.hotpads.setting.DatarouterNotificationSettings;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.collections.Pair;
-import com.hotpads.util.core.exception.http.HttpException;
-import com.hotpads.util.core.exception.http.imp.Http500InternalServerErrorException;
 
 @Singleton
 public class ExceptionHandlingFilter implements Filter {
 	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
 
-	@BindingAnnotation
-	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD })
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface ExceptionRecordNode {}
-
-	@BindingAnnotation
-	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD })
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface HttpRecordRecordNode {}
-
 	public static final String ATTRIBUTE_EXCEPTION_RECORD_NODE = "exceptionRecordNode";
 	public static final String ATTRIBUTE_REQUEST_RECORD_NODE = "requestRecordNode";
 	public static final String ATTRIBUTE_EXCEPTION_HANDLING_CONFIG = "exceptionHandlingConfig";
-	public static final String ATTRIBUTE_NOTIFICATION_SETTINGS = "notificationSettings";
+	public static final String ATTRIBUTE_PARALLEL_API_CALLER = "parallelApiCaller";
 	
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 
-	private static final String ERROR = "/error";
-
-	@Inject
-	private DatarouterNotificationSettings notificationSettings;
 	@Inject
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
-	private NotificationApiClient notificationApiClient;
+	private SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
 	@Inject
-	@ExceptionRecordNode
-	@SuppressWarnings("rawtypes")
-	private SortedMapStorageNode exceptionRecordNode;
-	@Inject
-	@HttpRecordRecordNode
-	@SuppressWarnings("rawtypes")
-	private MapStorageNode httpRequestRecordNode;
+	private IndexedSortedMapStorageNode<HttpRequestRecordKey, HttpRequestRecord> httpRequestRecordNode;
 	@Inject
 	private ParallelApiCaller apiCaller;
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
-		if (exceptionRecordNode == null) {
+	public void init(FilterConfig filterConfig) throws ServletException{
+		if(exceptionRecordNode == null){
 			ServletContext sc = filterConfig.getServletContext();
-			exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord>) sc.getAttribute(ATTRIBUTE_EXCEPTION_RECORD_NODE);
-			httpRequestRecordNode = (MapStorageNode<HttpRequestRecordKey, HttpRequestRecord>) sc.getAttribute(ATTRIBUTE_REQUEST_RECORD_NODE);
-			notificationSettings = (DatarouterNotificationSettings) sc.getAttribute(ATTRIBUTE_NOTIFICATION_SETTINGS);
-			exceptionHandlingConfig = (ExceptionHandlingConfig) sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
-			notificationApiClient = new NotificationApiClient(new NotificationRequestDtoTool() ,exceptionHandlingConfig, notificationSettings);
-			apiCaller = new ParallelApiCaller(notificationApiClient, notificationSettings, exceptionHandlingConfig);
+			exceptionRecordNode = (SortedMapStorageNode<ExceptionRecordKey,ExceptionRecord>)sc
+					.getAttribute(ATTRIBUTE_EXCEPTION_RECORD_NODE);
+			httpRequestRecordNode = (IndexedSortedMapStorageNode<HttpRequestRecordKey,HttpRequestRecord>)sc
+					.getAttribute(ATTRIBUTE_REQUEST_RECORD_NODE);
+			exceptionHandlingConfig = (ExceptionHandlingConfig)sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
+			apiCaller = (ParallelApiCaller)sc.getAttribute(ATTRIBUTE_PARALLEL_API_CALLER);
 		}
 	}
 
@@ -109,37 +78,10 @@ public class ExceptionHandlingFilter implements Filter {
 		} catch (Exception e) {
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
-
-			if(notificationSettings.getExceptionHandling().getValue()){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
-				writeExceptionToResponseWriter(response, e, request);
-				if(exceptionHandlingConfig.shouldPersistExceptionRecords(request, e)) {
-					recordExceptionAndRequestNotification(request, e);
-				}
-			} else {//old redirect code we should delete
-				HttpException httpException;
-				if(e instanceof HttpException){
-					httpException = (HttpException)e;
-				}else{
-					httpException = new Http500InternalServerErrorException(null, e);
-				}
-				logger.warn(ExceptionTool.getStackTraceAsString(httpException));
-				HttpSession session = request.getSession();
-				session.setAttribute("statusCode", httpException.getStatusCode());
-
-				// something else needs to set this, like an AuthenticationFilter
-				//				Object displayExceptionInfo = request.getAttribute(PARAM_DISPLAY_EXCEPTION_INFO);
-				//				if(displayExceptionInfo != null && ((Boolean)displayExceptionInfo)){
-				String message = httpException.getClass().getSimpleName() + ": " + e.getMessage();
-				session.setAttribute("message", message);
-
-				session.setAttribute("stackTrace", httpException.getStackTrace());
-				session.setAttribute("stackTraceString", ExceptionTool
-						.getStackTraceStringForHtmlPreBlock(httpException));
-				//				}
-				// RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/generic/exception.jsp");
-				// dispatcher.forward(request, response);
-				response.sendRedirect(request.getContextPath() + ERROR);
+			logger.warn("ExceptionHandlingFilter caught an exception: ", e);
+			writeExceptionToResponseWriter(response, e, request);
+			if(exceptionHandlingConfig.shouldPersistExceptionRecords(request, e)) {
+				recordExceptionAndRequestNotification(request, e);
 			}
 		}
 	}

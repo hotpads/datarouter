@@ -12,7 +12,6 @@ import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.notification.databean.NotificationRequest.F;
 
 @SuppressWarnings("serial")
 public class NotificationRequestKey extends BasePrimaryKey<NotificationRequestKey> {
@@ -26,8 +25,15 @@ public class NotificationRequestKey extends BasePrimaryKey<NotificationRequestKe
 	private Long sentAtMs;
 	private Integer nanoTime;
 
-	NotificationRequestKey(){
+	private static class F {
+		private static final String
+		userType = "userType",
+		userId = "userId",
+		sentAtMs = "sentAtMs",
+		nanoTime = "nanoTime";
 	}
+
+	NotificationRequestKey(){}
 
 	public NotificationRequestKey(NotificationUserId userId, Long sendAtMs) {
 		this.userType = userId == null ? null : userId.getType();
