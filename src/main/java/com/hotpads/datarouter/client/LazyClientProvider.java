@@ -5,8 +5,7 @@ import java.util.concurrent.Callable;
 /*
  * call a bunch of these in parallel
  */
-public class LazyClientProvider
-implements Callable<Client>{
+public class LazyClientProvider implements Callable<Client>{
 	
 	private ClientFactory clientFactory;
 	

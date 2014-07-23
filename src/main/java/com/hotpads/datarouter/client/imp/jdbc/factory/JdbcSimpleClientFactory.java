@@ -21,7 +21,7 @@ import com.hotpads.util.core.profile.PhaseTimer;
 
 public class JdbcSimpleClientFactory 
 implements ClientFactory{
-	private static Logger logger = Logger.getLogger(JdbcSimpleClientFactory.class);
+	private static Logger logger = initLogger();
 
 	private static final String 
 		SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
@@ -45,6 +45,12 @@ implements ClientFactory{
 	}
 		
 	
+	private static Logger initLogger(){
+		System.err.println("try to init logger");
+		return Logger.getLogger(JdbcSimpleClientFactory.class);
+	}
+
+
 	@Override
 	public Client call(){
 		PhaseTimer timer = new PhaseTimer(clientName);

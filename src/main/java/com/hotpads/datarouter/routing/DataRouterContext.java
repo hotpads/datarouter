@@ -27,7 +27,6 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
-@Named
 @Singleton
 public class DataRouterContext{
 	protected static Logger logger = Logger.getLogger(DataRouterContext.class);
