@@ -18,10 +18,9 @@ import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
-
 public class JdbcSimpleClientFactory 
 implements ClientFactory{
-	private static Logger logger = initLogger();
+	private static Logger logger = Logger.getLogger(JdbcSimpleClientFactory.class);
 
 	private static final String 
 		SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
@@ -34,8 +33,6 @@ implements ClientFactory{
 	
 	protected JdbcConnectionPool connectionPool;
 	protected JdbcClient client;
-	
-	
 
 	public JdbcSimpleClientFactory(DataRouterContext drContext, String clientName){
 		this.drContext = drContext;
@@ -43,13 +40,6 @@ implements ClientFactory{
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
 	}
-		
-	
-	private static Logger initLogger(){
-		System.err.println("try to init logger");
-		return Logger.getLogger(JdbcSimpleClientFactory.class);
-	}
-
 
 	@Override
 	public Client call(){
