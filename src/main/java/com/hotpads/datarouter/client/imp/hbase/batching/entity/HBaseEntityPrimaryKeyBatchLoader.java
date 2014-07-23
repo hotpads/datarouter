@@ -10,6 +10,7 @@ import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.field.compare.EndOfRangeFieldSetComparator;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
@@ -19,13 +20,14 @@ import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 
 public class HBaseEntityPrimaryKeyBatchLoader<
 		EK extends EntityKey<EK>,
+		E extends Entity<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
-extends BaseHBaseEntityBatchLoader<EK,PK,D,F,PK>{
+extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,PK>{
 	private static Logger logger = Logger.getLogger(HBaseEntityPrimaryKeyBatchLoader.class);
 	
-	public HBaseEntityPrimaryKeyBatchLoader(final HBaseSubEntityReaderNode<EK,PK,D,F> node, 
+	public HBaseEntityPrimaryKeyBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, 
 			final Range<PK> range, final Config pConfig, Long batchChainCounter){
 		super(node, range, pConfig, batchChainCounter);
 	}
@@ -52,6 +54,6 @@ extends BaseHBaseEntityBatchLoader<EK,PK,D,F,PK>{
 	@Override
 	public BatchLoader<PK> getNextLoader(){
 		Range<PK> nextRange = getNextRange();
-		return new HBaseEntityPrimaryKeyBatchLoader<EK,PK,D,F>(node, nextRange, config, batchChainCounter + 1);					
+		return new HBaseEntityPrimaryKeyBatchLoader<EK,E,PK,D,F>(node, nextRange, config, batchChainCounter + 1);					
 	}
 }

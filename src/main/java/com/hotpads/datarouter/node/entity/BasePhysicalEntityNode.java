@@ -6,6 +6,7 @@ import java.util.Map;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
 import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
@@ -17,12 +18,17 @@ public abstract class BasePhysicalEntityNode<
 extends BaseEntityNode<EK,E>
 implements PhysicalEntityNode<EK,E>{
 
+//	private EntityNodeParams<EK,E> entityNodeParams;
+	private EntityFieldInfo<EK,E> entityFieldInfo;
 	private HBaseTaskNameParams taskNameParams;//currently acting as a cache of superclass fields
 	private Map<String,SubEntitySortedMapStorageReaderNode<EK,?,?,?>> nodeByQualifierPrefix;
 	
 	
-	public BasePhysicalEntityNode(DataRouterContext drContext, HBaseTaskNameParams taskNameParams){
+	public BasePhysicalEntityNode(DataRouterContext drContext, EntityNodeParams<EK,E> entityNodeParams,
+			HBaseTaskNameParams taskNameParams){
 		super(drContext, taskNameParams.getNodeName());
+//		this.entityNodeParams = entityNodeParams;
+		this.entityFieldInfo = new EntityFieldInfo<>(entityNodeParams);
 		this.taskNameParams = taskNameParams;
 		this.nodeByQualifierPrefix = new HashMap<>();
 	}
@@ -54,5 +60,11 @@ implements PhysicalEntityNode<EK,E>{
 		return nodeByQualifierPrefix;
 	}
 	
+//	public EntityNodeParams<EK,E> getEntityNodeParams(){
+//		return entityNodeParams;
+//	}
+	public EntityFieldInfo<EK,E> getEntityFieldInfo(){
+		return entityFieldInfo;
+	}
 	
 }

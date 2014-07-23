@@ -7,7 +7,7 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
-import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
+import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
@@ -21,10 +21,10 @@ public class HBaseEntityResultParser<
 		E extends Entity<EK>>{
 
 
-	private Map<String,HBaseSubEntityReaderNode<EK,?,?,?>> nodeByQualifierPrefix;
-	private HBaseSubEntityReaderNode<EK,?,?,?> anyNode;
+	private Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>> nodeByQualifierPrefix;
+	private HBaseSubEntityReaderNode<EK,E,?,?,?> anyNode;
 
-	public HBaseEntityResultParser(Map<String,HBaseSubEntityReaderNode<EK,?,?,?>> nodeByQualifierPrefix){
+	public HBaseEntityResultParser(Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>> nodeByQualifierPrefix){
 		this.nodeByQualifierPrefix = nodeByQualifierPrefix;
 		this.anyNode = MapTool.getFirstValue(nodeByQualifierPrefix);
 	}
@@ -38,7 +38,7 @@ public class HBaseEntityResultParser<
 		for(String qualifierPrefix : MapTool.nullSafe(databeansByQualifierPrefix).keySet()){
 			Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>> databeanByPk = databeansByQualifierPrefix.get(
 					qualifierPrefix);
-			HBaseSubEntityReaderNode<EK,?,?,?> subNode = nodeByQualifierPrefix.get(qualifierPrefix);
+			HBaseSubEntityReaderNode<EK,E,?,?,?> subNode = nodeByQualifierPrefix.get(qualifierPrefix);
 			entity.addDatabeansForQualifierPrefixUnchecked(subNode.getEntityNodePrefix(), databeanByPk.values());
 		}
 		return entity;
@@ -49,7 +49,7 @@ public class HBaseEntityResultParser<
 		Map<String,Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>>> databeanByPkByQualifierPrefix = new HashMap<>();
 		for(KeyValue kv : row.list()){
 			String qualifierPrefix = getQualifierPrefix(kv);
-			HBaseSubEntityReaderNode<EK,?,?,?> subNode = nodeByQualifierPrefix.get(qualifierPrefix);
+			HBaseSubEntityReaderNode<EK,E,?,?,?> subNode = nodeByQualifierPrefix.get(qualifierPrefix);
 			if(subNode==null){ continue; }//hopefully just orphaned data
 			HBaseSubEntityResultParser<EK,? extends EntityPrimaryKey<EK,?>,?,?> subParser = subNode.getResultParser();
 			Map/*tough generics*/ databeanByPk = databeanByPkByQualifierPrefix.get(qualifierPrefix);
@@ -73,7 +73,7 @@ public class HBaseEntityResultParser<
 		int qualifierLength = kv.getQualifierLength();
 		byte[] buffer = kv.getBuffer();
 		for(int prefixLength=0; prefixLength < qualifierLength; ++prefixLength){
-			if(buffer[qualifierOffset + prefixLength] == DatabeanFieldInfo.ENTITY_PREFIX_TERMINATOR){
+			if(buffer[qualifierOffset + prefixLength] == EntityFieldInfo.ENTITY_PREFIX_TERMINATOR){
 				return prefixLength;
 			}
 		}

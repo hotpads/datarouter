@@ -2,6 +2,7 @@ package com.hotpads.trace.node;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
+import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -24,37 +25,42 @@ public class TraceEntityNode
 extends HBaseEntityReaderNode<TraceEntityKey,TraceEntity>
 implements TraceNodes{
 	
-	private static final String
-		NODE_NAME = "TraceEntity",
-		ENTITY_TABLE_NAME_TraceEntity = "TraceEntity";
+//	private static final String
+//		NODE_NAME = "TraceEntity",
+//		ENTITY_TABLE_NAME_TraceEntity = "TraceEntity";
+	
+	private static final EntityNodeParams<TraceEntityKey,TraceEntity> nodeParams
+			= new EntityNodeParams<TraceEntityKey,TraceEntity>(
+			"TraceEntity", TraceEntityKey.class, TraceEntity.class, TraceEntityPartitioner.class,
+			"TraceEntity");
 
 	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceKey,Trace,TraceFielder> trace;
 	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceThreadKey,TraceThread,TraceThreadFielder> thread;
 	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceSpanKey,TraceSpan,TraceSpanFielder> span;
 	
 	public TraceEntityNode(DataRouter router, String clientName, String name){
-		super(router, new HBaseTaskNameParams(clientName, ENTITY_TABLE_NAME_TraceEntity, name));
+		super(router, nodeParams, new HBaseTaskNameParams(clientName, nodeParams.getEntityTableName(), name));
 	}
 	
 	
 	@Override
 	protected void initNodes(DataRouter router, String clientName){
-		trace = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NODE_NAME,
+		trace = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, nodeParams.getNodeName(),
 				TraceEntityKey.class, TraceEntityPartitioner.class, 
 				Trace.class, TraceFielder.class, 
-				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_Trace)));
+				TraceEntity.class, nodeParams.getEntityTableName(), TraceEntity.QUALIFIER_PREFIX_Trace)));
 		register(trace);
 		
-		thread = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NODE_NAME,
+		thread = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, nodeParams.getNodeName(),
 				TraceEntityKey.class, TraceEntityPartitioner.class, 
 				TraceThread.class, TraceThreadFielder.class, 
-				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_TraceThread)));
+				TraceEntity.class, nodeParams.getEntityTableName(), TraceEntity.QUALIFIER_PREFIX_TraceThread)));
 		register(thread);
 		
-		span = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, NODE_NAME,
+		span = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, clientName, nodeParams.getNodeName(),
 				TraceEntityKey.class, TraceEntityPartitioner.class, 
 				TraceSpan.class, TraceSpanFielder.class, 
-				TraceEntity.class, ENTITY_TABLE_NAME_TraceEntity, TraceEntity.QUALIFIER_PREFIX_TraceSpan)));
+				TraceEntity.class, nodeParams.getEntityTableName(), TraceEntity.QUALIFIER_PREFIX_TraceSpan)));
 		register(span);	
 	}
 	

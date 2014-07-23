@@ -12,8 +12,10 @@ import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
+import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
@@ -26,14 +28,17 @@ import com.hotpads.util.core.collections.Range;
 
 public class HBaseSubEntityQueryBuilder<
 		EK extends EntityKey<EK>,
+		E extends Entity<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
+extends HBaseEntityQueryBuilder<EK,E>
 {
 	
 	private DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
-	public HBaseSubEntityQueryBuilder(DatabeanFieldInfo<PK,D,F> fieldInfo){
+	public HBaseSubEntityQueryBuilder(EntityFieldInfo<EK,E> entityFieldInfo, DatabeanFieldInfo<PK,D,F> fieldInfo){
+		super(entityFieldInfo);
 		this.fieldInfo = fieldInfo;
 	}
 	
@@ -44,16 +49,6 @@ public class HBaseSubEntityQueryBuilder<
 		EK start = pkRange.hasStart() ? pkRange.getStart().getEntityKey() : null;
 		EK end = pkRange.hasEnd() ? pkRange.getEnd().getEntityKey() : null;
 		return Range.create(start, pkRange.getStartInclusive(), end, pkRange.getEndInclusive());
-	}
-	
-	public byte[] getRowBytes(EK ek){
-		if(ek==null){ throw new IllegalArgumentException("no nulls"); }
-		return FieldTool.getConcatenatedValueBytes(ek.getFields(), true, false);
-	}
-	
-	public byte[] getRowBytesWithPartition(EK ek){
-		byte[] partitionPrefix = fieldInfo.getEntityPartitioner().getPrefix(ek);
-		return ByteTool.concatenate(partitionPrefix, getRowBytes(ek));
 	}
 	
 	public byte[] getQualifier(PK primaryKey, String fieldName){

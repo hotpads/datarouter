@@ -42,7 +42,7 @@ public class DatabeanFieldInfo<
 		F extends DatabeanFielder<PK,D>> {
 	private static Logger logger = Logger.getLogger(DatabeanFieldInfo.class);
 	
-	public static final byte ENTITY_PREFIX_TERMINATOR = 0;
+	private static final byte ENTITY_PREFIX_TERMINATOR = 0;
 	
 	//these 4 fields only apply to physical nodes, but cleanest to add them here for now
 	private String clientName;

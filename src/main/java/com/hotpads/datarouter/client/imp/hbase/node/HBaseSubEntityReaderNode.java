@@ -18,16 +18,18 @@ import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityPrimar
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
+import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityResultParser;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageReaderNode;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
@@ -45,6 +47,7 @@ import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class HBaseSubEntityReaderNode<
 		EK extends EntityKey<EK>,
+		E extends Entity<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
@@ -58,15 +61,15 @@ implements HBasePhysicalNode<PK,D>,
 
 	private HBaseTaskNameParams taskNameParams;
 	
-	protected HBaseSubEntityQueryBuilder<EK,PK,D,F> queryBuilder;
+	protected HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
 	protected HBaseSubEntityResultParser<EK,PK,D,F> resultParser;
 	
 	/******************************* constructors ************************************/
 	
-	public HBaseSubEntityReaderNode(NodeParams<PK,D,F> params){
+	public HBaseSubEntityReaderNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> params){
 		super(params);
 		this.taskNameParams = new HBaseTaskNameParams(getClientName(), getTableName(), getName());
-		this.queryBuilder = new HBaseSubEntityQueryBuilder<EK,PK,D,F>(fieldInfo);
+		this.queryBuilder = new HBaseSubEntityQueryBuilder<EK,E,PK,D,F>(entityFieldInfo, fieldInfo);
 		this.resultParser = new HBaseSubEntityResultParser<EK,PK,D,F>(fieldInfo);
 	}
 	
@@ -283,7 +286,7 @@ implements HBasePhysicalNode<PK,D>,
 				}}).call();
 			return new SortedScannerIterable<PK>(new ListBackedSortedScanner<PK>(pks));
 		}else{
-			BatchLoader<PK> firstBatchLoader = new HBaseEntityPrimaryKeyBatchLoader<EK,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
+			BatchLoader<PK> firstBatchLoader = new HBaseEntityPrimaryKeyBatchLoader<EK,E,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
 			BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(getClient().getExecutorService(), firstBatchLoader);
 			return new SortedScannerIterable<PK>(scanner);
 		}
@@ -304,7 +307,7 @@ implements HBasePhysicalNode<PK,D>,
 				}}).call();
 			return new SortedScannerIterable<D>(new ListBackedSortedScanner<D>(databeans));
 		}else{
-			BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<EK,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
+			BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
 			BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(getClient().getExecutorService(), firstBatchLoader);
 			return new SortedScannerIterable<D>(scanner);
 		}

@@ -17,10 +17,12 @@ import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.entity.EntityTool;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
@@ -36,16 +38,17 @@ import com.hotpads.util.core.MapTool;
 
 public class HBaseSubEntityNode<
 		EK extends EntityKey<EK>,
+		E extends Entity<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
-extends HBaseSubEntityReaderNode<EK,PK,D,F>
+extends HBaseSubEntityReaderNode<EK,E,PK,D,F>
 implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 		PhysicalSortedMapStorageNode<PK,D>
 {
 	
-	public HBaseSubEntityNode(NodeParams<PK,D,F> params){
-		super(params);
+	public HBaseSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> params){
+		super(entityNodeParams, params);
 	}
 	
 	@Override

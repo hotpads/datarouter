@@ -13,6 +13,7 @@ import com.hotpads.datarouter.client.imp.hbase.util.HBaseEntityResultParser;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.entity.BasePhysicalEntityNode;
+import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
@@ -26,13 +27,14 @@ extends BasePhysicalEntityNode<EK,E>{
 	private HBaseEntityQueryBuilder<EK,E> queryBuilder;
 	private HBaseEntityResultParser<EK,E> resultParser;
 	
-	public HBaseEntityReaderNode(DataRouter router, HBaseTaskNameParams taskNameParams){
-		super(router.getContext(), taskNameParams);
+	public HBaseEntityReaderNode(DataRouter router, EntityNodeParams<EK,E> entityNodeParams,
+			HBaseTaskNameParams taskNameParams){
+		super(router.getContext(), entityNodeParams, taskNameParams);
 		this.taskNameParams = taskNameParams;
 		initNodes(router, taskNameParams.getClientName());
 		//need to call initNodes before this so nodeByQualifierPrefix gets initialized
-		this.queryBuilder = new HBaseEntityQueryBuilder<>();
-		this.resultParser = new HBaseEntityResultParser<EK,E>((Map<String,HBaseSubEntityReaderNode<EK,?,?,?>>)getNodeByQualifierPrefix());
+		this.queryBuilder = new HBaseEntityQueryBuilder<EK,E>(getEntityFieldInfo());
+		this.resultParser = new HBaseEntityResultParser<EK,E>((Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>>)getNodeByQualifierPrefix());
 	}
 	
 

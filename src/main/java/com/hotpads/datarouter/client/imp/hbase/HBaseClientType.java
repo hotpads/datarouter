@@ -45,7 +45,7 @@ implements ClientType{
 			if(StringTool.isEmpty(nodeParams.getEntityNodePrefix())){
 				throw new IllegalArgumentException("must specify entityNodePrefix with entityName");
 			}
-			return new HBaseSubEntityNode(nodeParams);
+			return new HBaseSubEntityNode(entityNodeParams, nodeParams);
 		}
 		return new HBaseNode(nodeParams);
 	}

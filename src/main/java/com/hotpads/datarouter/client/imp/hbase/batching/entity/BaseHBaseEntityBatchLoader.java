@@ -9,17 +9,17 @@ import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchLoader;
 
 public abstract class BaseHBaseEntityBatchLoader<
 		EK extends EntityKey<EK>,
+		E extends Entity<EK>,
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
@@ -29,13 +29,13 @@ extends BaseBatchLoader<T>{
 
 	private static final int DEFAULT_iterateBatchSize = 1000;
 	
-	protected final HBaseSubEntityReaderNode<EK,PK,D,F> node;
+	protected final HBaseSubEntityReaderNode<EK,E,PK,D,F> node;
 	protected final Range<PK> range;
 	protected final Config config;
 	protected final Integer iterateBatchSize;//break this out of config for safety
 	protected Long batchChainCounter;
 	
-	public BaseHBaseEntityBatchLoader(final HBaseSubEntityReaderNode<EK,PK,D,F> node,
+	public BaseHBaseEntityBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
 			final Range<PK> range, final Config pConfig, Long batchChainCounter){
 		this.node = node;
 		this.range = range;
@@ -51,7 +51,7 @@ extends BaseBatchLoader<T>{
 	
 
 	@Override
-	public BaseHBaseEntityBatchLoader<EK,PK,D,F,T> call(){
+	public BaseHBaseEntityBatchLoader<EK,E,PK,D,F,T> call(){
 		//do the RPC
 		List<Result> hBaseRows = node.getResultsInSubRange(range, isKeysOnly(), config);
 		
