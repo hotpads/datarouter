@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 
@@ -16,4 +17,5 @@ public interface ClientType{
 			List<PhysicalNode<?,?>> physicalNodes);
 	
 	Node<?,?> createNode(NodeParams<?,?,?> nodeParams);
+	Node<?,?> createSubEntityNode(EntityNodeParams<?,?> entityNodeParams, NodeParams<?,?,?> nodeParams);
 }

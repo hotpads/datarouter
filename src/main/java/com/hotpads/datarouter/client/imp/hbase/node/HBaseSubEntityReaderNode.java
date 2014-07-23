@@ -27,6 +27,7 @@ import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageReaderNode;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
+import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
@@ -60,6 +61,7 @@ implements HBasePhysicalNode<PK,D>,
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = HBaseReaderNode.DEFAULT_ITERATE_BATCH_SIZE;
 
 	private HBaseTaskNameParams taskNameParams;
+	protected EntityFieldInfo<EK,E> entityFieldInfo;
 	
 	protected HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
 	protected HBaseSubEntityResultParser<EK,PK,D,F> resultParser;
@@ -69,6 +71,7 @@ implements HBasePhysicalNode<PK,D>,
 	public HBaseSubEntityReaderNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> params){
 		super(params);
 		this.taskNameParams = new HBaseTaskNameParams(getClientName(), getTableName(), getName());
+		this.entityFieldInfo = new EntityFieldInfo<>(entityNodeParams);
 		this.queryBuilder = new HBaseSubEntityQueryBuilder<EK,E,PK,D,F>(entityFieldInfo, fieldInfo);
 		this.resultParser = new HBaseSubEntityResultParser<EK,PK,D,F>(fieldInfo);
 	}

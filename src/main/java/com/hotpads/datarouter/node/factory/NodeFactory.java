@@ -7,6 +7,7 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
+import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -121,12 +122,19 @@ public class NodeFactory{
 			String entityName,
 			String entityNodePrefix
 			){
+		EntityNodeParams<EK,E> entityNodeParams = new EntityNodeParams<EK,E>(null, entityKeyClass, entityClass,
+				entityPartitionerClass, entityName);
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
 				.withParentName(parentName)
 				.withFielder(fielderClass)
 				.withEntity(entityClass, entityPartitionerClass, entityName, entityNodePrefix);
-		return create(paramsBuilder.build());
+		NodeParams nodeParams = paramsBuilder.build();
+//		return create(paramsBuilder.build());
+		ClientType clientType = nodeParams.getRouter().getClientOptions().getClientTypeInstance(clientName);
+		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
+		N node = (N)clientType.createNode(nodeParams);
+		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
 	}	
 	
 	

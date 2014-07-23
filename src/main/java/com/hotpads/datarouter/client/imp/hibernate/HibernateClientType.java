@@ -11,6 +11,7 @@ import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 
@@ -40,6 +41,12 @@ implements ClientType{
 		}else{
 			return new JdbcNode(nodeParams);
 		}
+	}
+	
+	//ignore the entityNodeParams
+	@Override
+	public Node<?,?> createSubEntityNode(EntityNodeParams<?,?> entityNodeParams, NodeParams<?,?,?> nodeParams){
+		return createNode(nodeParams);
 	}
 	
 }

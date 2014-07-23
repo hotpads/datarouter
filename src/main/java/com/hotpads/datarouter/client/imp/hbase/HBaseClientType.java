@@ -11,6 +11,7 @@ import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.util.core.StringTool;
@@ -41,13 +42,12 @@ implements ClientType{
 	
 	@Override
 	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
-		if(StringTool.notEmpty(nodeParams.getEntityTableName())){
-			if(StringTool.isEmpty(nodeParams.getEntityNodePrefix())){
-				throw new IllegalArgumentException("must specify entityNodePrefix with entityName");
-			}
-			return new HBaseSubEntityNode(entityNodeParams, nodeParams);
-		}
 		return new HBaseNode(nodeParams);
+	}
+	
+	@Override
+	public Node<?,?> createSubEntityNode(EntityNodeParams<?,?> entityNodeParams, NodeParams<?,?,?> nodeParams){
+		return new HBaseSubEntityNode(entityNodeParams, nodeParams);
 	}
 
 }
