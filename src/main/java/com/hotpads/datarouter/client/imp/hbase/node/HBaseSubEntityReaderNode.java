@@ -63,7 +63,7 @@ implements HBasePhysicalNode<PK,D>,
 	protected EntityFieldInfo<EK,E> entityFieldInfo;
 	
 	protected HBaseSubEntityQueryBuilder<EK,E,PK,D,F> queryBuilder;
-	protected HBaseSubEntityResultParser<EK,PK,D,F> resultParser;
+	protected HBaseSubEntityResultParser<EK,E,PK,D,F> resultParser;
 	
 	/******************************* constructors ************************************/
 	
@@ -72,7 +72,7 @@ implements HBasePhysicalNode<PK,D>,
 		this.taskNameParams = new HBaseTaskNameParams(getClientName(), getTableName(), getName());
 		this.entityFieldInfo = new EntityFieldInfo<>(entityNodeParams);
 		this.queryBuilder = new HBaseSubEntityQueryBuilder<EK,E,PK,D,F>(entityFieldInfo, fieldInfo);
-		this.resultParser = new HBaseSubEntityResultParser<EK,PK,D,F>(fieldInfo);
+		this.resultParser = new HBaseSubEntityResultParser<EK,E,PK,D,F>(entityFieldInfo, fieldInfo);
 	}
 	
 	
@@ -361,7 +361,7 @@ implements HBasePhysicalNode<PK,D>,
 	
 	/********************* get/set *******************************/
 
-	public HBaseSubEntityResultParser<EK,PK,D,F> getResultParser(){
+	public HBaseSubEntityResultParser<EK,E,PK,D,F> getResultParser(){
 		return resultParser;
 	}
 

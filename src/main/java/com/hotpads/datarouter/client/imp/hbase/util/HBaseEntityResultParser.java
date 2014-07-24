@@ -44,14 +44,16 @@ public class HBaseEntityResultParser<
 		return entity;
 	}
 	
-	public Map<String,Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>>> getDatabeansByQualifierPrefix(Result row){
+	public Map<String,Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>>> getDatabeansByQualifierPrefix(
+			Result row){
 		if(row==null){ return new HashMap<>(); }
-		Map<String,Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>>> databeanByPkByQualifierPrefix = new HashMap<>();
+		Map<String,Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>>> databeanByPkByQualifierPrefix
+				= new HashMap<>();
 		for(KeyValue kv : row.list()){
 			String qualifierPrefix = getQualifierPrefix(kv);
 			HBaseSubEntityReaderNode<EK,E,?,?,?> subNode = nodeByQualifierPrefix.get(qualifierPrefix);
 			if(subNode==null){ continue; }//hopefully just orphaned data
-			HBaseSubEntityResultParser<EK,? extends EntityPrimaryKey<EK,?>,?,?> subParser = subNode.getResultParser();
+			HBaseSubEntityResultParser<EK,E,? extends EntityPrimaryKey<EK,?>,?,?> subParser = subNode.getResultParser();
 			Map/*tough generics*/ databeanByPk = databeanByPkByQualifierPrefix.get(qualifierPrefix);
 			if(databeanByPk==null){
 				databeanByPk = new HashMap<>();
