@@ -7,6 +7,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.hotpads.logging.ClassA.Class1;
+import com.hotpads.logging.ClassA.Class1.Class11;
+import com.hotpads.logging.ClassA.Class2;
+import com.hotpads.logging.another.Class3;
 
 public class Slf4jTest{
 	private static final Logger logger = LoggerFactory.getLogger(Slf4jTest.class);
@@ -19,9 +23,12 @@ public class Slf4jTest{
 		log4j2Configurator.setRootLevel(Level.DEBUG);
 		logOneOfEachLevel();
 		
-		log4j2Configurator.setLevel(Class2.class, Level.INFO);
 		new Class1().logYourName();
+		new Class11().logYourName();
+		log4j2Configurator.setLevel(Class2.class, Level.INFO);
 		new Class2().logYourName();
+		log4j2Configurator.setLevel("com.hotpads.logging.another" , Level.TRACE);
+		new Class3().logYourName();
 	}
 
 	private void logOneOfEachLevel(){
@@ -31,27 +38,5 @@ public class Slf4jTest{
 		logger.warn("warn");
 		logger.error("error");
 	}
-	
-	public static abstract class ClassA{
-		static Logger mLogger;
-		public void logYourName() {
-			mLogger.trace(getClass() + ".logYourName()");
-			mLogger.debug(getClass() + ".logYourName()");
-			mLogger.info(getClass() + ".logYourName()");
-			mLogger.warn(getClass() + ".logYourName()");
-			mLogger.error(getClass() + ".logYourName()");
-		}
-	}
-	
-	public static class Class1 extends ClassA{
-		{
-			mLogger = LoggerFactory.getLogger(Class1.class);
-		}
-	}
 
-	public static class Class2 extends ClassA{
-		{
-			mLogger = LoggerFactory.getLogger(Class2.class);
-		}
-	}
 }

@@ -30,11 +30,13 @@ public class Log4j2Configurator{
 
 	public void setLevel(String name, Level level){
 		LoggerConfig loggerConfig = config.getLoggerConfig(name);
-		if(loggerConfig.equals(rootLoggerConfig)){
-			loggerConfig = new LoggerConfig(name + "config", rootLoggerConfig.getLevel(), rootLoggerConfig.isAdditive());
+		if(!loggerConfig.getName().equals(name)){ //it is the parent that have been found
+			boolean parentAddictive = loggerConfig.isAdditive();
+			loggerConfig = new LoggerConfig(name, level, parentAddictive);
 			config.addLogger(name, loggerConfig);
+		} else {
+			loggerConfig.setLevel(level);
 		}
-		loggerConfig.setLevel(level);
 		ctx.updateLoggers();
 	}
 
