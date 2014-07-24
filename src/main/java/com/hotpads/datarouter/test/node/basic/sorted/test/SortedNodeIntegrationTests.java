@@ -54,9 +54,9 @@ public class SortedNodeIntegrationTests{
 	@Parameters
 	public static Collection<Object[]> parameters(){
 		List<Object[]> params = ListTool.create();
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, false});
+//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
 		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true});
 		return params;
 	}

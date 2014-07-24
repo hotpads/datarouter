@@ -1,5 +1,8 @@
 package com.hotpads.datarouter.storage.key.entity.base;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,23 +17,54 @@ implements EntityPartitioner<EK>{
 		MIN_PARTITIONS = 1,
 		MAX_ONE_BYTE_NUM_PARTITIONS = 256,
 		MAX_PARTITIONS = 1 << 16;
+	
+	private ArrayList<byte[]> allPrefixes;
 		
+	
+	/****************** construct ********************/
+	
+	public BaseEntityPartitioner(){
+		this.allPrefixes = new ArrayList<>();
+		if(getNumPartitions()==1){
+			allPrefixes.add(new byte[0]);
+		}else{
+			for(int i=0; i < getNumPartitions(); ++i){
+				allPrefixes.add(getPrefix(i));
+			}
+		}
+	}
+	
+	
+	/**************** methods *********************/
+	
 	@Override
 	public int getNumPrefixBytes(){
 		return getNumPrefixBytesStatic(getNumPartitions());
 	}
 	
 	@Override
-	//TODO skip intermediate array
-	public byte[] getPrefix(EK ek){
-		int partition = getPartition(ek);
-		byte[] fourBytePrefix = IntegerByteTool.getComparableBytes(partition);
+	public List<byte[]> getAllPrefixes(){
+		return allPrefixes;
+	}
+	
+	@Override
+	public byte[] getPrefix(int partition){
+		byte[] fourBytePrefix = IntegerByteTool.getRawBytes(partition);
 		int numPrefixBytes = getNumPrefixBytes();
 		byte[] prefix = new byte[numPrefixBytes];
 		int offset = 4 - numPrefixBytes;
 		System.arraycopy(fourBytePrefix, offset, prefix, 0, numPrefixBytes);
 		return prefix;
 	}
+	
+	@Override
+	//TODO skip intermediate array
+	public byte[] getPrefix(EK ek){
+		int partition = getPartition(ek);
+		byte[] prefix = getPrefix(partition);
+		return prefix;
+	}
+	
 	
 	/*********** static for testing *************/
 	
@@ -44,6 +78,8 @@ implements EntityPartitioner<EK>{
 		throw new IllegalArgumentException("max partitions is "+MAX_PARTITIONS);
 	}
 	
+	
+	/************** tests ***********************/
 	
 	public static class BaseEntityPartitionerTests{
 		@Test(expected=IndexOutOfBoundsException.class)

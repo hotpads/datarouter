@@ -65,7 +65,7 @@ extends BasePhysicalEntityNode<EK,E>{
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getTaskNameParams(), "getEntity", config){
 				public E hbaseCall() throws Exception{
-					byte[] rowBytes = queryBuilder.getRowBytes(ek);
+					byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
 					Get get = new Get(rowBytes);
 					Result hBaseResult = hTable.get(get);
 					E entity = resultParser.parseEntity(ek, hBaseResult);

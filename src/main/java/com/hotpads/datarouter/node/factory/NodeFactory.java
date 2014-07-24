@@ -129,11 +129,11 @@ public class NodeFactory{
 				.withParentName(parentName)
 				.withFielder(fielderClass)
 				.withEntity(entityClass, entityPartitionerClass, entityName, entityNodePrefix);
-		NodeParams nodeParams = paramsBuilder.build();
+		NodeParams<PK,D,F> nodeParams = paramsBuilder.build();
 //		return create(paramsBuilder.build());
 		ClientType clientType = nodeParams.getRouter().getClientOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
-		N node = (N)clientType.createNode(nodeParams);
+		N node = (N)clientType.createSubEntityNode(entityNodeParams, nodeParams);
 		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
 	}	
 	

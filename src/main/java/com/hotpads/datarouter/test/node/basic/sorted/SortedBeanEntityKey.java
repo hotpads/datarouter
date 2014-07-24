@@ -39,6 +39,9 @@ extends BaseEntityKey<SortedBeanEntityKey>{
 	
 	/****************** construct *******************/
 	
+	private SortedBeanEntityKey(){//for reflection
+	}
+	
 	public SortedBeanEntityKey(String a, String b){
 		this.a = a;
 		this.b = b;

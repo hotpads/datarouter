@@ -13,8 +13,6 @@ import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.apache.log4j.Logger;
 
-import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityDatabeanBatchLoader;
-import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityPrimaryKeyBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
@@ -41,8 +39,9 @@ import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.PeekableIterable;
-import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
+import com.hotpads.util.core.iterable.scanner.collate.Collator;
+import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
 import com.hotpads.util.core.iterable.scanner.imp.ListBackedSortedScanner;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
@@ -115,7 +114,8 @@ implements HBasePhysicalNode<PK,D>,
 	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){	
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDataRouterContext(), getTaskNameParams(), "getMulti", config){
+		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDataRouterContext(), getTaskNameParams(), 
+				"getMulti", config){
 				public List<D> hbaseCall() throws Exception{
 					DRCounters.incSuffixClientNode(client.getType(), "getMulti rows", getClientName(), getNodeName(), 
 							CollectionTool.size(keys));
@@ -138,7 +138,8 @@ implements HBasePhysicalNode<PK,D>,
 	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig) {	
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDataRouterContext(), getTaskNameParams(), "getKeys", config){
+		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDataRouterContext(), getTaskNameParams(), 
+				"getKeys", config){
 				public List<PK> hbaseCall() throws Exception{
 					DRCounters.incSuffixClientNode(client.getType(), "getKeys rows", getClientName(), getNodeName(), 
 							CollectionTool.size(keys));
@@ -280,18 +281,18 @@ implements HBasePhysicalNode<PK,D>,
 		final Range<PK> range = Range.nullSafe(pRange);
 		final Range<EK> ekRange = queryBuilder.getEkRange(range);
 		if(ekRange.hasStart() && ekRange.equalsStartEnd()){//single row.  use Get.  gets all pks in entity.  no way to limit rows
-			List<PK> pks = new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDataRouterContext(), getTaskNameParams(), "scanPksInEntity", config){
+			List<PK> pks = new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDataRouterContext(), 
+					getTaskNameParams(), "scanPksInEntity", config){
 				public List<PK> hbaseCall() throws Exception{
 					Get get = queryBuilder.getSingleRowRange(range.getStart().getEntityKey(), range, true);
 					Result result = hTable.get(get);
-					return ListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(
-							result));	
+					return ListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result));	
 				}}).call();
 			return new SortedScannerIterable<PK>(new ListBackedSortedScanner<PK>(pks));
 		}else{
-			BatchLoader<PK> firstBatchLoader = new HBaseEntityPrimaryKeyBatchLoader<EK,E,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
-			BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(getClient().getExecutorService(), firstBatchLoader);
-			return new SortedScannerIterable<PK>(scanner);
+			List<BatchingSortedScanner<PK>> scanners = queryBuilder.getPkScanners(this, range, pConfig);
+			Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
+			return new SortedScannerIterable<PK>(collator);
 		}
 	}
 	
@@ -301,18 +302,18 @@ implements HBasePhysicalNode<PK,D>,
 		final Range<PK> range = Range.nullSafe(pRange);
 		final Range<EK> ekRange = queryBuilder.getEkRange(range);
 		if(ekRange.hasStart() && ekRange.equalsStartEnd()){//single row.  use Get.  gets all databeans in entity.  no way to limit rows
-			List<D> databeans = new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDataRouterContext(), getTaskNameParams(), "scanInEntity", config){
+			List<D> databeans = new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDataRouterContext(), 
+					getTaskNameParams(), "scanInEntity", config){
 				public List<D> hbaseCall() throws Exception{
 					Get get = queryBuilder.getSingleRowRange(range.getStart().getEntityKey(), range, false);
 					Result result = hTable.get(get);
-					return resultParser.getDatabeansWithMatchingQualifierPrefix(
-							result);	
+					return resultParser.getDatabeansWithMatchingQualifierPrefix(result);	
 				}}).call();
 			return new SortedScannerIterable<D>(new ListBackedSortedScanner<D>(databeans));
 		}else{
-			BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(this, range, pConfig, 1L);//start the counter at 1
-			BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(getClient().getExecutorService(), firstBatchLoader);
-			return new SortedScannerIterable<D>(scanner);
+			List<BatchingSortedScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, range, pConfig);
+			Collator<D> collator = new PriorityQueueCollator<D>(scanners);
+			return new SortedScannerIterable<D>(collator);
 		}
 	}
 		
@@ -335,6 +336,7 @@ implements HBasePhysicalNode<PK,D>,
 				config){
 				public List<Result> hbaseCall() throws Exception{
 					Range<ByteRange> rowBytesRange = queryBuilder.getRowRange(rowRange);
+					//TODO Get if single row
 					Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, config);
 					FilterList filterList = new FilterList();
 					if(keysOnly){ filterList.addFilter(new KeyOnlyFilter()); }

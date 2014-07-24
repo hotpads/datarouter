@@ -30,14 +30,16 @@ extends BaseBatchLoader<T>{
 	private static final int DEFAULT_iterateBatchSize = 1000;
 	
 	protected final HBaseSubEntityReaderNode<EK,E,PK,D,F> node;
+	protected final byte[] partition;
 	protected final Range<PK> range;
 	protected final Config config;
 	protected final Integer iterateBatchSize;//break this out of config for safety
 	protected Long batchChainCounter;
 	
-	public BaseHBaseEntityBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
+	public BaseHBaseEntityBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, byte[] partition,
 			final Range<PK> range, final Config pConfig, Long batchChainCounter){
 		this.node = node;
+		this.partition = partition;
 		this.range = range;
 		this.config = Config.nullSafe(pConfig);
 		this.iterateBatchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_iterateBatchSize);

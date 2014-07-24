@@ -28,9 +28,9 @@ public class HBaseEntityDatabeanBatchLoader<
 extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 	private static Logger logger = Logger.getLogger(HBaseEntityDatabeanBatchLoader.class);
 		
-	public HBaseEntityDatabeanBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node,
+	public HBaseEntityDatabeanBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, byte[] partition,
 			final Range<PK> range, final Config pConfig, Long batchChainCounter){
-		super(node, range, pConfig, batchChainCounter);
+		super(node, partition, range, pConfig, batchChainCounter);
 	}
 	
 	@Override
@@ -60,6 +60,6 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 	@Override
 	public BatchLoader<D> getNextLoader(){
 		Range<PK> nextRange = getNextRange();
-		return new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(node, nextRange, config, batchChainCounter + 1);					
+		return new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(node, partition, nextRange, config, batchChainCounter + 1);					
 	}
 }

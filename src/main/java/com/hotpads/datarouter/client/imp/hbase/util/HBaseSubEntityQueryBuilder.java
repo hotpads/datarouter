@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -10,6 +11,9 @@ import org.apache.hadoop.hbase.filter.ColumnRangeFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 
+import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityDatabeanBatchLoader;
+import com.hotpads.datarouter.client.imp.hbase.batching.entity.HBaseEntityPrimaryKeyBatchLoader;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
@@ -19,12 +23,15 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
+import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
+import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
 
 public class HBaseSubEntityQueryBuilder<
 		EK extends EntityKey<EK>,
@@ -68,11 +75,13 @@ extends HBaseEntityQueryBuilder<EK,E>
 	public Range<ByteRange> getRowRange(Range<PK> pkRange){
 		ByteRange startBytes = null;
 		if(pkRange.hasStart()){
-			startBytes = new ByteRange(getRowBytesWithPartition(pkRange.getStart().getEntityKey()));
+			EK startEk = pkRange.getStart().getEntityKey();
+			startBytes = new ByteRange(getRowBytesWithPartition(startEk));
 		}
 		ByteRange endBytes = null;
 		if(pkRange.hasEnd()){
-			endBytes = new ByteRange(getRowBytesWithPartition(pkRange.getEnd().getEntityKey()));
+			EK endEk = pkRange.getEnd().getEntityKey();
+			endBytes = new ByteRange(getRowBytesWithPartition(endEk));
 		}
 		return Range.create(startBytes, pkRange.getStartInclusive(), endBytes, pkRange.getEndInclusive());
 	}
@@ -95,8 +104,9 @@ extends HBaseEntityQueryBuilder<EK,E>
 	}
 	
 	public Get getPrefixGet(PK pkPrefix, boolean wildcardLastField, Config config){
-		byte[] rowBytes = FieldTool.getConcatenatedValueBytes(pkPrefix.getEntityKeyFields(), false, false);//don't allow nulls in EK
-		boolean includeTrailingSeparator = !wildcardLastField;
+		EK ek = pkPrefix.getEntityKey();
+		byte[] rowBytes = getRowBytesWithPartition(ek);//require all EK fields
+		boolean includeTrailingSeparator = ! wildcardLastField;
 		byte[] pkQualifierBytes = FieldTool.getConcatenatedValueBytes(pkPrefix.getPostEntityKeyFields(), true, 
 				includeTrailingSeparator);
 		byte[] qualifierPrefix = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), pkQualifierBytes);
@@ -137,5 +147,41 @@ extends HBaseEntityQueryBuilder<EK,E>
 	}
 	
 	
-	/***************** Scan *******************************/
+	/***************** partitioned *******************************/
+
+	public List<BatchingSortedScanner<PK>> getPkScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node, 
+			Range<PK> range, Config pConfig){
+		EntityPartitioner<EK> partitioner = entityFieldInfo.getEntityPartitioner();
+		List<BatchingSortedScanner<PK>> scanners = new ArrayList<>();
+		for(byte[] partitionPrefix : partitioner.getAllPrefixes()){
+			BatchLoader<PK> firstBatchLoader = new HBaseEntityPrimaryKeyBatchLoader<EK,E,PK,D,F>(node, partitionPrefix, 
+					range, pConfig, 1L);//start the counter at 1
+			BatchingSortedScanner<PK> scanner = new BatchingSortedScanner<PK>(node.getClient().getExecutorService(), 
+					firstBatchLoader);
+			scanners.add(scanner);
+		}
+		return scanners;
+	}
+
+	public List<BatchingSortedScanner<D>> getDatabeanScanners(HBaseSubEntityReaderNode<EK,E,PK,D,F> node, 
+			Range<PK> range, Config pConfig){
+		EntityPartitioner<EK> partitioner = entityFieldInfo.getEntityPartitioner();
+		List<BatchingSortedScanner<D>> scanners = new ArrayList<>();
+		for(byte[] partitionPrefix : partitioner.getAllPrefixes()){
+			BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(node, partitionPrefix, 
+					range, pConfig, 1L);//start the counter at 1
+			BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(node.getClient().getExecutorService(), 
+					firstBatchLoader);
+			scanners.add(scanner);
+		}
+		return scanners;
+	}
+	
+//	public BatchingSortedScanner<D> getScanner(HBaseSubEntityReaderNode<EK,E,PK,D,F> node, Range<PK> range, 
+//			Config pConfig){
+//		BatchLoader<D> firstBatchLoader = new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(node, range, pConfig, 1L);//start the counter at 1
+//		BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(node.getClient().getExecutorService(), 
+//				firstBatchLoader);
+//		return scanner;
+//	}
 }

@@ -10,9 +10,7 @@ public class HBaseEntityQueryBuilder<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>>{
 
-	private EntityFieldInfo<EK,E> entityFieldInfo;
-	
-	
+	protected EntityFieldInfo<EK,E> entityFieldInfo;
 	
 	public HBaseEntityQueryBuilder(EntityFieldInfo<EK,E> entityFieldInfo){
 		this.entityFieldInfo = entityFieldInfo;

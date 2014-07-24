@@ -275,7 +275,6 @@ implements HBasePhysicalNode<PK,D>,
 		List<BatchingSortedScanner<PK>> scanners = HBaseScatteringPrefixQueryBuilder
 				.getBatchingPrimaryKeyScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, range,
 						pConfig);
-		//TODO can omit the collator if only one scanner
 		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
 		return new SortedScannerIterable<PK>(collator);
 	}
@@ -286,7 +285,6 @@ implements HBasePhysicalNode<PK,D>,
 		List<BatchingSortedScanner<D>> scanners = HBaseScatteringPrefixQueryBuilder
 				.getBatchingDatabeanScannerForEachPrefix(getClient().getExecutorService(), this, fieldInfo, range,
 						pConfig);
-		//TODO can omit the collator if only one scanner
 		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
 		return new SortedScannerIterable<D>(collator);
 	}
