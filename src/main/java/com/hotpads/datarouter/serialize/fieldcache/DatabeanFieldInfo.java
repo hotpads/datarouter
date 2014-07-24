@@ -162,7 +162,7 @@ public class DatabeanFieldInfo<
 		
 		//entity stuff
 //		this.entityTableName = params.getEntityTableName();
-		this.entity = StringTool.notEmpty(entityNodePrefix);
+		this.entity = StringTool.notEmpty(params.getEntityNodePrefix());
 		if(entity){
 			//key java field is currently only used for entity keys.  won'y work for databans with a dynamically created PK
 			this.keyJavaField = ReflectionTool.getDeclaredFieldFromHierarchy(databeanClass, keyFieldName);
