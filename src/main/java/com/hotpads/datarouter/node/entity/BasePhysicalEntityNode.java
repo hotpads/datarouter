@@ -19,7 +19,7 @@ extends BaseEntityNode<EK,E>
 implements PhysicalEntityNode<EK,E>{
 
 //	private EntityNodeParams<EK,E> entityNodeParams;
-	private EntityFieldInfo<EK,E> entityFieldInfo;
+	protected EntityFieldInfo<EK,E> entityFieldInfo;
 	private HBaseTaskNameParams taskNameParams;//currently acting as a cache of superclass fields
 	private Map<String,SubEntitySortedMapStorageReaderNode<EK,?,?,?>> nodeByQualifierPrefix;
 	

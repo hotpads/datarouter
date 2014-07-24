@@ -21,16 +21,17 @@ public class HBaseEntityResultParser<
 		E extends Entity<EK>>{
 
 
+	private EntityFieldInfo<EK,E> entityFieldInfo;
 	private Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>> nodeByQualifierPrefix;
-	private HBaseSubEntityReaderNode<EK,E,?,?,?> anyNode;
 
-	public HBaseEntityResultParser(Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>> nodeByQualifierPrefix){
+	public HBaseEntityResultParser(EntityFieldInfo<EK,E> entityFieldInfo,
+			Map<String,HBaseSubEntityReaderNode<EK,E,?,?,?>> nodeByQualifierPrefix){
+		this.entityFieldInfo = entityFieldInfo;
 		this.nodeByQualifierPrefix = nodeByQualifierPrefix;
-		this.anyNode = MapTool.getFirstValue(nodeByQualifierPrefix);
 	}
 	
 	public E parseEntity(EK ek, Result row){
-		Class<E> entityClass = (Class<E>)anyNode.getFieldInfo().getEntityClass();
+		Class<E> entityClass = entityFieldInfo.getEntityClass();
 		E entity = ReflectionTool.create(entityClass);
 		entity.setKey(ek);
 		Map<String,Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>>> databeansByQualifierPrefix

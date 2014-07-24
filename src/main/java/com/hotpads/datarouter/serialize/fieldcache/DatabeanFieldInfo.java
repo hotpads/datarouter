@@ -62,15 +62,15 @@ public class DatabeanFieldInfo<
 	private MySqlCharacterSet character_set; // !new! the character set of the table
 	
 	private boolean entity = false;
-	private Class<? extends Entity> entityClass;
-	private String entityTableName;
+//	private Class<? extends Entity> entityClass;
+//	private String entityTableName;
 	private String entityNodePrefix;
 	private byte[] entityNodeColumnPrefixBytes;
-	private EntityKey sampleEntityKey;
-	private Class<? extends EntityKey> entityKeyClass;
-	private Class<? extends EntityPartitioner<?>> entityPartitionerClass;
-	private EntityPartitioner<?> entityPartitioner;
-	private List<Field<?>> entityKeyFields;
+//	private EntityKey sampleEntityKey;
+//	private Class<? extends EntityKey> entityKeyClass;
+//	private Class<? extends EntityPartitioner<?>> entityPartitionerClass;
+//	private EntityPartitioner<?> entityPartitioner;
+//	private List<Field<?>> entityKeyFields;
 	private List<Field<?>> postEkPkKeyFields;
 	
 	private Class<? extends ScatteringPrefix> scatteringPrefixClass;
@@ -161,12 +161,12 @@ public class DatabeanFieldInfo<
 		}
 		
 		//entity stuff
-		this.entityTableName = params.getEntityTableName();
-		this.entity = StringTool.notEmpty(entityTableName);
+//		this.entityTableName = params.getEntityTableName();
+		this.entity = StringTool.notEmpty(entityNodePrefix);
 		if(entity){
 			//key java field is currently only used for entity keys.  won'y work for databans with a dynamically created PK
 			this.keyJavaField = ReflectionTool.getDeclaredFieldFromHierarchy(databeanClass, keyFieldName);
-			this.entityClass = Preconditions.checkNotNull(params.getEntityClass());
+//			this.entityClass = Preconditions.checkNotNull(params.getEntityClass());
 			if(StringTool.isEmpty(params.getEntityNodePrefix())){
 				throw new IllegalArgumentException("must specify entityNodePrefix for entity nodes");
 			}
@@ -174,16 +174,16 @@ public class DatabeanFieldInfo<
 			this.entityNodeColumnPrefixBytes = ByteTool.concatenate(StringByteTool.getUtf8Bytes(entityNodePrefix), 
 					new byte[]{ENTITY_PREFIX_TERMINATOR});
 			EntityPrimaryKey<?,?> sampleEntityPrimaryKey = (EntityPrimaryKey<?,?>)samplePrimaryKey;
-			this.sampleEntityKey = sampleEntityPrimaryKey.getEntityKey();
-			this.entityKeyClass = sampleEntityKey.getClass();
-			this.entityPartitionerClass = params.getEntityPartitionerClass();
-			if(entityPartitionerClass==null){
-				this.entityPartitioner = new NoOpEntityPartitioner<>();
-			}else{
-				this.entityPartitioner = ReflectionTool.create(entityPartitionerClass);
-			}
+//			this.sampleEntityKey = sampleEntityPrimaryKey.getEntityKey();
+//			this.entityKeyClass = sampleEntityKey.getClass();
+//			this.entityPartitionerClass = params.getEntityPartitionerClass();
+//			if(entityPartitionerClass==null){
+//				this.entityPartitioner = new NoOpEntityPartitioner<>();
+//			}else{
+//				this.entityPartitioner = ReflectionTool.create(entityPartitionerClass);
+//			}
 			//careful to call sampleEntityPrimarykey.getEntityKeyFields vs sampleEntityKey.getFields().  the pk may override the ek
-			this.entityKeyFields = sampleEntityPrimaryKey.getEntityKeyFields();
+//			this.entityKeyFields = sampleEntityPrimaryKey.getEntityKeyFields();
 			this.postEkPkKeyFields = sampleEntityPrimaryKey.getPostEntityKeyFields();
 		}
 		
@@ -196,7 +196,7 @@ public class DatabeanFieldInfo<
 			explicitNodeName = clientName+"."+tableName;
 			logger.info("client:"+clientName+" "+params.getDatabeanClass().getSimpleName()+" overridden -> "+tableName);
 		}else if(entity){
-			this.tableName = entityTableName;
+			this.tableName = params.getPhysicalName();
 			this.packagedTableName = null;//what to do here
 		}else if(params.getBaseDatabeanClass() != null){//table-per-class-hierarchy (use superclass's table)
 			this.tableName = params.getBaseDatabeanClass().getSimpleName();
@@ -470,9 +470,9 @@ public class DatabeanFieldInfo<
 		return clientName;
 	}
 
-	public String getEntityName(){
-		return entityTableName;
-	}
+//	public String getEntityName(){
+//		return entityTableName;
+//	}
 
 	public String getEntityNodePrefix(){
 		return entityNodePrefix;
@@ -490,25 +490,25 @@ public class DatabeanFieldInfo<
 		return entity;
 	}
 	
-	public Class<? extends Entity> getEntityClass(){
-		return entityClass;
-	}
-	
-	public EntityPartitioner<?> getEntityPartitioner(){
-		return entityPartitioner;
-	}
-
-	public Class<? extends EntityKey> getEntityKeyClass(){
-		return entityKeyClass;
-	}
-
-	public EntityKey getSampleEntityKey(){
-		return sampleEntityKey;
-	}
-
-	public List<Field<?>> getEntityKeyFields(){
-		return entityKeyFields;
-	}
+//	public Class<? extends Entity> getEntityClass(){
+//		return entityClass;
+//	}
+//	
+//	public EntityPartitioner<?> getEntityPartitioner(){
+//		return entityPartitioner;
+//	}
+//
+//	public Class<? extends EntityKey> getEntityKeyClass(){
+//		return entityKeyClass;
+//	}
+//
+//	public EntityKey getSampleEntityKey(){
+//		return sampleEntityKey;
+//	}
+//
+//	public List<Field<?>> getEntityKeyFields(){
+//		return entityKeyFields;
+//	}
 
 	public List<Field<?>> getPostEkPkKeyFields(){
 		return postEkPkKeyFields;

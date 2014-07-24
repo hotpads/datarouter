@@ -22,7 +22,6 @@ import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -110,7 +109,7 @@ public class HBaseSubEntityResultParser<
 		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
 		//EK
 		byte[] rowBytes = kv.getRow();
-		parseFieldsFromBytesToPk(fieldInfo.getEntityKeyFields(), rowBytes, pk);
+		parseFieldsFromBytesToPk(entityFieldInfo.getEntityKeyFields(), rowBytes, pk);
 		//post-EK
 		byte[] qualifier = kv.getQualifier();
 		byte[] postPrefixQualifierBytes = ByteTool.copyOfRangeFromOffset(qualifier, 

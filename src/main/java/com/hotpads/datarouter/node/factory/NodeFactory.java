@@ -128,7 +128,7 @@ public class NodeFactory{
 				.withClientName(clientName)
 				.withParentName(parentName)
 				.withFielder(fielderClass)
-				.withEntity(entityClass, entityPartitionerClass, entityName, entityNodePrefix);
+				.withEntity(entityName, entityNodePrefix);
 		NodeParams<PK,D,F> nodeParams = paramsBuilder.build();
 //		return create(paramsBuilder.build());
 		ClientType clientType = nodeParams.getRouter().getClientOptions().getClientTypeInstance(clientName);
