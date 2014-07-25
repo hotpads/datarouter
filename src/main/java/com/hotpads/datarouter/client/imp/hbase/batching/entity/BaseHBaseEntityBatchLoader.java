@@ -30,7 +30,7 @@ extends BaseBatchLoader<T>{
 	private static final int DEFAULT_iterateBatchSize = 1000;
 	
 	protected final HBaseSubEntityReaderNode<EK,E,PK,D,F> node;
-	protected final byte[] partition;
+	protected final byte[] partitionPrefix;
 	protected final Range<PK> range;
 	protected final Config config;
 	protected final Integer iterateBatchSize;//break this out of config for safety
@@ -39,7 +39,7 @@ extends BaseBatchLoader<T>{
 	public BaseHBaseEntityBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, byte[] partition,
 			final Range<PK> range, final Config pConfig, Long batchChainCounter){
 		this.node = node;
-		this.partition = partition;
+		this.partitionPrefix = partition;
 		this.range = range;
 		this.config = Config.nullSafe(pConfig);
 		this.iterateBatchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_iterateBatchSize);
@@ -55,7 +55,7 @@ extends BaseBatchLoader<T>{
 	@Override
 	public BaseHBaseEntityBatchLoader<EK,E,PK,D,F,T> call(){
 		//do the RPC
-		List<Result> hBaseRows = node.getResultsInSubRange(range, isKeysOnly(), config);
+		List<Result> hBaseRows = node.getResultsInSubRange(partitionPrefix, range, isKeysOnly(), config);
 		
 		List<T> outs = ListTool.createArrayListWithSize(hBaseRows);
 		for(Result row : hBaseRows){

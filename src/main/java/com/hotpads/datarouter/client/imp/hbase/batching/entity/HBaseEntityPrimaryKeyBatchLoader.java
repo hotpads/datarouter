@@ -54,7 +54,7 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,PK>{
 	@Override
 	public BatchLoader<PK> getNextLoader(){
 		Range<PK> nextRange = getNextRange();
-		return new HBaseEntityPrimaryKeyBatchLoader<EK,E,PK,D,F>(node, partition, nextRange, config, 
+		return new HBaseEntityPrimaryKeyBatchLoader<EK,E,PK,D,F>(node, partitionPrefix, nextRange, config, 
 				batchChainCounter + 1);					
 	}
 }

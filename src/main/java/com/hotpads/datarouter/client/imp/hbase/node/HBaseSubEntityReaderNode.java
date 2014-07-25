@@ -327,15 +327,16 @@ implements HBasePhysicalNode<PK,D>,
 	 * warning: we cannot currently limit the number of databeans/pks, only hbase rows.  be aware that it will probably
 	 * return more databeans/pks than iterateBatchSize
 	 */
-	public List<Result> getResultsInSubRange(final Range<PK> rowRange, final boolean keysOnly, final Config pConfig){
+	public List<Result> getResultsInSubRange(final byte[] partitionPrefix, final Range<PK> rowRange, final boolean keysOnly, 
+			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		final String scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "key" : "row") + " numBatches";
 		final String scanKeysVsRowsNumRows = "scan " + (keysOnly ? "key" : "row") + " numRows";
 //		final String scanKeysVsRowsNumCells = "scan " + (keysOnly ? "key" : "row") + " numCells";//need a clean way to get cell count
-		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(getDataRouterContext(), getTaskNameParams(), scanKeysVsRowsNumBatches,
-				config){
+		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(getDataRouterContext(), 
+				getTaskNameParams(), scanKeysVsRowsNumBatches, config){
 				public List<Result> hbaseCall() throws Exception{
-					Range<ByteRange> rowBytesRange = queryBuilder.getRowRange(rowRange);
+					Range<ByteRange> rowBytesRange = queryBuilder.getRowRange(partitionPrefix, rowRange);
 					//TODO Get if single row
 					Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, config);
 					FilterList filterList = new FilterList();

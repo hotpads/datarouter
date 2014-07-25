@@ -25,6 +25,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.ByteRange;
@@ -72,17 +73,21 @@ extends HBaseEntityQueryBuilder<EK,E>
 		return FieldTool.getConcatenatedValueBytes(primaryKey.getPostEntityKeyFields(), true, true);
 	}
 	
-	public Range<ByteRange> getRowRange(Range<PK> pkRange){
+	public Range<ByteRange> getRowRange(byte[] partitionPrefix, Range<PK> pkRange){
 		ByteRange startBytes = null;
 		if(pkRange.hasStart()){
 			EK startEk = pkRange.getStart().getEntityKey();
-			startBytes = new ByteRange(getRowBytesWithPartition(startEk));
+			byte[] startByteArray = ByteTool.concatenate(partitionPrefix, getRowBytes(startEk));
+			startBytes = new ByteRange(startByteArray);
 		}
 		ByteRange endBytes = null;
 		if(pkRange.hasEnd()){
 			EK endEk = pkRange.getEnd().getEntityKey();
-			endBytes = new ByteRange(getRowBytesWithPartition(endEk));
-		}
+			byte[] endByteArray = ByteTool.concatenate(partitionPrefix, getRowBytes(endEk));
+			endBytes = new ByteRange(endByteArray);
+		}else if(ArrayTool.notEmpty(partitionPrefix)){
+			endBytes = new ByteRange(partitionPrefix);
+		}//else no end
 		return Range.create(startBytes, pkRange.getStartInclusive(), endBytes, pkRange.getEndInclusive());
 	}
 	

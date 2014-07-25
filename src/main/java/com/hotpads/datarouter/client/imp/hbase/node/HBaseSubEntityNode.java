@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -129,7 +130,6 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	}
 	
 
-	//alternative method would be to truncate the table
 	@Override
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
@@ -141,8 +141,12 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 					List<Row> batchToDelete = ListTool.createArrayList(1000);
 					for(Result row : managedResultScanner){
 						if(row.isEmpty()){ continue; }
-						batchToDelete.add(new Delete(row.getRow()));
-						if(batchToDelete.size() % 1000 == 0){
+						Delete delete = new Delete(row.getRow());
+						for(KeyValue kv : row.list()){
+							delete.deleteColumns(kv.getFamily(), kv.getQualifier());
+						}
+						batchToDelete.add(delete);
+						if(batchToDelete.size() % 100 == 0){
 							hTable.batch(batchToDelete);
 							hTable.flushCommits();
 							batchToDelete.clear();

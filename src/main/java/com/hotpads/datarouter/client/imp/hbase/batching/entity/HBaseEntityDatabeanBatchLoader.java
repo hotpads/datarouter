@@ -60,6 +60,6 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 	@Override
 	public BatchLoader<D> getNextLoader(){
 		Range<PK> nextRange = getNextRange();
-		return new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(node, partition, nextRange, config, batchChainCounter + 1);					
+		return new HBaseEntityDatabeanBatchLoader<EK,E,PK,D,F>(node, partitionPrefix, nextRange, config, batchChainCounter + 1);					
 	}
 }
