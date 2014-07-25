@@ -1,6 +1,11 @@
 package com.hotpads.logging;
 
+import java.util.Map;
+
+import junit.framework.Assert;
+
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +17,8 @@ import com.hotpads.logging.ClassA.Class1.Class11;
 import com.hotpads.logging.ClassA.Class2;
 import com.hotpads.logging.another.Class3;
 
-public class Slf4jTest{
-	private static final Logger logger = LoggerFactory.getLogger(Slf4jTest.class);
+public class LoggingTest{
+	private static final Logger logger = LoggerFactory.getLogger(LoggingTest.class);
 
 	@Test
 	public void test() {
@@ -24,11 +29,16 @@ public class Slf4jTest{
 		logOneOfEachLevel();
 		
 		new Class1().logYourName();
+		log4j2Configurator.setLevel(Class11.class, Level.TRACE);
 		new Class11().logYourName();
 		log4j2Configurator.setLevel(Class2.class, Level.INFO);
 		new Class2().logYourName();
 		log4j2Configurator.setLevel("com.hotpads.logging.another" , Level.TRACE);
 		new Class3().logYourName();
+		
+		Map<String,LoggerConfig> configs = log4j2Configurator.getConfigs();
+		Assert.assertEquals(4, configs.size()); //Bad test because depend of the xml file
+		System.out.println(log4j2Configurator.getAppenders());
 	}
 
 	private void logOneOfEachLevel(){

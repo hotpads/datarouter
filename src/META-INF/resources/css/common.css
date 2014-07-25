@@ -219,3 +219,6 @@ select.setting-type {
 .setting-table th {
 	background: #72B6E6;
 }
+.navbar-inner {
+	border-radius: 0px;
+}

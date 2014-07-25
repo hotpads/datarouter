@@ -4,26 +4,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class ClassA{
-	protected static Logger mLogger;
+
+	protected Logger mLogger;
+
 	public void logYourName() {
-		mLogger.trace(getClass() + ".logYourName()");
-		mLogger.debug(getClass() + ".logYourName()");
-		mLogger.info(getClass() + ".logYourName()");
-		mLogger.warn(getClass() + ".logYourName()");
-		mLogger.error(getClass() + ".logYourName()");
+		doAllLog(mLogger, getClass() + ".logYourName()");
+	}
+
+	public static void doAllLog(Logger logger, String message){
+		logger.trace(message);
+		logger.debug(message);
+		logger.info(message);
+		logger.warn(message);
+		logger.error(message);
 	}
 
 	public static class Class1 extends ClassA{
 		{
 			mLogger = LoggerFactory.getLogger(Class1.class);
 		}
-		
+
 		public static class Class11 extends ClassA{
 			{
 				mLogger = LoggerFactory.getLogger(Class11.class);
 			}
 		}
-		
+
 	}
 
 	public static class Class2 extends ClassA{
@@ -31,4 +37,5 @@ public abstract class ClassA{
 			mLogger = LoggerFactory.getLogger(Class2.class);
 		}
 	}
+
 }

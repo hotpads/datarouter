@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
 	<Appenders>
-		<Console name="Console" target="SYSTEM_OUT">
+		<Console name="Std Out" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+		</Console>
+		<Console name="Err Out" target="SYSTEM_ERR">
 			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
 	</Appenders>
 	<Loggers>
 		<Root level="warn">
-			<AppenderRef ref="Console" />
+			<AppenderRef ref="Std Out" />
 		</Root>
-		<logger name="com.hotpads.logging.another" level="ERROR"/>
+		<logger name="com.hotpads.logging.another" level="ERROR" additivity="false">
+			<AppenderRef ref="Err Out" />
+		</logger>
 	</Loggers>
 </Configuration>

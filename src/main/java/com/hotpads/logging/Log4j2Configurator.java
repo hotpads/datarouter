@@ -1,10 +1,13 @@
 package com.hotpads.logging;
 
+import java.util.Map;
+
 import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -30,11 +33,11 @@ public class Log4j2Configurator{
 
 	public void setLevel(String name, Level level){
 		LoggerConfig loggerConfig = config.getLoggerConfig(name);
-		if(!loggerConfig.getName().equals(name)){ //it is the parent that have been found
-			boolean parentAddictive = loggerConfig.isAdditive();
-			loggerConfig = new LoggerConfig(name, level, parentAddictive);
+		if(!loggerConfig.getName().equals(name)){ // it is the parent that have been found
+			// boolean parentAddictive = loggerConfig.isAdditive();
+			loggerConfig = new LoggerConfig(name, level, false);
 			config.addLogger(name, loggerConfig);
-		} else {
+		}else{
 			loggerConfig.setLevel(level);
 		}
 		ctx.updateLoggers();
@@ -43,4 +46,22 @@ public class Log4j2Configurator{
 	public void setLevel(Class<?> clazz, Level level){
 		setLevel(clazz.getName(), level);
 	}
+
+	public Map<String,LoggerConfig> getConfigs(){
+		return config.getLoggers();
+	}
+
+	public Map<String,Appender> getAppenders(){
+//		System.out.println(config.);
+		return config.getAppenders();
+	}
+
+	public LoggerConfig getRootLoggerConfig(){
+		return rootLoggerConfig;
+	}
+
+	public Level getRootLevel(){
+		return rootLoggerConfig.getLevel();
+	}
+
 }
