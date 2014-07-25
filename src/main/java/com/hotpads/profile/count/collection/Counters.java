@@ -3,12 +3,13 @@ package com.hotpads.profile.count.collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.profile.count.collection.archive.CountArchiveFlusher;
 
 public class Counters implements CountMap{
-	static Logger logger = Logger.getLogger(Counters.class);
+	static Logger logger = LoggerFactory.getLogger(Counters.class);
 	
 //	public static final long DEFAULT_ROLLOVER_PERIOD = 5000L;
 	

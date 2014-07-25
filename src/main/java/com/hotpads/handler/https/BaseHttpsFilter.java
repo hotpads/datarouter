@@ -12,13 +12,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.handler.BaseLocalWebapps;
 import com.hotpads.util.core.StringTool;
 
 public abstract class BaseHttpsFilter implements Filter{
-	protected Logger logger = Logger.getLogger(getClass());
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected abstract UrlScheme getRequiredScheme(String path);
 

@@ -5,7 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -34,7 +35,7 @@ import com.hotpads.util.core.collections.Range;
 
 @RunWith(Parameterized.class)
 public class ScatteringPrefixIntegrationTests{
-	static Logger logger = Logger.getLogger(ScatteringPrefixIntegrationTests.class);
+	static Logger logger = LoggerFactory.getLogger(ScatteringPrefixIntegrationTests.class);
 	
 	/****************************** client types ***********************************/
 

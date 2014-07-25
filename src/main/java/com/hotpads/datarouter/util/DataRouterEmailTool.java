@@ -11,12 +11,13 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.util.core.ExceptionTool;
 
 public class DataRouterEmailTool{
-	protected static Logger logger = Logger.getLogger(DataRouterEmailTool.class);
+	protected static Logger logger = LoggerFactory.getLogger(DataRouterEmailTool.class);
 	
 	protected static Properties fMailServerConfig = new Properties();
 

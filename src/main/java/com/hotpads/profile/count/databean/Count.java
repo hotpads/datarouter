@@ -8,7 +8,8 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
@@ -29,7 +30,7 @@ import com.hotpads.util.core.XMLStringTool;
 @Entity
 @AccessType("field")
 public class Count extends BaseDatabean<CountKey,Count>{
-	static Logger logger = Logger.getLogger(Count.class);
+	static Logger logger = LoggerFactory.getLogger(Count.class);
 
 	@Id
 	protected CountKey key;

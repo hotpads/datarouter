@@ -16,7 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Singleton;
@@ -35,7 +36,7 @@ import com.hotpads.util.core.collections.Pair;
 
 @Singleton
 public class ExceptionHandlingFilter implements Filter {
-	private static Logger logger = Logger.getLogger(ExceptionHandlingFilter.class);
+	private static Logger logger = LoggerFactory.getLogger(ExceptionHandlingFilter.class);
 
 	public static final String ATTRIBUTE_EXCEPTION_RECORD_NODE = "exceptionRecordNode";
 	public static final String ATTRIBUTE_REQUEST_RECORD_NODE = "requestRecordNode";

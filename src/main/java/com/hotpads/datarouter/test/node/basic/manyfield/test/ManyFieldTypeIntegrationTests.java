@@ -7,7 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,7 +47,7 @@ import com.hotpads.util.core.collections.arrays.LongArray;
 
 @RunWith(Parameterized.class)
 public class ManyFieldTypeIntegrationTests {
-	private static Logger logger = Logger.getLogger(ManyFieldTypeIntegrationTests.class);
+	private static Logger logger = LoggerFactory.getLogger(ManyFieldTypeIntegrationTests.class);
 	
 
 	@Parameters

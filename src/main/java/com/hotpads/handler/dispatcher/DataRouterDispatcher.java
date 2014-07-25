@@ -43,7 +43,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + ROUTERS).withHandler(RoutersHandler.class);
 		handle(URL_DATAROUTER + STACKTRACES).withHandler(StackTracesManagerHandler.class);
 		handle(URL_DATAROUTER + SETTING).withHandler(ClusterSettingsHandler.class);
-		handle(URL_DATAROUTER + LOGGING).withHandler(LoggingSettingsHandler.class);
+		handle(URL_DATAROUTER + LOGGING + ".*").withHandler(LoggingSettingsHandler.class);
 //		handle(URL_HTTP_CLIENT, DataRouterHttpClientHandler.class);
 		handle(URL_DATAROUTER + NODE_BROWSE_DATA).withHandler(ViewNodeDataHandler.class);
 		handle(URL_DATAROUTER + DATABEAN_GENERATOR).withHandler(DatabeanGeneratorHandler.class);

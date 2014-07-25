@@ -2,7 +2,8 @@ package com.hotpads.job.record;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.setting.Setting;
@@ -10,7 +11,7 @@ import com.hotpads.util.datastructs.MutableBoolean;
 
 public class LongRunningTaskTracker {
 
-	private static Logger logger = Logger.getLogger(LongRunningTaskTracker.class);
+	private static Logger logger = LoggerFactory.getLogger(LongRunningTaskTracker.class);
 
 	static long HEARTBEAT_PERSIST_PERIOD_MS = 2000L;
 	

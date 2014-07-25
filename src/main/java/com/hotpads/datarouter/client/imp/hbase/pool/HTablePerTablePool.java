@@ -9,7 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.NoServerForRegionException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.util.DRCounters;
@@ -21,7 +22,7 @@ import com.hotpads.util.datastructs.MutableString;
 
 @Deprecated//use HTableExecutorServicePool which pools at a lower level for less waste
 public class HTablePerTablePool implements HTablePool{
-	protected Logger logger = Logger.getLogger(getClass());
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 	
 	protected Long lastLoggedWarning = 0L;
 	

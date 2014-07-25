@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.dispatcher.DataRouterDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.logging.Log4j2Configurator;
 
@@ -34,6 +35,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 
 	@Override
 	protected Mav handleDefault() throws Exception{
+		
 		String message = "lalalala barbara";
 		logger.trace(message);
 		logger.debug(message);
@@ -55,5 +57,24 @@ public class LoggingSettingsHandler extends BaseHandler{
 		mav.put("configs", new TreeMap<>(configs));
 		mav.put("appenders", log4j2Configurator.getAppenders());
 		return mav;
+	}
+	
+	@Handler
+	private Mav updateLoggerConfig(){
+		updateOrCreateLoggerConfig();
+		return new Mav(Mav.REDIRECT + servletContext.getContextPath() + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.LOGGING);
+	}
+	
+	@Handler
+	private Mav createLoggerConfig(){
+		updateOrCreateLoggerConfig();
+		return new Mav(Mav.REDIRECT + servletContext.getContextPath() + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.LOGGING);
+	}
+
+	private void updateOrCreateLoggerConfig(){
+		String name = params.required("name");
+		Level level = Level.getLevel(params.required("level"));
+		boolean additive = Boolean.parseBoolean(params.required("additive"));
+		log4j2Configurator.updateOrCreateLoggerConfig(name, level, additive);
 	}
 }

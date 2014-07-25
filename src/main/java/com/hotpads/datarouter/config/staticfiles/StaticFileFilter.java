@@ -13,14 +13,15 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Singleton;
 import com.hotpads.util.core.FileUtils;
 
 @Singleton
 public class StaticFileFilter implements Filter {
-	static Logger logger = Logger.getLogger(StaticFileFilter.class);
+	static Logger logger = LoggerFactory.getLogger(StaticFileFilter.class);
 	protected FilterConfig config;
 	
 	@Override

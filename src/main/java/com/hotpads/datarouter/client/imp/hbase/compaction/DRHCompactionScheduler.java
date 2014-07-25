@@ -2,7 +2,8 @@ package com.hotpads.datarouter.client.imp.hbase.compaction;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
@@ -13,7 +14,7 @@ import com.hotpads.util.core.date.DailyCalendarTool;
 
 public class DRHCompactionScheduler
 implements DRHCompactionInfo{
-	static Logger logger = Logger.getLogger(DRHCompactionScheduler.class);
+	static Logger logger = LoggerFactory.getLogger(DRHCompactionScheduler.class);
 	
 	public static final Long COMPACTION_EPOCH = 
 		DailyCalendarTool.parseYYYYMMDDEastern("20110301").getTimeInMillis();

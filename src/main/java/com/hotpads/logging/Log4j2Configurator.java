@@ -31,20 +31,20 @@ public class Log4j2Configurator{
 		ctx.updateLoggers();
 	}
 
-	public void setLevel(String name, Level level){
+	public void updateOrCreateLoggerConfig(String name, Level level, boolean additive){
 		LoggerConfig loggerConfig = config.getLoggerConfig(name);
 		if(!loggerConfig.getName().equals(name)){ // it is the parent that have been found
-			// boolean parentAddictive = loggerConfig.isAdditive();
-			loggerConfig = new LoggerConfig(name, level, false);
+			loggerConfig = new LoggerConfig(name, level, additive);
 			config.addLogger(name, loggerConfig);
 		}else{
 			loggerConfig.setLevel(level);
+			loggerConfig.setAdditive(additive);
 		}
 		ctx.updateLoggers();
 	}
 
-	public void setLevel(Class<?> clazz, Level level){
-		setLevel(clazz.getName(), level);
+	public void updateOrCreateLoggerConfig(Class<?> clazz, Level level, boolean additive){
+		updateOrCreateLoggerConfig(clazz.getName(), level, additive);
 	}
 
 	public Map<String,LoggerConfig> getConfigs(){
@@ -52,7 +52,6 @@ public class Log4j2Configurator{
 	}
 
 	public Map<String,Appender> getAppenders(){
-//		System.out.println(config.);
 		return config.getAppenders();
 	}
 

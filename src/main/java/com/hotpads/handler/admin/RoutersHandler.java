@@ -7,7 +7,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -23,7 +24,7 @@ import com.hotpads.util.core.ListTool;
 public class RoutersHandler extends BaseHandler {
 
 	/************************************** Constants **********************************/
-	private static Logger logger = Logger.getLogger(RoutersHandler.class);
+	private static Logger logger = LoggerFactory.getLogger(RoutersHandler.class);
 
 	public static final String ACTION_listRouters = "listRouters",
 			ACTION_inspectRouter = "inspectRouter",

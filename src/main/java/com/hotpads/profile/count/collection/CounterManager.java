@@ -5,7 +5,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.profile.count.collection.archive.CountArchive;
 import com.hotpads.profile.count.collection.archive.CountArchiveFlusher;
@@ -20,7 +21,7 @@ import com.hotpads.util.core.profile.PhaseTimer;
 
 
 public class CounterManager implements CountMap{
-	static Logger logger = Logger.getLogger(CounterManager.class);
+	static Logger logger = LoggerFactory.getLogger(CounterManager.class);
 
 	protected long latestStartMs;
 	protected long nextStartMs;

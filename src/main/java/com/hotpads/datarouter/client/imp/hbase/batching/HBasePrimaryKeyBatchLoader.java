@@ -3,7 +3,8 @@ package com.hotpads.datarouter.client.imp.hbase.batching;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
@@ -21,7 +22,7 @@ public class HBasePrimaryKeyBatchLoader<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
 extends BaseHBaseBatchLoader<PK,D,F,PK>{
-	private static Logger logger = Logger.getLogger(HBasePrimaryKeyBatchLoader.class);
+	private static Logger logger = LoggerFactory.getLogger(HBasePrimaryKeyBatchLoader.class);
 	
 	public HBasePrimaryKeyBatchLoader(final HBaseReaderNode<PK,D,F> node, final List<Field<?>> scatteringPrefix,
 			final Range<PK> range, final Config pConfig, Long batchChainCounter){

@@ -7,7 +7,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.CronExpression;
 
 import com.google.inject.Injector;
@@ -16,7 +17,7 @@ import com.hotpads.util.core.ObjectTool;
 
 @Singleton
 public class JobScheduler {
-	private static Logger logger = Logger.getLogger(JobScheduler.class);
+	private static Logger logger = LoggerFactory.getLogger(JobScheduler.class);
 
 	private Injector injector;
 	private ScheduledExecutorService executor;

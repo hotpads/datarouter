@@ -4,7 +4,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
@@ -58,7 +59,7 @@ extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>,
 		SortedStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
-	protected static Logger logger = Logger.getLogger(HibernateReaderNode.class);
+	protected static Logger logger = LoggerFactory.getLogger(HibernateReaderNode.class);
 	
 	/******************************* constructors ************************************/
 

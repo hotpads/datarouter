@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
@@ -26,7 +27,7 @@ public abstract class BasePhysicalNode<
 extends BaseNode<PK,D,F>
 implements PhysicalNode<PK,D>
 {
-	protected Logger logger = Logger.getLogger(getClass());
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 	
 //	protected String clientName;
 //	protected String tableName;

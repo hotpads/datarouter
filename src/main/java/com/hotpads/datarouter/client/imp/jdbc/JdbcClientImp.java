@@ -6,7 +6,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
@@ -24,7 +25,7 @@ import com.hotpads.util.core.MapTool;
 public class JdbcClientImp 
 extends BaseClient
 implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
-	private static Logger logger = Logger.getLogger(JdbcClientImp.class);
+	private static Logger logger = LoggerFactory.getLogger(JdbcClientImp.class);
 	
 	private String name;
 	

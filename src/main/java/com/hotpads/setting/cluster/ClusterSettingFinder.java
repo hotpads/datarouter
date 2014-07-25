@@ -7,7 +7,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.CronExpression;
 
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -22,7 +23,7 @@ import com.hotpads.util.core.StringTool;
 @Singleton
 public class ClusterSettingFinder {
 
-	private static final Logger logger = Logger.getLogger(ClusterSettingFinder.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClusterSettingFinder.class);
 
 	public static final String PREFIX_trigger = "trigger.";
 	public static final String EMPTY_STRING = "";

@@ -7,7 +7,8 @@ import java.util.List;
 import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Provider;
 import com.hotpads.util.core.ListTool;
@@ -19,7 +20,7 @@ import com.hp.gagawa.java.elements.Ul;
 //TODO pull an interface out of this for clarity
 @Singleton
 public class BaseLocalWebapps{
-	private Logger logger = Logger.getLogger(BaseLocalWebapps.class);
+	private Logger logger = LoggerFactory.getLogger(BaseLocalWebapps.class);
 
 	/************** Provider class *********************/
 	

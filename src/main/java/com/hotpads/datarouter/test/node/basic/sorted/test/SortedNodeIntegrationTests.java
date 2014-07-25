@@ -8,7 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,7 +37,7 @@ import com.hotpads.util.core.SetTool;
 
 @RunWith(Parameterized.class)
 public class SortedNodeIntegrationTests{
-	static Logger logger = Logger.getLogger(SortedNodeIntegrationTests.class);
+	static Logger logger = LoggerFactory.getLogger(SortedNodeIntegrationTests.class);
 	
 	/****************************** client types ***********************************/
 

@@ -14,7 +14,8 @@ import java.util.concurrent.TimeoutException;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -35,7 +36,7 @@ import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.datastructs.MutableString;
 
 public class HTableExecutorServicePoolTester {
-	private static Logger logger = Logger.getLogger(HTableExecutorServicePoolTester.class);
+	private static Logger logger = LoggerFactory.getLogger(HTableExecutorServicePoolTester.class);
 
 	static final int NUM_INSERTS = 200000;
 	static final int TIMEOUT_MS = 10;

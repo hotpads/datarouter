@@ -125,8 +125,7 @@ body {
 	}
 }
 
-#login-box input[type="email"],#login-box input[type="password"],#login-box button
-	{
+#login-box input[type="email"],#login-box input[type="password"],#login-box button {
 	width: 100%;
 }
 /* StackTraces */
@@ -221,4 +220,7 @@ select.setting-type {
 }
 .navbar-inner {
 	border-radius: 0px;
+}
+.input-no-margin select, .input-no-margin input {
+	margin-bottom: 0px;
 }

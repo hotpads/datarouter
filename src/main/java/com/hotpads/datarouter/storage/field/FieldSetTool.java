@@ -12,7 +12,8 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
@@ -38,7 +39,7 @@ import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.number.VarLong;
 
 public class FieldSetTool{
-	static Logger logger = Logger.getLogger(FieldSetTool.class);
+	static Logger logger = LoggerFactory.getLogger(FieldSetTool.class);
 
 	public static int getNumNonNullFields(FieldSet<?> prefix){
 		int numNonNullFields = 0;

@@ -5,7 +5,8 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthenticator;
@@ -16,7 +17,7 @@ import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ObjectTool;
 
 public class DatarouterSessionAuthenticator extends BaseDatarouterAuthenticator{
-	private static Logger logger = Logger.getLogger(DatarouterSessionAuthenticator.class);
+	private static Logger logger = LoggerFactory.getLogger(DatarouterSessionAuthenticator.class);
 	
 	public static final Long
 		SESSION_TIMOUT_MS = 30L * DateTool.MILLISECONDS_IN_MINUTE;

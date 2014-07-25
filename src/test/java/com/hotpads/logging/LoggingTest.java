@@ -29,11 +29,11 @@ public class LoggingTest{
 		logOneOfEachLevel();
 		
 		new Class1().logYourName();
-		log4j2Configurator.setLevel(Class11.class, Level.TRACE);
+		log4j2Configurator.updateOrCreateLoggerConfig(Class11.class, Level.TRACE, false);
 		new Class11().logYourName();
-		log4j2Configurator.setLevel(Class2.class, Level.INFO);
+		log4j2Configurator.updateOrCreateLoggerConfig(Class2.class, Level.INFO, false);
 		new Class2().logYourName();
-		log4j2Configurator.setLevel("com.hotpads.logging.another" , Level.TRACE);
+		log4j2Configurator.updateOrCreateLoggerConfig("com.hotpads.logging.another", Level.TRACE, false);
 		new Class3().logYourName();
 		
 		Map<String,LoggerConfig> configs = log4j2Configurator.getConfigs();

@@ -11,7 +11,8 @@ import java.util.SortedSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,7 +44,7 @@ import com.hotpads.util.core.profile.PhaseTimer;
 
 @RunWith(Parameterized.class)
 public class BackupIntegrationTests{
-	static Logger logger = Logger.getLogger(BackupIntegrationTests.class);
+	static Logger logger = LoggerFactory.getLogger(BackupIntegrationTests.class);
 	
 	/****************************** client types ***********************************/
 

@@ -6,7 +6,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.RollbackException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
@@ -24,7 +25,7 @@ import com.hotpads.util.core.MapTool;
 public class HibernateClientImp 
 extends JdbcClientImp
 implements SessionClient, HibernateClient{
-	private static Logger logger = Logger.getLogger(HibernateClientImp.class);
+	private static Logger logger = LoggerFactory.getLogger(HibernateClientImp.class);
 
 	private SessionFactory sessionFactory;
 
