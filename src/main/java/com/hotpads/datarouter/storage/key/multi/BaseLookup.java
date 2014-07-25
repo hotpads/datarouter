@@ -14,7 +14,6 @@ implements Lookup<PK>{
 	public BaseLookup() {
 	}
 	
-	@Override
 	public PK getPrimaryKey(){
 		return key;
 	}

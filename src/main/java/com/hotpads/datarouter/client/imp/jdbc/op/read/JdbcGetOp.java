@@ -20,7 +20,6 @@ import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.profile.PhaseTimer;
 
 public class JdbcGetOp<
 		PK extends PrimaryKey<PK>,
@@ -41,49 +40,31 @@ extends BaseJdbcOp<List<D>>{
 		this.config = config;
 	}
 	
-	private static PhaseTimer timer = new PhaseTimer();
-	private static int c = 0;
-	
 	@Override
 	public List<D> runOnce(){
-		timer.sum("potato");
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		timer.sum("DRCounters");
 		int batchSize = JdbcNode.DEFAULT_ITERATE_BATCH_SIZE;
 		if(config!=null && config.getIterateBatchSize()!=null){
 			batchSize = config.getIterateBatchSize();
 		}
 		List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
-		timer.sum("config");
 		Collections.sort(sortedKeys);//should prob remove
-		timer.sum("sort");
 		int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
-		timer.sum("numBatches");
 		List<D> result = ListTool.createArrayList(keys.size());
-		timer.sum("createArrayList");
 		Connection connection = getConnection(node.getClientName());
-		timer.sum("connection");
 		for(int batchNum=0; batchNum < numBatches; ++batchNum){
 			List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
-			timer.sum("getBatch");
 			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), keyBatch);
-			timer.sum("sql");
 			List<D> batch = JdbcTool.selectDatabeans(connection, node.getFieldInfo(), sql);
-			timer.sum("selectDatabeans");
 			DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
 					CollectionTool.size(batch));//count the number of hits (arbitrary decision)
-			timer.sum("counters");
 			if(CollectionTool.notEmpty(batch)){
 				Collections.sort(batch);//should prob remove
 				result.addAll(batch);
 			}
-			timer.sum("sort and addAll");
 		}
 		TraceContext.appendToSpanInfo("[got "+CollectionTool.size(result)+"/"+CollectionTool.size(keys)+"]");
-		if(c++%500 == 0){
-			//System.out.println(timer);
-		}
 		return result;
 	}
 	

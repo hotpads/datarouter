@@ -146,7 +146,7 @@ public abstract class BaseField<T> implements Field<T>{
 		T v = parseJdbcValueButDoNotSet(col);
 		setUsingReflection(targetFieldSet, v);
 	}
-	
+
 	@Override
 	public void fromJdbcResultSetUsingReflection(Object targetFieldSet, ResultSet resultSet){
 		T v = fromJdbcResultSetButDoNotSet(resultSet);
@@ -179,7 +179,7 @@ public abstract class BaseField<T> implements Field<T>{
 //					+" on "+targetFieldSet.getClass().getSimpleName()+"."+getName());
 //		}
 //	}
-	
+
 	@Override
 	public void setUsingReflection(Object targetFieldSet, Object pValue){
 		try{
