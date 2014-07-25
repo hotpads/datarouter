@@ -11,19 +11,6 @@ public class SortedBeanEntity extends BaseEntity<SortedBeanEntityKey>{
 	public static final String
 			QUALIFIER_PREFIX_SortedBean = "SB";
 	
-	public static class SortedBeanEntityPartitioner extends BaseEntityPartitioner<SortedBeanEntityKey>{
-		@Override
-		public int getNumPartitions(){
-			return 4;
-		}
-		@Override
-		public int getPartition(SortedBeanEntityKey ek){
-			String hashInput = ek.a + ek.b;
-			long hash = HashMethods.longDJBHash(hashInput) % getNumPartitions();
-			return (int)(hash % getNumPartitions());
-		}
-	}
-	
 	private SortedBeanEntity(){//required no-arg
 		super(null);
 	}

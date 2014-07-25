@@ -10,6 +10,7 @@ import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey.SortedBeanEntityPartitioner;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey.SortedBeanEntityPartitioner4;
 
 public class SortedBeanEntityNode 
 extends HBaseEntityReaderNode<SortedBeanEntityKey,SortedBeanEntity>{
@@ -19,24 +20,23 @@ extends HBaseEntityReaderNode<SortedBeanEntityKey,SortedBeanEntity>{
 //		ENTITY_SortedBeanEntity = "SortedBeanEntity";
 
 	
-	private static final EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> nodeParams
+	private static final EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams
 			= new EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity>(
-			"SortedBeanEntity", SortedBeanEntityKey.class, SortedBeanEntity.class, SortedBeanEntityPartitioner.class,
+			"SortedBeanEntity", SortedBeanEntityKey.class, SortedBeanEntity.class, SortedBeanEntityPartitioner4.class,
 			"SortedBeanEntity");
 
 	private SubEntitySortedMapStorageNode<SortedBeanEntityKey,SortedBeanKey,SortedBean,SortedBeanFielder> sortedBean;
 	
 	public SortedBeanEntityNode(DataRouter router, String clientName, String name){
-		super(router, nodeParams, new HBaseTaskNameParams(clientName, nodeParams.getEntityTableName(), name));
+		super(router, entityNodeParams, new HBaseTaskNameParams(clientName, entityNodeParams.getEntityTableName(), name));
 	}
 	
 	
 	@Override
 	protected void initNodes(DataRouter router, String clientName){
-		sortedBean = BaseDataRouter.cast(NodeFactory.subEntityNode(router, clientName, nodeParams.getNodeName(),
-				SortedBeanEntityKey.class, SortedBeanEntityPartitioner.class, 
-				SortedBean.class, SortedBeanFielder.class,
-				SortedBeanEntity.class, nodeParams.getEntityTableName(), SortedBeanEntity.QUALIFIER_PREFIX_SortedBean));
+		sortedBean = BaseDataRouter.cast(NodeFactory.subEntityNode(router, entityNodeParams, clientName, 
+				entityNodeParams.getNodeName(), SortedBean.class, SortedBeanFielder.class,
+				entityNodeParams.getEntityTableName(), SortedBeanEntity.QUALIFIER_PREFIX_SortedBean));
 		register(sortedBean);
 	}
 	
