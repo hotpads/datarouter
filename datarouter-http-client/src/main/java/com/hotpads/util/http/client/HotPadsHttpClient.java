@@ -64,7 +64,7 @@ public class HotPadsHttpClient{
 		return get(url, retrySafe, new HashMap<String, String>());
 	}
 	
-	public <E> E get(String url, Class<E> classOfDataTranferObjectExpected, boolean retrySafe, Map<String, String> headers){
+	public <E> E get(String url, Type classOfDataTranferObjectExpected, boolean retrySafe, Map<String, String> headers){
 		return jsonSerializer.deserialize(get(url, retrySafe, headers), classOfDataTranferObjectExpected);
 	}
 	
