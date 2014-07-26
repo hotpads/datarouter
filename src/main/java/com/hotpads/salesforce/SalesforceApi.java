@@ -1,17 +1,25 @@
 package com.hotpads.salesforce;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.google.gson.reflect.TypeToken;
+import com.hotpads.util.core.StringTool;
+import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.http.client.HotPadsHttpClient;
 import com.hotpads.util.http.client.HotPadsHttpClientBuilder;
 import com.hotpads.util.http.client.HotPadsHttpClientException;
 
 public class SalesforceApi{
 	
-	private static final String ENDPOINT = "/services/data/v20.0/sobjects/";
+	private static final String ENDPOINT = "/services/data/v20.0/";
+	private static final String SOBJECTS_ENDPOINT = ENDPOINT + "sobjects/";
+	private static final String QUERY_ENDPOINT = ENDPOINT + "query/";
 	private static final Logger logger = Logger.getLogger(SalesforceApi.class);
 	
 	private HotPadsHttpClient httpClient;
@@ -26,16 +34,11 @@ public class SalesforceApi{
 
 	private void connect(){
 		Map<String, String> auth_params = new HashMap<>();
-//		auth_params.put("grant_type", "password");
-//		auth_params.put("client_id", "3MVG9zJJ_hX_0bb8Ps0FJvyGeLt9sR0rw5rWRpZlUnz4wg1nMbgo55G3rBFU8EIZkG0z3sq0j49p13yRwFbhT");
-//		auth_params.put("client_secret", "7796326880581196854");
-//		auth_params.put("username", "calixteb@zillow.com.rentalsdev");
-//		auth_params.put("password", "3ub!&/I9dTCK");
 		auth_params.put("grant_type", "password");
-		auth_params.put("client_id", "3MVG99qusVZJwhskwH1RzuhefvEBvwF4lGwBlvQqCvlsJwMpKrtyvFDe5_3d_UG30hVcFljIdY5tVuwdmHpK3");
-		auth_params.put("client_secret", "2182282072562754075");
-		auth_params.put("username", "devteam@emocial.co.uk");
-		auth_params.put("password", "emocial2014yKIftL6FqKDeDY9rVzco79xf8");
+		auth_params.put("client_id", "3MVG9zJJ_hX_0bb8Ps0FJvyGeLt9sR0rw5rWRpZlUnz4wg1nMbgo55G3rBFU8EIZkG0z3sq0j49p13yRwFbhT");
+		auth_params.put("client_secret", "7796326880581196854");
+		auth_params.put("username", "calixteb@zillow.com.rentalsdev");
+		auth_params.put("password", "cbonsart03gNthiMgX53FH5bIsQgnjewLjD");
 		try{
 			AuthenticationResponse r = httpClient.post(
 				"https://login.salesforce.com/services/oauth2/token",
@@ -49,8 +52,8 @@ public class SalesforceApi{
 		}
 	}
 	
-	public <D extends SalesforceDatabean<PK>, PK extends SalesforceDatabeanKey> D get(PK key, Class<D> databeanClass){
-		String url = instanceUrl + ENDPOINT;
+	public <D extends SalesforceDatabean> D get(SalesforceDatabeanKey key, Class<D> databeanClass){
+		String url = instanceUrl + SOBJECTS_ENDPOINT;
 		url += databeanClass.getSimpleName();
 		url += "/";
 		url += key.getId();
@@ -65,8 +68,8 @@ public class SalesforceApi{
 		}
 	}
 	
-	public <D extends SalesforceDatabean<PK>, PK extends SalesforceDatabeanKey> void put(D databean){
-		String url = instanceUrl + ENDPOINT;
+	public <D extends SalesforceDatabean> void put(D databean){
+		String url = instanceUrl + SOBJECTS_ENDPOINT;
 		url += databean.getClass().getSimpleName();
 		url += "/";
 		url += databean.getKey().getId();
@@ -75,38 +78,82 @@ public class SalesforceApi{
 		httpClient.patch(url, databean, false, headers);
 	}
 	
-	private static class Contact extends SalesforceDatabean<ContactKey>{
+	public <D extends SalesforceDatabean> List<D> lookup(Class<D> databeanClass, String field, String value){
+		String url = instanceUrl + QUERY_ENDPOINT + "?q=SELECT+";
+		for(Field fieldToSelect : databeanClass.getDeclaredFields()){
+			url+= fieldToSelect.getName() + ",";
+		}
+		url = url.substring(0,  url.length()-1);
+		url += "+from+" + databeanClass.getSimpleName() + "+where+" + field + "='" + value + "'";
+		Map<String, String> headers = new HashMap<>();
+		headers.put("Authorization", "Bearer " + accessToken);
+		try{
+			Type type = ReflectionTool.create(databeanClass).getQueryResultType();
+			QueryResult<D> result = (QueryResult<D>) httpClient.get(url, type, true, headers);
+			for(D record : result.records){
+				record.setKey(new SalesforceDatabeanKey(StringTool.getStringAfterLastOccurrence("/", record.getAttributes().url)));
+			}
+			return result.records;
+		}catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	private static class QueryResult<D extends SalesforceDatabean>{
+		private int totalSize;
+		private boolean done;
+		private List<D> records;
+	}
+	
+	private static class Contact extends SalesforceDatabean{
 		
-		public Contact(ContactKey key){
+		public Contact(){
+			super(new SalesforceDatabeanKey(""));
+		}
+		
+		public Contact(SalesforceDatabeanKey key){
 			super(key);
 		}
 
 		private String FirstName;
-		
-	}
-	
-	private static class ContactKey extends SalesforceDatabeanKey{
 
-		public ContactKey(String id){
-			super(id);
+		@Override
+		public Type getQueryResultType(){
+			return new TypeToken<QueryResult<Contact>>(){}.getType();
 		}
 		
 	}
 	
-	private static abstract class SalesforceDatabean<PK extends SalesforceDatabeanKey>{
+	private static class Attributes{
+		private String url;
+	}
+	
+	private static abstract class SalesforceDatabean{
 		
-		private transient PK key;
+		private transient SalesforceDatabeanKey key;
+		private Attributes attributes;
 		
-		public SalesforceDatabean(PK key){
+		public SalesforceDatabean(SalesforceDatabeanKey key){
 			this.key = key;
 		}
 		
-		public PK getKey(){
+		public SalesforceDatabeanKey getKey(){
 			return key;
 		}
 		
-		public void setKey(PK key){
+		public void setKey(SalesforceDatabeanKey key){
 			this.key = key;
+		}
+		
+		public abstract Type getQueryResultType();
+
+		public Attributes getAttributes(){
+			return attributes;
+		}
+
+		public void setAttributes(Attributes attributes){
+			this.attributes = attributes;
 		}
 		
 	}
@@ -132,10 +179,14 @@ public class SalesforceApi{
 	public static void main(String[] args){
 		SalesforceApi salesforceApi = new SalesforceApi();
 				
-		Contact contact = salesforceApi.get(new ContactKey("003b000000HxnHw"), Contact.class);
+		Contact contact = salesforceApi.get(new SalesforceDatabeanKey("003b000000HxnHw"), Contact.class);
 		logger.warn(contact.FirstName);
 		contact.FirstName = "John";
 		salesforceApi.put(contact);
+		List<Contact> contacts = salesforceApi.lookup(Contact.class, "FirstName", "John");
+		for(Contact c : contacts){
+			System.out.println(c.FirstName + " " + c.getKey().getId());
+		}
 	}
 	
 }
