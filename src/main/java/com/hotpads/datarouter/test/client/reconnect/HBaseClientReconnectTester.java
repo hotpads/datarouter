@@ -2,7 +2,8 @@ package com.hotpads.datarouter.test.client.reconnect;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,9 +22,9 @@ import com.hotpads.util.core.profile.PhaseTimer;
 
 //you must run this manually, starting and stopping hbase to verify it reconnects, at least for now
 public class HBaseClientReconnectTester {
-	Logger logger = Logger.getLogger(HBaseClientReconnectTester.class);
+	Logger logger = LoggerFactory.getLogger(HBaseClientReconnectTester.class);
 	
-	@DoNotCommit//will loop forever in the test suite
+	//DoNotCommit//will loop forever in the test suite
 //	static boolean ENABLED = true;
 	static boolean ENABLED = false;
 	
@@ -59,10 +60,10 @@ public class HBaseClientReconnectTester {
 				TxnBean gotBean = node.get(testReconnectBeanKey, config);
 				Assert.assertNotNull(gotBean);
 				timer.add("got bean");
-				logger.warn(timer);
+				logger.warn(timer.toString());
 				Thread.sleep(periodMs);
 			}catch(DataAccessException dae){
-				logger.warn(dae);
+				logger.warn("", dae);
 			}catch(InterruptedException ie){
 				throw new RuntimeException("who's interrupting me?", ie);
 			}
