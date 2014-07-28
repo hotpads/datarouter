@@ -1,5 +1,6 @@
 package com.hotpads.notification.databean;
 
+import java.util.Date;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -7,6 +8,7 @@ import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
+import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.notification.type.NotificationType;
 
@@ -15,7 +17,7 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 	private static final int
 		LENGHT_type = MySqlColumnType.MAX_LENGTH_VARCHAR,
 		LENGHT_data = MySqlColumnType.MAX_LENGTH_VARCHAR,
-		LENGHT_channel= MySqlColumnType.MAX_LENGTH_VARCHAR;
+		LENGHT_channel = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
 	/****************** fields **************************/
 
@@ -23,23 +25,19 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 	private String type;
 	private String data;
 	private String channel;
+	private Date sentAtDate;
 
-
-	public static class F {
-		public static final String
-		userType = "userType",
-		userId = "userId",
-		sentAtMs = "sentAtMs",
+	private static class F {
+		private static final String
 		type = "type",
 		data = "data",
 		channel = "channel",
-		nanoTime = "nanoTime";
+		sentAtDate = "sentAtDate";
 	}
 
-
 	public static class NotificationRequestFielder extends BaseDatabeanFielder<NotificationRequestKey, NotificationRequest> {
-		public NotificationRequestFielder() {
-		}
+
+		NotificationRequestFielder() {}
 
 		@Override
 		public Class<NotificationRequestKey> getKeyFielderClass() {
@@ -51,7 +49,8 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 			return FieldTool.createList(
 					new StringField(F.type, d.type, LENGHT_type),
 					new StringField(F.data, d.data, LENGHT_data),
-					new StringField(F.channel, d.channel, LENGHT_channel));
+					new StringField(F.channel, d.channel, LENGHT_channel),
+					new DateField(F.sentAtDate, d.sentAtDate));
 		}
 	}
 
@@ -66,6 +65,7 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 		this.type = type;
 		this.data = data;
 		this.channel = channel;
+		this.sentAtDate = new Date(sentAtMs);
 	}
 
 	public NotificationRequest(NotificationUserId userId, String type, String data, String channel) {
