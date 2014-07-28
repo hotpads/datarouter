@@ -22,7 +22,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	protected static Logger logger = Logger.getLogger(HBaseMultiAttemptTask.class);
 	
 	protected static final Integer DEFAULT_NUM_ATTEMPTS = 2;
-	protected static final Long DEFAULT_TIMEOUT_MS = 3 * 1000L;
+	protected static final Long DEFAULT_TIMEOUT_MS = 5 * 1000L;
 	
 	protected static long 
 		THROTTLE_ERROR_EMAIL_MINUTES = 5,
