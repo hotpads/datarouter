@@ -1,14 +1,9 @@
 package com.hotpads.job.record;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import com.google.inject.BindingAnnotation;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.setting.Setting;
 import com.hotpads.util.datastructs.MutableBoolean;
@@ -16,21 +11,16 @@ import com.hotpads.util.datastructs.MutableBoolean;
 public class LongRunningTaskTracker {
 
 	private static Logger logger = Logger.getLogger(LongRunningTaskTracker.class);
-	
-	@BindingAnnotation 
-	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD }) 
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface LongRunningTaskNode {}
-	
+
 	static long HEARTBEAT_PERSIST_PERIOD_MS = 2000L;
 	
-	private IndexedSortedMapStorageNode node;
+	private IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> node;
 	private LongRunningTask task;
 	private MutableBoolean interrupted;
 	private Date lastPersistedHeartbeat;
 	private Setting<Boolean> shouldSaveLongRunningTasks;
 	
-	public LongRunningTaskTracker(IndexedSortedMapStorageNode node, LongRunningTask task, Setting<Boolean> shouldSaveLongRunningTasks){
+	public LongRunningTaskTracker(IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> node, LongRunningTask task, Setting<Boolean> shouldSaveLongRunningTasks){
 		this.node = node;
 		this.task = task;
 		this.interrupted = new MutableBoolean(false);
@@ -74,7 +64,7 @@ public class LongRunningTaskTracker {
 		return this;
 	}
 	
-	public IndexedSortedMapStorageNode getNode() {
+	public IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> getNode() {
 		return node;
 	}
 

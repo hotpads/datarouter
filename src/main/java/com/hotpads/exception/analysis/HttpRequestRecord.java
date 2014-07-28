@@ -23,6 +23,7 @@ import static com.hotpads.exception.analysis.HttpHeaders.X_REQUESTED_WITH;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
@@ -196,6 +197,12 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 					);
 		}
 
+		@Override
+		public Map<String,List<Field<?>>> getIndexes(HttpRequestRecord databean){
+			Map<String,List<Field<?>>> indexes = new TreeMap<>();
+			indexes.put("index_exceptionRecord", new HttpRequestRecordByExceptionRecord().getFields());
+			return indexes;
+		}
 	}
 
 	/********************** construct ********************/
@@ -262,16 +269,18 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	@SuppressWarnings("serial")
 	public static class HttpRequestRecordByExceptionRecord extends BaseLookup<HttpRequestRecordKey> implements UniqueKey<HttpRequestRecordKey> {
 
-		private ExceptionRecord exceptionRecord;
+		private String exceptionRecordId;
 
+		private HttpRequestRecordByExceptionRecord(){}
+		
 		public HttpRequestRecordByExceptionRecord(ExceptionRecord exceptionRecord) {
-			this.exceptionRecord = exceptionRecord;
+			this.exceptionRecordId = exceptionRecord.getKey().getId();
 		}
 
 		@Override
 		public List<Field<?>> getFields() {
 			return FieldTool.createList(
-					new StringField(F.exceptionRecordId, exceptionRecord.getKey().getId(), MySqlColumnType.MAX_LENGTH_VARCHAR)
+					new StringField(F.exceptionRecordId, exceptionRecordId, MySqlColumnType.MAX_LENGTH_VARCHAR)
 					);
 		}
 	}

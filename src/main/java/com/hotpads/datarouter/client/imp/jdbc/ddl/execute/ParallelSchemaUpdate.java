@@ -113,7 +113,7 @@ implements Callable<Void>{
 		for(String update : IterableTool.nullSafe(printedSchemaUpdates)){
 			body.append(update + "\n\n");
 		}
-		DataRouterEmailTool.sendEmail("schemaupdate@hotpads.com", drContext.getAdministratorEmail(), subject, 
+		DataRouterEmailTool.sendEmail("tech+schemaupdate@hotpads.com", drContext.getAdministratorEmail(), subject, 
 				body.toString());
 	}
 }
