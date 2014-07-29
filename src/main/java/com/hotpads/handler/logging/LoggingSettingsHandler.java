@@ -7,11 +7,11 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.inject.Singleton;
-import javax.swing.LayoutFocusTraversalPolicy;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.slf4j.Logger;
@@ -28,7 +28,8 @@ public class LoggingSettingsHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(LoggingSettingsHandler.class);
 	private static final String
 		JSP = "/logging",
-		JSP_CONSOLE_APPENDER = "/consoleAppender";
+		JSP_CONSOLE_APPENDER = "/consoleAppender",
+		JSP_FILE_APPENDER = "/fileAppender";
 	private static final Level[] levels = new Level[]{
 		Level.ALL,
 		Level.TRACE,
@@ -117,7 +118,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 	private Mav editConsoleAppender(){
 		String action = params.optional("action", null);
 		String name = params.optional("name", null);
-		if(action != null){
+		if(action != null && action.equals("Create")){
 			String pattern = params.required("layout");
 			String targetStr = params.required("target");
 			PatternLayout layout = PatternLayout.newBuilder().withPattern(pattern).build();
@@ -130,10 +131,25 @@ public class LoggingSettingsHandler extends BaseHandler{
 		if(name != null) {
 			ConsoleAppender appender = (ConsoleAppender)log4j2Configurator.getAppender(name);
 			Layout<? extends Serializable> layout = appender.getLayout();
-			Map<String,String> contentFormat = appender.getManager().getContentFormat();
 			mav.put("layout", layout);
-			System.out.println(contentFormat);
 		}
+		return mav;
+	}
+	
+	@Handler
+	private Mav editFileAppender(){
+		String action = params.optional("action", null);
+		String name = params.optional("name", null);
+		if(action != null && action.equals("Create")){
+			String pattern = params.required("layout");
+			String fileName = params.required("fileName");
+			PatternLayout layout = PatternLayout.newBuilder().withPattern(pattern).build();
+			FileAppender appender = FileAppender.createAppender(fileName, null, null, name, null, null, null, null, layout, null, null, null, null);
+			log4j2Configurator.addAppender(appender);
+			return getRedirectMav();
+		}
+		Mav mav = new Mav(JSP_FILE_APPENDER);
+		mav.put("name", name);
 		return mav;
 	}
 }

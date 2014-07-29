@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -89,7 +88,7 @@ public class Log4j2Configurator{
 		return config.getAppender(name);
 	}
 
-	public void addAppender(ConsoleAppender appender){
+	public void addAppender(Appender appender){
 		config.addAppender(appender);
 	}
 
