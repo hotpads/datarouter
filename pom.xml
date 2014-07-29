@@ -107,6 +107,11 @@
 			<artifactId>log4j-core</artifactId>
 			<version>2.0</version>
 		</dependency>
+		<dependency><!-- Route log4j1.2 to log4j2 -->
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-1.2-api</artifactId>
+			<version>2.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
@@ -361,7 +366,7 @@
 			<artifactId>protobuf-java</artifactId>
 			<version>2.4.0a</version>
 		</dependency>
-		<dependency>
+		<dependency><!-- Route slf4j to log4j2 -->
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
 			<version>2.0</version>

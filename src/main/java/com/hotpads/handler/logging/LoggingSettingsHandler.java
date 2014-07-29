@@ -1,12 +1,19 @@
 package com.hotpads.handler.logging;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.inject.Singleton;
+import javax.swing.LayoutFocusTraversalPolicy;
+
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,9 +23,12 @@ import com.hotpads.handler.dispatcher.DataRouterDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.logging.Log4j2Configurator;
 
+@Singleton
 public class LoggingSettingsHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(LoggingSettingsHandler.class);
-	private static final String JSP = "/logging";
+	private static final String
+		JSP = "/logging",
+		JSP_CONSOLE_APPENDER = "/consoleAppender";
 	private static final Level[] levels = new Level[]{
 		Level.ALL,
 		Level.TRACE,
@@ -26,26 +36,27 @@ public class LoggingSettingsHandler extends BaseHandler{
 		Level.INFO,
 		Level.WARN,
 		Level.ERROR,
-		Level.FATAL,
+		Level.FATAL,//TODO remove ? because not in slf4j
 		Level.OFF,
 	};
 
 	@Inject
 	private Log4j2Configurator log4j2Configurator;
 
+	private Mav redirectMav;
+
+	public Mav getRedirectMav(){
+		if(redirectMav == null) {
+			redirectMav = new Mav(Mav.REDIRECT + servletContext.getContextPath() + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.LOGGING);
+		}
+		return redirectMav;
+	}
+
 	@Override
 	protected Mav handleDefault() throws Exception{
-		
-		String message = "lalalala barbara";
-		logger.trace(message);
-		logger.debug(message);
-		logger.info(message);
-		logger.warn(message);
-		logger.error(message);
+		testLog();
 		Mav mav = new Mav(JSP);
 		mav.put("rootLogger", log4j2Configurator.getRootLoggerConfig());
-//		Level rootLevel = log4j2Configurator.getRootLevel();
-//		mav.put("rootLevel", rootLevel);
 		mav.put("levels", levels);
 		mav.put("booleans", new Boolean[]{true, false});
 		Map<String, LoggerConfig> configs = log4j2Configurator.getConfigs();
@@ -58,23 +69,71 @@ public class LoggingSettingsHandler extends BaseHandler{
 		mav.put("appenders", log4j2Configurator.getAppenders());
 		return mav;
 	}
-	
+
+	private void testLog(){
+		String message = "lolalala barbara";
+		logger.trace(message);
+		logger.debug(message);
+		logger.info(message);
+		logger.warn(message);
+		logger.error(message);
+	}
+
 	@Handler
 	private Mav updateLoggerConfig(){
 		updateOrCreateLoggerConfig();
-		return new Mav(Mav.REDIRECT + servletContext.getContextPath() + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.LOGGING);
+		return getRedirectMav();
 	}
-	
+
 	@Handler
 	private Mav createLoggerConfig(){
 		updateOrCreateLoggerConfig();
-		return new Mav(Mav.REDIRECT + servletContext.getContextPath() + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.LOGGING);
+		return getRedirectMav();
 	}
 
 	private void updateOrCreateLoggerConfig(){
+		String[] appenders = request.getParameterValues("appenders");
 		String name = params.required("name");
 		Level level = Level.getLevel(params.required("level"));
 		boolean additive = Boolean.parseBoolean(params.required("additive"));
-		log4j2Configurator.updateOrCreateLoggerConfig(name, level, additive);
+		log4j2Configurator.updateOrCreateLoggerConfig(name, level, additive, appenders);
+	}
+
+	@Handler
+	private Mav deleteLoggerConfig(){
+		String name = params.required("name");
+		log4j2Configurator.deleteLoggerConfig(name);
+		return getRedirectMav();
+	}
+
+	@Handler
+	private Mav deleteAppender(){
+		String name = params.required("name");
+		log4j2Configurator.deleteAppender(name);
+		return getRedirectMav();
+	}
+	
+	@Handler
+	private Mav editConsoleAppender(){
+		String action = params.optional("action", null);
+		String name = params.optional("name", null);
+		if(action != null){
+			String pattern = params.required("layout");
+			String targetStr = params.required("target");
+			PatternLayout layout = PatternLayout.newBuilder().withPattern(pattern).build();
+			ConsoleAppender appender = ConsoleAppender.createAppender(layout, null, targetStr, name, null, null);
+			log4j2Configurator.addAppender(appender);
+			return getRedirectMav();
+		}
+		Mav mav = new Mav(JSP_CONSOLE_APPENDER);
+		mav.put("name", name);
+		if(name != null) {
+			ConsoleAppender appender = (ConsoleAppender)log4j2Configurator.getAppender(name);
+			Layout<? extends Serializable> layout = appender.getLayout();
+			Map<String,String> contentFormat = appender.getManager().getContentFormat();
+			mav.put("layout", layout);
+			System.out.println(contentFormat);
+		}
+		return mav;
 	}
 }

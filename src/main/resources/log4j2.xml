@@ -12,7 +12,7 @@
 		<Root level="warn">
 			<AppenderRef ref="Std Out" />
 		</Root>
-		<logger name="com.hotpads.logging.another" level="ERROR" additivity="false">
+		<logger name="com.hotpads.logging.another" level="error" additivity="false">
 			<AppenderRef ref="Err Out" />
 		</logger>
 	</Loggers>

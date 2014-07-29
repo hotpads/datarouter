@@ -9,6 +9,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.config.AbstractConfiguration;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
@@ -31,7 +33,11 @@ public class Log4j2Configurator{
 		ctx.updateLoggers();
 	}
 
-	public void updateOrCreateLoggerConfig(String name, Level level, boolean additive){
+	public void updateOrCreateLoggerConfig(Class<?> clazz, Level level, boolean additive, String[] appendersRef){
+		updateOrCreateLoggerConfig(clazz.getName(), level, additive, appendersRef);
+	}
+
+	public void updateOrCreateLoggerConfig(String name, Level level, boolean additive, String[] appendersRef){
 		LoggerConfig loggerConfig = config.getLoggerConfig(name);
 		if(!loggerConfig.getName().equals(name)){ // it is the parent that have been found
 			loggerConfig = new LoggerConfig(name, level, additive);
@@ -40,11 +46,27 @@ public class Log4j2Configurator{
 			loggerConfig.setLevel(level);
 			loggerConfig.setAdditive(additive);
 		}
+		updateAppenders(loggerConfig, appendersRef, level);
 		ctx.updateLoggers();
 	}
 
-	public void updateOrCreateLoggerConfig(Class<?> clazz, Level level, boolean additive){
-		updateOrCreateLoggerConfig(clazz.getName(), level, additive);
+	private void updateAppenders(LoggerConfig loggerConfig, String[] appendersRef, Level level){
+		Map<String,Appender> appenders = loggerConfig.getAppenders();
+		for(String string : appenders.keySet()){
+			loggerConfig.removeAppender(string);
+		}
+		for(String string : appendersRef){
+			Appender appender = config.getAppender(string);
+			loggerConfig.addAppender(appender, level, null);
+		}
+	}
+	
+	public void deleteLoggerConfig(String name){
+		config.removeLogger(name);
+	}
+
+	public void deleteAppender(String name){
+		((AbstractConfiguration)config).removeAppender(name);
 	}
 
 	public Map<String,LoggerConfig> getConfigs(){
@@ -61,6 +83,14 @@ public class Log4j2Configurator{
 
 	public Level getRootLevel(){
 		return rootLoggerConfig.getLevel();
+	}
+
+	public Appender getAppender(String name){
+		return config.getAppender(name);
+	}
+
+	public void addAppender(ConsoleAppender appender){
+		config.addAppender(appender);
 	}
 
 }
