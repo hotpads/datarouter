@@ -6,7 +6,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Logger;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -14,6 +13,8 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CsrfValidator{
 	
@@ -62,7 +63,7 @@ public class CsrfValidator{
 	private void log(Exception e){
 		StringWriter sw = new StringWriter();
 		e.printStackTrace(new PrintWriter(sw));
-		logger.warning(sw.toString());
+		logger.warn(sw.toString());
 	}
 	
 	private Cipher getCipher(int mode) throws InvalidKeyException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchPaddingException{
