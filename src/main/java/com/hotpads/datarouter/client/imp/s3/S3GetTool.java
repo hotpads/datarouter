@@ -3,11 +3,9 @@ package com.hotpads.datarouter.client.imp.s3;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.httpclient.HttpConstants;
 import org.apache.hadoop.fs.s3.S3Exception;
 import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
-import org.apache.tools.ant.taskdefs.optional.j2ee.HotDeploymentTool;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
