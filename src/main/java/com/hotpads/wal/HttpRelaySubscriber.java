@@ -12,8 +12,8 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import com.hotpads.util.core.ExceptionTool;
@@ -22,7 +22,7 @@ import com.hotpads.util.wal.WalSubscriber;
 import com.hotpads.util.wal.imp.BaseWalSubscriber;
 
 public class HttpRelaySubscriber extends BaseWalSubscriber{
-	protected final Log logger = LogFactory.getLog(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	/************************** fields *****************************/
 	
