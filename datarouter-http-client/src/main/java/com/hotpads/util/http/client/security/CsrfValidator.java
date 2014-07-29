@@ -17,7 +17,7 @@ import org.apache.commons.codec.binary.Base64;
 
 public class CsrfValidator{
 	
-	private static Logger logger = Logger.getLogger(CsrfValidator.class.getCanonicalName());
+	private static Logger logger = LoggerFactory.getLogger(CsrfValidator.class.getCanonicalName());
 	private static final String HASHING_ALGORITHM = "SHA-256";
 	private static final String MAIN_CIPHER_ALGORITHM = "AES";
 	private static final String SUB_CIPHER_ALGORITHM = "CBC/PKCS5Padding";
