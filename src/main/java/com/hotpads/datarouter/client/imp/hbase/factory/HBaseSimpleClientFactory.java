@@ -137,7 +137,7 @@ implements ClientFactory{
 	public static final int 
 		PER_TABLE_minPoolSize = 1,//these are per-table
 		PER_TABLE_maxPoolSize = 5,
-		EXECUTOR_SERVICE_maxPoolSize = 20;
+		EXECUTOR_SERVICE_maxPoolSize = 50;
 	
 	public static final long 
 			DEFAULT_MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024,
