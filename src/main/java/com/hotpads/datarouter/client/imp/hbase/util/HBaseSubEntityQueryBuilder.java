@@ -75,7 +75,7 @@ extends HBaseEntityQueryBuilder<EK,E>
 	
 	public Range<ByteRange> getRowRange(int partition, Range<PK> pkRange){
 		byte[] partitionPrefix = partitioner.getPrefix(partition);
-		ByteRange startBytes = null;
+		ByteRange startBytes = new ByteRange(partitionPrefix);
 		if(pkRange.hasStart()){
 			EK startEk = pkRange.getStart().getEntityKey();
 			byte[] startByteArray = ByteTool.concatenate(partitionPrefix, getRowBytes(startEk));
