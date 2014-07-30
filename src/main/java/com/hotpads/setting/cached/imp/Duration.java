@@ -26,9 +26,10 @@ public class Duration{
 	};
 	private long nano;
 
-	public Duration(String string) throws RuntimeException{
-		String[] values = string.toLowerCase().split("[a-z]");
-		String[] unites = string.toLowerCase().split("\\d+");
+	public Duration(String string) throws IllegalArgumentException{
+		string = string.toLowerCase().replaceAll("\\s", "");
+		String[] values = string.split("[a-z]");
+		String[] unites = string.split("\\d+");
 		List<String> asList = Arrays.asList(strings);
 		for(int i = 0; i < values.length; i++){
 			nano += timeUnits[asList.indexOf(unites[i + 1])].toNanos(Long.parseLong(values[i]));
@@ -73,6 +74,8 @@ public class Duration{
 			Assert.assertEquals(15, d.toSecond());
 			Assert.assertEquals("15s", d.toString());
 			d = new Duration("100000d5s123ms");
+			Assert.assertEquals("100000d5s123ms", d.toString());
+			d = new Duration("100000 d 5s 123 ms");
 			Assert.assertEquals("100000d5s123ms", d.toString());
 			d = new Duration("48h");
 			Assert.assertEquals("2d", d.toString());

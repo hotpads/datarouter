@@ -80,12 +80,7 @@ public class ClusterSettingFinder {
 	public Duration getDuration(String name, Duration defaultValue){
 		String valueString = getMostSpecificValue(name);
 		if(valueString==null){ return defaultValue; }
-		try{
-			return new Duration(valueString);
-		}catch(RuntimeException e){
-			logger.warn("ParseException on "+name+" with value "+valueString);
-			throw new RuntimeException(e);
-		}
+		return new Duration(valueString);
 	}
 	
 	private String getMostSpecificValue(String name){
