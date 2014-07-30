@@ -4,6 +4,7 @@ import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
+import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.util.core.ByteTool;
 
 public class HBaseEntityQueryBuilder<
@@ -11,9 +12,11 @@ public class HBaseEntityQueryBuilder<
 		E extends Entity<EK>>{
 
 	protected EntityFieldInfo<EK,E> entityFieldInfo;
+	protected EntityPartitioner<EK> partitioner;
 	
 	public HBaseEntityQueryBuilder(EntityFieldInfo<EK,E> entityFieldInfo){
 		this.entityFieldInfo = entityFieldInfo;
+		this.partitioner = entityFieldInfo.getEntityPartitioner();
 	}
 
 

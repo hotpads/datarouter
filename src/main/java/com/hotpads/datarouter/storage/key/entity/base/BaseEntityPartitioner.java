@@ -38,6 +38,11 @@ implements EntityPartitioner<EK>{
 	/**************** methods *********************/
 	
 	@Override
+	public boolean isLastPartition(int partition){
+		return partition == getNumPartitions() - 1;
+	}
+	
+	@Override
 	public int getNumPrefixBytes(){
 		return getNumPrefixBytesStatic(getNumPartitions());
 	}
@@ -55,6 +60,12 @@ implements EntityPartitioner<EK>{
 		int offset = 4 - numPrefixBytes;
 		System.arraycopy(fourBytePrefix, offset, prefix, 0, numPrefixBytes);
 		return prefix;
+	}
+	
+	@Override
+	public byte[] getNextPrefix(int partition){
+		if(isLastPartition(partition)){ return null; }
+		return getPrefix(partition + 1);
 	}
 	
 	@Override

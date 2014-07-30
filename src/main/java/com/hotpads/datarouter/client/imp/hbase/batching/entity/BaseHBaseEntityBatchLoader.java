@@ -12,6 +12,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Range;
@@ -30,16 +31,16 @@ extends BaseBatchLoader<T>{
 	private static final int DEFAULT_iterateBatchSize = 1000;
 	
 	protected final HBaseSubEntityReaderNode<EK,E,PK,D,F> node;
-	protected final byte[] partitionPrefix;
+	protected final int partition;
 	protected final Range<PK> range;
 	protected final Config config;
 	protected final Integer iterateBatchSize;//break this out of config for safety
 	protected Long batchChainCounter;
 	
-	public BaseHBaseEntityBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, byte[] partition,
+	public BaseHBaseEntityBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, int partition,
 			final Range<PK> range, final Config pConfig, Long batchChainCounter){
 		this.node = node;
-		this.partitionPrefix = partition;
+		this.partition = partition;
 		this.range = range;
 		this.config = Config.nullSafe(pConfig);
 		this.iterateBatchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_iterateBatchSize);
@@ -55,8 +56,8 @@ extends BaseBatchLoader<T>{
 	@Override
 	public BaseHBaseEntityBatchLoader<EK,E,PK,D,F,T> call(){
 		//do the RPC
-		List<Result> hBaseRows = node.getResultsInSubRange(partitionPrefix, range, isKeysOnly(), config);
-		
+		List<Result> hBaseRows = node.getResultsInSubRange(partition, range, isKeysOnly(), config);
+//		logger.warn(partition+" "+range+" "+hBaseRows.size());
 		List<T> outs = ListTool.createArrayListWithSize(hBaseRows);
 		for(Result row : hBaseRows){
 			if(row==null || row.isEmpty()){ continue; }

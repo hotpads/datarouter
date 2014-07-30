@@ -32,6 +32,7 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -327,7 +328,7 @@ implements HBasePhysicalNode<PK,D>,
 	 * warning: we cannot currently limit the number of databeans/pks, only hbase rows.  be aware that it will probably
 	 * return more databeans/pks than iterateBatchSize
 	 */
-	public List<Result> getResultsInSubRange(final byte[] partitionPrefix, final Range<PK> rowRange, final boolean keysOnly, 
+	public List<Result> getResultsInSubRange(final int partition, final Range<PK> rowRange, final boolean keysOnly, 
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		final String scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "key" : "row") + " numBatches";
@@ -336,7 +337,7 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(getDataRouterContext(), 
 				getTaskNameParams(), scanKeysVsRowsNumBatches, config){
 				public List<Result> hbaseCall() throws Exception{
-					Range<ByteRange> rowBytesRange = queryBuilder.getRowRange(partitionPrefix, rowRange);
+					Range<ByteRange> rowBytesRange = queryBuilder.getRowRange(partition, rowRange);
 					//TODO Get if single row
 					Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, config);
 					FilterList filterList = new FilterList();
@@ -351,6 +352,7 @@ implements HBasePhysicalNode<PK,D>,
 						if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){ break; }
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}
+					logger.warn(partition+" "+rowBytesRange+" "+results.size());
 					managedResultScanner.close();
 					DRCounters.incSuffixClientNode(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),  
 							CollectionTool.size(results));
