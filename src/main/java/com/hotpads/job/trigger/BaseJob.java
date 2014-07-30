@@ -80,15 +80,20 @@ public abstract class BaseJob implements Job{
 	}
 
 	@Override
-	public void scheduleNextRun(){
-		Long delay = getDelayBeforeNextFireTimeMs();
-		if(delay==null){ 
-			baseJobLogger.warn("couldn't schedule "+getClass()+" because no trigger defined");
-			return;
-		}
-		if(isAlreadyScheduled){
-			baseJobLogger.warn("couldn't schedule "+getClass()+" because is already scheduled");
-			return;
+	public void scheduleNextRun(boolean immediate){
+		Long delay;
+		if(immediate){
+			delay = 0L;
+		}else{
+			delay = getDelayBeforeNextFireTimeMs();
+			if(delay==null){ 
+				baseJobLogger.warn("couldn't schedule "+getClass()+" because no trigger defined");
+				return;
+			}
+			if(isAlreadyScheduled){
+				baseJobLogger.warn("couldn't schedule "+getClass()+" because is already scheduled");
+				return;
+			}
 		}
 		Job nextJobInstance = scheduler.getJobInstance(getClass(), getTrigger().getCronExpression());
 		Long nextTriggerTime = System.currentTimeMillis() + delay;
@@ -123,7 +128,7 @@ public abstract class BaseJob implements Job{
 			}
 			try{
 				isAlreadyScheduled = false;
-				scheduleNextRun();
+				scheduleNextRun(false);
 			}catch(Exception e){
 				baseJobLogger.warn("exception in finally block");
 				baseJobLogger.warn(ExceptionTool.getStackTraceAsString(e));
