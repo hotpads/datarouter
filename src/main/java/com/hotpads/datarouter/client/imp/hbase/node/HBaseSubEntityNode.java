@@ -87,7 +87,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 						Delete delete = new Delete(ekBytes);
 						for(D databean : databeansByEntityKey.get(ek)){
 							PK pk = databean.getKey();
-							byte[] qualifierPkBytes = queryBuilder.getQualifierPkBytes(pk);
+							byte[] qualifierPkBytes = queryBuilder.getQualifierPkBytes(pk, true);
 							List<Field<?>> fields = fieldInfo.getNonKeyFieldsWithValues(databean);
 							for(Field<?> field : fields){//TODO only put modified fields
 								byte[] fullQualifierBytes = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),

@@ -124,7 +124,7 @@ implements HBasePhysicalNode<PK,D>,
 					for(PK pk : keys){
 						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(pk.getEntityKey());
 						Get get = new Get(rowBytes);
-						byte[] qualifierPrefix = queryBuilder.getQualifierPrefix(pk);
+						byte[] qualifierPrefix = queryBuilder.getQualifierPkBytes(pk, true);
 						get.setFilter(new ColumnPrefixFilter(qualifierPrefix));
 						gets.add(get);
 					}

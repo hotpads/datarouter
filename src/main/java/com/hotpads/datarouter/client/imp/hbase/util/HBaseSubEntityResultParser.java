@@ -112,8 +112,9 @@ public class HBaseSubEntityResultParser<
 		parseFieldsFromBytesToPk(entityFieldInfo.getEntityKeyFields(), rowBytes, pk);
 		//post-EK
 		byte[] qualifier = kv.getQualifier();
-		byte[] postPrefixQualifierBytes = ByteTool.copyOfRangeFromOffset(qualifier, 
-				fieldInfo.getEntityColumnPrefixBytes().length);
+		byte[] entityColumnPrefixBytes = fieldInfo.getEntityColumnPrefixBytes();
+		int offset = entityColumnPrefixBytes.length;
+		byte[] postPrefixQualifierBytes = ByteTool.copyOfRangeFromOffset(qualifier, offset);
 		//fieldName
 		int fieldNameOffset = parseFieldsFromBytesToPk(fieldInfo.getPostEkPkKeyFields(), 
 				postPrefixQualifierBytes, pk);
@@ -127,7 +128,7 @@ public class HBaseSubEntityResultParser<
 	}
 	
 	private int parseFieldsFromBytesToPk(List<Field<?>> fields, byte[] fromBytes, PK targetPk){
-		int byteOffset = entityFieldInfo.getEntityPartitioner().getNumPrefixBytes();
+		int byteOffset = 0;
 		for(Field<?> field : fields){
 			Object value = field.fromBytesWithSeparatorButDoNotSet(fromBytes, byteOffset);
 			field.setUsingReflection(targetPk, value);

@@ -322,9 +322,9 @@ public class SortedNodeIntegrationTests{
 	@Test
 	public synchronized void testGet(){
 		Iterable<SortedBean> iterable = node.scan(null, null);
-		for(SortedBean sortedBean : iterable){
-			SortedBean sortedBean2 = node.get(sortedBean.getKey(), null);
-			Assert.assertEquals(sortedBean, sortedBean2);
+		for(SortedBean sortedBeanFromScan : iterable){
+			SortedBean sortedBeanFromGet = node.get(sortedBeanFromScan.getKey(), null);
+			Assert.assertEquals(sortedBeanFromScan, sortedBeanFromGet);
 		}
 	}
 	
