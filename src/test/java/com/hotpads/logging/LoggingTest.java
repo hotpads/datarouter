@@ -18,8 +18,12 @@ import com.hotpads.logging.ClassA.Class2;
 import com.hotpads.logging.another.Class3;
 
 public class LoggingTest{
-	private static final Logger logger = LoggerFactory.getLogger(LoggingTest.class);
-
+	private static Logger logger;
+	{
+		System.setProperty("log4j.configurationFactory", "com.hotpads.logging.StartupConfigurationFactory"); 
+		logger = LoggerFactory.getLogger(LoggingTest.class);
+	}
+	
 	@Test
 	public void test() {
 		Injector injector = Guice.createInjector();
