@@ -56,9 +56,6 @@ public class JobScheduler {
 				sampleJob.scheduleNextRun(false);
 			}else{
 				try {
-					if(entry.getKey().getSimpleName().equals("ListingDupeVacuumJob")){
-						System.out.println();
-					}
 					CronExpression cron = new CronExpression(entry.getValue());
 					if(!jobsLastCompletion.containsKey(entry.getKey().getSimpleName())){
 						sampleJob.scheduleNextRun(true);
