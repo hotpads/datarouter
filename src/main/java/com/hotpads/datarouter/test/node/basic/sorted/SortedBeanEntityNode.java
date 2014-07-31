@@ -9,7 +9,7 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNod
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
-import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey.SortedBeanEntityPartitioner4;
+import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey.SortedBeanEntityPartitioner;
 
 public class SortedBeanEntityNode 
 extends HBaseEntityReaderNode<SortedBeanEntityKey,SortedBeanEntity>{
@@ -22,8 +22,8 @@ extends HBaseEntityReaderNode<SortedBeanEntityKey,SortedBeanEntity>{
 	private static final EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams
 			= new EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity>(
 			"SortedBeanEntity", SortedBeanEntityKey.class, SortedBeanEntity.class, 
-//			SortedBeanEntityPartitioner.class,
-			SortedBeanEntityPartitioner4.class,
+			SortedBeanEntityPartitioner.class,
+//			SortedBeanEntityPartitioner4.class,
 			"SortedBeanEntity");
 
 	private SubEntitySortedMapStorageNode<SortedBeanEntityKey,SortedBeanKey,SortedBean,SortedBeanFielder> sortedBean;

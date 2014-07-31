@@ -18,6 +18,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
+import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
@@ -35,11 +36,13 @@ public class HBaseSubEntityResultParser<
 	private static Logger logger = Logger.getLogger(HBaseSubEntityResultParser.class);
 
 	private EntityFieldInfo<EK,E> entityFieldInfo;
+	private EntityPartitioner<EK> partitioner;
 	private DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
 	
 	public HBaseSubEntityResultParser(EntityFieldInfo<EK,E> entityFieldInfo, DatabeanFieldInfo<PK,D,F> fieldInfo){
 		this.entityFieldInfo = entityFieldInfo;
+		this.partitioner = entityFieldInfo.getEntityPartitioner();
 		this.fieldInfo = fieldInfo;
 	}
 
@@ -108,17 +111,11 @@ public class HBaseSubEntityResultParser<
 	private Pair<PK,String> parsePrimaryKeyAndFieldName(KeyValue kv){
 		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
 		//EK
-		byte[] rowBytes = kv.getRow();
-		parseFieldsFromBytesToPk(entityFieldInfo.getEntityKeyFields(), rowBytes, pk);
+		parseEkFieldsFromBytesToPk(entityFieldInfo.getEntityKeyFields(), kv, pk);
 		//post-EK
-		byte[] qualifier = kv.getQualifier();
-		byte[] entityColumnPrefixBytes = fieldInfo.getEntityColumnPrefixBytes();
-		int offset = entityColumnPrefixBytes.length;
-		byte[] postPrefixQualifierBytes = ByteTool.copyOfRangeFromOffset(qualifier, offset);
+		int fieldNameOffset = parsePostEkFieldsFromBytesToPk(fieldInfo.getPostEkPkKeyFields(), kv, pk);
 		//fieldName
-		int fieldNameOffset = parseFieldsFromBytesToPk(fieldInfo.getPostEkPkKeyFields(), 
-				postPrefixQualifierBytes, pk);
-		String fieldName = StringByteTool.fromUtf8BytesOffset(postPrefixQualifierBytes, fieldNameOffset);
+		String fieldName = StringByteTool.fromUtf8BytesOffset(kv.getQualifier(), fieldNameOffset);
 		return Pair.create(pk, fieldName);
 	}
 	
@@ -127,8 +124,23 @@ public class HBaseSubEntityResultParser<
 		return Bytes.startsWith(qualifier, fieldInfo.getEntityColumnPrefixBytes());
 	}
 	
-	private int parseFieldsFromBytesToPk(List<Field<?>> fields, byte[] fromBytes, PK targetPk){
-		int byteOffset = 0;
+	//parse the hbase row bytes after the partition offset
+	private int parseEkFieldsFromBytesToPk(List<Field<?>> fields, KeyValue kv, PK targetPk){
+		int offset = partitioner.getNumPrefixBytes();
+		byte[] fromBytes = kv.getRow();
+		return parseFieldsFromBytesToPk(fields, fromBytes, offset, targetPk);
+	}
+	
+	//parse the hbase qualifier bytes
+	private int parsePostEkFieldsFromBytesToPk(List<Field<?>> fields, KeyValue kv, PK targetPk){
+		byte[] entityColumnPrefixBytes = fieldInfo.getEntityColumnPrefixBytes();
+		int offset = entityColumnPrefixBytes.length;
+		byte[] fromBytes = kv.getQualifier();
+		return parseFieldsFromBytesToPk(fields, fromBytes, offset, targetPk);
+	}
+	
+	private int parseFieldsFromBytesToPk(List<Field<?>> fields, byte[] fromBytes, int offset, PK targetPk){
+		int byteOffset = offset;
 		for(Field<?> field : fields){
 			Object value = field.fromBytesWithSeparatorButDoNotSet(fromBytes, byteOffset);
 			field.setUsingReflection(targetPk, value);
