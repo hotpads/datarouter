@@ -40,4 +40,9 @@ public interface NotificationTimingStrategy {
 	 */
 	int getMaxDelaySeconds();
 
+	/**
+	 * @return the max number of request in a notification (when the number of request reach this number the
+	 *         notification is triggered)
+	 */
+	int getMaxItems();
 }

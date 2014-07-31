@@ -15,6 +15,7 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNod
 import com.hotpads.setting.ClusterSettingFinderConfig;
 import com.hotpads.setting.DatarouterServerType;
 import com.hotpads.setting.DatarouterServerType.DatarouterServerTypeTool;
+import com.hotpads.setting.cached.imp.Duration;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
@@ -77,6 +78,12 @@ public class ClusterSettingFinder {
 		}
 	}
 
+	public Duration getDuration(String name, Duration defaultValue){
+		String valueString = getMostSpecificValue(name);
+		if(valueString==null){ return defaultValue; }
+		return new Duration(valueString);
+	}
+	
 	private String getMostSpecificValue(String name){
 		List<ClusterSettingKey> keys = generateKeysForSelection(name);
 		//		boolean log = "job.event.aggregateEvents".equals(name);
