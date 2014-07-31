@@ -59,6 +59,11 @@ extends HBaseEntityQueryBuilder<EK,E>
 		return Range.create(start, pkRange.getStartInclusive(), end, pkRange.getEndInclusive());
 	}
 	
+	public boolean isSingleEntity(Range<PK> pkRange){
+		Range<EK> ekRange = getEkRange(pkRange);
+		return ekRange.hasStart() && ekRange.equalsStartEnd();
+	}
+	
 	public byte[] getQualifier(PK primaryKey, String fieldName){
 		return ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), getQualifierPkBytes(primaryKey, true),
 				StringByteTool.getUtf8Bytes(fieldName));

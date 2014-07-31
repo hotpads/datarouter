@@ -124,7 +124,7 @@ implements HBasePhysicalNode<PK,D>,
 					for(PK pk : keys){
 						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(pk.getEntityKey());
 						Get get = new Get(rowBytes);
-						byte[] qualifierPrefix = queryBuilder.getQualifierPkBytes(pk, true);
+						byte[] qualifierPrefix = queryBuilder.getQualifierPrefix(pk);
 						get.setFilter(new ColumnPrefixFilter(qualifierPrefix));
 						gets.add(get);
 					}
@@ -280,8 +280,7 @@ implements HBasePhysicalNode<PK,D>,
 	public SortedScannerIterable<PK> scanKeys(final Range<PK> pRange, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		final Range<PK> range = Range.nullSafe(pRange);
-		final Range<EK> ekRange = queryBuilder.getEkRange(range);
-		if(ekRange.hasStart() && ekRange.equalsStartEnd()){//single row.  use Get.  gets all pks in entity.  no way to limit rows
+		if(queryBuilder.isSingleEntity(range)){//single row.  use Get.  gets all pks in entity.  no way to limit rows
 			List<PK> pks = new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDataRouterContext(), 
 					getTaskNameParams(), "scanPksInEntity", config){
 				public List<PK> hbaseCall() throws Exception{
@@ -301,8 +300,7 @@ implements HBasePhysicalNode<PK,D>,
 	public SortedScannerIterable<D> scan(final Range<PK> pRange, final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
 		final Range<PK> range = Range.nullSafe(pRange);
-		final Range<EK> ekRange = queryBuilder.getEkRange(range);
-		if(ekRange.hasStart() && ekRange.equalsStartEnd()){//single row.  use Get.  gets all databeans in entity.  no way to limit rows
+		if(queryBuilder.isSingleEntity(range)){//single row.  use Get.  gets all databeans in entity.  no way to limit rows
 			List<D> databeans = new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDataRouterContext(), 
 					getTaskNameParams(), "scanInEntity", config){
 				public List<D> hbaseCall() throws Exception{

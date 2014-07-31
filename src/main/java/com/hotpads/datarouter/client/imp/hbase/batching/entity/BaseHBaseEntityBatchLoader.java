@@ -42,6 +42,7 @@ extends BaseBatchLoader<T>{
 		this.node = node;
 		this.partition = partition;
 		this.range = range;
+		logger.warn(range);
 		this.config = Config.nullSafe(pConfig);
 		this.iterateBatchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_iterateBatchSize);
 		config.setIterateBatchSize(iterateBatchSize);
