@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
 	<Appenders>
-		<Console name="Std Out" target="SYSTEM_OUT">
+		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="SLF4J %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
 		<Console name="Err Out" target="SYSTEM_ERR">
@@ -10,7 +10,7 @@
 	</Appenders>
 	<Loggers>
 		<Root level="warn">
-			<AppenderRef ref="Std Out" />
+			<AppenderRef ref="Console" />
 		</Root>
 		<logger name="com.hotpads.logging.another" level="error" additivity="false">
 			<AppenderRef ref="Err Out" />

@@ -45,7 +45,9 @@ public class Log4j2Configurator{
 			loggerConfig.setLevel(level);
 			loggerConfig.setAdditive(additive);
 		}
-		updateAppenders(loggerConfig, appendersRef, level);
+		if(appendersRef != null){
+			updateAppenders(loggerConfig, appendersRef, level);
+		}
 		ctx.updateLoggers();
 	}
 

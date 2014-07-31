@@ -23,7 +23,7 @@ public class LoggingTest{
 		System.setProperty("log4j.configurationFactory", "com.hotpads.logging.StartupConfigurationFactory"); 
 		logger = LoggerFactory.getLogger(LoggingTest.class);
 	}
-	
+
 	@Test
 	public void test() {
 		Injector injector = Guice.createInjector();
@@ -31,18 +31,18 @@ public class LoggingTest{
 		logOneOfEachLevel();
 		log4j2Configurator.setRootLevel(Level.DEBUG);
 		logOneOfEachLevel();
-		
+
 		new Class1().logYourName();
-		log4j2Configurator.updateOrCreateLoggerConfig(Class11.class, Level.TRACE, false, new String[]{});
+		log4j2Configurator.updateOrCreateLoggerConfig(Class11.class, Level.TRACE, false, new String[]{"Console"});
 		new Class11().logYourName();
-		log4j2Configurator.updateOrCreateLoggerConfig(Class2.class, Level.INFO, false, new String[]{});
+		log4j2Configurator.updateOrCreateLoggerConfig(Class2.class, Level.INFO, false, new String[]{"Console"});
 		new Class2().logYourName();
-		log4j2Configurator.updateOrCreateLoggerConfig("com.hotpads.logging.another", Level.TRACE, false, new String[]{});
 		new Class3().logYourName();
-		
+
 		Map<String,LoggerConfig> configs = log4j2Configurator.getConfigs();
+//		System.out.println(configs);
 		Assert.assertEquals(4, configs.size()); //Bad test because depend of the xml file
-		System.out.println(log4j2Configurator.getAppenders());
+//		System.out.println(log4j2Configurator.getAppenders());
 	}
 
 	private void logOneOfEachLevel(){
