@@ -18,6 +18,7 @@ import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTask;
 import com.hotpads.job.record.LongRunningTaskKey;
 import com.hotpads.job.thread.JobExecutorProvider.JobExecutor;
+import com.hotpads.setting.Setting;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
@@ -31,6 +32,7 @@ public class JobScheduler {
 	private TriggerGroup triggerGroup;
 	private TriggerTracker tracker;
 	private IndexedSortedMapStorageNode<LongRunningTaskKey,LongRunningTask> longRunningTaskNode;
+	private Setting<Boolean> scheduleMissedJobsOnStartup;
 	
 	@Inject
 	public JobScheduler(Injector injector, TriggerGroup triggerGroup, TriggerTracker tracker, 
@@ -46,49 +48,45 @@ public class JobScheduler {
 	/***************methods***************/
 	
 	public void scheduleJavaTriggers(){
-		Map<String, Date> jobsLastCompletion = MapTool.create();
-		for(Map.Entry<Class<? extends Job>, String> entry : triggerGroup.getJobClasses().entrySet()){
-			jobsLastCompletion.put(entry.getKey().getSimpleName(), null);
-		}
-		String currentJobClass = "";
-		for(LongRunningTask task : longRunningTaskNode.scan(null, null)){
-			if(!currentJobClass.equals(task.getKey().getJobClass())){
-				currentJobClass = task.getKey().getJobClass();
-			}
-			if(task.getJobExecutionStatus() == JobExecutionStatus.success){
-				jobsLastCompletion.put(task.getKey().getJobClass(), task.getFinishTime());
-			}
-		}
+		Map<String, Date> jobsLastCompletion = loadJobsLastCompletionFromLongRunningTasks();
 		for(Entry<Class<? extends Job>, String> entry : triggerGroup.getJobClasses().entrySet()){
 			tracker.createNewTriggerInfo(entry.getKey());
 			Job sampleJob = injector.getInstance(entry.getKey());
-			if(!sampleJob.shouldRun()){
+			if(!scheduleMissedJobsOnStartup.getValue() || !sampleJob.shouldRun()){
 				sampleJob.scheduleNextRun(false);
-				logger.warn("scheduled " + sampleJob.getClass().getSimpleName() + " to run with delay");
 			}else{
 				try {
+					if(entry.getKey().getSimpleName().equals("ListingDupeVacuumJob")){
+						System.out.println();
+					}
 					CronExpression cron = new CronExpression(entry.getValue());
-					if(jobsLastCompletion.get(entry.getKey().getSimpleName()) == null){
+					if(!jobsLastCompletion.containsKey(entry.getKey().getSimpleName())){
 						sampleJob.scheduleNextRun(true);
-						logger.warn("scheduled " + sampleJob.getClass().getSimpleName() + " to run immediately");
 						continue;
 					}
 					Date nextValid = cron.getNextValidTimeAfter(jobsLastCompletion.get(entry.getKey().getSimpleName()));
 					if(new Date().after(nextValid)){
 						sampleJob.scheduleNextRun(true);
-						logger.warn("scheduled " + sampleJob.getClass().getSimpleName() + " to run immediately");
 					}else{
 						sampleJob.scheduleNextRun(false);
-						logger.warn("scheduled " + sampleJob.getClass().getSimpleName() + " to run with delay");
 					}
 				} catch (ParseException e) {
-					ExceptionTool.getStackTraceAsString(e);
+					logger.error(ExceptionTool.getStackTraceAsString(e));
 					sampleJob.scheduleNextRun(false);
-					logger.warn("scheduled " + sampleJob.getClass().getSimpleName() + " to run with delay");
 				}
 	//			logger.warn("scheduled "+jobClass+" at "+sampleJob.getTrigger().getCronExpression());
 			}
 		}
+	}
+	
+	private Map<String, Date> loadJobsLastCompletionFromLongRunningTasks(){
+		Map<String, Date> jobsLastCompletion = MapTool.create();
+		for(LongRunningTask task : longRunningTaskNode.scan(null, null)){
+			if(task.getJobExecutionStatus() == JobExecutionStatus.success){
+				jobsLastCompletion.put(task.getKey().getJobClass(), task.getFinishTime());
+			}
+		}
+		return jobsLastCompletion;
 	}
 	
 	public Job getJobInstance(Class<? extends Job> jobClass, String cronExpression){
@@ -124,4 +122,11 @@ public class JobScheduler {
 		return triggerGroup;
 	}
 	
+	public Setting<Boolean> getScheduleMissedJobsOnStartupSetting() {
+		return scheduleMissedJobsOnStartup;
+	}
+
+	public void setScheduleMissedJobsOnStartupSetting(Setting<Boolean> scheduleMissedJobsOnStartup) {
+		this.scheduleMissedJobsOnStartup = scheduleMissedJobsOnStartup;
+	}
 }

@@ -84,6 +84,7 @@ public abstract class BaseJob implements Job{
 		Long delay;
 		if(immediate){
 			delay = 0L;
+			logger.warn("scheduling " + this.getClass().getSimpleName() + " to run immediately");
 		}else{
 			delay = getDelayBeforeNextFireTimeMs();
 			if(delay==null){ 
