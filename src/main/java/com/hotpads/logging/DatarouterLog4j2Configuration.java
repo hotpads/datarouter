@@ -11,6 +11,8 @@ import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
+import com.hotpads.util.core.logging.Log4j2Configuration;
+
 public class DatarouterLog4j2Configuration implements Log4j2Configuration{
 
 	private Appender out;
@@ -37,7 +39,7 @@ public class DatarouterLog4j2Configuration implements Log4j2Configuration{
 		LoggerConfig root = new LoggerConfig("", Level.WARN, true);//Indicate the root because blank name
 		root.addAppender(out, null, null);
 		loggerConfigs.add(root);
-		LoggerConfig another = new LoggerConfig("com.hotpads.logging.another", Level.ERROR, false);
+		LoggerConfig another = new LoggerConfig("com.hotpads.logging.another", Level.TRACE, false);
 		another.addAppender(err, null, null);
 		loggerConfigs.add(another);
 		return loggerConfigs;
