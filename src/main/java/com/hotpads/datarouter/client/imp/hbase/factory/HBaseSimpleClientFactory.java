@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.factory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +34,6 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSet;
-import com.hotpads.datarouter.storage.field.SimpleFieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.ArrayTool;
@@ -258,6 +257,14 @@ implements ClientFactory{
 		if(ArrayTool.length(bytes)!=1){ return false; }
 		return bytes[0] == Byte.MIN_VALUE;
 	}
+	
+	
+//	public static void main(String... args){
+//		List<String> emptyList = new ArrayList<>();
+//		for(String s : IterableTool.nullSafe(emptyList)){
+//			System.out.println("asdf");
+//		}
+//	}
 }
 
 
