@@ -19,7 +19,7 @@ public class DatarouterLog4j2Configuration implements Log4j2Configuration{
 	private Appender err;
 
 	public DatarouterLog4j2Configuration(){
-		String pattern = "SLF4J %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n";
+		String pattern = "SLF4J Datarouter %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n";
 		Layout<? extends Serializable> layout = PatternLayout.newBuilder().withPattern(pattern).build();
 		out = ConsoleAppender.createAppender(layout , null, "SYSTEM_OUT", "Console", null, null);
 		err = ConsoleAppender.createAppender(layout, null, "SYSTEM_ERR", "Console err", null, null);

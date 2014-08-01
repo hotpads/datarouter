@@ -20,12 +20,12 @@ import com.hotpads.logging.another.Class3;
 public class LoggingTest{
 	private static Logger logger;
 	{
-		System.setProperty("log4j.configurationFactory", "com.hotpads.logging.StartupConfigurationFactory"); 
+		System.setProperty("log4j.configurationFactory", "com.hotpads.util.core.logging.StartupConfigurationFactory");
 		logger = LoggerFactory.getLogger(LoggingTest.class);
 	}
 
 	@Test
-	public void test() {
+	public void test() throws ClassNotFoundException {
 		Injector injector = Guice.createInjector();
 		Log4j2Configurator log4j2Configurator = injector.getInstance(Log4j2Configurator.class);
 		logOneOfEachLevel();
