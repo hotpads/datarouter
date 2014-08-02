@@ -220,6 +220,7 @@ implements HBasePhysicalNode<PK,D>,
 			}).call();
 
 		//execute the multi-row queries in individual Scans
+		//TODO parallelize
 		List<D> multiEntityResults = ListTool.createArrayList();
 		for(final PK pkPrefix : multiEntityPrefixes){
 			EK ekPrefix = pkPrefix.getEntityKey();//we already determined prefix is confied to the EK
