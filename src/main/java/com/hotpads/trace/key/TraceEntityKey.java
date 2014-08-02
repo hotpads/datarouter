@@ -46,6 +46,9 @@ extends BaseEntityKey<TraceEntityKey>{
 	
 	/****************** construct *******************/
 	
+	private TraceEntityKey(){//no-arg for reflection
+	}
+	
 	public TraceEntityKey(Long traceId){
 		this.traceId = traceId;
 	}

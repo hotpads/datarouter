@@ -54,16 +54,16 @@ public class SortedNodeIntegrationTests{
 	@Parameters
 	public static Collection<Object[]> parameters(){
 		List<Object[]> params = ListTool.create();
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true});
 		return params;
 	}
 	
 	
-	public SortedNodeIntegrationTests(String clientName, ClientType clientType, boolean entity){
-		this.router = new SortedBasicNodeTestRouter(clientName, getClass(), entity);
+	public SortedNodeIntegrationTests(String clientName, ClientType clientType, boolean useFielder, boolean entity){
+		this.router = new SortedBasicNodeTestRouter(clientName, getClass(), useFielder, entity);
 		this.node = router.sortedBeanSorted();
 		this.entityNode = router.sortedBeanEntity();
 	}

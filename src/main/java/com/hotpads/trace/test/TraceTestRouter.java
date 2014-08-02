@@ -49,8 +49,8 @@ public class TraceTestRouter extends BaseDataRouter{
 	
 	
 	private void initNodes(){
-		traceCompound = new TraceCompoundNode(this, DRTestConstants.CLIENT_drTestHBase, NODE_TraceCompound);
 		traceEntity = new TraceEntityNode(this, DRTestConstants.CLIENT_drTestHBase, NODE_TraceEntity);
+		traceCompound = new TraceCompoundNode(this, DRTestConstants.CLIENT_drTestHBase, NODE_TraceCompound);
 	}
 	
 	/*************************** get/set ***********************************/

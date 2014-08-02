@@ -93,7 +93,7 @@ implements EntityPartitioner<EK>{
 	/************** tests ***********************/
 	
 	public static class BaseEntityPartitionerTests{
-		@Test(expected=IndexOutOfBoundsException.class)
+		@Test(expected=IllegalArgumentException.class)
 		public void testMinBound(){
 			getNumPrefixBytesStatic(0);
 		}
@@ -107,7 +107,7 @@ implements EntityPartitioner<EK>{
 			Assert.assertEquals(2, getNumPrefixBytesStatic(65535));
 			Assert.assertEquals(2, getNumPrefixBytesStatic(65536));
 		}
-		@Test(expected=IndexOutOfBoundsException.class)
+		@Test(expected=IllegalArgumentException.class)
 		public void testMaxBound(){
 			getNumPrefixBytesStatic(65537);
 		}

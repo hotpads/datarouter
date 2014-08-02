@@ -57,12 +57,12 @@ public class ScatteringPrefixIntegrationTests{
 		
 		if(clientTypes.contains(HibernateClientType.INSTANCE)){
 			routerByClientType.put(HibernateClientType.INSTANCE, new SortedBasicNodeTestRouter(
-					DRTestConstants.CLIENT_drTestHibernate0, ScatteringPrefixIntegrationTests.class, false));
+					DRTestConstants.CLIENT_drTestHibernate0, ScatteringPrefixIntegrationTests.class, true, false));
 		}
 
 		if(clientTypes.contains(HBaseClientType.INSTANCE)){
 			routerByClientType.put(HBaseClientType.INSTANCE, new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase,
-					ScatteringPrefixIntegrationTests.class, false));
+					ScatteringPrefixIntegrationTests.class, true, false));
 		}
 		
 		for(BasicNodeTestRouter router : routerByClientType.values()){

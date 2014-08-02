@@ -68,13 +68,13 @@ public class BackupIntegrationTests{
 		if(clientTypes.contains(HibernateClientType.INSTANCE)){
 			routerByClientType.put(
 					HibernateClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls, false));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls, true, false));
 		}
 
 		if(clientTypes.contains(HBaseClientType.INSTANCE)){
 			routerByClientType.put(
 					HBaseClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls, false));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls, true, false));
 		}
 		
 		for(BasicNodeTestRouter router : routerByClientType.values()){

@@ -16,12 +16,12 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
+import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.IndexedBasicNodeTestRouter;
-import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanByDCBLookup;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
@@ -42,7 +42,8 @@ public class IndexedNodeIntegrationTests{
 	@Parameters
 	public static Collection<Object[]> parameters(){
 		List<Object[]> params = ListTool.create();
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true});
 		return params;
 	}
 	
@@ -72,8 +73,8 @@ public class IndexedNodeIntegrationTests{
 
 	/***************************** constructors **************************************/
 
-	public IndexedNodeIntegrationTests(String clientName, ClientType clientType){
-		this.router = new IndexedBasicNodeTestRouter(clientName, getClass(), false);
+	public IndexedNodeIntegrationTests(String clientName, ClientType clientType, boolean useFielder){
+		this.router = new IndexedBasicNodeTestRouter(clientName, getClass(), useFielder, false);
 		this.node = router.sortedBean();
 		resetTable();
 	}

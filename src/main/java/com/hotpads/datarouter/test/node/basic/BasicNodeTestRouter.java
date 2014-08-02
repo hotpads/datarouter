@@ -8,7 +8,6 @@ import com.hotpads.datarouter.backup.databean.BackupRecord.BackupRecordFielder;
 import com.hotpads.datarouter.backup.databean.BackupRecordKey;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.entity.EntityNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -36,10 +35,9 @@ import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBeanKey;
 import com.hotpads.datarouter.test.node.basic.prefixed.test.ScatteringPrefixIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
-import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntity;
-import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityNode;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
+import com.hotpads.datarouter.test.node.basic.sorted.test.IndexedNodeIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.test.SortedNodeIntegrationTests;
 import com.hotpads.util.core.ListTool;
 
@@ -56,7 +54,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	
 //	protected String clientName;
 	
-	public BasicNodeTestRouter(String clientName, Class<?> testType, boolean entity){
+	public BasicNodeTestRouter(String clientName, Class<?> testType, boolean useFielder, boolean entity){
 		super(new DataRouterContext(), name);
 		
 		if(ManyFieldTypeIntegrationTests.class.equals(testType)){
@@ -68,7 +66,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 						new Random().nextInt(), this));
 			}
 		}
-		if(SortedNodeIntegrationTests.class.equals(testType)){
+		if(SortedNodeIntegrationTests.class.equals(testType) || IndexedNodeIntegrationTests.class.equals(testType)){
 			if(entity){
 //				sortedBeanNode = register(NodeFactory.entityNode(this, clientName, 
 //						SortedBeanEntityKey.class, SortedBean.class, SortedBeanFielder.class,
@@ -76,7 +74,11 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 				sortedBeanEntityNode = new SortedBeanEntityNode(this, clientName, NODE_NAME_SortedBeanEntity);
 				sortedBeanNode = sortedBeanEntityNode.sortedBean();
 			}else{
-				sortedBeanNode = register(NodeFactory.create(clientName, SortedBean.class, SortedBeanFielder.class, this));
+				if(useFielder){
+					sortedBeanNode = register(NodeFactory.create(clientName, SortedBean.class, SortedBeanFielder.class, this));
+				}else{//no fielder to trigger hibernate node
+					sortedBeanNode = register(NodeFactory.create(clientName, SortedBean.class, this));
+				}
 			}
 		}
 		if(BackupIntegrationTests.class.equals(testType)){
@@ -167,8 +169,8 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	/************************ sorted and indexed versions of this router *****************/
 	
 	public static class SortedBasicNodeTestRouter extends BasicNodeTestRouter{
-		public SortedBasicNodeTestRouter(String client, Class<?> testType, boolean entity){
-			super(client, testType, entity);
+		public SortedBasicNodeTestRouter(String client, Class<?> testType, boolean useFielder, boolean entity){
+			super(client, testType, useFielder, entity);
 		}
 		public SortedMapStorage<SortedBeanKey,SortedBean> sortedBeanSorted(){
 			return cast(sortedBeanNode);
@@ -179,8 +181,8 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	}
 	
 	public static class IndexedBasicNodeTestRouter extends SortedBasicNodeTestRouter{
-		public IndexedBasicNodeTestRouter(String client, Class<?> testType, boolean entity){
-			super(client, testType, entity);
+		public IndexedBasicNodeTestRouter(String client, Class<?> testType, boolean useFielder, boolean entity){
+			super(client, testType, useFielder, entity);
 		}
 		public IndexedStorage<SortedBeanKey,SortedBean> sortedBeanIndexed(){
 			return cast(sortedBeanNode);
