@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NavigableSet;
@@ -32,7 +33,6 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -221,13 +221,15 @@ implements HBasePhysicalNode<PK,D>,
 
 		//execute the multi-row queries in individual Scans
 		List<D> multiEntityResults = ListTool.createArrayList();
-		for(final PK prefix : multiEntityPrefixes){		
-			final Scan scan = queryBuilder.getPrefixScan(prefix, wildcardLastField, config);
+		for(final PK pkPrefix : multiEntityPrefixes){
+			EK ekPrefix = pkPrefix.getEntityKey();//we already determined prefix is confied to the EK
+			final List<Scan> allPartitionScans = queryBuilder.getPrefixScans(ekPrefix, wildcardLastField, config);
+			for(final Scan singlePartitionScan : allPartitionScans){
 			List<D> singleScanResults = new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(
 					getDataRouterContext(), getTaskNameParams(), "getWithPrefixes", config){
 					public List<D> hbaseCall() throws Exception{
 						List<D> results = ListTool.createArrayList();
-						managedResultScanner = hTable.getScanner(scan);
+						managedResultScanner = hTable.getScanner(singlePartitionScan);
 						for(Result row : managedResultScanner){
 							if(row.isEmpty()){ continue; }
 							List<D> singleRowResults = resultParser.getDatabeansWithMatchingQualifierPrefix(row);
@@ -237,10 +239,13 @@ implements HBasePhysicalNode<PK,D>,
 						return results;
 					}
 				}).call();
-			multiEntityResults.addAll(singleScanResults);
+				multiEntityResults.addAll(singleScanResults);
+			}
 		}
 		
-		return ListTool.concatenate(singleEntityResults, multiEntityResults);
+		List<D> allResults = ListTool.concatenate(singleEntityResults, multiEntityResults);
+		Collections.sort(allResults);
+		return allResults;
 	}
 	
 
@@ -350,7 +355,6 @@ implements HBasePhysicalNode<PK,D>,
 						if(config.getIterateBatchSize()!=null && results.size()>=config.getIterateBatchSize()){ break; }
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}
-					logger.warn(partition+" "+rowBytesRange+" "+results.size());
 					managedResultScanner.close();
 					DRCounters.incSuffixClientNode(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),  
 							CollectionTool.size(results));

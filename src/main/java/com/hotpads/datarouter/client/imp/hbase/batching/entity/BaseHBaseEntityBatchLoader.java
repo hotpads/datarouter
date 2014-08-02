@@ -42,7 +42,6 @@ extends BaseBatchLoader<T>{
 		this.node = node;
 		this.partition = partition;
 		this.range = range;
-		logger.warn(range);
 		this.config = Config.nullSafe(pConfig);
 		this.iterateBatchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_iterateBatchSize);
 		config.setIterateBatchSize(iterateBatchSize);
@@ -58,7 +57,6 @@ extends BaseBatchLoader<T>{
 	public BaseHBaseEntityBatchLoader<EK,E,PK,D,F,T> call(){
 		//do the RPC
 		List<Result> hBaseRows = node.getResultsInSubRange(partition, range, isKeysOnly(), config);
-//		logger.warn(partition+" "+range+" "+hBaseRows.size());
 		List<T> outs = ListTool.createArrayListWithSize(hBaseRows);
 		for(Result row : hBaseRows){
 			if(row==null || row.isEmpty()){ continue; }

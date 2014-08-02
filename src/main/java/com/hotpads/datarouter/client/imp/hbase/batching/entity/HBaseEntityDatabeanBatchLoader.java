@@ -55,7 +55,6 @@ extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,D>{
 	@Override
 	protected PK getLastPrimaryKeyFromBatch(){
 		PK last = getLast()==null ? null : getLast().getKey();
-		logger.warn("last "+last);
 		return last;
 	}
 
