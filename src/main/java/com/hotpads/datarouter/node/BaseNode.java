@@ -62,7 +62,7 @@ implements Node<PK,D>{
 	}
 	
 	protected void setId(NodeId<PK,D,F> id){
-		logger.warn("setId:"+id.getName());
+//		logger.warn("setId:"+id.getName());
 		this.id = id;
 	}
 	
