@@ -190,14 +190,15 @@ public class DatabeanFieldInfo<
 		//info about PhysicalNodes, the leaf nodes that store the data (as opposed to virtual nodes)
 		this.clientName = params.getClientName();
 		this.baseDatabeanClass = databeanClass;
-		if(StringTool.notEmpty(params.getPhysicalName())){//explicitly set tableName
-			this.tableName = params.getPhysicalName();
-			this.packagedTableName = params.getQualifiedPhysicalName();
-			explicitNodeName = clientName+"."+tableName;
-			logger.info("client:"+clientName+" "+params.getDatabeanClass().getSimpleName()+" overridden -> "+tableName);
-		}else if(entity){
+		if(entity){
 			this.tableName = params.getPhysicalName();
 			this.packagedTableName = null;//what to do here
+			this.explicitNodeName = params.getParentName()+"."+databeanClass.getSimpleName()+"."+entityNodePrefix;
+		}else if(StringTool.notEmpty(params.getPhysicalName())){//explicitly set tableName.  do after entity check since that also sets a table name
+			this.tableName = params.getPhysicalName();
+			this.packagedTableName = params.getQualifiedPhysicalName();
+			this.explicitNodeName = clientName+"."+tableName;
+			logger.info("client:"+clientName+" "+params.getDatabeanClass().getSimpleName()+" overridden -> "+tableName);
 		}else if(params.getBaseDatabeanClass() != null){//table-per-class-hierarchy (use superclass's table)
 			this.tableName = params.getBaseDatabeanClass().getSimpleName();
 			this.packagedTableName = params.getDatabeanClass().getName();

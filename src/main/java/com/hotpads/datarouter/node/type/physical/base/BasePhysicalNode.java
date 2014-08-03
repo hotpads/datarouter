@@ -37,8 +37,7 @@ implements PhysicalNode<PK,D>
 	
 	public BasePhysicalNode(NodeParams<PK,D,F> params){
 		super(params);
-		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params.getDatabeanClass(), params.getRouter()
-				.getName(), params.getClientName(), params.getParentName(), fieldInfo.getExplicitNodeName()));
+		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params, fieldInfo.getExplicitNodeName()));
 	}
 	
 
