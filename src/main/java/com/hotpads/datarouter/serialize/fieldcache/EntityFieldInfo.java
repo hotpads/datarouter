@@ -20,7 +20,7 @@ public class EntityFieldInfo<
 	private String entityTableName;
 	private Class<EK> entityKeyClass;
 	private EK sampleEntityKey;
-	private List<Field<?>> entityKeyFields;
+//	private List<Field<?>> entityKeyFields;
 	private Class<? extends EntityPartitioner<EK>> entityPartitionerClass;
 	private EntityPartitioner<EK> entityPartitioner;
 	private Class<E> entityClass;
@@ -31,7 +31,7 @@ public class EntityFieldInfo<
 		this.entityKeyClass = params.getEntityKeyClass();
 		this.sampleEntityKey = ReflectionTool.create(entityKeyClass);
 		//careful as i think the PK may override these
-		this.entityKeyFields = sampleEntityKey.getFields();
+//		this.entityKeyFields = sampleEntityKey.getFields();
 		this.entityPartitionerClass = params.getEntityPartitionerClass();
 		if(entityPartitionerClass==null){
 			this.entityPartitioner = new NoOpEntityPartitioner<>();
@@ -59,9 +59,9 @@ public class EntityFieldInfo<
 		return sampleEntityKey;
 	}
 
-	public List<Field<?>> getEntityKeyFields(){
-		return entityKeyFields;
-	}
+//	public List<Field<?>> getEntityKeyFields(){
+//		return entityKeyFields;
+//	}
 
 	public Class<? extends EntityPartitioner<EK>> getEntityPartitionerClass(){
 		return entityPartitionerClass;

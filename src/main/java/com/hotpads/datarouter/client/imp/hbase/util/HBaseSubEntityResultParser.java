@@ -111,7 +111,8 @@ public class HBaseSubEntityResultParser<
 	private Pair<PK,String> parsePrimaryKeyAndFieldName(KeyValue kv){
 		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
 		//EK
-		parseEkFieldsFromBytesToPk(entityFieldInfo.getEntityKeyFields(), kv, pk);
+		//be sure to get the entity key fields from DatabeanFieldInfo in case the PK overrode the EK field names
+		parseEkFieldsFromBytesToPk(fieldInfo.getEntityKeyFields(), kv, pk);
 		//post-EK
 		int fieldNameOffset = parsePostEkFieldsFromBytesToPk(fieldInfo.getPostEkPkKeyFields(), kv, pk);
 		//fieldName

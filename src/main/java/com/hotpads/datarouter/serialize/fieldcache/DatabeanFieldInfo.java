@@ -70,7 +70,7 @@ public class DatabeanFieldInfo<
 //	private Class<? extends EntityKey> entityKeyClass;
 //	private Class<? extends EntityPartitioner<?>> entityPartitionerClass;
 //	private EntityPartitioner<?> entityPartitioner;
-//	private List<Field<?>> entityKeyFields;
+	private List<Field<?>> entityKeyFields;
 	private List<Field<?>> postEkPkKeyFields;
 	
 	private Class<? extends ScatteringPrefix> scatteringPrefixClass;
@@ -183,7 +183,7 @@ public class DatabeanFieldInfo<
 //				this.entityPartitioner = ReflectionTool.create(entityPartitionerClass);
 //			}
 			//careful to call sampleEntityPrimarykey.getEntityKeyFields vs sampleEntityKey.getFields().  the pk may override the ek
-//			this.entityKeyFields = sampleEntityPrimaryKey.getEntityKeyFields();
+			this.entityKeyFields = sampleEntityPrimaryKey.getEntityKeyFields();
 			this.postEkPkKeyFields = sampleEntityPrimaryKey.getPostEntityKeyFields();
 		}
 		
@@ -507,9 +507,9 @@ public class DatabeanFieldInfo<
 //		return sampleEntityKey;
 //	}
 //
-//	public List<Field<?>> getEntityKeyFields(){
-//		return entityKeyFields;
-//	}
+	public List<Field<?>> getEntityKeyFields(){
+		return entityKeyFields;
+	}
 
 	public List<Field<?>> getPostEkPkKeyFields(){
 		return postEkPkKeyFields;
