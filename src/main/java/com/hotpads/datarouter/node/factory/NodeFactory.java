@@ -114,22 +114,22 @@ public class NodeFactory{
 			DataRouter router,
 			EntityNodeParams<EK,E> entityNodeParams,
 			String clientName,
-			String parentName,
+//			String parentName,
 //			Class<EK> entityKeyClass,//TODO can we do without this?  i couldn't figure out how
 //			Class<? extends EntityPartitioner<EK>> entityPartitionerClass,
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
 //			Class<E> entityClass,
-			String entityName,
+//			String entityName,
 			String entityNodePrefix
 			){
 //		EntityNodeParams<EK,E> entityNodeParams = new EntityNodeParams<EK,E>(null, entityKeyClass, entityClass,
 //				entityPartitionerClass, entityName);
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
-				.withParentName(parentName)
+				.withParentName(entityNodeParams.getNodeName())
 				.withFielder(fielderClass)
-				.withEntity(entityName, entityNodePrefix);
+				.withEntity(entityNodeParams.getEntityTableName(), entityNodePrefix);
 		NodeParams<PK,D,F> nodeParams = paramsBuilder.build();
 //		return create(paramsBuilder.build());
 		ClientType clientType = nodeParams.getRouter().getClientOptions().getClientTypeInstance(clientName);

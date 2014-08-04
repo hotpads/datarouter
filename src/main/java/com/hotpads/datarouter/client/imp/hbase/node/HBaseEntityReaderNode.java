@@ -17,12 +17,16 @@ import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
+import com.hotpads.trace.TraceEntity;
+import com.hotpads.trace.key.TraceEntityKey;
 
 public abstract class HBaseEntityReaderNode<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>>
 extends BasePhysicalEntityNode<EK,E>{
 
+
+	protected EntityNodeParams<EK,E> entityNodeParams;
 	private HBaseTaskNameParams taskNameParams;//currently acting as a cache of superclass fields
 	private HBaseEntityQueryBuilder<EK,E> queryBuilder;
 	private HBaseEntityResultParser<EK,E> resultParser;
@@ -30,6 +34,7 @@ extends BasePhysicalEntityNode<EK,E>{
 	public HBaseEntityReaderNode(DataRouter router, EntityNodeParams<EK,E> entityNodeParams,
 			HBaseTaskNameParams taskNameParams){
 		super(router.getContext(), entityNodeParams, taskNameParams);
+		this.entityNodeParams = entityNodeParams;
 		this.taskNameParams = taskNameParams;
 		initNodes(router, taskNameParams.getClientName());
 		//need to call initNodes before this so nodeByQualifierPrefix gets initialized
