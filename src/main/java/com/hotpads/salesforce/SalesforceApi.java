@@ -31,17 +31,16 @@ public class SalesforceApi{
 		this.connect();
 	}
 
-
 	private void connect(){
 		Map<String, String> auth_params = new HashMap<>();
 		auth_params.put("grant_type", "password");
 		auth_params.put("client_id", "3MVG9zJJ_hX_0bb8Ps0FJvyGeLt9sR0rw5rWRpZlUnz4wg1nMbgo55G3rBFU8EIZkG0z3sq0j49p13yRwFbhT");
 		auth_params.put("client_secret", "7796326880581196854");
 		auth_params.put("username", "calixteb@zillow.com.rentalsdev");
-		auth_params.put("password", "cbonsart03gNthiMgX53FH5bIsQgnjewLjD");
+		auth_params.put("password", "cbonsart03ncE8BuWJi7ApZl9uqv1ygpo9");
 		try{
 			AuthenticationResponse r = httpClient.post(
-				"https://login.salesforce.com/services/oauth2/token",
+				"https://test.salesforce.com/services/oauth2/token",
 				auth_params,
 				AuthenticationResponse.class,
 				true);
@@ -176,16 +175,32 @@ public class SalesforceApi{
 		public String instance_url;
 	}
 	
+	private static class Featured_Property__c extends SalesforceDatabean{
+		
+		private String Name;
+		private String Property_Zillow_Account_ID__c;
+
+		public Featured_Property__c(){
+			super(new SalesforceDatabeanKey(""));
+		}
+		
+		public Featured_Property__c(SalesforceDatabeanKey key){
+			super(key);
+		}
+
+		@Override
+		public Type getQueryResultType(){
+			return new TypeToken<QueryResult<Featured_Property__c>>(){}.getType();
+		}
+		
+	}
+	
 	public static void main(String[] args){
 		SalesforceApi salesforceApi = new SalesforceApi();
-				
-		Contact contact = salesforceApi.get(new SalesforceDatabeanKey("003b000000HxnHw"), Contact.class);
-		logger.warn(contact.FirstName);
-		contact.FirstName = "John";
-		salesforceApi.put(contact);
-		List<Contact> contacts = salesforceApi.lookup(Contact.class, "FirstName", "John");
-		for(Contact c : contacts){
-			System.out.println(c.FirstName + " " + c.getKey().getId());
+
+		List<Featured_Property__c> ff = salesforceApi.lookup(Featured_Property__c.class, "Property_Zillow_Account_ID__c", "ZRN-2327749");
+		for(Featured_Property__c f : ff){
+			System.out.println(f.Name);
 		}
 	}
 	
