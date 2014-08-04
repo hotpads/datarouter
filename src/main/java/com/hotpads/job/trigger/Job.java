@@ -15,7 +15,7 @@ public interface Job extends Callable<Void>, Comparable<Job>{
 
 	CronExpression getTrigger();
 	Long getDelayBeforeNextFireTimeMs();
-	void scheduleNextRun();
+	void scheduleNextRun(boolean immediate);
 	boolean shouldRun();
 	void run();
 	void runInternal();
