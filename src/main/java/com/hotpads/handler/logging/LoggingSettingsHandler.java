@@ -1,6 +1,5 @@
 package com.hotpads.handler.logging;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +8,6 @@ import java.util.TreeMap;
 import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -21,11 +19,11 @@ import com.google.inject.Inject;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.dispatcher.DataRouterDispatcher;
 import com.hotpads.handler.mav.Mav;
+import com.hotpads.handler.mav.imp.JsonMav;
 import com.hotpads.logging.Log4j2Configurator;
 
 @Singleton
 public class LoggingSettingsHandler extends BaseHandler{
-	private static final Logger logger = LoggerFactory.getLogger(LoggingSettingsHandler.class);
 	private static final String
 		JSP = "/logging",
 		JSP_CONSOLE_APPENDER = "/consoleAppender",
@@ -37,7 +35,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		Level.INFO,
 		Level.WARN,
 		Level.ERROR,
-		Level.FATAL,//TODO remove ? because not in slf4j
+		Level.FATAL,//TODO remove because not in slf4j ?
 		Level.OFF,
 	};
 
@@ -54,8 +52,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 	}
 
 	@Override
-	protected Mav handleDefault() throws Exception{
-		testLog();
+	protected Mav handleDefault(){
 		Mav mav = new Mav(JSP);
 		mav.put("rootLogger", log4j2Configurator.getRootLoggerConfig());
 		mav.put("levels", levels);
@@ -71,13 +68,17 @@ public class LoggingSettingsHandler extends BaseHandler{
 		return mav;
 	}
 
-	private void testLog(){
-		String message = "lolalala barbara";
+	@Handler
+	private Mav testLog(){
+		String loggerName = params.required("loggerName");
+		Logger logger = LoggerFactory.getLogger(loggerName);
+		String message = "LoggingSettingsHandler.testLog()";
 		logger.trace(message);
 		logger.debug(message);
 		logger.info(message);
 		logger.warn(message);
 		logger.error(message);
+		return new JsonMav();
 	}
 
 	@Handler
@@ -128,11 +129,11 @@ public class LoggingSettingsHandler extends BaseHandler{
 		}
 		Mav mav = new Mav(JSP_CONSOLE_APPENDER);
 		mav.put("name", name);
-		if(name != null) {
-			ConsoleAppender appender = (ConsoleAppender)log4j2Configurator.getAppender(name);
-			Layout<? extends Serializable> layout = appender.getLayout();
-			mav.put("layout", layout);
-		}
+//		if(name != null) {
+//			ConsoleAppender appender = (ConsoleAppender)log4j2Configurator.getAppender(name);
+//			Layout<? extends Serializable> layout = appender.getLayout();
+//			mav.put("layout", layout);
+//		}
 		return mav;
 	}
 	
