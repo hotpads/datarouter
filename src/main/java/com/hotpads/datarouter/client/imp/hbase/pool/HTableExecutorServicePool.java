@@ -87,6 +87,7 @@ public class HTableExecutorServicePool implements HTablePool{
 				// with fewer moving parts.  Goal is to be able to allow large queue sizes for bursts
 				// but to free up the memory of hundreds or thousands of threads in quiet times when
 				// other things might be bursting
+				hTableExecutorService.exec.shutdown();
 				logWithPoolInfo("discarded expired HTableExecutorService", tableName);
 				hTableExecutorService = null;//release it and loop around again
 			}
