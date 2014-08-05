@@ -1,10 +1,5 @@
 package com.hotpads.datarouter.storage.field.imp.array;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,8 +18,10 @@ import com.hotpads.email.generic.EmailAttachment;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.logger.CustomLoggerTool;
+import com.hotpads.util.core.serialize.SerializeTool;
 
 public class EmailAttachmentArrayField extends BaseListField<EmailAttachment,List<EmailAttachment>>{
     private static final Logger logger = CustomLoggerTool.getValidLogger("jdbc", EmailAttachmentArrayField.class);
@@ -44,11 +41,7 @@ public class EmailAttachmentArrayField extends BaseListField<EmailAttachment,Lis
 	public String getStringEncodedValue() {
 		byte[] bytes = getBytes();
 		if ( bytes != null ) {
-			try {
-				return new String( bytes, "UTF-8" );
-			} catch ( UnsupportedEncodingException e ) {
-				logger.warn( "Illegal encoding " + e.getMessage() );
-			}
+			return StringByteTool.fromUtf8Bytes(bytes);
 		}
 		return null;
 	}
@@ -58,7 +51,7 @@ public class EmailAttachmentArrayField extends BaseListField<EmailAttachment,Lis
 		if ( s == null ) {
 			return null;
 		}
-		byte[] bytes = s.getBytes();
+		byte[] bytes = StringByteTool.getUtf8Bytes(s);
 		return fromBytes(bytes);
 	}
 	
@@ -74,53 +67,18 @@ public class EmailAttachmentArrayField extends BaseListField<EmailAttachment,Lis
 		if(CollectionTool.isEmpty( attachments )){
 			return null;
 		}
-		return serialize( attachments );
-	}
-	
-	private static byte[] serialize(Object o) {
-		assert o != null;
-		byte[] rv=null;
-		try {
-			ByteArrayOutputStream bos=new ByteArrayOutputStream();
-			ObjectOutputStream os=new ObjectOutputStream(bos);
-			os.writeObject(o);
-			os.close();
-			bos.close();
-			rv=bos.toByteArray();
-		} catch(IOException e) {
-			throw new IllegalArgumentException("Non-serializable object", e);
-		}
-		return rv;
-	}
-
-	private static Object deserialize(byte[] in) {
-		Object rv=null;
-		assert in != null;
-		try {
-			ByteArrayInputStream bis=new ByteArrayInputStream(in);
-			ObjectInputStream is=new ObjectInputStream(bis);
-			rv=is.readObject();
-			is.close();
-			bis.close();
-		} catch(IOException e) {
-			logger.warn("Caught IOException decoding " + in.length + " bytes of data", e);
-		} catch (ClassNotFoundException e) {
-			logger.warn("Caught ClassNotFoundException decoding " + in.length + " bytes of data", e);
-		}
-		return rv;
+		return SerializeTool.serialize( attachments );
 	}
 	
 	
 	@Override
 	public List<EmailAttachment> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		if ( byteOffset == 0 )
-			return fromBytes(bytes);
-		if ( byteOffset >= bytes.length || byteOffset < 0) return null;
+		if(byteOffset == 0){ return fromBytes(bytes); }
+		if(byteOffset >= bytes.length || byteOffset < 0){ throw new IllegalArgumentException("Illegal byte offset "
+				+ byteOffset); }
 		int newSize = bytes.length - byteOffset;
-		byte[] newBytes = new byte[ newSize ];
-		for (int i = 0; i < newSize; i++ ) {
-			newBytes[i] = bytes[byteOffset+i];
-		}
+		byte[] newBytes = new byte[newSize];
+		ArrayTool.copyInto(newBytes, bytes, byteOffset);
 		return fromBytes(newBytes);
 	}
 
@@ -129,7 +87,7 @@ public class EmailAttachmentArrayField extends BaseListField<EmailAttachment,Lis
 		if ( bytes == null || bytes.length == 0 ) {
 			return null;
 		}
-		Object o = deserialize( bytes );
+		Object o = SerializeTool.deserialize( bytes );
 		try {
 			return (List<EmailAttachment>) o;
 		} catch ( Exception e ) {
@@ -148,8 +106,8 @@ public class EmailAttachmentArrayField extends BaseListField<EmailAttachment,Lis
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		// TODO Auto-generated method stub
-		return 0;
+		if (bytes == null) { return 0; }
+		return bytes.length - byteOffset;
 	}
 	
 

@@ -5,9 +5,7 @@ import java.io.Serializable;
 
 
 public class EmailAttachment implements Serializable, Comparable<EmailAttachment> {
-
-	private static final long serialVersionUID = 1L;
-
+	private static final long serialVersionUID = 3258010322661131306L;
 	public static final String CONTENT_TYPE_PLAIN_TEXT = "text/plain";
 	public static final String CONTENT_TYPE_HTML = "text/html";
 	public static final String CONTENT_TYPE_VCARD = "text/vcard";
