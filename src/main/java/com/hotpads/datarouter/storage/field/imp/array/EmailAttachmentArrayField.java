@@ -91,17 +91,18 @@ public class EmailAttachmentArrayField extends BaseListField<EmailAttachment,Lis
 		try {
 			return (List<EmailAttachment>) o;
 		} catch ( Exception e ) {
-			String type = o.getClass().getName();
+			String msg = "Deserialized object has type " + o.getClass().getName();
 			if ( o instanceof List ) {
 				List<Object> list = (List<Object>) o;
 				if ( list.size() > 0 ) {
 					Object member = list.get(0);
-					type += "<" + member.getClass().getName() + ">";
+					msg += "<" + member.getClass().getName() + ">";
 				}
 			}
-			logger.warn( "Returned object of type " + type + " is not a List<EmailAttachment>" );
+			msg += " should be a List<EmailAttachment>";
+			logger.error( msg );
+			throw new IllegalArgumentException(msg, e);
 		}
-		return null;
 	}
 
 	@Override
