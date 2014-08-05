@@ -26,6 +26,7 @@ import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTableExecutorServicePool;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePerTablePool;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
+import com.hotpads.datarouter.client.imp.hbase.pool.HTableSharedPool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.exception.UnavailableException;
@@ -52,7 +53,8 @@ implements ClientFactory{
 	Logger logger = Logger.getLogger(getClass());
 	
 	public static final Boolean PER_TABLE_POOL = false;//per table is less efficient
-	
+	public static final Boolean SHARED_POOL = false;//per table is less efficient
+
 	//static caches
 	public static Map<String,Configuration> CONFIG_BY_ZK_QUORUM = new ConcurrentHashMap<String,Configuration>();
 	public static Map<Configuration,HBaseAdmin> ADMIN_BY_CONFIG = new ConcurrentHashMap<Configuration,HBaseAdmin>();
@@ -214,7 +216,10 @@ implements ClientFactory{
 			pool = new HTablePerTablePool(hBaseConfig, tableNames,
 					options.minPoolSize(PER_TABLE_minPoolSize),
 					PER_TABLE_maxPoolSize);
-		} else {
+		}else if(SHARED_POOL){
+			pool = new HTableSharedPool(hBaseConfig, clientName,
+					EXECUTOR_SERVICE_maxPoolSize, primaryKeyClassByName);
+		}else {
 			pool = new HTableExecutorServicePool(hBaseConfig, clientName,
 					EXECUTOR_SERVICE_maxPoolSize, primaryKeyClassByName);
 		}
