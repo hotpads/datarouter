@@ -53,7 +53,7 @@ implements ClientFactory{
 	Logger logger = Logger.getLogger(getClass());
 	
 	public static final Boolean PER_TABLE_POOL = false;//per table is less efficient
-	public static final Boolean SHARED_POOL = true;//per table is less efficient
+	public static final Boolean SHARED_POOL = false;//per table is less efficient
 
 	//static caches
 	public static Map<String,Configuration> CONFIG_BY_ZK_QUORUM = new ConcurrentHashMap<String,Configuration>();
