@@ -25,10 +25,6 @@ public class TraceEntityNode
 extends HBaseEntityReaderNode<TraceEntityKey,TraceEntity>
 implements TraceNodes{
 	
-//	private static final String
-//		NODE_NAME = "TraceEntity",
-//		ENTITY_TABLE_NAME_TraceEntity = "TraceEntity";
-	
 	public static final EntityNodeParams<TraceEntityKey,TraceEntity> ENTITY_NODE_PARAMS_TraceEntity
 			= new EntityNodeParams<TraceEntityKey,TraceEntity>(
 			"TraceEntity", TraceEntityKey.class, TraceEntity.class, TraceEntityPartitioner.class,
