@@ -45,8 +45,8 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig> {
 	/** fielder ***************************************************************/
 
 	public static class LoggerConfigFielder extends BaseDatabeanFielder<LoggerConfigKey, LoggerConfig>{
-		public LoggerConfigFielder(){
-		}
+
+		private LoggerConfigFielder(){}
 
 		@Override
 		public Class<LoggerConfigKey> getKeyFielderClass() {

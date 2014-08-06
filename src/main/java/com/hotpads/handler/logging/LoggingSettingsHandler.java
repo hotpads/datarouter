@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,8 +119,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		if(action != null && action.equals("Create")){
 			String pattern = params.required("layout");
 			String targetStr = params.required("target");
-			Appender appender = Log4j2Configurator.createConsoleAppender(pattern, targetStr, name);
-			log4j2Configurator.addAppender(appender);
+			log4j2Configurator.addConsoleAppender(name, targetStr, pattern);
 			return getRedirectMav();
 		}
 		Mav mav = new Mav(JSP_CONSOLE_APPENDER);
@@ -141,8 +139,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		if(action != null && action.equals("Create")){
 			String pattern = params.required("layout");
 			String fileName = params.required("fileName");
-			Appender appender = Log4j2Configurator.createFileAppender(name, fileName, pattern);
-			log4j2Configurator.addAppender(appender);
+			log4j2Configurator.addFileAppender(name, fileName, pattern);
 			return getRedirectMav();
 		}
 		Mav mav = new Mav(JSP_FILE_APPENDER);

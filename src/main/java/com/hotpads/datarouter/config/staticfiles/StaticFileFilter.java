@@ -21,9 +21,10 @@ import com.hotpads.util.core.FileUtils;
 
 @Singleton
 public class StaticFileFilter implements Filter {
-	static Logger logger = LoggerFactory.getLogger(StaticFileFilter.class);
+	private static final Logger logger = LoggerFactory.getLogger(StaticFileFilter.class);
+
 	protected FilterConfig config;
-	
+
 	@Override
 	public void init(FilterConfig config) throws ServletException {
 		this.config = config;
@@ -35,7 +36,7 @@ public class StaticFileFilter implements Filter {
 
 		HttpServletRequest request = (HttpServletRequest)req;
 		HttpServletResponse response = (HttpServletResponse)res;
-		
+
 		String contextPath = request.getContextPath();
 		String path = request.getRequestURI().substring(contextPath.length());
 		if (FileUtils.hasAStaticFileExtension(path)) {
@@ -44,17 +45,17 @@ public class StaticFileFilter implements Filter {
 				String headerName = e.nextElement();
 				String headerValue = config.getInitParameter(headerName);
 				response.addHeader(headerName, headerValue);
-			 }
-			
+			}
+
 			RequestDispatcher rd = request.getServletContext().getNamedDispatcher("default");
 			rd.forward(request, response);
-//			    request.getRequestDispatcher("default").forward(request, response);
-		    return;
+			// request.getRequestDispatcher("default").forward(request, response);
+			return;
 		}
-			//continue
-			filterChain.doFilter(request, response);
+		// continue
+		filterChain.doFilter(request, response);
 	}
-	
+
 	@Override
 	public void destroy() {
 	}
