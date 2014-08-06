@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -20,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
-import com.google.inject.Singleton;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.exception.analysis.HttpHeaders;

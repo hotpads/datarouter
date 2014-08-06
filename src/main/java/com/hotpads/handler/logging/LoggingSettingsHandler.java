@@ -5,22 +5,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.appender.ConsoleAppender;
-import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.dispatcher.DataRouterDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.JsonMav;
-import com.hotpads.logging.Log4j2Configurator;
+import com.hotpads.util.core.logging.Log4j2Configurator;
 
 @Singleton
 public class LoggingSettingsHandler extends BaseHandler{
@@ -70,9 +68,9 @@ public class LoggingSettingsHandler extends BaseHandler{
 
 	@Handler
 	private Mav testLog(){
-		String loggerName = params.required("loggerName");
+		String loggerName = params.optional("loggerName", "com.hotpads.handler.logging.com.hotpads.handler.logging");
+		String message = params.optional("message", "LoggingSettingsHandler.testLog()");
 		Logger logger = LoggerFactory.getLogger(loggerName);
-		String message = "LoggingSettingsHandler.testLog()";
 		logger.trace(message);
 		logger.debug(message);
 		logger.info(message);
@@ -122,8 +120,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		if(action != null && action.equals("Create")){
 			String pattern = params.required("layout");
 			String targetStr = params.required("target");
-			PatternLayout layout = PatternLayout.newBuilder().withPattern(pattern).build();
-			ConsoleAppender appender = ConsoleAppender.createAppender(layout, null, targetStr, name, null, null);
+			Appender appender = Log4j2Configurator.createConsoleAppender(pattern, targetStr, name);
 			log4j2Configurator.addAppender(appender);
 			return getRedirectMav();
 		}
@@ -144,8 +141,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		if(action != null && action.equals("Create")){
 			String pattern = params.required("layout");
 			String fileName = params.required("fileName");
-			PatternLayout layout = PatternLayout.newBuilder().withPattern(pattern).build();
-			FileAppender appender = FileAppender.createAppender(fileName, null, null, name, null, null, null, null, layout, null, null, null, null);
+			Appender appender = Log4j2Configurator.createFileAppender(name, fileName, pattern);
 			log4j2Configurator.addAppender(appender);
 			return getRedirectMav();
 		}

@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
+
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClientImp;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
 import com.hotpads.datarouter.routing.DataRouterContext;

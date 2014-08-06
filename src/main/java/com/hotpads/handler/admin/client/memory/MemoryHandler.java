@@ -3,7 +3,8 @@ package com.hotpads.handler.admin.client.memory;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
+
 import com.hotpads.datarouter.client.imp.memory.MemoryClient;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.routing.RouterParams;

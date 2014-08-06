@@ -3,6 +3,7 @@ package com.hotpads.datarouter.config.staticfiles;
 import java.io.IOException;
 import java.util.Enumeration;
 
+import javax.inject.Singleton;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -16,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Singleton;
 import com.hotpads.util.core.FileUtils;
 
 @Singleton

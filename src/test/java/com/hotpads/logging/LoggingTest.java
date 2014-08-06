@@ -16,6 +16,7 @@ import com.hotpads.logging.ClassA.Class1;
 import com.hotpads.logging.ClassA.Class1.Class11;
 import com.hotpads.logging.ClassA.Class2;
 import com.hotpads.logging.another.Class3;
+import com.hotpads.util.core.logging.Log4j2Configurator;
 
 public class LoggingTest{
 	private static final Logger logger = LoggerFactory.getLogger(LoggingTest.class);
@@ -25,7 +26,7 @@ public class LoggingTest{
 		Injector injector = Guice.createInjector();
 		Log4j2Configurator log4j2Configurator = injector.getInstance(Log4j2Configurator.class);
 		logOneOfEachLevel();
-		log4j2Configurator.setRootLevel(Level.DEBUG);
+		log4j2Configurator.getRootLoggerConfig().setLevel(Level.DEBUG);
 		logOneOfEachLevel();
 
 		new Class1().logYourName();
