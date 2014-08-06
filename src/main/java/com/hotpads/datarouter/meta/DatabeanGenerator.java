@@ -8,21 +8,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
-import javax.persistence.Embeddable;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
-import org.hibernate.annotations.AccessType;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-//import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -328,7 +321,7 @@ public class DatabeanGenerator {
 		
 		/** Imports ***********************************************************/
 		javaCode.add(generateImports(fieldDefinitions, keyFieldDefinitions, 
-				Entity.class,Id.class,AccessType.class,Field.class, FieldTool.class, BaseDatabeanFielder.class, List.class,
+				Field.class, FieldTool.class, BaseDatabeanFielder.class, List.class,
 				Date.class,
 				BaseDatabean.class, Map.class, MapTool.class, BaseLookup.class));
 		javaCode.add(EMPTY_LINE);
@@ -340,9 +333,9 @@ public class DatabeanGenerator {
 			.addLine("/** CREATE SCRIPT")
 			.addLine(getCreateScript())
 			.addLine("*/")
-			.addLine("@SuppressWarnings(\"serial\")")
-			.addLine("@"+Entity.class.getSimpleName())
-			.addLine("@"+AccessType.class.getSimpleName()+"(\"field\")")
+//			.addLine("@SuppressWarnings(\"serial\")")
+//			.addLine("@"+Entity.class.getSimpleName())
+//			.addLine("@"+AccessType.class.getSimpleName()+"(\"field\")")
 			.addLine("public class "+name+" extends " +BaseDatabean.class.getSimpleName()+"<"+keyClassName+","+name+"> {")
 			.add(EMPTY_LINE);
 		
@@ -355,7 +348,7 @@ public class DatabeanGenerator {
 		javaCode
 			.addStarCommentLine(1, "fields")
 			.add(EMPTY_LINE)
-			.addLine(1, "@"+Id.class.getSimpleName())
+//			.addLine(1, "@"+Id.class.getSimpleName())
 			.addLine(1, "private "+keyClassName+" key;")
 			.add(EMPTY_LINE);
 		for(FieldDefinition<?> f : fieldDefinitions){
@@ -664,7 +657,7 @@ public class DatabeanGenerator {
 		/** Imports ***********************************************************/
 		javaCode
 			.add(generateImports(null,keyFieldDefinitions,
-				List.class, Embeddable.class, Date.class,
+				List.class, Date.class,
 				Field.class, FieldTool.class, BasePrimaryKey.class))
 			.addEmptyLine();		
 		
@@ -672,7 +665,7 @@ public class DatabeanGenerator {
 		String keyClassName = name + "Key";
 		javaCode
 			.addLine("@SuppressWarnings(\"serial\")")
-			.addLine("@"+Embeddable.class.getSimpleName())
+			//.addLine("@"+Embeddable.class.getSimpleName())
 			.addLine("public class "+keyClassName+" extends "
 				+BasePrimaryKey.class.getSimpleName()+"<"+keyClassName+"> {")
 			.addEmptyLine()

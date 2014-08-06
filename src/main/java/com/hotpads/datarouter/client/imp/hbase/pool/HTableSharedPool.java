@@ -1,8 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.pool;
 
 import java.util.Map;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 
 import junit.framework.Assert;
@@ -11,8 +9,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HConnection;
 import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.hadoop.hbase.client.HTable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -22,8 +19,9 @@ import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.SemaphoreTool;
 import com.hotpads.util.datastructs.MutableString;
 
-public class HTableExecutorServicePool implements HTablePool{
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+
+public class HTableSharedPool  implements HTablePool{
+	protected Logger logger = Logger.getLogger(getClass());
 
 	protected static Boolean LOG_ACTIONS = true;
 
@@ -36,69 +34,40 @@ public class HTableExecutorServicePool implements HTablePool{
 	//this turned out weird:
 	// using Semaphore and BlockingDequeue here.  evolutionary complexity, but possibly more flexible
 	protected Semaphore hTableSemaphore;
-	protected BlockingDeque<HTableExecutorService> executorServiceQueue;
+	//protected BlockingDeque<HTableExecutorService> executorServiceQueue;
 	protected Map<HTable,HTableExecutorService> activeHTables;
 
 	protected Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName;
 
+	protected HTableExecutorService executorService = new HTableExecutorService();
 
-	public HTableExecutorServicePool(Configuration hBaseConfiguration,
+
+	public HTableSharedPool(Configuration hBaseConfiguration,
 			String clientName, int maxSize,
 			Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName){
 		this.hBaseConfiguration = hBaseConfiguration;
 		this.clientName = clientName;
 		this.maxSize = maxSize;
 		this.hTableSemaphore = new Semaphore(maxSize);
-		this.executorServiceQueue = new LinkedBlockingDeque<HTableExecutorService>(maxSize);
 		this.activeHTables = MapTool.createConcurrentHashMap();
 		this.primaryKeyClassByName = primaryKeyClassByName;
 	}
-
 
 	@Override
 	public HTable checkOut(String tableName, MutableString progress){
 		long checkoutRequestStartMs = System.currentTimeMillis();
 		checkConsistencyAndAcquireSempahore(tableName);
 		setProgress(progress, "passed semaphore");
-		HTableExecutorService hTableExecutorService = null;
 		HTable hTable = null;
 		try{
 			DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "connection getHTable", clientName, tableName);
-			while(true){
-				hTableExecutorService = executorServiceQueue.pollFirst();
-				setProgress(progress, "polled queue "+hTableExecutorService==null?"null":"success");
-				
-				if(hTableExecutorService==null){
-					hTableExecutorService = new HTableExecutorService();
-					setProgress(progress, "new HTableExecutorService()");
-					String counterName = "connection create HTable";
-					DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, counterName, clientName, tableName);
-					logWithPoolInfo("created new HTableExecutorService", tableName);
-					break;
-				}
-				if( ! hTableExecutorService.isExpired()){
-	//				logger.warn("connection got pooled HTable executor");
-					DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "got pooled HTable executor", clientName, 
-							tableName);
-					break;//done.  we got an unexpired one, exit the while loop
-				}
-
-				//If we get here we're draining the queue of expired ExecutorServices.  We could do this
-				// in a background thread, but this should eventually accomplish the same thing
-				// with fewer moving parts.  Goal is to be able to allow large queue sizes for bursts
-				// but to free up the memory of hundreds or thousands of threads in quiet times when
-				// other things might be bursting
-				hTableExecutorService.exec.shutdown();
-				logWithPoolInfo("discarded expired HTableExecutorService", tableName);
-				hTableExecutorService = null;//release it and loop around again
-			}
 
 			HConnection hConnection = HConnectionManager.getConnection(hBaseConfiguration);
 			setProgress(progress, "got hConnection "+hConnection==null?"null":"");
 			hTable = new HTable(StringByteTool.getUtf8Bytes(tableName), hConnection,
-					hTableExecutorService.exec);
+					executorService.exec);
 			setProgress(progress, "created HTable");
-			activeHTables.put(hTable, hTableExecutorService);
+			activeHTables.put(hTable, executorService);
 			setProgress(progress, "added to activeHTables");
 			hTable.getWriteBuffer().clear();
 			setProgress(progress, "cleared HTable write buffer");
@@ -124,7 +93,6 @@ public class HTableExecutorServicePool implements HTablePool{
 		progress.set(s);
 	}
 
-
 	@Override
 	public void checkIn(HTable hTable, boolean possiblyTarnished){
 		//do this first otherwise things may get hung up in the "active" map
@@ -149,27 +117,19 @@ public class HTableExecutorServicePool implements HTablePool{
 			if(possiblyTarnished){//discard
 				logWithPoolInfo("ThreadPoolExecutor possibly tarnished, discarding", tableName);
 				DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "HTable executor possiblyTarnished", clientName, tableName);
-				hTableExecutorService.terminateAndBlockUntilFinished(tableName);
+				//hTableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else if(hTableExecutorService.isDyingOrDead(tableName)){//discard
 				logWithPoolInfo("ThreadPoolExecutor not reusable, discarding", tableName);
 				DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "HTable executor isDyingOrDead", clientName, tableName);
-				hTableExecutorService.terminateAndBlockUntilFinished(tableName);
+				//hTableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else if(!hTableExecutorService.isTaskQueueEmpty()){//discard
 				logWithPoolInfo("ThreadPoolExecutor taskQueue not empty, discarding", tableName);
 				DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "HTable executor taskQueue not empty", clientName, tableName);
-				hTableExecutorService.terminateAndBlockUntilFinished(tableName);
+				//hTableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else if(!hTableExecutorService.waitForActiveThreadsToSettle(tableName)){//discard
 				logWithPoolInfo("active thread count would not settle to 0", tableName);
 				DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "HTable executor pool active threads won't quit", clientName, tableName);
-				hTableExecutorService.terminateAndBlockUntilFinished(tableName);
-			}else{
-				if(executorServiceQueue.offer(hTableExecutorService)){//keep it!
-					DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "connection HTable returned to pool", clientName, tableName);
-				}else{//discard
-					logWithPoolInfo("checkIn HTable but queue already full, so close and discard", tableName);
-					DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "HTable executor pool overflow", clientName, tableName);
-					hTableExecutorService.terminateAndBlockUntilFinished(tableName);
-				}
+				//hTableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}
 		}finally{
 			releaseSempahoreAndCheckConsistency(tableName);
@@ -191,10 +151,6 @@ public class HTableExecutorServicePool implements HTablePool{
 		return primaryKeyClassByName.get(tableName);
 	}
 
-	@Override
-	public Integer getTotalPoolSize(){
-		return executorServiceQueue.size();
-	}
 
 	/*********************** logging ************************************/
 
@@ -255,7 +211,6 @@ public class HTableExecutorServicePool implements HTablePool{
 	protected String getPoolInfoLogMessage(String tableName){
 		return "max="+maxSize
 				+", blocked="+hTableSemaphore.getQueueLength()
-				+", idle="+executorServiceQueue.size()
 				+", permits="+hTableSemaphoreActivePermits()
 				+", HTables="+activeHTables.size()
 				+", client="+clientName
@@ -266,4 +221,8 @@ public class HTableExecutorServicePool implements HTablePool{
 		return maxSize - hTableSemaphore.availablePermits();//seems to always be 1 lower?
 	}
 
+	@Override
+	public Integer getTotalPoolSize(){
+		return executorService.exec.getActiveCount();
+	}
 }
