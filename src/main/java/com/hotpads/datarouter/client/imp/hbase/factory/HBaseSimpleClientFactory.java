@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.factory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +23,8 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTableExecutorServicePool;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePerTablePool;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
@@ -34,7 +35,9 @@ import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
+import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.ArrayTool;
@@ -192,7 +195,7 @@ implements ClientFactory{
 						hTable.addFamily(family);
 						byte[][] splitPoints = getSplitPoints(nodeByTableName.get(tableName));
 						if(ArrayTool.isEmpty(splitPoints)
-								|| ArrayTool.isEmpty(splitPoints[0])){
+								|| ArrayTool.isEmpty(splitPoints[0])){//a single empty byte array
 							hBaseAdmin.createTable(hTable);
 						}else{
 							//careful, as throwing strange split points in here can crash master
@@ -236,26 +239,35 @@ implements ClientFactory{
 	 * 
 	 */
 	protected byte[][] getSplitPoints(PhysicalNode<?,?> node){
-		DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
-		ScatteringPrefix sampleScatteringPrefix = fieldInfo.getSampleScatteringPrefix();
-		if(sampleScatteringPrefix==null){ return null; }
-		List<byte[]> splitPoints = ListTool.create();
-		List<List<Field<?>>> allPrefixes = sampleScatteringPrefix.getAllPossibleScatteringPrefixes();
-		int counter = 0;
-		for(List<Field<?>> prefixFields : allPrefixes){
-			++counter;
-			Twin<ByteRange> range = HBaseQueryBuilder.getStartEndBytesForPrefix(prefixFields, false);
-			if( ! isSingleEmptyByte(range.getLeft().toArray())){
-				splitPoints.add(range.getLeft().toArray());
+		if(node instanceof HBaseSubEntityReaderNode){
+			HBaseSubEntityReaderNode<?,?,?,?,?> subEntityNode = (HBaseSubEntityReaderNode<?,?,?,?,?>)node;
+			EntityFieldInfo<?,?> entityFieldInfo = subEntityNode.getEntityFieldInfo(); 
+			EntityPartitioner<?> partitioner = entityFieldInfo.getEntityPartitioner();
+			//remember to skip the first partition
+			int numSplitPoints = partitioner.getNumPartitions() - 1;
+			byte[][] splitPoints = new byte[numSplitPoints][];
+			for(int i=1; i < partitioner.getAllPrefixes().size(); ++i){
+				splitPoints[i-1] = partitioner.getPrefix(i);
 			}
-//			try{
-//				hBaseAdmin.split(StringByteTool.getUtf8Bytes(tableName), range.getLeft());
-//			}catch(Exception e){
-//				throw new RuntimeException("pre-splitting failed for table:"+tableName, e);
-//			}
-//			logger.warn("split table "+tableName+" "+counter+"/"+CollectionTool.size(allPrefixes));
+			return splitPoints;
+		}else if(node instanceof HBaseReaderNode){
+			DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
+			ScatteringPrefix sampleScatteringPrefix = fieldInfo.getSampleScatteringPrefix();
+			if(sampleScatteringPrefix==null){ return null; }
+			List<List<Field<?>>> allPrefixes = sampleScatteringPrefix.getAllPossibleScatteringPrefixes();
+			int counter = 0;
+			List<byte[]> splitPoints = ListTool.create();
+			for(List<Field<?>> prefixFields : allPrefixes){
+				++counter;
+				Twin<ByteRange> range = HBaseQueryBuilder.getStartEndBytesForPrefix(prefixFields, false);
+				if( ! isSingleEmptyByte(range.getLeft().toArray())){
+					splitPoints.add(range.getLeft().toArray());
+				}
+			}
+			return splitPoints.toArray(new byte[splitPoints.size()][]);
+		}else{
+			throw new IllegalArgumentException("Node should be one of the above two types");
 		}
-		return splitPoints.toArray(new byte[splitPoints.size()][]);
 	}
 	
 	protected boolean isSingleEmptyByte(byte[] bytes){

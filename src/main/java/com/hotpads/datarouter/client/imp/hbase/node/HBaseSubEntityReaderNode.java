@@ -371,11 +371,13 @@ implements HBasePhysicalNode<PK,D>,
 		return resultParser;
 	}
 
-
 	public HBaseTaskNameParams getTaskNameParams(){
 		return taskNameParams;
-	}	
-	
+	}
+
+	public EntityFieldInfo<EK,E> getEntityFieldInfo(){
+		return entityFieldInfo;
+	}
 	
 	
 }

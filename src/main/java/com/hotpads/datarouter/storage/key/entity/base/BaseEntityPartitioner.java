@@ -19,6 +19,7 @@ implements EntityPartitioner<EK>{
 		MAX_PARTITIONS = 1 << 16;
 	
 	private ArrayList<byte[]> allPrefixes;
+	private byte[][] allPrefixesArray;
 		
 	
 	/****************** construct ********************/
@@ -31,6 +32,11 @@ implements EntityPartitioner<EK>{
 			for(int i=0; i < getNumPartitions(); ++i){
 				allPrefixes.add(getPrefix(i));
 			}
+		}
+		
+		allPrefixesArray = new byte[allPrefixes.size()][];
+		for(int i=0; i < allPrefixes.size(); ++i){
+			allPrefixesArray[i] = allPrefixes.get(i);
 		}
 	}
 	
@@ -50,6 +56,11 @@ implements EntityPartitioner<EK>{
 	@Override
 	public List<byte[]> getAllPrefixes(){
 		return allPrefixes;
+	}
+	
+	@Override
+	public byte[][] getAllPrefixesArray(){
+		return allPrefixesArray;
 	}
 	
 	@Override

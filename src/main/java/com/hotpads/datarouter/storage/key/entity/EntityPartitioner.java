@@ -8,6 +8,7 @@ public interface EntityPartitioner<EK extends EntityKey<EK>>{
 	boolean isLastPartition(int partition);
 	int getNumPrefixBytes();
 	List<byte[]> getAllPrefixes();
+	byte[][] getAllPrefixesArray();
 	byte[] getPrefix(int partition);
 	byte[] getNextPrefix(int partition);
 	int getPartition(EK ek);
