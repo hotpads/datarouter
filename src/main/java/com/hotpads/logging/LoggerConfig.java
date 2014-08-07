@@ -11,7 +11,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
-import com.hotpads.util.core.IterableTool;
 
 /** CREATE SCRIPT
 com.hotpads.logging.LoggerConfig{
@@ -69,14 +68,14 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig> {
 		this.key = new LoggerConfigKey();
 	}
 
-	public LoggerConfig(String name, LoggingLevel level, boolean additive, Iterable<String> appendersRef){
+	public LoggerConfig(String name, LoggingLevel level, boolean additive, List<String> appendersRef){
 		this.key = new LoggerConfigKey(name);
 		this.level = level;
 		this.additive = additive;
-		this.appendersRef = IterableTool.asList(appendersRef);
+		this.appendersRef = appendersRef;
 	}
 
-	public LoggerConfig(String name, Level level, boolean additive, Iterable<String> appendersRef){
+	public LoggerConfig(String name, Level level, boolean additive, List<String> appendersRef){
 		this(name, LoggingLevel.fromString(level.name()), additive, appendersRef);
 	}
 

@@ -1,9 +1,17 @@
 package com.hotpads;
 
-public interface HotPadsWebAppListener{
+import javax.servlet.ServletContext;
 
-	void onStartUp();
+public abstract class HotPadsWebAppListener{
 
-	void onShutDown();
+	protected ServletContext servletContext;
+	
+	void setServletContext(ServletContext servletContext){
+		this.servletContext = servletContext;
+	}
+
+	abstract void onStartUp();
+
+	abstract void onShutDown();
 
 }

@@ -20,6 +20,7 @@ public abstract class DataRouterLoader implements ServletContextListener{
 		for(Class<? extends HotPadsWebAppListener> listenerClass : getListenerClasses()){
 			HotPadsWebAppListener listener = buildListener(listenerClass);
 			listeners.add(listener);
+			listener.setServletContext(event.getServletContext());
 			listener.onStartUp();
 		}
 	}

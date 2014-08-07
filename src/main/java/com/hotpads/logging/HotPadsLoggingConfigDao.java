@@ -1,5 +1,7 @@
 package com.hotpads.logging;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -14,7 +16,7 @@ public class HotPadsLoggingConfigDao implements LoggingConfigDao{
 	private LoggingConfigNodes loggingConfigNodes;
 
 	@Override
-	public void createAndputLoggerConfig(String name, Level level, boolean additive, Iterable<String> appendersRef){
+	public void createAndputLoggerConfig(String name, Level level, boolean additive, List<String> appendersRef){
 		LoggerConfig loggerConfig = new LoggerConfig(name, level, additive, appendersRef);
 		loggingConfigNodes.getLoggerConfig().put(loggerConfig, null);
 	}
