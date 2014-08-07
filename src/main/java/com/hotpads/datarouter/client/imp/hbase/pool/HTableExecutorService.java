@@ -12,7 +12,7 @@ import com.hotpads.util.core.concurrent.ThreadTool;
 public class HTableExecutorService{
 	protected Logger logger = Logger.getLogger(getClass());
 
-	public static final Integer NUM_CORE_THREADS = 0;// see class comment regarding killing pools
+	public static final Integer NUM_CORE_THREADS = 1;// see class comment regarding killing pools
 
 	public static final Long TIMEOUT_MS = 60 * 1000L;// 60 seconds
 
