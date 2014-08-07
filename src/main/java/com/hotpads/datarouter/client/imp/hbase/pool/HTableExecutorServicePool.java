@@ -17,6 +17,7 @@ import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.MapTool;
+import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.SemaphoreTool;
 import com.hotpads.util.datastructs.MutableString;
@@ -25,6 +26,7 @@ public class HTableExecutorServicePool implements HTablePool{
 	protected Logger logger = Logger.getLogger(getClass());
 
 	protected static Boolean LOG_ACTIONS = true;
+	private static final long LOG_SEMAPHORE_ACQUISITIONS_OVER_MS = 2000L;
 
 	protected Long lastLoggedWarning = 0L;
 
@@ -178,7 +180,12 @@ public class HTableExecutorServicePool implements HTablePool{
 	//for some reason, synchronizing this method wreaks and stops all progress
 	protected /*synchronized*/ void checkConsistencyAndAcquireSempahore(String tableName){
 		logIfInconsistentCounts(true, tableName);
+		long startAquireMs = System.currentTimeMillis();
 		SemaphoreTool.acquire(hTableSemaphore);
+		long acquireTimeMs = System.currentTimeMillis() - startAquireMs;
+		if(acquireTimeMs > LOG_SEMAPHORE_ACQUISITIONS_OVER_MS){
+			logger.warn("acquiring semaphore took "+NumberFormatter.addCommas(acquireTimeMs)+"ms");
+		}
 	}
 
 	protected synchronized void releaseSempahoreAndCheckConsistency(String tableName){
