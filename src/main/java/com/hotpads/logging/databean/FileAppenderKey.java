@@ -1,4 +1,6 @@
-package com.hotpads.logging;
+package com.hotpads.logging.databean;
+
+import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.storage.field.Field;
@@ -6,10 +8,8 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
-import java.util.List;
-
 @SuppressWarnings("serial")
-public class LoggerConfigKey extends BasePrimaryKey<LoggerConfigKey> {
+public class FileAppenderKey extends BasePrimaryKey<FileAppenderKey> {
 
 	/** fields ****************************************************************/
 
@@ -19,21 +19,20 @@ public class LoggerConfigKey extends BasePrimaryKey<LoggerConfigKey> {
 
 	private static class F {
 		private static final String
-			name = "name";
+		name = "name";
 	}
 
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-			new StringField(F.name, name, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new StringField(F.name, name, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 
 	/** construct *************************************************************/
 
-	LoggerConfigKey(){
-	}
+	FileAppenderKey(){}
 
-	public LoggerConfigKey(String name){
+	public FileAppenderKey(String name){
 		this.name = name;
 	}
 

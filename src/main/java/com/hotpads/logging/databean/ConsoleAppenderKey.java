@@ -1,4 +1,4 @@
-package com.hotpads.logging;
+package com.hotpads.logging.databean;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 @SuppressWarnings("serial")
-public class FileAppenderKey extends BasePrimaryKey<FileAppenderKey> {
+public class ConsoleAppenderKey extends BasePrimaryKey<ConsoleAppenderKey> {
 
 	/** fields ****************************************************************/
 
@@ -30,9 +30,9 @@ public class FileAppenderKey extends BasePrimaryKey<FileAppenderKey> {
 
 	/** construct *************************************************************/
 
-	FileAppenderKey(){}
+	ConsoleAppenderKey(){}
 
-	public FileAppenderKey(String name){
+	public ConsoleAppenderKey(String name){
 		this.name = name;
 	}
 

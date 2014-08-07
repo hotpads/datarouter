@@ -1,4 +1,4 @@
-package com.hotpads.logging;
+package com.hotpads.logging.databean;
 
 import org.apache.logging.log4j.Level;
 

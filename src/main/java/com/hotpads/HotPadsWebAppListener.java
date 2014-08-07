@@ -6,12 +6,12 @@ public abstract class HotPadsWebAppListener{
 
 	protected ServletContext servletContext;
 	
-	void setServletContext(ServletContext servletContext){
+	protected void setServletContext(ServletContext servletContext){
 		this.servletContext = servletContext;
 	}
 
-	abstract void onStartUp();
+	protected abstract void onStartUp();
 
-	abstract void onShutDown();
+	protected abstract void onShutDown();
 
 }

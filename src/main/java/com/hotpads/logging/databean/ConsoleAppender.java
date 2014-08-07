@@ -1,4 +1,4 @@
-package com.hotpads.logging;
+package com.hotpads.logging.databean;
 
 import java.util.List;
 
