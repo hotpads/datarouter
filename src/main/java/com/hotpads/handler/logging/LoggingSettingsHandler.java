@@ -28,7 +28,7 @@ import com.hotpads.util.core.logging.Log4j2Configurator;
 @Singleton
 public class LoggingSettingsHandler extends BaseHandler{
 	private static final String
-		JSP = "/logging",
+		JSP = "/jsp/admin/datarouter/logging.jsp",
 		JSP_CONSOLE_APPENDER = "/consoleAppender",
 		JSP_FILE_APPENDER = "/fileAppender";
 	private static final Level[] levels = new Level[]{
@@ -78,7 +78,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 	@Handler
 	private Mav testLog(){
 		String loggerName = params.optional("loggerName", "com.hotpads.handler.logging.com.hotpads.handler.logging");
-		String message = params.optional("message", "LoggingSettingsHandler.testLog()");
+		String message = params.optional("loggerMessage", "LoggingSettingsHandler.testLog()");
 		Logger logger = LoggerFactory.getLogger(loggerName);
 		logger.trace(message);
 		logger.debug(message);
