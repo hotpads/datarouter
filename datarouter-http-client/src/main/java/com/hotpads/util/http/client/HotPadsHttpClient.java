@@ -155,7 +155,7 @@ public class HotPadsHttpClient{
 		setHeaders(request, headers);
 		try{
 			response = httpClient.execute(request);
-			if(!config.getSuccessStatusCodes().contains(response.getStatusLine().getStatusCode())){
+			if(response.getStatusLine().getStatusCode() > 300){
 				throw new HotPadsHttpClientException(response);
 			}
 			if(response.getEntity() == null){
