@@ -18,7 +18,7 @@ public class TriggerInfo{
 	protected boolean isRunning;
 	protected int numberOfSuccesses;
 	protected int numberOfErrors; 
-	protected BaseJob job;
+	protected Job job;
 	
 	
 	/******************constructors******************/
@@ -47,11 +47,11 @@ public class TriggerInfo{
 
 	
 	/******************setters/getters******************/
-	public BaseJob getJob(){
+	public Job getJob(){
 		return job;
 	}
 	
-	public void setJob(BaseJob job){
+	public void setJob(Job job){
 		this.job = job;
 	}
 	

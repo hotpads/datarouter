@@ -35,6 +35,7 @@ public abstract class BaseJob implements Job{
 	protected ScheduledExecutorService executor;
 	protected Setting<Boolean> processJobsSetting;
 	protected boolean isAlreadyScheduled;
+	protected boolean isAlreadyRunning;
 	protected MutableBoolean interrupted = new MutableBoolean(false);
 	protected LongRunningTaskTracker tracker;
 	protected Setting<Boolean> shouldSaveLongRunningTasks;
@@ -122,7 +123,11 @@ public abstract class BaseJob implements Job{
 			recordException(e);
 		}finally{
 			try{
-				getFromTracker().setRunning(false);
+				if(!isAlreadyRunning){
+					getFromTracker().setRunning(false);
+				}else{
+					baseJobLogger.warn("couldn't run "+getClass()+" because it is already running");
+				}
 			}catch(Exception e){
 				baseJobLogger.warn("exception in finally block");
 				baseJobLogger.warn(ExceptionTool.getStackTraceAsString(e));
@@ -195,6 +200,10 @@ public abstract class BaseJob implements Job{
 	}
 	
 	protected boolean shouldRunInternal(){
+		if(getFromTracker().isRunning()){
+			isAlreadyRunning = true;
+			return false;
+		}
 		return processJobsSetting.getValue() && shouldRun() && BooleanTool.isFalse(getIsDisabled());
 	}
 
