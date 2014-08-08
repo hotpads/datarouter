@@ -141,7 +141,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 			String pattern = params.required("layout");
 			String targetStr = params.required("target");
 			log4j2Configurator.addConsoleAppender(name, targetStr, pattern);
-			hotPadsLoggingConfigDao.createAndputConsoleAppender(name, pattern, targetStr);
+			hotPadsLoggingConfigDao.createAndPutConsoleAppender(name, pattern, targetStr);
 			preventSecondeApply();
 			return getRedirectMav();
 		}

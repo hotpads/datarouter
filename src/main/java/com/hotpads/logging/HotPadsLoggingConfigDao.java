@@ -34,7 +34,7 @@ public class HotPadsLoggingConfigDao implements LoggingConfigDao{
 	}
 
 	@Override
-	public void createAndputConsoleAppender(String name, String pattern, String targetStr){
+	public void createAndPutConsoleAppender(String name, String pattern, String targetStr){
 		ConsoleAppender appender = new ConsoleAppender(name, pattern, targetStr);
 		loggingConfigNodes.getConsoleAppender().put(appender, null);
 	}
