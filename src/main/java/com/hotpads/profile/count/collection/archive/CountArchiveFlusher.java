@@ -2,7 +2,7 @@ package com.hotpads.profile.count.collection.archive;
 
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -48,7 +48,7 @@ public class CountArchiveFlusher{
 			Provider<ScheduledExecutorService> flushExecutor){
 		this.name = name;
 		this.flushPeriodMs = flushPeriodMs;
-		this.flushQueue = new ConcurrentLinkedQueue<CountMapPeriod>();//careful, size() must iterate every element
+		this.flushQueue = new ArrayBlockingQueue<CountMapPeriod>(60);//careful, size() must iterate every element
 		this.archives = ListTool.createArrayList();
 		this.flushExecutor = flushExecutor;//won't be used if FLUSH_WITH_TIMEOUT=false
 		this.flushScheduler = flushScheduler;
@@ -148,7 +148,10 @@ public class CountArchiveFlusher{
 	}
 	
 	public void offer(CountMapPeriod newCountMap){
-		this.flushQueue.offer(newCountMap);
+		boolean accepted = this.flushQueue.offer(newCountMap);
+		if(!accepted){
+			logger.warn("flushQueue rejected our CountMapPeriod");
+		}
 	}
 
 	public List<CountArchive> getArchives(){

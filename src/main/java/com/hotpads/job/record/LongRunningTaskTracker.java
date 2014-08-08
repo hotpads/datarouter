@@ -35,7 +35,9 @@ public class LongRunningTaskTracker {
 	public boolean isStopRequested(){
 		if(interrupted.get()){
 			task.setJobExecutionStatus(JobExecutionStatus.interrupted);
-			node.put(task, null);
+			if(shouldPersistHeartbeat()){
+				node.put(task, null);
+			}
 		}
 		return interrupted.get();
 	}
@@ -51,7 +53,7 @@ public class LongRunningTaskTracker {
 	}
 	
 	private boolean shouldPersistHeartbeat(){
-		if(!shouldSaveLongRunningTasks.getValue()){
+		if((shouldSaveLongRunningTasks == null) || !shouldSaveLongRunningTasks.getValue()){
 			return false;
 		}
 		if(lastPersistedHeartbeat == null){

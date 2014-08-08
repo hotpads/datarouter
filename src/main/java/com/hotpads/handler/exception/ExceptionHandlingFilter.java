@@ -1,7 +1,12 @@
 package com.hotpads.handler.exception;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.management.ManagementFactory;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
@@ -76,7 +81,11 @@ public class ExceptionHandlingFilter implements Filter {
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {
 		try {
 			fc.doFilter(req, res);
-		} catch (Exception e) {
+		}catch(OutOfMemoryError error){
+			logger.error("The current number of threads at OOM are:" + ManagementFactory.getThreadMXBean().getThreadCount());
+			dumpAllStackTraces();
+			throw error;
+		}catch (Exception e) {
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
 			logger.warn("ExceptionHandlingFilter caught an exception: ", e);
@@ -85,6 +94,24 @@ public class ExceptionHandlingFilter implements Filter {
 				recordExceptionAndRequestNotification(request, e);
 			}
 		}
+	}
+	
+	private static void dumpAllStackTraces() throws IOException {
+		StringBuffer stringBuffer = new StringBuffer();
+	    Map<Thread, StackTraceElement[]> liveThreads = Thread.getAllStackTraces();
+	    for (Iterator<Thread> i = liveThreads.keySet().iterator(); i.hasNext(); ) {
+	      Thread key = (Thread)i.next();
+	      stringBuffer.append("Thread " + key.getName() + "\n");
+	        StackTraceElement[] trace = (StackTraceElement[])liveThreads.get(key);
+	        for (int j = 0; j < trace.length; j++) {
+	            stringBuffer.append("\tat " + trace[j] + "\n");
+	        }
+	    }
+	    long timeMiliSec = System.currentTimeMillis();
+	    BufferedWriter out = new BufferedWriter(new FileWriter("/tmp/StackTrace" + timeMiliSec + ".log"));  
+        out.write(stringBuffer.toString());  
+        out.flush();  
+        out.close();  
 	}
 
 	private void recordExceptionAndRequestNotification(HttpServletRequest request, Exception e) {
