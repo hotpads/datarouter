@@ -21,8 +21,9 @@ import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.dispatcher.DataRouterDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.JsonMav;
+import com.hotpads.logging.HotPadsLoggingConfigDao;
+import com.hotpads.logging.LoggingConfigUpdaterJob;
 import com.hotpads.util.core.logging.Log4j2Configurator;
-import com.hotpads.util.core.logging.LoggingConfigDao;
 
 @Singleton
 public class LoggingSettingsHandler extends BaseHandler{
@@ -44,7 +45,9 @@ public class LoggingSettingsHandler extends BaseHandler{
 	@Inject
 	private Log4j2Configurator log4j2Configurator;
 	@Inject
-	private LoggingConfigDao loggingConfigDao;
+	private HotPadsLoggingConfigDao hotPadsLoggingConfigDao;
+	@Inject
+	private LoggingConfigUpdaterJob loggingConfigUpdaterJob;
 
 	private Mav redirectMav;
 
@@ -103,14 +106,16 @@ public class LoggingSettingsHandler extends BaseHandler{
 		Level level = Level.getLevel(params.required("level"));
 		boolean additive = Boolean.parseBoolean(params.required("additive"));
 		log4j2Configurator.updateOrCreateLoggerConfig(name, level, additive, appenders);
-		loggingConfigDao.createAndputLoggerConfig(name, level, additive, Arrays.asList(appenders));
+		hotPadsLoggingConfigDao.createAndputLoggerConfig(name, level, additive, Arrays.asList(appenders));
+		preventSecondeApply();
 	}
 
 	@Handler
 	private Mav deleteLoggerConfig(){
 		String name = params.required("name");
 		log4j2Configurator.deleteLoggerConfig(name);
-		loggingConfigDao.deleteLoggerConfig(name);
+		hotPadsLoggingConfigDao.deleteLoggerConfig(name);
+		preventSecondeApply();
 		return getRedirectMav();
 	}
 
@@ -120,10 +125,11 @@ public class LoggingSettingsHandler extends BaseHandler{
 		Class<? extends Appender> clazz = log4j2Configurator.getAppender(name).getClass();
 		log4j2Configurator.deleteAppender(name);
 		if(clazz == ConsoleAppender.class){
-			loggingConfigDao.deleteConsoleAppender(name);
+			hotPadsLoggingConfigDao.deleteConsoleAppender(name);
 		}else if(clazz == FileAppender.class){
-			loggingConfigDao.deleteFileAppender(name);
+			hotPadsLoggingConfigDao.deleteFileAppender(name);
 		}
+		preventSecondeApply();
 		return getRedirectMav();
 	}
 	
@@ -135,7 +141,8 @@ public class LoggingSettingsHandler extends BaseHandler{
 			String pattern = params.required("layout");
 			String targetStr = params.required("target");
 			log4j2Configurator.addConsoleAppender(name, targetStr, pattern);
-			loggingConfigDao.createAndputConsoleAppender(name, pattern, targetStr);
+			hotPadsLoggingConfigDao.createAndputConsoleAppender(name, pattern, targetStr);
+			preventSecondeApply();
 			return getRedirectMav();
 		}
 		Mav mav = new Mav(JSP_CONSOLE_APPENDER);
@@ -156,11 +163,20 @@ public class LoggingSettingsHandler extends BaseHandler{
 			String pattern = params.required("layout");
 			String fileName = params.required("fileName");
 			log4j2Configurator.addFileAppender(name, fileName, pattern);
-			loggingConfigDao.createAndputFileAppender(name, pattern, fileName);
+			hotPadsLoggingConfigDao.createAndputFileAppender(name, pattern, fileName);
+			preventSecondeApply();
 			return getRedirectMav();
 		}
 		Mav mav = new Mav(JSP_FILE_APPENDER);
 		mav.put("name", name);
 		return mav;
+	}
+
+	/**
+	 * Prevent deploying this modification a second time on this webapp by the job (loggingConfigUpdaterJob)
+	 */
+	private void preventSecondeApply(){
+		String signature = hotPadsLoggingConfigDao.loadConfig().getSignature();
+		loggingConfigUpdaterJob.setPreviousSignature(signature);
 	}
 }

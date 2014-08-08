@@ -16,6 +16,10 @@ public class LoggingConfigUpdaterJob implements Runnable{
 		this.previousSignature = initialSignature;
 	}
 
+	public void setPreviousSignature(String previousSignature){
+		this.previousSignature = previousSignature;
+	}
+
 	@Override
 	public void run(){
 		LoggingConfig config = hotPadsLoggingConfigDao.loadConfig();
