@@ -6,3 +6,5 @@ test-results/
 ant-*-build.xml
 /bin/*
 /bin/
+*.iml
+
