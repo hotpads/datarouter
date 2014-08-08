@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -16,7 +17,6 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.email.generic.EmailAttachment;
 import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
@@ -64,8 +64,8 @@ public class EmailAttachmentArrayField extends BaseListField<EmailAttachment,Lis
 	}
 
 	public static byte[] toBytes( List<EmailAttachment> attachments ) {
-		if(CollectionTool.isEmpty( attachments )){
-			return null;
+		if( attachments == null ) {
+			attachments = new ArrayList<EmailAttachment>( 0 );
 		}
 		return SerializeTool.serialize( attachments );
 	}

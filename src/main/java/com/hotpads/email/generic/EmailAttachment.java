@@ -5,7 +5,11 @@ import java.io.Serializable;
 
 
 public class EmailAttachment implements Serializable, Comparable<EmailAttachment> {
-	private static final long serialVersionUID = 3258010322661131306L;
+	private static final long serialVersionUID = 3258010322661131306L; // This is the serialVersionID used in the old version! 
+	// FYI : a compatibility problem occured when we used this 1984932216493445340L(kept here for reference only)
+	// The serialization of this UID can be seen with this SQL : substr( hex( attachments ), 205, 16 )
+	// The correct hex is (0x)2D36C72074C5C42A = 3258010322661131306L
+	
 	public static final String CONTENT_TYPE_PLAIN_TEXT = "text/plain";
 	public static final String CONTENT_TYPE_HTML = "text/html";
 	public static final String CONTENT_TYPE_VCARD = "text/vcard";
