@@ -23,10 +23,12 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.JsonMav;
 import com.hotpads.logging.HotPadsLoggingConfigDao;
 import com.hotpads.logging.LoggingConfigUpdaterJob;
+import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.logging.Log4j2Configurator;
 
 @Singleton
 public class LoggingSettingsHandler extends BaseHandler{
+	private static final String DEFAULT_TEST_LOG_MESSAGE = "LoggingSettingsHandler.testLog()";
 	private static final String
 		JSP = "/jsp/admin/datarouter/logging.jsp",
 		JSP_CONSOLE_APPENDER = "/consoleAppender",
@@ -78,7 +80,10 @@ public class LoggingSettingsHandler extends BaseHandler{
 	@Handler
 	private Mav testLog(){
 		String loggerName = params.optional("loggerName", "com.hotpads.handler.logging.com.hotpads.handler.logging");
-		String message = params.optional("loggerMessage", "LoggingSettingsHandler.testLog()");
+		String message = params.required("loggerMessage");
+		if(StringTool.isEmpty(message)){
+			message = DEFAULT_TEST_LOG_MESSAGE;
+		}
 		Logger logger = LoggerFactory.getLogger(loggerName);
 		logger.trace(message);
 		logger.debug(message);
