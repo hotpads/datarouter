@@ -73,9 +73,12 @@
 							<select name="appenders" multiple>
 								<c:forEach items="${appenders}" var="appender">
 									<option
-										<c:if test="${configAppender.contains(appender.value.name)}">
-											selected
-									</c:if>>${appender.value.name}</option>
+										<c:forEach items="${configAppender}" var="element">
+											<c:if test="${element == appender.value.name}">
+												selected
+											</c:if>
+										</c:forEach>
+									>${appender.value.name}</option>
 								</c:forEach>
 							</select>
 						</td>
