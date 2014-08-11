@@ -2,12 +2,12 @@ package com.hotpads.salesforce.databean;
 
 import java.lang.reflect.Type;
 
-import com.hotpads.salesforce.dto.Attributes;
+import com.hotpads.salesforce.dto.SalesforceAttributes;
 
 public abstract class SalesforceDatabean{ //TODO extends BaseDatabean
 	
 	private transient SalesforceDatabeanKey key;
-	private Attributes attributes;
+	private SalesforceAttributes attributes;
 	
 	//TODO add fielder
 	
@@ -25,11 +25,11 @@ public abstract class SalesforceDatabean{ //TODO extends BaseDatabean
 	
 	public abstract Type getQueryResultType();
 
-	public Attributes getAttributes(){
+	public SalesforceAttributes getAttributes(){
 		return attributes;
 	}
 
-	public void setAttributes(Attributes attributes){
+	public void setAttributes(SalesforceAttributes attributes){
 		this.attributes = attributes;
 	}
 	

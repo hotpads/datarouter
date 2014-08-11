@@ -5,7 +5,7 @@ import java.lang.reflect.Type;
 import com.google.gson.reflect.TypeToken;
 import com.hotpads.salesforce.databean.SalesforceDatabean;
 import com.hotpads.salesforce.databean.SalesforceDatabeanKey;
-import com.hotpads.salesforce.dto.QueryResult;
+import com.hotpads.salesforce.dto.SalesforceQueryResult;
 
 //Variable names and Databean name must be the same as Salesforce's
 public class Featured_Property__c extends SalesforceDatabean{
@@ -27,7 +27,7 @@ public class Featured_Property__c extends SalesforceDatabean{
 
 	@Override
 	public Type getQueryResultType(){
-		return new TypeToken<QueryResult<Featured_Property__c>>(){}.getType();
+		return new TypeToken<SalesforceQueryResult<Featured_Property__c>>(){}.getType();
 	}
 
 	public String getName(){

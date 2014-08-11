@@ -13,8 +13,8 @@ import org.apache.log4j.Logger;
 
 import com.hotpads.salesforce.databean.SalesforceDatabean;
 import com.hotpads.salesforce.databean.SalesforceDatabeanKey;
-import com.hotpads.salesforce.dto.AuthenticationResponse;
-import com.hotpads.salesforce.dto.QueryResult;
+import com.hotpads.salesforce.dto.SalesforceAuthenticationResponse;
+import com.hotpads.salesforce.dto.SalesforceQueryResult;
 import com.hotpads.setting.DatarouterSalesforceSettings;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -80,7 +80,7 @@ public class SalesforceApi{ //TODO make a datarouter Client and a Node
 		try{
 			Type type = ReflectionTool.create(databeanClass).getQueryResultType();
 			@SuppressWarnings("unchecked")
-			QueryResult<D> result = (QueryResult<D>) httpClient.get(url, type, true, getAuthenticationHeaders());
+			SalesforceQueryResult<D> result = (SalesforceQueryResult<D>) httpClient.get(url, type, true, getAuthenticationHeaders());
 			for(D record : result.records){
 				record.setKey(new SalesforceDatabeanKey(StringTool.getStringAfterLastOccurrence("/",
 						record.getAttributes().url)));
@@ -94,10 +94,10 @@ public class SalesforceApi{ //TODO make a datarouter Client and a Node
 	
 	private void connect(){
 		try{
-			AuthenticationResponse r = httpClient.post(
+			SalesforceAuthenticationResponse r = httpClient.post(
 				settings.getLoginEndpoint().get(),
 				getCredentials(),
-				AuthenticationResponse.class,
+				SalesforceAuthenticationResponse.class,
 				true);
 			accessTokenCreationTime = System.currentTimeMillis();
 			accessToken = r.access_token;
