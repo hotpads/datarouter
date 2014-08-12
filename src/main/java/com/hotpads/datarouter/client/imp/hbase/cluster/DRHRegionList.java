@@ -15,7 +15,8 @@ import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.client.HTable;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
@@ -31,7 +32,7 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
 public class DRHRegionList{
-	Logger logger = Logger.getLogger(DRHRegionList.class);
+	Logger logger = LoggerFactory.getLogger(DRHRegionList.class);
 
 	public static final Integer BUCKETS_PER_NODE = 1000;
 

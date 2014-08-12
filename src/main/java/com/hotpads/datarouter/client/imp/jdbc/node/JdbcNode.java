@@ -2,7 +2,8 @@ package com.hotpads.datarouter.client.imp.jdbc.node;
 
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteAllOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteOp;
@@ -32,7 +33,7 @@ public class JdbcNode<
 		F extends DatabeanFielder<PK,D>> 
 extends JdbcReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>{
-	private static Logger logger = Logger.getLogger(JdbcNode.class);
+	private static Logger logger = LoggerFactory.getLogger(JdbcNode.class);
 
 	public JdbcNode(NodeParams<PK,D,F> params){
 		super(params);

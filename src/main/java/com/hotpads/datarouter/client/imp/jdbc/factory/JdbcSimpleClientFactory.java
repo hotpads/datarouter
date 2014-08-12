@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientFactory;
@@ -18,10 +19,9 @@ import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
-
 public class JdbcSimpleClientFactory 
 implements ClientFactory{
-	private static Logger logger = Logger.getLogger(JdbcSimpleClientFactory.class);
+	private static Logger logger = LoggerFactory.getLogger(JdbcSimpleClientFactory.class);
 
 	private static final String 
 		SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
@@ -34,8 +34,6 @@ implements ClientFactory{
 	
 	protected JdbcConnectionPool connectionPool;
 	protected JdbcClient client;
-	
-	
 
 	public JdbcSimpleClientFactory(DataRouterContext drContext, String clientName){
 		this.drContext = drContext;
@@ -43,8 +41,7 @@ implements ClientFactory{
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
 	}
-		
-	
+
 	@Override
 	public Client call(){
 		PhaseTimer timer = new PhaseTimer(clientName);
@@ -60,7 +57,7 @@ implements ClientFactory{
 			timer.add("schema update");
 		}
 
-		logger.warn(timer);
+		logger.warn(timer.toString());
 		return client;
 	}
 	

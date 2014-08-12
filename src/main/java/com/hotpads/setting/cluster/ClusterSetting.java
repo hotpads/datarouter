@@ -9,20 +9,18 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 
-public class ClusterSetting
-extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
+public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 
-	protected ClusterSettingKey key;
-	protected String value;
+	/******************* fields ************************/
 
-    
-    /********************** columns ************************/
+	private ClusterSettingKey key;
+	private String value;
 
-	public static class F{
-	    public static final String
-	    	value = "value";
+	private static class F{
+		private static final String
+			value = "value";
 	}
-	
+
 	public static class ClusterSettingFielder extends BaseDatabeanFielder<ClusterSettingKey,ClusterSetting>{
 		public ClusterSettingFielder(){}
 		@Override
@@ -35,49 +33,48 @@ extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 					new StringField(F.value, d.value, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 	}
-	
-    
-    /************************* constructors ***************************/
+
+	/************************* constructors ***************************/
 
 	public ClusterSetting(){
 		this.key = new ClusterSettingKey(null, null, null, null, null);
 	}
-	
+
 	public ClusterSetting(ClusterSettingKey key, String value) {
 		this.key = key;
 		this.value = value;
 	}
-	
+
 	public ClusterSetting(String name, ClusterSettingScope scope, String serverType, String instance,
 			String application, String value){
 		this.key = new ClusterSettingKey(name, scope, serverType, instance, application);
 		this.value = value;
 	}
-    
-    /******************************* databean **************************/
-    
-    @Override
-    public Class<ClusterSettingKey> getKeyClass(){
-    	return ClusterSettingKey.class;
-    }
-    
-    @Override
+
+	/******************************* databean **************************/
+
+	@Override
+	public Class<ClusterSettingKey> getKeyClass(){
+		return ClusterSettingKey.class;
+	}
+
+	@Override
 	public ClusterSettingKey getKey() {
 		return key;
 	}
-    
-    /***************************** methods **************************************/
 
-    
-    /****************************** Object methods ******************************/
-    
-    @Override
-    public String toString(){
-    	return key.toString() + ":" + value;
-    }
-    
-    /******************************* getters/setters *****************************/
-    
+	/***************************** methods **************************************/
+
+
+	/****************************** Object methods ******************************/
+
+	@Override
+	public String toString(){
+		return key.toString() + ":" + value;
+	}
+
+	/******************************* getters/setters *****************************/
+
 	public String getValue(){
 		return value;
 	}
@@ -129,6 +126,5 @@ extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 	public void setName(String name){
 		key.setName(name);
 	}
-	
-	
+
 }

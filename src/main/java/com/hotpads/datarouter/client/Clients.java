@@ -8,7 +8,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.connection.ConnectionPools;
@@ -23,7 +24,7 @@ import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 
 public class Clients{
-	private static Logger logger = Logger.getLogger(Clients.class);
+	private static Logger logger = LoggerFactory.getLogger(Clients.class);
 
 	protected DataRouterContext drContext;
 	

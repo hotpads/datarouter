@@ -19,7 +19,8 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
 import org.apache.hadoop.hbase.io.hfile.Compression.Algorithm;
 import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
@@ -50,7 +51,7 @@ import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HBaseSimpleClientFactory 
 implements ClientFactory{
-	Logger logger = Logger.getLogger(getClass());
+	Logger logger = LoggerFactory.getLogger(getClass());
 	
 	public static final Boolean PER_TABLE_POOL = false;//per table is less efficient
 	public static final Boolean SHARED_POOL = false;//per table is less efficient
@@ -123,7 +124,7 @@ implements ClientFactory{
 			
 			newClient = new HBaseClientImp(clientName, options, hBaseConfig, hBaseAdmin, 
 					result.getLeft(), result.getRight());
-			logger.warn(timer.add("done"));
+			logger.warn(timer.add("done").toString());
 //					historicClientIds.add(System.identityHashCode(newClient)+"");
 //					logger.warn("historicClientIds"+historicClientIds);
 		}catch(ZooKeeperConnectionException e){

@@ -9,7 +9,8 @@ import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import com.google.common.base.Preconditions;
@@ -26,7 +27,7 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 public class DRHRegionInfo<PK extends PrimaryKey<PK>>
 implements Comparable<DRHRegionInfo<?>>{
-	static Logger logger = Logger.getLogger(DRHRegionInfo.class);
+	static Logger logger = LoggerFactory.getLogger(DRHRegionInfo.class);
 	
 	public static final Integer NUM_VNODES = 1 << 16;
 

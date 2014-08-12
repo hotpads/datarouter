@@ -1,19 +1,19 @@
 package com.hotpads.datarouter.test.client;
+
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import com.google.inject.Singleton;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive.KeepAliveFielder;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
 import com.hotpads.datarouter.node.factory.NodeFactory;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
-import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -30,7 +30,6 @@ import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBean.TxnBeanFielder;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 import com.hotpads.util.core.ListTool;
-
 
 @Singleton
 public class BasicClientTestRouterImp

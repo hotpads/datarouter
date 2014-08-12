@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
@@ -23,7 +24,7 @@ import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class MemoryCountArchive extends BaseCountArchive{
-	static Logger logger = Logger.getLogger(MemoryCountArchive.class);
+	static Logger logger = LoggerFactory.getLogger(MemoryCountArchive.class);
 	
 	protected Long startTimeMs;
 	protected Integer numToRetain;

@@ -6,7 +6,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
@@ -19,7 +20,7 @@ import com.hotpads.util.core.ExceptionTool;
 
 //consider forming base class with commonalities from MemcachedMultiAttemptTash
 public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
-	protected static Logger logger = Logger.getLogger(HBaseMultiAttemptTask.class);
+	protected static Logger logger = LoggerFactory.getLogger(HBaseMultiAttemptTask.class);
 	
 	protected static final Integer DEFAULT_NUM_ATTEMPTS = 2;
 	protected static final Long DEFAULT_TIMEOUT_MS = 3 * 1000L;

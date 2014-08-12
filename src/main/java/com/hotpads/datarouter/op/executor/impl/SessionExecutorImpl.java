@@ -5,7 +5,8 @@ import java.util.concurrent.Callable;
 
 import javax.persistence.RollbackException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.SessionClient;
@@ -22,7 +23,7 @@ import com.hotpads.util.core.StringTool;
 public class SessionExecutorImpl<T>
 extends BaseTxnExecutor<T>
 implements SessionExecutor<T>, Callable<T>{
-	private static Logger logger = Logger.getLogger(SessionExecutorImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(SessionExecutorImpl.class);
 
 	public static final boolean EAGER_SESSION_FLUSH = true;
 		

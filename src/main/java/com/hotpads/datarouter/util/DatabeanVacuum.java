@@ -2,7 +2,8 @@ package com.hotpads.datarouter.util;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -13,7 +14,7 @@ import com.hotpads.util.core.Predicate;
 
 public class DatabeanVacuum<PK extends PrimaryKey<PK>, D extends Databean<PK, D>>{
 
-	private static final Logger logger = Logger.getLogger(DatabeanVacuum.class);
+	private static final Logger logger = LoggerFactory.getLogger(DatabeanVacuum.class);
 
 	private SortedMapStorageNode<PK, D> storage;
 	private Predicate<D> predicate;

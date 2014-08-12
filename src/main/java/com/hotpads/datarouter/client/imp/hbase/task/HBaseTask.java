@@ -2,7 +2,8 @@ package com.hotpads.datarouter.client.imp.hbase.task;
 
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hbase.node.HBasePhysicalNode;
@@ -22,7 +23,7 @@ import com.hotpads.util.datastructs.MutableString;
  * at the beginning of the wrappedCall.  try to keep per-attempt variables inside the scope of wrappedCall()
  */
 public abstract class HBaseTask<V> extends TracedCallable<V>{
-	static Logger logger = Logger.getLogger(HBaseTask.class);
+	static Logger logger = LoggerFactory.getLogger(HBaseTask.class);
 	
 	protected DataRouterContext drContext;
 

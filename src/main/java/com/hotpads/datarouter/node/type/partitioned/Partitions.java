@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.node.type.partitioned.base.BasePartitionedNode;
 import com.hotpads.datarouter.node.type.partitioned.filter.PartitionedNodeDatabeanFilter;
@@ -24,7 +25,7 @@ public class Partitions<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		N extends PhysicalNode<PK,D>> {
-	protected static Logger logger = Logger.getLogger(Partitions.class);
+	protected static Logger logger = LoggerFactory.getLogger(Partitions.class);
 
 	protected BasePartitionedNode<PK,D,?,N> basePartitionedNode;
 	protected List<N> nodes = ListTool.createArrayList();

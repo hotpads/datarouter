@@ -7,7 +7,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.CronExpression;
 
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -28,8 +29,8 @@ import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public abstract class BaseJob implements Job{
-	private static Logger baseJobLogger = Logger.getLogger(BaseJob.class);
-	protected Logger logger = Logger.getLogger(getClass());//for subclasses to use
+	private static Logger baseJobLogger = LoggerFactory.getLogger(BaseJob.class);
+	protected Logger logger = LoggerFactory.getLogger(getClass());//for subclasses to use
 
 	protected JobScheduler scheduler;
 	protected ScheduledExecutorService executor;

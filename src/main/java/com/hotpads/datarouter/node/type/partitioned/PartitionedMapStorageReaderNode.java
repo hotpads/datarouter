@@ -3,7 +3,8 @@ package com.hotpads.datarouter.node.type.partitioned;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.config.Config;
@@ -25,7 +26,7 @@ public abstract class PartitionedMapStorageReaderNode<
 		N extends PhysicalMapStorageReaderNode<PK,D>>
 extends BasePartitionedNode<PK,D,F,N>
 implements MapStorageReaderNode<PK,D>{
-	protected static Logger logger = Logger.getLogger(PartitionedMapStorageReaderNode.class);
+	protected static Logger logger = LoggerFactory.getLogger(PartitionedMapStorageReaderNode.class);
 	
 	public PartitionedMapStorageReaderNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router) {
 		super(databeanClass, fielderClass, router);

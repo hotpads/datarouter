@@ -11,10 +11,10 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
@@ -78,7 +78,7 @@ public class NotificationApiClient {
 				});
 				SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(),
 						SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-				CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(sslsf).build();
+				HttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(sslsf).build();
 				httpClientBuilder = new HotPadsHttpClientBuilder().create().setCustomHttpClient(httpClient);
 			}catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e){
 				e.printStackTrace();

@@ -2,7 +2,8 @@ package com.hotpads.datarouter.client.imp.hibernate.factory;
 
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 
@@ -22,7 +23,7 @@ import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HibernateSimpleClientFactory 
 extends JdbcSimpleClientFactory{
-	private static Logger logger = Logger.getLogger(HibernateSimpleClientFactory.class);
+	private static Logger logger = LoggerFactory.getLogger(HibernateSimpleClientFactory.class);
 
 	private static final String 
 		HIBERNATE_CONNECTION_PREFIX = "hibernate.connection.",
@@ -85,7 +86,7 @@ extends JdbcSimpleClientFactory{
 			timer.add("schema update");
 		}
 
-		logger.warn(timer);
+		logger.warn(timer.toString());
 		return client;
 	}
 

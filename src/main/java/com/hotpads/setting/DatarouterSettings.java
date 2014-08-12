@@ -1,8 +1,8 @@
 package com.hotpads.setting;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import com.google.inject.Singleton;
 import com.hotpads.setting.cluster.ClusterSettingFinder;
 import com.hotpads.setting.cluster.SettingNode;
 

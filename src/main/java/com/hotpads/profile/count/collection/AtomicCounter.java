@@ -6,14 +6,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.MapTool;
 
 public class AtomicCounter implements CountMapPeriod{
-	static Logger logger = Logger.getLogger(AtomicCounter.class);
+	static Logger logger = LoggerFactory.getLogger(AtomicCounter.class);
 	
 	public static final Integer INITIAL_CAPACITY = 512;//try to set higher than est num counters
 	

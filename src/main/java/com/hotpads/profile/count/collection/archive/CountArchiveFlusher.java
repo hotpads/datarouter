@@ -12,7 +12,8 @@ import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.profile.count.collection.CountMapPeriod;
 import com.hotpads.util.core.DateTool;
@@ -23,7 +24,7 @@ import com.hotpads.util.core.concurrent.Provider;
 
 @Singleton
 public class CountArchiveFlusher{
-	static Logger logger = Logger.getLogger(CountArchiveFlusher.class);
+	static Logger logger = LoggerFactory.getLogger(CountArchiveFlusher.class);
 	
 	static boolean FLUSH_WITH_TIMEOUT = false;//don't need the timeout if the underlying datarouter node can timeout
 	

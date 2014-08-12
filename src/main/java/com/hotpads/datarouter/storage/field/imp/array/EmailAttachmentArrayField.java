@@ -7,9 +7,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
@@ -20,11 +21,11 @@ import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
-import com.hotpads.util.core.logger.CustomLoggerTool;
 import com.hotpads.util.core.serialize.SerializeTool;
 
 public class EmailAttachmentArrayField extends BaseListField<EmailAttachment,List<EmailAttachment>>{
-    private static final Logger logger = CustomLoggerTool.getValidLogger("jdbc", EmailAttachmentArrayField.class);
+    private static final Logger logger = LoggerFactory.getLogger(EmailAttachmentArrayField.class);
+    
 	public EmailAttachmentArrayField(String name, List<EmailAttachment> value){
 		super(name, value);
 	}
