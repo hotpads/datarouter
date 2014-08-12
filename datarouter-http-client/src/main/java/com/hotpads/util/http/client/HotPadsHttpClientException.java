@@ -18,7 +18,7 @@ public class HotPadsHttpClientException extends RuntimeException{
 		statusCode = response.getStatusLine().getStatusCode();
 		try{
 			entity = EntityUtils.toString(response.getEntity());
-		}catch (ParseException | IOException e){
+		}catch (ParseException | IOException | IllegalArgumentException e){
 			throw new RuntimeException(e);
 		}
 		EntityUtils.consumeQuietly(response.getEntity());

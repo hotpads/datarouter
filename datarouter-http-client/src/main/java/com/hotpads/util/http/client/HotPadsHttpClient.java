@@ -20,8 +20,10 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.hotpads.util.http.client.json.JsonSerializer;
@@ -53,13 +55,17 @@ public class HotPadsHttpClient{
 	
 	/**** HTTP GET request methods *****/
 
-	public String get(String url, boolean retrySafe){
+	public String get(String url, boolean retrySafe, Map<String, String> headers){
 		HttpGet request = new HttpGet(url);
-		return execute(request, retrySafe);
+		return execute(request, retrySafe, headers);
 	}
 	
-	public <E> E get(String url, Class<E> classOfDataTranferObjectExpected, boolean retrySafe){
-		return jsonSerializer.deserialize(get(url, retrySafe), classOfDataTranferObjectExpected);
+	public String get(String url, boolean retrySafe){
+		return get(url, retrySafe, new HashMap<String, String>());
+	}
+	
+	public <E> E get(String url, Type classOfDataTranferObjectExpected, boolean retrySafe, Map<String, String> headers){
+		return jsonSerializer.deserialize(get(url, retrySafe, headers), classOfDataTranferObjectExpected);
 	}
 	
 	/**** HTTP POST request methods *****/
@@ -77,7 +83,11 @@ public class HotPadsHttpClient{
 		}catch (UnsupportedEncodingException e){
 			throw new HotPadsHttpClientException(e);
 		}
-		return execute(request, retrySafe);
+		return execute(request, retrySafe, null);
+	}
+	
+	public <E> E post(String url, Map<String, String> data, Class<E> typeOfE, boolean retrySafe){
+		return jsonSerializer.deserialize(post(url, data, retrySafe), typeOfE);
 	}
 
 	public <T> String post(String url, T dataTransferObjectToPost, boolean retrySafe){
@@ -123,16 +133,33 @@ public class HotPadsHttpClient{
 		return jsonSerializer.deserialize(post(url, dataTransferObjectToPost, retrySafe, dataTransferObjectToPostType), typeOfDataTranferObjectExpected);
 	}
 	
+	/*** PATCH ***/
+	
+	public <T> void patch(String url, T object, boolean retrySafe, Map<String, String> headers){
+		HttpPatch request = new HttpPatch(url);
+		try{
+			request.setEntity(new StringEntity(jsonSerializer.serialize(object)));
+		}catch (UnsupportedEncodingException e){
+			throw new HotPadsHttpClientException(e);
+		}
+		request.setHeader("Content-Type", "application/json");
+		execute(request, retrySafe, headers);
+	}
+	
 	/***** private ******/
 	
-	private String execute(HttpUriRequest request, boolean retrySafe){
+	private String execute(HttpUriRequest request, boolean retrySafe, Map<String, String> headers){
 		HttpResponse response;
 		String responseString = "";
 		retryHandler.setRetrySafe(request);
+		setHeaders(request, headers);
 		try{
 			response = httpClient.execute(request);
-			if(response.getStatusLine().getStatusCode() != 200){
+			if(response.getStatusLine().getStatusCode() > 300){
 				throw new HotPadsHttpClientException(response);
+			}
+			if(response.getEntity() == null){
+				return "";
 			}
 			responseString = streamToString(response.getEntity().getContent());
 		}catch (IOException e){
@@ -141,6 +168,15 @@ public class HotPadsHttpClient{
 			retryHandler.clean(request);
 		}
 		return responseString;
+	}
+	
+	public static void setHeaders(HttpUriRequest request, Map<String, String> headers){
+		if(headers == null){
+			return;
+		}
+		for(Entry<String, String> header : headers.entrySet()){
+			request.addHeader(header.getKey(), header.getValue());
+		}
 	}
 
 	private static String streamToString(InputStream input){
