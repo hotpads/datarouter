@@ -40,6 +40,8 @@ public class LoggingTest{
 //		System.out.println(configs);
 		Assert.assertEquals(4, configs.size()); //Bad test because depend of the xml file
 //		System.out.println(log4j2Configurator.getAppenders());
+		
+		logger.warn("mException", new Exception(new NullPointerException()));
 	}
 
 	private void logOneOfEachLevel(){
