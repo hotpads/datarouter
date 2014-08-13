@@ -41,7 +41,7 @@ public class SalesforceApi{ //TODO make a datarouter Client and a Node
 	@Inject
 	public SalesforceApi(DatarouterSalesforceSettings settings){
 		this.settings = settings;
-		this.httpClient = new HotPadsHttpClientBuilder().createInstance();
+		this.httpClient = new HotPadsHttpClientBuilder().setJsonSerializer(new SalesforceJsonSerializer()).createInstance();
 		this.connect();
 	}
 
