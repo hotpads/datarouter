@@ -65,14 +65,8 @@ extends JdbcSimpleClientFactory{
 		
 			try{
 				sfConfig.addClass(databeanClass);
-//				logger.warn("addClass "+databeanClass.getCanonicalName());
 			} catch (org.hibernate.MappingNotFoundException mnfe){
-				AnnotationConfiguration annotationConfig = sfConfig.addAnnotatedClass(databeanClass);
-//				AnnotationConfiguration annotationConfig = sfConfig.addAnnotatedClass(databeanClass);
-//				if(ObjectTool.equals("Joblet", databeanClass.getSimpleName())){
-//					int breakpoint = 1;
-//				}
-//				logger.warn("addAnnotatedClass "+databeanClass.getCanonicalName());
+				sfConfig.addAnnotatedClass(databeanClass);
 			}
 		}
 		timer.add("SessionFactory");
