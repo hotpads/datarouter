@@ -1,11 +1,13 @@
 package com.hotpads.salesforce;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
 import com.hotpads.salesforce.databean.SalesforceDatabean;
 import com.hotpads.salesforce.databean.SalesforceDatabeanKey;
 import com.hotpads.salesforce.dto.SalesforceQueryResult;
+import com.hotpads.util.core.ListTool;
 
 //Variable names and Databean name must be the same as Salesforce's
 public class Featured_Property__c extends SalesforceDatabean{
@@ -32,6 +34,11 @@ public class Featured_Property__c extends SalesforceDatabean{
 
 	public String getName(){
 		return Name;
+	}
+
+	@Override
+	public List<String> getAuthorizedFields(){
+		return ListTool.create();
 	}
 	
 }
