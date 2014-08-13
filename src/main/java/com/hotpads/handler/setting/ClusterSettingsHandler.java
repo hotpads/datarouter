@@ -146,7 +146,6 @@ public class ClusterSettingsHandler extends BaseHandler {
 	
 	protected ClusterSettingKey parseClusterSettingKeyFromParams() {
 		String name = params.required(P_name);
-		System.out.println(params.required(P_serverType));
 		ServerType serverType = anyServerType.fromPersistentString(params.required(P_serverType));
 		String instance = params.optional("instance", "");
 		String application = params.optional("application", "");
