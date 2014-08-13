@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateSimpleClientFactory;
@@ -17,6 +20,7 @@ import com.hotpads.datarouter.routing.DataRouterContext;
 @Singleton
 public class HibernateClientType
 implements ClientType{
+	private static final Logger logger = LoggerFactory.getLogger(HibernateClientType.class);
 	
 	public static final String NAME = "hibernate";
 	
@@ -36,7 +40,9 @@ implements ClientType{
 	@Override
 	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
 		if(nodeParams.getFielderClass() == null){
-			return new HibernateNode(nodeParams);
+			Node<?,?> node = new HibernateNode(nodeParams);
+			logger.warn("creating HibernateNode "+node);
+			return node;
 		}else{
 			return new JdbcNode(nodeParams);
 		}

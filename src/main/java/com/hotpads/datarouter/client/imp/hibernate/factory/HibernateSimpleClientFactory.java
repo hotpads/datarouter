@@ -2,10 +2,10 @@ package com.hotpads.datarouter.client.imp.hibernate.factory;
 
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
@@ -51,17 +51,28 @@ extends JdbcSimpleClientFactory{
 		AnnotationConfiguration sfConfig = new AnnotationConfiguration();
 		sfConfig.configure(configFileLocation);
 
-		// //hibernate databeans (register before connecting to db)
-		@SuppressWarnings("unchecked")
+		//this code will skip all nodes with fielders, which is the desired behavior, but some jdbc nodes are still using hibernate TxnOps =(
+//		List<? extends PhysicalNode<?, ?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
+//		for(PhysicalNode<?, ?> physicalNode : IterableTool.nullSafe(physicalNodes)){
+//			DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
+//			if(fieldInfo.getFieldAware()){ continue; }//skip databeans with fielders
+//			Class<? extends Databean<?, ?>> databeanClass = fieldInfo.getDatabeanClass();
+		
+		//add all databeanClasses until we're sure that none are using hibernate code (like GetJobletForProcessing)
 		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = drContext.getNodes().getTypesForClient(
 				clientName);
 		for (Class<? extends Databean<?, ?>> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
-			// TODO skip fieldAware databeans
-			// logger.warn(clientName+":"+databeanClass);
+		
 			try{
 				sfConfig.addClass(databeanClass);
+//				logger.warn("addClass "+databeanClass.getCanonicalName());
 			} catch (org.hibernate.MappingNotFoundException mnfe){
-				sfConfig.addAnnotatedClass(databeanClass);
+				AnnotationConfiguration annotationConfig = sfConfig.addAnnotatedClass(databeanClass);
+//				AnnotationConfiguration annotationConfig = sfConfig.addAnnotatedClass(databeanClass);
+//				if(ObjectTool.equals("Joblet", databeanClass.getSimpleName())){
+//					int breakpoint = 1;
+//				}
+//				logger.warn("addAnnotatedClass "+databeanClass.getCanonicalName());
 			}
 		}
 		timer.add("SessionFactory");
