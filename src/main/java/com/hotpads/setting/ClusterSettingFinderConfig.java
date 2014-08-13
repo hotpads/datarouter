@@ -2,7 +2,7 @@ package com.hotpads.setting;
 
 public interface ClusterSettingFinderConfig {
 
-	DatarouterServerType getServerType();
+	ServerType getServerType();
 
 	String getInstanceId();
 

@@ -1,11 +1,19 @@
 package com.hotpads.setting;
 
-import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import java.util.List;
 
-public interface ServerType<T> extends StringEnum<T>{
+import com.hotpads.util.core.web.HTMLSelectOptionBean;
+
+public interface ServerType {
 
 	public static final String
 		ALL = "all",
 		UNKNOWN = "unknown";
-	
+
+	List<HTMLSelectOptionBean> getHTMLSelectOptionsVarNames();
+
+	ServerType fromPersistentString(String s);
+
+	String getPersistentString();
+
 }
