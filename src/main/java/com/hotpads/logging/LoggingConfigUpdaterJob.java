@@ -17,6 +17,11 @@ public class LoggingConfigUpdaterJob implements Runnable{
 	private HotPadsLog4j2Configurator hotPadsLog4j2Configurator;
 
 	private String previousSignature;
+	private String webAppName;
+
+	public void setWebAppName(String webAppName){
+		this.webAppName = webAppName;
+	}
 
 	public void setInitialSignature(String initialSignature){
 		this.previousSignature = initialSignature;
@@ -29,11 +34,11 @@ public class LoggingConfigUpdaterJob implements Runnable{
 	@Override
 	public void run(){
 		LoggingConfig config = hotPadsLoggingConfigDao.loadConfig();
-		logger.debug("Logging config updater is running");
-		logger.debug(config.getSignature());
+		logger.debug("Logging config updater is running on " + webAppName);
+		logger.debug("Logging config signature = " + config.getSignature());
 		if(!config.getSignature().equals(previousSignature)){
 			logger.info("Logging config apllied");
-			hotPadsLog4j2Configurator.appConfig(config);
+			hotPadsLog4j2Configurator.applyConfig(config);
 			previousSignature = config.getSignature();
 		}
 	}
