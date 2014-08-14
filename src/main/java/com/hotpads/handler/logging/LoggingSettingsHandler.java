@@ -30,9 +30,9 @@ import com.hotpads.util.core.logging.Log4j2Configurator;
 public class LoggingSettingsHandler extends BaseHandler{
 	private static final String DEFAULT_TEST_LOG_MESSAGE = "LoggingSettingsHandler.testLog()";
 	private static final String
-		JSP = "/jsp/admin/datarouter/logging.jsp",
-		JSP_CONSOLE_APPENDER = "/consoleAppender",
-		JSP_FILE_APPENDER = "/fileAppender";
+		JSP = "/jsp/admin/datarouter/logging/logging.jsp",
+		JSP_CONSOLE_APPENDER = "/jsp/admin/datarouter/logging/consoleAppender.jsp",
+		JSP_FILE_APPENDER = "/jsp/admin/datarouter/logging/fileAppender.jsp";
 	private static final Level[] levels = new Level[]{
 		Level.ALL,
 		Level.TRACE,
