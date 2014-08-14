@@ -11,7 +11,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.memcached.DataRouterMemcachedKey;
@@ -40,7 +41,7 @@ public class MemcachedReaderNode<
 extends BasePhysicalNode<PK,D,F>
 implements MemcachedPhysicalNode<PK,D>,
 		MapStorageReader<PK,D>{
-	protected static Logger logger = Logger.getLogger(MemcachedReaderNode.class);
+	protected static Logger logger = LoggerFactory.getLogger(MemcachedReaderNode.class);
 	
 	protected Integer databeanVersion;
 	

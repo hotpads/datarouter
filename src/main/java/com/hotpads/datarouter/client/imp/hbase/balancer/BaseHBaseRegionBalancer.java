@@ -5,7 +5,8 @@ import java.util.SortedMap;
 import java.util.concurrent.Callable;
 
 import org.apache.hadoop.hbase.ServerName;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
@@ -17,7 +18,7 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseHBaseRegionBalancer
 implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	protected DRHServerList drhServerList;
 	protected DRHRegionList drhRegionList;

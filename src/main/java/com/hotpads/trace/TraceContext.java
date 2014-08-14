@@ -3,7 +3,8 @@ package com.hotpads.trace;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.util.core.CollectionTool;
@@ -12,7 +13,7 @@ import com.hotpads.util.core.StringTool;
 
 
 public class TraceContext {
-	protected static Logger logger = Logger.getLogger(TraceContext.class);
+	protected static Logger logger = LoggerFactory.getLogger(TraceContext.class);
 	
 	protected String serverName;
 	protected Long traceId;

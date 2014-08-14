@@ -4,7 +4,8 @@ import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.JdbcConnectionClient;
@@ -15,7 +16,7 @@ import com.hotpads.datarouter.routing.DataRouterContext;
 
 public abstract class BaseJdbcOp<T>
 implements TxnOp<T>, ConnectionAware<T> {
-	private Logger logger = Logger.getLogger(getClass());
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	private DataRouterContext drContext;
 	private List<String> clientNames;

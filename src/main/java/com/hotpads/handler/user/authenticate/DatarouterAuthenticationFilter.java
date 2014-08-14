@@ -18,7 +18,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.handler.ResponseTool;
 import com.hotpads.handler.user.DatarouterUserNodes;
@@ -36,7 +37,7 @@ import com.hotpads.util.core.io.RuntimeIOException;
 
 @Singleton
 public class DatarouterAuthenticationFilter implements Filter{
-	private static Logger logger = Logger.getLogger(DatarouterAuthenticationFilter.class);
+	private static Logger logger = LoggerFactory.getLogger(DatarouterAuthenticationFilter.class);
 	
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;

@@ -2,7 +2,8 @@ package com.hotpads.datarouter.node;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -18,7 +19,7 @@ public abstract class BaseNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
 implements Node<PK,D>{
-	protected Logger logger = Logger.getLogger(getClass());
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private DataRouterContext drContext;
 	private DataRouter router;

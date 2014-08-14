@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.memcached.node.task;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClient;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedPhysicalNode;
@@ -13,7 +14,7 @@ import com.hotpads.util.core.NumberTool;
 
 public abstract class MemcachedTask<V> 
 extends TracedCallable<V>{
-	static Logger logger = Logger.getLogger(MemcachedTask.class);
+	static Logger logger = LoggerFactory.getLogger(MemcachedTask.class);
 
 	//variables for TraceThreads and TraceSpans
 	// breaking encapsulation in favor of tracing

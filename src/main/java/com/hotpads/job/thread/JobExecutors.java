@@ -7,14 +7,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 import com.hotpads.util.core.concurrent.Provider;
 
 //oops - this was meant to stay in job project
 public class JobExecutors{
-	static Logger logger = Logger.getLogger(JobExecutors.class);
+	static Logger logger = LoggerFactory.getLogger(JobExecutors.class);
 	
 	public static final ThreadGroup
 		job = new ThreadGroup("job"),

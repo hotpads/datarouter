@@ -7,7 +7,8 @@ import java.util.NavigableSet;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientId;
@@ -21,7 +22,7 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.ThrowableTool;
 
 public class ConnectionPools {
-	private static Logger logger = Logger.getLogger(ConnectionPools.class);
+	private static Logger logger = LoggerFactory.getLogger(ConnectionPools.class);
 
 	protected NavigableSet<ClientId> clientIds = SetTool.createTreeSet();
 	protected Set<String> configFilePaths = SetTool.createTreeSet();

@@ -2,7 +2,8 @@ package com.hotpads.datarouter.op.executor.impl;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.ConnectionClient;
@@ -17,7 +18,7 @@ import com.hotpads.util.core.ExceptionTool;
 
 public abstract class BaseClientExecutor<T>
 implements ClientExecutor{
-	private static Logger logger = Logger.getLogger(BaseClientExecutor.class);
+	private static Logger logger = LoggerFactory.getLogger(BaseClientExecutor.class);
 
 	private DataRouterContext drContext;
 	private ClientOp<T> parallelClientOp;

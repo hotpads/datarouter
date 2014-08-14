@@ -6,12 +6,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.hotpads.datarouter.client.ClientType;
@@ -39,7 +40,7 @@ import com.hotpads.util.core.iterable.BatchingIterable;
 
 @RunWith(Parameterized.class)
 public class SortedNodeIntegrationTests{
-	private static Logger logger = Logger.getLogger(SortedNodeIntegrationTests.class);
+	static Logger logger = LoggerFactory.getLogger(SortedNodeIntegrationTests.class);
 	
 	
 	/***************************** fields **************************************/

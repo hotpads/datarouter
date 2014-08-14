@@ -29,7 +29,7 @@ import com.hotpads.util.core.ListTool;
 public class DatarouterSession 
 extends BaseDatarouterSessionDatabean<DatarouterSessionKey, DatarouterSession> 
 implements Serializable {	
-//	private static Logger logger = Logger.getLogger(DatarouterSession.class);
+//	private static Logger logger = LoggerFactory.getLogger(DatarouterSession.class);
 
 	/****************** fields **************************/
 	

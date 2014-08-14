@@ -12,7 +12,8 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.Clients;
@@ -27,10 +28,9 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
-@Named
 @Singleton
 public class DataRouterContext{
-	protected static Logger logger = Logger.getLogger(DataRouterContext.class);
+	protected static Logger logger = LoggerFactory.getLogger(DataRouterContext.class);
 
 	protected static final String
 			CONFIG_SERVER_NAME = "server.name",

@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,7 +34,7 @@ import com.hotpads.util.core.iterable.BatchingIterable;
 
 @RunWith(Parameterized.class)
 public class IndexedNodeIntegrationTests{
-	static Logger logger = Logger.getLogger(IndexedNodeIntegrationTests.class);
+	static Logger logger = LoggerFactory.getLogger(IndexedNodeIntegrationTests.class);
 	
 	/****************************** static setup ***********************************/
 

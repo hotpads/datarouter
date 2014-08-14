@@ -3,7 +3,8 @@ package com.hotpads.datarouter.serialize.fieldcache;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
@@ -40,7 +41,7 @@ public class DatabeanFieldInfo<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> {
-	private static Logger logger = Logger.getLogger(DatabeanFieldInfo.class);
+	private static Logger logger = LoggerFactory.getLogger(DatabeanFieldInfo.class);
 	
 	private static final byte ENTITY_PREFIX_TERMINATOR = 0;
 	

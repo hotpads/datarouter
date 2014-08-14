@@ -3,7 +3,8 @@ package com.hotpads.datarouter.client.imp.hbase.batching;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.config.Config;
@@ -24,7 +25,7 @@ public abstract class BaseHBaseBatchLoader<
 		F extends DatabeanFielder<PK,D>,
 		T> //T will be either PK or D, but not going to express that (or think about how to)
 extends BaseBatchLoader<T>{
-	private static Logger logger = Logger.getLogger(BaseHBaseBatchLoader.class);
+	private static Logger logger = LoggerFactory.getLogger(BaseBatchLoader.class);
 
 	private static final int DEFAULT_iterateBatchSize = 1000;
 	

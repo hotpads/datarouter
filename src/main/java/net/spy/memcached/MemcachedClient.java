@@ -126,6 +126,7 @@ public final class MemcachedClient extends SpyThread {
 	 */
 	public MemcachedClient(ConnectionFactory cf, ServerInfo[] serverList)
 		throws IOException {
+		System.setProperty("net.spy.log.LoggerImpl", "net.spy.log.Log4JLogger");
 		transcoder=new SerializingTranscoder();
 		conn=cf.createConnection(serverList);
 		opFact=cf.getOperationFactory();

@@ -6,7 +6,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.hbase.client.HConnection;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.DynamicClientFactory;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive;
@@ -46,7 +47,7 @@ implements DynamicClientFactory{
 	/******************************** keepAlive tests **********************************/
 
 	protected class HBaseClientKeepAliveTester implements Runnable{
-		Logger logger = Logger.getLogger(getClass());
+		Logger logger = LoggerFactory.getLogger(getClass());
 		
 		public HBaseClientKeepAliveTester() {
 		}
@@ -79,10 +80,10 @@ implements DynamicClientFactory{
 	//					timer.add(e.getClass().getSimpleName());
 	//					++numKeepAliveFailures;
 					}catch(Exception e){
-						logger.error(e);
+						logger.error("", e);
 						timer.add("Exception");
 						++numKeepAliveFailures;
-						logger.warn(timer);
+						logger.warn(timer.toString());
 					}
 //					logger.warn(timer);//comment in if you want more log spam
 				}
@@ -112,7 +113,7 @@ implements DynamicClientFactory{
 	//				client.shutdown();
 				}
 			}catch(Exception e){
-				logger.error(e);
+				logger.error("", e);
 			}
 		}
 	}

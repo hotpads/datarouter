@@ -3,14 +3,15 @@
  */
 package com.hotpads.datarouter.node.type.writebehind.base;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.profile.count.collection.archive.CountArchiveFlusher;
 import com.hotpads.util.core.ExceptionTool;
 
 public class OverdueWriteCanceller implements Runnable{
-	private static Logger logger = Logger.getLogger(CountArchiveFlusher.class);
+	private static Logger logger = LoggerFactory.getLogger(CountArchiveFlusher.class);
 	
 	protected final BaseWriteBehindNode<?,?,?> node;
 	

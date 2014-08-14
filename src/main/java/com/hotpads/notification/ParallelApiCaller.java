@@ -17,7 +17,8 @@ import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
@@ -31,7 +32,7 @@ import com.hotpads.util.core.collections.Pair;
 
 @Singleton
 public class ParallelApiCaller {
-	private static Logger logger = Logger.getLogger(ParallelApiCaller.class);
+	private static Logger logger = LoggerFactory.getLogger(ParallelApiCaller.class);
 
 	private static final int QUEUE_CAPACITY = 4096;
 	private static final long FLUSH_PERIOD_MS = 1000;

@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.backup.databean.BackupRecord;
 import com.hotpads.datarouter.backup.databean.BackupRecordKey;
@@ -22,7 +23,7 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.number.VarLong;
 
 public abstract class BackupRegion<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
-	protected static Logger logger = Logger.getLogger(BackupRegion.class);
+	protected static Logger logger = LoggerFactory.getLogger(BackupRegion.class);
 
 	public static final int GZIP_BUFFER_BYTES = 256<<10;
 	

@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.batching.HBaseDatabeanBatchLoader;
 import com.hotpads.datarouter.client.imp.hbase.batching.HBasePrimaryKeyBatchLoader;
@@ -31,7 +32,7 @@ import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
 
 public class HBaseScatteringPrefixQueryBuilder {
-	private static Logger logger = Logger.getLogger(HBaseScatteringPrefixQueryBuilder.class);
+	private static Logger logger = LoggerFactory.getLogger(HBaseScatteringPrefixQueryBuilder.class);
 
 	public static List<Scan> getRangeScanners(DatabeanFieldInfo<?,?,?> fieldInfo,
 			final FieldSet<?> startKey, final boolean startInclusive, 

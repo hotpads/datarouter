@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import javax.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -11,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Injector;
-import com.google.inject.Singleton;
 import com.hotpads.util.core.ListTool;
 
 @SuppressWarnings("serial")
@@ -21,7 +21,7 @@ public abstract class DispatcherServlet extends HttpServlet {
 	protected String servletContextPath;
 	protected Injector injector;
 	
-	protected List<BaseDispatcher> dispatchers = ListTool.createArrayList();;
+	protected List<BaseDispatcher> dispatchers = ListTool.createArrayList();
 	//...add more dispatchers
 	
 	

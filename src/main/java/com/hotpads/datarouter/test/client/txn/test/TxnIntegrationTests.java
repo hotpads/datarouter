@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.test.client.txn.test;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,7 +23,7 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
 public class TxnIntegrationTests {
-	private static Logger logger = Logger.getLogger(TxnIntegrationTests.class);
+	private static Logger logger = LoggerFactory.getLogger(TxnIntegrationTests.class);
 	
 	private BasicClientTestRouter router;
 	private DataRouterContext drContext;

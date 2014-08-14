@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.node.factory;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientType;
@@ -13,12 +14,11 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
-import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class NodeFactory{
-	private static Logger logger = Logger.getLogger(NodeFactory.class);
+static Logger logger = LoggerFactory.getLogger(NodeFactory.class);
 	
 	/********************* pass any params *****************/
 	

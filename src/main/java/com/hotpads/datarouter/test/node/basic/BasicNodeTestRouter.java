@@ -1,8 +1,10 @@
 package com.hotpads.datarouter.test.node.basic;
+
 import java.util.List;
 import java.util.Random;
 
-import com.google.inject.Singleton;
+import javax.inject.Singleton;
+
 import com.hotpads.datarouter.backup.databean.BackupRecord;
 import com.hotpads.datarouter.backup.databean.BackupRecord.BackupRecordFielder;
 import com.hotpads.datarouter.backup.databean.BackupRecordKey;
@@ -40,7 +42,6 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.test.IndexedNodeIntegrationTests;
 import com.hotpads.datarouter.test.node.basic.sorted.test.SortedNodeIntegrationTests;
 import com.hotpads.util.core.ListTool;
-
 
 @Singleton
 public class BasicNodeTestRouter extends BaseDataRouter{

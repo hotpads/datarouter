@@ -6,7 +6,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -29,7 +30,7 @@ import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class DatabeanCountArchive extends BaseCountArchive{
-	static Logger logger = Logger.getLogger(DatabeanCountArchive.class);
+	static Logger logger = LoggerFactory.getLogger(DatabeanCountArchive.class);
 
 	static long MIN_EARLY_FLUSH_PERIOD_MS = 20 * 1000;// prevent the 5s counter from early flushing because of slight
 														// lag

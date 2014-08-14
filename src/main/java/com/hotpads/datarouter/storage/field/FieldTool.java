@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
@@ -22,7 +23,7 @@ import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.number.VarLong;
 
 public class FieldTool{
-	static Logger logger = Logger.getLogger(FieldTool.class);
+	static Logger logger = LoggerFactory.getLogger(FieldTool.class);
 
 	public static List<Field<?>> createList(Field<?>... fields){
 		return ListTool.createArrayList(fields);

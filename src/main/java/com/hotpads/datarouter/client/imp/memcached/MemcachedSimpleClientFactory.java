@@ -8,7 +8,8 @@ import java.util.Set;
 
 import net.spy.memcached.KetamaConnectionFactory;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientFactory;
@@ -19,7 +20,7 @@ import com.hotpads.util.core.profile.PhaseTimer;
 
 public class MemcachedSimpleClientFactory 
 implements ClientFactory{
-	private static Logger logger = Logger.getLogger(MemcachedSimpleClientFactory.class);
+	private static Logger logger = LoggerFactory.getLogger(MemcachedSimpleClientFactory.class);
 	
 	private String clientName;
 	private Set<String> configFilePaths;
@@ -46,7 +47,7 @@ implements ClientFactory{
 			throw new RuntimeException(e);
 		}
 		MemcachedClient newClient = new MemcachedClientImp(clientName, spyClient);
-		logger.warn(timer.add("done"));
+		logger.warn(timer.add("done").toString());
 		return newClient;
 	}
 }

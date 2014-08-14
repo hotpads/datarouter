@@ -4,7 +4,8 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.util.http.client.security.ApiKeyPredicate;
 import com.hotpads.util.http.client.security.CsrfValidator;
@@ -13,7 +14,7 @@ import com.hotpads.util.http.client.security.SignatureValidator;
 
 public class DispatchRule{
 	
-	private Logger logger = Logger.getLogger(DispatchRule.class);
+	private Logger logger = LoggerFactory.getLogger(DispatchRule.class);
 	
 	private Pattern pattern;
 	private Class<? extends BaseHandler> handlerClass;

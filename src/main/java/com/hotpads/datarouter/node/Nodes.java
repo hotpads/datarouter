@@ -11,7 +11,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
@@ -29,7 +30,7 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>>{
-	static Logger logger = Logger.getLogger(Nodes.class);
+	static Logger logger = LoggerFactory.getLogger(Nodes.class);
 	
 	
 	/************************ fields *******************************/
