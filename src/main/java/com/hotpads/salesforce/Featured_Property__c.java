@@ -1,20 +1,24 @@
 package com.hotpads.salesforce;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
 import com.hotpads.salesforce.databean.SalesforceDatabean;
 import com.hotpads.salesforce.databean.SalesforceDatabeanKey;
 import com.hotpads.salesforce.dto.SalesforceQueryResult;
-import com.hotpads.util.core.ListTool;
 
 //Variable names and Databean name must be the same as Salesforce's
 public class Featured_Property__c extends SalesforceDatabean{
 	
 	private String Name;
 	private String Property_Zillow_Account_ID__c;//Blame Salesforce for this wonderful field name
-
+	private Date Onboarding_Featured_Date__c;
+	private Date Manual_Delisting_Date__c;
+	private Date CreatedDate;
+		
 	public Featured_Property__c(){
 		super(new SalesforceDatabeanKey(""));
 	}
@@ -38,7 +42,31 @@ public class Featured_Property__c extends SalesforceDatabean{
 
 	@Override
 	public List<String> getAuthorizedFields(){
-		return ListTool.create();
+		return Arrays.asList("Onboarding_Featured_Date__c","Manual_Delisting_Date__c");
+	}
+
+	public Date getOnboarding_Featured_Date__c(){
+		return Onboarding_Featured_Date__c;
+	}
+
+	public void setOnboarding_Featured_Date__c(Date onboarding_Featured_Date__c){
+		Onboarding_Featured_Date__c = onboarding_Featured_Date__c;
+	}
+
+	public Date getManual_Delisting_Date__c(){
+		return Manual_Delisting_Date__c;
+	}
+
+	public void setManual_Delisting_Date__c(Date manual_Delisting_Date__c){
+		Manual_Delisting_Date__c = manual_Delisting_Date__c;
+	}
+
+	public Date getCreatedDate(){
+		return CreatedDate;
+	}
+
+	public void setCreatedDate(Date createdDate){
+		CreatedDate = createdDate;
 	}
 	
 }
