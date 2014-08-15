@@ -18,9 +18,6 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.trace.TraceEntity;
-import com.hotpads.trace.key.TraceEntityKey;
-import com.hotpads.util.core.CollectionTool;
 
 public abstract class HBaseEntityReaderNode<
 		EK extends EntityKey<EK>,
@@ -61,11 +58,6 @@ extends BasePhysicalEntityNode<EK,E>{
 		return resultParser;
 	}
 	
-//	public Map<String,SubEntitySortedMapStorageReaderNode<EK,?,?,?>> getNodeByQualifierPrefix(){
-//		return nodeByQualifierPrefix;
-//	}
-	
-//	protected abstract E parseHBaseResult(EK ek, Result result);
 
 	
 	@Override
