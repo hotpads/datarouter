@@ -27,12 +27,13 @@ public class LoggingConfigLoader extends HotPadsWebAppListener{
 
 	private String loadConfigAndApply(){
 		LoggingConfig config = hotPadsLoggingConfigDao.loadConfig();
-		hotPadsLog4j2Configurator.appConfig(config);
+		hotPadsLog4j2Configurator.applyConfig(config);
 		return config.getSignature();
 	}
 
 	private void startJob(String initialSignature){
 		loggingConfigUpdaterJob.setInitialSignature(initialSignature);
+		loggingConfigUpdaterJob.setWebAppName(servletContext.getServletContextName());
 		ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 		scheduledExecutor.submit(new Runnable(){
 			

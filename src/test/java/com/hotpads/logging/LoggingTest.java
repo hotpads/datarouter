@@ -1,11 +1,14 @@
 package com.hotpads.logging;
 
-import java.util.Map;
-
-import junit.framework.Assert;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,33 +18,50 @@ import com.google.inject.Injector;
 import com.hotpads.logging.ClassA.Class1;
 import com.hotpads.logging.ClassA.Class1.Class11;
 import com.hotpads.logging.ClassA.Class2;
-import com.hotpads.logging.another.Class3;
+import com.hotpads.logging.another.Class4;
+import com.hotpads.logging.apackage.Class3;
 import com.hotpads.util.core.logging.Log4j2Configurator;
+import com.hotpads.util.core.logging.UtilLog4j2Configuration;
 
 public class LoggingTest{
 	private static final Logger logger = LoggerFactory.getLogger(LoggingTest.class);
 
+	@After
+	public void after(){
+		File f = new File(UtilLog4j2Configuration.testFileName);
+		f.delete();
+	}
+	
 	@Test
-	public void test() {
+	public void test() throws IOException {
 		Injector injector = Guice.createInjector();
 		Log4j2Configurator log4j2Configurator = injector.getInstance(Log4j2Configurator.class);
 		logOneOfEachLevel();
 		log4j2Configurator.getRootLoggerConfig().setLevel(Level.DEBUG);
 		logOneOfEachLevel();
 
+		log4j2Configurator.updateOrCreateLoggerConfig(Class11.class, Level.INFO, false, new String[]{"Console err"});
+		
 		new Class1().logYourName();
-		log4j2Configurator.updateOrCreateLoggerConfig(Class11.class, Level.TRACE, false, new String[]{"Console"});
 		new Class11().logYourName();
-		log4j2Configurator.updateOrCreateLoggerConfig(Class2.class, Level.INFO, false, new String[]{"Console"});
 		new Class2().logYourName();
 		new Class3().logYourName();
+		new Class4().logYourName();
 
-		Map<String,LoggerConfig> configs = log4j2Configurator.getConfigs();
-//		System.out.println(configs);
-		Assert.assertEquals(4, configs.size()); //Bad test because depend of the xml file
-//		System.out.println(log4j2Configurator.getAppenders());
-		
-		logger.warn("mException", new Exception(new NullPointerException()));
+		logger.warn("mException", new Exception(new Exception(new NullPointerException())));
+
+		int i = getNumberOfLineInLogFile();
+		Assert.assertEquals(5, i);
+	}
+
+	private int getNumberOfLineInLogFile() throws IOException{
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(UtilLog4j2Configuration.testFileName));
+		int i = 0;
+		while(bufferedReader.readLine() != null){
+			i++;
+		}
+		bufferedReader.close();
+		return i;
 	}
 
 	private void logOneOfEachLevel(){

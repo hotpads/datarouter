@@ -1,4 +1,4 @@
-package com.hotpads.logging.another;
+package com.hotpads.logging.apackage;
 
 import org.slf4j.LoggerFactory;
 
