@@ -115,11 +115,27 @@ extends HBaseEntityQueryBuilder<EK,E>
 		return false;//spans multiple entities
 	}
 	
-//	private Twin<EK> getEkBoundsForPrefix(Twin<PK> pkBounds, boolean wildcardLastField){
-//		EK startEk = pkBounds.getLeft().getEntityKey();
-//		EK endEk = pkBounds.getRight().getEntityKey();
-//		return Twin.createTwin(startEk, endEk);
-//	}
+	
+	/******************* get / getMulti ***************************/
+	
+	public List<Get> getGets(Collection<PK> pks, boolean keysOnly){
+		List<Get> gets = ListTool.createArrayListWithSize(pks);
+		for(PK pk : pks){
+			byte[] rowBytes = getRowBytesWithPartition(pk.getEntityKey());
+			byte[] qualifierPrefix = getQualifierPrefix(pk);
+			Get get = new Get(rowBytes);
+			if(keysOnly){
+				FilterList filters = new FilterList();
+				filters.addFilter(new KeyOnlyFilter());
+				filters.addFilter(new ColumnPrefixFilter(qualifierPrefix));
+				get.setFilter(filters);
+			}else{
+				get.setFilter(new ColumnPrefixFilter(qualifierPrefix));
+			}
+			gets.add(get);
+		}
+		return gets;
+	}
 	
 	
 	/********************* single row prefix **********************/
@@ -195,22 +211,6 @@ extends HBaseEntityQueryBuilder<EK,E>
 		Scan scan = HBaseQueryBuilder.getScanForRange(prefixedRowRange, config);
 		return scan;
 	}
-
-//	public List<Scan> getPrefixScans(Range<PK> pkRange, boolean wildcardLastField, Config config){
-//		List<Scan> scans = new ArrayList<>();
-//		for(int partition=0; partition < partitioner.getNumPartitions(); ++partition){
-//			Scan singlePartitionScan = getPrefixScan(partition, pkRange, wildcardLastField, config);
-//			scans.add(singlePartitionScan);
-//		}
-//		return scans;
-//	}
-//
-//	private Scan getPrefixScan(int partition, Range<PK> pkRange, boolean wildcardLastField, Config config){
-//		Range<ByteRange> rowRange = getRowRange(partition, pkRange);
-//		Scan scan = HBaseQueryBuilder.getScanForRange(rowRange, config);
-//		scan.setFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
-//		return scan;
-//	}
 	
 	
 	/***************** batching scanners *******************/
@@ -241,6 +241,21 @@ extends HBaseEntityQueryBuilder<EK,E>
 			scanners.add(scanner);
 		}
 		return scanners;
+	}
+	
+	
+	/************* get results in sub range ********************/
+	
+	public Scan getScanForSubrange(final int partition, final Range<PK> rowRange, final Config pConfig, boolean keysOnly){
+		Config config = Config.nullSafe(pConfig);
+		Range<ByteRange> rowBytesRange = getRowRange(partition, rowRange);
+		//TODO Get if single row
+		Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, config);
+		FilterList filterList = new FilterList();
+		if(keysOnly){ filterList.addFilter(new KeyOnlyFilter()); }
+		filterList.addFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
+		scan.setFilter(filterList);
+		return scan;
 	}
 	
 }

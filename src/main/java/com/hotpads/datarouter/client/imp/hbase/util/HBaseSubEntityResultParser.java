@@ -49,6 +49,16 @@ public class HBaseSubEntityResultParser<
 
 	/****************** parse multiple hbase rows ********************/
 
+	public List<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result[] rows){
+		List<PK> results = ListTool.createArrayList();
+		for(Result row : rows){
+			if(row.isEmpty()){ continue; }
+			NavigableSet<PK> pksFromSingleGet = getPrimaryKeysWithMatchingQualifierPrefix(row);
+			results.addAll(CollectionTool.nullSafe(pksFromSingleGet));
+		}
+		return results;
+	}
+
 	public List<D> getDatabeansWithMatchingQualifierPrefix(Result[] rows){
 		List<D> results = ListTool.createArrayList();
 		for(Result row : rows){

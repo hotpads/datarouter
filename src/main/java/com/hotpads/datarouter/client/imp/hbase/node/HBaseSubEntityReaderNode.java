@@ -1,23 +1,19 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.NavigableSet;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
-import org.apache.hadoop.hbase.filter.FilterList;
-import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.apache.log4j.Logger;
 
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
-import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityQueryBuilder;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseSubEntityResultParser;
 import com.hotpads.datarouter.client.type.HBaseClient;
@@ -36,7 +32,6 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.PeekableIterable;
@@ -112,57 +107,40 @@ implements HBasePhysicalNode<PK,D>,
 	
 	
 	@Override
-	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){	
-		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
+	public List<D> getMulti(final Collection<PK> pks, final Config pConfig){	
+		if(CollectionTool.isEmpty(pks)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDataRouterContext(), getTaskNameParams(), 
 				"getMulti", config){
 				public List<D> hbaseCall() throws Exception{
-					DRCounters.incSuffixClientNode(client.getType(), "getMulti rows", getClientName(), getNodeName(), 
-							CollectionTool.size(keys));
-					List<Get> gets = ListTool.createArrayListWithSize(keys);
-					for(PK pk : keys){
-						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(pk.getEntityKey());
-						Get get = new Get(rowBytes);
-						byte[] qualifierPrefix = queryBuilder.getQualifierPrefix(pk);
-						get.setFilter(new ColumnPrefixFilter(qualifierPrefix));
-						gets.add(get);
-					}
-					Result[] rows = hTable.get(gets);
-					return resultParser.getDatabeansWithMatchingQualifierPrefix(rows);
+					DRCounters.incSuffixClientNode(client.getType(), "getMulti requested", getClientName(), getNodeName(), 
+							CollectionTool.size(pks));
+					List<Get> gets = queryBuilder.getGets(pks, false);
+					Result[] hBaseResults = hTable.get(gets);
+					List<D> databeans = resultParser.getDatabeansWithMatchingQualifierPrefix(hBaseResults);
+					DRCounters.incSuffixClientNode(client.getType(), "getMulti found", getClientName(), getNodeName(), 
+							CollectionTool.size(pks));
+					return databeans;
 				}
 			}).call();
 	}
 	
 	
 	@Override
-	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig) {	
-		if(CollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
+	public List<PK> getKeys(final Collection<PK> pks, final Config pConfig) {	
+		if(CollectionTool.isEmpty(pks)){ return new LinkedList<PK>(); }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDataRouterContext(), getTaskNameParams(), 
 				"getKeys", config){
 				public List<PK> hbaseCall() throws Exception{
-					DRCounters.incSuffixClientNode(client.getType(), "getKeys rows", getClientName(), getNodeName(), 
-							CollectionTool.size(keys));
-					List<Get> gets = ListTool.createArrayListWithSize(keys);
-					for(PK pk : keys){
-						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(pk.getEntityKey());
-						byte[] qualifierPrefix = queryBuilder.getQualifierPrefix(pk);
-						FilterList filters = new FilterList();
-						filters.addFilter(new KeyOnlyFilter());
-						filters.addFilter(new ColumnPrefixFilter(qualifierPrefix));
-						Get get = new Get(rowBytes);
-						get.setFilter(filters);
-						gets.add(get);
-					}
+					DRCounters.incSuffixClientNode(client.getType(), "getKeys requested", getClientName(), getNodeName(), 
+							CollectionTool.size(pks));
+					List<Get> gets = queryBuilder.getGets(pks, true);
 					Result[] hBaseResults = hTable.get(gets);
-					List<PK> results = ListTool.createArrayList();
-					for(Result row : hBaseResults){
-						if(row.isEmpty()){ continue; }
-						NavigableSet<PK> pksFromSingleGet = resultParser.getPrimaryKeysWithMatchingQualifierPrefix(row);
-						results.addAll(CollectionTool.nullSafe(pksFromSingleGet));
-					}
-					return results;
+					List<PK> pks = resultParser.getPrimaryKeysWithMatchingQualifierPrefix(hBaseResults);
+					DRCounters.incSuffixClientNode(client.getType(), "getKeys found", getClientName(), getNodeName(), 
+							CollectionTool.size(pks));
+					return pks;
 				}
 			}).call();
 	}
@@ -199,8 +177,8 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 
 		//segment prefixes into single vs multi-row queries
-		final List<PK> singleEntityPrefixes = ListTool.createArrayList();
-		final List<PK> multiEntityPrefixes = ListTool.createArrayList();
+		final List<PK> singleEntityPrefixes = new ArrayList<>();
+		final List<PK> multiEntityPrefixes = new ArrayList<>();
 		for(PK prefix : prefixes){
 			if(queryBuilder.isSingleEkPrefixQuery(prefix, wildcardLastField)){
 				singleEntityPrefixes.add(prefix);
@@ -221,7 +199,7 @@ implements HBasePhysicalNode<PK,D>,
 
 		//execute the multi-row queries in individual Scans
 		//TODO parallelize
-		List<D> multiEntityResults = ListTool.createArrayList();
+		List<D> multiEntityResults = new ArrayList<>();
 		for(final PK pkPrefix : multiEntityPrefixes){
 			EK ekPrefix = pkPrefix.getEntityKey();//we already determined prefix is confied to the EK
 			final List<Scan> allPartitionScans = queryBuilder.getPrefixScans(ekPrefix, wildcardLastField, config);
@@ -229,7 +207,7 @@ implements HBasePhysicalNode<PK,D>,
 			List<D> singleScanResults = new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(
 					getDataRouterContext(), getTaskNameParams(), "getWithPrefixes", config){
 					public List<D> hbaseCall() throws Exception{
-						List<D> results = ListTool.createArrayList();
+						List<D> results = new ArrayList<>();
 						managedResultScanner = hTable.getScanner(singlePartitionScan);
 						for(Result row : managedResultScanner){
 							if(row.isEmpty()){ continue; }
@@ -335,21 +313,15 @@ implements HBasePhysicalNode<PK,D>,
 	public List<Result> getResultsInSubRange(final int partition, final Range<PK> rowRange, final boolean keysOnly, 
 			final Config pConfig){
 		final Config config = Config.nullSafe(pConfig);
-		final String scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "key" : "row") + " numBatches";
-		final String scanKeysVsRowsNumRows = "scan " + (keysOnly ? "key" : "row") + " numRows";
+		final String scanKeysVsRowsNumBatches = "scan " + (keysOnly ? "pk" : "databean") + " numBatches";
+		final String scanKeysVsRowsNumRows = "scan " + (keysOnly ? "pk" : "databean") + " numRows";
 //		final String scanKeysVsRowsNumCells = "scan " + (keysOnly ? "key" : "row") + " numCells";//need a clean way to get cell count
 		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(getDataRouterContext(), 
 				getTaskNameParams(), scanKeysVsRowsNumBatches, config){
 				public List<Result> hbaseCall() throws Exception{
-					Range<ByteRange> rowBytesRange = queryBuilder.getRowRange(partition, rowRange);
-					//TODO Get if single row
-					Scan scan = HBaseQueryBuilder.getScanForRange(rowBytesRange, config);
-					FilterList filterList = new FilterList();
-					if(keysOnly){ filterList.addFilter(new KeyOnlyFilter()); }
-					filterList.addFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
-					scan.setFilter(filterList);
+					Scan scan = queryBuilder.getScanForSubrange(partition, rowRange, pConfig, keysOnly);
 					managedResultScanner = hTable.getScanner(scan);
-					List<Result> results = ListTool.createArrayList();
+					List<Result> results = new ArrayList<>();
 					for(Result row : managedResultScanner){
 						if(row.isEmpty()){ continue; }
 						results.add(row);
