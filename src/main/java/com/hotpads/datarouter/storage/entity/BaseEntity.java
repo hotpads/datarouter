@@ -19,7 +19,7 @@ implements Entity<EK>{
 	
 	public BaseEntity(EK key){
 		this.key = key;
-		this.databeansByQualifierPrefix = new TreeMap<String,EntitySection<EK,?,?>>();
+		this.databeansByQualifierPrefix = new TreeMap<>();
 	}
 	
 	@Override
@@ -30,6 +30,15 @@ implements Entity<EK>{
 	@Override
 	public EK getKey(){
 		return key;
+	}
+	
+	@Override
+	public int getNumDatabeans(){
+		int total = 0;
+		for(EntitySection<EK,?,?> entitySection : databeansByQualifierPrefix.values()){
+			total += entitySection.getNumDatabeans();
+		}
+		return total;
 	}
 	
 	@SuppressWarnings("unchecked") 
@@ -84,6 +93,10 @@ implements Entity<EK>{
 		
 		public D getFirst(){
 			return CollectionTool.getFirst(databeans);
+		}
+		
+		public int getNumDatabeans(){
+			return CollectionTool.size(databeans);
 		}
 		
 	}

@@ -14,4 +14,6 @@ public interface Entity<EK extends EntityKey<EK>>{
 	<PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
 	void addDatabeansForQualifierPrefixUnchecked(String subEntityTableName, 
 			Collection<? extends Databean<?,?>> databeans);
+	
+	int getNumDatabeans();
 }

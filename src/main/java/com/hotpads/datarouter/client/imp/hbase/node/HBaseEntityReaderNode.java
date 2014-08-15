@@ -17,8 +17,10 @@ import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceEntity;
 import com.hotpads.trace.key.TraceEntityKey;
+import com.hotpads.util.core.CollectionTool;
 
 public abstract class HBaseEntityReaderNode<
 		EK extends EntityKey<EK>,
@@ -75,6 +77,10 @@ extends BasePhysicalEntityNode<EK,E>{
 					Get get = new Get(rowBytes);
 					Result hBaseResult = hTable.get(get);
 					E entity = resultParser.parseEntity(ek, hBaseResult);
+					if(entity != null){
+						DRCounters.incSuffixClientNode(client.getType(), "entity databeans", getClientName(),
+								getNodeName(), entity.getNumDatabeans());
+					}
 					return entity;
 				}
 			}).call();

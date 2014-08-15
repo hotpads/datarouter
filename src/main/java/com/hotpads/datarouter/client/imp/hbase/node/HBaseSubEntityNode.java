@@ -84,9 +84,6 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 					Map<EK,List<D>> databeansByEntityKey = EntityTool.getDatabeansByEntityKey(databeans);
 					for(EK ek : databeansByEntityKey.keySet()){
 						byte[] ekBytes = queryBuilder.getRowBytesWithPartition(ek);
-						if(ekBytes.length < 9){
-							int breakpoint = 1;
-						}
 						Put put = new Put(ekBytes);
 						Delete delete = new Delete(ekBytes);
 						for(D databean : databeansByEntityKey.get(ek)){
@@ -122,7 +119,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 					int numDatabeansPut = CollectionTool.getTotalSizeOfMapOfCollections(databeansByEntityKey);
 					DRCounters.incSuffixClientNode(client.getType(), "cells put", getClientName(), getNodeName(), numCellsPut);
 					DRCounters.incSuffixClientNode(client.getType(), "cells delete", getClientName(), getNodeName(), numCellsDeleted);
-					DRCounters.incSuffixClientNode(client.getType(), "rows put", getClientName(), getNodeName(), numDatabeansPut);
+					DRCounters.incSuffixClientNode(client.getType(), "databeans put", getClientName(), getNodeName(), numDatabeansPut);
 					DRCounters.incSuffixClientNode(client.getType(), "entities put", getClientName(), getNodeName(), numEntitiesPut);
 					if(CollectionTool.notEmpty(actions)){
 						hTable.batch(actions);
