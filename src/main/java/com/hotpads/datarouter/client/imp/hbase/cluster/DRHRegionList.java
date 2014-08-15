@@ -97,9 +97,9 @@ public class DRHRegionList{
 		HTable hTable = null;
 		try{
 			hTable = new HTable(config, tableName);
-			logger.warn("got table "+tableName);
+//			logger.warn("got table "+tableName);
 			Map<HRegionInfo,ServerName> serverNameByHRegionInfo = hTable.getRegionLocations();
-			logger.warn("got hTable.getRegionLocations()");
+//			logger.warn("got hTable.getRegionLocations()");
 			return serverNameByHRegionInfo;
 		}catch(IOException e){
 			throw new DataAccessException(e);
