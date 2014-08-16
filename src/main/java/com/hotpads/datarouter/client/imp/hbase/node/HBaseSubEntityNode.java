@@ -92,7 +92,9 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 							PK pk = databean.getKey();
 							byte[] qualifierPkBytes = queryBuilder.getQualifierPkBytes(pk, true);
 							List<Field<?>> fields = fieldInfo.getNonKeyFieldsWithValues(databean);
+							boolean didAtLeastOneField = false;
 							for(Field<?> field : fields){//TODO only put modified fields
+								didAtLeastOneField = true;
 								byte[] fullQualifierBytes = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
 										qualifierPkBytes, field.getColumnNameBytes());
 								byte[] fieldValueBytes = field.getBytes();
@@ -106,16 +108,16 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 									++numCellsPut;
 								}
 							}
-							if(put.isEmpty()){ 
+							if(!didAtLeastOneField){ 
 								Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
 								byte[] dummyQualifierBytes = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
 										qualifierPkBytes, dummyField.getColumnNameBytes());
 								put.add(FAM, dummyQualifierBytes, dummyField.getBytes());
 							}
-							put.setWriteToWAL(config.getPersistentPut());
-							actions.add(put);
 							if(!delete.isEmpty()){ actions.add(delete); }
 						}
+						put.setWriteToWAL(config.getPersistentPut());
+						actions.add(put);
 					}
 					int numEntitiesPut = MapTool.size(databeansByEntityKey);
 					int numDatabeansPut = CollectionTool.getTotalSizeOfMapOfCollections(databeansByEntityKey);
