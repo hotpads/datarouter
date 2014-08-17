@@ -86,6 +86,7 @@ implements Comparable<DRHRegionInfo<?>>{
 	
 	private String calculatePartition(byte[] bytes){
 		if(fieldInfo.isEntity()){
+			if(ArrayTool.isEmpty(bytes)){ return ""; }
 			HBaseSubEntityReaderNode subEntityNode = (HBaseSubEntityReaderNode)node;
 			EntityPartitioner<?> partitioner = subEntityNode.getEntityFieldInfo().getEntityPartitioner();
 			return "" + partitioner.parsePartitionFromBytes(bytes);
