@@ -9,14 +9,20 @@ import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.junit.Test;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionScheduler;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
+import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
+import com.hotpads.datarouter.storage.field.FieldSet;
+import com.hotpads.datarouter.storage.key.entity.EntityKey;
+import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ClassTool;
@@ -27,52 +33,64 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 public class DRHRegionInfo<PK extends PrimaryKey<PK>>
 implements Comparable<DRHRegionInfo<?>>{
-	static Logger logger = LoggerFactory.getLogger(DRHRegionInfo.class);
+	private static final Logger logger = LoggerFactory.getLogger(DRHRegionInfo.class);
 	
-	public static final Integer NUM_VNODES = 1 << 16;
-
-	protected Integer regionNum;
-	protected String tableName;
-	protected String name;
-	protected PK startKey, endKey;
-	protected HRegionInfo hRegionInfo;
-	protected ServerName serverName;
-	protected HServerLoad hServerLoad;
-	protected DRHRegionList regionList;
-//	protected ServerName consistentHashHServer;
-	protected RegionLoad load;
-	protected byte[] consistentHashInput;
-	protected ServerName balancerDestinationServer;
-	protected DRHCompactionScheduler compactionScheduler;
+	private Integer regionNum;
+	private String tableName;
+	private String name;
+	private HRegionInfo hRegionInfo;
+	private ServerName serverName;
+	private HServerLoad hServerLoad;
+	private Node<?,?> node;
+	private DatabeanFieldInfo<?,?,?> fieldInfo;
+	private String partition;
+	private FieldSet<?> startKey, endKey;
+	private RegionLoad load;
+	private byte[] consistentHashInput;
+	private ServerName balancerDestinationServer;
+	private DRHCompactionScheduler compactionScheduler;
 	
 	
 	public DRHRegionInfo(Integer regionNum, String tableName, Class<PK> primaryKeyClass, 
 			HRegionInfo hRegionInfo, ServerName serverName, HServerLoad hServerLoad, 
-			DRHRegionList regionList, RegionLoad load, DRHCompactionInfo compactionInfo){
+			Node<?,?> node, RegionLoad load, DRHCompactionInfo compactionInfo){
 		this.regionNum = regionNum;
 		this.tableName = tableName;
 		this.name = new String(hRegionInfo.getRegionName());
 		this.hRegionInfo = hRegionInfo;
 		this.serverName = serverName;
 		this.hServerLoad = hServerLoad;
-		this.regionList = regionList;
+		this.node = node;
+		this.fieldInfo = node.getFieldInfo();//set before calling getKey
 		this.startKey = getKey(primaryKeyClass, hRegionInfo.getStartKey());
 		this.endKey = getKey(primaryKeyClass, hRegionInfo.getEndKey());
+		this.partition = calculatePartition(hRegionInfo.getStartKey());
 		this.load = load;
 		this.consistentHashInput = hRegionInfo.getEncodedNameAsBytes();
-//		this.consistentHashInput = ByteTool.concatenate(
-//				StringByteTool.getUtf8Bytes(tableName), hRegionInfo.getStartKey());
-//		this.consistentHashHServer = regionList.getServerForRegion(this);
 		this.compactionScheduler = new DRHCompactionScheduler(compactionInfo, this);
 	}
 	
 	
 	/******************************* methods *****************************************/
 	
-	public PK getKey(Class<PK> primaryKeyClass, byte[] bytes){
+	public FieldSet<?> getKey(Class<PK> primaryKeyClass, byte[] bytes){
 		PK sampleKey = ReflectionTool.create(primaryKeyClass);
 		if(ArrayTool.isEmpty(bytes)){ return sampleKey; }
-		return HBaseResultTool.getPrimaryKeyUnchecked(bytes, regionList.getNode().getFieldInfo());
+		if(fieldInfo.isEntity()){
+			HBaseSubEntityReaderNode subEntityNode = (HBaseSubEntityReaderNode)node;
+			EntityKey<?> ek = subEntityNode.getResultParser().getEkFromRowBytes(bytes);
+			return ek;
+		}
+		return HBaseResultTool.getPrimaryKeyUnchecked(bytes, fieldInfo);
+	}
+	
+	private String calculatePartition(byte[] bytes){
+		if(fieldInfo.isEntity()){
+			HBaseSubEntityReaderNode subEntityNode = (HBaseSubEntityReaderNode)node;
+			EntityPartitioner<?> partitioner = subEntityNode.getEntityFieldInfo().getEntityPartitioner();
+			return "" + partitioner.parsePartitionFromBytes(bytes);
+		}
+		return null;
 	}
 	
 	public ServerName getConsistentHashServerName(){
@@ -89,7 +107,7 @@ implements Comparable<DRHRegionInfo<?>>{
 		return true;//default: leave it where it is
 	}
 	
-	protected static Random random = new Random();
+	private static Random random = new Random();
 	
 	public String getServerName(){
 		String name = serverName.getServerName();
@@ -157,12 +175,16 @@ implements Comparable<DRHRegionInfo<?>>{
 		return name;
 	}
 
-	public PK getStartKey(){
+	public FieldSet<?> getStartKey(){
 		return startKey;
 	}
 
-	public PK getEndKey(){
+	public FieldSet<?> getEndKey(){
 		return endKey;
+	}
+	
+	public String getPartition(){
+		return partition;
 	}
 
 	public HRegionInfo getRegion(){

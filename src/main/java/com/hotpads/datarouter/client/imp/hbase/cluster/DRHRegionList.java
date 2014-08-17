@@ -77,7 +77,7 @@ public class DRHRegionList{
 				HServerLoad hServerLoad = servers.getHServerLoad(serverName);
 				regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, 
 						hRegionInfo, serverName, hServerLoad,
-						this, regionLoad, compactionInfo));
+						node, regionLoad, compactionInfo));
 			}catch(RuntimeException e){
 				logger.warn("couldn't build DRHRegionList for region:"+hRegionInfo.getEncodedName());
 				throw e;

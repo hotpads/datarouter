@@ -20,7 +20,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.StringByteTool;
@@ -33,7 +32,7 @@ public class HBaseSubEntityResultParser<
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>{
-	private static Logger logger = Logger.getLogger(HBaseSubEntityResultParser.class);
+	private static final Logger logger = Logger.getLogger(HBaseSubEntityResultParser.class);
 
 	private EntityFieldInfo<EK,E> entityFieldInfo;
 	private EntityPartitioner<EK> partitioner;
@@ -44,6 +43,21 @@ public class HBaseSubEntityResultParser<
 		this.entityFieldInfo = entityFieldInfo;
 		this.partitioner = entityFieldInfo.getEntityPartitioner();
 		this.fieldInfo = fieldInfo;
+	}
+	
+	
+	/***************** parse simple row bytes ************************/
+	
+	public EK getEkFromRowBytes(byte[] rowBytes){
+		EK ek = ReflectionTool.create(entityFieldInfo.getEntityKeyClass());
+		int byteOffset = partitioner.getNumPrefixBytes();
+		for(Field<?> field : fieldInfo.getEntityKeyFields()){
+			if(byteOffset==rowBytes.length){ break; }//ran out of bytes.  leave remaining fields blank
+			Object value = field.fromBytesWithSeparatorButDoNotSet(rowBytes, byteOffset);
+			field.setUsingReflection(ek, value);
+			byteOffset += field.numBytesWithSeparator(rowBytes, byteOffset);
+		}
+		return ek;
 	}
 
 
@@ -153,10 +167,10 @@ public class HBaseSubEntityResultParser<
 	private int parseFieldsFromBytesToPk(List<Field<?>> fields, byte[] fromBytes, int offset, PK targetPk){
 		int byteOffset = offset;
 		for(Field<?> field : fields){
+			if(byteOffset==fromBytes.length){ break; }//ran out of bytes.  leave remaining fields blank
 			Object value = field.fromBytesWithSeparatorButDoNotSet(fromBytes, byteOffset);
 			field.setUsingReflection(targetPk, value);
 			byteOffset += field.numBytesWithSeparator(fromBytes, byteOffset);
-			if(byteOffset==fromBytes.length){ break; }//ran out of bytes.  leave remaining fields blank
 		}
 		return byteOffset;
 	}

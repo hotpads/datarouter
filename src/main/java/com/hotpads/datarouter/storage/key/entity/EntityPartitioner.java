@@ -13,5 +13,6 @@ public interface EntityPartitioner<EK extends EntityKey<EK>>{
 	byte[] getNextPrefix(int partition);
 	int getPartition(EK ek);
 	byte[] getPrefix(EK ek);
+	int parsePartitionFromBytes(byte[] bytes);
 	
 }

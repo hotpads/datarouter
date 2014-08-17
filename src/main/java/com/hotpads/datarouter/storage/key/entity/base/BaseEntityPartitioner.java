@@ -8,6 +8,8 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
+import com.hotpads.util.core.ArrayTool;
+import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 
 public abstract class BaseEntityPartitioner<EK extends EntityKey<EK>>
@@ -87,6 +89,17 @@ implements EntityPartitioner<EK>{
 		return prefix;
 	}
 	
+	@Override
+	public int parsePartitionFromBytes(byte[] bytes){
+		byte[] prefixBytes = ByteTool.copyOfRange(bytes, 0, getNumPrefixBytes());
+		return getPartition(prefixBytes);
+		
+	}
+	
+	private int getPartition(byte[] bytes){
+		byte[] fourBytePrefix = ByteTool.padPrefix(bytes, 4);
+		return IntegerByteTool.fromRawBytes(fourBytePrefix, 0);
+	}
 	
 	/*********** static for testing *************/
 	
