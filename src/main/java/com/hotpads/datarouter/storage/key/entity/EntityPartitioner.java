@@ -5,6 +5,7 @@ import java.util.List;
 public interface EntityPartitioner<EK extends EntityKey<EK>>{
 
 	int getNumPartitions();
+	List<Integer> getAllPartitions();
 	boolean isLastPartition(int partition);
 	int getNumPrefixBytes();
 	List<byte[]> getAllPrefixes();

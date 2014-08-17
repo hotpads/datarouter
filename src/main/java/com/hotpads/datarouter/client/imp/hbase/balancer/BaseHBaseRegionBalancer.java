@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
+import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.StringTool;
@@ -25,13 +26,16 @@ implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
 
 	protected SortedMap<DRHRegionInfo<?>,ServerName> serverByRegion;//fill and return this in the call() method
 	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
+	protected EntityPartitioner<?> entityPartitioner;
 	protected ScatteringPrefix scatteringPrefix;
 	
 	
 	public BaseHBaseRegionBalancer init(Class<? extends ScatteringPrefix> scatteringPrefixClass,
+			EntityPartitioner<?> entityPartitioner,
 			DRHServerList drhServerList, DRHRegionList drhRegionList){
 		// passed-in
 		this.scatteringPrefixClass = scatteringPrefixClass;
+		this.entityPartitioner = entityPartitioner;
 		this.drhServerList = drhServerList;
 		this.drhRegionList = drhRegionList;
 		// internal

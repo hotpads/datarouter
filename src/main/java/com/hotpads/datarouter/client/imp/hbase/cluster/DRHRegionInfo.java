@@ -43,7 +43,7 @@ implements Comparable<DRHRegionInfo<?>>{
 	private HServerLoad hServerLoad;
 	private Node<?,?> node;
 	private DatabeanFieldInfo<?,?,?> fieldInfo;
-	private String partition;
+	private Integer partition;
 	private FieldSet<?> startKey, endKey;
 	private RegionLoad load;
 	private byte[] consistentHashInput;
@@ -84,12 +84,12 @@ implements Comparable<DRHRegionInfo<?>>{
 		return HBaseResultTool.getPrimaryKeyUnchecked(bytes, fieldInfo);
 	}
 	
-	private String calculatePartition(byte[] bytes){
+	private Integer calculatePartition(byte[] bytes){
 		if(fieldInfo.isEntity()){
-			if(ArrayTool.isEmpty(bytes)){ return ""; }
+			if(ArrayTool.isEmpty(bytes)){ return 0; }
 			HBaseSubEntityReaderNode subEntityNode = (HBaseSubEntityReaderNode)node;
 			EntityPartitioner<?> partitioner = subEntityNode.getEntityFieldInfo().getEntityPartitioner();
-			return "" + partitioner.parsePartitionFromBytes(bytes);
+			return partitioner.parsePartitionFromBytes(bytes);
 		}
 		return null;
 	}
@@ -184,7 +184,7 @@ implements Comparable<DRHRegionInfo<?>>{
 		return endKey;
 	}
 	
-	public String getPartition(){
+	public Integer getPartition(){
 		return partition;
 	}
 

@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
-import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 
@@ -20,6 +19,7 @@ implements EntityPartitioner<EK>{
 		MAX_ONE_BYTE_NUM_PARTITIONS = 256,
 		MAX_PARTITIONS = 1 << 16;
 	
+	private List<Integer> allPartitions;
 	private ArrayList<byte[]> allPrefixes;
 	private byte[][] allPrefixesArray;
 		
@@ -27,6 +27,11 @@ implements EntityPartitioner<EK>{
 	/****************** construct ********************/
 	
 	public BaseEntityPartitioner(){
+		this.allPartitions = new ArrayList<>();
+		for(int i=0; i < getNumPartitions(); ++i){
+			allPartitions.add(i);
+		}
+		
 		this.allPrefixes = new ArrayList<>();
 		if(getNumPartitions()==1){
 			allPrefixes.add(new byte[0]);
@@ -36,7 +41,7 @@ implements EntityPartitioner<EK>{
 			}
 		}
 		
-		allPrefixesArray = new byte[allPrefixes.size()][];
+		this.allPrefixesArray = new byte[allPrefixes.size()][];
 		for(int i=0; i < allPrefixes.size(); ++i){
 			allPrefixesArray[i] = allPrefixes.get(i);
 		}
@@ -44,6 +49,11 @@ implements EntityPartitioner<EK>{
 	
 	
 	/**************** methods *********************/
+	
+	@Override
+	public List<Integer> getAllPartitions(){
+		return allPartitions;
+	}
 	
 	@Override
 	public boolean isLastPartition(int partition){
