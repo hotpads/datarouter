@@ -48,6 +48,7 @@ import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
+import com.hotpads.util.core.concurrent.ThreadTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HBaseHandler extends BaseHandler {
@@ -307,6 +308,7 @@ public class HBaseHandler extends BaseHandler {
 
 	@Handler
 	protected Mav moveRegionsToCorrectServer(){
+		int pauseBetweenRegionsMs = params.optionalInteger("pauseBetweenRegionsMs", 500);
 		initialize();
 		int counter = 0;
 		for(DRHRegionInfo<?> region : regionList.getRegions()){
@@ -324,6 +326,7 @@ public class HBaseHandler extends BaseHandler {
 				logger.warn(timer.add("HBase moved region " + encodedRegionNameString + " to server "
 						+ destinationServer).toString());
 			}
+			ThreadTool.sleep(pauseBetweenRegionsMs);
 		}
 
 		// mav.put("message-update", "HBase regions moved to correct server");
