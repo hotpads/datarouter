@@ -314,7 +314,7 @@ public class HBaseHandler extends BaseHandler {
 				++counter;
 				PhaseTimer timer = new PhaseTimer("move " + counter + " of " + routerParams.getTableName());
 				String encodedRegionNameString = region.getRegion().getEncodedName();
-				String destinationServer = region.getConsistentHashServerName().getHostname();
+				String destinationServer = region.getConsistentHashServerName().getServerName();
 				try{
 					routerParams.getClient().getHBaseAdmin().move(Bytes.toBytes(encodedRegionNameString),
 							Bytes.toBytes(destinationServer));
