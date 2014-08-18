@@ -25,6 +25,7 @@ import com.hotpads.logging.HotPadsLoggingConfigDao;
 import com.hotpads.logging.LoggingConfigUpdaterJob;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.logging.Log4j2Configurator;
+import com.hotpads.util.core.logging.UtilLog4j2Configuration;
 
 @Singleton
 public class LoggingSettingsHandler extends BaseHandler{
@@ -151,6 +152,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 			return getRedirectMav();
 		}
 		Mav mav = new Mav(JSP_CONSOLE_APPENDER);
+		mav.put("layout", UtilLog4j2Configuration.defaultPattern);
 		mav.put("name", name);
 //		if(name != null) {
 //			ConsoleAppender appender = (ConsoleAppender)log4j2Configurator.getAppender(name);
@@ -173,6 +175,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 			return getRedirectMav();
 		}
 		Mav mav = new Mav(JSP_FILE_APPENDER);
+		mav.put("layout", UtilLog4j2Configuration.defaultPattern);
 		mav.put("name", name);
 		return mav;
 	}
