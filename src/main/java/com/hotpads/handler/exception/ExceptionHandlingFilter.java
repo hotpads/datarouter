@@ -74,8 +74,7 @@ public class ExceptionHandlingFilter implements Filter {
 	}
 
 	@Override
-	public void destroy() {
-	}
+	public void destroy() {}
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {
@@ -98,23 +97,18 @@ public class ExceptionHandlingFilter implements Filter {
 			}
 		}
 	}
-	
-	private static void dumpAllStackTraces() throws IOException {
-		StringBuffer stringBuffer = new StringBuffer();
-	    Map<Thread, StackTraceElement[]> liveThreads = Thread.getAllStackTraces();
-	    for (Iterator<Thread> i = liveThreads.keySet().iterator(); i.hasNext(); ) {
-	      Thread key = (Thread)i.next();
-	      stringBuffer.append("Thread " + key.getName() + "\n");
-	        StackTraceElement[] trace = (StackTraceElement[])liveThreads.get(key);
-	        for (int j = 0; j < trace.length; j++) {
-	            stringBuffer.append("\tat " + trace[j] + "\n");
-	        }
-	    }
-	    long timeMiliSec = System.currentTimeMillis();
-	    BufferedWriter out = new BufferedWriter(new FileWriter("/tmp/StackTrace" + timeMiliSec + ".log"));  
-        out.write(stringBuffer.toString());  
-        out.flush();  
-        out.close();  
+
+	private static void dumpAllStackTraces() throws IOException{
+		long timeMiliSec = System.currentTimeMillis();
+		BufferedWriter out = new BufferedWriter(new FileWriter("/tmp/StackTrace" + timeMiliSec + ".log"));
+		Map<Thread,StackTraceElement[]> liveThreads = Thread.getAllStackTraces();
+		for(Entry<Thread,StackTraceElement[]> thread : liveThreads.entrySet()){
+			out.append("Thread " + thread.getKey().getName() + "\n");
+			for(StackTraceElement element : thread.getValue()){
+				out.append("\tat " + element + "\n");
+			}
+		}
+		out.close();
 	}
 
 	private void recordExceptionAndRequestNotification(HttpServletRequest request, Exception e) {
