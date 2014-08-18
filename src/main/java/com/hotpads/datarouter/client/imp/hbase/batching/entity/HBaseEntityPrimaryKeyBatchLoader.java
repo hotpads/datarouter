@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.NavigableSet;
 
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.config.Config;
@@ -25,7 +26,7 @@ public class HBaseEntityPrimaryKeyBatchLoader<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
 extends BaseHBaseEntityBatchLoader<EK,E,PK,D,F,PK>{
-	private static Logger logger = Logger.getLogger(HBaseEntityPrimaryKeyBatchLoader.class);
+	private static Logger logger = LoggerFactory.getLogger(HBaseEntityPrimaryKeyBatchLoader.class);
 	
 	public HBaseEntityPrimaryKeyBatchLoader(final HBaseSubEntityReaderNode<EK,E,PK,D,F> node, 
 			final int partition, final Range<PK> range, final Config pConfig, Long batchChainCounter){

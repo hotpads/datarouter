@@ -9,7 +9,8 @@ import java.util.List;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
@@ -51,7 +52,7 @@ extends BasePhysicalNode<PK,D,F>
 implements HBasePhysicalNode<PK,D>,
 		SubEntitySortedMapStorageReaderNode<EK,PK,D,F>
 {
-	protected Logger logger = Logger.getLogger(getClass());
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 	
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = HBaseReaderNode.DEFAULT_ITERATE_BATCH_SIZE;
 

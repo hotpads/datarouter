@@ -3,7 +3,8 @@ package com.hotpads.datarouter.client.imp.hbase.batching.entity;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.config.Config;
@@ -12,7 +13,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Range;
@@ -26,7 +26,7 @@ public abstract class BaseHBaseEntityBatchLoader<
 		F extends DatabeanFielder<PK,D>,
 		T> //T will be either PK or D, but not going to express that (or think about how to)
 extends BaseBatchLoader<T>{
-	private static Logger logger = Logger.getLogger(BaseHBaseEntityBatchLoader.class);
+	private static Logger logger = LoggerFactory.getLogger(BaseHBaseEntityBatchLoader.class);
 
 	private static final int DEFAULT_iterateBatchSize = 1000;
 	
