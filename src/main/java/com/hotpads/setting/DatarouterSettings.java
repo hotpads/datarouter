@@ -3,6 +3,7 @@ package com.hotpads.setting;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import com.hotpads.setting.cached.imp.BooleanCachedSetting;
 import com.hotpads.setting.cluster.ClusterSettingFinder;
 import com.hotpads.setting.cluster.SettingNode;
 
@@ -11,6 +12,7 @@ public class DatarouterSettings extends SettingNode {
 
 	private DatarouterNotificationSettings notificationSettings;
 	private DatarouterSalesforceSettings salesforceSettings;
+	private BooleanCachedSetting loggingConfigUpdaterEnabled;
 
 	@Inject
 	public DatarouterSettings(ClusterSettingFinder finder, DatarouterNotificationSettings notificationSettings,
@@ -20,6 +22,11 @@ public class DatarouterSettings extends SettingNode {
 		this.salesforceSettings = salesforceSettings;
 		children.put(notificationSettings.getName(), notificationSettings);
 		children.put(salesforceSettings.getName(), salesforceSettings);
+		registerSettings();
+	}
+
+	private void registerSettings(){
+		this.loggingConfigUpdaterEnabled = register(new BooleanCachedSetting(finder, getName() + "loggingConfigUpdaterEnabled", true));
 	}
 
 	public DatarouterNotificationSettings getNotificationSettings() {
@@ -30,4 +37,7 @@ public class DatarouterSettings extends SettingNode {
 		return salesforceSettings;
 	}
 
+	public BooleanCachedSetting getLoggingConfigUpdaterEnabled(){
+		return loggingConfigUpdaterEnabled;
+	}
 }
