@@ -86,6 +86,9 @@ public class ExceptionHandlingFilter implements Filter {
 			dumpAllStackTraces();
 			throw error;
 		}catch (Exception e) {
+			ExceptionCounters.inc("Filter");
+			ExceptionCounters.inc(e.getClass().getName());
+			ExceptionCounters.inc("Filter " + e.getClass().getName());
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
 			logger.warn("ExceptionHandlingFilter caught an exception: ", e);
@@ -136,6 +139,10 @@ public class ExceptionHandlingFilter implements Filter {
 			if (pair.getLeft() == null) {
 				pair = searchClassName(e);
 			}
+			ExceptionCounters.inc(place);
+			ExceptionCounters.inc("Filter " + place);
+			ExceptionCounters.inc(e.getClass().getName() + " " + place);
+			ExceptionCounters.inc("Filter " + e.getClass().getName() + " " + e.getClass().getName() + " " + place);
 			place = pair.getLeft();
 			lineNumber = pair.getRight();
 			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
