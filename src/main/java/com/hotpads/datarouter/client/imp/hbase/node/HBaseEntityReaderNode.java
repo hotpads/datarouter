@@ -24,7 +24,6 @@ public abstract class HBaseEntityReaderNode<
 		E extends Entity<EK>>
 extends BasePhysicalEntityNode<EK,E>{
 
-
 	protected EntityNodeParams<EK,E> entityNodeParams;
 	private HBaseTaskNameParams taskNameParams;//currently acting as a cache of superclass fields
 	private HBaseEntityQueryBuilder<EK,E> queryBuilder;
