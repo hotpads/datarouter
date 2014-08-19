@@ -138,7 +138,7 @@ public class ExceptionHandlingFilter implements Filter {
 			ExceptionCounters.inc(place);
 			ExceptionCounters.inc("Filter " + place);
 			ExceptionCounters.inc(e.getClass().getName() + " " + place);
-			ExceptionCounters.inc("Filter " + e.getClass().getName() + " " + e.getClass().getName() + " " + place);
+			ExceptionCounters.inc("Filter " + e.getClass().getName() + " " + place);
 			place = pair.getLeft();
 			lineNumber = pair.getRight();
 			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
