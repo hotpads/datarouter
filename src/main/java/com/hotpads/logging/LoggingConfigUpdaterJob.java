@@ -6,6 +6,8 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.setting.DatarouterSettings;
+
 @Singleton
 public class LoggingConfigUpdaterJob implements Runnable{
 
@@ -15,6 +17,8 @@ public class LoggingConfigUpdaterJob implements Runnable{
 	private HotPadsLoggingConfigDao hotPadsLoggingConfigDao;
 	@Inject
 	private HotPadsLog4j2Configurator hotPadsLog4j2Configurator;
+	@Inject
+	private DatarouterSettings datarouterSettings;
 
 	private String previousSignature;
 	private String webAppName;
@@ -33,6 +37,9 @@ public class LoggingConfigUpdaterJob implements Runnable{
 
 	@Override
 	public void run(){
+		if(!datarouterSettings.getLoggingConfigUpdaterEnabled().getValue()){
+			return;
+		}
 		LoggingConfig config = hotPadsLoggingConfigDao.loadConfig();
 		logger.debug("Logging config updater is running on " + webAppName);
 		logger.debug("Logging config signature = " + config.getSignature());
