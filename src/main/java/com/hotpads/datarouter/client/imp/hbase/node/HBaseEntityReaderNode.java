@@ -60,7 +60,8 @@ extends BasePhysicalEntityNode<EK,E>{
 
 	
 	@Override
-	public E getEntity(final EK ek, Config pConfig){
+	public E getEntity(final EK ek, final Config pConfig){
+		if(ek==null){ return null; }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getTaskNameParams(), "getEntity", config){
 				public E hbaseCall() throws Exception{

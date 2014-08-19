@@ -78,12 +78,12 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), getTaskNameParams(), "putMulti", config){
 				public Void hbaseCall() throws Exception{
-					PhaseTimer timer = new PhaseTimer();
+//					PhaseTimer timer = new PhaseTimer();
 					List<Row> actions = ListTool.createArrayList();
 					int numCellsPut = 0, numCellsDeleted = 0;
 					long batchStartTime = System.currentTimeMillis();
 					Map<EK,List<D>> databeansByEntityKey = EntityTool.getDatabeansByEntityKey(databeans);
-					timer.add("group by EK "+MapTool.size(databeansByEntityKey));
+//					timer.add("group by EK "+MapTool.size(databeansByEntityKey));
 					for(EK ek : databeansByEntityKey.keySet()){
 						byte[] ekBytes = queryBuilder.getRowBytesWithPartition(ek);
 						Put put = new Put(ekBytes);
@@ -125,14 +125,14 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 					DRCounters.incSuffixClientNode(client.getType(), "cells delete", getClientName(), getNodeName(), numCellsDeleted);
 					DRCounters.incSuffixClientNode(client.getType(), "databeans put", getClientName(), getNodeName(), numDatabeansPut);
 					DRCounters.incSuffixClientNode(client.getType(), "entities put", getClientName(), getNodeName(), numEntitiesPut);
-					timer.add("built puts "+CollectionTool.size(actions));
+//					timer.add("built puts "+CollectionTool.size(actions));
 					if(CollectionTool.notEmpty(actions)){
 						hTable.batch(actions);
-						timer.add("batch");
+//						timer.add("batch");
 						hTable.flushCommits();
-						timer.add("flush");
+//						timer.add("flush");
 					}
-					logger.warn(timer.toString());
+//					logger.warn(timer.toString());
 					return null;
 				}
 			}).call();

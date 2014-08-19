@@ -31,6 +31,7 @@ public class HBaseEntityResultParser<
 	}
 	
 	public E parseEntity(EK ek, Result row){
+		if(row==null){ return null; }
 		Class<E> entityClass = entityFieldInfo.getEntityClass();
 		E entity = ReflectionTool.create(entityClass);
 		entity.setKey(ek);
@@ -42,6 +43,7 @@ public class HBaseEntityResultParser<
 			HBaseSubEntityReaderNode<EK,E,?,?,?> subNode = nodeByQualifierPrefix.get(qualifierPrefix);
 			entity.addDatabeansForQualifierPrefixUnchecked(subNode.getEntityNodePrefix(), databeanByPk.values());
 		}
+		//TODO add empty collections for empty prefixes since we were supposed to get all sub-entities
 		return entity;
 	}
 	
