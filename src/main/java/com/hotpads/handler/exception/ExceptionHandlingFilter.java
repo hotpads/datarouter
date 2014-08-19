@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -41,7 +40,7 @@ import com.hotpads.util.core.collections.Pair;
 
 @Singleton
 public class ExceptionHandlingFilter implements Filter {
-	private static Logger logger = LoggerFactory.getLogger(ExceptionHandlingFilter.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExceptionHandlingFilter.class);
 
 	public static final String ATTRIBUTE_EXCEPTION_RECORD_NODE = "exceptionRecordNode";
 	public static final String ATTRIBUTE_REQUEST_RECORD_NODE = "requestRecordNode";
@@ -90,7 +89,7 @@ public class ExceptionHandlingFilter implements Filter {
 			ExceptionCounters.inc("Filter " + e.getClass().getName());
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
-			logger.warn("ExceptionHandlingFilter caught an exception: ", e);
+			logger.warn("ExceptionHandlingFilter caught an exception:", e);
 			writeExceptionToResponseWriter(response, e, request);
 			if(exceptionHandlingConfig.shouldPersistExceptionRecords(request, e)) {
 				recordExceptionAndRequestNotification(request, e);
@@ -118,6 +117,9 @@ public class ExceptionHandlingFilter implements Filter {
 					ExceptionUtils.getStackTrace(e),
 					e.getClass().getName());
 			exceptionRecordNode.put(exceptionRecord, null);
+			String domain = exceptionHandlingConfig.isDevServer() ? "localhost:8443" : "hotpads.com";
+			logger.warn("Exception recorded (https://" + domain + "/analytics/exception/details?exceptionRecord="
+					+ exceptionRecord.getKey().getId() + ")");
 			StringBuilder paramStringBuilder = new StringBuilder();
 			Joiner listJoiner = Joiner.on("; ");
 			for (Entry<String, String[]> param : request.getParameterMap().entrySet()) {
