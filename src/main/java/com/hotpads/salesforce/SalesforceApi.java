@@ -37,12 +37,22 @@ public class SalesforceApi{ //TODO make a datarouter Client and a Node
 	private String accessToken;
 	private String instanceUrl;
 	private DatarouterSalesforceSettings settings;
+	Map<Class<? extends SalesforceDatabean>, List<String>> authorizedFields;
 	
 	@Inject
 	public SalesforceApi(DatarouterSalesforceSettings settings){
 		this.settings = settings;
-		this.httpClient = new HotPadsHttpClientBuilder().setJsonSerializer(new SalesforceJsonSerializer()).createInstance();
+		this.authorizedFields = new HashMap<>();
+		register(Featured_Property__c.class);
+		this.httpClient = new HotPadsHttpClientBuilder()
+		.setJsonSerializer(new SalesforceJsonSerializer(authorizedFields))
+		.createInstance();
 		this.connect();
+	}
+	
+	//TODO in node
+	public <D extends SalesforceDatabean> void register(Class<D> databeanClass){
+		authorizedFields.put(databeanClass, ReflectionTool.create(databeanClass).getAuthorizedFields());
 	}
 
 	//TODO wrap into Op

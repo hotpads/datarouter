@@ -183,7 +183,12 @@ public abstract class BaseJob implements Job{
 			long durationMs = endTimeMs - startTimeMs;
 			scheduler.getTracker().get(this.getClass()).setLastExecutionDurationMs(durationMs);
 			scheduler.getTracker().get(this.getClass()).incrementNumberOfSuccesses();
-			baseJobLogger.warn("Finished "+getClass().getSimpleName()+" in "+durationMs+"ms");
+			Date nextJobTriggerTime = getTrigger().getNextValidTimeAfter(triggerTime);
+			String jobCompletionLog = "Finished "+getClass().getSimpleName()+" in "+durationMs+"ms";
+			if(new Date().after(nextJobTriggerTime)){
+				jobCompletionLog = jobCompletionLog + ", missed next trigger";
+			}
+			baseJobLogger.warn(jobCompletionLog);
 		}else{
 //			baseJobLogger.warn(getClass()+" shouldRun=false");
 		}
