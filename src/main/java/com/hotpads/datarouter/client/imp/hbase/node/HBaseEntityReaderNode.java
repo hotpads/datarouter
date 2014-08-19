@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
@@ -23,6 +25,7 @@ public abstract class HBaseEntityReaderNode<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>>
 extends BasePhysicalEntityNode<EK,E>{
+	private static final Logger logger = LoggerFactory.getLogger(HBaseEntityReaderNode.class);
 
 	protected EntityNodeParams<EK,E> entityNodeParams;
 	private HBaseTaskNameParams taskNameParams;//currently acting as a cache of superclass fields
@@ -63,19 +66,24 @@ extends BasePhysicalEntityNode<EK,E>{
 	public E getEntity(final EK ek, final Config pConfig){
 		if(ek==null){ return null; }
 		final Config config = Config.nullSafe(pConfig);
-		return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getTaskNameParams(), "getEntity", config){
-				public E hbaseCall() throws Exception{
-					byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
-					Get get = new Get(rowBytes);
-					Result hBaseResult = hTable.get(get);
-					E entity = resultParser.parseEntity(ek, hBaseResult);
-					if(entity != null){
-						DRCounters.incSuffixClientNode(client.getType(), "entity databeans", getClientName(),
-								getNodeName(), entity.getNumDatabeans());
+		try{
+			return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getTaskNameParams(), "getEntity", config){
+					public E hbaseCall() throws Exception{
+						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
+						Get get = new Get(rowBytes);
+						Result hBaseResult = hTable.get(get);
+						E entity = resultParser.parseEntity(ek, hBaseResult);
+						if(entity != null){
+							DRCounters.incSuffixClientNode(client.getType(), "entity databeans", getClientName(),
+									getNodeName(), entity.getNumDatabeans());
+						}
+						return entity;
 					}
-					return entity;
-				}
-			}).call();
+				}).call();
+		}catch(RuntimeException e){
+			logger.warn("", e);//debugging missing stack traces
+			throw e;
+		}
 	}
 	
 }

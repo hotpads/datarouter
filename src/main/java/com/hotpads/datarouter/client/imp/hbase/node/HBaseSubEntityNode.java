@@ -34,6 +34,7 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -151,7 +152,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 					for(Result row : managedResultScanner){
 						if(row.isEmpty()){ continue; }
 						Delete delete = new Delete(row.getRow());
-						for(KeyValue kv : row.list()){
+						for(KeyValue kv : IterableTool.nullSafe(row.list())){//row.list() can return null
 							delete.deleteColumns(kv.getFamily(), kv.getQualifier());
 						}
 						batchToDelete.add(delete);

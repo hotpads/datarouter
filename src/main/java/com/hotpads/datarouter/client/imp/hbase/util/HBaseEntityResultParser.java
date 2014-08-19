@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.hbase.KeyValue;
@@ -12,6 +13,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -52,7 +54,8 @@ public class HBaseEntityResultParser<
 		if(row==null){ return new HashMap<>(); }
 		Map<String,Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>>> databeanByPkByQualifierPrefix
 				= new HashMap<>();
-		for(KeyValue kv : row.list()){
+		for(KeyValue kv : IterableTool.nullSafe(row.list())){//row.list() can return null
+			if(kv==null){ continue; }
 			String qualifierPrefix = getQualifierPrefix(kv);
 			HBaseSubEntityReaderNode<EK,E,?,?,?> subNode = nodeByQualifierPrefix.get(qualifierPrefix);
 			if(subNode==null){ continue; }//hopefully just orphaned data

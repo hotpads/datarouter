@@ -86,13 +86,14 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 				}catch(InterruptedException e){
 					throw new DataAccessException(e);
 				}catch(ExecutionException e){
+					logger.warn("rethrowing ExecutionException as DataAccessException", e);
 					throw new DataAccessException(e);
 				}
 			}catch(Exception attemptException){
 				finalAttempException = attemptException;
 				if(isLastAttempt(i)) {
 					logger.warn("attempt "+i+"/"+numAttempts+" failed with the following exception");
-					logger.warn(ExceptionTool.getStackTraceAsString(attemptException));
+					logger.warn("", attemptException);
 				}else {
 					logger.warn("attempt "+i+"/"+numAttempts+" failed, retrying");
 				}

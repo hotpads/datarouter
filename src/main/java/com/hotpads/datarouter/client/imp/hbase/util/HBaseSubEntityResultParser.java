@@ -21,6 +21,7 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.util.core.CollectionTool;
+import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
@@ -89,7 +90,7 @@ public class HBaseSubEntityResultParser<
 	public NavigableSet<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row){
 		if(row==null){ return new TreeSet<>(); }
 		NavigableSet<PK> pks = new TreeSet<>();//unfortunately, we expect a bunch of duplicate PK's, so throw them in a set
-		for(KeyValue kv : row.list()){
+		for(KeyValue kv : IterableTool.nullSafe(row.list())){//row.list() can return null
 			if(!matchesNodePrefix(kv)){ continue; }
 			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
 			PK pk = pkAndFieldName.getLeft();
@@ -101,7 +102,7 @@ public class HBaseSubEntityResultParser<
 	public List<D> getDatabeansWithMatchingQualifierPrefix(Result row){
 		if(row==null){ return ListTool.createLinkedList(); }
 		Map<PK,D> databeanByKey = new TreeMap<>();
-		for(KeyValue kv : row.list()){
+		for(KeyValue kv : IterableTool.nullSafe(row.list())){//row.list() can return null
 			if(!matchesNodePrefix(kv)){ continue; }
 			addKeyValueToResultsUnchecked(databeanByKey, kv);
 		}

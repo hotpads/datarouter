@@ -34,7 +34,8 @@ public class EntityTool{
 	NavigableMap<EK,List<D>> getDatabeansByEntityKey(Iterable<D> databeans){
 		NavigableMap<EK,List<D>> databeansByEntityKey = MapTool.createTreeMap();
 		for(D databean : IterableTool.nullSafe(databeans)){
-			EK ek = databean.getKey().getEntityKey();
+			PK pk = databean.getKey();//leave on individual line for NPE trace
+			EK ek = pk.getEntityKey();
 			List<D> databeansForEntity = databeansByEntityKey.get(ek);
 			if(databeansForEntity==null){
 				databeansForEntity = ListTool.createArrayList();
