@@ -16,7 +16,6 @@ import com.hotpads.datarouter.op.executor.SessionExecutor;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
@@ -67,12 +66,12 @@ implements SessionExecutor<T>, Callable<T>{
 			commitTxns();
 			
 		}catch(Exception e){
-			//logger.warn(ExceptionTool.getStackTraceAsString(e));
+			//logger.warn("", e));
 			try{
 				rollbackTxns();
 			}catch(Exception exceptionDuringRollback){
 				logger.warn("EXCEPTION THROWN DURING TXN ROLL-BACK");
-				logger.warn(ExceptionTool.getStackTraceAsString(exceptionDuringRollback));
+				logger.warn("", exceptionDuringRollback);
 				throw new DataAccessException(e);
 			}
 			throw new RollbackException(e);//don't throw in the try block because it will get caught immediately
@@ -83,14 +82,14 @@ implements SessionExecutor<T>, Callable<T>{
 //				cleanupSessions();
 //			}catch(Exception e){
 //				logger.warn("EXCEPTION THROWN DURING CLEANUP OF SESSIONS", e);
-//				logger.warn(ExceptionTool.getStackTraceAsString(e));
+//				logger.warn("", e));
 //			}
 			try{
 				releaseConnections();
 			}catch(Exception e){
 				//This is an unexpected exception because each individual release is done in a try/catch block
 				logger.warn("EXCEPTION THROWN DURING RELEASE OF CONNECTIONS", e);
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("", e);
 			}
 		}
 		T mergedResult = parallelTxnOp.mergeResults(onceResult, clientResults);

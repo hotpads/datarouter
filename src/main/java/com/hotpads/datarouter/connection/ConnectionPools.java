@@ -63,7 +63,7 @@ public class ConnectionPools {
 			try {
 				this.initializeConnectionPool(name);
 			} catch (Exception e) {//maybe have caller indicate whether to catch this exception?
-				logger.error(ExceptionTool.getStackTraceAsString(e));
+				logger.error("", e);
 			}
 		}
 		return this.connectionPoolByName.get(name);
@@ -88,8 +88,7 @@ public class ConnectionPools {
 			JdbcConnectionPool connectionPool = new JdbcConnectionPool(connectionPoolName, multiProperties, writable);
 			connectionPoolByName.put(connectionPool.getName(), connectionPool);
 		}catch(Exception e){
-			logger.error("error instantiating ConnectionPool:"+connectionPoolName);
-			logger.error(ThrowableTool.getStackTraceAsString(e));
+			logger.error("error instantiating ConnectionPool:"+connectionPoolName, e);
 		}
 	}
 }

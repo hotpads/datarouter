@@ -79,16 +79,16 @@ implements SessionClient, HibernateClient{
 			try{
 				session.flush();
 			}catch(Exception e){
-				logger.warn("problem closing session.  flush() threw exception.  handle="+getExistingHandle());
+				logger.warn("problem closing session.  flush() threw exception.  handle=" + getExistingHandle());
 				logger.warn(getStats());
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("", e);
 				try{
-					logger.warn("ROLLING BACK TXN after failed flush().  handle="+getExistingHandle());
+					logger.warn("ROLLING BACK TXN after failed flush().  handle=" + getExistingHandle());
 					rollbackTxn();
 				}catch(Exception e2){
-					logger.warn("TXN ROLLBACK FAILED after flush() threw exception.  handle="+getExistingHandle());
-					logger.warn(getName()+" has "+MapTool.size(sessionByConnectionHandle)+" sessions");
-					logger.warn(ExceptionTool.getStackTraceAsString(e));
+					logger.warn("TXN ROLLBACK FAILED after flush() threw exception.  handle=" + getExistingHandle());
+					logger.warn(getName() + " has " + MapTool.size(sessionByConnectionHandle) + " sessions");
+					logger.warn("", e);
 				}
 				throw new RollbackException(e);
 			}
@@ -103,22 +103,19 @@ implements SessionClient, HibernateClient{
 		Session session = sessionByConnectionHandle.get(handle);
 		if(session != null){
 			try{
-				session.clear();//otherwise things get left in the session factory??
+				session.clear();// otherwise things get left in the session factory??
 			}catch(Exception e){
-				logger.warn("problem clearing session.  clear() threw exception.  handle="+getExistingHandle());
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("problem clearing session.  clear() threw exception.  handle=" + getExistingHandle(), e);
 			}
 			try{
 				session.disconnect();
 			}catch(Exception e){
-				logger.warn("problem closing session.  disconnect() threw exception.  handle="+getExistingHandle());
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("problem closing session.  disconnect() threw exception.  handle=" + getExistingHandle(), e);
 			}
 			try{
-				session.close();//should not be necessary, but best to be safe
+				session.close();// should not be necessary, but best to be safe
 			}catch(Exception e){
-				logger.warn("problem closing session.  close() threw exception.  handle="+getExistingHandle());
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("problem closing session.  close() threw exception.  handle=" + getExistingHandle(), e);
 			}
 		}
 		sessionByConnectionHandle.remove(handle);

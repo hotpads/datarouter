@@ -13,7 +13,6 @@ import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.NumberTool;
 import com.hotpads.util.datastructs.MutableString;
 
@@ -100,8 +99,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 				try{
 					managedResultScanner.close();
 				}catch(Exception e){
-					logger.warn("couldn't close ResultScanner");
-					logger.warn(ExceptionTool.getStackTraceAsString(e));
+					logger.warn("couldn't close ResultScanner", e);
 				}
 			}
 			if(hTable==null){

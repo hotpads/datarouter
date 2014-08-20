@@ -100,7 +100,7 @@ public class HTablePerTablePool implements HTablePool{
 				hTable.close();//flushes write buffer, and calls ExecutorService.shutdown()
 				DRCounters.incSuffixOp(HBaseClientType.INSTANCE, "connection HTable closed "+name);
 			} catch (IOException e) {
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("", e);
 			}				
 		}
 	}
