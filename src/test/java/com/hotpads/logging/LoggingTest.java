@@ -8,7 +8,6 @@ import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,15 +32,7 @@ public class LoggingTest{
 	}
 	
 	@Test
-	public void test() throws IOException {
-		Injector injector = Guice.createInjector();
-		Log4j2Configurator log4j2Configurator = injector.getInstance(Log4j2Configurator.class);
-		logOneOfEachLevel();
-		log4j2Configurator.getRootLoggerConfig().setLevel(Level.DEBUG);
-		logOneOfEachLevel();
-
-		log4j2Configurator.updateOrCreateLoggerConfig(Class11.class, Level.INFO, false, new String[]{"Console err"});
-		
+	public void staticTest() throws IOException {
 		new Class1().logYourName();
 		new Class11().logYourName();
 		new Class2().logYourName();
@@ -52,6 +43,18 @@ public class LoggingTest{
 
 		int i = getNumberOfLineInLogFile();
 		Assert.assertEquals(5, i);
+	}
+	
+	@Test
+	public void dynamiqueTest(){
+		Injector injector = Guice.createInjector();
+		Log4j2Configurator log4j2Configurator = injector.getInstance(Log4j2Configurator.class);
+		logOneOfEachLevel();
+		log4j2Configurator.getRootLoggerConfig().setLevel(Level.DEBUG);
+		logOneOfEachLevel();
+
+		log4j2Configurator.updateOrCreateLoggerConfig(Class11.class, Level.INFO, false, new String[]{"Console err"});
+		new Class11().logYourName();
 	}
 
 	private int getNumberOfLineInLogFile() throws IOException{
