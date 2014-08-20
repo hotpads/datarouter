@@ -92,6 +92,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			
 		}catch(Exception e){
 			possiblyTarnishedHTable = true;
+			logger.warn("rethrowing "+e.getClass().getSimpleName()+" as DataAccessException", e);
 			throw new DataAccessException(e);
 		}finally{
 			progress.set("starting finally block attemptNumOneBased:"+attemptNumOneBased);

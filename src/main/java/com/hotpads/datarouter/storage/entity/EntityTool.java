@@ -34,6 +34,7 @@ public class EntityTool{
 	NavigableMap<EK,List<D>> getDatabeansByEntityKey(Iterable<D> databeans){
 		NavigableMap<EK,List<D>> databeansByEntityKey = MapTool.createTreeMap();
 		for(D databean : IterableTool.nullSafe(databeans)){
+			if(databean==null){ continue; }//seem to be getting some null entries from TraceFlushController?
 			PK pk = databean.getKey();//leave on individual line for NPE trace
 			EK ek = pk.getEntityKey();
 			List<D> databeansForEntity = databeansByEntityKey.get(ek);
