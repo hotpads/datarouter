@@ -31,6 +31,9 @@ public class LoggingTest{
 		f.delete();
 	}
 	
+	/*
+	 * The config that make this test succeed is in TestDatarouterLog4j2Configuration
+	 */
 	@Test
 	public void staticTest() throws IOException {
 		new Class1().logYourName();
