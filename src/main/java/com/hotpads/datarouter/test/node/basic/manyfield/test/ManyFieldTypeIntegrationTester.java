@@ -46,8 +46,8 @@ import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
 @RunWith(Parameterized.class)
-public class ManyFieldTypeIntegrationTests {
-	private static Logger logger = LoggerFactory.getLogger(ManyFieldTypeIntegrationTests.class);
+public class ManyFieldTypeIntegrationTester {
+	private static Logger logger = LoggerFactory.getLogger(ManyFieldTypeIntegrationTester.class);
 	
 
 	@Parameters
@@ -82,7 +82,7 @@ public class ManyFieldTypeIntegrationTests {
 	/***************************** constructors **************************************/
 	
 	//runs before every @Test
-	public ManyFieldTypeIntegrationTests(String clientName, ClientType clientType, boolean sorted, boolean useFielder, 
+	public ManyFieldTypeIntegrationTester(String clientName, ClientType clientType, boolean sorted, boolean useFielder, 
 			boolean entity){
 		this.clientType = clientType;
 		this.sorted = sorted;
