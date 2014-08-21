@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -41,7 +40,7 @@ import com.hotpads.util.core.collections.Pair;
 
 @Singleton
 public class ExceptionHandlingFilter implements Filter {
-	private static Logger logger = LoggerFactory.getLogger(ExceptionHandlingFilter.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExceptionHandlingFilter.class);
 
 	public static final String ATTRIBUTE_EXCEPTION_RECORD_NODE = "exceptionRecordNode";
 	public static final String ATTRIBUTE_REQUEST_RECORD_NODE = "requestRecordNode";
@@ -74,8 +73,7 @@ public class ExceptionHandlingFilter implements Filter {
 	}
 
 	@Override
-	public void destroy() {
-	}
+	public void destroy() {}
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {
@@ -86,32 +84,30 @@ public class ExceptionHandlingFilter implements Filter {
 			dumpAllStackTraces();
 			throw error;
 		}catch (Exception e) {
+			ExceptionCounters.inc("Filter");
+			ExceptionCounters.inc(e.getClass().getName());
+			ExceptionCounters.inc("Filter " + e.getClass().getName());
 			HttpServletRequest request = (HttpServletRequest) req;
 			HttpServletResponse response = (HttpServletResponse) res;
-			logger.warn("ExceptionHandlingFilter caught an exception: ", e);
+			logger.warn("ExceptionHandlingFilter caught an exception:", e);
 			writeExceptionToResponseWriter(response, e, request);
 			if(exceptionHandlingConfig.shouldPersistExceptionRecords(request, e)) {
 				recordExceptionAndRequestNotification(request, e);
 			}
 		}
 	}
-	
-	private static void dumpAllStackTraces() throws IOException {
-		StringBuffer stringBuffer = new StringBuffer();
-	    Map<Thread, StackTraceElement[]> liveThreads = Thread.getAllStackTraces();
-	    for (Iterator<Thread> i = liveThreads.keySet().iterator(); i.hasNext(); ) {
-	      Thread key = (Thread)i.next();
-	      stringBuffer.append("Thread " + key.getName() + "\n");
-	        StackTraceElement[] trace = (StackTraceElement[])liveThreads.get(key);
-	        for (int j = 0; j < trace.length; j++) {
-	            stringBuffer.append("\tat " + trace[j] + "\n");
-	        }
-	    }
-	    long timeMiliSec = System.currentTimeMillis();
-	    BufferedWriter out = new BufferedWriter(new FileWriter("/tmp/StackTrace" + timeMiliSec + ".log"));  
-        out.write(stringBuffer.toString());  
-        out.flush();  
-        out.close();  
+
+	private static void dumpAllStackTraces() throws IOException{
+		long timeMiliSec = System.currentTimeMillis();
+		BufferedWriter out = new BufferedWriter(new FileWriter("/tmp/StackTrace" + timeMiliSec + ".log"));
+		Map<Thread,StackTraceElement[]> liveThreads = Thread.getAllStackTraces();
+		for(Entry<Thread,StackTraceElement[]> thread : liveThreads.entrySet()){
+			out.append("Thread " + thread.getKey().getName() + "\n");
+			for(StackTraceElement element : thread.getValue()){
+				out.append("\tat " + element + "\n");
+			}
+		}
+		out.close();
 	}
 
 	private void recordExceptionAndRequestNotification(HttpServletRequest request, Exception e) {
@@ -121,6 +117,9 @@ public class ExceptionHandlingFilter implements Filter {
 					ExceptionUtils.getStackTrace(e),
 					e.getClass().getName());
 			exceptionRecordNode.put(exceptionRecord, null);
+			String domain = exceptionHandlingConfig.isDevServer() ? "localhost:8443" : "hotpads.com";
+			logger.warn("Exception recorded (https://" + domain + "/analytics/exception/details?exceptionRecord="
+					+ exceptionRecord.getKey().getId() + ")");
 			StringBuilder paramStringBuilder = new StringBuilder();
 			Joiner listJoiner = Joiner.on("; ");
 			for (Entry<String, String[]> param : request.getParameterMap().entrySet()) {
@@ -136,6 +135,10 @@ public class ExceptionHandlingFilter implements Filter {
 			if (pair.getLeft() == null) {
 				pair = searchClassName(e);
 			}
+			ExceptionCounters.inc(place);
+			ExceptionCounters.inc("Filter " + place);
+			ExceptionCounters.inc(e.getClass().getName() + " " + place);
+			ExceptionCounters.inc("Filter " + e.getClass().getName() + " " + place);
 			place = pair.getLeft();
 			lineNumber = pair.getRight();
 			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
