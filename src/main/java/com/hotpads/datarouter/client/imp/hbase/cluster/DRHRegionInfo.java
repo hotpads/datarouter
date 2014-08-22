@@ -26,7 +26,6 @@ import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -103,7 +102,7 @@ implements Comparable<DRHRegionInfo<?>>{
 			return ObjectTool.equals(serverName, balancerDestinationServer);
 //					consistentHashHServer.getHostAndPort());
 		}catch(NullPointerException npe){
-			logger.warn(ExceptionTool.getStackTraceAsString(npe));
+			logger.warn("", npe);
 		}
 		return true;//default: leave it where it is
 	}

@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.datastructs.MutableString;
@@ -42,7 +41,7 @@ public class HTablePerTablePool implements HTablePool{
 					hTablesByName.get(name).add(new HTable(this.hBaseConfiguration, 
 							StringByteTool.getUtf8Bytes(name)));
 				}catch(NoServerForRegionException nsfre){
-					logger.error(ExceptionTool.getStackTraceAsString(nsfre));
+					logger.error("", nsfre);
 				}catch(IOException e){
 					throw new RuntimeException(e);
 				}

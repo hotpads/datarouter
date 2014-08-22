@@ -94,7 +94,7 @@ public class HTableExecutorServicePoolTester {
 //				logger.warn("progress="+tasks.get(i).progress);
 //				logger.error(ExceptionTool.getStackTraceAsString(e));
 			} catch(RuntimeException e){
-				logger.error(ExceptionTool.getStackTraceAsString(e));
+				logger.error("", e);
 			} catch(ExecutionException e){
 				if(e.getCause() instanceof DataAccessException) {
 					DataAccessException purposefulException = (DataAccessException)e.getCause();
@@ -104,10 +104,10 @@ public class HTableExecutorServicePoolTester {
 						++npes;
 					}
 				}else {
-					logger.error(ExceptionTool.getStackTraceAsString(e));
+					logger.error("", e);
 				}
 			} catch(InterruptedException e){
-				logger.error(ExceptionTool.getStackTraceAsString(e));
+				logger.error("", e);
 			}
 
 			if(i % 10000 == 0) {
