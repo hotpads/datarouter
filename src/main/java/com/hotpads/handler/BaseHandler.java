@@ -14,10 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.Assert;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.encoder.MavEncoder;
@@ -35,7 +35,7 @@ import com.hotpads.util.core.java.ReflectionTool;
  * a dispatcher servlet sets necessary parameters and then calls "handle()"
  */
 public abstract class BaseHandler{
-	protected Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	//these are available to all handlers without passing them around
 	protected ServletContext servletContext;
