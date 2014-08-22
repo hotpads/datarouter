@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.profile.count.collection.archive.CountArchiveFlusher;
-import com.hotpads.util.core.ExceptionTool;
 
 public class OverdueWriteCanceller implements Runnable{
 	private static Logger logger = LoggerFactory.getLogger(CountArchiveFlusher.class);
@@ -38,7 +37,7 @@ public class OverdueWriteCanceller implements Runnable{
 				break;//wait to be triggered again
 			}
 		}catch(Exception e){
-			logger.warn(ExceptionTool.getStackTraceAsString(e));
+			logger.warn("", e);
 		}
 	}
 }

@@ -9,9 +9,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.quartz.CronExpression;
 
 import com.google.inject.Injector;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
@@ -20,7 +20,6 @@ import com.hotpads.job.record.LongRunningTask;
 import com.hotpads.job.record.LongRunningTaskKey;
 import com.hotpads.job.thread.JobExecutorProvider.JobExecutor;
 import com.hotpads.setting.Setting;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
 
@@ -69,7 +68,7 @@ public class JobScheduler {
 						sampleJob.scheduleNextRun(false);
 					}
 				} catch (ParseException e) {
-					logger.error(ExceptionTool.getStackTraceAsString(e));
+					logger.error("", e);
 					sampleJob.scheduleNextRun(false);
 				}
 	//			logger.warn("scheduled "+jobClass+" at "+sampleJob.getTrigger().getCronExpression());

@@ -14,7 +14,6 @@ import com.hotpads.datarouter.op.executor.ClientExecutor;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 
 public abstract class BaseClientExecutor<T>
 implements ClientExecutor{
@@ -68,7 +67,7 @@ implements ClientExecutor{
 //				logger.warn("releaseConnection "+handle);
 				DRCounters.incSuffixClient(connectionClient.getType(), "releaseConnection", connectionClient.getName());
 			}catch(Exception e){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("", e);
 				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF SINGLE CONNECTION, handle now=:"
 						+connectionClient.getExistingHandle(), e);
 			}

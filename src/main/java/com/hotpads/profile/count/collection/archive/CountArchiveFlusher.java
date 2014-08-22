@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.profile.count.collection.CountMapPeriod;
 import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.concurrent.Provider;
@@ -107,10 +106,9 @@ public class CountArchiveFlusher{
 					}
 				}
 			}catch(TimeoutException te){
-				logger.warn("TimeoutException after "+INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS+" seconds");
-				logger.warn(ExceptionTool.getStackTraceAsString(te));
+				logger.warn("TimeoutException after "+INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS+" seconds", te);
 			}catch(Exception e){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("", e);
 			}
 		}
 	}

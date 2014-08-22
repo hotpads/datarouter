@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
-import com.hotpads.util.core.ExceptionTool;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
 
@@ -112,7 +111,7 @@ public class JdbcConnectionPool{
 		try{
 			DataSources.destroy(getDataSource());
 		}catch(SQLException e){
-			logger.error(ExceptionTool.getStackTraceAsString(e));
+			logger.error("", e);
 		}
 	}
 	

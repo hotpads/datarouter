@@ -43,7 +43,6 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -245,7 +244,7 @@ public class HBaseHandler extends BaseHandler {
 					}
 					admin.modifyTable(StringByteTool.getUtf8Bytes(routerParams.getTableName()), table);
 				}catch(Exception e){
-					logger.warn(ExceptionTool.getStackTraceAsString(e));
+					logger.warn("", e);
 				}finally{
 					admin.enableTable(routerParams.getTableName());
 				}
@@ -287,7 +286,7 @@ public class HBaseHandler extends BaseHandler {
 				}
 				admin.modifyColumn(routerParams.getTableName(), column);
 			}catch(Exception e){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("", e);
 			}finally{
 				admin.enableTable(routerParams.getTableName());
 			}

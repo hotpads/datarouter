@@ -1,9 +1,9 @@
 package com.hotpads.datarouter.test.client.txn.test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -17,8 +17,6 @@ import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.txnapp.InsertRollback;
 import com.hotpads.datarouter.test.client.txn.txnapp.MultiInsertRollback;
 import com.hotpads.datarouter.test.client.txn.txnapp.NestedTxn;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
@@ -77,7 +75,7 @@ public class TxnIntegrationTests {
 					router, true);
 			router.run(op);
 		}catch(RuntimeException re){
-			logger.warn(ExceptionTool.getStackTraceAsString(re));
+			logger.warn("", re);
 			++numExceptions;
 		}
 		Assert.assertEquals(1, numExceptions);

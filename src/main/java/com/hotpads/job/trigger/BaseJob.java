@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.quartz.CronExpression;
 
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
@@ -119,8 +119,7 @@ public abstract class BaseJob implements Job{
 		}catch(RuntimeException e){
 			getFromTracker().incrementNumberOfErrors();
 			getFromTracker().setLastErrorTime(new Date());
-			baseJobLogger.warn("exception executing "+getClass());
-			baseJobLogger.warn(ExceptionTool.getStackTraceAsString(e));
+			baseJobLogger.warn("exception executing "+getClass(), e);
 			recordException(e);
 		}finally{
 			try{
@@ -130,15 +129,13 @@ public abstract class BaseJob implements Job{
 					baseJobLogger.warn("couldn't run "+getClass()+" because it is already running");
 				}
 			}catch(Exception e){
-				baseJobLogger.warn("exception in finally block");
-				baseJobLogger.warn(ExceptionTool.getStackTraceAsString(e));
+				baseJobLogger.warn("exception in finally block", e);
 			}
 			try{
 				isAlreadyScheduled = false;
 				scheduleNextRun(false);
 			}catch(Exception e){
-				baseJobLogger.warn("exception in finally block");
-				baseJobLogger.warn(ExceptionTool.getStackTraceAsString(e));
+				baseJobLogger.warn("exception in finally block", e);
 			}
 		}
 		return null;

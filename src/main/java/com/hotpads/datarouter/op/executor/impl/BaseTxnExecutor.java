@@ -72,7 +72,7 @@ implements TxnExecutor<T>{
 //				logger.warn("rollbackTxn for "+txnClient.getExistingHandle());
 				DRCounters.incSuffixClient(txnClient.getType(), "rollbackTxn", txnClient.getName());
 			}catch(Exception e){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("", e);
 				throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:"
 						+txnClient.getExistingHandle(), e);
 			}
