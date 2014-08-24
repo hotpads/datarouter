@@ -7,28 +7,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.SimpleFieldSet;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
-import com.hotpads.datarouter.storage.key.entity.EntityKey;
-import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
-import com.hotpads.datarouter.storage.key.entity.base.NoOpEntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.EmptyScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.ClassTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -147,7 +141,6 @@ public class DatabeanFieldInfo<
 					this.collation = sampleFielder.getCollation(sampleDatabean);
 //				}
 				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
-				assertNoScatteringPrefixOnDeprecatedTables();
 			}
 			if(fieldAware){
 //				FieldTool.cacheReflectionInfo(scatteringPrefixFields, sampleScatterPrefix);
@@ -215,15 +208,6 @@ public class DatabeanFieldInfo<
 	
 	
 	/***************************** methods **************************************************/
-	
-	//loose safety check
-	private void assertNoScatteringPrefixOnDeprecatedTables(){
-		String tableName = databeanClass.getSimpleName();
-		if(ClassTool.differentClass(scatteringPrefixClass, EmptyScatteringPrefix.class) 
-				&& HBaseReaderNode.TRAILING_BYTE_TABLES.contains(tableName)){
-			throw new IllegalArgumentException("don't add scattering prefix to broken table!:"+tableName);
-		}
-	}
 	
 	public FieldSet<?> getScatteringPrefixPlusPrimaryKey(PK key){
 		return new SimpleFieldSet(getKeyFieldsWithScatteringPrefix(key));
