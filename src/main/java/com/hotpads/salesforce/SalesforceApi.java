@@ -125,7 +125,10 @@ public class SalesforceApi{ //TODO make a datarouter Client and a Node
 	}
 	
 	private void refreshToken(){
-		if(System.currentTimeMillis() - accessTokenCreationTime > tokenLifetime){
+		boolean reconnect = accessTokenCreationTime == null || 
+				System.currentTimeMillis() - accessTokenCreationTime > tokenLifetime;
+				
+		if(reconnect){
 			connect();
 		}
 	}
