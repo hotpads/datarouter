@@ -44,7 +44,7 @@ public class LoggingConfigUpdaterJob implements Runnable{
 		logger.debug("Logging config updater is running on " + webAppName);
 		logger.debug("Logging config signature = " + config.getSignature());
 		if(!config.getSignature().equals(previousSignature)){
-			logger.info("Logging config apllied");
+			logger.info("Logging config apllied on " + webAppName);
 			hotPadsLog4j2Configurator.applyConfig(config);
 			previousSignature = config.getSignature();
 		}

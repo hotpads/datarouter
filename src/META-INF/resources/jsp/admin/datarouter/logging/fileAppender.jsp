@@ -18,13 +18,25 @@
 	<a href="http://logging.apache.org/log4j/2.x/manual/appenders.html#FileAppender">log4j2 FileAppender documentation</a>
 	<form method="post" action="${contextPath}/datarouter/logging/editFileAppender">
 		Name:
-		<input type="text" name="name" value="${name}">
+		<input type="text" name="name" value="${name}"
+			<c:if test="${not empty name}">
+				disabled
+			</c:if>
+		>
 		<br>
 		Layout:
-		<input type="text" name="layout" value="${layout}" class="input-xxlarge">
+		<input type="text" name="layout" value="${layout}" class="input-xxlarge"
+			<c:if test="${not empty name}">
+				disabled
+			</c:if>
+		>
 		<br>
-		Target:
-		<input type="text" name="fileName" value="${fileName}">
+		FileName:
+		<input type="text" name="fileName" value="${fileName}"
+			<c:if test="${not empty name}">
+				disabled
+			</c:if>
+		>
 		<br>
 		<c:if test="${empty name}">
 			<input type="hidden" name="action" value="Create">

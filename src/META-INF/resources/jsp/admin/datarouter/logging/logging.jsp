@@ -23,11 +23,14 @@
 	<%@ include file="/jsp/menu/common-navbar.jsp"%>
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 	<h2>Log4j2 configuration</h2>
+	<h3>Tester (will log the message for each level)</h3>
 	<input type="text" id="loggerName" class="input-xlarge" value="com.hotpads.handler.logging">
 	<input type="text" id="loggerMessage" class="input-medium" placeholder="Message">
 	<button class="btn btn-primary" onclick="jQuery.ajax('${contextPath}/datarouter/logging/testLog?loggerName='+$('#loggerName').val()+'&loggerMessage='+$('#loggerMessage').val())">Test</button>
 	<div>
 		<h3>Logger config</h3>
+		<a href="http://logging.apache.org/log4j/2.x/manual/architecture.html#LoggerConfig">About LoggerConfig</a>
+		<a href="http://logging.apache.org/log4j/2.x/manual/configuration.html#Additivity">About Additivity</a>
 		<table>
 			<tr>
 				<th>Name</th>
@@ -49,7 +52,7 @@
 							</c:if>
 						</td>
 						<td>
-							<select name="level">
+							<select name="level" class="input-medium">
 								<c:forEach items="${levels}" var="level">
 									<option
 										<c:if test="${level == config.value.level}">
@@ -59,7 +62,7 @@
 							</select>
 						</td>
 						<td>
-							<select name="additive">
+							<select name="additive" class="input-small">
 								<c:forEach items="${booleans}" var="bool">
 									<option
 										<c:if test="${bool == config.value.additive}">
@@ -97,7 +100,7 @@
 						<input type="text" name="name" placeholder="Name" required>
 					</td>
 					<td>
-						<select name="level" required>
+						<select name="level" class="input-medium" required>
 							<option disabled selected>Level</option>
 							<c:forEach items="${levels}" var="level">
 								<option>${level}</option>
@@ -105,7 +108,7 @@
 						</select>
 					</td>
 					<td>
-						<select name="additive" required>
+						<select name="additive" class="input-small" required>
 							<option disabled selected>Additive</option>
 							<c:forEach items="${booleans}" var="bool">
 								<option>${bool}</option>
@@ -128,7 +131,7 @@
 	</div>
 	<div>
 		<h3>Appenders</h3>
-		<table>
+		<table class="http-param">
 			<tr>
 				<th>Name</th>
 				<th>Type</th>
@@ -141,7 +144,7 @@
 					<td>${appender.value.getClass().simpleName}</td>
 					<td>${appender.value.layout}</td>
 					<td>
-<%-- 						<a class="btn btn-warning" href="${contextPath}/datarouter/logging/edit${appender.value.getClass().simpleName}?name=${appender.key}">Details</a> --%>
+						<a class="btn btn-primary" href="${contextPath}/datarouter/logging/edit${appender.value.getClass().simpleName}?name=${appender.key}">Details</a>
 						<a class="btn btn-danger" href="${contextPath}/datarouter/logging/deleteAppender?name=${appender.key}">Delete</a>
 					</td>
 				</tr>

@@ -18,13 +18,28 @@
 	<a href="http://logging.apache.org/log4j/2.x/manual/appenders.html#ConsoleAppender">log4j2 ConsoleAppender documentation</a>
 	<form method="post" action="${contextPath}/datarouter/logging/editConsoleAppender">
 		Name:
-		<input type="text" name="name" value="${name}">
+		<input type="text" name="name" value="${name}"
+			<c:if test="${not empty name}">
+				disabled
+			</c:if>
+		>
 		<br>
 		Layout:
-		<input type="text" name="layout" value="${layout}" class="input-xxlarge">
+		<input type="text" name="layout" value="${layout}" class="input-xxlarge"
+			<c:if test="${not empty name}">
+				disabled
+			</c:if>
+		>
 		<br>
 		Target:
-		<select name="target">
+		<select name="target"
+			<c:if test="${not empty name}">
+				disabled
+			</c:if>
+		>
+			<c:if test="${not empty name}">
+				<option>UNKNOWN</option>
+			</c:if>
 			<option>SYSTEM_OUT</option>
 			<option>SYSTEM_ERR</option>
 		</select>

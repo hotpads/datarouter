@@ -224,3 +224,32 @@ select.setting-type {
 .input-no-margin select, .input-no-margin input {
 	margin-bottom: 0px;
 }
+/*Exception page*/
+.table-exception td {
+	text-align: left;
+}
+.table-exception th {
+	text-align: center;
+}
+.http-param th {
+	border-bottom: solid 1px dimgray;
+}
+.http-param tr:not(:last-child)  {
+	border-bottom: solid 1px silver;
+}
+.http-param td:not(:last-child), .http-param th:not(:last-child) {
+	border-right: solid 1px dimgray;
+}
+.fixed-column {
+	table-layout: fixed;
+	width: 100%
+}
+.fixed-column td:first-child, .fixed-column th:first-child  {
+	width: 300px;
+}
+.http-param td, .http-param th{
+	padding: 2px 6px;
+}
+.http-param td{
+	overflow-x: auto;
+}

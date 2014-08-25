@@ -1,5 +1,6 @@
 package com.hotpads.handler.logging;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -152,13 +154,14 @@ public class LoggingSettingsHandler extends BaseHandler{
 			return getRedirectMav();
 		}
 		Mav mav = new Mav(JSP_CONSOLE_APPENDER);
-		mav.put("layout", UtilLog4j2Configuration.defaultPattern);
 		mav.put("name", name);
-//		if(name != null) {
-//			ConsoleAppender appender = (ConsoleAppender)log4j2Configurator.getAppender(name);
-//			Layout<? extends Serializable> layout = appender.getLayout();
-//			mav.put("layout", layout);
-//		}
+		if(name != null) {
+			ConsoleAppender appender = (ConsoleAppender)log4j2Configurator.getAppender(name);
+			Layout<? extends Serializable> layout = appender.getLayout();
+			mav.put("layout", layout);
+		} else {
+			mav.put("layout", UtilLog4j2Configuration.defaultPattern);
+		}
 		return mav;
 	}
 	
@@ -175,8 +178,15 @@ public class LoggingSettingsHandler extends BaseHandler{
 			return getRedirectMav();
 		}
 		Mav mav = new Mav(JSP_FILE_APPENDER);
-		mav.put("layout", UtilLog4j2Configuration.defaultPattern);
 		mav.put("name", name);
+		if (name != null) {
+			FileAppender appender = (FileAppender)log4j2Configurator.getAppender(name);
+			Layout<? extends Serializable> layout = appender.getLayout();
+			mav.put("layout", layout);
+			mav.put("fileName", appender.getFileName());
+		} else {
+			mav.put("layout", UtilLog4j2Configuration.defaultPattern);
+		}
 		return mav;
 	}
 
