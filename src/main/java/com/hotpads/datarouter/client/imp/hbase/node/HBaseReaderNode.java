@@ -64,37 +64,13 @@ implements HBasePhysicalNode<PK,D>,
 	
 	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
 	
-	//for backwards compatibility with a few tables
-	protected Boolean primaryKeyHasUnnecessaryTrailingSeparatorByte;
-	public static final Set<String> TRAILING_BYTE_TABLES = SetTool.createHashSet();
-	static{
-		TRAILING_BYTE_TABLES.add("AvailableCounter");
-		TRAILING_BYTE_TABLES.add("DocumentView");
-		TRAILING_BYTE_TABLES.add("JsonListingView");
-		TRAILING_BYTE_TABLES.add("ListingTrait");
-		TRAILING_BYTE_TABLES.add("ListingTraitByDate");
-		TRAILING_BYTE_TABLES.add("ListingTraitByState");
-		TRAILING_BYTE_TABLES.add("ModelIndexListingView");
-		TRAILING_BYTE_TABLES.add("ModelIndexListingViewByListingKey");
-		TRAILING_BYTE_TABLES.add("MonthlyListingSummary");
-	}
-	
 	private HBaseTaskNameParams taskNameParams;
 	
 	/******************************* constructors ************************************/
 	
 	public HBaseReaderNode(NodeParams<PK,D,F> params){
 		super(params);
-		detectPrimaryKeyHasUnnecessaryTrailingSeparatorByte();
 		this.taskNameParams = new HBaseTaskNameParams(getClientName(), getTableName(), getName());
-	}
-	
-	protected void detectPrimaryKeyHasUnnecessaryTrailingSeparatorByte(){
-		Assert.assertTrue(StringTool.notEmpty(fieldInfo.getTableName()));
-		primaryKeyHasUnnecessaryTrailingSeparatorByte = TRAILING_BYTE_TABLES.contains(fieldInfo.getTableName());
-		if(primaryKeyHasUnnecessaryTrailingSeparatorByte){
-			logger.warn("primaryKeyHasUnnecessaryTrailingSeparatorByte for table "+fieldInfo.getTableName());
-		}
 	}
 	
 	
@@ -354,23 +330,13 @@ implements HBasePhysicalNode<PK,D>,
 		if(increment){
 			keyBytes = ByteTool.unsignedIncrement(keyBytes);
 		}
-		byte[] bytes;
-		if(primaryKeyHasUnnecessaryTrailingSeparatorByte){
-			bytes = ByteTool.concatenate(scatteringPrefixBytes, keyBytes, new byte[]{StringField.SEPARATOR});
-		}else{
-			bytes = ByteTool.concatenate(scatteringPrefixBytes, keyBytes);
-		}
-		return bytes;
+		return ByteTool.concatenate(scatteringPrefixBytes, keyBytes);
 	}
 	
 	private <T extends Comparable<? super T>> void sortIfScatteringPrefixExists(List<T> ins){
 		if(fieldInfo.getSampleScatteringPrefix().getNumPrefixBytes() > 0){
 			Collections.sort(ins);
 		}
-	}
-
-	public Boolean getPrimaryKeyHasUnnecessaryTrailingSeparatorByte(){
-		return primaryKeyHasUnnecessaryTrailingSeparatorByte;
 	}
 	
 	public HBaseTaskNameParams getTaskNameParams(){
