@@ -135,12 +135,12 @@ public class ExceptionHandlingFilter implements Filter {
 			if (pair.getLeft() == null) {
 				pair = searchClassName(e);
 			}
+			place = pair.getLeft();
+			lineNumber = pair.getRight();
 			ExceptionCounters.inc(place);
 			ExceptionCounters.inc("Filter " + place);
 			ExceptionCounters.inc(e.getClass().getName() + " " + place);
 			ExceptionCounters.inc("Filter " + e.getClass().getName() + " " + place);
-			place = pair.getLeft();
-			lineNumber = pair.getRight();
 			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
 					exceptionRecord.getKey().getId(),
 					place,
@@ -201,11 +201,22 @@ public class ExceptionHandlingFilter implements Filter {
 				place = cause.getMessage().substring(indexOfBegin + key.length(), i);
 				try {
 					lineNumber = Integer.parseInt(cause.getMessage().substring(i + key2.length(), endLine));
-				} catch(NumberFormatException ex) {
-					
-				}
+				} catch(NumberFormatException ex) {}
 				return Pair.create(place, lineNumber);
-			}				
+			}
+			/* An error occurred at line: 3 in the jsp file: /WEB-INF/jsp/jspError.jsp */
+			String keyInTheJspFile = " in the jsp file: ";
+			indexOfBegin = cause.getMessage().indexOf(keyInTheJspFile);
+			if (indexOfBegin > -1) {
+				String key2 = " at line: ";
+				int i = cause.getMessage().indexOf(key2);
+				int endLine = cause.getMessage().indexOf('\n', indexOfBegin);
+				place = cause.getMessage().substring(indexOfBegin + keyInTheJspFile.length(), endLine);
+				try {
+					lineNumber = Integer.parseInt(cause.getMessage().substring(i + key2.length(), indexOfBegin));
+				} catch(NumberFormatException ex) {}
+				return Pair.create(place, lineNumber);
+			}
 			place = getJSPName(cause.getMessage());
 			if (place != null) {
 				return Pair.create(place, lineNumber);
