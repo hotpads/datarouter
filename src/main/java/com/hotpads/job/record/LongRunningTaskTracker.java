@@ -21,7 +21,8 @@ public class LongRunningTaskTracker {
 	private Date lastPersistedHeartbeat;
 	private Setting<Boolean> shouldSaveLongRunningTasks;
 	
-	public LongRunningTaskTracker(IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> node, LongRunningTask task, Setting<Boolean> shouldSaveLongRunningTasks){
+	public LongRunningTaskTracker(IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> node,
+			LongRunningTask task, Setting<Boolean> shouldSaveLongRunningTasks){
 		this.node = node;
 		this.task = task;
 		this.interrupted = new MutableBoolean(false);
@@ -36,7 +37,7 @@ public class LongRunningTaskTracker {
 		if(interrupted.get()){
 			task.setJobExecutionStatus(JobExecutionStatus.interrupted);
 			if(shouldPersistHeartbeat()){
-				node.put(task, null);
+				persist();
 			}
 		}
 		return interrupted.get();
@@ -46,10 +47,17 @@ public class LongRunningTaskTracker {
 		if(shouldPersistHeartbeat()){
 			Date heartbeat = new Date();
 			task.setHeartbeatTime(heartbeat);
-			node.put(task, null);
+			persist();
 			lastPersistedHeartbeat = heartbeat;
 		}
 		return this;
+	}
+	
+	private void persist(){
+		if(task.getKey().getTriggerTime()==null){
+			logger.error("not persisting "+task.getDatabeanName()+" tracker because of null trigger time");
+		}
+		node.put(task, null);
 	}
 	
 	private boolean shouldPersistHeartbeat(){

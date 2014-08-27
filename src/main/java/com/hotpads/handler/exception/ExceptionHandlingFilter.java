@@ -20,7 +20,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +113,7 @@ public class ExceptionHandlingFilter implements Filter {
 		try {
 			ExceptionRecord exceptionRecord = new ExceptionRecord(
 					exceptionHandlingConfig.getServerName(),
-					ExceptionUtils.getStackTrace(e),
+					ExceptionTool.getStackTraceAsString(e),
 					e.getClass().getName());
 			exceptionRecordNode.put(exceptionRecord, null);
 			String domain = exceptionHandlingConfig.isDevServer() ? "localhost:8443" : "hotpads.com";
