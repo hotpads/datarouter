@@ -19,6 +19,8 @@ import com.hotpads.util.http.client.json.GsonJsonSerializer;
 
 public class SalesforceJsonSerializer extends GsonJsonSerializer{
 
+	static final int DATE_STRING_LENGTH = 10;
+	
 	public SalesforceJsonSerializer(Map<Class<? extends SalesforceDatabean>, List<String>> authorizedFields){
 		super(new GsonBuilder()
 		.registerTypeAdapter(Date.class, new SalesforceDateTypeAdapter())
@@ -54,8 +56,9 @@ public class SalesforceJsonSerializer extends GsonJsonSerializer{
 
 	private static class SalesforceDateTypeAdapter extends TypeAdapter<Date>{
 
-		private SimpleDateFormat dateFormat = new SimpleDateFormat("yyy-MM-dd");
-
+		private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		private SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+		
 		@Override
 		public void write(JsonWriter writer, Date date) throws IOException{
 			if (date == null){
@@ -73,7 +76,11 @@ public class SalesforceJsonSerializer extends GsonJsonSerializer{
 			}
 			String json = reader.nextString();
 			try{
-				return dateFormat.parse(json);
+				if(DATE_STRING_LENGTH == json.length()){
+					return dateFormat.parse(json);					
+				}else {
+					return datetimeFormat.parse(json);					
+				}
 			}catch (Exception e){
 				throw new JsonSyntaxException(json, e);
 			}
