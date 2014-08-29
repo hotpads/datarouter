@@ -35,6 +35,10 @@ public enum ViewRenderingStatus {
 		this.display = display;
 	}
 	
+	public String getDisplay() { 
+		return display; 
+	}
+	
 	public Integer getPersistentInteger(){
 		return persistentInteger;
 	}
