@@ -2,13 +2,11 @@ package com.hotpads.handler;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryManagerMXBean;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -36,7 +34,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 	private String getRedirectUrl(){
 		return Mav.REDIRECT + servletContext.getContextPath() + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.MEMORY_STATS;
 	}
-	
+
 	@Override
 	protected Mav handleDefault() throws Exception{		
 		Mav mav = new Mav("/memory");
@@ -58,7 +56,6 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getMemoryPoolMXBeans();
 		List<MemoryPoolForDisplay> heaps = new LinkedList<>();
 		List<MemoryPoolForDisplay> nonHeaps = new LinkedList<>();
-		System.out.println();
 		for(MemoryPoolMXBean memoryPoolMXBean : memoryPoolMXBeans){
 			switch(memoryPoolMXBean.getType()){
 			case HEAP:
@@ -68,25 +65,9 @@ public class MemoryMonitoringHandler extends BaseHandler{
 				nonHeaps.add(new MemoryPoolForDisplay(memoryPoolMXBean));
 				break;
 			}
-			System.out.println(memoryPoolMXBean.getName());
-			System.out.println(memoryPoolMXBean.getType());
-			System.out.println(memoryPoolMXBean.getCollectionUsage());
-			System.out.println(memoryPoolMXBean.getUsage());
-			System.out.println(memoryPoolMXBean.getPeakUsage());
-			System.out.println();
 		}
 		mav.put("heaps", heaps);
 		mav.put("nonHeaps", nonHeaps);
-
-		List<MemoryManagerMXBean> memoryManagerMXBeans = ManagementFactory.getMemoryManagerMXBeans();
-		System.out.println();
-		for(MemoryManagerMXBean memoryManagerMXBean : memoryManagerMXBeans){
-			System.out.println(memoryManagerMXBean.getName());
-			System.out.println(Arrays.toString(memoryManagerMXBean.getMemoryPoolNames()));
-			System.out.println(memoryManagerMXBean.getObjectName());
-			System.out.println();
-		}
-
 
 		ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
 		int procNumber = runtime.availableProcessors();
@@ -106,7 +87,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 			es.add(new GarbageCollectorForDisplay(garbageCollectorMXBean));
 		}
 		mav.put("gcs", es);
-		
+
 		HttpSession session = request.getSession();
 		Object duration = session.getAttribute("duration");
 		if(duration != null){
@@ -117,7 +98,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		}
 		return mav;
 	}
-	
+
 	@Handler
 	private Mav garbageCollector() throws Exception {
 		String serverName = params.required("serverName");
