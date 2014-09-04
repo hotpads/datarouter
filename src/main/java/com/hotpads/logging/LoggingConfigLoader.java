@@ -33,7 +33,6 @@ public class LoggingConfigLoader extends HotPadsWebAppListener{
 
 	private void startJob(String initialSignature){
 		loggingConfigUpdaterJob.setInitialSignature(initialSignature);
-		loggingConfigUpdaterJob.setWebAppName(servletContext.getServletContextName());
 		ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 		scheduledExecutor.submit(new Runnable(){
 			

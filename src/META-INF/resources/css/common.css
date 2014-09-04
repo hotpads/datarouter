@@ -253,3 +253,7 @@ select.setting-type {
 .http-param td{
 	overflow-x: auto;
 }
+.auto-centred-cointainer {
+	display: table;
+	margin: auto;
+}

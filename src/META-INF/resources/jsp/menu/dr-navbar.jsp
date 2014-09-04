@@ -40,6 +40,9 @@
 					<li>
 						<a href="${contextPath}/datarouter/logging">Logging</a>
 					</li>
+					<li>
+						<a href="${contextPath}/datarouter/memory">Memory</a>
+					</li>
 				</ul>
 			</div>
 		</div>
