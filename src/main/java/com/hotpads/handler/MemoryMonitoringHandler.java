@@ -106,6 +106,15 @@ public class MemoryMonitoringHandler extends BaseHandler{
 			es.add(new GarbageCollectorForDisplay(garbageCollectorMXBean));
 		}
 		mav.put("gcs", es);
+		
+		HttpSession session = request.getSession();
+		Object duration = session.getAttribute("duration");
+		if(duration != null){
+			mav.put("duration", duration);
+			mav.put("effects", session.getAttribute("effects"));
+			session.removeAttribute("duration");
+			session.removeAttribute("effects");
+		}
 		return mav;
 	}
 	
@@ -114,7 +123,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		String serverName = params.required("serverName");
 		if (!serverName.equals(dataRouterContext.getServerName())) {
 			String redirectUrl = getRedirectUrl();
-			redirectUrl += "?sameServer";
+			redirectUrl += "?sameServer=1";
 			return new Mav(redirectUrl);
 		}
 		List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getMemoryPoolMXBeans();
