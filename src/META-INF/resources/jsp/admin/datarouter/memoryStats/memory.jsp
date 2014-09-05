@@ -54,7 +54,7 @@
 <%@ include file="/jsp/menu/dr-navbar.jsp"%>
 <div class="auto-centered-container">
 	<c:if test="${not empty param.sameServer}">
-		<div class="alert alert-danger">The request come from another server. Are you sure to be on an url specific server?</div>
+		<div class="alert alert-danger">The request come from another server. Are you sure to be on an server specific url?</div>
 	</c:if>
 	<div class="block">
 		<h2>Server</h2>
