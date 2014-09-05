@@ -40,8 +40,8 @@ public class MemoryMonitoringHandler extends BaseHandler{
 	}
 
 	@Override
-	protected Mav handleDefault() throws Exception{		
-		Mav mav = new Mav("/memory");
+	protected Mav handleDefault() throws Exception{
+		Mav mav = new Mav("/jsp/admin/datarouter/memoryStats/memory.jsp");
 		RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
 		long startTime = runtimeMXBean.getStartTime();
 		long uptime = runtimeMXBean.getUptime();
