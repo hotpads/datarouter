@@ -11,4 +11,4 @@ target/*
 /target
 /bin
 *.iml
-
+src/main/resources/git.properties
