@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpSession;
 
 import com.hotpads.WebAppName;
@@ -24,12 +25,15 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.setting.cached.imp.Duration;
 import com.hotpads.util.core.bytes.ByteUnitTool;
 
+@Singleton
 public class MemoryMonitoringHandler extends BaseHandler{
 
 	@Inject
 	private DataRouterContext dataRouterContext;
 	@Inject 
 	private WebAppName webAppName;
+	@Inject
+	private GitProperties gitProperties;
 
 	private String getRedirectUrl(){
 		return Mav.REDIRECT + servletContext.getContextPath() + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.MEMORY_STATS;
@@ -46,6 +50,8 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		mav.put("upTime", new Duration(uptime, TimeUnit.MILLISECONDS).toString(TimeUnit.MINUTES));
 		mav.put("serverName", dataRouterContext.getServerName());
 		mav.put("appName", webAppName);
+		mav.put("gitBranch", gitProperties.getBranch());
+		mav.put("gitCommit", gitProperties.getIdAbbrev());
 
 		Runtime runtime = Runtime.getRuntime();
 		MemoryUsage heap = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
