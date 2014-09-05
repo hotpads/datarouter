@@ -46,12 +46,20 @@ public class Duration{
 
 	@Override
 	public String toString(){
+		return toString(TimeUnit.MILLISECONDS);
+	}
+	
+	public String toString(TimeUnit presision){
 		if(nano == 0) {
 			return "0";
 		}
+		int maxIndex = Arrays.asList(timeUnits).indexOf(presision);
+		if (maxIndex == -1) {
+			maxIndex = timeUnits.length - 1;
+		}
 		long rest = nano;
 		StringBuilder builder = new StringBuilder();
-		for(int i = 0; i < timeUnits.length; i++){
+		for(int i = 0; i < maxIndex + 1; i++){
 			long aUnit = timeUnits[i].toNanos(1);
 			long val = rest / aUnit;
 			rest = rest % aUnit;

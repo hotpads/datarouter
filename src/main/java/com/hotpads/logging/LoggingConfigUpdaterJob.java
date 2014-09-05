@@ -6,6 +6,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.WebAppName;
 import com.hotpads.setting.DatarouterSettings;
 
 @Singleton
@@ -19,13 +20,10 @@ public class LoggingConfigUpdaterJob implements Runnable{
 	private HotPadsLog4j2Configurator hotPadsLog4j2Configurator;
 	@Inject
 	private DatarouterSettings datarouterSettings;
-
+	@Inject
+	private WebAppName webAppName;
+	
 	private String previousSignature;
-	private String webAppName;
-
-	public void setWebAppName(String webAppName){
-		this.webAppName = webAppName;
-	}
 
 	public void setInitialSignature(String initialSignature){
 		this.previousSignature = initialSignature;
