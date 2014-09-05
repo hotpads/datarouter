@@ -38,7 +38,7 @@
 		.block h6, .block h5, .block h4, .block h3, .block h2, .block h1{
 			margin: 10px 0 0;
 		}
-		.auto-centred-cointainer {
+		.auto-centered-container {
 			text-align: center;
 		}
 		h6, h5, h4, h3, h2, h1{
@@ -52,7 +52,7 @@
 <body class="input-no-margin">
 <%@ include file="/jsp/menu/common-navbar.jsp"%>
 <%@ include file="/jsp/menu/dr-navbar.jsp"%>
-<div class="auto-centred-cointainer">
+<div class="auto-centered-container">
 	<c:if test="${not empty param.sameServer}">
 		<div class="alert alert-danger">The request come from another server. Are you sure to be on an url specific server?</div>
 	</c:if>

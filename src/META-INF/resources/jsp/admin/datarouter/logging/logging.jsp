@@ -23,7 +23,7 @@
 <body class="input-no-margin">
 <%@ include file="/jsp/menu/common-navbar.jsp"%>
 <%@ include file="/jsp/menu/dr-navbar.jsp"%>
-<div class="auto-centred-cointainer">
+<div class="auto-centered-container">
 		<div class="alert alert-warning">Be sure to be on an url specific server, if you want to see immediately the effects of your change.</div>
 		<h2>Log4j2 configuration</h2>
 		<h3>Tester (will log the message for each level)</h3>
