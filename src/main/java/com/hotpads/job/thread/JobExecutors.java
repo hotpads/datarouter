@@ -20,14 +20,13 @@ public class JobExecutors{
 	public static final ThreadGroup
 		job = new ThreadGroup("job"),
 		
-		
-		
 		dataRouter = new ThreadGroup(job, "dataRouter"),
 		jobScheduler = new ThreadGroup(job, "jobScheduler"),
 		joblet = new ThreadGroup(job, "joblet"),
 		
-		flushers = new ThreadGroup(job, "flushers");
-	
+		flushers = new ThreadGroup(job, "flushers"),
+		listingTraits = new ThreadGroup(job, "listingTraits");
+		
 	public static final ScheduledExecutorService 
 		jobExecutor = createScheduled(jobScheduler, "jobExecutor", 10).get();
 	
@@ -45,6 +44,8 @@ public class JobExecutors{
 		countArchiveFlusherMemory = createScheduled(flushers, "countArchiveFlusherMemory", 1),
 		countArchiveFlusherDb = createScheduled(flushers, "countArchiveFlusherDb", 1);
 	
+	public static final Provider<ExecutorService> listingTrait = createFixedLength(listingTraits,
+			"listingTraits", 12);
 	/**************************** convenience **********************************/
 	
 	public static Provider<ScheduledExecutorService> createScheduled(final ThreadGroup parentGroup, final String name,
@@ -55,6 +56,18 @@ public class JobExecutors{
 				logger.warn(name+" initialization "+System.identityHashCode(namedThreadFactory));
 //				return Executors.newSingleThreadScheduledExecutor(namedThreadFactory);
 				return Executors.newScheduledThreadPool(numThreads, namedThreadFactory);
+			}
+		};
+	}
+	
+	private static Provider<ExecutorService> createFixedLength(final ThreadGroup parentGroup, String name,
+			final int numThreads){
+		return new Provider<ExecutorService>(name){
+			@Override
+			protected ExecutorService initialize(){
+				NamedThreadFactory namedThreadFactory = new NamedThreadFactory(parentGroup, name, true);
+				logger.info(name + " initialization " + System.identityHashCode(namedThreadFactory));
+				return Executors.newFixedThreadPool(numThreads, namedThreadFactory);
 			}
 		};
 	}
