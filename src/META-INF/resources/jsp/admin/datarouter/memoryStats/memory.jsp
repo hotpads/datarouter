@@ -4,11 +4,16 @@
 <head>
 	<title>Memory Statistic</title>
 	<%@ include file="/jsp/css/css-import.jspf"%>
+	<%@ include file="/jsp/generic/head.jsp" %>
 	<meta charset="utf-8">
 	<link rel="stylesheet" href="${contextPath}/css/multiple-select.css">
 	<script data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 	<script>require(["bootstrap/bootstrap"]);</script>
 	<style type="text/css">
+		body {
+			padding-right: 0;
+			padding-left: 0;
+		}
 		.property{
 			display: inline-block;
 			width: 130px;
