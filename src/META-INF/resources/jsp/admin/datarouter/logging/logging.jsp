@@ -24,7 +24,7 @@
 <%@ include file="/jsp/menu/common-navbar.jsp"%>
 <%@ include file="/jsp/menu/dr-navbar.jsp"%>
 <div class="auto-centered-container">
-		<div class="alert alert-warning">Be sure to be on an url specific server, if you want to see immediately the effects of your change.</div>
+		<div class="alert alert-warning">If you want to see immediately the effects of your change, be sure to be on an server specific url.</div>
 		<h2>Log4j2 configuration</h2>
 		<h3>Tester (will log the message for each level)</h3>
 		<input type="text" id="loggerName" class="input-xlarge" value="com.hotpads.handler.logging">

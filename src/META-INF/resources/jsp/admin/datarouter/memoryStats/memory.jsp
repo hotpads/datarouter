@@ -4,11 +4,16 @@
 <head>
 	<title>Memory Statistic</title>
 	<%@ include file="/jsp/css/css-import.jspf"%>
+	<%@ include file="/jsp/generic/head.jsp" %>
 	<meta charset="utf-8">
 	<link rel="stylesheet" href="${contextPath}/css/multiple-select.css">
 	<script data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 	<script>require(["bootstrap/bootstrap"]);</script>
 	<style type="text/css">
+		body {
+			padding-right: 0;
+			padding-left: 0;
+		}
 		.property{
 			display: inline-block;
 			width: 130px;
@@ -54,7 +59,7 @@
 <%@ include file="/jsp/menu/dr-navbar.jsp"%>
 <div class="auto-centered-container">
 	<c:if test="${not empty param.sameServer}">
-		<div class="alert alert-danger">The request come from another server. Are you sure to be on an url specific server?</div>
+		<div class="alert alert-danger">The request come from another server. Are you sure to be on an server specific url?</div>
 	</c:if>
 	<div class="block">
 		<h2>Server</h2>
