@@ -21,7 +21,7 @@ public class GitProperties{
 		ClassLoader classLoader = getClass().getClassLoader();
 		InputStream resourceAsStream = classLoader.getResourceAsStream("git.properties");
 		if (resourceAsStream == null) {
-			logger.error("file \"git.properties\" not found. Try to run a full mvn package");
+			logger.error("file \"git.properties\" not found. Try to run an eclipse maven update or a full mvn package");
 		} else {
 			properties.load(resourceAsStream);
 		}
