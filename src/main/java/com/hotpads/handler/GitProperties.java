@@ -16,14 +16,14 @@ public class GitProperties{
 	private static final String GIT_COMMIT_ID_ABBREV = "git.commit.id.abbrev";
 	private Properties properties;
 
-	public GitProperties() {
+	public GitProperties() throws IOException {
 		properties = new Properties();
 		ClassLoader classLoader = getClass().getClassLoader();
 		InputStream resourceAsStream = classLoader.getResourceAsStream("git.properties");
-		try{
-			properties.load(resourceAsStream);
-		}catch(IOException e){
+		if (resourceAsStream == null) {
 			logger.error("file \"git.properties\" not found. Try to run a full mvn package");
+		} else {
+			properties.load(resourceAsStream);
 		}
 	}
 	
