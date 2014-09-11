@@ -69,11 +69,23 @@ public class SalesforceApi{ //TODO make a datarouter Client and a Node
 		}
 	}
 	
-	//TODO wrap into Op
 	public <D extends SalesforceDatabean> void put(D databean){
+		put(databean, null);
+	}
+	
+	//TODO wrap into Op
+	public <D extends SalesforceDatabean> void put(D databean, List<String> overrideAuthorizedFields){
 		String url = instanceUrl + SOBJECTS_ENDPOINT + databean.getClass().getSimpleName() + "/"
 				+ databean.getKey().getId();
-		httpClient.patch(url, databean, false, getAuthenticationHeaders());
+		if(overrideAuthorizedFields == null){
+			httpClient.patch(url, databean, false, getAuthenticationHeaders());
+		}else{
+			Map<Class<? extends SalesforceDatabean>, List<String>> customAuthorizedFields = new HashMap<>();
+			customAuthorizedFields.put(databean.getClass(), overrideAuthorizedFields);
+			SalesforceJsonSerializer customSerializer = new SalesforceJsonSerializer(customAuthorizedFields);
+			String serializedDatabean = customSerializer.serialize(databean);
+			httpClient.patch(url, serializedDatabean, false, getAuthenticationHeaders());
+		}
 	}
 	
 	//TODO wrap into Op
