@@ -118,7 +118,7 @@ public class HotPadsHttpClient{
 		return post(url, serializedDtos, dtoType, retrySafe);
 	}
 	
-	private <T> String post(String url, String dto, String dtoType, boolean retrySafe){
+	private String post(String url, String dto, String dtoType, boolean retrySafe){
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(config.getDtoParameterName(), dto);
 		params.put(config.getDtoTypeParameterName(), dtoType);
@@ -135,10 +135,10 @@ public class HotPadsHttpClient{
 	
 	/*** PATCH ***/
 	
-	public <T> void patch(String url, T object, boolean retrySafe, Map<String, String> headers){
+	public void patch(String url, String serializedObject, boolean retrySafe, Map<String, String> headers){
 		HttpPatch request = new HttpPatch(url);
 		try{
-			request.setEntity(new StringEntity(jsonSerializer.serialize(object)));
+			request.setEntity(new StringEntity(serializedObject));
 		}catch (UnsupportedEncodingException e){
 			throw new HotPadsHttpClientException(e);
 		}
@@ -146,12 +146,18 @@ public class HotPadsHttpClient{
 		execute(request, retrySafe, headers);
 	}
 	
+	public <T> void patch(String url, T object, boolean retrySafe, Map<String, String> headers){
+		patch(url, jsonSerializer.serialize(object), retrySafe, headers);
+	}
+	
 	/***** private ******/
 	
 	private String execute(HttpUriRequest request, boolean retrySafe, Map<String, String> headers){
 		HttpResponse response;
 		String responseString = "";
-		retryHandler.setRetrySafe(request);
+		if(retrySafe){
+			retryHandler.setRetrySafe(request);
+		}
 		setHeaders(request, headers);
 		try{
 			response = httpClient.execute(request);
