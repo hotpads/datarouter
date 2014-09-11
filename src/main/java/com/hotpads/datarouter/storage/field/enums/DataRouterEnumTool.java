@@ -1,13 +1,17 @@
 package com.hotpads.datarouter.storage.field.enums;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+
+import org.junit.Test;
 
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
+import com.hotpads.util.core.StringTool;
 
 public class DataRouterEnumTool{
 	
@@ -91,4 +95,25 @@ public class DataRouterEnumTool{
 	}
 	
 	
+	@SuppressWarnings("unchecked")
+	public static <E extends StringEnum<E>> List<E> uniqueListFromCsvNames( E[] values, String csvNames, boolean defaultAll ) {
+		List<E> result = new ArrayList<E>();
+		if ( !StringTool.isEmpty( csvNames ) ) {
+		String[] types = csvNames.split( " *, *" );
+			for ( String name : types ) {
+				StringEnum<E> type = getEnumFromString(values, name, null);
+				if ( type != null && !result.contains(type)) {
+					result.add( (E) type );
+				}
+			}
+		}
+		if ( result.isEmpty() ) {
+			if ( defaultAll ) {
+				for ( E e : values ) {
+					result.add( e );
+				}
+			}
+		}
+		return result;
+	}
 }
