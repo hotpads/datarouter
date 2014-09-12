@@ -10,11 +10,11 @@ public enum FeaturedPropertyField{
 	MANUAL_DELISTING_DATE("Manual_Delisting_Date__c",true);
 	
 	
-	public static List<String> DEFAULT_AUTHORIZED_FIELD_NAME_LIST =
+	public static final List<String> DEFAULT_AUTHORIZED_FIELD_NAME_LIST =
 			Arrays.asList(FeaturedPropertyField.ONBOARDING_FEATURED_DATE.getFieldName(),
 					FeaturedPropertyField.MANUAL_DELISTING_DATE.getFieldName());
 	
-	public static List<String> ONBOARDING_FEATURED_DATE_FIELD_NAME_LIST =
+	public static final List<String> ONBOARDING_FEATURED_DATE_FIELD_NAME_LIST =
 			Arrays.asList(FeaturedPropertyField.ONBOARDING_FEATURED_DATE.getFieldName());
 	
 	private String fieldName;
