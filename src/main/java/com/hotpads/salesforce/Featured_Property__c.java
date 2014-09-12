@@ -1,7 +1,6 @@
 package com.hotpads.salesforce;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -9,6 +8,7 @@ import com.google.gson.reflect.TypeToken;
 import com.hotpads.salesforce.databean.SalesforceDatabean;
 import com.hotpads.salesforce.databean.SalesforceDatabeanKey;
 import com.hotpads.salesforce.dto.SalesforceQueryResult;
+import com.hotpads.salesforce.enums.FeaturedPropertyField;
 
 //Variable names and Databean name must be the same as Salesforce's
 public class Featured_Property__c extends SalesforceDatabean{
@@ -42,7 +42,7 @@ public class Featured_Property__c extends SalesforceDatabean{
 
 	@Override
 	public List<String> getAuthorizedFields(){
-		return Arrays.asList("Onboarding_Featured_Date__c","Manual_Delisting_Date__c");
+		return FeaturedPropertyField.DEFAULT_AUTHORIZED_FIELD_NAME_LIST;
 	}
 
 	public Date getOnboarding_Featured_Date__c(){
