@@ -11,6 +11,7 @@ import javax.inject.Singleton;
 
 import org.apache.log4j.Logger;
 
+import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.salesforce.databean.SalesforceDatabean;
 import com.hotpads.salesforce.databean.SalesforceDatabeanKey;
 import com.hotpads.salesforce.dto.SalesforceAuthenticationResponse;
@@ -37,24 +38,16 @@ public class SalesforceApi{ //TODO make a datarouter Client and a Node
 	private String accessToken;
 	private String instanceUrl;
 	private DatarouterSalesforceSettings settings;
-	Map<Class<? extends SalesforceDatabean>, List<String>> authorizedFields;
 	
 	@Inject
 	public SalesforceApi(DatarouterSalesforceSettings settings){
 		this.settings = settings;
-		this.authorizedFields = new HashMap<>();
-		register(Featured_Property__c.class);
 		this.httpClient = new HotPadsHttpClientBuilder()
-		.setJsonSerializer(new SalesforceJsonSerializer(authorizedFields))
+		.setJsonSerializer(new SalesforceJsonSerializer())
 		.createInstance();
 		this.connect();
 	}
 	
-	//TODO in node
-	public <D extends SalesforceDatabean> void register(Class<D> databeanClass){
-		authorizedFields.put(databeanClass, ReflectionTool.create(databeanClass).getAuthorizedFields());
-	}
-
 	//TODO wrap into Op
 	public <D extends SalesforceDatabean> D get(SalesforceDatabeanKey key, Class<D> databeanClass){
 		try{
@@ -62,6 +55,7 @@ public class SalesforceApi{ //TODO make a datarouter Client and a Node
 			@SuppressWarnings("unchecked")
 			D databean = (D) httpClient.get(url, databeanClass, true, getAuthenticationHeaders());
 			databean.setKey(key);
+			databean.snapshot();
 			return databean;
 		}catch(Exception e){
 			logger.error("Error while retrieving " + databeanClass.getSimpleName() + "." + key.getId(), e);
@@ -69,23 +63,16 @@ public class SalesforceApi{ //TODO make a datarouter Client and a Node
 		}
 	}
 	
-	public <D extends SalesforceDatabean> void put(D databean){
-		put(databean, null);
-	}
-	
 	//TODO wrap into Op
-	public <D extends SalesforceDatabean> void put(D databean, List<String> overrideAuthorizedFields){
+	public <D extends SalesforceDatabean> void put(D databean){
 		String url = instanceUrl + SOBJECTS_ENDPOINT + databean.getClass().getSimpleName() + "/"
 				+ databean.getKey().getId();
-		if(overrideAuthorizedFields == null){
-			httpClient.patch(url, databean, false, getAuthenticationHeaders());
-		}else{
-			Map<Class<? extends SalesforceDatabean>, List<String>> customAuthorizedFields = new HashMap<>();
-			customAuthorizedFields.put(databean.getClass(), overrideAuthorizedFields);
-			SalesforceJsonSerializer customSerializer = new SalesforceJsonSerializer(customAuthorizedFields);
-			String serializedDatabean = customSerializer.serialize(databean);
-			httpClient.patch(url, serializedDatabean, false, getAuthenticationHeaders());
-		}
+		Map<Class<? extends SalesforceDatabean>, List<String>> modifiedFieldsByClass = new HashMap<>();
+		modifiedFieldsByClass.put(databean.getClass(), FieldTool.getFieldNames(databean.getModifiedFields()));
+		SalesforceJsonSerializer customSerializer = new SalesforceJsonSerializer(modifiedFieldsByClass);
+		String serializedDatabean = customSerializer.serialize(databean);
+		httpClient.patch(url, serializedDatabean, false, getAuthenticationHeaders());
+		databean.snapshot();
 	}
 	
 	//TODO wrap into Op
