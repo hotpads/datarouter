@@ -6,7 +6,7 @@ com.hotpads.handler.BaseLocalWebbapps. See references to and subclasses of
 BaseLocalWebapps for example usage.
 */%>
 <c:set var="commonNavbarHtml"
-	value="<%=getServletContext().getAttribute("commonNavbarHtml")%>"
+	value='<%=getServletContext().getAttribute("commonNavbarHtml")%>'
 	scope="request" />
 <c:if test="${isAdmin || requestScope.datarouterSession.datarouterAdmin}">
 	<div id="generic-navbar">${commonNavbarHtml}</div>
