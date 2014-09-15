@@ -2,9 +2,13 @@ package com.hotpads.salesforce;
 
 import java.lang.reflect.Type;
 import java.util.Date;
-import java.util.List;
+import java.util.TreeSet;
 
 import com.google.gson.reflect.TypeToken;
+import com.hotpads.datarouter.storage.field.BaseField.FieldColumnNameComparator;
+import com.hotpads.datarouter.storage.field.Field;
+import com.hotpads.datarouter.storage.field.imp.DateField;
+import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.salesforce.databean.SalesforceDatabean;
 import com.hotpads.salesforce.databean.SalesforceDatabeanKey;
 import com.hotpads.salesforce.dto.SalesforceQueryResult;
@@ -39,10 +43,15 @@ public class Featured_Property__c extends SalesforceDatabean{
 	public String getName(){
 		return Name;
 	}
-
+	
 	@Override
-	public List<String> getAuthorizedFields(){
-		return FeaturedPropertyField.DEFAULT_AUTHORIZED_FIELD_NAME_LIST;
+	public TreeSet<Field<?>> getFields(){
+		TreeSet<Field<?>> fields = new TreeSet<>(new FieldColumnNameComparator());
+		fields.add(new DateField("Onboarding_Featured_Date__c", Onboarding_Featured_Date__c));
+		fields.add(new DateField("Manual_Delisting_Date__c", Manual_Delisting_Date__c));
+		fields.add(new StringField("Name", Name, 0));
+		fields.add(new StringField("Property_Zillow_Account_ID__c", Property_Zillow_Account_ID__c, 0));
+		return fields;
 	}
 
 	public Date getOnboarding_Featured_Date__c(){
