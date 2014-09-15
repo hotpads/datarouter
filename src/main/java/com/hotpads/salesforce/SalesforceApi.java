@@ -93,6 +93,7 @@ public class SalesforceApi{ //TODO make a datarouter Client and a Node
 			for(D record : result.records){
 				record.setKey(new SalesforceDatabeanKey(StringTool.getStringAfterLastOccurrence("/",
 						record.getAttributes().url)));
+				record.snapshot();
 			}
 			return result.records;
 		}catch(Exception e){
