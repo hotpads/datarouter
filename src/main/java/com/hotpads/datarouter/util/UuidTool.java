@@ -8,7 +8,7 @@ import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 public class UuidTool {
 
-	public static String generateUuid() {
+	public static String generateV1Uuid() {
 		EthernetAddress addr = EthernetAddress.fromInterface();
 		TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
 		UUID uuid = uuidGenerator.generate();
