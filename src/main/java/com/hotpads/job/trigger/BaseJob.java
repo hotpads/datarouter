@@ -307,6 +307,10 @@ public abstract class BaseJob implements Job{
 		return scheduler.getTracker().get(getClass());
 	}
 	
+	public String getServerName(){
+		return serverName;
+	}
+	
 	@Override
 	public CronExpression getDefaultTrigger() {
 		try {

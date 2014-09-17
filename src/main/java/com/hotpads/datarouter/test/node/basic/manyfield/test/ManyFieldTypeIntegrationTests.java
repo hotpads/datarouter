@@ -3,12 +3,9 @@ package com.hotpads.datarouter.test.node.basic.manyfield.test;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,6 +14,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
@@ -46,8 +45,8 @@ import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
 @RunWith(Parameterized.class)
-public class ManyFieldTypeIntegrationTester{
-	private static Logger logger = LoggerFactory.getLogger(ManyFieldTypeIntegrationTester.class);
+public class ManyFieldTypeIntegrationTests{
+	private static Logger logger = LoggerFactory.getLogger(ManyFieldTypeIntegrationTests.class);
 	
 
 	@Parameters
@@ -82,7 +81,7 @@ public class ManyFieldTypeIntegrationTester{
 	/***************************** constructors **************************************/
 	
 	//runs before every @Test
-	public ManyFieldTypeIntegrationTester(String clientName, ClientType clientType, boolean sorted, boolean useFielder, 
+	public ManyFieldTypeIntegrationTests(String clientName, ClientType clientType, boolean sorted, boolean useFielder, 
 			boolean entity){
 		this.clientType = clientType;
 		this.sorted = sorted;
