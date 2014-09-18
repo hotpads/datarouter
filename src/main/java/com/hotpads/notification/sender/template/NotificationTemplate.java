@@ -9,4 +9,6 @@ public interface NotificationTemplate<T extends NotificationSender> {
 
 	void setRequests(List<NotificationRequest> requests);
 
+	void setNotificationId(String notificationId);
+
 }

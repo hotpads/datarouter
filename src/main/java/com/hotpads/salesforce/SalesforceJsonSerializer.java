@@ -3,6 +3,7 @@ package com.hotpads.salesforce;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,11 @@ import com.hotpads.util.http.client.json.GsonJsonSerializer;
 
 public class SalesforceJsonSerializer extends GsonJsonSerializer{
 
-	static final int DATE_STRING_LENGTH = 10;
+	private static final int DATE_STRING_LENGTH = 10;
+	
+	public SalesforceJsonSerializer(){
+		this(new HashMap<Class<? extends SalesforceDatabean>, List<String>>());
+	}
 	
 	public SalesforceJsonSerializer(Map<Class<? extends SalesforceDatabean>, List<String>> authorizedFields){
 		super(new GsonBuilder()
@@ -78,9 +83,8 @@ public class SalesforceJsonSerializer extends GsonJsonSerializer{
 			try{
 				if(DATE_STRING_LENGTH == json.length()){
 					return dateFormat.parse(json);					
-				}else {
-					return datetimeFormat.parse(json);					
 				}
+				return datetimeFormat.parse(json);
 			}catch (Exception e){
 				throw new JsonSyntaxException(json, e);
 			}

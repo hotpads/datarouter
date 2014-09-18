@@ -14,7 +14,7 @@ public abstract class BaseField<T> implements Field<T>{
 
 	protected java.lang.reflect.Field jField;//ignore in subclasses if more complex structure needed
 	protected String prefix;//ignore if not needed
-	protected String name;
+	protected String name;//the name of the java field
 	protected String columnName;//defaults to name if not specified
 	protected T value;//TODO move this out of the field descriptor
 	protected Boolean nullable = true;
