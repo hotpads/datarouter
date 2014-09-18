@@ -12,7 +12,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.salesforce.databean.SalesforceDatabean;
 import com.hotpads.salesforce.databean.SalesforceDatabeanKey;
 import com.hotpads.salesforce.dto.SalesforceQueryResult;
-import com.hotpads.salesforce.enums.FeaturedPropertyField;
 
 //Variable names and Databean name must be the same as Salesforce's
 public class Featured_Property__c extends SalesforceDatabean{
@@ -21,6 +20,7 @@ public class Featured_Property__c extends SalesforceDatabean{
 	private String Property_Zillow_Account_ID__c;//Blame Salesforce for this wonderful field name
 	private Date Onboarding_Featured_Date__c;
 	private Date Manual_Delisting_Date__c;
+	private String Current_Feature_Status__c;
 	private Date CreatedDate;
 		
 	public Featured_Property__c(){
@@ -44,6 +44,10 @@ public class Featured_Property__c extends SalesforceDatabean{
 		return Name;
 	}
 	
+	public void setName(String name){
+		this.Name = name;
+	}
+	
 	@Override
 	public TreeSet<Field<?>> getFields(){
 		TreeSet<Field<?>> fields = new TreeSet<>(new FieldColumnNameComparator());
@@ -51,6 +55,8 @@ public class Featured_Property__c extends SalesforceDatabean{
 		fields.add(new DateField("Manual_Delisting_Date__c", Manual_Delisting_Date__c));
 		fields.add(new StringField("Name", Name, 0));
 		fields.add(new StringField("Property_Zillow_Account_ID__c", Property_Zillow_Account_ID__c, 0));
+		fields.add(new StringField("Current_Feature_Status__c", Current_Feature_Status__c, 0));
+
 		return fields;
 	}
 
@@ -76,6 +82,14 @@ public class Featured_Property__c extends SalesforceDatabean{
 
 	public void setCreatedDate(Date createdDate){
 		CreatedDate = createdDate;
+	}
+
+	public String getCurrent_Feature_Status__c(){
+		return Current_Feature_Status__c;
+	}
+
+	public void setCurrent_Feature_Status__c(String current_Feature_Status__c){
+		Current_Feature_Status__c = current_Feature_Status__c;
 	}
 	
 }

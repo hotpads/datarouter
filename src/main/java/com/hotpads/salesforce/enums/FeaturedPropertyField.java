@@ -7,7 +7,8 @@ import java.util.List;
 public enum FeaturedPropertyField{
 	PROPERTY_ZILLOW_ACCOUNT_ID("Property_Zillow_Account_ID__c",false),
 	ONBOARDING_FEATURED_DATE("Onboarding_Featured_Date__c",true),
-	MANUAL_DELISTING_DATE("Manual_Delisting_Date__c",true);
+	MANUAL_DELISTING_DATE("Manual_Delisting_Date__c",true),
+	CURRENT_FEATURE_STATUS("Current_Feature_Status__c",false);
 	
 	
 	public static final List<String> DEFAULT_AUTHORIZED_FIELD_NAME_LIST =
