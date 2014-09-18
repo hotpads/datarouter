@@ -6,7 +6,7 @@ public enum FeaturedPropertyCurrentFeatureStatus{
 	FEATURED("Featured"),
 	EXPIRED("Expired");
 	
-	String displayName;
+	private String displayName;
 	
 	FeaturedPropertyCurrentFeatureStatus(String displayName){
 		this.displayName = displayName;
@@ -14,10 +14,6 @@ public enum FeaturedPropertyCurrentFeatureStatus{
 
 	public String getDisplayName(){
 		return displayName;
-	}
-
-	public void setDisplayName(String displayName){
-		this.displayName = displayName;
 	}
 	
 }
