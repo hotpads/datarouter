@@ -20,7 +20,7 @@
 			</tr>
 			<tr>
 				<td>Password:</td>
-				<td><input name="${authenticationConfig.passwordParam}" required/></td>
+				<td><input type="password" name="${authenticationConfig.passwordParam}" required/></td>
 			</tr>
 			<tr>
 				<td>Roles:</td>
