@@ -97,7 +97,7 @@ public class SalesforceApi{ //TODO make a datarouter Client and a Node
 			}
 			return result.records;
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("",e);
 			return null;
 		}
 	}
