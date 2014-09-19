@@ -91,7 +91,8 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
 		for(int i = offset; i < bytes.length; ++i){
-			if(bytes[i] == StringField.SEPARATOR){ return i - offset + 1;// plus 1 for the separator
+			if(bytes[i] == StringField.SEPARATOR){ 
+				return i - offset + 1;// plus 1 for the separator
 			}
 		}
 		int numBytes = bytes.length - offset;
@@ -111,6 +112,9 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 	@Override
 	public E fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
 		int lengthIncludingSeparator = numBytesWithSeparator(bytes, offset);
+		if(lengthIncludingSeparator <= 0){
+			throw new RuntimeException("lengthIncludingSeparator="+lengthIncludingSeparator+", but should be >= 1");
+		}
 		boolean lastByteIsSeparator = bytes[offset + lengthIncludingSeparator - 1] == SEPARATOR;
 		int lengthWithoutSeparator = lengthIncludingSeparator;
 		if(lastByteIsSeparator){
