@@ -2,7 +2,8 @@ package com.hotpads.datarouter.op.executor.impl;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.ConnectionClient;
@@ -13,11 +14,10 @@ import com.hotpads.datarouter.op.executor.ClientExecutor;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 
 public abstract class BaseClientExecutor<T>
 implements ClientExecutor{
-	private static Logger logger = Logger.getLogger(BaseClientExecutor.class);
+	private static Logger logger = LoggerFactory.getLogger(BaseClientExecutor.class);
 
 	private DataRouterContext drContext;
 	private ClientOp<T> parallelClientOp;
@@ -67,7 +67,7 @@ implements ClientExecutor{
 //				logger.warn("releaseConnection "+handle);
 				DRCounters.incSuffixClient(connectionClient.getType(), "releaseConnection", connectionClient.getName());
 			}catch(Exception e){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("", e);
 				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF SINGLE CONNECTION, handle now=:"
 						+connectionClient.getExistingHandle(), e);
 			}

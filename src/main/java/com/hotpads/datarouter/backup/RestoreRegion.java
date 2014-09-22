@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
@@ -24,7 +25,7 @@ import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> implements Callable<Void>{
-	protected static Logger logger = Logger.getLogger(RestoreRegion.class);
+	protected static Logger logger = LoggerFactory.getLogger(RestoreRegion.class);
 	
 	protected static final Config CONFIG_FAST_PUT_MULTI = new Config()
 			.setNumAttempts(20)

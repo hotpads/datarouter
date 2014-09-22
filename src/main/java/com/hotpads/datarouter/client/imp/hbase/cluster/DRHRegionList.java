@@ -15,13 +15,16 @@ import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.HServerLoad.RegionLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.client.HTable;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.CallableTool;
@@ -31,18 +34,19 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
 public class DRHRegionList{
-	Logger logger = Logger.getLogger(DRHRegionList.class);
+	private static final Logger logger = LoggerFactory.getLogger(DRHRegionList.class);
 
 	public static final Integer BUCKETS_PER_NODE = 1000;
 
-	protected DRHServerList servers;
-	protected String tableName;
-	protected Node<?,?> node;
-	protected List<DRHRegionInfo<?>> regions;
-	protected Class<? extends ScatteringPrefix> scatteringPrefixClass;
-	protected BaseHBaseRegionBalancer balancerStrategy;
-	protected Map<DRHRegionInfo<?>,ServerName> targetServerNameByRegion;
-	protected DRHCompactionInfo compactionInfo;
+	private DRHServerList servers;
+	private String tableName;
+	private Node<?,?> node;
+	private List<DRHRegionInfo<?>> regions;
+	private Class<? extends ScatteringPrefix> scatteringPrefixClass;
+	private EntityPartitioner<?> entityPartitioner;
+	private BaseHBaseRegionBalancer balancerStrategy;
+	private Map<DRHRegionInfo<?>,ServerName> targetServerNameByRegion;
+	private DRHCompactionInfo compactionInfo;
 
 	@SuppressWarnings("unchecked")
 	public DRHRegionList(HBaseClient client, DRHServerList servers, String tableName, Configuration config,
@@ -53,6 +57,10 @@ public class DRHRegionList{
 		this.compactionInfo = compactionInfo;
 		this.regions = ListTool.create();
 		this.scatteringPrefixClass = node.getFieldInfo().getScatteringPrefixClass();
+		if(node.getFieldInfo().isEntity()){
+			HBaseSubEntityReaderNode subEntityNode = (HBaseSubEntityReaderNode)node;
+			this.entityPartitioner = subEntityNode.getEntityFieldInfo().getEntityPartitioner();
+		}
 		
 		//TODO do less in constructor
 		Class<PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
@@ -76,14 +84,14 @@ public class DRHRegionList{
 				HServerLoad hServerLoad = servers.getHServerLoad(serverName);
 				regions.add(new DRHRegionInfo(regionNum++, tableName, primaryKeyClass, 
 						hRegionInfo, serverName, hServerLoad,
-						this, regionLoad, compactionInfo));
+						node, regionLoad, compactionInfo));
 			}catch(RuntimeException e){
 				logger.warn("couldn't build DRHRegionList for region:"+hRegionInfo.getEncodedName());
 				throw e;
 			}
 		}
 		Collections.sort(regions);//ensure sorted for getRegionsSorted
-		this.balancerStrategy = balancerStrategy.init(scatteringPrefixClass, servers, this);
+		this.balancerStrategy = balancerStrategy.init(scatteringPrefixClass, entityPartitioner, servers, this);
 		this.targetServerNameByRegion = CallableTool.callUnchecked(balancerStrategy);
 		balancerStrategy.assertRegionCountsConsistent();
 		for(DRHRegionInfo<?> drhRegionInfo : regions){
@@ -96,9 +104,9 @@ public class DRHRegionList{
 		HTable hTable = null;
 		try{
 			hTable = new HTable(config, tableName);
-			logger.warn("got table "+tableName);
+//			logger.warn("got table "+tableName);
 			Map<HRegionInfo,ServerName> serverNameByHRegionInfo = hTable.getRegionLocations();
-			logger.warn("got hTable.getRegionLocations()");
+//			logger.warn("got hTable.getRegionLocations()");
 			return serverNameByHRegionInfo;
 		}catch(IOException e){
 			throw new DataAccessException(e);

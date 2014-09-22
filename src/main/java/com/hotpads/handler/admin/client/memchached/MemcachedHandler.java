@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
+
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClientImp;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -34,7 +35,7 @@ public class MemcachedHandler extends BaseHandler {
 			stats = paramsRouter.getClient().getSpyClient().getStats();
 			mav.put("memcachedStats", stats);
 		} catch (MemcachedStateException e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 
 		return mav;

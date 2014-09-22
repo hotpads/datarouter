@@ -1,18 +1,42 @@
 package com.hotpads.datarouter.node.factory;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.node.Node;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
+import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.entity.Entity;
+import com.hotpads.datarouter.storage.key.entity.EntityKey;
+import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 public class NodeFactory{
-	static Logger logger = Logger.getLogger(NodeFactory.class);
+static Logger logger = LoggerFactory.getLogger(NodeFactory.class);
+	
+	/********************* pass any params *****************/
+	
+	public static <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>> 
+	N create(NodeParams<PK,D,F> params){
+		String clientName = params.getClientName();
+		ClientType clientType = params.getRouter().getClientOptions().getClientTypeInstance(clientName);
+		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
+		N node = (N)clientType.createNode(params);
+		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+	}
+	
+	
+	/*************** simple helpers *********************/
 	
 	//minimum required fields
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> 
@@ -27,10 +51,10 @@ public class NodeFactory{
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
 	N create(//4 args
-		String clientName, 
-		Class<D> databeanClass, 
-		Class<F> fielderClass,
-		DataRouter router){
+			String clientName, 
+			Class<D> databeanClass, 
+			Class<F> fielderClass,
+			DataRouter router){
 		return create(clientName, databeanClass, fielderClass, null, router);
 	}
 	
@@ -42,16 +66,12 @@ public class NodeFactory{
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
 			Integer schemaVersion,
-			DataRouter router){		
-		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
-		
+			DataRouter router){				
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
 				.withFielder(fielderClass)
 				.withSchemaVersion(schemaVersion);
-		N node = (N)clientType.createNode(paramsBuilder.build());
-		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+		return create(paramsBuilder.build());
 	}
 	
 	
@@ -77,16 +97,46 @@ public class NodeFactory{
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
 			DataRouter router){
-		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
-		
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
 				.withFielder(fielderClass)
 				.withHibernateTableName(tableName, entityName);
-		N node = (N)clientType.createNode(paramsBuilder.build());
-		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+		return create(paramsBuilder.build());
 	}
+	
+	
+	/***************** entity ***************************/
+
+	public static <EK extends EntityKey<EK>,E extends Entity<EK>,
+			PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
+	N subEntityNode(//specify entityName and entityNodePrefix
+			DataRouter router,
+			EntityNodeParams<EK,E> entityNodeParams,
+			String clientName,
+//			String parentName,
+//			Class<EK> entityKeyClass,//TODO can we do without this?  i couldn't figure out how
+//			Class<? extends EntityPartitioner<EK>> entityPartitionerClass,
+			Class<D> databeanClass, 
+			Class<F> fielderClass,
+//			Class<E> entityClass,
+//			String entityName,
+			String entityNodePrefix
+			){
+//		EntityNodeParams<EK,E> entityNodeParams = new EntityNodeParams<EK,E>(null, entityKeyClass, entityClass,
+//				entityPartitionerClass, entityName);
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
+				.withClientName(clientName)
+				.withParentName(entityNodeParams.getNodeName())
+				.withFielder(fielderClass)
+				.withEntity(entityNodeParams.getEntityTableName(), entityNodePrefix);
+		NodeParams<PK,D,F> nodeParams = paramsBuilder.build();
+//		return create(paramsBuilder.build());
+		ClientType clientType = nodeParams.getRouter().getClientOptions().getClientTypeInstance(clientName);
+		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
+		N node = (N)clientType.createSubEntityNode(entityNodeParams, nodeParams);
+		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+	}	
 	
 	
 	/*************** baseDatabeanClass ********************/
@@ -97,13 +147,9 @@ public class NodeFactory{
 			Class<D> databeanClass, 
 			Class<? super D> baseDatabeanClass,
 			DataRouter router){
-		ClientType clientType = router.getClientOptions().getClientTypeInstance(clientName);
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
-		
 		NodeParamsBuilder<PK,D,?> paramsBuilder = new NodeParamsBuilder(router, databeanClass)
 				.withClientName(clientName)
 				.withBaseDatabean(baseDatabeanClass);
-		N node = (N)clientType.createNode(paramsBuilder.build());
-		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
+		return create(paramsBuilder.build());
 	}
 }

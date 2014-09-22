@@ -14,19 +14,35 @@
 			</a>
 			<div class="nav-collapse collapse">
 				<ul class="nav" role="navigation">
-					<li><a href="${contextPath}/datarouter/routers" title="List all the routers">List Routers</a></li>
+					<li>
+						<a href="${contextPath}/datarouter/routers" title="List all the routers">List Routers</a>
+					</li>
 					<li class="dropdown">
 						<a href="#" title="Settings" id="drop" role="button" class="dropdown-toggle" data-toggle="dropdown">
 							Settings
 							<b class="caret"></b>
 						</a>
 						<ul class="dropdown-menu" role="menu" aria-labelledby="drop">
-							<li data-role="presentation"><a data-role="menuitem" href="${contextPath}/datarouter/settings?submitAction=browseSettings" title="Browse settings">Browse settings</a></li>
-							<li data-role="presentation"><a data-role="menuitem" href="${contextPath}/datarouter/settings" title="All settings">All settings</a></li>
+							<li data-role="presentation">
+								<a data-role="menuitem" href="${contextPath}/datarouter/settings?submitAction=browseSettings" title="Browse settings">Browse settings</a>
+							</li>
+							<li data-role="presentation">
+								<a data-role="menuitem" href="${contextPath}/datarouter/settings" title="All settings">All settings</a>
+							</li>
 						</ul>
 					</li>
-					<li><a href="${contextPath}/datarouter/stackTraces" title="See the strackTraces of this server">StackTraces</a></li>
-					<li><a href="${contextPath}/datarouter/databeanGenerator" title="Databean generator">Databean Generator</a></li>
+					<li>
+						<a href="${contextPath}/datarouter/stackTraces" title="See the strackTraces of this server">StackTraces</a>
+					</li>
+					<li>
+						<a href="${contextPath}/datarouter/databeanGenerator" title="Databean generator">Databean Generator</a>
+					</li>
+					<li>
+						<a href="${contextPath}/datarouter/logging">Logging</a>
+					</li>
+					<li>
+						<a href="${contextPath}/datarouter/memory">Memory</a>
+					</li>
 				</ul>
 			</div>
 		</div>

@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.ClusterStatus;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -22,9 +24,9 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.ipc.HMasterInterface;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Merge;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
 import com.hotpads.datarouter.client.imp.hbase.balancer.HBaseBalancerFactory;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
@@ -41,15 +43,15 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
+import com.hotpads.util.core.concurrent.ThreadTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HBaseHandler extends BaseHandler {
-	protected Logger logger = Logger.getLogger(getClass());
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	public static final String
 		PARAM_tableName = "tableName", 
@@ -242,7 +244,7 @@ public class HBaseHandler extends BaseHandler {
 					}
 					admin.modifyTable(StringByteTool.getUtf8Bytes(routerParams.getTableName()), table);
 				}catch(Exception e){
-					logger.warn(ExceptionTool.getStackTraceAsString(e));
+					logger.warn("", e);
 				}finally{
 					admin.enableTable(routerParams.getTableName());
 				}
@@ -284,7 +286,7 @@ public class HBaseHandler extends BaseHandler {
 				}
 				admin.modifyColumn(routerParams.getTableName(), column);
 			}catch(Exception e){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("", e);
 			}finally{
 				admin.enableTable(routerParams.getTableName());
 			}
@@ -305,6 +307,7 @@ public class HBaseHandler extends BaseHandler {
 
 	@Handler
 	protected Mav moveRegionsToCorrectServer(){
+		int pauseBetweenRegionsMs = params.optionalInteger("pauseBetweenRegionsMs", 500);
 		initialize();
 		int counter = 0;
 		for(DRHRegionInfo<?> region : regionList.getRegions()){
@@ -312,7 +315,7 @@ public class HBaseHandler extends BaseHandler {
 				++counter;
 				PhaseTimer timer = new PhaseTimer("move " + counter + " of " + routerParams.getTableName());
 				String encodedRegionNameString = region.getRegion().getEncodedName();
-				String destinationServer = region.getConsistentHashServerName().getHostname();
+				String destinationServer = region.getConsistentHashServerName().getServerName();
 				try{
 					routerParams.getClient().getHBaseAdmin().move(Bytes.toBytes(encodedRegionNameString),
 							Bytes.toBytes(destinationServer));
@@ -320,8 +323,9 @@ public class HBaseHandler extends BaseHandler {
 					throw new RuntimeException(e);
 				}
 				logger.warn(timer.add("HBase moved region " + encodedRegionNameString + " to server "
-						+ destinationServer));
+						+ destinationServer).toString());
 			}
+			ThreadTool.sleep(pauseBetweenRegionsMs);
 		}
 
 		// mav.put("message-update", "HBase regions moved to correct server");
@@ -347,7 +351,7 @@ public class HBaseHandler extends BaseHandler {
 				throw new RuntimeException(e);
 			}
 			logger.warn(timer.add("HBase moved region " + encodedRegionNameString + " to server "
-					+ serverName));
+					+ serverName).toString());
 		}
 		return new MessageMav("moved regions:"+encodedRegionNameStrings);
 	}
@@ -450,7 +454,7 @@ public class HBaseHandler extends BaseHandler {
 			DRHRegionInfo<?> regionA = regionList.getRegionByEncodedName(encodedRegionNameStrings.get(i));
 			if (regionA == null) {
 				logger.warn(timer.add("couldn't find " + routerParams.getTableName() + " region "
-						+ encodedRegionNameStrings.get(i)));
+						+ encodedRegionNameStrings.get(i)).toString());
 				continue;
 			}
 			DRHRegionInfo<?> regionB = regionList.getRegionAfter(encodedRegionNameStrings.get(i));
@@ -462,7 +466,7 @@ public class HBaseHandler extends BaseHandler {
 						regionB.getRegion().getRegionNameAsString() });
 				logger.warn(timer.add("merged "
 						+ regionA.getRegion().getRegionNameAsString() + " and "
-						+ regionB.getRegion().getRegionNameAsString()));
+						+ regionB.getRegion().getRegionNameAsString()).toString());
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}

@@ -123,6 +123,7 @@
 						<th>reads</th>
 						<th>writes</th>
 						<th>next major compaction</th>
+						<th>partition</th>
 						<th>startKey</th>
 						<th>endKey</th>
 						<th>id</th>
@@ -152,6 +153,7 @@
 							<td class="right">${region.load.readRequestsCount}</td>
 							<td class="right">${region.load.writeRequestsCount}</td>
 							<td class="">${region.compactionScheduler.nextCompactTimeFormatted}</td>
+							<td>${region.partition}</td>
 							<td><c:if test="${not empty region.startKey}">${region.startKey.persistentString}</c:if></td>
 							<td><c:if test="${not empty region.endKey}">${region.endKey.persistentString}</c:if></td>
 							<td class="right">${region.region.regionId}</td>

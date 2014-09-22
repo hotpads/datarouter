@@ -11,7 +11,8 @@ import org.apache.hadoop.hbase.ClusterStatus;
 import org.apache.hadoop.hbase.HServerLoad;
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -21,7 +22,7 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 
 public class DRHServerList{
-	Logger logger = Logger.getLogger(DRHServerList.class);
+	Logger logger = LoggerFactory.getLogger(DRHServerList.class);
 
 	protected List<DRHServerInfo> servers;
 	protected List<ServerName> serverNames;

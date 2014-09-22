@@ -7,16 +7,14 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.log4j.Logger;
-
-import com.hotpads.util.core.ExceptionTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataRouterEmailTool{
-	protected static Logger logger = Logger.getLogger(DataRouterEmailTool.class);
+	protected static Logger logger = LoggerFactory.getLogger(DataRouterEmailTool.class);
 	
 	protected static Properties fMailServerConfig = new Properties();
 
@@ -60,7 +58,7 @@ public class DataRouterEmailTool{
 			message.setText(body);
 			Transport.send(message);
 		}catch(MessagingException ex){
-			logger.error(ExceptionTool.getStackTraceAsString(ex));
+			logger.error("", ex);
 		}
 	}
 	
@@ -78,7 +76,7 @@ public class DataRouterEmailTool{
 		try {
 			sendHtmlEmail(fromEmail, toEmail, subject, body);
 		} catch (MessagingException e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 	}
 
@@ -94,7 +92,7 @@ public class DataRouterEmailTool{
 			message.setText(body);
 			Transport.send(message);
 		}catch(MessagingException ex){
-			logger.error(ExceptionTool.getStackTraceAsString(ex));
+			logger.error("", ex);
 		}
 	}
 

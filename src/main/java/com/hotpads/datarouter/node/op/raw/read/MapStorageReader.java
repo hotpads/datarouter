@@ -18,7 +18,6 @@ extends NodeOps<PK,D>
 		OP_exists = "exists",
 		OP_get = "get",
 		OP_getMulti = "getMulti",
-		OP_getAll = "getAll",
 		OP_getKeys = "getKeys";
 	
 	@Deprecated//just check if get!=null

@@ -3,11 +3,9 @@ package com.hotpads.datarouter.test.node.basic.manyfield.test;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,6 +14,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
@@ -45,18 +45,23 @@ import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
 @RunWith(Parameterized.class)
-public class ManyFieldTypeIntegrationTests {
-	private static Logger logger = Logger.getLogger(ManyFieldTypeIntegrationTests.class);
+public class ManyFieldTypeIntegrationTests{
+	private static Logger logger = LoggerFactory.getLogger(ManyFieldTypeIntegrationTests.class);
 	
 
 	@Parameters
 	public static Collection<Object[]> parameters(){
 		List<Object[]> params = ListTool.createArrayList();
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, true, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, true});
 		return params;
 	}
 	
@@ -76,10 +81,11 @@ public class ManyFieldTypeIntegrationTests {
 	/***************************** constructors **************************************/
 	
 	//runs before every @Test
-	public ManyFieldTypeIntegrationTests(String clientName, ClientType clientType, boolean sorted){
+	public ManyFieldTypeIntegrationTests(String clientName, ClientType clientType, boolean sorted, boolean useFielder, 
+			boolean entity){
 		this.clientType = clientType;
 		this.sorted = sorted;
-		this.router = new SortedBasicNodeTestRouter(clientName, getClass());
+		this.router = new SortedBasicNodeTestRouter(clientName, getClass(), useFielder, entity);
 		this.mapNode = router.manyFieldTypeBean();
 		if(sorted){
 			this.sortedNode = BaseDataRouter.cast(mapNode);

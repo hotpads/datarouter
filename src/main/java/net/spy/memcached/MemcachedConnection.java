@@ -175,7 +175,7 @@ public final class MemcachedConnection extends SpyObject {
 						try {
 							handleIO(sk);
 						} catch (CancelledKeyException e) {
-							getLogger().error(ExceptionTool.getStackTraceAsString(e));
+							getLogger().error("", e);
 						}
 					} else {
 						queueReconnect((MemcachedNode)sk.attachment());

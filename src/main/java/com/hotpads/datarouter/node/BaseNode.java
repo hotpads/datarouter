@@ -2,7 +2,8 @@ package com.hotpads.datarouter.node;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -18,7 +19,7 @@ public abstract class BaseNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
 implements Node<PK,D>{
-	protected Logger logger = Logger.getLogger(getClass());
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private DataRouterContext drContext;
 	private DataRouter router;
@@ -31,14 +32,14 @@ implements Node<PK,D>{
 	public BaseNode(NodeParams<PK,D,F> params){
 		this.drContext = params.getRouter().getContext();
 		this.router = params.getRouter();
-		this.id = new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params.getDatabeanClass(), router.getName(), 
-				null, null, null);
 		try{
 			this.fieldInfo = new DatabeanFieldInfo<PK,D,F>(getName(), params);
 		}catch(Exception probablyNoPkInstantiated){
 			throw new IllegalArgumentException("could not instantiate "+getName()+" Check that the primary key is " +
 					"instantiated in the databean constructor.", probablyNoPkInstantiated);
 		}
+		//this default id is frequently overridden
+		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params, fieldInfo.getExplicitNodeName()));
 	}
 	
 	@Override
@@ -62,6 +63,7 @@ implements Node<PK,D>{
 	}
 	
 	protected void setId(NodeId<PK,D,F> id){
+//		logger.warn("setId:"+id.getName());
 		this.id = id;
 	}
 	
@@ -90,7 +92,7 @@ implements Node<PK,D>{
 	}
 	
 	@Override
-	public DatabeanFieldInfo<PK,D,?> getFieldInfo(){
+	public DatabeanFieldInfo<PK,D,F> getFieldInfo(){
 		return fieldInfo;
 	}
 	

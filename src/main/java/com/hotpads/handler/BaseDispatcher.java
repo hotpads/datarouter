@@ -14,6 +14,8 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
 public abstract class BaseDispatcher{
+	
+	public static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
 
 	protected Injector injector;
 	protected String servletContextPath, urlPrefix, combinedPrefix;

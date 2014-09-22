@@ -2,10 +2,10 @@ package com.hotpads.datarouter.client.imp.hbase.task;
 
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.imp.hbase.node.HBasePhysicalNode;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -13,7 +13,6 @@ import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.NumberTool;
 import com.hotpads.util.datastructs.MutableString;
 
@@ -22,18 +21,19 @@ import com.hotpads.util.datastructs.MutableString;
  * at the beginning of the wrappedCall.  try to keep per-attempt variables inside the scope of wrappedCall()
  */
 public abstract class HBaseTask<V> extends TracedCallable<V>{
-	static Logger logger = Logger.getLogger(HBaseTask.class);
+	static Logger logger = LoggerFactory.getLogger(HBaseTask.class);
 	
 	protected DataRouterContext drContext;
 
 	//variables for TraceThreads and TraceSpans
 	// breaking encapsulation in favor of tracing
+	protected String clientName;
+	protected String nodeName;
 	protected String taskName;
 	protected Integer attemptNumOneBased;
 	protected Integer numAttempts;
 	protected Long timeoutMs;
 	
-	protected HBasePhysicalNode<?,?> node;
 	protected String tableName;
 	protected Config config;
 	
@@ -46,16 +46,29 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	
 	/******************** constructor ****************************/
 	
-	public HBaseTask(DataRouterContext drContext, String taskName, HBasePhysicalNode<?,?> node, Config config){
+	public HBaseTask(DataRouterContext drContext, HBaseTaskNameParams names, String taskName, Config config){
 		super("HBaseTask."+taskName);
 		this.drContext = drContext;
+		this.clientName = names.getClientName();
+		this.nodeName = names.getNodeName();
 		this.taskName = taskName;
-		this.node = node;
 		//do not set client here.  it is obtained from node in prepClientAndTableEtc(..)
-		this.tableName = node.getTableName();
+		this.tableName = names.getTableName();
 		this.config = Config.nullSafe(config);
 		this.progress = new MutableString("");
 	}
+	
+//	@Deprecated
+//	public HBaseTask(DataRouterContext drContext, String nodeName, String taskName, String tableName, Config config){
+//		super("HBaseTask."+taskName);
+//		this.drContext = drContext;
+//		this.nodeName = nodeName;
+//		this.taskName = taskName;
+//		//do not set client here.  it is obtained from node in prepClientAndTableEtc(..)
+//		this.tableName = tableName;
+//		this.config = Config.nullSafe(config);
+//		this.progress = new MutableString("");
+//	}
 	
 	@Override
 	public V wrappedCall(){
@@ -64,13 +77,13 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		progress.set("starting attemptNumOneBased:"+attemptNumOneBased);
 		boolean possiblyTarnishedHTable = false;
 		try{
-			TraceContext.startSpan(node.getName()+" "+taskName);
+			TraceContext.startSpan(nodeName+" "+taskName);
 			recordDetailedTraceInfo();
 			
 			prepClientAndTableEtc();
 
 			//do this after prepClientAndTableEtc, because client is set in there (null beforehand)
-			DRCounters.incSuffixClientNode(client.getType(), taskName, client.getName(), node.getName());
+			DRCounters.incSuffixClientNode(client.getType(), taskName, client.getName(), nodeName);
 			
 			/******************/
 			return hbaseCall(); //override this method in subclasses
@@ -78,6 +91,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			
 		}catch(Exception e){
 			possiblyTarnishedHTable = true;
+			logger.warn("rethrowing "+e.getClass().getSimpleName()+" as DataAccessException", e);
 			throw new DataAccessException(e);
 		}finally{
 			progress.set("starting finally block attemptNumOneBased:"+attemptNumOneBased);
@@ -85,8 +99,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 				try{
 					managedResultScanner.close();
 				}catch(Exception e){
-					logger.warn("couldn't close ResultScanner");
-					logger.warn(ExceptionTool.getStackTraceAsString(e));
+					logger.warn("couldn't close ResultScanner", e);
 				}
 			}
 			if(hTable==null){
@@ -124,7 +137,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	protected void prepClientAndTableEtc(){
 		//get a fresh copy of the client
 		Preconditions.checkState(client==null);//make sure we cleared this from the previous attempt
-		client = node.getClient();//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
+		client = (HBaseClient)drContext.getClientPool().getClient(clientName);//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
 		Preconditions.checkNotNull(client);
 		progress.set("got client attemptNumOneBased:"+attemptNumOneBased);
 		
@@ -143,12 +156,12 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	
 	/******************************* get/set ********************************************/
 	
+	public String getNodeName(){
+		return nodeName;
+	}
+	
 	public String getTaskName(){
 		return taskName;
-	}
-
-	public HBasePhysicalNode<?,?> getNode(){
-		return node;
 	}
 
 	public String getTableName(){
@@ -181,6 +194,10 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 
 	public DataRouterContext getDrContext(){
 		return drContext;
+	}
+
+	public String getClientName(){
+		return clientName;
 	}
 	
 	

@@ -9,7 +9,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
@@ -27,7 +28,7 @@ import com.hotpads.util.core.concurrent.FutureTool;
 
 public class ParallelSchemaUpdate 
 implements Callable<Void>{
-	private static Logger logger = Logger.getLogger(ParallelSchemaUpdate.class);
+	private static Logger logger = LoggerFactory.getLogger(ParallelSchemaUpdate.class);
 	
 	/************ static fields *******************/
 	
@@ -113,7 +114,7 @@ implements Callable<Void>{
 		for(String update : IterableTool.nullSafe(printedSchemaUpdates)){
 			body.append(update + "\n\n");
 		}
-		DataRouterEmailTool.sendEmail("schemaupdate@hotpads.com", drContext.getAdministratorEmail(), subject, 
+		DataRouterEmailTool.sendEmail("tech+schemaupdate@hotpads.com", drContext.getAdministratorEmail(), subject, 
 				body.toString());
 	}
 }

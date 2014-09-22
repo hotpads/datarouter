@@ -1,8 +1,12 @@
 package com.hotpads.setting;
 
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import java.util.List;
 
-public enum StandardServerType implements ServerType<StandardServerType>{
+import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.util.core.web.HTMLSelectOptionBean;
+
+public enum StandardServerType implements ServerType, StringEnum<StandardServerType>{
 	
 	UNKNOWN(ServerType.UNKNOWN),
 	ALL(ServerType.ALL),
@@ -16,18 +20,18 @@ public enum StandardServerType implements ServerType<StandardServerType>{
 	}
 
 	@Override
-	public String getPersistentString() {
+	public List<HTMLSelectOptionBean> getHTMLSelectOptionsVarNames(){
+		return null;
+	}
+
+	@Override
+	public StandardServerType fromPersistentString(String required){
+		return DataRouterEnumTool.getEnumFromString(values(), required, null);
+	}
+
+	@Override
+	public String getPersistentString(){
 		return persistentString;
 	}
-	
-	public static StandardServerType fromPersistentStringStatic(String s){
-		return DataRouterEnumTool.getEnumFromString(values(), s, null);
-	}
-	
-	@Override
-	public StandardServerType fromPersistentString(String s) {
-		return fromPersistentStringStatic(s);
-	}
-	
-	
+
 }

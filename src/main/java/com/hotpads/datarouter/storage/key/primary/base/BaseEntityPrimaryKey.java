@@ -6,12 +6,11 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
 @SuppressWarnings("serial") 
-public abstract class BaseEntityPrimaryKey<EK extends EntityKey<EK>,PK extends PrimaryKey<PK>>
+public abstract class BaseEntityPrimaryKey<EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>>
 extends BasePrimaryKey<PK>
 implements EntityPrimaryKey<EK,PK>
 {

@@ -17,7 +17,8 @@ import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
@@ -31,7 +32,7 @@ import com.hotpads.util.core.collections.Pair;
 
 @Singleton
 public class ParallelApiCaller {
-	private static Logger logger = Logger.getLogger(ParallelApiCaller.class);
+	private static Logger logger = LoggerFactory.getLogger(ParallelApiCaller.class);
 
 	private static final int QUEUE_CAPACITY = 4096;
 	private static final long FLUSH_PERIOD_MS = 1000;
@@ -48,18 +49,21 @@ public class ParallelApiCaller {
 	public ParallelApiCaller(NotificationApiClient notificationApiClient, DatarouterNotificationSettings notificationSettings, 
 			ExceptionHandlingConfig exceptionHandlingConfig) {
 		this.notificationApiClient = notificationApiClient;
-		this.queue = new LinkedBlockingQueue<Pair<NotificationRequest, ExceptionRecord>>(QUEUE_CAPACITY);
+		this.queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
 		this.sender = Executors.newSingleThreadExecutor(); //singleThread
 		this.flusher = Executors.newScheduledThreadPool(1); //singleThread
 		this.flusher.scheduleWithFixedDelay(new QueueFlusher(exceptionHandlingConfig), 0, FLUSH_PERIOD_MS, TimeUnit.MILLISECONDS);
 		this.notificationSettings = notificationSettings;
 	}
 
-	public void add(NotificationRequest request, ExceptionRecord exceptionRecord){
-		queue.offer(new Pair<NotificationRequest, ExceptionRecord>(request, exceptionRecord));
+	public void add(NotificationRequest request){
+		add(request, null);
 	}
 
-	
+	public void add(NotificationRequest request, ExceptionRecord exceptionRecord){
+		queue.offer(new Pair<>(request, exceptionRecord));
+	}
+
 	private class QueueFlusher implements Runnable {
 		private static final int BATCH_SIZE = 100;
 		private ExceptionHandlingConfig exceptionHandlingConfig;
@@ -74,6 +78,7 @@ public class ParallelApiCaller {
 			while (CollectionTool.notEmpty(queue)) {
 				if (requests.size() == BATCH_SIZE) {
 					Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
+					//TODO only if type error
 					new FailedTester(future, requests, getCoef(), exceptionHandlingConfig).start();
 					requests = ListTool.create();
 				}
@@ -184,7 +189,7 @@ public class ParallelApiCaller {
 				notificationApiClient.call(requests);
 				return true;
 			} catch(Exception e) {
-				e.printStackTrace();
+				logger.error("",e);
 				return false;
 			}
 		}

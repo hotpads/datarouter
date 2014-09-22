@@ -8,7 +8,8 @@ import java.util.Map;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.http.DataRouterHttpClient;
 import com.hotpads.datarouter.config.Config;
@@ -30,7 +31,7 @@ public class HttpReaderNode<
 		F extends DatabeanFielder<PK,D>> 
 extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>{
-	protected static Logger logger = Logger.getLogger(HttpReaderNode.class);
+	protected static Logger logger = LoggerFactory.getLogger(HttpReaderNode.class);
 	
 	/******************** static ****************************/
 	

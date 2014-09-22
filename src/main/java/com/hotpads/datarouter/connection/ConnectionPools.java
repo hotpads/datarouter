@@ -7,21 +7,20 @@ import java.util.NavigableSet;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.ThrowableTool;
 
 public class ConnectionPools {
-	private static Logger logger = Logger.getLogger(ConnectionPools.class);
+	private static Logger logger = LoggerFactory.getLogger(ConnectionPools.class);
 
 	protected NavigableSet<ClientId> clientIds = SetTool.createTreeSet();
 	protected Set<String> configFilePaths = SetTool.createTreeSet();
@@ -62,7 +61,7 @@ public class ConnectionPools {
 			try {
 				this.initializeConnectionPool(name);
 			} catch (Exception e) {//maybe have caller indicate whether to catch this exception?
-				logger.error(ExceptionTool.getStackTraceAsString(e));
+				logger.error("", e);
 			}
 		}
 		return this.connectionPoolByName.get(name);
@@ -87,8 +86,7 @@ public class ConnectionPools {
 			JdbcConnectionPool connectionPool = new JdbcConnectionPool(connectionPoolName, multiProperties, writable);
 			connectionPoolByName.put(connectionPool.getName(), connectionPool);
 		}catch(Exception e){
-			logger.error("error instantiating ConnectionPool:"+connectionPoolName);
-			logger.error(ThrowableTool.getStackTraceAsString(e));
+			logger.error("error instantiating ConnectionPool:"+connectionPoolName, e);
 		}
 	}
 }

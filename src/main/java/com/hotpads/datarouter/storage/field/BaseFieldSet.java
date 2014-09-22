@@ -1,9 +1,8 @@
 package com.hotpads.datarouter.storage.field;
 
-import java.util.Iterator;
 import java.util.List;
 
-import com.hotpads.util.core.ClassTool;
+import com.hotpads.datarouter.storage.field.compare.FieldSetComparator;
 import com.hotpads.util.core.CollectionTool;
 
 @SuppressWarnings("serial")
@@ -45,24 +44,7 @@ implements FieldSet<F>{
 	 */
 	@Override
 	public int compareTo(FieldSet that){
-		//sort classes alphabetically
-		if(that==null){ return 1; }
-		if(ClassTool.differentClass(this, that)){
-			return getClass().getName().compareTo(that.getClass().getName());
-		}
-		
-		//field by field comparison
-		Iterator<Field<?>> thisIterator = this.getFields().iterator();
-		Iterator<Field<?>> thatIterator = that.getFields().iterator();
-		while(thisIterator.hasNext()){//they will have the same number of fields
-			//if we got past the class checks above, then fields should be the same and arrive in the same order
-			Field thisField = thisIterator.next();
-			Field thatField = thatIterator.next();
-			@SuppressWarnings("unchecked")
-			int diff = thisField.compareTo(thatField);
-			if(diff != 0){ return diff; }
-		}
-		return 0;
+		return FieldSetComparator.compareStatic(this, that);
 	}
 	
 	@Override

@@ -11,7 +11,8 @@ import java.util.SortedSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,8 +43,8 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 @RunWith(Parameterized.class)
-public class BackupIntegrationTests{
-	static Logger logger = Logger.getLogger(BackupIntegrationTests.class);
+public class BackupIntegrationTester{
+	static Logger logger = LoggerFactory.getLogger(BackupIntegrationTester.class);
 	
 	/****************************** client types ***********************************/
 
@@ -63,18 +64,18 @@ public class BackupIntegrationTests{
 	
 	@BeforeClass
 	public static void init() throws IOException{	
-		Class<?> cls = BackupIntegrationTests.class;
+		Class<?> cls = BackupIntegrationTester.class;
 
 		if(clientTypes.contains(HibernateClientType.INSTANCE)){
 			routerByClientType.put(
 					HibernateClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls, true, false));
 		}
 
 		if(clientTypes.contains(HBaseClientType.INSTANCE)){
 			routerByClientType.put(
 					HBaseClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls));
+					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls, true, false));
 		}
 		
 		for(BasicNodeTestRouter router : routerByClientType.values()){
@@ -131,7 +132,7 @@ public class BackupIntegrationTests{
 		return clientTypeObjectArrays;
 	}
 	
-	public BackupIntegrationTests(ClientType clientType){//passed in by junit from the "parameters"
+	public BackupIntegrationTester(ClientType clientType){//passed in by junit from the "parameters"
 		this.clientType = clientType;
 		this.router = routerByClientType.get(clientType);
 	}

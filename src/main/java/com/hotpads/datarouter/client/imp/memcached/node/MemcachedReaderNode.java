@@ -11,7 +11,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.memcached.DataRouterMemcachedKey;
@@ -30,7 +31,6 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 
 public class MemcachedReaderNode<
@@ -40,7 +40,7 @@ public class MemcachedReaderNode<
 extends BasePhysicalNode<PK,D,F>
 implements MemcachedPhysicalNode<PK,D>,
 		MapStorageReader<PK,D>{
-	protected static Logger logger = Logger.getLogger(MemcachedReaderNode.class);
+	protected static Logger logger = LoggerFactory.getLogger(MemcachedReaderNode.class);
 	
 	protected Integer databeanVersion;
 	
@@ -87,7 +87,7 @@ implements MemcachedPhysicalNode<PK,D>,
 			} catch (InterruptedException e) {						
 			} catch (ExecutionException e) {						
 			} catch (MemcachedStateException e) {
-				logger.error(ExceptionTool.getStackTraceAsString(e));
+				logger.error("", e);
 			}
 			
 			String opName = "get";
@@ -106,7 +106,7 @@ implements MemcachedPhysicalNode<PK,D>,
 				DRCounters.incSuffixClientNode(getClient().getType(), opName+" hit", getClientName(), getName());
 				return databean;
 			} catch (IOException e) {
-				logger.error(ExceptionTool.getStackTraceAsString(e));
+				logger.error("", e);
 				return null;
 			}
 	}
@@ -129,7 +129,7 @@ implements MemcachedPhysicalNode<PK,D>,
 		} catch (ExecutionException e) {					
 		} catch (InterruptedException e) {					
 		} catch (MemcachedStateException e) {
-			logger.error(ExceptionTool.getStackTraceAsString(e));
+			logger.error("", e);
 		}
 		
 		if (bytesByStringKey == null){
@@ -145,7 +145,7 @@ implements MemcachedPhysicalNode<PK,D>,
 						fieldInfo.getFieldByPrefixedName(), is, bytes.length);
 				databeans.add(databean);
 			} catch (IOException e) {
-				logger.error(ExceptionTool.getStackTraceAsString(e));
+				logger.error("", e);
 			}
 		}
 		TraceContext.appendToSpanInfo("[got "+CollectionTool.size(databeans)+"/"+CollectionTool.size(keys)+"]");

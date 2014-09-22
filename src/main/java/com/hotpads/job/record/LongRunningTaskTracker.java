@@ -1,36 +1,28 @@
 package com.hotpads.job.record;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.inject.BindingAnnotation;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.setting.Setting;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public class LongRunningTaskTracker {
 
-	private static Logger logger = Logger.getLogger(LongRunningTaskTracker.class);
-	
-	@BindingAnnotation 
-	@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD }) 
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface LongRunningTaskNode {}
-	
+	private static Logger logger = LoggerFactory.getLogger(LongRunningTaskTracker.class);
+
 	static long HEARTBEAT_PERSIST_PERIOD_MS = 2000L;
 	
-	private IndexedSortedMapStorageNode node;
+	private IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> node;
 	private LongRunningTask task;
 	private MutableBoolean interrupted;
 	private Date lastPersistedHeartbeat;
 	private Setting<Boolean> shouldSaveLongRunningTasks;
 	
-	public LongRunningTaskTracker(IndexedSortedMapStorageNode node, LongRunningTask task, Setting<Boolean> shouldSaveLongRunningTasks){
+	public LongRunningTaskTracker(IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> node,
+			LongRunningTask task, Setting<Boolean> shouldSaveLongRunningTasks){
 		this.node = node;
 		this.task = task;
 		this.interrupted = new MutableBoolean(false);
@@ -44,7 +36,9 @@ public class LongRunningTaskTracker {
 	public boolean isStopRequested(){
 		if(interrupted.get()){
 			task.setJobExecutionStatus(JobExecutionStatus.interrupted);
-			node.put(task, null);
+			if(shouldPersistHeartbeat()){
+				persist();
+			}
 		}
 		return interrupted.get();
 	}
@@ -53,14 +47,21 @@ public class LongRunningTaskTracker {
 		if(shouldPersistHeartbeat()){
 			Date heartbeat = new Date();
 			task.setHeartbeatTime(heartbeat);
-			node.put(task, null);
+			persist();
 			lastPersistedHeartbeat = heartbeat;
 		}
 		return this;
 	}
 	
+	private void persist(){
+		if(task.getKey().getTriggerTime()==null){
+			logger.error("not persisting "+task.getDatabeanName()+" tracker because of null trigger time");
+		}
+		node.put(task, null);
+	}
+	
 	private boolean shouldPersistHeartbeat(){
-		if(!shouldSaveLongRunningTasks.getValue()){
+		if((shouldSaveLongRunningTasks == null) || !shouldSaveLongRunningTasks.getValue()){
 			return false;
 		}
 		if(lastPersistedHeartbeat == null){
@@ -74,7 +75,7 @@ public class LongRunningTaskTracker {
 		return this;
 	}
 	
-	public IndexedSortedMapStorageNode getNode() {
+	public IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> getNode() {
 		return node;
 	}
 

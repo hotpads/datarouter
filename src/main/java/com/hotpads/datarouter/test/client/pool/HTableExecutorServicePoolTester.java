@@ -14,7 +14,8 @@ import java.util.concurrent.TimeoutException;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -35,7 +36,7 @@ import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.datastructs.MutableString;
 
 public class HTableExecutorServicePoolTester {
-	private static Logger logger = Logger.getLogger(HTableExecutorServicePoolTester.class);
+	private static Logger logger = LoggerFactory.getLogger(HTableExecutorServicePoolTester.class);
 
 	static final int NUM_INSERTS = 200000;
 	static final int TIMEOUT_MS = 10;
@@ -93,7 +94,7 @@ public class HTableExecutorServicePoolTester {
 //				logger.warn("progress="+tasks.get(i).progress);
 //				logger.error(ExceptionTool.getStackTraceAsString(e));
 			} catch(RuntimeException e){
-				logger.error(ExceptionTool.getStackTraceAsString(e));
+				logger.error("", e);
 			} catch(ExecutionException e){
 				if(e.getCause() instanceof DataAccessException) {
 					DataAccessException purposefulException = (DataAccessException)e.getCause();
@@ -103,10 +104,10 @@ public class HTableExecutorServicePoolTester {
 						++npes;
 					}
 				}else {
-					logger.error(ExceptionTool.getStackTraceAsString(e));
+					logger.error("", e);
 				}
 			} catch(InterruptedException e){
-				logger.error(ExceptionTool.getStackTraceAsString(e));
+				logger.error("", e);
 			}
 
 			if(i % 10000 == 0) {

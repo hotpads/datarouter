@@ -12,12 +12,11 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
+import com.hotpads.util.core.number.RandomTool;
 
 @SuppressWarnings("serial")
 @Embeddable
 public class TraceThreadKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceThreadKey>{
-	
-	private static Random random = new Random();
 	
 	
 	/***************************** fields ***************************************/
@@ -34,6 +33,11 @@ public class TraceThreadKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceThr
 	@Override
 	public TraceEntityKey getEntityKey(){
 		return new TraceEntityKey(traceId);
+	}
+	
+	@Override
+	public TraceThreadKey prefixFromEntityKey(TraceEntityKey entityKey){
+		return new TraceThreadKey(entityKey.getTraceId(), null);
 	}
 	
 	@Override
@@ -54,8 +58,7 @@ public class TraceThreadKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceThr
 		if( ! hasParent){
 			this.id = 0L;
 		}else{
-			long r = Math.abs(random.nextLong());
-			if(Long.MIN_VALUE==r || 0==r){ r = 1; }
+			long r = RandomTool.nextPositiveLong();
 			this.id = r;
 		}
 	}

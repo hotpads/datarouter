@@ -7,13 +7,14 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
 import org.quartz.CronExpression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
-import com.hotpads.handler.exception.ExceptionHandlingFilter.ExceptionRecordNode;
 import com.hotpads.handler.exception.ExceptionRecord;
+import com.hotpads.handler.exception.ExceptionRecordKey;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTaskTracker;
 import com.hotpads.job.record.LongRunningTaskType;
@@ -28,13 +29,14 @@ import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public abstract class BaseJob implements Job{
-	private static Logger baseJobLogger = Logger.getLogger(BaseJob.class);
-	protected Logger logger = Logger.getLogger(getClass());//for subclasses to use
+	private static Logger baseJobLogger = LoggerFactory.getLogger(BaseJob.class);
+	protected Logger logger = LoggerFactory.getLogger(getClass());//for subclasses to use
 
 	protected JobScheduler scheduler;
 	protected ScheduledExecutorService executor;
 	protected Setting<Boolean> processJobsSetting;
 	protected boolean isAlreadyScheduled;
+	protected boolean isAlreadyRunning;
 	protected MutableBoolean interrupted = new MutableBoolean(false);
 	protected LongRunningTaskTracker tracker;
 	protected Setting<Boolean> shouldSaveLongRunningTasks;
@@ -43,9 +45,7 @@ public abstract class BaseJob implements Job{
 	private String jobClass;
 	
 	@Inject
-	@ExceptionRecordNode
-	@SuppressWarnings("rawtypes")
-	private SortedMapStorageNode exceptionRecordNode;
+	private SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
 	@Inject
 	private ParallelApiCaller apiCaller;
 	@Inject
@@ -82,15 +82,21 @@ public abstract class BaseJob implements Job{
 	}
 
 	@Override
-	public void scheduleNextRun(){
-		Long delay = getDelayBeforeNextFireTimeMs();
-		if(delay==null){ 
-			baseJobLogger.warn("couldn't schedule "+getClass()+" because no trigger defined");
-			return;
-		}
-		if(isAlreadyScheduled){
-			baseJobLogger.warn("couldn't schedule "+getClass()+" because is already scheduled");
-			return;
+	public void scheduleNextRun(boolean immediate){
+		Long delay;
+		if(immediate){
+			delay = 0L;
+			logger.warn("scheduling " + this.getClass().getSimpleName() + " to run immediately");
+		}else{
+			delay = getDelayBeforeNextFireTimeMs();
+			if(delay==null){ 
+				baseJobLogger.warn("couldn't schedule "+getClass()+" because no trigger defined");
+				return;
+			}
+			if(isAlreadyScheduled){
+				baseJobLogger.warn("couldn't schedule "+getClass()+" because is already scheduled");
+				return;
+			}
 		}
 		Job nextJobInstance = scheduler.getJobInstance(getClass(), getTrigger().getCronExpression());
 		Long nextTriggerTime = System.currentTimeMillis() + delay;
@@ -113,28 +119,28 @@ public abstract class BaseJob implements Job{
 		}catch(RuntimeException e){
 			getFromTracker().incrementNumberOfErrors();
 			getFromTracker().setLastErrorTime(new Date());
-			baseJobLogger.warn("exception executing "+getClass());
-			baseJobLogger.warn(ExceptionTool.getStackTraceAsString(e));
+			baseJobLogger.warn("exception executing "+getClass(), e);
 			recordException(e);
 		}finally{
 			try{
-				getFromTracker().setRunning(false);
+				if(!isAlreadyRunning){
+					getFromTracker().setRunning(false);
+				}else{
+					baseJobLogger.warn("couldn't run "+getClass()+" because it is already running");
+				}
 			}catch(Exception e){
-				baseJobLogger.warn("exception in finally block");
-				baseJobLogger.warn(ExceptionTool.getStackTraceAsString(e));
+				baseJobLogger.warn("exception in finally block", e);
 			}
 			try{
 				isAlreadyScheduled = false;
-				scheduleNextRun();
+				scheduleNextRun(false);
 			}catch(Exception e){
-				baseJobLogger.warn("exception in finally block");
-				baseJobLogger.warn(ExceptionTool.getStackTraceAsString(e));
+				baseJobLogger.warn("exception in finally block", e);
 			}
 		}
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	public void recordException(Exception e) {
 		ExceptionRecord exceptionRecord = new ExceptionRecord(
 				serverName,
@@ -174,7 +180,12 @@ public abstract class BaseJob implements Job{
 			long durationMs = endTimeMs - startTimeMs;
 			scheduler.getTracker().get(this.getClass()).setLastExecutionDurationMs(durationMs);
 			scheduler.getTracker().get(this.getClass()).incrementNumberOfSuccesses();
-			baseJobLogger.warn("Finished "+getClass().getSimpleName()+" in "+durationMs+"ms");
+			Date nextJobTriggerTime = getTrigger().getNextValidTimeAfter(triggerTime);
+			String jobCompletionLog = "Finished "+getClass().getSimpleName()+" in "+durationMs+"ms";
+			if(new Date().after(nextJobTriggerTime)){
+				jobCompletionLog = jobCompletionLog + ", missed next trigger";
+			}
+			baseJobLogger.warn(jobCompletionLog);
 		}else{
 //			baseJobLogger.warn(getClass()+" shouldRun=false");
 		}
@@ -192,6 +203,10 @@ public abstract class BaseJob implements Job{
 	}
 	
 	protected boolean shouldRunInternal(){
+		if(getFromTracker().isRunning()){
+			isAlreadyRunning = true;
+			return false;
+		}
 		return processJobsSetting.getValue() && shouldRun() && BooleanTool.isFalse(getIsDisabled());
 	}
 
@@ -290,6 +305,10 @@ public abstract class BaseJob implements Job{
 	
 	protected TriggerInfo getFromTracker(){
 		return scheduler.getTracker().get(getClass());
+	}
+	
+	public String getServerName(){
+		return serverName;
 	}
 	
 	@Override

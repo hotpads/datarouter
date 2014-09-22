@@ -4,7 +4,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcCountOp;
@@ -49,7 +50,7 @@ extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>,
 		SortedStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
-	private static Logger logger = Logger.getLogger(JdbcReaderNode.class);
+	private static Logger logger = LoggerFactory.getLogger(JdbcReaderNode.class);
 	
 	/******************************* constructors ************************************/
 

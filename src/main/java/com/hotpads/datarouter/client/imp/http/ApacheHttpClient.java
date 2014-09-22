@@ -32,7 +32,8 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.hotpads.util.core.io.ReaderTool;
@@ -40,7 +41,7 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 
 public class ApacheHttpClient{
-	private static Logger logger = Logger.getLogger(ApacheHttpClient.class);
+	private static Logger logger = LoggerFactory.getLogger(ApacheHttpClient.class);
 
 	private static final String AUTH_KEY = "11a682aac58c4e802c335228c2de5adc";
 	public static final String AUTH_SECRET = "4baeb1f5b0740abb35afcee91941d11f";

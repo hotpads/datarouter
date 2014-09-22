@@ -9,13 +9,13 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
-import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
 
 /********************************* indexes ***********************************/
 
 @SuppressWarnings("serial")
 @Embeddable
-public class SortedBeanKey extends BasePrimaryKey<SortedBeanKey>{
+public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,SortedBeanKey>{
 	
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
@@ -24,9 +24,37 @@ public class SortedBeanKey extends BasePrimaryKey<SortedBeanKey>{
 	protected Integer c;
 	protected String d;
 	
-	SortedBeanKey(){
+	public static final String
+		COL_a = "a",
+		COL_b = "b",
+		COL_c = "c",
+		COL_d = "d";
+	
+	
+	/************************ entity ***********************************/
+	
+	@Override
+	public SortedBeanEntityKey getEntityKey(){
+		return new SortedBeanEntityKey(a, b);
 	}
 	
+	@Override
+	public SortedBeanKey prefixFromEntityKey(SortedBeanEntityKey ek){
+		return new SortedBeanKey(ek.getA(), ek.getB(), null, null);
+	}
+	
+	@Override
+	public List<Field<?>> getPostEntityKeyFields(){
+		return FieldTool.createList(
+				new UInt31Field(COL_c, c),
+				new StringField(COL_d, d, DEFAULT_STRING_LENGTH));
+	}
+	
+	
+	/************************ construct ********************************/
+
+	SortedBeanKey(){
+	}
 	
 	public SortedBeanKey(String a, String b, Integer c, String d){
 		this.a = a;
@@ -34,23 +62,6 @@ public class SortedBeanKey extends BasePrimaryKey<SortedBeanKey>{
 		this.c = c;
 		this.d = d;
 	}
-	
-	public static final String
-		COL_a = "a",
-		COL_b = "b",
-		COL_c = "c",
-		COL_d = "d";
-
-
-	@Override
-	public List<Field<?>> getFields(){
-		return FieldTool.createList(
-				new StringField(COL_a, a, DEFAULT_STRING_LENGTH),
-				new StringField(COL_b, b, DEFAULT_STRING_LENGTH),
-				new UInt31Field(COL_c, c),
-				new StringField(COL_d, d, DEFAULT_STRING_LENGTH));
-	}
-
 
 	
 	/***************************** get/set *******************************/

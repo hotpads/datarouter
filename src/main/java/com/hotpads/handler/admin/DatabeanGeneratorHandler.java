@@ -125,7 +125,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 			out.write(javaCode);
 			//logger.warn(javaCode);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("",e);
 			out.write("failed");
 		}
 		return null;
@@ -163,7 +163,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 			out.write(demoScript);
 			//logger.warn(demoScript);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("",e);
 			out.write("failed");
 		}
 		return null;

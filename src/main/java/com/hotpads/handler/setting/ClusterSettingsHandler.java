@@ -10,10 +10,9 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNod
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.dispatcher.DataRouterDispatcher;
 import com.hotpads.handler.mav.Mav;
-import com.hotpads.setting.DatarouterServerType;
+import com.hotpads.setting.ServerType;
 import com.hotpads.setting.Setting;
 import com.hotpads.setting.cluster.ClusterSetting;
-import com.hotpads.setting.cluster.ClusterSettingFinder.ClusterSettingNode;
 import com.hotpads.setting.cluster.ClusterSettingKey;
 import com.hotpads.setting.cluster.ClusterSettingScope;
 import com.hotpads.setting.cluster.SettingNode;
@@ -45,18 +44,13 @@ public class ClusterSettingsHandler extends BaseHandler {
 		JSP_editSettings = "/jsp/admin/datarouter/setting/editSettings.jsp",
 		JSP_browseSettings = "/jsp/admin/datarouter/setting/browseSettings.jsp";
 
-	private SettingRoot settingRoot;
-	private DatarouterServerType datarouterServerTypeTool;
-	private SortedMapStorageNode<ClusterSettingKey, ClusterSetting> clusterSettingNode;
-	
 	@Inject
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ClusterSettingsHandler(SettingRoot settingRoot, DatarouterServerType datarouterServerTypeTool, @ClusterSettingNode SortedMapStorageNode clusterSettingNode) {
-		this.settingRoot = settingRoot;
-		this.datarouterServerTypeTool = datarouterServerTypeTool;
-		this.clusterSettingNode = clusterSettingNode;
-	}
-	
+	private SettingRoot settingRoot;
+	@Inject
+	private ServerType anyServerType;
+	@Inject
+	private SortedMapStorageNode<ClusterSettingKey, ClusterSetting> clusterSettingNode;
+
 	@Override
 	protected Mav handleDefault() {
 		return edit();
@@ -76,7 +70,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 			settings = clusterSettingNode.getWithPrefix(settingPrefix, true, null);
 		}
 		mav.put(V_settings, settings);
-		mav.put("serverTypeOptions", datarouterServerTypeTool.getHTMLSelectOptionsVarNames());
+		mav.put("serverTypeOptions", anyServerType.getHTMLSelectOptionsVarNames());
 		return mav;
 	}
 	
@@ -144,7 +138,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		mav.put(V_mapListsCustomSettings, mapListsCustom);
 		mav.put(V_currentRootName, node.getName().substring(0, node.getName().indexOf('.')));
 		mav.put(V_roots, settingRoot.getRootNodes());
-		mav.put("serverTypeOptions", datarouterServerTypeTool.getHTMLSelectOptionsVarNames());
+		mav.put("serverTypeOptions", anyServerType.getHTMLSelectOptionsVarNames());
 		return mav;
 	}
 	
@@ -152,7 +146,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 	
 	protected ClusterSettingKey parseClusterSettingKeyFromParams() {
 		String name = params.required(P_name);
-		DatarouterServerType serverType = datarouterServerTypeTool.fromPersistentStringStatic(params.required(P_serverType));
+		ServerType serverType = anyServerType.fromPersistentString(params.required(P_serverType));
 		String instance = params.optional("instance", "");
 		String application = params.optional("application", "");
 		ClusterSettingScope scope = ClusterSettingScope.fromParams(serverType, instance, application);

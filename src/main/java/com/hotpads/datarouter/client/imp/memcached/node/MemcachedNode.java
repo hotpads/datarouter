@@ -17,7 +17,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.ListTool;
 
 public class MemcachedNode<
@@ -79,7 +78,7 @@ implements PhysicalMapStorageNode<PK,D>
 			try {
 				this.getClient().getSpyClient().set(key, expiration, bytes); 
 			} catch (MemcachedStateException e) {
-				logger.error("memached error on " + key + "\n" + ExceptionTool.getStackTraceAsString(e));
+				logger.error("memached error on " + key,e);
 			}
 		}
 		String opName = "putMulti";
@@ -108,7 +107,7 @@ implements PhysicalMapStorageNode<PK,D>
 			try {
 				this.getClient().getSpyClient().delete(key.getPersistentString());
 			} catch (MemcachedStateException e) {
-				logger.error(ExceptionTool.getStackTraceAsString(e));
+				logger.error("", e);
 			}
 		}
 		TraceContext.appendToSpanInfo(CollectionTool.size(keys)+"");

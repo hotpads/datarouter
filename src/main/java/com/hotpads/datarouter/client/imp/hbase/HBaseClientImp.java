@@ -2,12 +2,15 @@ package com.hotpads.datarouter.client.imp.hbase;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
@@ -15,13 +18,12 @@ import com.hotpads.datarouter.client.imp.hbase.factory.HBaseOptions;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.concurrent.NamedThreadFactory;
 import com.hotpads.util.datastructs.MutableString;
 
 public class HBaseClientImp
 extends BaseClient
 implements HBaseClient{
-	protected Logger logger = Logger.getLogger(this.getClass());
+	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	protected String name;
 	protected HBaseOptions options;
@@ -42,15 +44,13 @@ implements HBaseClient{
 		this.hBaseConfiguration = hBaseConfiguration;
 		this.hBaseAdmin = hBaseAdmin;
 		this.hTablePool = pool;
-		NamedThreadFactory threadFactory = new NamedThreadFactory(null, "HTablePool", true);
-		this.executorService = Executors.newCachedThreadPool(threadFactory);
-//			new ThreadPoolExecutor(
-//				100,
-//				100,
-//				60, //irrelevant because our coreSize=maxSize
-//				TimeUnit.SECONDS,  //irrelevant because our coreSize=maxSize
-//				new LinkedBlockingQueue<Runnable>(1<<10),
-//				new ThreadPoolExecutor.AbortPolicy());
+		this.executorService = new ThreadPoolExecutor(
+				pool.getTotalPoolSize()+10,
+				pool.getTotalPoolSize()+10,
+				60, //irrelevant because our coreSize=maxSize
+				TimeUnit.SECONDS,  //irrelevant because our coreSize=maxSize
+				new LinkedBlockingQueue<Runnable>(1),
+				new ThreadPoolExecutor.CallerRunsPolicy());
 		this.primaryKeyClassByName = primaryKeyClassByName;
 	}
 

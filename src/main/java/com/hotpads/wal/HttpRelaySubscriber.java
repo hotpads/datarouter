@@ -7,22 +7,20 @@ import java.io.InputStreamReader;
 import java.net.UnknownServiceException;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.wal.WalPosition;
 import com.hotpads.util.wal.WalSubscriber;
 import com.hotpads.util.wal.imp.BaseWalSubscriber;
 
 public class HttpRelaySubscriber extends BaseWalSubscriber{
-	protected final Log logger = LogFactory.getLog(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	/************************** fields *****************************/
 	
@@ -93,10 +91,8 @@ public class HttpRelaySubscriber extends BaseWalSubscriber{
 		        logger.debug("the response received from the post method is : " +response);
 		        reader.close();
 		        post.releaseConnection();
-		}catch(HttpException e){
-			logger.error(ExceptionTool.getStackTraceAsString(e));
 		}catch(IOException e){
-			logger.error(ExceptionTool.getStackTraceAsString(e));
+			logger.error("", e);
 		}
 		
 		logger.debug("Finished appending the messages to the target wal");

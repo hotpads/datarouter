@@ -6,7 +6,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
@@ -19,10 +20,10 @@ import com.hotpads.util.core.ExceptionTool;
 
 //consider forming base class with commonalities from MemcachedMultiAttemptTash
 public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
-	protected static Logger logger = Logger.getLogger(HBaseMultiAttemptTask.class);
+	protected static Logger logger = LoggerFactory.getLogger(HBaseMultiAttemptTask.class);
 	
-	protected static final Integer DEFAULT_NUM_ATTEMPTS = 3;
-	protected static final Long DEFAULT_TIMEOUT_MS = 10 * 1000L;
+	protected static final Integer DEFAULT_NUM_ATTEMPTS = 2;
+	protected static final Long DEFAULT_TIMEOUT_MS = 3 * 1000L;
 	
 	protected static long 
 		THROTTLE_ERROR_EMAIL_MINUTES = 5,
@@ -39,7 +40,6 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	protected DataRouterContext drContext;
 		
 	protected HBaseTask<V> task;
-	protected HBaseClient client;
 	protected ExecutorService executorService;
 	protected Config config;
 	protected Long timeoutMs;
@@ -64,10 +64,10 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		for(int i=1; i <= numAttempts; ++i){
 			try{
 				//do this client stuff here so inaccessible clients count as normal failures
-				client = task.node.getClient();
+				HBaseClient client = (HBaseClient)drContext.getClientPool().getClient(task.getClientName());
 				if(client==null){
 					Thread.sleep(timeoutMs);//otherwise will loop through numAttempts as fast as possible
-					throw new DataAccessException("client "+this.task.node.getClientName()+" not active"); 
+					throw new DataAccessException("client "+task.getClientName()+" not active"); 
 				}
 				executorService = client.getExecutorService();
 				
@@ -86,13 +86,14 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 				}catch(InterruptedException e){
 					throw new DataAccessException(e);
 				}catch(ExecutionException e){
+					logger.warn("rethrowing ExecutionException as DataAccessException", e);
 					throw new DataAccessException(e);
 				}
 			}catch(Exception attemptException){
 				finalAttempException = attemptException;
 				if(isLastAttempt(i)) {
 					logger.warn("attempt "+i+"/"+numAttempts+" failed with the following exception");
-					logger.warn(ExceptionTool.getStackTraceAsString(attemptException));
+					logger.warn("", attemptException);
 				}else {
 					logger.warn("attempt "+i+"/"+numAttempts+" failed, retrying");
 				}

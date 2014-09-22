@@ -9,19 +9,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.NoServerForRegionException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.datastructs.MutableString;
 
 @Deprecated//use HTableExecutorServicePool which pools at a lower level for less waste
 public class HTablePerTablePool implements HTablePool{
-	protected Logger logger = Logger.getLogger(getClass());
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 	
 	protected Long lastLoggedWarning = 0L;
 	
@@ -41,7 +41,7 @@ public class HTablePerTablePool implements HTablePool{
 					hTablesByName.get(name).add(new HTable(this.hBaseConfiguration, 
 							StringByteTool.getUtf8Bytes(name)));
 				}catch(NoServerForRegionException nsfre){
-					logger.error(ExceptionTool.getStackTraceAsString(nsfre));
+					logger.error("", nsfre);
 				}catch(IOException e){
 					throw new RuntimeException(e);
 				}
@@ -99,7 +99,7 @@ public class HTablePerTablePool implements HTablePool{
 				hTable.close();//flushes write buffer, and calls ExecutorService.shutdown()
 				DRCounters.incSuffixOp(HBaseClientType.INSTANCE, "connection HTable closed "+name);
 			} catch (IOException e) {
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("", e);
 			}				
 		}
 	}

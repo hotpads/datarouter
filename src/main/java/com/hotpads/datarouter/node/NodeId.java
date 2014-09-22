@@ -12,12 +12,19 @@ public class NodeId<
 		F extends DatabeanFielder<PK,D>>{
 
 	private Class<Node<PK,D>> nodeClass;
+	private NodeParams<PK,D,F> nodeParams;
 	private Class<D> databeanClass;
 	private String routerName;
 	private String clientName;
 	private String parentNodeName;
 	private String explicitName;
 	
+
+	public NodeId(Class<Node<PK,D>> nodeClass, NodeParams<PK,D,F> nodeParams, String explicitName){
+		this(nodeClass, nodeParams.getDatabeanClass(), nodeParams.getRouter().getName(), 
+				nodeParams.getClientName(), nodeParams.getParentName(), explicitName);
+		this.nodeParams = nodeParams;
+	}
 	
 	public NodeId(Class<Node<PK,D>> nodeClass, Class<D> databeanClass, String routerName, String clientName, 
 			String parentNodeName, String explicitName){
@@ -35,13 +42,19 @@ public class NodeId<
 			return explicitName;
 		}
 		
+		//example: TraceEntity.TraceSpan.TS
+//		if(nodeParams != null && StringTool.notEmpty(nodeParams.getEntityNodeName())){
+//			return nodeParams.getEntityNodeName()+"."+databeanClass.getSimpleName()+"."+nodeParams.getEntityNodePrefix();
+//		}
+		
 		//for PhysicalNodes that have a specific client.  this can distinguish a databean class between many masters,
 		// slaves, partitions, etc
 		if(StringTool.notEmpty(clientName)){
-			return clientName+"."+databeanClass.getSimpleName();
+			String parentPrefix = StringTool.isEmpty(parentNodeName) ? "" : parentNodeName + ".";
+			return parentPrefix+clientName+"."+databeanClass.getSimpleName();
 		}
 		
-		//default case where there is no clientName
+		//default case where there is no clientName (like MasterSlaveNode)
 		return databeanClass.getSimpleName()+"."+nodeClass.getSimpleName();
 	}
 }

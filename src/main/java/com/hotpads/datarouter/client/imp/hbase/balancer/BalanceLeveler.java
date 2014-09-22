@@ -14,7 +14,7 @@ import com.hotpads.util.core.MapTool;
  * D: destination
  */
 public class BalanceLeveler<I,D>{
-//	private static Logger logger = Logger.getLogger(BalanceLeveler.class);
+//	private static Logger logger = LoggerFactory.getLogger(BalanceLeveler.class);
 
 	private Collection<D> allDestinations;
 	private SortedMap<I,D> destinationByItem;

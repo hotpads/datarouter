@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.op.executor.impl;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.type.TxnClient;
@@ -17,7 +18,7 @@ import com.hotpads.util.core.ExceptionTool;
 public abstract class BaseTxnExecutor<T>
 extends BaseClientExecutor<T>
 implements TxnExecutor<T>{
-	private static Logger logger = Logger.getLogger(BaseTxnExecutor.class);
+	private static Logger logger = LoggerFactory.getLogger(BaseTxnExecutor.class);
 
 	private TxnOp<T> parallelTxnOp;
 	
@@ -71,7 +72,7 @@ implements TxnExecutor<T>{
 //				logger.warn("rollbackTxn for "+txnClient.getExistingHandle());
 				DRCounters.incSuffixClient(txnClient.getType(), "rollbackTxn", txnClient.getName());
 			}catch(Exception e){
-				logger.warn(ExceptionTool.getStackTraceAsString(e));
+				logger.warn("", e);
 				throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:"
 						+txnClient.getExistingHandle(), e);
 			}

@@ -19,14 +19,11 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.trace.key.TraceKey;
-import com.hotpads.trace.key.TraceKey.TraceKeyEntityFielder;
-import com.hotpads.trace.key.TraceKey.TraceKeyFielder;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.StringTool;
 
 @Entity
 @AccessType("field")
-@SuppressWarnings("serial")
 public class Trace extends BaseDatabean<TraceKey,Trace>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
@@ -71,12 +68,12 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 			duration = "duration";
 	}
 	
-	public static class TraceEntityFielder extends BaseDatabeanFielder<TraceKey,Trace>{
-		public TraceEntityFielder(){
+	public static class TraceFielder extends BaseDatabeanFielder<TraceKey,Trace>{
+		public TraceFielder(){
 		}
 		@Override
 		public Class<? extends Fielder<TraceKey>> getKeyFielderClass(){
-			return TraceKeyEntityFielder.class;
+			return TraceKey.class;
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(Trace d){
@@ -87,15 +84,6 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 					new StringField(Fields.params, d.params, DEFAULT_STRING_LENGTH),
 					new UInt63Field(Fields.created, d.created),
 					new UInt63Field(Fields.duration, d.duration));
-		}
-	}
-	
-	public static class TraceFielder extends TraceEntityFielder{
-		public TraceFielder(){
-		}
-		@Override
-		public Class<? extends Fielder<TraceKey>> getKeyFielderClass(){
-			return TraceKeyFielder.class;
 		}
 	}
 	

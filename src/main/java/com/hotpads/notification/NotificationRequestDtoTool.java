@@ -3,8 +3,8 @@ package com.hotpads.notification;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import com.google.inject.Singleton;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;

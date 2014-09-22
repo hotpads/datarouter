@@ -19,22 +19,26 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
 import org.apache.hadoop.hbase.io.hfile.Compression.Algorithm;
 import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientImp;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTableExecutorServicePool;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePerTablePool;
 import com.hotpads.datarouter.client.imp.hbase.pool.HTablePool;
+import com.hotpads.datarouter.client.imp.hbase.pool.HTableSharedPool;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseQueryBuilder;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.exception.UnavailableException;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
+import com.hotpads.datarouter.serialize.fieldcache.EntityFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSet;
-import com.hotpads.datarouter.storage.field.SimpleFieldSet;
+import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.util.core.ArrayTool;
@@ -43,16 +47,19 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
+import com.hotpads.util.core.collections.Twin;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HBaseSimpleClientFactory 
 implements ClientFactory{
-	Logger logger = Logger.getLogger(getClass());
+	Logger logger = LoggerFactory.getLogger(getClass());
 	
 	public static final Boolean PER_TABLE_POOL = false;//per table is less efficient
-	
+	public static final Boolean SHARED_POOL = false;//per table is less efficient
+
 	//static caches
 	public static Map<String,Configuration> CONFIG_BY_ZK_QUORUM = new ConcurrentHashMap<String,Configuration>();
 	public static Map<Configuration,HBaseAdmin> ADMIN_BY_CONFIG = new ConcurrentHashMap<Configuration,HBaseAdmin>();
@@ -121,7 +128,7 @@ implements ClientFactory{
 			
 			newClient = new HBaseClientImp(clientName, options, hBaseConfig, hBaseAdmin, 
 					result.getLeft(), result.getRight());
-			logger.warn(timer.add("done"));
+			logger.warn(timer.add("done").toString());
 //					historicClientIds.add(System.identityHashCode(newClient)+"");
 //					logger.warn("historicClientIds"+historicClientIds);
 		}catch(ZooKeeperConnectionException e){
@@ -136,7 +143,7 @@ implements ClientFactory{
 	public static final int 
 		PER_TABLE_minPoolSize = 1,//these are per-table
 		PER_TABLE_maxPoolSize = 5,
-		EXECUTOR_SERVICE_maxPoolSize = 20;
+		EXECUTOR_SERVICE_maxPoolSize = 50;
 	
 	public static final long 
 			DEFAULT_MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024,
@@ -189,7 +196,7 @@ implements ClientFactory{
 						hTable.addFamily(family);
 						byte[][] splitPoints = getSplitPoints(nodeByTableName.get(tableName));
 						if(ArrayTool.isEmpty(splitPoints)
-								|| ArrayTool.isEmpty(splitPoints[0])){
+								|| ArrayTool.isEmpty(splitPoints[0])){//a single empty byte array
 							hBaseAdmin.createTable(hTable);
 						}else{
 							//careful, as throwing strange split points in here can crash master
@@ -214,7 +221,10 @@ implements ClientFactory{
 			pool = new HTablePerTablePool(hBaseConfig, tableNames,
 					options.minPoolSize(PER_TABLE_minPoolSize),
 					PER_TABLE_maxPoolSize);
-		} else {
+		}else if(SHARED_POOL){
+			pool = new HTableSharedPool(hBaseConfig, clientName,
+					EXECUTOR_SERVICE_maxPoolSize, primaryKeyClassByName);
+		}else {
 			pool = new HTableExecutorServicePool(hBaseConfig, clientName,
 					EXECUTOR_SERVICE_maxPoolSize, primaryKeyClassByName);
 		}
@@ -230,33 +240,49 @@ implements ClientFactory{
 	 * 
 	 */
 	protected byte[][] getSplitPoints(PhysicalNode<?,?> node){
-		DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
-		ScatteringPrefix sampleScatteringPrefix = fieldInfo.getSampleScatteringPrefix();
-		if(sampleScatteringPrefix==null){ return null; }
-		List<byte[]> splitPoints = ListTool.create();
-		List<List<Field<?>>> allPrefixes = sampleScatteringPrefix.getAllPossibleScatteringPrefixes();
-		int counter = 0;
-		for(List<Field<?>> prefixFields : allPrefixes){
-			++counter;
-			FieldSet<?> prefixFieldSet = new SimpleFieldSet(prefixFields);
-			Pair<byte[],byte[]> range = HBaseQueryBuilder.getStartEndBytesForPrefix(prefixFieldSet, false);
-			if( ! isSingleEmptyByte(range.getLeft())){
-				splitPoints.add(range.getLeft());
+		if(node instanceof HBaseSubEntityReaderNode){
+			HBaseSubEntityReaderNode<?,?,?,?,?> subEntityNode = (HBaseSubEntityReaderNode<?,?,?,?,?>)node;
+			EntityFieldInfo<?,?> entityFieldInfo = subEntityNode.getEntityFieldInfo(); 
+			EntityPartitioner<?> partitioner = entityFieldInfo.getEntityPartitioner();
+			//remember to skip the first partition
+			int numSplitPoints = partitioner.getNumPartitions() - 1;
+			byte[][] splitPoints = new byte[numSplitPoints][];
+			for(int i=1; i < partitioner.getAllPrefixes().size(); ++i){
+				splitPoints[i-1] = partitioner.getPrefix(i);
 			}
-//			try{
-//				hBaseAdmin.split(StringByteTool.getUtf8Bytes(tableName), range.getLeft());
-//			}catch(Exception e){
-//				throw new RuntimeException("pre-splitting failed for table:"+tableName, e);
-//			}
-//			logger.warn("split table "+tableName+" "+counter+"/"+CollectionTool.size(allPrefixes));
+			return splitPoints;
+		}else if(node instanceof HBaseReaderNode){
+			DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
+			ScatteringPrefix sampleScatteringPrefix = fieldInfo.getSampleScatteringPrefix();
+			if(sampleScatteringPrefix==null){ return null; }
+			List<List<Field<?>>> allPrefixes = sampleScatteringPrefix.getAllPossibleScatteringPrefixes();
+			int counter = 0;
+			List<byte[]> splitPoints = ListTool.create();
+			for(List<Field<?>> prefixFields : allPrefixes){
+				++counter;
+				Twin<ByteRange> range = HBaseQueryBuilder.getStartEndBytesForPrefix(prefixFields, false);
+				if( ! isSingleEmptyByte(range.getLeft().toArray())){
+					splitPoints.add(range.getLeft().toArray());
+				}
+			}
+			return splitPoints.toArray(new byte[splitPoints.size()][]);
+		}else{
+			throw new IllegalArgumentException("Node should be one of the above two types");
 		}
-		return splitPoints.toArray(new byte[splitPoints.size()][]);
 	}
 	
 	protected boolean isSingleEmptyByte(byte[] bytes){
 		if(ArrayTool.length(bytes)!=1){ return false; }
 		return bytes[0] == Byte.MIN_VALUE;
 	}
+	
+	
+//	public static void main(String... args){
+//		List<String> emptyList = new ArrayList<>();
+//		for(String s : IterableTool.nullSafe(emptyList)){
+//			System.out.println("asdf");
+//		}
+//	}
 }
 
 

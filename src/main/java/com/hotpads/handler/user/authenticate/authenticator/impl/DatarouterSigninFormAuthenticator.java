@@ -20,7 +20,7 @@ import com.hotpads.util.core.exception.IncorrectPasswordException;
 import com.hotpads.util.core.exception.InvalidCredentialsException;
 
 public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticator{
-//	private static Logger logger = Logger.getLogger(DatarouterLoginFormAuthenticator.class);
+//	private static Logger logger = LoggerFactory.getLogger(DatarouterLoginFormAuthenticator.class);
 
 	private DatarouterAuthenticationConfig authenticationConfig;
 	private DatarouterUserNodes userNodes;

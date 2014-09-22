@@ -3,7 +3,10 @@ package com.hotpads.datarouter.storage.view;
 import java.util.HashSet;
 import java.util.Set;
 
-public enum ViewRenderingStatus {
+import com.hotpads.util.core.enums.EnumTool;
+import com.hotpads.util.core.enums.HpEnum;
+
+public enum ViewRenderingStatus implements HpEnum{
 	UNKNOWN(-1, "Unknown"),
 	NEW(9, "New"),
 	OK(10, "OK"),
@@ -35,6 +38,14 @@ public enum ViewRenderingStatus {
 		this.display = display;
 	}
 	
+	public String getDisplay() { 
+		return display; 
+	}
+	
+	public static ViewRenderingStatus fromDisplay(String display) {
+		return EnumTool.getEnumFromDisplay(values(), display, UNKNOWN);
+	}
+	
 	public Integer getPersistentInteger(){
 		return persistentInteger;
 	}
@@ -49,5 +60,8 @@ public enum ViewRenderingStatus {
 	static{
 		allQueued.add(QUEUED);
 		allQueued.add(QUEUED_LOW_PRIORITY);
+	}
+	public Integer getInteger() {
+		return persistentInteger;
 	}
 }

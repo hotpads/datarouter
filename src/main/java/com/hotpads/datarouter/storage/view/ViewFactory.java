@@ -2,7 +2,8 @@ package com.hotpads.datarouter.storage.view;
 
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -17,7 +18,7 @@ public abstract class ViewFactory<
 		D extends Databean<PK,D>,
 		UK extends UniqueKey<PK>,
 		V extends View<PK,D,UK>>{
-	protected final Logger logger = Logger.getLogger(this.getClass());
+	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 		
 	public ViewFactory(){
 	}
