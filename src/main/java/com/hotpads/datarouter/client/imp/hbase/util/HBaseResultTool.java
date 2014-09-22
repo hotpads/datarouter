@@ -102,8 +102,12 @@ public class HBaseResultTool{
 	private static void setPrimaryKeyFields(FieldSet<?> primaryKey, byte[] bytes, List<Field<?>> primaryKeyFields){
 		int byteOffset = 0;
 		for(Field<?> field : primaryKeyFields){
+			//this should not be zero, but could be if bad data leaked in.  try setting missing fields to null
 			int numBytesWithSeparator = field.numBytesWithSeparator(bytes, byteOffset);
-			Object value = field.fromBytesWithSeparatorButDoNotSet(bytes, byteOffset);
+			Object value = null;
+			if(numBytesWithSeparator > 0){
+				value = field.fromBytesWithSeparatorButDoNotSet(bytes, byteOffset);
+			}
 			field.setUsingReflection(primaryKey, value);
 			byteOffset+=numBytesWithSeparator;
 		}

@@ -76,7 +76,7 @@ public class DataRouterEmailTool{
 		try {
 			sendHtmlEmail(fromEmail, toEmail, subject, body);
 		} catch (MessagingException e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 	}
 
