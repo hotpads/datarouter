@@ -35,6 +35,8 @@ import com.hotpads.util.http.client.security.SignatureValidator;
 @Singleton
 public class HotPadsHttpClient{
 
+	private static final String CONTENT_TYPE = "Content-Type";
+	
 	private HttpClient httpClient;
 	private JsonSerializer jsonSerializer;
 	private HotPadsRetryHandler retryHandler;
@@ -86,6 +88,19 @@ public class HotPadsHttpClient{
 		return execute(request, retrySafe, null);
 	}
 	
+	public String post(String url, String stringEntity, boolean retrySafe, String contentType){
+		HttpPost request = new HttpPost(url);
+		try{
+			request.setEntity(new StringEntity(stringEntity));
+		}catch (UnsupportedEncodingException e){
+			throw new HotPadsHttpClientException(e);
+		}
+		if(contentType!=null){
+			request.setHeader(CONTENT_TYPE, contentType);
+		}
+		return execute(request, retrySafe, null);
+	}
+	
 	public <E> E post(String url, Map<String, String> data, Class<E> typeOfE, boolean retrySafe){
 		return jsonSerializer.deserialize(post(url, data, retrySafe), typeOfE);
 	}
@@ -125,12 +140,15 @@ public class HotPadsHttpClient{
 		return post(url, params, retrySafe);
 	}
 	
-	public <T,E> E post(String url, T dataTransferObjectToPost, Type typeOfDataTranferObjectExpected, boolean retrySafe){
+	public <T,E> E post(String url, T dataTransferObjectToPost, Type typeOfDataTranferObjectExpected,
+			boolean retrySafe){
 		return post(url, dataTransferObjectToPost, null, typeOfDataTranferObjectExpected, retrySafe);
 	}
 	
-	public <T,E> E post(String url, T dataTransferObjectToPost, String dataTransferObjectToPostType, Type typeOfDataTranferObjectExpected, boolean retrySafe){
-		return jsonSerializer.deserialize(post(url, dataTransferObjectToPost, retrySafe, dataTransferObjectToPostType), typeOfDataTranferObjectExpected);
+	public <T,E> E post(String url, T dataTransferObjectToPost, String dataTransferObjectToPostType,
+			Type typeOfDataTranferObjectExpected, boolean retrySafe){
+		return jsonSerializer.deserialize(post(url, dataTransferObjectToPost, retrySafe, dataTransferObjectToPostType),
+				typeOfDataTranferObjectExpected);
 	}
 	
 	/*** PATCH ***/
@@ -142,7 +160,7 @@ public class HotPadsHttpClient{
 		}catch (UnsupportedEncodingException e){
 			throw new HotPadsHttpClientException(e);
 		}
-		request.setHeader("Content-Type", "application/json");
+		request.setHeader(CONTENT_TYPE, "application/json");
 		execute(request, retrySafe, headers);
 	}
 	
