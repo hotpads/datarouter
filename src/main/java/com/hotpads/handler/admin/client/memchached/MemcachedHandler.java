@@ -35,7 +35,7 @@ public class MemcachedHandler extends BaseHandler {
 			stats = paramsRouter.getClient().getSpyClient().getStats();
 			mav.put("memcachedStats", stats);
 		} catch (MemcachedStateException e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 
 		return mav;

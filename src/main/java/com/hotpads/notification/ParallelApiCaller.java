@@ -189,7 +189,7 @@ public class ParallelApiCaller {
 				notificationApiClient.call(requests);
 				return true;
 			} catch(Exception e) {
-				e.printStackTrace();
+				logger.error("",e);
 				return false;
 			}
 		}
