@@ -52,7 +52,7 @@ public class JdbcGetIndexOp<PK extends PrimaryKey<PK>,
 		Connection connection = getConnection(mainNode.getClientName());
 		List<IE> databeans = ListTool.createArrayList();
 		try{
-			PreparedStatement ps = connection.prepareStatement(sql.toString());
+			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
 			while(rs.next()){
