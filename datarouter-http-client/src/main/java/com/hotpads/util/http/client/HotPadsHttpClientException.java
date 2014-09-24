@@ -1,27 +1,13 @@
 package com.hotpads.util.http.client;
 
-import java.io.IOException;
-import java.util.Scanner;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
-import org.apache.http.util.EntityUtils;
-
 
 @SuppressWarnings("serial")
 public class HotPadsHttpClientException extends RuntimeException{
 	
-	private int statusCode;
-	private String entity;
+	private HotPadsHttpResponse response;
 	
-	public HotPadsHttpClientException(HttpResponse response){
-		statusCode = response.getStatusLine().getStatusCode();
-		try{
-			entity = EntityUtils.toString(response.getEntity());
-		}catch (ParseException | IOException | IllegalArgumentException e){
-			throw new RuntimeException(e);
-		}
-		EntityUtils.consumeQuietly(response.getEntity());
+	public HotPadsHttpClientException(HotPadsHttpResponse response){
+		super(response.toString());
 	}
 
 	public HotPadsHttpClientException(Exception e){
@@ -29,24 +15,25 @@ public class HotPadsHttpClientException extends RuntimeException{
 	}
 	
 	public int getStatusCode(){
-		return statusCode;
+		if(response==null) return -1;
+		return response.getStatusCode();
 	}
 	
 	public String getEntity(){
-		return entity;
+		if(response==null) return null;
+		return response.getEntity();
+	}
+	
+	public HotPadsHttpResponse getResponse(){
+		return response;
 	}
 	
 	@Override
 	public String toString(){
-		String firstLine = "";
-		if(getEntity() != null){
-			Scanner scanner = new Scanner(getEntity());
-			while(scanner.hasNextLine() && firstLine.trim().isEmpty()){
-				firstLine = scanner.nextLine();
-			}
-			scanner.close();
+		if(response==null){
+			return super.toString();
 		}
-		return super.toString() + "(" + getStatusCode() + ", " + firstLine + ")";
+		return response.toString();
 	}
 
 }

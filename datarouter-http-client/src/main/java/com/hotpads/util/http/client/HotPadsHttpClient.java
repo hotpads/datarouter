@@ -180,7 +180,8 @@ public class HotPadsHttpClient{
 		try{
 			response = httpClient.execute(request);
 			if(response.getStatusLine().getStatusCode() > 300){
-				throw new HotPadsHttpClientException(response);
+				HotPadsHttpResponse hpResponse = new HotPadsHttpResponse(response);
+				throw new HotPadsHttpClientException(hpResponse);
 			}
 			if(response.getEntity() == null){
 				return "";
