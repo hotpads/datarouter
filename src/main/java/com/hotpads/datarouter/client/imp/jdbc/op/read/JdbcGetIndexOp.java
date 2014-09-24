@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
+import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
@@ -22,20 +22,19 @@ import com.hotpads.util.core.java.ReflectionTool;
 
 public class JdbcGetIndexOp<PK extends PrimaryKey<PK>,
 							D extends Databean<PK, D>,
-							F extends DatabeanFielder<PK,D>,
 							IK extends PrimaryKey<IK>,
 							IE extends IndexEntry<IK, IE, PK, D>,
 							IF extends DatabeanFielder<IK,IE>>
 							extends BaseJdbcOp<List<IE>>{
 	
 	private Config config;
-	private BasePhysicalNode<PK, D, F> mainNode;
+	private PhysicalNode<PK, D> mainNode;
 	private Class<IE> indexEntryClass;
 	private DatabeanFielder<IK, IE> indexFielder;
 	private IE indexEntry;
 	private Collection<IK> uniqueKeys;
 
-	public JdbcGetIndexOp(BasePhysicalNode<PK, D, F> node, Config config, Class<IE> indexEntryClass,
+	public JdbcGetIndexOp(PhysicalNode<PK, D> node, Config config, Class<IE> indexEntryClass,
 			Class<IF> indexFielderClass, Collection<IK> uniqueKeys){
 		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.mainNode = node;
@@ -57,7 +56,7 @@ public class JdbcGetIndexOp<PK extends PrimaryKey<PK>,
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
 			while(rs.next()){
-				IE databean = (IE)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(indexEntryClass, indexFielder.getFields(indexEntry), rs, false);
+				IE databean = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(indexEntryClass, indexFielder.getFields(indexEntry), rs, false);
 				databeans.add(databean);
 			}
 		}catch(Exception e){

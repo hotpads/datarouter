@@ -1,11 +1,12 @@
 package com.hotpads.datarouter.node.factory;
 
-import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.node.compound.readwrite.CompoundMapRWStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
+import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.index.IndexListener;
 import com.hotpads.datarouter.node.type.index.IndexMapStorageWriterListener;
+import com.hotpads.datarouter.node.type.index.JdbcManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.type.index.ManualMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.ManualUniqueIndexNode;
@@ -76,13 +77,12 @@ public class IndexingNodeFactory {
 
 	public static <PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>,
-					F extends DatabeanFielder<PK,D>,
 					IK extends PrimaryKey<IK>,
 					IE extends UniqueIndexEntry<IK,IE,PK,D>,
 					IF extends DatabeanFielder<IK,IE>>
-	ManagedUniqueIndexNode<PK, D, F, IK, IE, IF> newManagedUnique(
-			JdbcNode<PK, D, F> backingMapNode, Class<IF> indexFielder, Class<IE> indexEntryClass){
-		return new ManagedUniqueIndexNode<PK,D,F,IK,IE,IF>(backingMapNode, indexFielder, indexEntryClass);
+	ManagedUniqueIndexNode<PK, D, IK, IE> newManagedUnique(
+			PhysicalMapStorageNode<PK, D> backingMapNode, Class<IF> indexFielder, Class<IE> indexEntryClass){
+		return new JdbcManagedUniqueIndexNode<PK,D,IK,IE,IF>(backingMapNode, indexFielder, indexEntryClass);
 	}
 }
 
