@@ -13,13 +13,14 @@ import com.google.inject.Injector;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndex;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByB;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByBKey;
+import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByCKey;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexKey;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexNode;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.util.core.ListTool;
 
-public class ManagedIndexIntegrationTests{
+public class JdbcManagedIndexIntegrationTests{
 	
 	private static TestDatabeanWithManagedIndexNode node;
 
@@ -34,7 +35,11 @@ public class ManagedIndexIntegrationTests{
 				new TestDatabeanWithManagedIndex("un", "alarc'h", "un"),
 				new TestDatabeanWithManagedIndex("alarc'h", "tra", "mor"),
 				new TestDatabeanWithManagedIndex("war", "lein", "tour"),
-				new TestDatabeanWithManagedIndex("moal", "kastell", "Arvor"));
+				new TestDatabeanWithManagedIndex("moal", "kastell", "Arvor"),
+				new TestDatabeanWithManagedIndex("Neventi vad", "d'ar Vreton", "ed"),
+				new TestDatabeanWithManagedIndex("Ha malloz-ru", "d'ar C'hallaou", "ed"),
+				new TestDatabeanWithManagedIndex("Erru eul lestr", "e pleg ar m", "or"),
+				new TestDatabeanWithManagedIndex("He weliou gwenn", "gant han dig", "or"));
 		node.mainNode.putMulti(databeans, null);
 	}
 	
@@ -76,9 +81,9 @@ public class ManagedIndexIntegrationTests{
 	
 	@Test
 	public void testLookupIndex(){
-		TestDatabeanWithManagedIndexByB entry = node.byB.lookupIndex(new TestDatabeanWithManagedIndexByBKey("martolod"), null);
+		TestDatabeanWithManagedIndexByB entry = node.byB.lookupUniqueIndex(new TestDatabeanWithManagedIndexByBKey("martolod"), null);
 		Assert.assertNull(entry);
-		entry = node.byB.lookupIndex(new TestDatabeanWithManagedIndexByBKey("tra"), null);
+		entry = node.byB.lookupUniqueIndex(new TestDatabeanWithManagedIndexByBKey("tra"), null);
 		Assert.assertNotNull(entry);
 		Assert.assertEquals(entry.getA(), "alarc'h");
 		Assert.assertEquals(entry.getB(), "tra");
@@ -90,7 +95,7 @@ public class ManagedIndexIntegrationTests{
 				new TestDatabeanWithManagedIndexByBKey("martolod"),
 				new TestDatabeanWithManagedIndexByBKey("kastell"),
 				new TestDatabeanWithManagedIndexByBKey("lein"));
-		List<TestDatabeanWithManagedIndexByB> entries = node.byB.lookupMultiIndex(keys, null);
+		List<TestDatabeanWithManagedIndexByB> entries = node.byB.lookupMultiUniqueIndex(keys, null);
 		Assert.assertEquals(2, entries.size());
 		for(TestDatabeanWithManagedIndexByB entry : entries){
 			Assert.assertTrue(entry.getA().equals("moal") || entry.getA().equals("war"));
@@ -135,6 +140,50 @@ public class ManagedIndexIntegrationTests{
 		node.byB.deleteMultiUnique(entryKeys, null);
 		Assert.assertEquals(0, node.mainNode.getMulti(keys, null).size());
 		Assert.assertEquals(0, node.byB.lookupMultiUnique(entryKeys, null).size());
+	}
+	
+	@Test
+	public void testLookupMulti(){
+		List<TestDatabeanWithManagedIndex> databeans = node.byC.lookupMulti(
+				new TestDatabeanWithManagedIndexByCKey("lala"), true, null);
+		Assert.assertEquals(databeans.size(), 0);
+		databeans = node.byC.lookupMulti(
+				new TestDatabeanWithManagedIndexByCKey("ed"), true, null);
+		Assert.assertEquals(databeans.size(), 2);
+		List<TestDatabeanWithManagedIndex> expected = ListTool.create(
+				new TestDatabeanWithManagedIndex("Neventi vad", "d'ar Vreton", "ed"),
+				new TestDatabeanWithManagedIndex("Ha malloz-ru", "d'ar C'hallaou", "ed"));
+		for(TestDatabeanWithManagedIndex d : databeans){
+			Assert.assertTrue(expected.remove(d));
+		}
+	}
+	
+	@Test
+	public void testLookupMultiMulti(){
+		List<TestDatabeanWithManagedIndexByCKey> keys = ListTool.create(
+				new TestDatabeanWithManagedIndexByCKey("ed"),
+				new TestDatabeanWithManagedIndexByCKey("or"));
+		List<TestDatabeanWithManagedIndex> databeans = node.byC.lookupMultiMulti(keys, true, null);
+		Assert.assertEquals(databeans.size(), 4);
+		List<TestDatabeanWithManagedIndex> expected = ListTool.create(
+				new TestDatabeanWithManagedIndex("Neventi vad", "d'ar Vreton", "ed"),
+				new TestDatabeanWithManagedIndex("Ha malloz-ru", "d'ar C'hallaou", "ed"),
+				new TestDatabeanWithManagedIndex("Erru eul lestr", "e pleg ar m", "or"),
+				new TestDatabeanWithManagedIndex("He weliou gwenn", "gant han dig", "or"));
+		for(TestDatabeanWithManagedIndex d : databeans){
+			Assert.assertTrue(expected.remove(d));
+		}
+	}
+	
+	@Test
+	public void testEquals(){
+		TestDatabeanWithManagedIndex d1 = new TestDatabeanWithManagedIndex("tri", "martolod", "yaouank");
+		TestDatabeanWithManagedIndex d2 = new TestDatabeanWithManagedIndex("lalala", "lalala", "la");
+		TestDatabeanWithManagedIndex d3 = new TestDatabeanWithManagedIndex("tri", "martolod", "yaouank");
+		
+		Assert.assertEquals(d1, d3);
+		Assert.assertNotSame(d2, d3);
+		Assert.assertNotSame(d2, d1);
 	}
 	
 }

@@ -16,8 +16,8 @@ public interface ManagedUniqueIndexNode<PK extends PrimaryKey<PK>,
 		IE extends UniqueIndexEntry<IK, IE, PK, D>>
 		extends UniqueIndexReader<PK, D, IK>, UniqueIndexWriter<PK, D, IK>{
 
-	IE lookupIndex(IK uniqueKey, Config config);
+	IE lookupUniqueIndex(IK uniqueKey, Config config);
 
-	List<IE> lookupMultiIndex(Collection<IK> uniqueKeys, Config config);
+	List<IE> lookupMultiUniqueIndex(Collection<IK> uniqueKeys, Config config);
 
 }
