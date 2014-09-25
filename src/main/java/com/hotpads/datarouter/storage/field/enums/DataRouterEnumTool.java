@@ -98,10 +98,10 @@ public class DataRouterEnumTool{
 	@SuppressWarnings("unchecked")
 	public static <E extends StringEnum<E>> List<E> uniqueListFromCsvNames( E[] values, String csvNames, boolean defaultAll ) {
 		List<E> result = new ArrayList<E>();
-		if ( !StringTool.isEmpty( csvNames ) ) {
-		String[] types = csvNames.split( " *, *" );
+		if ( StringTool.notEmpty( csvNames ) ) {
+			String[] types = csvNames.split( "," );
 			for ( String name : types ) {
-				StringEnum<E> type = getEnumFromString(values, name, null);
+				StringEnum<E> type = getEnumFromString(values, name.trim(), null, false);
 				if ( type != null && !result.contains(type)) {
 					result.add( (E) type );
 				}
