@@ -10,7 +10,7 @@
 				<span class="icon-bar"></span>
 			</a>
 			<a class="brand hotpads-brand" href="/">
-				<img alt="Hotpads logo"	src="http://filenet.hotpads.com/images/frontpage/frontpage-logo-no-dot-com.png" id="hotpads-logo">
+				<img alt="HotPads logo"	src="http://filenet.hotpads.com/images/frontpage/frontpage-logo-no-dot-com.png" id="hotpads-logo">
 			</a>
 			<div class="nav-collapse collapse">
 				<ul class="nav" role="navigation">
