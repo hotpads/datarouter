@@ -23,7 +23,7 @@ public interface NotificationTimingStrategy {
 
 
 	/**
-	 * Minimum delay between two Notification sending (in seconds)
+	 * Minimum delay between two same type Notification sending (in seconds)
 	 */
 	int getStandardDelaySeconds();
 	
@@ -45,4 +45,9 @@ public interface NotificationTimingStrategy {
 	 *         notification is triggered)
 	 */
 	int getMaxItems();
+	
+	/**
+	 * Minimum delay between two same type and same channel Notification sending (in seconds)
+	 */
+	int getDelayForChannel();
 }
