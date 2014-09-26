@@ -7,7 +7,6 @@ import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
-import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
@@ -33,6 +32,4 @@ public interface BasicClientTestRouter extends DataRouter{
 	
 	IndexedSortedMapStorage<PutOpIdGeneratedTestBeanKey, PutOpIdGeneratedTestBean> getPutOpIdGeneratedTest();
 	
-	TestDatabeanWithManagedIndexNode getTestDatabeanWithManagedIndex();
-
 }

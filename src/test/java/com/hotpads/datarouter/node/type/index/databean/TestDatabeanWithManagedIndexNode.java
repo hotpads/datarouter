@@ -23,7 +23,7 @@ public class TestDatabeanWithManagedIndexNode{
 	
 	
 	public TestDatabeanWithManagedIndexNode(DataRouter router){
-		mainNode = BaseDataRouter.cast(router.register(NodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0,
+		mainNode = BaseDataRouter.cast(router.register(NodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0,
 				TestDatabeanWithManagedIndex.class, TestDatabeanWithManagedIndexFielder.class, router)));
 		byB = IndexingNodeFactory.newManagedUnique(router, mainNode, TestDatabeanWithManagedIndexByBFielder.class,
 				TestDatabeanWithManagedIndexByB.class);

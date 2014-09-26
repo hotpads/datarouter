@@ -17,7 +17,7 @@ import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIn
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexKey;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexNode;
 import com.hotpads.datarouter.storage.key.KeyTool;
-import com.hotpads.datarouter.test.client.BasicClientTestRouter;
+import com.hotpads.datarouter.test.client.ManagedIndexTestRouter;
 import com.hotpads.util.core.ListTool;
 
 public class JdbcManagedIndexIntegrationTests{
@@ -27,7 +27,7 @@ public class JdbcManagedIndexIntegrationTests{
 	@BeforeClass
 	public static void setUp(){
 		Injector injector = Guice.createInjector();
-		node = injector.getInstance(BasicClientTestRouter.class).getTestDatabeanWithManagedIndex();
+		node = injector.getInstance(ManagedIndexTestRouter.class).testDatabeanWithManagedIndex;
 		
 		Assert.assertNotNull(node);
 		

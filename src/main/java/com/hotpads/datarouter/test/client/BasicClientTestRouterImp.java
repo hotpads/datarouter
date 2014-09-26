@@ -14,7 +14,6 @@ import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
-import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -53,8 +52,6 @@ implements BasicClientTestRouter{
 
 	private IndexedSortedMapStorage<PutOpIdGeneratedTestBeanKey, PutOpIdGeneratedTestBean> putOpIdGeneratedTest;
 
-	private TestDatabeanWithManagedIndexNode testDatabeanWithManagedIndex;
-
 	/********************************* constructor *****************************/
 
 	@Inject
@@ -80,8 +77,6 @@ implements BasicClientTestRouter{
 		putOpIdGeneratedTest = cast(register(NodeFactory.create(
 				DRTestConstants.CLIENT_drTestHibernate0, PutOpIdGeneratedTestBean.class, PutOpIdGeneratedTestBeanFielder.class, this)));
 		
-		testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexNode(this);
-
 		registerWithContext();//do after field inits
 	}
 
@@ -139,11 +134,6 @@ implements BasicClientTestRouter{
 	@Override
 	public IndexedSortedMapStorage<PutOpIdGeneratedTestBeanKey, PutOpIdGeneratedTestBean> getPutOpIdGeneratedTest(){
 		return putOpIdGeneratedTest;
-	}
-
-	@Override
-	public TestDatabeanWithManagedIndexNode getTestDatabeanWithManagedIndex(){
-		return testDatabeanWithManagedIndex;
 	}
 
 }
