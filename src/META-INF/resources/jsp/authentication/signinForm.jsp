@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Hotpads - Sign in</title>
+<title>DataRouter - Sign in</title>
 <%@ include file="/jsp/css/css-import.jspf"%>
 </head>
 <body>
