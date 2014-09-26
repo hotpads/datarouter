@@ -133,6 +133,10 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 		this.channel = channel;
 	}
 
+	public Date getSentAtDate(){
+		return sentAtDate;
+	}
+
 	@Override
 	public String toString() {
 		return "NotificationRequest(" + getKey() + ", " + getType() + ", " + getData() + ")";
