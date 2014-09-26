@@ -81,7 +81,8 @@ public class JdbcManagedIndexIntegrationTests{
 	
 	@Test
 	public void testLookupIndex(){
-		TestDatabeanWithManagedIndexByB entry = node.byB.lookupUniqueIndex(new TestDatabeanWithManagedIndexByBKey("martolod"), null);
+		TestDatabeanWithManagedIndexByB entry = node.byB.lookupUniqueIndex(new TestDatabeanWithManagedIndexByBKey(
+				"martolod"), null);
 		Assert.assertNull(entry);
 		entry = node.byB.lookupUniqueIndex(new TestDatabeanWithManagedIndexByBKey("tra"), null);
 		Assert.assertNotNull(entry);
