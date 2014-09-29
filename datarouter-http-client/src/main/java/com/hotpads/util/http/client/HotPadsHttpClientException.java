@@ -8,6 +8,7 @@ public class HotPadsHttpClientException extends RuntimeException{
 	
 	public HotPadsHttpClientException(HotPadsHttpResponse response){
 		super(response.toString());
+		this.response = response;
 	}
 
 	public HotPadsHttpClientException(Exception e){
