@@ -12,6 +12,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
 public class JdbcGetByIndexOp<PK extends PrimaryKey<PK>,
@@ -23,21 +24,25 @@ public class JdbcGetByIndexOp<PK extends PrimaryKey<PK>,
 	private final Collection<IK> entryKeys;
 	private final boolean wildcardLastField;
 	private final Config config;
+	private final String opName;
 
-	public JdbcGetByIndexOp(PhysicalNode<PK, D> node, Collection<IK> entryKeys, boolean wildcardLastField, Config config){
+	public JdbcGetByIndexOp(PhysicalNode<PK, D> node, Collection<IK> entryKeys, boolean wildcardLastField,
+			String opName, Config config){
 		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.entryKeys = entryKeys;
 		this.wildcardLastField = wildcardLastField;
+		this.opName = opName;
 		this.config = config;
 	}
 	
 	@Override
 	public List<D> runOnce(){
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		List<D> result = new LinkedList<>();
 		for(List<IK> batch : new BatchingIterable<>(entryKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			String sql = SqlBuilder.getWithPrefixes(config, node.getTableName(), node.getFieldInfo().getFields(), batch, 
-					wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
+					wildcardLastField, null);
 			result.addAll(JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql));
 		}
 		return result;

@@ -17,6 +17,7 @@ import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -33,11 +34,13 @@ public class JdbcGetIndexOp<PK extends PrimaryKey<PK>,
 	private DatabeanFielder<IK, IE> indexFielder;
 	private IE indexEntry;
 	private Collection<IK> uniqueKeys;
+	private String opName;
 
-	public JdbcGetIndexOp(PhysicalNode<PK, D> node, Config config, Class<IE> indexEntryClass,
+	public JdbcGetIndexOp(PhysicalNode<PK, D> node, String opName, Config config, Class<IE> indexEntryClass,
 			Class<IF> indexFielderClass, Collection<IK> uniqueKeys){
 		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.mainNode = node;
+		this.opName = opName;
 		this.config = config;
 		this.indexEntryClass = indexEntryClass;
 		this.uniqueKeys = uniqueKeys;
@@ -47,6 +50,7 @@ public class JdbcGetIndexOp<PK extends PrimaryKey<PK>,
 
 	@Override
 	public List<IE> runOnce(){
+		DRCounters.incSuffixClientNode(mainNode.getClient().getType(), opName, mainNode.getClientName(), mainNode.getName());
 		List<? extends Key<IK>> keys = ListTool.createArrayList(uniqueKeys);
 		String sql = SqlBuilder.getMulti(config, mainNode.getTableName(), indexFielder.getFields(indexEntry), keys);
 		Connection connection = getConnection(mainNode.getClientName());

@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.test.client;
+package com.hotpads.datarouter.node.type.index.router;
 
 import java.util.List;
 
@@ -6,7 +6,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
-import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexNode;
+import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithTxnManagedIndexNode;
+import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithManagedIndexNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -18,11 +19,13 @@ public class ManagedIndexTestRouter extends BaseDataRouter{
 	private static final String NAME = "managedIndexTest";
 	
 	public final TestDatabeanWithManagedIndexNode testDatabeanWithManagedIndex;
+	public final TestDatabeanWithTxnManagedIndexNode testDatabeanWithTxnManagedIndex;
 
 	@Inject
 	public ManagedIndexTestRouter(DataRouterContext context){
 		super(context, NAME);
 		testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexNode(this);
+		testDatabeanWithTxnManagedIndex = new TestDatabeanWithTxnManagedIndexNode(this);
 		registerWithContext();
 	}
 

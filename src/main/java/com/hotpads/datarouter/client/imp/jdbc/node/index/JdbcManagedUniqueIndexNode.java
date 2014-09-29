@@ -25,19 +25,20 @@ public class JdbcManagedUniqueIndexNode<PK extends PrimaryKey<PK>,
 		implements ManagedUniqueIndexNode<PK, D, IK, IE>{
 	
 	private Class<IE> indexEntryClass;
-	private Class<IF> indexFielderClass;
-	private PhysicalMapStorageNode<PK, D> mainNode;
+	private Class<IF> indexFielder;
+	private PhysicalMapStorageNode<PK, D> node;
 
 	public JdbcManagedUniqueIndexNode(PhysicalMapStorageNode<PK, D> mainNode, Class<IE> indexEntryClass, Class<IF> indexFielderClass){
-		this.indexFielderClass = indexFielderClass;
+		this.indexFielder = indexFielderClass;
 		this.indexEntryClass = indexEntryClass;
-		this.mainNode = mainNode;
+		this.node = mainNode;
 	}
 	
 	@Override
 	public List<IE> lookupMultiUniqueIndex(Collection<IK> uniqueKeys, final Config config){
-		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(mainNode, config, indexEntryClass, indexFielderClass, uniqueKeys);
-		return new SessionExecutorImpl<List<IE>>(op, "managedIndexLookupMultiIndexUnique").call();
+		String opName = ManagedUniqueIndexNode.OP_lookupMultiUniqueIndex;
+		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, indexEntryClass, indexFielder, uniqueKeys);
+		return new SessionExecutorImpl<List<IE>>(op, opName).call();
 	}
 	
 	@Override
@@ -51,14 +52,14 @@ public class JdbcManagedUniqueIndexNode<PK extends PrimaryKey<PK>,
 		if(indexEntry == null){
 			return null;
 		}
-		return mainNode.get(indexEntry.getTargetKey(), config);
+		return node.get(indexEntry.getTargetKey(), config);
 	}
 	
 	@Override
 	public List<D> lookupMultiUnique(Collection<IK> fromListingKeys, final Config config){
 		List<IE> indexEntries = lookupMultiUniqueIndex(fromListingKeys, config);
 		List<PK> targetKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
-		return mainNode.getMulti(targetKeys, config);
+		return node.getMulti(targetKeys, config);
 	}
 
 	@Override
@@ -67,14 +68,14 @@ public class JdbcManagedUniqueIndexNode<PK extends PrimaryKey<PK>,
 		if(indexEntry == null){
 			return;
 		}
-		mainNode.delete(indexEntry.getTargetKey(), config);
+		node.delete(indexEntry.getTargetKey(), config);
 	}
 
 	@Override
 	public void deleteMultiUnique(Collection<IK> viewIndexKeys, final Config config){
 		List<IE> indexEntries = lookupMultiUniqueIndex(viewIndexKeys, config);
 		List<PK> targetKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
-		mainNode.deleteMulti(targetKeys, config);
+		node.deleteMulti(targetKeys, config);
 	}
 
 }

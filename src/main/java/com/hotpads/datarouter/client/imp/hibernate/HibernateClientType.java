@@ -14,6 +14,8 @@ import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedMultiIndexNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedUniqueIndexNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedMultiIndexNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
@@ -65,10 +67,15 @@ implements ClientType{
 	}
 	
 	@Override
-	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, IK extends PrimaryKey<IK>, 
-	IE extends UniqueIndexEntry<IK, IE, PK, D>, IF extends DatabeanFielder<IK, IE>>
-	ManagedUniqueIndexNode<PK, D, IK, IE> createManagedUniqueIndexNode(
-			PhysicalMapStorageNode<PK, D> backingMapNode, Class<IE> indexEntryClass, Class<IF> indexFielder){
+	public <PK extends PrimaryKey<PK>, 
+			D extends Databean<PK, D>, 
+			IK extends PrimaryKey<IK>, 
+			IE extends UniqueIndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> ManagedUniqueIndexNode<PK, D, IK, IE> createManagedUniqueIndexNode(
+			PhysicalMapStorageNode<PK, D> backingMapNode, Class<IE> indexEntryClass, Class<IF> indexFielder, boolean manageTxn){
+		if(manageTxn){
+			return new JdbcTxnManagedUniqueIndexNode<PK,D,IK,IE,IF>(backingMapNode, indexEntryClass, indexFielder);
+		}
 		return new JdbcManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, indexEntryClass, indexFielder);
 	}
 	
@@ -78,7 +85,10 @@ implements ClientType{
 			IK extends PrimaryKey<IK>, 
 			IE extends MultiIndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>> ManagedMultiIndexNode<PK, D, IK, IE> createManagedMultiIndexNode(
-			PhysicalMapStorageNode<PK, D> backingMapNode, Class<IE> indexEntryClass, Class<IF> indexFielder){
+			PhysicalMapStorageNode<PK, D> backingMapNode, Class<IE> indexEntryClass, Class<IF> indexFielder, boolean manageTxn){
+		if(manageTxn){
+			return new JdbcTxnManagedMultiIndexNode<PK,D,IK,IE,IF>(backingMapNode, indexEntryClass, indexFielder);
+		}
 		return new JdbcManagedMultiIndexNode<PK,D,IK,IE,IF>(backingMapNode, indexEntryClass, indexFielder);
 	}
 	

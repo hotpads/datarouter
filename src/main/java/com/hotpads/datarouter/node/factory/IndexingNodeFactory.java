@@ -81,10 +81,10 @@ public class IndexingNodeFactory {
 					IK extends PrimaryKey<IK>,
 					IE extends UniqueIndexEntry<IK,IE,PK,D>,
 					IF extends DatabeanFielder<IK,IE>>
-	ManagedUniqueIndexNode<PK, D, IK, IE> newManagedUnique(DataRouter router,
-				PhysicalMapStorageNode<PK, D> backingNode, Class<IF> indexFielder, Class<IE> indexEntryClass){
+	ManagedUniqueIndexNode<PK, D, IK, IE> newManagedUnique(DataRouter router, PhysicalMapStorageNode<PK, D> backingNode, 
+			Class<IF> indexFielder, Class<IE> indexEntryClass, boolean manageTxn){
 		return router.getClientType(backingNode.getClientName()).createManagedUniqueIndexNode(backingNode,
-				indexEntryClass, indexFielder);
+				indexEntryClass, indexFielder, manageTxn);
 	}
 	
 	public static <PK extends PrimaryKey<PK>,
@@ -92,10 +92,10 @@ public class IndexingNodeFactory {
 					IK extends PrimaryKey<IK>,
 					IE extends MultiIndexEntry<IK,IE,PK,D>,
 					IF extends DatabeanFielder<IK,IE>>
-	ManagedMultiIndexNode<PK, D, IK, IE> newManagedMulti(DataRouter router,
-			PhysicalMapStorageNode<PK, D> backingNode, Class<IF> indexFielder, Class<IE> indexEntryClass){
+	ManagedMultiIndexNode<PK, D, IK, IE> newManagedMulti(DataRouter router, PhysicalMapStorageNode<PK, D> backingNode, 
+			Class<IF> indexFielder, Class<IE> indexEntryClass, boolean manageTxn){
 		return router.getClientType(backingNode.getClientName()).createManagedMultiIndexNode(backingNode,
-				indexEntryClass, indexFielder);
+				indexEntryClass, indexFielder, manageTxn);
 	}
 }
 

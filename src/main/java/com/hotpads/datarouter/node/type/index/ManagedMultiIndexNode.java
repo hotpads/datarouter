@@ -12,6 +12,10 @@ import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 public interface ManagedMultiIndexNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>, IK extends PrimaryKey<IK>,
 	IE extends MultiIndexEntry<IK, IE, PK, D>>
 		extends MultiIndexReader<PK, D, IK>{
+	
+	public static final String
+		OP_lookupMultiIndex = "lookupMultiIndex",
+		OP_lookupMultiIndexMulti = "lookupMultiIndexMulti";
 
 	List<IE> lookupMultiIndex(IK indexKey, boolean wildcardLastField, Config config);
 

@@ -15,6 +15,10 @@ public interface ManagedUniqueIndexNode<PK extends PrimaryKey<PK>,
 		IK extends PrimaryKey<IK>, 
 		IE extends UniqueIndexEntry<IK, IE, PK, D>>
 		extends UniqueIndexReader<PK, D, IK>, UniqueIndexWriter<PK, D, IK>{
+	
+	public static final String
+		OP_lookupUniqueIndex = "lookupUniqueIndex",
+		OP_lookupMultiUniqueIndex = "lookupMultiUniqueIndex";
 
 	IE lookupUniqueIndex(IK uniqueKey, Config config);
 

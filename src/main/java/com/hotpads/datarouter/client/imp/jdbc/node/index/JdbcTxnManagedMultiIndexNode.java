@@ -5,18 +5,19 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetByIndexOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetIndexOp;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.op.index.UniqueIndexReader;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.view.index.IndexEntryTool;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 
-public class JdbcManagedMultiIndexNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>, IK extends PrimaryKey<IK>,
+public class JdbcTxnManagedMultiIndexNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>, IK extends PrimaryKey<IK>,
 	IE extends MultiIndexEntry<IK, IE, PK, D>, IF extends DatabeanFielder<IK, IE>>
 		implements ManagedMultiIndexNode<PK, D, IK, IE>{
 
@@ -24,7 +25,7 @@ public class JdbcManagedMultiIndexNode<PK extends PrimaryKey<PK>, D extends Data
 	private Class<IF> indexFielder;
 	private Class<IE> indexEntryClass;
 
-	public JdbcManagedMultiIndexNode(PhysicalMapStorageNode<PK, D> backingMapNode, Class<IE> indexEntryClass,
+	public JdbcTxnManagedMultiIndexNode(PhysicalMapStorageNode<PK, D> backingMapNode, Class<IE> indexEntryClass,
 			Class<IF> indexFielder){
 		this.node = backingMapNode;
 		this.indexFielder = indexFielder;
@@ -50,9 +51,9 @@ public class JdbcManagedMultiIndexNode<PK extends PrimaryKey<PK>, D extends Data
 
 	@Override
 	public List<D> lookupMultiMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config){
-		List<IE> entries = lookupMultiIndexMulti(indexKeys, wildcardLastField, config);
-		List<PK> targetKeys = IndexEntryTool.getPrimaryKeys(entries);
-		return node.getMulti(targetKeys, config);
+		String opName = UniqueIndexReader.OP_lookupMultiUnique;
+		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(node, indexKeys, false, opName, config);
+		return new SessionExecutorImpl<List<D>>(op, opName).call();
 	}
 
 }
