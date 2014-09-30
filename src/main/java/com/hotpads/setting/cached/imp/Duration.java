@@ -10,6 +10,8 @@ import org.junit.Test;
 
 public class Duration{
 
+	public static final Duration ZERO = new Duration(0, TimeUnit.MILLISECONDS);
+
 	private static final TimeUnit[] timeUnits = new TimeUnit[]{
 		TimeUnit.DAYS,
 		TimeUnit.HOURS,
@@ -17,6 +19,7 @@ public class Duration{
 		TimeUnit.SECONDS,
 		TimeUnit.MILLISECONDS
 	};
+
 	private static final String[] strings = new String[]{
 		"d",
 		"h",
@@ -24,6 +27,7 @@ public class Duration{
 		"s",
 		"ms"
 	};
+
 	private long nano;
 
 	public Duration(String string) throws IllegalArgumentException{
