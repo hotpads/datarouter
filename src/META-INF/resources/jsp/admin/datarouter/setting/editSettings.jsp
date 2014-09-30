@@ -7,7 +7,7 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Hotpads : Job Project - Cluster settings</title>
+<title>Edit Cluster Settings | DataRouter</title>
 <%@ include file="/jsp/css/css-import.jspf" %>
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
