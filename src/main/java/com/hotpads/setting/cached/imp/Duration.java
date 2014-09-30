@@ -77,7 +77,7 @@ public class Duration{
 	public static class DurationTests{
 
 		@Test
-		public void toStrsingTest(){
+		public void parserAndtoStringTest(){
 			Duration d = new Duration(3, TimeUnit.DAYS);
 			Assert.assertEquals("3d", d.toString());
 			d = new Duration("1d2h65m15s");
