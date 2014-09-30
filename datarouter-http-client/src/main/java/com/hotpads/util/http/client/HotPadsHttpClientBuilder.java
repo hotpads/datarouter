@@ -14,12 +14,10 @@ import com.hotpads.util.http.client.security.SignatureValidator;
 public class HotPadsHttpClientBuilder{
 	
 	private static final int DEFAULT_TIMEOUT = 3000;
-	private static final int SOCKET_TIMEOUT = DEFAULT_TIMEOUT;
-	private static final int CONNECTION_REQUEST_TIMEOUT = DEFAULT_TIMEOUT;
-	private static final int CONNECTION_TIMEOUT = DEFAULT_TIMEOUT;
 	private static final int MAX_TOTAL_CONNECTION = 20;
 	private static final int MAX_CONNECTION_PER_ROUTE = 2;
 	
+	private int timeout;
 	private HttpClientBuilder httpClientBuilder;
 	private HotPadsRetryHandler retryHandler;
 	private JsonSerializer jsonSerializer;
@@ -35,13 +33,8 @@ public class HotPadsHttpClientBuilder{
 
 	public HotPadsHttpClientBuilder create(){
 		retryHandler = new HotPadsRetryHandler();
-		RequestConfig defaultRequestConfig = RequestConfig.custom()
-				.setConnectTimeout(CONNECTION_TIMEOUT)
-				.setConnectionRequestTimeout(CONNECTION_REQUEST_TIMEOUT)
-				.setSocketTimeout(SOCKET_TIMEOUT)
-				.build();
+		timeout = DEFAULT_TIMEOUT;
 		httpClientBuilder = HttpClientBuilder.create()
-				.setDefaultRequestConfig(defaultRequestConfig)
 				.setRetryHandler(retryHandler)
 				.setRedirectStrategy(new LaxRedirectStrategy())
 				.setMaxConnPerRoute(MAX_CONNECTION_PER_ROUTE)
@@ -50,6 +43,12 @@ public class HotPadsHttpClientBuilder{
 	}
 	
 	public HotPadsHttpClient build(){
+		RequestConfig defaultRequestConfig = RequestConfig.custom()
+				.setConnectTimeout(timeout)
+				.setConnectionRequestTimeout(timeout) 
+				.setSocketTimeout(timeout)
+				.build();
+		httpClientBuilder.setDefaultRequestConfig(defaultRequestConfig);
 		HttpClient builtHttpClient;
 		if(customHttpClient == null){
 			builtHttpClient = httpClientBuilder.build();
@@ -68,7 +67,6 @@ public class HotPadsHttpClientBuilder{
 				this.csrfValidator,
 				this.apiKeyPredicate,
 				this.config);
-		httpClient.setRetryHandler(retryHandler);
 		return httpClient;
 	}
 	
@@ -117,6 +115,11 @@ public class HotPadsHttpClientBuilder{
 	
 	public HotPadsHttpClientBuilder setMaxConnectionsPerRoute(int maxConnectionsPerRoute){
 		this.httpClientBuilder.setMaxConnPerRoute(maxConnectionsPerRoute);
+		return this;
+	}
+	
+	public HotPadsHttpClientBuilder setTimeout(int timeout){
+		this.timeout = timeout;
 		return this;
 	}
 
