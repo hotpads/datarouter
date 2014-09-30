@@ -20,7 +20,7 @@
 			</tr>
 			<tr>
 				<td>
-					<input name="${authenticationConfig.passwordParam}"/>
+					<input type="password" name="${authenticationConfig.passwordParam}"/>
 				</td>
 			</tr>
 			<tr>

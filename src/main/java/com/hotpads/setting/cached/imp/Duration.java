@@ -10,6 +10,8 @@ import org.junit.Test;
 
 public class Duration{
 
+	public static final Duration ZERO = new Duration(0, TimeUnit.MILLISECONDS);
+
 	private static final TimeUnit[] timeUnits = new TimeUnit[]{
 		TimeUnit.DAYS,
 		TimeUnit.HOURS,
@@ -17,6 +19,7 @@ public class Duration{
 		TimeUnit.SECONDS,
 		TimeUnit.MILLISECONDS
 	};
+
 	private static final String[] strings = new String[]{
 		"d",
 		"h",
@@ -24,6 +27,7 @@ public class Duration{
 		"s",
 		"ms"
 	};
+
 	private long nano;
 
 	public Duration(String string) throws IllegalArgumentException{
@@ -73,7 +77,7 @@ public class Duration{
 	public static class DurationTests{
 
 		@Test
-		public void toStrsingTest(){
+		public void parserAndtoStringTest(){
 			Duration d = new Duration(3, TimeUnit.DAYS);
 			Assert.assertEquals("3d", d.toString());
 			d = new Duration("1d2h65m15s");
