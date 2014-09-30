@@ -176,7 +176,7 @@ public class HotPadsHttpClient{
 	
 	/***** private ******/
 	
-	private String execute(HttpUriRequest request, Boolean retrySafe, Map<String, String> headers){
+	private String execute(HttpUriRequest request, boolean retrySafe, Map<String, String> headers){
 		HttpResponse response;
 		String responseString = "";
 		setHeaders(request, headers);
