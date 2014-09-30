@@ -25,6 +25,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 
 import com.hotpads.util.http.client.json.JsonSerializer;
 import com.hotpads.util.http.client.security.ApiKeyPredicate;
@@ -39,7 +41,6 @@ public class HotPadsHttpClient{
 	
 	private HttpClient httpClient;
 	private JsonSerializer jsonSerializer;
-	private HotPadsRetryHandler retryHandler;
 	private SignatureValidator signatureValidator;
 	private CsrfValidator csrfValidator;
 	private ApiKeyPredicate apiKeyPredicate;
@@ -178,12 +179,11 @@ public class HotPadsHttpClient{
 	private String execute(HttpUriRequest request, boolean retrySafe, Map<String, String> headers){
 		HttpResponse response;
 		String responseString = "";
-		if(retrySafe){
-			retryHandler.setRetrySafe(request);
-		}
 		setHeaders(request, headers);
+		HttpContext context = new BasicHttpContext();
+		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, retrySafe);
 		try{
-			response = httpClient.execute(request);
+			response = httpClient.execute(request, context);
 			if(response.getStatusLine().getStatusCode() > 300){
 				HotPadsHttpResponse hpResponse = new HotPadsHttpResponse(response);
 				throw new HotPadsHttpClientException(hpResponse);
@@ -194,8 +194,6 @@ public class HotPadsHttpClient{
 			responseString = streamToString(response.getEntity().getContent());
 		}catch (IOException e){
 			throw new HotPadsHttpClientException(e);
-		} finally{
-			retryHandler.clean(request);
 		}
 		return responseString;
 	}
@@ -222,10 +220,6 @@ public class HotPadsHttpClient{
 			params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
 		}
 		return params;
-	}
-	
-	void setRetryHandler(HotPadsRetryHandler retryHandler){
-		this.retryHandler = retryHandler;
 	}
 
 }
