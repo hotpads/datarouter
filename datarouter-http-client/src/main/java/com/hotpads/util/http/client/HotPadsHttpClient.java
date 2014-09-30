@@ -88,7 +88,8 @@ public class HotPadsHttpClient{
 		return execute(request, retrySafe, null);
 	}
 	
-	public String post(String url, String stringEntity, boolean retrySafe, String contentType){
+	public String post(String url, String stringEntity, boolean retrySafe, String contentType,
+			Map<String, String> headers){
 		HttpPost request = new HttpPost(url);
 		try{
 			request.setEntity(new StringEntity(stringEntity));
@@ -98,7 +99,11 @@ public class HotPadsHttpClient{
 		if(contentType!=null){
 			request.setHeader(CONTENT_TYPE, contentType);
 		}
-		return execute(request, retrySafe, null);
+		return execute(request, retrySafe, headers);
+	}
+	
+	public String post(String url, String stringEntity, boolean retrySafe, String contentType){
+		return post(url, stringEntity, retrySafe, contentType, null);
 	}
 	
 	public <E> E post(String url, Map<String, String> data, Class<E> typeOfE, boolean retrySafe){
