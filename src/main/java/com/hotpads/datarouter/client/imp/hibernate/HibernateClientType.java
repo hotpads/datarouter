@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.ClientFactory;
-import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.factory.HibernateSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
@@ -31,8 +31,7 @@ import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
 
 @Singleton
-public class HibernateClientType
-implements ClientType{
+public class HibernateClientType extends BaseClientType{
 	private static final Logger logger = LoggerFactory.getLogger(HibernateClientType.class);
 	
 	public static final String NAME = "hibernate";

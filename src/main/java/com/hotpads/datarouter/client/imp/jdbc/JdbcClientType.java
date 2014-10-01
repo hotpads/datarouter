@@ -5,7 +5,7 @@ import java.util.List;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientFactory;
-import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcManagedMultiIndexNode;
@@ -27,8 +27,7 @@ import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
 
 @Singleton
-public class JdbcClientType
-implements ClientType{
+public class JdbcClientType extends BaseClientType{
 	
 	public static final JdbcClientType INSTANCE = new JdbcClientType();
 	
