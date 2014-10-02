@@ -20,6 +20,9 @@ extends NodeOps<PK,D>
 		OP_deleteMultiUnique = "deleteMultiUnique";
 	
 	//TODO rename something different than MapStorageWriter.delete
+	//
+	// does not affect the same entry as MapStorageReader.lookup
+	// Example: when a field is null affect only entry where field IS NULL (instead of accept all values for this field)
 	void delete(Lookup<PK> lookup, Config config);
 	
 	void deleteUnique(UniqueKey<PK> uniqueKey, Config config);

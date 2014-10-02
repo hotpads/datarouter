@@ -17,7 +17,7 @@ public interface NotificationTimingStrategy {
 	/**
 	 * A group where the last request is older than this age will be sent
 	 * 
-	 * If any new notification Request have been received during this delay the group is sent
+	 * If no new notification Request have been received during this delay the group is sent
 	 */
 	int getMinDelaySeconds();//TODO should be renamed
 

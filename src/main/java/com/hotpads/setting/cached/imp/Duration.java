@@ -31,6 +31,10 @@ public class Duration{
 	private long nano;
 
 	public Duration(String string) throws IllegalArgumentException{
+		if("0".equals(string)){
+			nano = 0;
+			return;
+		}
 		string = string.toLowerCase().replaceAll("\\s", "");
 		String[] values = string.split("[a-z]");
 		String[] unites = string.split("\\d+");
@@ -46,6 +50,10 @@ public class Duration{
 
 	public long toSecond(){
 		return TimeUnit.NANOSECONDS.toSeconds(nano);
+	}
+
+	public long toMillis(){
+		return TimeUnit.NANOSECONDS.toMillis(nano);
 	}
 
 	@Override
@@ -91,6 +99,8 @@ public class Duration{
 			Assert.assertEquals("100000d5s123ms", d.toString());
 			d = new Duration("48h");
 			Assert.assertEquals("2d", d.toString());
+			d = new Duration("0");
+			Assert.assertEquals("0", d.toString());
 		}
 	}
 
