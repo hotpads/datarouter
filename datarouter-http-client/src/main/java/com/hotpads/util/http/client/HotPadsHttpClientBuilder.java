@@ -13,11 +13,11 @@ import com.hotpads.util.http.client.security.SignatureValidator;
 
 public class HotPadsHttpClientBuilder{
 	
-	private static final int DEFAULT_TIMEOUT = 3000;
+	private static final int DEFAULT_TIMEOUT_MS = 3000;
 	private static final int MAX_TOTAL_CONNECTION = 20;
 	private static final int MAX_CONNECTION_PER_ROUTE = 2;
 	
-	private int timeout;
+	private int timeoutMs;
 	private HttpClientBuilder httpClientBuilder;
 	private HotPadsRetryHandler retryHandler;
 	private JsonSerializer jsonSerializer;
@@ -33,7 +33,7 @@ public class HotPadsHttpClientBuilder{
 
 	public HotPadsHttpClientBuilder create(){
 		retryHandler = new HotPadsRetryHandler();
-		timeout = DEFAULT_TIMEOUT;
+		timeoutMs = DEFAULT_TIMEOUT_MS;
 		httpClientBuilder = HttpClientBuilder.create()
 				.setRetryHandler(retryHandler)
 				.setRedirectStrategy(new LaxRedirectStrategy())
@@ -44,9 +44,9 @@ public class HotPadsHttpClientBuilder{
 	
 	public HotPadsHttpClient build(){
 		RequestConfig defaultRequestConfig = RequestConfig.custom()
-				.setConnectTimeout(timeout)
-				.setConnectionRequestTimeout(timeout) 
-				.setSocketTimeout(timeout)
+				.setConnectTimeout(timeoutMs)
+				.setConnectionRequestTimeout(timeoutMs) 
+				.setSocketTimeout(timeoutMs)
 				.build();
 		httpClientBuilder.setDefaultRequestConfig(defaultRequestConfig);
 		HttpClient builtHttpClient;
@@ -118,8 +118,8 @@ public class HotPadsHttpClientBuilder{
 		return this;
 	}
 	
-	public HotPadsHttpClientBuilder setTimeout(int timeout){
-		this.timeout = timeout;
+	public HotPadsHttpClientBuilder setTimeoutMs(int timeoutMs){
+		this.timeoutMs = timeoutMs;
 		return this;
 	}
 
