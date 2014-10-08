@@ -3,7 +3,6 @@ package com.hotpads.datarouter.storage.bundle;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableSet;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -52,7 +51,7 @@ public class Bundle{
 		ensureSingleTypeBundleExists(clazz);
 		@SuppressWarnings("unchecked")
 		SingleTypeBundle<D> singleTypeBundle = (SingleTypeBundle<D>)this.bundleByType.get(clazz.getName());
-		return (NavigableSet<D>)singleTypeBundle.getDatabeans();
+		return singleTypeBundle.getDatabeans();
 	}
 	
 	protected <D extends Databean<?,?>> List<D> getAllList(Class<D> clazz){
@@ -61,7 +60,7 @@ public class Bundle{
 	
 	protected <D extends Databean<?,?>> void ensureSingleTypeBundleExists(D databean){
 		ensureSingleTypeBundleExists(databean.getClass());
-		if(this.bundleByType.get(databean.getClass().getName())==null){
+		if(this.bundleByType.get(databean.getClass().getName())==null){//FIXME useless because of the previous line ? @Clement
 			this.bundleByType.put(databean.getClass().getName(), new SingleTypeBundle<D>());
 		}
 	}
@@ -91,11 +90,7 @@ public class Bundle{
 		this.removeAll(databean.getClass());
 		this.add(databean);
 	}
-	
-	
-	public static void main(String... args){
-	}
-	
+
 	/** tests ****************************************************************/
 	public static class BundleTests {
 		@Test public void testModifyCollection(){
