@@ -23,12 +23,13 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.iterable.BatchingIterable;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class JdbcGetIndexOp<PK extends PrimaryKey<PK>,
-							D extends Databean<PK, D>,
-							IK extends PrimaryKey<IK>,
-							IE extends IndexEntry<IK, IE, PK, D>,
-							IF extends DatabeanFielder<IK,IE>>
-							extends BaseJdbcOp<List<IE>>{
+public class JdbcGetIndexOp
+		<PK extends PrimaryKey<PK>,
+		D extends Databean<PK, D>,
+		IK extends PrimaryKey<IK>,
+		IE extends IndexEntry<IK, IE, PK, D>,
+		IF extends DatabeanFielder<IK,IE>>
+extends BaseJdbcOp<List<IE>>{
 	
 	private Config config;
 	private PhysicalNode<PK, D> mainNode;
