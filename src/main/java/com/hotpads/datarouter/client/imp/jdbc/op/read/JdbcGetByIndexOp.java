@@ -15,10 +15,8 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
-public class JdbcGetByIndexOp<PK extends PrimaryKey<PK>,
-							D extends Databean<PK,D>,
-							IK extends PrimaryKey<IK>>
-		extends BaseJdbcOp<List<D>>{
+public class JdbcGetByIndexOp<PK extends PrimaryKey<PK>, D extends Databean<PK, D>, IK extends PrimaryKey<IK>> extends
+		BaseJdbcOp<List<D>>{
 
 	private final PhysicalNode<PK, D> node;
 	private final Collection<IK> entryKeys;

@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
+import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -19,6 +20,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.iterable.BatchingIterable;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class JdbcGetIndexOp<PK extends PrimaryKey<PK>,
@@ -51,21 +53,23 @@ public class JdbcGetIndexOp<PK extends PrimaryKey<PK>,
 	@Override
 	public List<IE> runOnce(){
 		DRCounters.incSuffixClientNode(mainNode.getClient().getType(), opName, mainNode.getClientName(), mainNode.getName());
-		List<? extends Key<IK>> keys = ListTool.createArrayList(uniqueKeys);
-		String sql = SqlBuilder.getMulti(config, mainNode.getTableName(), indexFielder.getFields(indexEntry), keys);
 		Connection connection = getConnection(mainNode.getClientName());
 		List<IE> databeans = ListTool.createArrayList();
-		try{
-			PreparedStatement ps = connection.prepareStatement(sql);
-			ps.execute();
-			ResultSet rs = ps.getResultSet();
-			while(rs.next()){
-				IE databean = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(indexEntryClass, indexFielder.getFields(indexEntry), rs, false);
-				databeans.add(databean);
+		for(List<IK> batch : new BatchingIterable<>(uniqueKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
+			List<? extends Key<IK>> keys = ListTool.createArrayList(batch);
+			String sql = SqlBuilder.getMulti(config, mainNode.getTableName(), indexFielder.getFields(indexEntry), keys);
+			try{
+				PreparedStatement ps = connection.prepareStatement(sql);
+				ps.execute();
+				ResultSet rs = ps.getResultSet();
+				while(rs.next()){
+					IE databean = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(indexEntryClass, indexFielder.getFields(indexEntry), rs, false);
+					databeans.add(databean);
+				}
+			}catch(Exception e){
+				String message = "error executing sql:"+sql.toString();
+				throw new DataAccessException(message, e);
 			}
-		}catch(Exception e){
-			String message = "error executing sql:"+sql.toString();
-			throw new DataAccessException(message, e);
 		}
 		return databeans;
 	}
