@@ -1,6 +1,7 @@
 package com.hotpads.job.trigger;
 
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TriggerInfo{
 
@@ -15,7 +16,7 @@ public class TriggerInfo{
 	protected long lastExecutionDurationMs;
 	protected boolean isCustom;
 	protected boolean isDisabled;
-	protected boolean isRunning;
+	protected AtomicBoolean isRunning;
 	protected int numberOfSuccesses;
 	protected int numberOfErrors; 
 	protected Job job;
@@ -29,7 +30,7 @@ public class TriggerInfo{
 		this.lastErrorTime = null;
 		this.isCustom = false;
 		this.isDisabled = false;
-		this.isRunning = false;
+		this.isRunning = new AtomicBoolean(false);
 		this.numberOfSuccesses = 0;
 		this.numberOfErrors = 0;
 	}
@@ -120,11 +121,11 @@ public class TriggerInfo{
 	}
 
 	public boolean isRunning(){
-		return isRunning;
+		return isRunning.get();
 	}
 
 	public void setRunning(boolean isRunning){
-		this.isRunning = isRunning;
+		this.isRunning.set(isRunning);
 	}
 
 	public int getNumberOfSuccesses(){
