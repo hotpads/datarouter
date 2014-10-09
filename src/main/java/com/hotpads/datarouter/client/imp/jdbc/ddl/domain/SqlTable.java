@@ -1,10 +1,5 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -13,10 +8,8 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableDiffGenerator;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.test.TestParser;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.StringTool;
 
 public class SqlTable{
 	
@@ -68,41 +61,6 @@ public class SqlTable{
 	
 	/*************** methods *********************************/
 	
-	@Deprecated
-	public static SqlTable parseCreateTable(String phrase){
-		SqlTable table = new SqlTable("Table");
-		
-		//columns
-		for(String s:TestParser.getColumns(TestParser.getBody(phrase))){
-			if(StringTool.containsCharactersBesidesWhitespace(s)){
-				SqlColumn col = new SqlColumn(TestParser.getNameOfColumn(s), MySqlColumnType.parse(TestParser.getTypeOfColumn(s)));
-				if(hasAMaxValue(s)){
-					col.setMaxLength(Integer.parseInt(TestParser.getMaxValueOfColumn(s)));
-				}
-				col.setNullable(TestParser.getNullable(s));
-				//System.out.println(col);
-				table.addColumn(col);
-			}
-		}
-		
-		//primary key
-		String[] sTokenPKey= TestParser.getPrimaryKeyDeclarationFromFullBody(phrase).split("[,()]");
-		for (int i = 0; i < sTokenPKey.length; i++){
-			table.setPrimaryKey(TestParser.removeNonText(sTokenPKey[i]));
-		}
-		
-		//secondary indexes
-		List<String> sTokenKey= TestParser.getKeyDeclarationsFromFullBody(phrase);
-		for (String s1: sTokenKey){
-				SqlIndex tableIndex = new SqlIndex(TestParser.getKeyNameFromKeydeclaration(s1));
-				//System.out.println(TestParser.getKeyNameFromKeydeclaration(s1));
-				for(String s2:TestParser.getKeyColumnsNamesFromKeyDeclaration(s1)){
-					TestParser.addAppropriateColumnToIndexFromListOfColumn(tableIndex,s2,table.getColumns());
-				}
-				table.addIndex(tableIndex);
-		}
-		return table;
-	}
 	public String getCreateTable(){
 		return null;
 	}

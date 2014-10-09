@@ -12,10 +12,10 @@ public class TestDatabeanWithTxnManagedIndexNode extends TestDatabeanWithIndexNo
 	public TestDatabeanWithTxnManagedIndexNode(DataRouter router){
 		super(router);
 		
-		byB = IndexingNodeFactory.newManagedUnique(router, backingMapNode, TestDatabeanWithManagedIndexByBFielder.class,
-				TestDatabeanWithManagedIndexByB.class, true);
-		byC = IndexingNodeFactory.newManagedMulti(router, backingMapNode, TestDatabeanWithManagedIndexByCFielder.class,
-				TestDatabeanWithManagedIndexByC.class, true);
+		byB = backingMapNode.registerManaged(IndexingNodeFactory.newManagedUnique(router, backingMapNode,
+				TestDatabeanWithManagedIndexByBFielder.class, TestDatabeanWithManagedIndexByB.class, true));
+		byC = backingMapNode.registerManaged(IndexingNodeFactory.newManagedMulti(router, backingMapNode,
+				TestDatabeanWithManagedIndexByCFielder.class, TestDatabeanWithManagedIndexByC.class, true));
 	}
 
 	@Override

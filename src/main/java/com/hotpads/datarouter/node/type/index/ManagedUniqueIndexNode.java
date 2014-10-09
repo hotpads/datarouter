@@ -14,7 +14,7 @@ public interface ManagedUniqueIndexNode<PK extends PrimaryKey<PK>,
 		D extends Databean<PK, D>,
 		IK extends PrimaryKey<IK>, 
 		IE extends UniqueIndexEntry<IK, IE, PK, D>>
-		extends UniqueIndexReader<PK, D, IK>, UniqueIndexWriter<PK, D, IK>{
+		extends UniqueIndexReader<PK, D, IK>, UniqueIndexWriter<PK, D, IK>, ManagedNode{
 	
 	public static final String
 		OP_lookupUniqueIndex = "lookupUniqueIndex",

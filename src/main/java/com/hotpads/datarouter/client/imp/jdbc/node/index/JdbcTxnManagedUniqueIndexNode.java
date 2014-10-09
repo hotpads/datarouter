@@ -20,22 +20,21 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
 import com.hotpads.util.core.CollectionTool;
 
-public class JdbcTxnManagedUniqueIndexNode<PK extends PrimaryKey<PK>,
-											D extends Databean<PK, D>,
-											IK extends PrimaryKey<IK>, 
-											IE extends UniqueIndexEntry<IK, IE, PK, D>,
-											IF extends DatabeanFielder<IK,IE>>
-		implements ManagedUniqueIndexNode<PK, D, IK, IE>{
+public class JdbcTxnManagedUniqueIndexNode
+		<PK extends PrimaryKey<PK>,
+		D extends Databean<PK, D>,
+		IK extends PrimaryKey<IK>, 
+		IE extends UniqueIndexEntry<IK, IE, PK, D>,
+		IF extends DatabeanFielder<IK,IE>>
+extends BaseManagedNode<PK,D,IK,IE,IF>
+implements ManagedUniqueIndexNode<PK, D, IK, IE>{
 
-	private final Class<IE> indexEntryClass;
-	private final Class<IF> indexFielder;
 	private final PhysicalMapStorageNode<PK, D> node;
 
 	public JdbcTxnManagedUniqueIndexNode(PhysicalMapStorageNode<PK, D> backingMapNode, Class<IE> indexEntryClass,
-			Class<IF> indexFielder){
+			Class<IF> indexFielderClass){
+		super(indexEntryClass, indexFielderClass);
 		this.node = backingMapNode;
-		this.indexEntryClass = indexEntryClass;
-		this.indexFielder = indexFielder;
 	}
 
 	@Override
@@ -58,7 +57,8 @@ public class JdbcTxnManagedUniqueIndexNode<PK extends PrimaryKey<PK>,
 	@Override
 	public List<IE> lookupMultiUniqueIndex(Collection<IK> uniqueKeys, Config config){
 		String opName = ManagedUniqueIndexNode.OP_lookupMultiUniqueIndex;
-		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, indexEntryClass, indexFielder, uniqueKeys);
+		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, indexEntryClass, indexFielderClass,
+				uniqueKeys);
 		return new SessionExecutorImpl<List<IE>>(op, opName).call();
 	}
 

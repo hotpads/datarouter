@@ -17,19 +17,21 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 
-public class JdbcTxnManagedMultiIndexNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>, IK extends PrimaryKey<IK>,
-	IE extends MultiIndexEntry<IK, IE, PK, D>, IF extends DatabeanFielder<IK, IE>>
-		implements ManagedMultiIndexNode<PK, D, IK, IE>{
+public class JdbcTxnManagedMultiIndexNode
+		<PK extends PrimaryKey<PK>, 
+		D extends Databean<PK, D>, 
+		IK extends PrimaryKey<IK>,
+		IE extends MultiIndexEntry<IK, IE, PK, D>, 
+		IF extends DatabeanFielder<IK, IE>>
+extends BaseManagedNode<PK, D, IK, IE, IF>
+implements ManagedMultiIndexNode<PK, D, IK, IE>{
 
 	private PhysicalMapStorageNode<PK, D> node;
-	private Class<IF> indexFielder;
-	private Class<IE> indexEntryClass;
 
 	public JdbcTxnManagedMultiIndexNode(PhysicalMapStorageNode<PK, D> backingMapNode, Class<IE> indexEntryClass,
-			Class<IF> indexFielder){
+			Class<IF> indexFielderClass){
+		super(indexEntryClass, indexFielderClass);
 		this.node = backingMapNode;
-		this.indexFielder = indexFielder;
-		this.indexEntryClass = indexEntryClass;
 	}
 	
 	@Override
@@ -40,7 +42,8 @@ public class JdbcTxnManagedMultiIndexNode<PK extends PrimaryKey<PK>, D extends D
 	@Override
 	public List<IE> lookupMultiIndexMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config){
 		String opName = ManagedMultiIndexNode.OP_lookupMultiIndexMulti;
-		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, indexEntryClass, indexFielder, indexKeys);
+		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, indexEntryClass, indexFielderClass,
+				indexKeys);
 		return new SessionExecutorImpl<List<IE>>(op, opName).call();
 	}
 

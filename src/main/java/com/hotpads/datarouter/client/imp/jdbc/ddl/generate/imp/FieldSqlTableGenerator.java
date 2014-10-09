@@ -53,14 +53,12 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 		for(Field<?> f: getNonKeyFields()){
 			table.addColumn(f.getSqlColumnDefinition());
 		}
-		int i=1;
 		for(List<Field<?>> listOfFields : indexes.values()){
 			SqlIndex index = new SqlIndex(getKeyByValue(indexes, listOfFields));
 			for(Field<?> field : listOfFields){
 				index.addColumn(field.getSqlColumnDefinition());
 			}
 			table.addIndex(index);
-			i++;
 		}
 		table.setCharSet(character_set);
 		table.setCollation(collation);
