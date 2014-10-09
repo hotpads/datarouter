@@ -26,6 +26,8 @@ import com.hotpads.setting.DatarouterNotificationSettings;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.http.client.HotPadsHttpClient;
 import com.hotpads.util.http.client.HotPadsHttpClientBuilder;
+import com.hotpads.util.http.client.HotPadsHttpRequest;
+import com.hotpads.util.http.client.HotPadsHttpRequest.HttpMethod;
 import com.hotpads.util.http.client.security.CsrfValidator;
 import com.hotpads.util.http.client.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.client.security.SignatureValidator;
@@ -54,8 +56,11 @@ public class NotificationApiClient {
 	}
 
 	public void call(List<Pair<NotificationRequest, ExceptionRecord>> requests) throws IOException {
-		getClient(settings.getIgnoreSsl().getValue()).post(exceptionHandlingConfig.getNotificationApiEndPoint(),
-				dtoTool.toDtos(requests), false);
+		String url = exceptionHandlingConfig.getNotificationApiEndPoint();
+		HotPadsHttpClient httpClient = getClient(settings.getIgnoreSsl().getValue());
+		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpMethod.POST, url, false);
+		httpClient.addDtosToPayload(request, dtoTool.toDtos(requests), null);
+		httpClient.executeRequest(request);
 	}
 
 	private HotPadsHttpClient getClient(Boolean ignoreSsl) {
