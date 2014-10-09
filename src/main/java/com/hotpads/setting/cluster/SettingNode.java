@@ -8,6 +8,8 @@ import java.util.SortedMap;
 import javax.inject.Inject;
 
 import com.hotpads.setting.Setting;
+import com.hotpads.setting.cached.imp.BooleanCachedSetting;
+import com.hotpads.setting.cached.imp.StringCachedSetting;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
@@ -105,6 +107,14 @@ public abstract class SettingNode {
 		return shortName.substring(0, shortName.length()-1);
 	}
 	
+	public StringCachedSetting registerString( String name, String value ) {
+		return register(new StringCachedSetting(finder, getName()+name, value));
+	}
+
+	public BooleanCachedSetting registerBoolean( String name, Boolean value ) {
+		return register(new BooleanCachedSetting(finder, getName()+name, value));
+	}
+
 	
 	/*********** get/set ***********/
 	
