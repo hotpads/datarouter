@@ -22,7 +22,7 @@ public class HotPadsHttpClientException extends RuntimeException{
 	
 	public String getEntity(){
 		if(response==null) return null;
-		return response.getEntity();
+		return response.getEntityString();
 	}
 	
 	public HotPadsHttpResponse getResponse(){

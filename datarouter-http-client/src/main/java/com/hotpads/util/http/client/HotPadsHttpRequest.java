@@ -22,9 +22,10 @@ import org.apache.http.message.BasicNameValuePair;
 
 public class HotPadsHttpRequest {
 
+	private static final String CONTENT_TYPE = "Content-Type";
+	
 	private HttpUriRequest request;
 	private Boolean retrySafe;
-	private String contentType;
 	private Map<String,String> headers;
 	private Map<String,String> payload; // supported only for POST and PUT
 	
@@ -69,18 +70,6 @@ public class HotPadsHttpRequest {
 	public boolean getRetrySafe() {
 		return retrySafe;
 	}
-
-	public void setRetrySafe(Boolean retrySafe) {
-		this.retrySafe = retrySafe;
-	}
-
-	public String getContentType() {
-		return contentType;
-	}
-
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
-	}
 	
 	/**
 	 * Entities only exist in HttpPut, HttpPatch, HttpPost
@@ -96,41 +85,35 @@ public class HotPadsHttpRequest {
 	/**
 	 * Entities only exist in HttpPut, HttpPatch, HttpPost
 	 */
-	public void setEntity(String entity) {
-		if (entity == null || !(request instanceof HttpEntityEnclosingRequestBase)) {
-			return;
+	public HotPadsHttpRequest setEntity(String entity) {
+		if (entity != null && request instanceof HttpEntityEnclosingRequestBase) {
+			try {
+				setEntity(new StringEntity(entity));
+			} catch (UnsupportedEncodingException e) {
+				throw new HotPadsHttpClientException(e);
+			}
 		}
-		try {
-			setEntity(new StringEntity(entity));
-		} catch (UnsupportedEncodingException e) {
-			throw new HotPadsHttpClientException(e);
-		}
+		return this;
 	}
 	
 	/**
 	 * Entities only exist in HttpPut, HttpPatch, HttpPost
 	 */
-	public void setEntity(Map<String, String> entity) {
-		if (entity == null || !(request instanceof HttpEntityEnclosingRequestBase)) {
-			return;
+	public HotPadsHttpRequest setEntity(Map<String, String> entity) {
+		if (entity != null && request instanceof HttpEntityEnclosingRequestBase) {
+			try {
+				setEntity(new UrlEncodedFormEntity(urlEncodeFromMap(entity)));
+			}catch (UnsupportedEncodingException e){
+				throw new HotPadsHttpClientException(e);
+			}
 		}
-		try {
-			setEntity(new UrlEncodedFormEntity(urlEncodeFromMap(entity)));
-		}catch (UnsupportedEncodingException e){
-			throw new HotPadsHttpClientException(e);
-		}
+		return this;
 	}
 	
-	/**
-	 * Entities only exist in HttpPut, HttpPatch, HttpPost, HttpGetWithEntity
-	 * @param entity
-	 */
-	public void setEntity(HttpEntity entity) {
-		if(entity == null || !(request instanceof HttpEntityEnclosingRequestBase)) {
-			return;
-		}
+	private HotPadsHttpRequest setEntity(HttpEntity entity) {
 		HttpEntityEnclosingRequestBase requestEntity = (HttpEntityEnclosingRequestBase) request;
 		requestEntity.setEntity(entity);
+		return this;
 	}
 
 	public Map<String,String> getHeaders() {
@@ -142,6 +125,13 @@ public class HotPadsHttpRequest {
 			for(Map.Entry<String,String> header : headers.entrySet()) {
 				request.addHeader(header.getKey(), header.getValue());
 			}
+		}
+		return this;
+	}
+	
+	public HotPadsHttpRequest setContentType(String contentType) {
+		if(contentType != null && !contentType.isEmpty()) {
+			request.addHeader(CONTENT_TYPE, contentType);
 		}
 		return this;
 	}
