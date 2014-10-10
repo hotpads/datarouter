@@ -2,6 +2,8 @@ package com.hotpads.util.http.client;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,28 +29,33 @@ public class HotPadsHttpRequest {
 	private HttpUriRequest request;
 	private Boolean retrySafe;
 	private Map<String,String> headers;
-	private Map<String,String> payload; // supported only for POST and PUT
+	private Map<String,String> payload;
 	
 	public enum HttpMethod {
-		GET, POST, PUT, DELETE, PATCH
+		DELETE, GET, PATCH, POST, PUT
 	}
 	
 	public HotPadsHttpRequest(HttpMethod method, String url, boolean retrySafe) {
 		switch (method) {
+		case DELETE:
+			this.request = new HttpDelete(url);
+			this.payload = Collections.emptyMap();
+			break;
 		case GET:
 			this.request = new HttpGet(url);
-			break;
-		case POST:
-			this.request = new HttpPost(url);
+			this.payload = Collections.emptyMap();
 			break;
 		case PATCH:
 			this.request = new HttpPatch(url);
+			this.payload = Collections.emptyMap();
+			break;
+		case POST:
+			this.request = new HttpPost(url);
+			this.payload = new HashMap<>();
 			break;
 		case PUT:
 			this.request = new HttpPut(url);
-			break;
-		case DELETE:
-			this.request = new HttpDelete(url);
+			this.payload = new HashMap<>();
 			break;
 		}
 		this.retrySafe = retrySafe;
@@ -97,7 +104,7 @@ public class HotPadsHttpRequest {
 	}
 	
 	/**
-	 * Entities only exist in HttpPut, HttpPatch, HttpPost
+	 * Entity exists only in HttpPut, HttpPatch, HttpPost
 	 */
 	public HotPadsHttpRequest setEntity(Map<String, String> entity) {
 		if (entity != null && request instanceof HttpEntityEnclosingRequestBase) {
@@ -136,11 +143,39 @@ public class HotPadsHttpRequest {
 		return this;
 	}
 	
+	/**
+	 * Payload exists only in HttpPost, HttpPut
+	 */
+	public HotPadsHttpRequest addToPayload(String key, String value) {
+		payload.put(key, value);
+		return this;
+	}
+	
+	/**
+	 * Payload exists only in HttpPost, HttpPut
+	 */
+	public <A> HotPadsHttpRequest addToPayload(Collection<A> dtos, String dtoType) {
+		
+	}
+	/**
+	 * Payload exists only in HttpPost, HttpPut
+	 */
+	public HotPadsHttpRequest addToPayload(HttpRequestConfig config) {
+		payload.putAll(config.getParameterMap());
+		return this;
+	}
+	
+	/**
+	 * Payload exists only in HttpPost, HttpPut
+	 */
 	public HotPadsHttpRequest setPayload(Map<String,String> payload) {
 		this.payload = payload;
 		return this;
 	}
 
+	/**
+	 * Payload exists only in HttpPost and HttpPut
+	 */
 	public Map<String,String> getPayload() {
 		return payload;
 	}
