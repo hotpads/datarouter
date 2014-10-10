@@ -42,23 +42,22 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 				}
 			}
 			return s;
-		}else{
-			StringBuilder sb = new StringBuilder();
-			sb.append("alter table " +databaseName + "." +current.getName()+"\n");
-			int numAppended = 0;
-			for(SqlAlterTableClause singleAlter : IterableTool.nullSafe(singleAlters)){
-				if(singleAlter!=null /*&& !StringTool.isEmptyOrWhitespace(singleAlter.getAlterTable())*/){
-					if(numAppended>0){ sb.append(",\n"); }
-					sb.append(singleAlter.getAlterTable());
-					++numAppended;
-				}
-			}
-			sb.append(";");
-			if(sb.length()>= ("alter table " +databaseName + "." +current.getName()).length()+MINIMUM_ALTER_SIZE){
-				willAlterTable=true;
-			}
-			return sb.toString();
 		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("alter table " +databaseName + "." +current.getName()+"\n");
+		int numAppended = 0;
+		for(SqlAlterTableClause singleAlter : IterableTool.nullSafe(singleAlters)){
+			if(singleAlter!=null /*&& !StringTool.isEmptyOrWhitespace(singleAlter.getAlterTable())*/){
+				if(numAppended>0){ sb.append(",\n"); }
+				sb.append(singleAlter.getAlterTable());
+				++numAppended;
+			}
+		}
+		sb.append(";");
+		if(sb.length()>= ("alter table " +databaseName + "." +current.getName()).length()+MINIMUM_ALTER_SIZE){
+			willAlterTable=true;
+		}
+		return sb.toString();
 	}
 
 	public boolean willAlterTable(){

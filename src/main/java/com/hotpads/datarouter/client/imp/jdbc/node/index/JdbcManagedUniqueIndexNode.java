@@ -1,0 +1,82 @@
+package com.hotpads.datarouter.client.imp.jdbc.node.index;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetIndexOp;
+import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
+import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
+import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
+import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.view.index.IndexEntryTool;
+import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
+import com.hotpads.util.core.CollectionTool;
+
+public class JdbcManagedUniqueIndexNode
+		<PK extends PrimaryKey<PK>,
+		D extends Databean<PK, D>,
+		IK extends PrimaryKey<IK>, 
+		IE extends UniqueIndexEntry<IK, IE, PK, D>,
+		IF extends DatabeanFielder<IK,IE>>
+extends BaseManagedNode<PK, D, IK, IE, IF>
+implements ManagedUniqueIndexNode<PK, D, IK, IE>{
+
+	private PhysicalMapStorageNode<PK, D> node;
+
+	public JdbcManagedUniqueIndexNode(PhysicalMapStorageNode<PK, D> mainNode, Class<IE> indexEntryClass,
+			Class<IF> indexFielderClass){
+		super(indexEntryClass, indexFielderClass);
+		this.node = mainNode;
+	}
+	
+	@Override
+	public List<IE> lookupMultiUniqueIndex(Collection<IK> uniqueKeys, final Config config){
+		String opName = ManagedUniqueIndexNode.OP_lookupMultiUniqueIndex;
+		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, indexEntryClass, indexFielderClass,
+				uniqueKeys);
+		return new SessionExecutorImpl<List<IE>>(op, opName).call();
+	}
+	
+	@Override
+	public IE lookupUniqueIndex(IK uniqueKey, Config config){
+		return CollectionTool.getFirst(lookupMultiUniqueIndex(Collections.singleton(uniqueKey), config));
+	}
+
+	@Override
+	public D lookupUnique(IK uniqueKey, Config config){
+		IE indexEntry = lookupUniqueIndex(uniqueKey, config);
+		if(indexEntry == null){
+			return null;
+		}
+		return node.get(indexEntry.getTargetKey(), config);
+	}
+	
+	@Override
+	public List<D> lookupMultiUnique(Collection<IK> fromListingKeys, final Config config){
+		List<IE> indexEntries = lookupMultiUniqueIndex(fromListingKeys, config);
+		List<PK> targetKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
+		return node.getMulti(targetKeys, config);
+	}
+
+	@Override
+	public void deleteUnique(IK uniqueKey, Config config){
+		IE indexEntry = lookupUniqueIndex(uniqueKey, config);
+		if(indexEntry == null){
+			return;
+		}
+		node.delete(indexEntry.getTargetKey(), config);
+	}
+
+	@Override
+	public void deleteMultiUnique(Collection<IK> viewIndexKeys, final Config config){
+		List<IE> indexEntries = lookupMultiUniqueIndex(viewIndexKeys, config);
+		List<PK> targetKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
+		node.deleteMulti(targetKeys, config);
+	}
+
+}

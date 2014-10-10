@@ -6,6 +6,7 @@ import java.util.SortedSet;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Node;
@@ -42,6 +43,7 @@ implements DataRouter{
 		this.name = name;
 		this.clientNames = ClientId.getNames(getClientIds());
 		this.routerOptions = new RouterOptions(getConfigLocation());
+		this.context.registerConfigFile(getConfigLocation());
 	}
 	
 	
@@ -111,6 +113,11 @@ implements DataRouter{
 	@Override
 	public Client getClient(String clientName){
 		return context.getClientPool().getClient(clientName);
+	}
+	
+	@Override
+	public ClientType getClientType(String clientName){
+		return context.getClientPool().getClientTypeInstance(clientName);
 	}
 
 	@Override
