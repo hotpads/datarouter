@@ -59,12 +59,15 @@ public class Clients{
 //		initializeEagerClients();//i don't think this will do anything here because clients haven't been registered yet
 	}
 	
-	public void registerClientIds(Collection<ClientId> clientIdsToAdd, String configFilePath) {
-		clientIds.addAll(CollectionTool.nullSafe(clientIdsToAdd));
+	public void registerConfigFile(String configFilePath){
 		if(StringTool.notEmpty(configFilePath) && !configFilePaths.contains(configFilePath)){
 			configFilePaths.add(configFilePath);
 			multiProperties.add(PropertiesTool.parse(configFilePath));
 		}
+	}
+	
+	public void registerClientIds(Collection<ClientId> clientIdsToAdd) {
+		clientIds.addAll(CollectionTool.nullSafe(clientIdsToAdd));
 		for(ClientId clientId : IterableTool.nullSafe(clientIds)) {
 			initClientFactoryIfNull(clientId.getName());
 		}
@@ -79,10 +82,14 @@ public class Clients{
 		getClients(eagerClientNames);
 	}
 	
+	public ClientType getClientTypeInstance(String clientName){
+		RouterOptions routerOptions = new RouterOptions(multiProperties);
+		return routerOptions.getClientTypeInstance(clientName);
+	}
+	
 	protected synchronized void initClientFactoryIfNull(String clientName) {
 		if(lazyClientInitializerByName.containsKey(clientName)) { return; }
-		RouterOptions routerOptions = new RouterOptions(multiProperties);
-		ClientType clientTypeInstance = routerOptions.getClientTypeInstance(clientName);
+		ClientType clientTypeInstance = getClientTypeInstance(clientName);
 		List<PhysicalNode<?,?>> physicalNodesForClient = drContext.getNodes().getPhysicalNodesForClient(clientName);
 		ClientFactory clientFactory = clientTypeInstance.createClientFactory(drContext, clientName, physicalNodesForClient);
 		lazyClientInitializerByName.put(clientName, new LazyClientProvider(clientFactory));

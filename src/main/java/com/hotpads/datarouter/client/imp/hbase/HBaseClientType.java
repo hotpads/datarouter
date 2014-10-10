@@ -5,20 +5,18 @@ import java.util.List;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientFactory;
-import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
-import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
+import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
-import com.hotpads.util.core.StringTool;
 
 @Singleton
-public class HBaseClientType
-implements ClientType{
+public class HBaseClientType extends BaseClientType{
 	
 	public static final String NAME = "hbase";
 	

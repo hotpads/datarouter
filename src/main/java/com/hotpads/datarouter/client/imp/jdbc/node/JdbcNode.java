@@ -2,9 +2,6 @@ package com.hotpads.datarouter.client.imp.jdbc.node;
 
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteAllOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcIndexDeleteOp;
@@ -33,7 +30,6 @@ public class JdbcNode<
 		F extends DatabeanFielder<PK,D>> 
 extends JdbcReaderNode<PK,D,F>
 implements PhysicalIndexedSortedMapStorageNode<PK,D>{
-	private static Logger logger = LoggerFactory.getLogger(JdbcNode.class);
 
 	public JdbcNode(NodeParams<PK,D,F> params){
 		super(params);
@@ -91,8 +87,8 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	@Override
 	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
 		String opName = IndexedStorageWriter.OP_deleteUnique;
-		JdbcUniqueIndexDeleteOp<PK,D,F> op = new JdbcUniqueIndexDeleteOp<PK,D,F>(this, opName, 
-				ListTool.wrap(uniqueKey), config);
+		JdbcUniqueIndexDeleteOp<PK, D> op = new JdbcUniqueIndexDeleteOp<PK, D>(this, opName, ListTool.wrap(uniqueKey),
+				config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
@@ -100,15 +96,14 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>{
 	public void deleteMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		String opName = IndexedStorageWriter.OP_deleteMultiUnique;
 		if(CollectionTool.isEmpty(uniqueKeys)){ return; }//avoid starting txn
-		JdbcUniqueIndexDeleteOp<PK,D,F> op = new JdbcUniqueIndexDeleteOp<PK,D,F>(this, opName, uniqueKeys, 
-				config);
+		JdbcUniqueIndexDeleteOp<PK, D> op = new JdbcUniqueIndexDeleteOp<PK, D>(this, opName, uniqueKeys, config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
 	@Override
 	public void delete(final Lookup<PK> lookup, final Config config) {
 		String opName = IndexedStorageWriter.OP_indexDelete;
-		JdbcIndexDeleteOp<PK,D,F> op = new JdbcIndexDeleteOp<PK,D,F>(this, "indexDelete", lookup, config);
+		JdbcIndexDeleteOp<PK,D> op = new JdbcIndexDeleteOp<PK,D>(this, "indexDelete", lookup, config);
 		new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	

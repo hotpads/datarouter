@@ -76,7 +76,7 @@ implements BasicClientTestRouter{
 		
 		putOpIdGeneratedTest = cast(register(NodeFactory.create(
 				DRTestConstants.CLIENT_drTestHibernate0, PutOpIdGeneratedTestBean.class, PutOpIdGeneratedTestBeanFielder.class, this)));
-
+		
 		registerWithContext();//do after field inits
 	}
 

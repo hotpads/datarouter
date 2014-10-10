@@ -9,7 +9,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
@@ -79,11 +78,15 @@ public class DataRouterContext{
 	
 	/********************** builder methods ****************************/
 	
+	public synchronized void registerConfigFile(String configFilePath){
+		clients.registerConfigFile(configFilePath);
+	}
+	
 	public synchronized void register(DataRouter router) {
 		routers.add(router);
 		addConfigIfNew(router);
 		connectionPools.registerClientIds(router.getClientIds(), router.getConfigLocation());
-		clients.registerClientIds(router.getClientIds(), router.getConfigLocation());
+		clients.registerClientIds(router.getClientIds());
 	}
 	
 	private void addConfigIfNew(DataRouter router){

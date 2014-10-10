@@ -11,6 +11,10 @@ public interface UniqueIndexReader<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>>{
+	
+	public static final String 
+		OP_lookupUnique = "lookupUnique",
+		OP_lookupMultiUnique = "lookupMultiUnique";
 
 	D lookupUnique(IK indexKey, Config config);
 	List<D> lookupMultiUnique( final Collection<IK> uniqueKeys, final Config config);

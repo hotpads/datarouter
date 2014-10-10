@@ -17,6 +17,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerat
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
+import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
@@ -38,8 +39,6 @@ implements Callable<Void>{
 	
 	private PhysicalNode<?,?> physicalNode;
 	
-
-
 	public SingleTableSchemaUpdate(String clientName, JdbcConnectionPool connectionPool,
 			List<String> existingTableNames, SchemaUpdateOptions printOptions, SchemaUpdateOptions executeOptions,
 			Set<String> updatedTables, List<String> printedSchemaUpdates, PhysicalNode<?,?> physicalNode){
@@ -52,8 +51,6 @@ implements Callable<Void>{
 		this.existingTableNames = existingTableNames;
 		this.physicalNode = physicalNode;
 	}
-
-	
 
 	@Override
 	public Void call(){
@@ -79,6 +76,10 @@ implements Callable<Void>{
 		String currentTableAbsoluteName = clientName + "." + tableName;
 		if(tablesToIgnore.contains(currentTableAbsoluteName)){ return null; }
 
+		for(ManagedNode managedNode : physicalNode.getManagedNodes()){
+			indexes.put(managedNode.getName(), managedNode.getFields());
+		}
+		
 		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(), primaryKeyFields, 
 				nonKeyFields, collation, character_set);
 		generator.setIndexes(indexes);
