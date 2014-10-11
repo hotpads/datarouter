@@ -2,15 +2,20 @@ package com.hotpads.datarouter.storage.lazy;
 
 public abstract class Lazy<R> {
 	
-	private R value;
+	private volatile R value;
 	
 	protected abstract R load();
 	
-	public synchronized R get(){
-		if(value == null){
-			value = load();
+	public R get(){
+		if(value != null){
+			return value;
 		}
-		return value;
+		synchronized (this){
+			if(value != null){
+				return value;
+			}
+			return value = load();
+		}
 	}
 
 }
