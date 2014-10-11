@@ -8,6 +8,7 @@ import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.concurrent.Lazy;
 
 public class LazyIndexedStorageReader<PK extends PrimaryKey<PK>, D extends Databean<PK,D>>{
@@ -16,6 +17,38 @@ public class LazyIndexedStorageReader<PK extends PrimaryKey<PK>, D extends Datab
 	
 	public LazyIndexedStorageReader(IndexedStorageReader<PK,D> storage){
 		this.storage = storage;
+	}
+	
+	public Lazy<Long> count(final Lookup<PK> lookup, final Config config){
+		return new Lazy<Long>(){
+
+			@Override
+			protected Long load(){
+				return storage.count(lookup, config);
+			}
+			
+		};
+	}
+	
+	public Lazy<D> lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
+		return new Lazy<D>(){
+			
+			@Override
+			protected D load(){
+				return storage.lookupUnique(uniqueKey, config);
+			}
+		};
+	}
+	
+	public Lazy<List<D>> lookupMultiUnique(final Collection<UniqueKey<PK>> uniqueKeys, final Config config){
+		return new Lazy<List<D>>(){
+
+			@Override
+			protected List<D> load(){
+				return storage.lookupMultiUnique(uniqueKeys, config);
+			}
+			
+		};
 	}
 	
 	public Lazy<List<D>> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config){
@@ -37,4 +70,5 @@ public class LazyIndexedStorageReader<PK extends PrimaryKey<PK>, D extends Datab
 			}
 		};
 	}
+
 }

@@ -8,6 +8,7 @@ import com.hotpads.datarouter.node.op.combo.reader.IndexedMapStorageReader;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.concurrent.Lazy;
 
 public class LazyIndexedMapStorageReader<PK extends PrimaryKey<PK>, D extends Databean<PK,D>>
@@ -18,6 +19,18 @@ extends LazyMapStorageReader<PK, D>{
 	public LazyIndexedMapStorageReader(IndexedMapStorageReader<PK,D> storage){
 		super(storage);
 		this.storage = new LazyIndexedStorageReader<PK, D>(storage);
+	}
+	
+	public Lazy<Long> count(final Lookup<PK> lookup, final Config config){
+		return storage.count(lookup, config);
+	}
+	
+	public Lazy<D> lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
+		return storage.lookupUnique(uniqueKey, config);
+	}
+	
+	public Lazy<List<D>> lookupMultiUnique(final Collection<UniqueKey<PK>> uniqueKeys, final Config config){
+		return storage.lookupMultiUnique(uniqueKeys, config);
 	}
 	
 	public Lazy<List<D>> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config){
