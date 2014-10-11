@@ -8,6 +8,7 @@ import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.concurrent.Lazy;
 
 public class LazyIndexedStorageReader<PK extends PrimaryKey<PK>, D extends Databean<PK,D>>{
 
