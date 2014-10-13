@@ -4,71 +4,22 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.util.core.concurrent.Lazy;
 
-public class LazyIndexedStorageReader<PK extends PrimaryKey<PK>, D extends Databean<PK,D>>{
+public interface LazyIndexedStorageReader<PK extends PrimaryKey<PK>, D extends Databean<PK, D>> {
 
-	private IndexedStorageReader<PK, D> storage;
-	
-	public LazyIndexedStorageReader(IndexedStorageReader<PK,D> storage){
-		this.storage = storage;
-	}
-	
-	public Lazy<Long> count(final Lookup<PK> lookup, final Config config){
-		return new Lazy<Long>(){
+	Lazy<Long> count(Lookup<PK> lookup, Config config);
 
-			@Override
-			protected Long load(){
-				return storage.count(lookup, config);
-			}
-			
-		};
-	}
-	
-	public Lazy<D> lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
-		return new Lazy<D>(){
-			
-			@Override
-			protected D load(){
-				return storage.lookupUnique(uniqueKey, config);
-			}
-		};
-	}
-	
-	public Lazy<List<D>> lookupMultiUnique(final Collection<UniqueKey<PK>> uniqueKeys, final Config config){
-		return new Lazy<List<D>>(){
+	Lazy<D> lookupUnique(UniqueKey<PK> uniqueKey, Config config);
 
-			@Override
-			protected List<D> load(){
-				return storage.lookupMultiUnique(uniqueKeys, config);
-			}
-			
-		};
-	}
-	
-	public Lazy<List<D>> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config){
-		return new Lazy<List<D>>(){
+	Lazy<List<D>> lookupMultiUnique(Collection<UniqueKey<PK>> uniqueKeys, Config config);
 
-			@Override
-			protected List<D> load(){
-				return storage.lookup(lookup, wildcardLastField, config);
-			}
-		};
-	}
-	
-	public Lazy<List<D>> lookupMulti(final Collection<Lookup<PK>> lookup, final Config config){
-		return new Lazy<List<D>>(){
+	Lazy<List<D>> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config);
 
-			@Override
-			protected List<D> load(){
-				return storage.lookup(lookup, config);
-			}
-		};
-	}
+	Lazy<List<D>> lookupMulti(Collection<Lookup<PK>> lookup, Config config);
 
 }
