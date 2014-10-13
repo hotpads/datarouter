@@ -39,6 +39,8 @@ public class ParallelApiCaller {
 	private static final long FLUSH_PERIOD_MS = 1000;
 	private static final long FLUSH_TIMEOUT_MS = 1000;
 
+	private static final long RECONNECTION_TIMEOUT_COEF = 4;
+
 	private ScheduledExecutorService flusher;
 	private ExecutorService sender;
 	private Queue<Pair<NotificationRequest, ExceptionRecord>> queue;
@@ -92,7 +94,7 @@ public class ParallelApiCaller {
 						}
 					}
 					if(errorRequests.size() > 0){
-						new FailedTester(future, requests, getCoef(), exceptionHandlingConfig).start();
+						new FailedTester(future, requests, getTimeoutMs(), exceptionHandlingConfig).start();
 					}
 					requests = ListTool.create();
 				}
@@ -101,7 +103,7 @@ public class ParallelApiCaller {
 			if (CollectionTool.notEmpty(requests)) {
 				logger.info("Submiting api call attempt with {} notification requet(s)", requests.size());
 				Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
-				new FailedTester(future, requests, getCoef(), exceptionHandlingConfig).start();
+				new FailedTester(future, requests, getTimeoutMs(), exceptionHandlingConfig).start();
 			}
 			logger.debug("Notification API client queue size is now {}", queue.size());
 		}
@@ -112,24 +114,25 @@ public class ParallelApiCaller {
 	 * double the timeout when the httpclient need to be rebuild and need to re-established the connection
 	 * @return
 	 */
-	private long getCoef(){
+	private long getTimeoutMs(){
 		if(last == null || last != notificationSettings.getIgnoreSsl().getValue()){
 			last = notificationSettings.getIgnoreSsl().getValue();
-			return 4l;// TODO may be 3 (or 4)
+			return RECONNECTION_TIMEOUT_COEF * FLUSH_TIMEOUT_MS;
 		}
-		return 1l;
+		return FLUSH_TIMEOUT_MS;
 	}
 
-	private static class FailedTester extends Thread {
+	private static class FailedTester extends Thread{
 		private Future<Boolean> future;
 		private List<Pair<NotificationRequest, ExceptionRecord>> requests;
-		private long coef;
+		private long timeoutMs;
 		private ExceptionHandlingConfig exceptionHandlingConfig;
 
-		public FailedTester(Future<Boolean> future, List<Pair<NotificationRequest, ExceptionRecord>> requests, long coef, ExceptionHandlingConfig exceptionHandlingConfig) {
+		public FailedTester(Future<Boolean> future, List<Pair<NotificationRequest,ExceptionRecord>> requests,
+				long timeoutMs, ExceptionHandlingConfig exceptionHandlingConfig){
 			this.future = future;
 			this.requests = requests;
-			this.coef = coef;
+			this.timeoutMs = timeoutMs;
 			this.exceptionHandlingConfig = exceptionHandlingConfig;
 		}
 
@@ -137,7 +140,7 @@ public class ParallelApiCaller {
 		public void run() {
 			long start = System.currentTimeMillis();
 			try {
-				if (future.get(coef * FLUSH_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+				if (future.get(timeoutMs, TimeUnit.MILLISECONDS)) {
 					logger.info("Request terminated in " + (System.currentTimeMillis() - start) + "ms");
 					return;
 				}
