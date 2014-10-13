@@ -2,6 +2,7 @@ package com.hotpads.notification;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Callable;
@@ -61,7 +62,12 @@ public class ParallelApiCaller {
 	}
 
 	public void add(NotificationRequest request, ExceptionRecord exceptionRecord){
-		queue.offer(new Pair<>(request, exceptionRecord));
+		logger.info("Adding {} to queue", request);
+		try{
+			queue.add(new Pair<>(request, exceptionRecord));
+		}catch(Exception e){
+			logger.warn("", e);
+		}
 	}
 
 	private class QueueFlusher implements Runnable {
@@ -77,32 +83,41 @@ public class ParallelApiCaller {
 			List<Pair<NotificationRequest, ExceptionRecord>> requests = ListTool.createArrayList();
 			while (CollectionTool.notEmpty(queue)) {
 				if (requests.size() == BATCH_SIZE) {
+					logger.info("Submiting api call attempt with {} notification requet(s)", requests.size());
 					Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
-					//TODO only if type error
-					new FailedTester(future, requests, getCoef(), exceptionHandlingConfig).start();
+					List<Pair<NotificationRequest,ExceptionRecord>> errorRequests = new LinkedList<>();
+					for(Pair<NotificationRequest,ExceptionRecord> request : requests){
+						if(request.getRight() != null){
+							errorRequests.add(request);
+						}
+					}
+					if(errorRequests.size() > 0){
+						new FailedTester(future, requests, getCoef(), exceptionHandlingConfig).start();
+					}
 					requests = ListTool.create();
 				}
 				requests.add(queue.poll());
 			}
 			if (CollectionTool.notEmpty(requests)) {
+				logger.info("Submiting api call attempt with {} notification requet(s)", requests.size());
 				Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
 				new FailedTester(future, requests, getCoef(), exceptionHandlingConfig).start();
 			}
+			logger.debug("Notification API client queue size is now {}", queue.size());
 		}
 
 	}
 
 	/**
-	 * double the timeout when the httpclient need to be rebuild
+	 * double the timeout when the httpclient need to be rebuild and need to re-established the connection
 	 * @return
 	 */
-	private long getCoef() {
-		if (last == null || last != notificationSettings.getIgnoreSsl().getValue()) {
+	private long getCoef(){
+		if(last == null || last != notificationSettings.getIgnoreSsl().getValue()){
 			last = notificationSettings.getIgnoreSsl().getValue();
-			return 2l;//TODO may be 3 (or 4)
-		} else {
-			return 1l;
+			return 4l;// TODO may be 3 (or 4)
 		}
+		return 1l;
 	}
 
 	private static class FailedTester extends Thread {
