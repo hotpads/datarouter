@@ -16,10 +16,10 @@ public interface LazyIndexedStorageReader<PK extends PrimaryKey<PK>, D extends D
 
 	Lazy<D> lookupUnique(UniqueKey<PK> uniqueKey, Config config);
 
-	Lazy<List<D>> lookupMultiUnique(Collection<UniqueKey<PK>> uniqueKeys, Config config);
+	Lazy<List<D>> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config);
 
 	Lazy<List<D>> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config);
 
-	Lazy<List<D>> lookupMulti(Collection<Lookup<PK>> lookup, Config config);
+	Lazy<List<D>> lookupMulti(Collection<? extends Lookup<PK>> lookup, Config config);
 
 }

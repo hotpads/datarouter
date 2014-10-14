@@ -11,11 +11,13 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
+import com.hotpads.datarouter.test.TestDatabean;
+import com.hotpads.datarouter.test.TestDatabeanKey;
 
 public class TestDatabeanWithManagedIndexByB extends
 		BaseDatabean<TestDatabeanWithManagedIndexByBKey, TestDatabeanWithManagedIndexByB>
 		implements
-		UniqueIndexEntry<TestDatabeanWithManagedIndexByBKey, TestDatabeanWithManagedIndexByB, TestDatabeanWithManagedIndexKey, TestDatabeanWithManagedIndex>{
+		UniqueIndexEntry<TestDatabeanWithManagedIndexByBKey, TestDatabeanWithManagedIndexByB, TestDatabeanKey, TestDatabean>{
 
 	private TestDatabeanWithManagedIndexByBKey key;
 	private String a;
@@ -54,12 +56,12 @@ public class TestDatabeanWithManagedIndexByB extends
 	}
 
 	@Override
-	public TestDatabeanWithManagedIndexKey getTargetKey(){
-		return new TestDatabeanWithManagedIndexKey(a);
+	public TestDatabeanKey getTargetKey(){
+		return new TestDatabeanKey(a);
 	}
 
 	@Override
-	public List<TestDatabeanWithManagedIndexByB> createFromDatabean(TestDatabeanWithManagedIndex target){
+	public List<TestDatabeanWithManagedIndexByB> createFromDatabean(TestDatabean target){
 		TestDatabeanWithManagedIndexByB entry = new TestDatabeanWithManagedIndexByB(target.getB(), target.getA());
 		return Collections.singletonList(entry);
 	}

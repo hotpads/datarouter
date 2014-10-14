@@ -32,7 +32,7 @@ extends LazyMapStorageReader<PK, D> implements LazyIndexedStorageReader<PK, D>{
 	}
 	
 	@Override
-	public Lazy<List<D>> lookupMultiUnique(final Collection<UniqueKey<PK>> uniqueKeys, final Config config){
+	public Lazy<List<D>> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		return storage.lookupMultiUnique(uniqueKeys, config);
 	}
 	
@@ -42,7 +42,7 @@ extends LazyMapStorageReader<PK, D> implements LazyIndexedStorageReader<PK, D>{
 	}
 	
 	@Override
-	public Lazy<List<D>> lookupMulti(Collection<Lookup<PK>> lookup, Config config){
+	public Lazy<List<D>> lookupMulti(Collection<? extends Lookup<PK>> lookup, Config config){
 		return storage.lookupMulti(lookup, config);
 	}
 

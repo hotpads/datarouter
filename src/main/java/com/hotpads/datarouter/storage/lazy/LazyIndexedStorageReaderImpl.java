@@ -41,7 +41,7 @@ implements LazyIndexedStorageReader<PK, D>{
 	}
 	
 	@Override
-	public Lazy<List<D>> lookupMultiUnique(final Collection<UniqueKey<PK>> uniqueKeys, final Config config){
+	public Lazy<List<D>> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		return new Lazy<List<D>>(){
 			@Override
 			protected List<D> load(){
@@ -61,7 +61,7 @@ implements LazyIndexedStorageReader<PK, D>{
 	}
 	
 	@Override
-	public Lazy<List<D>> lookupMulti(final Collection<Lookup<PK>> lookup, final Config config){
+	public Lazy<List<D>> lookupMulti(final Collection<? extends Lookup<PK>> lookup, final Config config){
 		return new Lazy<List<D>>(){
 			@Override
 			protected List<D> load(){
