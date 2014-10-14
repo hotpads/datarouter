@@ -23,19 +23,16 @@ implements LazyIndexedStorageReader<PK, D>{
 	@Override
 	public Lazy<Long> count(final Lookup<PK> lookup, final Config config){
 		return new Lazy<Long>(){
-
 			@Override
 			protected Long load(){
 				return storage.count(lookup, config);
 			}
-			
 		};
 	}
 	
 	@Override
 	public Lazy<D> lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
 		return new Lazy<D>(){
-			
 			@Override
 			protected D load(){
 				return storage.lookupUnique(uniqueKey, config);
@@ -46,19 +43,16 @@ implements LazyIndexedStorageReader<PK, D>{
 	@Override
 	public Lazy<List<D>> lookupMultiUnique(final Collection<UniqueKey<PK>> uniqueKeys, final Config config){
 		return new Lazy<List<D>>(){
-
 			@Override
 			protected List<D> load(){
 				return storage.lookupMultiUnique(uniqueKeys, config);
 			}
-			
 		};
 	}
 	
 	@Override
 	public Lazy<List<D>> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config){
 		return new Lazy<List<D>>(){
-
 			@Override
 			protected List<D> load(){
 				return storage.lookup(lookup, wildcardLastField, config);
@@ -69,7 +63,6 @@ implements LazyIndexedStorageReader<PK, D>{
 	@Override
 	public Lazy<List<D>> lookupMulti(final Collection<Lookup<PK>> lookup, final Config config){
 		return new Lazy<List<D>>(){
-
 			@Override
 			protected List<D> load(){
 				return storage.lookup(lookup, config);

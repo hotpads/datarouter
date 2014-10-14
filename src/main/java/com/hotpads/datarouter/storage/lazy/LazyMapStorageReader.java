@@ -21,34 +21,28 @@ public class LazyMapStorageReader<
 
 	public Lazy<D> get(final PK key, final Config config){
 		return new Lazy<D>(){
-
 			@Override
 			protected D load(){
 				return mapStorage.get(key, config);
 			}
-
 		};
 	}
 
 	public Lazy<List<D>> getMulti(final Collection<PK> keys, final Config config){
 		return new Lazy<List<D>>(){
-
 			@Override
 			protected List<D> load(){
 				return mapStorage.getMulti(keys, config);
 			}
-			
 		};
 	}
 	
 	public Lazy<List<PK>> getKeys(final Collection<PK> keys, final Config config){
 		return new Lazy<List<PK>>(){
-
 			@Override
 			protected List<PK> load(){
 				return mapStorage.getKeys(keys, config);
 			}
-			
 		};
 	}
 
