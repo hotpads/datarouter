@@ -10,16 +10,16 @@ import org.junit.Test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndex;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByB;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByBKey;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByCKey;
-import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexKey;
 import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithIndexNode;
 import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithManagedIndexNode;
 import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithTxnManagedIndexNode;
 import com.hotpads.datarouter.node.type.index.router.ManagedIndexTestRouter;
 import com.hotpads.datarouter.storage.key.KeyTool;
+import com.hotpads.datarouter.test.TestDatabean;
+import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.util.core.ListTool;
 
 public class JdbcManagedIndexIntegrationTests{
@@ -34,15 +34,15 @@ public class JdbcManagedIndexIntegrationTests{
 		node = router.testDatabeanWithManagedIndex;
 		nodeWithTxnManaged = router.testDatabeanWithTxnManagedIndex;
 		
-		LinkedList<TestDatabeanWithManagedIndex> databeans = ListTool.createLinkedList(
-				new TestDatabeanWithManagedIndex("un", "alarc'h", "un"),
-				new TestDatabeanWithManagedIndex("alarc'h", "tra", "mor"),
-				new TestDatabeanWithManagedIndex("war", "lein", "tour"),
-				new TestDatabeanWithManagedIndex("moal", "kastell", "Arvor"),
-				new TestDatabeanWithManagedIndex("Neventi vad", "d'ar Vreton", "ed"),
-				new TestDatabeanWithManagedIndex("Ha malloz-ru", "d'ar C'hallaou", "ed"),
-				new TestDatabeanWithManagedIndex("Erru eul lestr", "e pleg ar m", "or"),
-				new TestDatabeanWithManagedIndex("He weliou gwenn", "gant han dig", "or"));
+		LinkedList<TestDatabean> databeans = ListTool.createLinkedList(
+				new TestDatabean("un", "alarc'h", "un"),
+				new TestDatabean("alarc'h", "tra", "mor"),
+				new TestDatabean("war", "lein", "tour"),
+				new TestDatabean("moal", "kastell", "Arvor"),
+				new TestDatabean("Neventi vad", "d'ar Vreton", "ed"),
+				new TestDatabean("Ha malloz-ru", "d'ar C'hallaou", "ed"),
+				new TestDatabean("Erru eul lestr", "e pleg ar m", "or"),
+				new TestDatabean("He weliou gwenn", "gant han dig", "or"));
 		node.mainNode.putMulti(databeans, null);
 		nodeWithTxnManaged.mainNode.putMulti(databeans, null);
 	}
@@ -60,7 +60,7 @@ public class JdbcManagedIndexIntegrationTests{
 	}
 	
 	private void testLookupUnique(TestDatabeanWithIndexNode node){
-		TestDatabeanWithManagedIndex d = node.byB.lookupUnique(new TestDatabeanWithManagedIndexByBKey("martolod"), null);
+		TestDatabean d = node.byB.lookupUnique(new TestDatabeanWithManagedIndexByBKey("martolod"), null);
 		Assert.assertNull(d);
 		d = node.byB.lookupUnique(new TestDatabeanWithManagedIndexByBKey("tra"), null);
 		Assert.assertEquals(d.getA(), "alarc'h");
@@ -79,9 +79,9 @@ public class JdbcManagedIndexIntegrationTests{
 				new TestDatabeanWithManagedIndexByBKey("martolod"),
 				new TestDatabeanWithManagedIndexByBKey("kastell"),
 				new TestDatabeanWithManagedIndexByBKey("lein"));
-		List<TestDatabeanWithManagedIndex> databeans = node.byB.lookupMultiUnique(keys, null);
+		List<TestDatabean> databeans = node.byB.lookupMultiUnique(keys, null);
 		Assert.assertEquals(2, databeans.size());
-		for(TestDatabeanWithManagedIndex d : databeans){
+		for(TestDatabean d : databeans){
 			Assert.assertTrue(d.getA().equals("moal") || d.getA().equals("war"));
 			if(d.getA().equals("moal")){
 				Assert.assertEquals(d.getB(), "kastell");
@@ -141,7 +141,7 @@ public class JdbcManagedIndexIntegrationTests{
 	}
 	
 	private void testDeleteUnique(TestDatabeanWithIndexNode node){
-		TestDatabeanWithManagedIndex databean = new TestDatabeanWithManagedIndex("tri", "martolod", "yaouank");
+		TestDatabean databean = new TestDatabean("tri", "martolod", "yaouank");
 		TestDatabeanWithManagedIndexByBKey databeanIndexKey = new TestDatabeanWithManagedIndexByBKey("martolod");
 		Assert.assertNull(node.mainNode.get(databean.getKey(), null));
 		Assert.assertNull(node.byB.lookupUnique(databeanIndexKey, null));
@@ -160,12 +160,12 @@ public class JdbcManagedIndexIntegrationTests{
 	}
 	
 	private void testDeleteMultiUnique(TestDatabeanWithIndexNode node){
-		List<TestDatabeanWithManagedIndex> databeans = ListTool.createLinkedList(
-				new TestDatabeanWithManagedIndex("tri", "martolod", "yaouank"),
-				new TestDatabeanWithManagedIndex("i vonet", "da", "veajiñ"));
-		List<TestDatabeanWithManagedIndexKey> keys = KeyTool.getKeys(databeans);
+		List<TestDatabean> databeans = ListTool.createLinkedList(
+				new TestDatabean("tri", "martolod", "yaouank"),
+				new TestDatabean("i vonet", "da", "veajiñ"));
+		List<TestDatabeanKey> keys = KeyTool.getKeys(databeans);
 		List<TestDatabeanWithManagedIndexByBKey> entryKeys = new LinkedList<>();
-		for(TestDatabeanWithManagedIndex databean : databeans){
+		for(TestDatabean databean : databeans){
 			entryKeys.add(new TestDatabeanWithManagedIndexByBKey(databean.getB()));
 		}
 		Assert.assertEquals(0, node.mainNode.getMulti(keys, null).size());
@@ -185,16 +185,16 @@ public class JdbcManagedIndexIntegrationTests{
 	}
 	
 	private void testLookupMulti(TestDatabeanWithIndexNode node){
-		List<TestDatabeanWithManagedIndex> databeans = node.byC.lookupMulti(
+		List<TestDatabean> databeans = node.byC.lookupMulti(
 				new TestDatabeanWithManagedIndexByCKey("lala"), true, null);
 		Assert.assertEquals(databeans.size(), 0);
 		databeans = node.byC.lookupMulti(
 				new TestDatabeanWithManagedIndexByCKey("ed"), true, null);
 		Assert.assertEquals(databeans.size(), 2);
-		List<TestDatabeanWithManagedIndex> expected = ListTool.create(
-				new TestDatabeanWithManagedIndex("Neventi vad", "d'ar Vreton", "ed"),
-				new TestDatabeanWithManagedIndex("Ha malloz-ru", "d'ar C'hallaou", "ed"));
-		for(TestDatabeanWithManagedIndex d : databeans){
+		List<TestDatabean> expected = ListTool.create(
+				new TestDatabean("Neventi vad", "d'ar Vreton", "ed"),
+				new TestDatabean("Ha malloz-ru", "d'ar C'hallaou", "ed"));
+		for(TestDatabean d : databeans){
 			Assert.assertTrue(expected.remove(d));
 		}
 	}
@@ -209,23 +209,23 @@ public class JdbcManagedIndexIntegrationTests{
 		List<TestDatabeanWithManagedIndexByCKey> keys = ListTool.create(
 				new TestDatabeanWithManagedIndexByCKey("ed"),
 				new TestDatabeanWithManagedIndexByCKey("or"));
-		List<TestDatabeanWithManagedIndex> databeans = node.byC.lookupMultiMulti(keys, true, null);
+		List<TestDatabean> databeans = node.byC.lookupMultiMulti(keys, true, null);
 		Assert.assertEquals(databeans.size(), 4);
-		List<TestDatabeanWithManagedIndex> expected = ListTool.create(
-				new TestDatabeanWithManagedIndex("Neventi vad", "d'ar Vreton", "ed"),
-				new TestDatabeanWithManagedIndex("Ha malloz-ru", "d'ar C'hallaou", "ed"),
-				new TestDatabeanWithManagedIndex("Erru eul lestr", "e pleg ar m", "or"),
-				new TestDatabeanWithManagedIndex("He weliou gwenn", "gant han dig", "or"));
-		for(TestDatabeanWithManagedIndex d : databeans){
+		List<TestDatabean> expected = ListTool.create(
+				new TestDatabean("Neventi vad", "d'ar Vreton", "ed"),
+				new TestDatabean("Ha malloz-ru", "d'ar C'hallaou", "ed"),
+				new TestDatabean("Erru eul lestr", "e pleg ar m", "or"),
+				new TestDatabean("He weliou gwenn", "gant han dig", "or"));
+		for(TestDatabean d : databeans){
 			Assert.assertTrue(expected.remove(d));
 		}
 	}
 	
 	@Test
 	public void testEquals(){
-		TestDatabeanWithManagedIndex d1 = new TestDatabeanWithManagedIndex("tri", "martolod", "yaouank");
-		TestDatabeanWithManagedIndex d2 = new TestDatabeanWithManagedIndex("lalala", "lalala", "la");
-		TestDatabeanWithManagedIndex d3 = new TestDatabeanWithManagedIndex("tri", "martolod", "yaouank");
+		TestDatabean d1 = new TestDatabean("tri", "martolod", "yaouank");
+		TestDatabean d2 = new TestDatabean("lalala", "lalala", "la");
+		TestDatabean d3 = new TestDatabean("tri", "martolod", "yaouank");
 		
 		Assert.assertEquals(d1, d3);
 		Assert.assertNotSame(d2, d3);
