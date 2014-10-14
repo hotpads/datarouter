@@ -10,8 +10,8 @@ import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
-import com.hotpads.datarouter.test.client.insert.generated.PutOpIdGeneratedTestBean;
-import com.hotpads.datarouter.test.client.insert.generated.PutOpIdGeneratedTestBeanKey;
+import com.hotpads.datarouter.test.client.insert.generated.managed.PutOpIdGeneratedManagedTestBeanKey;
+import com.hotpads.datarouter.test.client.insert.generated.managed.PutOpIdGeneratedManagedTestBean;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean;
 import com.hotpads.datarouter.test.client.pool.PoolTestBeanKey;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
@@ -30,6 +30,6 @@ public interface BasicClientTestRouter extends DataRouter{
 	
 	MapStorage<PutOpTestBeanKey, PutOpTestBean> putOptTest();
 	
-	IndexedSortedMapStorage<PutOpIdGeneratedTestBeanKey, PutOpIdGeneratedTestBean> getPutOpIdGeneratedTest();
+	IndexedSortedMapStorage<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGeneratedManagedTestBean> getPutOpIdGeneratedTest();
 	
 }
