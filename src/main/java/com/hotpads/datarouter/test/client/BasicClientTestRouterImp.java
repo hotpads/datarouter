@@ -10,7 +10,6 @@ import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive.KeepAliveFielder;
 import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
 import com.hotpads.datarouter.node.factory.NodeFactory;
-import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
@@ -20,9 +19,6 @@ import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean.PutOpTestBeanFielder;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
-import com.hotpads.datarouter.test.client.insert.generated.managed.PutOpIdGeneratedManagedTestBeanKey;
-import com.hotpads.datarouter.test.client.insert.generated.managed.PutOpIdGeneratedManagedTestBean;
-import com.hotpads.datarouter.test.client.insert.generated.managed.PutOpIdGeneratedManagedTestBean.PutOpIdGeneratedManagedTestBeanFielder;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean.PoolTestBeanFielder;
 import com.hotpads.datarouter.test.client.pool.PoolTestBeanKey;
@@ -50,8 +46,6 @@ implements BasicClientTestRouter{
 
 	private MapStorage<PutOpTestBeanKey, PutOpTestBean> putOptTest;
 
-	private IndexedSortedMapStorage<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGeneratedManagedTestBean> putOpIdGeneratedTest;
-
 	/********************************* constructor *****************************/
 
 	@Inject
@@ -73,9 +67,6 @@ implements BasicClientTestRouter{
 		
 		putOptTest = cast(register(
 				NodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, PutOpTestBean.class, PutOpTestBeanFielder.class, this)));
-		
-		putOpIdGeneratedTest = cast(register(NodeFactory.create(
-				DRTestConstants.CLIENT_drTestHibernate0, PutOpIdGeneratedManagedTestBean.class, PutOpIdGeneratedManagedTestBeanFielder.class, this)));
 		
 		registerWithContext();//do after field inits
 	}
@@ -129,11 +120,6 @@ implements BasicClientTestRouter{
 	@Override
 	public MapStorage<PutOpTestBeanKey, PutOpTestBean> putOptTest(){
 		return putOptTest;
-	}
-
-	@Override
-	public IndexedSortedMapStorage<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGeneratedManagedTestBean> getPutOpIdGeneratedTest(){
-		return putOpIdGeneratedTest;
 	}
 
 }
