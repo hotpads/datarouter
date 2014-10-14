@@ -6,7 +6,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
 @SuppressWarnings("serial") 
@@ -27,10 +26,7 @@ implements EntityPrimaryKey<EK,PK>
 	public List<Field<?>> getFields(){
 		List<Field<?>> entityKeyFields = getEntityKeyFields();
 		List<Field<?>> postEntityKeyFields = getPostEntityKeyFields();
-		int numFields = CollectionTool.size(entityKeyFields) + CollectionTool.size(postEntityKeyFields);
-		List<Field<?>> allPkFields = ListTool.createArrayList(numFields);
-		allPkFields.addAll(CollectionTool.nullSafe(entityKeyFields));
-		allPkFields.addAll(CollectionTool.nullSafe(postEntityKeyFields));
+		List<Field<?>> allPkFields = ListTool.concatenate(entityKeyFields, postEntityKeyFields);
 		return allPkFields;
 	}
 	
