@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.node.type.index.databean;
+package com.hotpads.datarouter.test;
 
 import java.util.List;
 
@@ -9,15 +9,15 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 @SuppressWarnings("serial")
-public class TestDatabeanWithManagedIndexKey extends BasePrimaryKey<TestDatabeanWithManagedIndexKey>{
+public class TestDatabeanKey extends BasePrimaryKey<TestDatabeanKey>{
 
 	private String a;
 	
-	public TestDatabeanWithManagedIndexKey(){
+	public TestDatabeanKey(){
 		this(null);
 	}
 	
-	public TestDatabeanWithManagedIndexKey(String a){
+	public TestDatabeanKey(String a){
 		this.a = a;
 	}
 	
