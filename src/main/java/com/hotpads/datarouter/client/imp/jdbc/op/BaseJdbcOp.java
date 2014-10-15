@@ -30,6 +30,10 @@ implements TxnOp<T>, ConnectionAware<T> {
 		this.isolation = isolation;
 		this.autoCommit = autoCommit;
 	}
+	
+	public BaseJdbcOp(DataRouterContext drContext, List<String> clientNames) {
+		this(drContext, clientNames, Isolation.DEFAULT, false);
+	}
 
 	@Override
 	public Connection getConnection(String clientName){
