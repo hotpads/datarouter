@@ -27,7 +27,7 @@ public class JdbcGetOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<D>>{
 		
-	private com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode<PK,D,F> node;
+	private JdbcReaderNode<PK,D,F> node;
 	private String opName;
 	private Collection<PK> keys;
 	private Config config;

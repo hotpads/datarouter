@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.physical.base;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,7 @@ import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeId;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -29,6 +31,8 @@ implements PhysicalNode<PK,D>
 {
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 	
+	private List<ManagedNode> managedNodes;
+	
 //	protected String clientName;
 //	protected String tableName;
 //	protected String packagedTableName;
@@ -38,6 +42,7 @@ implements PhysicalNode<PK,D>
 	
 	public BasePhysicalNode(NodeParams<PK,D,F> params){
 		super(params);
+		managedNodes = new ArrayList<>();
 		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params, fieldInfo.getExplicitNodeName()));
 	}
 	
@@ -111,6 +116,17 @@ implements PhysicalNode<PK,D>
 	@Override
 	public String toString(){
 		return this.getName();
+	}
+	
+	@Override
+	public <N extends ManagedNode> N registerManaged(N managedNode){
+		managedNodes.add(managedNode);
+		return managedNode;
+	}
+	
+	@Override
+	public List<ManagedNode> getManagedNodes(){
+		return managedNodes;
 	}
 
 //	public abstract Client getClient();

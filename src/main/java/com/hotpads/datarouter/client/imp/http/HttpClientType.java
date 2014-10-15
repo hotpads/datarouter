@@ -5,7 +5,7 @@ import java.util.List;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientFactory;
-import com.hotpads.datarouter.client.ClientType;
+import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.http.node.HttpReaderNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -14,8 +14,7 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 
 @Singleton
-public class HttpClientType
-implements ClientType{
+public class HttpClientType extends BaseClientType{
 	
 	public static final String NAME = "http";
 	
@@ -42,5 +41,4 @@ implements ClientType{
 	public Node<?,?> createSubEntityNode(EntityNodeParams<?,?> entityNodeParams, NodeParams<?,?,?> nodeParams){
 		return createNode(nodeParams);
 	}
-	
 }

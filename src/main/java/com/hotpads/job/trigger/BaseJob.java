@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -35,8 +36,8 @@ public abstract class BaseJob implements Job{
 	protected JobScheduler scheduler;
 	protected ScheduledExecutorService executor;
 	protected Setting<Boolean> processJobsSetting;
-	protected boolean isAlreadyScheduled;
-	protected boolean isAlreadyRunning;
+	protected AtomicBoolean isAlreadyScheduled = new AtomicBoolean(false);
+	protected AtomicBoolean isAlreadyRunning = new AtomicBoolean(false);
 	protected MutableBoolean interrupted = new MutableBoolean(false);
 	protected LongRunningTaskTracker tracker;
 	protected Setting<Boolean> shouldSaveLongRunningTasks;
@@ -93,7 +94,7 @@ public abstract class BaseJob implements Job{
 				baseJobLogger.warn("couldn't schedule "+getClass()+" because no trigger defined");
 				return;
 			}
-			if(isAlreadyScheduled){
+			if(isAlreadyScheduled.get()){
 				baseJobLogger.warn("couldn't schedule "+getClass()+" because is already scheduled");
 				return;
 			}
@@ -101,12 +102,8 @@ public abstract class BaseJob implements Job{
 		Job nextJobInstance = scheduler.getJobInstance(getClass(), getTrigger().getCronExpression());
 		Long nextTriggerTime = System.currentTimeMillis() + delay;
 		nextJobInstance.setTriggerTime(new Date(nextTriggerTime));
-//		nextJobInstance.getLongRunningTaskTracker().getTask().setTriggerTime(new Date(nextTriggerTime));
-//		if(shouldSaveLongRunningTasks.getValue()){
-//			nextJobInstance.getLongRunningTaskTracker().getNode().put(nextJobInstance.getLongRunningTaskTracker().getTask(), null);
-//		}
 		executor.schedule(nextJobInstance, delay, TimeUnit.MILLISECONDS);
-		isAlreadyScheduled = true;
+		isAlreadyScheduled.set(true);
 //		logger.warn("scheduled next execution of "+getClass()+" for "
 //				+DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(new Date(System.currentTimeMillis()+delay)));
 	}
@@ -123,7 +120,7 @@ public abstract class BaseJob implements Job{
 			recordException(e);
 		}finally{
 			try{
-				if(!isAlreadyRunning){
+				if(!isAlreadyRunning.get()){
 					getFromTracker().setRunning(false);
 				}else{
 					baseJobLogger.warn("couldn't run "+getClass()+" because it is already running");
@@ -132,7 +129,7 @@ public abstract class BaseJob implements Job{
 				baseJobLogger.warn("exception in finally block", e);
 			}
 			try{
-				isAlreadyScheduled = false;
+				isAlreadyScheduled.set(false);
 				scheduleNextRun(false);
 			}catch(Exception e){
 				baseJobLogger.warn("exception in finally block", e);
@@ -204,7 +201,7 @@ public abstract class BaseJob implements Job{
 	
 	protected boolean shouldRunInternal(){
 		if(getFromTracker().isRunning()){
-			isAlreadyRunning = true;
+			isAlreadyRunning.set(true);
 			return false;
 		}
 		return processJobsSetting.getValue() && shouldRun() && BooleanTool.isFalse(getIsDisabled());

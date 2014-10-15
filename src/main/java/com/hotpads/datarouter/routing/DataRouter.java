@@ -7,11 +7,11 @@ import java.util.SortedSet;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.RouterOptions;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.op.TxnOp;
-import com.hotpads.datarouter.op.aware.DataRouterContextAware;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -43,6 +43,7 @@ public interface DataRouter {
 	List<ClientId> getClientIds();
 	List<String> getClientNames();
 	Client getClient(String clientName);
+	ClientType getClientType(String clientName);
 	List<Client> getAllClients();
 //	List<Client> getClients(Collection<String> clientNames);
 
