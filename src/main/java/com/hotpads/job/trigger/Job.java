@@ -8,6 +8,10 @@ import org.quartz.CronExpression;
 import com.hotpads.job.record.LongRunningTaskTracker;
 
 public interface Job extends Callable<Void>, Comparable<Job>{
+	
+//	void setScheduler(JobScheduler scheduler);
+//	void setExecutor(ScheduledExecutorService executor);
+//	void setProcessJobsSetting(Setting<Boolean> processJobsSetting);
 
 	CronExpression getTrigger();
 	Long getDelayBeforeNextFireTimeMs();

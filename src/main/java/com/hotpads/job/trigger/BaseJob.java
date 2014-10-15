@@ -102,6 +102,10 @@ public abstract class BaseJob implements Job{
 		Job nextJobInstance = scheduler.getJobInstance(getClass(), getTrigger().getCronExpression());
 		Long nextTriggerTime = System.currentTimeMillis() + delay;
 		nextJobInstance.setTriggerTime(new Date(nextTriggerTime));
+//		nextJobInstance.getLongRunningTaskTracker().getTask().setTriggerTime(new Date(nextTriggerTime));
+//		if(shouldSaveLongRunningTasks.getValue()){
+//			nextJobInstance.getLongRunningTaskTracker().getNode().put(nextJobInstance.getLongRunningTaskTracker().getTask(), null);
+//		}
 		executor.schedule(nextJobInstance, delay, TimeUnit.MILLISECONDS);
 		isAlreadyScheduled.set(true);
 //		logger.warn("scheduled next execution of "+getClass()+" for "
