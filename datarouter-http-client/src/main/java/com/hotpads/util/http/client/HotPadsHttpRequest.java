@@ -2,7 +2,6 @@ package com.hotpads.util.http.client;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +61,7 @@ public class HotPadsHttpRequest {
 		this.headers = new HashMap<>();
 	}
 	
-	private static List<NameValuePair> urlEncodeFromMap(Map<String, String> data){
+	private List<NameValuePair> urlEncodeFromMap(Map<String, String> data){
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		for(Entry<String, String> entry : data.entrySet()){
 			params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
@@ -151,12 +150,6 @@ public class HotPadsHttpRequest {
 		return this;
 	}
 	
-	/**
-	 * Payload exists only in HttpPost, HttpPut
-	 */
-	public <A> HotPadsHttpRequest addToPayload(Collection<A> dtos, String dtoType) {
-		
-	}
 	/**
 	 * Payload exists only in HttpPost, HttpPut
 	 */

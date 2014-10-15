@@ -3,26 +3,29 @@ package com.hotpads.util.http.client;
 import java.io.IOException;
 import java.util.Scanner;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
 
 public class HotPadsHttpResponse {
 	private int statusCode;
-	private HttpEntity entity;
+	private String entity;
 	
 	public HotPadsHttpResponse(HttpResponse response){
 		statusCode = response.getStatusLine().getStatusCode();
-		entity = response.getEntity();
-		EntityUtils.consumeQuietly(entity);
+		try{
+			entity = EntityUtils.toString(response.getEntity());
+		}catch (ParseException | IOException | IllegalArgumentException e){
+			throw new RuntimeException(e);
+		}
+		EntityUtils.consumeQuietly(response.getEntity());
 	}
 
 	@Override
 	public String toString(){
 		String firstLine = "";
 		if(getEntity() != null){
-			Scanner scanner = new Scanner(getEntityString());
+			Scanner scanner = new Scanner(getEntity());
 			while(scanner.hasNextLine() && firstLine.trim().isEmpty()){
 				firstLine = scanner.nextLine();
 			}
@@ -35,15 +38,7 @@ public class HotPadsHttpResponse {
 		return statusCode;
 	}
 	
-	public HttpEntity getEntity(){
+	public String getEntity(){
 		return entity;
-	}
-	
-	public String getEntityString() {
-		try {
-			return EntityUtils.toString(entity);
-		} catch (ParseException | IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 }

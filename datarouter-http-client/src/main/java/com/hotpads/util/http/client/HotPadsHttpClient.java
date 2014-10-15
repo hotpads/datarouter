@@ -1,6 +1,7 @@
 package com.hotpads.util.http.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
@@ -12,7 +13,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
@@ -50,70 +50,60 @@ public class HotPadsHttpClient {
 		return jsonSerializer.deserialize(dtoJson, typeOfE);
 	}
 	
-	public HotPadsHttpResponse executeRequest(HotPadsHttpRequest request) {
-		HttpUriRequest httpRequest = request.getRequest();
-		if(httpRequest instanceof HttpPost) {
-			Map<String,String> payload = request.getPayload();
+	public String execute(HotPadsHttpRequest request) {
+		if(request.getRequest() instanceof HttpPost) {
 			if (csrfValidator != null) {
-				payload.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken());
+				request.addToPayload(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken());
 			}
 			if (apiKeyPredicate != null) {
-				payload.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
+				request.addToPayload(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
 			}
 			if (signatureValidator != null) {
-				payload.put(SecurityParameters.SIGNATURE, Base64.encodeBase64String(signatureValidator.sign(payload)));
+				byte[] signature = signatureValidator.sign(request.getPayload());
+				request.addToPayload(SecurityParameters.SIGNATURE, Base64.encodeBase64String(signature));
 			}
-			request.setPayload(payload);
 		}
 		
 		HttpContext context = new BasicHttpContext();
 		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
+		for(Map.Entry<String, String> param : request.getPayload().entrySet()) {
+			context.setAttribute(param.getKey(), param.getValue());
+		}
+		
 		HotPadsHttpResponse hpResponse;
 		try {
-			HttpResponse response = httpClient.execute(httpRequest, context);
+			HttpResponse response = httpClient.execute(request.getRequest(), context);
 			hpResponse = new HotPadsHttpResponse(response);
 			if(response.getStatusLine().getStatusCode() > 300){
 				throw new HotPadsHttpClientException(hpResponse);
 			}
+			return streamToString(response.getEntity().getContent());
 		} catch (IOException e) {
 			throw new HotPadsHttpClientException(e);
 		}
-		
-		return hpResponse;
-	}
-	
-	public String executeToString(HotPadsHttpRequest request) {
-		return entityString(executeRequest(request));
 	}
 	
 	public <E> E executeDeserialize(HotPadsHttpRequest request, Type typeOfE) {
-		return deserialize(executeToString(request), typeOfE);
+		return deserialize(execute(request), typeOfE);
 	}
 	
-	private String entityString(HotPadsHttpResponse response) {
-		if (response == null || response.getEntity() == null) {
-			return "";
-		}
-		try (Scanner s = new Scanner(response.getEntity().getContent())) {
-			s.useDelimiter("\\A");
-			return s.hasNext() ? s.next() : "";
-		} catch (IOException e) {
-			throw new HotPadsHttpClientException(e);
-		}
-	}
-	
-	// TODO make private and add this as a request option
-	public <T> HotPadsHttpRequest addDtosToPayload(HotPadsHttpRequest request, Collection<T> dtos, String dtoType) {
+	// TODO move method in HotPadsHttpRequest - problem comes in with the dependency on jsonSerializer and config
+	public <T> HotPadsHttpClient addDtosToPayload(HotPadsHttpRequest request, Collection<T> dtos, String dtoType) {
 		String serializedDtos = jsonSerializer.serialize(dtos);
 		String dtoTypeNullSafe = dtoType;
 		if(dtoType == null) {
 			dtoTypeNullSafe = dtos.isEmpty() ? "" : dtos.iterator().next().getClass().getCanonicalName();
 		}
-		Map<String,String> payload = request.getPayload();
-		payload.put(config.getDtoParameterName(), serializedDtos);
-		payload.put(config.getDtoTypeParameterName(), dtoTypeNullSafe);
-		request.setPayload(payload);
+		request.addToPayload(config.getDtoParameterName(), serializedDtos);
+		request.addToPayload(config.getDtoTypeParameterName(), dtoTypeNullSafe);
 		
-		return request;
+		return this;
+	}
+
+	private String streamToString(InputStream input) {
+		try (Scanner s = new Scanner(input)) {
+			s.useDelimiter("\\A");
+			return s.hasNext() ? s.next() : "";
+		}
 	}
 }
