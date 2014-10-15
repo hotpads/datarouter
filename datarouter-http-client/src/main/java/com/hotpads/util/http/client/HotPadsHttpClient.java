@@ -62,6 +62,7 @@ public class HotPadsHttpClient {
 				byte[] signature = signatureValidator.sign(request.getPayload());
 				request.addToPayload(SecurityParameters.SIGNATURE, Base64.encodeBase64String(signature));
 			}
+			request.setEntity(request.getPayload());
 		}
 		
 		HttpContext context = new BasicHttpContext();
