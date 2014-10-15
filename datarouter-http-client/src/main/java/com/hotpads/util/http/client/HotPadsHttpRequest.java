@@ -154,15 +154,14 @@ public class HotPadsHttpRequest {
 	 * Payload exists only in HttpPost, HttpPut
 	 */
 	public HotPadsHttpRequest addToPayload(HttpRequestConfig config) {
-		payload.putAll(config.getParameterMap());
-		return this;
+		return addToPayload(config.getParameterMap());
 	}
 	
 	/**
 	 * Payload exists only in HttpPost, HttpPut
 	 */
-	public HotPadsHttpRequest setPayload(Map<String,String> payload) {
-		this.payload = payload;
+	public HotPadsHttpRequest addToPayload(Map<String,String> payload) {
+		this.payload.putAll(payload);
 		return this;
 	}
 
