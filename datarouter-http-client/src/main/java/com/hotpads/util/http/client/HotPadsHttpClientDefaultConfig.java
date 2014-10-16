@@ -11,14 +11,4 @@ public class HotPadsHttpClientDefaultConfig implements HotPadsHttpClientConfig{
 	public String getDtoTypeParameterName(){
 		return "dataTransferObjectType";
 	}
-
-	@Override
-	public String getRequestParameterName() {
-		return "requestParams";
-	}
-	
-	@Override
-	public String getResponseParameterName() {
-		return "responseParams";
-	}
 }
