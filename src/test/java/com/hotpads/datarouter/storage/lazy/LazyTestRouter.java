@@ -8,7 +8,7 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.factory.NodeFactory;
-import com.hotpads.datarouter.node.op.combo.IndexedMapStorage;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -21,8 +21,8 @@ public class LazyTestRouter extends BaseDataRouter{
 	
 	private static final String NAME = "lazyTestRouter";
 	
-	public IndexedMapStorage<TestDatabeanKey, TestDatabean> testDatabean;
-	public LazyIndexedMapStorageReader<TestDatabeanKey, TestDatabean> lazyTestDatabean;
+	public IndexedSortedMapStorage<TestDatabeanKey, TestDatabean> testDatabean;
+	public LazyIndexedSortedMapStorageReader<TestDatabeanKey, TestDatabean> lazyTestDatabean;
 
 	@Inject
 	public LazyTestRouter(DataRouterContext context){
@@ -30,7 +30,7 @@ public class LazyTestRouter extends BaseDataRouter{
 		
 		testDatabean = cast(register(NodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, TestDatabean.class,
 				TestIndexedDatabeanFielder.class, this)));
-		lazyTestDatabean = new LazyIndexedMapStorageReader<TestDatabeanKey, TestDatabean>(testDatabean);
+		lazyTestDatabean = new LazyIndexedSortedMapStorageReader<TestDatabeanKey, TestDatabean>(testDatabean);
 		
 		registerWithContext();
 	}

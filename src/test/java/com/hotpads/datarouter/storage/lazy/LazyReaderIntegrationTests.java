@@ -119,4 +119,44 @@ public class LazyReaderIntegrationTests{
 		Assert.assertEquals(fromBlockingNode, fromLazyNode);
 		Assert.assertEquals(expectedDatabeans, fromBlockingNode);
 	}
+	
+	@Test
+	public void testGetFirstKey(){
+		TestDatabeanKey fromBlockingNode = router.testDatabean.getFirstKey(null);
+		TestDatabeanKey fromLazyNode = router.lazyTestDatabean.getFirstKey(null).get();
+		Assert.assertEquals(fromBlockingNode, fromLazyNode);
+		Assert.assertEquals(CollectionTool.getFirst(keyToDatabean.keySet()), fromBlockingNode);
+	}
+	
+	@Test
+	public void testGetFirst(){
+		TestDatabean fromBlockingNode = router.testDatabean.getFirst(null);
+		TestDatabean fromLazyNode = router.lazyTestDatabean.getFirst(null).get();
+		Assert.assertEquals(fromBlockingNode, fromLazyNode);
+		Assert.assertEquals(CollectionTool.getFirst(databeans), fromBlockingNode);
+	}
+	
+	@Test
+	public void testGetWithPrefix(){
+		List<TestDatabean> expectedDatabeans = Collections.singletonList(new TestDatabean("baz", "bar", "foo"));
+		TestDatabeanKey key = new TestDatabeanKey("ba");
+		List<TestDatabean> fromBlockingNode = router.testDatabean.getWithPrefix(key, true, null);
+		List<TestDatabean> fromLazyNode = router.testDatabean.getWithPrefix(key, true, null);
+		Assert.assertEquals(fromBlockingNode, fromLazyNode);
+		Assert.assertEquals(expectedDatabeans, fromBlockingNode);
+	}
+	
+	@Test
+	public void testGetWithPrefixes(){
+		List<TestDatabean> expectedDatabeans = ListTool.create(
+				new TestDatabean("baz", "bar", "foo"),
+				new TestDatabean("foo", "bar", "baz"));
+		List<TestDatabeanKey> keys = ListTool.create(
+				new TestDatabeanKey("ba"),
+				new TestDatabeanKey("f"));
+		List<TestDatabean> fromBlockingNode = router.testDatabean.getWithPrefixes(keys, true, null);
+		List<TestDatabean> fromLazyNode = router.testDatabean.getWithPrefixes(keys, true, null);
+		Assert.assertEquals(fromBlockingNode, fromLazyNode);
+		Assert.assertEquals(expectedDatabeans, fromBlockingNode);
+	}
 }
