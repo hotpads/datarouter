@@ -54,5 +54,5 @@ public interface NotificationTimingStrategy {
 	/**
 	 * @return The age after which a request can be droped id not sent.
 	 */
-	int getDropableAgeSeconds();
+	int getDroppableAgeSeconds();
 }
