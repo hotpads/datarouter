@@ -12,6 +12,8 @@ public class Duration{
 
 	public static final Duration ZERO = new Duration(0, TimeUnit.MILLISECONDS);
 
+	public static final Duration MAX_VALUE = new Duration(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+
 	private static final TimeUnit[] timeUnits = new TimeUnit[]{
 		TimeUnit.DAYS,
 		TimeUnit.HOURS,
