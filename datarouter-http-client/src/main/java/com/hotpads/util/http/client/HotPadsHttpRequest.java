@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
@@ -35,27 +35,21 @@ public class HotPadsHttpRequest {
 	}
 	
 	public HotPadsHttpRequest(HttpMethod method, String url, boolean retrySafe) {
-		switch (method) {
-		case DELETE:
+		if (method == HttpMethod.DELETE) {
 			this.request = new HttpDelete(url);
 			this.payload = Collections.emptyMap();
-			break;
-		case GET:
+		} else if (method == HttpMethod.GET) {
 			this.request = new HttpGet(url);
 			this.payload = Collections.emptyMap();
-			break;
-		case PATCH:
+		} else if (method == HttpMethod.PATCH) {
 			this.request = new HttpPatch(url);
 			this.payload = Collections.emptyMap();
-			break;
-		case POST:
+		} else if (method == HttpMethod.POST) {
 			this.request = new HttpPost(url);
 			this.payload = new HashMap<>();
-			break;
-		case PUT:
+		} else if (method == HttpMethod.PUT) {
 			this.request = new HttpPut(url);
 			this.payload = new HashMap<>();
-			break;
 		}
 		this.retrySafe = retrySafe;
 		this.headers = new HashMap<>();
@@ -81,10 +75,10 @@ public class HotPadsHttpRequest {
 	 * Entities only exist in HttpPut, HttpPatch, HttpPost
 	 */
 	public HttpEntity getEntity() {
-		if(!(request instanceof HttpEntityEnclosingRequestBase)) {
+		if(!(request instanceof HttpEntityEnclosingRequest)) {
 			return null;
 		}
-		HttpEntityEnclosingRequestBase requestEntity = (HttpEntityEnclosingRequestBase) request;
+		HttpEntityEnclosingRequest requestEntity = (HttpEntityEnclosingRequest) request;
 		return requestEntity.getEntity();
 	}
 
@@ -92,7 +86,7 @@ public class HotPadsHttpRequest {
 	 * Entities only exist in HttpPut, HttpPatch, HttpPost
 	 */
 	public HotPadsHttpRequest setEntity(String entity) {
-		if (entity != null && request instanceof HttpEntityEnclosingRequestBase) {
+		if (entity != null && request instanceof HttpEntityEnclosingRequest) {
 			try {
 				setEntity(new StringEntity(entity));
 			} catch (UnsupportedEncodingException e) {
@@ -106,7 +100,7 @@ public class HotPadsHttpRequest {
 	 * Entity exists only in HttpPut, HttpPatch, HttpPost
 	 */
 	public HotPadsHttpRequest setEntity(Map<String, String> entity) {
-		if (entity != null && request instanceof HttpEntityEnclosingRequestBase) {
+		if (entity != null && request instanceof HttpEntityEnclosingRequest) {
 			try {
 				setEntity(new UrlEncodedFormEntity(urlEncodeFromMap(entity)));
 			}catch (UnsupportedEncodingException e){
@@ -117,7 +111,7 @@ public class HotPadsHttpRequest {
 	}
 	
 	private HotPadsHttpRequest setEntity(HttpEntity entity) {
-		HttpEntityEnclosingRequestBase requestEntity = (HttpEntityEnclosingRequestBase) request;
+		HttpEntityEnclosingRequest requestEntity = (HttpEntityEnclosingRequest) request;
 		requestEntity.setEntity(entity);
 		return this;
 	}
@@ -126,7 +120,7 @@ public class HotPadsHttpRequest {
 		return headers;
 	}
 	
-	public HotPadsHttpRequest setHeaders(Map<String, String> headers) {
+	public HotPadsHttpRequest addHeaders(Map<String, String> headers) {
 		if(headers != null) {
 			for(Map.Entry<String,String> header : headers.entrySet()) {
 				request.addHeader(header.getKey(), header.getValue());
