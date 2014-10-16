@@ -27,7 +27,7 @@ implements EntityPrimaryKey<EK,PK>
 	 */
 	@Override
 	public List<Field<?>> getEntityKeyFields(){
-		if(StringTool.isEmpty(getEntityKeyName())){
+		if(StringTool.isEmpty(getEntityKeyName())){//Should this logic be in FieldTool.prependPrefixes
 			return getEntityKey().getFields();
 		}
 		return FieldTool.prependPrefixes(getEntityKeyName() ,getEntityKey().getFields());
