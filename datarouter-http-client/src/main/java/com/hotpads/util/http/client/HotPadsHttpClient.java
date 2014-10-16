@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Scanner;
 
 import javax.inject.Singleton;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
@@ -51,25 +51,25 @@ public class HotPadsHttpClient {
 	}
 	
 	public String execute(HotPadsHttpRequest request) {
-		if(request.getRequest() instanceof HttpPost) {
-			if (csrfValidator != null) {
-				request.addToPayload(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken());
+		if (request.getRequest() instanceof HttpEntityEnclosingRequest) {
+			HttpEntity httpEntity = ((HttpEntityEnclosingRequest) request.getRequest()).getEntity();
+			if(httpEntity == null) {
+				if (csrfValidator != null) {
+					request.addToPayload(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken());
+				}
+				if (apiKeyPredicate != null) {
+					request.addToPayload(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
+				}
+				if (signatureValidator != null) {
+					byte[] signature = signatureValidator.sign(request.getPayload());
+					request.addToPayload(SecurityParameters.SIGNATURE, Base64.encodeBase64String(signature));
+				}
+				request.setEntity(request.getPayload());
 			}
-			if (apiKeyPredicate != null) {
-				request.addToPayload(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
-			}
-			if (signatureValidator != null) {
-				byte[] signature = signatureValidator.sign(request.getPayload());
-				request.addToPayload(SecurityParameters.SIGNATURE, Base64.encodeBase64String(signature));
-			}
-			request.setEntity(request.getPayload());
 		}
 		
 		HttpContext context = new BasicHttpContext();
 		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
-		for(Map.Entry<String, String> param : request.getPayload().entrySet()) {
-			context.setAttribute(param.getKey(), param.getValue());
-		}
 		
 		HotPadsHttpResponse hpResponse;
 		try {
@@ -77,6 +77,9 @@ public class HotPadsHttpClient {
 			hpResponse = new HotPadsHttpResponse(response);
 			if(response.getStatusLine().getStatusCode() > 300){
 				throw new HotPadsHttpClientException(hpResponse);
+			}
+			if(response.getEntity() == null) {
+				return "";
 			}
 			return streamToString(response.getEntity().getContent());
 		} catch (IOException e) {
