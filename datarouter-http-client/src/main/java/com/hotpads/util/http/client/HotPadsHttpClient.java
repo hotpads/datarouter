@@ -42,11 +42,11 @@ public class HotPadsHttpClient {
 		this.config = config;
 	}
 
-	public <T> String serialize(T object) {
+	private <T> String serialize(T object) {
 		return jsonSerializer.serialize(object);
 	}
 	
-	public <E> E deserialize(String dtoJson, Type typeOfE) {
+	private <E> E deserialize(String dtoJson, Type typeOfE) {
 		return jsonSerializer.deserialize(dtoJson, typeOfE);
 	}
 	

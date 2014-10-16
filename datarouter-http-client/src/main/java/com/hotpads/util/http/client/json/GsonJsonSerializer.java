@@ -23,7 +23,7 @@ public class GsonJsonSerializer implements JsonSerializer{
 	}
 
 	@Override
-	public <T> T deserialize(String toDeserialize, Type classOfT){
+	public <T> T deserialize(String toDeserialize, Type classOfT) throws JsonSyntaxException{
 		return gson.fromJson(toDeserialize, classOfT);
 	}
 }
