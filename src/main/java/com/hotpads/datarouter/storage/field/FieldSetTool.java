@@ -11,8 +11,6 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
@@ -25,8 +23,6 @@ import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -38,7 +34,6 @@ import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.number.VarLong;
 
 public class FieldSetTool{
-	static Logger logger = LoggerFactory.getLogger(FieldSetTool.class);
 
 	public static int getNumNonNullLeadingFields(FieldSet<?> prefix){
 		int numNonNullFields = 0;
