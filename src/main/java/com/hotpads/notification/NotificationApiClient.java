@@ -45,7 +45,7 @@ public class NotificationApiClient {
 	private NotificationRequestDtoTool dtoTool;
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	private DatarouterNotificationSettings settings;
-	private Boolean last;
+	private Boolean ignoreSsl;
 
 	@Inject
 	public NotificationApiClient(NotificationRequestDtoTool dtoTool, ExceptionHandlingConfig exceptionHandlingConfig,
@@ -63,9 +63,9 @@ public class NotificationApiClient {
 	}
 
 	private HotPadsHttpClient getClient(Boolean ignoreSsl) {
-		if (last == null || last != ignoreSsl) {
+		if (this.ignoreSsl == null || this.ignoreSsl != ignoreSsl) {
 			 buildClient(ignoreSsl);
-			 last = ignoreSsl;
+			 this.ignoreSsl = ignoreSsl;
 		}
 		return client;
 	}
