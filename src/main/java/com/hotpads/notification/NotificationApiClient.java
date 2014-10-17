@@ -1,17 +1,28 @@
 package com.hotpads.notification;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.notification.databean.NotificationRequest;
+import com.hotpads.setting.DatarouterNotificationSettings;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.http.client.HotPadsHttpClient;
 import com.hotpads.util.http.client.HotPadsHttpClientBuilder;
@@ -33,22 +44,60 @@ public class NotificationApiClient {
 	private HotPadsHttpClient client;
 	private NotificationRequestDtoTool dtoTool;
 	private ExceptionHandlingConfig exceptionHandlingConfig;
+	private DatarouterNotificationSettings settings;
+	private Boolean last;
 
 	@Inject
-	public NotificationApiClient(NotificationRequestDtoTool dtoTool, ExceptionHandlingConfig exceptionHandlingConfig) {
+	public NotificationApiClient(NotificationRequestDtoTool dtoTool, ExceptionHandlingConfig exceptionHandlingConfig,
+			DatarouterNotificationSettings settings) {
+		this.settings = settings;
 		this.exceptionHandlingConfig = exceptionHandlingConfig;
 		this.dtoTool = dtoTool;
-		this.client = new HotPadsHttpClientBuilder().create()
-				.setSignatureValidator(new SignatureValidator(SALT))
-				.setCsrfValidator(new CsrfValidator(CIPHER_KEY, CIPHER_IV))
-				.setApiKeyPredicate(new DefaultApiKeyPredicate(API_KEY))
-				.build();
 	}
 
 	public void call(List<Pair<NotificationRequest, ExceptionRecord>> requests) throws IOException {
 		String url = exceptionHandlingConfig.getNotificationApiEndPoint();
+		HotPadsHttpClient httpClient = getClient(settings.getIgnoreSsl().getValue());
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpMethod.POST, url, false);
-		client.addDtosToPayload(request, dtoTool.toDtos(requests), null).execute(request);
+		httpClient.addDtosToPayload(request, dtoTool.toDtos(requests), null).execute(request);
+	}
+
+	private HotPadsHttpClient getClient(Boolean ignoreSsl) {
+		if (last == null || last != ignoreSsl) {
+			 buildClient(ignoreSsl);
+			 last = ignoreSsl;
+		}
+		return client;
+	}
+
+	private void buildClient(Boolean ignoreSsl) {
+		HotPadsHttpClientBuilder httpClientBuilder = null;
+		if (ignoreSsl) {
+			try{
+				SSLContextBuilder builder = new SSLContextBuilder();
+				builder.loadTrustMaterial(null, new TrustStrategy(){
+	
+					@Override
+					public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException{
+						return true;
+					}
+	
+				});
+				SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(),
+						SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+				HttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(sslsf).build();
+				httpClientBuilder = new HotPadsHttpClientBuilder().create().setCustomHttpClient(httpClient);
+			}catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e){
+				logger.error("",e);
+			}
+		} else {
+			httpClientBuilder = new HotPadsHttpClientBuilder().create();
+		}
+		client = httpClientBuilder
+				.setSignatureValidator(new SignatureValidator(SALT))
+				.setCsrfValidator(new CsrfValidator(CIPHER_KEY, CIPHER_IV))
+				.setApiKeyPredicate(new DefaultApiKeyPredicate(API_KEY))
+				.build();
 	}
 
 }
