@@ -1,10 +1,8 @@
 package com.hotpads.util.http.client;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Scanner;
 
 import javax.inject.Singleton;
 
@@ -75,13 +73,10 @@ public class HotPadsHttpClient {
 		try {
 			HttpResponse response = httpClient.execute(request.getRequest(), context);
 			hpResponse = new HotPadsHttpResponse(response);
-			if(response.getStatusLine().getStatusCode() > 300){
+			if(hpResponse.getStatusCode() > 300){
 				throw new HotPadsHttpClientException(hpResponse);
 			}
-			if(response.getEntity() == null) {
-				return "";
-			}
-			return streamToString(response.getEntity().getContent());
+			return hpResponse.getEntity();
 		} catch (IOException e) {
 			throw new HotPadsHttpClientException(e);
 		}
@@ -100,14 +95,6 @@ public class HotPadsHttpClient {
 		}
 		request.addToPayload(config.getDtoParameterName(), serializedDtos);
 		request.addToPayload(config.getDtoTypeParameterName(), dtoTypeNullSafe);
-		
 		return this;
-	}
-
-	private String streamToString(InputStream input) {
-		try (Scanner s = new Scanner(input)) {
-			s.useDelimiter("\\A");
-			return s.hasNext() ? s.next() : "";
-		}
 	}
 }
