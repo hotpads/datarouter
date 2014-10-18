@@ -35,7 +35,7 @@ extends BaseJdbcOp<PK>{
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Config nullSafeConfig = Config.nullSafe(config);
 		nullSafeConfig.setLimit(1);
-		String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), null, 
+		String sql = SqlBuilder.getAll(nullSafeConfig, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), null, 
 				node.getFieldInfo().getPrimaryKeyFields());
 		List<PK> result = JdbcTool.selectPrimaryKeys(getConnection(node.getClientName()), node.getFieldInfo(), sql);
 		return CollectionTool.getFirst(result);
