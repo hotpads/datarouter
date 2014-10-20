@@ -77,6 +77,19 @@ public class FieldSetTool{
 		return outs;
 	}
 
+	public static String getPersistentString(List<Field<?>> fields){
+		StringBuilder sb = new StringBuilder();
+		boolean doneOne = false;
+		for(Field<?> field : fields){
+			if(doneOne){ 
+				sb.append("_");
+			}
+			sb.append(field.getValueString());
+			doneOne = true;
+		}
+		return sb.toString();
+	}
+
 	public static <T> Map<String, Pair<Field<T>, Field<T>>> getFieldDifferences(Collection<Field<?>> left,
 			Collection<Field<?>> right) {
 
