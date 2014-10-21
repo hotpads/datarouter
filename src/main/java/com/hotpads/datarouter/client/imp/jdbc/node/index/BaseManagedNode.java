@@ -1,14 +1,13 @@
 package com.hotpads.datarouter.client.imp.jdbc.node.index;
 
-import java.util.List;
-
+import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedNode;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
-import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseManagedNode
 		<PK extends PrimaryKey<PK>, 
@@ -16,25 +15,25 @@ public abstract class BaseManagedNode
 		IK extends PrimaryKey<IK>,
 		IE extends IndexEntry<IK, IE, PK, D>,
 		IF extends DatabeanFielder<IK, IE>> 
-implements ManagedNode{
+implements ManagedNode<IK, IE, IF>{
 	
-	protected Class<IF> indexFielderClass;
-	protected Class<IE> indexEntryClass;
+	private String name;
+	protected DatabeanFieldInfo<IK, IE, IF> fieldInfo;
+	protected PhysicalMapStorageNode<PK, D> node;
 
-	public BaseManagedNode(Class<IE> indexEntryClass, Class<IF> indexFielderClass){
-		this.indexFielderClass = indexFielderClass;
-		this.indexEntryClass = indexEntryClass;
+	public BaseManagedNode(PhysicalMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
+		this.node = node;
+		this.name = name;
+		this.fieldInfo = new DatabeanFieldInfo<IK, IE, IF>(name, params);
 	}
 
 	@Override
 	public String getName(){
-		return getClass().getSimpleName();
+		return name;
 	}
 	
-	@Override
-	public List<Field<?>> getFields(){
-		IE sampleDatabean = ReflectionTool.create(indexEntryClass);
-		return ReflectionTool.create(indexFielderClass).getFields(sampleDatabean);
+	public DatabeanFieldInfo<IK, IE, IF> getFieldInfo(){
+		return fieldInfo;
 	}
 
 }

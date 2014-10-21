@@ -101,9 +101,14 @@ public class JdbcTool {
 			throw new DataAccessException(e);
 		}
 	}
-	
+
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 	List<D> selectDatabeans(Connection connection, DatabeanFieldInfo<PK,D,F> fieldInfo, String sql){
+		return selectDatabeans(connection, sql, fieldInfo.getDatabeanClass(), fieldInfo.getFields());
+	}
+	
+	public static <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>> List<D> 
+	selectDatabeans(Connection connection, String sql, Class<D> databeanClass, List<Field<?>> databeanFields){
 //		System.out.println(sql);
 		try{
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
@@ -112,7 +117,7 @@ public class JdbcTool {
 			List<D> databeans = ListTool.createArrayList();
 			while(rs.next()){
 				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
-						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
+						databeanClass, databeanFields, rs, false);
 				databeans.add(databean);
 			}
 			return databeans;

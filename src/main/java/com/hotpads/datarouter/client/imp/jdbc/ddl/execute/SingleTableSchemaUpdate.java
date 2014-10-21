@@ -76,8 +76,8 @@ implements Callable<Void>{
 		String currentTableAbsoluteName = clientName + "." + tableName;
 		if(tablesToIgnore.contains(currentTableAbsoluteName)){ return null; }
 
-		for(ManagedNode managedNode : physicalNode.getManagedNodes()){
-			indexes.put(managedNode.getName(), managedNode.getFields());
+		for(ManagedNode<?, ?, ?> managedNode : physicalNode.getManagedNodes()){
+			indexes.put(managedNode.getName(), managedNode.getFieldInfo().getFields());
 		}
 		
 		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(), primaryKeyFields, 

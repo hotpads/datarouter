@@ -9,6 +9,7 @@ import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetByIndexOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetIndexOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.write.JdbcDeleteByIndexOp;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.index.UniqueIndexReader;
 import com.hotpads.datarouter.node.op.index.UniqueIndexWriter;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
@@ -27,14 +28,10 @@ public class JdbcTxnManagedUniqueIndexNode
 		IE extends UniqueIndexEntry<IK, IE, PK, D>,
 		IF extends DatabeanFielder<IK,IE>>
 extends BaseManagedNode<PK,D,IK,IE,IF>
-implements ManagedUniqueIndexNode<PK, D, IK, IE>{
+implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 
-	private final PhysicalMapStorageNode<PK, D> node;
-
-	public JdbcTxnManagedUniqueIndexNode(PhysicalMapStorageNode<PK, D> backingMapNode, Class<IE> indexEntryClass,
-			Class<IF> indexFielderClass){
-		super(indexEntryClass, indexFielderClass);
-		this.node = backingMapNode;
+	public JdbcTxnManagedUniqueIndexNode(PhysicalMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
+		super(node, params, name);
 	}
 
 	@Override
@@ -57,8 +54,8 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE>{
 	@Override
 	public List<IE> lookupMultiUniqueIndex(Collection<IK> uniqueKeys, Config config){
 		String opName = ManagedUniqueIndexNode.OP_lookupMultiUniqueIndex;
-		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, indexEntryClass, indexFielderClass,
-				uniqueKeys);
+		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, fieldInfo.getDatabeanClass(),
+				fieldInfo.getFielderClass(), uniqueKeys);
 		return new SessionExecutorImpl<List<IE>>(op, opName).call();
 	}
 

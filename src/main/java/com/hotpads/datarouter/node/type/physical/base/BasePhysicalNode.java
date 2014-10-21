@@ -18,6 +18,7 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
@@ -31,7 +32,7 @@ implements PhysicalNode<PK,D>
 {
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 	
-	private List<ManagedNode> managedNodes;
+	private List<ManagedNode<?,?,?>> managedNodes;
 	
 //	protected String clientName;
 //	protected String tableName;
@@ -119,13 +120,17 @@ implements PhysicalNode<PK,D>
 	}
 	
 	@Override
-	public <N extends ManagedNode> N registerManaged(N managedNode){
+	public 
+	<IK extends PrimaryKey<IK>, 
+	IE extends IndexEntry<IK, IE, PK, D>, 
+	IF extends DatabeanFielder<IK, IE>, 
+	N extends ManagedNode<IK, IE, IF>> N registerManaged(N managedNode){
 		managedNodes.add(managedNode);
 		return managedNode;
 	}
 	
 	@Override
-	public List<ManagedNode> getManagedNodes(){
+	public List<ManagedNode<?, ?, ?>> getManagedNodes(){
 		return managedNodes;
 	}
 

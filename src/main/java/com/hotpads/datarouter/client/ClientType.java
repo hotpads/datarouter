@@ -31,16 +31,16 @@ public interface ClientType{
 	D extends Databean<PK, D>, 
 	IK extends PrimaryKey<IK>, 
 	IE extends UniqueIndexEntry<IK, IE, PK, D>,
-	IF extends DatabeanFielder<IK, IE>> ManagedUniqueIndexNode<PK, D, IK, IE> createManagedUniqueIndexNode(
-			PhysicalMapStorageNode<PK, D> backingMapNode, Class<IE> indexEntryClass, Class<IF> indexFielder,
-			boolean manageTxn, String indexName);
+	IF extends DatabeanFielder<IK, IE>> ManagedUniqueIndexNode<PK, D, IK, IE, IF> createManagedUniqueIndexNode(
+			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
+			boolean manageTxn);
 	
 	<PK extends PrimaryKey<PK>, 
 	D extends Databean<PK, D>, 
 	IK extends PrimaryKey<IK>, 
 	IE extends MultiIndexEntry<IK, IE, PK, D>,
-	IF extends DatabeanFielder<IK, IE>> ManagedMultiIndexNode<PK, D, IK, IE> createManagedMultiIndexNode(
-			PhysicalMapStorageNode<PK, D> backingMapNode, Class<IE> indexEntryClass, Class<IF> indexFielder,
-			boolean manageTxn, String indexName);
+	IF extends DatabeanFielder<IK, IE>> ManagedMultiIndexNode<PK, D, IK, IE, IF> createManagedMultiIndexNode(
+			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
+			boolean manageTxn);
 	
 }
