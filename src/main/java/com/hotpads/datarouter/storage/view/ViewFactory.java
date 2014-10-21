@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.datarouter.storage.status.StandardStatus;
 
 /*
  * subclasses must provide a visible no-arg constructor as they are sometimes instantiated with Class.newInstance()
@@ -30,6 +31,6 @@ public abstract class ViewFactory<
 	
 	public abstract V update(V view);
 	
-	public abstract void handleRenderOutcome(Collection<UK> keys, ViewRenderingStatus newStatus);
+	public abstract void handleRenderOutcome(Collection<UK> keys, StandardStatus newStatus);
 	
 }
