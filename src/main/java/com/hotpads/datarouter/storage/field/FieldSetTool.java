@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,8 @@ import org.junit.Test;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
+import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
@@ -122,6 +125,15 @@ public class FieldSetTool{
 		return fieldMap;
 	}
 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>Map<PK,List<Field<?>>> getFieldsByKey(
+			Iterable<D> databeans, DatabeanFielder<PK,D> fielder){
+		Map<PK,List<Field<?>>> fieldsByKey = new HashMap<>();
+		for(D databean : databeans){
+			fieldsByKey.put(databean.getKey(), fielder.getFields(databean));
+		}
+		return fieldsByKey;
+	}
+	
 //	public static String getCsv(FieldSet<?> fieldSet){
 //		StringBuilder sb = new StringBuilder();
 //		for(Field<?> field : fieldSet.getFields()){
