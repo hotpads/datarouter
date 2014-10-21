@@ -60,9 +60,6 @@ public class Bundle{
 	
 	protected <D extends Databean<?,?>> void ensureSingleTypeBundleExists(D databean){
 		ensureSingleTypeBundleExists(databean.getClass());
-		if(this.bundleByType.get(databean.getClass().getName())==null){//FIXME useless because of the previous line ? @Clement
-			this.bundleByType.put(databean.getClass().getName(), new SingleTypeBundle<D>());
-		}
 	}
 	
 	private <D extends Databean<?,?>> void ensureSingleTypeBundleExists(Class<D> clazz){
