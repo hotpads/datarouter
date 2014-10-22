@@ -4,6 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.xml.bind.DatatypeConverter;
+
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -29,14 +31,13 @@ public class ByteArrayField extends BaseField<byte[]>{
 	
 	@Override
 	public String getStringEncodedValue(){
-		if(value==null){ return null; }
-		//TODO to base-64 format?
-		throw new NotImplementedException();
+		if(value == null){ return null; }
+		return DatatypeConverter.printBase64Binary(value);
 	}
 	
 	@Override
 	public byte[] parseStringEncodedValueButDoNotSet(String s){
-		throw new NotImplementedException();
+		return DatatypeConverter.parseBase64Binary(s);
 	}
 	
 
@@ -91,7 +92,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	
 	@Override
 	public String getValueString(){
-		return ArrayTool.toCsvString(value);
+		return DatatypeConverter.printBase64Binary(value);
 	}
 	
 	@Override
@@ -129,4 +130,5 @@ public class ByteArrayField extends BaseField<byte[]>{
 	public String getSqlEscaped(){
 		throw new NotImplementedException();
 	}
+
 }
