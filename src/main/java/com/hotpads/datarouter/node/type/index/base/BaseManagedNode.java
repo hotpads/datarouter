@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.node.index;
+package com.hotpads.datarouter.node.type.index.base;
 
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;

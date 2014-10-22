@@ -24,7 +24,7 @@ public class JdbcManagedUniqueIndexNode
 		IK extends PrimaryKey<IK>, 
 		IE extends UniqueIndexEntry<IK, IE, PK, D>,
 		IF extends DatabeanFielder<IK,IE>>
-extends BaseManagedNode<PK, D, IK, IE, IF>
+extends BaseJdbcManagedIndexNode<PK, D, IK, IE, IF>
 implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 
 	

@@ -6,20 +6,16 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetIndexOp;
-import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcManagedIndexScanner;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
-import com.hotpads.datarouter.op.scan.ManagedIndexDatabeanScanner;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntryTool;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
-import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class JdbcManagedMultiIndexNode
 		<PK extends PrimaryKey<PK>, 
@@ -27,7 +23,7 @@ public class JdbcManagedMultiIndexNode
 		IK extends PrimaryKey<IK>,
 		IE extends MultiIndexEntry<IK, IE, PK, D>, 
 		IF extends DatabeanFielder<IK, IE>>
-extends BaseManagedNode<PK,D,IK,IE,IF>
+extends BaseJdbcManagedIndexNode<PK,D,IK,IE,IF>
 implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 	
 	public JdbcManagedMultiIndexNode(PhysicalMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
@@ -57,17 +53,6 @@ implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 		List<IE> entries = lookupMultiIndexMulti(indexKeys, wildcardLastField, config);
 		List<PK> targetKeys = IndexEntryTool.getPrimaryKeys(entries);
 		return node.getMulti(targetKeys, config);
-	}
-
-	@Override
-	public SortedScannerIterable<IE> scanIndex(Range<IK> range, Config config){
-		String opName = ManagedMultiIndexNode.OP_scanIndex;
-		return new SortedScannerIterable<IE>(new JdbcManagedIndexScanner<PK, D, IK, IE, IF>(node, this, range, opName));
-	}
-
-	@Override
-	public SortedScannerIterable<D> scan(Range<IK> range, Config config){
-		return new SortedScannerIterable<D>(new ManagedIndexDatabeanScanner<>(node, scanIndex(range, config), config));
 	}
 
 }

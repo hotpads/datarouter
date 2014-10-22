@@ -5,7 +5,6 @@ import java.util.List;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcManagedIndexScanOp;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.config.Configs;
 import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
@@ -29,13 +28,15 @@ extends BaseBatchingSortedScanner<IE,IE>{
 	private String traceName;
 	private ManagedNode<IK, IE, IF> managedNode;
 	private Range<IK> range;
+	private Config config;
 
 	public JdbcManagedIndexScanner(PhysicalNode<PK, D> node, ManagedNode<IK, IE, IF> managedNode, Range<IK> range,
-			String traceName){
+			String traceName, Config config){
 		this.node = node;
 		this.managedNode = managedNode;
 		this.range = range;
 		this.traceName = traceName;
+		this.config = config;
 	}
 
 	@Override
@@ -68,7 +69,7 @@ extends BaseBatchingSortedScanner<IE,IE>{
 	}
 
 	private List<IE> doLoad(Range<IK> range){
-		Config config = Configs.slaveOk().setLimit(JdbcNode.DEFAULT_ITERATE_BATCH_SIZE);
+		config = Config.nullSafe(config).setIterateBatchSizeIfNull(JdbcNode.DEFAULT_ITERATE_BATCH_SIZE);
 		JdbcManagedIndexScanOp<PK, D, IK, IE, IF> op = new JdbcManagedIndexScanOp<>(node, managedNode, range,
 				config, traceName);
 		return new SessionExecutorImpl<List<IE>>(op, traceName).call();
