@@ -86,9 +86,10 @@ public class FieldSetTool{
 		for(Field<?> field : fields){
 			if(doneOne){ 
 				sb.append("_");
+			}else{
+				doneOne = true;
 			}
 			sb.append(field.getValueString());
-			doneOne = true;
 		}
 		return sb.toString();
 	}
