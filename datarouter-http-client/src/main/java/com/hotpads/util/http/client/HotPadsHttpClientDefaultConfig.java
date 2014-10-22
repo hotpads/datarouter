@@ -11,5 +11,4 @@ public class HotPadsHttpClientDefaultConfig implements HotPadsHttpClientConfig{
 	public String getDtoTypeParameterName(){
 		return "dataTransferObjectType";
 	}
-
 }
