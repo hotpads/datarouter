@@ -1,21 +1,15 @@
 package com.hotpads.datarouter.storage.databean;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
-import com.hotpads.datarouter.storage.field.BaseFieldSet;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.ListTool;
 
-
-@SuppressWarnings("serial")
 public abstract class BaseDatabean<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 //extends BaseFieldSet<D>
 implements Databean<PK,D>{

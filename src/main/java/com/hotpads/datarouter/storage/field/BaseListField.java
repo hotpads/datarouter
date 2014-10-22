@@ -2,12 +2,10 @@ package com.hotpads.datarouter.storage.field;
 
 import java.util.List;
 
-import com.hotpads.datarouter.storage.field.encoding.ByteEncodedField;
 import com.hotpads.util.core.CollectionTool;
 
 public abstract class BaseListField<V extends Comparable<V>,L extends List<V>>
-extends BaseField<L>
-implements ByteEncodedField<L>{
+extends BaseField<L>{
 
 	public BaseListField(String name, L value) {
 		super(null, name, value);
@@ -38,7 +36,7 @@ implements ByteEncodedField<L>{
 	
 	@Override
 	public String getValueString(){
-		return value+"";
+		return String.valueOf(value);
 	}
 
 	@Override

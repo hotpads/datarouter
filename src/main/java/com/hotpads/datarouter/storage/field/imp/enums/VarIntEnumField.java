@@ -82,7 +82,7 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 	@Override
 	public String getValueString(){
 		if(value==null){ return ""; }//hmm - should this just return null?
-		return value.getPersistentInteger()+"";
+		return String.valueOf(value.getPersistentInteger());
 	}
 
 	@Override
