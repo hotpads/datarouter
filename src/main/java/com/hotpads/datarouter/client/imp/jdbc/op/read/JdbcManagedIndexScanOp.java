@@ -48,7 +48,7 @@ extends BaseJdbcOp<List<IE>>{
 		String sql = SqlBuilder.getInRange(config, node.getTableName(), fieldInfo.getFields(), range.getStart(),
 				range.getStartInclusive(), range.getEnd(), range.getEndInclusive(), fieldInfo.getPrimaryKeyFields());
 		Connection connection = getConnection(node.getClientName());
-		List<IE> result = JdbcTool.selectDatabeans(connection, sql, fieldInfo.getDatabeanClass(), fieldInfo.getFields());
+		List<IE> result = JdbcTool.selectDatabeans(connection, fieldInfo, sql);
 		return result;
 	}
 
