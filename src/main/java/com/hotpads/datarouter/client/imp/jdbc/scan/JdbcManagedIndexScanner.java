@@ -34,7 +34,7 @@ extends BaseBatchingSortedScanner<IE,IE>{
 			String traceName, Config config){
 		this.node = node;
 		this.managedNode = managedNode;
-		this.range = range;
+		this.range = Range.nullSafe(range);
 		this.traceName = traceName;
 		this.config = config;
 	}

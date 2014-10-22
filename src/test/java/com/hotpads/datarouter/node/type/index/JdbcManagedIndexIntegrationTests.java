@@ -12,6 +12,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByB;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByBKey;
+import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByC;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByCKey;
 import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithIndexNode;
 import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithManagedIndexNode;
@@ -26,6 +27,7 @@ public class JdbcManagedIndexIntegrationTests{
 	
 	private static TestDatabeanWithManagedIndexNode node;
 	private static TestDatabeanWithTxnManagedIndexNode nodeWithTxnManaged;
+	private static LinkedList<TestDatabean> testDatabeans;
 
 	@BeforeClass
 	public static void setUp(){
@@ -34,7 +36,7 @@ public class JdbcManagedIndexIntegrationTests{
 		node = router.testDatabeanWithManagedIndex;
 		nodeWithTxnManaged = router.testDatabeanWithTxnManagedIndex;
 		
-		LinkedList<TestDatabean> databeans = ListTool.createLinkedList(
+		testDatabeans = ListTool.createLinkedList(
 				new TestDatabean("un", "alarc'h", "un"),
 				new TestDatabean("alarc'h", "tra", "mor"),
 				new TestDatabean("war", "lein", "tour"),
@@ -43,8 +45,8 @@ public class JdbcManagedIndexIntegrationTests{
 				new TestDatabean("Ha malloz-ru", "d'ar C'hallaou", "ed"),
 				new TestDatabean("Erru eul lestr", "e pleg ar m", "or"),
 				new TestDatabean("He weliou gwenn", "gant han dig", "or"));
-		node.mainNode.putMulti(databeans, null);
-		nodeWithTxnManaged.mainNode.putMulti(databeans, null);
+		node.mainNode.putMulti(testDatabeans, null);
+		nodeWithTxnManaged.mainNode.putMulti(testDatabeans, null);
 	}
 	
 	@AfterClass
@@ -219,6 +221,76 @@ public class JdbcManagedIndexIntegrationTests{
 		for(TestDatabean d : databeans){
 			Assert.assertTrue(expected.remove(d));
 		}
+	}
+	
+	@Test
+	public void testScanIndex(){
+		testScanUniqueIndex(node);
+		testScanUniqueIndex(nodeWithTxnManaged);
+		
+		testScanMultiIndex(node);
+		testScanMultiIndex(nodeWithTxnManaged);
+	}
+	
+	private void testScanUniqueIndex(TestDatabeanWithIndexNode node){
+		TestDatabeanWithManagedIndexByB previous = null;
+		int count = 0;
+		for(TestDatabeanWithManagedIndexByB indexEntry : node.byB.scanIndex(null, null)){
+			if(previous != null){
+				Assert.assertTrue(indexEntry.getKey().compareTo(previous.getKey()) >= 0);
+			}
+			previous = indexEntry;
+			count++;
+		}
+		Assert.assertEquals(testDatabeans.size(), count);
+	}
+	
+	private void testScanMultiIndex(TestDatabeanWithIndexNode node){
+		TestDatabeanWithManagedIndexByC previous = null;
+		int count = 0;
+		for(TestDatabeanWithManagedIndexByC indexEntry : node.byC.scanIndex(null, null)){
+			if(previous != null){
+				Assert.assertTrue(indexEntry.getKey().compareTo(previous.getKey()) >= 0);
+			}
+			previous = indexEntry;
+			count++;
+		}
+		Assert.assertEquals(testDatabeans.size(), count);
+	}
+	
+	@Test
+	public void testScan(){
+		testScanUnique(node);
+		testScanUnique(nodeWithTxnManaged);
+		
+		testScanMulti(node);
+		testScanMulti(nodeWithTxnManaged);
+	}
+	
+	private void testScanUnique(TestDatabeanWithIndexNode node){
+		TestDatabean previous = null;
+		int count = 0;
+		for(TestDatabean databean : node.byB.scan(null, null)){
+			if(previous != null){
+				Assert.assertTrue(databean.getB().compareTo(previous.getB()) >= 0);
+			}
+			previous = databean;
+			count++;
+		}
+		Assert.assertEquals(testDatabeans.size(), count);
+	}
+	
+	private void testScanMulti(TestDatabeanWithIndexNode node){
+		TestDatabean previous = null;
+		int count = 0;
+		for(TestDatabean databean : node.byC.scan(null, null)){
+			if(previous != null){
+				Assert.assertTrue(databean.getC().compareTo(previous.getC()) >= 0);
+			}
+			previous = databean;
+			count++;
+		}
+		Assert.assertEquals(testDatabeans.size(), count);
 	}
 	
 	@Test
