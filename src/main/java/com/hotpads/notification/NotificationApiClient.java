@@ -26,6 +26,8 @@ import com.hotpads.setting.DatarouterNotificationSettings;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.http.client.HotPadsHttpClient;
 import com.hotpads.util.http.client.HotPadsHttpClientBuilder;
+import com.hotpads.util.http.client.HotPadsHttpRequest;
+import com.hotpads.util.http.client.HotPadsHttpRequest.HttpMethod;
 import com.hotpads.util.http.client.security.CsrfValidator;
 import com.hotpads.util.http.client.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.client.security.SignatureValidator;
@@ -43,7 +45,7 @@ public class NotificationApiClient {
 	private NotificationRequestDtoTool dtoTool;
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	private DatarouterNotificationSettings settings;
-	private Boolean last;
+	private Boolean ignoreSsl;
 
 	@Inject
 	public NotificationApiClient(NotificationRequestDtoTool dtoTool, ExceptionHandlingConfig exceptionHandlingConfig,
@@ -54,21 +56,23 @@ public class NotificationApiClient {
 	}
 
 	public void call(List<Pair<NotificationRequest, ExceptionRecord>> requests) throws IOException {
-		getClient(settings.getIgnoreSsl().getValue()).post(exceptionHandlingConfig.getNotificationApiEndPoint(),
-				dtoTool.toDtos(requests), false);
+		String url = exceptionHandlingConfig.getNotificationApiEndPoint();
+		HotPadsHttpClient httpClient = getClient(settings.getIgnoreSsl().getValue());
+		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpMethod.POST, url, false);
+		httpClient.addDtosToPayload(request, dtoTool.toDtos(requests), null).execute(request);
 	}
 
 	private HotPadsHttpClient getClient(Boolean ignoreSsl) {
-		if (last == null || last != ignoreSsl) {
+		if (this.ignoreSsl == null || this.ignoreSsl != ignoreSsl) {
 			 buildClient(ignoreSsl);
-			 last = ignoreSsl;
+			 this.ignoreSsl = ignoreSsl;
 		}
 		return client;
 	}
 
 	private void buildClient(Boolean ignoreSsl) {
 		HotPadsHttpClientBuilder httpClientBuilder = null;
-		if (settings.getIgnoreSsl().getValue()) {
+		if (ignoreSsl) {
 			try{
 				SSLContextBuilder builder = new SSLContextBuilder();
 				builder.loadTrustMaterial(null, new TrustStrategy(){
