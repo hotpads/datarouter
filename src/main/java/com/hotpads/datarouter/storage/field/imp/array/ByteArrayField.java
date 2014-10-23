@@ -92,7 +92,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	
 	@Override
 	public String getValueString(){
-		return DatatypeConverter.printBase64Binary(value);
+		return ArrayTool.toCsvString(value);
 	}
 	
 	@Override
