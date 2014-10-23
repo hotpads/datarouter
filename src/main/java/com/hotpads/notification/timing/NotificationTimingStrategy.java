@@ -50,4 +50,9 @@ public interface NotificationTimingStrategy {
 	 * Minimum delay between two same type and same channel Notification sending (in seconds)
 	 */
 	int getDelayForChannel();
+
+	/**
+	 * @return The age after which a request can be droped id not sent.
+	 */
+	int getDroppableAgeSeconds();
 }

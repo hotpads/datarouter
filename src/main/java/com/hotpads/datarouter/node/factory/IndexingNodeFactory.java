@@ -3,11 +3,15 @@ package com.hotpads.datarouter.node.factory;
 import com.hotpads.datarouter.node.compound.readwrite.CompoundMapRWStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
+import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.index.IndexListener;
 import com.hotpads.datarouter.node.type.index.IndexMapStorageWriterListener;
+import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
+import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.type.index.ManualMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.ManualUniqueIndexNode;
 import com.hotpads.datarouter.node.type.indexing.IndexingMapStorageNode;
+import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -53,6 +57,7 @@ public class IndexingNodeFactory {
 	
 	/******************************* indexing node **************************************/	
 	
+	/**** Manual indexes ****/
 	public static <PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>,
 					IK extends PrimaryKey<IK>,
@@ -70,6 +75,51 @@ public class IndexingNodeFactory {
 	ManualMultiIndexNode<PK,D,IK,IE> newManualMulti(CompoundMapRWStorage<PK,D> mainNode, 
 			SortedMapStorageNode<IK,IE> indexNode){
 		return new ManualMultiIndexNode<PK,D,IK,IE>(mainNode, indexNode);
+	}
+
+	/**** Managed indexes ****/
+	public static <PK extends PrimaryKey<PK>,
+					D extends Databean<PK,D>,
+					IK extends PrimaryKey<IK>,
+					IE extends UniqueIndexEntry<IK,IE,PK,D>,
+					IF extends DatabeanFielder<IK,IE>>
+	ManagedUniqueIndexNode<PK, D, IK, IE> newManagedUnique(DataRouter router, PhysicalMapStorageNode<PK, D> backingNode, 
+			Class<IF> indexFielder, Class<IE> indexEntryClass, boolean manageTxn, String indexName){
+		return router.getClientType(backingNode.getClientName()).createManagedUniqueIndexNode(backingNode,
+				indexEntryClass, indexFielder, manageTxn, indexName);
+	}
+	
+	public static <PK extends PrimaryKey<PK>,
+					D extends Databean<PK,D>,
+					IK extends PrimaryKey<IK>,
+					IE extends MultiIndexEntry<IK,IE,PK,D>,
+					IF extends DatabeanFielder<IK,IE>>
+	ManagedMultiIndexNode<PK, D, IK, IE> newManagedMulti(DataRouter router, PhysicalMapStorageNode<PK, D> backingNode, 
+			Class<IF> indexFielder, Class<IE> indexEntryClass, boolean manageTxn, String indexName){
+		return router.getClientType(backingNode.getClientName()).createManagedMultiIndexNode(backingNode,
+				indexEntryClass, indexFielder, manageTxn, indexName);
+	}
+	
+	public static <PK extends PrimaryKey<PK>,
+					D extends Databean<PK,D>,
+					IK extends PrimaryKey<IK>,
+					IE extends UniqueIndexEntry<IK,IE,PK,D>,
+					IF extends DatabeanFielder<IK,IE>>
+	ManagedUniqueIndexNode<PK, D, IK, IE> newManagedUnique(DataRouter router, PhysicalMapStorageNode<PK, D> backingNode, 
+			Class<IF> indexFielder, Class<IE> indexEntryClass, boolean manageTxn){
+		return newManagedUnique(router, backingNode, indexFielder, indexEntryClass, manageTxn,
+				indexEntryClass.getSimpleName());
+	}
+
+	public static <PK extends PrimaryKey<PK>,
+					D extends Databean<PK,D>,
+					IK extends PrimaryKey<IK>,
+					IE extends MultiIndexEntry<IK,IE,PK,D>,
+					IF extends DatabeanFielder<IK,IE>>
+	ManagedMultiIndexNode<PK, D, IK, IE> newManagedMulti(DataRouter router, PhysicalMapStorageNode<PK, D> backingNode, 
+			Class<IF> indexFielder, Class<IE> indexEntryClass, boolean manageTxn){
+		return newManagedMulti(router, backingNode, indexFielder, indexEntryClass, manageTxn,
+			indexEntryClass.getSimpleName());
 	}
 }
 
