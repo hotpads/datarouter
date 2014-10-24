@@ -13,12 +13,14 @@ public class HotPadsHttpResponse {
 	
 	public HotPadsHttpResponse(HttpResponse response){
 		statusCode = response.getStatusLine().getStatusCode();
-		try{
-			entity = EntityUtils.toString(response.getEntity());
-		}catch (ParseException | IOException | IllegalArgumentException e){
-			throw new RuntimeException(e);
+		if(response.getEntity() == null) {
+			try{
+				entity = EntityUtils.toString(response.getEntity());
+			}catch (ParseException | IOException | IllegalArgumentException e){
+				throw new RuntimeException(e);
+			}
+			EntityUtils.consumeQuietly(response.getEntity());
 		}
-		EntityUtils.consumeQuietly(response.getEntity());
 	}
 
 	@Override
