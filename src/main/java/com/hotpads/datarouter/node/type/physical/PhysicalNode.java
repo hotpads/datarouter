@@ -19,12 +19,14 @@ extends Node<PK,D>{
 	String getTableName();
 	String getPackagedTableName();
 	
-	<IK extends PrimaryKey<IK>, 
-	IE extends IndexEntry<IK, IE, PK, D>, 
-	IF extends DatabeanFielder<IK, IE>, 
-	N extends ManagedNode<IK, IE, IF>> N registerManaged(N managedNode);
+		<IK extends PrimaryKey<IK>, 
+		IE extends IndexEntry<IK, IE, PK, D>, 
+		IF extends DatabeanFielder<IK, IE>, 
+		N extends ManagedNode<IK, IE, IF>>
+	N registerManaged(N managedNode);
 	
-	<IK extends PrimaryKey<IK>, 
-	IE extends IndexEntry<IK, IE, PK, D>, 
-	IF extends DatabeanFielder<IK, IE>> List<ManagedNode<IK, IE, IF>> getManagedNodes();
+		<IK extends PrimaryKey<IK>, 
+		IE extends IndexEntry<IK, IE, PK, D>, 
+		IF extends DatabeanFielder<IK, IE>>
+	List<ManagedNode<IK, IE, IF>> getManagedNodes();
 }
