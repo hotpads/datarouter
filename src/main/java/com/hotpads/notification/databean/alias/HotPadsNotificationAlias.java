@@ -10,4 +10,8 @@ public enum HotPadsNotificationAlias{
 		this.alias = new NotificationAlias(name);
 	}
 
+	public NotificationAlias getAlias(){
+		return alias;
+	}
+
 }
