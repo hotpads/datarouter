@@ -8,7 +8,9 @@ public enum NotificationUserType implements StringEnum<NotificationUserType> {
 	TOKEN("token"),
 	EMAIL("email"),
 	PHONE("phone"),
-	ANDROID("android");
+	ANDROID("android"),
+	ALIAS("alias"),
+	;
 
 	private String name;
 	
