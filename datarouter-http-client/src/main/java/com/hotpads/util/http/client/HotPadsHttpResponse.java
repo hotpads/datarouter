@@ -14,6 +14,8 @@ public class HotPadsHttpResponse {
 	public HotPadsHttpResponse(HttpResponse response){
 		statusCode = response.getStatusLine().getStatusCode();
 		if(response.getEntity() == null) {
+			entity = "";
+		} else {
 			try{
 				entity = EntityUtils.toString(response.getEntity());
 			}catch (ParseException | IOException | IllegalArgumentException e){
