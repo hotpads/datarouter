@@ -1,12 +1,15 @@
 package com.hotpads.datarouter.node.type.index;
 
-import java.util.List;
+import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
+import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-import com.hotpads.datarouter.storage.field.Field;
-
-public interface ManagedNode{
+public interface ManagedNode
+	<IK extends PrimaryKey<IK>,
+	IE extends Databean<IK, IE>,
+	IF extends DatabeanFielder<IK, IE>>{
 
 	String getName();
-	List<Field<?>> getFields();
-
+	DatabeanFieldInfo<IK, IE, IF> getFieldInfo();
 }
