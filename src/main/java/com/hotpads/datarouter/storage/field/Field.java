@@ -32,7 +32,6 @@ extends Comparable<Field<T>>,
 	String getPrefixedName();
 	void setUsingReflection(Object targetFieldSet, Object value);
 
-	@Deprecated
 	String getValueString();
 	void fromString(String s);
 }

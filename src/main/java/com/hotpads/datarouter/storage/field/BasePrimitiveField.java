@@ -1,11 +1,9 @@
 package com.hotpads.datarouter.storage.field;
 
-import com.hotpads.datarouter.storage.field.encoding.ByteEncodedField;
 import com.hotpads.util.core.ComparableTool;
 
 public abstract class BasePrimitiveField<T extends Comparable<T>> 
-extends BaseField<T>
-implements ByteEncodedField<T>{
+extends BaseField<T>{
 
 	public BasePrimitiveField(String name, T value) {
 		super(null, name, value);
@@ -24,7 +22,7 @@ implements ByteEncodedField<T>{
 	@Override
 	public String getValueString(){
 		if(value==null){ return ""; }
-		return value+"";
+		return value.toString();
 	}
 
 	@Override
