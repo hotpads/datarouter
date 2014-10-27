@@ -264,6 +264,7 @@ public class ExceptionHandlingFilter implements Filter {
 
 	private void writeExceptionToResponseWriter(HttpServletResponse response, Exception exception, 
 			HttpServletRequest request) {
+		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		response.setContentType("text/html");
 		try {
 			PrintWriter out = response.getWriter();
