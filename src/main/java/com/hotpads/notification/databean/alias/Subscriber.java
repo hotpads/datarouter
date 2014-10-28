@@ -87,5 +87,9 @@ public class Subscriber extends BaseDatabean<SubscriberKey,Subscriber> {
 
 	/** get/set ***************************************************************/
 
+	public String getEmail(){
+		return key.getEmail();
+	}
+
 }
 

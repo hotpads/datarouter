@@ -44,4 +44,8 @@ public class SubscriberKey extends BasePrimaryKey<SubscriberKey> {
 
 	/** get/set ***************************************************************/
 
+	public String getEmail(){
+		return email;
+	}
+
 }
