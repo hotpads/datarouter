@@ -5,19 +5,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
+import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
@@ -25,8 +26,6 @@ import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -38,7 +37,6 @@ import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.number.VarLong;
 
 public class FieldSetTool{
-	static Logger logger = LoggerFactory.getLogger(FieldSetTool.class);
 
 	public static int getNumNonNullLeadingFields(FieldSet<?> prefix){
 		int numNonNullFields = 0;
@@ -82,6 +80,20 @@ public class FieldSetTool{
 		return outs;
 	}
 
+	public static String getPersistentString(List<Field<?>> fields){
+		StringBuilder sb = new StringBuilder();
+		boolean doneOne = false;
+		for(Field<?> field : fields){
+			if(doneOne){ 
+				sb.append("_");
+			}else{
+				doneOne = true;
+			}
+			sb.append(field.getValueString());
+		}
+		return sb.toString();
+	}
+
 	public static <T> Map<String, Pair<Field<T>, Field<T>>> getFieldDifferences(Collection<Field<?>> left,
 			Collection<Field<?>> right) {
 
@@ -114,6 +126,15 @@ public class FieldSetTool{
 		return fieldMap;
 	}
 
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>Map<PK,List<Field<?>>> getFieldsByKey(
+			Iterable<D> databeans, DatabeanFielder<PK,D> fielder){
+		Map<PK,List<Field<?>>> fieldsByKey = new HashMap<>();
+		for(D databean : databeans){
+			fieldsByKey.put(databean.getKey(), fielder.getFields(databean));
+		}
+		return fieldsByKey;
+	}
+	
 //	public static String getCsv(FieldSet<?> fieldSet){
 //		StringBuilder sb = new StringBuilder();
 //		for(Field<?> field : fieldSet.getFields()){

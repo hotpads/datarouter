@@ -37,7 +37,12 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 	public SortedBeanEntityKey getEntityKey(){
 		return new SortedBeanEntityKey(a, b);
 	}
-	
+
+	@Override
+	public String getEntityKeyName() {
+		return null;
+	}
+
 	@Override
 	public SortedBeanKey prefixFromEntityKey(SortedBeanEntityKey ek){
 		return new SortedBeanKey(ek.getA(), ek.getB(), null, null);

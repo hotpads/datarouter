@@ -8,12 +8,10 @@ import java.util.Random;
 
 import javax.persistence.Embeddable;
 
-import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.primary.base.BaseEntityPrimaryKey;
-import com.hotpads.trace.key.TraceEntityKey.Fields;
 import com.hotpads.util.core.number.RandomTool;
 
 @SuppressWarnings("serial")
@@ -64,7 +62,12 @@ public class TraceKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceKey>{
 	public TraceEntityKey getEntityKey(){
 		return new TraceEntityKey(id);
 	}
-	
+
+	@Override
+	public String getEntityKeyName() {
+		return null;
+	}
+
 	@Override
 	public TraceKey prefixFromEntityKey(TraceEntityKey entityKey){
 		return new TraceKey(entityKey.getTraceId());
