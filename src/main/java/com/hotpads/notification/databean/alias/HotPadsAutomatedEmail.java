@@ -9,4 +9,5 @@ public enum HotPadsAutomatedEmail{
     private HotPadsAutomatedEmail(NotificationAlias alias, String description){
         this.automatedEmail = new AutomatedEmail(alias, description);
     }
+
 }
