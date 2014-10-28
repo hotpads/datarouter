@@ -1,4 +1,4 @@
-package com.hotpads.notification.databean.alias;
+package com.hotpads.notification.alias;
 
 public enum HotPadsNotificationAlias{
 	RENTAL_FEED_ALERT("RentalFeedAlert"),

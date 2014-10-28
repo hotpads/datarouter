@@ -1,4 +1,4 @@
-package com.hotpads.notification.databean.alias;
+package com.hotpads.notification.alias;
 
 public enum HotPadsAutomatedEmail{
 	EXPORT_SUMMARY(HotPadsNotificationAlias.RENTAL_FEED_ALERT.getAlias(), "Summary of feed export"),
