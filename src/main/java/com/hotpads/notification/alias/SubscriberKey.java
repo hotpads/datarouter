@@ -48,4 +48,8 @@ public class SubscriberKey extends BasePrimaryKey<SubscriberKey> {
 		return email;
 	}
 
+	public NotificationAlias getAlias(){
+		return alias;
+	}
+
 }

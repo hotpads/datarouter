@@ -44,10 +44,9 @@ public class Subscriber extends BaseDatabean<SubscriberKey,Subscriber> {
 
 	/** fielder ***************************************************************/
 
-	public static class SubscriberFielder
-		extends BaseDatabeanFielder<SubscriberKey, Subscriber>{
-		public SubscriberFielder(){
-		}
+	public static class SubscriberFielder extends BaseDatabeanFielder<SubscriberKey,Subscriber>{
+
+		private SubscriberFielder(){}
 
 		@Override
 		public Class<SubscriberKey> getKeyFielderClass() {
@@ -89,6 +88,10 @@ public class Subscriber extends BaseDatabean<SubscriberKey,Subscriber> {
 
 	public String getEmail(){
 		return key.getEmail();
+	}
+
+	public NotificationAlias getAlias(){
+		return key.getAlias();
 	}
 
 }
