@@ -11,7 +11,7 @@ public class HotPadsHttpClientException extends RuntimeException{
 		this.response = response;
 	}
 
-	public HotPadsHttpClientException(Exception e){
+	public HotPadsHttpClientException(Throwable e){
 		super(e);
 	}
 	
