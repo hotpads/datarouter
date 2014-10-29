@@ -3,6 +3,7 @@ package com.hotpads.util.http.client;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -147,7 +148,7 @@ public class HotPadsHttpRequest {
 			if(key == null || key.trim().isEmpty()) {
 				continue;
 			}
-			queryString.append(key.trim() + '=' + param.getValue() + ",");
+			queryString.append(urlEncode(key.trim()) + '=' + urlEncode(param.getValue()) + "&");
 		}
 		String paramStr = queryString.substring(0, queryString.length() - 1);
 		try {
@@ -162,5 +163,15 @@ public class HotPadsHttpRequest {
 			params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
 		}
 		return params;
+	}
+	
+	// from AdvancedStringTool
+	private String urlEncode(String unencoded){
+		try {
+			return URLEncoder.encode(unencoded,"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			//unthinkable
+			throw new RuntimeException("UTF-8 is unsupported",e);
+		}
 	}
 }
