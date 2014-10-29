@@ -47,12 +47,12 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	}
 	
 	@Override
-	public IE lookupUniqueIndex(IK uniqueKey, Config config){
-		return CollectionTool.getFirst(lookupMultiUniqueIndex(Collections.singleton(uniqueKey), config));
+	public IE get(IK uniqueKey, Config config){
+		return CollectionTool.getFirst(getMulti(Collections.singleton(uniqueKey), config));
 	}
 
 	@Override
-	public List<IE> lookupMultiUniqueIndex(Collection<IK> uniqueKeys, Config config){
+	public List<IE> getMulti(Collection<IK> uniqueKeys, Config config){
 		String opName = ManagedUniqueIndexNode.OP_lookupMultiUniqueIndex;
 		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, fieldInfo.getDatabeanClass(),
 				fieldInfo.getFielderClass(), uniqueKeys);

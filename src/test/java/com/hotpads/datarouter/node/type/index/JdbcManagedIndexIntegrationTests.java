@@ -103,10 +103,10 @@ public class JdbcManagedIndexIntegrationTests{
 	}
 	
 	private void testLookupIndex(TestDatabeanWithIndexNode node){
-		TestDatabeanWithManagedIndexByB entry = node.byB.lookupUniqueIndex(new TestDatabeanWithManagedIndexByBKey(
+		TestDatabeanWithManagedIndexByB entry = node.byB.get(new TestDatabeanWithManagedIndexByBKey(
 				"martolod"), null);
 		Assert.assertNull(entry);
-		entry = node.byB.lookupUniqueIndex(new TestDatabeanWithManagedIndexByBKey("tra"), null);
+		entry = node.byB.get(new TestDatabeanWithManagedIndexByBKey("tra"), null);
 		Assert.assertNotNull(entry);
 		Assert.assertEquals(entry.getA(), "alarc'h");
 		Assert.assertEquals(entry.getB(), "tra");
@@ -123,7 +123,7 @@ public class JdbcManagedIndexIntegrationTests{
 				new TestDatabeanWithManagedIndexByBKey("martolod"),
 				new TestDatabeanWithManagedIndexByBKey("kastell"),
 				new TestDatabeanWithManagedIndexByBKey("lein"));
-		List<TestDatabeanWithManagedIndexByB> entries = node.byB.lookupMultiUniqueIndex(keys, null);
+		List<TestDatabeanWithManagedIndexByB> entries = node.byB.getMulti(keys, null);
 		Assert.assertEquals(2, entries.size());
 		for(TestDatabeanWithManagedIndexByB entry : entries){
 			Assert.assertTrue(entry.getA().equals("moal") || entry.getA().equals("war"));
@@ -235,7 +235,7 @@ public class JdbcManagedIndexIntegrationTests{
 	private void testScanUniqueIndex(TestDatabeanWithIndexNode node){
 		TestDatabeanWithManagedIndexByB previous = null;
 		int count = 0;
-		for(TestDatabeanWithManagedIndexByB indexEntry : node.byB.scanIndex(null, null)){
+		for(TestDatabeanWithManagedIndexByB indexEntry : node.byB.scan(null, null)){
 			if(previous != null){
 				Assert.assertTrue(indexEntry.getKey().compareTo(previous.getKey()) >= 0);
 			}
@@ -248,7 +248,7 @@ public class JdbcManagedIndexIntegrationTests{
 	private void testScanMultiIndex(TestDatabeanWithIndexNode node){
 		TestDatabeanWithManagedIndexByC previous = null;
 		int count = 0;
-		for(TestDatabeanWithManagedIndexByC indexEntry : node.byC.scanIndex(null, null)){
+		for(TestDatabeanWithManagedIndexByC indexEntry : node.byC.scan(null, null)){
 			if(previous != null){
 				Assert.assertTrue(indexEntry.getKey().compareTo(previous.getKey()) >= 0);
 			}
@@ -270,7 +270,7 @@ public class JdbcManagedIndexIntegrationTests{
 	private void testScanUnique(TestDatabeanWithIndexNode node){
 		TestDatabean previous = null;
 		int count = 0;
-		for(TestDatabean databean : node.byB.scan(null, null)){
+		for(TestDatabean databean : node.byB.scanAndFetch(null, null)){
 			if(previous != null){
 				Assert.assertTrue(databean.getB().compareTo(previous.getB()) >= 0);
 			}
@@ -283,7 +283,7 @@ public class JdbcManagedIndexIntegrationTests{
 	private void testScanMulti(TestDatabeanWithIndexNode node){
 		TestDatabean previous = null;
 		int count = 0;
-		for(TestDatabean databean : node.byC.scan(null, null)){
+		for(TestDatabean databean : node.byC.scanAndFetch(null, null)){
 			if(previous != null){
 				Assert.assertTrue(databean.getC().compareTo(previous.getC()) >= 0);
 			}

@@ -13,6 +13,7 @@ import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.type.index.ManualMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.ManualUniqueIndexNode;
 import com.hotpads.datarouter.node.type.indexing.IndexingMapStorageNode;
+import com.hotpads.datarouter.node.type.indexing.IndexingSortedMapStorageNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -31,6 +32,14 @@ public class IndexingNodeFactory {
 			new IndexingMapStorageNode<PK,D,DatabeanFielder<PK,D>,MapStorageNode<PK,D>>(mainNode);
 		return result;
 		
+	}
+	
+	public static <PK extends PrimaryKey<PK>, 
+					D extends Databean<PK, D>, 
+					F extends DatabeanFielder<PK, D>, 
+					N extends SortedMapStorageNode<PK, D>>
+	IndexingSortedMapStorageNode<PK, D, F, N> newSortedMap(N mainNode){
+		return new IndexingSortedMapStorageNode<PK, D, F, N>(mainNode);
 	}
 	
 	/************************** listener *****************************************/
@@ -128,12 +137,3 @@ public class IndexingNodeFactory {
 			indexEntryClass.getSimpleName());
 	}
 }
-
-
-
-
-
-
-
-
-

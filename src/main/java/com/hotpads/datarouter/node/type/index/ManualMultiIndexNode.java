@@ -7,21 +7,23 @@ import java.util.List;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.compound.readwrite.CompoundMapRWStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
-import com.hotpads.datarouter.node.op.index.MultiIndexReader;
+import com.hotpads.datarouter.op.scan.ManagedIndexDatabeanScanner;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.storage.view.index.IndexEntryTool;
+import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class ManualMultiIndexNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
-		IE extends IndexEntry<IK,IE,PK,D>>
+		IE extends MultiIndexEntry<IK,IE,PK,D>>
 
-implements MultiIndexReader<PK,D,IK>
+implements MultiIndexNode<PK, D, IK, IE>
 //		,IndexWriter<PK,D,IK>
 {
 
@@ -60,5 +62,21 @@ implements MultiIndexReader<PK,D,IK>
 		List<PK> primaryKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
 		List<D> databeans = mainNode.reader().getMulti(primaryKeys, config);
 		return databeans;
+	}
+
+	@Override
+	public SortedScannerIterable<IE> scan(Range<IK> range, Config config){
+		return indexNode.scan(range, config);
+	}
+
+	@Override
+	public SortedScannerIterable<D> scanAndFetch(Range<IK> range, Config config){
+		return new SortedScannerIterable<D>(new ManagedIndexDatabeanScanner<>(mainNode.reader(), scan(range, config),
+				config));
+	}
+
+	@Override
+	public SortedScannerIterable<IK> scanKeys(Range<IK> range, Config config){
+		return indexNode.scanKeys(range, config);
 	}
 }

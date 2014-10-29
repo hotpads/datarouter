@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetByIndexOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetIndexOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.index.UniqueIndexReader;
@@ -29,19 +28,6 @@ implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 	
 	public JdbcTxnManagedMultiIndexNode(PhysicalMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
 		super(node, params, name);
-	}
-
-	@Override
-	public List<IE> lookupMultiIndex(IK indexKey, boolean wildcardLastField, Config config){
-		return lookupMultiIndexMulti(Collections.singleton(indexKey), wildcardLastField, config);
-	}
-	
-	@Override
-	public List<IE> lookupMultiIndexMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config){
-		String opName = ManagedMultiIndexNode.OP_lookupMultiIndexMulti;
-		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, fieldInfo.getDatabeanClass(),
-				fieldInfo.getFielderClass(), indexKeys);
-		return new SessionExecutorImpl<List<IE>>(op, opName).call();
 	}
 
 	@Override

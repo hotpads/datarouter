@@ -3,13 +3,11 @@ package com.hotpads.datarouter.node.type.index.node;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
-import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
-import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
+import com.hotpads.datarouter.node.type.index.MultiIndexNode;
+import com.hotpads.datarouter.node.type.index.UniqueIndexNode;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByB;
-import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByB.TestDatabeanWithManagedIndexByBFielder;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByBKey;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByC;
-import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByC.TestDatabeanWithManagedIndexByCFielder;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByCKey;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -24,10 +22,14 @@ public abstract class TestDatabeanWithIndexNode{
 	
 	public MapStorageNode<TestDatabeanKey, TestDatabean> mainNode;
 	
-	public ManagedUniqueIndexNode<TestDatabeanKey, TestDatabean, TestDatabeanWithManagedIndexByBKey, 
-	TestDatabeanWithManagedIndexByB, TestDatabeanWithManagedIndexByBFielder> byB;
-	public ManagedMultiIndexNode<TestDatabeanKey, TestDatabean, 
-	TestDatabeanWithManagedIndexByCKey, TestDatabeanWithManagedIndexByC, TestDatabeanWithManagedIndexByCFielder> byC;
+	public UniqueIndexNode<TestDatabeanKey, 
+							TestDatabean, 
+							TestDatabeanWithManagedIndexByBKey, 
+							TestDatabeanWithManagedIndexByB> byB;
+	public MultiIndexNode<TestDatabeanKey,
+							TestDatabean, 
+							TestDatabeanWithManagedIndexByCKey,
+							TestDatabeanWithManagedIndexByC> byC;
 	
 	public TestDatabeanWithIndexNode(DataRouter router){
 		backingMapNode = BaseDataRouter.cast(router.register(NodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0,
