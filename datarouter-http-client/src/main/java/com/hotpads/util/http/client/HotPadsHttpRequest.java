@@ -149,8 +149,9 @@ public class HotPadsHttpRequest {
 			}
 			queryString.append(key.trim() + '=' + param.getValue() + ",");
 		}
+		String paramStr = queryString.substring(0, queryString.length() - 1);
 		try {
-			request.setURI(new URI(request.getURI().toString() + '?' + queryString.toString()));
+			request.setURI(new URI(request.getURI().toString() + '?' + paramStr));
 		} catch (URISyntaxException e) {}
 		return this;
 	}
