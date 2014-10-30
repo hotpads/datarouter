@@ -70,7 +70,7 @@ implements MultiIndexNode<PK, D, IK, IE>
 	}
 
 	@Override
-	public SortedScannerIterable<D> scanAndFetch(Range<IK> range, Config config){
+	public SortedScannerIterable<D> scanDatabeans(Range<IK> range, Config config){
 		return new SortedScannerIterable<D>(new ManagedIndexDatabeanScanner<>(mainNode.reader(), scan(range, config),
 				config));
 	}

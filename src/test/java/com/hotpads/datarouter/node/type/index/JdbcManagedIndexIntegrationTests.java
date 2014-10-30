@@ -270,7 +270,7 @@ public class JdbcManagedIndexIntegrationTests{
 	private void testScanUnique(TestDatabeanWithIndexNode node){
 		TestDatabean previous = null;
 		int count = 0;
-		for(TestDatabean databean : node.byB.scanAndFetch(null, null)){
+		for(TestDatabean databean : node.byB.scanDatabeans(null, null)){
 			if(previous != null){
 				Assert.assertTrue(databean.getB().compareTo(previous.getB()) >= 0);
 			}
@@ -283,7 +283,7 @@ public class JdbcManagedIndexIntegrationTests{
 	private void testScanMulti(TestDatabeanWithIndexNode node){
 		TestDatabean previous = null;
 		int count = 0;
-		for(TestDatabean databean : node.byC.scanAndFetch(null, null)){
+		for(TestDatabean databean : node.byC.scanDatabeans(null, null)){
 			if(previous != null){
 				Assert.assertTrue(databean.getC().compareTo(previous.getC()) >= 0);
 			}

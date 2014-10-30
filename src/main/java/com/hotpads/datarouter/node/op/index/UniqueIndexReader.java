@@ -28,5 +28,5 @@ public interface UniqueIndexReader<
 	
 	SortedScannerIterable<IE> scan(Range<IK> range, Config config);
 	SortedScannerIterable<IK> scanKeys(Range<IK> range, Config config);
-	SortedScannerIterable<D> scanAndFetch(Range<IK> range, Config config);
+	SortedScannerIterable<D> scanDatabeans(Range<IK> range, Config config);
 }

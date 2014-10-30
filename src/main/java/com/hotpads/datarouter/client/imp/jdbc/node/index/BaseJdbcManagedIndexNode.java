@@ -33,7 +33,7 @@ extends BaseManagedNode<PK, D, IK, IE, IF>{
 				config));
 	}
 
-	public SortedScannerIterable<D> scanAndFetch(Range<IK> range, Config config){
+	public SortedScannerIterable<D> scanDatabeans(Range<IK> range, Config config){
 		return new SortedScannerIterable<D>(new ManagedIndexDatabeanScanner<>(node, scan(range, config), config));
 	}
 	
