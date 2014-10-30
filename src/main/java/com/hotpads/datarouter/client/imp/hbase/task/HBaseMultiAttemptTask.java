@@ -130,7 +130,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 				+"\n\n"+timeoutMessage
 				+"\n\n"+numFailures+" since last email attempt "+DateTool.getAgoString(LAST_EMAIL_SENT_AT_MS)
 				+"\n\n"+ExceptionTool.getStackTraceAsString(e);
-		DataRouterEmailTool.sendEmail("admin@hotpads.com", drContext.getAdministratorEmail(), subject, body);
+		DataRouterEmailTool.sendEmail("noreply@hotpads.com", drContext.getAdministratorEmail(), subject, body);
 		LAST_EMAIL_SENT_AT_MS = System.currentTimeMillis();
 		NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL.set(0L);
 	}
