@@ -58,7 +58,7 @@ public class HotPadsHttpClient {
 		if (request.canHaveEntity()) {
 			HttpEntity httpEntity = ((HttpEntityEnclosingRequest) request.getRequest()).getEntity();
 			if(httpEntity != null) {
-				throw new IllegalStateException("request entity was set before inclusion of all params");
+				throw new IllegalStateException("request entity set before inclusion of all params");
 			}
 			
 			Map<String,String> params = new HashMap<>();
@@ -69,12 +69,10 @@ public class HotPadsHttpClient {
 				params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
 			}
 			if (signatureValidator != null) {
-				byte[] signature = signatureValidator.sign(request.getParams());
+				byte[] signature = signatureValidator.sign(request.getPostParams());
 				params.put(SecurityParameters.SIGNATURE, Base64.encodeBase64String(signature));
 			}
-			request.addParams(params).setEntity(request.getParams());
-		} else if (!request.getParams().isEmpty()) {
-			request.moveParamsToQueryString();
+			request.addPostParams(params).setEntity(request.getPostParams());
 		}
 		
 		HttpContext context = new BasicHttpContext();
@@ -130,7 +128,7 @@ public class HotPadsHttpClient {
 		Map<String,String> params = new HashMap<>();
 		params.put(config.getDtoParameterName(), serializedDtos);
 		params.put(config.getDtoTypeParameterName(), dtoTypeNullSafe);
-		request.addParams(params);
+		request.addPostParams(params);
 		return this;
 	}
 }

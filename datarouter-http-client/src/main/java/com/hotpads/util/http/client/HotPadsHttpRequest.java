@@ -32,6 +32,7 @@ public class HotPadsHttpRequest {
 	private Boolean retrySafe;
 	private Map<String,String> headers;
 	private Map<String,String> params;
+	private boolean hasQueryString;
 	
 	public enum HttpMethod {
 		DELETE, GET, PATCH, POST, PUT
@@ -52,6 +53,7 @@ public class HotPadsHttpRequest {
 		this.retrySafe = retrySafe;
 		this.headers = new HashMap<>();
 		this.params = new HashMap<>();
+		this.hasQueryString = false;
 	}
 	
 	public HttpRequestBase getRequest() {
@@ -83,8 +85,8 @@ public class HotPadsHttpRequest {
 		return this;
 	}
 	
-	/** Entity exists only in HttpPut, HttpPatch, HttpPost */
-	public HotPadsHttpRequest setEntity(Map<String, String> entity) {
+	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
+	HotPadsHttpRequest setEntity(Map<String, String> entity) {
 		if (entity != null && canHaveEntity()) {
 			try {
 				setEntity(new UrlEncodedFormEntity(urlEncodeFromMap(entity)));
@@ -121,16 +123,18 @@ public class HotPadsHttpRequest {
 		return this;
 	}
 	
-	public HotPadsHttpRequest addParams(HttpRequestConfig config) {
-		return addParams(config.getParameterMap());
+	public HotPadsHttpRequest addPostParams(HttpRequestConfig config) {
+		return config == null ? this : addPostParams(config.getParameterMap());
 	}
 	
-	public HotPadsHttpRequest addParams(Map<String,String> params) {
-		this.params.putAll(params);
+	public HotPadsHttpRequest addPostParams(Map<String,String> params) {
+		if(params != null && !params.isEmpty()) {
+			this.params.putAll(params);
+		}
 		return this;
 	}
 
-	public Map<String,String> getParams() {
+	public Map<String,String> getPostParams() {
 		return params;
 	}
 
@@ -138,8 +142,8 @@ public class HotPadsHttpRequest {
 		return this.request instanceof HttpEntityEnclosingRequest;
 	}
 
-	public HotPadsHttpRequest moveParamsToQueryString() {
-		if(params.isEmpty()) {
+	public HotPadsHttpRequest addGetParams(Map<String,String> params) {
+		if(params == null || params.isEmpty()) {
 			return this;
 		}
 		StringBuilder queryString = new StringBuilder();
@@ -148,19 +152,22 @@ public class HotPadsHttpRequest {
 			if(key == null || key.trim().isEmpty()) {
 				continue;
 			}
-			queryString.append(urlEncode(key.trim()) + '=' + urlEncode(param.getValue()) + "&");
+			queryString.append('&' + urlEncode(key.trim()) + '=' + urlEncode(param.getValue()));
 		}
-		String paramStr = queryString.substring(0, queryString.length() - 1);
+		String paramStr = hasQueryString ? queryString.toString() : '?' + queryString.substring(1);
 		try {
-			request.setURI(new URI(request.getURI().toString() + '?' + paramStr));
+			request.setURI(new URI(request.getURI().toString() + paramStr));
+			hasQueryString = true;
 		} catch (URISyntaxException e) {}
 		return this;
 	}
 	
 	private List<NameValuePair> urlEncodeFromMap(Map<String, String> data){
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		for(Entry<String, String> entry : data.entrySet()){
-			params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+		if(data != null && !data.isEmpty()) {
+			for(Entry<String, String> entry : data.entrySet()){
+				params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+			}
 		}
 		return params;
 	}
@@ -168,7 +175,7 @@ public class HotPadsHttpRequest {
 	// from AdvancedStringTool
 	private String urlEncode(String unencoded){
 		try {
-			return URLEncoder.encode(unencoded,"UTF-8");
+			return unencoded == null ? "" : URLEncoder.encode(unencoded,"UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			//unthinkable
 			throw new RuntimeException("UTF-8 is unsupported",e);
