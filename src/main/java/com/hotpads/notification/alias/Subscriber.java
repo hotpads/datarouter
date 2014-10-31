@@ -64,12 +64,14 @@ public class Subscriber extends BaseDatabean<SubscriberKey,Subscriber> {
 
 	/** construct *************************************************************/
 
-	public Subscriber(){
-		this.key = new SubscriberKey();
+	private Subscriber(){
+		this(new NotificationAlias(null), null, null);
 	}
 
-	public Subscriber(NotificationAlias alias, String email){
+	public Subscriber(NotificationAlias alias, String email, String authorEmail){
 		this.key = new SubscriberKey(alias, email);
+		this.subscriptionDate = new Date();
+		this.subscriptionAuthor = authorEmail;
 	}
 
 	/** databean **************************************************************/

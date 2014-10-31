@@ -65,13 +65,14 @@ public class Moderator extends BaseDatabean<ModeratorKey,Moderator> {
 
 	/** construct *************************************************************/
 
-	public Moderator(){
-		this.key = new ModeratorKey();
-
+	private Moderator(){
+		this(new NotificationAlias(null), null, null);
 	}
 
-	public Moderator(NotificationAlias alias, String email){
-		this.key = new ModeratorKey(alias, email);
+	public Moderator(NotificationAlias alias, String moderatorEmail, String authorEmail){
+		this.key = new ModeratorKey(alias, moderatorEmail);
+		this.membershipDate = new Date();
+		this.membershipAuthor = authorEmail;
 	}
 
 	/** databean **************************************************************/

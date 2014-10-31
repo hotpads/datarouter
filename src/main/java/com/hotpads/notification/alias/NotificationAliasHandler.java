@@ -7,6 +7,7 @@ import net.sf.json.JSONObject;
 
 import com.google.gson.Gson;
 import com.hotpads.handler.BaseHandler;
+import com.hotpads.handler.dispatcher.DataRouterDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.JsonMav;
 import com.hotpads.handler.util.RequestTool;
@@ -16,32 +17,79 @@ import com.hotpads.util.core.IterableTool;
 @Singleton
 public class NotificationAliasHandler extends BaseHandler{
 
-	private static final String NOTIFICATION_ALIAS = ".*/notification/alias/";
+	
+	private static final String
+			COMMAND_REGEX = ".*" + DataRouterDispatcher.NOTIFICATION_ALIAS + "/";
 
 	@Inject
 	private NotificationAliasDao notificationAliasDao;
 	@Inject
 	private Gson gson;
 
+	public Mav getRedirectMav(NotificationAlias alias){
+		String aliasUrl = "";
+		if(alias != null){
+			aliasUrl = "/" + alias.getName();
+		}
+		return new Mav(Mav.REDIRECT + servletContext.getContextPath() + DataRouterDispatcher.URL_DATAROUTER
+				+ DataRouterDispatcher.NOTIFICATION_ALIAS + aliasUrl);
+	}
+
 	@Override
 	protected Mav handleDefault() throws Exception{
+		Mav actionResult = handleAction();
+		if(actionResult != null){
+			return actionResult;
+		}
 		Mav mav = new Mav("/notification/alias");
-		if (request.getPathInfo().matches(NOTIFICATION_ALIAS + ".+")) {
-			String selectedAlias = request.getPathInfo().replaceAll(NOTIFICATION_ALIAS, "");
+		NotificationAlias selectedAlias = getSelectedAlias();
+		if(selectedAlias != null){
 			if(RequestTool.isAjax(request)){
 				return details(selectedAlias);
 			}
-			mav.put("preLoadedAlias", selectedAlias);
+			mav.put("preLoadedAlias", selectedAlias.getName());
 		}
 		NotificationAlias[] aliases = notificationAliasDao.getAllAliases();
 		mav.put("aliases", aliases);
+		mav.put("userEmail", notificationAliasDao.getUserEmail(request));
 		return mav;
 	}
 
-	private Mav details(String cmd){
+	private NotificationAlias getSelectedAlias(){
+		if(request.getPathInfo().matches(COMMAND_REGEX + ".+")){
+			return new NotificationAlias(request.getPathInfo().replaceAll(COMMAND_REGEX, ""));
+		}
+		return null;
+	}
+
+	private Mav handleAction(){
+		NotificationAlias selectedAlias = getSelectedAlias();
+		String addModeratorEmail = params.optional("addModerator", null);
+		if(addModeratorEmail != null){
+			notificationAliasDao.addModeratorIfAuthorized(request, selectedAlias, addModeratorEmail);
+			return getRedirectMav(selectedAlias);
+		}
+		String removeModeratorEmail = params.optional("removeModerator", null);
+		if(removeModeratorEmail != null) {
+			notificationAliasDao.removeModeratorIfAuthorized(request, selectedAlias, removeModeratorEmail);
+			return getRedirectMav(selectedAlias);
+		}
+		String subscribeEmail = params.optional("subscribeEmail", null);
+		if(subscribeEmail != null) {
+			notificationAliasDao.subscribeIfAuthorized(request, selectedAlias, subscribeEmail);
+			return getRedirectMav(selectedAlias);
+		}
+		String unsubscribeEmail = params.optional("unsubscribeEmail", null);
+		if(unsubscribeEmail != null) {
+			notificationAliasDao.unsubscribeIfAuthorized(request, selectedAlias, unsubscribeEmail);
+			return getRedirectMav(selectedAlias);
+		}
+		return null;
+	}
+
+	private Mav details(NotificationAlias alias){
 		JSONObject jsonObject = new JSONObject();
 
-		NotificationAlias alias = new NotificationAlias(cmd);
 		jsonObject.put("alias", alias);
 
 		Iterable<Subscriber> subscribers = notificationAliasDao.getSubscribers(alias);
@@ -56,6 +104,9 @@ public class NotificationAliasHandler extends BaseHandler{
 		Iterable<NotificationLog> notificationLogs = notificationAliasDao.getLogs(alias, 100);
 		jsonObject.put("notificationLogs", gson.toJson(IterableTool.asList(notificationLogs)));
 
+		boolean haveAuthorityOnList = notificationAliasDao.requestHaveAuthorityOnList(request, alias);
+		jsonObject.put("haveAuthorityOnList", haveAuthorityOnList);
+		
 		return new JsonMav(jsonObject);
 	}
 

@@ -27,14 +27,14 @@ public class ModeratorKey extends BasePrimaryKey<ModeratorKey> {
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-			new StringField(F.alias, "name", alias.getName(), MySqlColumnType.MAX_LENGTH_VARCHAR),
+			new StringField(F.alias, NotificationAlias.F.name, alias.getName(), MySqlColumnType.MAX_LENGTH_VARCHAR),
 			new StringField(F.email, email, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 
 	/** construct *************************************************************/
 
-	ModeratorKey(){
-		this.alias = new NotificationAlias(null);
+	private ModeratorKey(){
+		this(new NotificationAlias(null), null);
 	}
 
 	public ModeratorKey(NotificationAlias alias, String email){
