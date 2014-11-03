@@ -1,5 +1,9 @@
 package com.hotpads.util.http.client;
 
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -66,7 +70,11 @@ public class HotPadsHttpClientBuilder{
 				this.signatureValidator, 
 				this.csrfValidator,
 				this.apiKeyPredicate,
-				this.config);
+				this.config,
+				new ThreadPoolExecutor(MAX_TOTAL_CONNECTION, MAX_TOTAL_CONNECTION, 1000L, TimeUnit.MILLISECONDS,
+						new LinkedBlockingQueue<Runnable>(MAX_TOTAL_CONNECTION),
+						new ThreadPoolExecutor.CallerRunsPolicy()),
+						this.timeoutMs);
 		return httpClient;
 	}
 	

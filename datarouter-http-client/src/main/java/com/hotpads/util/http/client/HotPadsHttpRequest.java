@@ -75,31 +75,29 @@ public class HotPadsHttpRequest {
 
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
 	public HotPadsHttpRequest setEntity(String entity) {
-		if (entity != null && canHaveEntity()) {
-			try {
-				setEntity(new StringEntity(entity));
-			} catch (UnsupportedEncodingException e) {
-				throw new HotPadsHttpClientException(e);
-			}
+		try {
+			setEntity(new StringEntity(entity));
+		} catch (UnsupportedEncodingException e) {
+			throw new HotPadsHttpClientException(e);
 		}
 		return this;
 	}
 	
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
-	HotPadsHttpRequest setEntity(Map<String, String> entity) {
-		if (entity != null && canHaveEntity()) {
-			try {
-				setEntity(new UrlEncodedFormEntity(urlEncodeFromMap(entity)));
-			}catch (UnsupportedEncodingException e){
-				throw new HotPadsHttpClientException(e);
-			}
+	public HotPadsHttpRequest setEntity(Map<String, String> entity) {
+		try {
+			setEntity(new UrlEncodedFormEntity(urlEncodeFromMap(entity)));
+		}catch (UnsupportedEncodingException e){
+			throw new HotPadsHttpClientException(e);
 		}
 		return this;
 	}
 	
-	private HotPadsHttpRequest setEntity(HttpEntity entity) {
-		HttpEntityEnclosingRequest requestEntity = (HttpEntityEnclosingRequest) request;
-		requestEntity.setEntity(entity);
+	public HotPadsHttpRequest setEntity(HttpEntity entity) {
+		if(entity != null && canHaveEntity()) {
+			HttpEntityEnclosingRequest requestEntity = (HttpEntityEnclosingRequest) request;
+			requestEntity.setEntity(entity);
+		}
 		return this;
 	}
 
@@ -152,7 +150,7 @@ public class HotPadsHttpRequest {
 			if(key == null || key.trim().isEmpty()) {
 				continue;
 			}
-			queryString.append('&' + urlEncode(key.trim()) + '=' + urlEncode(param.getValue()));
+			queryString.append('&').append(urlEncode(key.trim())).append('=').append(urlEncode(param.getValue()));
 		}
 		String paramStr = hasQueryString ? queryString.toString() : '?' + queryString.substring(1);
 		try {
@@ -163,7 +161,7 @@ public class HotPadsHttpRequest {
 	}
 	
 	private List<NameValuePair> urlEncodeFromMap(Map<String, String> data){
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		List<NameValuePair> params = new ArrayList<>();
 		if(data != null && !data.isEmpty()) {
 			for(Entry<String, String> entry : data.entrySet()){
 				params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));

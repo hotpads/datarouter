@@ -7,16 +7,14 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.inject.Singleton;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -42,25 +40,23 @@ public class HotPadsHttpClient {
 	private ApiKeyPredicate apiKeyPredicate;
 	private HotPadsHttpClientConfig config;
 	private ExecutorService executor;
+	private int requestTimeoutMs;
 	
 	HotPadsHttpClient(HttpClient httpClient, JsonSerializer jsonSerializer, SignatureValidator signatureValidator,
-			CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate, HotPadsHttpClientConfig config) {
+			CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate, HotPadsHttpClientConfig config, ExecutorService executor,
+			Integer requestTimeoutMs) {
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureValidator = signatureValidator;
 		this.csrfValidator = csrfValidator;
 		this.apiKeyPredicate = apiKeyPredicate;
 		this.config = config;
-		this.executor = Executors.newCachedThreadPool();
+		this.executor = executor;
+		this.requestTimeoutMs = requestTimeoutMs == null ? DEFAULT_REQUEST_TIMEOUT_MS : requestTimeoutMs.intValue();
 	}
 	
 	public String execute(HotPadsHttpRequest request) {
-		if (request.canHaveEntity()) {
-			HttpEntity httpEntity = ((HttpEntityEnclosingRequest) request.getRequest()).getEntity();
-			if(httpEntity != null) {
-				throw new IllegalStateException("request entity set before inclusion of all params");
-			}
-			
+		if (request.canHaveEntity() && request.getEntity() == null) {
 			Map<String,String> params = new HashMap<>();
 			if (csrfValidator != null) {
 				params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken());
@@ -72,7 +68,9 @@ public class HotPadsHttpClient {
 				byte[] signature = signatureValidator.sign(request.getPostParams());
 				params.put(SecurityParameters.SIGNATURE, Base64.encodeBase64String(signature));
 			}
-			request.addPostParams(params).setEntity(request.getPostParams());
+			if(!params.isEmpty()) {
+				request.addPostParams(params).setEntity(request.getPostParams());
+			}
 		}
 		
 		HttpContext context = new BasicHttpContext();
@@ -80,9 +78,9 @@ public class HotPadsHttpClient {
 		
 		try {
 			HttpRequestCallable callable = new HttpRequestCallable(httpClient, request.getRequest(), context);
-			return executor.submit(callable).get(DEFAULT_REQUEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+			return executor.submit(callable).get(requestTimeoutMs, TimeUnit.MILLISECONDS);
 		} catch (TimeoutException e) {
-			HttpResponse response = new BasicHttpResponse(PROTOCOL, 408, "request timeout");
+			HttpResponse response = new BasicHttpResponse(PROTOCOL, HttpStatus.SC_REQUEST_TIMEOUT, "request timeout");
 			throw new HotPadsHttpClientException(new HotPadsHttpResponse(response));
 		} catch (InterruptedException | ExecutionException e) {
 			// TODO exceptions that are not obscured by HotPadsHttpClientException or RuntimeException
@@ -108,7 +106,7 @@ public class HotPadsHttpClient {
 		public String call() throws Exception {
 			HttpResponse response = httpClient.execute(request, context);
 			HotPadsHttpResponse hpResponse = new HotPadsHttpResponse(response);
-			if(hpResponse.getStatusCode() > 300) {
+			if(hpResponse.getStatusCode() >= HttpStatus.SC_MOVED_PERMANENTLY) {
 				throw new HotPadsHttpClientException(hpResponse);
 			}
 			return hpResponse.getEntity();
