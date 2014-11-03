@@ -76,8 +76,8 @@ implements Callable<Void>{
 		String currentTableAbsoluteName = clientName + "." + tableName;
 		if(tablesToIgnore.contains(currentTableAbsoluteName)){ return null; }
 
-		for(ManagedNode managedNode : physicalNode.getManagedNodes()){
-			indexes.put(managedNode.getName(), managedNode.getFields());
+		for(ManagedNode<?, ?, ?> managedNode : physicalNode.getManagedNodes()){
+			indexes.put(managedNode.getName(), managedNode.getFieldInfo().getFields());
 		}
 		
 		FieldSqlTableGenerator generator = new FieldSqlTableGenerator(physicalNode.getTableName(), primaryKeyFields, 
@@ -114,7 +114,8 @@ implements Callable<Void>{
 				}*/
 				
 				//execute the alter table
-				ConnectionSqlTableGenerator executeConstructor = new ConnectionSqlTableGenerator(connection, tableName, JdbcTool.getSchemaName(connectionPool));
+				ConnectionSqlTableGenerator executeConstructor = new ConnectionSqlTableGenerator(connection, tableName,
+						JdbcTool.getSchemaName(connectionPool));
 				SqlTable executeCurrent = executeConstructor.generate();
 				SqlAlterTableGenerator executeAlterTableGenerator = new SqlAlterTableGenerator(
 						executeOptions, executeCurrent, requested, JdbcTool.getSchemaName(connectionPool));
@@ -131,19 +132,18 @@ implements Callable<Void>{
 				}
 				
 				//print the alter table
-				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName, JdbcTool.getSchemaName(connectionPool));
+				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName, 
+						JdbcTool.getSchemaName(connectionPool));
 				SqlTable printCurrent = prinitConstructor.generate();
 				SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(printOptions,
 						printCurrent, requested, JdbcTool.getSchemaName(connectionPool));
 				if(printAlterTableGenerator.willAlterTable()){
-					System.out.println("========================================== Please Execute SchemaUpdate ======"
-							+"======================");
+					System.out.println("# ==================== Please Execute SchemaUpdate ==========================");
 					//print it
 					String alterTablePrintString = printAlterTableGenerator.generateDdl();
 					printedSchemaUpdates.add(alterTablePrintString);
 					System.out.println(alterTablePrintString);
-					System.out.println("========================================== Thank You ========================" 
-							+"======================");
+					System.out.println("# ========================== Thank You ======================================");
 				}		
 			}
 		} catch (Exception e){

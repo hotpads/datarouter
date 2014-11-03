@@ -70,16 +70,16 @@ public class HibernateClientType extends BaseClientType{
 			D extends Databean<PK, D>, 
 			IK extends PrimaryKey<IK>, 
 			IE extends UniqueIndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> ManagedUniqueIndexNode<PK, D, IK, IE> createManagedUniqueIndexNode(
-			PhysicalMapStorageNode<PK, D> backingMapNode, Class<IE> indexEntryClass, Class<IF> indexFielder,
-			boolean manageTxn, String indexName){
+			IF extends DatabeanFielder<IK, IE>> ManagedUniqueIndexNode<PK, D, IK, IE, IF> createManagedUniqueIndexNode(
+			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
+			boolean manageTxn){
 		if(!(backingMapNode instanceof JdbcNode)){
-			super.createManagedUniqueIndexNode(backingMapNode, indexEntryClass, indexFielder, manageTxn, indexName);
+			super.createManagedUniqueIndexNode(backingMapNode, params, indexName, manageTxn);
 		}
 		if(manageTxn){
-			return new JdbcTxnManagedUniqueIndexNode<PK,D,IK,IE,IF>(backingMapNode, indexEntryClass, indexFielder);
+			return new JdbcTxnManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
 		}
-		return new JdbcManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, indexEntryClass, indexFielder);
+		return new JdbcManagedUniqueIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
 	}
 	
 	@Override
@@ -87,16 +87,16 @@ public class HibernateClientType extends BaseClientType{
 			D extends Databean<PK, D>, 
 			IK extends PrimaryKey<IK>, 
 			IE extends MultiIndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> ManagedMultiIndexNode<PK, D, IK, IE> createManagedMultiIndexNode(
-			PhysicalMapStorageNode<PK, D> backingMapNode, Class<IE> indexEntryClass, Class<IF> indexFielder,
-			boolean manageTxn, String indexName){
+			IF extends DatabeanFielder<IK, IE>> ManagedMultiIndexNode<PK, D, IK, IE, IF> createManagedMultiIndexNode(
+			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
+			boolean manageTxn){
 		if(!(backingMapNode instanceof JdbcNode)){
-			super.createManagedMultiIndexNode(backingMapNode, indexEntryClass, indexFielder, manageTxn, indexName);
+			super.createManagedMultiIndexNode(backingMapNode, params, indexName, manageTxn);
 		}
 		if(manageTxn){
-			return new JdbcTxnManagedMultiIndexNode<PK,D,IK,IE,IF>(backingMapNode, indexEntryClass, indexFielder);
+			return new JdbcTxnManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
 		}
-		return new JdbcManagedMultiIndexNode<PK,D,IK,IE,IF>(backingMapNode, indexEntryClass, indexFielder);
+		return new JdbcManagedMultiIndexNode<PK, D, IK, IE, IF>(backingMapNode, params, indexName);
 	}
 	
 }

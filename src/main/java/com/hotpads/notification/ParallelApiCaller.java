@@ -154,7 +154,7 @@ public class ParallelApiCaller {
 		private void sendEmail(List<Pair<NotificationRequest, ExceptionRecord>> requests) {
 			String domain = exceptionHandlingConfig.isDevServer() ? "localhost:8443" : "hotpads.com";
 			String recipient = requests.get(0).getLeft().getKey().getUserId();
-			String fromEmail = "HotPads Errors<admin@hotpads.com>";
+			String fromEmail = "noreply@hotpads.com";
 			String object = requests.get(0).getRight() != null ? "ERROR : " : "";
 			String subject = "(EMERGENCY notification) " + object + requests.get(0).getLeft().getChannel();
 			StringBuilder builder = new StringBuilder();

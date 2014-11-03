@@ -56,16 +56,7 @@ implements FieldSet<F>{
 
 	@Override
 	public String getPersistentString(){
-		StringBuilder sb = new StringBuilder();
-		boolean doneOne = false;
-		for(Field<?> field : getFields()){
-			if(doneOne){ 
-				sb.append("_");
-			}
-			sb.append(field.getValueString());
-			doneOne = true;
-		}
-		return sb.toString();
+		return FieldSetTool.getPersistentString(getFields());
 	}
 	
 	@Override

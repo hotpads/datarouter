@@ -35,7 +35,12 @@ public class TraceSpanKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceSpanK
 	public TraceEntityKey getEntityKey(){
 		return new TraceEntityKey(traceId);
 	}
-	
+
+	@Override
+	public String getEntityKeyName() {
+		return null;
+	}
+
 	@Override
 	public TraceSpanKey prefixFromEntityKey(TraceEntityKey entityKey){
 		return new TraceSpanKey(entityKey.getTraceId(), null, null);

@@ -4,7 +4,6 @@
 package com.hotpads.trace.key;
 
 import java.util.List;
-import java.util.Random;
 
 import javax.persistence.Embeddable;
 
@@ -34,7 +33,12 @@ public class TraceThreadKey extends BaseEntityPrimaryKey<TraceEntityKey,TraceThr
 	public TraceEntityKey getEntityKey(){
 		return new TraceEntityKey(traceId);
 	}
-	
+
+	@Override
+	public String getEntityKeyName() {
+		return null;
+	}
+
 	@Override
 	public TraceThreadKey prefixFromEntityKey(TraceEntityKey entityKey){
 		return new TraceThreadKey(entityKey.getTraceId(), null);
