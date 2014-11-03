@@ -1,9 +1,10 @@
 package com.hotpads.datarouter.storage.status;
 
+import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.util.core.enums.EnumTool;
 import com.hotpads.util.core.enums.HpEnum;
 
-public enum StandardStatus implements HpEnum {
+public enum StandardStatus implements HpEnum, IntegerEnum<StandardStatus> {
 
 	UNKNOWN(-1, "Unknown"),
 	NEW(9, "New"),
@@ -15,10 +16,15 @@ public enum StandardStatus implements HpEnum {
 	QUEUED_LOW_PRIORITY(15, "Queued Low Priority"),
 	FAILED(20, "Failed");
 	
-	public static StandardStatus fromPersistentInteger(Integer value){
+	@Override
+	public StandardStatus fromPersistentInteger(Integer value){
 		return EnumTool.getEnumFromInteger(values(), value, UNKNOWN);
 	}
 
+	public static StandardStatus fromInteger(Integer value){
+		return EnumTool.getEnumFromInteger(values(), value, UNKNOWN);
+	}
+	
 	private Integer persistentInteger;
 	private String display;
 	
