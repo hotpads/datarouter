@@ -18,10 +18,11 @@ import com.hotpads.util.http.client.security.SignatureValidator;
 public class HotPadsHttpClientBuilder{
 	
 	private static final int DEFAULT_TIMEOUT_MS = 3000;
-	private static final int MAX_TOTAL_CONNECTION = 20;
+	private static final int DEFAULT_MAX_TOTAL_CONNECTION = 20;
 	private static final int MAX_CONNECTION_PER_ROUTE = 2;
 	
 	private int timeoutMs;
+	private int maxTotalConnections;
 	private HttpClientBuilder httpClientBuilder;
 	private HotPadsRetryHandler retryHandler;
 	private JsonSerializer jsonSerializer;
@@ -42,7 +43,7 @@ public class HotPadsHttpClientBuilder{
 				.setRetryHandler(retryHandler)
 				.setRedirectStrategy(new LaxRedirectStrategy())
 				.setMaxConnPerRoute(MAX_CONNECTION_PER_ROUTE)
-				.setMaxConnTotal(MAX_TOTAL_CONNECTION);
+				.setMaxConnTotal(DEFAULT_MAX_TOTAL_CONNECTION);
 		return this;
 	}
 	
@@ -71,8 +72,8 @@ public class HotPadsHttpClientBuilder{
 				this.csrfValidator,
 				this.apiKeyPredicate,
 				this.config,
-				new ThreadPoolExecutor(MAX_TOTAL_CONNECTION, MAX_TOTAL_CONNECTION, 1000L, TimeUnit.MILLISECONDS,
-						new LinkedBlockingQueue<Runnable>(MAX_TOTAL_CONNECTION),
+				new ThreadPoolExecutor(maxTotalConnections, maxTotalConnections, 1000L, TimeUnit.MILLISECONDS,
+						new LinkedBlockingQueue<Runnable>(maxTotalConnections),
 						new ThreadPoolExecutor.CallerRunsPolicy()),
 						this.timeoutMs);
 		return httpClient;
@@ -118,6 +119,7 @@ public class HotPadsHttpClientBuilder{
 	
 	public HotPadsHttpClientBuilder setMaxTotalConnections(int maxTotalConnections){
 		this.httpClientBuilder.setMaxConnTotal(maxTotalConnections);
+		this.maxTotalConnections = maxTotalConnections;
 		return this;
 	}
 	
