@@ -12,4 +12,8 @@ public class AutomatedEmail{
 		this.description = description;
 	}
 
+    public NotificationAlias getAlias(){
+		return alias;
+	}
+
 }

@@ -1,5 +1,9 @@
 package com.hotpads.notification.alias;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -17,7 +21,6 @@ import com.hotpads.util.core.IterableTool;
 @Singleton
 public class NotificationAliasHandler extends BaseHandler{
 
-	
 	private static final String
 			COMMAND_REGEX = ".*" + DataRouterDispatcher.NOTIFICATION_ALIAS + "/";
 
@@ -57,7 +60,13 @@ public class NotificationAliasHandler extends BaseHandler{
 
 	private NotificationAlias getSelectedAlias(){
 		if(request.getPathInfo().matches(COMMAND_REGEX + ".+")){
-			return new NotificationAlias(request.getPathInfo().replaceAll(COMMAND_REGEX, ""));
+			String aliasName;
+			try{
+				aliasName = URLDecoder.decode(request.getPathInfo().replaceAll(COMMAND_REGEX, ""), "UTF-8");
+			}catch(UnsupportedEncodingException e){
+				throw new RuntimeException(e);
+			}
+			return new NotificationAlias(aliasName);
 		}
 		return null;
 	}
@@ -98,7 +107,7 @@ public class NotificationAliasHandler extends BaseHandler{
 		Iterable<Moderator> moderators = notificationAliasDao.getModerators(alias);
 		jsonObject.put("moderators", gson.toJson(IterableTool.asList(moderators)));
 		
-		AutomatedEmail[] automatedEmails = notificationAliasDao.getAutomatedEmail(alias);
+		List<AutomatedEmail> automatedEmails = notificationAliasDao.getAutomatedEmail(alias);
 		jsonObject.put("automatedEmails", gson.toJson(automatedEmails));
 
 		Iterable<NotificationLog> notificationLogs = notificationAliasDao.getLogs(alias, 100);

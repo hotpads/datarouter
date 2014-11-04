@@ -1,5 +1,7 @@
 package com.hotpads.notification.alias;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.hotpads.notification.databean.NotificationLog;
@@ -12,7 +14,7 @@ public interface NotificationAliasDao{
 
 	Iterable<Moderator> getModerators(NotificationAlias alias);
 
-	AutomatedEmail[] getAutomatedEmail(NotificationAlias alias);
+	List<AutomatedEmail> getAutomatedEmail(NotificationAlias alias);
 
 	Iterable<NotificationLog> getLogs(NotificationAlias alias, int limit);
 

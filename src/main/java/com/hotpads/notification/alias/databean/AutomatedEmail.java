@@ -55,7 +55,7 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 		public List<Field<?>> getNonKeyFields(AutomatedEmail d){
 			return FieldTool.createList(
 				new StringField(F.subject, d.subject, MySqlColumnType.MAX_LENGTH_VARCHAR),
-				new StringField(F.content, d.content, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new StringField(F.content, d.content, MySqlColumnType.INT_LENGTH_LONGTEXT));
 		}
 
 	}
@@ -85,6 +85,14 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 	}
 
 	/** get/set ***************************************************************/
+
+	public String getSubject(){
+		return subject;
+	}
+
+	public String getContent(){
+		return content;
+	}
 
 }
 
