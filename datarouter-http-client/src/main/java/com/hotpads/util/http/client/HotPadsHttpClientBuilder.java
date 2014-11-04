@@ -39,6 +39,7 @@ public class HotPadsHttpClientBuilder{
 	public HotPadsHttpClientBuilder create(){
 		retryHandler = new HotPadsRetryHandler();
 		timeoutMs = DEFAULT_TIMEOUT_MS;
+		maxTotalConnections = DEFAULT_MAX_TOTAL_CONNECTION;
 		httpClientBuilder = HttpClientBuilder.create()
 				.setRetryHandler(retryHandler)
 				.setRedirectStrategy(new LaxRedirectStrategy())
