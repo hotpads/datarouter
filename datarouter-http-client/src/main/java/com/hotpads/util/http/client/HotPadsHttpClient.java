@@ -68,9 +68,10 @@ public class HotPadsHttpClient {
 				byte[] signature = signatureValidator.sign(request.getPostParams());
 				params.put(SecurityParameters.SIGNATURE, Base64.encodeBase64String(signature));
 			}
-			if(!params.isEmpty()) {
-				request.addPostParams(params).setEntity(request.getPostParams());
+			if (!params.isEmpty()) {
+				request.addPostParams(params);
 			}
+			request.setEntity(request.getPostParams());
 		}
 		
 		HttpContext context = new BasicHttpContext();
