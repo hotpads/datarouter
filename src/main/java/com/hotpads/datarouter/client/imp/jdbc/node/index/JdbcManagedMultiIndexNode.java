@@ -29,14 +29,9 @@ implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 	public JdbcManagedMultiIndexNode(PhysicalMapStorageNode<PK, D> node, NodeParams<IK, IE, IF> params, String name){
 		super(node, params, name);
 	}
-
-	@Override
-	public List<IE> lookupMultiIndex(IK indexKey, boolean wildcardLastField, Config config){
-		return lookupMultiIndexMulti(Collections.singleton(indexKey), wildcardLastField, config);
-	}
 	
-	@Override
-	public List<IE> lookupMultiIndexMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config){
+	//TODO use wildcardLastField
+	private List<IE> lookupMultiIndexMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config){
 		String opName = ManagedMultiIndexNode.OP_lookupMultiIndexMulti;
 		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, fieldInfo.getDatabeanClass(),
 				fieldInfo.getFielderClass(), indexKeys);
@@ -54,5 +49,4 @@ implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 		List<PK> targetKeys = IndexEntryTool.getPrimaryKeys(entries);
 		return node.getMulti(targetKeys, config);
 	}
-
 }

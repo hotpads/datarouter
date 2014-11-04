@@ -12,6 +12,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.util.core.collections.Range;
+import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class BaseJdbcManagedIndexNode
@@ -26,14 +27,19 @@ extends BaseManagedNode<PK, D, IK, IE, IF>{
 		super(node, params, name);
 	}
 
-	public SortedScannerIterable<IE> scanIndex(Range<IK> range, Config config){
+	public SortedScannerIterable<IE> scan(Range<IK> range, Config config){
 		String opName = ManagedMultiIndexNode.OP_scanIndex;
 		return new SortedScannerIterable<IE>(new JdbcManagedIndexScanner<PK, D, IK, IE, IF>(node, this, range, opName,
 				config));
 	}
 
-	public SortedScannerIterable<D> scan(Range<IK> range, Config config){
-		return new SortedScannerIterable<D>(new ManagedIndexDatabeanScanner<>(node, scanIndex(range, config), config));
+	public SortedScannerIterable<D> scanDatabeans(Range<IK> range, Config config){
+		return new SortedScannerIterable<D>(new ManagedIndexDatabeanScanner<>(node, scan(range, config), config));
+	}
+	
+	public SortedScannerIterable<IK> scanKeys(Range<IK> range, Config config){
+		//TODO Write something similar to JdbcManagedIndexScanner to scan only keys
+		throw new NotImplementedException();
 	}
 	
 }

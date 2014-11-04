@@ -33,7 +33,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	}
 
 	@Override
-	public List<IE> lookupMultiUniqueIndex(Collection<IK> uniqueKeys, final Config config){
+	public List<IE> getMulti(Collection<IK> uniqueKeys, final Config config){
 		String opName = ManagedUniqueIndexNode.OP_lookupMultiUniqueIndex;
 		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, fieldInfo.getDatabeanClass(),
 				fieldInfo.getFielderClass(), uniqueKeys);
@@ -41,13 +41,13 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	}
 	
 	@Override
-	public IE lookupUniqueIndex(IK uniqueKey, Config config){
-		return CollectionTool.getFirst(lookupMultiUniqueIndex(Collections.singleton(uniqueKey), config));
+	public IE get(IK uniqueKey, Config config){
+		return CollectionTool.getFirst(getMulti(Collections.singleton(uniqueKey), config));
 	}
 
 	@Override
 	public D lookupUnique(IK uniqueKey, Config config){
-		IE indexEntry = lookupUniqueIndex(uniqueKey, config);
+		IE indexEntry = get(uniqueKey, config);
 		if(indexEntry == null){
 			return null;
 		}
@@ -56,14 +56,14 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	
 	@Override
 	public List<D> lookupMultiUnique(Collection<IK> fromListingKeys, final Config config){
-		List<IE> indexEntries = lookupMultiUniqueIndex(fromListingKeys, config);
+		List<IE> indexEntries = getMulti(fromListingKeys, config);
 		List<PK> targetKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
 		return node.getMulti(targetKeys, config);
 	}
 
 	@Override
 	public void deleteUnique(IK uniqueKey, Config config){
-		IE indexEntry = lookupUniqueIndex(uniqueKey, config);
+		IE indexEntry = get(uniqueKey, config);
 		if(indexEntry == null){
 			return;
 		}
@@ -72,7 +72,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 
 	@Override
 	public void deleteMultiUnique(Collection<IK> viewIndexKeys, final Config config){
-		List<IE> indexEntries = lookupMultiUniqueIndex(viewIndexKeys, config);
+		List<IE> indexEntries = getMulti(viewIndexKeys, config);
 		List<PK> targetKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
 		node.deleteMulti(targetKeys, config);
 	}
