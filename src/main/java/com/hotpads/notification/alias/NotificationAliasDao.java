@@ -1,6 +1,8 @@
 package com.hotpads.notification.alias;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,7 +18,9 @@ public interface NotificationAliasDao{
 
 	List<AutomatedEmail> getAutomatedEmail(NotificationAlias alias);
 
-	Iterable<NotificationLog> getLogs(NotificationAlias alias, int limit);
+	List<NotificationLog> getLogs(NotificationAlias alias, int limit);
+
+	Map<NotificationLog,com.hotpads.notification.alias.databean.AutomatedEmail> getEmailForLogs(Collection<NotificationLog> logs);
 
 	void addModeratorIfAuthorized(HttpServletRequest request, NotificationAlias alias, String moderatorEmail);
 

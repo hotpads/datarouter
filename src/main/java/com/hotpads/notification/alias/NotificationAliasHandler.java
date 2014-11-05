@@ -3,6 +3,7 @@ package com.hotpads.notification.alias;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -110,8 +111,15 @@ public class NotificationAliasHandler extends BaseHandler{
 		List<AutomatedEmail> automatedEmails = notificationAliasDao.getAutomatedEmail(alias);
 		jsonObject.put("automatedEmails", gson.toJson(automatedEmails));
 
-		Iterable<NotificationLog> notificationLogs = notificationAliasDao.getLogs(alias, 100);
-		jsonObject.put("notificationLogs", gson.toJson(IterableTool.asList(notificationLogs)));
+		List<NotificationLog> logs = notificationAliasDao.getLogs(alias, 100);
+		jsonObject.put("notificationLogs", gson.toJson(logs));
+
+		Map<NotificationLog,com.hotpads.notification.alias.databean.AutomatedEmail> emailForLogs = notificationAliasDao.getEmailForLogs(logs);
+		com.hotpads.notification.alias.databean.AutomatedEmail[] emails = new com.hotpads.notification.alias.databean.AutomatedEmail[logs.size()];
+		for(int i = 0; i < logs.size(); i++){
+			emails[i] = emailForLogs.get(logs.get(i));
+		}
+		jsonObject.put("emails", gson.toJson(emails));
 
 		boolean haveAuthorityOnList = notificationAliasDao.requestHaveAuthorityOnList(request, alias);
 		jsonObject.put("haveAuthorityOnList", haveAuthorityOnList);
