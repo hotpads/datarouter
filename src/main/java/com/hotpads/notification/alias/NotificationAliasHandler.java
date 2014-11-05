@@ -16,6 +16,7 @@ import com.hotpads.handler.dispatcher.DataRouterDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.JsonMav;
 import com.hotpads.handler.util.RequestTool;
+import com.hotpads.notification.alias.databean.AutomatedEmail;
 import com.hotpads.notification.databean.NotificationLog;
 import com.hotpads.util.core.IterableTool;
 
@@ -108,14 +109,14 @@ public class NotificationAliasHandler extends BaseHandler{
 		Iterable<Moderator> moderators = notificationAliasDao.getModerators(alias);
 		jsonObject.put("moderators", gson.toJson(IterableTool.asList(moderators)));
 		
-		List<AutomatedEmail> automatedEmails = notificationAliasDao.getAutomatedEmail(alias);
+		List<AutomatedEmailType> automatedEmails = notificationAliasDao.getAutomatedEmail(alias);
 		jsonObject.put("automatedEmails", gson.toJson(automatedEmails));
 
 		List<NotificationLog> logs = notificationAliasDao.getLogs(alias, 100);
 		jsonObject.put("notificationLogs", gson.toJson(logs));
 
-		Map<NotificationLog,com.hotpads.notification.alias.databean.AutomatedEmail> emailForLogs = notificationAliasDao.getEmailForLogs(logs);
-		com.hotpads.notification.alias.databean.AutomatedEmail[] emails = new com.hotpads.notification.alias.databean.AutomatedEmail[logs.size()];
+		Map<NotificationLog,AutomatedEmail> emailForLogs = notificationAliasDao.getEmailForLogs(logs);
+		AutomatedEmail[] emails = new AutomatedEmail[logs.size()];
 		for(int i = 0; i < logs.size(); i++){
 			emails[i] = emailForLogs.get(logs.get(i));
 		}

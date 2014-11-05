@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.hotpads.notification.alias.databean.AutomatedEmail;
 import com.hotpads.notification.databean.NotificationLog;
 
 public interface NotificationAliasDao{
@@ -16,11 +17,11 @@ public interface NotificationAliasDao{
 
 	Iterable<Moderator> getModerators(NotificationAlias alias);
 
-	List<AutomatedEmail> getAutomatedEmail(NotificationAlias alias);
+	List<AutomatedEmailType> getAutomatedEmail(NotificationAlias alias);
 
 	List<NotificationLog> getLogs(NotificationAlias alias, int limit);
 
-	Map<NotificationLog,com.hotpads.notification.alias.databean.AutomatedEmail> getEmailForLogs(Collection<NotificationLog> logs);
+	Map<NotificationLog,AutomatedEmail> getEmailForLogs(Collection<NotificationLog> logs);
 
 	void addModeratorIfAuthorized(HttpServletRequest request, NotificationAlias alias, String moderatorEmail);
 
