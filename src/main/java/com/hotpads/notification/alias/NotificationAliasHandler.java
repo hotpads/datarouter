@@ -24,7 +24,8 @@ import com.hotpads.util.core.IterableTool;
 public class NotificationAliasHandler extends BaseHandler{
 
 	private static final String
-			COMMAND_REGEX = ".*" + DataRouterDispatcher.NOTIFICATION_ALIAS + "/";
+			COMMAND_REGEX = ".*" + DataRouterDispatcher.NOTIFICATION_ALIAS + "/",
+			JSP = "/jsp/admin/datarouter/notification/alias.jsp";
 
 	@Inject
 	private NotificationAliasDao notificationAliasDao;
@@ -46,7 +47,7 @@ public class NotificationAliasHandler extends BaseHandler{
 		if(actionResult != null){
 			return actionResult;
 		}
-		Mav mav = new Mav("/notification/alias");
+		Mav mav = new Mav(JSP);
 		NotificationAlias selectedAlias = getSelectedAlias();
 		if(selectedAlias != null){
 			if(RequestTool.isAjax(request)){
