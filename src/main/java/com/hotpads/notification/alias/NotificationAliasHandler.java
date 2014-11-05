@@ -57,7 +57,7 @@ public class NotificationAliasHandler extends BaseHandler{
 			}
 			mav.put("preLoadedAlias", selectedAlias.getName());
 		}
-		NotificationAlias[] aliases = notificationAliasDao.getAllAliases();
+		List<NotificationAlias> aliases = notificationAliasDao.getAllAliases();
 		mav.put("aliases", aliases);
 		mav.put("userEmail", notificationAliasDao.getUserEmail(request));
 		return mav;

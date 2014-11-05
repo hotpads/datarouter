@@ -13,7 +13,7 @@ import com.hotpads.notification.databean.NotificationLog;
 
 public interface NotificationAliasDao{
 
-	NotificationAlias[] getAllAliases();
+	List<NotificationAlias> getAllAliases();
 
 	Iterable<Subscriber> getSubscribers(NotificationAlias alias);
 
