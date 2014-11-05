@@ -1,5 +1,6 @@
 package com.hotpads.util.http.client;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -67,17 +68,11 @@ public class HotPadsHttpClientBuilder{
 		if(jsonSerializer == null){
 			jsonSerializer = new GsonJsonSerializer();
 		}
-		HotPadsHttpClient httpClient = new HotPadsHttpClient(builtHttpClient, 
-				this.jsonSerializer, 
-				this.signatureValidator, 
-				this.csrfValidator,
-				this.apiKeyPredicate,
-				this.config,
-				new ThreadPoolExecutor(maxTotalConnections, maxTotalConnections, 1000L, TimeUnit.MILLISECONDS,
-						new LinkedBlockingQueue<Runnable>(maxTotalConnections),
-						new ThreadPoolExecutor.CallerRunsPolicy()),
-						this.timeoutMs);
-		return httpClient;
+		ExecutorService executor = new ThreadPoolExecutor(maxTotalConnections, maxTotalConnections, 1000L,
+				TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(maxTotalConnections),
+				new ThreadPoolExecutor.CallerRunsPolicy());
+		return new HotPadsHttpClient(builtHttpClient, this.jsonSerializer, this.signatureValidator, this.csrfValidator,
+				this.apiKeyPredicate, this.config, executor, this.timeoutMs);
 	}
 	
 	public HotPadsHttpClientBuilder setRetryCount(int retryCount){
