@@ -1,4 +1,4 @@
-package com.hotpads.notification.alias;
+package com.hotpads.notification.alias.databean;
 
 import java.util.List;
 
@@ -7,9 +7,11 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.notification.alias.NotificationAlias;
+import com.hotpads.notification.alias.NotificationAlias.F;
 
 @SuppressWarnings("serial")
-public class ModeratorKey extends BasePrimaryKey<ModeratorKey> {
+public class SubscriberKey extends BasePrimaryKey<SubscriberKey> {
 
 	/** fields ****************************************************************/
 
@@ -33,15 +35,23 @@ public class ModeratorKey extends BasePrimaryKey<ModeratorKey> {
 
 	/** construct *************************************************************/
 
-	private ModeratorKey(){
+	private SubscriberKey(){
 		this(new NotificationAlias(null), null);
 	}
 
-	public ModeratorKey(NotificationAlias alias, String email){
+	public SubscriberKey(NotificationAlias alias, String email){
 		this.alias = alias;
 		this.email = email;
 	}
 
 	/** get/set ***************************************************************/
+
+	public String getEmail(){
+		return email;
+	}
+
+	public NotificationAlias getAlias(){
+		return alias;
+	}
 
 }

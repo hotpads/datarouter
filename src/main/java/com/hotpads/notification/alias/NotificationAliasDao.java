@@ -7,6 +7,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import com.hotpads.notification.alias.databean.AutomatedEmail;
+import com.hotpads.notification.alias.databean.Moderator;
+import com.hotpads.notification.alias.databean.Subscriber;
 import com.hotpads.notification.databean.NotificationLog;
 
 public interface NotificationAliasDao{

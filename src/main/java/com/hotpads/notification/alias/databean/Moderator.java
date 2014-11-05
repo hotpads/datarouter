@@ -1,4 +1,4 @@
-package com.hotpads.notification.alias;
+package com.hotpads.notification.alias.databean;
 
 import java.util.Date;
 import java.util.List;
@@ -10,6 +10,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.notification.alias.NotificationAlias;
 
 
 /** CREATE SCRIPT
