@@ -30,6 +30,7 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 
 	private String subject;
 	private String content;
+	private String serverName;
 
 
 	/** columns ***************************************************************/
@@ -37,7 +38,8 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 	public static class F {
 		public static final String
 			subject = "subject",
-			content = "content";
+			content = "content",
+			serverName = "serverName";
 	}
 
 	/** fielder ***************************************************************/
@@ -55,7 +57,8 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 		public List<Field<?>> getNonKeyFields(AutomatedEmail d){
 			return FieldTool.createList(
 				new StringField(F.subject, d.subject, MySqlColumnType.MAX_LENGTH_VARCHAR),
-				new StringField(F.content, d.content, MySqlColumnType.INT_LENGTH_LONGTEXT));
+				new StringField(F.content, d.content, MySqlColumnType.INT_LENGTH_LONGTEXT),
+				new StringField(F.serverName, d.serverName, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 
 	}
@@ -63,13 +66,14 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 	/** construct *************************************************************/
 
 	private AutomatedEmail(){
-		this(null, null);
+		this(null, null, null);
 	}
 
-	public AutomatedEmail(String suject, String content){
+	public AutomatedEmail(String suject, String content, String serverName){
 		this.key = new AutomatedEmailKey();
 		this.subject = suject;
 		this.content = content;
+		this.serverName = serverName;
 	}
 
 	/** databean **************************************************************/
@@ -92,6 +96,10 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 
 	public String getContent(){
 		return content;
+	}
+
+	public String getServerName(){
+		return serverName;
 	}
 
 }

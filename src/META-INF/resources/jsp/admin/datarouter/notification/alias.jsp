@@ -176,6 +176,7 @@ function fillSentEmailNotificationLog(logs, emails){
 		var idInterne = 'collapse' + index;
 		var subject = emails[index] ? emails[index].subject : '';
 		var content = emails[index] ? emails[index].content : 'Can not show the email content because it is not a AutomatedEmail.';
+		var serverName = emails[index] ? emails[index].serverName : '';
 		var accordionGroup = $('<div>')
 				.addClass('accordion-group')
 				.append($('<div>')
@@ -185,7 +186,7 @@ function fillSentEmailNotificationLog(logs, emails){
 								.attr('data-toggle', 'collapse')
 								.attr('data-parent', '#' + idContainer)
 								.attr('href', '#' + idInterne)
-								.text(this.created + ' ' + endash + ' ' + subject)))
+								.text(this.created + ' ' + endash + ' ' + subject + ' ' + endash + ' ' + serverName)))
 				.append($('<div>')
 						.addClass('accordion-body')
 						.addClass('collapse')
