@@ -66,10 +66,10 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 		this(null, null);
 	}
 
-	public AutomatedEmail(String content, String suject){
+	public AutomatedEmail(String suject, String content){
 		this.key = new AutomatedEmailKey();
-		this.content = content;
 		this.subject = suject;
+		this.content = content;
 	}
 
 	/** databean **************************************************************/
