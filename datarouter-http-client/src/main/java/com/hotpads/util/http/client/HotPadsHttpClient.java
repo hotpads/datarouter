@@ -1,16 +1,24 @@
 package com.hotpads.util.http.client;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.inject.Singleton;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
@@ -22,6 +30,8 @@ import com.hotpads.util.http.client.security.SignatureValidator;
 
 @Singleton
 public class HotPadsHttpClient {
+	private static final int DEFAULT_REQUEST_TIMEOUT_MS = 3000;
+	private static final ProtocolVersion PROTOCOL = new ProtocolVersion("HTTP", 1, 1);
 	
 	private HttpClient httpClient;
 	private JsonSerializer jsonSerializer;
@@ -29,72 +39,92 @@ public class HotPadsHttpClient {
 	private CsrfValidator csrfValidator;
 	private ApiKeyPredicate apiKeyPredicate;
 	private HotPadsHttpClientConfig config;
+	private ExecutorService executor;
+	private int requestTimeoutMs;
 	
-	HotPadsHttpClient(HttpClient httpClient, JsonSerializer jsonSerializer, SignatureValidator signatureValidator, 
-			CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate, HotPadsHttpClientConfig config){
+	HotPadsHttpClient(HttpClient httpClient, JsonSerializer jsonSerializer, SignatureValidator signatureValidator,
+			CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate, HotPadsHttpClientConfig config, ExecutorService executor,
+			Integer requestTimeoutMs) {
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureValidator = signatureValidator;
 		this.csrfValidator = csrfValidator;
 		this.apiKeyPredicate = apiKeyPredicate;
 		this.config = config;
-	}
-
-	private <T> String serialize(T object) {
-		return jsonSerializer.serialize(object);
-	}
-	
-	private <E> E deserialize(String dtoJson, Type typeOfE) {
-		return jsonSerializer.deserialize(dtoJson, typeOfE);
+		this.executor = executor;
+		this.requestTimeoutMs = requestTimeoutMs == null ? DEFAULT_REQUEST_TIMEOUT_MS : requestTimeoutMs.intValue();
 	}
 	
 	public String execute(HotPadsHttpRequest request) {
-		if (request.getRequest() instanceof HttpEntityEnclosingRequest) {
-			HttpEntity httpEntity = ((HttpEntityEnclosingRequest) request.getRequest()).getEntity();
-			if(httpEntity == null) {
-				if (csrfValidator != null) {
-					request.addToPayload(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken());
-				}
-				if (apiKeyPredicate != null) {
-					request.addToPayload(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
-				}
-				if (signatureValidator != null) {
-					byte[] signature = signatureValidator.sign(request.getPayload());
-					request.addToPayload(SecurityParameters.SIGNATURE, Base64.encodeBase64String(signature));
-				}
-				request.setEntity(request.getPayload());
+		if (request.canHaveEntity() && request.getEntity() == null) {
+			Map<String,String> params = new HashMap<>();
+			if (csrfValidator != null) {
+				params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken());
 			}
+			if (apiKeyPredicate != null) {
+				params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
+			}
+			if (signatureValidator != null) {
+				byte[] signature = signatureValidator.sign(request.getPostParams());
+				params.put(SecurityParameters.SIGNATURE, Base64.encodeBase64String(signature));
+			}
+			request.addPostParams(params).setEntity(request.getPostParams());
 		}
 		
 		HttpContext context = new BasicHttpContext();
 		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
 		
-		HotPadsHttpResponse hpResponse;
 		try {
-			HttpResponse response = httpClient.execute(request.getRequest(), context);
-			hpResponse = new HotPadsHttpResponse(response);
-			if(hpResponse.getStatusCode() > 300){
-				throw new HotPadsHttpClientException(hpResponse);
+			HttpRequestCallable callable = new HttpRequestCallable(httpClient, request.getRequest(), context);
+			return executor.submit(callable).get(requestTimeoutMs, TimeUnit.MILLISECONDS);
+		} catch (TimeoutException e) {
+			HttpResponse response = new BasicHttpResponse(PROTOCOL, HttpStatus.SC_REQUEST_TIMEOUT, "request timeout");
+			throw new HotPadsHttpClientException(new HotPadsHttpResponse(response));
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO exceptions that are not obscured by HotPadsHttpClientException or RuntimeException
+			if(e.getCause() instanceof HotPadsHttpClientException) {
+				throw (HotPadsHttpClientException) e.getCause();
 			}
-			return hpResponse.getEntity();
-		} catch (IOException e) {
 			throw new HotPadsHttpClientException(e);
 		}
 	}
 	
-	public <E> E executeDeserialize(HotPadsHttpRequest request, Type typeOfE) {
-		return deserialize(execute(request), typeOfE);
+	private class HttpRequestCallable implements Callable<String> {
+		private HttpClient httpClient;
+		private HttpUriRequest request;
+		private HttpContext context;
+		
+		HttpRequestCallable(HttpClient httpClient, HttpUriRequest request, HttpContext context) {
+			this.httpClient = httpClient;
+			this.request = request;
+			this.context = context;
+		}
+		
+		@Override
+		public String call() throws Exception {
+			HttpResponse response = httpClient.execute(request, context);
+			HotPadsHttpResponse hpResponse = new HotPadsHttpResponse(response);
+			if(hpResponse.getStatusCode() >= HttpStatus.SC_MOVED_PERMANENTLY) {
+				throw new HotPadsHttpClientException(hpResponse);
+			}
+			return hpResponse.getEntity();
+		}
 	}
 	
-	// TODO move method in HotPadsHttpRequest - problem comes in with the dependency on jsonSerializer and config
+	public <E> E executeDeserialize(HotPadsHttpRequest request, Type deserializeToType) {
+		return jsonSerializer.deserialize(execute(request), deserializeToType);
+	}
+	
 	public <T> HotPadsHttpClient addDtosToPayload(HotPadsHttpRequest request, Collection<T> dtos, String dtoType) {
 		String serializedDtos = jsonSerializer.serialize(dtos);
 		String dtoTypeNullSafe = dtoType;
 		if(dtoType == null) {
 			dtoTypeNullSafe = dtos.isEmpty() ? "" : dtos.iterator().next().getClass().getCanonicalName();
 		}
-		request.addToPayload(config.getDtoParameterName(), serializedDtos);
-		request.addToPayload(config.getDtoTypeParameterName(), dtoTypeNullSafe);
+		Map<String,String> params = new HashMap<>();
+		params.put(config.getDtoParameterName(), serializedDtos);
+		params.put(config.getDtoTypeParameterName(), dtoTypeNullSafe);
+		request.addPostParams(params);
 		return this;
 	}
 }

@@ -1,5 +1,10 @@
 package com.hotpads.util.http.client;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -14,10 +19,11 @@ import com.hotpads.util.http.client.security.SignatureValidator;
 public class HotPadsHttpClientBuilder{
 	
 	private static final int DEFAULT_TIMEOUT_MS = 3000;
-	private static final int MAX_TOTAL_CONNECTION = 20;
+	private static final int DEFAULT_MAX_TOTAL_CONNECTION = 20;
 	private static final int MAX_CONNECTION_PER_ROUTE = 2;
 	
 	private int timeoutMs;
+	private int maxTotalConnections;
 	private HttpClientBuilder httpClientBuilder;
 	private HotPadsRetryHandler retryHandler;
 	private JsonSerializer jsonSerializer;
@@ -34,11 +40,12 @@ public class HotPadsHttpClientBuilder{
 	public HotPadsHttpClientBuilder create(){
 		retryHandler = new HotPadsRetryHandler();
 		timeoutMs = DEFAULT_TIMEOUT_MS;
+		maxTotalConnections = DEFAULT_MAX_TOTAL_CONNECTION;
 		httpClientBuilder = HttpClientBuilder.create()
 				.setRetryHandler(retryHandler)
 				.setRedirectStrategy(new LaxRedirectStrategy())
 				.setMaxConnPerRoute(MAX_CONNECTION_PER_ROUTE)
-				.setMaxConnTotal(MAX_TOTAL_CONNECTION);
+				.setMaxConnTotal(DEFAULT_MAX_TOTAL_CONNECTION);
 		return this;
 	}
 	
@@ -61,13 +68,11 @@ public class HotPadsHttpClientBuilder{
 		if(jsonSerializer == null){
 			jsonSerializer = new GsonJsonSerializer();
 		}
-		HotPadsHttpClient httpClient = new HotPadsHttpClient(builtHttpClient, 
-				this.jsonSerializer, 
-				this.signatureValidator, 
-				this.csrfValidator,
-				this.apiKeyPredicate,
-				this.config);
-		return httpClient;
+		ExecutorService executor = new ThreadPoolExecutor(maxTotalConnections, maxTotalConnections, 1000L,
+				TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(maxTotalConnections),
+				new ThreadPoolExecutor.CallerRunsPolicy());
+		return new HotPadsHttpClient(builtHttpClient, this.jsonSerializer, this.signatureValidator, this.csrfValidator,
+				this.apiKeyPredicate, this.config, executor, this.timeoutMs);
 	}
 	
 	public HotPadsHttpClientBuilder setRetryCount(int retryCount){
@@ -110,6 +115,7 @@ public class HotPadsHttpClientBuilder{
 	
 	public HotPadsHttpClientBuilder setMaxTotalConnections(int maxTotalConnections){
 		this.httpClientBuilder.setMaxConnTotal(maxTotalConnections);
+		this.maxTotalConnections = maxTotalConnections;
 		return this;
 	}
 	
