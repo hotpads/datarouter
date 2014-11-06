@@ -30,7 +30,7 @@ public class NotificationAliasHandler extends BaseHandler{
 			JSP = "/jsp/admin/datarouter/notification/alias.jsp";
 
 	@Inject
-	private NotificationAliasDao notificationAliasDao;
+	private NotificationAliasService notificationAliasDao;
 	@Inject
 	private Gson gson;
 

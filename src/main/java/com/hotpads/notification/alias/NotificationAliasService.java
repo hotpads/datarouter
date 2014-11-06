@@ -11,7 +11,7 @@ import com.hotpads.notification.alias.databean.Moderator;
 import com.hotpads.notification.alias.databean.Subscriber;
 import com.hotpads.notification.databean.NotificationLog;
 
-public interface NotificationAliasDao{
+public interface NotificationAliasService{
 
 	List<NotificationAlias> getAllAliases();
 
