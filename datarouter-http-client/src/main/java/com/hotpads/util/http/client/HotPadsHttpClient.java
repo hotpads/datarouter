@@ -2,6 +2,7 @@ package com.hotpads.util.http.client;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -64,11 +65,14 @@ public class HotPadsHttpClient {
 			if (apiKeyPredicate != null) {
 				params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
 			}
+			request.addPostParams(params);
 			if (signatureValidator != null) {
 				byte[] signature = signatureValidator.sign(request.getPostParams());
-				params.put(SecurityParameters.SIGNATURE, Base64.encodeBase64String(signature));
+				Map<String, String> signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE,
+						Base64.encodeBase64String(signature));
+				request.addPostParams(signatureParam);
 			}
-			request.addPostParams(params).setEntity(request.getPostParams());
+			request.setEntity(request.getPostParams());
 		}
 		
 		HttpContext context = new BasicHttpContext();
