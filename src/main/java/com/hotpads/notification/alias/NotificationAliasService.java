@@ -35,6 +35,6 @@ public interface NotificationAliasService{
 
 	void unsubscribeIfAuthorized(HttpServletRequest request, NotificationAlias alias, String email);
 
-	boolean requestHaveAuthorityOnList(HttpServletRequest request, NotificationAlias alias);
+	boolean requestHasAuthorityOnList(HttpServletRequest request, NotificationAlias alias);
 
 }

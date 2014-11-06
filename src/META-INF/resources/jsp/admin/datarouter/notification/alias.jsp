@@ -79,11 +79,11 @@ function getAliasPanel(aliasName){
 				.attr('data-toggle', 'modal')
 				.attr('data-target', '#moderators'));
 		details.append($('<h4>').text(data.alias.name));
-		fillModeratorsWindow(data.moderators, data.haveAuthorityOnList);
+		fillModeratorsWindow(data.moderators, data.hasAuthorityOnList);
 		$.each(data.subscribers, function(){
 			var form = $('<form>').append($('<span>')
 					.text(this.key.email));
-			if(data.haveAuthorityOnList){
+			if(data.hasAuthorityOnList){
 				form.append($('<input>')
 						.attr('type', 'hidden')
 						.attr('name', 'unsubscribeEmail')
@@ -127,14 +127,14 @@ function getAliasPanel(aliasName){
 		fillSentEmailNotificationLog(data.notificationLogs, data.emails);
 	});
 }
-function fillModeratorsWindow(moderators, haveAuthorityOnList){
+function fillModeratorsWindow(moderators, hasAuthorityOnList){
 	var modalBody = $('#moderators').find('.modal-body');
 	modalBody.empty();
 	$.each(moderators, function(){
 		var form = $('<form>')
 				.append($('<span>')
 						.text(this.key.email));
-		if(haveAuthorityOnList){
+		if(hasAuthorityOnList){
 			form.append($('<input>')
 					.attr('type', 'hidden')
 					.attr('name', 'removeModerator')
@@ -146,7 +146,7 @@ function fillModeratorsWindow(moderators, haveAuthorityOnList){
 		}
 		modalBody.append(form);
 	});
-	if(haveAuthorityOnList){
+	if(hasAuthorityOnList){
 		modalBody.append($('<form>')
 				.append($('<input>')
 						.attr('name', 'addModerator')
