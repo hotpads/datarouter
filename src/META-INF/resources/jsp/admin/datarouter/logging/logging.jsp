@@ -4,9 +4,10 @@
 <html>
 <head>
 <title>Logging settings</title>
+<meta charset="utf-8">
+<%@ include file="/jsp/generic/head.jsp" %>
 <%@ include file="/jsp/css/css-import.jspf"%>
 <link rel="stylesheet" href="${contextPath}/css/multiple-select.css">
-<meta charset="utf-8">
 <script data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script>
 	require(["bootstrap/bootstrap", "jquery.multiple.select"], function(){

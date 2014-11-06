@@ -43,6 +43,19 @@
 					<li>
 						<a href="${contextPath}/datarouter/memory">Memory</a>
 					</li>
+					<li class="dropdown">
+						<a href="#" id="notification" role="button" class="dropdown-toggle" data-toggle="dropdown">
+							Notification
+							<b class="caret"></b>
+						</a>
+						<ul class="dropdown-menu" role="menu" aria-labelledby="notification">
+							<li data-role="presentation">
+								<a data-role="menuitem" href="${contextPath}/datarouter/notification/alias">
+									Alias
+								</a>
+							</li>
+						</ul>
+					</li>
 				</ul>
 			</div>
 		</div>

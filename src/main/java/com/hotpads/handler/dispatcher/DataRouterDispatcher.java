@@ -14,6 +14,7 @@ import com.hotpads.handler.admin.client.memory.MemoryHandler;
 import com.hotpads.handler.datarouter.ViewNodeDataHandler;
 import com.hotpads.handler.logging.LoggingSettingsHandler;
 import com.hotpads.handler.setting.ClusterSettingsHandler;
+import com.hotpads.notification.alias.NotificationAliasHandler;
 
 public class DataRouterDispatcher extends BaseDispatcher{
 
@@ -26,6 +27,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 			SETTING = "/settings",
 			LOGGING = "/logging",
 			MEMORY_STATS = "/memory",
+			NOTIFICATION_ALIAS = "/notification/alias",
 			DATABEAN_GENERATOR = "/databeanGenerator",
 			NODE_BROWSE_DATA = "/nodes/browseData",
 			URL_DATAROUTER_API = "/datarouterApi";
@@ -47,6 +49,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + SETTING).withHandler(ClusterSettingsHandler.class);
 		handle(URL_DATAROUTER + LOGGING + ".*").withHandler(LoggingSettingsHandler.class);
 		handle(URL_DATAROUTER + MEMORY_STATS + ".*").withHandler(MemoryMonitoringHandler.class);
+		handle(URL_DATAROUTER + NOTIFICATION_ALIAS + ".*").withHandler(NotificationAliasHandler.class);
 //		handle(URL_HTTP_CLIENT, DataRouterHttpClientHandler.class);
 		handle(URL_DATAROUTER + NODE_BROWSE_DATA).withHandler(ViewNodeDataHandler.class);
 		handle(URL_DATAROUTER + DATABEAN_GENERATOR).withHandler(DatabeanGeneratorHandler.class);

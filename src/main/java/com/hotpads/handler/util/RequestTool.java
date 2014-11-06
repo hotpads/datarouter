@@ -599,5 +599,11 @@ public class RequestTool {
 			Assert.assertFalse(isAValidIpV4(""));
 			Assert.assertFalse(isAValidIpV4(null));
 		}
-	}	
+	}
+
+	public static boolean isAjax(HttpServletRequest request){
+		String xRequestedWith = request.getHeader(HttpHeaders.X_REQUESTED_WITH);
+		return "XMLHttpRequest".equalsIgnoreCase(xRequestedWith);
+	}
+
 }

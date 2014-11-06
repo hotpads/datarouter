@@ -3,10 +3,9 @@
 <html>
 <head>
 	<title>Memory Statistic</title>
-	<%@ include file="/jsp/css/css-import.jspf"%>
-	<%@ include file="/jsp/generic/head.jsp" %>
 	<meta charset="utf-8">
-	<link rel="stylesheet" href="${contextPath}/css/multiple-select.css">
+	<%@ include file="/jsp/generic/head.jsp" %>
+	<%@ include file="/jsp/css/css-import.jspf"%>
 	<script data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 	<script>require(["bootstrap/bootstrap"]);</script>
 	<style type="text/css">
