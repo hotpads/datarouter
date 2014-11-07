@@ -36,11 +36,11 @@ public class NotificationLogKey extends BasePrimaryKey<NotificationLogKey> {
 
 	NotificationLogKey() {}
 	
-	public NotificationLogKey(NotificationUserId userId, Date created, Class<? extends NotificationTemplate<?>> template) {
+	public NotificationLogKey(NotificationUserId userId, Date created, Class<? extends NotificationTemplate> template) {
 		this(userId, getReverseDate(created), template);
 	}
 
-	public NotificationLogKey(NotificationUserId userId, Long reverseCreatedMs, Class<? extends NotificationTemplate<?>> template) {
+	public NotificationLogKey(NotificationUserId userId, Long reverseCreatedMs, Class<? extends NotificationTemplate> template) {
 		this(userId);
 		this.reverseCreatedMs = reverseCreatedMs;
 		this.template = template == null ? null : template.getName();
