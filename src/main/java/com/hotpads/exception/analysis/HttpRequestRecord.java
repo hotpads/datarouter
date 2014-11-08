@@ -189,7 +189,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 					new StringField(F.ifModifiedSince, d.ifModifiedSince, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.origin, d.origin, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.pragma, d.pragma, MySqlColumnType.MAX_LENGTH_VARCHAR),
-					new StringField(F.referer, d.referer, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.referer, d.referer, MySqlColumnType.INT_LENGTH_LONGTEXT),
 					new StringField(F.userAgent, d.userAgent, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
 					new StringField(F.xForwardedFor, d.xForwardedFor, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.xRequestedWith, d.xRequestedWith, MySqlColumnType.MAX_LENGTH_VARCHAR),
