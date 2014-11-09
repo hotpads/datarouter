@@ -3,6 +3,7 @@ package com.hotpads.datarouter.config;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -12,6 +13,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.profile.callsite.LineOfCode;
 
 
 @SuppressWarnings("serial")
@@ -24,6 +26,7 @@ implements Cloneable{
 	public static final Boolean DEFAULT_CACHE_OK = true;
 	public static final Isolation DEFAULT_ISOLATION = Isolation.readCommitted;
 	public static final Boolean DEFAULT_AUTO_COMMIT = false;
+	public static final Integer LENGTH_CALLSITE = MySqlColumnType.INT_LENGTH_LONGTEXT;
 	
 	
 	/*************** fields ********************************/
@@ -63,6 +66,10 @@ implements Cloneable{
 	private Boolean cacheOk = DEFAULT_CACHE_OK;
 	private Long cacheTimeoutMs = Long.MAX_VALUE;
 	
+	//callsite tracing
+	private LineOfCode callsite;
+	private LineOfCode customCallsite;
+	
 	
 	/**************************** columns *******************************/
 	
@@ -87,7 +94,9 @@ implements Cloneable{
 			limit = "limit",
 			offset = "offset",
 			cacheOk = "cacheOk",
-			cacheTimeoutMs = "cacheTimeoutMs";
+			cacheTimeoutMs = "cacheTimeoutMs",
+			callsite = "callsite",
+			customCallsite = "customCallsite";
 	}
 	
 	public static class ConfigFielder extends BaseDatabeanFielder<ConfigKey,Config>{
@@ -114,7 +123,10 @@ implements Cloneable{
 					new UInt31Field(F.limit, d.limit),
 					new UInt31Field(F.offset, d.offset),
 					new BooleanField(F.cacheOk, d.cacheOk),
-					new UInt63Field(F.cacheTimeoutMs, d.cacheTimeoutMs));
+					new UInt63Field(F.cacheTimeoutMs, d.cacheTimeoutMs),
+					new StringField(F.callsite, d.callsite.getPersistentString(), LENGTH_CALLSITE),
+					new StringField(F.customCallsite, d.customCallsite.getPersistentString(), LENGTH_CALLSITE)
+					);
 		}
 	}
 	
@@ -151,7 +163,10 @@ implements Cloneable{
 			.setOffset(offset)
 			
 			.setCacheOk(cacheOk)
-			.setCacheTimeoutMs(cacheTimeoutMs);
+			.setCacheTimeoutMs(cacheTimeoutMs)
+			
+			.setCallsite(callsite)
+			.setCustomCallsite(customCallsite);
 		
 		return clone;
 	}
@@ -409,5 +424,23 @@ implements Cloneable{
 	}
 	
 	
+	/************* callsite ******************************/
 	
+	public LineOfCode getCallsite(){
+		return callsite;
+	}
+	
+	public Config setCallsite(LineOfCode callsite){
+		this.callsite = callsite;
+		return this;
+	}
+	
+	public LineOfCode getCustomCallsite(){
+		return customCallsite;
+	}
+	
+	public Config setCustomCallsite(LineOfCode customCallsite){
+		this.customCallsite = customCallsite;
+		return this;
+	}
 }
