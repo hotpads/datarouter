@@ -36,6 +36,7 @@ import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.profile.callsite.LineOfCode;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Range;
@@ -84,6 +85,7 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public D get(final PK key, final Config config){
 		String opName = MapStorageReader.OP_get;
+		recordCallsite(opName);
 		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(this, opName, ListTool.wrap(key), config);
 		List<D> databeans = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();//should only be one
 		return CollectionTool.getFirst(databeans);
@@ -246,6 +248,11 @@ implements MapStorageReader<PK,D>,
 	
 	protected String getTraceName(String opName){
 		return getName() + " " + opName;
+	}
+	
+	protected void recordCallsite(String opName){
+		LineOfCode line = new LineOfCode(2);//record 2 above this helper method
+//		logger.error(opName + "-" + line.toString());
 	}
 
 }
