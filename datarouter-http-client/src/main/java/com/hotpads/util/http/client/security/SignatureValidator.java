@@ -20,11 +20,14 @@ public class SignatureValidator{
 	}
 
 	public boolean check(Map<String, String> map){
+		return checkBase64Signature(map, map.get(SecurityParameters.SIGNATURE));
+	}
+	public boolean checkBase64Signature(Map<String, String> map, String candidateString){
 		byte[] signature = sign(map);
-		byte[] candidate = Base64.decodeBase64(map.get(SecurityParameters.SIGNATURE));
+		byte[] candidate = Base64.decodeBase64(candidateString);
 		return Arrays.equals(candidate, signature);
 	}
-	
+
 	public boolean checkMulti(Map<String, String[]> map){
 		return check(multiToSingle(map));
 	}
@@ -49,6 +52,10 @@ public class SignatureValidator{
 			} 
 		}
 		return signature.toByteArray();
+	}
+
+	public String getBase64Signature(Map<String,String> map){
+		return Base64.encodeBase64String(sign(map));
 	}
 
 	public byte[] signMulti(Map<String, String[]> data){
