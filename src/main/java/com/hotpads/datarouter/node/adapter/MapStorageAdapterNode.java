@@ -29,35 +29,30 @@ implements MapStorageNode<PK,D>{
 	public void put(D databean, Config pConfig){
 		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_put));
 		backingNode.put(databean, config);
-		
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config pConfig){
 		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_putMulti));
 		backingNode.putMulti(databeans, config);
-		
 	}
 
 	@Override
 	public void delete(PK key, Config pConfig){
 		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_delete));
 		backingNode.delete(key, config);
-		
 	}
 
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config pConfig){
 		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_deleteMulti));
 		backingNode.deleteMulti(keys, config);
-		
 	}
 
 	@Override
 	public void deleteAll(Config pConfig){
 		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_deleteAll));
 		backingNode.deleteAll(config);
-		
 	}
 
 	

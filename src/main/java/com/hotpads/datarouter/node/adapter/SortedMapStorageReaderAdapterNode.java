@@ -78,12 +78,12 @@ implements SortedStorageReaderNode<PK,D>{
 	public SortedScannerIterable<PK> scanKeys(Range<PK> range, Config pConfig){
 		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(SortedStorageReader.OP_scanKeys));
 		return backingNode.scanKeys(range, config);
-	};
+	}
 	
 	@Override
 	public SortedScannerIterable<D> scan(Range<PK> range, Config pConfig){
 		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(SortedStorageReader.OP_scan));
 		return backingNode.scan(range, config);
-	};
+	}
 	
 }

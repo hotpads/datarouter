@@ -22,7 +22,7 @@ implements SortedStorageNode<PK,D>{
 	}
 
 
-	/***************** SortedStorageReader ************************************/
+	/***************** SortedStorageWriter ************************************/
 
 	@Override
 	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config pConfig){
