@@ -62,7 +62,7 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey, Notificati
 		key = new NotificationLogKey();
 	}
 
-	public NotificationLog(NotificationUserId userId, Date created, Class<? extends NotificationTemplate<?>> template,
+	public NotificationLog(NotificationUserId userId, Date created, Class<? extends NotificationTemplate> template,
 			String type, List<String> itemIds, String channel, String id){
 		key = new NotificationLogKey(userId, created, template);
 		this.created = created;
