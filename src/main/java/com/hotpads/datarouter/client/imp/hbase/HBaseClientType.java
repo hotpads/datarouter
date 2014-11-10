@@ -13,6 +13,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.SortedMapStorageAdapterNode;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
+import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 
@@ -41,14 +42,17 @@ public class HBaseClientType extends BaseClientType{
 	
 	@Override
 	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
-		HBaseNode backingNode = new HBaseNode(nodeParams);
-		return new SortedMapStorageAdapterNode(nodeParams.getDatabeanClass(), nodeParams.getRouter(), backingNode);
+		return new HBaseNode(nodeParams);
 	}
 	
 	@Override
 	public Node<?,?> createSubEntityNode(EntityNodeParams<?,?> entityNodeParams, NodeParams<?,?,?> nodeParams){
-		HBaseSubEntityNode backingNode = new HBaseSubEntityNode(entityNodeParams, nodeParams);
-		return new SortedMapStorageAdapterNode(nodeParams.getDatabeanClass(), nodeParams.getRouter(), backingNode);
+		return new HBaseSubEntityNode(entityNodeParams, nodeParams);
 	}
-
+	
+	@Override
+	public Node<?,?> createAdapter(NodeParams<?,?,?> nodeParams, Node<?,?> backingNode){
+		return new SortedMapStorageAdapterNode(nodeParams.getDatabeanClass(), nodeParams.getRouter(), 
+				(SortedMapStorageNode<?,?>) backingNode);
+	}
 }

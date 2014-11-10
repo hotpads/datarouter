@@ -26,6 +26,7 @@ public interface ClientType{
 	
 	Node<?,?> createNode(NodeParams<?,?,?> nodeParams);
 	Node<?,?> createSubEntityNode(EntityNodeParams<?,?> entityNodeParams, NodeParams<?,?,?> nodeParams);
+	Node<?,?> createAdapter(NodeParams<?,?,?> nodeParams, Node<?,?> backingNode);
 
 	<PK extends PrimaryKey<PK>, 
 	D extends Databean<PK, D>, 

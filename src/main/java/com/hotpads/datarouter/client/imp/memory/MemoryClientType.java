@@ -35,14 +35,19 @@ public class MemoryClientType extends BaseClientType{
 	
 	@Override
 	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
-		MapStorageNode backingNode = new HashMapNode(nodeParams);
-		return new MapStorageAdapterNode(nodeParams.getDatabeanClass(), nodeParams.getRouter(), backingNode);
+		return new HashMapNode(nodeParams);
 	}
 	
 	//ignore the entityNodeParams
 	@Override
 	public Node<?,?> createSubEntityNode(EntityNodeParams<?,?> entityNodeParams, NodeParams<?,?,?> nodeParams){
 		return createNode(nodeParams);
+	}
+	
+	@Override
+	public Node<?,?> createAdapter(NodeParams<?,?,?> nodeParams, Node<?,?> backingNode){
+		return new MapStorageAdapterNode(nodeParams.getDatabeanClass(), nodeParams.getRouter(), 
+				(MapStorageNode<?,?>) backingNode);
 	}
 	
 }
