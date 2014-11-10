@@ -18,7 +18,9 @@ import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedMultiInde
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.adapter.IndexedSortedMapStorageAdapterNode;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
@@ -51,12 +53,14 @@ public class HibernateClientType extends BaseClientType{
 	
 	@Override
 	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
+		IndexedSortedMapStorageNode<?,?> backingNode;
 		if(nodeParams.getFielderClass() == null){
-			Node<?,?> node = new HibernateNode(nodeParams);
-			logger.warn("creating HibernateNode "+node);
-			return node;
+			backingNode = new HibernateNode(nodeParams);
+			logger.warn("creating HibernateNode "+backingNode);
+		}else{
+			backingNode = new JdbcNode(nodeParams);
 		}
-		return new JdbcNode(nodeParams);
+		return new IndexedSortedMapStorageAdapterNode(nodeParams.getDatabeanClass(), nodeParams.getRouter(), backingNode);
 	}
 	
 	//ignore the entityNodeParams
