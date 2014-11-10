@@ -8,7 +8,7 @@ public class NotificationTrackingEventType{
 	}
 
 	public static final	NotificationTrackingEventType
-			OPENED = new NotificationTrackingEventType("open"),
+			OPENED = new NotificationTrackingEventType("opened"),
 			VISITED = new NotificationTrackingEventType("visited"),
 			INQUIRIED = new NotificationTrackingEventType("inquiried");
 
