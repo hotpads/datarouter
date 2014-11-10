@@ -7,7 +7,7 @@ public abstract class NotificationSender {
 	
 	protected NotificationUserId userId;
 
-	public abstract void setTemplate(NotificationTemplate<?> template);
+	public abstract void setTemplate(NotificationTemplate template);
 
 	public void setUserId(NotificationUserId userId) {
 		this.userId = userId;

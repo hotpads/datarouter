@@ -1,8 +1,7 @@
 package com.hotpads.notification.type;
 
-import java.util.Map;
+import java.util.List;
 
-import com.hotpads.notification.sender.NotificationSender;
 import com.hotpads.notification.sender.template.NotificationTemplate;
 import com.hotpads.notification.timing.NotificationTimingStrategy;
 import com.hotpads.notification.tracking.TrackingNotificationType;
@@ -17,6 +16,6 @@ public interface NotificationType extends TrackingNotificationType{
 
 	void makeSendersAndTemplates();
 
-	<S extends NotificationSender> Map<Class<S>, Class<? extends NotificationTemplate<S>>> getSendersAndTemplates();
+	List<Class<? extends NotificationTemplate>> getTemplates();
 
 }
