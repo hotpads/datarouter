@@ -4,6 +4,8 @@ import com.hotpads.notification.databean.NotificationUserId;
 
 public interface NotificationTrackingService{
 
+	public static final String EMAIL_NOTIFICATION_ID_FIELD = "notificationId";
+
 	public boolean isSignatureValid(String signature, String notificationId);
 
 	public String generateId();
