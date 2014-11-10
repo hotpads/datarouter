@@ -1,12 +1,11 @@
 package com.hotpads.notification.type;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.hotpads.notification.sender.NotificationSender;
 import com.hotpads.notification.sender.template.NotificationTemplate;
 import com.hotpads.notification.tracking.TrackingNotificationType;
 import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.MapTool;
 
 public abstract class BaseNotificationType implements NotificationType {
 
@@ -15,7 +14,7 @@ public abstract class BaseNotificationType implements NotificationType {
 			name = "name";
 	}
 
-	private Map<Class<? extends NotificationSender>, Class<? extends NotificationTemplate<?>>> senderAndTemplates = MapTool.create();
+	private List<Class<? extends NotificationTemplate>> templates = new ArrayList<>();
 
 	private String name = getClass().getName();
 
@@ -34,14 +33,13 @@ public abstract class BaseNotificationType implements NotificationType {
 		return ClassTool.sameClass(this, that);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Map<Class<? extends NotificationSender>, Class<? extends NotificationTemplate<?>>> getSendersAndTemplates() {
-		return senderAndTemplates;
+	public List<Class<? extends NotificationTemplate>> getTemplates() {
+		return templates;
 	}
 
-	protected final <S extends NotificationSender> void addSenderAndTemplate(Class<S> sender, Class<? extends NotificationTemplate<S>> template) {
-		senderAndTemplates.put(sender, template);
+	protected void addTemplate(Class<? extends NotificationTemplate> template) {
+		templates.add(template);
 	}
 
 	public static TrackingNotificationType createEmptyInstance(){
