@@ -9,6 +9,7 @@ import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.adapter.MapStorageAdapterNode;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
@@ -33,7 +34,8 @@ public class MemcachedClientType extends BaseClientType{
 	
 	@Override
 	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
-		return new MemcachedNode(nodeParams);
+		MemcachedNode backingNode = new MemcachedNode(nodeParams);
+		return new MapStorageAdapterNode(nodeParams.getDatabeanClass(), nodeParams.getRouter(), backingNode);
 	}
 	
 	//ignore the entityNodeParams

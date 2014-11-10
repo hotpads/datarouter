@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
+import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -20,13 +21,10 @@ public class MapStorageReaderAdapterNode<
 extends BaseAdapterNode<PK,D,F,N>
 implements MapStorageReaderNode<PK,D>{
 
-	private N backingNode;
-
 	public MapStorageReaderAdapterNode(Class<D> databeanClass, DataRouter router, N backingNode){		
 		super(new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withFielder((Class<F>)backingNode.getFieldInfo().getFielderClass())
-				.build());
-		this.backingNode = backingNode;
+				.build(), backingNode);
 	}
 
 	
@@ -34,33 +32,35 @@ implements MapStorageReaderNode<PK,D>{
 	
 	@Override
 	public boolean exists(PK key, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite());
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageReader.OP_exists));
 		return backingNode.exists(key, config);
 	}
 
 	@Override
 	public D get(PK key, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite());
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageReader.OP_get));
 		return backingNode.get(key, config);
 	}
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config pConfig) {
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite());
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageReader.OP_getMulti));
 		return backingNode.getMulti(keys, config);
 	}
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config pConfig) {
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite());
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageReader.OP_getKeys));
 		return backingNode.getKeys(keys, config);
 	}
 	
 	
 	/********************* helper ***************************************/
 	
-	protected LineOfCode getCallsite(){
-		return new LineOfCode(2);//adjust for this method and adapter method
+	protected LineOfCode getCallsite(String opName){
+		LineOfCode callsite = new LineOfCode(2);//adjust for this method and adapter method
+//		logger.warn(opName + ":" + callsite);
+		return callsite;
 	}
 	
 }
