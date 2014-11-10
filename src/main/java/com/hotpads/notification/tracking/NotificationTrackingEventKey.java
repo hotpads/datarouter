@@ -39,12 +39,12 @@ public class NotificationTrackingEventKey extends BasePrimaryKey<NotificationTra
 	/** construct *************************************************************/
 
 	private NotificationTrackingEventKey(){
-		this(NotificationTrackingEventType.NULL, null, null);
+		this(NotificationTrackingEventType.createEmptyInstance(), null);
 	}
 
-	public NotificationTrackingEventKey(NotificationTrackingEventType eventType, Date created, String notificationId){
+	public NotificationTrackingEventKey(NotificationTrackingEventType eventType, String notificationId){
 		this.eventType = eventType;
-		this.created = created;
+		this.created = new Date();
 		this.notificationId = notificationId;
 	}
 

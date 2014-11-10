@@ -1,6 +1,5 @@
 package com.hotpads.notification.tracking;
 
-import java.util.Date;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -9,6 +8,7 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.notification.type.BaseNotificationType;
 
 
 /** CREATE SCRIPT
@@ -30,7 +30,7 @@ public class NotificationTrackingEvent extends BaseDatabean<NotificationTracking
 
 	private NotificationTrackingEventKey key;
 
-	private String trackingNotificationType;
+	private TrackingNotificationType trackingNotificationType;
 	private String source;
 
 
@@ -57,7 +57,7 @@ public class NotificationTrackingEvent extends BaseDatabean<NotificationTracking
 		@Override
 		public List<Field<?>> getNonKeyFields(NotificationTrackingEvent d){
 			return FieldTool.createList(
-				new StringField(F.trackingNotificationType, d.trackingNotificationType, MySqlColumnType.MAX_LENGTH_VARCHAR),
+				new StringField(F.trackingNotificationType, d.trackingNotificationType.getFieldName(), d.trackingNotificationType.getName(), MySqlColumnType.MAX_LENGTH_VARCHAR),
 				new StringField(F.source, d.source, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 
@@ -65,13 +65,14 @@ public class NotificationTrackingEvent extends BaseDatabean<NotificationTracking
 
 	/** construct *************************************************************/
 
-	public NotificationTrackingEvent(){
-		this(NotificationTrackingEventType.NULL, null, null);
-
+	private NotificationTrackingEvent(){
+		this(NotificationTrackingEventType.createEmptyInstance(), null, BaseNotificationType.createEmptyInstance(), null);
 	}
 
-	public NotificationTrackingEvent(NotificationTrackingEventType type, Date created, String notificationId){
-		this.key = new NotificationTrackingEventKey(type, created, notificationId);
+	public NotificationTrackingEvent(NotificationTrackingEventType eventType, String notificationId, TrackingNotificationType trackingNotificationType, String source){
+		this.key = new NotificationTrackingEventKey(eventType, notificationId);
+		this.trackingNotificationType = trackingNotificationType;
+		this.source = source;
 	}
 
 	/** databean **************************************************************/

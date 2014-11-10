@@ -5,8 +5,9 @@ import java.util.Map;
 import com.hotpads.notification.sender.NotificationSender;
 import com.hotpads.notification.sender.template.NotificationTemplate;
 import com.hotpads.notification.timing.NotificationTimingStrategy;
+import com.hotpads.notification.tracking.TrackingNotificationType;
 
-public interface NotificationType {
+public interface NotificationType extends TrackingNotificationType{
 
 	String getName();
 

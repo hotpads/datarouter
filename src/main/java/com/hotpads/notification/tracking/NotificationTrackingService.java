@@ -1,0 +1,17 @@
+package com.hotpads.notification.tracking;
+
+import com.hotpads.notification.databean.NotificationUserId;
+
+public interface NotificationTrackingService{
+
+	public boolean isSignatureValid(String signature, String notificationId);
+
+	public String generateId();
+	
+	public void saveSent(TrackingNotificationType type, NotificationUserId userId, String notificationId);
+
+	String sign(String notificationId);
+
+	void saveEvent(NotificationTrackingEventType eventType, String notificationId, String source);
+
+}

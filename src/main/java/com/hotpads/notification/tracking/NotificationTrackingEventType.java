@@ -7,8 +7,6 @@ public class NotificationTrackingEventType{
 			name = "name";
 	}
 
-	public static final NotificationTrackingEventType NULL = new NotificationTrackingEventType(null);
-
 	public static final	NotificationTrackingEventType
 			OPEN = new NotificationTrackingEventType("open"),
 			VISTED = new NotificationTrackingEventType("visited"),
@@ -22,6 +20,10 @@ public class NotificationTrackingEventType{
 
 	public String getName(){
 		return name;
+	}
+
+	public static NotificationTrackingEventType createEmptyInstance(){
+		return new NotificationTrackingEventType(null);
 	}
 
 }
