@@ -30,7 +30,7 @@ public class NotificationAliasHandler extends BaseHandler{
 			JSP = "/jsp/admin/datarouter/notification/alias.jsp";
 
 	@Inject
-	private NotificationAliasDao notificationAliasDao;
+	private NotificationAliasService notificationAliasDao;
 	@Inject
 	private Gson gson;
 
@@ -125,8 +125,8 @@ public class NotificationAliasHandler extends BaseHandler{
 		}
 		jsonObject.put("emails", gson.toJson(emails));
 
-		boolean haveAuthorityOnList = notificationAliasDao.requestHaveAuthorityOnList(request, alias);
-		jsonObject.put("haveAuthorityOnList", haveAuthorityOnList);
+		boolean hasAuthorityOnList = notificationAliasDao.requestHasAuthorityOnList(request, alias);
+		jsonObject.put("hasAuthorityOnList", hasAuthorityOnList);
 		
 		return new JsonMav(jsonObject);
 	}

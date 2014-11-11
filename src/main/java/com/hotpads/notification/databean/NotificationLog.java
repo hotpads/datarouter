@@ -1,7 +1,9 @@
 package com.hotpads.notification.databean;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
@@ -11,6 +13,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
+import com.hotpads.datarouter.storage.key.unique.base.BaseStringUniqueKey;
 import com.hotpads.notification.sender.template.NotificationTemplate;
 
 public class NotificationLog extends BaseDatabean<NotificationLogKey, NotificationLog> {	
@@ -56,13 +59,34 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey, Notificati
 					);
 		}
 
+		@Override
+		public Map<String,List<Field<?>>> getIndexes(NotificationLog d){
+			Map<String,List<Field<?>>> map = new HashMap<>();
+			map.put("index_notificationId", FieldTool.createList(
+					new StringField(F.id, d.id, LENGTH_id)));
+			return map;
+		}
+	}
+
+	public static class NotificationIdLookup extends BaseStringUniqueKey<NotificationLogKey>{
+
+		public NotificationIdLookup(String key){
+			super(key);
+		}
+
+		@Override
+		public List<Field<?>> getFields(){
+			return FieldTool.createList(
+					new StringField(F.id, id, LENGTH_id));
+		}
+
 	}
 
 	private NotificationLog() {
 		key = new NotificationLogKey();
 	}
 
-	public NotificationLog(NotificationUserId userId, Date created, Class<? extends NotificationTemplate<?>> template,
+	public NotificationLog(NotificationUserId userId, Date created, Class<? extends NotificationTemplate> template,
 			String type, List<String> itemIds, String channel, String id){
 		key = new NotificationLogKey(userId, created, template);
 		this.created = created;
