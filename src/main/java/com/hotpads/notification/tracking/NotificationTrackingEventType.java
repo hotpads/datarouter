@@ -10,7 +10,7 @@ public class NotificationTrackingEventType{
 	public static final	NotificationTrackingEventType
 			OPENED = new NotificationTrackingEventType("opened"),
 			VISITED = new NotificationTrackingEventType("visited"),
-			INQUIRIED = new NotificationTrackingEventType("inquiried");
+			CONVERTED = new NotificationTrackingEventType("converted");
 
 	private String name;
 
