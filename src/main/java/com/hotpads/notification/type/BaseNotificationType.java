@@ -43,6 +43,10 @@ public abstract class BaseNotificationType implements NotificationType {
 	}
 
 	public static TrackingNotificationType createEmptyInstance(){
+		return createEmptyInstance(null);
+	}
+
+	public static TrackingNotificationType createEmptyInstance(final String pName){
 		return new TrackingNotificationType(){
 
 			class F {
@@ -50,7 +54,7 @@ public abstract class BaseNotificationType implements NotificationType {
 					name = "name";
 			}
 
-			private String name;
+			private String name = pName;
 
 			@Override
 			public String getName(){
