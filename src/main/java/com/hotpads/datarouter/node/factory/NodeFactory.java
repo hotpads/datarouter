@@ -27,11 +27,14 @@ static Logger logger = LoggerFactory.getLogger(NodeFactory.class);
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>> 
-	N create(NodeParams<PK,D,F> params){
+	N create(NodeParams<PK,D,F> params, boolean addAdapter){
 		String clientName = params.getClientName();
 		ClientType clientType = params.getRouter().getClientOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
 		N node = (N)clientType.createNode(params);
+		if(addAdapter){
+			node = (N)clientType.createAdapter(params, node);
+		}
 		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
 	}
 	
@@ -43,8 +46,9 @@ static Logger logger = LoggerFactory.getLogger(NodeFactory.class);
 	N create(//3 args
 			String clientName, 
 			Class<D> databeanClass, 
-			DataRouter router){
-		return create(clientName, databeanClass, null, null, router);
+			DataRouter router,
+			boolean addAdapter){
+		return create(clientName, databeanClass, null, null, router, addAdapter);
 	}
 	
 	// +fielderClass
@@ -54,8 +58,9 @@ static Logger logger = LoggerFactory.getLogger(NodeFactory.class);
 			String clientName, 
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
-			DataRouter router){
-		return create(clientName, databeanClass, fielderClass, null, router);
+			DataRouter router,
+			boolean addAdapter){
+		return create(clientName, databeanClass, fielderClass, null, router, addAdapter);
 	}
 	
 	// +fielderClass +schemaVersion
@@ -66,12 +71,13 @@ static Logger logger = LoggerFactory.getLogger(NodeFactory.class);
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
 			Integer schemaVersion,
-			DataRouter router){				
+			DataRouter router,
+			boolean addAdapter){				
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
 				.withFielder(fielderClass)
 				.withSchemaVersion(schemaVersion);
-		return create(paramsBuilder.build());
+		return create(paramsBuilder.build(), addAdapter);
 	}
 	
 	
@@ -85,7 +91,7 @@ static Logger logger = LoggerFactory.getLogger(NodeFactory.class);
 			String entityName,
 			Class<D> databeanClass, 
 			DataRouter router){
-		return create(clientName, tableName, entityName, databeanClass, null, router);
+		return create(clientName, tableName, entityName, databeanClass, null, router, true);
 	}
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
@@ -96,12 +102,13 @@ static Logger logger = LoggerFactory.getLogger(NodeFactory.class);
 			String entityName,
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
-			DataRouter router){
+			DataRouter router,
+			boolean addAdapter){
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
 				.withFielder(fielderClass)
 				.withHibernateTableName(tableName, entityName);
-		return create(paramsBuilder.build());
+		return create(paramsBuilder.build(), addAdapter);
 	}
 	
 	
@@ -150,6 +157,6 @@ static Logger logger = LoggerFactory.getLogger(NodeFactory.class);
 		NodeParamsBuilder<PK,D,?> paramsBuilder = new NodeParamsBuilder(router, databeanClass)
 				.withClientName(clientName)
 				.withBaseDatabean(baseDatabeanClass);
-		return create(paramsBuilder.build());
+		return create(paramsBuilder.build(), true);
 	}
 }

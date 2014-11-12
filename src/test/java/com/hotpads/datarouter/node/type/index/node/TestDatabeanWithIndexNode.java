@@ -34,7 +34,7 @@ public abstract class TestDatabeanWithIndexNode{
 	public TestDatabeanWithIndexNode(DataRouter router){
 		backingMapNode = BaseDataRouter.cast(router.register(NodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0,
 				getTableName(), getTableName(), TestDatabean.class,
-				TestDatabeanFielder.class, router)));
+				TestDatabeanFielder.class, router, true)));
 		mainNode = BaseDataRouter.cast(backingMapNode);
 	}
 	

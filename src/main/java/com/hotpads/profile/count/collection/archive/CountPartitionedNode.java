@@ -101,7 +101,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 			String tableName = TABLE_PREFIX + suffix;
 			String entityName = ENTITY_PREFIX + suffix;
 			Node<CountKey,Count> node = NodeFactory.create(clientName, tableName, entityName, Count.class,
-					CountFielder.class, router);
+					CountFielder.class, router, false);
 			PhysicalSortedMapStorageNode<CountKey,Count> sortedNode = BaseDataRouter.cast(node);
 			register(sortedNode);
 		}
