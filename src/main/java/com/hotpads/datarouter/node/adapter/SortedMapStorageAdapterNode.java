@@ -1,8 +1,10 @@
 package com.hotpads.datarouter.node.adapter;
 
+import java.util.Collection;
+
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.datarouter.node.op.raw.SortedStorage.SortedStorageNode;
+import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -15,12 +17,46 @@ public class SortedMapStorageAdapterNode<
 		F extends DatabeanFielder<PK,D>,
 		N extends SortedMapStorageNode<PK,D>>
 extends SortedMapStorageReaderAdapterNode<PK,D,F,N>
-implements SortedStorageNode<PK,D>{
+implements SortedMapStorageNode<PK,D>{
 	
 	public SortedMapStorageAdapterNode(Class<D> databeanClass, DataRouter router, N backingNode){		
 		super(databeanClass, router, backingNode);
 	}
 
+	
+	/**************************** MapStorage ***********************************/
+	//copy pasted from MapStorageAdapterNode.  use a mixin?
+	
+	@Override
+	public void put(D databean, Config pConfig){
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_put));
+		backingNode.put(databean, config);
+	}
+
+	@Override
+	public void putMulti(Collection<D> databeans, Config pConfig){
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_putMulti));
+		backingNode.putMulti(databeans, config);
+	}
+
+	@Override
+	public void delete(PK key, Config pConfig){
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_delete));
+		backingNode.delete(key, config);
+	}
+
+	@Override
+	public void deleteMulti(Collection<PK> keys, Config pConfig){
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_deleteMulti));
+		backingNode.deleteMulti(keys, config);
+	}
+
+	@Override
+	public void deleteAll(Config pConfig){
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_deleteAll));
+		backingNode.deleteAll(config);
+	}
+	
 
 	/***************** SortedStorageWriter ************************************/
 

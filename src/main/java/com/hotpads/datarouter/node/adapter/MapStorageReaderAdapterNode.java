@@ -11,7 +11,6 @@ import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.profile.callsite.LineOfCode;
 
 public class MapStorageReaderAdapterNode<
 		PK extends PrimaryKey<PK>,
@@ -52,15 +51,6 @@ implements MapStorageReaderNode<PK,D>{
 	public List<PK> getKeys(Collection<PK> keys, Config pConfig) {
 		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageReader.OP_getKeys));
 		return backingNode.getKeys(keys, config);
-	}
-	
-	
-	/********************* helper ***************************************/
-	
-	protected LineOfCode getCallsite(String opName){
-		LineOfCode callsite = new LineOfCode(2);//adjust for this method and adapter method
-//		logger.warn(opName + ":" + callsite);
-		return callsite;
 	}
 	
 }
