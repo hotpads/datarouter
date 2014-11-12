@@ -96,9 +96,9 @@ extends BaseNode<PK,D,F>{
 	
 	/************************** callsite *****************************************/
 
-	protected LineOfCode getCallsite(String opName){
+	protected LineOfCode getCallsite(String opName, int numItems){
 		LineOfCode callsite = new LineOfCode(2);//adjust for this method and adapter method
-		CallsiteRecorder.record(callsite + ":" + opName);
+		CallsiteRecorder.record(callsite + " " + opName + " " + numItems);
 		return callsite;
 	}
 	

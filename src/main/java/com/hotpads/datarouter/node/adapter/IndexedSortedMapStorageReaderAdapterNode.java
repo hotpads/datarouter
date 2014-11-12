@@ -12,6 +12,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
+import com.hotpads.util.core.CollectionTool;
 
 public class IndexedSortedMapStorageReaderAdapterNode<
 		PK extends PrimaryKey<PK>,
@@ -30,32 +31,34 @@ implements IndexedSortedMapStorageReaderNode<PK,D>{
 
 	@Override
 	public Long count(Lookup<PK> lookup, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_count));
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_count, 1));
 		return backingNode.count(lookup, config);
 	}
 
 	@Override
 	public D lookupUnique(UniqueKey<PK> uniqueKey, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_lookupUnique));
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_lookupUnique, 1));
 		return backingNode.lookupUnique(uniqueKey, config);
 	}
 
 	@Override
 	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_lookupMultiUnique));
+		int numItems = CollectionTool.size(uniqueKeys);
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_lookupMultiUnique, numItems));
 		return backingNode.lookupMultiUnique(uniqueKeys, config);
 	}
 
 	@Override
 	public List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_lookup));
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_lookup, 1));
 		return backingNode.lookup(lookup, wildcardLastField, config);
 	}
 
 	@Override
-	public List<D> lookup(Collection<? extends Lookup<PK>> lookup, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_lookup));
-		return backingNode.lookup(lookup, config);
+	public List<D> lookup(Collection<? extends Lookup<PK>> lookups, Config pConfig){
+		int numItems = CollectionTool.size(lookups);
+		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_lookupMulti, numItems));
+		return backingNode.lookup(lookups, config);
 	}
 	
 }

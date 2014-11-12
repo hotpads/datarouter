@@ -29,7 +29,7 @@ public class LazyTestRouter extends BaseDataRouter{
 		super(context, NAME);
 		
 		testDatabean = cast(register(NodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, TestDatabean.class,
-				TestIndexedDatabeanFielder.class, this)));
+				TestIndexedDatabeanFielder.class, this, true)));
 		lazyTestDatabean = new LazyIndexedSortedMapStorageReader<TestDatabeanKey, TestDatabean>(testDatabean);
 		
 		registerWithContext();

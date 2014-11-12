@@ -82,12 +82,12 @@ public class MasterSlaveNodeFactory{
 		//create the backing nodes
 		N master = null;
 		if(masterClientName != null){
-			master = NodeFactory.create(masterClientName, databeanClass, fielderClass, router);
+			master = NodeFactory.create(masterClientName, databeanClass, fielderClass, router, false);
 		}
 		
 		List<N> slaves = ListTool.createLinkedList();
 		for(String slaveClientName : CollectionTool.nullSafe(slaveClientNames)){
-			N slaveNode = NodeFactory.create(slaveClientName, databeanClass, fielderClass, router);
+			N slaveNode = NodeFactory.create(slaveClientName, databeanClass, fielderClass, router, false);
 			slaves.add(slaveNode);
 		}
 		

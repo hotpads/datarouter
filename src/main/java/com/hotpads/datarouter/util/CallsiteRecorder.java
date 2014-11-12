@@ -10,8 +10,8 @@ public class CallsiteRecorder{
 	public static final Logger logger = LoggerFactory.getLogger(CallsiteRecorder.class);
 	
 
-	public static void record(String callsite){
-		logger.warn(callsite);
+	public static void record(String message){
+		logger.trace(message);
 	}
 	
 }

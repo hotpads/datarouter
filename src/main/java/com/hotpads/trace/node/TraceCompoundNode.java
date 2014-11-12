@@ -42,17 +42,17 @@ implements TraceNodes{
 	private void initNodes(DataRouter router, String clientName){
 		trace = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
 //				TraceEntity.TABLE_Trace, Trace.class.getName(),
-				Trace.class, TraceFielder.class, router)));
+				Trace.class, TraceFielder.class, router, true)));
 		register(trace);
 		
 		thread = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
 //				TraceEntity.TABLE_TraceThread, TraceThread.class.getName(),
-				TraceThread.class, TraceThreadFielder.class, router)));
+				TraceThread.class, TraceThreadFielder.class, router, true)));
 		register(thread);
 		
 		span = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
 //				TraceEntity.TABLE_TraceSpan, TraceSpan.class.getName(),
-				TraceSpan.class, TraceSpanFielder.class, router)));
+				TraceSpan.class, TraceSpanFielder.class, router, true)));
 		register(span);	
 	}
 	
