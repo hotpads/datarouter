@@ -14,13 +14,9 @@ public class CallsiteRecorder{
 	
 	public static void record(String nodeName, String datarouterMethodName, LineOfCode callsite, int numItems, 
 			long durationNs){
-		long durationUs = durationNs / 1000;
-		String message = nodeName
-				+ " " + datarouterMethodName
-				+ " " + callsite.getPersistentString()
-				+ " " + numItems
-				+ " " + durationUs;
-		logger.trace(message);
+		CallsiteRecord record = new CallsiteRecord(nodeName, datarouterMethodName, callsite.getPersistentString(),
+				numItems, durationNs);
+		logger.trace(record.getLogMessage());
 	}
 	
 }

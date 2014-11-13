@@ -23,7 +23,7 @@ public class CallsiteAnalyzer{
 		while(scanner.advance()){
 			List<String> batch = scanner.getCurrent();
 			for(String line : batch){
-				CallsiteRecord record = CallsiteRecord.fromLong(line);
+				CallsiteRecord record = CallsiteRecord.fromLogLine(line);
 				long delta = COUNT_VS_MICROSECONDS ? 1 : record.getDurationUs();
 				MapTool.increment(countByCallsite, record.getCallsite(), delta);
 			}

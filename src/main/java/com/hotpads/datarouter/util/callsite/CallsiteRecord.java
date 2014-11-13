@@ -7,20 +7,33 @@ public class CallsiteRecord{
 	private String datarouterMethodName;
 	private String callsite;
 	private int numItems;
-	private long durationUs;
+	private long durationNs;
 	
 	
 	/************** construct ****************/
 	
-	public CallsiteRecord(String nodeName, String datarouterMethodName, String callsite, int numItems, long durationUs){
+	public CallsiteRecord(String nodeName, String datarouterMethodName, String callsite, int numItems, long durationNs){
 		this.nodeName = nodeName;
 		this.datarouterMethodName = datarouterMethodName;
 		this.callsite = callsite;
 		this.numItems = numItems;
-		this.durationUs = durationUs;
+		this.durationNs = durationNs;
 	}
 	
-	public static CallsiteRecord fromLong(String line){
+	
+	/****************** serialize *******************/
+	
+	public String getLogMessage(){
+		long durationUs = durationNs / 1000;
+		String message = nodeName
+				+ " " + datarouterMethodName
+				+ " " + callsite
+				+ " " + numItems
+				+ " " + durationUs;
+		return message;
+	}
+	
+	public static CallsiteRecord fromLogLine(String line){
 		String afterThreadName = line.substring(line.indexOf("]") + 1);
 		String[] lineTokens = afterThreadName.split(" ");
 		int i = 3;
@@ -30,6 +43,13 @@ public class CallsiteRecord{
 		Integer numItems = Integer.valueOf(lineTokens[i++]);
 		Long microseconds = Long.valueOf(lineTokens[i++]); 
 		return new CallsiteRecord(nodeName, datarouterMethodName, callsite, numItems, microseconds);
+	}
+	
+	
+	/**************** methods *************************/
+
+	public long getDurationUs(){
+		return durationNs / 1000;
 	}
 
 	
@@ -51,11 +71,8 @@ public class CallsiteRecord{
 		return numItems;
 	}
 
-	public long getDurationUs(){
-		return durationUs;
+	public long getDurationNs(){
+		return durationNs;
 	}
-	
-	
-	
 	
 }
