@@ -96,7 +96,7 @@ extends BaseNode<PK,D,F>{
 	
 	/************************** callsite *****************************************/
 
-	protected LineOfCode getCallsite(String opName, int numItems){
+	public LineOfCode getCallsite(String opName, int numItems){
 		LineOfCode datarouterMethod = new LineOfCode(1);
 		LineOfCode callsite = new LineOfCode(2);//adjust for this method and adapter method
 		String nodeName = backingNode.getName();

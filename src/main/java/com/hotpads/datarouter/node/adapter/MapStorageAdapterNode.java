@@ -3,13 +3,12 @@ package com.hotpads.datarouter.node.adapter;
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.adapter.mixin.MapStorageWriterAdapterMixin;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
-import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
 
 public class MapStorageAdapterNode<
 		PK extends PrimaryKey<PK>,
@@ -18,9 +17,12 @@ public class MapStorageAdapterNode<
 		N extends MapStorageNode<PK,D>>
 extends MapStorageReaderAdapterNode<PK,D,F,N>
 implements MapStorageNode<PK,D>{
+	
+	private MapStorageWriterAdapterMixin<PK,D,F,N> mapStorageWriterMixin;
 
 	public MapStorageAdapterNode(Class<D> databeanClass, DataRouter router, N backingNode){		
 		super(databeanClass, router, backingNode);
+		this.mapStorageWriterMixin = new MapStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);
 	}
 	
 	
@@ -28,34 +30,27 @@ implements MapStorageNode<PK,D>{
 
 	@Override
 	public void put(D databean, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_put, 1));
-		backingNode.put(databean, config);
+		mapStorageWriterMixin.put(databean, pConfig);
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config pConfig){
-		int numItems = CollectionTool.size(databeans);
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_putMulti, numItems));
-		backingNode.putMulti(databeans, config);
+		mapStorageWriterMixin.putMulti(databeans, pConfig);
 	}
 
 	@Override
 	public void delete(PK key, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_delete, 1));
-		backingNode.delete(key, config);
+		mapStorageWriterMixin.delete(key, pConfig);
 	}
 
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config pConfig){
-		int numItems = CollectionTool.size(keys);
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_deleteMulti, numItems));
-		backingNode.deleteMulti(keys, config);
+		mapStorageWriterMixin.deleteMulti(keys, pConfig);
 	}
 
 	@Override
 	public void deleteAll(Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageWriter.OP_deleteAll, 0));
-		backingNode.deleteAll(config);
+		mapStorageWriterMixin.deleteAll(pConfig);
 	}
 
 	
