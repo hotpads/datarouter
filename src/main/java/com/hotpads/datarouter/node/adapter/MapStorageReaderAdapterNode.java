@@ -5,13 +5,12 @@ import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
-import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
+import com.hotpads.datarouter.node.adapter.mixin.MapStorageReaderAdapterMixin;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
 
 public class MapStorageReaderAdapterNode<
 		PK extends PrimaryKey<PK>,
@@ -21,10 +20,14 @@ public class MapStorageReaderAdapterNode<
 extends BaseAdapterNode<PK,D,F,N>
 implements MapStorageReaderNode<PK,D>{
 
+
+	private MapStorageReaderAdapterMixin<PK,D,F,N> mapStorageReaderMixin;
+	
 	public MapStorageReaderAdapterNode(Class<D> databeanClass, DataRouter router, N backingNode){		
 		super(new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withFielder((Class<F>)backingNode.getFieldInfo().getFielderClass())
 				.build(), backingNode);
+		this.mapStorageReaderMixin = new MapStorageReaderAdapterMixin<PK,D,F,N>(this, backingNode);
 	}
 
 	
@@ -32,28 +35,22 @@ implements MapStorageReaderNode<PK,D>{
 	
 	@Override
 	public boolean exists(PK key, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageReader.OP_exists, 1));
-		return backingNode.exists(key, config);
+		return mapStorageReaderMixin.exists(key, pConfig);
 	}
 
 	@Override
 	public D get(PK key, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageReader.OP_get, 1));
-		return backingNode.get(key, config);
+		return mapStorageReaderMixin.get(key, pConfig);
 	}
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config pConfig) {
-		int numItems = CollectionTool.size(keys);
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageReader.OP_getMulti, numItems));
-		return backingNode.getMulti(keys, config);
+		return mapStorageReaderMixin.getMulti(keys, pConfig);
 	}
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config pConfig) {
-		int numItems = CollectionTool.size(keys);
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(MapStorageReader.OP_getKeys, numItems));
-		return backingNode.getKeys(keys, config);
+		return mapStorageReaderMixin.getKeys(keys, pConfig);
 	}
 	
 }

@@ -4,15 +4,14 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.adapter.mixin.IndexedStorageReaderAdapterMixin;
 import com.hotpads.datarouter.node.op.combo.reader.IndexedSortedMapStorageReader.IndexedSortedMapStorageReaderNode;
-import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.util.core.CollectionTool;
 
 public class IndexedSortedMapStorageReaderAdapterNode<
 		PK extends PrimaryKey<PK>,
@@ -22,8 +21,11 @@ public class IndexedSortedMapStorageReaderAdapterNode<
 extends SortedMapStorageReaderAdapterNode<PK,D,F,N>
 implements IndexedSortedMapStorageReaderNode<PK,D>{
 	
+	private IndexedStorageReaderAdapterMixin<PK,D,F,N> indexedStorageReaderMixin;
+	
 	public IndexedSortedMapStorageReaderAdapterNode(Class<D> databeanClass, DataRouter router, N backingNode){		
 		super(databeanClass, router, backingNode);
+		this.indexedStorageReaderMixin = new IndexedStorageReaderAdapterMixin<PK,D,F,N>(this, backingNode);
 	}
 	
 
@@ -31,34 +33,27 @@ implements IndexedSortedMapStorageReaderNode<PK,D>{
 
 	@Override
 	public Long count(Lookup<PK> lookup, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_count, 1));
-		return backingNode.count(lookup, config);
+		return indexedStorageReaderMixin.count(lookup, pConfig);
 	}
 
 	@Override
 	public D lookupUnique(UniqueKey<PK> uniqueKey, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_lookupUnique, 1));
-		return backingNode.lookupUnique(uniqueKey, config);
+		return indexedStorageReaderMixin.lookupUnique(uniqueKey, pConfig);
 	}
 
 	@Override
 	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config pConfig){
-		int numItems = CollectionTool.size(uniqueKeys);
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_lookupMultiUnique, numItems));
-		return backingNode.lookupMultiUnique(uniqueKeys, config);
+		return indexedStorageReaderMixin.lookupMultiUnique(uniqueKeys, pConfig);
 	}
 
 	@Override
 	public List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_lookup, 1));
-		return backingNode.lookup(lookup, wildcardLastField, config);
+		return indexedStorageReaderMixin.lookup(lookup, wildcardLastField, pConfig);
 	}
 
 	@Override
 	public List<D> lookup(Collection<? extends Lookup<PK>> lookups, Config pConfig){
-		int numItems = CollectionTool.size(lookups);
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite(IndexedStorageReader.OP_lookupMulti, numItems));
-		return backingNode.lookup(lookups, config);
+		return indexedStorageReaderMixin.lookup(lookups, pConfig);
 	}
 	
 }
