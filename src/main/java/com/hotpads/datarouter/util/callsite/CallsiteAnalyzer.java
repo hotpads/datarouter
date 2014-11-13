@@ -37,10 +37,14 @@ public class CallsiteAnalyzer{
 		for(CallsiteCount callsiteCount : callsiteCounts){
 			++row;
 			if(row > 30){ return; }
-			String units = COUNT_VS_MICROSECONDS ? "calls" : "us";
 			String callsite = callsiteCount.getCallsite();
-			String countString = NumberFormatter.addCommas(callsiteCount.getCount());
-			System.out.println(StringTool.pad(row+"", ' ', 3) + " " + callsite + " " + countString + " " + units);
+			if(COUNT_VS_MICROSECONDS){
+				String countString = NumberFormatter.addCommas(callsiteCount.getCount());
+				System.out.println(StringTool.pad(row+"", ' ', 3) + " " + callsite + " " + countString + " calls");
+			}else{
+				String countString = NumberFormatter.addCommas(callsiteCount.getCount() / 1000);
+				System.out.println(StringTool.pad(row+"", ' ', 3) + " " + callsite + " " + countString + " ms");
+			}
 		}
 	}
 	
