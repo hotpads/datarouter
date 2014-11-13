@@ -20,7 +20,6 @@ public class MapStorageReaderAdapterNode<
 extends BaseAdapterNode<PK,D,F,N>
 implements MapStorageReaderNode<PK,D>{
 
-
 	private MapStorageReaderAdapterMixin<PK,D,F,N> mapStorageReaderMixin;
 	
 	public MapStorageReaderAdapterNode(Class<D> databeanClass, DataRouter router, N backingNode){		
