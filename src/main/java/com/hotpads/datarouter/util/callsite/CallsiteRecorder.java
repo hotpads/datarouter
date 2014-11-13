@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.util;
+package com.hotpads.datarouter.util.callsite;
 
 import javax.inject.Singleton;
 
@@ -9,7 +9,7 @@ import com.hotpads.profile.callsite.LineOfCode;
 
 @Singleton
 public class CallsiteRecorder{
-	public static final Logger logger = LoggerFactory.getLogger(CallsiteRecorder.class);
+	private static final Logger logger = LoggerFactory.getLogger(CallsiteRecorder.class);
 
 	
 	public static void record(String nodeName, String datarouterMethodName, LineOfCode callsite, int numItems, 
