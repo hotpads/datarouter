@@ -29,8 +29,13 @@ implements SortedStorageWriter<PK,D>{
 
 	@Override
 	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(SortedStorageWriter.OP_deleteRangeWithPrefix, 1));
-		backingNode.deleteRangeWithPrefix(prefix, wildcardLastField, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			backingNode.deleteRangeWithPrefix(prefix, wildcardLastField, config);
+		}finally{
+			adapterNode.recordCallsite(config, startNs, 1);
+		}
 	}
 	
 	

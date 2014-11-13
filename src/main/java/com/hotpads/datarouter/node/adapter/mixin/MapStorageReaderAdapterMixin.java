@@ -33,26 +33,46 @@ implements MapStorageReader<PK,D>{
 	
 	@Override
 	public boolean exists(PK key, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(MapStorageReader.OP_exists, 1));
-		return backingNode.exists(key, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			return backingNode.exists(key, config);
+		}finally{
+			adapterNode.recordCallsite(config, startNs, 1);
+		}
 	}
 
 	@Override
 	public D get(PK key, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(MapStorageReader.OP_get, 1));
-		return backingNode.get(key, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			return backingNode.get(key, config);
+		}finally{
+			adapterNode.recordCallsite(config, startNs, 1);
+		}
 	}
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config pConfig) {
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(MapStorageReader.OP_getMulti, keys));
-		return backingNode.getMulti(keys, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			return backingNode.getMulti(keys, config);
+		}finally{
+			adapterNode.recordCollectionCallsite(config, startNs, keys);
+		}
 	}
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config pConfig) {
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(MapStorageReader.OP_getKeys, keys));
-		return backingNode.getKeys(keys, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			return backingNode.getKeys(keys, config);
+		}finally{
+			adapterNode.recordCollectionCallsite(config, startNs, keys);
+		}
 	}
 	
 }

@@ -35,32 +35,57 @@ implements IndexedStorageReader<PK,D>{
 
 	@Override
 	public Long count(Lookup<PK> lookup, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(IndexedStorageReader.OP_count, 1));
-		return backingNode.count(lookup, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			return backingNode.count(lookup, config);
+		}finally{
+			adapterNode.recordCallsite(config, startNs, 1);
+		}
 	}
 
 	@Override
 	public D lookupUnique(UniqueKey<PK> uniqueKey, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(IndexedStorageReader.OP_lookupUnique, 1));
-		return backingNode.lookupUnique(uniqueKey, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			return backingNode.lookupUnique(uniqueKey, config);
+		}finally{
+			adapterNode.recordCallsite(config, startNs, 1);
+		}
 	}
 
 	@Override
 	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(IndexedStorageReader.OP_lookupMultiUnique, uniqueKeys));
-		return backingNode.lookupMultiUnique(uniqueKeys, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			return backingNode.lookupMultiUnique(uniqueKeys, config);
+		}finally{
+			adapterNode.recordCollectionCallsite(config, startNs, uniqueKeys);
+		}
 	}
 
 	@Override
 	public List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(IndexedStorageReader.OP_lookup, 1));
-		return backingNode.lookup(lookup, wildcardLastField, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			return backingNode.lookup(lookup, wildcardLastField, config);
+		}finally{
+			adapterNode.recordCallsite(config, startNs, 1);
+		}
 	}
 
 	@Override
 	public List<D> lookup(Collection<? extends Lookup<PK>> lookups, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(IndexedStorageReader.OP_lookupMulti, lookups));
-		return backingNode.lookup(lookups, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			return backingNode.lookup(lookups, config);
+		}finally{
+			adapterNode.recordCollectionCallsite(config, startNs, lookups);
+		}
 	}
 	
 }

@@ -34,20 +34,35 @@ implements IndexedStorageWriter<PK,D>{
 
 	@Override
 	public void delete(Lookup<PK> lookup, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(IndexedStorageWriter.OP_indexDelete, 1));
-		backingNode.delete(lookup, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			backingNode.delete(lookup, config);
+		}finally{
+			adapterNode.recordCallsite(config, startNs, 1);
+		}
 	}
 
 	@Override
 	public void deleteUnique(UniqueKey<PK> uniqueKey, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(IndexedStorageWriter.OP_deleteUnique, 1));
-		backingNode.deleteUnique(uniqueKey, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			backingNode.deleteUnique(uniqueKey, config);
+		}finally{
+			adapterNode.recordCallsite(config, startNs, 1);
+		}
 	}
 
 	@Override
 	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(IndexedStorageWriter.OP_deleteMultiUnique, uniqueKeys));
-		backingNode.deleteMultiUnique(uniqueKeys, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			backingNode.deleteMultiUnique(uniqueKeys, config);
+		}finally{
+			adapterNode.recordCollectionCallsite(config, startNs, uniqueKeys);
+		}
 	}
 
 	

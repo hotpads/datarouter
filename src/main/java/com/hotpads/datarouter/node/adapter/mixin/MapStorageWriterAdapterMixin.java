@@ -30,32 +30,57 @@ implements MapStorageWriter<PK,D>{
 	
 	@Override
 	public void put(D databean, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(MapStorageWriter.OP_put, 1));
-		backingNode.put(databean, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			backingNode.put(databean, config);
+		}finally{
+			adapterNode.recordCallsite(config, startNs, 1);
+		}
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(MapStorageWriter.OP_putMulti, databeans));
-		backingNode.putMulti(databeans, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			backingNode.putMulti(databeans, config);
+		}finally{
+			adapterNode.recordCollectionCallsite(config, startNs, databeans);
+		}
 	}
 
 	@Override
 	public void delete(PK key, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(MapStorageWriter.OP_delete, 1));
-		backingNode.delete(key, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			backingNode.delete(key, config);
+		}finally{
+			adapterNode.recordCallsite(config, startNs, 1);
+		}
 	}
 
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(MapStorageWriter.OP_deleteMulti, keys));
-		backingNode.deleteMulti(keys, config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			backingNode.deleteMulti(keys, config);
+		}finally{
+			adapterNode.recordCollectionCallsite(config, startNs, keys);
+		}
 	}
 
 	@Override
 	public void deleteAll(Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(MapStorageWriter.OP_deleteAll, 0));
-		backingNode.deleteAll(config);
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
+		long startNs = System.nanoTime();
+		try{
+			backingNode.deleteAll(config);
+		}finally{
+			adapterNode.recordCallsite(config, startNs, 0);
+		}
 	}
 	
 }

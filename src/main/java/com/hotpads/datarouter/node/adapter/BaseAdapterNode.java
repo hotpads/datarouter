@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -95,20 +96,20 @@ extends BaseNode<PK,D,F>{
 	}
 	
 	
-	/************************** callsite *****************************************/
-	
-	public LineOfCode getCollectionCallsite(String opName, Collection<?> items){
-		return getCallsite(opName, CollectionTool.size(items));
-	}
-
-	public LineOfCode getCallsite(String opName, int numItems){
-		LineOfCode datarouterMethod = new LineOfCode(2);
+	public LineOfCode getCallsite(){
 		LineOfCode callsite = new LineOfCode(3);//adjust for this method and adapter method
-		String nodeName = backingNode.getName();
-		String datarouterMethodName = datarouterMethod.getMethodName();
-		CallsiteRecorder.record(nodeName + " " + datarouterMethodName + " " + callsite+ " "  + numItems);
 		return callsite;
 	}
 	
+	public void recordCollectionCallsite(Config config, long startTimeNs, Collection<?> items){
+		recordCallsite(config, startTimeNs, CollectionTool.size(items));
+	}
+	
+	public void recordCallsite(Config config, long startNs, int numItems){
+		LineOfCode datarouterMethod = new LineOfCode(2);
+		long durationNs = System.nanoTime() - startNs;
+		CallsiteRecorder.record(backingNode.getName(), datarouterMethod.getMethodName(), config.getCallsite(),
+				numItems, durationNs);
+	}
 	
 }
