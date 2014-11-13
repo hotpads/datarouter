@@ -36,8 +36,7 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config pConfig){
-		int numItems = CollectionTool.size(databeans);
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(MapStorageWriter.OP_putMulti, numItems));
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(MapStorageWriter.OP_putMulti, databeans));
 		backingNode.putMulti(databeans, config);
 	}
 
@@ -49,8 +48,7 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config pConfig){
-		int numItems = CollectionTool.size(keys);
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(MapStorageWriter.OP_deleteMulti, numItems));
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(MapStorageWriter.OP_deleteMulti, keys));
 		backingNode.deleteMulti(keys, config);
 	}
 

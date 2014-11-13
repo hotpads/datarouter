@@ -10,7 +10,6 @@ import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader.SortedStorage
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
@@ -75,8 +74,7 @@ implements SortedStorageReader<PK,D>{
 
 	@Override
 	public List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config pConfig){
-		int numItems = CollectionTool.size(prefixes);
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(SortedStorageReader.OP_getWithPrefixes, numItems));
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(SortedStorageReader.OP_getWithPrefixes, prefixes));
 		return backingNode.getWithPrefixes(prefixes, wildcardLastField, config);
 	}
 	

@@ -45,15 +45,13 @@ implements MapStorageReader<PK,D>{
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config pConfig) {
-		int numItems = CollectionTool.size(keys);
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(MapStorageReader.OP_getMulti, numItems));
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(MapStorageReader.OP_getMulti, keys));
 		return backingNode.getMulti(keys, config);
 	}
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config pConfig) {
-		int numItems = CollectionTool.size(keys);
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(MapStorageReader.OP_getKeys, numItems));
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(MapStorageReader.OP_getKeys, keys));
 		return backingNode.getKeys(keys, config);
 	}
 	

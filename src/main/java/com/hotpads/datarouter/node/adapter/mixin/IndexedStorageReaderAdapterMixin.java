@@ -47,8 +47,7 @@ implements IndexedStorageReader<PK,D>{
 
 	@Override
 	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config pConfig){
-		int numItems = CollectionTool.size(uniqueKeys);
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(IndexedStorageReader.OP_lookupMultiUnique, numItems));
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(IndexedStorageReader.OP_lookupMultiUnique, uniqueKeys));
 		return backingNode.lookupMultiUnique(uniqueKeys, config);
 	}
 
@@ -60,8 +59,7 @@ implements IndexedStorageReader<PK,D>{
 
 	@Override
 	public List<D> lookup(Collection<? extends Lookup<PK>> lookups, Config pConfig){
-		int numItems = CollectionTool.size(lookups);
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(IndexedStorageReader.OP_lookupMulti, numItems));
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(IndexedStorageReader.OP_lookupMulti, lookups));
 		return backingNode.lookup(lookups, config);
 	}
 	

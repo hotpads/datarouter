@@ -16,6 +16,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.CallsiteRecorder;
 import com.hotpads.profile.callsite.LineOfCode;
+import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
 
@@ -95,6 +96,10 @@ extends BaseNode<PK,D,F>{
 	
 	
 	/************************** callsite *****************************************/
+	
+	public LineOfCode getCollectionCallsite(String opName, Collection<?> items){
+		return getCallsite(opName, CollectionTool.size(items));
+	}
 
 	public LineOfCode getCallsite(String opName, int numItems){
 		LineOfCode datarouterMethod = new LineOfCode(2);
@@ -104,5 +109,6 @@ extends BaseNode<PK,D,F>{
 		CallsiteRecorder.record(nodeName + " " + datarouterMethodName + " " + callsite+ " "  + numItems);
 		return callsite;
 	}
+	
 	
 }

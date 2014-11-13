@@ -46,8 +46,7 @@ implements IndexedStorageWriter<PK,D>{
 
 	@Override
 	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config pConfig){
-		int numItems = CollectionTool.size(uniqueKeys);
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite(IndexedStorageWriter.OP_deleteMultiUnique, numItems));
+		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCollectionCallsite(IndexedStorageWriter.OP_deleteMultiUnique, uniqueKeys));
 		backingNode.deleteMultiUnique(uniqueKeys, config);
 	}
 
