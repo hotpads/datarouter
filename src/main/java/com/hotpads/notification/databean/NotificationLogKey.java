@@ -10,7 +10,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.notification.sender.template.NotificationTemplate;
 import com.hotpads.util.core.ObjectTool;
 
 @SuppressWarnings("serial")
@@ -36,14 +35,14 @@ public class NotificationLogKey extends BasePrimaryKey<NotificationLogKey> {
 
 	NotificationLogKey() {}
 	
-	public NotificationLogKey(NotificationUserId userId, Date created, Class<? extends NotificationTemplate> template) {
+	public NotificationLogKey(NotificationUserId userId, Date created, String template) {
 		this(userId, getReverseDate(created), template);
 	}
 
-	public NotificationLogKey(NotificationUserId userId, Long reverseCreatedMs, Class<? extends NotificationTemplate> template) {
+	public NotificationLogKey(NotificationUserId userId, Long reverseCreatedMs, String template) {
 		this(userId);
 		this.reverseCreatedMs = reverseCreatedMs;
-		this.template = template == null ? null : template.getName();
+		this.template = template;
 	}
 
 	public NotificationLogKey(NotificationUserId userId){

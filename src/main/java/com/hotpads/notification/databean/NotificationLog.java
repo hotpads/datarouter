@@ -14,7 +14,6 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.key.unique.base.BaseStringUniqueKey;
-import com.hotpads.notification.sender.template.NotificationTemplate;
 
 public class NotificationLog extends BaseDatabean<NotificationLogKey, NotificationLog> {	
 
@@ -86,7 +85,7 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey, Notificati
 		key = new NotificationLogKey();
 	}
 
-	public NotificationLog(NotificationUserId userId, Date created, Class<? extends NotificationTemplate> template,
+	public NotificationLog(NotificationUserId userId, Date created, String template,
 			String type, List<String> itemIds, String channel, String id){
 		key = new NotificationLogKey(userId, created, template);
 		this.created = created;
