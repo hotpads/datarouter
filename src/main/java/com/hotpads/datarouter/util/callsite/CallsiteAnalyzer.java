@@ -2,59 +2,86 @@ package com.hotpads.datarouter.util.callsite;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
+import com.hotpads.datarouter.util.callsite.CallsiteStat.CallsiteDurationComparator;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.io.ReaderTool;
 import com.hotpads.util.core.iterable.scanner.Scanner;
 
-public class CallsiteAnalyzer{
+public class CallsiteAnalyzer implements Callable<Void>{
 	
-	private static final boolean COUNT_VS_MICROSECONDS = false;
-
+	private static final String LOG_LOCATION = "/mnt/hdd/logs/callsite.log";
+	
+	private static final Comparator<CallsiteStat> COMPARATOR = new CallsiteDurationComparator();
+	
+	/**************** main ********************/
+	
 	public static void main(String... args){
+		new CallsiteAnalyzer().call();
+	}
+	
+	
+	/****************** fields *********************/
+
+	private Map<String,Long> countByCallsite = new HashMap<>();
+	private Map<String,Long> durationUsByCallsite = new HashMap<>();
+	
+	
+	/****************** construct ********************/
+	
+	public CallsiteAnalyzer(){
+		
+	}
+	
+	@Override
+	public Void call(){
 		//aggregate
-		Map<String,Long> countByCallsite = new HashMap<>();
-		Scanner<List<String>> scanner = ReaderTool.scanFileLinesInBatches("/mnt/logs/callsite.log", 1000);
+		Scanner<List<String>> scanner = ReaderTool.scanFileLinesInBatches(LOG_LOCATION, 1000);
 		while(scanner.advance()){
 			List<String> batch = scanner.getCurrent();
 			for(String line : batch){
 				CallsiteRecord record = CallsiteRecord.fromLogLine(line);
-				long delta = COUNT_VS_MICROSECONDS ? 1 : record.getDurationUs();
-				MapTool.increment(countByCallsite, record.getCallsite(), delta);
+				MapTool.increment(countByCallsite, record.getCallsite());
+				MapTool.increment(durationUsByCallsite, record.getCallsite(), record.getDurationUs());
 			}
 		}
+		List<CallsiteStat> callsites = buildCallsites();
 		
 		//sort
-		List<CallsiteCount> callsiteCounts = getSortedCallsiteCounts(countByCallsite);
+		Collections.sort(callsites, Collections.reverseOrder(COMPARATOR));
+		
 		
 		//print top N
 		int row = 0;
-		for(CallsiteCount callsiteCount : callsiteCounts){
+		for(CallsiteStat stat : callsites){
 			++row;
-			if(row > 30){ return; }
-			String callsite = callsiteCount.getCallsite();
-			if(COUNT_VS_MICROSECONDS){
-				String countString = NumberFormatter.addCommas(callsiteCount.getCount());
-				System.out.println(StringTool.pad(row+"", ' ', 3) + " " + callsite + " " + countString + " calls");
-			}else{
-				String countString = NumberFormatter.addCommas(callsiteCount.getCount() / 1000);
-				System.out.println(StringTool.pad(row+"", ' ', 3) + " " + callsite + " " + countString + " ms");
-			}
+			if(row > 30){ return null; }
+			String callsite = stat.getCallsite();
+			String countString = NumberFormatter.addCommas(stat.getCount());
+			String durationString = NumberFormatter.addCommas(stat.getDurationUs());
+			System.out.println(StringTool.pad(row+"", ' ', 3) 
+					+ " " + StringTool.pad(countString, ' ', 12)
+					+ " " + StringTool.pad(durationString, ' ', 12)
+					+ " " + callsite);
 		}
+		return null;
 	}
 	
 	
-	private static List<CallsiteCount> getSortedCallsiteCounts(Map<String,Long> countByCallsite){
-		List<CallsiteCount> callsiteCounts = new ArrayList<>();
-		for(Map.Entry<String,Long> entry : countByCallsite.entrySet()){
-			callsiteCounts.add(new CallsiteCount(entry.getValue(), entry.getKey()));
+	private List<CallsiteStat> buildCallsites(){
+		List<CallsiteStat> callsiteCounts = new ArrayList<>();
+		for(String callsite : countByCallsite.keySet()){
+			Long count = countByCallsite.get(callsite);
+			Long durationUs = durationUsByCallsite.get(callsite);
+			callsiteCounts.add(new CallsiteStat(callsite, count, durationUs));
 		}
-		Collections.sort(callsiteCounts);
 		return callsiteCounts;
 	}
 	
