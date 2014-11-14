@@ -85,7 +85,6 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public D get(final PK key, final Config config){
 		String opName = MapStorageReader.OP_get;
-		recordCallsite(opName);
 		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(this, opName, ListTool.wrap(key), config);
 		List<D> databeans = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();//should only be one
 		return CollectionTool.getFirst(databeans);
@@ -248,11 +247,6 @@ implements MapStorageReader<PK,D>,
 	
 	protected String getTraceName(String opName){
 		return getName() + " " + opName;
-	}
-	
-	protected void recordCallsite(String opName){
-		LineOfCode line = new LineOfCode(2);//record 2 above this helper method
-//		logger.error(opName + "-" + line.toString());
 	}
 
 }
