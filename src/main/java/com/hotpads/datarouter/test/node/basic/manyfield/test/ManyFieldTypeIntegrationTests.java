@@ -34,6 +34,7 @@ import com.hotpads.datarouter.node.op.raw.SortedStorage.SortedStorageNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
@@ -87,7 +88,7 @@ public class ManyFieldTypeIntegrationTests{
 	//runs before every @Test
 	public ManyFieldTypeIntegrationTests(String clientName, ClientType clientType, boolean sorted, boolean useFielder, 
 			boolean entity){
-		Injector injector = Guice.createInjector();
+		Injector injector = new DatarouterTestInjectorProvider().get();
 		DataRouterContext drContext = injector.getInstance(DataRouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
 		this.clientType = clientType;

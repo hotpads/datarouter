@@ -10,9 +10,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.storage.key.KeyTool;
+import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.datarouter.test.TestIndexedDatabeanFielder.TestDatabeanByBLookup;
@@ -28,7 +28,7 @@ public class LazyReaderIntegrationTests{
 
 	@BeforeClass
 	public static void setUp(){
-		Injector injector = Guice.createInjector();
+		Injector injector = new DatarouterTestInjectorProvider().get();
 		router = injector.getInstance(LazyTestRouter.class);
 		
 		databeans = ListTool.create(

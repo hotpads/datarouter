@@ -12,8 +12,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.logging.ClassA.Class1;
 import com.hotpads.logging.ClassA.Class1.Class11;
 import com.hotpads.logging.ClassA.Class2;
@@ -50,7 +50,7 @@ public class LoggingTest{
 	
 	@Test
 	public void dynamiqueTest(){
-		Injector injector = Guice.createInjector();
+		Injector injector = new DatarouterTestInjectorProvider().get();
 		Log4j2Configurator log4j2Configurator = injector.getInstance(Log4j2Configurator.class);
 		logOneOfEachLevel();
 		log4j2Configurator.getRootLoggerConfig().setLevel(Level.DEBUG);

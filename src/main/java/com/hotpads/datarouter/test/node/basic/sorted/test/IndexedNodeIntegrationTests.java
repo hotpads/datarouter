@@ -26,6 +26,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.IndexedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanByDCBLookup;
@@ -79,7 +80,7 @@ public class IndexedNodeIntegrationTests{
 	/***************************** constructors **************************************/
 
 	public IndexedNodeIntegrationTests(String clientName, ClientType clientType, boolean useFielder){
-		Injector injector = Guice.createInjector();
+		Injector injector = new DatarouterTestInjectorProvider().get();
 		DataRouterContext drContext = injector.getInstance(DataRouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
 		this.router = new IndexedBasicNodeTestRouter(drContext, nodeFactory, clientName, getClass(), useFielder, false);

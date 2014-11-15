@@ -36,6 +36,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
@@ -70,7 +71,7 @@ public class BackupIntegrationTester{
 	public static void init() throws IOException{	
 		Class<?> cls = BackupIntegrationTester.class;
 
-		Injector injector = Guice.createInjector();
+		Injector injector = new DatarouterTestInjectorProvider().get();
 		DataRouterContext drContext = injector.getInstance(DataRouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
 		

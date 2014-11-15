@@ -11,6 +11,7 @@ import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.BasicClientTestRouterImp;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
@@ -31,7 +32,7 @@ public class TxnIntegrationTests {
 	
 	
 	public TxnIntegrationTests(){
-		Injector injector = Guice.createInjector();
+		Injector injector = new DatarouterTestInjectorProvider().get();
 		drContext = injector.getInstance(DataRouterContext.class);
 		router = injector.getInstance(BasicClientTestRouter.class);
 	}

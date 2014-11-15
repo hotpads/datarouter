@@ -25,6 +25,7 @@ import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean;
@@ -59,7 +60,7 @@ public class ScatteringPrefixIntegrationTests{
 	
 	@BeforeClass
 	public static void init() throws IOException{	
-		Injector injector = Guice.createInjector();
+		Injector injector = new DatarouterTestInjectorProvider().get();
 		DataRouterContext drContext = injector.getInstance(DataRouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
 		

@@ -23,7 +23,7 @@ public class LineOfCode implements Comparable<LineOfCode>{
 	/****************** construct ***************************/
 	
 	public LineOfCode(){
-		this(0);
+		this(1);//add one for the chained constructor
 	}
 	
 	public LineOfCode(int additionalOffsetFromTop){
@@ -132,7 +132,7 @@ public class LineOfCode implements Comparable<LineOfCode>{
 			Assert.assertEquals("com.hotpads.profile.callsite", lineOfCode.getPackageName());
 			Assert.assertEquals("LineOfCode$LineOfCodeTests", lineOfCode.getClassName());
 			Assert.assertEquals("testSimple", lineOfCode.getMethodName());
-			Assert.assertEquals(new Integer(125), lineOfCode.getLineNumber());
+			Assert.assertEquals(new Integer(131), lineOfCode.getLineNumber());
 		}
 		
 		@Test

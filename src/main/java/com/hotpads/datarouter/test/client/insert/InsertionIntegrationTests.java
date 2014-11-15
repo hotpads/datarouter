@@ -8,6 +8,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
+import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.util.core.collections.Pair;
 
@@ -16,7 +17,7 @@ public class InsertionIntegrationTests{
 	private BasicClientTestRouter router;
 	
 	public InsertionIntegrationTests(){
-		Injector injector = Guice.createInjector();
+		Injector injector = new DatarouterTestInjectorProvider().get();
 		router = injector.getInstance(BasicClientTestRouter.class);
 	}
 	
