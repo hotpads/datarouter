@@ -1,5 +1,8 @@
 package com.hotpads.datarouter.node.factory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,10 +19,21 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.setting.DatarouterSettings;
 
+@Singleton
 public class NodeFactory{
-static Logger logger = LoggerFactory.getLogger(NodeFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(NodeFactory.class);
 	
+	private final DatarouterSettings drSettings;
+	
+	
+	@Inject
+	private NodeFactory(DatarouterSettings drSettings){
+		this.drSettings = drSettings;
+	}
+
+
 	/********************* pass any params *****************/
 	
 	public static <

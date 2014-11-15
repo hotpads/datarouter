@@ -6,6 +6,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.cache.Cached;
 
 public class NodeParams<
 		PK extends PrimaryKey<PK>,
@@ -40,6 +41,9 @@ public class NodeParams<
 	private final String remoteRouterName;
 	private final String remoteNodeName;
 	
+	//diagnostics
+	private final Cached<Boolean> recordCallsites;
+	
 	
 	
 	public NodeParams(DataRouter router, String clientName, String parentName, 
@@ -49,7 +53,8 @@ public class NodeParams<
 //			Class<? extends EntityPartitioner<?>> entityPartitionerClass, 
 //			String entityTableName, 
 			String entityNodePrefix, 
-			String remoteRouterName, String remoteNodeName){
+			String remoteRouterName, String remoteNodeName, 
+			Cached<Boolean> recordCallsites){
 		this.router = router;
 		this.clientName = clientName;
 		this.parentName = parentName;
@@ -65,6 +70,7 @@ public class NodeParams<
 		this.entityNodePrefix = entityNodePrefix;
 		this.remoteRouterName = remoteRouterName;
 		this.remoteNodeName = remoteNodeName;
+		this.recordCallsites = recordCallsites;
 	}
 
 
@@ -96,6 +102,7 @@ public class NodeParams<
 		private String remoteRouterName;
 		private String remoteNodeName;
 		
+		private Cached<Boolean> recordCallsites;
 		
 		/************** construct **************/
 		
@@ -167,6 +174,11 @@ public class NodeParams<
 			return this;
 		}
 		
+		public NodeParamsBuilder<PK,D,F> withDiagnostics(Cached<Boolean> recordCallsites){
+			this.recordCallsites = recordCallsites;
+			return this;
+		}		
+		
 		
 		/******************* build ***************************/
 		
@@ -176,7 +188,8 @@ public class NodeParams<
 					physicalName, qualifiedPhysicalName, 
 //					entityClass, entityPartitionerClass, entityTableName, 
 					entityNodePrefix, 
-					remoteRouterName, remoteNodeName);
+					remoteRouterName, remoteNodeName,
+					recordCallsites);
 		}
 	}
 
@@ -241,6 +254,10 @@ public class NodeParams<
 
 	public String getEntityNodePrefix(){
 		return entityNodePrefix;
+	}
+
+	public Cached<Boolean> getRecordCallsites(){
+		return recordCallsites;
 	}
 	
 	

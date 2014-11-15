@@ -17,9 +17,11 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.callsite.CallsiteRecorder;
 import com.hotpads.profile.callsite.LineOfCode;
+import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.SetTool;
+import com.hotpads.util.core.cache.Cached;
 
 public abstract class BaseAdapterNode<
 		PK extends PrimaryKey<PK>,
@@ -29,10 +31,12 @@ public abstract class BaseAdapterNode<
 extends BaseNode<PK,D,F>{
 	
 	protected N backingNode;
+	private Cached<Boolean> recordCallsites;
 	
 	public BaseAdapterNode(NodeParams<PK,D,F> params, N backingNode){
 		super(params);
 		this.backingNode = backingNode;
+		this.recordCallsites = params.getRecordCallsites();
 	}
 	
 	
@@ -106,6 +110,7 @@ extends BaseNode<PK,D,F>{
 	}
 	
 	public void recordCallsite(Config config, long startNs, int numItems){
+		if(recordCallsites == null || BooleanTool.isFalseOrNull(recordCallsites.get())){ return; }
 		LineOfCode datarouterMethod = new LineOfCode(2);
 		long durationNs = System.nanoTime() - startNs;
 		CallsiteRecorder.record(backingNode.getName(), datarouterMethod.getMethodName(), config.getCallsite(),
