@@ -30,27 +30,30 @@ implements TraceNodes{
 //			TABLE_TraceThread = "TestTraceThread",
 //			TABLE_TraceSpan = "TestTraceSpan";
 
+	private NodeFactory nodeFactory;
+	
 	public SortedMapStorageNode<TraceKey,Trace> trace;
 	public SortedMapStorageNode<TraceThreadKey,TraceThread> thread;
 	public SortedMapStorageNode<TraceSpanKey,TraceSpan> span;
 	
-	public TraceCompoundNode(DataRouter router, String clientName, String name){
+	public TraceCompoundNode(NodeFactory nodeFactory, DataRouter router, String clientName, String name){
 		super(router.getContext(), name);
+		this.nodeFactory = nodeFactory;
 		initNodes(router, clientName);
 	}
 	
 	private void initNodes(DataRouter router, String clientName){
-		trace = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
+		trace = BaseDataRouter.cast(router.register(nodeFactory.create(clientName, 
 //				TraceEntity.TABLE_Trace, Trace.class.getName(),
 				Trace.class, TraceFielder.class, router, true)));
 		register(trace);
 		
-		thread = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
+		thread = BaseDataRouter.cast(router.register(nodeFactory.create(clientName, 
 //				TraceEntity.TABLE_TraceThread, TraceThread.class.getName(),
 				TraceThread.class, TraceThreadFielder.class, router, true)));
 		register(thread);
 		
-		span = BaseDataRouter.cast(router.register(NodeFactory.create(clientName, 
+		span = BaseDataRouter.cast(router.register(nodeFactory.create(clientName, 
 //				TraceEntity.TABLE_TraceSpan, TraceSpan.class.getName(),
 				TraceSpan.class, TraceSpanFielder.class, router, true)));
 		register(span);	

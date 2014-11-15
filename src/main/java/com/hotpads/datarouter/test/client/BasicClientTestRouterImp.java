@@ -55,21 +55,21 @@ implements BasicClientTestRouter{
 		super(drContext, name);
 		this.nodeFactory = nodeFactory;
 		keepAliveHBase = cast(register(
-				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, KeepAlive.class, KeepAliveFielder.class, this, false)));
+				nodeFactory.create(DRTestConstants.CLIENT_drTestHBase, KeepAlive.class, KeepAliveFielder.class, this, false)));
 
 		txnBeanJdbc = cast(register(
-				NodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, TxnBean.class, TxnBeanFielder.class, this, false)));
+				nodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, TxnBean.class, TxnBeanFielder.class, this, false)));
 		txnBeanHibernate = cast(register(
 				//note this is not testing hibernate's serialization because we're specifying a fielder
-				NodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, TxnBean.class, TxnBeanFielder.class, this, false)));
+				nodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, TxnBean.class, TxnBeanFielder.class, this, false)));
 		txnBeanHBase = cast(register(
-				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, TxnBean.class, TxnBeanFielder.class, this, false)));
+				nodeFactory.create(DRTestConstants.CLIENT_drTestHBase, TxnBean.class, TxnBeanFielder.class, this, false)));
 
 		poolTestBeanHBase = cast(register(
-				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, PoolTestBean.class, PoolTestBeanFielder.class, this, false)));
+				nodeFactory.create(DRTestConstants.CLIENT_drTestHBase, PoolTestBean.class, PoolTestBeanFielder.class, this, false)));
 		
 		putOptTest = cast(register(
-				NodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, PutOpTestBean.class, PutOpTestBeanFielder.class, this, false)));
+				nodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, PutOpTestBean.class, PutOpTestBeanFielder.class, this, false)));
 		
 		registerWithContext();//do after field inits
 	}

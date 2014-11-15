@@ -21,7 +21,6 @@ public class LazyTestRouter extends BaseDataRouter{
 	
 	private static final String NAME = "lazyTestRouter";
 
-	private final NodeFactory nodeFactory;
 	
 	public IndexedSortedMapStorage<TestDatabeanKey, TestDatabean> testDatabean;
 	public LazyIndexedSortedMapStorageReader<TestDatabeanKey, TestDatabean> lazyTestDatabean;
@@ -29,9 +28,8 @@ public class LazyTestRouter extends BaseDataRouter{
 	@Inject
 	public LazyTestRouter(DataRouterContext context, NodeFactory nodeFactory){
 		super(context, NAME);
-		this.nodeFactory = nodeFactory;
 		
-		testDatabean = cast(register(NodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, TestDatabean.class,
+		testDatabean = cast(register(nodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, TestDatabean.class,
 				TestIndexedDatabeanFielder.class, this, true)));
 		lazyTestDatabean = new LazyIndexedSortedMapStorageReader<TestDatabeanKey, TestDatabean>(testDatabean);
 		
