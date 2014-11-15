@@ -28,8 +28,8 @@ public class ManagedIndexTestRouter extends BaseDataRouter{
 	public ManagedIndexTestRouter(DataRouterContext context, NodeFactory nodeFactory){
 		super(context, NAME);
 		this.nodeFactory = nodeFactory;
-		testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexNode(this);
-		testDatabeanWithTxnManagedIndex = new TestDatabeanWithTxnManagedIndexNode(this);
+		testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexNode(nodeFactory, this);
+		testDatabeanWithTxnManagedIndex = new TestDatabeanWithTxnManagedIndexNode(nodeFactory, this);
 		registerWithContext();
 	}
 

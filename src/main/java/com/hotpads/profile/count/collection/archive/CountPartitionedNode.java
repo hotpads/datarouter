@@ -95,12 +95,12 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	
 	/********************************* constructor *************************************/
 	
-	public CountPartitionedNode(DataRouter router, String clientName){
+	public CountPartitionedNode(NodeFactory nodeFactory, DataRouter router, String clientName){
 		super(Count.class, CountFielder.class, router);
 		for(String suffix : suffixes){
 			String tableName = TABLE_PREFIX + suffix;
 			String entityName = ENTITY_PREFIX + suffix;
-			Node<CountKey,Count> node = NodeFactory.create(clientName, tableName, entityName, Count.class,
+			Node<CountKey,Count> node = nodeFactory.create(clientName, tableName, entityName, Count.class,
 					CountFielder.class, router, false);
 			PhysicalSortedMapStorageNode<CountKey,Count> sortedNode = BaseDataRouter.cast(node);
 			register(sortedNode);

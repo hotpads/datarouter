@@ -98,8 +98,10 @@ public class NodeFactory{
 	
 	/************ include tableName **********************/
 	
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>> 
 	N create(
 			String clientName, 
 			String tableName,
@@ -109,8 +111,10 @@ public class NodeFactory{
 		return create(clientName, tableName, entityName, databeanClass, null, router, true);
 	}
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>> 
 	N create(//specify tableName and entityName
 			String clientName, 
 			String tableName,
