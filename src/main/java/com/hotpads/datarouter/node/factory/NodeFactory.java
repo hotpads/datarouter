@@ -37,8 +37,7 @@ public class NodeFactory{
 
 	/********************* pass any params *****************/
 	
-	public static <
-			PK extends PrimaryKey<PK>,
+	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>> 
@@ -79,7 +78,7 @@ public class NodeFactory{
 	}
 	
 	// +fielderClass +schemaVersion
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
 	N create(//5 args
 			String clientName, 
@@ -91,7 +90,8 @@ public class NodeFactory{
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
 				.withFielder(fielderClass)
-				.withSchemaVersion(schemaVersion);
+				.withSchemaVersion(schemaVersion)
+				.withDiagnostics(drSettings.getRecordCallsites());
 		return create(paramsBuilder.build(), addAdapter);
 	}
 	
@@ -126,7 +126,8 @@ public class NodeFactory{
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
 				.withFielder(fielderClass)
-				.withHibernateTableName(tableName, entityName);
+				.withHibernateTableName(tableName, entityName)
+				.withDiagnostics(drSettings.getRecordCallsites());
 		return create(paramsBuilder.build(), addAdapter);
 	}
 	
@@ -158,7 +159,8 @@ public class NodeFactory{
 				.withClientName(clientName)
 				.withParentName(entityNodeParams.getNodeName())
 				.withFielder(fielderClass)
-				.withEntity(entityNodeParams.getEntityTableName(), entityNodePrefix);
+				.withEntity(entityNodeParams.getEntityTableName(), entityNodePrefix)
+				.withDiagnostics(drSettings.getRecordCallsites());
 		NodeParams<PK,D,F> nodeParams = paramsBuilder.build();
 //		return create(paramsBuilder.build());
 		ClientType clientType = nodeParams.getRouter().getClientOptions().getClientTypeInstance(clientName);
