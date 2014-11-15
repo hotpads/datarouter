@@ -37,7 +37,7 @@ public class MasterSlaveNodeFactory{
 
 
 	//no Fielder
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	BaseNode<PK,D,?> 
 	create(
 			DataRouter router, StorageType storageType, Class<D> databeanClass,
@@ -48,7 +48,7 @@ public class MasterSlaveNodeFactory{
 	
 	/************** convenience methods that (try to) cast to the desired type *****************/
 	
-	public static <
+	public <
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
@@ -70,7 +70,7 @@ public class MasterSlaveNodeFactory{
 				fielderClass, masterClientName, slaveClientNames);
 	}
 	
-	public static <
+	public <
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
