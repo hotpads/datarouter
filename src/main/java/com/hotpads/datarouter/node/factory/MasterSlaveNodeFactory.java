@@ -29,10 +29,12 @@ import com.hotpads.util.core.ListTool;
 public class MasterSlaveNodeFactory{
 
 	private final DatarouterSettings drSettings;
+	private final NodeFactory nodeFactory;
 	
 	@Inject
-	public MasterSlaveNodeFactory(DatarouterSettings drSettings){
+	public MasterSlaveNodeFactory(DatarouterSettings drSettings, NodeFactory nodeFactory){
 		this.drSettings = drSettings;
+		this.nodeFactory = nodeFactory;
 	}
 
 
