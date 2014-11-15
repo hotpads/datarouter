@@ -11,15 +11,17 @@ import java.util.SortedSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.hotpads.datarouter.backup.BackupRegion;
 import com.hotpads.datarouter.backup.imp.memory.BackupRegionToMemory;
 import com.hotpads.datarouter.backup.imp.memory.RestoreRegionFromMemory;
@@ -30,7 +32,9 @@ import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
+import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
@@ -66,16 +70,20 @@ public class BackupIntegrationTester{
 	public static void init() throws IOException{	
 		Class<?> cls = BackupIntegrationTester.class;
 
+		Injector injector = Guice.createInjector();
+		DataRouterContext drContext = injector.getInstance(DataRouterContext.class);
+		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
+		
 		if(clientTypes.contains(HibernateClientType.INSTANCE)){
 			routerByClientType.put(
 					HibernateClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHibernate0, cls, true, false));
+					new SortedBasicNodeTestRouter(drContext, nodeFactory, DRTestConstants.CLIENT_drTestHibernate0, cls, true, false));
 		}
 
 		if(clientTypes.contains(HBaseClientType.INSTANCE)){
 			routerByClientType.put(
 					HBaseClientType.INSTANCE, 
-					new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase, cls, true, false));
+					new SortedBasicNodeTestRouter(drContext, nodeFactory, DRTestConstants.CLIENT_drTestHBase, cls, true, false));
 		}
 		
 		for(BasicNodeTestRouter router : routerByClientType.values()){

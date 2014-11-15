@@ -34,6 +34,8 @@ implements BasicClientTestRouter{
 
 	public static final String name = "basicClientTest";
 
+	private final NodeFactory nodeFactory;
+	
 	/********************************** nodes **********************************/
 
 	private MapStorage<KeepAliveKey,KeepAlive> keepAliveHBase;
@@ -49,8 +51,9 @@ implements BasicClientTestRouter{
 	/********************************* constructor *****************************/
 
 	@Inject
-	public BasicClientTestRouterImp(DataRouterContext drContext){
+	public BasicClientTestRouterImp(DataRouterContext drContext, NodeFactory nodeFactory){
 		super(drContext, name);
+		this.nodeFactory = nodeFactory;
 		keepAliveHBase = cast(register(
 				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, KeepAlive.class, KeepAliveFielder.class, this, false)));
 

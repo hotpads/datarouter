@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithTxnManagedIndexNode;
 import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithManagedIndexNode;
 import com.hotpads.datarouter.routing.BaseDataRouter;
@@ -17,13 +18,16 @@ import com.hotpads.util.core.ListTool;
 public class ManagedIndexTestRouter extends BaseDataRouter{
 	
 	private static final String NAME = "managedIndexTest";
+
+	private final NodeFactory nodeFactory;
 	
 	public final TestDatabeanWithManagedIndexNode testDatabeanWithManagedIndex;
 	public final TestDatabeanWithTxnManagedIndexNode testDatabeanWithTxnManagedIndex;
 
 	@Inject
-	public ManagedIndexTestRouter(DataRouterContext context){
+	public ManagedIndexTestRouter(DataRouterContext context, NodeFactory nodeFactory){
 		super(context, NAME);
+		this.nodeFactory = nodeFactory;
 		testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexNode(this);
 		testDatabeanWithTxnManagedIndex = new TestDatabeanWithTxnManagedIndexNode(this);
 		registerWithContext();

@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
@@ -22,7 +24,9 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
+import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
@@ -40,7 +44,7 @@ import com.hotpads.util.core.iterable.BatchingIterable;
 
 @RunWith(Parameterized.class)
 public class SortedNodeIntegrationTests{
-	static Logger logger = LoggerFactory.getLogger(SortedNodeIntegrationTests.class);
+	private static final Logger logger = LoggerFactory.getLogger(SortedNodeIntegrationTests.class);
 	
 	
 	/***************************** fields **************************************/
@@ -64,7 +68,10 @@ public class SortedNodeIntegrationTests{
 	
 	
 	public SortedNodeIntegrationTests(String clientName, ClientType clientType, boolean useFielder, boolean entity){
-		this.router = new SortedBasicNodeTestRouter(clientName, getClass(), useFielder, entity);
+		Injector injector = Guice.createInjector();
+		DataRouterContext drContext = injector.getInstance(DataRouterContext.class);
+		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
+		this.router = new SortedBasicNodeTestRouter(drContext, nodeFactory, clientName, getClass(), useFielder, entity);
 		this.node = router.sortedBeanSorted();
 		this.entityNode = router.sortedBeanEntity();
 	}

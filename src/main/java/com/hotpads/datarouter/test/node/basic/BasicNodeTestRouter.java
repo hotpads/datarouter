@@ -3,6 +3,7 @@ package com.hotpads.datarouter.test.node.basic;
 import java.util.List;
 import java.util.Random;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.backup.databean.BackupRecord;
@@ -52,11 +53,15 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 			ENTITY_ManyFieldTypeBeanEntity = "ManyFieldTypeBeanEntity",
 			NODE_PREFIX_ManyFieldTypeBean = "MFTB",
 			NODE_NAME_SortedBeanEntity = "TestSortedBeanEntity";
-	
+
+	private final NodeFactory nodeFactory;
 //	protected String clientName;
 	
-	public BasicNodeTestRouter(String clientName, Class<?> testType, boolean useFielder, boolean entity){
-		super(new DataRouterContext(), name);
+	@Inject
+	public BasicNodeTestRouter(DataRouterContext drContext, NodeFactory nodeFactory, String clientName, 
+			Class<?> testType, boolean useFielder, boolean entity){
+		super(drContext, name);
+		this.nodeFactory = nodeFactory;
 		
 		if(ManyFieldTypeIntegrationTests.class.equals(testType)){
 			if(entity){
@@ -170,8 +175,9 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	/************************ sorted and indexed versions of this router *****************/
 	
 	public static class SortedBasicNodeTestRouter extends BasicNodeTestRouter{
-		public SortedBasicNodeTestRouter(String client, Class<?> testType, boolean useFielder, boolean entity){
-			super(client, testType, useFielder, entity);
+		public SortedBasicNodeTestRouter(DataRouterContext drContext, NodeFactory nodeFactory, String client, 
+				Class<?> testType, boolean useFielder, boolean entity){
+			super(drContext, nodeFactory, client, testType, useFielder, entity);
 		}
 		public SortedMapStorage<SortedBeanKey,SortedBean> sortedBeanSorted(){
 			return cast(sortedBeanNode);
@@ -182,8 +188,9 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	}
 	
 	public static class IndexedBasicNodeTestRouter extends SortedBasicNodeTestRouter{
-		public IndexedBasicNodeTestRouter(String client, Class<?> testType, boolean useFielder, boolean entity){
-			super(client, testType, useFielder, entity);
+		public IndexedBasicNodeTestRouter(DataRouterContext drContext, NodeFactory nodeFactory, String client, 
+				Class<?> testType, boolean useFielder, boolean entity){
+			super(drContext, nodeFactory, client, testType, useFielder, entity);
 		}
 		public IndexedStorage<SortedBeanKey,SortedBean> sortedBeanIndexed(){
 			return cast(sortedBeanNode);

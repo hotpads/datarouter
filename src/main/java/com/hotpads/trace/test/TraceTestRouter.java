@@ -1,8 +1,11 @@
 package com.hotpads.trace.test;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -18,9 +21,13 @@ public class TraceTestRouter extends BaseDataRouter{
 			NAME = "TraceRouter",
 			NODE_TraceEntity = "TraceEntity",
 			NODE_TraceCompound = "TraceCompound";
+
+	private final NodeFactory nodeFactory;
 	
-	public TraceTestRouter(){
-		super(new DataRouterContext(), NAME);
+	@Inject
+	public TraceTestRouter(DataRouterContext drContext, NodeFactory nodeFactory){
+		super(drContext, NAME);
+		this.nodeFactory = nodeFactory;
 		initNodes();
 		registerWithContext();//do after field inits
 	}

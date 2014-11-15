@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.google.inject.Guice;
 import com.hotpads.trace.Trace;
 import com.hotpads.trace.TraceSpan;
 import com.hotpads.trace.TraceThread;
@@ -38,7 +39,7 @@ public class TraceEntityTests{
 //	}
 	
 	public TraceEntityTests(Class<TraceNodes> nodesClass){
-		this.router = new TraceTestRouter();
+		this.router = Guice.createInjector().getInstance(TraceTestRouter.class);
 		if(ObjectTool.equals(TraceCompoundNode.class, nodesClass)){
 			this.nodes = router.traceCompound();
 		}else if(ObjectTool.equals(TraceEntityNode.class, nodesClass)){

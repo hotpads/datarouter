@@ -136,13 +136,6 @@ public class TxnIntegrationTests {
 		Assert.assertEquals(1, numExceptions);
 		Assert.assertEquals(0, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
 	}
-	
-	public static void main(String... args){
-		BasicClientTestRouter router = new BasicClientTestRouterImp(new DataRouterContext());
-//		router.txnBeanHibernate().get(new TxnBeanKey("abc"), null);
-		TxnBean b = new TxnBean("b");
-		router.txnBeanHibernate().put(b, null);
-	}
 }
 
 
