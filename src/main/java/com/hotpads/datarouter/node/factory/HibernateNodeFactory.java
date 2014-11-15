@@ -7,19 +7,17 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
+@Deprecated//unused?
 public class HibernateNodeFactory {
 
-
-	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
-	Node<PK,D> 
-	createSubclass(String clientName, 
-			Class<D> databeanClass, 
-			Class<F> fielderClass,
-			Class<? super D> baseDatabeanClass,
-			DataRouter router){
-		return NodeFactory.createWithBaseDatabeanClass(clientName, databeanClass, baseDatabeanClass, router);
-	}
+//	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
+//	Node<PK,D> createSubclass(String clientName, 
+//			Class<D> databeanClass, 
+//			Class<F> fielderClass,
+//			Class<? super D> baseDatabeanClass,
+//			DataRouter router){
+//		return NodeFactory.createWithBaseDatabeanClass(clientName, databeanClass, baseDatabeanClass, router);
+//	}
 }
 
 

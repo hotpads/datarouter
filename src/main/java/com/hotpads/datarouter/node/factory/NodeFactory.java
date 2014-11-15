@@ -163,7 +163,7 @@ public class NodeFactory{
 	
 	/*************** baseDatabeanClass ********************/
 	
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>>
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>>
 	N createWithBaseDatabeanClass(//3 args
 			String clientName, 
 			Class<D> databeanClass, 
@@ -171,7 +171,8 @@ public class NodeFactory{
 			DataRouter router){
 		NodeParamsBuilder<PK,D,?> paramsBuilder = new NodeParamsBuilder(router, databeanClass)
 				.withClientName(clientName)
-				.withBaseDatabean(baseDatabeanClass);
+				.withBaseDatabean(baseDatabeanClass)
+				.withDiagnostics(drSettings.getRecordCallsites());
 		return create(paramsBuilder.build(), true);
 	}
 }
