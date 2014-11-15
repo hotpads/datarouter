@@ -10,14 +10,15 @@ import java.util.concurrent.Callable;
 
 import com.hotpads.datarouter.util.callsite.CallsiteStat.CallsiteDurationComparator;
 import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.io.ReaderTool;
 import com.hotpads.util.core.iterable.scanner.Scanner;
 
 public class CallsiteAnalyzer implements Callable<Void>{
 	
-	private static final String LOG_LOCATION = "/mnt/hdd/logs/callsite.log";
+	// scp -i /hpdev/ec2-latest/.EC2_Keys/.ec2key root@webtest2:/mnt/logs/callsite.log .
+	
+	private static final String LOG_LOCATION = "/mnt/hdd/junk/callsite.log";
 	
 	private static final Comparator<CallsiteStat> COMPARATOR = new CallsiteDurationComparator();
 	
@@ -63,13 +64,7 @@ public class CallsiteAnalyzer implements Callable<Void>{
 		for(CallsiteStat stat : callsites){
 			++row;
 			if(row > 30){ return null; }
-			String callsite = stat.getCallsite();
-			String countString = NumberFormatter.addCommas(stat.getCount());
-			String durationString = NumberFormatter.addCommas(stat.getDurationUs());
-			System.out.println(StringTool.pad(row+"", ' ', 3) 
-					+ " " + StringTool.pad(countString, ' ', 12)
-					+ " " + StringTool.pad(durationString, ' ', 12)
-					+ " " + callsite);
+			System.out.println(StringTool.pad(row+"", ' ', 3) + stat.getReportLine());
 		}
 		return null;
 	}
@@ -80,7 +75,7 @@ public class CallsiteAnalyzer implements Callable<Void>{
 		for(String callsite : countByCallsite.keySet()){
 			Long count = countByCallsite.get(callsite);
 			Long durationUs = durationUsByCallsite.get(callsite);
-			callsiteCounts.add(new CallsiteStat(callsite, count, durationUs));
+			callsiteCounts.add(new CallsiteStat(null, callsite, count, durationUs));
 		}
 		return callsiteCounts;
 	}

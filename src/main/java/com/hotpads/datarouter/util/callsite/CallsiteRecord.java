@@ -41,8 +41,8 @@ public class CallsiteRecord{
 		String datarouterMethodName = lineTokens[i++];
 		String callsite = lineTokens[i++];
 		Integer numItems = Integer.valueOf(lineTokens[i++]);
-		Long microseconds = Long.valueOf(lineTokens[i++]); 
-		return new CallsiteRecord(nodeName, datarouterMethodName, callsite, numItems, microseconds);
+		Long nanoseconds = 1000 * Long.valueOf(lineTokens[i++]); 
+		return new CallsiteRecord(nodeName, datarouterMethodName, callsite, numItems, nanoseconds);
 	}
 	
 	

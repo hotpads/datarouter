@@ -9,15 +9,31 @@ import com.hotpads.util.core.StringTool;
 
 public class CallsiteStat implements Comparable<CallsiteStat>{
 
+	private String datarouterMethodName;
 	private String callsite;
 	private Long count;
 	private Long durationUs;
 	
 
-	public CallsiteStat(String callsite, Long count, Long durationUs){
+	public CallsiteStat(String datarouterMethodName, String callsite, Long count, Long durationUs){
+		this.datarouterMethodName = datarouterMethodName;
 		this.callsite = callsite;
 		this.count = count;
 		this.durationUs = durationUs;
+	}
+	
+	
+	/***************** methods ************************/
+	
+	public String getReportLine(){
+		String countString = NumberFormatter.addCommas(count);
+		String durationString = NumberFormatter.addCommas(durationUs);
+		String avgCallUsString = NumberFormatter.addCommas(durationUs / count);
+		return StringTool.pad(countString, ' ', 12)
+				+ " " + StringTool.pad(durationString, ' ', 12)
+				+ " " + StringTool.pad(avgCallUsString, ' ', 12)
+//				+ " " + StringTool.pad(datarouterMethodName, ' ', 20)
+				+ " " + callsite;
 	}
 
 	
@@ -61,7 +77,7 @@ public class CallsiteStat implements Comparable<CallsiteStat>{
 		String countString = NumberFormatter.addCommas(count);
 		return StringTool.pad(countString, ' ', 8) + "   " + callsite;
 	}
-	
+
 	
 	/**************** duration comparator ******************/
 	
@@ -85,6 +101,10 @@ public class CallsiteStat implements Comparable<CallsiteStat>{
 	
 	public Long getDurationUs(){
 		return durationUs;
+	}
+
+	public String getDatarouterMethodName(){
+		return datarouterMethodName;
 	}
 	
 	
