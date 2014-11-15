@@ -21,19 +21,16 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.StorageType;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.setting.DatarouterSettings;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
 @Singleton
 public class MasterSlaveNodeFactory{
 
-	private final DatarouterSettings drSettings;
 	private final NodeFactory nodeFactory;
 	
 	@Inject
-	public MasterSlaveNodeFactory(DatarouterSettings drSettings, NodeFactory nodeFactory){
-		this.drSettings = drSettings;
+	public MasterSlaveNodeFactory(NodeFactory nodeFactory){
 		this.nodeFactory = nodeFactory;
 	}
 
@@ -50,8 +47,7 @@ public class MasterSlaveNodeFactory{
 	
 	/************** convenience methods that (try to) cast to the desired type *****************/
 	
-	public <
-			PK extends PrimaryKey<PK>,
+	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends BaseNode<PK,D,F>>
@@ -61,8 +57,7 @@ public class MasterSlaveNodeFactory{
 				fielderClass, masterClientName, slaveClientNames);
 	}
 	
-	public static <
-			PK extends PrimaryKey<PK>,
+	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends BaseNode<PK,D,F>>
@@ -72,8 +67,7 @@ public class MasterSlaveNodeFactory{
 				fielderClass, masterClientName, slaveClientNames);
 	}
 	
-	public <
-			PK extends PrimaryKey<PK>,
+	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends BaseNode<PK,D,F>>
@@ -86,8 +80,7 @@ public class MasterSlaveNodeFactory{
 	
 	/************** private ******************/
 	
-	private static <
-			PK extends PrimaryKey<PK>,
+	private <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends BaseNode<PK,D,F>>
@@ -97,12 +90,12 @@ public class MasterSlaveNodeFactory{
 		//create the backing nodes
 		N master = null;
 		if(masterClientName != null){
-			master = NodeFactory.create(masterClientName, databeanClass, fielderClass, router, false);
+			master = nodeFactory.create(masterClientName, databeanClass, fielderClass, router, false);
 		}
 		
 		List<N> slaves = ListTool.createLinkedList();
 		for(String slaveClientName : CollectionTool.nullSafe(slaveClientNames)){
-			N slaveNode = NodeFactory.create(slaveClientName, databeanClass, fielderClass, router, false);
+			N slaveNode = nodeFactory.create(slaveClientName, databeanClass, fielderClass, router, false);
 			slaves.add(slaveNode);
 		}
 		
