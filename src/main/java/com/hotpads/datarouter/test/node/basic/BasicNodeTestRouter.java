@@ -77,7 +77,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 //				sortedBeanNode = register(NodeFactory.entityNode(this, clientName, 
 //						SortedBeanEntityKey.class, SortedBean.class, SortedBeanFielder.class,
 //						SortedBeanEntity.class, SortedBeanEntityNode.ENTITY_SortedBeanEntity, NODE_PREFIX_SortedBean));
-				sortedBeanEntityNode = new SortedBeanEntityNode(this, clientName, NODE_NAME_SortedBeanEntity);
+				sortedBeanEntityNode = new SortedBeanEntityNode(nodeFactory, this, clientName, NODE_NAME_SortedBeanEntity);
 				sortedBeanNode = sortedBeanEntityNode.sortedBean();
 			}else{
 				if(useFielder){

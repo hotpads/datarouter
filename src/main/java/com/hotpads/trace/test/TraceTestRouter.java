@@ -28,7 +28,7 @@ public class TraceTestRouter extends BaseDataRouter{
 	public TraceTestRouter(DataRouterContext drContext, NodeFactory nodeFactory){
 		super(drContext, NAME);
 		this.nodeFactory = nodeFactory;
-		initNodes();
+		createNodes();
 		registerWithContext();//do after field inits
 	}
 
@@ -55,8 +55,9 @@ public class TraceTestRouter extends BaseDataRouter{
 	private TraceEntityNode traceEntity;
 	
 	
-	private void initNodes(){
-		traceEntity = new TraceEntityNode(this, DRTestConstants.CLIENT_drTestHBase, TraceEntityNode.ENTITY_NODE_PARAMS_TraceEntityTest);
+	private void createNodes(){
+		traceEntity = new TraceEntityNode(nodeFactory, this, DRTestConstants.CLIENT_drTestHBase, 
+				TraceEntityNode.ENTITY_NODE_PARAMS_TraceEntityTest);
 		traceCompound = new TraceCompoundNode(this, DRTestConstants.CLIENT_drTestHBase, NODE_TraceCompound);
 	}
 	

@@ -129,9 +129,12 @@ public class NodeFactory{
 	
 	/***************** entity ***************************/
 
-	public static <EK extends EntityKey<EK>,E extends Entity<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,N extends Node<PK,D>> 
+	public <EK extends EntityKey<EK>,
+			E extends Entity<EK>,
+			PK extends EntityPrimaryKey<EK,PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>> 
 	N subEntityNode(//specify entityName and entityNodePrefix
 			DataRouter router,
 			EntityNodeParams<EK,E> entityNodeParams,
@@ -163,7 +166,9 @@ public class NodeFactory{
 	
 	/*************** baseDatabeanClass ********************/
 	
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			N extends Node<PK,D>>
 	N createWithBaseDatabeanClass(//3 args
 			String clientName, 
 			Class<D> databeanClass, 
