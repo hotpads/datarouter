@@ -57,7 +57,7 @@ public class NodeFactory{
 	/*************** simple helpers *********************/
 	
 	//minimum required fields
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> 
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>> 
 	N create(//3 args
 			String clientName, 
 			Class<D> databeanClass, 
