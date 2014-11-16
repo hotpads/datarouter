@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.util.callsite;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -7,22 +8,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import com.hotpads.datarouter.util.callsite.CallsiteStat.CallsiteCountComparator;
-import com.hotpads.datarouter.util.callsite.CallsiteStat.CallsiteStatKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.hotpads.datarouter.util.callsite.CallsiteStatX.CallsiteCountComparator;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.io.ReaderTool;
 import com.hotpads.util.core.iterable.scanner.Scanner;
 
 public class CallsiteAnalyzer implements Callable<String>{
-	
-	// scp -i /hpdev/ec2-latest/.EC2_Keys/.ec2key root@webtest2:/mnt/logs/callsite.log .
+	private static final Logger logger = LoggerFactory.getLogger(CallsiteAnalyzer.class);
+	// scp -i /hpdev/ec2-latest/.EC2_Keys/.ec2key root@webtest2:/mnt/logs/callsite.log /tmp/callsite.log
 	
 //	private static final String LOG_LOCATION = "/mnt/hdd/junk/callsite.log";
 	private static final String LOG_LOCATION = "/mnt/logs/callsite.log";
 
 	
-	private static final Comparator<CallsiteStat> COMPARATOR = new CallsiteCountComparator();
+	private static final Comparator<CallsiteStatX> COMPARATOR = new CallsiteCountComparator();
 //	private static final Comparator<CallsiteStat> COMPARATOR = new CallsiteDurationComparator();
 	
 	/**************** main ********************/
@@ -36,7 +40,7 @@ public class CallsiteAnalyzer implements Callable<String>{
 	/****************** fields *********************/
 
 	private String logPath;
-	private Map<CallsiteStatKey,CallsiteStat> aggregateStatByKey = new HashMap<>();
+	private Map<CallsiteStatKeyX,CallsiteStatX> aggregateStatByKey = new HashMap<>();
 	
 	
 	/****************** construct ********************/
@@ -49,31 +53,45 @@ public class CallsiteAnalyzer implements Callable<String>{
 	public String call(){
 		//aggregate
 		Scanner<List<String>> scanner = ReaderTool.scanFileLinesInBatches(logPath, 1000);
+		int numLines = 0;
 		while(scanner.advance()){
 			List<String> batch = scanner.getCurrent();
 			for(String line : batch){
+				++numLines;
 				CallsiteRecord record = CallsiteRecord.fromLogLine(line);
-				CallsiteStat stat = new CallsiteStat(record.getDatarouterMethodName(), record.getCallsite(), 1L, 
+				CallsiteStatX stat = new CallsiteStatX(record.getDatarouterMethodName(), record.getCallsite(), 1L, 
 						record.getDurationNs());
 				if(!aggregateStatByKey.containsKey(stat.getKey())){
 					aggregateStatByKey.put(stat.getKey(), stat);
 				}
 				aggregateStatByKey.get(stat.getKey()).addMetrics(stat);
+				if(numLines % 100000 == 0){
+					logger.warn("scanned "+NumberFormatter.addCommas(numLines)+" in "+logPath);
+				}
 			}
 		}
 		
 		//sort
-		List<CallsiteStat> callsites = ListTool.createArrayList(aggregateStatByKey.values());
-		Collections.sort(callsites, Collections.reverseOrder(COMPARATOR));
+		List<CallsiteStatX> stats = ListTool.createArrayList(aggregateStatByKey.values());
+		Collections.sort(stats, Collections.reverseOrder(COMPARATOR));
+		int numDaoCallsites = CallsiteStatX.countDaoCallsites(stats);
 		
-		
-		//print top N
+		//build report
 		StringBuilder sb = new StringBuilder();
+		sb.append("          path: "+logPath+"\n");
+		sb.append(" file size (B): "+NumberFormatter.addCommas(new File(logPath).length())+"\n");
+		sb.append("         lines: "+NumberFormatter.addCommas(numLines)+"\n");
+		sb.append("     callsites: "+NumberFormatter.addCommas(stats.size())+"\n");
+		sb.append(" dao callsites: "+NumberFormatter.addCommas(numDaoCallsites)+"\n");
+		sb.append("\n");
+		int rankWidth = 5;
+		sb.append(StringTool.pad("rank", ' ', rankWidth) + CallsiteStatX.getReportHeader()+"\n");
+		//print top N
 		int row = 0;
-		for(CallsiteStat stat : callsites){
+		for(CallsiteStatX stat : stats){
 			++row;
-			if(row > 30){ return null; }
-			sb.append(StringTool.pad(row+"", ' ', 3) + stat.getReportLine() + "\n");
+			if(row > 30){ break; }
+			sb.append(StringTool.pad(row+"", ' ', rankWidth) + stat.getReportLine() + "\n");
 		}
 		return sb.toString();
 	}
