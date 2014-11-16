@@ -4,6 +4,7 @@ import com.google.inject.Injector;
 import com.hotpads.datarouter.test.TestApiHandler;
 import com.hotpads.handler.BaseDispatcher;
 import com.hotpads.handler.MemoryMonitoringHandler;
+import com.hotpads.handler.admin.CallsiteHandler;
 import com.hotpads.handler.admin.DatabeanGeneratorHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.admin.StackTracesManagerHandler;
@@ -29,6 +30,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 			MEMORY_STATS = "/memory",
 			NOTIFICATION_ALIAS = "/notification/alias",
 			DATABEAN_GENERATOR = "/databeanGenerator",
+			CALLSITE = "/callsite",
 			NODE_BROWSE_DATA = "/nodes/browseData",
 			URL_DATAROUTER_API = "/datarouterApi";
 
@@ -53,6 +55,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 //		handle(URL_HTTP_CLIENT, DataRouterHttpClientHandler.class);
 		handle(URL_DATAROUTER + NODE_BROWSE_DATA).withHandler(ViewNodeDataHandler.class);
 		handle(URL_DATAROUTER + DATABEAN_GENERATOR).withHandler(DatabeanGeneratorHandler.class);
+		handle(URL_DATAROUTER + CALLSITE).withHandler(CallsiteHandler.class);
 
 		handle(URL_DATAROUTER + CLIENTS + HBASE).withHandler(HBaseHandler.class);
 		handle(URL_DATAROUTER + CLIENTS + HIBERNATE).withHandler(HibernateHandler.class);

@@ -14,7 +14,7 @@ import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.io.ReaderTool;
 import com.hotpads.util.core.iterable.scanner.Scanner;
 
-public class CallsiteAnalyzer implements Callable<Void>{
+public class CallsiteAnalyzer implements Callable<String>{
 	
 	// scp -i /hpdev/ec2-latest/.EC2_Keys/.ec2key root@webtest2:/mnt/logs/callsite.log .
 	
@@ -28,25 +28,27 @@ public class CallsiteAnalyzer implements Callable<Void>{
 	/**************** main ********************/
 	
 	public static void main(String... args){
-		new CallsiteAnalyzer().call();
+		String report = new CallsiteAnalyzer(LOG_LOCATION).call();
+		System.out.println(report);
 	}
 	
 	
 	/****************** fields *********************/
 
+	private String logPath;
 	private Map<CallsiteStatKey,CallsiteStat> aggregateStatByKey = new HashMap<>();
 	
 	
 	/****************** construct ********************/
 	
-	public CallsiteAnalyzer(){
-		
+	public CallsiteAnalyzer(String logPath){
+		this.logPath = logPath;
 	}
 	
 	@Override
-	public Void call(){
+	public String call(){
 		//aggregate
-		Scanner<List<String>> scanner = ReaderTool.scanFileLinesInBatches(LOG_LOCATION, 1000);
+		Scanner<List<String>> scanner = ReaderTool.scanFileLinesInBatches(logPath, 1000);
 		while(scanner.advance()){
 			List<String> batch = scanner.getCurrent();
 			for(String line : batch){
@@ -66,13 +68,14 @@ public class CallsiteAnalyzer implements Callable<Void>{
 		
 		
 		//print top N
+		StringBuilder sb = new StringBuilder();
 		int row = 0;
 		for(CallsiteStat stat : callsites){
 			++row;
 			if(row > 30){ return null; }
-			System.out.println(StringTool.pad(row+"", ' ', 3) + stat.getReportLine());
+			sb.append(StringTool.pad(row+"", ' ', 3) + stat.getReportLine() + "\n");
 		}
-		return null;
+		return sb.toString();
 	}
 	
 }
