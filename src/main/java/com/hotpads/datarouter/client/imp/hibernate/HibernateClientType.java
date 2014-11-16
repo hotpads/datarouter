@@ -21,7 +21,6 @@ import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.IndexedSortedMapStorageAdapterNode;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
-import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
@@ -71,9 +70,12 @@ public class HibernateClientType extends BaseClientType{
 	}
 	
 	@Override
-	public Node<?,?> createAdapter(NodeParams<?,?,?> nodeParams, Node<?,?> backingNode){
-		return new IndexedSortedMapStorageAdapterNode(nodeParams.getDatabeanClass(), nodeParams.getRouter(), 
-				(IndexedSortedMapStorageNode<?,?>) backingNode);
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>> 
+	IndexedSortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
+		return new IndexedSortedMapStorageAdapterNode(nodeParams, (IndexedSortedMapStorageNode<PK,D>)backingNode);
 	}
 	
 	@Override

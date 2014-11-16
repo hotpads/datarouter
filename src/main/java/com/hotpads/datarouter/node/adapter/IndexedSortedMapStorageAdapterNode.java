@@ -3,11 +3,11 @@ package com.hotpads.datarouter.node.adapter;
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.mixin.IndexedStorageWriterAdapterMixin;
 import com.hotpads.datarouter.node.adapter.mixin.MapStorageWriterAdapterMixin;
 import com.hotpads.datarouter.node.adapter.mixin.SortedStorageWriterAdapterMixin;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
-import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
@@ -27,8 +27,8 @@ implements IndexedSortedMapStorageNode<PK,D>{
 	private IndexedStorageWriterAdapterMixin<PK,D,F,N> indexedStorageWriterMixin;
 	
 	
-	public IndexedSortedMapStorageAdapterNode(Class<D> databeanClass, DataRouter router, N backingNode){		
-		super(databeanClass, router, backingNode);
+	public IndexedSortedMapStorageAdapterNode(NodeParams<PK,D,F> params, N backingNode){		
+		super(params, backingNode);
 		this.mapStorageWriterMixin = new MapStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);
 		this.sortedStorageWriterMixin = new SortedStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);
 		this.indexedStorageWriterMixin = new IndexedStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);

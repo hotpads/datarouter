@@ -58,9 +58,12 @@ public class JdbcClientType extends BaseClientType{
 	}
 	
 	@Override
-	public Node<?,?> createAdapter(NodeParams<?,?,?> nodeParams, Node<?,?> backingNode){
-		return new IndexedSortedMapStorageAdapterNode(nodeParams.getDatabeanClass(), nodeParams.getRouter(), 
-				(IndexedSortedMapStorageNode<?,?>) backingNode);
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>> 
+	IndexedSortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
+		return new IndexedSortedMapStorageAdapterNode(nodeParams, (IndexedSortedMapStorageNode<PK,D>)backingNode);
 	}
 	
 	@Override

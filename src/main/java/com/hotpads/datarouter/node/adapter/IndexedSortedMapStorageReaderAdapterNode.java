@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.mixin.IndexedStorageReaderAdapterMixin;
 import com.hotpads.datarouter.node.op.combo.reader.IndexedSortedMapStorageReader.IndexedSortedMapStorageReaderNode;
-import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
@@ -23,8 +23,8 @@ implements IndexedSortedMapStorageReaderNode<PK,D>{
 	
 	private IndexedStorageReaderAdapterMixin<PK,D,F,N> indexedStorageReaderMixin;
 	
-	public IndexedSortedMapStorageReaderAdapterNode(Class<D> databeanClass, DataRouter router, N backingNode){		
-		super(databeanClass, router, backingNode);
+	public IndexedSortedMapStorageReaderAdapterNode(NodeParams<PK,D,F> params, N backingNode){		
+		super(params, backingNode);
 		this.indexedStorageReaderMixin = new IndexedStorageReaderAdapterMixin<PK,D,F,N>(this, backingNode);
 	}
 	

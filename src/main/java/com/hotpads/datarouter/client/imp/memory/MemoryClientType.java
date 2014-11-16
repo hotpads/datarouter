@@ -14,6 +14,9 @@ import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
+import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 @Singleton
 public class MemoryClientType extends BaseClientType{
@@ -44,10 +47,14 @@ public class MemoryClientType extends BaseClientType{
 		return createNode(nodeParams);
 	}
 	
+	
 	@Override
-	public Node<?,?> createAdapter(NodeParams<?,?,?> nodeParams, Node<?,?> backingNode){
-		return new MapStorageAdapterNode(nodeParams.getDatabeanClass(), nodeParams.getRouter(), 
-				(MapStorageNode<?,?>) backingNode);
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>> 
+	MapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
+		return new MapStorageAdapterNode(nodeParams, (MapStorageNode<PK,D>)backingNode);
 	}
 	
 }

@@ -4,10 +4,9 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
+import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.mixin.MapStorageReaderAdapterMixin;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
-import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -22,10 +21,8 @@ implements MapStorageReaderNode<PK,D>{
 
 	private MapStorageReaderAdapterMixin<PK,D,F,N> mapStorageReaderMixin;
 	
-	public MapStorageReaderAdapterNode(Class<D> databeanClass, DataRouter router, N backingNode){		
-		super(new NodeParamsBuilder<PK,D,F>(router, databeanClass)
-				.withFielder((Class<F>)backingNode.getFieldInfo().getFielderClass())
-				.build(), backingNode);
+	public MapStorageReaderAdapterNode(NodeParams<PK,D,F> params, N backingNode){		
+		super(params, backingNode);
 		this.mapStorageReaderMixin = new MapStorageReaderAdapterMixin<PK,D,F,N>(this, backingNode);
 	}
 

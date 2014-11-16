@@ -7,6 +7,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.node.BaseNode;
+import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.adapter.IndexedSortedMapStorageAdapterNode;
 import com.hotpads.datarouter.node.adapter.MapStorageAdapterNode;
 import com.hotpads.datarouter.node.adapter.SortedMapStorageAdapterNode;
@@ -21,16 +23,19 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.StorageType;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.setting.DatarouterSettings;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
 @Singleton
 public class MasterSlaveNodeFactory{
 
+	private final DatarouterSettings drSettings;
 	private final NodeFactory nodeFactory;
 	
 	@Inject
-	public MasterSlaveNodeFactory(NodeFactory nodeFactory){
+	public MasterSlaveNodeFactory(DatarouterSettings drSettings, NodeFactory nodeFactory){
+		this.drSettings = drSettings;
 		this.nodeFactory = nodeFactory;
 	}
 
@@ -38,9 +43,8 @@ public class MasterSlaveNodeFactory{
 	//no Fielder
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	BaseNode<PK,D,?> 
-	create(
-			DataRouter router, StorageType storageType, Class<D> databeanClass,
-			String masterClientName, Collection<String> slaveClientNames){
+	create(DataRouter router, StorageType storageType, Class<D> databeanClass, String masterClientName,
+			Collection<String> slaveClientNames){
 		return createInternal(router, storageType, databeanClass, null, masterClientName, slaveClientNames);
 	}
 	
@@ -99,25 +103,29 @@ public class MasterSlaveNodeFactory{
 			slaves.add(slaveNode);
 		}
 		
+		NodeParams<PK,D,F> nodeParams = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
+				.withDiagnostics(drSettings.getRecordCallsites())
+				.build();
+		
 		//create the parent node.  cast the master/slave nodes so we throw an error here if they aren't the right type
 		if(StorageType.map == storageType){
 			MasterSlaveMapStorageNode<PK,D,F,MapStorageNode<PK,D>> backingNode 
 					= new MasterSlaveMapStorageNode<PK,D,F,MapStorageNode<PK,D>>(
 					databeanClass, router, 
 					(MapStorageNode<PK,D>)master, (List<MapStorageNode<PK,D>>)slaves);
-			return new MapStorageAdapterNode(databeanClass, router, backingNode);
+			return new MapStorageAdapterNode(nodeParams, backingNode);
 		}else if(StorageType.sortedMap == storageType){
 			MasterSlaveSortedMapStorageNode<PK,D,F,SortedMapStorageNode<PK,D>> backingNode 
 					= new MasterSlaveSortedMapStorageNode<PK,D,F,SortedMapStorageNode<PK,D>>(
 					databeanClass, router, 
 					(SortedMapStorageNode<PK,D>)master, (List<SortedMapStorageNode<PK,D>>)slaves);
-			return new SortedMapStorageAdapterNode(databeanClass, router, backingNode);
+			return new SortedMapStorageAdapterNode(nodeParams, backingNode);
 		}else if(StorageType.indexed == storageType){
 			MasterSlaveIndexedSortedMapStorageNode<PK,D,F,IndexedSortedMapStorageNode<PK,D>> backingNode 
 					= new MasterSlaveIndexedSortedMapStorageNode<PK,D,F,IndexedSortedMapStorageNode<PK,D>>(
 					databeanClass, router, 
 					(IndexedSortedMapStorageNode<PK,D>)master, (List<IndexedSortedMapStorageNode<PK,D>>)slaves);
-			return new IndexedSortedMapStorageAdapterNode(databeanClass, router, backingNode);
+			return new IndexedSortedMapStorageAdapterNode(nodeParams, backingNode);
 		}else{
 			throw new IllegalArgumentException("StorageType "+storageType+" not supported");
 		}

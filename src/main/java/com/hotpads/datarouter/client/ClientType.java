@@ -5,6 +5,7 @@ import java.util.List;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
@@ -26,21 +27,31 @@ public interface ClientType{
 	
 	Node<?,?> createNode(NodeParams<?,?,?> nodeParams);
 	Node<?,?> createSubEntityNode(EntityNodeParams<?,?> entityNodeParams, NodeParams<?,?,?> nodeParams);
-	Node<?,?> createAdapter(NodeParams<?,?,?> nodeParams, Node<?,?> backingNode);
+	
+	<PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>> 
+	Node<PK,D> 
+	createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode);
 
 	<PK extends PrimaryKey<PK>, 
-	D extends Databean<PK, D>, 
-	IK extends PrimaryKey<IK>, 
-	IE extends UniqueIndexEntry<IK, IE, PK, D>,
-	IF extends DatabeanFielder<IK, IE>> ManagedUniqueIndexNode<PK, D, IK, IE, IF> createManagedUniqueIndexNode(
+			D extends Databean<PK, D>, 
+			IK extends PrimaryKey<IK>, 
+			IE extends UniqueIndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> 
+	ManagedUniqueIndexNode<PK, D, IK, IE, IF> 
+	createManagedUniqueIndexNode(
 			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn);
 	
 	<PK extends PrimaryKey<PK>, 
-	D extends Databean<PK, D>, 
-	IK extends PrimaryKey<IK>, 
-	IE extends MultiIndexEntry<IK, IE, PK, D>,
-	IF extends DatabeanFielder<IK, IE>> ManagedMultiIndexNode<PK, D, IK, IE, IF> createManagedMultiIndexNode(
+			D extends Databean<PK, D>, 
+			IK extends PrimaryKey<IK>, 
+			IE extends MultiIndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> 
+	ManagedMultiIndexNode<PK, D, IK, IE, IF> 
+	createManagedMultiIndexNode(
 			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn);
 	
