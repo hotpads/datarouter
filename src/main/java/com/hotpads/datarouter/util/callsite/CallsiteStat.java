@@ -9,17 +9,59 @@ import com.hotpads.util.core.StringTool;
 
 public class CallsiteStat implements Comparable<CallsiteStat>{
 
-	private String datarouterMethodName;
-	private String callsite;
+	public static class CallsiteStatKey{
+		private String datarouterMethodName;
+		private String callsite;
+		
+		public CallsiteStatKey(String datarouterMethodName, String callsite){
+			this.datarouterMethodName = datarouterMethodName;
+			this.callsite = callsite;
+		}
+
+		@Override
+		public int hashCode(){
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((callsite == null) ? 0 : callsite.hashCode());
+			result = prime * result + ((datarouterMethodName == null) ? 0 : datarouterMethodName.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj){
+			if(this == obj) return true;
+			if(obj == null) return false;
+			if(getClass() != obj.getClass()) return false;
+			CallsiteStatKey other = (CallsiteStatKey)obj;
+			if(callsite == null){
+				if(other.callsite != null) return false;
+			}else if(!callsite.equals(other.callsite)) return false;
+			if(datarouterMethodName == null){
+				if(other.datarouterMethodName != null) return false;
+			}else if(!datarouterMethodName.equals(other.datarouterMethodName)) return false;
+			return true;
+		}
+
+		public String getDatarouterMethodName(){
+			return datarouterMethodName;
+		}
+
+		public String getCallsite(){
+			return callsite;
+		}
+		
+	}
+	
+	
+	private CallsiteStatKey key;
 	private Long count;
-	private Long durationUs;
+	private Long durationNs;
 	
 
-	public CallsiteStat(String datarouterMethodName, String callsite, Long count, Long durationUs){
-		this.datarouterMethodName = datarouterMethodName;
-		this.callsite = callsite;
+	public CallsiteStat(String datarouterMethodName, String callsite, Long count, Long durationNs){
+		this.key = new CallsiteStatKey(datarouterMethodName, callsite);
 		this.count = count;
-		this.durationUs = durationUs;
+		this.durationNs = durationNs;
 	}
 	
 	
@@ -27,23 +69,22 @@ public class CallsiteStat implements Comparable<CallsiteStat>{
 	
 	public String getReportLine(){
 		String countString = NumberFormatter.addCommas(count);
-		String durationString = NumberFormatter.addCommas(durationUs);
-		String avgCallUsString = NumberFormatter.addCommas(durationUs / count);
+		String durationString = NumberFormatter.addCommas(getDurationUs());
+		String avgCallUsString = NumberFormatter.addCommas(getDurationUs() / count);
 		return StringTool.pad(countString, ' ', 12)
 				+ " " + StringTool.pad(durationString, ' ', 12)
 				+ " " + StringTool.pad(avgCallUsString, ' ', 12)
 //				+ " " + StringTool.pad(datarouterMethodName, ' ', 20)
-				+ " " + callsite;
+				+ " " + key.getCallsite();
 	}
 
 	
+
 	@Override
 	public int hashCode(){
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((callsite == null) ? 0 : callsite.hashCode());
-		result = prime * result + ((count == null) ? 0 : count.hashCode());
-		result = prime * result + ((durationUs == null) ? 0 : durationUs.hashCode());
+		result = prime * result + ((key == null) ? 0 : key.hashCode());
 		return result;
 	}
 
@@ -54,15 +95,9 @@ public class CallsiteStat implements Comparable<CallsiteStat>{
 		if(obj == null) return false;
 		if(getClass() != obj.getClass()) return false;
 		CallsiteStat other = (CallsiteStat)obj;
-		if(callsite == null){
-			if(other.callsite != null) return false;
-		}else if(!callsite.equals(other.callsite)) return false;
-		if(count == null){
-			if(other.count != null) return false;
-		}else if(!count.equals(other.count)) return false;
-		if(durationUs == null){
-			if(other.durationUs != null) return false;
-		}else if(!durationUs.equals(other.durationUs)) return false;
+		if(key == null){
+			if(other.key != null) return false;
+		}else if(!key.equals(other.key)) return false;
 		return true;
 	}
 
@@ -75,7 +110,7 @@ public class CallsiteStat implements Comparable<CallsiteStat>{
 	@Override
 	public String toString(){
 		String countString = NumberFormatter.addCommas(count);
-		return StringTool.pad(countString, ' ', 8) + "   " + callsite;
+		return StringTool.pad(countString, ' ', 8) + "   " + key.getCallsite();
 	}
 
 	
@@ -87,7 +122,19 @@ public class CallsiteStat implements Comparable<CallsiteStat>{
 			return a.count.compareTo(b.count);
 		}
 	}
-
+	
+	
+	/***************** methods ****************************/
+	
+	public void addMetrics(CallsiteStat other){
+		this.count += other.getCount();
+		this.durationNs += other.getDurationNs();
+	}
+	
+	public Long getDurationUs(){
+		return durationNs / 1000;
+	}
+	
 	
 	/******************* get/set ***************************/
 	
@@ -95,18 +142,13 @@ public class CallsiteStat implements Comparable<CallsiteStat>{
 		return count;
 	}
 
-	public String getCallsite(){
-		return callsite;
-	}
-	
-	public Long getDurationUs(){
-		return durationUs;
+	public CallsiteStatKey getKey(){
+		return key;
 	}
 
-	public String getDatarouterMethodName(){
-		return datarouterMethodName;
+	public Long getDurationNs(){
+		return durationNs;
 	}
-	
 	
 	
 }
