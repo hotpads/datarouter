@@ -7,7 +7,7 @@ import com.hotpads.util.core.StringTool;
 
 /************** CallsiteCount ********************/
 
-public class CallsiteStat implements Comparable<CallsiteStat>{
+public class CallsiteStat{
 
 	public static class CallsiteStatKey{
 		private String datarouterMethodName;
@@ -74,7 +74,7 @@ public class CallsiteStat implements Comparable<CallsiteStat>{
 		return StringTool.pad(countString, ' ', 12)
 				+ " " + StringTool.pad(durationString, ' ', 12)
 				+ " " + StringTool.pad(avgCallUsString, ' ', 12)
-//				+ " " + StringTool.pad(datarouterMethodName, ' ', 20)
+				+ " " + StringTool.pad(key.getDatarouterMethodName(), ' ', 20)
 				+ " " + key.getCallsite();
 	}
 
@@ -100,12 +100,6 @@ public class CallsiteStat implements Comparable<CallsiteStat>{
 		}else if(!key.equals(other.key)) return false;
 		return true;
 	}
-
-
-	@Override
-	public int compareTo(CallsiteStat that){
-		return this.count.compareTo(that.count);
-	}
 	
 	@Override
 	public String toString(){
@@ -114,12 +108,19 @@ public class CallsiteStat implements Comparable<CallsiteStat>{
 	}
 
 	
-	/**************** duration comparator ******************/
+	/**************** comparator ******************/
+
+	public static class CallsiteCountComparator implements Comparator<CallsiteStat>{
+		@Override
+		public int compare(CallsiteStat a, CallsiteStat b){
+			return a.count.compareTo(b.count);
+		}
+	}
 	
 	public static class CallsiteDurationComparator implements Comparator<CallsiteStat>{
 		@Override
 		public int compare(CallsiteStat a, CallsiteStat b){
-			return a.count.compareTo(b.count);
+			return a.durationNs.compareTo(b.durationNs);
 		}
 	}
 	

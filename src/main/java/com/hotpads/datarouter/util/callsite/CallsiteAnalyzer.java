@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import com.hotpads.datarouter.util.callsite.CallsiteStat.CallsiteDurationComparator;
+import com.hotpads.datarouter.util.callsite.CallsiteStat.CallsiteCountComparator;
 import com.hotpads.datarouter.util.callsite.CallsiteStat.CallsiteStatKey;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
@@ -22,7 +22,8 @@ public class CallsiteAnalyzer implements Callable<Void>{
 	private static final String LOG_LOCATION = "/mnt/logs/callsite.log";
 
 	
-	private static final Comparator<CallsiteStat> COMPARATOR = new CallsiteDurationComparator();
+	private static final Comparator<CallsiteStat> COMPARATOR = new CallsiteCountComparator();
+//	private static final Comparator<CallsiteStat> COMPARATOR = new CallsiteDurationComparator();
 	
 	/**************** main ********************/
 	
