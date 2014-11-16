@@ -74,7 +74,7 @@ public class CallsiteStat{
 		return StringTool.pad(countString, ' ', 12)
 				+ " " + StringTool.pad(durationString, ' ', 12)
 				+ " " + StringTool.pad(avgCallUsString, ' ', 12)
-				+ " " + StringTool.pad(key.getDatarouterMethodName(), ' ', 20)
+				+ " " + StringTool.padEnd(key.getDatarouterMethodName(), ' ', 20)
 				+ " " + key.getCallsite();
 	}
 
