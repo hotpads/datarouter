@@ -37,7 +37,8 @@ public class CallsiteStatX{
 	/***************** methods ************************/
 	
 	public static String getReportHeader(){
-		return buildReportLine("count", "microSec", "avgMicroSec", "numItems", "type", "node", "method", "callsite");
+		return buildReportLine("count", "microSec", "avgMicroSec", "numItems", "avgItems", "type", "node", "method",
+				"callsite");
 	}
 	
 	private static final Set<String> HIDE_TIME_METHODS = SetTool.createHashSet("scanKeys", "scan");
@@ -48,17 +49,19 @@ public class CallsiteStatX{
 		String durationString = hideDuration ? "" : NumberFormatter.addCommas(getDurationUs());
 		String avgCallUsString = hideDuration ? "" : NumberFormatter.addCommas(getDurationUs() / count);
 		String numItemsString = NumberFormatter.addCommas(numItems);
+		String avgItemsString = NumberFormatter.addCommas(numItems / count);
 		String type = isDaoCallsite() ? "dao" : "";
-		return buildReportLine(countString, durationString, avgCallUsString, numItemsString, type, nodeName,
-				datarouterMethodName, key.getCallsite());
+		return buildReportLine(countString, durationString, avgCallUsString, numItemsString, avgItemsString, type,
+				nodeName, datarouterMethodName, key.getCallsite());
 	}
 	
-	private static String buildReportLine(String count, String durationUs, String avgCallUs, String numItems, String type, 
-			String nodeName, String drMethod, String callsite){
+	private static String buildReportLine(String count, String durationUs, String avgCallUs, String numItems,
+			String avgItems, String type, String nodeName, String drMethod, String callsite){
 		return StringTool.pad(count, ' ', 12)
 				+ "  " + StringTool.pad(durationUs, ' ', 12)
 				+ "  " + StringTool.pad(avgCallUs, ' ', 12)
 				+ "  " + StringTool.pad(numItems, ' ', 12)
+				+ "  " + StringTool.pad(avgItems, ' ', 12)
 				+ "  " + StringTool.pad(type, ' ', 6)
 //				+ "  " + StringTool.padEnd(nodeName, ' ', 60)
 				+ "  " + StringTool.padEnd(drMethod, ' ', 20)

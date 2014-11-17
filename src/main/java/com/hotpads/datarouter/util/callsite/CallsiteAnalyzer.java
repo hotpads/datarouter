@@ -98,7 +98,7 @@ public class CallsiteAnalyzer implements Callable<String>{
 		sb.append("    first date: "+firstDate.toString()+"\n");
 		sb.append("     last date: "+lastDate.toString()+"\n");
 		sb.append("       seconds: "+NumberFormatter.addCommas(numSeconds)+"\n");
-		sb.append("     calls/sec: "+NumberFormatter.addCommas(callsPerSec)+"\n");
+		sb.append("     calls/sec: "+NumberFormatter.format(callsPerSec, 2)+"\n");
 		sb.append("\n");
 		int rankWidth = 5;
 		sb.append(StringTool.pad("rank", ' ', rankWidth) + CallsiteStatX.getReportHeader()+"\n");
