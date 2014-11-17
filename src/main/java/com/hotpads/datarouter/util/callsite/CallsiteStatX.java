@@ -16,41 +16,51 @@ import com.hotpads.util.core.StringTool;
 public class CallsiteStatX{
 	
 	private CallsiteStatKeyX key;
+	private String nodeName;
+	private String datarouterMethodName;
 	private Long count;
 	private Long durationNs;
+	private Long numItems;
 	
 
-	public CallsiteStatX(String datarouterMethodName, String callsite, Long count, Long durationNs){
-		this.key = new CallsiteStatKeyX(datarouterMethodName, callsite);
+	public CallsiteStatX(String callsite, String nodeName, String datarouterMethodName, Long count, Long durationNs,
+			Long numItems){
+		this.key = new CallsiteStatKeyX(callsite);
+		this.nodeName = nodeName;
+		this.datarouterMethodName = datarouterMethodName;
 		this.count = count;
 		this.durationNs = durationNs;
+		this.numItems = numItems;
 	}
 	
 	
 	/***************** methods ************************/
 	
 	public static String getReportHeader(){
-		return buildReportLine("count", "microSec", "avgMicroSec", "type", "method", "callsite");
+		return buildReportLine("count", "microSec", "avgMicroSec", "numItems", "type", "node", "method", "callsite");
 	}
 	
 	private static final Set<String> HIDE_TIME_METHODS = SetTool.createHashSet("scanKeys", "scan");
 	
 	public String getReportLine(){
 		String countString = NumberFormatter.addCommas(count);
-		boolean hideDuration = HIDE_TIME_METHODS.contains(key.getDatarouterMethodName());
+		boolean hideDuration = HIDE_TIME_METHODS.contains(datarouterMethodName);
 		String durationString = hideDuration ? "" : NumberFormatter.addCommas(getDurationUs());
 		String avgCallUsString = hideDuration ? "" : NumberFormatter.addCommas(getDurationUs() / count);
+		String numItemsString = NumberFormatter.addCommas(numItems);
 		String type = isDaoCallsite() ? "dao" : "";
-		return buildReportLine(countString, durationString, avgCallUsString, type, key.getDatarouterMethodName(), 
-				key.getCallsite());
+		return buildReportLine(countString, durationString, avgCallUsString, numItemsString, type, nodeName,
+				datarouterMethodName, key.getCallsite());
 	}
 	
-	private static String buildReportLine(String count, String durationUs, String avgCallUs, String type, 
-			String drMethod, String callsite){
+	private static String buildReportLine(String count, String durationUs, String avgCallUs, String numItems, String type, 
+			String nodeName, String drMethod, String callsite){
 		return StringTool.pad(count, ' ', 12)
 				+ "  " + StringTool.pad(durationUs, ' ', 12)
 				+ "  " + StringTool.pad(avgCallUs, ' ', 12)
+				+ "  " + StringTool.pad(numItems, ' ', 12)
 				+ "  " + StringTool.pad(type, ' ', 6)
+//				+ "  " + StringTool.padEnd(nodeName, ' ', 60)
 				+ "  " + StringTool.padEnd(drMethod, ' ', 20)
 				+ "  " + callsite;
 	}
@@ -105,8 +115,9 @@ public class CallsiteStatX{
 	/***************** methods ****************************/
 	
 	public void addMetrics(CallsiteStatX other){
-		this.count += other.getCount();
-		this.durationNs += other.getDurationNs();
+		this.count += other.count;
+		this.durationNs += other.durationNs;
+		this.numItems += other.numItems;
 	}
 	
 	public Long getDurationUs(){
@@ -142,6 +153,10 @@ public class CallsiteStatX{
 
 	public Long getDurationNs(){
 		return durationNs;
+	}
+	
+	public Long getNumItems(){
+		return numItems;
 	}
 
 

@@ -1,18 +1,25 @@
 package com.hotpads.datarouter.util.callsite;
 
+import java.util.Date;
+
+import com.hotpads.util.core.DateTool;
+
 
 public class CallsiteRecord{
 
+	private Date timestamp;
 	private String nodeName;
 	private String datarouterMethodName;
 	private String callsite;
-	private int numItems;
+	private long numItems;
 	private long durationNs;
 	
 	
 	/************** construct ****************/
 	
-	public CallsiteRecord(String nodeName, String datarouterMethodName, String callsite, int numItems, long durationNs){
+	public CallsiteRecord(Date timestamp, String nodeName, String datarouterMethodName, String callsite, long numItems, 
+			long durationNs){
+		this.timestamp = timestamp;
 		this.nodeName = nodeName;
 		this.datarouterMethodName = datarouterMethodName;
 		this.callsite = callsite;
@@ -34,6 +41,10 @@ public class CallsiteRecord{
 	}
 	
 	public static CallsiteRecord fromLogLine(String line){
+		String[] allTokens = line.split(" ");
+		String dateTime = allTokens[0] + " " + allTokens[1];
+		Date timestamp = DateTool.parseUserInputDate(dateTime, 2014);
+		
 		String afterThreadName = line.substring(line.indexOf("]") + 1);
 		String[] lineTokens = afterThreadName.split(" ");
 		int i = 3;
@@ -43,7 +54,7 @@ public class CallsiteRecord{
 		Integer numItems = Integer.valueOf(lineTokens[i++]);
 		Long microseconds = Long.valueOf(lineTokens[i++]); 
 		Long nanoseconds = 1000 * microseconds;
-		return new CallsiteRecord(nodeName, datarouterMethodName, callsite, numItems, nanoseconds);
+		return new CallsiteRecord(timestamp, nodeName, datarouterMethodName, callsite, numItems, nanoseconds);
 	}
 	
 	
@@ -68,12 +79,16 @@ public class CallsiteRecord{
 		return callsite;
 	}
 
-	public int getNumItems(){
+	public long getNumItems(){
 		return numItems;
 	}
 
 	public long getDurationNs(){
 		return durationNs;
+	}
+	
+	public Date getTimestamp(){
+		return timestamp;
 	}
 	
 }

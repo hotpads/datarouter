@@ -3,6 +3,7 @@ package com.hotpads.datarouter.util.callsite;
 import java.io.File;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.callsite.CallsiteStatX.CallsiteCountComparator;
+import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.StringTool;
@@ -24,6 +26,8 @@ public class CallsiteAnalyzer implements Callable<String>{
 	
 //	private static final String LOG_LOCATION = "/mnt/hdd/junk/callsite.log";
 	private static final String LOG_LOCATION = "/mnt/logs/callsite.log";
+	
+	private static final Integer MAX_RESULTS = 50;
 
 	
 	private static final Comparator<CallsiteStatX> COMPARATOR = new CallsiteCountComparator();
@@ -32,7 +36,7 @@ public class CallsiteAnalyzer implements Callable<String>{
 	/**************** main ********************/
 	
 	public static void main(String... args){
-		String report = new CallsiteAnalyzer(LOG_LOCATION).call();
+		String report = new CallsiteAnalyzer(LOG_LOCATION, MAX_RESULTS).call();
 		System.out.println(report);
 	}
 	
@@ -40,13 +44,15 @@ public class CallsiteAnalyzer implements Callable<String>{
 	/****************** fields *********************/
 
 	private String logPath;
+	private Integer maxResults;
 	private Map<CallsiteStatKeyX,CallsiteStatX> aggregateStatByKey = new HashMap<>();
 	
 	
 	/****************** construct ********************/
 	
-	public CallsiteAnalyzer(String logPath){
+	public CallsiteAnalyzer(String logPath, Integer maxResults){
 		this.logPath = logPath;
+		this.maxResults = maxResults;
 	}
 	
 	@Override
@@ -54,13 +60,17 @@ public class CallsiteAnalyzer implements Callable<String>{
 		//aggregate
 		Scanner<List<String>> scanner = ReaderTool.scanFileLinesInBatches(logPath, 1000);
 		int numLines = 0;
+		Date firstDate = new Date(Long.MAX_VALUE);
+		Date lastDate = new Date(0);
 		while(scanner.advance()){
 			List<String> batch = scanner.getCurrent();
 			for(String line : batch){
 				++numLines;
 				CallsiteRecord record = CallsiteRecord.fromLogLine(line);
-				CallsiteStatX stat = new CallsiteStatX(record.getDatarouterMethodName(), record.getCallsite(), 1L, 
-						record.getDurationNs());
+				if(ComparableTool.lt(record.getTimestamp(), firstDate)){ firstDate = record.getTimestamp(); }
+				if(ComparableTool.gt(record.getTimestamp(), lastDate)){ lastDate = record.getTimestamp(); }
+				CallsiteStatX stat = new CallsiteStatX(record.getCallsite(), record.getNodeName(), record
+						.getDatarouterMethodName(), 1L, record.getDurationNs(), record.getNumItems());
 				if(!aggregateStatByKey.containsKey(stat.getKey())){
 					aggregateStatByKey.put(stat.getKey(), stat);
 				}
@@ -74,15 +84,21 @@ public class CallsiteAnalyzer implements Callable<String>{
 		//sort
 		List<CallsiteStatX> stats = ListTool.createArrayList(aggregateStatByKey.values());
 		Collections.sort(stats, Collections.reverseOrder(COMPARATOR));
-		int numDaoCallsites = CallsiteStatX.countDaoCallsites(stats);
 		
 		//build report
 		StringBuilder sb = new StringBuilder();
+		int numDaoCallsites = CallsiteStatX.countDaoCallsites(stats);
+		long numSeconds = (lastDate.getTime() - firstDate.getTime()) / 1000;
+		double callsPerSec = (double)numLines / (double)numSeconds;
 		sb.append("          path: "+logPath+"\n");
 		sb.append(" file size (B): "+NumberFormatter.addCommas(new File(logPath).length())+"\n");
 		sb.append("         lines: "+NumberFormatter.addCommas(numLines)+"\n");
 		sb.append("     callsites: "+NumberFormatter.addCommas(stats.size())+"\n");
 		sb.append(" dao callsites: "+NumberFormatter.addCommas(numDaoCallsites)+"\n");
+		sb.append("    first date: "+firstDate.toString()+"\n");
+		sb.append("     last date: "+lastDate.toString()+"\n");
+		sb.append("       seconds: "+NumberFormatter.addCommas(numSeconds)+"\n");
+		sb.append("     calls/sec: "+NumberFormatter.addCommas(callsPerSec)+"\n");
 		sb.append("\n");
 		int rankWidth = 5;
 		sb.append(StringTool.pad("rank", ' ', rankWidth) + CallsiteStatX.getReportHeader()+"\n");
@@ -90,7 +106,7 @@ public class CallsiteAnalyzer implements Callable<String>{
 		int row = 0;
 		for(CallsiteStatX stat : stats){
 			++row;
-			if(row > 30){ break; }
+			if(row > maxResults){ break; }
 			sb.append(StringTool.pad(row+"", ' ', rankWidth) + stat.getReportLine() + "\n");
 		}
 		return sb.toString();

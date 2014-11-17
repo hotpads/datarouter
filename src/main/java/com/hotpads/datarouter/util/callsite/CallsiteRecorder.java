@@ -15,7 +15,8 @@ public class CallsiteRecorder{
 	public static void record(String nodeName, String datarouterMethodName, LineOfCode callsite, int numItems, 
 			long durationNs){
 		if(!logger.isTraceEnabled()){ return; }
-		CallsiteRecord record = new CallsiteRecord(nodeName, datarouterMethodName, callsite.getPersistentString(),
+		//currently rely on the logger timestamp, so pass null for timestamp
+		CallsiteRecord record = new CallsiteRecord(null, nodeName, datarouterMethodName, callsite.getPersistentString(),
 				numItems, durationNs);
 		logger.trace(record.getLogMessage());
 	}
