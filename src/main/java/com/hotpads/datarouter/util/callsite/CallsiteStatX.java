@@ -58,10 +58,10 @@ public class CallsiteStatX{
 	private static String buildReportLine(String count, String durationUs, String avgCallUs, String numItems,
 			String avgItems, String type, String nodeName, String drMethod, String callsite){
 		return StringTool.pad(count, ' ', 12)
-				+ "  " + StringTool.pad(durationUs, ' ', 12)
+				+ "  " + StringTool.pad(durationUs, ' ', 15)
 				+ "  " + StringTool.pad(avgCallUs, ' ', 12)
 				+ "  " + StringTool.pad(numItems, ' ', 12)
-				+ "  " + StringTool.pad(avgItems, ' ', 12)
+				+ "  " + StringTool.pad(avgItems, ' ', 9)
 				+ "  " + StringTool.pad(type, ' ', 6)
 //				+ "  " + StringTool.padEnd(nodeName, ' ', 60)
 				+ "  " + StringTool.padEnd(drMethod, ' ', 20)
