@@ -87,7 +87,7 @@ extends BaseNode<PK,D,F>{
 		if(this.backingNode!=null){ backingNode.clearThreadSpecificState(); }
 	}
 	
-	/************************ masterslave node methods ***************************/
+	/************************ callsite methods ***************************/
 	
 	@Override
 	public N getMaster() {
