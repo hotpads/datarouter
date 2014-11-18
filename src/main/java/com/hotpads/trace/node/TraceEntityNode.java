@@ -40,24 +40,24 @@ implements TraceNodes{
 	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceThreadKey,TraceThread,TraceThreadFielder> thread;
 	private SubEntitySortedMapStorageNode<TraceEntityKey,TraceSpanKey,TraceSpan,TraceSpanFielder> span;
 	
-	public TraceEntityNode(DataRouter router, String clientName, 
+	public TraceEntityNode(NodeFactory nodeFactory, DataRouter router, String clientName, 
 			EntityNodeParams<TraceEntityKey,TraceEntity> entityNodeParams){
-		super(router, entityNodeParams, new HBaseTaskNameParams(clientName, 
+		super(nodeFactory, router, entityNodeParams, new HBaseTaskNameParams(clientName, 
 				entityNodeParams.getEntityTableName(), entityNodeParams.getNodeName()));
 	}
 	
 	
 	@Override
 	protected void initNodes(DataRouter router, String clientName){
-		trace = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, entityNodeParams, clientName, 
+		trace = BaseDataRouter.cast(router.register(nodeFactory.subEntityNode(router, entityNodeParams, clientName, 
 				Trace.class, TraceFielder.class, TraceEntity.QUALIFIER_PREFIX_Trace)));
 		register(trace);
 		
-		thread = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, entityNodeParams, clientName, 
+		thread = BaseDataRouter.cast(router.register(nodeFactory.subEntityNode(router, entityNodeParams, clientName, 
 				TraceThread.class, TraceThreadFielder.class, TraceEntity.QUALIFIER_PREFIX_TraceThread)));
 		register(thread);
 		
-		span = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, entityNodeParams, clientName, 
+		span = BaseDataRouter.cast(router.register(nodeFactory.subEntityNode(router, entityNodeParams, clientName, 
 				TraceSpan.class, TraceSpanFielder.class, TraceEntity.QUALIFIER_PREFIX_TraceSpan)));
 		register(span);	
 	}

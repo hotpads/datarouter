@@ -6,22 +6,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
+import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.IndexedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanByDCBLookup;
@@ -75,7 +80,10 @@ public class IndexedNodeIntegrationTests{
 	/***************************** constructors **************************************/
 
 	public IndexedNodeIntegrationTests(String clientName, ClientType clientType, boolean useFielder){
-		this.router = new IndexedBasicNodeTestRouter(clientName, getClass(), useFielder, false);
+		Injector injector = new DatarouterTestInjectorProvider().get();
+		DataRouterContext drContext = injector.getInstance(DataRouterContext.class);
+		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
+		this.router = new IndexedBasicNodeTestRouter(drContext, nodeFactory, clientName, getClass(), useFielder, false);
 		this.node = router.sortedBean();
 		resetTable();
 	}

@@ -1,8 +1,11 @@
 package com.hotpads.trace.test;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.client.ClientId;
+import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.BaseDataRouter;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -18,10 +21,14 @@ public class TraceTestRouter extends BaseDataRouter{
 			NAME = "TraceRouter",
 			NODE_TraceEntity = "TraceEntity",
 			NODE_TraceCompound = "TraceCompound";
+
+	private final NodeFactory nodeFactory;
 	
-	public TraceTestRouter(){
-		super(new DataRouterContext(), NAME);
-		initNodes();
+	@Inject
+	public TraceTestRouter(DataRouterContext drContext, NodeFactory nodeFactory){
+		super(drContext, NAME);
+		this.nodeFactory = nodeFactory;
+		createNodes();
 		registerWithContext();//do after field inits
 	}
 
@@ -48,9 +55,10 @@ public class TraceTestRouter extends BaseDataRouter{
 	private TraceEntityNode traceEntity;
 	
 	
-	private void initNodes(){
-		traceEntity = new TraceEntityNode(this, DRTestConstants.CLIENT_drTestHBase, TraceEntityNode.ENTITY_NODE_PARAMS_TraceEntityTest);
-		traceCompound = new TraceCompoundNode(this, DRTestConstants.CLIENT_drTestHBase, NODE_TraceCompound);
+	private void createNodes(){
+		traceEntity = new TraceEntityNode(nodeFactory, this, DRTestConstants.CLIENT_drTestHBase, 
+				TraceEntityNode.ENTITY_NODE_PARAMS_TraceEntityTest);
+		traceCompound = new TraceCompoundNode(nodeFactory, this, DRTestConstants.CLIENT_drTestHBase, NODE_TraceCompound);
 	}
 	
 	/*************************** get/set ***********************************/

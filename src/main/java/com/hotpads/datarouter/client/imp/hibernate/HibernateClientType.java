@@ -18,7 +18,9 @@ import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedMultiInde
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.adapter.IndexedSortedMapStorageAdapterNode;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
@@ -51,18 +53,29 @@ public class HibernateClientType extends BaseClientType{
 	
 	@Override
 	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
+		IndexedSortedMapStorageNode<?,?> node;
 		if(nodeParams.getFielderClass() == null){
-			Node<?,?> node = new HibernateNode(nodeParams);
+			node = new HibernateNode(nodeParams);
 			logger.warn("creating HibernateNode "+node);
-			return node;
+		}else{
+			node = new JdbcNode(nodeParams);
 		}
-		return new JdbcNode(nodeParams);
+		return node;
 	}
 	
 	//ignore the entityNodeParams
 	@Override
 	public Node<?,?> createSubEntityNode(EntityNodeParams<?,?> entityNodeParams, NodeParams<?,?,?> nodeParams){
 		return createNode(nodeParams);
+	}
+	
+	@Override
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D>> 
+	IndexedSortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
+		return new IndexedSortedMapStorageAdapterNode(nodeParams, (IndexedSortedMapStorageNode<PK,D>)backingNode);
 	}
 	
 	@Override

@@ -20,16 +20,17 @@ import com.hotpads.datarouter.test.TestIndexedDatabeanFielder;
 public class LazyTestRouter extends BaseDataRouter{
 	
 	private static final String NAME = "lazyTestRouter";
+
 	
 	public IndexedSortedMapStorage<TestDatabeanKey, TestDatabean> testDatabean;
 	public LazyIndexedSortedMapStorageReader<TestDatabeanKey, TestDatabean> lazyTestDatabean;
 
 	@Inject
-	public LazyTestRouter(DataRouterContext context){
+	public LazyTestRouter(DataRouterContext context, NodeFactory nodeFactory){
 		super(context, NAME);
 		
-		testDatabean = cast(register(NodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, TestDatabean.class,
-				TestIndexedDatabeanFielder.class, this)));
+		testDatabean = cast(register(nodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, TestDatabean.class,
+				TestIndexedDatabeanFielder.class, this, true)));
 		lazyTestDatabean = new LazyIndexedSortedMapStorageReader<TestDatabeanKey, TestDatabean>(testDatabean);
 		
 		registerWithContext();

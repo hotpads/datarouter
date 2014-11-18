@@ -11,6 +11,7 @@ import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.BasicClientTestRouterImp;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
@@ -31,7 +32,7 @@ public class TxnIntegrationTests {
 	
 	
 	public TxnIntegrationTests(){
-		Injector injector = Guice.createInjector();
+		Injector injector = new DatarouterTestInjectorProvider().get();
 		drContext = injector.getInstance(DataRouterContext.class);
 		router = injector.getInstance(BasicClientTestRouter.class);
 	}
@@ -135,13 +136,6 @@ public class TxnIntegrationTests {
 		}
 		Assert.assertEquals(1, numExceptions);
 		Assert.assertEquals(0, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
-	}
-	
-	public static void main(String... args){
-		BasicClientTestRouter router = new BasicClientTestRouterImp(new DataRouterContext());
-//		router.txnBeanHibernate().get(new TxnBeanKey("abc"), null);
-		TxnBean b = new TxnBean("b");
-		router.txnBeanHibernate().put(b, null);
 	}
 }
 

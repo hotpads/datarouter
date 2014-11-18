@@ -31,10 +31,10 @@ public abstract class TestDatabeanWithIndexNode{
 							TestDatabeanWithManagedIndexByCKey,
 							TestDatabeanWithManagedIndexByC> byC;
 	
-	public TestDatabeanWithIndexNode(DataRouter router){
-		backingMapNode = BaseDataRouter.cast(router.register(NodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0,
+	public TestDatabeanWithIndexNode(NodeFactory nodeFactory, DataRouter router){
+		backingMapNode = BaseDataRouter.cast(router.register(nodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0,
 				getTableName(), getTableName(), TestDatabean.class,
-				TestDatabeanFielder.class, router)));
+				TestDatabeanFielder.class, router, false)));
 		mainNode = BaseDataRouter.cast(backingMapNode);
 	}
 	

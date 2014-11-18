@@ -28,14 +28,14 @@ extends HBaseEntityReaderNode<SortedBeanEntityKey,SortedBeanEntity>{
 
 	private SubEntitySortedMapStorageNode<SortedBeanEntityKey,SortedBeanKey,SortedBean,SortedBeanFielder> sortedBean;
 	
-	public SortedBeanEntityNode(DataRouter router, String clientName, String name){
-		super(router, entityNodeParams, new HBaseTaskNameParams(clientName, entityNodeParams.getEntityTableName(), name));
+	public SortedBeanEntityNode(NodeFactory nodeFactory, DataRouter router, String clientName, String name){
+		super(nodeFactory, router, entityNodeParams, new HBaseTaskNameParams(clientName, entityNodeParams.getEntityTableName(), name));
 	}
 	
 	
 	@Override
 	protected void initNodes(DataRouter router, String clientName){
-		sortedBean = BaseDataRouter.cast(router.register(NodeFactory.subEntityNode(router, entityNodeParams, clientName, 
+		sortedBean = BaseDataRouter.cast(router.register(nodeFactory.subEntityNode(router, entityNodeParams, clientName, 
 				SortedBean.class, SortedBeanFielder.class, SortedBeanEntity.QUALIFIER_PREFIX_SortedBean)));
 		register(sortedBean);
 	}

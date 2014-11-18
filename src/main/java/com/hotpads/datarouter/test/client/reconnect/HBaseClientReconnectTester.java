@@ -42,7 +42,7 @@ public class HBaseClientReconnectTester {
 	
 	@BeforeClass
 	public static void init() throws IOException{
-		router = new BasicClientTestRouterImp(new DataRouterContext());	
+		router = new BasicClientTestRouterImp(new DataRouterContext(), null);	
 		node = router.txnBeanHBase();
 		resetTable();
 	}

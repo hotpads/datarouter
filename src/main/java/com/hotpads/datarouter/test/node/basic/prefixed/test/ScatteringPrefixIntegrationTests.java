@@ -15,12 +15,17 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
+import com.hotpads.datarouter.node.factory.NodeFactory;
+import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean;
@@ -55,14 +60,18 @@ public class ScatteringPrefixIntegrationTests{
 	
 	@BeforeClass
 	public static void init() throws IOException{	
+		Injector injector = new DatarouterTestInjectorProvider().get();
+		DataRouterContext drContext = injector.getInstance(DataRouterContext.class);
+		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
 		
 		if(clientTypes.contains(HibernateClientType.INSTANCE)){
-			routerByClientType.put(HibernateClientType.INSTANCE, new SortedBasicNodeTestRouter(
+			routerByClientType.put(HibernateClientType.INSTANCE, new SortedBasicNodeTestRouter(drContext, nodeFactory,
 					DRTestConstants.CLIENT_drTestHibernate0, ScatteringPrefixIntegrationTests.class, true, false));
 		}
 
 		if(clientTypes.contains(HBaseClientType.INSTANCE)){
-			routerByClientType.put(HBaseClientType.INSTANCE, new SortedBasicNodeTestRouter(DRTestConstants.CLIENT_drTestHBase,
+			routerByClientType.put(HBaseClientType.INSTANCE, new SortedBasicNodeTestRouter(drContext, nodeFactory,
+					DRTestConstants.CLIENT_drTestHBase,
 					ScatteringPrefixIntegrationTests.class, true, false));
 		}
 		

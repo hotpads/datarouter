@@ -16,6 +16,7 @@ import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.entity.BasePhysicalEntityNode;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
+import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.DataRouter;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
@@ -27,14 +28,16 @@ public abstract class HBaseEntityReaderNode<
 extends BasePhysicalEntityNode<EK,E>{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseEntityReaderNode.class);
 
+	protected NodeFactory nodeFactory;
 	protected EntityNodeParams<EK,E> entityNodeParams;
 	private HBaseTaskNameParams taskNameParams;//currently acting as a cache of superclass fields
 	private HBaseEntityQueryBuilder<EK,E> queryBuilder;
 	private HBaseEntityResultParser<EK,E> resultParser;
 	
-	public HBaseEntityReaderNode(DataRouter router, EntityNodeParams<EK,E> entityNodeParams,
+	public HBaseEntityReaderNode(NodeFactory nodeFactory, DataRouter router, EntityNodeParams<EK,E> entityNodeParams,
 			HBaseTaskNameParams taskNameParams){
 		super(router.getContext(), entityNodeParams, taskNameParams);
+		this.nodeFactory = nodeFactory;
 		this.entityNodeParams = entityNodeParams;
 		this.taskNameParams = taskNameParams;
 		initNodes(router, taskNameParams.getClientName());

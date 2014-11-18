@@ -34,6 +34,8 @@ implements BasicClientTestRouter{
 
 	public static final String name = "basicClientTest";
 
+	private final NodeFactory nodeFactory;
+	
 	/********************************** nodes **********************************/
 
 	private MapStorage<KeepAliveKey,KeepAlive> keepAliveHBase;
@@ -49,24 +51,25 @@ implements BasicClientTestRouter{
 	/********************************* constructor *****************************/
 
 	@Inject
-	public BasicClientTestRouterImp(DataRouterContext drContext){
+	public BasicClientTestRouterImp(DataRouterContext drContext, NodeFactory nodeFactory){
 		super(drContext, name);
+		this.nodeFactory = nodeFactory;
 		keepAliveHBase = cast(register(
-				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, KeepAlive.class, KeepAliveFielder.class, this)));
+				nodeFactory.create(DRTestConstants.CLIENT_drTestHBase, KeepAlive.class, KeepAliveFielder.class, this, false)));
 
 		txnBeanJdbc = cast(register(
-				NodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, TxnBean.class, TxnBeanFielder.class, this)));
+				nodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, TxnBean.class, TxnBeanFielder.class, this, false)));
 		txnBeanHibernate = cast(register(
 				//note this is not testing hibernate's serialization because we're specifying a fielder
-				NodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, TxnBean.class, TxnBeanFielder.class, this)));
+				nodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, TxnBean.class, TxnBeanFielder.class, this, false)));
 		txnBeanHBase = cast(register(
-				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, TxnBean.class, TxnBeanFielder.class, this)));
+				nodeFactory.create(DRTestConstants.CLIENT_drTestHBase, TxnBean.class, TxnBeanFielder.class, this, false)));
 
 		poolTestBeanHBase = cast(register(
-				NodeFactory.create(DRTestConstants.CLIENT_drTestHBase, PoolTestBean.class, PoolTestBeanFielder.class, this)));
+				nodeFactory.create(DRTestConstants.CLIENT_drTestHBase, PoolTestBean.class, PoolTestBeanFielder.class, this, false)));
 		
 		putOptTest = cast(register(
-				NodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, PutOpTestBean.class, PutOpTestBeanFielder.class, this)));
+				nodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, PutOpTestBean.class, PutOpTestBeanFielder.class, this, false)));
 		
 		registerWithContext();//do after field inits
 	}
