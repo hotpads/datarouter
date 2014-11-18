@@ -41,7 +41,7 @@ public class SettinglessNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>> 
-	N create(//4 args
+	N create(
 			String clientName, 
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
