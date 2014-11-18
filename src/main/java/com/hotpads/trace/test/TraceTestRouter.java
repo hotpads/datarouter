@@ -1,6 +1,7 @@
 package com.hotpads.trace.test;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import com.google.inject.Singleton;
