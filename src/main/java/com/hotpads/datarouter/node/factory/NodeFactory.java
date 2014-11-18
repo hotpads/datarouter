@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.factory;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -20,6 +21,7 @@ import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.setting.DatarouterSettings;
+import com.hotpads.util.core.cache.Cached;
 
 @Singleton
 public class NodeFactory{
@@ -29,7 +31,7 @@ public class NodeFactory{
 	
 	
 	@Inject
-	private NodeFactory(DatarouterSettings drSettings){
+	private NodeFactory(@Nullable DatarouterSettings drSettings){
 		this.drSettings = drSettings;
 	}
 
@@ -90,7 +92,7 @@ public class NodeFactory{
 				.withClientName(clientName)
 				.withFielder(fielderClass)
 				.withSchemaVersion(schemaVersion)
-				.withDiagnostics(drSettings.getRecordCallsites());
+				.withDiagnostics(getRecordCallsites());
 		return create(paramsBuilder.build(), addAdapter);
 	}
 	
@@ -126,7 +128,7 @@ public class NodeFactory{
 				.withClientName(clientName)
 				.withFielder(fielderClass)
 				.withHibernateTableName(tableName, entityName)
-				.withDiagnostics(drSettings.getRecordCallsites());
+				.withDiagnostics(getRecordCallsites());
 		return create(paramsBuilder.build(), addAdapter);
 	}
 	
@@ -159,7 +161,7 @@ public class NodeFactory{
 				.withParentName(entityNodeParams.getNodeName())
 				.withFielder(fielderClass)
 				.withEntity(entityNodeParams.getEntityTableName(), entityNodePrefix)
-				.withDiagnostics(drSettings.getRecordCallsites());
+				.withDiagnostics(getRecordCallsites());
 		NodeParams<PK,D,F> nodeParams = paramsBuilder.build();
 //		return create(paramsBuilder.build());
 		ClientType clientType = nodeParams.getRouter().getClientOptions().getClientTypeInstance(clientName);
@@ -182,7 +184,15 @@ public class NodeFactory{
 		NodeParamsBuilder<PK,D,?> paramsBuilder = new NodeParamsBuilder(router, databeanClass)
 				.withClientName(clientName)
 				.withBaseDatabean(baseDatabeanClass)
-				.withDiagnostics(drSettings.getRecordCallsites());
+				.withDiagnostics(getRecordCallsites());
 		return create(paramsBuilder.build(), true);
+	}
+	
+	
+	/***************** private **************************/
+	
+	private Cached<Boolean> getRecordCallsites(){
+		if(drSettings==null){ return null; }
+		return drSettings.getRecordCallsites();
 	}
 }
