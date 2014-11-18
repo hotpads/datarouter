@@ -91,7 +91,7 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public N getMaster() {
-		return backingNode;
+		return (N)backingNode.getMaster();
 	}
 	
 	@Override
@@ -99,6 +99,8 @@ extends BaseNode<PK,D,F>{
 		return ListTool.wrap(backingNode);
 	}
 	
+	
+	/******************** callsite ************************/
 	
 	public LineOfCode getCallsite(){
 		LineOfCode callsite = new LineOfCode(3);//adjust for this method and adapter method
