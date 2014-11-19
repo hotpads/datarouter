@@ -63,15 +63,17 @@ public class CachingNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends MapStorageNode<PK,D>> 
-	MapStorageNode<PK,D> create(//4 args
+	MapStorageNode<PK,D> create(
 			Class<D> databeanClass, 
 			DataRouter router,
+			Class<F> fielderClass,
 			N cacheNode, 
 			N backingNode, 
 			boolean cacheReads, 
 			boolean cacheWrites,
 			boolean addAdapter){
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
+				.withFielder(fielderClass)
 				.withDiagnostics(drSettings.getRecordCallsites());
 		return create(paramsBuilder.build(), cacheNode, backingNode, cacheReads, cacheWrites, addAdapter);
 	}
