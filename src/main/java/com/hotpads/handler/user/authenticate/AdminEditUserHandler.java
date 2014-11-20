@@ -193,7 +193,8 @@ public class AdminEditUserHandler extends BaseHandler{
 	@Handler
 	private Mav resetSecretKeySubmit(){
 		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
-		DatarouterUser currentUser = getCurrentUser(), userToEdit = getUserById(userId);
+		DatarouterUser currentUser = getCurrentUser();
+		DatarouterUser userToEdit  = getUserById(userId);
 
 		if(!canEditUser(userToEdit, currentUser)){
 			handleInvalidRequest();
@@ -272,7 +273,8 @@ public class AdminEditUserHandler extends BaseHandler{
 		}
 		DatarouterUser userWithSecretKey = userNodes.getUserNode().lookupUnique(
 				new DatarouterUserBySecretKeyLookup(secretKey), null);
-		if(userWithSecretKey != null){ throw new IllegalArgumentException("DatarouterUser already exists with secretKey="
-				+ secretKey); }
+		if(userWithSecretKey != null){ 
+			throw new IllegalArgumentException("DatarouterUser already exists with secretKey=" + secretKey); 
+		}
 	}
 }

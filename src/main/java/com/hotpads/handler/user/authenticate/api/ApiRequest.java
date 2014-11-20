@@ -15,8 +15,6 @@ public class ApiRequest extends BaseDatabean<ApiRequestKey, ApiRequest>{
 	
 	private ApiRequestKey key;
 	private Date requestDate;
-	
-	/** columns *******************************************************************************************************/
 
 	public static class F {
 		public static final String

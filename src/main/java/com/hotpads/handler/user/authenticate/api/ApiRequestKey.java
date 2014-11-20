@@ -19,8 +19,6 @@ public class ApiRequestKey extends BasePrimaryKey<ApiRequestKey> {
 	private String nonce;
 	private String signature;
 	private String timestamp;
-	
-	/** columns *******************************************************************************************************/
 
 	public static class F {
 		public static final String

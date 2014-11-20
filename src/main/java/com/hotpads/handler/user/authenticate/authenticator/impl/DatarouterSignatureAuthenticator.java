@@ -15,7 +15,6 @@ import com.hotpads.handler.user.DatarouterUser.DatarouterUserByApiKeyLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.authenticate.api.ApiRequest;
 import com.hotpads.handler.user.authenticate.api.ApiRequestKey;
-import com.hotpads.handler.user.authenticate.api.ApiRequestNode;
 import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthenticator;
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.handler.user.session.DatarouterSession;
@@ -30,17 +29,14 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 	
 	private DatarouterAuthenticationConfig authenticationConfig;
 	private DatarouterUserNodes userNodes;
-	private ApiRequestNode apiRequestNode;
 	
 	private static final int NUM_MAX_TIME_DIFF_IN_SECONDS = 600;
 	
 	public DatarouterSignatureAuthenticator(HttpServletRequest request, HttpServletResponse response,
-			DatarouterAuthenticationConfig authenticationConfig, DatarouterUserNodes userNodes, 
-			ApiRequestNode apiRequestNode){
+			DatarouterAuthenticationConfig authenticationConfig, DatarouterUserNodes userNodes){
 		super(request, response);
 		this.authenticationConfig = authenticationConfig;
 		this.userNodes = userNodes;
-		this.apiRequestNode = apiRequestNode;
 	}
 
 	@Override
@@ -50,15 +46,15 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		}
 
 		String timestamp = request.getParameter(authenticationConfig.getTimestampParam());
-		if(isTimestampValid(timestamp)) {
+		if(!isTimestampValid(timestamp)) {
 			throw new InvalidApiCallException("invalid timestamp specified");
 		}
 		
 		String apiKey = request.getParameter(authenticationConfig.getApiKeyParam());
 		String signature = request.getParameter(authenticationConfig.getSignatureParam());
 		String nonce = request.getParameter(authenticationConfig.getNonceParam());			
-		DatarouterUser user = lookupUserByApiKey(apiKey);
-		ApiRequest apiRequest = lookupRequest(apiKey, nonce, signature, timestamp);
+		DatarouterUser user = lookupUserByApiKeyAndValidate(apiKey);
+		ApiRequest apiRequest = lookupRequestAndValidate(apiKey, nonce, signature, timestamp);
 		
 		String uri = request.getRequestURI();
 		Map<String, String> params = RequestTool.getMapOfParameters(request);
@@ -70,14 +66,14 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		
 		//if request reaches this point, it is valid, save it and return session
 		apiRequest.setRequestDate(new Date());
-		apiRequestNode.getApiRequestNode().put(apiRequest, null);
+		userNodes.getApiRequestNode().put(apiRequest, null);
 		DatarouterSession session = DatarouterSession.createFromUser(user);
 		session.setIncludeSessionCookie(false);
 		
 		return session;
 	}
 	
-	private ApiRequest lookupRequest(String apiKey, String nonce, String signature, String timestamp) {
+	private ApiRequest lookupRequestAndValidate(String apiKey, String nonce, String signature, String timestamp) {
 		if (StringTool.isNullOrEmpty(apiKey)) {
 			throw new InvalidApiCallException("no api key specified");
 		}		
@@ -88,7 +84,7 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 			throw new InvalidApiCallException("no signature specified");
 		}
 		
-		ApiRequest testRequest = apiRequestNode.getApiRequestNode().lookupUnique(  
+		ApiRequest testRequest = userNodes.getApiRequestNode().lookupUnique(  
 				new ApiRequestKey(apiKey, nonce, signature, timestamp), 
 				null);
 		
@@ -99,7 +95,8 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		return new ApiRequest(apiKey, nonce, signature, timestamp);				
 	}
 	
-	private DatarouterUser lookupUserByApiKey(String apiKey) {
+	//copy from DatarouterApiKeyAuthenticator
+	private DatarouterUser lookupUserByApiKeyAndValidate(String apiKey) {
 		if (StringTool.isNullOrEmpty(apiKey)) {
 			throw new InvalidApiCallException("no api key specified");
 		}		
@@ -122,7 +119,7 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 	private static boolean isTimestampValid(String timestampParameter) {
 		Date timestampDate;
 		try {
-			long timestampInMillisecond = Long.valueOf(timestampParameter) * 1000;
+			long timestampInMillisecond = (Long.valueOf(timestampParameter) * 1000);
 			timestampDate = new Date(timestampInMillisecond);
 		} catch(Exception e) {
 			throw new InvalidApiCallException("invalid timestamp specified");
