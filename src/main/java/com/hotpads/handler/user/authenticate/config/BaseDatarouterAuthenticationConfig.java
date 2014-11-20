@@ -31,6 +31,7 @@ implements DatarouterAuthenticationConfig{
 	private static final String PATH_editUser = PATH_admin + "/editUser";
 	private static final String PATH_editUserSubmit = PATH_admin + "/editUserSubmit";
 	private static final String PATH_resetApiKeySubmit = PATH_admin + "/resetApiKeySubmit";
+	private static final String PATH_resetSecretKeySubmit = PATH_admin + "/resetSecretKeySubmit";
 
 	private static final String PATH_api = "/api";
 	
@@ -41,6 +42,9 @@ implements DatarouterAuthenticationConfig{
 	private static final String PARAM_enabled = "isEnabled";
 	private static final String PARAM_userId = "userId";
 	private static final String PARAM_apiEnabled = "isApiEnabled";
+	private static final String PARAM_signature = "signature";
+	private static final String PARAM_nonce = "nonce";
+	private static final String PARAM_timestamp = "timestamp";
 
 	private static final String JSP_keepalive = "/generic/keepAliveTest.jsp";
 	private static final String JSP_home = "/WEB-INF/jsp/home.jsp";
@@ -147,6 +151,11 @@ implements DatarouterAuthenticationConfig{
 	public String getResetApiKeySubmitPath() {
 		return PATH_resetApiKeySubmit;
 	}
+	
+	@Override
+	public String getResetSecretKeySubmitPath() {
+		return PATH_resetSecretKeySubmit;
+	}
 
 	/*********************** params ************************************/
 
@@ -183,6 +192,21 @@ implements DatarouterAuthenticationConfig{
 	@Override
 	public String getApiEnabledParam() {
 		return PARAM_apiEnabled;
+	}
+	
+	@Override
+	public String getSignatureParam() {
+		return PARAM_signature;
+	}
+	
+	@Override
+	public String getNonceParam() {
+		return PARAM_nonce;
+	}
+	
+	@Override
+	public String getTimestampParam() {
+		return PARAM_timestamp;
 	}
 
 	/*********************** jsp ************************************/

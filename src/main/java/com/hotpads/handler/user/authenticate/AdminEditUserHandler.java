@@ -11,6 +11,7 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByApiKeyLookup;
+import com.hotpads.handler.user.DatarouterUser.DatarouterUserBySecretKeyLookup;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUserTokenLookup;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUsernameLookup;
 import com.hotpads.handler.user.DatarouterUserKey;
@@ -79,13 +80,14 @@ public class AdminEditUserHandler extends BaseHandler{
 		
 		String apiKey = passwordService.generateSaltForNewUser();
 		boolean apiEnabled = params.optionalBoolean(authenticationConfig.getApiEnabledParam(), true);
+		String secretKey = passwordService.generateSaltForNewUser();
 		
 		DatarouterUser user = DatarouterUser.create(
-				id, userToken, username, passwordSalt, passwordDigest, userRolesSet, apiKey);
+				id, userToken, username, passwordSalt, passwordDigest, userRolesSet, apiKey, secretKey);
 		user.setEnabled(enabled);
 		user.setApiEnabled(apiEnabled);
 		
-		assertUserDoesNotExist(id, userToken, username, apiKey);
+		assertUserDoesNotExist(id, userToken, username, apiKey, secretKey);
 		userNodes.getUserNode().put(user, null);
 		
 		Mav mav = redirectWithContext(authenticationConfig.getViewUsersPath());
@@ -188,6 +190,25 @@ public class AdminEditUserHandler extends BaseHandler{
 		return mav;
 	}
 	
+	@Handler
+	private Mav resetSecretKeySubmit(){
+		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
+		DatarouterUser currentUser = getCurrentUser(), userToEdit = getUserById(userId);
+
+		if(!canEditUser(userToEdit, currentUser)){
+			handleInvalidRequest();
+		}
+
+		String newSecretKey = passwordService.generateSaltForNewUser();
+		userToEdit.setSecretKey(newSecretKey);
+		userNodes.getUserNode().put(userToEdit, null);
+
+		String path = pathBuilder(authenticationConfig.getEditUserPath(), authenticationConfig.getUserIdParam(), userId
+				.toString());
+		Mav mav = redirectWithContext(path);
+		return mav;
+	}
+	
 	/***************** helpers **********************/
 	
 	private String pathBuilder(String path, String param, String value) {
@@ -229,7 +250,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		return getUserById(session.getUserId());
 	}
 	
-	private void assertUserDoesNotExist(Long id, String userToken, String username, String apiKey) {
+	private void assertUserDoesNotExist(Long id, String userToken, String username, String apiKey, String secretKey) {
 		DatarouterUser userWithId = getUserById(id);
 		if (userWithId != null) {
 			throw new IllegalArgumentException("DatarouterUser already exists with id=" + id);
@@ -249,5 +270,9 @@ public class AdminEditUserHandler extends BaseHandler{
 		if (userWithApiKey != null) {
 			throw new IllegalArgumentException("DatarouterUser already exists with apiKey=" + apiKey);
 		}
+		DatarouterUser userWithSecretKey = userNodes.getUserNode().lookupUnique(
+				new DatarouterUserBySecretKeyLookup(secretKey), null);
+		if(userWithSecretKey != null){ throw new IllegalArgumentException("DatarouterUser already exists with secretKey="
+				+ secretKey); }
 	}
 }

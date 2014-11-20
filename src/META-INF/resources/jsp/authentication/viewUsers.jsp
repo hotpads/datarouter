@@ -47,6 +47,10 @@
 							<td>API Key:</td>
 							<td>${user.apiKey}</td>
 						</tr>
+						<tr>
+							<td>Secret Key:</td>
+							<td>${user.secretKey}</td>
+						</tr>
 						</c:if>
 					</table>
 				</td>

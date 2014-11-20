@@ -30,6 +30,7 @@ public interface DatarouterAuthenticationConfig{
 	String getCreateUserPath();
 	String getEditUserPath();
 	String getResetApiKeySubmitPath();
+	String getResetSecretKeySubmitPath();
 	String getCreateUserSubmitPath();
 	String getEditUserSubmitPath();
 
@@ -40,6 +41,9 @@ public interface DatarouterAuthenticationConfig{
 	String getEnabledParam();
 	String getUserIdParam();
 	String getApiEnabledParam();
+	String getSignatureParam();
+	String getNonceParam();
+	String getTimestampParam();
 	
 	String getKeepaliveJsp();
 	String getHomeJsp();
@@ -60,4 +64,5 @@ public interface DatarouterAuthenticationConfig{
 			HttpServletResponse response);
 	
 	Collection<DatarouterUserRole> getRequiredRoles(String path);
+	
 }
