@@ -50,7 +50,7 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		}
 
 		String timestamp = request.getParameter(authenticationConfig.getTimestampParam());
-		if(StringTool.isNullOrEmpty(timestamp) || !isTimestampValid(timestamp)) {
+		if(isTimestampValid(timestamp)) {
 			throw new InvalidApiCallException("invalid timestamp specified");
 		}
 		
@@ -63,17 +63,17 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		String uri = request.getRequestURI();
 		Map<String, String> params = RequestTool.getMapOfParameters(request);
 		params.remove("signature");
-		String expectedSignature = ApacheHttpClient.generateSignature(uri, params, user.getSecretKey());
-		
+		String expectedSignature = ApacheHttpClient.generateSignature(uri, params, user.getSecretKey());		
 		if(ObjectTool.notEquals(expectedSignature, signature)){
 			throw new InvalidApiCallException("invalid signature specified");
 		}
 		
-		//if request reaches this point, it is valid
+		//if request reaches this point, it is valid, save it and return session
 		apiRequest.setRequestDate(new Date());
 		apiRequestNode.getApiRequestNode().put(apiRequest, null);
 		DatarouterSession session = DatarouterSession.createFromUser(user);
 		session.setIncludeSessionCookie(false);
+		
 		return session;
 	}
 	
@@ -96,8 +96,7 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 			throw new InvalidApiCallException("exact request has already be made");
 		}
 		
-		return new ApiRequest(apiKey, nonce, signature, timestamp);
-				
+		return new ApiRequest(apiKey, nonce, signature, timestamp);				
 	}
 	
 	private DatarouterUser lookupUserByApiKey(String apiKey) {
@@ -141,6 +140,7 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		private static final int NUM_INVALID_TIME_DIFF_IN_MILLISECONDS = Integer.MAX_VALUE;
 		private static String invalidTimestamp = "12345678901234567890123456789";
 		private static String invalidStringTimestamp = "NOT_AN_ACTUAL_NUMBER";
+		private static String emptyStringTimestamp = "";
 		
 		private String getStringTimestamp (int timeDiffenceInMilliseconds) {
 			long timeInSeconds = (new Date().getTime() + timeDiffenceInMilliseconds) / 1000;
@@ -163,6 +163,16 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		@Test(expected=InvalidApiCallException.class)
 		public void testIsTimestampValidExceptionWithLargeNumber() {
 			isTimestampValid(invalidTimestamp);
+		}
+		
+		@Test(expected=InvalidApiCallException.class)
+		public void testIsTimestampValidExceptionWithEmptyString() {
+			isTimestampValid(emptyStringTimestamp);
+		}
+		
+		@Test(expected=InvalidApiCallException.class)
+		public void testIsTimestampValidExceptionWithNull() {
+			isTimestampValid(null);
 		}
 		
 	}
