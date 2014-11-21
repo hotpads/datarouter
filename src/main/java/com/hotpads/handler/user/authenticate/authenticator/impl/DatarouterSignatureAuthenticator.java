@@ -119,7 +119,7 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 	private static boolean isTimestampValid(String timestampParameter) {
 		Date timestampDate;
 		try {
-			long timestampInMillisecond = (Long.valueOf(timestampParameter) * 1000);
+			long timestampInMillisecond = Long.valueOf(timestampParameter) * 1000;
 			timestampDate = new Date(timestampInMillisecond);
 		} catch(Exception e) {
 			throw new InvalidApiCallException("invalid timestamp specified");
