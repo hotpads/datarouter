@@ -1,40 +1,44 @@
 package com.hotpads.util.http.client;
 
+import java.io.IOException;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 
 @SuppressWarnings("serial")
-public class HotPadsHttpClientException extends RuntimeException{
-	
-	private HotPadsHttpResponse response;
-	
-	public HotPadsHttpClientException(HotPadsHttpResponse response){
-		super(response.toString());
+public class HotPadsHttpClientException extends RuntimeException {
+
+	private HttpResponse response;
+
+	public HotPadsHttpClientException(Exception e, HttpRequest request, HttpResponse response) {
+		super(e);
 		this.response = response;
 	}
 
-	public HotPadsHttpClientException(Exception e){
-		super(e);
+	public int getStatusCode() {
+		if (response == null)
+			return -1;
+		return response.getStatusLine().getStatusCode();
 	}
-	
-	public int getStatusCode(){
-		if(response==null) return -1;
-		return response.getStatusCode();
-	}
-	
-	public String getEntity(){
-		if(response==null) return null;
-		return response.getEntity();
-	}
-	
-	public HotPadsHttpResponse getResponse(){
+
+	public HttpResponse getResponse() {
 		return response;
 	}
 	
-	@Override
-	public String toString(){
-		if(response==null){
-			return super.toString();
+	public String getEntity() {
+		if(response == null || response.getEntity() == null) {
+			return "";
 		}
-		return response.toString();
+		
+		HttpEntity httpEntity = response.getEntity();
+		try{
+			return EntityUtils.toString(httpEntity);
+		} catch (final IOException ignore) {
+			return "";
+		} finally {
+			EntityUtils.consumeQuietly(httpEntity);
+		}
 	}
-
 }

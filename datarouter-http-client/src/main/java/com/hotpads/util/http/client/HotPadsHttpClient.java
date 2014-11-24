@@ -1,5 +1,6 @@
 package com.hotpads.util.http.client;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,14 +15,15 @@ import java.util.concurrent.TimeoutException;
 import javax.inject.Singleton;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 
 import com.hotpads.util.http.client.json.JsonSerializer;
 import com.hotpads.util.http.client.security.ApiKeyPredicate;
@@ -82,14 +84,17 @@ public class HotPadsHttpClient {
 			HttpRequestCallable callable = new HttpRequestCallable(httpClient, request.getRequest(), context);
 			return executor.submit(callable).get(requestTimeoutMs, TimeUnit.MILLISECONDS);
 		} catch (TimeoutException e) {
-			HttpResponse response = new BasicHttpResponse(PROTOCOL, HttpStatus.SC_REQUEST_TIMEOUT, "request timeout");
-			throw new HotPadsHttpClientException(new HotPadsHttpResponse(response));
+			if(e.getCause() != null) {
+				throw new RuntimeException(e.getCause());
+			}
+			
+			throw new HotPadsHttpClientException(e, request.getRequest(), null);
 		} catch (InterruptedException | ExecutionException e) {
 			// TODO exceptions that are not obscured by HotPadsHttpClientException or RuntimeException
-			if(e.getCause() instanceof HotPadsHttpClientException) {
-				throw (HotPadsHttpClientException) e.getCause();
-			}
-			throw new HotPadsHttpClientException(e);
+//			if(e.getCause() instanceof HotPadsHttpClientException) {
+//				throw (HotPadsHttpClientException) e.getCause();
+//			}
+			throw new RuntimeException(e);
 		}
 	}
 	
@@ -107,15 +112,17 @@ public class HotPadsHttpClient {
 		@Override
 		public String call() throws Exception {
 			HttpResponse response = httpClient.execute(request, context);
-			HotPadsHttpResponse hpResponse = new HotPadsHttpResponse(response);
-			if(hpResponse.getStatusCode() >= HttpStatus.SC_MOVED_PERMANENTLY) {
-				throw new HotPadsHttpClientException(hpResponse);
+			if(response == null) {
+				throw new HotPadsHttpClientException(null, request, response);
 			}
-			return hpResponse.getEntity();
+			if(response.getStatusLine().getStatusCode() >= HttpStatus.SC_MOVED_PERMANENTLY) {
+				throw new HotPadsHttpClientException(null, request, response);
+			}
+			return getResponseEntity(response);
 		}
 	}
 	
-	public <E> E executeDeserialize(HotPadsHttpRequest request, Type deserializeToType) {
+	public <E> E execute(HotPadsHttpRequest request, Type deserializeToType) {
 		return jsonSerializer.deserialize(execute(request), deserializeToType);
 	}
 	
@@ -130,5 +137,19 @@ public class HotPadsHttpClient {
 		params.put(config.getDtoTypeParameterName(), dtoTypeNullSafe);
 		request.addPostParams(params);
 		return this;
+	}
+	
+	private String getResponseEntity(HttpResponse response) {
+		HttpEntity httpEntity = response.getEntity();
+		if(httpEntity == null) {
+			return "";
+		}
+		try{
+			return EntityUtils.toString(httpEntity);
+		} catch (final IOException ignore) {
+			return "";
+		} finally {
+			EntityUtils.consumeQuietly(httpEntity);
+		}
 	}
 }

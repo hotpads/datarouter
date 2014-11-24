@@ -78,7 +78,7 @@ public class HotPadsHttpRequest {
 		try {
 			setEntity(new StringEntity(entity));
 		} catch (UnsupportedEncodingException e) {
-			throw new HotPadsHttpClientException(e);
+			throw new RuntimeException(e);
 		}
 		return this;
 	}
@@ -88,7 +88,7 @@ public class HotPadsHttpRequest {
 		try {
 			setEntity(new UrlEncodedFormEntity(urlEncodeFromMap(entity)));
 		}catch (UnsupportedEncodingException e){
-			throw new HotPadsHttpClientException(e);
+			throw new RuntimeException(e);
 		}
 		return this;
 	}
@@ -156,7 +156,9 @@ public class HotPadsHttpRequest {
 		try {
 			request.setURI(new URI(request.getURI().toString() + paramStr));
 			hasQueryString = true;
-		} catch (URISyntaxException e) {}
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 		return this;
 	}
 	
