@@ -15,6 +15,7 @@ import com.hotpads.handler.user.DatarouterUser.DatarouterUserByApiKeyLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.authenticate.api.ApiRequest;
 import com.hotpads.handler.user.authenticate.api.ApiRequestKey;
+import com.hotpads.handler.user.authenticate.api.enums.NonceProtectedApiRequest;
 import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthenticator;
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.handler.user.session.DatarouterSession;
@@ -44,7 +45,36 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		if(!request.getServletPath().startsWith(authenticationConfig.getApiPath())) {
 			return null;
 		}
-
+		String requestUri= request.getRequestURI();
+		DatarouterSession session;
+		if(NonceProtectedApiRequest.areNonceAndTimestampRequired(requestUri)) {
+			session = getSessionForNonceProtectedRequest(request);
+		} else {
+			session = getSessionForStandardRequest(request);
+		}
+		
+		return session;
+	}
+	
+	private DatarouterSession getSessionForStandardRequest(HttpServletRequest request) {
+		String apiKey = request.getParameter(authenticationConfig.getApiKeyParam());
+		String signature = request.getParameter(authenticationConfig.getSignatureParam());
+		DatarouterUser user = lookupUserByApiKeyAndValidate(apiKey);
+		
+		String uri = request.getRequestURI();
+		Map<String, String> params = RequestTool.getMapOfParameters(request);
+		params.remove("signature");
+		String expectedSignature = ApacheHttpClient.generateSignature(uri, params, user.getSecretKey());		
+		if(ObjectTool.notEquals(expectedSignature, signature)){
+			throw new InvalidApiCallException("invalid signature specified");
+		}
+		DatarouterSession session = DatarouterSession.createFromUser(user);
+		session.setIncludeSessionCookie(false);
+		
+		return session;
+	}
+	
+	private DatarouterSession getSessionForNonceProtectedRequest(HttpServletRequest request) {
 		String timestamp = request.getParameter(authenticationConfig.getTimestampParam());
 		if(!isTimestampValid(timestamp)) {
 			throw new InvalidApiCallException("invalid timestamp specified");
@@ -54,7 +84,7 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		String signature = request.getParameter(authenticationConfig.getSignatureParam());
 		String nonce = request.getParameter(authenticationConfig.getNonceParam());			
 		DatarouterUser user = lookupUserByApiKeyAndValidate(apiKey);
-		ApiRequest apiRequest = lookupRequestAndValidate(apiKey, nonce, signature, timestamp);
+		ApiRequest apiRequest = lookupNonceProtectedRequestAndValidate(apiKey, nonce, signature, timestamp);
 		
 		String uri = request.getRequestURI();
 		Map<String, String> params = RequestTool.getMapOfParameters(request);
@@ -73,7 +103,7 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		return session;
 	}
 	
-	private ApiRequest lookupRequestAndValidate(String apiKey, String nonce, String signature, String timestamp) {
+	private ApiRequest lookupNonceProtectedRequestAndValidate(String apiKey, String nonce, String signature, String timestamp) {
 		if (StringTool.isNullOrEmpty(apiKey)) {
 			throw new InvalidApiCallException("no api key specified");
 		}		

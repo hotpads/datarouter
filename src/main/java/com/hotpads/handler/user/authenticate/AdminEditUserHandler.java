@@ -11,7 +11,6 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.InContextRedirectMav;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByApiKeyLookup;
-import com.hotpads.handler.user.DatarouterUser.DatarouterUserBySecretKeyLookup;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUserTokenLookup;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUsernameLookup;
 import com.hotpads.handler.user.DatarouterUserKey;
@@ -87,7 +86,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		user.setEnabled(enabled);
 		user.setApiEnabled(apiEnabled);
 		
-		assertUserDoesNotExist(id, userToken, username, apiKey, secretKey);
+		assertUserDoesNotExist(id, userToken, username, apiKey);
 		userNodes.getUserNode().put(user, null);
 		
 		Mav mav = redirectWithContext(authenticationConfig.getViewUsersPath());
@@ -251,7 +250,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		return getUserById(session.getUserId());
 	}
 	
-	private void assertUserDoesNotExist(Long id, String userToken, String username, String apiKey, String secretKey) {
+	private void assertUserDoesNotExist(Long id, String userToken, String username, String apiKey) {
 		DatarouterUser userWithId = getUserById(id);
 		if (userWithId != null) {
 			throw new IllegalArgumentException("DatarouterUser already exists with id=" + id);
@@ -270,11 +269,6 @@ public class AdminEditUserHandler extends BaseHandler{
 				new DatarouterUserByApiKeyLookup(apiKey), null);
 		if (userWithApiKey != null) {
 			throw new IllegalArgumentException("DatarouterUser already exists with apiKey=" + apiKey);
-		}
-		DatarouterUser userWithSecretKey = userNodes.getUserNode().lookupUnique(
-				new DatarouterUserBySecretKeyLookup(secretKey), null);
-		if(userWithSecretKey != null){ 
-			throw new IllegalArgumentException("DatarouterUser already exists with secretKey=" + secretKey); 
 		}
 	}
 }
