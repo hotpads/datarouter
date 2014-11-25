@@ -161,7 +161,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 			mav.put(PARAM_startAfterKey, startAfterKey.getPersistentString());
 		}
 
-		boolean startInclusive = startAfterKey == null;
+		boolean startInclusive = true;
 		List<D> databeans = sortedNode.getRange((PK)startAfterKey, startInclusive, null, true, config);
 
 		addDatabeansToMav(mav, databeans);
