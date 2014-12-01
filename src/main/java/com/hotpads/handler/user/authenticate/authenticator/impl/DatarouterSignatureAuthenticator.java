@@ -1,27 +1,19 @@
 package com.hotpads.handler.user.authenticate.authenticator.impl;
 
-import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.hotpads.datarouter.client.imp.http.ApacheHttpClient;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByApiKeyLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
-import com.hotpads.handler.user.authenticate.api.ApiRequest;
-import com.hotpads.handler.user.authenticate.api.ApiRequestKey;
-import com.hotpads.handler.user.authenticate.api.enums.NonceProtectedApiRequest;
 import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthenticator;
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.BooleanTool;
-import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.exception.InvalidApiCallException;
@@ -30,8 +22,6 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 	
 	private DatarouterAuthenticationConfig authenticationConfig;
 	private DatarouterUserNodes userNodes;
-	
-	private static final int NUM_MAX_TIME_DIFF_IN_SECONDS = 600;
 	
 	public DatarouterSignatureAuthenticator(HttpServletRequest request, HttpServletResponse response,
 			DatarouterAuthenticationConfig authenticationConfig, DatarouterUserNodes userNodes){
@@ -45,18 +35,12 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		if(!request.getServletPath().startsWith(authenticationConfig.getApiPath())) {
 			return null;
 		}
-		String requestUri= request.getRequestURI();
-		DatarouterSession session;
-		if(NonceProtectedApiRequest.areNonceAndTimestampRequired(requestUri)) {
-			session = getSessionForNonceProtectedRequest(request);
-		} else {
-			session = getSessionForStandardRequest(request);
-		}
-		
+		DatarouterSession session = getSession(request);
+	
 		return session;
 	}
 	
-	private DatarouterSession getSessionForStandardRequest(HttpServletRequest request) {
+	private DatarouterSession getSession(HttpServletRequest request) {
 		String apiKey = request.getParameter(authenticationConfig.getApiKeyParam());
 		String signature = request.getParameter(authenticationConfig.getSignatureParam());
 		DatarouterUser user = lookupUserByApiKeyAndValidate(apiKey);
@@ -73,57 +57,7 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		
 		return session;
 	}
-	
-	private DatarouterSession getSessionForNonceProtectedRequest(HttpServletRequest request) {
-		String timestamp = request.getParameter(authenticationConfig.getTimestampParam());
-		if(!isTimestampValid(timestamp)) {
-			throw new InvalidApiCallException("invalid timestamp specified");
-		}
-		
-		String apiKey = request.getParameter(authenticationConfig.getApiKeyParam());
-		String signature = request.getParameter(authenticationConfig.getSignatureParam());
-		String nonce = request.getParameter(authenticationConfig.getNonceParam());			
-		DatarouterUser user = lookupUserByApiKeyAndValidate(apiKey);
-		ApiRequest apiRequest = lookupNonceProtectedRequestAndValidate(apiKey, nonce, signature, timestamp);
-		
-		String uri = request.getRequestURI();
-		Map<String, String> params = RequestTool.getMapOfParameters(request);
-		params.remove("signature");
-		String expectedSignature = ApacheHttpClient.generateSignature(uri, params, user.getSecretKey());		
-		if(ObjectTool.notEquals(expectedSignature, signature)){
-			throw new InvalidApiCallException("invalid signature specified");
-		}
-		
-		//if request reaches this point, it is valid, save it and return session
-		apiRequest.setRequestDate(new Date());
-		userNodes.getApiRequestNode().put(apiRequest, null);
-		DatarouterSession session = DatarouterSession.createFromUser(user);
-		session.setIncludeSessionCookie(false);
-		
-		return session;
-	}
-	
-	private ApiRequest lookupNonceProtectedRequestAndValidate(String apiKey, String nonce, String signature, String timestamp) {
-		if (StringTool.isNullOrEmpty(apiKey)) {
-			throw new InvalidApiCallException("no api key specified");
-		}		
-		if (StringTool.isNullOrEmpty(nonce)) {
-			throw new InvalidApiCallException("no nonce specified");
-		}
-		if (StringTool.isNullOrEmpty(signature)) {
-			throw new InvalidApiCallException("no signature specified");
-		}
-		
-		ApiRequest testRequest = userNodes.getApiRequestNode().lookupUnique(  
-				new ApiRequestKey(apiKey, nonce, signature, timestamp), 
-				null);
-		
-		if(testRequest != null) {
-			throw new InvalidApiCallException("exact request has already be made");
-		}
-		
-		return new ApiRequest(apiKey, nonce, signature, timestamp);				
-	}
+
 	
 	//copy from DatarouterApiKeyAuthenticator
 	private DatarouterUser lookupUserByApiKeyAndValidate(String apiKey) {
@@ -144,64 +78,6 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 		}
 		
 		return user;
-	}
-	
-	private static boolean isTimestampValid(String timestampParameter) {
-		Date timestampDate;
-		try {
-			long timestampInMillisecond = Long.valueOf(timestampParameter) * 1000;
-			timestampDate = new Date(timestampInMillisecond);
-		} catch(Exception e) {
-			throw new InvalidApiCallException("invalid timestamp specified");
-		}
-		long timeDifferenceInSeconds = Math.round(DateTool.getSecondsBetween(new Date(), timestampDate));
-		
-		return (Math.abs(timeDifferenceInSeconds) <= NUM_MAX_TIME_DIFF_IN_SECONDS);
-	}
-	
-	/************************** tests ******************************/
-	
-	public static class Tests {
-		
-		private static final int NUM_VALID_TIME_DIFF_IN_MILLISECONDS = 100000;
-		private static final int NUM_INVALID_TIME_DIFF_IN_MILLISECONDS = Integer.MAX_VALUE;
-		private static String invalidTimestamp = "12345678901234567890123456789";
-		private static String invalidStringTimestamp = "NOT_AN_ACTUAL_NUMBER";
-		private static String emptyStringTimestamp = "";
-		
-		private String getStringTimestamp (int timeDiffenceInMilliseconds) {
-			long timeInSeconds = (new Date().getTime() + timeDiffenceInMilliseconds) / 1000;
-			
-			return String.valueOf(timeInSeconds);
-		}
-		
-		@Test public void testIsTimestampValid() {			
-			Assert.assertTrue(isTimestampValid(getStringTimestamp(NUM_VALID_TIME_DIFF_IN_MILLISECONDS)));
-			Assert.assertTrue(isTimestampValid(getStringTimestamp(-NUM_VALID_TIME_DIFF_IN_MILLISECONDS)));
-			Assert.assertFalse(isTimestampValid(getStringTimestamp(NUM_INVALID_TIME_DIFF_IN_MILLISECONDS)));
-			Assert.assertFalse(isTimestampValid(getStringTimestamp(-NUM_INVALID_TIME_DIFF_IN_MILLISECONDS)));
-		}
-		
-		@Test(expected=InvalidApiCallException.class)
-		public void testIsTimestampValidWithInvalidString() {
-			isTimestampValid(invalidStringTimestamp);
-		}
-		
-		@Test(expected=InvalidApiCallException.class)
-		public void testIsTimestampValidExceptionWithLargeNumber() {
-			isTimestampValid(invalidTimestamp);
-		}
-		
-		@Test(expected=InvalidApiCallException.class)
-		public void testIsTimestampValidExceptionWithEmptyString() {
-			isTimestampValid(emptyStringTimestamp);
-		}
-		
-		@Test(expected=InvalidApiCallException.class)
-		public void testIsTimestampValidExceptionWithNull() {
-			isTimestampValid(null);
-		}
-		
 	}
 	
 }
