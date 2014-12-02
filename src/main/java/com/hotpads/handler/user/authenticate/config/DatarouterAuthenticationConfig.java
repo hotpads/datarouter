@@ -65,4 +65,6 @@ public interface DatarouterAuthenticationConfig{
 	
 	Collection<DatarouterUserRole> getRequiredRoles(String path);
 	
+	Collection<String> getNonceProtectedPaths();
+	
 }
