@@ -13,6 +13,7 @@ public class CookieTool{
 		Cookie cookie = new Cookie(cookieName, value);
 		cookie.setPath(path);
 		cookie.setMaxAge(maxAge);
+		cookie.setHttpOnly(true); //enforce HttpOnly cookies (can't be accessed by javascript) to prevent XSS attacks
 		response.addCookie(cookie);
 	}
 	
