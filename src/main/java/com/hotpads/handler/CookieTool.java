@@ -3,15 +3,17 @@ package com.hotpads.handler;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class CookieTool{
 
-	public static void addCookie(HttpServletResponse response, String cookieName, String value, String path, int maxAge){
+	public static void addCookie(HttpServletResponse response, String cookieName, String value, @Nullable String path, int maxAge){
 		Cookie cookie = new Cookie(cookieName, value);
-		cookie.setPath(path);
+		if (path != null)
+			cookie.setPath(path);
 		cookie.setMaxAge(maxAge);
 		cookie.setHttpOnly(true); //enforce HttpOnly cookies (can't be accessed by javascript) to prevent XSS attacks
 		response.addCookie(cookie);
