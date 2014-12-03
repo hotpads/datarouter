@@ -59,6 +59,14 @@
 				</td>
 			</tr>
 			<tr>
+				<td>Secret Key:</td>
+				<td>
+					<input type="text" value="${user.secretKey}" readonly/><br/>
+					<a href="${contextPath}${authenticationConfig.resetSecretKeySubmitPath}?
+						${authenticationConfig.userIdParam}=${user.id}">Reset Secret Key</a>
+				</td>
+			</tr>
+			<tr>
 				<td colspan="2"><input type="submit"/></td>
 			</tr>
 		</table>

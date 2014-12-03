@@ -42,6 +42,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 	
 	private Boolean apiEnabled;
 	private String apiKey;
+	private String secretKey;
 
 
 	public static class F {
@@ -55,7 +56,8 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 			created = "created",
 			lastLoggedIn = "lastLoggedIn",
 			apiEnabled = "apiEnabled",
-			apiKey = "apiKey";
+			apiKey = "apiKey",
+			secretKey = "secretKey";
 	}
 
 	/****************** fielder *****************************/
@@ -77,7 +79,8 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 					new DateField(F.created, d.created),
 					new DateField(F.lastLoggedIn, d.lastLoggedIn),
 					new BooleanField(F.apiEnabled, d.apiEnabled),
-					new StringField(F.apiKey, d.apiKey, MySqlColumnType.MAX_LENGTH_VARCHAR));
+					new StringField(F.apiKey, d.apiKey, MySqlColumnType.MAX_LENGTH_VARCHAR),
+					new StringField(F.secretKey	, d.secretKey, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 		@Override
 		public Map<String, List<Field<?>>> getIndexes(DatarouterUser databean){
@@ -85,6 +88,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 			indexesByName.put("index_username", new DatarouterUserByUsernameLookup(null).getFields());
 			indexesByName.put("index_userToken", new DatarouterUserByUserTokenLookup(null).getFields());
 			indexesByName.put("index_apiKey", new DatarouterUserByApiKeyLookup(null).getFields());
+			indexesByName.put("index_secretKey", new DatarouterUserBySecretKeyLookup(null).getFields());
 			return indexesByName;
 		}
 	}
@@ -100,7 +104,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 	}
 	
 	public static DatarouterUser create(Long id, String userToken, String email, String passwordSalt,
-			String passwordDigest, Collection<DatarouterUserRole> roles, String apiKey){
+			String passwordDigest, Collection<DatarouterUserRole> roles, String apiKey, String secretKey){
 		DatarouterUser user = new DatarouterUser();
 		user.setId(id);
 		Date now = new Date();
@@ -116,6 +120,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		
 		user.setApiEnabled(true);
 		user.setApiKey(apiKey);
+		user.setSecretKey(secretKey);
 		return user;
 	}
 
@@ -164,6 +169,17 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 		public List<Field<?>> getFields(){
 			return FieldTool.createList(
 				new StringField(F.userToken, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		}
+	}
+						
+	public static class DatarouterUserBySecretKeyLookup extends BaseStringUniqueKey<DatarouterUserKey>{
+		public DatarouterUserBySecretKeyLookup(String secretKey){
+			super(secretKey);
+		}
+		@Override
+		public List<Field<?>> getFields(){
+			return FieldTool.createList(
+				new StringField(F.secretKey, id, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 	}
 	
@@ -262,6 +278,14 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 
 	public void setApiKey(String apiKey) {
 		this.apiKey = apiKey;
+	}
+	
+	public String getSecretKey() {
+		return secretKey;
+	}
+
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
 	}
 
 }

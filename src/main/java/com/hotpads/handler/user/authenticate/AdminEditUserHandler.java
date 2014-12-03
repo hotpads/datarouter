@@ -79,9 +79,10 @@ public class AdminEditUserHandler extends BaseHandler{
 		
 		String apiKey = passwordService.generateSaltForNewUser();
 		boolean apiEnabled = params.optionalBoolean(authenticationConfig.getApiEnabledParam(), true);
+		String secretKey = passwordService.generateSaltForNewUser();
 		
 		DatarouterUser user = DatarouterUser.create(
-				id, userToken, username, passwordSalt, passwordDigest, userRolesSet, apiKey);
+				id, userToken, username, passwordSalt, passwordDigest, userRolesSet, apiKey, secretKey);
 		user.setEnabled(enabled);
 		user.setApiEnabled(apiEnabled);
 		
@@ -184,6 +185,26 @@ public class AdminEditUserHandler extends BaseHandler{
 		
 		String path = pathBuilder(authenticationConfig.getEditUserPath(), authenticationConfig.getUserIdParam(),
 				userId.toString());
+		Mav mav = redirectWithContext(path);
+		return mav;
+	}
+	
+	@Handler
+	private Mav resetSecretKeySubmit(){
+		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
+		DatarouterUser currentUser = getCurrentUser();
+		DatarouterUser userToEdit  = getUserById(userId);
+
+		if(!canEditUser(userToEdit, currentUser)){
+			handleInvalidRequest();
+		}
+
+		String newSecretKey = passwordService.generateSaltForNewUser();
+		userToEdit.setSecretKey(newSecretKey);
+		userNodes.getUserNode().put(userToEdit, null);
+
+		String path = pathBuilder(authenticationConfig.getEditUserPath(), authenticationConfig.getUserIdParam(), userId
+				.toString());
 		Mav mav = redirectWithContext(path);
 		return mav;
 	}
