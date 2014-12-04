@@ -12,8 +12,9 @@ public class CookieTool{
 
 	public static void addCookie(HttpServletResponse response, String cookieName, String value, @Nullable String path, int maxAge){
 		Cookie cookie = new Cookie(cookieName, value);
-		if (path != null)
+		if (path != null) {
 			cookie.setPath(path);
+		}
 		cookie.setMaxAge(maxAge);
 		cookie.setHttpOnly(true); //enforce HttpOnly cookies (can't be accessed by javascript) to prevent XSS attacks
 		response.addCookie(cookie);
