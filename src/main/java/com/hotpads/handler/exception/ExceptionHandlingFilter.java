@@ -23,13 +23,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.exception.analysis.HttpHeaders;
 import com.hotpads.exception.analysis.HttpRequestRecord;
 import com.hotpads.exception.analysis.HttpRequestRecordKey;
-import com.hotpads.handler.util.RequestTool;
 import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
@@ -119,15 +116,6 @@ public class ExceptionHandlingFilter implements Filter {
 			String domain = exceptionHandlingConfig.isDevServer() ? "localhost:8443" : "hotpads.com";
 			logger.warn("Exception recorded (https://" + domain + "/analytics/exception/details?exceptionRecord="
 					+ exceptionRecord.getKey().getId() + ")");
-			StringBuilder paramStringBuilder = new StringBuilder();
-			Joiner listJoiner = Joiner.on("; ");
-			for (Entry<String, String[]> param : request.getParameterMap().entrySet()) {
-				paramStringBuilder.append(param.getKey());
-				paramStringBuilder.append(": ");
-				paramStringBuilder.append(listJoiner.join(param.getValue()));
-				paramStringBuilder.append(", ");
-			}
-			String paramString = paramStringBuilder.toString();
 			String place = null;
 			Integer lineNumber = null;
 			Pair<String, Integer> pair = searchJspName(e);
@@ -145,18 +133,9 @@ public class ExceptionHandlingFilter implements Filter {
 					place,
 					null,
 					lineNumber == null ? -1 : lineNumber,
-					request.getMethod(),
-					paramString.length() > 0 ? paramString : null,
-					request.getScheme(),
-					request.getServerName(),
-					request.getServerPort(),
-					request.getContextPath(),
-					request.getRequestURI().substring(request.getContextPath().length()),
-					request.getQueryString(),
-					RequestTool.getIpAddress(request),
+					request,
 					"unknown user roles",
-					-1l,
-					new HttpHeaders(request)
+					-1l
 					);
 			httpRequestRecordNode.put(httpRequestRecord, null);
 			addNotificationRequestToQueue(request, e, exceptionRecord, place);

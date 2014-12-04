@@ -23,8 +23,12 @@ import static com.hotpads.exception.analysis.HttpHeaders.X_REQUESTED_WITH;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.google.common.base.Joiner;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
@@ -39,6 +43,7 @@ import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.UuidTool;
 import com.hotpads.handler.exception.ExceptionRecord;
+import com.hotpads.handler.util.RequestTool;
 import com.hotpads.util.core.MapTool;
 
 public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRequestRecord>{
@@ -212,6 +217,39 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	}
 
 	public HttpRequestRecord(String exceptionRecordId, String exceptionPlace, String methodName, int lineNumber,
+			HttpServletRequest request, String sessionRoles, Long userId) {
+		this(
+				exceptionRecordId,
+				exceptionPlace,
+				methodName,
+				lineNumber,
+				request.getMethod(),
+				null,
+				request.getScheme(),
+				request.getServerName(),
+				request.getServerPort(),
+				request.getContextPath(),
+				request.getRequestURI().substring(request.getContextPath().length()),
+				request.getQueryString(),
+				RequestTool.getIpAddress(request),
+				sessionRoles,
+				userId,
+				new HttpHeaders(request)
+				);
+		
+		StringBuilder paramStringBuilder = new StringBuilder();
+		Joiner listJoiner = Joiner.on("; ");
+		for (Entry<String, String[]> param : request.getParameterMap().entrySet()) {
+			paramStringBuilder.append(param.getKey());
+			paramStringBuilder.append(": ");
+			paramStringBuilder.append(listJoiner.join(param.getValue()));
+			paramStringBuilder.append(", ");
+		}
+		String paramString = paramStringBuilder.toString();
+		this.httpParams = paramString;
+	}
+	
+	private HttpRequestRecord(String exceptionRecordId, String exceptionPlace, String methodName, int lineNumber,
 			String httpMethod, String httpParams, String protocol, String hostname, int port, String contextPath,
 			String path, String queryString, String ip, String sessionRoles, Long userId, HttpHeaders headersWrapper) {
 		this.key = new HttpRequestRecordKey(UuidTool.generateV1Uuid());
