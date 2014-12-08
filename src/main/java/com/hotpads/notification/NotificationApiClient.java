@@ -59,7 +59,7 @@ public class NotificationApiClient {
 		String url = exceptionHandlingConfig.getNotificationApiEndPoint();
 		HotPadsHttpClient httpClient = getClient(settings.getIgnoreSsl().getValue());
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpMethod.POST, url, false);
-		httpClient.addDtosToPayload(request, dtoTool.toDtos(requests), null).execute(request);
+		httpClient.addDtoToPayload(request, dtoTool.toDtos(requests), null).execute(request);
 	}
 
 	private HotPadsHttpClient getClient(Boolean ignoreSsl) {
