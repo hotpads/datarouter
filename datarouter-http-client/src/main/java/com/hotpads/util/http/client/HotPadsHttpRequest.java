@@ -33,6 +33,7 @@ public class HotPadsHttpRequest {
 	private Map<String,String> headers;
 	private Map<String,String> params;
 	private boolean hasQueryString;
+	private HotPadsHttpClientConfig config;
 	
 	public enum HttpMethod {
 		DELETE, GET, PATCH, POST, PUT
@@ -98,6 +99,18 @@ public class HotPadsHttpRequest {
 			HttpEntityEnclosingRequest requestEntity = (HttpEntityEnclosingRequest) request;
 			requestEntity.setEntity(entity);
 		}
+		return this;
+	}
+	
+	public HotPadsHttpClientConfig getRequestConfig(HotPadsHttpClientConfig clientConfig){
+		if(config != null){
+			return config;
+		}
+		return clientConfig;
+	}
+	
+	public HotPadsHttpRequest overrideConfig(HotPadsHttpClientConfig config){
+		this.config = config;
 		return this;
 	}
 
