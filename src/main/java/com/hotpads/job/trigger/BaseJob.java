@@ -139,6 +139,7 @@ public abstract class BaseJob implements Job, ExceptionRecorder{
 		return null;
 	}
 
+	@Override
 	public void recordException(Exception e) {
 		ExceptionRecord exceptionRecord = new ExceptionRecord(
 				serverName,
