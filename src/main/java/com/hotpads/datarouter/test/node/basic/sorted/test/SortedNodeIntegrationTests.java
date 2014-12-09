@@ -175,6 +175,19 @@ public class SortedNodeIntegrationTests{
 	/********************** junit methods *********************************************/
 	
 	@Test
+	public synchronized void testGetKeys(){
+		resetTable(false);
+		SortedBeanKey key1 = new SortedBeanKey("aardvark", "aardvark", 0, "alpaca");
+		SortedBeanKey key2 = new SortedBeanKey("blah", "blah", 1000, "blah");
+		SortedBeanKey key3 = new SortedBeanKey("aardvark", "albatross", 2, "emu");
+		List<SortedBeanKey> keysToGet = ListTool.create(key1, key2, key3);
+		List<SortedBeanKey> keysGotten = node.getKeys(keysToGet, null);
+		Assert.assertTrue(keysGotten.contains(key1));
+		Assert.assertFalse(keysGotten.contains(key2));
+		Assert.assertTrue(keysGotten.contains(key3));
+	}
+	
+	@Test
 	public synchronized void testGetEntity(){
 		resetTable(false);
 		if(!isHBaseEntity()){ return; }

@@ -5,12 +5,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Test;
+
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
+import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
@@ -20,7 +24,6 @@ import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.BatchTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.exception.NotImplementedException;
 
 public class JdbcGetKeysOp<
 		PK extends PrimaryKey<PK>,
@@ -55,7 +58,7 @@ extends BaseJdbcOp<List<PK>>{
 		Connection connection = getConnection(node.getClientName());
 		for(int batchNum=0; batchNum < numBatches; ++batchNum){
 			List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
-			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), keyBatch);
+			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), keyBatch);
 			List<PK> batch = JdbcTool.selectPrimaryKeys(connection, node.getFieldInfo(), sql);
 			DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
@@ -68,5 +71,4 @@ extends BaseJdbcOp<List<PK>>{
 		TraceContext.appendToSpanInfo("[got "+CollectionTool.size(result)+"/"+CollectionTool.size(keys)+"]");
 		return result;
 	}
-	
 }
