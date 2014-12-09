@@ -16,6 +16,7 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNod
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecordKey;
+import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTaskTracker;
 import com.hotpads.job.record.LongRunningTaskType;
@@ -29,7 +30,7 @@ import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.datastructs.MutableBoolean;
 
-public abstract class BaseJob implements Job{
+public abstract class BaseJob implements Job, ExceptionRecorder{
 	private static Logger baseJobLogger = LoggerFactory.getLogger(BaseJob.class);
 	protected Logger logger = LoggerFactory.getLogger(getClass());//for subclasses to use
 
