@@ -1,9 +1,6 @@
-package com.hotpads.util.http.client;
+package com.hotpads.util.http.client.request;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +29,7 @@ public class HotPadsHttpRequest {
 	private Boolean retrySafe;
 	private Map<String,String> headers;
 	private Map<String,String> params;
-	private boolean hasQueryString;
+	private Integer timeoutMs;
 	
 	public enum HttpMethod {
 		DELETE, GET, PATCH, POST, PUT
@@ -53,7 +50,6 @@ public class HotPadsHttpRequest {
 		this.retrySafe = retrySafe;
 		this.headers = new HashMap<>();
 		this.params = new HashMap<>();
-		this.hasQueryString = false;
 	}
 	
 	public HttpRequestBase getRequest() {
@@ -139,28 +135,6 @@ public class HotPadsHttpRequest {
 	public boolean canHaveEntity() {
 		return this.request instanceof HttpEntityEnclosingRequest;
 	}
-
-	public HotPadsHttpRequest addGetParams(Map<String,String> params) {
-		if(params == null || params.isEmpty()) {
-			return this;
-		}
-		StringBuilder queryString = new StringBuilder();
-		for(Entry<String,String> param : params.entrySet()) {
-			String key = param.getKey();
-			if(key == null || key.trim().isEmpty()) {
-				continue;
-			}
-			queryString.append('&').append(urlEncode(key.trim())).append('=').append(urlEncode(param.getValue()));
-		}
-		String paramStr = hasQueryString ? queryString.toString() : '?' + queryString.substring(1);
-		try {
-			request.setURI(new URI(request.getURI().toString() + paramStr));
-			hasQueryString = true;
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
-		return this;
-	}
 	
 	private List<NameValuePair> urlEncodeFromMap(Map<String, String> data){
 		List<NameValuePair> params = new ArrayList<>();
@@ -171,14 +145,12 @@ public class HotPadsHttpRequest {
 		}
 		return params;
 	}
-	
-	// from AdvancedStringTool
-	private String urlEncode(String unencoded){
-		try {
-			return unencoded == null ? "" : URLEncoder.encode(unencoded,"UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			//unthinkable
-			throw new RuntimeException("UTF-8 is unsupported",e);
-		}
+
+	public Integer getTimeoutMs() {
+		return timeoutMs;
+	}
+
+	public void setTimeoutMs(Integer timeoutMs) {
+		this.timeoutMs = timeoutMs;
 	}
 }

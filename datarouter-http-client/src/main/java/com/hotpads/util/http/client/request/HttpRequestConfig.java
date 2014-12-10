@@ -1,4 +1,4 @@
-package com.hotpads.util.http.client;
+package com.hotpads.util.http.client.request;
 
 import java.util.Map;
 
