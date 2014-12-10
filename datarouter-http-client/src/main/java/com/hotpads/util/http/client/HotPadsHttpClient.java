@@ -33,7 +33,6 @@ import com.hotpads.util.http.client.response.exception.HotPadsHttpException;
 import com.hotpads.util.http.client.response.exception.HotPadsHttpRequestExecutionException;
 import com.hotpads.util.http.client.response.exception.HotPadsHttpRequestInterruptedException;
 import com.hotpads.util.http.client.response.exception.HotPadsHttpRequestTimeoutException;
-import com.hotpads.util.http.client.response.exception.HotPadsHttpResponseException;
 import com.hotpads.util.http.client.response.exception.HotPadsHttpRuntimeException;
 import com.hotpads.util.http.client.security.ApiKeyPredicate;
 import com.hotpads.util.http.client.security.CsrfValidator;
@@ -67,7 +66,7 @@ public class HotPadsHttpClient {
 		this.requestTimeoutMs = requestTimeoutMs == null ? DEFAULT_REQUEST_TIMEOUT_MS : requestTimeoutMs.intValue();
 	}
 
-	public String execute(HotPadsHttpRequest request) {
+	public HotPadsHttpResponse execute(HotPadsHttpRequest request) {
 		try {
 			return executeChecked(request);
 		} catch (HotPadsHttpException e) {
@@ -84,10 +83,10 @@ public class HotPadsHttpClient {
 	}
 
 	public <E> E executeChecked(HotPadsHttpRequest request, Type deserializeToType) throws HotPadsHttpException {
-		return jsonSerializer.deserialize(executeChecked(request), deserializeToType);
+		return jsonSerializer.deserialize(executeChecked(request).getEntity(), deserializeToType);
 	}
 
-	public String executeChecked(HotPadsHttpRequest request) throws HotPadsHttpException {
+	public HotPadsHttpResponse executeChecked(HotPadsHttpRequest request) throws HotPadsHttpException {
 		if (request.canHaveEntity() && request.getEntity() == null) {
 			Map<String, String> params = new HashMap<>();
 			if (csrfValidator != null) {
@@ -125,13 +124,6 @@ public class HotPadsHttpClient {
 				result = new HotPadsHttpRequestExecutionException(e);
 			}
 		}
-		
-		if (result instanceof HotPadsHttpResponse) {
-			HotPadsHttpResponse response = (HotPadsHttpResponse) result;
-			if(response.getStatusCode() > 300) {
-				result = new HotPadsHttpResponseException(response);
-			}
-		}
 
 		if (result instanceof HotPadsHttpException) {
 			HotPadsHttpException ex = (HotPadsHttpException) result;
@@ -139,7 +131,7 @@ public class HotPadsHttpClient {
 			throw ex;
 		}
 		
-		return ((HotPadsHttpResponse) result).getEntity();
+		return (HotPadsHttpResponse) result;
 	}
 
 	private class HttpRequestCallable implements Callable<HttpResponse> {
