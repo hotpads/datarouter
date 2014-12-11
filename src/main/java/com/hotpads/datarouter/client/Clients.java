@@ -23,6 +23,16 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 
+/**
+ * Clients is a registry or cache of all clients in a DatarouterContext. Clients are expensive to create, so we reuse
+ * them for the life of the application. This class also provides a lazy-initialization feature that defers connection
+ * creation, authentication, and connection pool warmup until an application request triggers it.
+ * 
+ * This class can be used for DatarouterManagement, such as displaying a web page listing all clients.
+ * 
+ * @author mcorgan
+ * 
+ */
 public class Clients{
 	private static Logger logger = LoggerFactory.getLogger(Clients.class);
 
