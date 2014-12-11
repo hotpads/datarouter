@@ -27,7 +27,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
  * 
  *         To create a databean you can copy/paste/modify a similar existing databean or use the web tool. If you prefer
  *         a ligher-weight format, you can omit the Fielder definition and add Hibernate annotations, but this isn't
- *         recommended as it's about as comparable work to define a Fielder.
+ *         recommended as it's comparable work to define a Fielder.
  * 
  * @param <PK>
  * @param <D>
