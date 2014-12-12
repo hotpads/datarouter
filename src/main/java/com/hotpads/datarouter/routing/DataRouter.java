@@ -18,8 +18,8 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 /**
  * A Datarouter is a strongly-typed collection of Nodes. While a small application may have only one router, a large
- * application may split nodes into related groupings. Nodes are instantiated in the router, and the router is where
- * each PhysicalNode is mapped to a Client.
+ * application may group related nodes into separate routers. Nodes are instantiated in the router, and the router is
+ * where each PhysicalNode is mapped to a Client.
  * 
  * A good rule of thumb is to have one router per database giving access to all tables in the database. It is also
  * feasible to have a router talk to multiple clients/databases, or to have multiple routers talking to the same client.
