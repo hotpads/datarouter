@@ -9,6 +9,16 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
+/**
+ * Methods for writing to simple key/value storage systems, supporting similar methods to a HashMap.
+ * 
+ * See MapStorageReader for implementation notes.
+ * 
+ * @author mcorgan
+ * 
+ * @param <PK>
+ * @param <D>
+ */
 public interface MapStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
