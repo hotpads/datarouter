@@ -11,6 +11,16 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
+/**
+ * Methods for writing to storage systems that provide secondary indexing.
+ * 
+ * This storage may be deprecated in favor of a future MultiIndexWriter.
+ * 
+ * @author mcorgan
+ * 
+ * @param <PK>
+ * @param <D>
+ */
 public interface IndexedStorageWriter<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {

@@ -27,6 +27,15 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
+/**
+ * DatarouterContext is the top-level scope through which various components can share things like clients,
+ * configuration, and thread pools. Almost all applications will have a single DatarouterContext, though it is possible
+ * to have multiple contexts for modularized applications or large test suites.
+ * 
+ * @author mcorgan
+ * 
+ */
+//TODO rename DatarouterContext
 @Singleton
 public class DataRouterContext{
 	protected static Logger logger = LoggerFactory.getLogger(DataRouterContext.class);

@@ -12,6 +12,16 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
+/**
+ * Methods for reading from storage mechanisms that keep databeans sorted by PrimaryKey.  Similar to java's TreeMap.
+ * 
+ * Possible implementations include TreeMap, RDBMS, HBase, LevelDB, Google Cloud Datastore, etc
+ * 
+ * @author mcorgan
+ *
+ * @param <PK>
+ * @param <D>
+ */
 public interface SortedStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {

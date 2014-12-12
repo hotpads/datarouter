@@ -12,11 +12,19 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-
+/**
+ * A Node is the interface through which the application sends Databeans for serialization and storage. It ties together
+ * a PrimaryKey type, a Databean type, a Fielder type. A Node can be a PhysicalNode or a virtual node, like
+ * MasterSlaveNode, that forwards requests on to other nodes.
+ * 
+ * @author mcorgan
+ * 
+ * @param <PK>
+ * @param <D>
+ */
 public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends Comparable<Node<PK,D>>{
 
-//	void setDataRouterContext(DataRouterContext drContext);
 	DataRouterContext getDataRouterContext();
 	DataRouter getRouter();
 
