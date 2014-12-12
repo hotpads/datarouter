@@ -127,7 +127,7 @@ public class HotPadsHttpClient {
 
 		if (result instanceof HotPadsHttpException) {
 			HotPadsHttpException ex = (HotPadsHttpException) result;
-			logger.error(ex.getMessage());
+			logger.debug(ex.getMessage()); // results in many logs
 			throw ex;
 		}
 		
