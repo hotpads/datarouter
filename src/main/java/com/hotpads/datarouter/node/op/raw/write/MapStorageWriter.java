@@ -10,7 +10,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 /**
- * Methods for reading from simple key/value storage systems, supporting similar methods to a HashMap.
+ * Methods for writing to simple key/value storage systems, supporting similar methods to a HashMap.
  * 
  * See MapStorageReader for implementation notes.
  * 
