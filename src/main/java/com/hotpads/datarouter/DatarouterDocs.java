@@ -4,8 +4,10 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.Nodes;
+import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
+import com.hotpads.datarouter.node.op.raw.write.IndexedStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
 import com.hotpads.datarouter.routing.DataRouter;
@@ -48,5 +50,7 @@ public class DatarouterDocs{
 	MapStorageWriter mapStorageWriter;
 	SortedStorageReader sortedStorageReader;
 	SortedStorageWriter sortedStorageWriter;
+	IndexedStorageReader indexedStorageReader;
+	IndexedStorageWriter indexedStorageWriter;
 	
 }
