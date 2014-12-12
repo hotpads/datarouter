@@ -12,6 +12,16 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
+/**
+ * Methods for reading from storage systems that provide secondary indexing.
+ * 
+ * This storage may be deprecated in favor of MultiIndexReader.
+ * 
+ * @author mcorgan
+ * 
+ * @param <PK>
+ * @param <D>
+ */
 public interface IndexedStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends NodeOps<PK,D>
 {
