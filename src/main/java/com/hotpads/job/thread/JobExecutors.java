@@ -34,6 +34,11 @@ public class JobExecutors{
 		reputationJobExecutor = new ThreadPoolExecutor(20, 20, 0L, TimeUnit.MILLISECONDS,
 				new ArrayBlockingQueue<Runnable>(10), new ThreadPoolExecutor.CallerRunsPolicy());
 	
+	public static final ExecutorService 
+		adproductsJobExecutor = new ThreadPoolExecutor(20, 20, 0L, TimeUnit.MILLISECONDS,
+			new ArrayBlockingQueue<Runnable>(10), new ThreadPoolExecutor.CallerRunsPolicy());
+
+	
 	/************************* providers **********************************/
 	
 	public static final Provider<ScheduledExecutorService>
