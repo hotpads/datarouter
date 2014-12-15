@@ -24,20 +24,20 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.util.http.client.json.JsonSerializer;
-import com.hotpads.util.http.client.request.HotPadsHttpRequest;
-import com.hotpads.util.http.client.response.HotPadsHttpResponse;
-import com.hotpads.util.http.client.response.HotPadsHttpResult;
-import com.hotpads.util.http.client.response.exception.HotPadsHttpConnectionAbortedException;
-import com.hotpads.util.http.client.response.exception.HotPadsHttpException;
-import com.hotpads.util.http.client.response.exception.HotPadsHttpRequestExecutionException;
-import com.hotpads.util.http.client.response.exception.HotPadsHttpRequestInterruptedException;
-import com.hotpads.util.http.client.response.exception.HotPadsHttpRequestTimeoutException;
-import com.hotpads.util.http.client.response.exception.HotPadsHttpRuntimeException;
-import com.hotpads.util.http.client.security.ApiKeyPredicate;
-import com.hotpads.util.http.client.security.CsrfValidator;
-import com.hotpads.util.http.client.security.SecurityParameters;
-import com.hotpads.util.http.client.security.SignatureValidator;
+import com.hotpads.util.http.json.JsonSerializer;
+import com.hotpads.util.http.request.HotPadsHttpRequest;
+import com.hotpads.util.http.response.HotPadsHttpResponse;
+import com.hotpads.util.http.response.HotPadsHttpResult;
+import com.hotpads.util.http.response.exception.HotPadsHttpConnectionAbortedException;
+import com.hotpads.util.http.response.exception.HotPadsHttpException;
+import com.hotpads.util.http.response.exception.HotPadsHttpRequestExecutionException;
+import com.hotpads.util.http.response.exception.HotPadsHttpRequestInterruptedException;
+import com.hotpads.util.http.response.exception.HotPadsHttpRequestTimeoutException;
+import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
+import com.hotpads.util.http.security.ApiKeyPredicate;
+import com.hotpads.util.http.security.CsrfValidator;
+import com.hotpads.util.http.security.SecurityParameters;
+import com.hotpads.util.http.security.SignatureValidator;
 
 @Singleton
 public class HotPadsHttpClient {

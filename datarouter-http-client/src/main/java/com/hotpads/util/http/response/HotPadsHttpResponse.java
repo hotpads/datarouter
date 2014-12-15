@@ -1,4 +1,4 @@
-package com.hotpads.util.http.client.response;
+package com.hotpads.util.http.response;
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.util.http.client.response.exception.HotPadsHttpException;
+import com.hotpads.util.http.response.exception.HotPadsHttpException;
 
 /**
  * This class is an abstraction over the HttpResponse that handles several of the expected HTTP failures

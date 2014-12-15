@@ -1,4 +1,4 @@
-package com.hotpads.util.http.client.json;
+package com.hotpads.util.http.json;
 
 import java.lang.reflect.Type;
 

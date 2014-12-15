@@ -10,11 +10,11 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 
-import com.hotpads.util.http.client.json.GsonJsonSerializer;
-import com.hotpads.util.http.client.json.JsonSerializer;
-import com.hotpads.util.http.client.security.CsrfValidator;
-import com.hotpads.util.http.client.security.DefaultApiKeyPredicate;
-import com.hotpads.util.http.client.security.SignatureValidator;
+import com.hotpads.util.http.json.GsonJsonSerializer;
+import com.hotpads.util.http.json.JsonSerializer;
+import com.hotpads.util.http.security.CsrfValidator;
+import com.hotpads.util.http.security.DefaultApiKeyPredicate;
+import com.hotpads.util.http.security.SignatureValidator;
 
 public class HotPadsHttpClientBuilder{
 	

@@ -1,4 +1,4 @@
-package com.hotpads.util.http.client.response.exception;
+package com.hotpads.util.http.response.exception;
 
 @SuppressWarnings("serial")
 public class HotPadsHttpRequestExecutionException extends HotPadsHttpException {

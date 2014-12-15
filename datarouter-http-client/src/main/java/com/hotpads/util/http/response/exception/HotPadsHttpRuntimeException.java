@@ -1,6 +1,6 @@
-package com.hotpads.util.http.client.response.exception;
+package com.hotpads.util.http.response.exception;
 
-import com.hotpads.util.http.client.response.HotPadsHttpResult;
+import com.hotpads.util.http.response.HotPadsHttpResult;
 
 @SuppressWarnings("serial")
 public class HotPadsHttpRuntimeException extends RuntimeException implements HotPadsHttpResult {
