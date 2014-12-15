@@ -1,10 +1,6 @@
 package com.hotpads.util.http.request;
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,45 +28,54 @@ import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 public class HotPadsHttpRequest {
 
 	private static final String CONTENT_TYPE = "Content-Type";
-	
-	private final HttpRequestBase request;
+
+	private final HttpRequestMethod method;
+	private final String path;
 	private String queryString;
 	private boolean retrySafe;
 	private Integer timeoutMs;
-	private Map<String,String> headers;
-	private Map<String,String> postParams;
-	
+	private HttpEntity entity;
+	private Map<String, String> headers;
+	private Map<String, String> postParams;
+
 	public enum HttpRequestMethod {
 		DELETE, GET, HEAD, PATCH, POST, PUT
 	}
-	
+
 	public HotPadsHttpRequest(HttpRequestMethod method, String url, boolean retrySafe) {
+		int queryIndex = url.indexOf("?");
 		String path, query;
-		try {
-			URL urlObj = new URL(url);
-			path = urlObj.getPath();
-			query = urlObj.getQuery();
-		} catch (MalformedURLException e) {
-			throw new HotPadsHttpRuntimeException(e);
+		if (queryIndex > 0) {
+			path = url.substring(0, queryIndex);
+			query = url.substring(queryIndex + 1);
+		} else {
+			path = url;
+			query = "";
 		}
-		this.request = setRequest(method, path);
+		this.method = method;
+		this.path = path;
 		this.queryString = query;
 		this.retrySafe = retrySafe;
 		this.headers = new HashMap<>();
 		this.postParams = new HashMap<>();
 	}
-	
+
 	public HttpRequestBase getRequest() {
-		if(queryString.length() != 0) {
-			try {
-				request.setURI(new URI(request.getURI().toString() + queryString));
-			} catch (URISyntaxException e) {}
+		String url = path + (queryString.isEmpty() ? "" : "?" + queryString);
+		HttpRequestBase request = getRequest(method, url);
+		if (!headers.isEmpty()) {
+			for (Map.Entry<String, String> header : headers.entrySet()) {
+				request.addHeader(header.getKey(), header.getValue());
+			}
+		}
+		if (entity != null && canHaveEntity()) {
+			((HttpEntityEnclosingRequest) request).setEntity(entity);
 		}
 		return request;
 	}
-	
-	private HttpRequestBase setRequest(HttpRequestMethod method, String url) {
-		switch(method) {
+
+	private HttpRequestBase getRequest(HttpRequestMethod method, String url) {
+		switch (method) {
 		case DELETE:
 			return new HttpDelete(url);
 		case GET:
@@ -87,131 +92,123 @@ public class HotPadsHttpRequest {
 			throw new IllegalArgumentException("invalid or null HttpMethod: " + method);
 		}
 	}
-	
+
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
 	public HttpEntity getEntity() {
-		if(!canHaveEntity()) {
-			return null;
-		}
-		HttpEntityEnclosingRequest requestEntity = (HttpEntityEnclosingRequest) request;
-		return requestEntity.getEntity();
+		return entity;
 	}
 
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
 	public HotPadsHttpRequest setEntity(String entity) {
 		try {
-			setEntity(new StringEntity(entity));
+			this.entity = new StringEntity(entity);
 		} catch (UnsupportedEncodingException e) {
 			throw new HotPadsHttpRuntimeException(e);
 		}
 		return this;
 	}
-	
+
 	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
 	public HotPadsHttpRequest setEntity(Map<String, String> entity) {
 		try {
-			setEntity(new UrlEncodedFormEntity(urlEncodeFromMap(entity)));
-		}catch (UnsupportedEncodingException e){
+			this.entity = new UrlEncodedFormEntity(urlEncodeFromMap(entity));
+		} catch (UnsupportedEncodingException e) {
 			throw new HotPadsHttpRuntimeException(e);
 		}
 		return this;
 	}
-	
-	public HotPadsHttpRequest setEntity(HttpEntity entity) {
-		if(entity != null && canHaveEntity()) {
-			HttpEntityEnclosingRequest requestEntity = (HttpEntityEnclosingRequest) request;
-			requestEntity.setEntity(entity);
-		}
-		return this;
-	}
-	
+
 	public HotPadsHttpRequest addHeaders(Map<String, String> headers) {
-		if(headers != null) {
-			for(Map.Entry<String,String> header : headers.entrySet()) {
-				request.addHeader(header.getKey(), header.getValue());
+		if (headers != null) {
+			for (Map.Entry<String, String> header : headers.entrySet()) {
+				headers.put(header.getKey(), header.getValue());
 			}
 		}
 		return this;
 	}
-	
+
 	public HotPadsHttpRequest setContentType(ContentType contentType) {
-		if(contentType != null) {
-			request.addHeader(CONTENT_TYPE, contentType.getMimeType());
+		if (contentType != null) {
+			headers.put(CONTENT_TYPE, contentType.getMimeType());
 		}
 		return this;
 	}
-	
+
 	public HotPadsHttpRequest addPostParams(HttpRequestConfig config) {
 		return config == null ? this : addPostParams(config.getParameterMap());
 	}
-	
-	public HotPadsHttpRequest addPostParams(Map<String,String> params) {
-		if(params != null && !params.isEmpty()) {
+
+	public HotPadsHttpRequest addPostParams(Map<String, String> params) {
+		if (params != null && !params.isEmpty()) {
 			this.postParams.putAll(params);
 		}
 		return this;
 	}
 
 	public boolean canHaveEntity() {
-		return this.request instanceof HttpEntityEnclosingRequest;
+		return method == HttpRequestMethod.PATCH || method == HttpRequestMethod.POST || method == HttpRequestMethod.PUT;
 	}
 
-	public HotPadsHttpRequest addGetParams(Map<String,String> params) {
-		if(params == null || params.isEmpty()) {
+	public HotPadsHttpRequest addGetParams(Map<String, String> params) {
+		if (params == null || params.isEmpty()) {
 			return this;
 		}
 		StringBuilder query = new StringBuilder(queryString);
-		for(Entry<String,String> param : params.entrySet()) {
+		for (Entry<String, String> param : params.entrySet()) {
 			String key = param.getKey();
-			if(key == null || key.trim().isEmpty()) {
+			if (key == null || key.trim().isEmpty()) {
 				continue;
 			}
-			query.append('&').append(key.trim()).append('=').append(param.getValue());
+			query.append('&').append(urlEncode(key.trim()));
+			String value = param.getValue();
+			if (value != null && !value.isEmpty()) {
+				query.append('=').append(urlEncode(param.getValue()));
+			}
 		}
-		this.queryString = query.length() == 0 ? query.toString() : '?' + query.substring(1);
+		this.queryString = query.substring(queryString.isEmpty() ? 1 : 0);
 		return this;
 	}
-	
-	private List<NameValuePair> urlEncodeFromMap(Map<String, String> data){
+
+	private List<NameValuePair> urlEncodeFromMap(Map<String, String> data) {
 		List<NameValuePair> params = new ArrayList<>();
-		if(data != null && !data.isEmpty()) {
-			for(Entry<String, String> entry : data.entrySet()){
+		if (data != null && !data.isEmpty()) {
+			for (Entry<String, String> entry : data.entrySet()) {
 				params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
 			}
 		}
 		return params;
 	}
-	
+
 	// from AdvancedStringTool
-	private String urlEncode(String unencoded){
+	private String urlEncode(String unencoded) {
 		try {
-			return unencoded == null ? "" : URLEncoder.encode(unencoded,"UTF-8");
+			return unencoded == null ? "" : URLEncoder.encode(unencoded, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			//unthinkable
-			throw new RuntimeException("UTF-8 is unsupported",e);
+			// unthinkable
+			throw new RuntimeException("UTF-8 is unsupported", e);
 		}
 	}
 
-	public Map<String,String> getHeaders() {
+	public Map<String, String> getHeaders() {
 		return headers;
 	}
-	
+
 	public String getQueryString() {
 		return queryString;
 	}
 
-	public Map<String,String> getPostParams() {
+	public Map<String, String> getPostParams() {
 		return postParams;
 	}
 
 	public boolean getRetrySafe() {
 		return retrySafe;
 	}
-	
+
 	public void setRetrySafe(boolean retrySafe) {
 		this.retrySafe = retrySafe;
 	}
-	
+
 	public Integer getTimeoutMs() {
 		return timeoutMs;
 	}
