@@ -5,8 +5,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,136 +27,149 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 
+import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
+
 public class HotPadsHttpRequest {
 
 	private static final String CONTENT_TYPE = "Content-Type";
-
-	private final HttpMethod method;
-	private final boolean retrySafe;
-	private URL url;
-	private Map<String,String> headers;
-	private Map<String,String> params;
-	private HttpEntity entity;
-	private Integer timeoutMs;
-	private String queryString;
 	
-	public HotPadsHttpRequest(HttpMethod method, String url, boolean retrySafe) {
+	private final HttpRequestBase request;
+	private String queryString;
+	private boolean retrySafe;
+	private Integer timeoutMs;
+	private Map<String,String> headers;
+	private Map<String,String> postParams;
+	
+	public enum HttpRequestMethod {
+		DELETE, GET, HEAD, PATCH, POST, PUT
+	}
+	
+	public HotPadsHttpRequest(HttpRequestMethod method, String url, boolean retrySafe) {
+		String path, query;
 		try {
-			this.url = new URL(url);
+			URL urlObj = new URL(url);
+			path = urlObj.getPath();
+			query = urlObj.getQuery();
 		} catch (MalformedURLException e) {
-			IllegalArgumentException ex = new IllegalArgumentException("invalid url: " + url);
-			ex.initCause(e);
-			throw ex;
+			throw new HotPadsHttpRuntimeException(e);
 		}
-		this.queryString = this.url.getQuery();
-		this.headers = new HashMap<>();
-		this.params = new HashMap<>();
-		this.method = method;
+		this.request = setRequest(method, path);
+		this.queryString = query;
 		this.retrySafe = retrySafe;
+		this.headers = new HashMap<>();
+		this.postParams = new HashMap<>();
 	}
 	
 	public HttpRequestBase getRequest() {
-		HttpRequestBase request = null;
-		String urlString = url.toString();
-		if (method == HttpMethod.DELETE) {
-			request = new HttpDelete(urlString);
-		} else if (method == HttpMethod.GET) {
-			request = new HttpGet(urlString);
-		} else if (method == HttpMethod.PATCH) {
-			request = new HttpPatch(urlString);
-		} else if (method == HttpMethod.POST) {
-			request = new HttpPost(urlString);
-		} else if (method == HttpMethod.PUT) {
-			request = new HttpPut(urlString);
-		} else if (method == HttpMethod.HEAD) {
-			request = new HttpHead(urlString);
-		}
-		if(request instanceof HttpEntityEnclosingRequest && entity != null) {
-			HttpEntityEnclosingRequest entityRequest = (HttpEntityEnclosingRequest) request;
-			entityRequest.setEntity(entity);
+		if(queryString.length() != 0) {
+			try {
+				request.setURI(new URI(request.getURI().toString() + queryString));
+			} catch (URISyntaxException e) {}
 		}
 		return request;
 	}
 	
-	public boolean getRetrySafe() {
-		return retrySafe;
+	private HttpRequestBase setRequest(HttpRequestMethod method, String url) {
+		switch(method) {
+		case DELETE:
+			return new HttpDelete(url);
+		case GET:
+			return new HttpGet(url);
+		case HEAD:
+			return new HttpHead(url);
+		case PATCH:
+			return new HttpPatch(url);
+		case POST:
+			return new HttpPost(url);
+		case PUT:
+			return new HttpPut(url);
+		default:
+			throw new IllegalArgumentException("invalid or null HttpMethod: " + method);
+		}
 	}
 	
-	/** Entity only in HttpPut, HttpPatch, HttpPost */
+	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
 	public HttpEntity getEntity() {
-		return entity;
+		if(!canHaveEntity()) {
+			return null;
+		}
+		HttpEntityEnclosingRequest requestEntity = (HttpEntityEnclosingRequest) request;
+		return requestEntity.getEntity();
 	}
 
-	/** Entity only in HttpPut, HttpPatch, HttpPost */
+	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
 	public HotPadsHttpRequest setEntity(String entity) {
 		try {
-			this.entity = new StringEntity(entity);
+			setEntity(new StringEntity(entity));
 		} catch (UnsupportedEncodingException e) {
-			throw new IllegalArgumentException(e);
+			throw new HotPadsHttpRuntimeException(e);
 		}
 		return this;
 	}
 	
-	/** Entity only in HttpPut, HttpPatch, HttpPost */
+	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
 	public HotPadsHttpRequest setEntity(Map<String, String> entity) {
 		try {
-			this.entity = new UrlEncodedFormEntity(urlEncodeFromMap(entity));
-		}catch (UnsupportedEncodingException e) {
-			throw new IllegalArgumentException(e);
+			setEntity(new UrlEncodedFormEntity(urlEncodeFromMap(entity)));
+		}catch (UnsupportedEncodingException e){
+			throw new HotPadsHttpRuntimeException(e);
 		}
 		return this;
 	}
-
-	public Map<String,String> getHeaders() {
-		return headers;
+	
+	public HotPadsHttpRequest setEntity(HttpEntity entity) {
+		if(entity != null && canHaveEntity()) {
+			HttpEntityEnclosingRequest requestEntity = (HttpEntityEnclosingRequest) request;
+			requestEntity.setEntity(entity);
+		}
+		return this;
 	}
 	
 	public HotPadsHttpRequest addHeaders(Map<String, String> headers) {
-		headers.putAll(headers);
+		if(headers != null) {
+			for(Map.Entry<String,String> header : headers.entrySet()) {
+				request.addHeader(header.getKey(), header.getValue());
+			}
+		}
 		return this;
 	}
 	
 	public HotPadsHttpRequest setContentType(ContentType contentType) {
 		if(contentType != null) {
-			addHeaders(Collections.singletonMap(CONTENT_TYPE, contentType.getMimeType()));
+			request.addHeader(CONTENT_TYPE, contentType.getMimeType());
 		}
 		return this;
 	}
-
-	public HotPadsHttpRequest addGetParams(Map<String, String> params) {
-		if (params == null || params.isEmpty()) {
-			return this;
-		}
-		StringBuilder queryString = new StringBuilder();
-		for (Entry<String, String> param : params.entrySet()) {
-			if(param == null) {
-				continue;
-			}
-			String key = param.getKey();
-			if (key == null || key.trim().isEmpty()) {
-				continue;
-			}
-			queryString.append('&').append(key.trim()).append('=').append(param.getValue());
-		}
-		String query = url.getQuery();
-		url ? queryString.toString() : '?' + queryString.substring(1);
-		hasQueryString = true;
-		return this;
-	}
-
+	
 	public HotPadsHttpRequest addPostParams(HttpRequestConfig config) {
 		return config == null ? this : addPostParams(config.getParameterMap());
 	}
 	
 	public HotPadsHttpRequest addPostParams(Map<String,String> params) {
 		if(params != null && !params.isEmpty()) {
-			this.params.putAll(params);
+			this.postParams.putAll(params);
 		}
 		return this;
 	}
-	
-	public Map<String,String> getPostParams() {
-		return params == null ? Collections.<String,String>emptyMap() : params;
+
+	public boolean canHaveEntity() {
+		return this.request instanceof HttpEntityEnclosingRequest;
+	}
+
+	public HotPadsHttpRequest addGetParams(Map<String,String> params) {
+		if(params == null || params.isEmpty()) {
+			return this;
+		}
+		StringBuilder query = new StringBuilder(queryString);
+		for(Entry<String,String> param : params.entrySet()) {
+			String key = param.getKey();
+			if(key == null || key.trim().isEmpty()) {
+				continue;
+			}
+			query.append('&').append(key.trim()).append('=').append(param.getValue());
+		}
+		this.queryString = query.length() == 0 ? query.toString() : '?' + query.substring(1);
+		return this;
 	}
 	
 	private List<NameValuePair> urlEncodeFromMap(Map<String, String> data){
@@ -168,7 +181,37 @@ public class HotPadsHttpRequest {
 		}
 		return params;
 	}
+	
+	// from AdvancedStringTool
+	private String urlEncode(String unencoded){
+		try {
+			return unencoded == null ? "" : URLEncoder.encode(unencoded,"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			//unthinkable
+			throw new RuntimeException("UTF-8 is unsupported",e);
+		}
+	}
 
+	public Map<String,String> getHeaders() {
+		return headers;
+	}
+	
+	public String getQueryString() {
+		return queryString;
+	}
+
+	public Map<String,String> getPostParams() {
+		return postParams;
+	}
+
+	public boolean getRetrySafe() {
+		return retrySafe;
+	}
+	
+	public void setRetrySafe(boolean retrySafe) {
+		this.retrySafe = retrySafe;
+	}
+	
 	public Integer getTimeoutMs() {
 		return timeoutMs;
 	}
