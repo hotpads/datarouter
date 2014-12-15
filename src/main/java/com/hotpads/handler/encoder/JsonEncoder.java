@@ -7,8 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.hotpads.util.http.client.json.GsonJsonSerializer;
-import com.hotpads.util.http.client.json.JsonSerializer;
+import com.hotpads.util.http.json.GsonJsonSerializer;
+import com.hotpads.util.http.json.JsonSerializer;
 
 public class JsonEncoder implements HandlerEncoder{
 

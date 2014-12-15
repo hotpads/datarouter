@@ -7,10 +7,10 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.util.http.client.security.ApiKeyPredicate;
-import com.hotpads.util.http.client.security.CsrfValidator;
-import com.hotpads.util.http.client.security.SecurityParameters;
-import com.hotpads.util.http.client.security.SignatureValidator;
+import com.hotpads.util.http.security.ApiKeyPredicate;
+import com.hotpads.util.http.security.CsrfValidator;
+import com.hotpads.util.http.security.SecurityParameters;
+import com.hotpads.util.http.security.SignatureValidator;
 
 public class DispatchRule{
 	
