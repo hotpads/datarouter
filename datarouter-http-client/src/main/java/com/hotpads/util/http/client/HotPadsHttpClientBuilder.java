@@ -32,12 +32,8 @@ public class HotPadsHttpClientBuilder{
 	private CsrfValidator csrfValidator;
 	private DefaultApiKeyPredicate apiKeyPredicate;
 	private HotPadsHttpClientConfig config;
-	
-	public HotPadsHttpClient createInstance(){
-		return this.create().build();
-	}
 
-	public HotPadsHttpClientBuilder create(){
+	public HotPadsHttpClientBuilder() {
 		retryHandler = new HotPadsRetryHandler();
 		timeoutMs = DEFAULT_TIMEOUT_MS;
 		maxTotalConnections = DEFAULT_MAX_TOTAL_CONNECTION;
@@ -46,7 +42,6 @@ public class HotPadsHttpClientBuilder{
 				.setRedirectStrategy(new LaxRedirectStrategy())
 				.setMaxConnPerRoute(MAX_CONNECTION_PER_ROUTE)
 				.setMaxConnTotal(DEFAULT_MAX_TOTAL_CONNECTION);
-		return this;
 	}
 	
 	public HotPadsHttpClient build(){
