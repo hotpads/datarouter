@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,11 +32,11 @@ public class HotPadsHttpRequest {
 
 	private final HttpRequestMethod method;
 	private final String path;
-	private String queryString;
 	private boolean retrySafe;
 	private Integer timeoutMs;
 	private HttpEntity entity;
 	private Map<String, String> headers;
+	private Map<String, String> queryParams;
 	private Map<String, String> postParams;
 
 	public enum HttpRequestMethod {
@@ -44,24 +45,39 @@ public class HotPadsHttpRequest {
 
 	public HotPadsHttpRequest(HttpRequestMethod method, String url, boolean retrySafe) {
 		int queryIndex = url.indexOf("?");
-		String path, query;
+		String path;
+		Map<String, String> queryParams;
 		if (queryIndex > 0) {
 			path = url.substring(0, queryIndex);
-			query = url.substring(queryIndex + 1);
+			queryParams = extractQueryParams(url.substring(queryIndex + 1));
 		} else {
 			path = url;
-			query = "";
+			queryParams = new LinkedHashMap<>();
 		}
 		this.method = method;
 		this.path = path;
-		this.queryString = query;
 		this.retrySafe = retrySafe;
 		this.headers = new HashMap<>();
+		this.queryParams = queryParams;
 		this.postParams = new HashMap<>();
 	}
 
+	public Map<String, String> extractQueryParams(String queryString) {
+		Map<String, String> queryParams = new LinkedHashMap<>();
+		String[] params = queryString.split("&");
+		for (String param : params) {
+			String[] parts = param.split("=");
+			if (parts.length == 1) {
+				queryParams.put(parts[0], null);
+			} else if (parts.length == 2) {
+				queryParams.put(parts[0], parts[1]);
+			}
+		}
+		return queryParams;
+	}
+
 	public HttpRequestBase getRequest() {
-		String url = path + (queryString.isEmpty() ? "" : "?" + queryString);
+		String url = path + (queryParams.isEmpty() ? "" : getQueryString());
 		HttpRequestBase request = getRequest(method, url);
 		if (!headers.isEmpty()) {
 			for (Map.Entry<String, String> header : headers.entrySet()) {
@@ -89,7 +105,7 @@ public class HotPadsHttpRequest {
 		case PUT:
 			return new HttpPut(url);
 		default:
-			throw new IllegalArgumentException("invalid or null HttpMethod: " + method);
+			throw new IllegalArgumentException("Invalid or null HttpMethod: " + method);
 		}
 	}
 
@@ -150,33 +166,16 @@ public class HotPadsHttpRequest {
 	}
 
 	public HotPadsHttpRequest addGetParams(Map<String, String> params) {
-		if (params == null || params.isEmpty()) {
-			return this;
-		}
-		StringBuilder query = new StringBuilder(queryString);
-		for (Entry<String, String> param : params.entrySet()) {
-			String key = param.getKey();
-			if (key == null || key.trim().isEmpty()) {
-				continue;
-			}
-			query.append('&').append(urlEncode(key.trim()));
-			String value = param.getValue();
-			if (value != null && !value.isEmpty()) {
-				query.append('=').append(urlEncode(param.getValue()));
+		if (params != null && !params.isEmpty()) {
+			for (Entry<String, String> param : params.entrySet()) {
+				String key = param.getKey();
+				if (key == null || key.trim().isEmpty()) {
+					continue;
+				}
+				queryParams.put(urlEncode(key.trim()), urlEncode(param.getValue()));
 			}
 		}
-		this.queryString = query.substring(queryString.isEmpty() ? 1 : 0);
 		return this;
-	}
-
-	private List<NameValuePair> urlEncodeFromMap(Map<String, String> data) {
-		List<NameValuePair> params = new ArrayList<>();
-		if (data != null && !data.isEmpty()) {
-			for (Entry<String, String> entry : data.entrySet()) {
-				params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
-			}
-		}
-		return params;
 	}
 
 	// from AdvancedStringTool
@@ -189,12 +188,30 @@ public class HotPadsHttpRequest {
 		}
 	}
 
-	public Map<String, String> getHeaders() {
-		return headers;
+	private String getQueryString() {
+		StringBuilder query = new StringBuilder();
+		for (Entry<String, String> param : queryParams.entrySet()) {
+			query.append('&').append(param.getKey());
+			String value = param.getValue();
+			if (value != null && !value.isEmpty()) {
+				query.append('=').append(param.getValue());
+			}
+		}
+		return "?" + query.substring(1);
 	}
 
-	public String getQueryString() {
-		return queryString;
+	private List<NameValuePair> urlEncodeFromMap(Map<String, String> data) {
+		List<NameValuePair> params = new ArrayList<>();
+		if (data != null && !data.isEmpty()) {
+			for (Entry<String, String> entry : data.entrySet()) {
+				params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+			}
+		}
+		return params;
+	}
+
+	public Map<String, String> getHeaders() {
+		return headers;
 	}
 
 	public Map<String, String> getPostParams() {
