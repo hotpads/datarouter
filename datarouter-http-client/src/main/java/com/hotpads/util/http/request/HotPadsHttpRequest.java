@@ -135,12 +135,7 @@ public class HotPadsHttpRequest {
 	}
 
 	public HotPadsHttpRequest addHeaders(Map<String, String> headers) {
-		if (headers != null) {
-			for (Map.Entry<String, String> header : headers.entrySet()) {
-				headers.put(header.getKey(), header.getValue());
-			}
-		}
-		return this;
+		return addEntriesToMap(this.headers, headers, false);
 	}
 
 	public HotPadsHttpRequest setContentType(ContentType contentType) {
@@ -155,10 +150,7 @@ public class HotPadsHttpRequest {
 	}
 
 	public HotPadsHttpRequest addPostParams(Map<String, String> params) {
-		if (params != null && !params.isEmpty()) {
-			this.postParams.putAll(params);
-		}
-		return this;
+		return addEntriesToMap(this.postParams, params, false);
 	}
 
 	public boolean canHaveEntity() {
@@ -166,13 +158,22 @@ public class HotPadsHttpRequest {
 	}
 
 	public HotPadsHttpRequest addGetParams(Map<String, String> params) {
-		if (params != null && !params.isEmpty()) {
-			for (Entry<String, String> param : params.entrySet()) {
-				String key = param.getKey();
+		return addEntriesToMap(this.queryParams, params, true);
+	}
+	
+	private HotPadsHttpRequest addEntriesToMap(Map<String, String> map, Map<String, String> entriesToAdd,
+			boolean urlEncode) {
+		if (entriesToAdd != null) {
+			for (Map.Entry<String, String> entry : entriesToAdd.entrySet()) {
+				String key = entry.getKey();
 				if (key == null || key.trim().isEmpty()) {
 					continue;
 				}
-				queryParams.put(urlEncode(key.trim()), urlEncode(param.getValue()));
+				if(urlEncode) {
+					map.put(urlEncode(key.trim()), urlEncode(entry.getValue()));
+				} else {
+					map.put(key.trim(), entry.getValue());
+				}
 			}
 		}
 		return this;
