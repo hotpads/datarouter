@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.util.http.json.JsonSerializer;
 import com.hotpads.util.http.request.HotPadsHttpRequest;
 import com.hotpads.util.http.response.HotPadsHttpResponse;
-import com.hotpads.util.http.response.HotPadsHttpResult;
 import com.hotpads.util.http.response.exception.HotPadsHttpConnectionAbortedException;
 import com.hotpads.util.http.response.exception.HotPadsHttpException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestExecutionException;
@@ -83,7 +82,8 @@ public class HotPadsHttpClient {
 	}
 
 	public <E> E executeChecked(HotPadsHttpRequest request, Type deserializeToType) throws HotPadsHttpException {
-		return jsonSerializer.deserialize(executeChecked(request).getEntity(), deserializeToType);
+		String entity = executeChecked(request).getEntity();
+		return jsonSerializer.deserialize(entity, deserializeToType);
 	}
 
 	public HotPadsHttpResponse executeChecked(HotPadsHttpRequest request) throws HotPadsHttpException {
@@ -108,30 +108,23 @@ public class HotPadsHttpClient {
 		HttpContext context = new BasicHttpContext();
 		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
 
-		HotPadsHttpResult result;
+		HotPadsHttpException ex;
 		try {
 			HttpRequestCallable callable = new HttpRequestCallable(httpClient, request.getRequest(), context);
 			HttpResponse httpResponse = executor.submit(callable).get(requestTimeoutMs, TimeUnit.MILLISECONDS);
-			result = new HotPadsHttpResponse(httpResponse);
+			return new HotPadsHttpResponse(httpResponse);
 		} catch (TimeoutException e) {
-			result = new HotPadsHttpRequestTimeoutException(e, request.getTimeoutMs());
+			ex = new HotPadsHttpRequestTimeoutException(e, request.getTimeoutMs());
 		} catch (CancellationException | InterruptedException e) {
-			result = new HotPadsHttpRequestInterruptedException(e);
+			ex = new HotPadsHttpRequestInterruptedException(e);
 		} catch (ExecutionException e) {
 			if (e.getCause() instanceof IOException) { // NOTE not always the case of an HTTP exception
-				result = new HotPadsHttpConnectionAbortedException(e);
+				ex = new HotPadsHttpConnectionAbortedException(e);
 			} else {
-				result = new HotPadsHttpRequestExecutionException(e);
+				ex = new HotPadsHttpRequestExecutionException(e);
 			}
 		}
-
-		if (result instanceof HotPadsHttpException) {
-			HotPadsHttpException ex = (HotPadsHttpException) result;
-			logger.debug(ex.getMessage()); // results in many logs
-			throw ex;
-		}
-		
-		return (HotPadsHttpResponse) result;
+		throw ex;
 	}
 
 	private class HttpRequestCallable implements Callable<HttpResponse> {

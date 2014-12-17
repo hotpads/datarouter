@@ -5,17 +5,13 @@ import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.hotpads.util.http.response.exception.HotPadsHttpException;
 
 /**
  * This class is an abstraction over the HttpResponse that handles several of the expected HTTP failures
  */
-public class HotPadsHttpResponse implements HotPadsHttpResult {
-	private static final Logger logger = LoggerFactory.getLogger(HotPadsHttpResponse.class);
-	
+public class HotPadsHttpResponse {
 	private int statusCode;
 	private String entity;
 	private HotPadsHttpException exception;
