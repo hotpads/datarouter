@@ -109,12 +109,13 @@ public class HotPadsHttpClient {
 		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
 
 		HotPadsHttpException ex;
+		int timeoutMs = request.getTimeoutMs() != null ? request.getTimeoutMs().intValue() : requestTimeoutMs;
 		try {
 			HttpRequestCallable callable = new HttpRequestCallable(httpClient, request.getRequest(), context);
-			HttpResponse httpResponse = executor.submit(callable).get(requestTimeoutMs, TimeUnit.MILLISECONDS);
+			HttpResponse httpResponse = executor.submit(callable).get(timeoutMs, TimeUnit.MILLISECONDS);
 			return new HotPadsHttpResponse(httpResponse);
 		} catch (TimeoutException e) {
-			ex = new HotPadsHttpRequestTimeoutException(e, request.getTimeoutMs());
+			ex = new HotPadsHttpRequestTimeoutException(e, timeoutMs);
 		} catch (CancellationException | InterruptedException e) {
 			ex = new HotPadsHttpRequestInterruptedException(e);
 		} catch (ExecutionException e) {

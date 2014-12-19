@@ -223,15 +223,12 @@ public class HotPadsHttpRequest {
 		return retrySafe;
 	}
 
-	public void setRetrySafe(boolean retrySafe) {
-		this.retrySafe = retrySafe;
-	}
-
 	public Integer getTimeoutMs() {
 		return timeoutMs;
 	}
 
-	public void setTimeoutMs(Integer timeoutMs) {
+	public HotPadsHttpRequest setTimeoutMs(Integer timeoutMs) {
 		this.timeoutMs = timeoutMs;
+		return this;
 	}
 }
