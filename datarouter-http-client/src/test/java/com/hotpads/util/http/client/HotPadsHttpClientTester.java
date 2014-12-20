@@ -1,6 +1,9 @@
 package com.hotpads.util.http.client;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -8,6 +11,7 @@ import org.junit.Test;
 
 import com.hotpads.util.http.request.HotPadsHttpRequest;
 import com.hotpads.util.http.request.HotPadsHttpRequest.HttpRequestMethod;
+import com.hotpads.util.http.response.HotPadsHttpResponse;
 import com.hotpads.util.http.response.exception.HotPadsHttpConnectionAbortedException;
 import com.hotpads.util.http.response.exception.HotPadsHttpException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestExecutionException;
@@ -22,6 +26,7 @@ public class HotPadsHttpClientTester {
 
 	private static final class ServSocket extends Thread {
 		private static ServerSocket server;
+		private static boolean done = false;
 
 		public void run() {
 			startServer();
@@ -31,15 +36,29 @@ public class HotPadsHttpClientTester {
 			System.out.println("opening socket on port " + PORT);
 			try {
 				server = new ServerSocket(PORT);
-				while(true) {
-					server.accept();
+				while (!done) {
+					try {
+						Socket s = server.accept();
+						String response = "Hello World";
+						PrintWriter out = new PrintWriter(s.getOutputStream());
+						out.println("HTTP/1.1 200 OK");
+						out.println("Content-Type: text/plain");
+						out.println("Content-Length: " + response.length());
+						out.println();
+						out.println(response);
+						out.flush();
+						s.close();
+					} catch (IOException e) {
+					}
 				}
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				e.printStackTrace();
+				System.exit(149);
 			}
 		}
 
 		public void stopServer() {
+			done = true;
 			System.out.println("closing socket");
 			try {
 				server.close();
@@ -124,8 +143,14 @@ public class HotPadsHttpClientTester {
 	
 	@Test
 	public void testSuccessfulRequest() throws HotPadsHttpException {
-		System.out.println("\nTEST - http request timeout");
-		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
-		client.executeChecked(request);
+		try {
+			System.out.println("\nTEST - successful request");
+			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
+			HotPadsHttpResponse response = client.executeChecked(request);
+			System.out.println(response.getEntity());
+		} catch (HotPadsHttpException e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 }
