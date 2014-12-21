@@ -23,6 +23,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.Args;
 
 import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 
@@ -44,6 +45,8 @@ public class HotPadsHttpRequest {
 	}
 
 	public HotPadsHttpRequest(HttpRequestMethod method, String url, boolean retrySafe) {
+		Args.notBlank(url, "request url");
+		Args.notNull(method, "http method");
 		int queryIndex = url.indexOf("?");
 		String path;
 		Map<String, String> queryParams;
