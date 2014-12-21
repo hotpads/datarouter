@@ -23,7 +23,6 @@ import com.hotpads.util.http.response.exception.HotPadsHttpRequestTimeoutExcepti
 import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 
 public class HotPadsHttpClientTester {
-
 	private static final int PORT = 9091;
 	private static final String URL = "http://localhost:" + PORT + "/";
 	private static final HotPadsHttpClient CLIENT = new HotPadsHttpClientBuilder().build();
@@ -54,7 +53,7 @@ public class HotPadsHttpClientTester {
 					accept();
 					sleep(100);
 				} catch (IOException | InterruptedException e) {
-					System.out.println("PROBLEM " + e.getMessage());
+					System.out.println("PROBLEM: " + e.getMessage());
 				}
 			}
 		}
@@ -101,68 +100,57 @@ public class HotPadsHttpClientTester {
 		SERVER.stopServer();
 	}
 
-	@Test(expected = HotPadsHttpRequestExecutionException.class)
-	public void testCheckedException() throws HotPadsHttpException {
-		System.out.println("\nTEST - checked exception - requesting invalid location");
-		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, "invalidLocation", false);
-		executeRequest(request, true);
-	}
-
 	@Test(expected = HotPadsHttpRuntimeException.class)
 	public void testUncheckedException() throws HotPadsHttpException {
-		System.out.println("\nTEST - unchecked exception - requesting invalid location");
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, "invalidLocation", false);
-		executeRequest(request, false);
+		executeRequest("unchecked exception - requesting invalid location", request, false);
 	}
 
 	@Test(expected = HotPadsHttpRequestExecutionException.class)
-	public void testEmptyHostCheckedException() throws HotPadsHttpException {
-		System.out.println("\nTEST - unchecked exception from checked call - requesting empty host");
-		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.POST, "", false);
-		executeRequest(request, true);
+	public void testExecutionException() throws HotPadsHttpException {
+		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.POST, "invalidLocation", false);
+		executeRequest("unchecked exception from checked call - request invalid location", request, true);
 	}
 
 	@Test(expected = HotPadsHttpRequestTimeoutException.class)
 	public void testRequestTimeoutException() throws HotPadsHttpException {
-		System.out.println("\nTEST - http request timeout");
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false).setTimeoutMs(0);
-		executeRequest(request, true);
+		executeRequest("http request timeout", request, true);
 	}
 
 	@Test(expected = HotPadsHttpConnectionAbortedException.class)
 	public void testHttpConnectionAbortedException() throws HotPadsHttpException {
-		System.out.println("\nTEST - connection aborted exception - invalid host URI");
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, "localhost:" + PORT, false);
-		executeRequest(request, true);
+		executeRequest("connection aborted exception - invalid host URI", request, true);
 	}
 
 	@Test(expected = HotPadsHttpConnectionAbortedException.class)
 	public void testInvalidRequestHeader() throws HotPadsHttpException {
-		System.out.println("\nTEST - connection aborted exception - invalid headers");
 		SERVER.setResponse(301, "the 301 status code will throw an exception when not provided a location header");
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
-		executeRequest(request, true);
+		executeRequest("connection aborted exception - invalid headers", request, true);
 	}
 
 	@Test
 	public void testSuccessfulRequest() throws HotPadsHttpException {
-		System.out.println("\nTEST - successful request");
-
 		int status = STATI[new Random().nextInt(STATI.length)];
 		String response = UUID.randomUUID().toString();
 		SERVER.setResponse(status, response);
 
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
-		HotPadsHttpResponse httpResponse = executeRequest(request, true);
-		System.out.println(httpResponse.getStatusCode() + " " + httpResponse.getEntity());
+		HotPadsHttpResponse httpResponse = executeRequest("TEST - successful request", request, true);
+		System.out.println("status " + httpResponse.getStatusCode());
+		System.out.println("entity " + httpResponse.getEntity());
 		Assert.assertEquals(response, httpResponse.getEntity());
 		Assert.assertEquals(status, httpResponse.getStatusCode());
 	}
 
-	private HotPadsHttpResponse executeRequest(HotPadsHttpRequest request, boolean checked) throws HotPadsHttpException {
+	private HotPadsHttpResponse executeRequest(String message, HotPadsHttpRequest request, boolean checked)
+			throws HotPadsHttpException {
+		System.out.println("\n" + message);
 		try {
 			return checked ? CLIENT.executeChecked(request) : CLIENT.execute(request);
-		} catch (HotPadsHttpException e) {
+		} catch (HotPadsHttpException | HotPadsHttpRuntimeException e) {
 			e.printStackTrace();
 			throw e;
 		}
