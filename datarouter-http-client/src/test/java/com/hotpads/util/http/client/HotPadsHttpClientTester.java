@@ -153,6 +153,14 @@ public class HotPadsHttpClientTester {
 	}
 
 	@Test
+	public void testClientCsrfValidator() throws HotPadsHttpException {
+		String cipherKey = "kirg king kind " + UUID.randomUUID().toString();
+		String cipherIv = "cipher I V " + UUID.randomUUID().toString();
+		CsrfValidator csrfValidator = new CsrfValidator(cipherKey, cipherIv);
+		HotPadsHttpClient client = new HotPadsHttpClientBuilder().setCsrfValidator(csrfValidator).build();
+	}
+
+	@Test
 	public void testClientSignatureValidator() throws HotPadsHttpException {
 		String salt = "some super secure salty salt " + UUID.randomUUID().toString();
 		SignatureValidator signatureValidator = new SignatureValidator(salt);
@@ -164,8 +172,6 @@ public class HotPadsHttpClientTester {
 		params.put("1", UUID.randomUUID().toString());
 		params.put("2", Integer.toString(RANDOM.nextInt()));
 		params.put("3", "Everything is awesome! Everything is cool when you're part of a team!");
-		params.put("4", "$*&^)}\r\n\\\t~\" drop table User");
-		params.put("5", Base64.encodeBase64String(signatureValidator.sign(params)));
 
 		int status = STATI[RANDOM.nextInt(STATI.length)];
 		String expectedResponse = Arrays.toString(params.entrySet().toArray());
@@ -177,6 +183,20 @@ public class HotPadsHttpClientTester {
 		Assert.assertEquals(expectedResponse, response.getEntity());
 		Assert.assertEquals(params.size(), request.getPostParams().size());
 
+		// POST request with no entity or params cannot be signed
+		request = new HotPadsHttpRequest(HttpRequestMethod.POST, URL, false);
+		response = executeRequest(client, "signature validator with POST request, no entity or params", request, true);
+		Assert.assertEquals(expectedResponse, response.getEntity());
+		Assert.assertEquals(0, request.getPostParams().size());
+
+		// POST request already with an entity cannot be signed, even with params
+		request = new HotPadsHttpRequest(HttpRequestMethod.POST, URL, false).setEntity(params).addPostParams(params);
+		response = executeRequest(client, "signature validator with POST request, contains entity", request, true);
+		Assert.assertEquals(expectedResponse, response.getEntity());
+		Assert.assertEquals(params.size(), request.getPostParams().size());
+		Assert.assertNull(request.getPostParams().get(SecurityParameters.SIGNATURE));
+
+		// POST request is signed with entity from post params
 		request = new HotPadsHttpRequest(HttpRequestMethod.POST, URL, false).addPostParams(params);
 		response = executeRequest(client, "signature validator with POST request", request, true);
 
@@ -187,14 +207,6 @@ public class HotPadsHttpClientTester {
 		Assert.assertEquals(params.size() + 1, postParams.size());
 		Assert.assertNotNull(signature);
 		Assert.assertEquals(expectedSignature, signature);
-	}
-
-	@Test
-	public void testClientCsrfValidator() throws HotPadsHttpException {
-		String cipherKey = "cipherKey";
-		String cipherIv = "cipherIv";
-		CsrfValidator csrfValidator = new CsrfValidator(cipherKey, cipherIv);
-		HotPadsHttpClient client = new HotPadsHttpClientBuilder().setCsrfValidator(csrfValidator).build();
 	}
 
 	@Test
