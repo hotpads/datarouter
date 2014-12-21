@@ -170,4 +170,17 @@ public class HotPadsHttpRequestTests {
 		Assert.assertEquals(2, request.getHeaders().size());
 		Assert.assertEquals(2, request.getRequest().getAllHeaders().length);
 	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testNullMethod() {
+		new HotPadsHttpRequest(null, "http://kittens.hotpads.com", false);
+	}
+	@Test(expected = IllegalArgumentException.class)
+	public void testNullUrl() {
+		new HotPadsHttpRequest(HttpRequestMethod.HEAD, null, false);
+	}
+	@Test(expected = IllegalArgumentException.class)
+	public void testEmptyUrl() {
+		new HotPadsHttpRequest(HttpRequestMethod.HEAD, "", false);
+	}
 }
