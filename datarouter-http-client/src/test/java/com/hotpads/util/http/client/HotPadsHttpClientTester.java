@@ -145,7 +145,7 @@ public class HotPadsHttpClientTester {
 		String expectedResponse = UUID.randomUUID().toString();
 		SERVER.setResponse(status, expectedResponse);
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
-		HotPadsHttpResponse response = executeRequest(CLIENT, "successful request", request, true);
+		HotPadsHttpResponse response = executeRequest(CLIENT, "successful GET request", request, true);
 		Assert.assertEquals(expectedResponse, response.getEntity());
 		Assert.assertEquals(status, response.getStatusCode());
 	}
@@ -159,20 +159,22 @@ public class HotPadsHttpClientTester {
 		SignatureValidator signatureValidator = new SignatureValidator(salt);
 		CsrfValidator csrfValidator = new CsrfValidator(cipherKey, cipherIv);
 		DefaultApiKeyPredicate apiKeyPredicate = new DefaultApiKeyPredicate(apiKey);
-
-		HotPadsHttpClient client = new HotPadsHttpClientBuilder().setSignatureValidator(signatureValidator)
-				.setCsrfValidator(csrfValidator).setApiKeyPredicate(apiKeyPredicate).build();
+		
+		HotPadsHttpClient client;
 		HotPadsHttpRequest request;
 		HotPadsHttpResponse response;
 		Map<String, String> postParams;
+		
+		client = new HotPadsHttpClientBuilder().setSignatureValidator(signatureValidator)
+				.setCsrfValidator(csrfValidator).setApiKeyPredicate(apiKeyPredicate).build();
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("1", UUID.randomUUID().toString());
 		params.put("2", Integer.toString(RANDOM.nextInt()));
 		params.put("3", "Everything is awesome! Everything is cool when you're part of a team!");
-
-		int status = STATUSES[RANDOM.nextInt(STATUSES.length)];
+		
 		String expectedResponse = Arrays.toString(params.entrySet().toArray());
+		int status = STATUSES[RANDOM.nextInt(STATUSES.length)];
 		SERVER.setResponse(status, expectedResponse);
 
 		// GET request cannot be signed
@@ -185,7 +187,7 @@ public class HotPadsHttpClientTester {
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		// POST request with no entity or params cannot be signed
+		// entity enclosing request with no entity or params cannot be signed
 		request = new HotPadsHttpRequest(HttpRequestMethod.POST, URL, false);
 		response = executeRequest(client, "signature validator with POST request, no entity or params", request, true);
 		postParams = request.getPostParams();
@@ -195,9 +197,9 @@ public class HotPadsHttpClientTester {
 		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		// POST request already with an entity cannot be signed, even with params
-		request = new HotPadsHttpRequest(HttpRequestMethod.POST, URL, false).setEntity(params).addPostParams(params);
-		response = executeRequest(client, "signature validator with POST request, contains entity", request, true);
+		// entity enclosing request already with an entity cannot be signed, even with params
+		request = new HotPadsHttpRequest(HttpRequestMethod.PATCH, URL, false).setEntity(params).addPostParams(params);
+		response = executeRequest(client, "signature validator with PATCH request, contains entity", request, true);
 		postParams = request.getPostParams();
 		Assert.assertEquals(expectedResponse, response.getEntity());
 		Assert.assertEquals(3, postParams.size());
@@ -205,7 +207,7 @@ public class HotPadsHttpClientTester {
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		// POST request is signed with entity from post params
+		// entity enclosing request is signed with entity from post params
 		request = new HotPadsHttpRequest(HttpRequestMethod.POST, URL, false).addPostParams(params);
 		response = executeRequest(client, "signature validator with POST request", request, true);
 		postParams = request.getPostParams();
@@ -214,11 +216,29 @@ public class HotPadsHttpClientTester {
 		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_TOKEN));
 		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
-	}
 
-	@Test
-	public void testSecurityValidator() throws HotPadsHttpException {
-
+		// test equivalence classes
+		client = new HotPadsHttpClientBuilder().setCsrfValidator(csrfValidator).build();
+		
+		request = new HotPadsHttpRequest(HttpRequestMethod.PUT, URL, false).addPostParams(params);
+		response = executeRequest(client, "PUT request with only CSRF validator", request, true);
+		postParams = request.getPostParams();
+		Assert.assertEquals(expectedResponse, response.getEntity());
+		Assert.assertEquals(params.size() + 1, postParams.size());
+		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_TOKEN));
+		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
+		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
+		
+		client = new HotPadsHttpClientBuilder().setApiKeyPredicate(apiKeyPredicate).build();
+		
+		request = new HotPadsHttpRequest(HttpRequestMethod.PATCH, URL, false).addPostParams(params);
+		response = executeRequest(client, "PATCH request with only API key predicate", request, true);
+		postParams = request.getPostParams();
+		Assert.assertEquals(expectedResponse, response.getEntity());
+		Assert.assertEquals(params.size() + 1, postParams.size());
+		Assert.assertNull(postParams.get(SecurityParameters.CSRF_TOKEN));
+		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
+		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 	}
 
 	private HotPadsHttpResponse executeRequest(HotPadsHttpClient client, String message, HotPadsHttpRequest request,
