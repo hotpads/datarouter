@@ -95,8 +95,8 @@ public class HotPadsHttpClient {
 			if (apiKeyPredicate != null) {
 				params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
 			}
-			request.addPostParams(params);
-			if (signatureValidator != null) {
+			params = request.addPostParams(params).getPostParams();
+			if (signatureValidator != null && !params.isEmpty()) {
 				byte[] signature = signatureValidator.sign(request.getPostParams());
 				Map<String, String> signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE,
 						Base64.encodeBase64String(signature));
