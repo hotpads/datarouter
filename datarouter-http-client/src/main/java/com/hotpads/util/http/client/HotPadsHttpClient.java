@@ -13,7 +13,6 @@ import java.util.concurrent.TimeoutException;
 
 import javax.inject.Singleton;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.ProtocolVersion;
@@ -67,9 +66,8 @@ public class HotPadsHttpClient {
 			}
 			request.addPostParams(params);
 			if (signatureValidator != null) {
-				byte[] signature = signatureValidator.sign(request.getPostParams());
-				Map<String, String> signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE,
-						Base64.encodeBase64String(signature));
+				String signature = signatureValidator.getHexSignature(request.getPostParams());
+				Map<String, String> signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
 				request.addPostParams(signatureParam);
 			}
 			request.setEntity(request.getPostParams());

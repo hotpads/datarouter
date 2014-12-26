@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
 
 public class SignatureValidator{
 	
@@ -19,17 +20,19 @@ public class SignatureValidator{
 		this.salt = salt;
 	}
 
-	public boolean check(Map<String, String> map){
-		return checkBase64Signature(map, map.get(SecurityParameters.SIGNATURE));
+	public boolean checkHexSignature(Map<String,String> params, String candidateSignature){
+		return getHexSignature(params).equals(candidateSignature);
 	}
+	
+	public boolean checkHexSignatureMulti(Map<String,String[]> params, String candidateSignature){
+		return checkHexSignature(multiToSingle(params), candidateSignature);
+	}
+	
+	@Deprecated
 	public boolean checkBase64Signature(Map<String, String> map, String candidateString){
 		byte[] signature = sign(map);
 		byte[] candidate = Base64.decodeBase64(candidateString);
 		return Arrays.equals(candidate, signature);
-	}
-
-	public boolean checkMulti(Map<String, String[]> map){
-		return check(multiToSingle(map));
 	}
 	
 	public byte[] sign(Map<String, String> map){
@@ -38,7 +41,7 @@ public class SignatureValidator{
 		try{
 			md = MessageDigest.getInstance(HASHING_ALGORITHM);
 		}catch (NoSuchAlgorithmException e){
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		for(String parameterName : map.keySet()){
 			if(parameterName.equals(SecurityParameters.SIGNATURE) || parameterName.equals("submitAction")){
@@ -53,9 +56,9 @@ public class SignatureValidator{
 		}
 		return signature.toByteArray();
 	}
-
-	public String getBase64Signature(Map<String,String> map){
-		return Base64.encodeBase64String(sign(map));
+	
+	public String getHexSignature(Map<String,String> params){
+		return Hex.encodeHexString(sign(params));
 	}
 
 	public byte[] signMulti(Map<String, String[]> data){
