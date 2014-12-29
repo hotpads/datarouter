@@ -29,7 +29,7 @@ import com.hotpads.util.http.security.DefaultApiKeyPredicate;
 import com.hotpads.util.http.security.SecurityParameters;
 import com.hotpads.util.http.security.SignatureValidator;
 
-public class HotPadsHttpClientTester {
+public class HotPadsHttpClientTests {
 	private static final int PORT = 9091;
 	private static final String URL = "http://localhost:" + PORT + "/";
 	private static final int[] STATUSES = new int[] { 200, 403, 404, 408, 500, 503 };
