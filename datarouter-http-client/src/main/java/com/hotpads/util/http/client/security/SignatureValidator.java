@@ -36,7 +36,7 @@ public class SignatureValidator{
 	}
 	
 	public byte[] sign(Map<String, String> map){
-		ByteArrayOutputStream signature = new ByteArrayOutputStream();;
+		ByteArrayOutputStream signature = new ByteArrayOutputStream();
 		MessageDigest md = null;
 		try{
 			md = MessageDigest.getInstance(HASHING_ALGORITHM);
@@ -51,7 +51,7 @@ public class SignatureValidator{
 				md.update(parameterName.concat(map.get(parameterName)).concat(salt).getBytes("UTF-8"));
 				signature.write(md.digest());
 			}catch (Exception e){
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			} 
 		}
 		return signature.toByteArray();
