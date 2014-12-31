@@ -95,7 +95,9 @@ public class DispatchRule{
 	}
 	
 	private boolean checkSignature(HttpServletRequest request){
-		boolean result = signatureValidator == null || signatureValidator.checkMulti(request.getParameterMap());
+		String signature =  request.getParameter(SecurityParameters.SIGNATURE);
+		boolean result = signatureValidator == null 
+				|| signatureValidator.checkHexSignatureMulti(request.getParameterMap(), signature);
 		if(!result)
 			logger.warn("Signature validation failed");
 		return result;

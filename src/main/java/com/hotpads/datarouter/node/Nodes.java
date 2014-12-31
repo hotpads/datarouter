@@ -29,8 +29,18 @@ import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
+/**
+ * Nodes is a registry of all Nodes in a DatarouterContext. It ensures that no two nodes try to share the same name. It
+ * can be used by Datarouter management features like a web page to browse all nodes in the system.
+ * 
+ * @author mcorgan
+ * 
+ * @param <PK>
+ * @param <D>
+ * @param <N>
+ */
 public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>>{
-	static Logger logger = LoggerFactory.getLogger(Nodes.class);
+	private static final Logger logger = LoggerFactory.getLogger(Nodes.class);
 	
 	
 	/************************ fields *******************************/

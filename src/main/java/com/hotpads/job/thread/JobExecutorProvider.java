@@ -21,6 +21,6 @@ public class JobExecutorProvider implements Provider<ScheduledExecutorService>{
 	
     @Override
     public ScheduledExecutorService get() {
-    	return JobExecutors.jobExecutor;
+    	return DatarouterExecutors.datarouterJobExecutor;
     }
 }
