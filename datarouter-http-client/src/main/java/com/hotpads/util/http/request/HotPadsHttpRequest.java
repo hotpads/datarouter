@@ -45,19 +45,27 @@ public class HotPadsHttpRequest {
 		DELETE, GET, HEAD, PATCH, POST, PUT
 	}
 
-	public HotPadsHttpRequest(HttpRequestMethod method, String url, boolean retrySafe) {
+	/**
+	 * Expects query string parameters to already be UTF-8 encoded. See AdvancedStringTool.makeUrlParameters().
+	 * URL fragment is stripped from URL when sent to server.
+	 * 
+	 * @param queryString
+	 * @return
+	 */
+	public HotPadsHttpRequest(HttpRequestMethod method, final String url, boolean retrySafe) {
 		Args.notBlank(url, "request url");
 		Args.notNull(method, "http method");
-		
-		int fragmentIndex = url.lastIndexOf('#');
-		if(fragmentIndex > 0 && fragmentIndex < url.length() - 1) {
-			this.fragment = url.substring(fragmentIndex);
+
+		String fragment;
+		int fragmentIndex = url.indexOf('#');
+		if (fragmentIndex > 0 && fragmentIndex < url.length() - 1) {
+			fragment = url.substring(fragmentIndex + 1);
 		} else {
 			fragmentIndex = url.length();
-			this.fragment = "";
+			fragment = "";
 		}
 		String path = url.substring(0, fragmentIndex);
-		
+
 		Map<String, String> queryParams;
 		int queryIndex = path.indexOf("?");
 		if (queryIndex > 0) {
@@ -69,6 +77,7 @@ public class HotPadsHttpRequest {
 		this.method = method;
 		this.path = path;
 		this.retrySafe = retrySafe;
+		this.fragment = fragment;
 		this.headers = new HashMap<>();
 		this.queryParams = queryParams;
 		this.postParams = new HashMap<>();
@@ -104,7 +113,11 @@ public class HotPadsHttpRequest {
 	}
 
 	public String getUrl() {
-		return path + (queryParams.isEmpty() ? "" : getQueryString()) + fragment;
+		return path + (queryParams.isEmpty() ? "" : getQueryString());
+	}
+
+	public String getUrlFragment() {
+		return fragment;
 	}
 
 	private HttpRequestBase getRequest(HttpRequestMethod method, String url) {
@@ -174,18 +187,25 @@ public class HotPadsHttpRequest {
 		return method == HttpRequestMethod.PATCH || method == HttpRequestMethod.POST || method == HttpRequestMethod.PUT;
 	}
 
+	/**
+	 * This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution.
+	 * 
+	 * @param params
+	 *            unencoded URL parameters
+	 */
 	public HotPadsHttpRequest addGetParams(Map<String, String> params) {
 		return addEntriesToMap(this.queryParams, params, true);
 	}
-	
-	private HotPadsHttpRequest addEntriesToMap(Map<String, String> map, Map<String, String> entriesToAdd, boolean urlEncode) {
+
+	private HotPadsHttpRequest addEntriesToMap(Map<String, String> map, Map<String, String> entriesToAdd,
+			boolean urlEncode) {
 		if (entriesToAdd != null) {
 			for (Map.Entry<String, String> entry : entriesToAdd.entrySet()) {
 				String key = entry.getKey();
 				if (key == null || key.trim().isEmpty()) {
 					continue;
 				}
-				if(urlEncode) {
+				if (urlEncode) {
 					map.put(urlEncode(key.trim()), urlEncode(entry.getValue()));
 				} else {
 					map.put(key.trim(), entry.getValue());
@@ -209,7 +229,7 @@ public class HotPadsHttpRequest {
 		StringBuilder query = new StringBuilder();
 		for (Entry<String, String> param : queryParams.entrySet()) {
 			String key = param.getKey();
-			if(key == null || key.trim().isEmpty()) {
+			if (key == null || key.trim().isEmpty()) {
 				continue;
 			}
 			query.append('&').append(key.trim());

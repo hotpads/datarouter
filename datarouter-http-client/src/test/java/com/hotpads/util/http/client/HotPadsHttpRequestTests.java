@@ -105,11 +105,13 @@ public class HotPadsHttpRequestTests {
 		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, url, true).getUrl());
 		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getUrl());
 		
-		expected = "kitty?blah=blah%3F#something++";
-		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getUrl());
+		url = "kitty?blah=blah%3F#something++";
+		expected = "kitty?blah=blah%3F";
+		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, url, true).getUrl());
 		
-		expected = "kitty:2020#?nothing&blah=blah?#something++";
-		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getUrl());
+		url = "kitty:2020#?nothing&blah=blah?#something++";
+		expected = "kitty:2020";
+		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, url, true).getUrl());
 		
 		params = Collections.singletonMap("q", "SELECT pikachu,megaman,sonic, fifa from some.Names where thing=true");
 		url = "lolcat";
@@ -117,6 +119,24 @@ public class HotPadsHttpRequestTests {
 		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, url, true).addGetParams(params)
 				.getUrl());
 		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getUrl());
+	}
+	
+	@Test
+	public void testGetUrlFragment() {
+		String url;
+		HotPadsHttpRequest request;
+		
+		url = "blah?something#thing";
+		request = new HotPadsHttpRequest(HttpRequestMethod.GET, url, true);
+		Assert.assertEquals("thing", request.getUrlFragment());
+
+		url = "blah?#something#thing";
+		request = new HotPadsHttpRequest(HttpRequestMethod.GET, url, true);
+		Assert.assertEquals("something#thing", request.getUrlFragment());
+
+		url = "blah#?something#thing";
+		request = new HotPadsHttpRequest(HttpRequestMethod.GET, url, true);
+		Assert.assertEquals("?something#thing", request.getUrlFragment());
 	}
 	
 	@Test
