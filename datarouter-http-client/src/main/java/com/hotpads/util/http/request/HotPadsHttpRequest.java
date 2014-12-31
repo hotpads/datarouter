@@ -1,6 +1,7 @@
 package com.hotpads.util.http.request;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,9 +49,6 @@ public class HotPadsHttpRequest {
 	/**
 	 * Expects query string parameters to already be UTF-8 encoded. See AdvancedStringTool.makeUrlParameters().
 	 * URL fragment is stripped from URL when sent to server.
-	 * 
-	 * @param queryString
-	 * @return
 	 */
 	public HotPadsHttpRequest(HttpRequestMethod method, final String url, boolean retrySafe) {
 		Args.notBlank(url, "request url");
@@ -88,11 +86,11 @@ public class HotPadsHttpRequest {
 		String[] params = queryString.split("&");
 		for (String param : params) {
 			String[] parts = param.split("=", 2);
-			String part = parts[0];
+			String part = urlDecode(parts[0]);
 			if (parts.length == 1) {
 				queryParams.put(part, null);
 			} else if (parts.length == 2) {
-				queryParams.put(part, parts[1]);
+				queryParams.put(part, urlDecode(parts[1]));
 			}
 		}
 		return queryParams;
@@ -165,7 +163,7 @@ public class HotPadsHttpRequest {
 	}
 
 	public HotPadsHttpRequest addHeaders(Map<String, String> headers) {
-		return addEntriesToMap(this.headers, headers, false);
+		return addEntriesToMap(this.headers, headers);
 	}
 
 	public HotPadsHttpRequest setContentType(ContentType contentType) {
@@ -175,41 +173,34 @@ public class HotPadsHttpRequest {
 		return this;
 	}
 
+	/** Post params are signed anded to the entity upon request execution. */
 	public HotPadsHttpRequest addPostParams(HttpRequestConfig config) {
 		return config == null ? this : addPostParams(config.getParameterMap());
 	}
 
+	/** Post params are signed anded to the entity upon request execution. */
 	public HotPadsHttpRequest addPostParams(Map<String, String> params) {
-		return addEntriesToMap(this.postParams, params, false);
+		return addEntriesToMap(this.postParams, params);
 	}
 
+	/** Entities only exist in HttpPut, HttpPatch, HttpPost */
 	public boolean canHaveEntity() {
 		return method == HttpRequestMethod.PATCH || method == HttpRequestMethod.POST || method == HttpRequestMethod.PUT;
 	}
 
-	/**
-	 * This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution.
-	 * 
-	 * @param params
-	 *            unencoded URL parameters
-	 */
+	/** This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution. */
 	public HotPadsHttpRequest addGetParams(Map<String, String> params) {
-		return addEntriesToMap(this.queryParams, params, true);
+		return addEntriesToMap(this.queryParams, params);
 	}
 
-	private HotPadsHttpRequest addEntriesToMap(Map<String, String> map, Map<String, String> entriesToAdd,
-			boolean urlEncode) {
+	private HotPadsHttpRequest addEntriesToMap(Map<String, String> map, Map<String, String> entriesToAdd) {
 		if (entriesToAdd != null) {
 			for (Map.Entry<String, String> entry : entriesToAdd.entrySet()) {
 				String key = entry.getKey();
 				if (key == null || key.trim().isEmpty()) {
 					continue;
 				}
-				if (urlEncode) {
-					map.put(urlEncode(key.trim()), urlEncode(entry.getValue()));
-				} else {
-					map.put(key.trim(), entry.getValue());
-				}
+				map.put(key.trim(), entry.getValue());
 			}
 		}
 		return this;
@@ -225,6 +216,15 @@ public class HotPadsHttpRequest {
 		}
 	}
 
+	private String urlDecode(String encoded) {
+		try {
+			return encoded == null ? "" : URLDecoder.decode(encoded, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// unthinkable
+			throw new RuntimeException("UTF-8 is unsupported", e);
+		}
+	}
+
 	private String getQueryString() {
 		StringBuilder query = new StringBuilder();
 		for (Entry<String, String> param : queryParams.entrySet()) {
@@ -232,10 +232,10 @@ public class HotPadsHttpRequest {
 			if (key == null || key.trim().isEmpty()) {
 				continue;
 			}
-			query.append('&').append(key.trim());
+			query.append('&').append(urlEncode(key.trim()));
 			String value = param.getValue();
 			if (value != null && !value.isEmpty()) {
-				query.append('=').append(value);
+				query.append('=').append(urlEncode(value));
 			}
 		}
 		return "?" + query.substring(1);
@@ -253,6 +253,10 @@ public class HotPadsHttpRequest {
 
 	public Map<String, String> getHeaders() {
 		return headers;
+	}
+
+	public Map<String, String> getGetParams() {
+		return queryParams;
 	}
 
 	public Map<String, String> getPostParams() {
