@@ -58,24 +58,22 @@ public class HotPadsHttpRequestTests {
 	public void testGetParams() {
 		String url = "http://kittens.hotpads.com";
 		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, url, true);
-		Assert.assertEquals(url, request.getRequest().getURI().toString());
+		Assert.assertEquals(url, request.getUrl());
 		
 		String expected = url + "?test=parameter";
 		Map<String,String> params = new LinkedHashMap<>();
 		params.put("test", "parameter");
 		request.addGetParams(params);
-		Assert.assertEquals(expected, request.getRequest().getURI().toString());
-		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getRequest()
-				.getURI().toString());
+		Assert.assertEquals(expected, request.getUrl());
+		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getUrl());
 
 		expected = url + "?test=parameter&hello=world&multiple=entries";
 		params = new LinkedHashMap<>();
 		params.put("hello", "world");
 		params.put("multiple", "entries");
 		request.addGetParams(params);
-		Assert.assertEquals(expected, request.getRequest().getURI().toString());
-		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getRequest()
-				.getURI().toString());
+		Assert.assertEquals(expected, request.getUrl());
+		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getUrl());
 		
 		expected = url + "?test=parameter&hello=world&multiple=entries&a=b&empty&sort";
 		params = new LinkedHashMap<>();
@@ -83,20 +81,42 @@ public class HotPadsHttpRequestTests {
 		params.put(null, null);
 		params.put("     ", "meh");
 		params.put("empty      ", "");
-		params.put("sort", "");
+		params.put("sort", null);
 		request.addGetParams(params);
-		Assert.assertEquals(expected, request.getRequest().getURI().toString());
-		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getRequest()
-				.getURI().toString());
+		Assert.assertEquals(expected, request.getUrl());
+		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getUrl());
 		
 		expected = url + "?test=parameter&hello=world&multiple=entries&a=b&empty&sort&s=+%2B+%3D&%3F%26=%2F-%26";
 		params = new LinkedHashMap<>();
 		params.put("s", " + =");
 		params.put("?&", "/-&");
 		request.addGetParams(params);
-		Assert.assertEquals(expected, request.getRequest().getURI().toString());
-		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getRequest()
-				.getURI().toString());
+		Assert.assertEquals(expected, request.getUrl());
+		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getUrl());
+		
+		expected = url + "?test=some%3Dvalid";
+		params = Collections.singletonMap("test", "some=valid");
+		request = new HotPadsHttpRequest(HttpRequestMethod.GET, url, true).addGetParams(params);
+		Assert.assertEquals(expected, request.getUrl());
+		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getUrl());
+		
+		url = "kitty:2020?nothing=&";
+		expected = "kitty:2020?nothing";
+		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, url, true).getUrl());
+		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getUrl());
+		
+		expected = "kitty?blah=blah%3F#something++";
+		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getUrl());
+		
+		expected = "kitty:2020#?nothing&blah=blah?#something++";
+		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getUrl());
+		
+		params = Collections.singletonMap("q", "SELECT pikachu,megaman,sonic, fifa from some.Names where thing=true");
+		url = "lolcat";
+		expected = "lolcat?q=SELECT+pikachu%2Cmegaman%2Csonic%2C+fifa+from+some.Names+where+thing%3Dtrue";
+		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, url, true).addGetParams(params)
+				.getUrl());
+		Assert.assertEquals(expected, new HotPadsHttpRequest(HttpRequestMethod.GET, expected, true).getUrl());
 	}
 	
 	@Test

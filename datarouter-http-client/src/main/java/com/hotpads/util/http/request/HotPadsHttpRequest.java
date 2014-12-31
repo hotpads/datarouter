@@ -36,6 +36,7 @@ public class HotPadsHttpRequest {
 	private boolean retrySafe;
 	private Integer timeoutMs;
 	private HttpEntity entity;
+	private String fragment;
 	private Map<String, String> headers;
 	private Map<String, String> queryParams;
 	private Map<String, String> postParams;
@@ -47,14 +48,22 @@ public class HotPadsHttpRequest {
 	public HotPadsHttpRequest(HttpRequestMethod method, String url, boolean retrySafe) {
 		Args.notBlank(url, "request url");
 		Args.notNull(method, "http method");
-		int queryIndex = url.indexOf("?");
-		String path;
-		Map<String, String> queryParams;
-		if (queryIndex > 0) {
-			path = url.substring(0, queryIndex);
-			queryParams = extractQueryParams(url.substring(queryIndex + 1));
+		
+		int fragmentIndex = url.lastIndexOf('#');
+		if(fragmentIndex > 0 && fragmentIndex < url.length() - 1) {
+			this.fragment = url.substring(fragmentIndex);
 		} else {
-			path = url;
+			fragmentIndex = url.length();
+			this.fragment = "";
+		}
+		String path = url.substring(0, fragmentIndex);
+		
+		Map<String, String> queryParams;
+		int queryIndex = path.indexOf("?");
+		if (queryIndex > 0) {
+			queryParams = extractQueryParams(path.substring(queryIndex + 1));
+			path = path.substring(0, queryIndex);
+		} else {
 			queryParams = new LinkedHashMap<>();
 		}
 		this.method = method;
@@ -65,22 +74,23 @@ public class HotPadsHttpRequest {
 		this.postParams = new HashMap<>();
 	}
 
-	public Map<String, String> extractQueryParams(String queryString) {
+	private Map<String, String> extractQueryParams(String queryString) {
 		Map<String, String> queryParams = new LinkedHashMap<>();
 		String[] params = queryString.split("&");
 		for (String param : params) {
-			String[] parts = param.split("=");
+			String[] parts = param.split("=", 2);
+			String part = parts[0];
 			if (parts.length == 1) {
-				queryParams.put(parts[0], null);
+				queryParams.put(part, null);
 			} else if (parts.length == 2) {
-				queryParams.put(parts[0], parts[1]);
+				queryParams.put(part, parts[1]);
 			}
 		}
 		return queryParams;
 	}
 
 	public HttpRequestBase getRequest() {
-		String url = path + (queryParams.isEmpty() ? "" : getQueryString());
+		String url = getUrl();
 		HttpRequestBase request = getRequest(method, url);
 		if (!headers.isEmpty()) {
 			for (Map.Entry<String, String> header : headers.entrySet()) {
@@ -91,6 +101,10 @@ public class HotPadsHttpRequest {
 			((HttpEntityEnclosingRequest) request).setEntity(entity);
 		}
 		return request;
+	}
+
+	public String getUrl() {
+		return path + (queryParams.isEmpty() ? "" : getQueryString()) + fragment;
 	}
 
 	private HttpRequestBase getRequest(HttpRequestMethod method, String url) {
@@ -164,8 +178,7 @@ public class HotPadsHttpRequest {
 		return addEntriesToMap(this.queryParams, params, true);
 	}
 	
-	private HotPadsHttpRequest addEntriesToMap(Map<String, String> map, Map<String, String> entriesToAdd,
-			boolean urlEncode) {
+	private HotPadsHttpRequest addEntriesToMap(Map<String, String> map, Map<String, String> entriesToAdd, boolean urlEncode) {
 		if (entriesToAdd != null) {
 			for (Map.Entry<String, String> entry : entriesToAdd.entrySet()) {
 				String key = entry.getKey();
@@ -195,10 +208,14 @@ public class HotPadsHttpRequest {
 	private String getQueryString() {
 		StringBuilder query = new StringBuilder();
 		for (Entry<String, String> param : queryParams.entrySet()) {
-			query.append('&').append(param.getKey());
+			String key = param.getKey();
+			if(key == null || key.trim().isEmpty()) {
+				continue;
+			}
+			query.append('&').append(key.trim());
 			String value = param.getValue();
 			if (value != null && !value.isEmpty()) {
-				query.append('=').append(param.getValue());
+				query.append('=').append(value);
 			}
 		}
 		return "?" + query.substring(1);

@@ -32,10 +32,6 @@ public class HotPadsHttpResponse {
 			}
 		}
 	}
-	
-	public HotPadsHttpResponse(HotPadsHttpException exception) {
-		this.exception = exception;
-	}
 
 	public int getStatusCode() {
 		return statusCode;
@@ -49,9 +45,7 @@ public class HotPadsHttpResponse {
 		return exception == null && statusCode < 300;
 	}
 	
-	public <T extends Exception> void raiseException(boolean condition, T e) throws T {
-		if(condition) {
-			throw e;
-		}
+	public HotPadsHttpException getException() {
+		return exception;
 	}
 }
