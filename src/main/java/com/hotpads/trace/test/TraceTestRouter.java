@@ -27,18 +27,13 @@ public class TraceTestRouter extends BaseDataRouter{
 	
 	@Inject
 	public TraceTestRouter(DataRouterContext drContext, NodeFactory nodeFactory){
-		super(drContext, NAME);
+		super(drContext, DRTestConstants.CONFIG_PATH, NAME);
 		this.nodeFactory = nodeFactory;
 		createNodes();
 		registerWithContext();//do after field inits
 	}
 
 	/********************************** config **********************************/
-		
-	@Override
-	public String getConfigLocation(){
-		return DRTestConstants.CONFIG_PATH;
-	}
 
 	public static final List<ClientId> CLIENT_IDS = ListTool.create(
 			new ClientId(DRTestConstants.CLIENT_drTestHBase, true));
