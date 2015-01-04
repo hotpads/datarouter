@@ -47,7 +47,8 @@ public class JdbcConnectionPool{
 		Integer minPoolSize = options.minPoolSize(defaultOptions.minPoolSize(1));
 		Integer maxPoolSize = options.maxPoolSize(defaultOptions.maxPoolSize(20));
 		Boolean logging = options.logging(defaultOptions.logging(false));
-		
+		Boolean appEngine = options.appEngine();
+		if(logging && appEngine){ throw new RuntimeException("can use logging with appEngine"); }
 		
 		//configurable props
 		pool = new ComboPooledDataSource();
@@ -63,15 +64,22 @@ public class JdbcConnectionPool{
 		}
 		
 		try {
+			String jdbcUrl;
 			if(logging){
 				//log4jdbc - see http://code.google.com/p/log4jdbc/
-				pool.setJdbcUrl("jdbc:log4jdbc:mysql://"+url);
 				pool.setDriverClass(net.sf.log4jdbc.DriverSpy.class.getName());
+				jdbcUrl = "jdbc:log4jdbc:mysql://"+url;
+			}else if(appEngine){
+				jdbcUrl = "jdbc:google:mysql://"+url;
+//				jdbcUrl = "jdbc:google:mysql://"+url+"?user="+user;
+				pool.setDriverClass("com.mysql.jdbc.GoogleDriver");
 			}else{
 				//normal jdbc
-				pool.setJdbcUrl("jdbc:mysql://"+url);
+				jdbcUrl = "jdbc:mysql://"+url;
 				pool.setDriverClass("com.mysql.jdbc.Driver");
 			}
+			pool.setJdbcUrl(jdbcUrl);
+//			System.out.println(getClass()+" conecting to "+jdbcUrl);
 		}catch(PropertyVetoException pve) {
 			throw new RuntimeException(pve);
 		}
