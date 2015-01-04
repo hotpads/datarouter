@@ -44,7 +44,7 @@ public interface DataRouter {
 	/********************************* methods *************************************/
 
 	String getConfigLocation();
-	RouterOptions getClientOptions();
+	RouterOptions getRouterOptions();
 
 	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>, N extends Node<PK,D>> N register(N node);
 	
