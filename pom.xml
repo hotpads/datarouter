@@ -91,7 +91,7 @@
 			<version>2.0</version>
 			<scope>provided</scope>
 			<exclusions>
-				<exclusion>
+				<exclusion><!-- this will pull in servlet-api 2.4, but we need 3.0.1 -->
 					<groupId>javax.servlet</groupId>
 					<artifactId>servlet-api</artifactId>
 				</exclusion>
