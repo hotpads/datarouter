@@ -52,7 +52,7 @@ implements BasicClientTestRouter{
 
 	@Inject
 	public BasicClientTestRouterImp(DataRouterContext drContext, NodeFactory nodeFactory){
-		super(drContext, name);
+		super(drContext, DRTestConstants.CONFIG_PATH, name);
 		this.nodeFactory = nodeFactory;
 		keepAliveHBase = cast(register(
 				nodeFactory.create(DRTestConstants.CLIENT_drTestHBase, KeepAlive.class, KeepAliveFielder.class, this, false)));
@@ -75,11 +75,6 @@ implements BasicClientTestRouter{
 	}
 
 	/********************************** config **********************************/
-
-	@Override
-	public String getConfigLocation(){
-		return DRTestConstants.CONFIG_PATH;
-	}
 
 	public static final List<ClientId> CLIENT_IDS = ListTool.create(
 			new ClientId(DRTestConstants.CLIENT_drTestJdbc0, true),
