@@ -200,7 +200,7 @@ implements DataRouter{
 	}
 
 	@Override
-	public RouterOptions getClientOptions(){
+	public RouterOptions getRouterOptions(){
 		return routerOptions;
 	}
 	

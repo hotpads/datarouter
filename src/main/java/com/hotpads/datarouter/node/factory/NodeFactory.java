@@ -44,7 +44,7 @@ public class NodeFactory{
 			N extends Node<PK,D>> 
 	N create(NodeParams<PK,D,F> params, boolean addAdapter){
 		String clientName = params.getClientName();
-		ClientType clientType = params.getRouter().getClientOptions().getClientTypeInstance(clientName);
+		ClientType clientType = params.getRouter().getRouterOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
 		N node = (N)clientType.createNode(params);
 		if(addAdapter){
@@ -164,7 +164,7 @@ public class NodeFactory{
 				.withDiagnostics(getRecordCallsites());
 		NodeParams<PK,D,F> nodeParams = paramsBuilder.build();
 //		return create(paramsBuilder.build());
-		ClientType clientType = nodeParams.getRouter().getClientOptions().getClientTypeInstance(clientName);
+		ClientType clientType = nodeParams.getRouter().getRouterOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
 		N node = (N)clientType.createSubEntityNode(entityNodeParams, nodeParams);
 		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
