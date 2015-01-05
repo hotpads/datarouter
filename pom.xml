@@ -471,6 +471,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<!-- not currently used.  was added for parsing ssl key files
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.51</version>
+		</dependency>
+		-->
 	</dependencies>
 	<organization>
 		<name>HotPads.com</name>

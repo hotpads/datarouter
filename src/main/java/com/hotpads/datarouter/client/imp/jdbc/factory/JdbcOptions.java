@@ -42,5 +42,21 @@ public class JdbcOptions extends TypedProperties{
 	public Boolean appEngine(){
 		return getBoolean(clientPrefix+"appEngine", false);
 	}
+	
+	public Boolean ssl(){
+		return getBoolean(clientPrefix+"ssl", false);
+	}
+	
+	public String sslCa(){
+		return getString(clientPrefix+"ssl.ca");
+	}
+	
+	public String sslCert(){
+		return getString(clientPrefix+"ssl.cert");
+	}
+	
+	public String sslKey(){
+		return getString(clientPrefix+"ssl.key");
+	}
 
 }

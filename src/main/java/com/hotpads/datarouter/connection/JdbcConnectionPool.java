@@ -9,12 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
+import com.hotpads.datarouter.util.ApplicationRootPathProvider;
+import com.hotpads.datarouter.util.ssl.KeystoreManager;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
 
 public class JdbcConnectionPool{
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
-
+	
 	private String name;
 	private ComboPooledDataSource pool;
 	protected JdbcOptions defaultOptions;
@@ -41,6 +43,7 @@ public class JdbcConnectionPool{
 	public void createFromScratch(String name){
 		this.name = name;
 		
+		Boolean ssl = options.ssl();
 		String url = options.url();
 		String user = options.user(defaultOptions.user("root"));
 		String password = options.password(defaultOptions.password(""));
@@ -69,13 +72,16 @@ public class JdbcConnectionPool{
 				//log4jdbc - see http://code.google.com/p/log4jdbc/
 				pool.setDriverClass(net.sf.log4jdbc.DriverSpy.class.getName());
 				jdbcUrl = "jdbc:log4jdbc:mysql://"+url;
-			}else if(appEngine){
+			}else if(appEngine){ //https://cloud.google.com/sql/docs/instances
 				jdbcUrl = "jdbc:google:mysql://"+url;
 //				jdbcUrl = "jdbc:google:mysql://"+url+"?user="+user;
 				pool.setDriverClass("com.mysql.jdbc.GoogleDriver");
 			}else{
-				//normal jdbc
 				jdbcUrl = "jdbc:mysql://"+url;
+				if(ssl){
+					jdbcUrl += "?useSSL=true&requireSSL=true";
+					addCertificates();
+				}
 				pool.setDriverClass("com.mysql.jdbc.Driver");
 			}
 			pool.setJdbcUrl(jdbcUrl);
@@ -123,7 +129,23 @@ public class JdbcConnectionPool{
 		}
 	}
 	
+	/****************************** ssl ************************************/
+	
+	//mysql client ssl connection:
+	// mysql --ssl-ca=server-ca.pem --ssl-cert=client-cert.pem --ssl-key=client-key.pem --host=173.194.254.110 --user=root --password
 
+	private void addCertificates(){
+		String applicationRootPath = new ApplicationRootPathProvider().get();
+		try{
+			String dir = "?";
+			System.out.println(getClass() + applicationRootPath + "/"+options.sslCert());
+			KeystoreManager km = new KeystoreManager();
+			km.addCertificates(name, applicationRootPath, options.sslCert(), options.sslCa(), options.sslKey());
+		}catch(Exception e){
+			throw new RuntimeException(e);
+		}
+	}
+	
 	/******************************* get/set *****************************/
 	
 	public String getName() {
