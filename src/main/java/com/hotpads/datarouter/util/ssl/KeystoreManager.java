@@ -10,6 +10,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -20,8 +21,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.bouncycastle.util.encoders.Base64;
 import org.junit.Test;
 
 import sun.security.provider.X509Factory;
@@ -30,10 +31,13 @@ import com.hotpads.util.core.io.ReaderTool;
 
 public class KeystoreManager{
 
+	private static final char[] PASSWORD = "changeit".toCharArray();
+	
 	private final KeyStore keystore;
 
-	public KeystoreManager() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException{
+	public KeystoreManager() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, NoSuchProviderException{
 		this.keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+//		this.keystore = KeyStore.getInstance("JKS", "SUN");
 		keystore.load(null, null);
 	}
 
@@ -49,8 +53,9 @@ public class KeystoreManager{
 		chain[0] = clientCert;
 		chain[1] = caCert;
 
+//		PrivateKey keyCert = getRsaPkcs8Base64KeyFromFilesystem(dir, keyFilename);
 		PrivateKey keyCert = getRsaPemKeyFromFilesystem(dir, keyFilename);
-//		PrivateKey keyCert = getRsaDerKeyFromFilesystem(dir, keyFilename);
+//		PrivateKey keyCert = getRsaPkcs8KeyFromFilesystem(dir, keyFilename);
 		addKey(clientName + "-key", keyCert, chain);
 
 		reInitSslContext();
@@ -70,7 +75,9 @@ public class KeystoreManager{
 
 	private void addKey(String alias, PrivateKey cert, X509Certificate[] certChain) throws CertificateException,
 			KeyStoreException, NoSuchAlgorithmException, IOException, KeyManagementException{
-		keystore.setKeyEntry(alias, cert.getEncoded(), certChain);
+		keystore.setKeyEntry(alias, cert, PASSWORD, certChain);
+//		keystore.setKeyEntry(alias, cert.getEncoded(), certChain);
+
 	}
 
 	private X509Certificate getCertFromFilesystem(String dir, String filename) throws FileNotFoundException,
@@ -78,13 +85,25 @@ public class KeystoreManager{
 		FileInputStream is = new FileInputStream(dir + filename);
 	    String rawFile = ReaderTool.accumulateStringAndClose(is).toString();
 	    String certBase64 = rawFile.replaceAll(X509Factory.BEGIN_CERT, "").replaceAll(X509Factory.END_CERT, "");
-	    byte[] certBytes = Base64.decode(certBase64);
+	    byte[] certBytes = new Base64().decode(certBase64);
 		X509Certificate cert = (X509Certificate)CertificateFactory.getInstance("X.509").generateCertificate(
 				new ByteArrayInputStream(certBytes));
 		return cert;
 	}
 
-//	private PrivateKey getRsaDerKeyFromFilesystem(String dir, String filename) throws CertificateException, NoSuchAlgorithmException, InvalidKeySpecException, IOException{
+//	private PrivateKey getRsaPkcs8Base64KeyFromFilesystem(String dir, String filename) throws FileNotFoundException,
+//			CertificateException, NoSuchAlgorithmException, InvalidKeySpecException{
+//		FileInputStream is = new FileInputStream(dir + filename);
+//	    String rawFile = ReaderTool.accumulateStringAndClose(is).toString();
+//	    String certBase64 = rawFile.replaceAll("-----BEGIN PRIVATE KEY-----", "").replaceAll("-----END PRIVATE KEY-----", "");
+//	    byte[] certBytes = new Base64().decode(certBase64);
+//		PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(certBytes);
+//		KeyFactory kf = KeyFactory.getInstance("RSA");
+//		PrivateKey privKey = kf.generatePrivate(keySpec);
+//		return privKey;
+//	}
+//
+//	private PrivateKey getRsaPkcs8KeyFromFilesystem(String dir, String filename) throws CertificateException, NoSuchAlgorithmException, InvalidKeySpecException, IOException{
 //		FileInputStream is = new FileInputStream(dir + filename);
 //		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 //		IOUtils.copy(is, baos);
