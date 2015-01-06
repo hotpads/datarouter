@@ -45,7 +45,7 @@ public class CachingNodeFactory{
 			boolean cacheWrites,
 			boolean addAdapter){
 		String clientName = params.getClientName();
-		ClientType clientType = params.getRouter().getClientOptions().getClientTypeInstance(clientName);
+		ClientType clientType = params.getRouter().getRouterOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
 		MapStorageNode<PK,D> node = new MapCachingMapStorageNode<PK,D,F,N>(cacheNode, backingNode, cacheReads,
 				cacheWrites);

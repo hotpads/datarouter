@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.JsonSyntaxException;
 import com.hotpads.util.core.java.ReflectionTool;
-import com.hotpads.util.http.client.json.GsonJsonSerializer;
+import com.hotpads.util.http.json.GsonJsonSerializer;
 
 public class DefaultDecoder implements HandlerDecoder{
 	

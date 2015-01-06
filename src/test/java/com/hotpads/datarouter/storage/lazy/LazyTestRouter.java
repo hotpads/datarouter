@@ -27,18 +27,13 @@ public class LazyTestRouter extends BaseDataRouter{
 
 	@Inject
 	public LazyTestRouter(DataRouterContext context, NodeFactory nodeFactory){
-		super(context, NAME);
+		super(context, DRTestConstants.CONFIG_PATH, NAME);
 		
 		testDatabean = cast(register(nodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, TestDatabean.class,
 				TestIndexedDatabeanFielder.class, this, true)));
 		lazyTestDatabean = new LazyIndexedSortedMapStorageReader<TestDatabeanKey, TestDatabean>(testDatabean);
 		
 		registerWithContext();
-	}
-
-	@Override
-	public String getConfigLocation(){
-		return DRTestConstants.CONFIG_PATH;
 	}
 
 	@Override

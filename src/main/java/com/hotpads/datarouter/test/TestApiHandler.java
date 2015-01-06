@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Scanner;
@@ -20,7 +21,6 @@ import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.P;
 import com.hotpads.handler.types.TypeProvider;
 import com.hotpads.util.core.ListTool;
-import com.ibm.icu.util.Calendar;
 
 public class TestApiHandler extends BaseHandler{
 	
