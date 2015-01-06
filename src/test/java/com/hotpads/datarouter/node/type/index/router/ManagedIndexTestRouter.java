@@ -26,16 +26,11 @@ public class ManagedIndexTestRouter extends BaseDataRouter{
 
 	@Inject
 	public ManagedIndexTestRouter(DataRouterContext context, NodeFactory nodeFactory){
-		super(context, NAME);
+		super(context, DRTestConstants.CONFIG_PATH, NAME);
 		this.nodeFactory = nodeFactory;
 		testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexNode(nodeFactory, this);
 		testDatabeanWithTxnManagedIndex = new TestDatabeanWithTxnManagedIndexNode(nodeFactory, this);
 		registerWithContext();
-	}
-
-	@Override
-	public String getConfigLocation(){
-		return DRTestConstants.CONFIG_PATH;
 	}
 
 	@Override

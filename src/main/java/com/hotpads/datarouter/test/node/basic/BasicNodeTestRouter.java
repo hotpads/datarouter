@@ -60,7 +60,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	@Inject
 	public BasicNodeTestRouter(DataRouterContext drContext, NodeFactory nodeFactory, String clientName, 
 			Class<?> testType, boolean useFielder, boolean entity){
-		super(drContext, name);
+		super(drContext, DRTestConstants.CONFIG_PATH, name);
 		this.nodeFactory = nodeFactory;
 		
 		if(ManyFieldTypeIntegrationTests.class.equals(testType)){
@@ -105,11 +105,6 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	}
 
 	/********************************** config **********************************/
-		
-	@Override
-	public String getConfigLocation(){
-		return DRTestConstants.CONFIG_PATH;
-	}
 
 	public static final List<ClientId> CLIENT_IDS = ListTool.create(
 			new ClientId(DRTestConstants.CLIENT_drTestJdbc0, true),

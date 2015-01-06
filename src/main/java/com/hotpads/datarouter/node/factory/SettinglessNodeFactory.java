@@ -26,7 +26,7 @@ public class SettinglessNodeFactory{
 			N extends Node<PK,D>> 
 	N create(NodeParams<PK,D,F> params, boolean addAdapter){
 		String clientName = params.getClientName();
-		ClientType clientType = params.getRouter().getClientOptions().getClientTypeInstance(clientName);
+		ClientType clientType = params.getRouter().getRouterOptions().getClientTypeInstance(clientName);
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
 		N node = (N)clientType.createNode(params);
 		if(addAdapter){
