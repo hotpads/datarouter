@@ -1,4 +1,4 @@
-package com.hotpads.util.http.client.security;
+package com.hotpads.util.http.security;
 
 import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
