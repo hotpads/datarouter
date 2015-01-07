@@ -282,6 +282,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency><!-- used by org.apache.hadoop.hbase.HBaseConfiguration.checkDefaultsVersion -->
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.9.0</version>
+			<scope>runtime</scope>
+		</dependency>
 		<!-- apache commons -->
 		<dependency>
 			<groupId>commons-beanutils</groupId>
@@ -361,17 +367,12 @@
 			<artifactId>jaxen</artifactId>
 			<version>1.1.6</version>
 		</dependency>
-		-->
-		<dependency>
-			<groupId>xerces</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>2.9.0</version>
-		</dependency>
 		<dependency>
 			<groupId>xalan</groupId>
 			<artifactId>xalan</artifactId>
 			<version>2.5.1</version>
 		</dependency>
+		-->
 		<dependency><!-- for CronExpression -->
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
