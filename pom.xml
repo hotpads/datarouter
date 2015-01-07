@@ -274,7 +274,16 @@
 					<groupId>commons-codec</groupId>
 					<artifactId>commons-codec</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>com.google.protobuf</groupId>
+					<artifactId>protobuf-java</artifactId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency><!-- need newer version for google apis, so override hbase's 2.4 -->
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>2.6.1</version>
 		</dependency>
 		<dependency><!-- used by org.apache.hadoop.hbase.HBaseConfiguration.checkDefaultsVersion -->
 			<groupId>xerces</groupId>
