@@ -114,12 +114,6 @@
 			<artifactId>guava</artifactId>
 			<version>13.0.1</version>
 		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>1.8.5</version>
-			<scope>test</scope>
-		</dependency>
 		<!-- guice -->
 		<dependency>
 			<groupId>com.google.inject</groupId>
@@ -140,6 +134,14 @@
 				<exclusion>
 					<groupId>commons-codec</groupId>
 					<artifactId>commons-codec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpclient</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -199,7 +201,7 @@
 			<version>3.1.0.GA</version>
 		</dependency>
 		<!-- hdfs -->
-		<dependency>
+		<dependency><!-- hbase uses org.apache.hadoop.conf.Configuration -->
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-core</artifactId>
 			<version>1.0.4</version>
@@ -228,25 +230,13 @@
 					<groupId>commons-net</groupId>
 					<artifactId>commons-net</artifactId>
 				</exclusion>
-			</exclusions>
-		</dependency>
-		<!-- hbase 
-		<dependency>
-			<groupId>org.apache.zookeeper</groupId>
-			<artifactId>zookeeper</artifactId>
-			<version>3.4.2</version>
-			<exclusions>
 				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>log4j</groupId>
-					<artifactId>log4j</artifactId>
+					<groupId>commons-codec</groupId>
+					<artifactId>commons-codec</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
-		-->
+		<!-- hbase -->
 		<dependency>
 			<groupId>org.apache.hbase</groupId>
 			<artifactId>hbase</artifactId>
@@ -280,6 +270,10 @@
 					<groupId>log4j</groupId>
 					<artifactId>log4j</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>commons-codec</groupId>
+					<artifactId>commons-codec</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency><!-- used by org.apache.hadoop.hbase.HBaseConfiguration.checkDefaultsVersion -->
@@ -310,13 +304,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!--  
-		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>3.0.1</version>
-		</dependency>
-		-->
 		<dependency><!-- used in FieldTool: StringEscapeUtils.escapeCsv -->
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -328,86 +315,29 @@
 			<artifactId>commons-net</artifactId>
 			<version>3.3</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.directory.studio</groupId>
-			<artifactId>org.apache.commons.codec</artifactId>
-			<version>1.6</version>
-		</dependency>
-		<!-- jackson 
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-core-asl</artifactId>
-			<version>1.8.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.8.2</version>
-		</dependency>
-		-->
 		<!-- other -->
-		<dependency>
+		<dependency><!-- used by StackTracesManagerHandler -->
 			<groupId>com.hp.gagawa</groupId>
 			<artifactId>gagawa</artifactId>
 			<version>1.0.1</version>
 		</dependency>
-		<!--  
-		<dependency>
-			<groupId>org.antlr</groupId>
-			<artifactId>antlr</artifactId>
-			<version>3.3</version>
-		</dependency>
-		<dependency>
-			<groupId>dom4j</groupId>
-			<artifactId>dom4j</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-		<dependency>
-			<groupId>jaxen</groupId>
-			<artifactId>jaxen</artifactId>
-			<version>1.1.6</version>
-		</dependency>
-		<dependency>
-			<groupId>xalan</groupId>
-			<artifactId>xalan</artifactId>
-			<version>2.5.1</version>
-		</dependency>
-		-->
 		<dependency><!-- for CronExpression -->
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
 			<version>1.6.4</version>
 		</dependency>
-		<dependency>
+		<dependency><!-- used by HttpReaderNode -->
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
 			<version>2.3</version>
 			<classifier>jdk15</classifier>
 		</dependency>
-		<!--
-		<dependency>
-			<groupId>net.sf.ezmorph</groupId>
-			<artifactId>ezmorph</artifactId>
-			<version>1.0.3</version>
-		</dependency>
-		<dependency>
-			<groupId>com.thoughtworks.paranamer</groupId>
-			<artifactId>paranamer</artifactId>
-			<version>2.2</version>
-		</dependency>
-		  
-		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>2.4.0a</version>
-		</dependency>
-		-->
-		<dependency>
+		<dependency><!-- used by DataRouterEmailTool -->
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
 			<version>1.4</version>
 		</dependency>
-		<dependency>
+		<dependency><!-- used by UuidTool -->
 			<groupId>com.fasterxml.uuid</groupId>
 			<artifactId>java-uuid-generator</artifactId>
 			<version>3.1.3</version>
