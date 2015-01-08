@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
+import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -43,6 +44,8 @@ public class ExceptionHandlingFilter implements Filter {
 	public static final String ATTRIBUTE_EXCEPTION_HANDLING_CONFIG = "exceptionHandlingConfig";
 	public static final String ATTRIBUTE_PARALLEL_API_CALLER = "parallelApiCaller";
 	
+	public static final String REQUEST_RECEIVED_AT = "receivedAt";
+
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
 
 	@Inject
@@ -73,6 +76,8 @@ public class ExceptionHandlingFilter implements Filter {
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {
+		Date receivedAt = new Date();
+		req.setAttribute(REQUEST_RECEIVED_AT, receivedAt);
 		try {
 			fc.doFilter(req, res);
 		}catch(OutOfMemoryError error){
@@ -88,7 +93,7 @@ public class ExceptionHandlingFilter implements Filter {
 			logger.warn("ExceptionHandlingFilter caught an exception:", e);
 			writeExceptionToResponseWriter(response, e, request);
 			if(exceptionHandlingConfig.shouldPersistExceptionRecords(request, e)) {
-				recordExceptionAndRequestNotification(request, e);
+				recordExceptionAndRequestNotification(request, e, receivedAt);
 			}
 		}
 	}
@@ -106,7 +111,7 @@ public class ExceptionHandlingFilter implements Filter {
 		out.close();
 	}
 
-	private void recordExceptionAndRequestNotification(HttpServletRequest request, Exception e) {
+	private void recordExceptionAndRequestNotification(HttpServletRequest request, Exception e, Date receivedAt) {
 		try {
 			ExceptionRecord exceptionRecord = new ExceptionRecord(
 					exceptionHandlingConfig.getServerName(),
@@ -129,6 +134,7 @@ public class ExceptionHandlingFilter implements Filter {
 			ExceptionCounters.inc(e.getClass().getName() + " " + place);
 			ExceptionCounters.inc("Filter " + e.getClass().getName() + " " + place);
 			HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
+					receivedAt,
 					exceptionRecord.getKey().getId(),
 					place,
 					null,
