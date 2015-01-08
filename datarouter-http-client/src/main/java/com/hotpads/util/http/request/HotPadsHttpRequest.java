@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -36,6 +37,7 @@ public class HotPadsHttpRequest {
 	private final String path;
 	private boolean retrySafe;
 	private Integer timeoutMs;
+	private Long futureTimeoutMs;
 	private HttpEntity entity;
 	private String fragment;
 	private Map<String, String> headers;
@@ -106,6 +108,11 @@ public class HotPadsHttpRequest {
 		}
 		if (entity != null && canHaveEntity()) {
 			((HttpEntityEnclosingRequest) request).setEntity(entity);
+		}
+		if (timeoutMs != null) {
+			RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(timeoutMs)
+					.setConnectionRequestTimeout(timeoutMs).setSocketTimeout(timeoutMs).build();
+			request.setConfig(requestConfig);
 		}
 		return request;
 	}
@@ -275,4 +282,14 @@ public class HotPadsHttpRequest {
 		this.timeoutMs = timeoutMs;
 		return this;
 	}
+
+	public Long getFutureTimeoutMs() {
+		return futureTimeoutMs;
+	}
+
+	public HotPadsHttpRequest setFutureTimeoutMs(Long futureTimeoutMs) {
+		this.futureTimeoutMs = futureTimeoutMs;
+		return this;
+	}
+
 }
