@@ -261,7 +261,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 			String methodName, int lineNumber, String httpMethod, String httpParams, String protocol, String hostname,
 			int port, String contextPath, String path, String queryString, String ip, String sessionRoles, Long userId,
 			HttpHeaders headersWrapper){
-	this.key = new HttpRequestRecordKey(UuidTool.generateV1Uuid());
+		this.key = new HttpRequestRecordKey(UuidTool.generateV1Uuid());
 		this.created = new Date();
 		this.receivedAt = receivedAt;
 		this.duration = created.getTime() - receivedAt.getTime();
