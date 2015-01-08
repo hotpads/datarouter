@@ -36,7 +36,6 @@ import com.hotpads.util.http.security.ApiKeyPredicate;
 import com.hotpads.util.http.security.CsrfValidator;
 import com.hotpads.util.http.security.SecurityParameters;
 import com.hotpads.util.http.security.SignatureValidator;
-import com.sun.istack.internal.Nullable;
 
 @Singleton
 public class HotPadsHttpClient {
@@ -131,12 +130,13 @@ public class HotPadsHttpClient {
 		throw ex;
 	}
 
-	private static long getFutureTimeoutMs(int requestTimeoutMs, @Nullable Integer retryCount) {
+	private static long getFutureTimeoutMs(int requestTimeoutMs, Integer retryCount) {
 		/*
-		 * we want the request future to time out after all of the individual request timeouts combined, so (total
-		 * number of requests + 1) * requestTimeout
+		 * we want the request future to time out after all of the individual request timeouts combined,
+		 * so requestTimeout * (total number of requests + 2)
 		 */
-		return requestTimeoutMs * ((retryCount == null ? 0 : retryCount) + 2);
+		int totalPossibleRequests = (retryCount == null ? 0 : retryCount) + 2;
+		return requestTimeoutMs * totalPossibleRequests;
 	}
 
 	private class HttpRequestCallable implements Callable<HttpResponse> {
