@@ -36,6 +36,7 @@ import com.hotpads.util.http.security.ApiKeyPredicate;
 import com.hotpads.util.http.security.CsrfValidator;
 import com.hotpads.util.http.security.SecurityParameters;
 import com.hotpads.util.http.security.SignatureValidator;
+import com.sun.istack.internal.Nullable;
 
 @Singleton
 public class HotPadsHttpClient {
@@ -50,10 +51,11 @@ public class HotPadsHttpClient {
 	private HotPadsHttpClientConfig config;
 	private ExecutorService executor;
 	private int requestTimeoutMs;
+	private Integer retryCount;
 
 	HotPadsHttpClient(HttpClient httpClient, JsonSerializer jsonSerializer, SignatureValidator signatureValidator,
 			CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate, HotPadsHttpClientConfig config,
-			ExecutorService executor, Integer requestTimeoutMs) {
+			ExecutorService executor, Integer requestTimeoutMs, Integer retryCount) {
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureValidator = signatureValidator;
@@ -62,6 +64,7 @@ public class HotPadsHttpClient {
 		this.config = config;
 		this.executor = executor;
 		this.requestTimeoutMs = requestTimeoutMs == null ? DEFAULT_REQUEST_TIMEOUT_MS : requestTimeoutMs.intValue();
+		this.retryCount = retryCount;
 	}
 
 	public HotPadsHttpResponse execute(HotPadsHttpRequest request) {
@@ -107,10 +110,12 @@ public class HotPadsHttpClient {
 		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
 
 		HotPadsHttpException ex;
-		int timeoutMs = request.getTimeoutMs() != null ? request.getTimeoutMs().intValue() : requestTimeoutMs;
+		int timeoutMs = request.getTimeoutMs() == null ? requestTimeoutMs : request.getTimeoutMs().intValue();
+		long futureTimeoutMs = request.getFutureTimeoutMs() == null ? getFutureTimeoutMs(timeoutMs, retryCount)
+				: request.getFutureTimeoutMs().intValue();
 		try {
 			HttpRequestCallable callable = new HttpRequestCallable(httpClient, request.getRequest(), context);
-			HttpResponse httpResponse = executor.submit(callable).get(timeoutMs, TimeUnit.MILLISECONDS);
+			HttpResponse httpResponse = executor.submit(callable).get(futureTimeoutMs, TimeUnit.MILLISECONDS);
 			return new HotPadsHttpResponse(httpResponse);
 		} catch (TimeoutException e) {
 			ex = new HotPadsHttpRequestTimeoutException(e, timeoutMs);
@@ -124,6 +129,14 @@ public class HotPadsHttpClient {
 			}
 		}
 		throw ex;
+	}
+
+	private static long getFutureTimeoutMs(int requestTimeoutMs, @Nullable Integer retryCount) {
+		/*
+		 * we want the request future to time out after all of the individual request timeouts combined, so (total
+		 * number of requests + 1) * requestTimeout
+		 */
+		return requestTimeoutMs * ((retryCount == null ? 0 : retryCount) + 2);
 	}
 
 	private class HttpRequestCallable implements Callable<HttpResponse> {
