@@ -41,6 +41,7 @@ import com.hotpads.util.http.security.SignatureValidator;
 public class HotPadsHttpClient {
 	private static final Logger logger = LoggerFactory.getLogger(HotPadsHttpClient.class);
 	private static final int DEFAULT_REQUEST_TIMEOUT_MS = 3000;
+	private static final int EXTRA_FUTURE_TIME_MS = 1000;
 
 	private HttpClient httpClient;
 	private JsonSerializer jsonSerializer;
@@ -135,8 +136,8 @@ public class HotPadsHttpClient {
 		 * we want the request future to time out after all of the individual request timeouts combined,
 		 * so requestTimeout * (total number of requests + 2)
 		 */
-		int totalPossibleRequests = (retryCount == null ? 0 : retryCount) + 2;
-		return requestTimeoutMs * totalPossibleRequests;
+		int totalPossibleRequests = 1 + (retryCount == null ? 0 : retryCount);
+		return requestTimeoutMs * totalPossibleRequests + EXTRA_FUTURE_TIME_MS;
 	}
 
 	private class HttpRequestCallable implements Callable<HttpResponse> {
