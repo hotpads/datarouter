@@ -37,8 +37,8 @@ public class ConnectionPools {
 	
 	/******************************* constructors **********************************/
 	
-	@Inject
-	public ConnectionPools(){
+//	@Inject
+	ConnectionPools(){
 	}
 	
 	public void registerClientIds(Collection<ClientId> clientIdsToAdd, String configFilePath) {

@@ -60,8 +60,8 @@ public class Clients{
 	
 	/******************************* constructors **********************************/
 
-	@Inject
-	public Clients(){
+//	@Inject
+	Clients(){
 		this.configFilePaths = new TreeSet<>();
 		this.multiProperties = new ArrayList<>();
 		this.clientIds = new TreeSet<>();

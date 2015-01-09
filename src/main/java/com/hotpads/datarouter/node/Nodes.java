@@ -63,8 +63,8 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	
 	/********************** constructors **********************************/
 	
-	@Inject
-	public Nodes(){
+//	@Inject
+	Nodes(){
 		this.topLevelNodes = ListTool.createArrayList();
 		this.allNodes = ListTool.createArrayList();
 		this.allNames = ListTool.createArrayList();
