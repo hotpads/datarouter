@@ -39,6 +39,7 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.UuidTool;
@@ -57,6 +58,8 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	private HttpRequestRecordKey key;
 	private Date created;
+	private Date receivedAt;
+	private Long duration;
 
 	private String exceptionRecordId;
 	private String exceptionPlace;
@@ -142,7 +145,9 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		userAgent = "userAgent",
 		xForwardedFor = "xForwardedFor",
 		xRequestedWith = "xRequestedWith",
-		others = "otherHeaders";
+		others = "otherHeaders",
+		receivedAt = "receivedAt",
+		duration = "duration";
 	}
 
 	public static class HttpRequestRecordFielder extends BaseDatabeanFielder<HttpRequestRecordKey, HttpRequestRecord>{
@@ -158,6 +163,8 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		public List<Field<?>> getNonKeyFields(HttpRequestRecord d) {
 			return FieldTool.createList(
 					new DateField(F.created, d.created),
+					new LongDateField(F.receivedAt, d.receivedAt),
+					new LongField(F.duration, d.duration),
 
 					new StringField(F.exceptionRecordId, d.exceptionRecordId, MySqlColumnType.MAX_LENGTH_VARCHAR),
 					new StringField(F.exceptionPlace, d.exceptionPlace, MySqlColumnType.MAX_LENGTH_VARCHAR),
@@ -216,9 +223,10 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		key = new HttpRequestRecordKey();
 	}
 
-	public HttpRequestRecord(String exceptionRecordId, String exceptionPlace, String methodName, int lineNumber,
-			HttpServletRequest request, String sessionRoles, Long userId) {
+	public HttpRequestRecord(Date receivedAt, String exceptionRecordId, String exceptionPlace,
+			String methodName, int lineNumber, HttpServletRequest request, String sessionRoles, Long userId){
 		this(
+				receivedAt,
 				exceptionRecordId,
 				exceptionPlace,
 				methodName,
@@ -249,11 +257,14 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		this.httpParams = paramString;
 	}
 	
-	private HttpRequestRecord(String exceptionRecordId, String exceptionPlace, String methodName, int lineNumber,
-			String httpMethod, String httpParams, String protocol, String hostname, int port, String contextPath,
-			String path, String queryString, String ip, String sessionRoles, Long userId, HttpHeaders headersWrapper) {
+	private HttpRequestRecord(Date receivedAt, String exceptionRecordId, String exceptionPlace,
+			String methodName, int lineNumber, String httpMethod, String httpParams, String protocol, String hostname,
+			int port, String contextPath, String path, String queryString, String ip, String sessionRoles, Long userId,
+			HttpHeaders headersWrapper){
 		this.key = new HttpRequestRecordKey(UuidTool.generateV1Uuid());
 		this.created = new Date();
+		this.receivedAt = receivedAt;
+		this.duration = created.getTime() - receivedAt.getTime();
 
 		this.exceptionRecordId = exceptionRecordId;
 		this.exceptionPlace = exceptionPlace;
@@ -368,8 +379,9 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		return getProtocol()+ "://" + hostname + ":" + port + contextPath + path + (queryString != null ? "?" + queryString : "");
 	}
 
-	public static HttpRequestRecord createEmptyForTesting() {
-		return new HttpRequestRecord(null, null, null, 0, null, null, null, null, 0, null, null, null, null, null, 0l, new HttpHeaders(null));
+	public static HttpRequestRecord createEmptyForTesting(){
+		return new HttpRequestRecord(null, null, null, null, 0, null, null, null, null, 0, null, null, null, null,
+				null, 0l, new HttpHeaders(null));
 	}
 
 	/*************** getters / setters ******************/
@@ -680,6 +692,14 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	public void setOtherHeaders(String otherHeaders) {
 		this.otherHeaders = otherHeaders;
+	}
+
+	public Long getDuration(){
+		return duration;
+	}
+
+	public Date getReceivedAt(){
+		return receivedAt;
 	}
 
 }
