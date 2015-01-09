@@ -7,6 +7,9 @@ import java.util.NavigableSet;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +22,7 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.SetTool;
 
+@Singleton
 public class ConnectionPools {
 	private static Logger logger = LoggerFactory.getLogger(ConnectionPools.class);
 
@@ -28,11 +32,12 @@ public class ConnectionPools {
 	protected Map<String,JdbcConnectionPool> connectionPoolByName = MapTool.createConcurrentHashMap();
 
 	public static final String		
-		prefixPool = Clients.prefixClient,//"pool.",
+		prefixPool = Clients.PREFIX_client,//"pool.",
 		poolDefault = "default";
 	
 	/******************************* constructors **********************************/
 	
+	@Inject
 	public ConnectionPools(){
 	}
 	

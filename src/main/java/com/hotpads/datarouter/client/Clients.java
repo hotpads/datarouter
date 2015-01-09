@@ -1,11 +1,13 @@
 package com.hotpads.datarouter.client;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
@@ -38,35 +40,32 @@ import com.hotpads.util.core.concurrent.FutureTool;
 @Singleton
 public class Clients{
 	private static Logger logger = LoggerFactory.getLogger(Clients.class);
-
-	protected Set<String> configFilePaths = SetTool.createTreeSet();
-	protected Collection<Properties> multiProperties = ListTool.createArrayList();
-	protected Map<String, Object> params;
-	
-	protected NavigableSet<ClientId> clientIds = SetTool.createTreeSet();
-	protected List<Client> clients = ListTool.createArrayList();
-
-	protected Map<String,LazyClientProvider> lazyClientInitializerByName = new ConcurrentHashMap<String,LazyClientProvider>();
-
-	public static final ClientType DEFAULT_CLIENT_TYPE = HibernateClientType.INSTANCE;
-	
 	
 	public static final String
-		prefixClients = "clients",
-		paramForceInitMode = ".forceInitMode",
-		paramNames = ".names",
-		
-		prefixClient = "client.",
-		clientDefault = "default",
-		paramConnectionPool = ".connectionPool",
-		paramInitMode = ".initMode",
-		paramType = ".type",
-		paramSlave = ".slave";
+		CLIENT_default = "default",
+		PREFIX_clients = "clients",
+		PREFIX_client = "client.",
+		PARAM_forceInitMode = ".forceInitMode",
+		PARAM_names = ".names",
+		PARAM_connectionPool = ".connectionPool",
+		PARAM_initMode = ".initMode",
+		PARAM_type = ".type",
+		PARAM_slave = ".slave";
+
+	private Set<String> configFilePaths;
+	private Collection<Properties> multiProperties;
+	private NavigableSet<ClientId> clientIds;
+	private Map<String,LazyClientProvider> lazyClientInitializerByName;
+
 	
 	/******************************* constructors **********************************/
 
 	@Inject
 	public Clients(){
+		this.configFilePaths = new TreeSet<>();
+		this.multiProperties = new ArrayList<>();
+		this.clientIds = new TreeSet<>();
+		this.lazyClientInitializerByName = new ConcurrentHashMap<String,LazyClientProvider>();
 	}
 	
 	public void registerConfigFile(String configFilePath){
@@ -97,12 +96,12 @@ public class Clients{
 		return routerOptions.getClientTypeInstance(clientName);
 	}
 	
-	private synchronized void initClientFactoryIfNull(DataRouterContext datarouterContext, String clientName) {
+	private synchronized void initClientFactoryIfNull(DataRouterContext context, String clientName) {
 		if(lazyClientInitializerByName.containsKey(clientName)) { return; }
 		ClientType clientTypeInstance = getClientTypeInstance(clientName);
-		List<PhysicalNode<?,?>> physicalNodesForClient = datarouterContext.getNodes().getPhysicalNodesForClient(
+		List<PhysicalNode<?,?>> physicalNodesForClient = context.getNodes().getPhysicalNodesForClient(
 				clientName);
-		ClientFactory clientFactory = clientTypeInstance.createClientFactory(datarouterContext, clientName, 
+		ClientFactory clientFactory = clientTypeInstance.createClientFactory(context, clientName, 
 				physicalNodesForClient);
 		lazyClientInitializerByName.put(clientName, new LazyClientProvider(clientFactory));
 	}
@@ -112,7 +111,7 @@ public class Clients{
 		
 	private List<String> getClientNamesRequiringEagerInitialization(){
 		ClientInitMode forceInitMode = ClientInitMode.fromString(
-				PropertiesTool.getFirstOccurrence(multiProperties, prefixClients+paramForceInitMode), null);
+				PropertiesTool.getFirstOccurrence(multiProperties, PREFIX_clients+PARAM_forceInitMode), null);
 		
 		if(forceInitMode != null){
 			if(ClientInitMode.eager.equals(forceInitMode)){
@@ -123,12 +122,12 @@ public class Clients{
 		}
 		
 		ClientInitMode defaultInitMode = ClientInitMode.fromString(PropertiesTool.getFirstOccurrence(
-				multiProperties, prefixClient+clientDefault+paramInitMode), ClientInitMode.lazy);
+				multiProperties, PREFIX_client+CLIENT_default+PARAM_initMode), ClientInitMode.lazy);
 		
 		List<String> clientNamesRequiringEagerInitialization = ListTool.createLinkedList();
 		for(String name : CollectionTool.nullSafe(getClientNames())){
 			ClientInitMode mode = ClientInitMode.fromString(PropertiesTool.getFirstOccurrence(multiProperties,
-					prefixClient+name+paramInitMode), defaultInitMode);
+					PREFIX_client+name+PARAM_initMode), defaultInitMode);
 			if(ClientInitMode.eager.equals(mode)){
 				clientNamesRequiringEagerInitialization.add(name);
 			}
@@ -151,7 +150,7 @@ public class Clients{
 		return lazyClientInitializerByName.get(clientName).call();
 	}
 	
-	public List<Client> getClients(DataRouterContext datarouterContext, Collection<String> clientNames){
+	public List<Client> getClients(DataRouterContext context, Collection<String> clientNames){
 		List<Client> clients = ListTool.createArrayListWithSize(clientNames);
 		List<LazyClientProvider> providers = ListTool.createLinkedList();//TODO don't create until needed
 		for(String clientName : CollectionTool.nullSafe(clientNames)){
@@ -163,13 +162,13 @@ public class Clients{
 			}
 		}
 		if(CollectionTool.notEmpty(providers)){
-			clients.addAll(FutureTool.submitAndGetAll(providers, datarouterContext.getExecutorService()));
+			clients.addAll(FutureTool.submitAndGetAll(providers, context.getExecutorService()));
 		}
 		return clients;
 	}
 	
-	public List<Client> getAllClients(DataRouterContext datarouterContext){
-		return getClients(datarouterContext, ClientId.getNames(clientIds));
+	public List<Client> getAllClients(DataRouterContext context){
+		return getClients(context, ClientId.getNames(clientIds));
 	}
 	
 	

@@ -11,13 +11,15 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -39,14 +41,13 @@ import com.hotpads.util.core.java.ReflectionTool;
  * @param <D>
  * @param <N>
  */
+@Singleton
 public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends Node<PK,D>>{
 	private static final Logger logger = LoggerFactory.getLogger(Nodes.class);
 	
 	
 	/************************ fields *******************************/
 	
-	protected DataRouterContext drContext;
-
 	protected List<N> topLevelNodes = ListTool.createArrayList();
 	protected List<N> allNodes = ListTool.createArrayList();
 	protected List<String> allNames = ListTool.createArrayList();
@@ -63,8 +64,8 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	
 	/********************** constructors **********************************/
 	
-	public Nodes(DataRouterContext drContext){
-		this.drContext = drContext;
+	@Inject
+	public Nodes(){
 	}
 	
 	

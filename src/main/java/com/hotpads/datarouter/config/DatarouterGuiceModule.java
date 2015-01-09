@@ -14,6 +14,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import com.google.inject.BindingAnnotation;
+import com.google.inject.Scopes;
 import com.google.inject.servlet.ServletModule;
 import com.hotpads.datarouter.config.DatarouterGuiceModule.DatarouterExecutorServiceProvider.DatarouterExecutorService;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
@@ -23,7 +24,7 @@ public class DatarouterGuiceModule extends ServletModule{
 	@Override
 	protected void configureServlets(){
 		bind(ExecutorService.class).annotatedWith(DatarouterExecutorService.class).toProvider(
-				DatarouterExecutorServiceProvider.class);
+				DatarouterExecutorServiceProvider.class).in(Scopes.SINGLETON);;
 	}
 
 	
