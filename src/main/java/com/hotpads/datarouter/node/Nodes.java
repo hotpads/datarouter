@@ -48,24 +48,34 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	
 	/************************ fields *******************************/
 	
-	protected List<N> topLevelNodes = ListTool.createArrayList();
-	protected List<N> allNodes = ListTool.createArrayList();
-	protected List<String> allNames = ListTool.createArrayList();
-	protected Map<String,N> nodeByName = MapTool.createTreeMap();
-	protected SortedMap<String,SortedSet<N>> nodesByRouterName = MapTool.createTreeMap();
-	protected Multimap<String,N> topLevelNodesByRouterName = TreeMultimap.create();
-	protected Map<N,String> routerNameByNode = MapTool.createTreeMap();
-//	protected Map<ClientType,List<N>> nodesByClientType = MapTool.createTreeMap();
-	protected Map<String,Map<String,PhysicalNode<PK,D>>> physicalNodeByTableNameByClientName = MapTool.createTreeMap();
-	protected Map<Class<PK>,N> nodeByPrimaryKeyType = MapTool.createHashMap();//won't this have collissions?
-	protected Map<Class<D>,N> nodeByDatabeanType = MapTool.createHashMap();//won't this have collissions?
-	protected Map<Class<D>,List<String>> clientNamesByDatabeanType = MapTool.createHashMap();
+	private List<N> topLevelNodes;
+	private List<N> allNodes;
+	private List<String> allNames;
+	private Map<String,N> nodeByName;
+	private SortedMap<String,SortedSet<N>> nodesByRouterName;
+	private Multimap<String,N> topLevelNodesByRouterName;
+	private Map<N,String> routerNameByNode;
+	private Map<String,Map<String,PhysicalNode<PK,D>>> physicalNodeByTableNameByClientName;
+	private Map<Class<PK>,N> nodeByPrimaryKeyType;
+	private Map<Class<D>,N> nodeByDatabeanType;
+	private Map<Class<D>,List<String>> clientNamesByDatabeanType;
 	
 	
 	/********************** constructors **********************************/
 	
 	@Inject
 	public Nodes(){
+		this.topLevelNodes = ListTool.createArrayList();
+		this.allNodes = ListTool.createArrayList();
+		this.allNames = ListTool.createArrayList();
+		this.nodeByName = MapTool.createTreeMap();
+		this.nodesByRouterName = MapTool.createTreeMap();
+		this.topLevelNodesByRouterName = TreeMultimap.create();
+		this.routerNameByNode = MapTool.createTreeMap();
+		this.physicalNodeByTableNameByClientName = MapTool.createTreeMap();
+		this.nodeByPrimaryKeyType = MapTool.createHashMap();//won't this have collissions?
+		this.nodeByDatabeanType = MapTool.createHashMap();//won't this have collissions?
+		this.clientNamesByDatabeanType = MapTool.createHashMap();
 	}
 	
 	
@@ -199,7 +209,7 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 		}
 	}
 	
-	protected void ensureDuplicateNamesReferToSameNode(N node){
+	private void ensureDuplicateNamesReferToSameNode(N node){
 		String thisName = node.getName();
 		N existingNode = nodeByName.get(thisName);
 		if(existingNode == null || existingNode == node){ return; }
