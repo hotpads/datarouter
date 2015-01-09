@@ -5,7 +5,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -15,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.Clients;
+import com.hotpads.datarouter.config.DatarouterGuiceModule.DatarouterExecutorServiceProvider.DatarouterExecutorService;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.util.core.CollectionTool;
@@ -24,7 +24,6 @@ import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
-import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 /**
  * DatarouterContext is the top-level scope through which various components can share things like clients,
@@ -62,7 +61,7 @@ public class DataRouterContext{
 	/************************** constructors ***************************/
 	
 	@Inject
-	public DataRouterContext(ExecutorService executorService, Clients clients){
+	public DataRouterContext(@DatarouterExecutorService ExecutorService executorService, Clients clients){
 		this.executorService = executorService;
 		this.clients = clients;
 		this.nodes = new Nodes(this);
