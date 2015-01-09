@@ -69,6 +69,10 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<version>${exec-maven-plugin.version}</version>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+			</plugin>
 		</plugins>
 	</build>
 
