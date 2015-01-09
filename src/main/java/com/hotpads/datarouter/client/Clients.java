@@ -28,7 +28,7 @@ import com.hotpads.util.core.concurrent.FutureTool;
 /**
  * Clients is a registry or cache of all clients in a DatarouterContext. Clients are expensive to create, so we reuse
  * them for the life of the application. This class also provides a lazy-initialization feature that defers connection
- * creation, authentication, and connection pool warmup until an application request triggers it.
+ * creation, authentication, and connection pool warm-up until an application request triggers it.
  * 
  * This class can be used for DatarouterManagement, such as displaying a web page listing all clients.
  * 
@@ -97,7 +97,7 @@ public class Clients{
 		return routerOptions.getClientTypeInstance(clientName);
 	}
 	
-	protected synchronized void initClientFactoryIfNull(DataRouterContext datarouterContext, String clientName) {
+	private synchronized void initClientFactoryIfNull(DataRouterContext datarouterContext, String clientName) {
 		if(lazyClientInitializerByName.containsKey(clientName)) { return; }
 		ClientType clientTypeInstance = getClientTypeInstance(clientName);
 		List<PhysicalNode<?,?>> physicalNodesForClient = datarouterContext.getNodes().getPhysicalNodesForClient(
@@ -110,7 +110,7 @@ public class Clients{
 	
 	/******************** getNames **********************************************/
 		
-	protected List<String> getClientNamesRequiringEagerInitialization(){
+	private List<String> getClientNamesRequiringEagerInitialization(){
 		ClientInitMode forceInitMode = ClientInitMode.fromString(
 				PropertiesTool.getFirstOccurrence(multiProperties, prefixClients+paramForceInitMode), null);
 		
@@ -174,16 +174,4 @@ public class Clients{
 	
 	
 }
-
-
-
-
-
-
-
-
-
-
-
-
 

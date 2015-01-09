@@ -62,7 +62,7 @@ public class DataRouterContext{
 	/************************** constructors ***************************/
 	
 	@Inject
-	DataRouterContext(ExecutorService executorService, Clients clients){
+	public DataRouterContext(ExecutorService executorService, Clients clients){
 		this.executorService = executorService;
 		this.clients = clients;
 		this.nodes = new Nodes(this);
