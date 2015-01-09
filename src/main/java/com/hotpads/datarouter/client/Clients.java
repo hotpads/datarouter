@@ -8,11 +8,13 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
-import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.util.core.CollectionTool;
@@ -33,11 +35,10 @@ import com.hotpads.util.core.concurrent.FutureTool;
  * @author mcorgan
  * 
  */
+@Singleton
 public class Clients{
 	private static Logger logger = LoggerFactory.getLogger(Clients.class);
 
-	protected DataRouterContext drContext;
-	
 	protected Set<String> configFilePaths = SetTool.createTreeSet();
 	protected Collection<Properties> multiProperties = ListTool.createArrayList();
 	protected Map<String, Object> params;
@@ -64,9 +65,8 @@ public class Clients{
 	
 	/******************************* constructors **********************************/
 
-	public Clients(DataRouterContext drContext){
-		this.drContext = drContext;
-//		initializeEagerClients();//i don't think this will do anything here because clients haven't been registered yet
+	@Inject
+	public Clients(){
 	}
 	
 	public void registerConfigFile(String configFilePath){
@@ -76,10 +76,10 @@ public class Clients{
 		}
 	}
 	
-	public void registerClientIds(Collection<ClientId> clientIdsToAdd) {
+	public void registerClientIds(DataRouterContext context, Collection<ClientId> clientIdsToAdd) {
 		clientIds.addAll(CollectionTool.nullSafe(clientIdsToAdd));
 		for(ClientId clientId : IterableTool.nullSafe(clientIds)) {
-			initClientFactoryIfNull(clientId.getName());
+			initClientFactoryIfNull(context, clientId.getName());
 		}
 	}
 	
@@ -87,9 +87,9 @@ public class Clients{
 	
 	/********************************** initialize ******************************/
 	
-	public void initializeEagerClients(){
+	public void initializeEagerClients(DataRouterContext context){
 		final List<String> eagerClientNames = getClientNamesRequiringEagerInitialization();
-		getClients(eagerClientNames);
+		getClients(context, eagerClientNames);
 	}
 	
 	public ClientType getClientTypeInstance(String clientName){
@@ -97,11 +97,13 @@ public class Clients{
 		return routerOptions.getClientTypeInstance(clientName);
 	}
 	
-	protected synchronized void initClientFactoryIfNull(String clientName) {
+	protected synchronized void initClientFactoryIfNull(DataRouterContext datarouterContext, String clientName) {
 		if(lazyClientInitializerByName.containsKey(clientName)) { return; }
 		ClientType clientTypeInstance = getClientTypeInstance(clientName);
-		List<PhysicalNode<?,?>> physicalNodesForClient = drContext.getNodes().getPhysicalNodesForClient(clientName);
-		ClientFactory clientFactory = clientTypeInstance.createClientFactory(drContext, clientName, physicalNodesForClient);
+		List<PhysicalNode<?,?>> physicalNodesForClient = datarouterContext.getNodes().getPhysicalNodesForClient(
+				clientName);
+		ClientFactory clientFactory = clientTypeInstance.createClientFactory(datarouterContext, clientName, 
+				physicalNodesForClient);
 		lazyClientInitializerByName.put(clientName, new LazyClientProvider(clientFactory));
 	}
 	
@@ -136,10 +138,6 @@ public class Clients{
 	
 	
 	/********************************** access connection pools ******************************/
-	
-	public ConnectionPools getConnectionPools(){
-		return drContext.getConnectionPools();
-	}
 
 	public NavigableSet<ClientId> getClientIds(){
 		return clientIds;
@@ -153,7 +151,7 @@ public class Clients{
 		return lazyClientInitializerByName.get(clientName).call();
 	}
 	
-	public List<Client> getClients(Collection<String> clientNames){
+	public List<Client> getClients(DataRouterContext datarouterContext, Collection<String> clientNames){
 		List<Client> clients = ListTool.createArrayListWithSize(clientNames);
 		List<LazyClientProvider> providers = ListTool.createLinkedList();//TODO don't create until needed
 		for(String clientName : CollectionTool.nullSafe(clientNames)){
@@ -165,13 +163,13 @@ public class Clients{
 			}
 		}
 		if(CollectionTool.notEmpty(providers)){
-			clients.addAll(FutureTool.submitAndGetAll(providers, drContext.getExecutorService()));
+			clients.addAll(FutureTool.submitAndGetAll(providers, datarouterContext.getExecutorService()));
 		}
 		return clients;
 	}
 	
-	public List<Client> getAllClients(){
-		return getClients(ClientId.getNames(clientIds));
+	public List<Client> getAllClients(DataRouterContext datarouterContext){
+		return getClients(datarouterContext, ClientId.getNames(clientIds));
 	}
 	
 	

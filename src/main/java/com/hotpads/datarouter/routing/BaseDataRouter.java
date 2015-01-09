@@ -124,7 +124,7 @@ implements DataRouter{
 
 	@Override
 	public List<Client> getAllClients(){
-		return context.getClientPool().getClients(getClientNames());
+		return context.getClientPool().getClients(context, getClientNames());
 	}
 
 //	@Override
@@ -151,7 +151,7 @@ implements DataRouter{
 	getClientsForDatabeanType(Class<D> databeanType){
 		List<String> clientNames = context.getNodes().getClientNamesForDatabeanType(databeanType);
 		if(CollectionTool.isEmpty(clientNames)){ return null; }
-		return context.getClientPool().getClients(clientNames);
+		return context.getClientPool().getClients(context, clientNames);
 	}
 
 	@Override
