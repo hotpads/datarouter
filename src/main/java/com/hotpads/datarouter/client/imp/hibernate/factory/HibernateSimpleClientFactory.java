@@ -43,7 +43,7 @@ extends JdbcSimpleClientFactory{
 		PhaseTimer timer = new PhaseTimer(clientName);
 
 		// base config file for a SessionFactory
-		String configFileLocation = PropertiesTool.getFirstOccurrence(multiProperties, Clients.prefixClient + clientName
+		String configFileLocation = PropertiesTool.getFirstOccurrence(multiProperties, Clients.PREFIX_client + clientName
 					+ PARAM_CONFIG_LOCATION);
 		if(StringTool.isEmpty(configFileLocation)){
 			configFileLocation = CONFIG_LOCATION_DEFAULT;

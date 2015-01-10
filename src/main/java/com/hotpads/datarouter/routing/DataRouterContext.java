@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
@@ -47,39 +49,41 @@ public class DataRouterContext{
 	
 	/*************************** fields *****************************/
 	
-	protected ThreadGroup parentThreadGroup;
-	protected ThreadFactory threadFactory;
-	protected ThreadPoolExecutor executorService;//for async client init and monitoring
+	private ExecutorService executorService;//for async client init and monitoring
 
-	protected List<DataRouter> routers;
-	protected Set<String> configFilePaths;
-	protected List<Properties> multiProperties;
-	protected String serverName;
-	protected String administratorEmail;
+	private List<DataRouter> routers;
+	private Set<String> configFilePaths;
+	private List<Properties> multiProperties;
+	private String serverName;
+	private String administratorEmail;
 	
-	protected ConnectionPools connectionPools;
-	protected Clients clients;
-	protected Nodes nodes;
+	private ConnectionPools connectionPools;
+	private Clients clients;
+	private Nodes nodes;
 	
 
 	/************************** constructors ***************************/
 	
-	public DataRouterContext() {
-		this(new ThreadGroup("DataRouter-DefaultThreadGroup"));
-	}
-	
-	public DataRouterContext(ThreadGroup parentThreadGroup){
-		this.parentThreadGroup = parentThreadGroup;//new ThreadGroup("DataRouter-"+router.getName());
-		this.threadFactory = new NamedThreadFactory(parentThreadGroup, "DataRouterContext-"
-				+System.identityHashCode(this), true);
+	/*
+	 * for some reason, trying to inject an ExecutorService throws guice into an endless loop of ComputationExceptions.
+	 * Google doesn't turn up many questions about it.
+	 */
+	@Inject
+//	public DataRouterContext(@DatarouterExecutorService ExecutorService executorService, Clients clients){
+//		this.executorService = executorService;
+	public DataRouterContext(ConnectionPools connectionPools, Clients clients, Nodes nodes){
+		int id = System.identityHashCode(this);
+		ThreadGroup threadGroup = new ThreadGroup("Datarouter-ThreadGroup-"+id);
+		ThreadFactory threadFactory = new NamedThreadFactory(threadGroup, "Datarouter-ThreadFactory-"+id, true);
 		this.executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
 	            new SynchronousQueue<Runnable>(), threadFactory);
 
+		this.connectionPools = connectionPools;
+		this.clients = clients;
+		this.nodes = nodes;
+		
 		this.configFilePaths = SetTool.createTreeSet();
 		this.multiProperties = ListTool.createArrayList();
-		this.connectionPools = new ConnectionPools();
-		this.clients = new Clients(this);
-		this.nodes = new Nodes(this);
 		this.routers = ListTool.createArrayList();
 //		createDefaultMemoryClient();//do after this.clients and this.nodes have been instantiated
 	}
@@ -95,7 +99,7 @@ public class DataRouterContext{
 		routers.add(router);
 		addConfigIfNew(router);
 		connectionPools.registerClientIds(router.getClientIds(), router.getConfigLocation());
-		clients.registerClientIds(router.getClientIds());
+		clients.registerClientIds(this, router.getClientIds());
 	}
 	
 	private void addConfigIfNew(DataRouter router){
@@ -123,7 +127,7 @@ public class DataRouterContext{
 	}
 	
 	public void initializeEagerClients(){
-		clients.initializeEagerClients();
+		clients.initializeEagerClients(this);
 	}
 	
 	
@@ -182,11 +186,7 @@ public class DataRouterContext{
 		return routers;
 	}
 
-	public ThreadGroup getParentThreadGroup(){
-		return parentThreadGroup;
-	}
-
-	public ThreadPoolExecutor getExecutorService(){
+	public ExecutorService getExecutorService(){
 		return executorService;
 	}
 
