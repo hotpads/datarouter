@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
-import com.hotpads.datarouter.util.ApplicationRootPathProvider.ApplicationRootPath;
+import com.hotpads.datarouter.util.ApplicationRootPath;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -27,7 +27,7 @@ import com.hotpads.util.core.SetTool;
 public class ConnectionPools {
 	private static Logger logger = LoggerFactory.getLogger(ConnectionPools.class);
 
-	private String applicationRootPath;
+	private ApplicationRootPath applicationRootPath;
 	
 	private NavigableSet<ClientId> clientIds = SetTool.createTreeSet();
 	private Set<String> configFilePaths = SetTool.createTreeSet();
@@ -41,7 +41,7 @@ public class ConnectionPools {
 	/******************************* constructors **********************************/
 	
 	@Inject
-	ConnectionPools(@ApplicationRootPath String applicationRootPath){
+	ConnectionPools(ApplicationRootPath applicationRootPath){
 		this.applicationRootPath = applicationRootPath;
 	}
 	

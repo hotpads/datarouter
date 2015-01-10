@@ -9,8 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
-import com.hotpads.datarouter.util.ApplicationRootPathProvider;
-import com.hotpads.datarouter.util.ApplicationRootPathProvider.ApplicationRootPath;
+import com.hotpads.datarouter.util.ApplicationRootPath;
 import com.hotpads.datarouter.util.ssl.KeystoreManager;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
@@ -18,7 +17,7 @@ import com.mchange.v2.c3p0.DataSources;
 public class JdbcConnectionPool{
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
-	private String applicationRootPath;
+	private ApplicationRootPath applicationRootPath;
 	private String name;
 	private ComboPooledDataSource pool;
 	private JdbcOptions defaultOptions;
@@ -30,7 +29,7 @@ public class JdbcConnectionPool{
 		prefix = ConnectionPools.prefixPool,
 		poolDefault = "default";
 	
-	public JdbcConnectionPool(@ApplicationRootPath String applicationRootPath, String name, Iterable<Properties> multiProperties, Boolean writable){
+	public JdbcConnectionPool(ApplicationRootPath applicationRootPath, String name, Iterable<Properties> multiProperties, Boolean writable){
 		this.applicationRootPath = applicationRootPath;
 		this.defaultOptions = new JdbcOptions(multiProperties, poolDefault);
 		this.options = new JdbcOptions(multiProperties, name);
@@ -139,10 +138,9 @@ public class JdbcConnectionPool{
 
 	private void addCertificates(){
 		try{
-			String dir = "?";
-			System.out.println(getClass() + applicationRootPath + "/"+options.sslCert());
+			System.out.println(getClass() + applicationRootPath.getPath() + "/"+options.sslCert());
 			KeystoreManager km = new KeystoreManager();
-			km.addCertificates(name, applicationRootPath, options.sslCert(), options.sslCa(), options.sslKey());
+			km.addCertificates(name, applicationRootPath.getPath(), options.sslCert(), options.sslCa(), options.sslKey());
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}

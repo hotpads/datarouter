@@ -20,7 +20,7 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Nodes;
-import com.hotpads.datarouter.util.ApplicationRootPathProvider.ApplicationRootPath;
+import com.hotpads.datarouter.util.ApplicationRootPath;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -41,9 +41,9 @@ import com.hotpads.util.core.concurrent.NamedThreadFactory;
 //TODO rename DatarouterContext
 @Singleton
 public class DataRouterContext{
-	protected static Logger logger = LoggerFactory.getLogger(DataRouterContext.class);
+	private static Logger logger = LoggerFactory.getLogger(DataRouterContext.class);
 
-	protected static final String
+	private static final String
 			CONFIG_SERVER_NAME = "server.name",
 			CONFIG_ADMINISTRATOR_EMAIL = "administrator.email";
 	
@@ -51,7 +51,7 @@ public class DataRouterContext{
 	/*************************** fields *****************************/
 
 	//injected
-	private String applicationRootPath;
+	private ApplicationRootPath applicationRootPath;
 	private ConnectionPools connectionPools;
 	private Clients clients;
 	private Nodes nodes;
@@ -75,7 +75,8 @@ public class DataRouterContext{
 	@Inject
 //	public DataRouterContext(@DatarouterExecutorService ExecutorService executorService, Clients clients){
 //		this.executorService = executorService;
-	public DataRouterContext(@ApplicationRootPath String applicationRootPath, ConnectionPools connectionPools, Clients clients, Nodes nodes){
+	public DataRouterContext(ApplicationRootPath applicationRootPath, ConnectionPools connectionPools, 
+			Clients clients, Nodes nodes){
 		this.applicationRootPath = applicationRootPath;
 		int id = System.identityHashCode(this);
 		ThreadGroup threadGroup = new ThreadGroup("Datarouter-ThreadGroup-"+id);
@@ -207,7 +208,7 @@ public class DataRouterContext{
 		return administratorEmail;
 	}
 
-	public String getApplicationRootPath(){
+	public ApplicationRootPath getApplicationRootPath(){
 		return applicationRootPath;
 	}
 	

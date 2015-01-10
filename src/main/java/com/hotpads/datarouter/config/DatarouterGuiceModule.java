@@ -17,12 +17,17 @@ import com.google.inject.BindingAnnotation;
 import com.google.inject.Scopes;
 import com.google.inject.servlet.ServletModule;
 import com.hotpads.datarouter.config.DatarouterGuiceModule.DatarouterExecutorServiceProvider.DatarouterExecutorService;
+import com.hotpads.datarouter.util.ApplicationRootPath;
+import com.hotpads.datarouter.util.GuiceApplicationRootPath;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 public class DatarouterGuiceModule extends ServletModule{
 
 	@Override
 	protected void configureServlets(){
+		bind(ApplicationRootPath.class).to(GuiceApplicationRootPath.class).in(Scopes.SINGLETON);
+//		bind(String.class).annotatedWith(ApplicationRootPath.class).toProvider(ApplicationRootPathProvider.class).in(
+//				Scopes.SINGLETON);
 		bind(ExecutorService.class).annotatedWith(DatarouterExecutorService.class).toProvider(
 				DatarouterExecutorServiceProvider.class).in(Scopes.SINGLETON);;
 	}

@@ -15,7 +15,6 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.DataRouterContext;
-import com.hotpads.datarouter.util.ApplicationRootPathProvider.ApplicationRootPath;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.profile.PhaseTimer;
