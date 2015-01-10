@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
+import com.hotpads.datarouter.util.ApplicationRootPathProvider.ApplicationRootPath;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -26,10 +27,12 @@ import com.hotpads.util.core.SetTool;
 public class ConnectionPools {
 	private static Logger logger = LoggerFactory.getLogger(ConnectionPools.class);
 
-	protected NavigableSet<ClientId> clientIds = SetTool.createTreeSet();
-	protected Set<String> configFilePaths = SetTool.createTreeSet();
-	protected Collection<Properties> multiProperties = ListTool.createArrayList();
-	protected Map<String,JdbcConnectionPool> connectionPoolByName = MapTool.createConcurrentHashMap();
+	private String applicationRootPath;
+	
+	private NavigableSet<ClientId> clientIds = SetTool.createTreeSet();
+	private Set<String> configFilePaths = SetTool.createTreeSet();
+	private Collection<Properties> multiProperties = ListTool.createArrayList();
+	private Map<String,JdbcConnectionPool> connectionPoolByName = MapTool.createConcurrentHashMap();
 
 	public static final String		
 		prefixPool = Clients.PREFIX_client,//"pool.",
@@ -37,8 +40,9 @@ public class ConnectionPools {
 	
 	/******************************* constructors **********************************/
 	
-//	@Inject
-	ConnectionPools(){
+	@Inject
+	ConnectionPools(@ApplicationRootPath String applicationRootPath){
+		this.applicationRootPath = applicationRootPath;
 	}
 	
 	public void registerClientIds(Collection<ClientId> clientIdsToAdd, String configFilePath) {
@@ -88,7 +92,8 @@ public class ConnectionPools {
 	public void initializeConnectionPool(String connectionPoolName){		
 		try{
 			boolean writable = ClientId.getWritableNames(clientIds).contains(connectionPoolName);
-			JdbcConnectionPool connectionPool = new JdbcConnectionPool(connectionPoolName, multiProperties, writable);
+			JdbcConnectionPool connectionPool = new JdbcConnectionPool(applicationRootPath, connectionPoolName,
+					multiProperties, writable);
 			connectionPoolByName.put(connectionPool.getName(), connectionPool);
 		}catch(Exception e){
 			logger.error("error instantiating ConnectionPool:"+connectionPoolName, e);

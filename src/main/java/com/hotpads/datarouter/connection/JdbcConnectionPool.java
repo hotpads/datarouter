@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
 import com.hotpads.datarouter.util.ApplicationRootPathProvider;
+import com.hotpads.datarouter.util.ApplicationRootPathProvider.ApplicationRootPath;
 import com.hotpads.datarouter.util.ssl.KeystoreManager;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
@@ -17,9 +18,10 @@ import com.mchange.v2.c3p0.DataSources;
 public class JdbcConnectionPool{
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
+	private String applicationRootPath;
 	private String name;
 	private ComboPooledDataSource pool;
-	protected JdbcOptions defaultOptions;
+	private JdbcOptions defaultOptions;
 	protected JdbcOptions options;
 	private boolean writable = false;
 	
@@ -28,7 +30,8 @@ public class JdbcConnectionPool{
 		prefix = ConnectionPools.prefixPool,
 		poolDefault = "default";
 	
-	public JdbcConnectionPool(String name, Iterable<Properties> multiProperties, Boolean writable){
+	public JdbcConnectionPool(@ApplicationRootPath String applicationRootPath, String name, Iterable<Properties> multiProperties, Boolean writable){
+		this.applicationRootPath = applicationRootPath;
 		this.defaultOptions = new JdbcOptions(multiProperties, poolDefault);
 		this.options = new JdbcOptions(multiProperties, name);
 		this.writable = writable;
@@ -135,7 +138,6 @@ public class JdbcConnectionPool{
 	// mysql --ssl-ca=server-ca.pem --ssl-cert=client-cert.pem --ssl-key=client-key.pem --host=173.194.254.110 --user=root --password
 
 	private void addCertificates(){
-		String applicationRootPath = new ApplicationRootPathProvider().get();
 		try{
 			String dir = "?";
 			System.out.println(getClass() + applicationRootPath + "/"+options.sslCert());

@@ -31,6 +31,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
+import com.hotpads.datarouter.util.ApplicationRootPathProvider.ApplicationRootPath;
 
 @Singleton
 public class HibernateClientType extends BaseClientType{

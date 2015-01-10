@@ -20,6 +20,7 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Nodes;
+import com.hotpads.datarouter.util.ApplicationRootPathProvider.ApplicationRootPath;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -48,7 +49,14 @@ public class DataRouterContext{
 	
 	
 	/*************************** fields *****************************/
+
+	//injected
+	private String applicationRootPath;
+	private ConnectionPools connectionPools;
+	private Clients clients;
+	private Nodes nodes;
 	
+	//not injected
 	private ExecutorService executorService;//for async client init and monitoring
 
 	private List<DataRouter> routers;
@@ -56,10 +64,6 @@ public class DataRouterContext{
 	private List<Properties> multiProperties;
 	private String serverName;
 	private String administratorEmail;
-	
-	private ConnectionPools connectionPools;
-	private Clients clients;
-	private Nodes nodes;
 	
 
 	/************************** constructors ***************************/
@@ -71,7 +75,8 @@ public class DataRouterContext{
 	@Inject
 //	public DataRouterContext(@DatarouterExecutorService ExecutorService executorService, Clients clients){
 //		this.executorService = executorService;
-	public DataRouterContext(ConnectionPools connectionPools, Clients clients, Nodes nodes){
+	public DataRouterContext(@ApplicationRootPath String applicationRootPath, ConnectionPools connectionPools, Clients clients, Nodes nodes){
+		this.applicationRootPath = applicationRootPath;
 		int id = System.identityHashCode(this);
 		ThreadGroup threadGroup = new ThreadGroup("Datarouter-ThreadGroup-"+id);
 		ThreadFactory threadFactory = new NamedThreadFactory(threadGroup, "Datarouter-ThreadFactory-"+id, true);
@@ -201,5 +206,11 @@ public class DataRouterContext{
 	public String getAdministratorEmail(){
 		return administratorEmail;
 	}
+
+	public String getApplicationRootPath(){
+		return applicationRootPath;
+	}
+	
+	
 	
 }
