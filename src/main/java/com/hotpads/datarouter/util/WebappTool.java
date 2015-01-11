@@ -26,6 +26,18 @@ public class WebappTool{
 		String fsAppRoot = fsAbsolutePath.substring(0, fsAbsolutePath.length() - slugFileName.length() - 1);
 		return fsAppRoot;
 	}
+	
+	public static String getResourcesPath(ServletContext servletContext){
+		String rootPath = getApplicationRootPath(servletContext);
+		String classesPath = rootPath + "/WEB-INF/classes";
+		String srcMainResourcesPath = rootPath + "/src/main/resources";
+		if(new File(classesPath).exists()){//packaged webapp
+			return classesPath;
+		}else if(new File(srcMainResourcesPath).exists()){//for tests
+			return srcMainResourcesPath;
+		}
+		throw new RuntimeException("can't find any resources");
+	}
 
 	public static File getFileInWebapp(ServletContext servletContext, String path){
 		String gaeAbsolutePath = new File("slug").getAbsolutePath();
