@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
 import com.hotpads.datarouter.util.ApplicationPaths;
-import com.hotpads.datarouter.util.ssl.KeystoreManager;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
 
@@ -45,15 +44,12 @@ public class JdbcConnectionPool{
 	public void createFromScratch(String name){
 		this.name = name;
 		
-		Boolean ssl = options.ssl();
 		String url = options.url();
 		String user = options.user(defaultOptions.user("root"));
 		String password = options.password(defaultOptions.password(""));
 		Integer minPoolSize = options.minPoolSize(defaultOptions.minPoolSize(1));
 		Integer maxPoolSize = options.maxPoolSize(defaultOptions.maxPoolSize(20));
 		Boolean logging = options.logging(defaultOptions.logging(false));
-		Boolean appEngine = options.appEngine();
-		if(logging && appEngine){ throw new RuntimeException("can use logging with appEngine"); }
 		
 		//configurable props
 		pool = new ComboPooledDataSource();
@@ -74,16 +70,8 @@ public class JdbcConnectionPool{
 				//log4jdbc - see http://code.google.com/p/log4jdbc/
 				pool.setDriverClass(net.sf.log4jdbc.DriverSpy.class.getName());
 				jdbcUrl = "jdbc:log4jdbc:mysql://"+url;
-			}else if(appEngine){ //https://cloud.google.com/sql/docs/instances
-				jdbcUrl = "jdbc:google:mysql://"+url;
-//				jdbcUrl = "jdbc:google:mysql://"+url+"?user="+user;
-				pool.setDriverClass("com.mysql.jdbc.GoogleDriver");
 			}else{
 				jdbcUrl = "jdbc:mysql://"+url;
-				if(ssl){
-					jdbcUrl += "?useSSL=true&requireSSL=true";
-					addCertificates();
-				}
 				pool.setDriverClass("com.mysql.jdbc.Driver");
 			}
 			pool.setJdbcUrl(jdbcUrl);
@@ -128,21 +116,6 @@ public class JdbcConnectionPool{
 			DataSources.destroy(getDataSource());
 		}catch(SQLException e){
 			logger.error("", e);
-		}
-	}
-	
-	/****************************** ssl ************************************/
-	
-	//mysql client ssl connection:
-	// mysql --ssl-ca=server-ca.pem --ssl-cert=client-cert.pem --ssl-key=client-key.pem --host=173.194.254.110 --user=root --password
-
-	private void addCertificates(){
-		try{
-			System.out.println(getClass() + applicationPaths.getRootPath() + "/"+options.sslCert());
-			KeystoreManager km = new KeystoreManager();
-			km.addCertificates(name, applicationPaths.getRootPath(), options.sslCert(), options.sslCa(), options.sslKey());
-		}catch(Exception e){
-			throw new RuntimeException(e);
 		}
 	}
 	
