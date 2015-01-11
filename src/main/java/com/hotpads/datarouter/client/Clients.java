@@ -60,7 +60,7 @@ public class Clients{
 	
 	/******************************* constructors **********************************/
 
-//	@Inject
+//	@Inject //spring doesn't like @Inject without params
 	Clients(){
 		this.configFilePaths = new TreeSet<>();
 		this.multiProperties = new ArrayList<>();

@@ -41,7 +41,7 @@ import com.hotpads.util.core.concurrent.NamedThreadFactory;
 //TODO rename DatarouterContext
 @Singleton
 public class DataRouterContext{
-	private static Logger logger = LoggerFactory.getLogger(DataRouterContext.class);
+	private static final Logger logger = LoggerFactory.getLogger(DataRouterContext.class);
 
 	private static final String
 			CONFIG_SERVER_NAME = "server.name",

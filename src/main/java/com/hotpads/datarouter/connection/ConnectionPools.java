@@ -1,11 +1,14 @@
 package com.hotpads.datarouter.connection;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,28 +24,35 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.PropertiesTool;
-import com.hotpads.util.core.SetTool;
 
 @Singleton
 public class ConnectionPools {
 	private static Logger logger = LoggerFactory.getLogger(ConnectionPools.class);
 
-	private ApplicationPaths applicationPaths;
-	
-	private NavigableSet<ClientId> clientIds = SetTool.createTreeSet();
-	private Set<String> configFilePaths = SetTool.createTreeSet();
-	private Collection<Properties> multiProperties = ListTool.createArrayList();
-	private Map<String,JdbcConnectionPool> connectionPoolByName = MapTool.createConcurrentHashMap();
-
 	public static final String		
 		prefixPool = Clients.PREFIX_client,//"pool.",
 		poolDefault = "default";
+
+	//injected
+	private ApplicationPaths applicationPaths;
+	
+	//not injected
+	private NavigableSet<ClientId> clientIds;
+	private Set<String> configFilePaths;
+	private Collection<Properties> multiProperties;
+	private Map<String,JdbcConnectionPool> connectionPoolByName;
+	
 	
 	/******************************* constructors **********************************/
 	
 	@Inject
 	ConnectionPools(ApplicationPaths applicationPaths){
 		this.applicationPaths = applicationPaths;
+
+		this.clientIds = new TreeSet<>();
+		this.configFilePaths = new TreeSet<>();
+		this.multiProperties = new ArrayList<>();
+		this.connectionPoolByName = new ConcurrentHashMap<>();
 	}
 	
 	public void registerClientIds(Collection<ClientId> clientIdsToAdd, String configFilePath) {
