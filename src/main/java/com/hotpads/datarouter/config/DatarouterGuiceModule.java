@@ -17,15 +17,15 @@ import com.google.inject.BindingAnnotation;
 import com.google.inject.Scopes;
 import com.google.inject.servlet.ServletModule;
 import com.hotpads.datarouter.config.DatarouterGuiceModule.DatarouterExecutorServiceProvider.DatarouterExecutorService;
-import com.hotpads.datarouter.util.ApplicationRootPath;
-import com.hotpads.datarouter.util.GuiceApplicationRootPath;
+import com.hotpads.datarouter.util.ApplicationPaths;
+import com.hotpads.datarouter.util.GuiceApplicationPaths;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 public class DatarouterGuiceModule extends ServletModule{
 
 	@Override
 	protected void configureServlets(){
-		bind(ApplicationRootPath.class).to(GuiceApplicationRootPath.class).in(Scopes.SINGLETON);
+		bind(ApplicationPaths.class).to(GuiceApplicationPaths.class).in(Scopes.SINGLETON);
 //		bind(String.class).annotatedWith(ApplicationRootPath.class).toProvider(ApplicationRootPathProvider.class).in(
 //				Scopes.SINGLETON);
 		bind(ExecutorService.class).annotatedWith(DatarouterExecutorService.class).toProvider(
@@ -34,7 +34,7 @@ public class DatarouterGuiceModule extends ServletModule{
 
 	
 
-	
+	//unused: causing guice startup errors.  not sure why
 	@Singleton
 	public static class DatarouterExecutorServiceProvider implements Provider<ExecutorService>{
 

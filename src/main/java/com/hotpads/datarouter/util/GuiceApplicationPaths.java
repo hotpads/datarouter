@@ -7,14 +7,14 @@ import javax.servlet.ServletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GuiceApplicationRootPath implements ApplicationRootPath{
-	private static final Logger logger = LoggerFactory.getLogger(GuiceApplicationRootPath.class);
+public class GuiceApplicationPaths implements ApplicationPaths{
+	private static final Logger logger = LoggerFactory.getLogger(GuiceApplicationPaths.class);
 	
 	private String path;
 	private String resourcesPath;
 	
 	@Inject
-	public GuiceApplicationRootPath(@Nullable ServletContext servletContext){
+	public GuiceApplicationPaths(@Nullable ServletContext servletContext){
 		this.path = WebappTool.getApplicationRootPath(servletContext);// null SC ok
 		logger.warn("path:"+path);
 		this.resourcesPath = WebappTool.getResourcesPath(servletContext);// null SC ok
@@ -22,7 +22,7 @@ public class GuiceApplicationRootPath implements ApplicationRootPath{
 	}
 	
 	@Override
-	public String getPath(){
+	public String getRootPath(){
 		return path;
 	}
 	

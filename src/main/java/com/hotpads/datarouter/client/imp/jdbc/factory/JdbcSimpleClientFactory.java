@@ -66,7 +66,7 @@ implements ClientFactory{
 	}
 	
 	protected JdbcConnectionPool getConnectionPool(String clientName, List<Properties> multiProperties){
-		JdbcConnectionPool connectionPool = new JdbcConnectionPool(drContext.getApplicationRootPath(), clientName,
+		JdbcConnectionPool connectionPool = new JdbcConnectionPool(drContext.getApplicationPaths(), clientName,
 				multiProperties, isWritableClient());
 		return connectionPool;
 	}

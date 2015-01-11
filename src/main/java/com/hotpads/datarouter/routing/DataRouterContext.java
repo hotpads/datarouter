@@ -20,7 +20,7 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Nodes;
-import com.hotpads.datarouter.util.ApplicationRootPath;
+import com.hotpads.datarouter.util.ApplicationPaths;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -51,7 +51,7 @@ public class DataRouterContext{
 	/*************************** fields *****************************/
 
 	//injected
-	private ApplicationRootPath applicationRootPath;
+	private ApplicationPaths applicationPaths;
 	private ConnectionPools connectionPools;
 	private Clients clients;
 	private Nodes nodes;
@@ -75,9 +75,9 @@ public class DataRouterContext{
 	@Inject
 //	public DataRouterContext(@DatarouterExecutorService ExecutorService executorService, Clients clients){
 //		this.executorService = executorService;
-	public DataRouterContext(ApplicationRootPath applicationRootPath, ConnectionPools connectionPools, 
+	public DataRouterContext(ApplicationPaths applicationRootPath, ConnectionPools connectionPools, 
 			Clients clients, Nodes nodes){
-		this.applicationRootPath = applicationRootPath;
+		this.applicationPaths = applicationRootPath;
 		int id = System.identityHashCode(this);
 		ThreadGroup threadGroup = new ThreadGroup("Datarouter-ThreadGroup-"+id);
 		ThreadFactory threadFactory = new NamedThreadFactory(threadGroup, "Datarouter-ThreadFactory-"+id, true);
@@ -208,8 +208,8 @@ public class DataRouterContext{
 		return administratorEmail;
 	}
 
-	public ApplicationRootPath getApplicationRootPath(){
-		return applicationRootPath;
+	public ApplicationPaths getApplicationPaths(){
+		return applicationPaths;
 	}
 	
 	

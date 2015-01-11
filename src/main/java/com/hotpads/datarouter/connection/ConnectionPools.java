@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
-import com.hotpads.datarouter.util.ApplicationRootPath;
+import com.hotpads.datarouter.util.ApplicationPaths;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -27,7 +27,7 @@ import com.hotpads.util.core.SetTool;
 public class ConnectionPools {
 	private static Logger logger = LoggerFactory.getLogger(ConnectionPools.class);
 
-	private ApplicationRootPath applicationRootPath;
+	private ApplicationPaths applicationPaths;
 	
 	private NavigableSet<ClientId> clientIds = SetTool.createTreeSet();
 	private Set<String> configFilePaths = SetTool.createTreeSet();
@@ -41,8 +41,8 @@ public class ConnectionPools {
 	/******************************* constructors **********************************/
 	
 	@Inject
-	ConnectionPools(ApplicationRootPath applicationRootPath){
-		this.applicationRootPath = applicationRootPath;
+	ConnectionPools(ApplicationPaths applicationPaths){
+		this.applicationPaths = applicationPaths;
 	}
 	
 	public void registerClientIds(Collection<ClientId> clientIdsToAdd, String configFilePath) {
@@ -92,7 +92,7 @@ public class ConnectionPools {
 	public void initializeConnectionPool(String connectionPoolName){		
 		try{
 			boolean writable = ClientId.getWritableNames(clientIds).contains(connectionPoolName);
-			JdbcConnectionPool connectionPool = new JdbcConnectionPool(applicationRootPath, connectionPoolName,
+			JdbcConnectionPool connectionPool = new JdbcConnectionPool(applicationPaths, connectionPoolName,
 					multiProperties, writable);
 			connectionPoolByName.put(connectionPool.getName(), connectionPool);
 		}catch(Exception e){

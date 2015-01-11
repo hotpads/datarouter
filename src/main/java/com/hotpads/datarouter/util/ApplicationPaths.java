@@ -1,9 +1,9 @@
 package com.hotpads.datarouter.util;
 
 
-public interface ApplicationRootPath{
+public interface ApplicationPaths{
 	
-	public String getPath();
+	public String getRootPath();
 	public String getResourcesPath();
 
 }

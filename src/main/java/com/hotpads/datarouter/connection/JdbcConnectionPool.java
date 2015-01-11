@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
-import com.hotpads.datarouter.util.ApplicationRootPath;
+import com.hotpads.datarouter.util.ApplicationPaths;
 import com.hotpads.datarouter.util.ssl.KeystoreManager;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
@@ -17,7 +17,7 @@ import com.mchange.v2.c3p0.DataSources;
 public class JdbcConnectionPool{
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
-	private ApplicationRootPath applicationRootPath;
+	private ApplicationPaths applicationPaths;
 	private String name;
 	private ComboPooledDataSource pool;
 	private JdbcOptions defaultOptions;
@@ -29,8 +29,8 @@ public class JdbcConnectionPool{
 		prefix = ConnectionPools.prefixPool,
 		poolDefault = "default";
 	
-	public JdbcConnectionPool(ApplicationRootPath applicationRootPath, String name, Iterable<Properties> multiProperties, Boolean writable){
-		this.applicationRootPath = applicationRootPath;
+	public JdbcConnectionPool(ApplicationPaths applicationPaths, String name, Iterable<Properties> multiProperties, Boolean writable){
+		this.applicationPaths = applicationPaths;
 		this.defaultOptions = new JdbcOptions(multiProperties, poolDefault);
 		this.options = new JdbcOptions(multiProperties, name);
 		this.writable = writable;
@@ -138,9 +138,9 @@ public class JdbcConnectionPool{
 
 	private void addCertificates(){
 		try{
-			System.out.println(getClass() + applicationRootPath.getPath() + "/"+options.sslCert());
+			System.out.println(getClass() + applicationPaths.getRootPath() + "/"+options.sslCert());
 			KeystoreManager km = new KeystoreManager();
-			km.addCertificates(name, applicationRootPath.getPath(), options.sslCert(), options.sslCa(), options.sslKey());
+			km.addCertificates(name, applicationPaths.getRootPath(), options.sslCert(), options.sslCa(), options.sslKey());
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}
