@@ -4,7 +4,11 @@ import java.io.File;
 
 import javax.servlet.ServletContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class WebappTool{
+	private static final Logger logger = LoggerFactory.getLogger(WebappTool.class);
 	
 	public static String getApplicationRootPath(ServletContext servletContext){
 		String slugFileName = "slug";
@@ -12,8 +16,10 @@ public class WebappTool{
 		String fsAbsolutePath;
 		if(servletContext == null){
 			fsAbsolutePath = new File(slugFileName).getAbsolutePath();
+			logger.warn("without ServletContext: "+fsAbsolutePath);
 		}else{
 			fsAbsolutePath = servletContext.getRealPath(slugFileName);
+			logger.warn("with ServletContext: "+fsAbsolutePath);
 		}
 		
 		//omit trailing slash
