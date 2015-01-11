@@ -16,10 +16,10 @@ public class WebappTool{
 		String fsAbsolutePath;
 		if(servletContext == null){
 			fsAbsolutePath = new File(slugFileName).getAbsolutePath();
-			logger.warn("without ServletContext: "+fsAbsolutePath);
+//			logger.warn("without ServletContext: "+fsAbsolutePath);
 		}else{
 			fsAbsolutePath = servletContext.getRealPath(slugFileName);
-			logger.warn("with ServletContext: "+fsAbsolutePath);
+//			logger.warn("with ServletContext: "+fsAbsolutePath);
 		}
 		
 		//omit trailing slash
@@ -38,19 +38,5 @@ public class WebappTool{
 		}
 		throw new RuntimeException("can't find any resources");
 	}
-
-	public static File getFileInWebapp(ServletContext servletContext, String path){
-		String gaeAbsolutePath = new File("slug").getAbsolutePath();
-		String gaeAppRoot = gaeAbsolutePath.substring(0, gaeAbsolutePath.length() - 4);
-		String gaePath = gaeAppRoot + path;
-		File gaeFile = new File(gaePath);
-		if(gaeFile.isFile()){ return gaeFile; }
-		
-		//maybe we arent'd deployed on AppEngine.  try searching locally
-		String localPath = servletContext.getRealPath(path);
-		File localFile = new File(localPath);
-		if(localFile.isFile()){ return localFile; }
-		
-		throw new RuntimeException("can't find cert at "+gaePath+" or "+localPath);
-	}
+	
 }

@@ -62,8 +62,8 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	
 	
 	/********************** constructors **********************************/
-	
-//	@Inject
+
+//	@Inject //spring doesn't like @Inject without params
 	Nodes(){
 		this.topLevelNodes = ListTool.createArrayList();
 		this.allNodes = ListTool.createArrayList();

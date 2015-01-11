@@ -16,9 +16,9 @@ public class GuiceApplicationPaths implements ApplicationPaths{
 	@Inject
 	public GuiceApplicationPaths(@Nullable ServletContext servletContext){
 		this.path = WebappTool.getApplicationRootPath(servletContext);// null SC ok
-		logger.warn("path:"+path);
+//		logger.warn("path:"+path);
 		this.resourcesPath = WebappTool.getResourcesPath(servletContext);// null SC ok
-		logger.warn("resourcesPath:"+resourcesPath);
+//		logger.warn("resourcesPath:"+resourcesPath);
 	}
 	
 	@Override
