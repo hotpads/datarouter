@@ -2,6 +2,8 @@ package com.hotpads.datarouter.client.imp.hibernate.factory;
 
 import java.util.Collection;
 
+import javax.servlet.ServletContext;
+
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.slf4j.Logger;
@@ -40,10 +42,10 @@ extends JdbcSimpleClientFactory{
 
 	@Override
 	public HibernateClientImp call(){
-		PhaseTimer timer = new PhaseTimer(clientName);
+		PhaseTimer timer = new PhaseTimer(getClientName());
 
 		// base config file for a SessionFactory
-		String configFileLocation = PropertiesTool.getFirstOccurrence(multiProperties, Clients.prefixClient + clientName
+		String configFileLocation = PropertiesTool.getFirstOccurrence(getMultiProperties(), Clients.PREFIX_client + getClientName()
 					+ PARAM_CONFIG_LOCATION);
 		if(StringTool.isEmpty(configFileLocation)){
 			configFileLocation = CONFIG_LOCATION_DEFAULT;
@@ -59,8 +61,8 @@ extends JdbcSimpleClientFactory{
 //			Class<? extends Databean<?, ?>> databeanClass = fieldInfo.getDatabeanClass();
 		
 		//add all databeanClasses until we're sure that none are using hibernate code (like GetJobletForProcessing)
-		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = drContext.getNodes().getTypesForClient(
-				clientName);
+		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = getDrContext().getNodes().getTypesForClient(
+				getClientName());
 		for (Class<? extends Databean<?, ?>> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
 		
 			try{
@@ -72,7 +74,7 @@ extends JdbcSimpleClientFactory{
 		timer.add("SessionFactory");
 
 		// connect to the database
-		JdbcConnectionPool connectionPool = getConnectionPool(clientName, multiProperties);
+		JdbcConnectionPool connectionPool = getConnectionPool(getClientName(), getMultiProperties());
 		timer.add("pool");
 		
 		sfConfig.setProperty(PROVIDER_CLASS,HibernateConnectionProvider.class.getName());
@@ -83,11 +85,11 @@ extends JdbcSimpleClientFactory{
 		HibernateConnectionProvider.clearConnectionPoolFromThread();
 		timer.add("connection provider");
 
-		HibernateClientImp client = new HibernateClientImp(clientName, connectionPool, sessionFactory);
+		HibernateClientImp client = new HibernateClientImp(getClientName(), connectionPool, sessionFactory);
 		timer.add("client");
 		
 		if(doSchemaUpdate()){
-			new ParallelSchemaUpdate(drContext, clientName, connectionPool).call();
+			new ParallelSchemaUpdate(getDrContext(), getClientName(), connectionPool).call();
 			timer.add("schema update");
 		}
 
