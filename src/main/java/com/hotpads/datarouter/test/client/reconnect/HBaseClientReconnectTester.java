@@ -2,21 +2,21 @@ package com.hotpads.datarouter.test.client.reconnect;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.google.inject.Injector;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.BasicClientTestRouterImp;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
-import com.hotpads.util.annotation.DoNotCommit;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
@@ -42,7 +42,8 @@ public class HBaseClientReconnectTester {
 	
 	@BeforeClass
 	public static void init() throws IOException{
-		router = new BasicClientTestRouterImp(new DataRouterContext(), null);	
+		Injector injector = new DatarouterTestInjectorProvider().get();
+		router = injector.getInstance(BasicClientTestRouterImp.class);	
 		node = router.txnBeanHBase();
 		resetTable();
 	}
