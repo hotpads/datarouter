@@ -29,8 +29,8 @@ import com.hotpads.util.http.response.HotPadsHttpResponse;
 import com.hotpads.util.http.response.exception.HotPadsHttpConnectionAbortedException;
 import com.hotpads.util.http.response.exception.HotPadsHttpException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestExecutionException;
+import com.hotpads.util.http.response.exception.HotPadsHttpRequestFutureTimeoutException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestInterruptedException;
-import com.hotpads.util.http.response.exception.HotPadsHttpRequestTimeoutException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 import com.hotpads.util.http.security.ApiKeyPredicate;
 import com.hotpads.util.http.security.CsrfValidator;
@@ -118,11 +118,11 @@ public class HotPadsHttpClient {
 			HttpResponse httpResponse = executor.submit(callable).get(futureTimeoutMs, TimeUnit.MILLISECONDS);
 			return new HotPadsHttpResponse(httpResponse);
 		} catch (TimeoutException e) {
-			ex = new HotPadsHttpRequestTimeoutException(e, timeoutMs);
+			ex = new HotPadsHttpRequestFutureTimeoutException(e, timeoutMs);
 		} catch (CancellationException | InterruptedException e) {
 			ex = new HotPadsHttpRequestInterruptedException(e);
 		} catch (ExecutionException e) {
-			if (e.getCause() instanceof IOException) { // NOTE not always the case of an HTTP exception
+			if (e.getCause() instanceof IOException) {
 				ex = new HotPadsHttpConnectionAbortedException(e);
 			} else {
 				ex = new HotPadsHttpRequestExecutionException(e);
