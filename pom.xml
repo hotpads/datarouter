@@ -69,6 +69,10 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<version>${exec-maven-plugin.version}</version>
 			</plugin>
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
+<!-- 				<artifactId>maven-failsafe-plugin</artifactId> -->
+<!-- 			</plugin> -->
 		</plugins>
 	</build>
 
@@ -165,7 +169,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.12</version>
+			<version>5.1.34</version>
 		</dependency>
 		<dependency>
 			<groupId>c3p0</groupId>
@@ -357,6 +361,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<!-- not currently used.  was added for parsing ssl key files
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.51</version>
+		</dependency>
+		-->
 	</dependencies>
 	<organization>
 		<name>HotPads.com</name>

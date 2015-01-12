@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.gson.JsonSyntaxException;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.http.json.GsonJsonSerializer;
 
@@ -34,7 +35,16 @@ public class DefaultDecoder implements HandlerDecoder{
 			if(!parameters.containsKey(expectedParameter.getKey())){
 				return null;
 			}
-			args[i] = deserializer.deserialize(parameters.get(expectedParameter.getKey())[0], expectedParameter.getValue());
+			try{
+				args[i] = deserializer.deserialize(parameters.get(expectedParameter.getKey())[0],
+						expectedParameter.getValue());
+			}catch(JsonSyntaxException e){
+				//If the JSON is malformed and String is expected, just assign the string
+				if(!expectedParameter.getValue().equals(String.class)){
+					throw e;
+				}
+				args[i] = parameters.get(expectedParameter.getKey())[0];
+			}
 			i++;
 		}
 		

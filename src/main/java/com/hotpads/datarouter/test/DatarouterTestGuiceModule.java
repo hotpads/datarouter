@@ -10,5 +10,5 @@ public class DatarouterTestGuiceModule extends AbstractModule{
 	protected void configure(){
 		bind(DatarouterSettings.class).toProvider(NullProvider.create(DatarouterSettings.class));
 	}
-
+	
 }

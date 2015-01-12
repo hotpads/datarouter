@@ -30,7 +30,7 @@ implements ClientExecutor{
 
 	@Override
 	public List<Client> getClients(){
-		return drContext.getClientPool().getClients(parallelClientOp.getClientNames());
+		return drContext.getClientPool().getClients(drContext, parallelClientOp.getClientNames());
 	}
 	
 	
