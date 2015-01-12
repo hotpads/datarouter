@@ -17,11 +17,12 @@
 			display: inline-block;
 			width: 130px;
 			text-align: left;
+			vertical-align: top;
 		}
 		.value{
-			direction: rtl;
 			display: inline-block;
 			width: 120px;
+			overflow-wrap: break-word
 		}
 		.tree-level-1:before, .tree-level-2:before{
 			content: '\21B3';

@@ -17,7 +17,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
@@ -57,16 +56,16 @@ public class ManyFieldTypeIntegrationTests{
 	@Parameters
 	public static Collection<Object[]> parameters(){
 		List<Object[]> params = ListTool.createArrayList();
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, false});
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, true});
 		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, true, false});
 		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, true, true});
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, false});
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, true});
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, false});
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, true});
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, false});
-//		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, true});
 		return params;
 	}
 	

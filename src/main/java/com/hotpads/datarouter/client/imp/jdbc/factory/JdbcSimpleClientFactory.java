@@ -27,13 +27,13 @@ implements ClientFactory{
 		SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 	
 
-	protected DataRouterContext drContext;
-	protected String clientName;
-	protected Set<String> configFilePaths;
-	protected List<Properties> multiProperties;
+	private DataRouterContext drContext;
+	private String clientName;
+	private Set<String> configFilePaths;
+	private List<Properties> multiProperties;
 	
-	protected JdbcConnectionPool connectionPool;
-	protected JdbcClient client;
+	private JdbcConnectionPool connectionPool;
+	private JdbcClient client;
 
 	public JdbcSimpleClientFactory(DataRouterContext drContext, String clientName){
 		this.drContext = drContext;
@@ -61,12 +61,13 @@ implements ClientFactory{
 		return client;
 	}
 	
-	protected boolean isWritableClient(){
+	private boolean isWritableClient(){
 		return ClientId.getWritableNames(drContext.getClientPool().getClientIds()).contains(clientName);
 	}
 	
 	protected JdbcConnectionPool getConnectionPool(String clientName, List<Properties> multiProperties){
-		JdbcConnectionPool connectionPool = new JdbcConnectionPool(clientName, multiProperties, isWritableClient());
+		JdbcConnectionPool connectionPool = new JdbcConnectionPool(drContext.getApplicationPaths(), clientName,
+				multiProperties, isWritableClient());
 		return connectionPool;
 	}
 	
@@ -75,5 +76,19 @@ implements ClientFactory{
 				SCHEMA_UPDATE_ENABLE));
 		return isWritableClient() && schemaUpdateEnabled;
 	}
+
+	public String getClientName(){
+		return clientName;
+	}
+
+	public List<Properties> getMultiProperties(){
+		return multiProperties;
+	}
+
+	public DataRouterContext getDrContext(){
+		return drContext;
+	}
+	
+	
 	
 }

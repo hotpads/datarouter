@@ -30,16 +30,18 @@ implements DataRouter{
 	
 	/********************************* fields **********************************/
 	
-	protected DataRouterContext context;
-	protected String name;
-	protected List<String> clientNames;
-	protected RouterOptions routerOptions;
+	private final DataRouterContext context;
+	private final String configLocation;
+	private final String name;
+	private final List<String> clientNames;
+	private final RouterOptions routerOptions;
 	
 	
 	/**************************** constructor  ****************************************/
 	
-	public BaseDataRouter(DataRouterContext context, String name){
+	public BaseDataRouter(DataRouterContext context, String configLocation, String name){
 		this.context = context;
+		this.configLocation = configLocation;
 		this.name = name;
 		this.clientNames = ClientId.getNames(getClientIds());
 		this.routerOptions = new RouterOptions(getConfigLocation());
@@ -49,10 +51,10 @@ implements DataRouter{
 	
 	/********************************* methods *************************************/
 
-//	@Override
-//	public String getConfigLocation(){
-//		return null;
-//	}
+	@Override
+	public final String getConfigLocation(){
+		return configLocation;
+	}
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -122,7 +124,7 @@ implements DataRouter{
 
 	@Override
 	public List<Client> getAllClients(){
-		return context.getClientPool().getClients(getClientNames());
+		return context.getClientPool().getClients(context, getClientNames());
 	}
 
 //	@Override
@@ -149,7 +151,7 @@ implements DataRouter{
 	getClientsForDatabeanType(Class<D> databeanType){
 		List<String> clientNames = context.getNodes().getClientNamesForDatabeanType(databeanType);
 		if(CollectionTool.isEmpty(clientNames)){ return null; }
-		return context.getClientPool().getClients(clientNames);
+		return context.getClientPool().getClients(context, clientNames);
 	}
 
 	@Override
@@ -198,7 +200,7 @@ implements DataRouter{
 	}
 
 	@Override
-	public RouterOptions getClientOptions(){
+	public RouterOptions getRouterOptions(){
 		return routerOptions;
 	}
 	
