@@ -25,8 +25,12 @@ public class HotPadsRetryHandler implements HttpRequestRetryHandler{
 		return true;
 	}
 	
+	public int getRetryCount() {
+		return retryCount;
+	}
+
 	public void setRetryCount(int retryCount){
 		this.retryCount = retryCount;
 	}
-	
+
 }

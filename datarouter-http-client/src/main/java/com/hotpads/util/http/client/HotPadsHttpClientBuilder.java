@@ -10,11 +10,11 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 
-import com.hotpads.util.http.client.json.GsonJsonSerializer;
-import com.hotpads.util.http.client.json.JsonSerializer;
-import com.hotpads.util.http.client.security.CsrfValidator;
-import com.hotpads.util.http.client.security.DefaultApiKeyPredicate;
-import com.hotpads.util.http.client.security.SignatureValidator;
+import com.hotpads.util.http.json.GsonJsonSerializer;
+import com.hotpads.util.http.json.JsonSerializer;
+import com.hotpads.util.http.security.CsrfValidator;
+import com.hotpads.util.http.security.DefaultApiKeyPredicate;
+import com.hotpads.util.http.security.SignatureValidator;
 
 public class HotPadsHttpClientBuilder{
 	
@@ -22,7 +22,7 @@ public class HotPadsHttpClientBuilder{
 	private static final int DEFAULT_MAX_TOTAL_CONNECTION = 20;
 	private static final int MAX_CONNECTION_PER_ROUTE = 2;
 	
-	private int timeoutMs;
+	private int timeoutMs; // must be int due to RequestConfig.set*Timeout() methods
 	private int maxTotalConnections;
 	private HttpClientBuilder httpClientBuilder;
 	private HotPadsRetryHandler retryHandler;
@@ -32,12 +32,8 @@ public class HotPadsHttpClientBuilder{
 	private CsrfValidator csrfValidator;
 	private DefaultApiKeyPredicate apiKeyPredicate;
 	private HotPadsHttpClientConfig config;
-	
-	public HotPadsHttpClient createInstance(){
-		return this.create().build();
-	}
 
-	public HotPadsHttpClientBuilder create(){
+	public HotPadsHttpClientBuilder() {
 		retryHandler = new HotPadsRetryHandler();
 		timeoutMs = DEFAULT_TIMEOUT_MS;
 		maxTotalConnections = DEFAULT_MAX_TOTAL_CONNECTION;
@@ -46,7 +42,6 @@ public class HotPadsHttpClientBuilder{
 				.setRedirectStrategy(new LaxRedirectStrategy())
 				.setMaxConnPerRoute(MAX_CONNECTION_PER_ROUTE)
 				.setMaxConnTotal(DEFAULT_MAX_TOTAL_CONNECTION);
-		return this;
 	}
 	
 	public HotPadsHttpClient build(){
@@ -72,7 +67,7 @@ public class HotPadsHttpClientBuilder{
 				TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(maxTotalConnections),
 				new ThreadPoolExecutor.CallerRunsPolicy());
 		return new HotPadsHttpClient(builtHttpClient, this.jsonSerializer, this.signatureValidator, this.csrfValidator,
-				this.apiKeyPredicate, this.config, executor, this.timeoutMs);
+				this.apiKeyPredicate, this.config, executor, this.timeoutMs, retryHandler.getRetryCount());
 	}
 	
 	public HotPadsHttpClientBuilder setRetryCount(int retryCount){

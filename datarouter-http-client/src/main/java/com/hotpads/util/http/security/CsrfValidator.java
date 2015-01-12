@@ -1,4 +1,4 @@
-package com.hotpads.util.http.client.security;
+package com.hotpads.util.http.security;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

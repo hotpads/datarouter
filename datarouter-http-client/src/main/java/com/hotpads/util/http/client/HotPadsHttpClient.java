@@ -1,11 +1,12 @@
 package com.hotpads.util.http.client;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -13,27 +14,34 @@ import java.util.concurrent.TimeoutException;
 
 import javax.inject.Singleton;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.hotpads.util.http.client.json.JsonSerializer;
-import com.hotpads.util.http.client.security.ApiKeyPredicate;
-import com.hotpads.util.http.client.security.CsrfValidator;
-import com.hotpads.util.http.client.security.SecurityParameters;
-import com.hotpads.util.http.client.security.SignatureValidator;
+import com.hotpads.util.http.json.JsonSerializer;
+import com.hotpads.util.http.request.HotPadsHttpRequest;
+import com.hotpads.util.http.response.HotPadsHttpResponse;
+import com.hotpads.util.http.response.exception.HotPadsHttpConnectionAbortedException;
+import com.hotpads.util.http.response.exception.HotPadsHttpException;
+import com.hotpads.util.http.response.exception.HotPadsHttpRequestExecutionException;
+import com.hotpads.util.http.response.exception.HotPadsHttpRequestInterruptedException;
+import com.hotpads.util.http.response.exception.HotPadsHttpRequestTimeoutException;
+import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
+import com.hotpads.util.http.security.ApiKeyPredicate;
+import com.hotpads.util.http.security.CsrfValidator;
+import com.hotpads.util.http.security.SecurityParameters;
+import com.hotpads.util.http.security.SignatureValidator;
 
 @Singleton
 public class HotPadsHttpClient {
+	private static final Logger logger = LoggerFactory.getLogger(HotPadsHttpClient.class);
 	private static final int DEFAULT_REQUEST_TIMEOUT_MS = 3000;
-	private static final ProtocolVersion PROTOCOL = new ProtocolVersion("HTTP", 1, 1);
-	
+	private static final int EXTRA_FUTURE_TIME_MS = 1000;
+
 	private HttpClient httpClient;
 	private JsonSerializer jsonSerializer;
 	private SignatureValidator signatureValidator;
@@ -42,10 +50,11 @@ public class HotPadsHttpClient {
 	private HotPadsHttpClientConfig config;
 	private ExecutorService executor;
 	private int requestTimeoutMs;
-	
+	private Integer retryCount;
+
 	HotPadsHttpClient(HttpClient httpClient, JsonSerializer jsonSerializer, SignatureValidator signatureValidator,
-			CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate, HotPadsHttpClientConfig config, ExecutorService executor,
-			Integer requestTimeoutMs) {
+			CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate, HotPadsHttpClientConfig config,
+			ExecutorService executor, Integer requestTimeoutMs, Integer retryCount) {
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureValidator = signatureValidator;
@@ -54,76 +63,104 @@ public class HotPadsHttpClient {
 		this.config = config;
 		this.executor = executor;
 		this.requestTimeoutMs = requestTimeoutMs == null ? DEFAULT_REQUEST_TIMEOUT_MS : requestTimeoutMs.intValue();
+		this.retryCount = retryCount;
 	}
-	
-	public String execute(HotPadsHttpRequest request) {
+
+	public HotPadsHttpResponse execute(HotPadsHttpRequest request) {
+		try {
+			return executeChecked(request);
+		} catch (HotPadsHttpException e) {
+			throw new HotPadsHttpRuntimeException(e);
+		}
+	}
+
+	public <E> E execute(HotPadsHttpRequest request, Type deserializeToType) {
+		try {
+			return executeChecked(request, deserializeToType);
+		} catch (HotPadsHttpException e) {
+			throw new HotPadsHttpRuntimeException(e);
+		}
+	}
+
+	public <E> E executeChecked(HotPadsHttpRequest request, Type deserializeToType) throws HotPadsHttpException {
+		String entity = executeChecked(request).getEntity();
+		return jsonSerializer.deserialize(entity, deserializeToType);
+	}
+
+	public HotPadsHttpResponse executeChecked(HotPadsHttpRequest request) throws HotPadsHttpException {
 		if (request.canHaveEntity() && request.getEntity() == null) {
-			Map<String,String> params = new HashMap<>();
+			Map<String, String> params = new HashMap<>();
 			if (csrfValidator != null) {
 				params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken());
 			}
 			if (apiKeyPredicate != null) {
 				params.put(SecurityParameters.API_KEY, apiKeyPredicate.getApiKey());
 			}
-			request.addPostParams(params);
-			if (signatureValidator != null) {
-				byte[] signature = signatureValidator.sign(request.getPostParams());
-				Map<String, String> signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE,
-						Base64.encodeBase64String(signature));
+			params = request.addPostParams(params).getPostParams();
+			if (signatureValidator != null && !params.isEmpty()) {
+				String signature = signatureValidator.getHexSignature(request.getPostParams());
+				Map<String, String> signatureParam = Collections.singletonMap(SecurityParameters.SIGNATURE, signature);
 				request.addPostParams(signatureParam);
 			}
 			request.setEntity(request.getPostParams());
 		}
-		
+
 		HttpContext context = new BasicHttpContext();
 		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
-		
+
+		HotPadsHttpException ex;
+		int timeoutMs = request.getTimeoutMs() == null ? requestTimeoutMs : request.getTimeoutMs().intValue();
+		long futureTimeoutMs = request.getFutureTimeoutMs() == null ? getFutureTimeoutMs(timeoutMs, retryCount)
+				: request.getFutureTimeoutMs().intValue();
 		try {
 			HttpRequestCallable callable = new HttpRequestCallable(httpClient, request.getRequest(), context);
-			return executor.submit(callable).get(requestTimeoutMs, TimeUnit.MILLISECONDS);
+			HttpResponse httpResponse = executor.submit(callable).get(futureTimeoutMs, TimeUnit.MILLISECONDS);
+			return new HotPadsHttpResponse(httpResponse);
 		} catch (TimeoutException e) {
-			HttpResponse response = new BasicHttpResponse(PROTOCOL, HttpStatus.SC_REQUEST_TIMEOUT, "request timeout");
-			throw new HotPadsHttpClientException(new HotPadsHttpResponse(response));
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO exceptions that are not obscured by HotPadsHttpClientException or RuntimeException
-			if(e.getCause() instanceof HotPadsHttpClientException) {
-				throw (HotPadsHttpClientException) e.getCause();
+			ex = new HotPadsHttpRequestTimeoutException(e, timeoutMs);
+		} catch (CancellationException | InterruptedException e) {
+			ex = new HotPadsHttpRequestInterruptedException(e);
+		} catch (ExecutionException e) {
+			if (e.getCause() instanceof IOException) { // NOTE not always the case of an HTTP exception
+				ex = new HotPadsHttpConnectionAbortedException(e);
+			} else {
+				ex = new HotPadsHttpRequestExecutionException(e);
 			}
-			throw new HotPadsHttpClientException(e);
 		}
+		throw ex;
 	}
-	
-	private class HttpRequestCallable implements Callable<String> {
+
+	private static long getFutureTimeoutMs(int requestTimeoutMs, Integer retryCount) {
+		/*
+		 * we want the request future to time out after all of the individual request timeouts combined,
+		 * so requestTimeout * (total number of requests + 2)
+		 */
+		int totalPossibleRequests = 1 + (retryCount == null ? 0 : retryCount);
+		return requestTimeoutMs * totalPossibleRequests + EXTRA_FUTURE_TIME_MS;
+	}
+
+	private class HttpRequestCallable implements Callable<HttpResponse> {
 		private HttpClient httpClient;
 		private HttpUriRequest request;
 		private HttpContext context;
-		
+
 		HttpRequestCallable(HttpClient httpClient, HttpUriRequest request, HttpContext context) {
 			this.httpClient = httpClient;
 			this.request = request;
 			this.context = context;
 		}
-		
+
 		@Override
-		public String call() throws Exception {
-			HttpResponse response = httpClient.execute(request, context);
-			HotPadsHttpResponse hpResponse = new HotPadsHttpResponse(response);
-			if(hpResponse.getStatusCode() >= HttpStatus.SC_MOVED_PERMANENTLY) {
-				throw new HotPadsHttpClientException(hpResponse);
-			}
-			return hpResponse.getEntity();
+		public HttpResponse call() throws IOException {
+			return httpClient.execute(request, context);
 		}
-	}
-	
-	public <E> E executeDeserialize(HotPadsHttpRequest request, Type deserializeToType) {
-		return jsonSerializer.deserialize(execute(request), deserializeToType);
 	}
 	
 	public <T> HotPadsHttpClient addDtoToPayload(HotPadsHttpRequest request, T dto, String dtoType) {
 		String serializedDto = jsonSerializer.serialize(dto);
 		String dtoTypeNullSafe = dtoType;
 		if(dtoType == null) {
-			if(dto instanceof Collection){
+			if(dto instanceof Iterable){
 				Iterable<?> dtos = (Iterable<?>) dto;
 				dtoTypeNullSafe = dtos.iterator().hasNext() ? dtos.iterator().next().getClass().getCanonicalName() : "";
 			}else{

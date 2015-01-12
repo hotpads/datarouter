@@ -1,4 +1,4 @@
-package com.hotpads.util.http.client.security;
+package com.hotpads.util.http.security;
 
 public class DefaultApiKeyPredicate implements ApiKeyPredicate{
 
