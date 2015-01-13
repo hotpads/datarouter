@@ -38,4 +38,5 @@ public class JdbcOptions extends TypedProperties{
 	public Boolean logging(Boolean def){
 		return getBoolean(clientPrefix+"logging", def);
 	}
+
 }

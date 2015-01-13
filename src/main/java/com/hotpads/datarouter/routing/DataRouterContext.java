@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Nodes;
+import com.hotpads.datarouter.util.ApplicationPaths;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -38,48 +41,55 @@ import com.hotpads.util.core.concurrent.NamedThreadFactory;
 //TODO rename DatarouterContext
 @Singleton
 public class DataRouterContext{
-	protected static Logger logger = LoggerFactory.getLogger(DataRouterContext.class);
+	private static final Logger logger = LoggerFactory.getLogger(DataRouterContext.class);
 
-	protected static final String
+	private static final String
 			CONFIG_SERVER_NAME = "server.name",
 			CONFIG_ADMINISTRATOR_EMAIL = "administrator.email";
 	
 	
 	/*************************** fields *****************************/
-	
-	protected ThreadGroup parentThreadGroup;
-	protected ThreadFactory threadFactory;
-	protected ThreadPoolExecutor executorService;//for async client init and monitoring
 
-	protected List<DataRouter> routers;
-	protected Set<String> configFilePaths;
-	protected List<Properties> multiProperties;
-	protected String serverName;
-	protected String administratorEmail;
+	//injected
+	private ApplicationPaths applicationPaths;
+	private ConnectionPools connectionPools;
+	private Clients clients;
+	private Nodes nodes;
 	
-	protected ConnectionPools connectionPools;
-	protected Clients clients;
-	protected Nodes nodes;
+	//not injected
+	private ExecutorService executorService;//for async client init and monitoring
+
+	private List<DataRouter> routers;
+	private Set<String> configFilePaths;
+	private List<Properties> multiProperties;
+	private String serverName;
+	private String administratorEmail;
 	
 
 	/************************** constructors ***************************/
 	
-	public DataRouterContext() {
-		this(new ThreadGroup("DataRouter-DefaultThreadGroup"));
-	}
-	
-	public DataRouterContext(ThreadGroup parentThreadGroup){
-		this.parentThreadGroup = parentThreadGroup;//new ThreadGroup("DataRouter-"+router.getName());
-		this.threadFactory = new NamedThreadFactory(parentThreadGroup, "DataRouterContext-"
-				+System.identityHashCode(this), true);
+	/*
+	 * for some reason, trying to inject an ExecutorService throws guice into an endless loop of ComputationExceptions.
+	 * Google doesn't turn up many questions about it.
+	 */
+	@Inject
+//	public DataRouterContext(@DatarouterExecutorService ExecutorService executorService, Clients clients){
+//		this.executorService = executorService;
+	public DataRouterContext(ApplicationPaths applicationRootPath, ConnectionPools connectionPools, 
+			Clients clients, Nodes nodes){
+		this.applicationPaths = applicationRootPath;
+		int id = System.identityHashCode(this);
+		ThreadGroup threadGroup = new ThreadGroup("Datarouter-ThreadGroup-"+id);
+		ThreadFactory threadFactory = new NamedThreadFactory(threadGroup, "Datarouter-ThreadFactory-"+id, true);
 		this.executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
 	            new SynchronousQueue<Runnable>(), threadFactory);
 
+		this.connectionPools = connectionPools;
+		this.clients = clients;
+		this.nodes = nodes;
+		
 		this.configFilePaths = SetTool.createTreeSet();
 		this.multiProperties = ListTool.createArrayList();
-		this.connectionPools = new ConnectionPools();
-		this.clients = new Clients(this);
-		this.nodes = new Nodes(this);
 		this.routers = ListTool.createArrayList();
 //		createDefaultMemoryClient();//do after this.clients and this.nodes have been instantiated
 	}
@@ -95,7 +105,7 @@ public class DataRouterContext{
 		routers.add(router);
 		addConfigIfNew(router);
 		connectionPools.registerClientIds(router.getClientIds(), router.getConfigLocation());
-		clients.registerClientIds(router.getClientIds());
+		clients.registerClientIds(this, router.getClientIds());
 	}
 	
 	private void addConfigIfNew(DataRouter router){
@@ -123,7 +133,7 @@ public class DataRouterContext{
 	}
 	
 	public void initializeEagerClients(){
-		clients.initializeEagerClients();
+		clients.initializeEagerClients(this);
 	}
 	
 	
@@ -182,11 +192,7 @@ public class DataRouterContext{
 		return routers;
 	}
 
-	public ThreadGroup getParentThreadGroup(){
-		return parentThreadGroup;
-	}
-
-	public ThreadPoolExecutor getExecutorService(){
+	public ExecutorService getExecutorService(){
 		return executorService;
 	}
 
@@ -201,5 +207,11 @@ public class DataRouterContext{
 	public String getAdministratorEmail(){
 		return administratorEmail;
 	}
+
+	public ApplicationPaths getApplicationPaths(){
+		return applicationPaths;
+	}
+	
+	
 	
 }
