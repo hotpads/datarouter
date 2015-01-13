@@ -4,7 +4,7 @@ import javax.servlet.ServletContext;
 
 import com.google.inject.Injector;
 import com.hotpads.DataRouterLoader;
-import com.hotpads.WebAppName;
+import com.hotpads.DatarouterInjector;
 
 public class GuiceDataRouterLoader extends DataRouterLoader{
 
@@ -12,14 +12,12 @@ public class GuiceDataRouterLoader extends DataRouterLoader{
 
 	@Override
 	protected void init(ServletContext servletContext){
-		injector = (Injector)servletContext.getAttribute(Injector.class.getName());
-		WebAppName webAppName = injector.getInstance(WebAppName.class);
-		webAppName.init(servletContext.getServletContextName());
+		this.injector = (Injector)servletContext.getAttribute(Injector.class.getName());
 	}
 
 	@Override
-	public <T>T getInstance(Class<? extends T> clazz){
-		return injector.getInstance(clazz);
+	protected DatarouterInjector getInjector(){
+		return injector.getInstance(DatarouterInjector.class);
 	}
 
 }

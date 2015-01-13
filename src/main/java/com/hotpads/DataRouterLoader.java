@@ -11,33 +11,27 @@ import com.hotpads.logging.LoggingConfigLoader;
 
 public abstract class DataRouterLoader implements ServletContextListener{
 
-	private static DataRouterLoader instance;
-
-	public static DataRouterLoader getDataRouterLoader(){
-		return instance;
-	}
-
 	private List<HotPadsWebAppListener> listeners;
 
 	protected abstract void init(ServletContext servletContext);
 
-	public DataRouterLoader(){
-		instance = this;
-	}
+	protected abstract DatarouterInjector getInjector();
 
 	@Override
 	public void contextInitialized(ServletContextEvent event){
-		listeners = new LinkedList<>();
 		init(event.getServletContext());
+
+		WebAppName webAppName = getInjector().getInstance(WebAppName.class);
+		webAppName.init(event.getServletContext().getServletContextName());
+
+		listeners = new LinkedList<>();
 		for(Class<? extends HotPadsWebAppListener> listenerClass : getListenerClasses()){
-			HotPadsWebAppListener listener = getInstance(listenerClass);
+			HotPadsWebAppListener listener = getInjector().getInstance(listenerClass);
 			listeners.add(listener);
 			listener.setServletContext(event.getServletContext());
 			listener.onStartUp();
 		}
 	}
-
-	public abstract <T>T getInstance(Class<? extends T> clazz);
 
 	private List<Class<? extends HotPadsWebAppListener>> getListenerClasses(){
 		List<Class<? extends HotPadsWebAppListener>> classes = new LinkedList<>();
