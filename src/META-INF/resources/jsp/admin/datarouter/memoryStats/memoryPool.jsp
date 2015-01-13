@@ -37,11 +37,11 @@
 						<div class="panel-body">
 							<c:set var="wraper" value="${pool.usage}"/>
 							<%@ include file="memoryUsage.jsp" %> 
-							</div>
 						</div>
 					</div>
-				</c:forEach>
-			</div>
+				</div>
+			</c:forEach>
 		</div>
 	</div>
+</div>
 </div>
