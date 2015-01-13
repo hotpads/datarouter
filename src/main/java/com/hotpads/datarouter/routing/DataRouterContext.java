@@ -136,6 +136,10 @@ public class DataRouterContext{
 		clients.initializeEagerClients(this);
 	}
 	
+	public void shutdown(){
+		clients.shutdown();
+	}
+	
 	
 	/********************* methods **********************************/
 

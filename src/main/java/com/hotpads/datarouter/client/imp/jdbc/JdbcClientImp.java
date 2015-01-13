@@ -233,8 +233,13 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 	}
 
 	
-	/****************************** HibernateClient methods *************************/
+	/****************************** shutdown *************************/
 	
+	@Override
+	public void shutdown(){
+		connectionPool.shutdown();
+		
+	}
 	
 	/************************** private *********************************/
 	

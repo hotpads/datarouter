@@ -14,7 +14,11 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
 
 public class JdbcConnectionPool{
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	private static final Logger logger = LoggerFactory.getLogger(JdbcConnectionPool.class);
+
+	public static final String
+		prefix = ConnectionPools.prefixPool,
+		poolDefault = "default";
 	
 	private ApplicationPaths applicationPaths;
 	private String name;
@@ -23,12 +27,9 @@ public class JdbcConnectionPool{
 	protected JdbcOptions options;
 	private boolean writable = false;
 	
-
-	public static final String
-		prefix = ConnectionPools.prefixPool,
-		poolDefault = "default";
 	
-	public JdbcConnectionPool(ApplicationPaths applicationPaths, String name, Iterable<Properties> multiProperties, Boolean writable){
+	public JdbcConnectionPool(ApplicationPaths applicationPaths, String name, Iterable<Properties> multiProperties, 
+			Boolean writable){
 		this.applicationPaths = applicationPaths;
 		this.defaultOptions = new JdbcOptions(multiProperties, poolDefault);
 		this.options = new JdbcOptions(multiProperties, name);

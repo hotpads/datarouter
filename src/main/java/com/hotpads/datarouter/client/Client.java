@@ -21,4 +21,6 @@ extends Comparable<Client>{
 
 	String getName();
 	ClientType getType();
+	void shutdown();
+	
 }
