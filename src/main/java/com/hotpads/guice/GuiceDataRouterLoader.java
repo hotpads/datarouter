@@ -23,10 +23,5 @@ public class GuiceDataRouterLoader extends DataRouterLoader{
 	protected HotPadsWebAppListener buildListener(Class<? extends HotPadsWebAppListener> listenerClass){
 		return injector.getInstance(listenerClass);
 	}
-	
-	@Override
-	public void contextDestroyed(ServletContextEvent event){
-		super.contextDestroyed(event);
-	}
 
 }
