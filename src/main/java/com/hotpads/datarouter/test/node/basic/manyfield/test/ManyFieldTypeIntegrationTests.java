@@ -1,12 +1,11 @@
 package com.hotpads.datarouter.test.node.basic.manyfield.test;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -40,10 +39,8 @@ import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
 import com.hotpads.datarouter.test.node.basic.manyfield.TestEnum;
 import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
@@ -56,65 +53,81 @@ public class ManyFieldTypeIntegrationTests{
 	@Parameters
 	public static Collection<Object[]> parameters(){
 		List<Object[]> params = ListTool.createArrayList();
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, true});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, true, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, true, true});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, true});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, true});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, true});
+		params.add(new Object[]{0, DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, false});
+		params.add(new Object[]{1, DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, true});
+		params.add(new Object[]{2, DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, true, false});
+		params.add(new Object[]{3, DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, true, true});
+		params.add(new Object[]{4, DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, false});
+		params.add(new Object[]{5, DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, true});
+		params.add(new Object[]{6, DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, false});
+		params.add(new Object[]{7, DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, true});
+		params.add(new Object[]{8, DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, false});
+		params.add(new Object[]{9, DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, true});
 		return params;
 	}
 	
-	@BeforeClass
-	public static void init() throws IOException{	
-	}
+	
 	
 	/***************************** fields **************************************/
 	
+	private Integer paramNum;
+	private String clientName;
 	private ClientType clientType;
 	private boolean sorted;
+	private boolean useFielder;
+	private boolean entity;
+	
+	private DataRouterContext datarouterContext;
 	private BasicNodeTestRouter router;
 	private MapStorageNode<ManyFieldTypeBeanKey,ManyFieldTypeBean> mapNode;
 	private SortedStorageNode<ManyFieldTypeBeanKey,ManyFieldTypeBean> sortedNode;
+	
+	@Deprecated //currently unused, but not ready to delete
 	private List<ManyFieldTypeBeanKey> allKeys;
 
 	/***************************** constructors **************************************/
+
+	@BeforeClass
+	public static void beforeClass(){
+	}
 	
 	//runs before every @Test
-	public ManyFieldTypeIntegrationTests(String clientName, ClientType clientType, boolean sorted, boolean useFielder, 
-			boolean entity){
-		Injector injector = new DatarouterTestInjectorProvider().get();
-		DataRouterContext drContext = injector.getInstance(DataRouterContext.class);
-		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
+	public ManyFieldTypeIntegrationTests(Integer paramNum, String clientName, ClientType clientType, boolean sorted,
+			boolean useFielder, boolean entity){
+		this.clientName = clientName;
 		this.clientType = clientType;
 		this.sorted = sorted;
-		this.router = new SortedBasicNodeTestRouter(drContext, nodeFactory, clientName, getClass(), useFielder, entity);
+		this.useFielder = useFielder;
+		this.entity = entity;
+//		logger.warn("re-init "+paramNum+", "+clientName+", "+clientType+", "+sorted+", "+useFielder+", "+entity);
+		Injector injector = new DatarouterTestInjectorProvider().get();
+		this.datarouterContext = injector.getInstance(DataRouterContext.class);
+		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
+		this.router = new SortedBasicNodeTestRouter(datarouterContext, nodeFactory, clientName, getClass(), useFielder, 
+				entity);
 		this.mapNode = router.manyFieldTypeBean();
 		if(sorted){
 			this.sortedNode = BaseDataRouter.cast(mapNode);
 		}
 		this.allKeys = ListTool.createArrayList();
-		
-		//delete rows from previous tests
-		if(ObjectTool.notEquals(MemcachedClientType.INSTANCE, clientType)){
-			logger.warn("calling deleteAll on :"+router.manyFieldTypeBean().getClass());
-			mapNode.deleteAll(null);
-		}
-		if(isSorted()){
-			Assert.assertEquals(0, IterableTool.count(sortedNode.scan(null, null)).intValue());
-		}
 	}
 	
 	@Before
-	public void beforeEachTest(){
+	public void before(){
+	}
+	
+	public void after(){
+		logger.warn("shutdown");
+		datarouterContext.shutdown();
+	}
+	
+	@AfterClass
+	public static void afterClass(){
 	}
 
-	/***************************** tests **************************************/
 
+	/***************************** tests **************************************/
+	
 	@Test
 	public void testNullKey(){
 		if (!isJdbcOrHibernate()){
@@ -246,6 +259,7 @@ public class ManyFieldTypeIntegrationTests{
 		mapNode.put(bean, null);
 		
 		ManyFieldTypeBean roundTripped = mapNode.get(bean.getKey(), null);
+		Assert.assertNotNull(roundTripped);
 		Assert.assertEquals(bean.getFloatField(), roundTripped.getFloatField());
 		Assert.assertTrue(val==roundTripped.getFloatField());
 		recordKey(bean.getKey());
@@ -545,22 +559,6 @@ public class ManyFieldTypeIntegrationTests{
 		Assert.assertEquals(new Long(9), result3.getIncrementField());
 		
 		recordKey(bean.getKey());
-	}
-	
-	
-	/************************** tests for unmarshalling into databeans (a little out of place here **************/
-	
-	@After 
-	public void testGetAll(){
-		if(isSorted()){
-			Assert.assertEquals(allKeys.size(), IterableTool.count(sortedNode.scan(null, null)).intValue());
-		}
-	}
-	
-	@After
-	public void testGetMulti(){
-		List<ManyFieldTypeBean> allBeans = mapNode.getMulti(allKeys, null);
-		Assert.assertEquals(allKeys.size(), allBeans.size());
 	}
 	
 	
