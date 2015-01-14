@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -115,6 +116,7 @@ public class ManyFieldTypeIntegrationTests{
 	public void before(){
 	}
 	
+	@After
 	public void after(){
 		logger.warn("shutdown");
 		datarouterContext.shutdown();
