@@ -1,4 +1,4 @@
-package com.hotpads.guice;
+package com.hotpads.handler;
 
 import javax.inject.Inject;
 

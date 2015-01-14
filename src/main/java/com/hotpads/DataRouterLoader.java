@@ -7,7 +7,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import com.hotpads.guice.DatarouterContextLoader;
+import com.hotpads.handler.DatarouterContextLoader;
 import com.hotpads.logging.LoggingConfigLoader;
 
 public abstract class DataRouterLoader implements ServletContextListener{
