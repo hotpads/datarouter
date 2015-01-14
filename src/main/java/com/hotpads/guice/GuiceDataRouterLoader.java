@@ -1,7 +1,6 @@
 package com.hotpads.guice;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 
 import com.google.inject.Injector;
 import com.hotpads.DataRouterLoader;
