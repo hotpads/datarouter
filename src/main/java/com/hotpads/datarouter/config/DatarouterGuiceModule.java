@@ -33,7 +33,7 @@ public class DatarouterGuiceModule extends ServletModule{
 		bind(ExecutorService.class).annotatedWith(DatarouterExecutorService.class).toProvider(
 				DatarouterExecutorServiceProvider.class).in(Scopes.SINGLETON);
 		
-		bind(JsonSerializer.class).to(GsonJsonSerializer.class);
+		bind(JsonSerializer.class).annotatedWith(HandlerDefaultSerializer.class).to(GsonJsonSerializer.class);
 	}
 
 	
@@ -61,5 +61,10 @@ public class DatarouterGuiceModule extends ServletModule{
 			return executorService;
 		}
 	}
+	
+	@BindingAnnotation 
+	@Target({ ElementType.FIELD, ElementType.PARAMETER }) 
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface HandlerDefaultSerializer{}
 	
 }
