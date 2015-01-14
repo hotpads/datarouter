@@ -8,22 +8,24 @@ import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Injector;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.types.DefaultDecoder;
+import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.HandlerTypingHelper;
 import com.hotpads.handler.user.authenticate.AdminEditUserHandler;
 import com.hotpads.util.core.StringTool;
@@ -36,6 +38,11 @@ import com.hotpads.util.core.java.ReflectionTool;
  */
 public abstract class BaseHandler{
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
+
+	@Inject
+	private HandlerTypingHelper handlerTypingHelper;
+	@Inject
+	private Injector injector;
 	
 	//these are available to all handlers without passing them around
 	protected ServletContext servletContext;
@@ -65,8 +72,8 @@ public abstract class BaseHandler{
 		Class<?>[] expectedParameterClasses() default {};
 		Class<?> expectedParameterClassesProvider() default Object.class;
 		String description() default "";
-		Class<?> encoder() default MavEncoder.class;
-		Class<?> decoder() default DefaultDecoder.class;
+		Class<? extends HandlerEncoder> encoder() default MavEncoder.class;
+		Class<? extends HandlerDecoder> decoder() default DefaultDecoder.class;
 	}
 	
 	void handleWrapper(){//dispatcher servlet calls this
@@ -77,7 +84,7 @@ public abstract class BaseHandler{
 			try{
 				String methodName = handlerMethodName();
 				if (!StringTool.isNullOrEmpty(methodName)) {
-					Pair<Method, Object[]> pair = HandlerTypingHelper.findMethodByName(this, methodName);
+					Pair<Method, Object[]> pair = handlerTypingHelper.findMethodByName(this, methodName);
 					method = pair.getLeft();
 					args = pair.getRight();
 				}
@@ -114,7 +121,7 @@ public abstract class BaseHandler{
 			
 			HandlerEncoder encoder;
 			try{
-				encoder = (HandlerEncoder) method.getAnnotation(Handler.class).encoder().newInstance();
+				encoder = injector.getInstance(method.getAnnotation(Handler.class).encoder());
 			}catch(Exception e){
 				encoder = new MavEncoder();
 			}

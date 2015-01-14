@@ -28,12 +28,16 @@ import com.hotpads.util.core.bytes.ByteUnitTool;
 @Singleton
 public class MemoryMonitoringHandler extends BaseHandler{
 
+	private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d MMM H:mm");
+
 	@Inject
 	private DataRouterContext dataRouterContext;
 	@Inject 
 	private WebAppName webAppName;
 	@Inject
 	private GitProperties gitProperties;
+	@Inject
+	private LoadedLibraries loadedLibraries;
 
 	private String getRedirectUrl(){
 		return Mav.REDIRECT + servletContext.getContextPath() + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.MEMORY_STATS;
@@ -45,13 +49,15 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
 		long startTime = runtimeMXBean.getStartTime();
 		long uptime = runtimeMXBean.getUptime();
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d MMM H:m");
 		mav.put("startTime", simpleDateFormat.format(new Date(startTime)));
 		mav.put("upTime", new Duration(uptime, TimeUnit.MILLISECONDS).toString(TimeUnit.MINUTES));
 		mav.put("serverName", dataRouterContext.getServerName());
 		mav.put("appName", webAppName);
 		mav.put("gitBranch", gitProperties.getBranch());
 		mav.put("gitCommit", gitProperties.getIdAbbrev());
+		mav.put("buildTime", simpleDateFormat.format(gitProperties.getBuildTime()));
+		mav.put("hotPadsLibraries", loadedLibraries.getHotpadsLibraries());
+		mav.put("nonHotPadsLibraries", loadedLibraries.getNonHotpadsLibraries());
 
 		Runtime runtime = Runtime.getRuntime();
 		MemoryUsage heap = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
