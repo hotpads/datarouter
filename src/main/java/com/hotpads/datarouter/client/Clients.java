@@ -107,6 +107,22 @@ public class Clients{
 	}
 	
 	
+	/******************** shutdown ********************************************/
+	
+	//TODO shutdown clients in parallel
+	public void shutdown(){
+		for(LazyClientProvider lazyClientProvider : lazyClientInitializerByName.values()){
+			if( ! lazyClientProvider.isInitialized()){ continue; }
+			Client client = lazyClientProvider.call();
+			try{
+				client.shutdown();
+			}catch(Exception e){
+				logger.warn("swallowing exception while shutting down client "+client.getName(), e);
+			}
+		}
+	}
+	
+	
 	/******************** getNames **********************************************/
 		
 	private List<String> getClientNamesRequiringEagerInitialization(){
