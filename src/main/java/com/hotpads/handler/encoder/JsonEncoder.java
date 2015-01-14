@@ -2,20 +2,24 @@ package com.hotpads.handler.encoder;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.hotpads.util.http.json.GsonJsonSerializer;
+import com.hotpads.datarouter.config.DatarouterGuiceModule.HandlerDefaultSerializer;
 import com.hotpads.util.http.json.JsonSerializer;
 
+@Singleton
 public class JsonEncoder implements HandlerEncoder{
 
 	private JsonSerializer jsonSerializer;
 	
-	public JsonEncoder(){
-		this.jsonSerializer = new GsonJsonSerializer();
+	@Inject
+	public JsonEncoder(@HandlerDefaultSerializer JsonSerializer jsonSerializer){
+		this.jsonSerializer = jsonSerializer;
 	}
 	
 	@Override

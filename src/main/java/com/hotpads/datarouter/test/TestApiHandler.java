@@ -10,17 +10,22 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Scanner;
 
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
+import com.hotpads.handler.types.DefaultDecoder;
 import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.P;
 import com.hotpads.handler.types.TypeProvider;
+import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ListTool;
+import com.hotpads.util.http.json.GsonJsonSerializer;
 
 public class TestApiHandler extends BaseHandler{
 	
@@ -56,9 +61,8 @@ public class TestApiHandler extends BaseHandler{
 	public Mav hi(@P("firstname") String firstname, @P("lastname") String lastname, @P("english") boolean english){
 		if(english){
 			return new MessageMav("Hello " + firstname + " " + lastname + "!");
-		}else{
-			return new MessageMav("Degemer mat " + firstname + " " + lastname + "!");
 		}
+		return new MessageMav("Degemer mat " + firstname + " " + lastname + "!");
 	}
 	
 	@Handler
@@ -184,6 +188,19 @@ public class TestApiHandler extends BaseHandler{
 	@Handler(encoder=JsonEncoder.class, decoder=RawStreamDecoder.class)
 	public int length(String string){
 		return string.length();
+	}
+	
+	@Singleton
+	public static class TestApiHandlerDecoder extends DefaultDecoder{
+
+		public TestApiHandlerDecoder(){
+			super(new GsonJsonSerializer(new GsonBuilder().setDateFormat("yyyyMMdd").create()));
+		}
+	}
+	
+	@Handler(encoder=JsonEncoder.class, decoder=TestApiHandlerDecoder.class)
+	public int year(@P("date") Date date){
+		return DateTool.getYearInteger(date);
 	}
 
 }

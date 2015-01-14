@@ -3,12 +3,20 @@ package com.hotpads.handler.types;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import com.google.inject.Injector;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.BaseHandler.Handler;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
 
+@Singleton
 public class HandlerTypingHelper{
+	
+	@Inject
+	private Injector injector;
 
 	/**
 	 * This methods goes through all methods who are named like methodName and tries to find the one that has the
@@ -18,7 +26,7 @@ public class HandlerTypingHelper{
 	 * @param decoder
 	 * @return
 	 */
-	public static Pair<Method, Object[]> findMethodByName(BaseHandler handler, String methodName){
+	public Pair<Method, Object[]> findMethodByName(BaseHandler handler, String methodName){
 		Method method = null;
 		Object[] args = new Object[]{};
 		Collection<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(handler.getClass(), methodName);
@@ -27,7 +35,8 @@ public class HandlerTypingHelper{
 				continue;
 			}
 			try{
-				HandlerDecoder decoder = (HandlerDecoder) ReflectionTool.create(possibleMethod.getAnnotation(Handler.class).decoder());
+				Class<? extends HandlerDecoder> decoderClass = possibleMethod.getAnnotation(Handler.class).decoder();
+				HandlerDecoder decoder = injector.getInstance(decoderClass);
 				Object[] newArgs = decoder.decode(handler.getRequest(), possibleMethod);
 				if(newArgs == null){
 					continue;
