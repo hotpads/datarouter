@@ -12,6 +12,7 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.JsonSyntaxException;
+import com.hotpads.datarouter.config.DatarouterGuiceModule.HandlerDefaultSerializer;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.http.json.JsonSerializer;
 
@@ -22,7 +23,7 @@ public class DefaultDecoder implements HandlerDecoder{
 	private JsonSerializer deserializer;
 
 	@Inject
-	public DefaultDecoder(JsonSerializer deserializer){
+	public DefaultDecoder(@HandlerDefaultSerializer JsonSerializer deserializer){
 		this.deserializer = deserializer;
 	}
 
