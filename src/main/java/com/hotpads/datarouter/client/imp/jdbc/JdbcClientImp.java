@@ -81,9 +81,9 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 				return existingHandle;
 			}
 			//jdbc triggers network round trip when getting connection to set autocommit=true
-			long requestTimeMs = System.currentTimeMillis();
+			long requestTimeNs = System.nanoTime();
 			Connection newConnection = connectionPool.getDataSource().getConnection();
-			logIfSlowReserveConnection(requestTimeMs);
+			logIfSlowReserveConnection(requestTimeNs);
 			
 			long threadId = Thread.currentThread().getId();
 			long connNumber = connectionCounter.incrementAndGet();
@@ -102,11 +102,13 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 		}
 	}
 	
-	protected void logIfSlowReserveConnection(long requestTimeMs){
-		long elapsedTime = System.currentTimeMillis() - requestTimeMs;
-		if(elapsedTime > 1){
+	protected void logIfSlowReserveConnection(long requestTimeNs){
+		long elapsedUs = (System.nanoTime() - requestTimeNs) / 1000;
+		if(elapsedUs > 1000){
 			DRCounters.incSuffixClient(getType(), "connection open > 1ms", getName());
-			logger.warn("slow reserveConnection:"+elapsedTime+"ms on "+getName());
+		}
+		if(elapsedUs > 5000){
+			logger.warn("slow reserveConnection: "+elapsedUs+"us on "+getName());
 		}
 	}
 
