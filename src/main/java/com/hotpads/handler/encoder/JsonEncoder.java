@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.hotpads.datarouter.config.DatarouterGuiceModule.HandlerDefaultSerializer;
 import com.hotpads.util.http.json.JsonSerializer;
 
 @Singleton
@@ -17,7 +18,7 @@ public class JsonEncoder implements HandlerEncoder{
 	private JsonSerializer jsonSerializer;
 	
 	@Inject
-	public JsonEncoder(JsonSerializer jsonSerializer){
+	public JsonEncoder(@HandlerDefaultSerializer JsonSerializer jsonSerializer){
 		this.jsonSerializer = jsonSerializer;
 	}
 	
