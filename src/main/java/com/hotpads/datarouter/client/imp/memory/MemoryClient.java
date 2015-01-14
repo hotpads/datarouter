@@ -36,6 +36,11 @@ public class MemoryClient extends BaseClient{
 		return MemoryClientType.INSTANCE;
 	}
 	
+	@Override
+	public void shutdown(){
+		//no-op
+	}
+	
 	public NavigableSet<Node<?,?>> getNodes(){
 		return nodes;
 	}

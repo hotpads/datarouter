@@ -73,17 +73,16 @@ public class DataRouterContext{
 	 * Google doesn't turn up many questions about it.
 	 */
 	@Inject
-//	public DataRouterContext(@DatarouterExecutorService ExecutorService executorService, Clients clients){
-//		this.executorService = executorService;
-	public DataRouterContext(ApplicationPaths applicationRootPath, ConnectionPools connectionPools, 
-			Clients clients, Nodes nodes){
-		this.applicationPaths = applicationRootPath;
+	public DataRouterContext(/*@DatarouterExecutorService ExecutorService executorService,*/
+			ApplicationPaths applicationPaths, ConnectionPools connectionPools, Clients clients, Nodes nodes){
 		int id = System.identityHashCode(this);
 		ThreadGroup threadGroup = new ThreadGroup("Datarouter-ThreadGroup-"+id);
 		ThreadFactory threadFactory = new NamedThreadFactory(threadGroup, "Datarouter-ThreadFactory-"+id, true);
 		this.executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
 	            new SynchronousQueue<Runnable>(), threadFactory);
 
+//		this.executorService = executorService;
+		this.applicationPaths = applicationPaths;
 		this.connectionPools = connectionPools;
 		this.clients = clients;
 		this.nodes = nodes;
@@ -134,6 +133,11 @@ public class DataRouterContext{
 	
 	public void initializeEagerClients(){
 		clients.initializeEagerClients(this);
+	}
+	
+	public void shutdown(){
+		clients.shutdown();
+		executorService.shutdown();
 	}
 	
 	
