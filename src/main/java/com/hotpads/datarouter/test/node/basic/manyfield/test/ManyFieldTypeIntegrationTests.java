@@ -53,16 +53,16 @@ public class ManyFieldTypeIntegrationTests{
 	@Parameters
 	public static Collection<Object[]> parameters(){
 		List<Object[]> params = ListTool.createArrayList();
-		params.add(new Object[]{0, DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, false});
-		params.add(new Object[]{1, DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, true});
-		params.add(new Object[]{2, DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, true, false});
-		params.add(new Object[]{3, DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, true, true});
-		params.add(new Object[]{4, DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, false});
-		params.add(new Object[]{5, DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, true});
-		params.add(new Object[]{6, DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, false});
-		params.add(new Object[]{7, DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, true});
-		params.add(new Object[]{8, DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, false});
-		params.add(new Object[]{9, DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemory, MemoryClientType.INSTANCE, false, true, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestMemcached, MemcachedClientType.INSTANCE, false, true, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, true, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, true, false, true});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, false});
+		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true, true});
 		return params;
 	}
 	
@@ -70,7 +70,6 @@ public class ManyFieldTypeIntegrationTests{
 	
 	/***************************** fields **************************************/
 	
-	private Integer paramNum;
 	private String clientName;
 	private ClientType clientType;
 	private boolean sorted;
@@ -92,8 +91,8 @@ public class ManyFieldTypeIntegrationTests{
 	}
 	
 	//runs before every @Test
-	public ManyFieldTypeIntegrationTests(Integer paramNum, String clientName, ClientType clientType, boolean sorted,
-			boolean useFielder, boolean entity){
+	public ManyFieldTypeIntegrationTests(String clientName, ClientType clientType, boolean sorted, boolean useFielder,
+			boolean entity){
 		this.clientName = clientName;
 		this.clientType = clientType;
 		this.sorted = sorted;
