@@ -138,6 +138,7 @@ public class DataRouterContext{
 	
 	public void shutdown(){
 		clients.shutdown();
+		executorService.shutdown();
 	}
 	
 	

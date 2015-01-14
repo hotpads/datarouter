@@ -1,6 +1,7 @@
 package com.hotpads.guice;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
 
 import com.google.inject.Injector;
 import com.hotpads.DataRouterLoader;
@@ -21,6 +22,11 @@ public class GuiceDataRouterLoader extends DataRouterLoader{
 	@Override
 	protected HotPadsWebAppListener buildListener(Class<? extends HotPadsWebAppListener> listenerClass){
 		return injector.getInstance(listenerClass);
+	}
+	
+	@Override
+	public void contextDestroyed(ServletContextEvent event){
+		super.contextDestroyed(event);
 	}
 
 }
