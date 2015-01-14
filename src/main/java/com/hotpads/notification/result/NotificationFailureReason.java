@@ -1,6 +1,6 @@
 package com.hotpads.notification.result;
 
-public enum FailureReason{
+public enum NotificationFailureReason{
 
 	WRONG_USER_ID,
 	FAILED_TO_GET_NEEDED_INSTANCES,
