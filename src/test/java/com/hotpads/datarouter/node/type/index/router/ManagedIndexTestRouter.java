@@ -9,13 +9,13 @@ import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithTxnManagedIndexNode;
 import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithManagedIndexNode;
-import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.util.core.ListTool;
 
 @Singleton
-public class ManagedIndexTestRouter extends BaseDataRouter{
+public class ManagedIndexTestRouter extends BaseDatarouter{
 	
 	private static final String NAME = "managedIndexTest";
 

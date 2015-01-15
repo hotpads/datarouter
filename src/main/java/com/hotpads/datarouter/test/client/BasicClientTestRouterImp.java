@@ -13,7 +13,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
-import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean;
@@ -29,7 +29,7 @@ import com.hotpads.util.core.ListTool;
 
 @Singleton
 public class BasicClientTestRouterImp
-extends BaseDataRouter
+extends BaseDatarouter
 implements BasicClientTestRouter{
 
 	public static final String name = "basicClientTest";

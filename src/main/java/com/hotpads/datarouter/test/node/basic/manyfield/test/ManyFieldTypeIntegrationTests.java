@@ -30,7 +30,7 @@ import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.SortedStorage.SortedStorageNode;
-import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
@@ -107,7 +107,7 @@ public class ManyFieldTypeIntegrationTests{
 				entity);
 		this.mapNode = router.manyFieldTypeBean();
 		if(sorted){
-			this.sortedNode = BaseDataRouter.cast(mapNode);
+			this.sortedNode = BaseDatarouter.cast(mapNode);
 		}
 		this.allKeys = ListTool.createArrayList();
 	}

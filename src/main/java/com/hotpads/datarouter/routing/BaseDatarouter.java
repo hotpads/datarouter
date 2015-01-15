@@ -21,7 +21,7 @@ import com.hotpads.trace.TraceContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
-public abstract class BaseDataRouter
+public abstract class BaseDatarouter
 implements Datarouter{
 
 	public static final String
@@ -39,7 +39,7 @@ implements Datarouter{
 	
 	/**************************** constructor  ****************************************/
 	
-	public BaseDataRouter(DatarouterContext context, String configLocation, String name){
+	public BaseDatarouter(DatarouterContext context, String configLocation, String name){
 		this.context = context;
 		this.configLocation = configLocation;
 		this.name = name;

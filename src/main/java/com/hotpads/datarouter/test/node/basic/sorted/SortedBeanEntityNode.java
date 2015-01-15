@@ -6,7 +6,7 @@ import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.entity.SubEntitySortedMapStorageNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey.SortedBeanEntityPartitioner4;
@@ -35,7 +35,7 @@ extends HBaseEntityReaderNode<SortedBeanEntityKey,SortedBeanEntity>{
 	
 	@Override
 	protected void initNodes(Datarouter router, String clientName){
-		sortedBean = BaseDataRouter.cast(router.register(nodeFactory.subEntityNode(router, entityNodeParams, clientName, 
+		sortedBean = BaseDatarouter.cast(router.register(nodeFactory.subEntityNode(router, entityNodeParams, clientName, 
 				SortedBean.class, SortedBeanFielder.class, SortedBeanEntity.QUALIFIER_PREFIX_SortedBean)));
 		register(sortedBean);
 	}

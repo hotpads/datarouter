@@ -6,7 +6,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.entity.BaseEntityNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.trace.Trace;
 import com.hotpads.trace.Trace.TraceFielder;
@@ -43,17 +43,17 @@ implements TraceNodes{
 	}
 	
 	private void initNodes(Datarouter router, String clientName){
-		trace = BaseDataRouter.cast(router.register(nodeFactory.create(clientName, 
+		trace = BaseDatarouter.cast(router.register(nodeFactory.create(clientName, 
 //				TraceEntity.TABLE_Trace, Trace.class.getName(),
 				Trace.class, TraceFielder.class, router, true)));
 		register(trace);
 		
-		thread = BaseDataRouter.cast(router.register(nodeFactory.create(clientName, 
+		thread = BaseDatarouter.cast(router.register(nodeFactory.create(clientName, 
 //				TraceEntity.TABLE_TraceThread, TraceThread.class.getName(),
 				TraceThread.class, TraceThreadFielder.class, router, true)));
 		register(thread);
 		
-		span = BaseDataRouter.cast(router.register(nodeFactory.create(clientName, 
+		span = BaseDatarouter.cast(router.register(nodeFactory.create(clientName, 
 //				TraceEntity.TABLE_TraceSpan, TraceSpan.class.getName(),
 				TraceSpan.class, TraceSpanFielder.class, router, true)));
 		register(span);	

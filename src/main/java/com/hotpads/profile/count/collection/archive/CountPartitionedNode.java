@@ -13,7 +13,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.node.type.partitioned.PartitionedSortedMapStorageNode;
-import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.profile.count.databean.Count;
@@ -102,7 +102,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 			String entityName = ENTITY_PREFIX + suffix;
 			Node<CountKey,Count> node = nodeFactory.create(clientName, tableName, entityName, Count.class,
 					CountFielder.class, router, false);
-			PhysicalSortedMapStorageNode<CountKey,Count> sortedNode = BaseDataRouter.cast(node);
+			PhysicalSortedMapStorageNode<CountKey,Count> sortedNode = BaseDatarouter.cast(node);
 			register(sortedNode);
 		}
 	}

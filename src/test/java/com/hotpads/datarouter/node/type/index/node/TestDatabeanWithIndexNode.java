@@ -9,7 +9,7 @@ import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIn
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByBKey;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByC;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByCKey;
-import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.TestDatabean;
@@ -32,10 +32,10 @@ public abstract class TestDatabeanWithIndexNode{
 							TestDatabeanWithManagedIndexByC> byC;
 	
 	public TestDatabeanWithIndexNode(NodeFactory nodeFactory, Datarouter router){
-		backingMapNode = BaseDataRouter.cast(router.register(nodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0,
+		backingMapNode = BaseDatarouter.cast(router.register(nodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0,
 				getTableName(), getTableName(), TestDatabean.class,
 				TestDatabeanFielder.class, router, false)));
-		mainNode = BaseDataRouter.cast(backingMapNode);
+		mainNode = BaseDatarouter.cast(backingMapNode);
 	}
 	
 	protected abstract String getTableName();
