@@ -7,7 +7,7 @@ import com.hotpads.DatarouterLoader;
 import com.hotpads.HotPadsWebAppListener;
 import com.hotpads.WebAppName;
 
-public class GuiceDataRouterLoader extends DatarouterLoader{
+public class GuiceDatarouterLoader extends DatarouterLoader{
 
 	private Injector injector;
 
