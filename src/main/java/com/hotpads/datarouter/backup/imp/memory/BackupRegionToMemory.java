@@ -9,7 +9,7 @@ import com.hotpads.datarouter.backup.databean.BackupRecord;
 import com.hotpads.datarouter.backup.databean.BackupRecordKey;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.SortedStorage.SortedStorageNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -18,7 +18,7 @@ extends BackupRegion<PK,D>{
 	
 	protected ByteArrayOutputStream byteArrayOutputStream;
 
-	public BackupRegionToMemory(DataRouter router, SortedStorageNode<PK,D> node, 
+	public BackupRegionToMemory(Datarouter router, SortedStorageNode<PK,D> node, 
 			PK startKeyInclusive, PK endKeyExclusive,
 			boolean gzip,
 			MapStorage<BackupRecordKey,BackupRecord> backupRecordNode) throws IOException{

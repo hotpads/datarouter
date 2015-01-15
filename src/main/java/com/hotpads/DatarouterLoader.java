@@ -7,9 +7,10 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import com.hotpads.handler.DatarouterContextLoader;
 import com.hotpads.logging.LoggingConfigLoader;
 
-public abstract class DataRouterLoader implements ServletContextListener{
+public abstract class DatarouterLoader implements ServletContextListener{
 
 	private List<HotPadsWebAppListener> listeners;
 
@@ -35,6 +36,7 @@ public abstract class DataRouterLoader implements ServletContextListener{
 
 	private List<Class<? extends HotPadsWebAppListener>> getListenerClasses(){
 		List<Class<? extends HotPadsWebAppListener>> classes = new LinkedList<>();
+		classes.add(DatarouterContextLoader.class);
 		classes.add(LoggingConfigLoader.class);
 		return classes;
 	}

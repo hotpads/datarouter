@@ -30,8 +30,6 @@ public class DatarouterGuiceModule extends ServletModule{
 	@Override
 	protected void configureServlets(){
 		bind(ApplicationPaths.class).to(GuiceApplicationPaths.class).in(Scopes.SINGLETON);
-//		bind(String.class).annotatedWith(ApplicationRootPath.class).toProvider(ApplicationRootPathProvider.class).in(
-//				Scopes.SINGLETON);
 		bind(ExecutorService.class).annotatedWith(DatarouterExecutorService.class).toProvider(
 				DatarouterExecutorServiceProvider.class).in(Scopes.SINGLETON);
 		bind(DatarouterInjector.class).to(GuiceInjector.class);

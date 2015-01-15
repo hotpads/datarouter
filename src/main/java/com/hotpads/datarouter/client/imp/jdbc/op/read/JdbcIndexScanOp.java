@@ -34,7 +34,7 @@ extends BaseJdbcOp<List<PKLookup>>{
 	
 	public JdbcIndexScanOp(JdbcReaderNode<PK, D, F> node, Range<PKLookup> start, Class<PKLookup> indexClass, Config config,
 			String traceName){
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.start = start;
 		this.node = node;
 		this.config = config;

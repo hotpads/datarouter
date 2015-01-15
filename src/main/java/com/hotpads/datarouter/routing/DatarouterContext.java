@@ -38,10 +38,9 @@ import com.hotpads.util.core.concurrent.NamedThreadFactory;
  * @author mcorgan
  * 
  */
-//TODO rename DatarouterContext
 @Singleton
-public class DataRouterContext{
-	private static final Logger logger = LoggerFactory.getLogger(DataRouterContext.class);
+public class DatarouterContext{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterContext.class);
 
 	private static final String
 			CONFIG_SERVER_NAME = "server.name",
@@ -59,7 +58,7 @@ public class DataRouterContext{
 	//not injected
 	private ExecutorService executorService;//for async client init and monitoring
 
-	private List<DataRouter> routers;
+	private List<Datarouter> routers;
 	private Set<String> configFilePaths;
 	private List<Properties> multiProperties;
 	private String serverName;
@@ -73,17 +72,16 @@ public class DataRouterContext{
 	 * Google doesn't turn up many questions about it.
 	 */
 	@Inject
-//	public DataRouterContext(@DatarouterExecutorService ExecutorService executorService, Clients clients){
-//		this.executorService = executorService;
-	public DataRouterContext(ApplicationPaths applicationRootPath, ConnectionPools connectionPools, 
-			Clients clients, Nodes nodes){
-		this.applicationPaths = applicationRootPath;
+	public DatarouterContext(/*@DatarouterExecutorService ExecutorService executorService,*/
+			ApplicationPaths applicationPaths, ConnectionPools connectionPools, Clients clients, Nodes nodes){
 		int id = System.identityHashCode(this);
 		ThreadGroup threadGroup = new ThreadGroup("Datarouter-ThreadGroup-"+id);
 		ThreadFactory threadFactory = new NamedThreadFactory(threadGroup, "Datarouter-ThreadFactory-"+id, true);
 		this.executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
 	            new SynchronousQueue<Runnable>(), threadFactory);
 
+//		this.executorService = executorService;
+		this.applicationPaths = applicationPaths;
 		this.connectionPools = connectionPools;
 		this.clients = clients;
 		this.nodes = nodes;
@@ -101,14 +99,14 @@ public class DataRouterContext{
 		clients.registerConfigFile(configFilePath);
 	}
 	
-	public synchronized void register(DataRouter router) {
+	public synchronized void register(Datarouter router) {
 		routers.add(router);
 		addConfigIfNew(router);
 		connectionPools.registerClientIds(router.getClientIds(), router.getConfigLocation());
 		clients.registerClientIds(this, router.getClientIds());
 	}
 	
-	private void addConfigIfNew(DataRouter router){
+	private void addConfigIfNew(Datarouter router){
 		String configPath = router.getConfigLocation();
 		if(configFilePaths.contains(configPath)){ return; }
 		
@@ -136,11 +134,16 @@ public class DataRouterContext{
 		clients.initializeEagerClients(this);
 	}
 	
+	public void shutdown(){
+		clients.shutdown();
+		executorService.shutdown();
+	}
+	
 	
 	/********************* methods **********************************/
 
-	public DataRouter getRouter(String name){
-		for(DataRouter router : CollectionTool.nullSafe(this.routers)){
+	public Datarouter getRouter(String name){
+		for(Datarouter router : CollectionTool.nullSafe(this.routers)){
 			if(name.equals(router.getName())){
 				return router;
 			}
@@ -150,7 +153,7 @@ public class DataRouterContext{
 	
 	public List<Client> getClients(){
 		SortedSet<Client> clients = SetTool.createTreeSet();
-		for(DataRouter router : IterableTool.nullSafe(getRouters())){
+		for(Datarouter router : IterableTool.nullSafe(getRouters())){
 			for(Client client : IterableTool.nullSafe(router.getAllClients())){
 				clients.add(client);
 			}
@@ -158,8 +161,8 @@ public class DataRouterContext{
 		return ListTool.createArrayList(clients);
 	}
 	
-	public DataRouter getRouterForClient(Client client){
-		for(DataRouter router : routers){
+	public Datarouter getRouterForClient(Client client){
+		for(Datarouter router : routers){
 			for(Client c : router.getAllClients()){
 				if(c==client){ return router; }
 			}
@@ -169,7 +172,7 @@ public class DataRouterContext{
 
 	public void clearThreadSpecificState(){
 		if(CollectionTool.isEmpty(this.routers)){ return; }
-		for(DataRouter router : this.routers){
+		for(Datarouter router : this.routers){
 			router.clearThreadSpecificState();
 		}
 	}
@@ -188,7 +191,7 @@ public class DataRouterContext{
 		return nodes;
 	}
 
-	public List<DataRouter> getRouters(){
+	public List<Datarouter> getRouters(){
 		return routers;
 	}
 

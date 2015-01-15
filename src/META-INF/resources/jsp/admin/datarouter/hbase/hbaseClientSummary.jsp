@@ -17,7 +17,7 @@
 <body>
 	<div class="container">
 		<h2>DR ${param.clientName}</h2>
-		<a href="${contextPath}/datarouter/routers">DataRouter Home</a>
+		<a href="${contextPath}/datarouter/routers">Datarouter Home</a>
 		&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a
 			href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router:
 			${param.routerName}</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <b>Client:
@@ -51,11 +51,7 @@
 						<a
 							href="hbase?submitAction=viewHBaseServers&routerName=${param.routerName}&clientName=${param.clientName}">servers</a>
 						</td>
-						<!-- 				<td> -->
-						<%-- 					<a href="/admin/dataRouter/menu.htm?submitAction=countHBaseTableCells&routerName=${param.routerName} --%>
-						<%-- 							&clientName=${param.clientName}&tableName=${tableSummary.key}">count cells</a> --%>
-						<!-- 				</td> -->
-						<!--
+
 				<td>
 					<c:forEach items="${tableSummary.value}" var="attributeByName">
 						${attributeByName.key}=${attributeByName.value}<br/>

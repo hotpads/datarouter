@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.google.inject.Inject;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
@@ -15,7 +15,7 @@ import com.hotpads.util.core.MapTool;
 
 public class HibernateHandler extends BaseHandler {
 	@Inject
-	private DataRouterContext dataRouterContext;
+	private DatarouterContext datarouterContext;
 
 	private RouterParams<HibernateClientImp> paramsRouter;
 
@@ -38,7 +38,7 @@ public class HibernateHandler extends BaseHandler {
 	}
 
 	private void initialize() {
-		paramsRouter = new RouterParams<>(dataRouterContext, params, HIBERNATE_NEEDS);
+		paramsRouter = new RouterParams<>(datarouterContext, params, HIBERNATE_NEEDS);
 
 	}
 

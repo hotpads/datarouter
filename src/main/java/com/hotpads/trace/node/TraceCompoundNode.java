@@ -6,8 +6,8 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.entity.BaseEntityNode;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.datarouter.routing.BaseDataRouter;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.BaseDatarouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.trace.Trace;
 import com.hotpads.trace.Trace.TraceFielder;
 import com.hotpads.trace.TraceEntity;
@@ -36,24 +36,24 @@ implements TraceNodes{
 	public SortedMapStorageNode<TraceThreadKey,TraceThread> thread;
 	public SortedMapStorageNode<TraceSpanKey,TraceSpan> span;
 	
-	public TraceCompoundNode(NodeFactory nodeFactory, DataRouter router, String clientName, String name){
+	public TraceCompoundNode(NodeFactory nodeFactory, Datarouter router, String clientName, String name){
 		super(router.getContext(), name);
 		this.nodeFactory = nodeFactory;
 		initNodes(router, clientName);
 	}
 	
-	private void initNodes(DataRouter router, String clientName){
-		trace = BaseDataRouter.cast(router.register(nodeFactory.create(clientName, 
+	private void initNodes(Datarouter router, String clientName){
+		trace = BaseDatarouter.cast(router.register(nodeFactory.create(clientName, 
 //				TraceEntity.TABLE_Trace, Trace.class.getName(),
 				Trace.class, TraceFielder.class, router, true)));
 		register(trace);
 		
-		thread = BaseDataRouter.cast(router.register(nodeFactory.create(clientName, 
+		thread = BaseDatarouter.cast(router.register(nodeFactory.create(clientName, 
 //				TraceEntity.TABLE_TraceThread, TraceThread.class.getName(),
 				TraceThread.class, TraceThreadFielder.class, router, true)));
 		register(thread);
 		
-		span = BaseDataRouter.cast(router.register(nodeFactory.create(clientName, 
+		span = BaseDatarouter.cast(router.register(nodeFactory.create(clientName, 
 //				TraceEntity.TABLE_TraceSpan, TraceSpan.class.getName(),
 				TraceSpan.class, TraceSpanFielder.class, router, true)));
 		register(span);	

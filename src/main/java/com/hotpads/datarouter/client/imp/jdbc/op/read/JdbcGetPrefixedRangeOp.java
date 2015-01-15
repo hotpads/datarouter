@@ -28,7 +28,7 @@ extends BaseJdbcOp<List<D>>{
 	
 	public JdbcGetPrefixedRangeOp(JdbcReaderNode<PK,D,F> node, String opName, PK prefix, 
 			boolean wildcardLastField, PK start, boolean startInclusive, Config config) {
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;
 		this.prefix = prefix;

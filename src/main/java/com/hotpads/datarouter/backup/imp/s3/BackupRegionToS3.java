@@ -13,7 +13,7 @@ import com.hotpads.datarouter.client.imp.s3.S3PutTool;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.FileUtils;
@@ -34,7 +34,7 @@ extends BackupRegion<PK,D>{
 	protected PhaseTimer timer;
 
 	public BackupRegionToS3(String s3Bucket, String sourceName,
-			DataRouter router, SortedStorageReaderNode<PK,D> node, 
+			Datarouter router, SortedStorageReaderNode<PK,D> node, 
 			PK startKeyInclusive, PK endKeyExclusive,
 			boolean gzip, boolean deleteLocalFile,
 			MapStorage<BackupRecordKey,BackupRecord> backupRecordNode,
@@ -94,7 +94,7 @@ extends BackupRegion<PK,D>{
 	}
 	
 	public static String getS3Key(
-			String sourceName, DataRouter router, Node<?,?> node){
+			String sourceName, Datarouter router, Node<?,?> node){
 		return "datarouter/"+sourceName+"/"+router.getName()+"/"+node.getName();
 	}
 	

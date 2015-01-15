@@ -6,11 +6,11 @@ import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIn
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByB.TestDatabeanWithManagedIndexByBFielder;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByC;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByC.TestDatabeanWithManagedIndexByCFielder;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 
 public class TestDatabeanWithManagedIndexNode extends TestDatabeanWithIndexNode{
 	
-	public TestDatabeanWithManagedIndexNode(NodeFactory nodeFactory, DataRouter router){
+	public TestDatabeanWithManagedIndexNode(NodeFactory nodeFactory, Datarouter router){
 		super(nodeFactory, router);
 		
 		byB = backingMapNode.registerManaged(IndexingNodeFactory.newManagedUnique(router, backingMapNode,

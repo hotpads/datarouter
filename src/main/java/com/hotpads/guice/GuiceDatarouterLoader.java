@@ -3,10 +3,10 @@ package com.hotpads.guice;
 import javax.servlet.ServletContext;
 
 import com.google.inject.Injector;
-import com.hotpads.DataRouterLoader;
+import com.hotpads.DatarouterLoader;
 import com.hotpads.DatarouterInjector;
 
-public class GuiceDataRouterLoader extends DataRouterLoader{
+public class GuiceDatarouterLoader extends DatarouterLoader{
 
 	private Injector injector;
 

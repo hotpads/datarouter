@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -75,7 +75,7 @@ public class Clients{
 		}
 	}
 	
-	public void registerClientIds(DataRouterContext context, Collection<ClientId> clientIdsToAdd) {
+	public void registerClientIds(DatarouterContext context, Collection<ClientId> clientIdsToAdd) {
 		clientIds.addAll(CollectionTool.nullSafe(clientIdsToAdd));
 		for(ClientId clientId : IterableTool.nullSafe(clientIds)) {
 			initClientFactoryIfNull(context, clientId.getName());
@@ -86,7 +86,7 @@ public class Clients{
 	
 	/********************************** initialize ******************************/
 	
-	public void initializeEagerClients(DataRouterContext context){
+	public void initializeEagerClients(DatarouterContext context){
 		final List<String> eagerClientNames = getClientNamesRequiringEagerInitialization();
 		getClients(context, eagerClientNames);
 	}
@@ -96,7 +96,7 @@ public class Clients{
 		return routerOptions.getClientTypeInstance(clientName);
 	}
 	
-	private synchronized void initClientFactoryIfNull(DataRouterContext context, String clientName) {
+	private synchronized void initClientFactoryIfNull(DatarouterContext context, String clientName) {
 		if(lazyClientInitializerByName.containsKey(clientName)) { return; }
 		ClientType clientTypeInstance = getClientTypeInstance(clientName);
 		List<PhysicalNode<?,?>> physicalNodesForClient = context.getNodes().getPhysicalNodesForClient(
@@ -104,6 +104,22 @@ public class Clients{
 		ClientFactory clientFactory = clientTypeInstance.createClientFactory(context, clientName, 
 				physicalNodesForClient);
 		lazyClientInitializerByName.put(clientName, new LazyClientProvider(clientFactory));
+	}
+	
+	
+	/******************** shutdown ********************************************/
+	
+	//TODO shutdown clients in parallel
+	public void shutdown(){
+		for(LazyClientProvider lazyClientProvider : lazyClientInitializerByName.values()){
+			if( ! lazyClientProvider.isInitialized()){ continue; }
+			Client client = lazyClientProvider.call();
+			try{
+				client.shutdown();
+			}catch(Exception e){
+				logger.warn("swallowing exception while shutting down client "+client.getName(), e);
+			}
+		}
 	}
 	
 	
@@ -150,7 +166,7 @@ public class Clients{
 		return lazyClientInitializerByName.get(clientName).call();
 	}
 	
-	public List<Client> getClients(DataRouterContext context, Collection<String> clientNames){
+	public List<Client> getClients(DatarouterContext context, Collection<String> clientNames){
 		List<Client> clients = ListTool.createArrayListWithSize(clientNames);
 		List<LazyClientProvider> providers = ListTool.createLinkedList();//TODO don't create until needed
 		for(String clientName : CollectionTool.nullSafe(clientNames)){
@@ -167,7 +183,7 @@ public class Clients{
 		return clients;
 	}
 	
-	public List<Client> getAllClients(DataRouterContext context){
+	public List<Client> getAllClients(DatarouterContext context){
 		return getClients(context, ClientId.getNames(clientIds));
 	}
 	

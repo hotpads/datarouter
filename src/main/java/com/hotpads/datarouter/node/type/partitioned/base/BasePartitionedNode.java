@@ -12,7 +12,7 @@ import com.hotpads.datarouter.node.NodeId;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.type.partitioned.Partitions;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
@@ -40,7 +40,7 @@ extends BaseNode<PK,D,F>{
 	protected Class<D> databeanClass;
 	protected Partitions<PK,D,N> partitions;
 		
-	public BasePartitionedNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router){
+	public BasePartitionedNode(Class<D> databeanClass, Class<F> fielderClass, Datarouter router){
 		super(new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withFielder(fielderClass)
 				.build());

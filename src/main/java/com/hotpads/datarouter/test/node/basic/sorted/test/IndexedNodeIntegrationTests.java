@@ -24,7 +24,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.IndexedBasicNodeTestRouter;
@@ -81,7 +81,7 @@ public class IndexedNodeIntegrationTests{
 
 	public IndexedNodeIntegrationTests(String clientName, ClientType clientType, boolean useFielder){
 		Injector injector = new DatarouterTestInjectorProvider().get();
-		DataRouterContext drContext = injector.getInstance(DataRouterContext.class);
+		DatarouterContext drContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
 		this.router = new IndexedBasicNodeTestRouter(drContext, nodeFactory, clientName, getClass(), useFielder, false);
 		this.node = router.sortedBean();

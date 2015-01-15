@@ -9,7 +9,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Isolation;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
@@ -25,7 +25,7 @@ public class TxnIntegrationTests {
 	private static Logger logger = LoggerFactory.getLogger(TxnIntegrationTests.class);
 	
 	private BasicClientTestRouter router;
-	private DataRouterContext drContext;
+	private DatarouterContext drContext;
 	private String clientName = DRTestConstants.CLIENT_drTestHibernate0;
 //	private String clientName = DRTestConstants.CLIENT_drTestJdbc0;
 	
@@ -33,7 +33,7 @@ public class TxnIntegrationTests {
 	
 	public TxnIntegrationTests(){
 		Injector injector = new DatarouterTestInjectorProvider().get();
-		drContext = injector.getInstance(DataRouterContext.class);
+		drContext = injector.getInstance(DatarouterContext.class);
 		router = injector.getInstance(BasicClientTestRouter.class);
 	}
 

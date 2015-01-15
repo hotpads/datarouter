@@ -13,7 +13,7 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
 
-public class DataRouterEnumTool{
+public class DatarouterEnumTool{
 	
 	/*************************** comparator that compares the persistent values ***********/
 

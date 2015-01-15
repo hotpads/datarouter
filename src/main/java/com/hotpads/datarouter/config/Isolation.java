@@ -2,7 +2,7 @@ package com.hotpads.datarouter.config;
 
 import java.sql.Connection;
 
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
@@ -43,7 +43,7 @@ public enum Isolation implements IntegerEnum<Isolation>, StringEnum<Isolation>{
 	
 	@Override
 	public Isolation fromPersistentInteger(Integer i){
-		return DataRouterEnumTool.getEnumFromInteger(values(), i, null);
+		return DatarouterEnumTool.getEnumFromInteger(values(), i, null);
 	}
 	
 	
@@ -56,7 +56,7 @@ public enum Isolation implements IntegerEnum<Isolation>, StringEnum<Isolation>{
 	
 	@Override
 	public Isolation fromPersistentString(String s){
-		return DataRouterEnumTool.getEnumFromString(values(), s, null);
+		return DatarouterEnumTool.getEnumFromString(values(), s, null);
 	}
 	
 }

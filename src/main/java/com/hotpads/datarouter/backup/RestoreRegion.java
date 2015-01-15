@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
@@ -33,7 +33,7 @@ public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean
 			.setPersistentPut(false)
 			.setPutMethod(PutMethod.INSERT_OR_UPDATE);
 	
-	protected DataRouter router;
+	protected Datarouter router;
 	protected Class<D> cls;
 	protected MapStorageNode<PK,D> node;
 	protected Integer putBatchSize;
@@ -48,7 +48,7 @@ public abstract class RestoreRegion<PK extends PrimaryKey<PK>,D extends Databean
 	
 	protected Integer logEvery;
 	
-	public RestoreRegion(Class<D> cls, DataRouter router, MapStorageNode<PK,D> node, Integer putBatchSize,
+	public RestoreRegion(Class<D> cls, Datarouter router, MapStorageNode<PK,D> node, Integer putBatchSize,
 			Boolean ignoreNullFields){
 		this.cls = cls;
 		this.router = router;

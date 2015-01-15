@@ -9,7 +9,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.node.type.writebehind.base.BaseWriteBehindNode;
 import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -20,7 +20,7 @@ public class WriteBehindMapStorageReaderNode<
 extends BaseWriteBehindNode<PK,D,N>
 implements MapStorageReaderNode<PK,D>{
 	
-	public WriteBehindMapStorageReaderNode(Class<D> databeanClass, DataRouter router,
+	public WriteBehindMapStorageReaderNode(Class<D> databeanClass, Datarouter router,
 			N backingNode, ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
 		super(databeanClass, router, backingNode, writeExecutor, cancelExecutor);
 	}
