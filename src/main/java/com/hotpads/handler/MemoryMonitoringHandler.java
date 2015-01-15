@@ -20,7 +20,7 @@ import javax.servlet.http.HttpSession;
 
 import com.hotpads.WebAppName;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.handler.dispatcher.DataRouterDispatcher;
+import com.hotpads.handler.dispatcher.DatarouterDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.setting.cached.imp.Duration;
 import com.hotpads.util.core.bytes.ByteUnitTool;
@@ -40,7 +40,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 	private LoadedLibraries loadedLibraries;
 
 	private String getRedirectUrl(){
-		return Mav.REDIRECT + servletContext.getContextPath() + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.MEMORY_STATS;
+		return Mav.REDIRECT + servletContext.getContextPath() + DatarouterDispatcher.URL_DATAROUTER + DatarouterDispatcher.MEMORY_STATS;
 	}
 
 	@Override
