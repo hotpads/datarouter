@@ -29,7 +29,7 @@ public class DatarouterHttpClientFactory implements ClientFactory{
 	
 	@Override
 	public Client call(){
-		return new DataRouterHttpClient(clientName, options.getUrl());
+		return new DatarouterHttpClient(clientName, options.getUrl());
 	}
 	
 	
