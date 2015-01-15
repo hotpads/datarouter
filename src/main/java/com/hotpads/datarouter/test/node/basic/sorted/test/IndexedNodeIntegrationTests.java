@@ -94,7 +94,7 @@ public class IndexedNodeIntegrationTests{
 		List<SortedBean> remainingAfterDelete = ListTool.createArrayList(node.scan(null, null));
 		Assert.assertEquals(0, CollectionTool.size(remainingAfterDelete));
 		
-		List<SortedBean> allBeans = SortedNodeIntegrationTests.generatedSortedBeans();
+		List<SortedBean> allBeans = BaseSortedNodeIntegrationTests.generatedSortedBeans();
 		for(List<SortedBean> batch : new BatchingIterable<SortedBean>(allBeans, 1000)){
 			node.putMulti(batch, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 		}
@@ -107,10 +107,10 @@ public class IndexedNodeIntegrationTests{
 	/****************************** testing vars ***********************************/
 	
 	//shortcuts
-	public static final SortedSet<String> STRINGS = SortedNodeIntegrationTests.STRINGS;
+	public static final SortedSet<String> STRINGS = BaseSortedNodeIntegrationTests.STRINGS;
 	public static final int 
-		NUM_ELEMENTS = SortedNodeIntegrationTests.NUM_ELEMENTS,
-		TOTAL_RECORDS = SortedNodeIntegrationTests.TOTAL_RECORDS;
+		NUM_ELEMENTS = BaseSortedNodeIntegrationTests.NUM_ELEMENTS,
+		TOTAL_RECORDS = BaseSortedNodeIntegrationTests.TOTAL_RECORDS;
 	
 	/********************** junit methods *********************************************/
 	
@@ -149,7 +149,7 @@ public class IndexedNodeIntegrationTests{
 		//delete via lookup
 		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());
 		SortedBeanByDCBLookup lookup = new SortedBeanByDCBLookup(
-				SortedNodeIntegrationTests.S_gopher, 0, SortedNodeIntegrationTests.S_gopher);
+				BaseSortedNodeIntegrationTests.S_gopher, 0, BaseSortedNodeIntegrationTests.S_gopher);
 		router.sortedBeanIndexed().delete(lookup, null);
 		remainingElements -= (NUM_ELEMENTS);
 		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());

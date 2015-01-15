@@ -41,7 +41,7 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielde
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityNode;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
 import com.hotpads.datarouter.test.node.basic.sorted.test.IndexedNodeIntegrationTests;
-import com.hotpads.datarouter.test.node.basic.sorted.test.SortedNodeIntegrationTests;
+import com.hotpads.datarouter.test.node.basic.sorted.test.BaseSortedNodeIntegrationTests;
 import com.hotpads.util.core.ListTool;
 
 @Singleton
@@ -72,7 +72,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 						new Random().nextInt(), this, false));
 			}
 		}
-		if(SortedNodeIntegrationTests.class.equals(testType) || IndexedNodeIntegrationTests.class.equals(testType)){
+		if(BaseSortedNodeIntegrationTests.class.equals(testType) || IndexedNodeIntegrationTests.class.equals(testType)){
 			if(entity){
 //				sortedBeanNode = register(NodeFactory.entityNode(this, clientName, 
 //						SortedBeanEntityKey.class, SortedBean.class, SortedBeanFielder.class,

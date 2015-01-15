@@ -1,34 +1,26 @@
 package com.hotpads.datarouter.test.node.basic.sorted.test;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.client.ClientType;
-import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
-import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.routing.DataRouterContext;
 import com.hotpads.datarouter.storage.key.KeyTool;
-import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
@@ -43,42 +35,39 @@ import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
-@RunWith(Parameterized.class)
-public class SortedNodeIntegrationTests{
-	private static final Logger logger = LoggerFactory.getLogger(SortedNodeIntegrationTests.class);
-	
+//@RunWith(Parameterized.class)
+public abstract class BaseSortedNodeIntegrationTests{
+	private static final Logger logger = LoggerFactory.getLogger(BaseSortedNodeIntegrationTests.class);
 	
 	/***************************** fields **************************************/
 	
-	private SortedBasicNodeTestRouter router;
-	private SortedMapStorage<SortedBeanKey,SortedBean> node;
-	private SortedBeanEntityNode entityNode;
+	private static DataRouterContext drContext;
+	private static SortedBasicNodeTestRouter router;
+	private static SortedMapStorage<SortedBeanKey,SortedBean> node;
+	private static SortedBeanEntityNode entityNode;
 
 	
-	/***************************** construct **************************************/
-
-	@Parameters
-	public static Collection<Object[]> parameters(){
-		List<Object[]> params = ListTool.create();
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHibernate0, HibernateClientType.INSTANCE, false, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, false});
-		params.add(new Object[]{DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, true});
-		return params;
+	/***************************** setup/teardown **************************************/
+	
+	@AfterClass
+	public static void afterClass(){
+		testDelete();
+		drContext.shutdown();
 	}
 	
-	
-	public SortedNodeIntegrationTests(String clientName, ClientType clientType, boolean useFielder, boolean entity){
+	public static void setup(String clientName, ClientType clientType, boolean useFielder, boolean entity){
 		Injector injector = new DatarouterTestInjectorProvider().get();
-		DataRouterContext drContext = injector.getInstance(DataRouterContext.class);
+		drContext = injector.getInstance(DataRouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
-		this.router = new SortedBasicNodeTestRouter(drContext, nodeFactory, clientName, getClass(), useFielder, entity);
-		this.node = router.sortedBeanSorted();
-		this.entityNode = router.sortedBeanEntity();
-	}
-	
+		router = new SortedBasicNodeTestRouter(drContext, nodeFactory, clientName, BaseSortedNodeIntegrationTests.class, 
+				useFielder, entity);
+		node = router.sortedBeanSorted();
+		entityNode = router.sortedBeanEntity();
 
-	public void resetTable(boolean force){
+		resetTable(true);
+	}
+
+	private static void resetTable(boolean force){
 		long numExistingDatabeans = IterableTool.count(node.scan(null, null));
 		if(!force && TOTAL_RECORDS == numExistingDatabeans){ return; }
 		
@@ -175,8 +164,7 @@ public class SortedNodeIntegrationTests{
 	/********************** junit methods *********************************************/
 	
 	@Test
-	public synchronized void testGetKeys(){
-		resetTable(false);
+	public void testGetKeys(){
 		SortedBeanKey key1 = new SortedBeanKey(S_aardvark, S_aardvark, 0, S_alpaca);
 		SortedBeanKey key2 = new SortedBeanKey("blah", "blah", 1000, "blah");
 		SortedBeanKey key3 = new SortedBeanKey(S_aardvark, S_albatross, 2, S_emu);
@@ -188,8 +176,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public synchronized void testGetEntity(){
-		resetTable(false);
+	public void testGetEntity(){
 		if(!isHBaseEntity()){ return; }
 		SortedBeanEntityKey ek1 = new SortedBeanEntityKey(S_albatross, S_ostrich);
 		SortedBeanEntity albatrossOstrich = entityNode.getEntity(ek1, null);
@@ -200,15 +187,13 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public synchronized void testGetAll(){
-		resetTable(false);
+	public void testGetAll(){
 		List<SortedBean> allBeans = ListTool.createArrayList(node.scan(null, null));
 		Assert.assertEquals(TOTAL_RECORDS, CollectionTool.size(allBeans));
 	}
 	
 	@Test
-	public synchronized void testGetFirstKey(){
-		resetTable(false);
+	public void testGetFirstKey(){
 		SortedBeanKey firstKey = node.getFirstKey(null);
 		Assert.assertEquals(STRINGS.first(), firstKey.getA());
 		Assert.assertEquals(STRINGS.first(), firstKey.getB());
@@ -217,8 +202,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public synchronized void testGetFirst(){
-		resetTable(false);
+	public void testGetFirst(){
 		SortedBean firstBean = node.getFirst(null);
 		Assert.assertEquals(STRINGS.first(), firstBean.getKey().getA());
 		Assert.assertEquals(STRINGS.first(), firstBean.getKey().getB());
@@ -227,8 +211,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public synchronized void testGetWithPrefix(){
-		resetTable(false);
+	public void testGetWithPrefix(){
 		//first 3 fields fixed
 		SortedBeanKey prefix1 = new SortedBeanKey(STRINGS.first(), STRINGS.last(), 2, null);
 		List<SortedBean> result1 = node.getWithPrefix(prefix1, false, null);
@@ -250,8 +233,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public synchronized void testGetWithPrefixes(){
-		resetTable(false);
+	public void testGetWithPrefixes(){
 		SortedBeanKey prefixA = new SortedBeanKey(STRINGS.first(), PREFIX_a, null, null);
 		SortedBeanKey prefixCh = new SortedBeanKey(STRINGS.first(), PREFIX_ch, null, null);
 		List<SortedBeanKey> prefixes = ListTool.create(prefixA, prefixCh);
@@ -264,8 +246,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public synchronized void testGetKeysInRange(){
-		resetTable(false);
+	public void testGetKeysInRange(){
 		SortedBeanKey alp1 = new SortedBeanKey(RANGE_alp, null, null, null);
 		SortedBeanKey emu1 = new SortedBeanKey(RANGE_emu, null, null, null);
 		List<SortedBeanKey> result1 = node.getKeysInRange(alp1, true, emu1, true, null);
@@ -287,8 +268,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public synchronized void testGetInRange(){
-		resetTable(false);
+	public void testGetInRange(){
 		SortedBeanKey alp1 = new SortedBeanKey(RANGE_alp, null, null, null);
 		SortedBeanKey emu1 = new SortedBeanKey(RANGE_emu, null, null, null);
 		List<SortedBean> result1 = node.getRange(alp1, true, emu1, true, null);
@@ -310,8 +290,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test //small batch sizes to make sure we're resuming each batch from the correct spot
-	public synchronized void testIncrementalScan(){
-		resetTable(false);
+	public void testIncrementalScan(){
 		Config smallIterateBatchSize = new Config().setIterateBatchSize(3);
 
 		int expectedSize1 = RANGE_LENGTH_alp_emu_inc * NUM_ELEMENTS * NUM_ELEMENTS * NUM_ELEMENTS;
@@ -342,8 +321,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public synchronized void testPrefixedRange(){
-		resetTable(false);
+	public void testPrefixedRange(){
 		if(isHBaseEntity()){ return; }//not implemented
 		SortedBeanKey prefix = new SortedBeanKey(PREFIX_a, null, null, null);
 		SortedBeanKey al = new SortedBeanKey(RANGE_al, null, null, null);
@@ -354,8 +332,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public synchronized void testGet(){
-		resetTable(false);
+	public void testGet(){
 		Iterable<SortedBean> iterable = node.scan(null, null);
 		for(SortedBean sortedBeanFromScan : iterable){
 			SortedBean sortedBeanFromGet = node.get(sortedBeanFromScan.getKey(), null);
@@ -364,8 +341,7 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public synchronized void testGetMulti(){
-		resetTable(false);
+	public void testGetMulti(){
 		Iterable<SortedBean> iterable = node.scan(null, null);
 		Set<SortedBean> allBeans = Sets.newHashSet(iterable);
 		Assert.assertEquals(TOTAL_RECORDS, allBeans.size());
@@ -377,24 +353,21 @@ public class SortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public synchronized void testFullScanKeys(){
-		resetTable(false);
+	public void testFullScanKeys(){
 		Iterable<SortedBeanKey> iterable = node.scanKeys(null, null);
 		long numKeys = IterableTool.count(iterable);
 		Assert.assertEquals(TOTAL_RECORDS, numKeys);
 	}
 	
 	@Test
-	public synchronized void testFullScan(){
-		resetTable(false);
+	public void testFullScan(){
 		Iterable<SortedBean> iterable = node.scan(null, null);
 		long numDatabeans = IterableTool.count(iterable);
 		Assert.assertEquals(TOTAL_RECORDS, numDatabeans);
 	}
 
-	@Test
-	public synchronized void testDelete(){
-		resetTable(true);
+//	@Test
+	public static void testDelete(){
 		int remainingElements = TOTAL_RECORDS;
 		
 		//delete
