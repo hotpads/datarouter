@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.routing.comparator.ComparatorDataRouter;
+import com.hotpads.datarouter.routing.comparator.DatarouterComparator;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.util.node.NodeWrapper;
@@ -49,7 +49,7 @@ public class RoutersHandler extends BaseHandler {
 //		initClients(routers);
 		mav.put("serverName", dataRouterContext.getServerName());
 		mav.put("administratorEmail", dataRouterContext.getAdministratorEmail());
-		Collections.sort(routers, new ComparatorDataRouter());
+		Collections.sort(routers, new DatarouterComparator());
 		mav.put("routers", routers);
 		return mav;
 	}

@@ -4,7 +4,7 @@ import java.util.Comparator;
 
 import com.hotpads.datarouter.routing.Datarouter;
 
-public class ComparatorDataRouter implements Comparator<Datarouter>{
+public class DatarouterComparator implements Comparator<Datarouter>{
 
 	@Override
 	public int compare(Datarouter o1, Datarouter o2){
