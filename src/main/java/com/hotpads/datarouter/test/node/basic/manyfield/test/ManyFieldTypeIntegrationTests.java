@@ -35,7 +35,6 @@ import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
-import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
 import com.hotpads.datarouter.test.node.basic.manyfield.TestEnum;
@@ -103,7 +102,7 @@ public class ManyFieldTypeIntegrationTests{
 		Injector injector = new DatarouterTestInjectorProvider().get();
 		this.datarouterContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
-		this.router = new SortedBasicNodeTestRouter(datarouterContext, nodeFactory, clientName, getClass(), useFielder, 
+		this.router = new BasicNodeTestRouter(datarouterContext, nodeFactory, clientName, getClass(), useFielder, 
 				entity);
 		this.mapNode = router.manyFieldTypeBean();
 		if(sorted){
