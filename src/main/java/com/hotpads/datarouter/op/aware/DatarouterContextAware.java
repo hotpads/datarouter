@@ -4,6 +4,6 @@ import com.hotpads.datarouter.routing.DatarouterContext;
 
 public interface DatarouterContextAware<T>{
 
-	DatarouterContext getDataRouterContext();
+	DatarouterContext getDatarouterContext();
 	
 }

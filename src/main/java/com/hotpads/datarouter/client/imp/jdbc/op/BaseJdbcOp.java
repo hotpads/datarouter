@@ -37,7 +37,7 @@ implements TxnOp<T>, ConnectionAware<T> {
 
 	@Override
 	public Connection getConnection(String clientName){
-		Client client = getDataRouterContext().getClientPool().getClient(clientName);
+		Client client = getDatarouterContext().getClientPool().getClient(clientName);
 		if(client==null){ return null; }
 		if(client instanceof JdbcConnectionClient){
 			JdbcConnectionClient jdbcConnectionClient = (JdbcConnectionClient)client;
@@ -77,7 +77,7 @@ implements TxnOp<T>, ConnectionAware<T> {
 	/**************** get *******************************************/
 	
 	@Override
-	public DatarouterContext getDataRouterContext(){
+	public DatarouterContext getDatarouterContext(){
 		return drContext;
 	}
 
