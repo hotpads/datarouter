@@ -45,7 +45,7 @@
 					<td>${node['class'].simpleName}</td>
 					<td><a href="${contextPath}/datarouter/nodes/browseData?submitAction=browseData&routerName=${param.routerName}
 					&nodeName=${node.name}"> data </a></td>
- 					<td><a href="/admin/dataRouter/export.htm?submitAction=exportToS3&routerName=${param.routerName}
+ 					<td><a href="/admin/datarouter/export.htm?submitAction=exportToS3&routerName=${param.routerName}
  					&nodeName=${node.name}"> export to S3 </a></td>
 				</tr>
 			</c:forEach>

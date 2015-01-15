@@ -44,7 +44,7 @@ public class RoutersHandler extends BaseHandler {
 	/************* Handler methods ********************/
 	@Handler
 	protected Mav handleDefault() {
-		mav = new Mav("/jsp/admin/datarouter/dataRouterMenu.jsp");
+		mav = new Mav("/jsp/admin/datarouter/datarouterMenu.jsp");
 		List<Datarouter> routers = datarouterContext.getRouters();
 //		initClients(routers);
 		mav.put("serverName", datarouterContext.getServerName());

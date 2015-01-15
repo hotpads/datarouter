@@ -49,13 +49,13 @@
 						<td>${nodeWrapper.className}</td>
 										
 						<td>
- 						<a href="/admin/dataRouter/export.htm?submitAction=exportToS3&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> export to S3 </a></td> 
- 						<td><a href="/admin/dataRouter/export.htm?submitAction=showImportForm&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> import from S3 </a></td>
+ 						<a href="/admin/datarouter/export.htm?submitAction=exportToS3&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> export to S3 </a></td> 
+ 						<td><a href="/admin/datarouter/export.htm?submitAction=showImportForm&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> import from S3 </a></td>
  						<td><c:if test="${nodeWrapper.isHBaseNode}">
- 								<a href="/admin/dataRouter/menu.htm?submitAction=copyHBaseTable&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}&destinationTableName="> copy table </a>
+ 								<a href="/admin/datarouter/menu.htm?submitAction=copyHBaseTable&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}&destinationTableName="> copy table </a>
  							</c:if></td>
  						<td><c:if test="${nodeWrapper.isHBaseNode}">
- 								<a href="/admin/dataRouter/menu.htm?submitAction=exportNodeToHFile&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> export to HFile </a>
+ 								<a href="/admin/datarouter/menu.htm?submitAction=exportNodeToHFile&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> export to HFile </a>
  							</c:if></td>
 					</tr>
 				</c:forEach>

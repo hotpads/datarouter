@@ -51,11 +51,7 @@
 						<a
 							href="hbase?submitAction=viewHBaseServers&routerName=${param.routerName}&clientName=${param.clientName}">servers</a>
 						</td>
-						<!-- 				<td> -->
-						<%-- 					<a href="/admin/dataRouter/menu.htm?submitAction=countHBaseTableCells&routerName=${param.routerName} --%>
-						<%-- 							&clientName=${param.clientName}&tableName=${tableSummary.key}">count cells</a> --%>
-						<!-- 				</td> -->
-						<!--
+
 				<td>
 					<c:forEach items="${tableSummary.value}" var="attributeByName">
 						${attributeByName.key}=${attributeByName.value}<br/>
