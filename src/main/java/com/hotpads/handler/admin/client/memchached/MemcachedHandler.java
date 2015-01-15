@@ -20,7 +20,7 @@ import com.hotpads.util.core.MapTool;
 public class MemcachedHandler extends BaseHandler {
 
 	@Inject
-	private DatarouterContext dataRouterContext;
+	private DatarouterContext datarouterContext;
 
 	private RouterParams<MemcachedClientImp> paramsRouter;
 
@@ -42,7 +42,7 @@ public class MemcachedHandler extends BaseHandler {
 	}
 
 	private void initialize() {
-		paramsRouter = new RouterParams<>(dataRouterContext, params,
+		paramsRouter = new RouterParams<>(datarouterContext, params,
 				MEMCHACHED_NEEDS);
 
 	}

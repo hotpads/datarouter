@@ -15,7 +15,7 @@ import com.hotpads.util.core.MapTool;
 
 public class HibernateHandler extends BaseHandler {
 	@Inject
-	private DatarouterContext dataRouterContext;
+	private DatarouterContext datarouterContext;
 
 	private RouterParams<HibernateClientImp> paramsRouter;
 
@@ -38,7 +38,7 @@ public class HibernateHandler extends BaseHandler {
 	}
 
 	private void initialize() {
-		paramsRouter = new RouterParams<>(dataRouterContext, params, HIBERNATE_NEEDS);
+		paramsRouter = new RouterParams<>(datarouterContext, params, HIBERNATE_NEEDS);
 
 	}
 

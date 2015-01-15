@@ -14,7 +14,7 @@ public class DatarouterContextLoader extends HotPadsWebAppListener{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterContextLoader.class);
 
 	@Inject
-	private DatarouterContext dataRouterContext;
+	private DatarouterContext datarouterContext;
 
 	@Override
 	public void onStartUp(){
@@ -22,8 +22,8 @@ public class DatarouterContextLoader extends HotPadsWebAppListener{
 
 	@Override
 	public void onShutDown(){
-		logger.warn("dataRouterContext.shutdown()");
-		dataRouterContext.shutdown();
+		logger.warn("datarouterContext.shutdown()");
+		datarouterContext.shutdown();
 	}
 
 }

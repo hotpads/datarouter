@@ -44,7 +44,7 @@ public class MemoryHandler extends BaseHandler {
 	/******************** fields ************************/
 	
 	@Inject
-	private DatarouterContext dataRouterContext;
+	private DatarouterContext datarouterContext;
 
 	private RouterParams<MemoryClient> routerParams;
 
@@ -59,6 +59,6 @@ public class MemoryHandler extends BaseHandler {
 	}
 
 	private void initialize(){
-		routerParams = new RouterParams<>(dataRouterContext, params, MEMORY_NEEDS);
+		routerParams = new RouterParams<>(datarouterContext, params, MEMORY_NEEDS);
 	}
 }

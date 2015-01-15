@@ -34,7 +34,7 @@ public class RoutersHandler extends BaseHandler {
 
 	// injected
 	@Inject
-	private DatarouterContext dataRouterContext;
+	private DatarouterContext datarouterContext;
 
 	// not injected
 	private Datarouter router;
@@ -45,10 +45,10 @@ public class RoutersHandler extends BaseHandler {
 	@Handler
 	protected Mav handleDefault() {
 		mav = new Mav("/jsp/admin/datarouter/dataRouterMenu.jsp");
-		List<Datarouter> routers = dataRouterContext.getRouters();
+		List<Datarouter> routers = datarouterContext.getRouters();
 //		initClients(routers);
-		mav.put("serverName", dataRouterContext.getServerName());
-		mav.put("administratorEmail", dataRouterContext.getAdministratorEmail());
+		mav.put("serverName", datarouterContext.getServerName());
+		mav.put("administratorEmail", datarouterContext.getAdministratorEmail());
 		Collections.sort(routers, new DatarouterComparator());
 		mav.put("routers", routers);
 		return mav;
@@ -57,7 +57,7 @@ public class RoutersHandler extends BaseHandler {
 	@Handler
 	Mav inspectRouter() {
 		routerName = params.required(PARAM_routerName);
-		router = dataRouterContext.getRouter(routerName);
+		router = datarouterContext.getRouter(routerName);
 		mav = new Mav("/jsp/admin/datarouter/routerSummary.jsp");
 		List<NodeWrapper> nodeWrappers = NodeWrapper.getNodeWrappers(router);
 		mav.put("nodeWrappers", nodeWrappers);

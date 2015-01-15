@@ -67,7 +67,7 @@ public class HBaseHandler extends BaseHandler {
 	@Inject
 	protected DRHCompactionInfo drhCompactionInfo;
 	@Inject
-	private DatarouterContext dataRouterContext;
+	private DatarouterContext datarouterContext;
 	@Inject
 	private HBaseBalancerFactory balancerFactory;
 
@@ -88,7 +88,7 @@ public class HBaseHandler extends BaseHandler {
 
 	private Mav initialize(){
 		mav = new Mav();
-		routerParams = new RouterParams<HBaseClientImp>(dataRouterContext, params, HBASE_NEEDS);
+		routerParams = new RouterParams<HBaseClientImp>(datarouterContext, params, HBASE_NEEDS);
 		// mav.put(RequestTool.SUBMIT_ACTION, ACTION_viewHBaseTableRegions);
 		mav.put(RoutersHandler.PARAM_routerName, routerParams.getRouterName());
 		mav.put(RoutersHandler.PARAM_clientName, routerParams.getClientName());

@@ -31,7 +31,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 	private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d MMM H:mm");
 
 	@Inject
-	private DatarouterContext dataRouterContext;
+	private DatarouterContext datarouterContext;
 	@Inject 
 	private WebAppName webAppName;
 	@Inject
@@ -51,7 +51,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 		long uptime = runtimeMXBean.getUptime();
 		mav.put("startTime", simpleDateFormat.format(new Date(startTime)));
 		mav.put("upTime", new Duration(uptime, TimeUnit.MILLISECONDS).toString(TimeUnit.MINUTES));
-		mav.put("serverName", dataRouterContext.getServerName());
+		mav.put("serverName", datarouterContext.getServerName());
 		mav.put("appName", webAppName);
 		mav.put("gitBranch", gitProperties.getBranch());
 		mav.put("gitCommit", gitProperties.getIdAbbrev());
@@ -114,7 +114,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 	@Handler
 	private Mav garbageCollector() throws Exception {
 		String serverName = params.required("serverName");
-		if (!serverName.equals(dataRouterContext.getServerName())) {
+		if (!serverName.equals(datarouterContext.getServerName())) {
 			String redirectUrl = getRedirectUrl();
 			redirectUrl += "?sameServer=1";
 			return new Mav(redirectUrl);
