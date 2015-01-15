@@ -30,12 +30,11 @@ import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.SortedStorage.SortedStorageNode;
-import com.hotpads.datarouter.routing.BaseDataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.BaseDatarouter;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
-import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
 import com.hotpads.datarouter.test.node.basic.manyfield.TestEnum;
@@ -77,7 +76,7 @@ public class ManyFieldTypeIntegrationTests{
 	private boolean useFielder;
 	private boolean entity;
 	
-	private DataRouterContext datarouterContext;
+	private DatarouterContext datarouterContext;
 	private BasicNodeTestRouter router;
 	private MapStorageNode<ManyFieldTypeBeanKey,ManyFieldTypeBean> mapNode;
 	private SortedStorageNode<ManyFieldTypeBeanKey,ManyFieldTypeBean> sortedNode;
@@ -101,13 +100,13 @@ public class ManyFieldTypeIntegrationTests{
 		this.entity = entity;
 //		logger.warn("re-init "+paramNum+", "+clientName+", "+clientType+", "+sorted+", "+useFielder+", "+entity);
 		Injector injector = new DatarouterTestInjectorProvider().get();
-		this.datarouterContext = injector.getInstance(DataRouterContext.class);
+		this.datarouterContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
-		this.router = new SortedBasicNodeTestRouter(datarouterContext, nodeFactory, clientName, getClass(), useFielder, 
+		this.router = new BasicNodeTestRouter(datarouterContext, nodeFactory, clientName, getClass(), useFielder, 
 				entity);
 		this.mapNode = router.manyFieldTypeBean();
 		if(sorted){
-			this.sortedNode = BaseDataRouter.cast(mapNode);
+			this.sortedNode = BaseDatarouter.cast(mapNode);
 		}
 		this.allKeys = ListTool.createArrayList();
 	}

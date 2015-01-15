@@ -8,7 +8,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindMapStorageWriterMixin;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -21,7 +21,7 @@ implements MapStorageNode<PK,D>{
 
 	private WriteBehindMapStorageWriterMixin<PK,D,N> mixinMapWriteOps;
 	
-	public WriteBehindMapStorageNode(Class<D> databeanClass, DataRouter router,
+	public WriteBehindMapStorageNode(Class<D> databeanClass, Datarouter router,
 			N backingNode, ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
 		super(databeanClass, router, backingNode, writeExecutor, cancelExecutor);
 		this.mixinMapWriteOps = new WriteBehindMapStorageWriterMixin<PK,D,N>(this);

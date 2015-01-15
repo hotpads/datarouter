@@ -14,8 +14,8 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Config.ConfigFielder;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderHttpNode;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
-import com.hotpads.datarouter.routing.DataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -30,7 +30,7 @@ import com.hotpads.util.core.ObjectTool;
 /*
  * http://localhost:8080/analytics/datarouter/httpNode?submitAction=get&routerName=search&nodeName=search.Listing&key={%22feedId%22:%22HomeRentals%22,%22feedListingId%22:%22AL010006L%22}
  */
-public class DataRouterHttpClientHandler<
+public class DatarouterHttpClientHandler<
 		PK extends PrimaryKey<PK>,//handles a request for one node at a time, so the generics work
 		D extends Databean<PK,D>>
 extends BaseHandler
@@ -45,11 +45,11 @@ implements MapStorageReaderHttpNode<PK,D>{
 	public static final boolean VERIFY_SIGNATURE = false;
 	
 	@Inject
-	private DataRouterContext drContext;
+	private DatarouterContext drContext;
 	
 	private String routerName;
 	private String nodeName;
-	private DataRouter router;
+	private Datarouter router;
 	private MapStorageReaderNode<PK,D> node;
 	private DatabeanFieldInfo<PK,D,?> fieldInfo;
 	private Config config;

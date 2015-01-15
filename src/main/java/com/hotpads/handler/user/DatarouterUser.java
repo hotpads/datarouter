@@ -13,7 +13,7 @@ import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
@@ -186,11 +186,11 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 	/***************** methods *****************/
 	
 	public List<DatarouterUserRole> getRoles(){
-		return DataRouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
+		return DatarouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
 	}
 	
 	public void setRoles(Collection<DatarouterUserRole> roleEnums) {
-		roles = DataRouterEnumTool.getPersistentStrings(roleEnums);
+		roles = DatarouterEnumTool.getPersistentStrings(roleEnums);
 		Collections.sort(roles);
 	}
 

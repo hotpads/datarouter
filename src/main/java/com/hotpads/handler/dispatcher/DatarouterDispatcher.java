@@ -17,7 +17,7 @@ import com.hotpads.handler.logging.LoggingSettingsHandler;
 import com.hotpads.handler.setting.ClusterSettingsHandler;
 import com.hotpads.notification.alias.NotificationAliasHandler;
 
-public class DataRouterDispatcher extends BaseDispatcher{
+public class DatarouterDispatcher extends BaseDispatcher{
 
 	public static final String URL_DATAROUTER = "/datarouter";
 
@@ -43,7 +43,7 @@ public class DataRouterDispatcher extends BaseDispatcher{
 			MEMORY = "/memory",
 			MEMCACHED = "/memcached";
 
-	public DataRouterDispatcher(Injector injector, String servletContextPath, String urlPrefix){
+	public DatarouterDispatcher(Injector injector, String servletContextPath, String urlPrefix){
 		super(injector, servletContextPath, urlPrefix);
 		handle(URL_DATAROUTER + "*").withHandler(RoutersHandler.class);
 		handle(URL_DATAROUTER + ROUTERS).withHandler(RoutersHandler.class);
@@ -52,7 +52,6 @@ public class DataRouterDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + LOGGING + ".*").withHandler(LoggingSettingsHandler.class);
 		handle(URL_DATAROUTER + MEMORY_STATS + ".*").withHandler(MemoryMonitoringHandler.class);
 		handle(URL_DATAROUTER + NOTIFICATION_ALIAS + ".*").withHandler(NotificationAliasHandler.class);
-//		handle(URL_HTTP_CLIENT, DataRouterHttpClientHandler.class);
 		handle(URL_DATAROUTER + NODE_BROWSE_DATA).withHandler(ViewNodeDataHandler.class);
 		handle(URL_DATAROUTER + DATABEAN_GENERATOR).withHandler(DatabeanGeneratorHandler.class);
 		handle(URL_DATAROUTER + CALLSITE).withHandler(CallsiteHandler.class);

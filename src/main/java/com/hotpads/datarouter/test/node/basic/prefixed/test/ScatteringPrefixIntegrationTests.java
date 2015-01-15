@@ -23,11 +23,11 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
-import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.SortedBasicNodeTestRouter;
+import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter.ScatteringPrefixBasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean.ScatteringPrefixBeanFielder.ScatteringPrefixBeanScatterer;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBeanKey;
@@ -56,21 +56,21 @@ public class ScatteringPrefixIntegrationTests{
 	
 	/****************************** static setup ***********************************/
 
-	static Map<ClientType,SortedBasicNodeTestRouter> routerByClientType = MapTool.create();
+	static Map<ClientType,ScatteringPrefixBasicNodeTestRouter> routerByClientType = MapTool.create();
 	
 	@BeforeClass
 	public static void init() throws IOException{	
 		Injector injector = new DatarouterTestInjectorProvider().get();
-		DataRouterContext drContext = injector.getInstance(DataRouterContext.class);
+		DatarouterContext drContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
 		
 		if(clientTypes.contains(HibernateClientType.INSTANCE)){
-			routerByClientType.put(HibernateClientType.INSTANCE, new SortedBasicNodeTestRouter(drContext, nodeFactory,
+			routerByClientType.put(HibernateClientType.INSTANCE, new ScatteringPrefixBasicNodeTestRouter(drContext, nodeFactory,
 					DRTestConstants.CLIENT_drTestHibernate0, ScatteringPrefixIntegrationTests.class, true, false));
 		}
 
 		if(clientTypes.contains(HBaseClientType.INSTANCE)){
-			routerByClientType.put(HBaseClientType.INSTANCE, new SortedBasicNodeTestRouter(drContext, nodeFactory,
+			routerByClientType.put(HBaseClientType.INSTANCE, new ScatteringPrefixBasicNodeTestRouter(drContext, nodeFactory,
 					DRTestConstants.CLIENT_drTestHBase,
 					ScatteringPrefixIntegrationTests.class, true, false));
 		}
@@ -112,7 +112,7 @@ public class ScatteringPrefixIntegrationTests{
 	/***************************** fields **************************************/
 	
 	protected ClientType clientType;
-	protected SortedBasicNodeTestRouter router;
+	protected ScatteringPrefixBasicNodeTestRouter router;
 
 	/***************************** constructors **************************************/
 

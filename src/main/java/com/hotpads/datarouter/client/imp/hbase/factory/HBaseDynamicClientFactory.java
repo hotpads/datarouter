@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.DynamicClientFactory;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.routing.DataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HBaseDynamicClientFactory 
@@ -30,7 +30,7 @@ implements DynamicClientFactory{
 	protected Long lastReconnectTimeMs = System.currentTimeMillis();
 
 	public HBaseDynamicClientFactory(
-			DataRouterContext drContext,
+			DatarouterContext drContext,
 			String clientName, 
 			ExecutorService executorService){
 		super(drContext, clientName);
@@ -56,7 +56,7 @@ implements DynamicClientFactory{
 		public void run(){
 			try{//don't let this thread die
 				if(client!=null){
-					Thread.currentThread().setName("DataRouter client keepAliveTest:"+clientName);
+					Thread.currentThread().setName("Datarouter client keepAliveTest:"+clientName);
 					PhaseTimer timer = new PhaseTimer("keepAliveCheck for HBaseClient "+clientName);
 					timer.add("hTablePoolSize:"+client.getTotalPoolSize());
 					try{

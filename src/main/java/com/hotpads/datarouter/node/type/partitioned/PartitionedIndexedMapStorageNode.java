@@ -7,7 +7,7 @@ import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.IndexedMapStorageN
 import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.PhysicalIndexedMapStorageNode;
 import com.hotpads.datarouter.node.type.partitioned.mixin.PartitionedIndexedStorageWriterMixin;
 import com.hotpads.datarouter.node.type.partitioned.mixin.PartitionedMapStorageWriterMixin;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
@@ -25,7 +25,7 @@ implements IndexedMapStorageNode<PK,D>{
 	protected PartitionedMapStorageWriterMixin<PK,D,F,N> mixinMapWriteOps;
 	protected PartitionedIndexedStorageWriterMixin<PK,D,F,N> mixinIndexedWriteOps;
 	
-	public PartitionedIndexedMapStorageNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router) {
+	public PartitionedIndexedMapStorageNode(Class<D> databeanClass, Class<F> fielderClass, Datarouter router) {
 		super(databeanClass, fielderClass, router);
 		this.mixinMapWriteOps = new PartitionedMapStorageWriterMixin<PK,D,F,N>(this);
 		this.mixinIndexedWriteOps = new PartitionedIndexedStorageWriterMixin<PK,D,F,N>(this);

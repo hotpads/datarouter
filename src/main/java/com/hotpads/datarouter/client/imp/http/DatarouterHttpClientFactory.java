@@ -6,30 +6,30 @@ import java.util.Set;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientFactory;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.util.core.PropertiesTool;
 
 
-public class DataRouterHttpClientFactory implements ClientFactory{
+public class DatarouterHttpClientFactory implements ClientFactory{
 
 	private String clientName;
 	private Set<String> configFilePaths;
 	private List<Properties> multiProperties;
-	private DataRouterHttpClientOptions options;
+	private DatarouterHttpClientOptions options;
 	
 	
 	
-	public DataRouterHttpClientFactory(DataRouterContext drContext, String clientName){
+	public DatarouterHttpClientFactory(DatarouterContext drContext, String clientName){
 		this.clientName = clientName;
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
-		this.options = new DataRouterHttpClientOptions(multiProperties, clientName);
+		this.options = new DatarouterHttpClientOptions(multiProperties, clientName);
 	}
 
 	
 	@Override
 	public Client call(){
-		return new DataRouterHttpClient(clientName, options.getUrl());
+		return new DatarouterHttpClient(clientName, options.getUrl());
 	}
 	
 	

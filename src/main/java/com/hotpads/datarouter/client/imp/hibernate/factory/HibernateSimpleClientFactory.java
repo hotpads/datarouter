@@ -15,7 +15,7 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateConnectionProvider;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.PropertiesTool;
@@ -35,7 +35,7 @@ extends JdbcSimpleClientFactory{
 		CONFIG_LOCATION_DEFAULT = "hib-default.cfg.xml";
 	
 
-	public HibernateSimpleClientFactory(DataRouterContext drContext, String clientName){
+	public HibernateSimpleClientFactory(DatarouterContext drContext, String clientName){
 		super(drContext, clientName);
 	}
 

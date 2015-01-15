@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.memcached.node;
 import java.util.Collection;
 
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
-import com.hotpads.datarouter.client.imp.memcached.DataRouterMemcachedKey;
+import com.hotpads.datarouter.client.imp.memcached.DatarouterMemcachedKey;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
@@ -61,7 +61,7 @@ implements PhysicalMapStorageNode<PK,D>
 			//TODO put only the nonKeyFields in the byte[] and figure out the keyFields from the key string
 			//  could big big savings for small or key-only databeans
 			byte[] bytes = DatabeanTool.getBytes(databean, fieldInfo.getSampleFielder());
-			String key = new DataRouterMemcachedKey<PK>(getName(), databeanVersion, databean.getKey()).getVersionedKeyString();
+			String key = new DatarouterMemcachedKey<PK>(getName(), databeanVersion, databean.getKey()).getVersionedKeyString();
 			//memcachedClient uses an integer for cache timeout
 			Long timeoutLong = config.getCacheTimeoutMs() == null 
 								? Long.MAX_VALUE 

@@ -5,7 +5,7 @@ import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
-import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -18,11 +18,11 @@ public class CompoundSMReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>
 	}
 
 	public MapStorageReader<PK,D> map(){
-		return BaseDataRouter.cast(node);
+		return BaseDatarouter.cast(node);
 	}
 
 	public SortedStorageReader<PK,D> sorted(){
-		return BaseDataRouter.cast(node);
+		return BaseDatarouter.cast(node);
 	}
 	
 
@@ -32,11 +32,11 @@ public class CompoundSMReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>
 			super(node);
 		}
 		public MapStorageReaderNode<PK,D> node(){
-			return BaseDataRouter.cast(node);
+			return BaseDatarouter.cast(node);
 		}
 
 		public SortedStorageReaderNode<PK,D> sorted(){
-			return BaseDataRouter.cast(node);
+			return BaseDatarouter.cast(node);
 		}
 	}
 }

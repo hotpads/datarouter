@@ -6,7 +6,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.IndexedMapStorage.IndexedMapStorageNode;
 import com.hotpads.datarouter.node.type.masterslave.mixin.MasterSlaveIndexedStorageWriterMixin;
 import com.hotpads.datarouter.node.type.masterslave.mixin.MasterSlaveMapStorageWriterMixin;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
@@ -26,14 +26,14 @@ implements IndexedMapStorageNode<PK,D>{
 	protected MasterSlaveIndexedStorageWriterMixin<PK,D,F,N> mixinIndexedWriteOps;
 	
 	public MasterSlaveIndexedMapStorageNode(
-			Class<D> databeanClass, DataRouter router,
+			Class<D> databeanClass, Datarouter router,
 			N master, Collection<N> slaves) {
 		super(databeanClass, router, master, slaves);
 		initMixins();
 	}
 	
 	public MasterSlaveIndexedMapStorageNode(
-			Class<D> databeanClass, DataRouter router) {
+			Class<D> databeanClass, Datarouter router) {
 		super(databeanClass, router);
 		initMixins();
 	}

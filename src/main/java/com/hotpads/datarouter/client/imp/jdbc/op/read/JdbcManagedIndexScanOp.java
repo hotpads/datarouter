@@ -33,7 +33,7 @@ extends BaseJdbcOp<List<IE>>{
 	
 	public JdbcManagedIndexScanOp(PhysicalNode<PK, D> node, ManagedNode<IK, IE, IF> managedNode, Range<IK> range,
 			Config config, String traceName){
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.range = range;
 		this.node = node;
 		this.config = config;

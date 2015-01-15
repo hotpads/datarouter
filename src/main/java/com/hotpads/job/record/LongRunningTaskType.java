@@ -1,6 +1,6 @@
 package com.hotpads.job.record;
 
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
 public enum LongRunningTaskType implements StringEnum<LongRunningTaskType>{
@@ -23,7 +23,7 @@ public enum LongRunningTaskType implements StringEnum<LongRunningTaskType>{
 	}
 
 	public static LongRunningTaskType fromPersistentStringStatic(String s){
-		return DataRouterEnumTool.getEnumFromString(values(), s, null);
+		return DatarouterEnumTool.getEnumFromString(values(), s, null);
 	}
 	
 	@Override

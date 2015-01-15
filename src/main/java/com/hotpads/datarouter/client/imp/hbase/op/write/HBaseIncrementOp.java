@@ -35,7 +35,7 @@ extends HBaseTask<Void>{
 	private Config config;
 	
 	public HBaseIncrementOp(HBaseNode<PK,D,F> node, Map<PK,Map<String,Long>> countByColumnByKey, Config pConfig){
-		super(node.getDataRouterContext(), new HBaseTaskNameParams(node.getClientName(), node.getTableName(), node.getName()), 
+		super(node.getDatarouterContext(), new HBaseTaskNameParams(node.getClientName(), node.getTableName(), node.getName()), 
 				"HBaseTask."+OP_increment, pConfig);
 		this.node = node;
 		this.countByColumnByKey = countByColumnByKey;

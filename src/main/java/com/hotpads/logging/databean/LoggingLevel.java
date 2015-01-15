@@ -2,7 +2,7 @@ package com.hotpads.logging.databean;
 
 import org.apache.logging.log4j.Level;
 
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
 public enum LoggingLevel implements StringEnum<LoggingLevel>{
@@ -36,7 +36,7 @@ public enum LoggingLevel implements StringEnum<LoggingLevel>{
 	}
 
 	public static LoggingLevel fromString(String s){
-		return DataRouterEnumTool.getEnumFromString(values(), s, null);
+		return DatarouterEnumTool.getEnumFromString(values(), s, null);
 	}
 
 	public static int getSqlSize(){

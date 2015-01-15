@@ -6,7 +6,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter.MapStorageWriterNode;
 import com.hotpads.datarouter.node.type.redundant.mixin.RedundantMapStorageWriterMixin;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -19,7 +19,7 @@ implements MapStorageWriterNode<PK,D>{
 
 	protected RedundantMapStorageWriterMixin<PK,D,N> mixinMapWriteOps;
 
-	public RedundantMapStorageNode(Class<D> databeanClass, DataRouter router,
+	public RedundantMapStorageNode(Class<D> databeanClass, Datarouter router,
 			Collection<N> writeNodes, N readNode) {
 		super(databeanClass, router, writeNodes, readNode);
 		this.mixinMapWriteOps = new RedundantMapStorageWriterMixin<PK,D,N>(this);

@@ -13,7 +13,7 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
@@ -61,7 +61,7 @@ public class NodeFactory{
 	N create(
 			String clientName, 
 			Class<D> databeanClass, 
-			DataRouter router,
+			Datarouter router,
 			boolean addAdapter){
 		return create(clientName, databeanClass, null, null, router, addAdapter);
 	}
@@ -73,7 +73,7 @@ public class NodeFactory{
 			String clientName, 
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
-			DataRouter router,
+			Datarouter router,
 			boolean addAdapter){
 		return create(clientName, databeanClass, fielderClass, null, router, addAdapter);
 	}
@@ -86,7 +86,7 @@ public class NodeFactory{
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
 			Integer schemaVersion,
-			DataRouter router,
+			Datarouter router,
 			boolean addAdapter){				
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
@@ -108,7 +108,7 @@ public class NodeFactory{
 			String tableName,
 			String entityName,
 			Class<D> databeanClass, 
-			DataRouter router){
+			Datarouter router){
 		return create(clientName, tableName, entityName, databeanClass, null, router, true);
 	}
 	
@@ -122,7 +122,7 @@ public class NodeFactory{
 			String entityName,
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
-			DataRouter router,
+			Datarouter router,
 			boolean addAdapter){
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)
@@ -142,7 +142,7 @@ public class NodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D>> 
 	N subEntityNode(//specify entityName and entityNodePrefix
-			DataRouter router,
+			Datarouter router,
 			EntityNodeParams<EK,E> entityNodeParams,
 			String clientName,
 //			String parentName,
@@ -180,7 +180,7 @@ public class NodeFactory{
 			String clientName, 
 			Class<D> databeanClass, 
 			Class<? super D> baseDatabeanClass,
-			DataRouter router){
+			Datarouter router){
 		NodeParamsBuilder<PK,D,?> paramsBuilder = new NodeParamsBuilder(router, databeanClass)
 				.withClientName(clientName)
 				.withBaseDatabean(baseDatabeanClass)

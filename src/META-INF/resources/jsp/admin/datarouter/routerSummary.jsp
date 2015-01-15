@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/prelude.jspf"%>
 <%@ include file="../../generic/prelude-datarouter.jspf"%><html>
 <head>
-<title>DataRouter</title>
+<title>Datarouter</title>
 <%@ include file="/jsp/generic/head.jsp" %>
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
@@ -16,7 +16,7 @@
 	<%@ include file="/jsp/menu/dr-navbar.jsp" %>
 	<div class="container">
 		<h2>Datarouter</h2>
-		<a href="${contextPath}/datarouter/routers">DataRouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; routerName:<b>${param.routerName}</b>
+		<a href="${contextPath}/datarouter/routers">Datarouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; routerName:<b>${param.routerName}</b>
 		<h3>
 			Nodes in Router: <b>${param.routerName}</b>
 		</h3>
@@ -49,13 +49,13 @@
 						<td>${nodeWrapper.className}</td>
 										
 						<td>
- 						<a href="/admin/dataRouter/export.htm?submitAction=exportToS3&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> export to S3 </a></td> 
- 						<td><a href="/admin/dataRouter/export.htm?submitAction=showImportForm&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> import from S3 </a></td>
+ 						<a href="/admin/datarouter/export.htm?submitAction=exportToS3&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> export to S3 </a></td> 
+ 						<td><a href="/admin/datarouter/export.htm?submitAction=showImportForm&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> import from S3 </a></td>
  						<td><c:if test="${nodeWrapper.isHBaseNode}">
- 								<a href="/admin/dataRouter/menu.htm?submitAction=copyHBaseTable&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}&destinationTableName="> copy table </a>
+ 								<a href="/admin/datarouter/menu.htm?submitAction=copyHBaseTable&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}&destinationTableName="> copy table </a>
  							</c:if></td>
  						<td><c:if test="${nodeWrapper.isHBaseNode}">
- 								<a href="/admin/dataRouter/menu.htm?submitAction=exportNodeToHFile&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> export to HFile </a>
+ 								<a href="/admin/datarouter/menu.htm?submitAction=exportNodeToHFile&routerName=${param.routerName}&nodeName=${nodeWrapper.node.name}"> export to HFile </a>
  							</c:if></td>
 					</tr>
 				</c:forEach>

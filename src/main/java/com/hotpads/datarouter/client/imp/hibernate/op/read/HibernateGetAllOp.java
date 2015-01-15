@@ -24,7 +24,7 @@ extends BaseHibernateOp<List<D>>{
 	private Config config;
 	
 	public HibernateGetAllOp(HibernateReaderNode<PK,D,F> node, String opName, Config config) {
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;
 		this.config = config;

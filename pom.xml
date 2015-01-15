@@ -345,7 +345,7 @@
 			<version>2.3</version>
 			<classifier>jdk15</classifier>
 		</dependency>
-		<dependency><!-- used by DataRouterEmailTool -->
+		<dependency><!-- used by DatarouterEmailTool -->
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
 			<version>1.4</version>

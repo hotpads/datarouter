@@ -9,7 +9,7 @@ import java.util.List;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
@@ -125,11 +125,11 @@ implements Serializable {
 	/************** DatarouterUserRole methods *****************************/
 	
 	public Collection<DatarouterUserRole> getRoles(){
-		return DataRouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
+		return DatarouterEnumTool.fromPersistentStrings(DatarouterUserRole.user, roles);
 	}
 	
 	public void setRoles(Collection<DatarouterUserRole> roleEnums){
-		roles = DataRouterEnumTool.getPersistentStrings(roleEnums);
+		roles = DatarouterEnumTool.getPersistentStrings(roleEnums);
 		Collections.sort(roles);
 	}
 	

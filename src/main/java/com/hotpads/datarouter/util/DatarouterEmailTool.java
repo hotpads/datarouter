@@ -13,8 +13,8 @@ import javax.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DataRouterEmailTool{
-	protected static Logger logger = LoggerFactory.getLogger(DataRouterEmailTool.class);
+public class DatarouterEmailTool{
+	protected static Logger logger = LoggerFactory.getLogger(DatarouterEmailTool.class);
 	
 	protected static Properties fMailServerConfig = new Properties();
 

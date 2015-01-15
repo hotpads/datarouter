@@ -11,7 +11,7 @@ import com.hotpads.datarouter.node.compound.CompoundSMStorage.CompoundSMNode;
 import com.hotpads.datarouter.node.compound.readwrite.CompoundIndexedRWStorage;
 import com.hotpads.datarouter.node.compound.readwrite.CompoundMapRWStorage;
 import com.hotpads.datarouter.node.compound.readwrite.CompoundSortedRWStorage;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -30,7 +30,7 @@ public class CompoundNodeFactory{
 	CompoundMNode<PK,D> createAndRegisterMNode(
 			String clientName, 
 			Class<D> databeanClass, 
-			DataRouter router){
+			Datarouter router){
 		Node<PK,D> node = nodeFactory.create(clientName, databeanClass, router, true);
 		router.register(node);
 		return new CompoundMNode<PK,D>(node);
@@ -40,7 +40,7 @@ public class CompoundNodeFactory{
 	CompoundSMNode<PK,D> createAndRegisterSMNode(
 			String clientName, 
 			Class<D> databeanClass, 
-			DataRouter router){
+			Datarouter router){
 		Node<PK,D> node = nodeFactory.create(clientName, databeanClass, router, true);
 		router.register(node);
 		return new CompoundSMNode<PK,D>(node);
@@ -50,7 +50,7 @@ public class CompoundNodeFactory{
 	CompoundIMNode<PK,D> createAndRegisterIMNode(
 			String clientName, 
 			Class<D> databeanClass, 
-			DataRouter router){
+			Datarouter router){
 		Node<PK,D> node = nodeFactory.create(clientName, databeanClass, router, true);
 		router.register(node);
 		return new CompoundIMNode<PK,D>(node);
@@ -60,7 +60,7 @@ public class CompoundNodeFactory{
 	CompoundISMNode<PK,D> createAndRegisterISMNode(
 			String clientName, 
 			Class<D> databeanClass, 
-			DataRouter router){
+			Datarouter router){
 		Node<PK,D> node = nodeFactory.create(clientName, databeanClass, router, true);
 		router.register(node);
 		return new CompoundISMNode<PK,D>(node);
@@ -70,7 +70,7 @@ public class CompoundNodeFactory{
 	CompoundMapRWStorage<PK,D> createAndRegisterMap(
 			String clientName, 
 			Class<D> databeanClass, 
-			DataRouter router){
+			Datarouter router){
 		Node<PK,D> node = nodeFactory.create(clientName, databeanClass, router, true);
 		router.register(node);
 		return new CompoundMapRWStorage<PK,D>(node);
@@ -80,7 +80,7 @@ public class CompoundNodeFactory{
 	CompoundSortedRWStorage<PK,D> createAndRegisterSorted(
 			String clientName, 
 			Class<D> databeanClass, 
-			DataRouter router){
+			Datarouter router){
 		Node<PK,D> node = nodeFactory.create(clientName, databeanClass, router, true);
 		router.register(node);
 		return new CompoundSortedRWStorage<PK,D>(node);
@@ -90,7 +90,7 @@ public class CompoundNodeFactory{
 	CompoundIndexedRWStorage<PK,D> createAndRegisterIndexed(
 			String clientName, 
 			Class<D> databeanClass, 
-			DataRouter router){
+			Datarouter router){
 		Node<PK,D> node = nodeFactory.create(clientName, databeanClass, router, true);
 		router.register(node);
 		return new CompoundIndexedRWStorage<PK,D>(node);
