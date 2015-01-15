@@ -24,7 +24,7 @@ extends BaseJdbcOp<D>{
 	private Config config;
 	
 	public JdbcGetFirstOp(JdbcReaderNode<PK,D,F> node, String opName, Config pConfig) {
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;
 		this.config = Config.nullSafe(pConfig);

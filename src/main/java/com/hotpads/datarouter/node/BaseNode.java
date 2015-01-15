@@ -43,7 +43,7 @@ implements Node<PK,D>{
 	}
 	
 	@Override
-	public DatarouterContext getDataRouterContext(){
+	public DatarouterContext getDatarouterContext(){
 		return drContext;
 	}
 

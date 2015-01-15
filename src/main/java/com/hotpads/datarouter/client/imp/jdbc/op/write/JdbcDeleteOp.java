@@ -25,7 +25,7 @@ extends BaseJdbcOp<Long>{
 	private Config config;
 	
 	public JdbcDeleteOp(PhysicalNode<PK,D> node, String opName, Collection<PK> keys, Config config) {
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, shouldAutoCommit(keys));
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, shouldAutoCommit(keys));
 		this.node = node;
 		this.opName = opName;
 		this.keys = keys;

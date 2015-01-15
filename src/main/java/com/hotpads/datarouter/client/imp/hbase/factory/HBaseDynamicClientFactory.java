@@ -56,7 +56,7 @@ implements DynamicClientFactory{
 		public void run(){
 			try{//don't let this thread die
 				if(client!=null){
-					Thread.currentThread().setName("DataRouter client keepAliveTest:"+clientName);
+					Thread.currentThread().setName("Datarouter client keepAliveTest:"+clientName);
 					PhaseTimer timer = new PhaseTimer("keepAliveCheck for HBaseClient "+clientName);
 					timer.add("hTablePoolSize:"+client.getTotalPoolSize());
 					try{
