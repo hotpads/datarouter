@@ -30,7 +30,7 @@ import com.hotpads.util.core.ObjectTool;
 /*
  * http://localhost:8080/analytics/datarouter/httpNode?submitAction=get&routerName=search&nodeName=search.Listing&key={%22feedId%22:%22HomeRentals%22,%22feedListingId%22:%22AL010006L%22}
  */
-public class DataRouterHttpClientHandler<
+public class DatarouterHttpClientHandler<
 		PK extends PrimaryKey<PK>,//handles a request for one node at a time, so the generics work
 		D extends Databean<PK,D>>
 extends BaseHandler

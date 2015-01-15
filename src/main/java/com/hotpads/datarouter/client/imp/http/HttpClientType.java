@@ -33,7 +33,7 @@ public class HttpClientType extends BaseClientType{
 	@Override
 	public ClientFactory createClientFactory(DatarouterContext drContext, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
-		return new DataRouterHttpClientFactory(drContext, clientName);
+		return new DatarouterHttpClientFactory(drContext, clientName);
 	}
 	
 	@Override

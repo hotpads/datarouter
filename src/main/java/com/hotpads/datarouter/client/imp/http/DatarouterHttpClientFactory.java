@@ -10,7 +10,7 @@ import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.util.core.PropertiesTool;
 
 
-public class DataRouterHttpClientFactory implements ClientFactory{
+public class DatarouterHttpClientFactory implements ClientFactory{
 
 	private String clientName;
 	private Set<String> configFilePaths;
@@ -19,7 +19,7 @@ public class DataRouterHttpClientFactory implements ClientFactory{
 	
 	
 	
-	public DataRouterHttpClientFactory(DatarouterContext drContext, String clientName){
+	public DatarouterHttpClientFactory(DatarouterContext drContext, String clientName){
 		this.clientName = clientName;
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
