@@ -13,7 +13,7 @@ import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.util.DataRouterEmailTool;
+import com.hotpads.datarouter.util.DatarouterEmailTool;
 import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.core.DateTool;
 import com.hotpads.util.core.ExceptionTool;
@@ -130,7 +130,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 				+"\n\n"+timeoutMessage
 				+"\n\n"+numFailures+" since last email attempt "+DateTool.getAgoString(LAST_EMAIL_SENT_AT_MS)
 				+"\n\n"+ExceptionTool.getStackTraceAsString(e);
-		DataRouterEmailTool.sendEmail("noreply@hotpads.com", drContext.getAdministratorEmail(), subject, body);
+		DatarouterEmailTool.sendEmail("noreply@hotpads.com", drContext.getAdministratorEmail(), subject, body);
 		LAST_EMAIL_SENT_AT_MS = System.currentTimeMillis();
 		NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL.set(0L);
 	}

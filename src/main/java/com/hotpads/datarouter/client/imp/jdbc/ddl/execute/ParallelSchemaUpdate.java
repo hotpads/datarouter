@@ -18,7 +18,7 @@ import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
-import com.hotpads.datarouter.util.DataRouterEmailTool;
+import com.hotpads.datarouter.util.DatarouterEmailTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -114,7 +114,7 @@ implements Callable<Void>{
 		for(String update : IterableTool.nullSafe(printedSchemaUpdates)){
 			body.append(update + "\n\n");
 		}
-		DataRouterEmailTool.sendEmail("noreply@hotpads.com", drContext.getAdministratorEmail(), subject, 
+		DatarouterEmailTool.sendEmail("noreply@hotpads.com", drContext.getAdministratorEmail(), subject, 
 				body.toString());
 	}
 }
