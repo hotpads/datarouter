@@ -7,18 +7,24 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.JsonSyntaxException;
+import com.hotpads.datarouter.config.DatarouterGuiceModule.HandlerDefaultSerializer;
 import com.hotpads.util.core.java.ReflectionTool;
-import com.hotpads.util.http.json.GsonJsonSerializer;
+import com.hotpads.util.http.json.JsonSerializer;
 
+@Singleton
 public class DefaultDecoder implements HandlerDecoder{
 	
-	private GsonJsonSerializer deserializer;
+	//TODO Rename JsonSerializer or add Serializer, we just want a (de)serializer here
+	private JsonSerializer deserializer;
 
-	public DefaultDecoder(){
-		this.deserializer = new GsonJsonSerializer();
+	@Inject
+	public DefaultDecoder(@HandlerDefaultSerializer JsonSerializer deserializer){
+		this.deserializer = deserializer;
 	}
 
 	@Override

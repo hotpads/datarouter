@@ -52,6 +52,9 @@
 		.panel-heading {
 			text-align: left;
 		}
+		.no-value-on-0 .tree-level-0{
+			width: 255px;
+		}
 	</style>
 </head>
 <body class="input-no-margin">
@@ -84,6 +87,22 @@
 		<span class="property tree-level-1">Commit</span>
 		<span class="value">${gitCommit}</span>
 		<br>
+		<span class="property tree-level-1">Build time</span>
+		<span class="value">${buildTime}</span>
+		<br>
+		<c:set var="name" value="HotPads libraries"/>
+		<c:set var="escapedName" value="HotPads-libraries"/>
+		<c:set var="defaultVisible" value="in"/>
+		<c:set var="libs" value="${hotPadsLibraries}"/>
+		<c:set var="map" value="true"/>
+		<%@ include file="libraries.jsp" %>
+
+		<c:set var="name" value="Non-HotPads libraries"/>
+		<c:set var="escapedName" value="Non-HotPads-libraries"/>
+		<c:set var="defaultVisible" value=""/>
+		<c:set var="libs" value="${nonHotPadsLibraries}"/>
+		<c:set var="map" value="false"/>
+		<%@ include file="libraries.jsp" %>
 	</div>
 	<div class="block">
 		<h2>Threads</h2>
@@ -114,14 +133,14 @@
 			<c:set var="defaultVisible" value="in"/>
 			<c:set var="total" value="${heap}"/>
 			<c:set var="pools" value="${heaps}"/>
-			<%@ include file="memoryPool.jsp" %> 
+			<%@ include file="memoryPool.jsp" %>
 
 			<c:set var="name" value="Non-Heap"/>
 			<c:set var="escapedName" value="Non-Heap"/>
 			<c:set var="defaultVisible" value=""/>
 			<c:set var="total" value="${nonHeap}"/>
 			<c:set var="pools" value="${nonHeaps}"/>
-			<%@ include file="memoryPool.jsp" %> 
+			<%@ include file="memoryPool.jsp" %>
 		</div>
 	</div>
 	<div class="block">

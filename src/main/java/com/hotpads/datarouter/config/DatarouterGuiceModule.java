@@ -20,16 +20,18 @@ import com.hotpads.datarouter.config.DatarouterGuiceModule.DatarouterExecutorSer
 import com.hotpads.datarouter.util.ApplicationPaths;
 import com.hotpads.datarouter.util.GuiceApplicationPaths;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
+import com.hotpads.util.http.json.GsonJsonSerializer;
+import com.hotpads.util.http.json.JsonSerializer;
 
 public class DatarouterGuiceModule extends ServletModule{
 
 	@Override
 	protected void configureServlets(){
 		bind(ApplicationPaths.class).to(GuiceApplicationPaths.class).in(Scopes.SINGLETON);
-//		bind(String.class).annotatedWith(ApplicationRootPath.class).toProvider(ApplicationRootPathProvider.class).in(
-//				Scopes.SINGLETON);
 		bind(ExecutorService.class).annotatedWith(DatarouterExecutorService.class).toProvider(
-				DatarouterExecutorServiceProvider.class).in(Scopes.SINGLETON);;
+				DatarouterExecutorServiceProvider.class).in(Scopes.SINGLETON);
+		
+		bind(JsonSerializer.class).annotatedWith(HandlerDefaultSerializer.class).to(GsonJsonSerializer.class);
 	}
 
 	
@@ -57,5 +59,10 @@ public class DatarouterGuiceModule extends ServletModule{
 			return executorService;
 		}
 	}
+	
+	@BindingAnnotation 
+	@Target({ ElementType.FIELD, ElementType.PARAMETER }) 
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface HandlerDefaultSerializer{}
 	
 }
