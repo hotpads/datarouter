@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import com.hotpads.util.core.CollectionTool;
 
-public class DataRouterEnumToolTests{
+public class DatarouterEnumToolTests{
 	private enum SomeType implements StringEnum<SomeType> {
 		LARGE, CONDO, RENTAL, SALE, SUBLET;
 		public String getPersistentString(){
