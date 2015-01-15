@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.config;
 
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
@@ -36,7 +36,7 @@ public enum ConnectMethod implements StringEnum<ConnectMethod>, IntegerEnum<Conn
 	
 	@Override
 	public ConnectMethod fromPersistentInteger(Integer i){
-		return DataRouterEnumTool.getEnumFromInteger(values(), i, null);
+		return DatarouterEnumTool.getEnumFromInteger(values(), i, null);
 	}
 	
 	
@@ -49,7 +49,7 @@ public enum ConnectMethod implements StringEnum<ConnectMethod>, IntegerEnum<Conn
 	
 	@Override
 	public ConnectMethod fromPersistentString(String s){
-		return DataRouterEnumTool.getEnumFromString(values(), s, null);
+		return DatarouterEnumTool.getEnumFromString(values(), s, null);
 	}
 	
 }

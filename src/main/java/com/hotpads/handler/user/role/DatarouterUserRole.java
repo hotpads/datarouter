@@ -3,7 +3,7 @@ package com.hotpads.handler.user.role;
 import java.util.List;
 import java.util.Set;
 
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.util.core.SetTool;
@@ -35,7 +35,7 @@ implements StringEnum<DatarouterUserRole>{
 		if (userRoles == null) { return userRolesSet; }
 		
 		for(String role : userRoles) {
-			DatarouterUserRole r = DataRouterEnumTool.getEnumFromString(values(), role, null);
+			DatarouterUserRole r = DatarouterEnumTool.getEnumFromString(values(), role, null);
 			if(r != null) {
 				userRolesSet.add(r);
 			}
@@ -61,6 +61,6 @@ implements StringEnum<DatarouterUserRole>{
 	
 	@Override
 	public DatarouterUserRole fromPersistentString(String s){
-		return DataRouterEnumTool.getEnumFromString(values(), s, null);
+		return DatarouterEnumTool.getEnumFromString(values(), s, null);
 	}
 }

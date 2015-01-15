@@ -2,7 +2,7 @@ package com.hotpads.datarouter.config;
 
 import java.util.Set;
 
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.util.core.SetTool;
@@ -49,7 +49,7 @@ public enum PutMethod implements IntegerEnum<PutMethod>, StringEnum<PutMethod>{
 	
 	@Override
 	public PutMethod fromPersistentInteger(Integer i){
-		return DataRouterEnumTool.getEnumFromInteger(values(), i, null);
+		return DatarouterEnumTool.getEnumFromInteger(values(), i, null);
 	}
 	
 	
@@ -62,6 +62,6 @@ public enum PutMethod implements IntegerEnum<PutMethod>, StringEnum<PutMethod>{
 	
 	@Override
 	public PutMethod fromPersistentString(String s){
-		return DataRouterEnumTool.getEnumFromString(values(), s, null);
+		return DatarouterEnumTool.getEnumFromString(values(), s, null);
 	}
 }
