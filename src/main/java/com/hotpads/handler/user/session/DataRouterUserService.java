@@ -8,9 +8,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.handler.user.DatarouterUser;
-import com.hotpads.handler.user.DatarouterUserKey;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.authenticate.DatarouterPasswordService;
 import com.hotpads.handler.user.authenticate.DatarouterTokenGenerator;
@@ -45,9 +43,7 @@ public class DataRouterUserService{
 		user.setPasswordDigest(digest);
 		user.setPasswordSalt(salt);
 		user.setRoles(roles);
-		user.setUserToken(DatarouterTokenGenerator.generateRandomToken());
-		IndexedSortedMapStorageNode<DatarouterUserKey, DatarouterUser> nodes = userNodes.getUserNode();
-		System.out.println("dskjfkds "+nodes);
+		user.setUserToken(DatarouterTokenGenerator.generateRandomToken());		
 		userNodes.getUserNode().put(user, null);
 		logger.warn("Created default admin user account");
 	
