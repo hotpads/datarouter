@@ -15,7 +15,7 @@ public class DataRouterHttpClientFactory implements ClientFactory{
 	private String clientName;
 	private Set<String> configFilePaths;
 	private List<Properties> multiProperties;
-	private DataRouterHttpClientOptions options;
+	private DatarouterHttpClientOptions options;
 	
 	
 	
@@ -23,7 +23,7 @@ public class DataRouterHttpClientFactory implements ClientFactory{
 		this.clientName = clientName;
 		this.configFilePaths = drContext.getConfigFilePaths();
 		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
-		this.options = new DataRouterHttpClientOptions(multiProperties, clientName);
+		this.options = new DatarouterHttpClientOptions(multiProperties, clientName);
 	}
 
 	
