@@ -22,7 +22,7 @@ import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
 public abstract class BaseDataRouter
-implements DataRouter{
+implements Datarouter{
 
 	public static final String
 		MODE_development = "development",

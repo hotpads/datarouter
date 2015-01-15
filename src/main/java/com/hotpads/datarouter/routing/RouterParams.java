@@ -28,7 +28,7 @@ public class RouterParams<C extends Client> {
 
 	private String nodeName;
 	private C client;
-	private DataRouter router;
+	private Datarouter router;
 	private Node<?,?> node;
 	private String tableName;
 
@@ -97,7 +97,7 @@ public class RouterParams<C extends Client> {
 		return client;
 	}
 
-	public DataRouter getRouter() {
+	public Datarouter getRouter() {
 		return router;
 	}
 
@@ -129,7 +129,7 @@ public class RouterParams<C extends Client> {
 		this.client = client;
 	}
 
-	public void setRouter(DataRouter router) {
+	public void setRouter(Datarouter router) {
 		this.router = router;
 	}
 

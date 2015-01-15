@@ -2,12 +2,12 @@ package com.hotpads.datarouter.routing.comparator;
 
 import java.util.Comparator;
 
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 
-public class ComparatorDataRouter implements Comparator<DataRouter>{
+public class ComparatorDataRouter implements Comparator<Datarouter>{
 
 	@Override
-	public int compare(DataRouter o1, DataRouter o2){
+	public int compare(Datarouter o1, Datarouter o2){
 		return o1.getName().compareToIgnoreCase(o2.getName());
 	}
 

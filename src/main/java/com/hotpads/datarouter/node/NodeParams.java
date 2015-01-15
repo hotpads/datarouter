@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.node;
 
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
@@ -14,7 +14,7 @@ public class NodeParams<
 		F extends DatabeanFielder<PK,D>>{
 
 	//required
-	private final DataRouter router;
+	private final Datarouter router;
 	private final String clientName;
 	private final String parentName;
 	private final Class<D> databeanClass;
@@ -46,7 +46,7 @@ public class NodeParams<
 	
 	
 	
-	public NodeParams(DataRouter router, String clientName, String parentName, 
+	public NodeParams(Datarouter router, String clientName, String parentName, 
 			Class<D> databeanClass, Class<F> fielderClass,
 			Integer schemaVersion, Class<? super D> baseDatabeanClass, String physicalName, String qualifiedPhysicalName,
 //			Class<? extends Entity<?>> entityClass, 
@@ -80,7 +80,7 @@ public class NodeParams<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>{
-		private DataRouter router;
+		private Datarouter router;
 		private String parentName;
 		private String clientName;
 		private Class<D> databeanClass;
@@ -106,7 +106,7 @@ public class NodeParams<
 		
 		/************** construct **************/
 		
-		public NodeParamsBuilder(DataRouter router, Class<D> databeanClass){
+		public NodeParamsBuilder(Datarouter router, Class<D> databeanClass){
 			this.router = router;
 			this.databeanClass = databeanClass;
 		}
@@ -196,7 +196,7 @@ public class NodeParams<
 
 	/*********** get ***********************/
 
-	public DataRouter getRouter(){
+	public Datarouter getRouter(){
 		return router;
 	}
 

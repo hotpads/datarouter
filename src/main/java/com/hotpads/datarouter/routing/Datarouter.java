@@ -38,8 +38,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
  * @author mcorgan
  * 
  */
-//TODO rename Datarouter
-public interface DataRouter {
+public interface Datarouter{
 
 	/********************************* methods *************************************/
 

@@ -5,7 +5,7 @@ import java.util.Collection;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.masterslave.mixin.MasterSlaveMapStorageWriterMixin;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -21,7 +21,7 @@ implements MapStorageNode<PK,D>{
 	protected MasterSlaveMapStorageWriterMixin<PK,D,F,N> mixinMapWriteOps;
 	
 	public MasterSlaveMapStorageNode(
-			Class<D> databeanClass, DataRouter router,
+			Class<D> databeanClass, Datarouter router,
 			N master, Collection<N> slaves) {
 		super(databeanClass, router, master, slaves);
 		initMixins();

@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -45,7 +45,7 @@ public class SettinglessNodeFactory{
 			String clientName, 
 			Class<D> databeanClass, 
 			Class<F> fielderClass,
-			DataRouter router,
+			Datarouter router,
 			boolean addAdapter){
 		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<PK,D,F>(router, databeanClass)
 				.withClientName(clientName)

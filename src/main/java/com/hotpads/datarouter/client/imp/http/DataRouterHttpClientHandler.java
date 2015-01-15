@@ -14,7 +14,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Config.ConfigFielder;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderHttpNode;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
@@ -49,7 +49,7 @@ implements MapStorageReaderHttpNode<PK,D>{
 	
 	private String routerName;
 	private String nodeName;
-	private DataRouter router;
+	private Datarouter router;
 	private MapStorageReaderNode<PK,D> node;
 	private DatabeanFieldInfo<PK,D,?> fieldInfo;
 	private Config config;

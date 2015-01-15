@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.routing.comparator.ComparatorDataRouter;
 import com.hotpads.handler.BaseHandler;
@@ -37,7 +37,7 @@ public class RoutersHandler extends BaseHandler {
 	private DatarouterContext dataRouterContext;
 
 	// not injected
-	private DataRouter router;
+	private Datarouter router;
 	private Mav mav;
 	private String routerName = null;
 
@@ -45,7 +45,7 @@ public class RoutersHandler extends BaseHandler {
 	@Handler
 	protected Mav handleDefault() {
 		mav = new Mav("/jsp/admin/datarouter/dataRouterMenu.jsp");
-		List<DataRouter> routers = dataRouterContext.getRouters();
+		List<Datarouter> routers = dataRouterContext.getRouters();
 //		initClients(routers);
 		mav.put("serverName", dataRouterContext.getServerName());
 		mav.put("administratorEmail", dataRouterContext.getAdministratorEmail());

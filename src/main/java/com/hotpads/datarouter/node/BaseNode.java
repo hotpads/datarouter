@@ -5,7 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -22,7 +22,7 @@ implements Node<PK,D>{
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private DatarouterContext drContext;
-	private DataRouter router;
+	private Datarouter router;
 	private NodeId<PK,D,F> id;
 	protected DatabeanFieldInfo<PK,D,F> fieldInfo;
 	
@@ -97,7 +97,7 @@ implements Node<PK,D>{
 	}
 	
 	@Override
-	public DataRouter getRouter(){
+	public Datarouter getRouter(){
 		return router;
 	}
 	

@@ -9,7 +9,7 @@ import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.PhysicalSortedMapStorageReaderNode;
 import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.SortedMapStorageReaderNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -33,7 +33,7 @@ public abstract class PartitionedSortedMapStorageReaderNode<
 extends PartitionedMapStorageReaderNode<PK,D,F,N>
 implements SortedMapStorageReaderNode<PK,D>{
 	
-	public PartitionedSortedMapStorageReaderNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router) {
+	public PartitionedSortedMapStorageReaderNode(Class<D> databeanClass, Class<F> fielderClass, Datarouter router) {
 		super(databeanClass, fielderClass, router);
 	}
 

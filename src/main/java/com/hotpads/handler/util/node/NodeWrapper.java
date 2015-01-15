@@ -7,7 +7,7 @@ import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 
@@ -22,7 +22,7 @@ public class NodeWrapper{
 		this.sorted = node instanceof SortedStorageWriter<?,?>;
 	}
 
-	public static List<NodeWrapper> getNodeWrappers(DataRouter router){
+	public static List<NodeWrapper> getNodeWrappers(Datarouter router){
 		List<NodeWrapper> outs = ListTool.createArrayList();
 		Collection<Node<?,?>> topLevelNodes = router.getContext().getNodes().getTopLevelNodesByRouterName().get(
 				router.getName());

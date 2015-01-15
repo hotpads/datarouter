@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.DynamicClientFactory;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.util.core.profile.PhaseTimer;
 

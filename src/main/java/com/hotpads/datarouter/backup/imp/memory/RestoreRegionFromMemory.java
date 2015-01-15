@@ -8,7 +8,7 @@ import java.util.zip.GZIPInputStream;
 import com.hotpads.datarouter.backup.BackupRegion;
 import com.hotpads.datarouter.backup.RestoreRegion;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -19,7 +19,7 @@ public class RestoreRegionFromMemory<PK extends PrimaryKey<PK>,D extends Databea
 extends RestoreRegion<PK,D>{
 	
 	public RestoreRegionFromMemory(byte[] bytes, Class<D> cls, 
-			DataRouter router, SortedMapStorageNode<PK,D> node, boolean gzip) throws IOException{
+			Datarouter router, SortedMapStorageNode<PK,D> node, boolean gzip) throws IOException{
 		super(cls, router, node, 1000, false);
 		this.is = new ByteArrayInputStream(bytes);
 		if(gzip){

@@ -32,7 +32,7 @@ import com.hotpads.util.core.SetTool;
 public abstract class BaseDRH{
 
 	protected DatarouterContext drContext;
-	protected List<DataRouter> routers = ListTool.createArrayList();
+	protected List<Datarouter> routers = ListTool.createArrayList();
 	
 	
 	/************************ constructors ************************/
@@ -44,14 +44,14 @@ public abstract class BaseDRH{
 	
 	/************************ methods ************************/
 	
-	public <R extends DataRouter> R register(R router){
+	public <R extends Datarouter> R register(R router){
 //		router.activate();//caution: make sure nodes are registered before activating
 		this.routers.add(router);
 		return router;
 	}
 	
-	public DataRouter getRouter(String name){
-		for(DataRouter router : CollectionTool.nullSafe(routers)){
+	public Datarouter getRouter(String name){
+		for(Datarouter router : CollectionTool.nullSafe(routers)){
 			if(name.trim().equals(router.getName())){
 				return router;
 			}
@@ -61,7 +61,7 @@ public abstract class BaseDRH{
 	
 	public List<Client> getClients(){
 		SortedSet<Client> clients = SetTool.createTreeSet();
-		for(DataRouter router : IterableTool.nullSafe(getRouters())){
+		for(Datarouter router : IterableTool.nullSafe(getRouters())){
 			for(Client client : IterableTool.nullSafe(router.getAllClients())){
 				clients.add(client);
 			}
@@ -69,8 +69,8 @@ public abstract class BaseDRH{
 		return ListTool.createArrayList(clients);
 	}
 	
-	public DataRouter getRouterForClient(Client client){
-		for(DataRouter router : routers){
+	public Datarouter getRouterForClient(Client client){
+		for(Datarouter router : routers){
 			for(Client c : router.getAllClients()){
 				if(c==client){ return router; }
 			}
@@ -80,7 +80,7 @@ public abstract class BaseDRH{
 
 	public void clearThreadSpecificState(){
 		if(CollectionTool.isEmpty(this.routers)){ return; }
-		for(DataRouter router : this.routers){
+		for(Datarouter router : this.routers){
 			router.clearThreadSpecificState();
 		}
 	}
@@ -92,7 +92,7 @@ public abstract class BaseDRH{
 		return drContext;
 	}
 	
-	public List<DataRouter> getRouters(){
+	public List<Datarouter> getRouters(){
 		return this.routers;
 	}
 }

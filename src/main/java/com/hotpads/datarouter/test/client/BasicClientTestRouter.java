@@ -6,7 +6,7 @@ import com.hotpads.datarouter.connection.keepalive.KeepAliveKey;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean;
@@ -15,7 +15,7 @@ import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 
 @ImplementedBy(BasicClientTestRouterImp.class)
-public interface BasicClientTestRouter extends DataRouter{
+public interface BasicClientTestRouter extends Datarouter{
 
 	MapStorage<TxnBeanKey,TxnBean> txnBeanJdbc();
 	SortedMapStorageNode<TxnBeanKey,TxnBean> txnBeanHibernate();
