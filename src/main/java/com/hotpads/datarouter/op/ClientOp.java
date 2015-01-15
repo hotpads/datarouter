@@ -4,10 +4,10 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.op.aware.DataRouterContextAware;
+import com.hotpads.datarouter.op.aware.DatarouterContextAware;
 
 public interface ClientOp<T>
-extends DataRouterContextAware<T>{
+extends DatarouterContextAware<T>{
 
 	List<String> getClientNames();	
 	T runOnce();
