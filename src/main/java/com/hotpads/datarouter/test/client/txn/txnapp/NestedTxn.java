@@ -15,7 +15,7 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.util.core.CollectionTool;
@@ -23,13 +23,13 @@ import com.hotpads.util.core.ListTool;
 
 public class NestedTxn extends BaseHibernateOp<Void>{
 	
-	private DataRouterContext drContext;
+	private DatarouterContext drContext;
 	private List<String> clientNames;
 	private Isolation isolation;
 	private BasicClientTestRouter router;
 	private boolean flush;
 	
-	public NestedTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation, boolean autoCommit,
+	public NestedTxn(DatarouterContext drContext, List<String> clientNames, Isolation isolation, boolean autoCommit,
 			BasicClientTestRouter router, boolean flush){
 		super(drContext, clientNames, isolation, autoCommit);
 		this.drContext = drContext;
@@ -74,7 +74,7 @@ public class NestedTxn extends BaseHibernateOp<Void>{
 		private boolean flush;
 		private ConnectionHandle outerHandle;
 
-		public InnerTxn(DataRouterContext drContext, List<String> clientNames, Isolation isolation, boolean autoCommit,
+		public InnerTxn(DatarouterContext drContext, List<String> clientNames, Isolation isolation, boolean autoCommit,
 				BasicClientTestRouter router, boolean flush, ConnectionHandle outerHandle){
 			super(drContext, clientNames, isolation, autoCommit);
 			this.router = router;

@@ -15,7 +15,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.PrimaryKeyStringConverter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
@@ -42,12 +42,12 @@ import com.hotpads.util.core.java.ReflectionTool;
 public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends HibernateReaderNode<PK,D,F>>
 		extends BaseHandler{
 
-	private DataRouterContext drContext;
+	private DatarouterContext drContext;
 	private Node<?,?> node;
 	private Integer limit;
 
 	@Inject
-	public ViewNodeDataHandler(DataRouterContext drContext){
+	public ViewNodeDataHandler(DatarouterContext drContext){
 		this.drContext = drContext;
 	}
 

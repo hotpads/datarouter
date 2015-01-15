@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.client.imp.memcached.DataRouterMemcachedKey;
+import com.hotpads.datarouter.client.imp.memcached.DatarouterMemcachedKey;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClient;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
 import com.hotpads.datarouter.config.Config;
@@ -76,7 +76,7 @@ implements MemcachedPhysicalNode<PK,D>,
 	public D get(final PK key, final Config pConfig){
 		if(key==null){ return null; }
 		final Config config = Config.nullSafe(pConfig);
-			String memcachedKey = new DataRouterMemcachedKey<PK>(getName(), databeanVersion, key).getVersionedKeyString();
+			String memcachedKey = new DatarouterMemcachedKey<PK>(getName(), databeanVersion, key).getVersionedKeyString();
 			byte[] bytes = null;
 			
 			try {
@@ -122,7 +122,7 @@ implements MemcachedPhysicalNode<PK,D>,
 		
 		try {
 			Future<Map<String,Object>> f = this.getClient().getSpyClient().asyncGetBulk( //get results asynchronously.  default CacheTimeoutMS set in MapCachingStorage.CACHE_CONFIG
-				DataRouterMemcachedKey.getVersionedKeyStrings(getName(), databeanVersion, keys));
+				DatarouterMemcachedKey.getVersionedKeyStrings(getName(), databeanVersion, keys));
 			bytesByStringKey = f.get(config.getCacheTimeoutMs(), TimeUnit.MILLISECONDS);
 		} catch (TimeoutException e) {										
 			TraceContext.appendToSpanInfo("memcached timeout");	

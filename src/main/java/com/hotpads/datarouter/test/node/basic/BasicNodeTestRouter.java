@@ -16,8 +16,8 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.SortedStorage;
-import com.hotpads.datarouter.routing.BaseDataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.BaseDatarouter;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean.BackupBeanFielder;
@@ -38,7 +38,7 @@ import com.hotpads.datarouter.test.node.basic.prefixed.test.ScatteringPrefixInte
 import com.hotpads.util.core.ListTool;
 
 @Singleton
-public class BasicNodeTestRouter extends BaseDataRouter{
+public class BasicNodeTestRouter extends BaseDatarouter{
 
 	public static final String 
 			name = "basicNodeTest",
@@ -47,7 +47,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 
 	
 	@Inject
-	public BasicNodeTestRouter(DataRouterContext drContext, NodeFactory nodeFactory, String clientName, 
+	public BasicNodeTestRouter(DatarouterContext drContext, NodeFactory nodeFactory, String clientName, 
 			Class<?> testType, boolean useFielder, boolean entity){
 		super(drContext, DRTestConstants.CONFIG_PATH, name);
 		
@@ -126,7 +126,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	/************************ sorted and indexed versions of this router *****************/
 	
 	public static class ScatteringPrefixBasicNodeTestRouter extends BasicNodeTestRouter{
-		public ScatteringPrefixBasicNodeTestRouter(DataRouterContext drContext, NodeFactory nodeFactory, String client, 
+		public ScatteringPrefixBasicNodeTestRouter(DatarouterContext drContext, NodeFactory nodeFactory, String client, 
 				Class<?> testType, boolean useFielder, boolean entity){
 			super(drContext, nodeFactory, client, testType, useFielder, entity);
 		}

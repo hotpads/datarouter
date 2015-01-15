@@ -1,7 +1,7 @@
 package com.hotpads.datarouter.test.node.basic.manyfield;
 
 
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
@@ -30,7 +30,7 @@ public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
 	
 	@Override
 	public TestEnum fromPersistentInteger(Integer i){
-		return DataRouterEnumTool.getEnumFromInteger(values(), i, null);
+		return DatarouterEnumTool.getEnumFromInteger(values(), i, null);
 	}
 	
 	
@@ -43,7 +43,7 @@ public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
 	
 	@Override
 	public TestEnum fromPersistentString(String s){
-		return DataRouterEnumTool.getEnumFromString(values(), s, null);
+		return DatarouterEnumTool.getEnumFromString(values(), s, null);
 	}
 	
 }

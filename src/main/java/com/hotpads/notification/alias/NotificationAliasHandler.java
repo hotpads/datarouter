@@ -12,7 +12,7 @@ import net.sf.json.JSONObject;
 
 import com.google.gson.Gson;
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.dispatcher.DataRouterDispatcher;
+import com.hotpads.handler.dispatcher.DatarouterDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.JsonMav;
 import com.hotpads.handler.util.RequestTool;
@@ -26,7 +26,7 @@ import com.hotpads.util.core.IterableTool;
 public class NotificationAliasHandler extends BaseHandler{
 
 	private static final String
-			COMMAND_REGEX = ".*" + DataRouterDispatcher.NOTIFICATION_ALIAS + "/",
+			COMMAND_REGEX = ".*" + DatarouterDispatcher.NOTIFICATION_ALIAS + "/",
 			JSP = "/jsp/admin/datarouter/notification/alias.jsp";
 
 	@Inject
@@ -39,8 +39,8 @@ public class NotificationAliasHandler extends BaseHandler{
 		if(alias != null){
 			aliasUrl = "/" + alias.getName();
 		}
-		return new Mav(Mav.REDIRECT + servletContext.getContextPath() + DataRouterDispatcher.URL_DATAROUTER
-				+ DataRouterDispatcher.NOTIFICATION_ALIAS + aliasUrl);
+		return new Mav(Mav.REDIRECT + servletContext.getContextPath() + DatarouterDispatcher.URL_DATAROUTER
+				+ DatarouterDispatcher.NOTIFICATION_ALIAS + aliasUrl);
 	}
 
 	@Override

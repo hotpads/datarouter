@@ -10,14 +10,14 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.IndexedStorage;
-import com.hotpads.datarouter.routing.BaseDataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.BaseDatarouter;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import com.hotpads.util.core.ListTool;
 
 @Singleton
-public class SortedNodeTestRouter extends BaseDataRouter{
+public class SortedNodeTestRouter extends BaseDatarouter{
 
 	private static final String 
 			name = "basicNodeTest",
@@ -31,7 +31,7 @@ public class SortedNodeTestRouter extends BaseDataRouter{
 	
 	
 	@Inject
-	public SortedNodeTestRouter(DataRouterContext drContext, NodeFactory nodeFactory, String clientName, 
+	public SortedNodeTestRouter(DatarouterContext drContext, NodeFactory nodeFactory, String clientName, 
 			Class<?> testType, boolean useFielder, boolean entity){
 		super(drContext, DRTestConstants.CONFIG_PATH, name);
 		

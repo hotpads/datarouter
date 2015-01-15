@@ -11,13 +11,13 @@ import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.http.DataRouterHttpClient;
+import com.hotpads.datarouter.client.imp.http.DatarouterHttpClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Config.ConfigFielder;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -73,8 +73,8 @@ implements MapStorageReader<PK,D>{
 	/***************************** plumbing methods ***********************************/
 
 	@Override
-	public DataRouterHttpClient getClient(){
-		return (DataRouterHttpClient)getRouter().getClient(getClientName());
+	public DatarouterHttpClient getClient(){
+		return (DatarouterHttpClient)getRouter().getClient(getClientName());
 	}
 	
 	@Override

@@ -32,7 +32,7 @@ extends BaseHibernateOp<List<D>>{
 	
 	
 	public GetWhereTxn(N node, String tableName, PK startAfterKey, String whereClauseFromUser, Config config){
-		super(node.getDataRouterContext(), node.getClientNames());
+		super(node.getDatarouterContext(), node.getClientNames());
 		this.node = node;
 		this.tableName = tableName;
 		this.startAfterKey = startAfterKey;

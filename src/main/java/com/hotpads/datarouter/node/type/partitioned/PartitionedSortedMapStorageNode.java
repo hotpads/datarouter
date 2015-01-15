@@ -7,7 +7,7 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapSt
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.type.partitioned.mixin.PartitionedMapStorageWriterMixin;
 import com.hotpads.datarouter.node.type.partitioned.mixin.PartitionedSortedStorageWriterMixin;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -23,7 +23,7 @@ implements SortedMapStorageNode<PK,D>{
 	protected PartitionedMapStorageWriterMixin<PK,D,F,N> mixinMapWriteOps;
 	protected PartitionedSortedStorageWriterMixin<PK,D,F,N> mixinSortedWriteOps;
 	
-	public PartitionedSortedMapStorageNode(Class<D> databeanClass, Class<F> fielderClass, DataRouter router) {
+	public PartitionedSortedMapStorageNode(Class<D> databeanClass, Class<F> fielderClass, Datarouter router) {
 		super(databeanClass, fielderClass, router);
 		this.mixinMapWriteOps = new PartitionedMapStorageWriterMixin<PK,D,F,N>(this);
 		this.mixinSortedWriteOps = new PartitionedSortedStorageWriterMixin<PK,D,F,N>(this);

@@ -13,7 +13,7 @@ import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.adapter.MapStorageAdapterNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.caching.map.MapCachingMapStorageNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -65,7 +65,7 @@ public class CachingNodeFactory{
 			N extends MapStorageNode<PK,D>> 
 	MapStorageNode<PK,D> create(
 			Class<D> databeanClass, 
-			DataRouter router,
+			Datarouter router,
 			Class<F> fielderClass,
 			N cacheNode, 
 			N backingNode, 

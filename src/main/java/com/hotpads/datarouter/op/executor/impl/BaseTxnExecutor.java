@@ -10,7 +10,7 @@ import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.TxnExecutor;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ExceptionTool;
@@ -22,7 +22,7 @@ implements TxnExecutor<T>{
 
 	private TxnOp<T> parallelTxnOp;
 	
-	public BaseTxnExecutor(DataRouterContext drContext, TxnOp<T> parallelTxnOp) {
+	public BaseTxnExecutor(DatarouterContext drContext, TxnOp<T> parallelTxnOp) {
 		super(drContext, parallelTxnOp);
 		this.parallelTxnOp = parallelTxnOp;
 	}

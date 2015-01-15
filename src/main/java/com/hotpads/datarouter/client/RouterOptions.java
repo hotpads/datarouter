@@ -7,7 +7,7 @@ import java.util.Properties;
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.client.imp.memory.MemoryClientType;
-import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.StringTool;
@@ -64,7 +64,7 @@ public class RouterOptions extends TypedProperties{
 	}
 	
 	public String getMode(String routerName){
-		return getString(prependRouterPrefix(routerName, "mode"), BaseDataRouter.MODE_production);
+		return getString(prependRouterPrefix(routerName, "mode"), BaseDatarouter.MODE_production);
 	}
 	
 }

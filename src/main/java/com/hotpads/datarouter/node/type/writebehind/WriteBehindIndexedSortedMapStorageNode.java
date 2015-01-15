@@ -11,7 +11,7 @@ import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindIndexedStor
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindMapStorageWriterMixin;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindSortedStorageWriterMixin;
 import com.hotpads.datarouter.node.type.writebehind.mixin.WriteBehindSortedStorageWriterMixin.DeleteRangeWithPrefixWraper;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -28,7 +28,7 @@ implements IndexedSortedMapStorageNode<PK, D> {
 	protected WriteBehindSortedStorageWriterMixin<PK,D,N> mixinSortedWriteOps;
 	protected WriteBehindIndexedStorageWriterMixin<PK,D,N> mixinIndexedWriteOps;
 	
-	public WriteBehindIndexedSortedMapStorageNode(Class<D> databeanClass, DataRouter router, N backingNode,
+	public WriteBehindIndexedSortedMapStorageNode(Class<D> databeanClass, Datarouter router, N backingNode,
 			ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
 		super(databeanClass, router, backingNode, writeExecutor, cancelExecutor);
 		mixinMapWriteOps = new WriteBehindMapStorageWriterMixin<PK,D,N>(this);

@@ -2,7 +2,7 @@ package com.hotpads.setting;
 
 import java.util.List;
 
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.util.core.web.HTMLSelectOptionBean;
 
@@ -26,7 +26,7 @@ public enum StandardServerType implements ServerType, StringEnum<StandardServerT
 
 	@Override
 	public StandardServerType fromPersistentString(String required){
-		return DataRouterEnumTool.getEnumFromString(values(), required, null);
+		return DatarouterEnumTool.getEnumFromString(values(), required, null);
 	}
 
 	@Override

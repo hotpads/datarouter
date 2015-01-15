@@ -9,15 +9,15 @@ import javax.inject.Singleton;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
-import com.hotpads.datarouter.routing.BaseDataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.BaseDatarouter;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.datarouter.test.TestIndexedDatabeanFielder;
 
 @Singleton
-public class LazyTestRouter extends BaseDataRouter{
+public class LazyTestRouter extends BaseDatarouter{
 	
 	private static final String NAME = "lazyTestRouter";
 
@@ -26,7 +26,7 @@ public class LazyTestRouter extends BaseDataRouter{
 	public LazyIndexedSortedMapStorageReader<TestDatabeanKey, TestDatabean> lazyTestDatabean;
 
 	@Inject
-	public LazyTestRouter(DataRouterContext context, NodeFactory nodeFactory){
+	public LazyTestRouter(DatarouterContext context, NodeFactory nodeFactory){
 		super(context, DRTestConstants.CONFIG_PATH, NAME);
 		
 		testDatabean = cast(register(nodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, TestDatabean.class,

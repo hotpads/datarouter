@@ -1,6 +1,6 @@
 package com.hotpads.profile.count.databean;
 
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
 public enum DashboardEntryType implements StringEnum<DashboardEntryType>{
@@ -20,6 +20,6 @@ public enum DashboardEntryType implements StringEnum<DashboardEntryType>{
 
 	@Override
 	public DashboardEntryType fromPersistentString(String s){
-		return DataRouterEnumTool.getEnumFromString(values(), s, null);
+		return DatarouterEnumTool.getEnumFromString(values(), s, null);
 	}
 }

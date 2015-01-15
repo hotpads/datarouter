@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.dispatcher.DataRouterDispatcher;
+import com.hotpads.handler.dispatcher.DatarouterDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.JsonMav;
 import com.hotpads.logging.HotPadsLoggingConfigDao;
@@ -58,7 +58,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 
 	public Mav getRedirectMav(){
 		if(redirectMav == null) {
-			redirectMav = new Mav(Mav.REDIRECT + servletContext.getContextPath() + DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.LOGGING);
+			redirectMav = new Mav(Mav.REDIRECT + servletContext.getContextPath() + DatarouterDispatcher.URL_DATAROUTER + DatarouterDispatcher.LOGGING);
 		}
 		return redirectMav;
 	}

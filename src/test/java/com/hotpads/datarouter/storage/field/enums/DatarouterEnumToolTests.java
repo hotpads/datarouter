@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import com.hotpads.util.core.CollectionTool;
 
-public class DataRouterEnumToolTests{
+public class DatarouterEnumToolTests{
 	private enum SomeType implements StringEnum<SomeType> {
 		LARGE, CONDO, RENTAL, SALE, SUBLET;
 		public String getPersistentString(){
@@ -28,17 +28,17 @@ public class DataRouterEnumToolTests{
 	@Test
 	public void testSomeTypeCsvNames1() {
 		 SomeType[] expected = { SomeType.LARGE, SomeType.CONDO };
-		 List<SomeType> actual = DataRouterEnumTool.uniqueListFromCsvNames( SomeType.values(), "large, funky, condo, dunno", false );
+		 List<SomeType> actual = DatarouterEnumTool.uniqueListFromCsvNames( SomeType.values(), "large, funky, condo, dunno", false );
 		 Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(Arrays.asList(expected), actual));
 	}
 
 	@Test
 	public void testSomeTypeCsvNames2() {
 		 SomeType[] expected = { SomeType.RENTAL, SomeType.SALE, SomeType.SUBLET };
-		 List<SomeType> actual = DataRouterEnumTool.uniqueListFromCsvNames( SomeType.values(), "rental, funky, condoo, sale, sublet", false );
+		 List<SomeType> actual = DatarouterEnumTool.uniqueListFromCsvNames( SomeType.values(), "rental, funky, condoo, sale, sublet", false );
 		 Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(Arrays.asList(expected), actual));
 		
-		 actual = DataRouterEnumTool.uniqueListFromCsvNames( SomeType.values(), "ballons", true );
+		 actual = DatarouterEnumTool.uniqueListFromCsvNames( SomeType.values(), "ballons", true );
 		 Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(Arrays.asList(SomeType.values()), actual));
 	}
 }

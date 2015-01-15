@@ -2,7 +2,7 @@
 <%@ include file="../generic/prelude-datarouter.jspf"%>
 <html>
 <head>
-<title>DataRouter</title>
+<title>Datarouter</title>
 <%@ include file="/jsp/generic/head.jsp" %>
 <%@ include file="/jsp/css/css-import.jspf" %>
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
@@ -12,9 +12,9 @@
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
 	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
-	<h2 class="container">DataRouter</h2>
+	<h2 class="container">Datarouter</h2>
 	<div class="wide-container">
-		<a href="${contextPath}/datarouter/routers">DataRouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;&#62;&#62; &nbsp;&nbsp;
+		<a href="${contextPath}/datarouter/routers">Datarouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a> &nbsp;&nbsp;&#62;&#62; &nbsp;&nbsp;
 		node: <b>${node.name}</b><br /> <br />
 		<form method="get" action="?">
 			<div class="label-above row-fluid">

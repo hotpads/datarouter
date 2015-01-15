@@ -1,6 +1,6 @@
 package com.hotpads.notification.databean;
 
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
 public enum NotificationUserType implements StringEnum<NotificationUserType> {
@@ -25,7 +25,7 @@ public enum NotificationUserType implements StringEnum<NotificationUserType> {
 
 	@Override
 	public NotificationUserType fromPersistentString(String s) {
-		return DataRouterEnumTool.getEnumFromString(values(), s, null);
+		return DatarouterEnumTool.getEnumFromString(values(), s, null);
 	}
 
 }
