@@ -58,17 +58,6 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		this.progress = new MutableString("");
 	}
 	
-//	@Deprecated
-//	public HBaseTask(DataRouterContext drContext, String nodeName, String taskName, String tableName, Config config){
-//		super("HBaseTask."+taskName);
-//		this.drContext = drContext;
-//		this.nodeName = nodeName;
-//		this.taskName = taskName;
-//		//do not set client here.  it is obtained from node in prepClientAndTableEtc(..)
-//		this.tableName = tableName;
-//		this.config = Config.nullSafe(config);
-//		this.progress = new MutableString("");
-//	}
 	
 	@Override
 	public V wrappedCall(){

@@ -1,7 +1,7 @@
 <%@ include file="/jsp/generic/prelude-datarouter.jspf"%>
 <html>
 <head>
-<title>DataRouter</title>
+<title>Datarouter</title>
 <%@ include file="/jsp/generic/head.jsp" %>
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script type="text/javascript">
@@ -17,7 +17,7 @@
 	<div class="container">
 		<h2>Datarouter
 		</h2>
-		<a href="${contextPath}/datarouter/routers">DataRouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; 
+		<a href="${contextPath}/datarouter/routers">Datarouter Home</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; 
 		<a href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">Router: ${param.routerName}</a>
 		 &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; client: <b>${client.name}</b>
 		<br />

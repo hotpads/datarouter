@@ -52,7 +52,6 @@ public class DatarouterDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + LOGGING + ".*").withHandler(LoggingSettingsHandler.class);
 		handle(URL_DATAROUTER + MEMORY_STATS + ".*").withHandler(MemoryMonitoringHandler.class);
 		handle(URL_DATAROUTER + NOTIFICATION_ALIAS + ".*").withHandler(NotificationAliasHandler.class);
-//		handle(URL_HTTP_CLIENT, DataRouterHttpClientHandler.class);
 		handle(URL_DATAROUTER + NODE_BROWSE_DATA).withHandler(ViewNodeDataHandler.class);
 		handle(URL_DATAROUTER + DATABEAN_GENERATOR).withHandler(DatabeanGeneratorHandler.class);
 		handle(URL_DATAROUTER + CALLSITE).withHandler(CallsiteHandler.class);

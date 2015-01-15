@@ -11,7 +11,7 @@ import com.hotpads.util.core.SetTool;
 
 
 /*
- * DRH=DataRouterHolder, selectively abbreviated because of frequent access
+ * DRH=DatarouterHolder, selectively abbreviated because of frequent access
  * 
  * Class for accessing Routers.  Currently supports binding itself to threads.  
  * 
@@ -28,7 +28,7 @@ import com.hotpads.util.core.SetTool;
  *   Then access it in your code by calling the static DRH.asdf()...
  */
 
-@Deprecated//try to replace with combination of DataRouterContext and Guice
+@Deprecated//try to replace with combination of DatarouterContext and Guice
 public abstract class BaseDRH{
 
 	protected DatarouterContext drContext;

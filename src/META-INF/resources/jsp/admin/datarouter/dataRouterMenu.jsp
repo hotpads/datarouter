@@ -2,7 +2,7 @@
 <%@ include file="../../generic/prelude-datarouter.jspf"%>
 <html>
 <head>
-	<title>DataRouter</title>
+	<title>Datarouter</title>
 	<%@ include file="/jsp/generic/head.jsp" %>
 	<script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 	<script type="text/javascript">

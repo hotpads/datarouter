@@ -111,15 +111,6 @@ public class NodeParams<
 			this.databeanClass = databeanClass;
 		}
 		
-		//save the caller from specifying generics
-//		public static <
-//				PK extends PrimaryKey<PK>,
-//				D extends Databean<PK,D>,
-//				F extends DatabeanFielder<PK,D>> 
-//		NodeParamsBuilder<PK,D,F> create(DataRouter router, Class<D> databeanClass){
-//			return new NodeParamsBuilder<PK,D,F>(router, databeanClass);
-//		}
-		
 		
 		/************* with *******************/
 

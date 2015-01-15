@@ -27,7 +27,7 @@ public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 	}
 	
 	
-	/****************** DataRouter *******************************/
+	/****************** Datarouter *******************************/
 
 	@Override
 	public String getPersistentString() {
