@@ -4,8 +4,8 @@ import org.junit.BeforeClass;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
 
-/************************** subclasses ***********************************/
 
 public class HibernateSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
 	

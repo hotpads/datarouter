@@ -4,8 +4,8 @@ import org.junit.BeforeClass;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
 
-/************************** subclasses ***********************************/
 
 public class HBaseSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
 	
