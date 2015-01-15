@@ -31,13 +31,13 @@ import com.hotpads.util.core.SetTool;
 @Deprecated//try to replace with combination of DataRouterContext and Guice
 public abstract class BaseDRH{
 
-	protected DataRouterContext drContext;
+	protected DatarouterContext drContext;
 	protected List<DataRouter> routers = ListTool.createArrayList();
 	
 	
 	/************************ constructors ************************/
 	
-	protected BaseDRH(DataRouterContext drContext){
+	protected BaseDRH(DatarouterContext drContext){
 		this.drContext = drContext;
 	}
 	
@@ -88,7 +88,7 @@ public abstract class BaseDRH{
 	
 	/************************** get/set ******************************/
 	
-	public DataRouterContext getDrContext(){
+	public DatarouterContext getDrContext(){
 		return drContext;
 	}
 	

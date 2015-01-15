@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -25,7 +25,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends Comparable<Node<PK,D>>{
 
-	DataRouterContext getDataRouterContext();
+	DatarouterContext getDataRouterContext();
 	DataRouter getRouter();
 
 	String getName();

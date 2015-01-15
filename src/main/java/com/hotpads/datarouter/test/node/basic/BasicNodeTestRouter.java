@@ -18,7 +18,7 @@ import com.hotpads.datarouter.node.op.raw.IndexedStorage;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.op.raw.SortedStorage;
 import com.hotpads.datarouter.routing.BaseDataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean.BackupBeanFielder;
@@ -58,7 +58,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 //	protected String clientName;
 	
 	@Inject
-	public BasicNodeTestRouter(DataRouterContext drContext, NodeFactory nodeFactory, String clientName, 
+	public BasicNodeTestRouter(DatarouterContext drContext, NodeFactory nodeFactory, String clientName, 
 			Class<?> testType, boolean useFielder, boolean entity){
 		super(drContext, DRTestConstants.CONFIG_PATH, name);
 		this.nodeFactory = nodeFactory;
@@ -170,7 +170,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	/************************ sorted and indexed versions of this router *****************/
 	
 	public static class SortedBasicNodeTestRouter extends BasicNodeTestRouter{
-		public SortedBasicNodeTestRouter(DataRouterContext drContext, NodeFactory nodeFactory, String client, 
+		public SortedBasicNodeTestRouter(DatarouterContext drContext, NodeFactory nodeFactory, String client, 
 				Class<?> testType, boolean useFielder, boolean entity){
 			super(drContext, nodeFactory, client, testType, useFielder, entity);
 		}
@@ -183,7 +183,7 @@ public class BasicNodeTestRouter extends BaseDataRouter{
 	}
 	
 	public static class IndexedBasicNodeTestRouter extends SortedBasicNodeTestRouter{
-		public IndexedBasicNodeTestRouter(DataRouterContext drContext, NodeFactory nodeFactory, String client, 
+		public IndexedBasicNodeTestRouter(DatarouterContext drContext, NodeFactory nodeFactory, String client, 
 				Class<?> testType, boolean useFielder, boolean entity){
 			super(drContext, nodeFactory, client, testType, useFielder, entity);
 		}

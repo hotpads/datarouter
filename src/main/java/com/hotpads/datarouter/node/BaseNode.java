@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.routing.DataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -21,7 +21,7 @@ public abstract class BaseNode<
 implements Node<PK,D>{
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 	
-	private DataRouterContext drContext;
+	private DatarouterContext drContext;
 	private DataRouter router;
 	private NodeId<PK,D,F> id;
 	protected DatabeanFieldInfo<PK,D,F> fieldInfo;
@@ -43,7 +43,7 @@ implements Node<PK,D>{
 	}
 	
 	@Override
-	public DataRouterContext getDataRouterContext(){
+	public DatarouterContext getDataRouterContext(){
 		return drContext;
 	}
 

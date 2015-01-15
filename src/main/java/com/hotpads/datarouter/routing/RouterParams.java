@@ -32,13 +32,13 @@ public class RouterParams<C extends Client> {
 	private Node<?,?> node;
 	private String tableName;
 
-	public RouterParams(DataRouterContext dataRouterContext, Params params, HashMap<String,List<String>> needs){
+	public RouterParams(DatarouterContext dataRouterContext, Params params, HashMap<String,List<String>> needs){
 		this.action = params.optional(RequestTool.SUBMIT_ACTION, RoutersHandler.ACTION_listRouters);
 		this.needs = needs;
 		initializeGlobalParameters(dataRouterContext, params);
 	}
 
-	public void initializeGlobalParameters(DataRouterContext dataRouterContext, Params params){
+	public void initializeGlobalParameters(DatarouterContext dataRouterContext, Params params){
 
 		if (needs.get(NEEDS_ROUTER).contains(action)) {
 			routerName = params.required(PARAM_routerName);
@@ -65,7 +65,7 @@ public class RouterParams<C extends Client> {
 		}
 	}
 
-	public DataRouterContext getContext() {
+	public DatarouterContext getContext() {
 		return this.router.getContext();
 	}
 

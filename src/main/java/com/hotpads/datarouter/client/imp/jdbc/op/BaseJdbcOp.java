@@ -12,18 +12,18 @@ import com.hotpads.datarouter.client.type.JdbcConnectionClient;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.aware.ConnectionAware;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 
 public abstract class BaseJdbcOp<T>
 implements TxnOp<T>, ConnectionAware<T> {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	private DataRouterContext drContext;
+	private DatarouterContext drContext;
 	private List<String> clientNames;
 	private Isolation isolation;
 	private boolean autoCommit;
 	
-	public BaseJdbcOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+	public BaseJdbcOp(DatarouterContext drContext, List<String> clientNames, Isolation isolation,
 			boolean autoCommit) {
 		this.drContext = drContext;
 		this.clientNames = clientNames;
@@ -31,7 +31,7 @@ implements TxnOp<T>, ConnectionAware<T> {
 		this.autoCommit = autoCommit;
 	}
 	
-	public BaseJdbcOp(DataRouterContext drContext, List<String> clientNames) {
+	public BaseJdbcOp(DatarouterContext drContext, List<String> clientNames) {
 		this(drContext, clientNames, Isolation.DEFAULT, false);
 	}
 
@@ -77,7 +77,7 @@ implements TxnOp<T>, ConnectionAware<T> {
 	/**************** get *******************************************/
 	
 	@Override
-	public DataRouterContext getDataRouterContext(){
+	public DatarouterContext getDataRouterContext(){
 		return drContext;
 	}
 

@@ -16,7 +16,7 @@ import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.util.DataRouterEmailTool;
 import com.hotpads.util.core.CollectionTool;
@@ -41,7 +41,7 @@ implements Callable<Void>{
 	
 	/******************* fields **********************/
 
-	private DataRouterContext drContext;
+	private DatarouterContext drContext;
 	private String clientName;
 	private JdbcConnectionPool connectionPool;
 	
@@ -56,7 +56,7 @@ implements Callable<Void>{
 	
 	/***************** construct ***********************/
 
-	public ParallelSchemaUpdate(DataRouterContext drContext, String clientName, JdbcConnectionPool connectionPool){
+	public ParallelSchemaUpdate(DatarouterContext drContext, String clientName, JdbcConnectionPool connectionPool){
 		this.drContext = drContext;
 		this.clientName = clientName;
 		this.connectionPool = connectionPool;

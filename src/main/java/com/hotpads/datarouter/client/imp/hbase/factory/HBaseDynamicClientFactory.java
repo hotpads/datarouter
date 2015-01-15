@@ -13,7 +13,7 @@ import com.hotpads.datarouter.client.DynamicClientFactory;
 import com.hotpads.datarouter.connection.keepalive.KeepAlive;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HBaseDynamicClientFactory 
@@ -30,7 +30,7 @@ implements DynamicClientFactory{
 	protected Long lastReconnectTimeMs = System.currentTimeMillis();
 
 	public HBaseDynamicClientFactory(
-			DataRouterContext drContext,
+			DatarouterContext drContext,
 			String clientName, 
 			ExecutorService executorService){
 		super(drContext, clientName);

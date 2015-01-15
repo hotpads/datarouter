@@ -6,7 +6,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import com.hotpads.datarouter.client.imp.memory.MemoryClient;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
@@ -44,7 +44,7 @@ public class MemoryHandler extends BaseHandler {
 	/******************** fields ************************/
 	
 	@Inject
-	private DataRouterContext dataRouterContext;
+	private DatarouterContext dataRouterContext;
 
 	private RouterParams<MemoryClient> routerParams;
 

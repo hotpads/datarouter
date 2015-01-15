@@ -15,7 +15,7 @@ import com.hotpads.datarouter.config.Config.ConfigFielder;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderHttpNode;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.routing.DataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -45,7 +45,7 @@ implements MapStorageReaderHttpNode<PK,D>{
 	public static final boolean VERIFY_SIGNATURE = false;
 	
 	@Inject
-	private DataRouterContext drContext;
+	private DatarouterContext drContext;
 	
 	private String routerName;
 	private String nodeName;

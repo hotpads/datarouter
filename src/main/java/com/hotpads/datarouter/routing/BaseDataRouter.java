@@ -30,7 +30,7 @@ implements DataRouter{
 	
 	/********************************* fields **********************************/
 	
-	private final DataRouterContext context;
+	private final DatarouterContext context;
 	private final String configLocation;
 	private final String name;
 	private final List<String> clientNames;
@@ -39,7 +39,7 @@ implements DataRouter{
 	
 	/**************************** constructor  ****************************************/
 	
-	public BaseDataRouter(DataRouterContext context, String configLocation, String name){
+	public BaseDataRouter(DatarouterContext context, String configLocation, String name){
 		this.context = context;
 		this.configLocation = configLocation;
 		this.name = name;
@@ -179,7 +179,7 @@ implements DataRouter{
 	}
 	
 	@Override
-	public DataRouterContext getContext() {
+	public DatarouterContext getContext() {
 		return context;
 	}
 	

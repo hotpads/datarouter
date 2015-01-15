@@ -51,7 +51,7 @@ public interface DataRouter {
 	void registerWithContext() throws IOException;
 
 	SortedSet<Node> getNodes();
-	DataRouterContext getContext();
+	DatarouterContext getContext();
 
 	/************************************** app wrappers **************************************/
 

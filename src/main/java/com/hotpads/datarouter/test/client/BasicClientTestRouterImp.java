@@ -14,7 +14,7 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.routing.BaseDataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean.PutOpTestBeanFielder;
@@ -51,7 +51,7 @@ implements BasicClientTestRouter{
 	/********************************* constructor *****************************/
 
 	@Inject
-	public BasicClientTestRouterImp(DataRouterContext drContext, NodeFactory nodeFactory){
+	public BasicClientTestRouterImp(DatarouterContext drContext, NodeFactory nodeFactory){
 		super(drContext, DRTestConstants.CONFIG_PATH, name);
 		this.nodeFactory = nodeFactory;
 		keepAliveHBase = cast(register(

@@ -9,17 +9,17 @@ import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.aware.SessionAware;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 
 public abstract class BaseHibernateOp<T>
 extends BaseJdbcOp<T> 
 implements SessionAware<T> {
 	
-	public BaseHibernateOp(DataRouterContext drContext, List<String> clientNames) {
+	public BaseHibernateOp(DatarouterContext drContext, List<String> clientNames) {
 		this(drContext, clientNames, Isolation.DEFAULT, false);
 	}
 
-	public BaseHibernateOp(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+	public BaseHibernateOp(DatarouterContext drContext, List<String> clientNames, Isolation isolation,
 			boolean autoCommit) {
 		super(drContext, clientNames, isolation, autoCommit);
 	}

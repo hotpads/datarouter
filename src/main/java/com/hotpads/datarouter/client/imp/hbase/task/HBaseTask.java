@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
@@ -23,7 +23,7 @@ import com.hotpads.util.datastructs.MutableString;
 public abstract class HBaseTask<V> extends TracedCallable<V>{
 	static Logger logger = LoggerFactory.getLogger(HBaseTask.class);
 	
-	protected DataRouterContext drContext;
+	protected DatarouterContext drContext;
 
 	//variables for TraceThreads and TraceSpans
 	// breaking encapsulation in favor of tracing
@@ -46,7 +46,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	
 	/******************** constructor ****************************/
 	
-	public HBaseTask(DataRouterContext drContext, HBaseTaskNameParams names, String taskName, Config config){
+	public HBaseTask(DatarouterContext drContext, HBaseTaskNameParams names, String taskName, Config config){
 		super("HBaseTask."+taskName);
 		this.drContext = drContext;
 		this.clientName = names.getClientName();
@@ -192,7 +192,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		this.timeoutMs = timeoutMs;
 	}
 
-	public DataRouterContext getDrContext(){
+	public DatarouterContext getDrContext(){
 		return drContext;
 	}
 

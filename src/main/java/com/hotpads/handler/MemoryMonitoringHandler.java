@@ -19,7 +19,7 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpSession;
 
 import com.hotpads.WebAppName;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.handler.dispatcher.DataRouterDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.setting.cached.imp.Duration;
@@ -31,7 +31,7 @@ public class MemoryMonitoringHandler extends BaseHandler{
 	private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d MMM H:mm");
 
 	@Inject
-	private DataRouterContext dataRouterContext;
+	private DatarouterContext dataRouterContext;
 	@Inject 
 	private WebAppName webAppName;
 	@Inject

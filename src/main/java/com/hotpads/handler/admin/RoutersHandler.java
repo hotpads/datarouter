@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.routing.DataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.routing.comparator.ComparatorDataRouter;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
@@ -34,7 +34,7 @@ public class RoutersHandler extends BaseHandler {
 
 	// injected
 	@Inject
-	private DataRouterContext dataRouterContext;
+	private DatarouterContext dataRouterContext;
 
 	// not injected
 	private DataRouter router;

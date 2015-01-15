@@ -40,8 +40,8 @@ import com.hotpads.util.core.concurrent.NamedThreadFactory;
  */
 //TODO rename DatarouterContext
 @Singleton
-public class DataRouterContext{
-	private static final Logger logger = LoggerFactory.getLogger(DataRouterContext.class);
+public class DatarouterContext{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterContext.class);
 
 	private static final String
 			CONFIG_SERVER_NAME = "server.name",
@@ -73,7 +73,7 @@ public class DataRouterContext{
 	 * Google doesn't turn up many questions about it.
 	 */
 	@Inject
-	public DataRouterContext(/*@DatarouterExecutorService ExecutorService executorService,*/
+	public DatarouterContext(/*@DatarouterExecutorService ExecutorService executorService,*/
 			ApplicationPaths applicationPaths, ConnectionPools connectionPools, Clients clients, Nodes nodes){
 		int id = System.identityHashCode(this);
 		ThreadGroup threadGroup = new ThreadGroup("Datarouter-ThreadGroup-"+id);
