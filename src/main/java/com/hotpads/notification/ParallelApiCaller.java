@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.util.DataRouterEmailTool;
+import com.hotpads.datarouter.util.DatarouterEmailTool;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.notification.databean.NotificationRequest;
@@ -188,7 +188,7 @@ public class ParallelApiCaller {
 					builder.append("</p>");
 				}
 			}
-			DataRouterEmailTool.trySendHtmlEmail(fromEmail, recipient, subject, builder.toString());
+			DatarouterEmailTool.trySendHtmlEmail(fromEmail, recipient, subject, builder.toString());
 		}
 
 	}

@@ -12,8 +12,8 @@ import com.hotpads.datarouter.node.op.raw.write.IndexedStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
@@ -41,10 +41,10 @@ public class DatarouterDocs{
 	Client client;
 	Node node;
 	PhysicalNode physicalNode;
-	DataRouter datarouter;
+	Datarouter datarouter;
 	
 	//datarouter management
-	DataRouterContext drContext;
+	DatarouterContext drContext;
 	Clients clients;
 	Nodes nodes;
 	

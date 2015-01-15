@@ -10,7 +10,7 @@ import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -28,7 +28,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	protected List<N> writeNodes = new ArrayList<N>();
 	protected N readNode;//needs to be one of the write nodes
 	
-	public BaseRedundantNode(Class<D> databeanClass, DataRouter router, Collection<N> writeNodes, N readNode){
+	public BaseRedundantNode(Class<D> databeanClass, Datarouter router, Collection<N> writeNodes, N readNode){
 		super(new NodeParamsBuilder<PK,D,DatabeanFielder<PK,D>>(router, databeanClass).build());
 		
 		if(CollectionTool.isEmpty(writeNodes)){ throw new IllegalArgumentException("writeNodes cannont be empty."); }

@@ -41,7 +41,7 @@ extends BaseJdbcOp<List<IE>>{
 
 	public JdbcGetIndexOp(PhysicalNode<PK, D> node, String opName, Config config, Class<IE> indexEntryClass,
 			Class<IF> indexFielderClass, Collection<IK> uniqueKeys){
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.mainNode = node;
 		this.opName = opName;
 		this.config = config;

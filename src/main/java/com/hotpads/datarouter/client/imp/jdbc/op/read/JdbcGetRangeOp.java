@@ -27,7 +27,7 @@ extends BaseJdbcOp<List<D>>{
 	private Config config;
 	
 	public JdbcGetRangeOp(JdbcReaderNode<PK,D,F> node, String opName, Range<PK> range, Config config) {
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;
 		this.range = range;

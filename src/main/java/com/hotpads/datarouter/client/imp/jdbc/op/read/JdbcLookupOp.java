@@ -33,7 +33,7 @@ extends BaseJdbcOp<List<D>>{
 	
 	public JdbcLookupOp(JdbcReaderNode<PK,D,F> node, String opName, 
 			Collection<? extends Lookup<PK>> lookups, boolean wildcardLastField, Config config) {
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;
 		this.lookups = lookups;

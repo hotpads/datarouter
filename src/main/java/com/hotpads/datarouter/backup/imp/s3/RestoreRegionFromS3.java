@@ -10,7 +10,7 @@ import com.hotpads.datarouter.backup.BackupRegion;
 import com.hotpads.datarouter.backup.RestoreRegion;
 import com.hotpads.datarouter.client.imp.s3.S3GetTool;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -29,7 +29,7 @@ extends RestoreRegion<PK,D>{
 
 	protected String localPath;
 
-	public RestoreRegionFromS3(String s3Bucket, String s3Key, Class<D> cls, DataRouter router,
+	public RestoreRegionFromS3(String s3Bucket, String s3Key, Class<D> cls, Datarouter router,
 			MapStorageNode<PK,D> node, Integer putBatchSize, Boolean ignoreNullFields, Boolean downloadNewestCopy,
 			boolean gzip, boolean deleteLocalFile){
 		super(cls, router, node, putBatchSize, ignoreNullFields);

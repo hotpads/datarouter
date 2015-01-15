@@ -6,7 +6,7 @@ import java.util.List;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.node.type.redundant.base.BaseRedundantNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -17,7 +17,7 @@ public class RedundantMapStorageReaderNode<
 extends BaseRedundantNode<PK,D,N>
 implements MapStorageReaderNode<PK,D>{
 	
-	public RedundantMapStorageReaderNode(Class<D> databeanClass, DataRouter router,
+	public RedundantMapStorageReaderNode(Class<D> databeanClass, Datarouter router,
 			Collection<N> writeNodes, N readNode) {
 		super(databeanClass, router, writeNodes, readNode);
 	}

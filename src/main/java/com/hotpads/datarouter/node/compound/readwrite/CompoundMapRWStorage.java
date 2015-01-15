@@ -3,7 +3,7 @@ package com.hotpads.datarouter.node.compound.readwrite;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
-import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -15,8 +15,8 @@ public class CompoundMapRWStorage<PK extends PrimaryKey<PK>,D extends Databean<P
 	
 	public CompoundMapRWStorage(Node<PK,D> node){
 		this.node = node;
-		this.reader = BaseDataRouter.cast(node);
-		this.writer = BaseDataRouter.cast(node);
+		this.reader = BaseDatarouter.cast(node);
+		this.writer = BaseDatarouter.cast(node);
 	}
 
 	public MapStorageReader<PK,D> reader(){

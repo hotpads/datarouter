@@ -18,12 +18,12 @@ import com.hotpads.util.core.java.PrivateAccessor;
  * @author david
  *
  */
-public class DataRouterAnnotationTool {
-	static Logger logger = LoggerFactory.getLogger(DataRouterAnnotationTool.class);
+public class DatarouterAnnotationTool {
+	static Logger logger = LoggerFactory.getLogger(DatarouterAnnotationTool.class);
 
 	private Class<?> clazz=null;
 	
-	public DataRouterAnnotationTool(Class<?> clazz){
+	public DatarouterAnnotationTool(Class<?> clazz){
 		this.clazz=clazz;
 	}
 
@@ -107,17 +107,17 @@ public class DataRouterAnnotationTool {
 
 		@Test
 		public void testGetLengthAnnotation() throws Exception{
-			DataRouterAnnotationTool at = new DataRouterAnnotationTool(AnnotationToolTestBean.class);
+			DatarouterAnnotationTool at = new DatarouterAnnotationTool(AnnotationToolTestBean.class);
 			Assert.assertEquals(new Integer(50), at.getColumnLengthAnnotation(AnnotationToolTestBean.COL_name));
 			
 			//test field declared on supertype
-			at = new DataRouterAnnotationTool(AnnotationToolTestExtendedBean.class);
+			at = new DatarouterAnnotationTool(AnnotationToolTestExtendedBean.class);
 			Assert.assertNotNull(at.getColumnLengthAnnotation(AnnotationToolTestExtendedBean.COL_feedId));
 			Assert.assertNull(at.getColumnLengthAnnotation("nonExistantField"));
 		}
 		@Test
 		public void testLimitLength() throws Exception{
-			DataRouterAnnotationTool at = new DataRouterAnnotationTool(AnnotationToolTestBean.class);
+			DatarouterAnnotationTool at = new DatarouterAnnotationTool(AnnotationToolTestBean.class);
 			AnnotationToolTestBean bean = new AnnotationToolTestBean();
 			String shortName = "somethingshort";
 			String longName = 
@@ -135,7 +135,7 @@ public class DataRouterAnnotationTool {
 
 		@Test
 		public void testGetAnnotationLengthConstant(){
-			DataRouterAnnotationTool at = new DataRouterAnnotationTool(AnnotationToolTestBean.class);
+			DatarouterAnnotationTool at = new DatarouterAnnotationTool(AnnotationToolTestBean.class);
 			Assert.assertEquals(new Integer(AnnotationToolTestBean.LENGTH_COL_LABEL), at.getColumnLengthAnnotation(AnnotationToolTestBean.COL_label));
 
 		}

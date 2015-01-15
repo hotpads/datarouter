@@ -3,7 +3,7 @@ package com.hotpads.datarouter.node.compound.readwrite;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
-import com.hotpads.datarouter.routing.BaseDataRouter;
+import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -16,8 +16,8 @@ public class CompoundSortedRWStorage<PK extends PrimaryKey<PK>,D extends Databea
 	
 	public CompoundSortedRWStorage(Node<PK,D> node){
 		this.node = node;
-		this.reader = BaseDataRouter.cast(node);
-		this.writer = BaseDataRouter.cast(node);
+		this.reader = BaseDatarouter.cast(node);
+		this.writer = BaseDatarouter.cast(node);
 	}
 
 	public SortedStorageReader<PK,D> reader(){

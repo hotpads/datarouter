@@ -6,7 +6,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.type.redundant.mixin.RedundantMapStorageWriterMixin;
 import com.hotpads.datarouter.node.type.redundant.mixin.RedundantSortedStorageWriterMixin;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -20,7 +20,7 @@ implements SortedMapStorageNode<PK,D>{
 	protected RedundantMapStorageWriterMixin<PK,D,N> mixinMapWriteOps;
 	protected RedundantSortedStorageWriterMixin<PK,D,N> mixinSortedWriteOps;
 	
-	public RedundantSortedMapStorageNode(Class<D> databeanClass, DataRouter router,
+	public RedundantSortedMapStorageNode(Class<D> databeanClass, Datarouter router,
 			Collection<N> writeNodes, N readNode) {
 		super(databeanClass, router, writeNodes, readNode);
 		this.mixinMapWriteOps = new RedundantMapStorageWriterMixin<PK,D,N>(this);

@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -34,7 +34,7 @@ public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 	
 	@Override
 	public int compareTo(Field<E> other){
-		return DataRouterEnumTool.compareIntegerEnums(value, other.getValue());
+		return DatarouterEnumTool.compareIntegerEnums(value, other.getValue());
 	}
 	
 	

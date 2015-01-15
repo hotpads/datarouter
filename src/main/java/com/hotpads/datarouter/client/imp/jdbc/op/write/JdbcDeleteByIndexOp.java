@@ -24,7 +24,7 @@ public class JdbcDeleteByIndexOp<PK extends PrimaryKey<PK>, D extends Databean<P
 	private final String opName;
 
 	public JdbcDeleteByIndexOp(PhysicalNode<PK, D> node, Collection<IK> entryKeys, Config config, String opName){
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, shouldAutoCommit(entryKeys));
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, shouldAutoCommit(entryKeys));
 		this.node = node;
 		this.entryKeys = entryKeys;
 		this.config = config;

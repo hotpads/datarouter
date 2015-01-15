@@ -12,7 +12,7 @@ import com.hotpads.datarouter.backup.databean.BackupRecordKey;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.MapStorage;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -27,7 +27,7 @@ public abstract class BackupRegion<PK extends PrimaryKey<PK>,D extends Databean<
 
 	public static final int GZIP_BUFFER_BYTES = 256<<10;
 	
-	protected DataRouter router;
+	protected Datarouter router;
 	protected SortedStorageReaderNode<PK,D> node;
 	protected PK startKeyInclusive;
 	protected PK endKeyExclusive;
@@ -39,7 +39,7 @@ public abstract class BackupRegion<PK extends PrimaryKey<PK>,D extends Databean<
 	protected Long compressedBytes = 0L;
 	protected Long numRecords = 0L;
 	
-	public BackupRegion(DataRouter router, SortedStorageReaderNode<PK,D> node, 
+	public BackupRegion(Datarouter router, SortedStorageReaderNode<PK,D> node, 
 			PK startKeyInclusive, PK endKeyExclusive,
 			MapStorage<BackupRecordKey,BackupRecord> backupRecordNode){
 		this.router = router;

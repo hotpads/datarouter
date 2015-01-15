@@ -28,25 +28,25 @@ public class RouterParams<C extends Client> {
 
 	private String nodeName;
 	private C client;
-	private DataRouter router;
+	private Datarouter router;
 	private Node<?,?> node;
 	private String tableName;
 
-	public RouterParams(DataRouterContext dataRouterContext, Params params, HashMap<String,List<String>> needs){
+	public RouterParams(DatarouterContext datarouterContext, Params params, HashMap<String,List<String>> needs){
 		this.action = params.optional(RequestTool.SUBMIT_ACTION, RoutersHandler.ACTION_listRouters);
 		this.needs = needs;
-		initializeGlobalParameters(dataRouterContext, params);
+		initializeGlobalParameters(datarouterContext, params);
 	}
 
-	public void initializeGlobalParameters(DataRouterContext dataRouterContext, Params params){
+	public void initializeGlobalParameters(DatarouterContext datarouterContext, Params params){
 
 		if (needs.get(NEEDS_ROUTER).contains(action)) {
 			routerName = params.required(PARAM_routerName);
-			router = dataRouterContext.getRouter(routerName);
+			router = datarouterContext.getRouter(routerName);
 		}
 		if (needs.get(NEEDS_CLIENT).contains(action)) {
 			clientName = params.required(PARAM_clientName);
-			client = (C)dataRouterContext.getRouter(routerName).getClient(clientName);
+			client = (C)datarouterContext.getRouter(routerName).getClient(clientName);
 			tableName = params.optional(PARAM_tableName, null);
 
 		}
@@ -54,18 +54,18 @@ public class RouterParams<C extends Client> {
 			nodeName = params.optional(PARAM_nodeName, null);
 			tableName = params.required(PARAM_tableName);
 			if (StringTool.notEmpty(nodeName)) {
-				node = dataRouterContext.getRouter(routerName).getContext().getNodes().getNode(nodeName);
+				node = datarouterContext.getRouter(routerName).getContext().getNodes().getNode(nodeName);
 			} else {
 				setTableName(params.optional(PARAM_tableName, null));
 				if (getTableName() != null) {
-					node = dataRouterContext.getRouter(routerName).getContext().getNodes()
+					node = datarouterContext.getRouter(routerName).getContext().getNodes()
 							.getPhyiscalNodeForClientAndTable(clientName, getTableName());
 				}
 			}
 		}
 	}
 
-	public DataRouterContext getContext() {
+	public DatarouterContext getContext() {
 		return this.router.getContext();
 	}
 
@@ -97,7 +97,7 @@ public class RouterParams<C extends Client> {
 		return client;
 	}
 
-	public DataRouter getRouter() {
+	public Datarouter getRouter() {
 		return router;
 	}
 
@@ -129,7 +129,7 @@ public class RouterParams<C extends Client> {
 		this.client = client;
 	}
 
-	public void setRouter(DataRouter router) {
+	public void setRouter(Datarouter router) {
 		this.router = router;
 	}
 

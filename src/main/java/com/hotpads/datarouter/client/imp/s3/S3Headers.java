@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.client.imp.s3;
 
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
 public class S3Headers {
@@ -96,7 +96,7 @@ public class S3Headers {
 			return fromMimeType(mimeType);
 		}
 		public static ContentType fromMimeType(String mimeType){
-			return DataRouterEnumTool.getEnumFromString(
+			return DatarouterEnumTool.getEnumFromString(
 					values(), mimeType, null);
 		}
 	}

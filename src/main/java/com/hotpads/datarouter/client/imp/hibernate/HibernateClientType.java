@@ -25,7 +25,7 @@ import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -46,7 +46,7 @@ public class HibernateClientType extends BaseClientType{
 	}
 
 	@Override
-	public ClientFactory createClientFactory(DataRouterContext drContext, String clientName,
+	public ClientFactory createClientFactory(DatarouterContext drContext, String clientName,
 			List<PhysicalNode<?,?>> physicalNodes){
 		return new HibernateSimpleClientFactory(drContext, clientName); 
 	}
