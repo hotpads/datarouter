@@ -26,6 +26,7 @@ import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
@@ -224,6 +225,22 @@ public class FieldSetTool{
 			}
 		}
 		return targetFieldSet;
+	}
+	
+	public static <F extends FieldSet<?>> F fromConcatenatedValueBytes(Class<F> cls, List<Field<?>> fields, byte[] bytes){
+		F fieldSet = (F)ReflectionTool.create(cls);
+		if(ArrayTool.isEmpty(bytes)){ return fieldSet; }
+		
+		int byteOffset = 0;
+		for(Field<?> field : fields){
+			if(byteOffset==bytes.length){ break; }//ran out of bytes.  leave remaining fields blank
+			int numBytesWithSeparator = field.numBytesWithSeparator(bytes, byteOffset);
+			Object value = field.fromBytesWithSeparatorButDoNotSet(bytes, byteOffset);
+			field.setUsingReflection(fieldSet, value);
+			byteOffset+=numBytesWithSeparator;
+		}
+		
+		return fieldSet;
 	}
 
 
