@@ -77,7 +77,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
 		if(CollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), getTaskNameParams(), "putMulti", config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "putMulti", config){
 				public Void hbaseCall() throws Exception{
 //					PhaseTimer timer = new PhaseTimer();
 					List<Row> actions = ListTool.createArrayList();
@@ -143,7 +143,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	@Override
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), getTaskNameParams(), "deleteAll", config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "deleteAll", config){
 				public Void hbaseCall() throws Exception{
 					Scan scan = new Scan();
 					scan.setFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
@@ -183,7 +183,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
 		if(CollectionTool.isEmpty(keys)){ return; }
 		final Config config = Config.nullSafe(pConfig);
-		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDataRouterContext(), getTaskNameParams(), "deleteMulti", config){
+		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "deleteMulti", config){
 				public Void hbaseCall() throws Exception{
 					hTable.setAutoFlush(false);
 					Collection<String> nonKeyColumnNames = fieldInfo.getNonKeyFieldByColumnName().keySet();

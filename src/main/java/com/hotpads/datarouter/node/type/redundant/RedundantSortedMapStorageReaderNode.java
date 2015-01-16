@@ -6,7 +6,7 @@ import java.util.List;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.reader.SortedMapStorageReader.SortedMapStorageReaderNode;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.util.core.collections.Range;
@@ -19,7 +19,7 @@ public class RedundantSortedMapStorageReaderNode<
 extends RedundantMapStorageReaderNode<PK,D,N>
 implements SortedStorageReaderNode<PK,D>{
 	
-	public RedundantSortedMapStorageReaderNode(Class<D> databeanClass, DataRouter router,
+	public RedundantSortedMapStorageReaderNode(Class<D> databeanClass, Datarouter router,
 			Collection<N> writeNodes, N readNode) {
 		super(databeanClass, router, writeNodes, readNode);
 	}

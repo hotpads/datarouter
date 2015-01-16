@@ -25,7 +25,7 @@ extends BaseJdbcOp<Long>{
 	
 	public JdbcPrefixDeleteOp(PhysicalNode<PK,D> node, String opName, PK prefix, boolean wildcardLastField,
 			Config config){
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;
 		this.prefix = prefix;

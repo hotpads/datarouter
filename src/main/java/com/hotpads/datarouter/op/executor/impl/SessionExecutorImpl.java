@@ -30,7 +30,7 @@ implements SessionExecutor<T>, Callable<T>{
 	private String traceName;
 	
 	public SessionExecutorImpl(TxnOp<T> parallelTxnOp) {
-		super(parallelTxnOp.getDataRouterContext(), parallelTxnOp);
+		super(parallelTxnOp.getDatarouterContext(), parallelTxnOp);
 		this.parallelTxnOp = parallelTxnOp;
 	}
 	

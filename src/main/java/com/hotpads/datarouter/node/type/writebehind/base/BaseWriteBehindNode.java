@@ -18,7 +18,7 @@ import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -46,7 +46,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	private Queue<WriteWrapper<?>> queue;
 
 	
-	public BaseWriteBehindNode(Class<D> databeanClass, DataRouter router,
+	public BaseWriteBehindNode(Class<D> databeanClass, Datarouter router,
 			N backingNode, ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
 		super(new NodeParamsBuilder<PK,D,DatabeanFielder<PK,D>>(router, databeanClass).build());
 		if(backingNode==null){ throw new IllegalArgumentException("backingNode cannont be null."); }

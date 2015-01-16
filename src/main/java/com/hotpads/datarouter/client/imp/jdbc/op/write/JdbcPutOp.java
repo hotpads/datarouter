@@ -44,7 +44,7 @@ extends BaseJdbcOp<Void>{
 	private Config config;
 	
 	public JdbcPutOp(JdbcNode<PK,D,F> node, String opName, Collection<D> databeans, Config config) {
-		super(node.getDataRouterContext(), node.getClientNames(), getIsolation(config), 
+		super(node.getDatarouterContext(), node.getClientNames(), getIsolation(config), 
 				shouldAutoCommit(databeans, config));
 		this.node = node;
 		this.opName = opName;

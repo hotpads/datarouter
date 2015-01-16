@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.enums.DataRouterEnumTool;
+import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.util.core.ArrayTool;
@@ -42,7 +42,7 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 		 * to sort by the persistentString value of the enum even though the persistentInt or Ordinal value of the enum
 		 * may sort differently. Perhaps an argument that PrimaryKeys should not be allowed to have alternate Fielders,
 		 * else the java would sort differently depending on which Fielder was being used. */
-		return DataRouterEnumTool.compareStringEnums(value, other.getValue());
+		return DatarouterEnumTool.compareStringEnums(value, other.getValue());
 	}
 	
 	

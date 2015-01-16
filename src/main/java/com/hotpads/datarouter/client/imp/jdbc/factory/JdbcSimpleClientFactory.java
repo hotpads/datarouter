@@ -14,7 +14,7 @@ import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.PropertiesTool;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -27,7 +27,7 @@ implements ClientFactory{
 		SCHEMA_UPDATE_ENABLE = "schemaUpdate.enable";
 	
 
-	private DataRouterContext drContext;
+	private DatarouterContext drContext;
 	private String clientName;
 	private Set<String> configFilePaths;
 	private List<Properties> multiProperties;
@@ -35,7 +35,7 @@ implements ClientFactory{
 	private JdbcConnectionPool connectionPool;
 	private JdbcClient client;
 
-	public JdbcSimpleClientFactory(DataRouterContext drContext, String clientName){
+	public JdbcSimpleClientFactory(DatarouterContext drContext, String clientName){
 		this.drContext = drContext;
 		this.clientName = clientName;
 		this.configFilePaths = drContext.getConfigFilePaths();
@@ -85,7 +85,7 @@ implements ClientFactory{
 		return multiProperties;
 	}
 
-	public DataRouterContext getDrContext(){
+	public DatarouterContext getDrContext(){
 		return drContext;
 	}
 	

@@ -16,7 +16,7 @@
 
 		<div class="container">
 			<h2>DR ${param.tableName}</h2>
-			<a href="${contextPath}/datarouter/routers">DataRouter Home</a>
+			<a href="${contextPath}/datarouter/routers">Datarouter Home</a>
 			&nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a
 				href="${contextPath}/datarouter/routers?submitAction=inspectRouter&routerName=${param.routerName}">router:
 				${param.routerName}</a> &nbsp;&nbsp;&#62;&#62;&nbsp;&nbsp; <a

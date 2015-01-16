@@ -26,7 +26,7 @@ extends BaseJdbcOp<List<D>>{
 
 	public JdbcGetByIndexOp(PhysicalNode<PK, D> node, Collection<IK> entryKeys, boolean wildcardLastField,
 			String opName, Config config){
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.entryKeys = entryKeys;
 		this.wildcardLastField = wildcardLastField;

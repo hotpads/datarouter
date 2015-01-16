@@ -10,7 +10,7 @@ import javax.servlet.ServletContextListener;
 import com.hotpads.handler.DatarouterContextLoader;
 import com.hotpads.logging.LoggingConfigLoader;
 
-public abstract class DataRouterLoader implements ServletContextListener{
+public abstract class DatarouterLoader implements ServletContextListener{
 
 	private List<HotPadsWebAppListener> listeners;
 	

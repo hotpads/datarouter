@@ -18,7 +18,7 @@ import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.masterslave.MasterSlaveIndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.type.masterslave.MasterSlaveMapStorageNode;
 import com.hotpads.datarouter.node.type.masterslave.MasterSlaveSortedMapStorageNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.StorageType;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -43,7 +43,7 @@ public class MasterSlaveNodeFactory{
 	//no Fielder
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	BaseNode<PK,D,?> 
-	create(DataRouter router, StorageType storageType, Class<D> databeanClass, String masterClientName,
+	create(Datarouter router, StorageType storageType, Class<D> databeanClass, String masterClientName,
 			Collection<String> slaveClientNames){
 		return createInternal(router, storageType, databeanClass, null, masterClientName, slaveClientNames);
 	}
@@ -55,7 +55,7 @@ public class MasterSlaveNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends BaseNode<PK,D,F>>
-	MapStorageNode<PK,D> createMap(DataRouter router, Class<D> databeanClass,
+	MapStorageNode<PK,D> createMap(Datarouter router, Class<D> databeanClass,
 			Class<F> fielderClass, String masterClientName, Collection<String> slaveClientNames){
 		return (MapStorageNode<PK,D>)createInternal(router, StorageType.map, databeanClass,
 				fielderClass, masterClientName, slaveClientNames);
@@ -65,7 +65,7 @@ public class MasterSlaveNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends BaseNode<PK,D,F>>
-	SortedMapStorageNode<PK,D> createSorted(DataRouter router, Class<D> databeanClass,
+	SortedMapStorageNode<PK,D> createSorted(Datarouter router, Class<D> databeanClass,
 			Class<F> fielderClass, String masterClientName, Collection<String> slaveClientNames){
 		return (SortedMapStorageNode<PK,D>)createInternal(router, StorageType.sortedMap, databeanClass,
 				fielderClass, masterClientName, slaveClientNames);
@@ -75,7 +75,7 @@ public class MasterSlaveNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends BaseNode<PK,D,F>>
-	IndexedSortedMapStorageNode<PK,D> createIndexed(DataRouter router, Class<D> databeanClass,
+	IndexedSortedMapStorageNode<PK,D> createIndexed(Datarouter router, Class<D> databeanClass,
 			Class<F> fielderClass, String masterClientName, Collection<String> slaveClientNames){
 		return (IndexedSortedMapStorageNode<PK,D>)createInternal(router, StorageType.indexed,
 				databeanClass, fielderClass, masterClientName, slaveClientNames);
@@ -88,7 +88,7 @@ public class MasterSlaveNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends BaseNode<PK,D,F>>
-	BaseNode<PK,D,F> createInternal(DataRouter router, StorageType storageType, Class<D> databeanClass,
+	BaseNode<PK,D,F> createInternal(Datarouter router, StorageType storageType, Class<D> databeanClass,
 			Class<F> fielderClass, String masterClientName, Collection<String> slaveClientNames){
 		
 		//create the backing nodes
