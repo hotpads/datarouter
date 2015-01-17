@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.test.node.basic.manyfield;
+package com.hotpads.datarouter.test.node.basic.autogenkey;
 
 import java.util.List;
 import java.util.Map;
