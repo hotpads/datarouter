@@ -10,6 +10,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -17,6 +18,7 @@ import javax.inject.Singleton;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -113,9 +115,12 @@ public class HotPadsHttpClient {
 		int timeoutMs = request.getTimeoutMs() == null ? requestTimeoutMs : request.getTimeoutMs().intValue();
 		long futureTimeoutMs = request.getFutureTimeoutMs() == null ? getFutureTimeoutMs(timeoutMs, retryCount)
 				: request.getFutureTimeoutMs().intValue();
+		HttpRequestBase internalHttpRequest = null;
 		try {
-			HttpRequestCallable callable = new HttpRequestCallable(httpClient, request.getRequest(), context);
-			HttpResponse httpResponse = executor.submit(callable).get(futureTimeoutMs, TimeUnit.MILLISECONDS);
+			internalHttpRequest = request.getRequest();
+			HttpRequestCallable requestCallable = new HttpRequestCallable(httpClient, internalHttpRequest, context);
+			Future<HttpResponse> httpResponseFuture = executor.submit(requestCallable);
+			HttpResponse httpResponse = httpResponseFuture.get(futureTimeoutMs, TimeUnit.MILLISECONDS);
 			return new HotPadsHttpResponse(httpResponse);
 		} catch (TimeoutException e) {
 			ex = new HotPadsHttpRequestFutureTimeoutException(e, timeoutMs);
@@ -128,7 +133,21 @@ public class HotPadsHttpClient {
 				ex = new HotPadsHttpRequestExecutionException(e);
 			}
 		}
+		if(ex!=null && internalHttpRequest != null){
+			forceAbortRequestUnchecked(internalHttpRequest);
+		}
 		throw ex;
+	}
+	
+	private static void forceAbortRequestUnchecked(HttpRequestBase internalHttpRequest){
+		if(internalHttpRequest==null){
+			return;
+		}
+		try{
+			internalHttpRequest.abort();
+		}catch(Exception e){
+			logger.error("aborting internal http request failed", e);
+		}
 	}
 
 	private static long getFutureTimeoutMs(int requestTimeoutMs, Integer retryCount) {
