@@ -2,7 +2,6 @@ package com.hotpads.datarouter.test.node.basic.sorted.test;
 
 import org.junit.BeforeClass;
 
-import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
 
@@ -10,7 +9,7 @@ public class JdbcSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTes
 	
 	@BeforeClass
 	public static void beforeClass(){
-		setup(DRTestConstants.CLIENT_drTestJdbc0, JdbcClientType.INSTANCE, true, false);
+		setup(DRTestConstants.CLIENT_drTestJdbc0, true, false);
 	}
 
 }

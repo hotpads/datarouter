@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Injector;
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
@@ -30,7 +29,6 @@ public abstract class BaseSortedNodeIntegrationTests{
 	/***************************** fields **************************************/
 	
 	private static DatarouterContext drContext;
-	private static SortedNodeTestRouter router;
 	private static SortedMapStorage<SortedBeanKey,SortedBean> node;
 	private static SortedBeanEntityNode entityNode;
 
@@ -43,12 +41,11 @@ public abstract class BaseSortedNodeIntegrationTests{
 		drContext.shutdown();
 	}
 	
-	protected static void setup(String clientName, ClientType clientType, boolean useFielder, boolean entity){
+	protected static void setup(String clientName, boolean useFielder, boolean entity){
 		Injector injector = new DatarouterTestInjectorProvider().get();
 		drContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
-		router = new SortedNodeTestRouter(drContext, nodeFactory, clientName, BaseSortedNodeIntegrationTests.class, 
-				useFielder, entity);
+		SortedNodeTestRouter router = new SortedNodeTestRouter(drContext, nodeFactory, clientName, useFielder, entity);
 		node = router.sortedBean();
 		entityNode = router.sortedBeanEntity();
 

@@ -8,11 +8,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.inject.Injector;
-import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
-import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanByDCBLookup;
@@ -28,8 +27,7 @@ public abstract class BaseIndexedNodeIntegrationTests{
 	/***************************** fields **************************************/
 	
 	private static DatarouterContext drContext;
-	private static SortedNodeTestRouter router;
-	private static SortedMapStorage<SortedBeanKey,SortedBean> node;
+	private static IndexedSortedMapStorage<SortedBeanKey,SortedBean> node;
 
 	/***************************** setup/teardown **************************************/
 
@@ -39,13 +37,12 @@ public abstract class BaseIndexedNodeIntegrationTests{
 		drContext.shutdown();
 	}
 	
-	protected static void setup(String clientName, ClientType clientType, boolean useFielder){
+	protected static void setup(String clientName, boolean useFielder){
 		Injector injector = new DatarouterTestInjectorProvider().get();
 		drContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
-		router = new SortedNodeTestRouter(drContext, nodeFactory, clientName, BaseIndexedNodeIntegrationTests.class, 
-				useFielder, false);
-		node = router.sortedBean();
+		SortedNodeTestRouter router = new SortedNodeTestRouter(drContext, nodeFactory, clientName, useFielder, false);
+		node = router.indexedSortedBean();
 		
 		resetTable();
 	}
@@ -69,12 +66,12 @@ public abstract class BaseIndexedNodeIntegrationTests{
 		int remainingElements = TOTAL_RECORDS;
 		
 		//delete via lookup
-		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());
+		Assert.assertEquals(remainingElements, IterableTool.count(node.scan(null, null)).intValue());
 		SortedBeanByDCBLookup lookup = new SortedBeanByDCBLookup(
 				SortedBeans.S_gopher, 0, SortedBeans.S_gopher);
-		router.sortedBeanIndexed().delete(lookup, null);
+		node.delete(lookup, null);
 		remainingElements -= (NUM_ELEMENTS);
-		Assert.assertEquals(remainingElements, IterableTool.count(router.sortedBean().scan(null, null)).intValue());
+		Assert.assertEquals(remainingElements, IterableTool.count(node.scan(null, null)).intValue());
 	}
 	
 	
@@ -91,12 +88,12 @@ public abstract class BaseIndexedNodeIntegrationTests{
 	@Test
 	public void testLookup(){
 		SortedBeanByDCBLookup lookup = new SortedBeanByDCBLookup(STRINGS.last(), 1, STRINGS.first());
-		List<SortedBean> result = router.sortedBeanIndexed().lookup(lookup, false, null);
+		List<SortedBean> result = node.lookup(lookup, false, null);
 		Assert.assertEquals(NUM_ELEMENTS, CollectionTool.size(result));
 		Assert.assertTrue(ListTool.isSorted(result));
 		
 		lookup = new SortedBeanByDCBLookup(STRINGS.first(), 2, null);//matches d=aardvark && c=2 (64 rows)
-		result = router.sortedBeanIndexed().lookup(lookup, false, null);
+		result = node.lookup(lookup, false, null);
 		Assert.assertEquals(NUM_ELEMENTS*NUM_ELEMENTS, CollectionTool.size(result));
 		Assert.assertTrue(ListTool.isSorted(result));
 	}
@@ -108,7 +105,7 @@ public abstract class BaseIndexedNodeIntegrationTests{
 				new SortedBeanByDCBLookup(STRINGS.first(), 2, null),//matches d=aardvark && c=2 (64 rows)
 				new SortedBeanByDCBLookup(STRINGS.last(), 0, STRINGS.first())); //8 rows
 		
-		List<SortedBean> result = router.sortedBeanIndexed().lookup(lookups, null);
+		List<SortedBean> result = node.lookup(lookups, null);
 		int expected = NUM_ELEMENTS + NUM_ELEMENTS*NUM_ELEMENTS + NUM_ELEMENTS;
 		Assert.assertEquals(expected, CollectionTool.size(result));
 		Assert.assertTrue(ListTool.isSorted(result));
