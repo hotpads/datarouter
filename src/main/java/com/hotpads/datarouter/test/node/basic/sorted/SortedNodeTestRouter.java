@@ -7,6 +7,7 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.factory.NodeFactory;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.routing.BaseDatarouter;
@@ -70,6 +71,12 @@ public class SortedNodeTestRouter extends BaseDatarouter{
 	}
 
 
+	/************************ methods **********************************/
+	
+	//we have to do this on-request to avoid trying to cast things like HBaseNode to Indexed Storage
+	public IndexedSortedMapStorageNode<SortedBeanKey,SortedBean> indexedSortedBean(){
+		return cast(sortedBeanNode);
+	}
 	
 	
 	/*************************** get/set ***********************************/

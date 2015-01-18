@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.test.node.basic.sorted.test;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -12,5 +13,10 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 	public static void beforeClass(){
 		setup(DRTestConstants.CLIENT_drTestHBase, true, true);
 	}
-	
+
+	@AfterClass
+	public static void afterClass(){
+		testSortedDelete();
+		drContext.shutdown();
+	}
 }
