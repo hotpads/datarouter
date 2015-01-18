@@ -65,6 +65,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 	}
 
 	protected static void testSortedDelete(){
+		resetTable(true);
 		int remainingElements = SortedBeans.TOTAL_RECORDS;
 		
 		//delete

@@ -20,7 +20,7 @@ public abstract class BaseIndexedNodeIntegrationTests extends BaseSortedNodeInte
 
 	protected static void testIndexedDelete(){
 		testSortedDelete();
-		resetTable(false);//leave the table full
+		resetTable(true);//leave the table full
 		
 		int remainingElements = TOTAL_RECORDS;
 		
