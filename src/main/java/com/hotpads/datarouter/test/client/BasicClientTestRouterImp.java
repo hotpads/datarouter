@@ -69,7 +69,7 @@ implements BasicClientTestRouter{
 				nodeFactory.create(DRTestConstants.CLIENT_drTestHBase, PoolTestBean.class, PoolTestBeanFielder.class, this, false)));
 		
 		putOptTest = cast(register(
-				nodeFactory.create(DRTestConstants.CLIENT_drTestHibernate0, PutOpTestBean.class, PutOpTestBeanFielder.class, this, false)));
+				nodeFactory.create(DRTestConstants.CLIENT_drTestJdbc0, PutOpTestBean.class, PutOpTestBeanFielder.class, this, false)));
 		
 		registerWithContext();//do after field inits
 	}

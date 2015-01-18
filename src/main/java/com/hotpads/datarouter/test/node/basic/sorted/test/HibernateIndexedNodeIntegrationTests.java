@@ -9,6 +9,6 @@ public class HibernateIndexedNodeIntegrationTests extends BaseIndexedNodeIntegra
 
 	@BeforeClass
 	public static void beforeClass(){
-		setup(DRTestConstants.CLIENT_drTestHibernate0, false);
+		setup(DRTestConstants.CLIENT_drTestHibernate0, false, "Hibernate");
 	}
 }

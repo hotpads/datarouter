@@ -37,11 +37,12 @@ public abstract class BaseIndexedNodeIntegrationTests{
 		drContext.shutdown();
 	}
 	
-	protected static void setup(String clientName, boolean useFielder){
+	protected static void setup(String clientName, boolean useFielder, String tableSuffix){
 		Injector injector = new DatarouterTestInjectorProvider().get();
 		drContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
-		SortedNodeTestRouter router = new SortedNodeTestRouter(drContext, nodeFactory, clientName, useFielder, false);
+		IndexedNodeTestRouter router = new IndexedNodeTestRouter(drContext, nodeFactory, clientName, useFielder, false,
+				tableSuffix);
 		node = router.indexedSortedBean();
 		
 		resetTable();

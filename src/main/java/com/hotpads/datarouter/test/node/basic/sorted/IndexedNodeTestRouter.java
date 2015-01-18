@@ -7,8 +7,8 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.factory.NodeFactory;
-import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
-import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
@@ -16,44 +16,33 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielde
 import com.hotpads.util.core.ListTool;
 
 @Singleton
-public class SortedNodeTestRouter extends BaseDatarouter{
+public class IndexedNodeTestRouter extends BaseDatarouter{
 
 	private static final String 
 			name = "basicNodeTest",
-			TABLE_NAME_SortedBean = "SortedBean",
-			NODE_NAME_SortedBeanEntity = "TestSortedBeanEntity",
+			TABLE_NAME_IndexedSortedBean = "IndexedSortedBean",
 			ENTITY_NAME_SortedBean = SortedBean.class.getCanonicalName();
 
 	
 	/********************************** nodes **********************************/
 	
-	private SortedMapStorageNode<SortedBeanKey,SortedBean> sortedBeanNode;
-	private SortedBeanEntityNode sortedBeanEntityNode;
+	private IndexedSortedMapStorageNode<SortedBeanKey,SortedBean> indexedSortedBean;
 	
 	
 	@Inject
-	public SortedNodeTestRouter(DatarouterContext drContext, NodeFactory nodeFactory, String clientName, 
+	public IndexedNodeTestRouter(DatarouterContext drContext, NodeFactory nodeFactory, String clientName, 
 			boolean useFielder, boolean entity, String tableSuffix){
 		super(drContext, DRTestConstants.CONFIG_PATH, name);
 		
-		String tableName = TABLE_NAME_SortedBean + tableSuffix;
-//		String entityName = SortedBean.class.getPackage().getName() + "." + tableName;
-		String entityName = SortedBean.class.getCanonicalName() + tableSuffix;
-		if(entity){
-			sortedBeanEntityNode = new SortedBeanEntityNode(nodeFactory, this, clientName, tableSuffix, 
-					NODE_NAME_SortedBeanEntity);
-			sortedBeanNode = sortedBeanEntityNode.sortedBean();
-		}else{
 			if(useFielder){
-				sortedBeanNode = cast(register(nodeFactory.create(clientName, 
-						tableName, entityName,
+				indexedSortedBean = cast(register(nodeFactory.create(clientName, 
+						TABLE_NAME_IndexedSortedBean + tableSuffix, ENTITY_NAME_SortedBean,
 						SortedBean.class, SortedBeanFielder.class, this, false)));
 			}else{// no fielder to trigger hibernate node
-				sortedBeanNode = cast(register(nodeFactory.create(clientName, 
-//						tableName, entityName,
-						SortedBean.class, this, false)));
+				indexedSortedBean = cast(register(nodeFactory.create(clientName, 
+						TABLE_NAME_IndexedSortedBean + tableSuffix, ENTITY_NAME_SortedBean,
+						SortedBean.class, this)));
 			}
-		}
 		
 		registerWithContext();//do after field inits
 	}
@@ -75,13 +64,11 @@ public class SortedNodeTestRouter extends BaseDatarouter{
 	
 	/*************************** get/set ***********************************/
 
-	public SortedMapStorage<SortedBeanKey,SortedBean> sortedBean(){
-		return sortedBeanNode;
+
+	public IndexedSortedMapStorage<SortedBeanKey,SortedBean> indexedSortedBean(){
+		return indexedSortedBean;
 	}
 	
-	public SortedBeanEntityNode sortedBeanEntity(){
-		return sortedBeanEntityNode;
-	}
 
 }
 

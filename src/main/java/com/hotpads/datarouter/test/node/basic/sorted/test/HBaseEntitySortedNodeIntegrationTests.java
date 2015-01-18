@@ -10,7 +10,7 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 	
 	@BeforeClass
 	public static void beforeClass(){
-		setup(DRTestConstants.CLIENT_drTestHBase, true, true);
+		setup(DRTestConstants.CLIENT_drTestHBase, true, true, "HBaseEntity");
 	}
 	
 }

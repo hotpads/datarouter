@@ -10,7 +10,7 @@ public class HibernateSortedNodeIntegrationTests extends BaseSortedNodeIntegrati
 	
 	@BeforeClass
 	public static void beforeClass(){
-		setup(DRTestConstants.CLIENT_drTestHibernate0, false, false);
+		setup(DRTestConstants.CLIENT_drTestHibernate0, false, false, "");
 	}
 	
 }

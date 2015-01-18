@@ -51,7 +51,6 @@ extends JdbcSimpleClientFactory{
 			configFileLocation = CONFIG_LOCATION_DEFAULT;
 		}
 		AnnotationConfiguration sfConfig = new AnnotationConfiguration();
-		sfConfig.configure(configFileLocation);
 
 		//this code will skip all nodes with fielders, which is the desired behavior, but some jdbc nodes are still using hibernate TxnOps =(
 //		List<? extends PhysicalNode<?, ?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
@@ -71,6 +70,7 @@ extends JdbcSimpleClientFactory{
 				sfConfig.addAnnotatedClass(databeanClass);
 			}
 		}
+		sfConfig.configure(configFileLocation);
 		timer.add("SessionFactory");
 
 		// connect to the database
