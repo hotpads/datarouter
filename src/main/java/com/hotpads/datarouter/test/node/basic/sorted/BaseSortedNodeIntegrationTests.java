@@ -41,12 +41,11 @@ public abstract class BaseSortedNodeIntegrationTests{
 		drContext.shutdown();
 	}
 	
-	protected static void setup(String clientName, boolean useFielder, boolean entity, String tableSuffix){
+	protected static void setup(String clientName, boolean useFielder, boolean entity){
 		Injector injector = new DatarouterTestInjectorProvider().get();
 		drContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
-		SortedNodeTestRouter router = new SortedNodeTestRouter(drContext, nodeFactory, clientName, useFielder, entity,
-				tableSuffix);
+		SortedNodeTestRouter router = new SortedNodeTestRouter(drContext, nodeFactory, clientName, useFielder, entity);
 		node = router.sortedBean();
 		entityNode = router.sortedBeanEntity();
 

@@ -41,8 +41,7 @@ public abstract class BaseIndexedNodeIntegrationTests{
 		Injector injector = new DatarouterTestInjectorProvider().get();
 		drContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
-		IndexedNodeTestRouter router = new IndexedNodeTestRouter(drContext, nodeFactory, clientName, useFielder, false,
-				tableSuffix);
+		IndexedNodeTestRouter router = new IndexedNodeTestRouter(drContext, nodeFactory, clientName, useFielder, false);
 		node = router.indexedSortedBean();
 		
 		resetTable();

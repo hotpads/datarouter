@@ -20,8 +20,8 @@ public class IndexedNodeTestRouter extends BaseDatarouter{
 
 	private static final String 
 			name = "basicNodeTest",
-			TABLE_NAME_IndexedSortedBean = "IndexedSortedBean",
-			ENTITY_NAME_SortedBean = SortedBean.class.getCanonicalName();
+			TABLE_NAME_IndexedSortedBean = IndexedSortedBean.class.getSimpleName(),
+			ENTITY_NAME_IndexedSortedBean = IndexedSortedBean.class.getCanonicalName();
 
 	
 	/********************************** nodes **********************************/
@@ -31,16 +31,16 @@ public class IndexedNodeTestRouter extends BaseDatarouter{
 	
 	@Inject
 	public IndexedNodeTestRouter(DatarouterContext drContext, NodeFactory nodeFactory, String clientName, 
-			boolean useFielder, boolean entity, String tableSuffix){
+			boolean useFielder, boolean entity){
 		super(drContext, DRTestConstants.CONFIG_PATH, name);
 		
 			if(useFielder){
 				indexedSortedBean = cast(register(nodeFactory.create(clientName, 
-						TABLE_NAME_IndexedSortedBean + tableSuffix, ENTITY_NAME_SortedBean,
+						TABLE_NAME_IndexedSortedBean, ENTITY_NAME_IndexedSortedBean,
 						SortedBean.class, SortedBeanFielder.class, this, false)));
 			}else{// no fielder to trigger hibernate node
 				indexedSortedBean = cast(register(nodeFactory.create(clientName, 
-						TABLE_NAME_IndexedSortedBean + tableSuffix, ENTITY_NAME_SortedBean,
+						TABLE_NAME_IndexedSortedBean, ENTITY_NAME_IndexedSortedBean,
 						SortedBean.class, this)));
 			}
 		

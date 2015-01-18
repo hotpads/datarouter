@@ -19,22 +19,21 @@ extends HBaseEntityReaderNode<SortedBeanEntityKey,SortedBeanEntity>{
 //		ENTITY_SortedBeanEntity = "SortedBeanEntity";
 
 	
-	private static EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> createEntityNodeParams(String tableSuffix){
+	private static EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> createEntityNodeParams(){
 		EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams
 			= new EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity>(
 			"SortedBeanEntity", SortedBeanEntityKey.class, SortedBeanEntity.class, 
 //			SortedBeanEntityPartitioner.class,
 			SortedBeanEntityPartitioner4.class,
-			"SortedBeanEntity" + tableSuffix);
+			"SortedBeanEntity");
 		return entityNodeParams;
 	}
 
 	private SubEntitySortedMapStorageNode<SortedBeanEntityKey,SortedBeanKey,SortedBean,SortedBeanFielder> sortedBean;
 	
-	public SortedBeanEntityNode(NodeFactory nodeFactory, Datarouter router, String clientName, String tableSuffix, 
-			String name){
-		super(nodeFactory, router, createEntityNodeParams(tableSuffix), new HBaseTaskNameParams(clientName,
-				createEntityNodeParams(tableSuffix).getEntityTableName(), name));
+	public SortedBeanEntityNode(NodeFactory nodeFactory, Datarouter router, String clientName, String name){
+		super(nodeFactory, router, createEntityNodeParams(), new HBaseTaskNameParams(clientName,
+				createEntityNodeParams().getEntityTableName(), name));
 	}
 	
 	

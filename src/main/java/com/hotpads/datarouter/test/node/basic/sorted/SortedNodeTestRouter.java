@@ -33,15 +33,14 @@ public class SortedNodeTestRouter extends BaseDatarouter{
 	
 	@Inject
 	public SortedNodeTestRouter(DatarouterContext drContext, NodeFactory nodeFactory, String clientName, 
-			boolean useFielder, boolean entity, String tableSuffix){
+			boolean useFielder, boolean entity){
 		super(drContext, DRTestConstants.CONFIG_PATH, name);
 		
-		String tableName = TABLE_NAME_SortedBean + tableSuffix;
+		String tableName = TABLE_NAME_SortedBean;
 //		String entityName = SortedBean.class.getPackage().getName() + "." + tableName;
-		String entityName = SortedBean.class.getCanonicalName() + tableSuffix;
+		String entityName = SortedBean.class.getCanonicalName();
 		if(entity){
-			sortedBeanEntityNode = new SortedBeanEntityNode(nodeFactory, this, clientName, tableSuffix, 
-					NODE_NAME_SortedBeanEntity);
+			sortedBeanEntityNode = new SortedBeanEntityNode(nodeFactory, this, clientName, NODE_NAME_SortedBeanEntity);
 			sortedBeanNode = sortedBeanEntityNode.sortedBean();
 		}else{
 			if(useFielder){
