@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByB;
 import com.hotpads.datarouter.node.type.index.databean.TestDatabeanWithManagedIndexByBKey;
@@ -18,6 +17,7 @@ import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithIndexNode;
 import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithManagedIndexNode;
 import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithTxnManagedIndexNode;
 import com.hotpads.datarouter.node.type.index.router.ManagedIndexTestRouter;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.TestDatabean;
@@ -26,6 +26,7 @@ import com.hotpads.util.core.ListTool;
 
 public class JdbcManagedIndexIntegrationTests{
 	
+	private static DatarouterContext datarouterContext;
 	private static TestDatabeanWithManagedIndexNode node;
 	private static TestDatabeanWithTxnManagedIndexNode nodeWithTxnManaged;
 	private static LinkedList<TestDatabean> testDatabeans;
@@ -33,6 +34,7 @@ public class JdbcManagedIndexIntegrationTests{
 	@BeforeClass
 	public static void setUp(){
 		Injector injector = new DatarouterTestInjectorProvider().get();
+		datarouterContext = injector.getInstance(DatarouterContext.class);
 		ManagedIndexTestRouter router = injector.getInstance(ManagedIndexTestRouter.class);
 		node = router.testDatabeanWithManagedIndex;
 		nodeWithTxnManaged = router.testDatabeanWithTxnManagedIndex;
@@ -51,9 +53,10 @@ public class JdbcManagedIndexIntegrationTests{
 	}
 	
 	@AfterClass
-	public static void tearDown(){
+	public static void afterClass(){
 		node.mainNode.deleteAll(null);
 		nodeWithTxnManaged.mainNode.deleteAll(null);
+		datarouterContext.shutdown();
 	}
 	
 	@Test
