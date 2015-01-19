@@ -10,7 +10,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.util.core.ObjectTool;
 
 @SuppressWarnings("serial")
 public class NotificationLogKey extends BasePrimaryKey<NotificationLogKey> {
@@ -46,8 +45,12 @@ public class NotificationLogKey extends BasePrimaryKey<NotificationLogKey> {
 	}
 
 	public NotificationLogKey(NotificationUserId userId){
-		this.userType = ObjectTool.anyNull(userId) ? null : userId.getType();
-		this.userId = ObjectTool.anyNull(userId) ? null : userId.getId();
+		this(userId == null ? null : userId.getType(), userId == null ? null : userId.getId());
+	}
+
+	public NotificationLogKey(NotificationUserType userType, String userId){
+		this.userType = userType;
+		this.userId = userId;
 	}
 
 	@Override
