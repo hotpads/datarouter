@@ -48,6 +48,9 @@ form>span {
 form>*:first-child {
 	flex: 1;
 }
+.pre-block {
+	white-space: pre-wrap;
+}
 </style>
 <script data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script>
@@ -177,7 +180,7 @@ function fillSentEmailNotificationLog(logs, emails){
 		var subject = emails[index] ? emails[index].subject : '';
 		var content = emails[index] ? emails[index].content : 'Can not show the email content because it is not a AutomatedEmail.';
 		var serverName = emails[index] ? emails[index].serverName : '';
-		var isHtml = emails[index] && emails[index].html ? true, false;
+		var notHtml = emails[index] && emails[index].html === false;
 		var accordionGroup = $('<div>')
 				.addClass('accordion-group')
 				.append($('<div>')
@@ -193,8 +196,8 @@ function fillSentEmailNotificationLog(logs, emails){
 						.addClass('collapse')
 						.attr('id', idInterne)
 						.append($('<div>')
-								.addClass('accordion-inner')
-								.html((!isHtml ? '<pre>' : '') + content + (!isHtml ? '</pre>' : ''))));
+								.addClass('accordion-inner' + (notHtml ? ' pre-block' : ''))
+								.html(content)));
 		div.append(accordionGroup);
 	});
 	modalBody.append(div);
