@@ -10,8 +10,8 @@ import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.util.core.SetTool;
 
-public class DataRouterHttpClient extends BaseClient{
-	protected static Logger logger = LoggerFactory.getLogger(DataRouterHttpClient.class);
+public class DatarouterHttpClient extends BaseClient{
+	protected static Logger logger = LoggerFactory.getLogger(DatarouterHttpClient.class);
 	
 	private String name;
 	private String url;
@@ -20,7 +20,7 @@ public class DataRouterHttpClient extends BaseClient{
 	private NavigableSet<Node<?,?>> nodes = SetTool.createTreeSet();
 	
 	
-	public DataRouterHttpClient(String name, String url){
+	public DatarouterHttpClient(String name, String url){
 		this.name = name;
 		this.url = url;
 		this.apacheHttpClient = new ApacheHttpClient(url);

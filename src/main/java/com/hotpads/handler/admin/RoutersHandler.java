@@ -8,9 +8,9 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.routing.DataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
-import com.hotpads.datarouter.routing.comparator.ComparatorDataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
+import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.routing.comparator.DatarouterComparator;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.util.node.NodeWrapper;
@@ -34,22 +34,22 @@ public class RoutersHandler extends BaseHandler {
 
 	// injected
 	@Inject
-	private DataRouterContext dataRouterContext;
+	private DatarouterContext datarouterContext;
 
 	// not injected
-	private DataRouter router;
+	private Datarouter router;
 	private Mav mav;
 	private String routerName = null;
 
 	/************* Handler methods ********************/
 	@Handler
 	protected Mav handleDefault() {
-		mav = new Mav("/jsp/admin/datarouter/dataRouterMenu.jsp");
-		List<DataRouter> routers = dataRouterContext.getRouters();
+		mav = new Mav("/jsp/admin/datarouter/datarouterMenu.jsp");
+		List<Datarouter> routers = datarouterContext.getRouters();
 //		initClients(routers);
-		mav.put("serverName", dataRouterContext.getServerName());
-		mav.put("administratorEmail", dataRouterContext.getAdministratorEmail());
-		Collections.sort(routers, new ComparatorDataRouter());
+		mav.put("serverName", datarouterContext.getServerName());
+		mav.put("administratorEmail", datarouterContext.getAdministratorEmail());
+		Collections.sort(routers, new DatarouterComparator());
 		mav.put("routers", routers);
 		return mav;
 	}
@@ -57,7 +57,7 @@ public class RoutersHandler extends BaseHandler {
 	@Handler
 	Mav inspectRouter() {
 		routerName = params.required(PARAM_routerName);
-		router = dataRouterContext.getRouter(routerName);
+		router = datarouterContext.getRouter(routerName);
 		mav = new Mav("/jsp/admin/datarouter/routerSummary.jsp");
 		List<NodeWrapper> nodeWrappers = NodeWrapper.getNodeWrappers(router);
 		mav.put("nodeWrappers", nodeWrappers);
@@ -65,27 +65,4 @@ public class RoutersHandler extends BaseHandler {
 
 	}
 
-//	public static void initClients(Collection<DataRouter> routers) {
-//		List<String> allClientNames = ListTool.create();
-//		for (final DataRouter router : IterableTool.nullSafe(routers)) {
-//			allClientNames.addAll(CollectionTool.nullSafe(router
-//					.getClientNames()));
-//		}
-//		ExecutorService exec = Executors.newFixedThreadPool(CollectionTool
-//				.size(allClientNames));
-//		for (final DataRouter router : IterableTool.nullSafe(routers)) {
-//			for (final String clientName : IterableTool.nullSafe(router
-//					.getClientNames())) {
-//				exec.submit(new Callable<Void>() {
-//					public Void call() {
-//						router.getClient(clientName);
-//						return null;
-//					}
-//				});
-//			}
-//		}
-//		exec.shutdown();
-//	}
-
-	
 }

@@ -10,25 +10,29 @@ import javax.servlet.ServletContextListener;
 import com.hotpads.handler.DatarouterContextLoader;
 import com.hotpads.logging.LoggingConfigLoader;
 
-public abstract class DataRouterLoader implements ServletContextListener{
+public abstract class DatarouterLoader implements ServletContextListener{
 
 	private List<HotPadsWebAppListener> listeners;
-	
+
 	protected abstract void init(ServletContext servletContext);
+
+	protected abstract DatarouterInjector getInjector();
 
 	@Override
 	public void contextInitialized(ServletContextEvent event){
-		listeners = new LinkedList<>();
 		init(event.getServletContext());
+
+		WebAppName webAppName = getInjector().getInstance(WebAppName.class);
+		webAppName.init(event.getServletContext().getServletContextName());
+
+		listeners = new LinkedList<>();
 		for(Class<? extends HotPadsWebAppListener> listenerClass : getListenerClasses()){
-			HotPadsWebAppListener listener = buildListener(listenerClass);
+			HotPadsWebAppListener listener = getInjector().getInstance(listenerClass);
 			listeners.add(listener);
 			listener.setServletContext(event.getServletContext());
 			listener.onStartUp();
 		}
 	}
-
-	protected abstract HotPadsWebAppListener buildListener(Class<? extends HotPadsWebAppListener> listenerClass);
 
 	private List<Class<? extends HotPadsWebAppListener>> getListenerClasses(){
 		List<Class<? extends HotPadsWebAppListener>> classes = new LinkedList<>();

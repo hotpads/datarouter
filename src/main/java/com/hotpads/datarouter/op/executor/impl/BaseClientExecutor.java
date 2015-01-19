@@ -11,7 +11,7 @@ import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.op.ClientOp;
 import com.hotpads.datarouter.op.executor.ClientExecutor;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.CollectionTool;
 
@@ -19,10 +19,10 @@ public abstract class BaseClientExecutor<T>
 implements ClientExecutor{
 	private static Logger logger = LoggerFactory.getLogger(BaseClientExecutor.class);
 
-	private DataRouterContext drContext;
+	private DatarouterContext drContext;
 	private ClientOp<T> parallelClientOp;
 	
-	public BaseClientExecutor(DataRouterContext drContext, ClientOp<T> parallelClientOp) {
+	public BaseClientExecutor(DatarouterContext drContext, ClientOp<T> parallelClientOp) {
 		this.drContext = drContext;
 		this.parallelClientOp = parallelClientOp;
 	}
@@ -36,7 +36,7 @@ implements ClientExecutor{
 	
 	/******************* get /*************************************/
 
-	public DataRouterContext getDrContext(){
+	public DatarouterContext getDrContext(){
 		return drContext;
 	}
 

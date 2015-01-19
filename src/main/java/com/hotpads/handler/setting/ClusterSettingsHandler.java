@@ -8,7 +8,7 @@ import javax.inject.Inject;
 
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.handler.BaseHandler;
-import com.hotpads.handler.dispatcher.DataRouterDispatcher;
+import com.hotpads.handler.dispatcher.DatarouterDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.setting.ServerType;
 import com.hotpads.setting.Setting;
@@ -39,8 +39,8 @@ public class ClusterSettingsHandler extends BaseHandler {
 		V_roots = "roots",
 		V_currentRootName = "currentRootName",
 		
-		URL_settings = DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING,
-		URL_modify = DataRouterDispatcher.URL_DATAROUTER + DataRouterDispatcher.SETTING + "?submitAction=browseSettings&name=",
+		URL_settings = DatarouterDispatcher.URL_DATAROUTER + DatarouterDispatcher.SETTING,
+		URL_modify = DatarouterDispatcher.URL_DATAROUTER + DatarouterDispatcher.SETTING + "?submitAction=browseSettings&name=",
 		JSP_editSettings = "/jsp/admin/datarouter/setting/editSettings.jsp",
 		JSP_browseSettings = "/jsp/admin/datarouter/setting/browseSettings.jsp";
 

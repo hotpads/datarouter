@@ -37,7 +37,7 @@ extends BaseJdbcOp<List<PK>>{
 	private Config config;
 	
 	public JdbcGetKeysOp(JdbcReaderNode<PK,D,F> node, String opName, Collection<PK> keys, Config config) {
-		super(node.getDataRouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
+		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;
 		this.keys = keys;

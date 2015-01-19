@@ -5,11 +5,11 @@ import java.util.Properties;
 
 import com.hotpads.util.core.properties.TypedProperties;
 
-public class DataRouterHttpClientOptions extends TypedProperties{
+public class DatarouterHttpClientOptions extends TypedProperties{
 	
 	protected String clientPrefix;
 
-	public DataRouterHttpClientOptions(List<Properties> multiProperties, String clientName){
+	public DatarouterHttpClientOptions(List<Properties> multiProperties, String clientName){
 		super(multiProperties);
 		this.clientPrefix = "client."+clientName+".http.";
 	}

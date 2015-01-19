@@ -7,8 +7,8 @@ import javax.inject.Inject;
 import com.google.inject.Singleton;
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.factory.NodeFactory;
-import com.hotpads.datarouter.routing.BaseDataRouter;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.BaseDatarouter;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.trace.node.TraceCompoundNode;
 import com.hotpads.trace.node.TraceEntityNode;
@@ -16,7 +16,7 @@ import com.hotpads.util.core.ListTool;
 
 
 @Singleton
-public class TraceTestRouter extends BaseDataRouter{
+public class TraceTestRouter extends BaseDatarouter{
 
 	public static final String 
 			NAME = "TraceRouter",
@@ -26,7 +26,7 @@ public class TraceTestRouter extends BaseDataRouter{
 	private final NodeFactory nodeFactory;
 	
 	@Inject
-	public TraceTestRouter(DataRouterContext drContext, NodeFactory nodeFactory){
+	public TraceTestRouter(DatarouterContext drContext, NodeFactory nodeFactory){
 		super(drContext, DRTestConstants.CONFIG_PATH, NAME);
 		this.nodeFactory = nodeFactory;
 		createNodes();

@@ -17,7 +17,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.entity.BasePhysicalEntityNode;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.factory.NodeFactory;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.util.DRCounters;
@@ -34,7 +34,7 @@ extends BasePhysicalEntityNode<EK,E>{
 	private HBaseEntityQueryBuilder<EK,E> queryBuilder;
 	private HBaseEntityResultParser<EK,E> resultParser;
 	
-	public HBaseEntityReaderNode(NodeFactory nodeFactory, DataRouter router, EntityNodeParams<EK,E> entityNodeParams,
+	public HBaseEntityReaderNode(NodeFactory nodeFactory, Datarouter router, EntityNodeParams<EK,E> entityNodeParams,
 			HBaseTaskNameParams taskNameParams){
 		super(router.getContext(), entityNodeParams, taskNameParams);
 		this.nodeFactory = nodeFactory;
@@ -48,7 +48,7 @@ extends BasePhysicalEntityNode<EK,E>{
 	}
 	
 
-	protected abstract void initNodes(DataRouter router, String clientName);
+	protected abstract void initNodes(Datarouter router, String clientName);
 
 	@Override
 	public HBaseClient getClient(){

@@ -6,7 +6,7 @@ import java.util.List;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.node.type.masterslave.base.BaseMasterSlaveNode;
-import com.hotpads.datarouter.routing.DataRouter;
+import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -20,7 +20,7 @@ public class MasterSlaveMapStorageReaderNode<
 extends BaseMasterSlaveNode<PK,D,F,N>
 implements MapStorageReaderNode<PK,D>{
 	
-	public MasterSlaveMapStorageReaderNode(Class<D> databeanClass, DataRouter router,
+	public MasterSlaveMapStorageReaderNode(Class<D> databeanClass, Datarouter router,
 			N master, Collection<N> slaves) {
 		super(databeanClass, (Class<F>)master.getFieldInfo().getFielderClass(), router);
 		
@@ -31,7 +31,7 @@ implements MapStorageReaderNode<PK,D>{
 		}
 	}
 	
-	public MasterSlaveMapStorageReaderNode(Class<D> databeanClass, DataRouter router) {
+	public MasterSlaveMapStorageReaderNode(Class<D> databeanClass, Datarouter router) {
 		super(databeanClass, router);
 	}
 

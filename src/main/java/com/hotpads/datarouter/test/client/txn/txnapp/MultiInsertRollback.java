@@ -11,7 +11,7 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
-import com.hotpads.datarouter.routing.DataRouterContext;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.util.core.CollectionTool;
@@ -23,7 +23,7 @@ public class MultiInsertRollback extends BaseHibernateOp<Void>{
 	private BasicClientTestRouter router;
 	private boolean flush;
 	
-	public MultiInsertRollback(DataRouterContext drContext, List<String> clientNames, Isolation isolation,
+	public MultiInsertRollback(DatarouterContext drContext, List<String> clientNames, Isolation isolation,
 			BasicClientTestRouter router, boolean flush){
 		super(drContext, clientNames, isolation, false);
 		this.router = router;
