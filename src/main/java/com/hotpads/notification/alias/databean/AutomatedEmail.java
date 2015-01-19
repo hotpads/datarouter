@@ -8,6 +8,7 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
+import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 
 
 /** CREATE SCRIPT
@@ -31,6 +32,7 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 	private String subject;
 	private String content;
 	private String serverName;
+	private Boolean html;
 
 
 	/** columns ***************************************************************/
@@ -39,7 +41,8 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 		public static final String
 			subject = "subject",
 			content = "content",
-			serverName = "serverName";
+			serverName = "serverName",
+			html = "html";
 	}
 
 	/** fielder ***************************************************************/
@@ -58,7 +61,8 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 			return FieldTool.createList(
 				new StringField(F.subject, d.subject, MySqlColumnType.MAX_LENGTH_VARCHAR),
 				new StringField(F.content, d.content, MySqlColumnType.INT_LENGTH_LONGTEXT),
-				new StringField(F.serverName, d.serverName, MySqlColumnType.MAX_LENGTH_VARCHAR));
+				new StringField(F.serverName, d.serverName, MySqlColumnType.MAX_LENGTH_VARCHAR),
+				new BooleanField(F.html, d.html));
 		}
 
 	}
@@ -66,14 +70,15 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 	/** construct *************************************************************/
 
 	private AutomatedEmail(){
-		this(null, null, null);
+		this(null, null, null, null);
 	}
 
-	public AutomatedEmail(String suject, String content, String serverName){
+	public AutomatedEmail(String suject, String content, String serverName, Boolean html){
 		this.key = new AutomatedEmailKey();
 		this.subject = suject;
 		this.content = content;
 		this.serverName = serverName;
+		this.html = html;
 	}
 
 	/** databean **************************************************************/
@@ -100,6 +105,10 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 
 	public String getServerName(){
 		return serverName;
+	}
+
+	public Boolean isHtml(){
+		return html;
 	}
 
 }

@@ -177,6 +177,7 @@ function fillSentEmailNotificationLog(logs, emails){
 		var subject = emails[index] ? emails[index].subject : '';
 		var content = emails[index] ? emails[index].content : 'Can not show the email content because it is not a AutomatedEmail.';
 		var serverName = emails[index] ? emails[index].serverName : '';
+		var isHtml = emails[index] && emails[index].html ? true, false;
 		var accordionGroup = $('<div>')
 				.addClass('accordion-group')
 				.append($('<div>')
@@ -193,7 +194,7 @@ function fillSentEmailNotificationLog(logs, emails){
 						.attr('id', idInterne)
 						.append($('<div>')
 								.addClass('accordion-inner')
-								.html(content)));
+								.html((!isHtml ? '<pre>' : '') + content + (!isHtml ? '</pre>' : ''))));
 		div.append(accordionGroup);
 	});
 	modalBody.append(div);
