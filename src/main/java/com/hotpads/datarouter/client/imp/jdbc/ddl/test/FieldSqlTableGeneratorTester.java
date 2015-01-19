@@ -10,8 +10,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlAlterTableGenerato
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.FieldSqlTableGenerator;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
-import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean.ManyFieldTypeBeanFielder;
+import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean;
+import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean2;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean2.ManyFieldTypeBean2Fielder;
 import com.hotpads.util.core.ListTool;
@@ -26,7 +26,7 @@ public class FieldSqlTableGeneratorTester{
 		List<Field<?>> nonKeyFields = ListTool.createArrayList();
 		List<Field<?>> nonKeyFields2 = ListTool.createArrayList();
 
-		ManyFieldTypeBean mftBean = new ManyFieldTypeBean();
+		ManyFieldBean mftBean = new ManyFieldBean();
 		ManyFieldTypeBean2 mftBean2 = new ManyFieldTypeBean2();
 		ManyFieldTypeBeanFielder mftFielder = new ManyFieldTypeBeanFielder();
 		ManyFieldTypeBean2Fielder mftFielder2 = new ManyFieldTypeBean2Fielder();

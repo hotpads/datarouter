@@ -14,11 +14,6 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey.SortedB
 public class SortedBeanEntityNode 
 extends HBaseEntityReaderNode<SortedBeanEntityKey,SortedBeanEntity>{
 	
-//	public static final String
-//		NODE_NAME = "SortedBeanEntity",
-//		ENTITY_SortedBeanEntity = "SortedBeanEntity";
-
-	
 	private static EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> createEntityNodeParams(){
 		EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams
 			= new EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity>(

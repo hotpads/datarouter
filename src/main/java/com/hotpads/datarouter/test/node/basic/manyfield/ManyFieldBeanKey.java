@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 
 @SuppressWarnings("serial")
 @Embeddable
-public class ManyFieldTypeBeanKey extends BasePrimaryKey<ManyFieldTypeBeanKey>{
+public class ManyFieldBeanKey extends BasePrimaryKey<ManyFieldBeanKey>{
 	
 	/****************************** fields *******************************************/
 	
@@ -31,11 +31,11 @@ public class ManyFieldTypeBeanKey extends BasePrimaryKey<ManyFieldTypeBeanKey>{
 	
 	/***************************** constructors *************************************/
 	
-	public ManyFieldTypeBeanKey(){//no-arg and public
+	public ManyFieldBeanKey(){//no-arg and public
 		this.id = UInt63Field.nextPositiveRandom();
 	}
 	
-	public ManyFieldTypeBeanKey(Long id) {
+	public ManyFieldBeanKey(Long id) {
 		this.id = id;
 	}
 	

@@ -22,8 +22,7 @@ public class SortedNodeTestRouter extends BaseDatarouter{
 	private static final String 
 			name = "basicNodeTest",
 			TABLE_NAME_SortedBean = "SortedBean",
-			NODE_NAME_SortedBeanEntity = "TestSortedBeanEntity",
-			ENTITY_NAME_SortedBean = SortedBean.class.getCanonicalName();
+			NODE_NAME_SortedBeanEntity = "TestSortedBeanEntity";
 
 	
 	/********************************** nodes **********************************/
