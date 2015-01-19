@@ -20,7 +20,7 @@ import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
 
-public class NestedTxn extends BaseHibernateOp<Void>{
+public class TestNestedTxn extends BaseHibernateOp<Void>{
 	
 	private DatarouterContext drContext;
 	private List<String> clientNames;
@@ -28,7 +28,7 @@ public class NestedTxn extends BaseHibernateOp<Void>{
 	private TxnTestRouter router;
 	private boolean flush;
 	
-	public NestedTxn(DatarouterContext drContext, List<String> clientNames, Isolation isolation, boolean autoCommit,
+	public TestNestedTxn(DatarouterContext drContext, List<String> clientNames, Isolation isolation, boolean autoCommit,
 			TxnTestRouter router, boolean flush){
 		super(drContext, clientNames, isolation, autoCommit);
 		this.drContext = drContext;

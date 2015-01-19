@@ -20,7 +20,7 @@ import com.hotpads.util.core.ListTool;
 public class SortedNodeTestRouter extends BaseDatarouter{
 
 	private static final String 
-			name = "basicNodeTest",
+			NAME = "SortedNodeTestRouter",
 			TABLE_NAME_SortedBean = "SortedBean",
 			NODE_NAME_SortedBeanEntity = "TestSortedBeanEntity";
 
@@ -34,7 +34,7 @@ public class SortedNodeTestRouter extends BaseDatarouter{
 	@Inject
 	public SortedNodeTestRouter(DatarouterContext drContext, NodeFactory nodeFactory, String clientName, 
 			boolean useFielder, boolean entity){
-		super(drContext, DRTestConstants.CONFIG_PATH, name);
+		super(drContext, DRTestConstants.CONFIG_PATH, NAME);
 		
 		String tableName = TABLE_NAME_SortedBean;
 //		String entityName = SortedBean.class.getPackage().getName() + "." + tableName;

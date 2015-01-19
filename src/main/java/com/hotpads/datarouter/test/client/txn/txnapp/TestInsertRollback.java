@@ -18,13 +18,13 @@ import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
 
-public class InsertRollback extends BaseHibernateOp<Void>{
+public class TestInsertRollback extends BaseHibernateOp<Void>{
 	
 	private TxnTestRouter router;
 	private boolean flush;
 	private String beanPrefix;
 	
-	public InsertRollback(DatarouterContext drContext, List<String> clientNames, Isolation isolation,
+	public TestInsertRollback(DatarouterContext drContext, List<String> clientNames, Isolation isolation,
 			TxnTestRouter router, boolean flush, String beanPrefix){
 		super(drContext, clientNames, isolation, false);
 		this.router = router;

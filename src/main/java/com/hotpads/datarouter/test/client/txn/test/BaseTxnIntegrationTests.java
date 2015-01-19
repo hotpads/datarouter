@@ -16,9 +16,9 @@ import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
-import com.hotpads.datarouter.test.client.txn.txnapp.InsertRollback;
-import com.hotpads.datarouter.test.client.txn.txnapp.MultiInsertRollback;
-import com.hotpads.datarouter.test.client.txn.txnapp.NestedTxn;
+import com.hotpads.datarouter.test.client.txn.txnapp.TestInsertRollback;
+import com.hotpads.datarouter.test.client.txn.txnapp.TestMultiInsertRollback;
+import com.hotpads.datarouter.test.client.txn.txnapp.TestNestedTxn;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
@@ -58,7 +58,7 @@ public abstract class BaseTxnIntegrationTests {
 		int numExceptions = 0;
 		String beanPrefix = "a";
 		try{
-			router.run(new InsertRollback(drContext, ListTool.wrap(clientName), Isolation.readCommitted, 
+			router.run(new TestInsertRollback(drContext, ListTool.wrap(clientName), Isolation.readCommitted, 
 					router, false, beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
@@ -72,7 +72,7 @@ public abstract class BaseTxnIntegrationTests {
 		int numExceptions = 0;
 		String beanPrefix = "b";
 		try{
-			BaseHibernateOp<Void> op = new InsertRollback(drContext, ListTool.wrap(clientName), Isolation.readCommitted,
+			BaseHibernateOp<Void> op = new TestInsertRollback(drContext, ListTool.wrap(clientName), Isolation.readCommitted,
 					router, true, beanPrefix);
 			router.run(op);
 		}catch(RuntimeException re){
@@ -94,7 +94,7 @@ public abstract class BaseTxnIntegrationTests {
 		node.put(b, null);
 		Assert.assertTrue(router.txnBean().exists(b.getKey(), null));
 		try{
-			router.run(new MultiInsertRollback(drContext, ListTool.wrap(clientName), 
+			router.run(new TestMultiInsertRollback(drContext, ListTool.wrap(clientName), 
 					Isolation.readCommitted, router, false, beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
@@ -111,7 +111,7 @@ public abstract class BaseTxnIntegrationTests {
 		node.put(b, null);
 		Assert.assertTrue(router.txnBean().exists(b.getKey(), null));
 		try{
-			router.run(new MultiInsertRollback(drContext, ListTool.wrap(clientName), 
+			router.run(new TestMultiInsertRollback(drContext, ListTool.wrap(clientName), 
 					Isolation.readCommitted, router, true, beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
@@ -129,7 +129,7 @@ public abstract class BaseTxnIntegrationTests {
 	public void testNestedTxn(){
 		int numExceptions = 0;
 		try{
-			router.run(new NestedTxn(drContext, ListTool.wrap(clientName), 
+			router.run(new TestNestedTxn(drContext, ListTool.wrap(clientName), 
 					Isolation.readCommitted, false, router, false));
 		}catch(RuntimeException re){
 			++numExceptions;

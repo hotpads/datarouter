@@ -12,20 +12,17 @@ import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 
-public class MultiInsertRollback extends BaseHibernateOp<Void>{
+public class TestMultiInsertRollback extends BaseHibernateOp<Void>{
 	
 	private TxnTestRouter router;
 	private boolean flush;
 	private String beanPrefix;
 	
-	public MultiInsertRollback(DatarouterContext drContext, List<String> clientNames, Isolation isolation,
+	public TestMultiInsertRollback(DatarouterContext drContext, List<String> clientNames, Isolation isolation,
 			TxnTestRouter router, boolean flush, String beanPrefix){
 		super(drContext, clientNames, isolation, false);
 		this.router = router;

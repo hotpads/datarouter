@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.test.node.basic;
+package com.hotpads.datarouter.test.node.basic.backup;
 
 import java.util.List;
 
@@ -15,29 +15,21 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNod
 import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
-import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean.BackupBeanFielder;
-import com.hotpads.datarouter.test.node.basic.backup.BackupBeanKey;
-import com.hotpads.datarouter.test.node.basic.backup.test.BackupIntegrationTester;
 import com.hotpads.util.core.ListTool;
 
 @Singleton
-public class BasicNodeTestRouter extends BaseDatarouter{
-
-	public static final String 
-			name = "basicNodeTest";
-
+public class BackupTestRouter extends BaseDatarouter{
 	
 	@Inject
-	public BasicNodeTestRouter(DatarouterContext drContext, NodeFactory nodeFactory, String clientName, 
-			Class<?> testType, boolean useFielder, boolean entity){
-		super(drContext, DRTestConstants.CONFIG_PATH, name);
+	public BackupTestRouter(DatarouterContext drContext, NodeFactory nodeFactory, String clientName){
+		super(drContext, DRTestConstants.CONFIG_PATH, BackupTestRouter.class.getSimpleName());
 		
-		if(BackupIntegrationTester.class.equals(testType)){
-			backupBeanNode = register(nodeFactory.create(clientName, BackupBean.class, BackupBeanFielder.class, this, false));
-			backupRecordNode = register(nodeFactory.create(clientName, BackupRecord.class, BackupRecordFielder.class, this, false));
-		}
-		
+		backupBeanNode = register(nodeFactory.create(clientName, BackupBean.class, BackupBeanFielder.class, this, 
+				false));
+		backupRecordNode = register(nodeFactory.create(clientName, BackupRecord.class, BackupRecordFielder.class, this,
+				false));
+
 		registerWithContext();//do after field inits
 	}
 
