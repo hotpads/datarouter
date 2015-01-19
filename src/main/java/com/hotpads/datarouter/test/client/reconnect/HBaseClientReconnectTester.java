@@ -11,26 +11,39 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
+import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
+import com.hotpads.datarouter.routing.DatarouterContext;
+import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
-import com.hotpads.datarouter.test.client.BasicClientTestRouter;
-import com.hotpads.datarouter.test.client.BasicClientTestRouterImp;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
+import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 //you must run this manually, starting and stopping hbase to verify it reconnects, at least for now
 public class HBaseClientReconnectTester {
-	Logger logger = LoggerFactory.getLogger(HBaseClientReconnectTester.class);
+	private static final Logger logger = LoggerFactory.getLogger(HBaseClientReconnectTester.class);
 	
 	//DoNotCommit//will loop forever in the test suite
 //	static boolean ENABLED = true;
-	static boolean ENABLED = false;
+	private static boolean ENABLED = false;
 	
-	static BasicClientTestRouter router;
-	static TxnBeanKey testReconnectBeanKey = new TxnBeanKey("testReconnectBean");
-	static SortedMapStorage<TxnBeanKey,TxnBean> node;
+	private static DatarouterContext datarouterContext;
+	private static TxnTestRouter router;
+	private static TxnBeanKey testReconnectBeanKey = new TxnBeanKey("testReconnectBean");
+	private static SortedMapStorage<TxnBeanKey,TxnBean> node;
+	
+	@BeforeClass
+	public static void beforeClass() throws IOException{
+		Injector injector = new DatarouterTestInjectorProvider().get();
+		datarouterContext = injector.getInstance(DatarouterContext.class);
+		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
+		router = new TxnTestRouter(datarouterContext, nodeFactory, DRTestConstants.CLIENT_drTestHBase, true);
+		node = router.txnBean();
+		resetTable();
+	}
 
 	public static void resetTable(){
 //		node.deleteAll(null);
@@ -38,14 +51,6 @@ public class HBaseClientReconnectTester {
 		TxnBean txnBean = new TxnBean(testReconnectBeanKey.getId());
 		node.put(txnBean, null);
 		Assert.assertEquals(1, IterableTool.count(node.scan(null, null)).intValue());
-	}
-	
-	@BeforeClass
-	public static void init() throws IOException{
-		Injector injector = new DatarouterTestInjectorProvider().get();
-		router = injector.getInstance(BasicClientTestRouterImp.class);	
-		node = router.txnBeanHBase();
-		resetTable();
 	}
 
 	@Test 
