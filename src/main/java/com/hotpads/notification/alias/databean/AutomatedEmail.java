@@ -107,7 +107,7 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 		return serverName;
 	}
 
-	public Boolean isHtml(){
+	public Boolean getHtml(){
 		return html;
 	}
 
