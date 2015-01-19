@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.test.client.txn;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -8,12 +7,12 @@ import javax.inject.Singleton;
 
 import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.node.factory.NodeFactory;
-import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.txn.TxnBean.TxnBeanFielder;
+import com.hotpads.util.core.ListTool;
 
 @Singleton
 public class TxnTestRouter
@@ -44,7 +43,9 @@ extends BaseDatarouter
 
 	@Override
 	public List<ClientId> getClientIds(){
-		return Collections.singletonList(new ClientId(clientName, true));
+		return ListTool.create(
+				new ClientId(DRTestConstants.CLIENT_drTestJdbc0, true),
+				new ClientId(DRTestConstants.CLIENT_drTestHibernate0, true));
 	}
 
 
