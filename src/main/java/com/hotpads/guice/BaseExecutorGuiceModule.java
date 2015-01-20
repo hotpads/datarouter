@@ -19,7 +19,7 @@ import com.hotpads.util.core.concurrent.NamedThreadFactory;
 public abstract class BaseExecutorGuiceModule extends AbstractModule{
 	private static final Logger logger = LoggerFactory.getLogger(BaseExecutorGuiceModule.class);
 	
-	protected void bindThreadPool(ThreadGroup threadGroup, String name, int minThreadCound, int maxThreadCount,
+	protected void bindPool(ThreadGroup threadGroup, String name, int minThreadCound, int maxThreadCount,
 			int queueSize, RejectedExecutionHandler rejectPolicy){
 		bind(ExecutorService.class)
 			.annotatedWith(Names.named(name))
