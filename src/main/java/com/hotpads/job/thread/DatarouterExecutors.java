@@ -16,17 +16,10 @@ public class DatarouterExecutors{
 	
 	private static final ThreadGroup
 		datarouter = new ThreadGroup("datarouter"),
-		datarouterJobScheduler = new ThreadGroup(datarouter, "datarouterJobScheduler"),
-		datarouterCountArchiveFlushers = new ThreadGroup(datarouter, "datarouterCountArchiveFlushers");
+		datarouterJobScheduler = new ThreadGroup(datarouter, "datarouterJobScheduler");
 		
 	public static final ScheduledExecutorService 
 		datarouterJobExecutor = createScheduled(datarouterJobScheduler, "datarouterJobExecutor", 10).get();
-	
-	/************************* providers **********************************/
-	
-	public static final Provider<ScheduledExecutorService>
-		countArchiveFlushSchedulerDb = createScheduled(datarouterCountArchiveFlushers, "countArchiveFlushSchedulerDb", 1),
-		countArchiveFlusherDb = createScheduled(datarouterCountArchiveFlushers, "countArchiveFlusherDb", 1);
 	
 	/**************************** convenience **********************************/
 	

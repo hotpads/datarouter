@@ -2,8 +2,6 @@ package com.hotpads.datarouter.client.imp.hibernate.factory;
 
 import java.util.Collection;
 
-import javax.servlet.ServletContext;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.slf4j.Logger;
@@ -31,8 +29,10 @@ extends JdbcSimpleClientFactory{
 		HIBERNATE_CONNECTION_PREFIX = "hibernate.connection.",
 		PROVIDER_CLASS = HIBERNATE_CONNECTION_PREFIX + "provider_class", // from org.hibernate.cfg.Environment.CONNECTION_PROVIDER
 		CONNECTION_POOL_NAME = HIBERNATE_CONNECTION_PREFIX + "connectionPoolName", // any name... SessionFactory simply passes them through
-		PARAM_CONFIG_LOCATION = ".configLocation",
-		CONFIG_LOCATION_DEFAULT = "hib-default.cfg.xml";
+		PARAM_configLocation = ".configLocation",
+		CONFIG_LOCATION_DEFAULT = "hib-default.cfg.xml",
+		PARAM_show_sql = ".hibernate.show_sql",
+		PARAM_hbm2ddl_auto = ".hibernate.hibernate.hbm2ddl.auto";//the double-hibernate is intentional
 	
 
 	public HibernateSimpleClientFactory(DatarouterContext drContext, String clientName){
@@ -45,13 +45,12 @@ extends JdbcSimpleClientFactory{
 		PhaseTimer timer = new PhaseTimer(getClientName());
 
 		// base config file for a SessionFactory
-		String configFileLocation = PropertiesTool.getFirstOccurrence(getMultiProperties(), Clients.PREFIX_client + getClientName()
-					+ PARAM_CONFIG_LOCATION);
+		String configFileLocation = PropertiesTool.getFirstOccurrence(getMultiProperties(), Clients.PREFIX_client
+				+ getClientName() + PARAM_configLocation);
 		if(StringTool.isEmpty(configFileLocation)){
 			configFileLocation = CONFIG_LOCATION_DEFAULT;
 		}
 		AnnotationConfiguration sfConfig = new AnnotationConfiguration();
-		sfConfig.configure(configFileLocation);
 
 		//this code will skip all nodes with fielders, which is the desired behavior, but some jdbc nodes are still using hibernate TxnOps =(
 //		List<? extends PhysicalNode<?, ?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
@@ -71,8 +70,12 @@ extends JdbcSimpleClientFactory{
 				sfConfig.addAnnotatedClass(databeanClass);
 			}
 		}
+		sfConfig.configure(configFileLocation);
 		timer.add("SessionFactory");
 
+		addShowSqlSetting(sfConfig);
+		addHbm2DdlSetting(sfConfig);
+		
 		// connect to the database
 		JdbcConnectionPool connectionPool = getConnectionPool(getClientName(), getMultiProperties());
 		timer.add("pool");
@@ -95,6 +98,23 @@ extends JdbcSimpleClientFactory{
 
 		logger.warn(timer.toString());
 		return client;
+	}
+	
+	//this one doesn't wanna take
+	private void addShowSqlSetting(AnnotationConfiguration sfConfig){
+		 String showSqlPropertyKey = Clients.PREFIX_client + getClientName() + PARAM_show_sql;
+		 String showSql = PropertiesTool.getFirstOccurrence(getMultiProperties(), showSqlPropertyKey);
+		 if(StringTool.notEmpty(showSql)){
+			 sfConfig.setProperty("show_sql", showSql);
+		 }
+	}
+	
+	private void addHbm2DdlSetting(AnnotationConfiguration sfConfig){
+		 String hbm2ddlPropertyKey = Clients.PREFIX_client + getClientName() + PARAM_hbm2ddl_auto;
+		 String hbm2ddl = PropertiesTool.getFirstOccurrence(getMultiProperties(), hbm2ddlPropertyKey);
+		 if(StringTool.notEmpty(hbm2ddl)){
+			 sfConfig.setProperty("hibernate.hbm2ddl.auto", hbm2ddl);
+		 }
 	}
 
 }
