@@ -38,7 +38,7 @@ public abstract class BaseExecutorGuiceModule extends AbstractModule{
 			.toInstance(createScheduled(threadGroup, name, threadCount));
 	}
 	
-	private ExecutorService createThreadPool(ThreadGroup parentGroup, String name, int minThreadCound,
+	protected ThreadPoolExecutor createThreadPool(ThreadGroup parentGroup, String name, int minThreadCound,
 			int maxThreadCount, int queueSize, RejectedExecutionHandler rejectPolicy){
 		NamedThreadFactory namedThreadFactory = new NamedThreadFactory(parentGroup, name, true);
 		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(queueSize);
@@ -46,13 +46,13 @@ public abstract class BaseExecutorGuiceModule extends AbstractModule{
 		return new ThreadPoolExecutor(minThreadCound, maxThreadCount, 0, TimeUnit.MILLISECONDS, queue, rejectPolicy);
 	}
 	
-	private ExecutorService createFixedPool(ThreadGroup parentGroup, String name, int numThreads){
+	protected ExecutorService createFixedPool(ThreadGroup parentGroup, String name, int numThreads){
 		NamedThreadFactory namedThreadFactory = new NamedThreadFactory(parentGroup, name, true);
 		logger.info(name + " initialization " + System.identityHashCode(namedThreadFactory));
 		return Executors.newFixedThreadPool(numThreads, namedThreadFactory);
 	}
 	
-	private ScheduledExecutorService createScheduled(ThreadGroup parentGroup, String name, int numThreads){
+	protected ScheduledExecutorService createScheduled(ThreadGroup parentGroup, String name, int numThreads){
 		NamedThreadFactory namedThreadFactory = new NamedThreadFactory(parentGroup, name, true);
 		logger.info(name + " initialization " + System.identityHashCode(namedThreadFactory));
 		return Executors.newScheduledThreadPool(numThreads, namedThreadFactory);
