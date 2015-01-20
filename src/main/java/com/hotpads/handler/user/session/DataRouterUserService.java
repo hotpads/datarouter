@@ -29,9 +29,9 @@ public class DataRouterUserService{
 		this.userNodes = userNodes;
 		this.passwordService = passwordService;
 	}
-
 	
 	public void createAdminUser(long admin_id, Collection<DatarouterUserRole> roles){
+		
 		String salt = passwordService.generateSaltForNewUser();		
 		String digest = passwordService.digest(salt, RAW_PW);		
 		DatarouterUser user = new DatarouterUser();
@@ -45,9 +45,7 @@ public class DataRouterUserService{
 		user.setRoles(roles);
 		user.setUserToken(DatarouterTokenGenerator.generateRandomToken());		
 		userNodes.getUserNode().put(user, null);
-		logger.warn("Created default admin user account");
-	
-		
+		logger.warn("Created default admin user account");		
 	}
 
 }
