@@ -1,8 +1,8 @@
 package com.hotpads.datarouter.test.node.basic.sorted.test;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
 
@@ -11,7 +11,12 @@ public class HBaseSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTe
 	
 	@BeforeClass
 	public static void beforeClass(){
-		setup(DRTestConstants.CLIENT_drTestHBase, HBaseClientType.INSTANCE, true, false);
+		setup(DRTestConstants.CLIENT_drTestHBase, true, false);
 	}
-	
+
+	@AfterClass
+	public static void afterClass(){
+		testSortedDelete();
+		drContext.shutdown();
+	}
 }

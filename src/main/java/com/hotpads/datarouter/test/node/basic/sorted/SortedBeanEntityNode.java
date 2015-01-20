@@ -14,22 +14,21 @@ import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanEntityKey.SortedB
 public class SortedBeanEntityNode 
 extends HBaseEntityReaderNode<SortedBeanEntityKey,SortedBeanEntity>{
 	
-//	public static final String
-//		NODE_NAME = "SortedBeanEntity",
-//		ENTITY_SortedBeanEntity = "SortedBeanEntity";
-
-	
-	private static final EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams
+	private static EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> createEntityNodeParams(){
+		EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams
 			= new EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity>(
 			"SortedBeanEntity", SortedBeanEntityKey.class, SortedBeanEntity.class, 
 //			SortedBeanEntityPartitioner.class,
 			SortedBeanEntityPartitioner4.class,
 			"SortedBeanEntity");
+		return entityNodeParams;
+	}
 
 	private SubEntitySortedMapStorageNode<SortedBeanEntityKey,SortedBeanKey,SortedBean,SortedBeanFielder> sortedBean;
 	
 	public SortedBeanEntityNode(NodeFactory nodeFactory, Datarouter router, String clientName, String name){
-		super(nodeFactory, router, entityNodeParams, new HBaseTaskNameParams(clientName, entityNodeParams.getEntityTableName(), name));
+		super(nodeFactory, router, createEntityNodeParams(), new HBaseTaskNameParams(clientName,
+				createEntityNodeParams().getEntityTableName(), name));
 	}
 	
 	
