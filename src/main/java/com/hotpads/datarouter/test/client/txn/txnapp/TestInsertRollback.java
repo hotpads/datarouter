@@ -15,42 +15,43 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.test.client.BasicClientTestRouter;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
-import com.hotpads.util.core.IterableTool;
+import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
 
-public class InsertRollback extends BaseHibernateOp<Void>{
+public class TestInsertRollback extends BaseHibernateOp<Void>{
 	
-	private BasicClientTestRouter router;
+	private TxnTestRouter router;
 	private boolean flush;
+	private String beanPrefix;
 	
-	public InsertRollback(DatarouterContext drContext, List<String> clientNames, Isolation isolation,
-			BasicClientTestRouter router, boolean flush){
+	public TestInsertRollback(DatarouterContext drContext, List<String> clientNames, Isolation isolation,
+			TxnTestRouter router, boolean flush, String beanPrefix){
 		super(drContext, clientNames, isolation, false);
 		this.router = router;
 		this.flush = flush;
+		this.beanPrefix = beanPrefix;
 	}
 	
 	@Override
 	public Void runOncePerClient(Client client){
-		TxnBean a = new TxnBean("a");
-		router.txnBeanHibernate().put(a, null);
+		TxnBean a = new TxnBean(beanPrefix + "1");
+		router.txnBean().put(a, null);
 		if(flush){
 			Session session = getSession(client.getName());
 			session.flush();
 			session.clear();
-			Assert.assertEquals(1, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
+			Assert.assertTrue(router.txnBean().exists(a.getKey(), null));//it exists inside the txn
 		}else{
-			boolean fieldAware = router.txnBeanHibernate().getFieldInfo().getFieldAware();
+			boolean fieldAware = router.txnBean().getFieldInfo().getFieldAware();
 			if(fieldAware || SessionExecutorImpl.EAGER_SESSION_FLUSH){
-				Assert.assertEquals(1, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
+				Assert.assertTrue(router.txnBean().exists(a.getKey(), null));
 			}else{
-				Assert.assertEquals(0, IterableTool.count(router.txnBeanHibernate().scan(null, null)).intValue());
+				Assert.assertFalse(router.txnBean().exists(a.getKey(), null));
 			}
 		}
-		TxnBean a2 = new TxnBean("a2");
+		TxnBean a2 = new TxnBean(beanPrefix + "2");
 		a2.setId(a.getId());
-		router.txnBeanHibernate().put(a2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
+		router.txnBean().put(a2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
 		return null;
 	}
 }

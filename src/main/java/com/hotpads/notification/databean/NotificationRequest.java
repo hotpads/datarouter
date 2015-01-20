@@ -68,15 +68,21 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 		this.sentAtDate = new Date(sentAtMs);
 	}
 
-	public NotificationRequest(NotificationUserId userId, String type, String data, String channel) {
+	public NotificationRequest(NotificationUserId userId, String type, String data, String channel){
 		this(userId, System.currentTimeMillis(), type, data, channel);
 	}
 
-	public NotificationRequest(NotificationUserId userId, Class<? extends NotificationType> type, String data, String channel) {
+	public NotificationRequest(NotificationUserId userId, Class<? extends NotificationType> type, String data,
+			String channel){
 		this(userId, type.getName(), data, channel);
 	}
 
-	public NotificationRequest(NotificationUserId userId, NotificationType type, String data, String channel) {
+	public NotificationRequest(NotificationUserType userType, String id, Class<? extends NotificationType> type,
+			String data, String channel){
+		this(new NotificationUserId(userType, id), type, data, channel);
+	}
+
+	public NotificationRequest(NotificationUserId userId, NotificationType type, String data, String channel){
 		this(userId, type.getName(), data, channel);
 	}
 
