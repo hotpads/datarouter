@@ -50,6 +50,12 @@ public abstract class BaseTxnIntegrationTests {
 		Assert.assertEquals(0, IterableTool.count(node.scan(null, null)).intValue());
 	}
 	
+	/***************** override these in subclasses **************/
+	
+	protected boolean hasSession(){
+		return false;
+	}
+	
 
 	/************ InsertRollback *********************/
 	
@@ -68,7 +74,8 @@ public abstract class BaseTxnIntegrationTests {
 	}
 	
 	@Test 
-	public void testInsertRollbackWithFlush(){		
+	public void testInsertRollbackWithFlush(){
+		if(!hasSession()){ return; }//can't flush without a session
 		int numExceptions = 0;
 		String beanPrefix = "b";
 		try{
@@ -104,7 +111,8 @@ public abstract class BaseTxnIntegrationTests {
 	}
 	
 	@Test 
-	public void testMoreComplexInsertRollbackWithFlush(){		
+	public void testMoreComplexInsertRollbackWithFlush(){	
+		if(!hasSession()){ return; }//can't flush without a session	
 		int numExceptions = 0;
 		String beanPrefix = "d";
 		TxnBean b = new TxnBean(beanPrefix + "1");
