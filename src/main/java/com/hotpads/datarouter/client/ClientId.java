@@ -13,6 +13,7 @@ public class ClientId implements Comparable<ClientId>{
 	protected Boolean writable;
 	
 	public ClientId(String name, Boolean writable){
+		if(name==null){ throw new IllegalArgumentException("name cannot be null"); }
 		this.name = name;
 		this.writable = writable;
 	}

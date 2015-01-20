@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.test.node.basic.manyfield.test;
+package com.hotpads.datarouter.client.imp.jdbc;
 
 /*
 
