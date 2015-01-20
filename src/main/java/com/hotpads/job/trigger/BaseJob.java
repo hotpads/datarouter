@@ -16,17 +16,14 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNod
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.exception.ExceptionRecordKey;
+import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTaskTracker;
 import com.hotpads.job.record.LongRunningTaskType;
 import com.hotpads.notification.ParallelApiCaller;
-import com.hotpads.notification.databean.NotificationRequest;
-import com.hotpads.notification.databean.NotificationUserId;
-import com.hotpads.notification.databean.NotificationUserType;
 import com.hotpads.setting.Setting;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public abstract class BaseJob implements Job{
@@ -51,6 +48,8 @@ public abstract class BaseJob implements Job{
 	private ParallelApiCaller apiCaller;
 	@Inject
 	private ExceptionHandlingConfig exceptionHandlingConfig;
+	@Inject
+	private ExceptionRecorder exceptionRecorder;
 
 	/************************* constructors *******************/
 
@@ -117,7 +116,7 @@ public abstract class BaseJob implements Job{
 			getFromTracker().incrementNumberOfErrors();
 			getFromTracker().setLastErrorTime(new Date());
 			baseJobLogger.warn("exception executing "+getClass(), e);
-			recordException(e);
+			exceptionRecorder.tryRecordException(e);
 		}finally{
 			try{
 				if(!isAlreadyRunning.get()){
@@ -136,22 +135,6 @@ public abstract class BaseJob implements Job{
 			}
 		}
 		return null;
-	}
-
-	public void recordException(Exception e) {
-		ExceptionRecord exceptionRecord = new ExceptionRecord(
-				serverName,
-				ExceptionTool.getStackTraceAsString(e),
-				e.getClass().getName());
-		exceptionRecordNode.put(exceptionRecord, null);
-		NotificationRequest notificationRequest = new NotificationRequest(
-				new NotificationUserId(
-						NotificationUserType.EMAIL,
-						exceptionHandlingConfig.getRecipientEmail()),
-				exceptionHandlingConfig.getJobErrorNotificationType(),
-				exceptionRecord.getKey().getId(),
-				getClass().getName());
-		apiCaller.add(notificationRequest, exceptionRecord);
 	}
 
 	@Override
@@ -334,4 +317,9 @@ public abstract class BaseJob implements Job{
 	public void setTriggerTime(Date triggerTime){
 		this.triggerTime = triggerTime;
 	}
+
+	public void tryRecordException(Exception exception){
+		exceptionRecorder.tryRecordException(exception, exceptionHandlingConfig.getJobErrorNotificationType());
+	}
+
 }

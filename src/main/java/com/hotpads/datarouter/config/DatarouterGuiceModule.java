@@ -16,6 +16,8 @@ import javax.inject.Singleton;
 import com.google.inject.BindingAnnotation;
 import com.google.inject.Scopes;
 import com.google.inject.servlet.ServletModule;
+import com.hotpads.DatarouterInjector;
+import com.hotpads.GuiceInjector;
 import com.hotpads.datarouter.config.DatarouterGuiceModule.DatarouterExecutorServiceProvider.DatarouterExecutorService;
 import com.hotpads.datarouter.util.ApplicationPaths;
 import com.hotpads.datarouter.util.GuiceApplicationPaths;
@@ -30,7 +32,7 @@ public class DatarouterGuiceModule extends ServletModule{
 		bind(ApplicationPaths.class).to(GuiceApplicationPaths.class).in(Scopes.SINGLETON);
 		bind(ExecutorService.class).annotatedWith(DatarouterExecutorService.class).toProvider(
 				DatarouterExecutorServiceProvider.class).in(Scopes.SINGLETON);
-		
+		bind(DatarouterInjector.class).to(GuiceInjector.class);
 		bind(JsonSerializer.class).annotatedWith(HandlerDefaultSerializer.class).to(GsonJsonSerializer.class);
 	}
 

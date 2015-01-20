@@ -1,30 +1,27 @@
 package com.hotpads.trace;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
 
 public class TraceContext {
-	protected static Logger logger = LoggerFactory.getLogger(TraceContext.class);
 	
-	protected String serverName;
-	protected Long traceId;
-	protected Long traceThreadParentId;
-	protected Integer nextSpanSequence = 0;
+	private String serverName;
+	private Long traceId;
+	private Long traceThreadParentId;
+	private Integer nextSpanSequence = 0;
 	
-	protected TraceThread currentThread;//should we be holding a map of current threads?  not sure yet
-	protected List<TraceThread> threads = ListTool.createLinkedList();
+	private TraceThread currentThread;//should we be holding a map of current threads?  not sure yet
+	private List<TraceThread> threads = Collections.synchronizedList(new LinkedList<TraceThread>());
 	
-	protected ArrayList<TraceSpan> spanStack = new ArrayList<TraceSpan>();
-	protected List<TraceSpan> spans = ListTool.createLinkedList();
+	private List<TraceSpan> spanStack = new ArrayList<TraceSpan>();
+	private List<TraceSpan> spans = Collections.synchronizedList(new LinkedList<TraceSpan>());
 	
 	
 	/***************** constructors **********************************/
@@ -252,10 +249,6 @@ public class TraceContext {
 		return spans;
 	}
 
-	public void setSpans(List<TraceSpan> spans){
-		this.spans = spans;
-	}
-
 	public String getServerName(){
 		return serverName;
 	}
@@ -272,12 +265,11 @@ public class TraceContext {
 		return traceThreadParentId;
 	}
 
-	public ArrayList<TraceSpan> getSpanStack(){
+	public List<TraceSpan> getSpanStack(){
 		return spanStack;
 	}
 
 	public void setSpanStack(ArrayList<TraceSpan> spanStack){
 		this.spanStack = spanStack;
 	}
-
 }
