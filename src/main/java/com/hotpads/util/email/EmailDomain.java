@@ -10,6 +10,7 @@ import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.util.core.ArrayTool;
 import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.collections.Pair;
+import com.hotpads.util.domain.InternetTopLevelDomain;
 
 public enum EmailDomain implements StringEnum<EmailDomain>{
 	

@@ -1,4 +1,4 @@
-package com.hotpads.util.email;
+package com.hotpads.util.domain;
 
 import java.io.BufferedReader;
 import java.io.IOException;
