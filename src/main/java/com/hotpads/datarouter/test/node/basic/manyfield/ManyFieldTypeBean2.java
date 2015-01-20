@@ -36,7 +36,7 @@ import com.hotpads.util.core.collections.arrays.LongArray;
 @SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
-public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldTypeBeanKey,ManyFieldTypeBean2>{
+public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldBeanKey,ManyFieldTypeBean2>{
 	
 	private static final int LEN_STRING_ENUM_FIELD = 20;
 	
@@ -44,7 +44,7 @@ public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldTypeBeanKey,ManyFi
 	/***************************** fields ********************************/
 	
 	@Id
-	private ManyFieldTypeBeanKey key;
+	private ManyFieldBeanKey key;
 	
 	private Byte byteField;
 	private Short shortField;
@@ -96,11 +96,11 @@ public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldTypeBeanKey,ManyFi
 	}
 	
 	
-	public static class ManyFieldTypeBean2Fielder extends BaseDatabeanFielder<ManyFieldTypeBeanKey,ManyFieldTypeBean2>{
+	public static class ManyFieldTypeBean2Fielder extends BaseDatabeanFielder<ManyFieldBeanKey,ManyFieldTypeBean2>{
 		public ManyFieldTypeBean2Fielder(){}
 		@Override
-		public Class<ManyFieldTypeBeanKey> getKeyFielderClass(){
-			return ManyFieldTypeBeanKey.class;
+		public Class<ManyFieldBeanKey> getKeyFielderClass(){
+			return ManyFieldBeanKey.class;
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(ManyFieldTypeBean2 d){
@@ -129,19 +129,19 @@ public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldTypeBeanKey,ManyFi
 	/***************************** constructor **************************************/
 		
 	public ManyFieldTypeBean2(){//no-arg and public
-		this.key = new ManyFieldTypeBeanKey();
+		this.key = new ManyFieldBeanKey();
 	}
 	
 	
 	/************************* databean *********************************************/
 	
 	@Override
-	public Class<ManyFieldTypeBeanKey> getKeyClass() {
-		return ManyFieldTypeBeanKey.class;
+	public Class<ManyFieldBeanKey> getKeyClass() {
+		return ManyFieldBeanKey.class;
 	};
 	
 	@Override
-	public ManyFieldTypeBeanKey getKey(){
+	public ManyFieldBeanKey getKey(){
 		return key;
 	}
 	
@@ -183,7 +183,7 @@ public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldTypeBeanKey,ManyFi
 		this.data = data;
 	}
 
-	public void setKey(ManyFieldTypeBeanKey key){
+	public void setKey(ManyFieldBeanKey key){
 		this.key = key;
 	}
 

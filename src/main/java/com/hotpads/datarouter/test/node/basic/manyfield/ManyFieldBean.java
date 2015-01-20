@@ -48,7 +48,7 @@ import com.hotpads.util.core.collections.arrays.LongArray;
 @SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
-public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFieldTypeBean>{
+public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
 
@@ -57,7 +57,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	/***************************** fields ********************************/
 	
 	@Id
-	private ManyFieldTypeBeanKey key;
+	private ManyFieldBeanKey key;
 	
 	private Boolean booleanField;
 	private Byte byteField;
@@ -127,7 +127,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 			incrementField = "incrementField";
 	}
 	
-	public boolean equalsAllPersistentFields(ManyFieldTypeBean that){
+	public boolean equalsAllPersistentFields(ManyFieldBean that){
 		if(ObjectTool.notEquals(key, that.key)){ return false; }
 		if(ObjectTool.notEquals(booleanField, that.booleanField)){ return false; }
 		if(ObjectTool.notEquals(byteField, that.byteField)){ return false; }
@@ -155,14 +155,14 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		return true;
 	}
 	
-	public static class ManyFieldTypeBeanFielder extends BaseDatabeanFielder<ManyFieldTypeBeanKey,ManyFieldTypeBean>{
+	public static class ManyFieldTypeBeanFielder extends BaseDatabeanFielder<ManyFieldBeanKey,ManyFieldBean>{
 		public ManyFieldTypeBeanFielder(){}
 		@Override
-		public Class<ManyFieldTypeBeanKey> getKeyFielderClass(){
-			return ManyFieldTypeBeanKey.class;
+		public Class<ManyFieldBeanKey> getKeyFielderClass(){
+			return ManyFieldBeanKey.class;
 		}
 		@Override
-		public List<Field<?>> getNonKeyFields(ManyFieldTypeBean d){
+		public List<Field<?>> getNonKeyFields(ManyFieldBean d){
 			List<Field<?>> fields = ListTool.createArrayList();
 			fields.add(new BooleanField(F.booleanField, d.booleanField));
 			fields.add(new SignedByteField(F.byteField, d.byteField));
@@ -190,7 +190,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 			return fields;
 		}
 		@Override
-		public Map<String,List<Field<?>>> getIndexes(ManyFieldTypeBean d){
+		public Map<String,List<Field<?>>> getIndexes(ManyFieldBean d){
 			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
 			indexesByName.put("index_shortInt", FieldTool.createList(
 					new ShortField(F.shortField, d.shortField),
@@ -205,24 +205,24 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	
 	/***************************** constructor **************************************/
 		
-	public ManyFieldTypeBean(){//no-arg and public
-		this.key = new ManyFieldTypeBeanKey();//let the key generate a random value
+	public ManyFieldBean(){//no-arg and public
+		this.key = new ManyFieldBeanKey();//let the key generate a random value
 	}
 	
-	public ManyFieldTypeBean(Long id){
-		this.key = new ManyFieldTypeBeanKey(id);
+	public ManyFieldBean(Long id){
+		this.key = new ManyFieldBeanKey(id);
 	}
 	
 	
 	/************************* databean *********************************************/
 	
 	@Override
-	public Class<ManyFieldTypeBeanKey> getKeyClass() {
-		return ManyFieldTypeBeanKey.class;
+	public Class<ManyFieldBeanKey> getKeyClass() {
+		return ManyFieldBeanKey.class;
 	};
 	
 	@Override
-	public ManyFieldTypeBeanKey getKey(){
+	public ManyFieldBeanKey getKey(){
 		return key;
 	}
 	
@@ -234,9 +234,9 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 	
 	/***************************** static methods *****************************/
 	
-	public static List<ManyFieldTypeBean> filterForStringValue(Collection<ManyFieldTypeBean> ins, String value){
-		List<ManyFieldTypeBean> outs = ListTool.createLinkedList();
-		for(ManyFieldTypeBean in : IterableTool.nullSafe(ins)){
+	public static List<ManyFieldBean> filterForStringValue(Collection<ManyFieldBean> ins, String value){
+		List<ManyFieldBean> outs = ListTool.createLinkedList();
+		for(ManyFieldBean in : IterableTool.nullSafe(ins)){
 			if(ObjectTool.equals(in.getStringField(), value)){
 				outs.add(in);
 			}
@@ -287,7 +287,7 @@ public class ManyFieldTypeBean extends BaseDatabean<ManyFieldTypeBeanKey,ManyFie
 		this.data = data;
 	}
 
-	public void setKey(ManyFieldTypeBeanKey key){
+	public void setKey(ManyFieldBeanKey key){
 		this.key = key;
 	}
 
