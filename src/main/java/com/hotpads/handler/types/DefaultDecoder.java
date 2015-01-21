@@ -12,7 +12,7 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.JsonSyntaxException;
-import com.hotpads.datarouter.config.DatarouterGuiceModule.HandlerDefaultSerializer;
+import com.hotpads.guice.DatarouterGuiceModule.HandlerDefaultSerializer;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.http.json.JsonSerializer;
 

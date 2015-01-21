@@ -9,7 +9,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Stage;
-import com.hotpads.datarouter.config.DatarouterGuiceModule;
+import com.hotpads.guice.DatarouterGuiceModule;
 
 public class DatarouterTestInjectorProvider implements Provider<Injector>{
 	protected List<Module> modules = new ArrayList<>();
