@@ -9,7 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.hotpads.guice.DatarouterGuiceModule.HandlerDefaultSerializer;
+import com.hotpads.datarouter.config.DatarouterGuiceModule.HandlerDefaultSerializer;
 import com.hotpads.util.http.json.JsonSerializer;
 
 @Singleton
