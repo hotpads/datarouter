@@ -1,5 +1,6 @@
 package com.hotpads;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.ServletContext;
@@ -7,11 +8,17 @@ import javax.servlet.ServletContext;
 @Singleton
 public class WebAppName{
 
+	private static final String TEST = "test";
+	
 	private String name;
 	
 	@Inject
-	public WebAppName(ServletContext servletContext){
-		this.name = servletContext.getServletContextName();
+	public WebAppName(@Nullable ServletContext servletContext){
+		if(servletContext == null){
+			this.name = TEST;
+		}else{
+			this.name = servletContext.getServletContextName();
+		}
 	}
 
 	@Override
