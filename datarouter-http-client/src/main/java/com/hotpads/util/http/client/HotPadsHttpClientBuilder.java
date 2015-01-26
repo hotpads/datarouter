@@ -23,6 +23,7 @@ public class HotPadsHttpClientBuilder{
 	private static final int MAX_CONNECTION_PER_ROUTE = 2;
 	
 	private int timeoutMs; // must be int due to RequestConfig.set*Timeout() methods
+	private Long futureTimeoutMs;
 	private int maxTotalConnections;
 	private HttpClientBuilder httpClientBuilder;
 	private HotPadsRetryHandler retryHandler;
@@ -67,7 +68,7 @@ public class HotPadsHttpClientBuilder{
 				TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(maxTotalConnections),
 				new ThreadPoolExecutor.CallerRunsPolicy());
 		return new HotPadsHttpClient(builtHttpClient, this.jsonSerializer, this.signatureValidator, this.csrfValidator,
-				this.apiKeyPredicate, this.config, executor, this.timeoutMs, retryHandler.getRetryCount());
+				this.apiKeyPredicate, this.config, executor, this.timeoutMs, this.futureTimeoutMs, retryHandler.getRetryCount());
 	}
 	
 	public HotPadsHttpClientBuilder setRetryCount(int retryCount){
@@ -124,4 +125,8 @@ public class HotPadsHttpClientBuilder{
 		return this;
 	}
 
+	public HotPadsHttpClientBuilder setFutureTimeoutMs(long futureTimeoutMs) {
+		this.futureTimeoutMs = futureTimeoutMs;
+		return this;
+	}
 }

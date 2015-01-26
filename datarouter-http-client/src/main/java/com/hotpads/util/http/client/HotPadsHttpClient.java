@@ -53,11 +53,12 @@ public class HotPadsHttpClient {
 	private HotPadsHttpClientConfig config;
 	private ExecutorService executor;
 	private int requestTimeoutMs;
+	private long futureTimeoutMs;
 	private Integer retryCount;
 
 	HotPadsHttpClient(HttpClient httpClient, JsonSerializer jsonSerializer, SignatureValidator signatureValidator,
 			CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate, HotPadsHttpClientConfig config,
-			ExecutorService executor, Integer requestTimeoutMs, Integer retryCount) {
+			ExecutorService executor, Integer requestTimeoutMs, Long futureTimeoutMs, Integer retryCount) {
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureValidator = signatureValidator;
@@ -66,6 +67,8 @@ public class HotPadsHttpClient {
 		this.config = config;
 		this.executor = executor;
 		this.requestTimeoutMs = requestTimeoutMs == null ? DEFAULT_REQUEST_TIMEOUT_MS : requestTimeoutMs.intValue();
+		this.futureTimeoutMs = futureTimeoutMs == null ? getFutureTimeoutMs(this.requestTimeoutMs, retryCount)
+				: futureTimeoutMs.longValue();
 		this.retryCount = retryCount;
 	}
 
@@ -112,9 +115,9 @@ public class HotPadsHttpClient {
 		context.setAttribute(HotPadsRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
 
 		HotPadsHttpException ex;
-		int timeoutMs = request.getTimeoutMs() == null ? requestTimeoutMs : request.getTimeoutMs().intValue();
-		long futureTimeoutMs = request.getFutureTimeoutMs() == null ? getFutureTimeoutMs(timeoutMs, retryCount)
-				: request.getFutureTimeoutMs().intValue();
+		int timeoutMs = request.getTimeoutMs() == null ? this.requestTimeoutMs : request.getTimeoutMs().intValue();
+		long futureTimeoutMs = request.getFutureTimeoutMs() == null ? this.futureTimeoutMs : request
+				.getFutureTimeoutMs().longValue();
 		HttpRequestBase internalHttpRequest = null;
 		try {
 			internalHttpRequest = request.getRequest();
@@ -133,19 +136,19 @@ public class HotPadsHttpClient {
 				ex = new HotPadsHttpRequestExecutionException(e);
 			}
 		}
-		if(ex!=null && internalHttpRequest != null){
+		if (ex != null && internalHttpRequest != null) {
 			forceAbortRequestUnchecked(internalHttpRequest);
 		}
 		throw ex;
 	}
 	
-	private static void forceAbortRequestUnchecked(HttpRequestBase internalHttpRequest){
-		if(internalHttpRequest==null){
+	private static void forceAbortRequestUnchecked(HttpRequestBase internalHttpRequest) {
+		if (internalHttpRequest == null) {
 			return;
 		}
-		try{
+		try {
 			internalHttpRequest.abort();
-		}catch(Exception e){
+		} catch (Exception e) {
 			logger.error("aborting internal http request failed", e);
 		}
 	}
