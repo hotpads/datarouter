@@ -3,10 +3,11 @@ package com.hotpads.job.trigger;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
+import com.hotpads.guice.DatarouterExecutorGuiceModule;
 import com.hotpads.job.record.LongRunningTaskTrackerFactory;
-import com.hotpads.job.thread.JobExecutorProvider.JobExecutor;
 import com.hotpads.setting.Setting;
 
 @Singleton
@@ -20,8 +21,8 @@ public class JobEnvironment{
 	private Setting<Boolean> shouldSaveLongRunningTasks;
 
 	@Inject
-	public JobEnvironment(JobScheduler jobScheduler, @JobExecutor ScheduledExecutorService executorService,
-			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory){
+	public JobEnvironment(JobScheduler jobScheduler, LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
+			@Named(DatarouterExecutorGuiceModule.POOL_datarouterJobExecutor) ScheduledExecutorService executorService){
 		this.scheduler = jobScheduler;
 		this.executor = executorService;
 		this.longRunningTaskTrackerFactory = longRunningTaskTrackerFactory;
