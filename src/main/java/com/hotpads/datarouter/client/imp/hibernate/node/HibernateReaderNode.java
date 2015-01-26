@@ -4,18 +4,17 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateCountOp;
-import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetAllOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstKeyOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetKeysOp;
@@ -74,12 +73,6 @@ implements MapStorageReader<PK,D>,
 	public HibernateClientImp getClient(){
 		return (HibernateClientImp)getRouter().getClient(getClientName());
 	}
-	
-	@Override
-	public void clearThreadSpecificState(){
-		//TODO maybe clear the hibernate session here through the client??
-	}
-
 	
 	/************************************ MapStorageReader methods ****************************/
 	

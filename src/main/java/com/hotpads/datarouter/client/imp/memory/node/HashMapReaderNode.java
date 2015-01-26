@@ -47,12 +47,6 @@ implements MapStorageReader<PK,D>{
 		return ListTool.create();
 	}
 	
-	@Override
-	public void clearThreadSpecificState(){
-		//do nothing, i think
-	}
-
-	
 	/************************************ MapStorageReader methods ****************************/
 	
 	@Override

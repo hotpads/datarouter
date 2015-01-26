@@ -36,7 +36,6 @@ import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.profile.callsite.LineOfCode;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Range;
@@ -66,12 +65,6 @@ implements MapStorageReader<PK,D>,
 	public JdbcClientImp getClient(){
 		return (JdbcClientImp)getRouter().getClient(getClientName());
 	}
-	
-	@Override
-	public void clearThreadSpecificState(){
-		//TODO maybe clear the hibernate session here through the client??
-	}
-
 	
 	/************************************ MapStorageReader methods ****************************/
 	
