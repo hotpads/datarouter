@@ -52,6 +52,7 @@ public class HBaseResultTool{
 		return getPrimaryKeyUnchecked(keyBytes, fieldInfo);
 	}
 	
+	//TODO use FieldSetTool.fromConcatenatedValueBytes
 	public static <PK extends PrimaryKey<PK>> 
 	PK getPrimaryKeyUnchecked(byte[] rowBytes, DatabeanFieldInfo<?,?,?> fieldInfo){
 		@SuppressWarnings("unchecked")
