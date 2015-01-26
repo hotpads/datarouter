@@ -14,31 +14,31 @@ import com.hotpads.handler.user.authenticate.DatarouterPasswordService;
 import com.hotpads.handler.user.authenticate.DatarouterTokenGenerator;
 import com.hotpads.handler.user.role.DatarouterUserRole;
 
-public class DataRouterUserService{
-	private static final Logger logger = LoggerFactory.getLogger(DataRouterUserService.class);
+public class DatarouterUserService{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterUserService.class);
 	
 	private static final String ADMIN_USERNAME =  "admin@hotpads.com";
 	private static final String RAW_PW = "tempAdminPassword";
+	private static final long ADMIN_ID = 1L;
 	
 	//injected fields	
 	private DatarouterUserNodes userNodes;
 	private DatarouterPasswordService passwordService;
 	
 	@Inject
-	public DataRouterUserService(DatarouterUserNodes userNodes, DatarouterPasswordService passwordService){
+	public DatarouterUserService(DatarouterUserNodes userNodes, DatarouterPasswordService passwordService){
 		this.userNodes = userNodes;
 		this.passwordService = passwordService;
 	}
 	
-	public void createAdminUser(long admin_id, Collection<DatarouterUserRole> roles){
-		
+	public void createAdminUser(Collection<DatarouterUserRole> roles){		
 		String salt = passwordService.generateSaltForNewUser();		
 		String digest = passwordService.digest(salt, RAW_PW);		
 		DatarouterUser user = new DatarouterUser();
 		user.setCreated(new Date());
 		user.setUsername(ADMIN_USERNAME);
 		user.setEnabled(true);
-		user.setId(admin_id);
+		user.setId(ADMIN_ID);
 		user.setLastLoggedIn(new Date());
 		user.setPasswordDigest(digest);
 		user.setPasswordSalt(salt);
