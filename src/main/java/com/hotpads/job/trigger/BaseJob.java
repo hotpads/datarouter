@@ -12,15 +12,11 @@ import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
-import com.hotpads.handler.exception.ExceptionRecord;
-import com.hotpads.handler.exception.ExceptionRecordKey;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTaskTracker;
 import com.hotpads.job.record.LongRunningTaskType;
-import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.setting.Setting;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.ComparableTool;
@@ -42,10 +38,6 @@ public abstract class BaseJob implements Job{
 	private Date triggerTime;
 	private String jobClass;
 	
-	@Inject
-	private SortedMapStorageNode<ExceptionRecordKey, ExceptionRecord> exceptionRecordNode;
-	@Inject
-	private ParallelApiCaller apiCaller;
 	@Inject
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
@@ -98,7 +90,7 @@ public abstract class BaseJob implements Job{
 				return;
 			}
 		}
-		Job nextJobInstance = scheduler.getJobInstance(getClass(), getTrigger().getCronExpression());
+		Job nextJobInstance = scheduler.getJobInstance(getClass());
 		Long nextTriggerTime = System.currentTimeMillis() + delay;
 		nextJobInstance.setTriggerTime(new Date(nextTriggerTime));
 		executor.schedule(nextJobInstance, delay, TimeUnit.MILLISECONDS);

@@ -11,4 +11,9 @@ public class HibernateTxnIntegrationTests extends BaseTxnIntegrationTests{
 		setup(DRTestConstants.CLIENT_drTestHibernate0, false);
 		resetTable();
 	}
+	
+	@Override
+	protected boolean hasSession(){
+		return true;
+	}
 }

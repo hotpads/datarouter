@@ -1,17 +1,24 @@
 package com.hotpads;
 
+import javax.annotation.Nullable;
+import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.servlet.ServletContext;
 
 @Singleton
 public class WebAppName{
 
+	private static final String TEST = "test";
+	
 	private String name;
-
-	public void init(String name) {
-		if (this.name != null) {
-			throw new IllegalStateException("WebAppName is already initialized");
+	
+	@Inject
+	public WebAppName(@Nullable ServletContext servletContext){
+		if(servletContext == null){
+			this.name = TEST;
+		}else{
+			this.name = servletContext.getServletContextName();
 		}
-		this.name = name;
 	}
 
 	@Override

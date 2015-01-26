@@ -22,9 +22,6 @@ public abstract class DatarouterLoader implements ServletContextListener{
 	public void contextInitialized(ServletContextEvent event){
 		init(event.getServletContext());
 
-		WebAppName webAppName = getInjector().getInstance(WebAppName.class);
-		webAppName.init(event.getServletContext().getServletContextName());
-
 		listeners = new LinkedList<>();
 		for(Class<? extends HotPadsWebAppListener> listenerClass : getListenerClasses()){
 			HotPadsWebAppListener listener = getInjector().getInstance(listenerClass);
@@ -34,7 +31,7 @@ public abstract class DatarouterLoader implements ServletContextListener{
 		}
 	}
 
-	private List<Class<? extends HotPadsWebAppListener>> getListenerClasses(){
+	protected List<Class<? extends HotPadsWebAppListener>> getListenerClasses(){
 		List<Class<? extends HotPadsWebAppListener>> classes = new LinkedList<>();
 		classes.add(DatarouterContextLoader.class);
 		classes.add(LoggingConfigLoader.class);
