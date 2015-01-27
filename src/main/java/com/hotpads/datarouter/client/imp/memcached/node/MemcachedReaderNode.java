@@ -59,11 +59,6 @@ implements MemcachedPhysicalNode<PK,D>,
 		return (MemcachedClient)getRouter().getClient(getClientName());
 	}
 	
-	@Override
-	public void clearThreadSpecificState(){
-	}
-	
-	
 	/************************************ MapStorageReader methods ****************************/
 	
 	@Override

@@ -87,11 +87,6 @@ extends BaseNode<PK,D,F>{
 	}
 	
 	@Override
-	public void clearThreadSpecificState(){
-		mainNode.clearThreadSpecificState();
-	}
-	
-	@Override
 	public List<N> getChildNodes(){
 		return ListTool.wrap(mainNode);
 	}

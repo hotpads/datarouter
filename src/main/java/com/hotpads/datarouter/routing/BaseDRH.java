@@ -77,14 +77,6 @@ public abstract class BaseDRH{
 		}
 		return null;
 	}
-
-	public void clearThreadSpecificState(){
-		if(CollectionTool.isEmpty(this.routers)){ return; }
-		for(Datarouter router : this.routers){
-			router.clearThreadSpecificState();
-		}
-	}
-	
 	
 	/************************** get/set ******************************/
 	

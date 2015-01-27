@@ -45,6 +45,4 @@ extends Comparable<Node<PK,D>>{
 	Node<PK,D> getMaster();
 	List<? extends Node<PK,D>> getChildNodes();
 	
-	void clearThreadSpecificState();
-	
 }

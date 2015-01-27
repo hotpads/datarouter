@@ -98,13 +98,6 @@ implements Datarouter{
 		return t;
 	}
 	
-	/************************************** caching ***********************************/
-
-	@Override
-	public void clearThreadSpecificState(){
-		context.getNodes().clearThreadSpecificState();
-	}
-	
 	/************************************** getting clients *************************/
 	
 	@Override
