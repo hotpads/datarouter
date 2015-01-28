@@ -5,9 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-
-import junit.framework.Assert;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
@@ -33,15 +30,12 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
-import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.ByteTool;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
@@ -80,11 +74,6 @@ implements HBasePhysicalNode<PK,D>,
 	public HBaseClient getClient(){
 		return (HBaseClient)getRouter().getClient(getClientName());
 	}
-	
-	@Override
-	public void clearThreadSpecificState(){
-	}
-	
 	
 	/************************************ MapStorageReader methods ****************************/
 	

@@ -46,11 +46,6 @@ extends BaseNode<PK,D,F>{
 //		this.name = fieldInfo.getDatabeanClass().getSimpleName()+"."+getClass().getSimpleName()+"."+System.identityHashCode(this);
 	}
 
-	
-	@Override
-	public void clearThreadSpecificState(){
-	}
-
 	public void updateLastAttemptedContact(){
 		lastAttemptedContact = System.currentTimeMillis();
 	}

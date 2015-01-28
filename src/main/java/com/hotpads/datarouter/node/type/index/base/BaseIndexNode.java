@@ -97,16 +97,8 @@ extends BaseNode<IK,IE,DatabeanFielder<IK,IE>>{
 	public boolean usesClient(String clientName) {
 		return indexNode.usesClient(clientName);
 	}
-	
-	@Override
-	public void clearThreadSpecificState(){
-		indexNode.clearThreadSpecificState();
-	}
 
 	public N getBackingNode(){
 		return indexNode;
 	}
-
-	
-	
 }

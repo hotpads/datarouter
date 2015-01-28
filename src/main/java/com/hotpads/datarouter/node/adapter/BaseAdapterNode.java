@@ -82,11 +82,6 @@ extends BaseNode<PK,D,F>{
 		return backingNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys);
 	}
 	
-	@Override
-	public void clearThreadSpecificState(){
-		if(this.backingNode!=null){ backingNode.clearThreadSpecificState(); }
-	}
-	
 	/************************ callsite methods ***************************/
 	
 	@Override

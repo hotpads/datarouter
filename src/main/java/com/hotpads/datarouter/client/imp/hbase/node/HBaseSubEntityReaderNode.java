@@ -85,11 +85,6 @@ implements HBasePhysicalNode<PK,D>,
 		return fieldInfo.getEntityNodePrefix();
 	}
 	
-	@Override
-	public void clearThreadSpecificState(){
-	}
-	
-	
 	/************************************ MapStorageReader methods ****************************/
 	
 	@Override
