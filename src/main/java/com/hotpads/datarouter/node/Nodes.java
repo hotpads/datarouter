@@ -11,7 +11,6 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
@@ -201,12 +200,6 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 
 	public List<String> getClientNamesForDatabeanType(Class<D> databeanType){
 		return clientNamesByDatabeanType.get(databeanType);
-	}
-	
-	public void clearThreadSpecificState(){
-		for(N node : MapTool.nullSafe(nodeByName).values()){
-			node.clearThreadSpecificState();
-		}
 	}
 	
 	private void ensureDuplicateNamesReferToSameNode(N node){

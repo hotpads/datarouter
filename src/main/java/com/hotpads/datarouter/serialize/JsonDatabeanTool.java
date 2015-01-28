@@ -17,9 +17,9 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean;
-import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean.ManyFieldTypeBeanFielder;
-import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBeanKey;
+import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean;
+import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
+import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBeanKey;
 import com.hotpads.datarouter.test.node.basic.manyfield.TestEnum;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
@@ -201,14 +201,14 @@ public class JsonDatabeanTool{
 		
 		@Test
 		public void testRoundTrip(){
-			ManyFieldTypeBeanKey keyIn = new ManyFieldTypeBeanKey(12345L);
+			ManyFieldBeanKey keyIn = new ManyFieldBeanKey(12345L);
 			JSONObject keyJsonObject = primaryKeyToJson(keyIn, fielder.getKeyFielder());
 			System.out.println(keyJsonObject.toString());
-			ManyFieldTypeBeanKey keyOut = primaryKeyFromJson(ManyFieldTypeBeanKey.class, fielder.getKeyFielder(), 
+			ManyFieldBeanKey keyOut = primaryKeyFromJson(ManyFieldBeanKey.class, fielder.getKeyFielder(), 
 					keyJsonObject);
 			Assert.assertEquals(keyIn, keyOut);
 			
-			ManyFieldTypeBean beanIn = new ManyFieldTypeBean(33333L);
+			ManyFieldBean beanIn = new ManyFieldBean(33333L);
 			beanIn.setBooleanField(false);
 			beanIn.setByteField((byte)-55);
 			beanIn.setCharacterField('Z');
@@ -226,7 +226,7 @@ public class JsonDatabeanTool{
 			
 			JSONObject databeanJson = databeanToJson(beanIn, fielder);
 			System.out.println(databeanJson);
-			ManyFieldTypeBean beanOut = databeanFromJson(ManyFieldTypeBean.class, fielder, databeanJson);
+			ManyFieldBean beanOut = databeanFromJson(ManyFieldBean.class, fielder, databeanJson);
 			Assert.assertTrue(beanIn.equalsAllPersistentFields(beanOut));
 		}
 		@Test

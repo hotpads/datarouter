@@ -36,9 +36,9 @@ import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNod
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
-import com.hotpads.datarouter.test.node.basic.BasicNodeTestRouter;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBeanKey;
+import com.hotpads.datarouter.test.node.basic.backup.BackupTestRouter;
 import com.hotpads.util.core.IterableTool;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
@@ -63,7 +63,7 @@ public class BackupIntegrationTester{
 	
 	/************************************ routers ***************************************/
 
-	static Map<ClientType,BasicNodeTestRouter> routerByClientType = MapTool.create();
+	static Map<ClientType,BackupTestRouter> routerByClientType = MapTool.create();
 	
 	@BeforeClass
 	public static void init() throws IOException{	
@@ -76,23 +76,23 @@ public class BackupIntegrationTester{
 		if(clientTypes.contains(HibernateClientType.INSTANCE)){
 			routerByClientType.put(
 					HibernateClientType.INSTANCE, 
-					new BasicNodeTestRouter(drContext, nodeFactory, DRTestConstants.CLIENT_drTestHibernate0, cls, true, false));
+					new BackupTestRouter(drContext, nodeFactory, DRTestConstants.CLIENT_drTestHibernate0));
 		}
 
 		if(clientTypes.contains(HBaseClientType.INSTANCE)){
 			routerByClientType.put(
 					HBaseClientType.INSTANCE, 
-					new BasicNodeTestRouter(drContext, nodeFactory, DRTestConstants.CLIENT_drTestHBase, cls, true, false));
+					new BackupTestRouter(drContext, nodeFactory, DRTestConstants.CLIENT_drTestHBase));
 		}
 		
-		for(BasicNodeTestRouter router : routerByClientType.values()){
+		for(BackupTestRouter router : routerByClientType.values()){
 			resetTable(router);
 		}
 	}
 	
 	/****************************** dummy data *************************************/
 	
-	public static void resetTable(BasicNodeTestRouter routerToReset){	
+	public static void resetTable(BackupTestRouter routerToReset){	
 		clearTable(routerToReset);
 		
 		List<String> as = ListTool.createArrayList(STRINGS);
@@ -122,7 +122,7 @@ public class BackupIntegrationTester{
 		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(routerToReset.backupBeanNode().scan(null, null)).intValue());
 	}
 	
-	public static void clearTable(BasicNodeTestRouter routerToReset){
+	public static void clearTable(BackupTestRouter routerToReset){
 		routerToReset.backupBeanNode().deleteAll(null);
 		Assert.assertEquals(0, IterableTool.count(routerToReset.backupBeanNode().scan(null, null)).intValue());
 	}
@@ -130,7 +130,7 @@ public class BackupIntegrationTester{
 	/***************************** fields **************************************/
 	
 	protected ClientType clientType;
-	protected BasicNodeTestRouter router;
+	protected BackupTestRouter router;
 
 	/***************************** constructors **************************************/
 	

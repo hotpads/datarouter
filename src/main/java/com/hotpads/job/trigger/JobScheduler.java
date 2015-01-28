@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.quartz.CronExpression;
@@ -15,10 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Injector;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import com.hotpads.guice.DatarouterExecutorGuiceModule;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTask;
 import com.hotpads.job.record.LongRunningTaskKey;
-import com.hotpads.job.thread.JobExecutorProvider.JobExecutor;
 import com.hotpads.setting.Setting;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
@@ -35,8 +36,9 @@ public class JobScheduler {
 	private Setting<Boolean> scheduleMissedJobsOnStartup;
 	
 	@Inject
-	public JobScheduler(Injector injector, TriggerGroup triggerGroup, TriggerTracker tracker, 
-			IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> node, @JobExecutor ScheduledExecutorService executor){
+	public JobScheduler(Injector injector, TriggerGroup triggerGroup, TriggerTracker tracker,
+			IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> node,
+			@Named(DatarouterExecutorGuiceModule.POOL_datarouterJobExecutor) ScheduledExecutorService executor){
 		this.injector = injector;
 		this.triggerGroup = triggerGroup;
 		this.tracker = tracker;
@@ -86,7 +88,7 @@ public class JobScheduler {
 		return jobsLastCompletion;
 	}
 	
-	public Job getJobInstance(Class<? extends Job> jobClass, String cronExpression){
+	public Job getJobInstance(Class<? extends Job> jobClass){
 		Job sampleJob = injector.getInstance(jobClass);
 		if(tracker.get(jobClass).getLastFired() != null){
 			long lastIntervalDurationMs = System.currentTimeMillis() - tracker.get(jobClass).getLastFired().getTime();

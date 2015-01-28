@@ -56,10 +56,6 @@ public interface Datarouter{
 
 	<T> T run(TxnOp<T> parallelTxnOp);
 
-	/************************************** caching ***********************************/
-
-	void clearThreadSpecificState();
-
 	/************************************** getting clients *************************/
 
 	List<ClientId> getClientIds();

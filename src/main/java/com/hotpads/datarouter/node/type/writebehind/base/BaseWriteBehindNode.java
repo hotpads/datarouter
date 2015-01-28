@@ -139,11 +139,6 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	}
 
 	@Override
-	public void clearThreadSpecificState(){
-		backingNode.clearThreadSpecificState();
-	}
-
-	@Override
 	public List<N> getChildNodes(){
 		return ListTool.wrap(backingNode);
 	}

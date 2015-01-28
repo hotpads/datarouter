@@ -2,6 +2,8 @@ package com.hotpads;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -9,28 +11,30 @@ import javax.servlet.ServletContextListener;
 
 import com.hotpads.handler.DatarouterContextLoader;
 import com.hotpads.logging.LoggingConfigLoader;
+import com.hotpads.util.core.concurrent.FutureTool;
 
 public abstract class DatarouterLoader implements ServletContextListener{
 
 	private List<HotPadsWebAppListener> listeners;
-	
+
 	protected abstract void init(ServletContext servletContext);
+
+	protected abstract DatarouterInjector getInjector();
 
 	@Override
 	public void contextInitialized(ServletContextEvent event){
-		listeners = new LinkedList<>();
 		init(event.getServletContext());
+
+		listeners = new LinkedList<>();
 		for(Class<? extends HotPadsWebAppListener> listenerClass : getListenerClasses()){
-			HotPadsWebAppListener listener = buildListener(listenerClass);
+			HotPadsWebAppListener listener = getInjector().getInstance(listenerClass);
 			listeners.add(listener);
 			listener.setServletContext(event.getServletContext());
 			listener.onStartUp();
 		}
 	}
 
-	protected abstract HotPadsWebAppListener buildListener(Class<? extends HotPadsWebAppListener> listenerClass);
-
-	private List<Class<? extends HotPadsWebAppListener>> getListenerClasses(){
+	protected List<Class<? extends HotPadsWebAppListener>> getListenerClasses(){
 		List<Class<? extends HotPadsWebAppListener>> classes = new LinkedList<>();
 		classes.add(DatarouterContextLoader.class);
 		classes.add(LoggingConfigLoader.class);
@@ -44,6 +48,10 @@ public abstract class DatarouterLoader implements ServletContextListener{
 		}
 		listeners.clear();
 		listeners = null;
+		
+		for(ExecutorService executor : getInjector().getInstancesOfType(ExecutorService.class)){
+			FutureTool.finishAndShutdown(executor, 5L, TimeUnit.SECONDS);
+		}
 	}
 
 }

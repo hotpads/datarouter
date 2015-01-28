@@ -4,13 +4,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.inject.Injector;
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.TestDatabean;
@@ -22,6 +22,7 @@ import com.hotpads.util.core.ListTool;
 
 public class LazyReaderIntegrationTests{
 
+	private static DatarouterContext datarouterContext;
 	private static LazyTestRouter router;
 	private static Map<TestDatabeanKey, TestDatabean> keyToDatabean;
 	private static List<TestDatabean> databeans;
@@ -29,6 +30,7 @@ public class LazyReaderIntegrationTests{
 	@BeforeClass
 	public static void setUp(){
 		Injector injector = new DatarouterTestInjectorProvider().get();
+		datarouterContext = injector.getInstance(DatarouterContext.class);
 		router = injector.getInstance(LazyTestRouter.class);
 		
 		databeans = ListTool.create(
@@ -42,8 +44,9 @@ public class LazyReaderIntegrationTests{
 	}
 	
 	@AfterClass
-	public static void tearDown(){
+	public static void afterClass(){
 		router.testDatabean.deleteMulti(keyToDatabean.keySet(), null);
+		datarouterContext.shutdown();
 	}
 	
 	@Test
