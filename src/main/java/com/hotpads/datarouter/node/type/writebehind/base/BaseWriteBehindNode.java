@@ -173,6 +173,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 				flushQueue();
 			}catch(Exception e){
 				logger.error("Failed to flush queue", e);
+				throw e;
 			}
 		}
 
