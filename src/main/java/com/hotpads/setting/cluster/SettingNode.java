@@ -9,26 +9,28 @@ import javax.inject.Inject;
 
 import com.hotpads.setting.Setting;
 import com.hotpads.setting.cached.imp.BooleanCachedSetting;
+import com.hotpads.setting.cached.imp.Duration;
+import com.hotpads.setting.cached.imp.DurationCachedSetting;
 import com.hotpads.setting.cached.imp.IntegerCachedSetting;
 import com.hotpads.setting.cached.imp.StringCachedSetting;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
 public abstract class SettingNode {
-	
-	
+
+
 	/*********** fields ***********/
-	
+
 	private String parentName;
 	private String name;
 	protected SortedMap<String,SettingNode> children;
-	
+
 	protected SortedMap<String,Setting<?>> settings;
 	protected ClusterSettingFinder finder;
-	
-	
+
+
 	/*********** construct ***********/
-	
+
 	@Inject
 	public SettingNode(ClusterSettingFinder finder, String name, String parentName){
 		this.name = name;
@@ -37,15 +39,15 @@ public abstract class SettingNode {
 		this.settings = Collections.synchronizedSortedMap(MapTool.<String,Setting<?>>createTreeMap());
 		this.finder = finder;
 	}
-	
-	
+
+
 	/*********** methods ***********/
-	
+
 	protected <S extends Setting<?>> S register(S setting){
 		settings.put(setting.getName(), setting);
 		return setting;
 	}
-	
+
 	public SettingNode getNodeByName(String nameParam){
 		if(getName().equals(nameParam)){
 			return this;
@@ -61,7 +63,7 @@ public abstract class SettingNode {
 		}
 		return null;
 	}
-	
+
 	public List<SettingNode> getDescendanceByName(String nameParam){
 		ArrayList<SettingNode> list = ListTool.createArrayList();
 		if(getName().equals(nameParam)){
@@ -74,10 +76,10 @@ public abstract class SettingNode {
 		if(getChildren().containsKey(nextChildPath)){
 			list.add(this);
 			list.addAll(getChildren().get(nextChildPath).getDescendanceByName(nameParam));
-		}		
+		}
 		return list;
 	}
-	
+
 	public Setting<?> getDescendantSettingByName(String settingNameParam){
 		if(getSettings().containsKey(settingNameParam)){
 			return getSettings().get(settingNameParam);
@@ -90,7 +92,7 @@ public abstract class SettingNode {
 		}
 		return null;
 	}
-	
+
 	public List<SettingNode> getListChildren(){
 		ArrayList<SettingNode> list = ListTool.createArrayList();
 		for (String childName : children.keySet()){
@@ -98,45 +100,48 @@ public abstract class SettingNode {
 		}
 		return list;
 	}
-	
+
 	public ArrayList<Setting<?>> getListSettings(){
 		return ListTool.createArrayList(settings.values());
 	}
-	
+
 	public String getShortName(){
 		String shortName = getName().substring(getParentName().length());
 		return shortName.substring(0, shortName.length()-1);
 	}
-	
-	protected StringCachedSetting registerString( String name, String defaultValue ) {
-		return register(new StringCachedSetting(finder, getName()+name, defaultValue));
+
+	protected StringCachedSetting registerString(String name, String defaultValue){
+		return register(new StringCachedSetting(finder, getName() + name, defaultValue));
 	}
 
-	protected BooleanCachedSetting registerBoolean( String name, Boolean defaultValue ) {
-		return register(new BooleanCachedSetting(finder, getName()+name, defaultValue));
+	protected BooleanCachedSetting registerBoolean(String name, Boolean defaultValue){
+		return register(new BooleanCachedSetting(finder, getName() + name, defaultValue));
 	}
 
-	protected IntegerCachedSetting registerInteger( String name, Integer defaultValue ) {
-		return register(new IntegerCachedSetting(finder, getName()+name, defaultValue));
+	protected IntegerCachedSetting registerInteger(String name, Integer defaultValue){
+		return register(new IntegerCachedSetting(finder, getName() + name, defaultValue));
 	}
 
-	
+	protected DurationCachedSetting registerDuration(String name, Duration defaultValue){
+		return register(new DurationCachedSetting(finder, getName() + name, defaultValue));
+	}
+
 	/*********** get/set ***********/
-	
+
 	public String getName(){
 		return name;
 	}
-	
+
 	public String getParentName(){
 		return parentName;
 	}
-	
+
 	public SortedMap<String,Setting<?>> getSettings(){
 		return settings;
 	}
-	
+
 	public SortedMap<String,SettingNode> getChildren(){
 		return children;
 	}
-	
+
 }
