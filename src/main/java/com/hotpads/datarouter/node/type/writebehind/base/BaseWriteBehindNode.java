@@ -14,6 +14,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
@@ -29,14 +32,14 @@ import com.hotpads.util.core.SetTool;
 public abstract class BaseWriteBehindNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		N extends Node<PK,D>> 
+		N extends Node<PK,D>>
 extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	private static final int FLUSH_BATCH_SIZE = 100;
 
 	public static final int DEFAULT_WRITE_BEHIND_THREADS = 1;
 	public static final long DEFAULT_TIMEOUT_MS = 60*1000;
-	
+
 	protected N backingNode;
 	protected ExecutorService writeExecutor;
 	protected long timeoutMs;//TODO also limit by queue length
@@ -45,56 +48,59 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	private ScheduledExecutorService flushScheduler;
 	private Queue<WriteWrapper<?>> queue;
 
-	
+
 	public BaseWriteBehindNode(Class<D> databeanClass, Datarouter router,
 			N backingNode, ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
-		super(new NodeParamsBuilder<PK,D,DatabeanFielder<PK,D>>(router, databeanClass).build());
+		super(new NodeParamsBuilder<>(router, databeanClass).build());
 		if(backingNode==null){ throw new IllegalArgumentException("backingNode cannont be null."); }
 		this.backingNode = backingNode;
-		
+
 		if(writeExecutor!=null){
 			this.writeExecutor = writeExecutor;
 		}else{
 			this.writeExecutor = Executors.newFixedThreadPool(DEFAULT_WRITE_BEHIND_THREADS);
 			this.writeExecutor.submit(new Callable<Void>(){
+				@Override
 				public Void call(){
 					Thread.currentThread().setName("NonBlockingWriteNode flusher:"+getName());
-					return null; 
+					return null;
 				}
 			});
 		}
-		
+
 		this.timeoutMs = DEFAULT_TIMEOUT_MS;//1 min default
-		this.outstandingWrites = new ConcurrentLinkedQueue<OutstandingWriteWrapper>();
-		
+		this.outstandingWrites = new ConcurrentLinkedQueue<>();
+
 		if(cancelExecutor!=null){
 			this.cancelExecutor = cancelExecutor;
-			this.cancelExecutor.scheduleWithFixedDelay(new OverdueWriteCanceller(this), 0, 1000, TimeUnit.MILLISECONDS); 
+			this.cancelExecutor.scheduleWithFixedDelay(new OverdueWriteCanceller(this), 0, 1000, TimeUnit.MILLISECONDS);
 		}else{
 			this.cancelExecutor = Executors.newSingleThreadScheduledExecutor();
-			this.cancelExecutor.scheduleWithFixedDelay(new OverdueWriteCanceller(this), 0, 1000, TimeUnit.MILLISECONDS); 
+			this.cancelExecutor.scheduleWithFixedDelay(new OverdueWriteCanceller(this), 0, 1000, TimeUnit.MILLISECONDS);
 			this.cancelExecutor.submit(new Callable<Void>(){
+				@Override
 				public Void call(){
 					Thread.currentThread().setName("NonBlockingWriteNode canceller:"+getName());
-					return null; 
+					return null;
 				}
 			});
 		}
-		
+
 
 		this.flushScheduler = Executors.newSingleThreadScheduledExecutor();
 		this.flushScheduler.scheduleWithFixedDelay(new QueueFlusher(), 500, 500, TimeUnit.MILLISECONDS);
 		this.flushScheduler.submit(new Callable<Void>(){
+			@Override
 			public Void call(){
 				Thread.currentThread().setName("NonBlockingWriteNode writer:"+getName());
-				return null; 
+				return null;
 			}
 		});
-		
-		queue = new LinkedBlockingQueue<WriteWrapper<?>>();
+
+		queue = new LinkedBlockingQueue<>();
 	}
-	
-	
+
+
 	/*************************** node methods *************************/
 
 	@Override
@@ -157,22 +163,35 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	}
 
 	public class QueueFlusher implements Runnable{
+		private final Logger logger = LoggerFactory.getLogger(BaseWriteBehindNode.QueueFlusher.class);
 
 		private WriteWrapper<Object> previousWriteWrapper;
 
-		@SuppressWarnings("unchecked") @Override
+		@Override
 		public void run(){
-			previousWriteWrapper = new WriteWrapper<>(null, new LinkedList<>(), null);
+			try{
+				flushQueue();
+			}catch(Exception e){
+				logger.error("Failed to flush queue", e);
+				throw e;
+			}
+		}
+
+		private void flushQueue(){
+			previousWriteWrapper = null;
 			while(CollectionTool.notEmpty(queue)){
 				WriteWrapper<?> writeWrapper = queue.poll();
-				if(!writeWrapper.getOp().equals(previousWriteWrapper.getOp()) || writeWrapper.getConfig() != null){
+				if(previousWriteWrapper != null && (!writeWrapper.getOp().equals(previousWriteWrapper.getOp())
+						|| writeWrapper.getConfig() != null)){
 					handlePrevious();
-					previousWriteWrapper = (WriteWrapper<Object>)new WriteWrapper<>(writeWrapper);
 				}
 				if(writeWrapper.getConfig() != null){
 					handleWriteWrapper(writeWrapper);
 				}else{
 					List<?> list = ListTool.asList(writeWrapper.getObjects());
+					if(previousWriteWrapper == null){
+						previousWriteWrapper = new WriteWrapper<>(writeWrapper.getOp(), new LinkedList<>(), null);
+					}
 					int previousSize = previousWriteWrapper.getObjects().size();
 					int end = Math.min(FLUSH_BATCH_SIZE - previousSize, list.size());
 					previousWriteWrapper.getObjects().addAll(list.subList(0, end));
@@ -183,6 +202,9 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 					while(i * FLUSH_BATCH_SIZE - previousSize < list.size()){
 						int beginning = i * FLUSH_BATCH_SIZE - previousSize;
 						end = Math.min(++i * FLUSH_BATCH_SIZE - previousSize, list.size());
+						if(previousWriteWrapper == null){
+							previousWriteWrapper = new WriteWrapper<>(writeWrapper.getOp(), new LinkedList<>(), null);
+						}
 						previousWriteWrapper.getObjects().addAll(list.subList(beginning, end));
 						if(previousWriteWrapper.getObjects().size() == FLUSH_BATCH_SIZE){
 							handlePrevious();
@@ -190,12 +212,14 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 					}
 				}
 			}
-			handlePrevious();// don't forget the last batch
+			if(previousWriteWrapper != null){
+				handlePrevious();// don't forget the last batch
+			}
 		}
 
 		private void handlePrevious(){
 			handleWriteWrapper(previousWriteWrapper);
-			previousWriteWrapper.clearObjects();
+			previousWriteWrapper = null;
 		}
 
 		private void handleWriteWrapper(WriteWrapper<?> writeWrapper){
@@ -204,6 +228,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 			outstandingWrites.add(new OutstandingWriteWrapper(System.currentTimeMillis(), writeExecutor
 					.submit(new Callable<Void>(){
 
+						@Override
 						public Void call(){
 							try{
 								if(!handleWriteWrapperInternal(writeWrapperClone)){
