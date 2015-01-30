@@ -22,12 +22,12 @@ import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.StringTool;
 
 public class ClusterSettingsHandler extends BaseHandler {
-	
+
 	public static final String
 		P_name = "name",
 		P_serverType = "serverType",
 		P_prefix = "prefix",
-				
+
 		V_node = "node",
 		V_ancestors = "ancestors",
 		V_children = "children",
@@ -38,7 +38,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		V_nodeName = "nodeName",
 		V_roots = "roots",
 		V_currentRootName = "currentRootName",
-		
+
 		URL_settings = DatarouterDispatcher.URL_DATAROUTER + DatarouterDispatcher.SETTING,
 		URL_modify = DatarouterDispatcher.URL_DATAROUTER + DatarouterDispatcher.SETTING + "?submitAction=browseSettings&name=",
 		JSP_editSettings = "/jsp/admin/datarouter/setting/editSettings.jsp",
@@ -55,9 +55,9 @@ public class ClusterSettingsHandler extends BaseHandler {
 	protected Mav handleDefault() {
 		return edit();
 	}
-	
+
 	/************************** action methods ************************/
-	
+
 	@Handler Mav edit() {
 		Mav mav = new Mav(JSP_editSettings);
 		List<ClusterSetting> settings;
@@ -73,7 +73,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		mav.put("serverTypeOptions", anyServerType.getHTMLSelectOptionsVarNames());
 		return mav;
 	}
-	
+
 	@Handler Mav create() {
 		ClusterSettingKey settingKey = parseClusterSettingKeyFromParams();
 		String value = params.optional("value", null);
@@ -85,7 +85,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		}
 		return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_settings);
 	}
-	
+
 	@Handler Mav update() {
 		ClusterSettingKey settingKey = parseClusterSettingKeyFromParams();
 		String value = params.optional("value", null);
@@ -97,7 +97,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		}
 		return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_settings);
 	}
-	
+
 	@Handler Mav modify() {
 		ClusterSettingKey settingKey = parseClusterSettingKeyFromParams();
 		String value = params.optional("value", null);
@@ -106,7 +106,7 @@ public class ClusterSettingsHandler extends BaseHandler {
 		String nodeName = params.required("nodeName");
 		return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_modify+nodeName);
 	}
-	
+
 	@Handler Mav delete() {
 		ClusterSettingKey settingKey = parseClusterSettingKeyFromParams();
 		clusterSettingNode.delete(settingKey, null);
@@ -121,13 +121,16 @@ public class ClusterSettingsHandler extends BaseHandler {
 		Mav mav = new Mav(JSP_browseSettings);
 		String context = request.getServletContext().getContextPath().replace("/", "");
 		String nodeName = params.optional(P_name, context + ".");
+		if(!nodeName.endsWith(".")){
+			nodeName = nodeName + ".";
+		}
 		mav.put(V_nodeName, nodeName);
-		
+
 		SettingNode node = settingRoot.getNodeByName(nodeName);
 		mav.put(V_node, node);
 		mav.put(V_ancestors, settingRoot.getDescendanceByName(nodeName));
 		mav.put(V_children, node.getListChildren());
-		ArrayList<Setting<?>> settingsList = (ArrayList<Setting<?>>)node.getListSettings();
+		ArrayList<Setting<?>> settingsList = node.getListSettings();
 		Map<String,List<ClusterSetting>> mapListsCustom = MapTool.createHashMap();
 		for(Setting<?> setting : settingsList){
 			ClusterSettingKey settingKey = new ClusterSettingKey(setting.getName(), null, null, null, null);
@@ -141,9 +144,9 @@ public class ClusterSettingsHandler extends BaseHandler {
 		mav.put("serverTypeOptions", anyServerType.getHTMLSelectOptionsVarNames());
 		return mav;
 	}
-	
+
 	/************************** helper methods ************************/
-	
+
 	protected ClusterSettingKey parseClusterSettingKeyFromParams() {
 		String name = params.required(P_name);
 		ServerType serverType = anyServerType.fromPersistentString(params.required(P_serverType));
