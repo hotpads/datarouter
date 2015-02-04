@@ -4,8 +4,9 @@ import com.hotpads.notification.type.NotificationType;
 
 public interface ExceptionRecorder{
 
-	ExceptionRecord tryRecordException(Exception exception);
+	ExceptionRecord tryRecordException(Exception exception, String fallbackLocation);
 
-	ExceptionRecord tryRecordException(Exception exception, Class<? extends NotificationType> notificationType);
+	ExceptionRecord tryRecordException(Exception exception, String fallbackLocation,
+			Class<? extends NotificationType> notificationType);
 
 }

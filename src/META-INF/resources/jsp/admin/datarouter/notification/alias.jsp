@@ -51,6 +51,9 @@ form>*:first-child {
 .pre-block {
 	white-space: pre-wrap;
 }
+.accordion-inner {
+	overflow: auto;
+}
 </style>
 <script data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
 <script>

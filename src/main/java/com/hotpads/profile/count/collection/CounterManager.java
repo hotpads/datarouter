@@ -1,5 +1,6 @@
 package com.hotpads.profile.count.collection;
 
+import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -100,6 +101,7 @@ public class CounterManager implements CountMap{
 		long freeMemory = timer.time(RuntimeTool.getFreeMemory(), "freeMemory()");
 		long maxMemory = timer.time(RuntimeTool.getMaxMemory(), "maxMemory()");
 		long totalMemory = timer.time(RuntimeTool.getTotalMemory(), "totalMemory()");
+		int threadCount = timer.time(ManagementFactory.getThreadMXBean().getThreadCount(), "getThreadCount()");
 		long ns = System.nanoTime() - startNs;
 		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 1){
 			logger.warn(ns+"ns "+timer);
@@ -109,8 +111,9 @@ public class CounterManager implements CountMap{
 		long usedMemory = totalMemory - freeMemory;
 		counter.increment("memory free MB", freeMemory >> 20);
 		counter.increment("memory max MB", maxMemory >> 20);
-		counter.increment("memory total MB", RuntimeTool.getTotalMemory() >> 20);
+		counter.increment("memory total MB", totalMemory >> 20);
 		counter.increment("memory used MB", usedMemory >> 20);
+		counter.increment("Thread count", threadCount);
 	}
 
 	@Override
