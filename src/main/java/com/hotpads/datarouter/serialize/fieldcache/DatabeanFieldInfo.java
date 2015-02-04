@@ -160,6 +160,11 @@ public class DatabeanFieldInfo<
 			//careful to call sampleEntityPrimarykey.getEntityKeyFields vs sampleEntityKey.getFields().  the pk may override the ek
 			this.entityKeyFields = sampleEntityPrimaryKey.getEntityKeyFields();
 			this.postEkPkKeyFields = sampleEntityPrimaryKey.getPostEntityKeyFields();
+			if("RentZestimate".equals(databeanClass.getSimpleName())){
+				logger.warn("entityKeyFields:"+entityKeyFields);
+				logger.warn("postEkPkKeyFields:"+postEkPkKeyFields);
+				logger.warn("", new Exception());
+			}
 		}
 		
 		//info about PhysicalNodes, the leaf nodes that store the data (as opposed to virtual nodes)
