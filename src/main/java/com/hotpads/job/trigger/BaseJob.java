@@ -37,7 +37,7 @@ public abstract class BaseJob implements Job{
 	private String serverName;
 	private Date triggerTime;
 	private String jobClass;
-	
+
 	@Inject
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
@@ -53,7 +53,7 @@ public abstract class BaseJob implements Job{
 		this.shouldSaveLongRunningTasks = jobEnvironment.getShouldSaveLongRunningTasksSetting();
 		this.jobClass = getClass().getSimpleName();
 		this.serverName = jobEnvironment.getServerName();
-		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, serverName, 
+		this.tracker = jobEnvironment.getLongRunningTaskTrackerFactory().create(jobClass, serverName,
 				jobEnvironment.getShouldSaveLongRunningTasksSetting(), LongRunningTaskType.job);
 	}
 
@@ -62,7 +62,7 @@ public abstract class BaseJob implements Job{
 	public String getJobClass(){
 		return jobClass;
 	}
-	
+
 	@Override
 	public Long getDelayBeforeNextFireTimeMs(){
 		CronExpression trigger = getTrigger();
@@ -81,7 +81,7 @@ public abstract class BaseJob implements Job{
 			logger.warn("scheduling " + this.getClass().getSimpleName() + " to run immediately");
 		}else{
 			delay = getDelayBeforeNextFireTimeMs();
-			if(delay==null){ 
+			if(delay==null){
 				baseJobLogger.warn("couldn't schedule "+getClass()+" because no trigger defined");
 				return;
 			}
@@ -108,7 +108,7 @@ public abstract class BaseJob implements Job{
 			getFromTracker().incrementNumberOfErrors();
 			getFromTracker().setLastErrorTime(new Date());
 			baseJobLogger.warn("exception executing "+getClass(), e);
-			exceptionRecorder.tryRecordException(e);
+			tryRecordException(e);
 		}finally{
 			try{
 				if(!isAlreadyRunning.get()){
@@ -138,7 +138,7 @@ public abstract class BaseJob implements Job{
 			tracker.getNode().put(tracker.getTask(), null);
 		}
 	}
-	
+
 	@Override
 	public void runInternal(){
 		if(shouldRunInternal()){
@@ -162,7 +162,7 @@ public abstract class BaseJob implements Job{
 //			baseJobLogger.warn(getClass()+" shouldRun=false");
 		}
 	}
-	
+
 	@Override
 	public void trackAfterRun(Long endTime){
 		if(tracker.getTask().getJobExecutionStatus() != JobExecutionStatus.interrupted){
@@ -173,7 +173,7 @@ public abstract class BaseJob implements Job{
 			tracker.getNode().put(tracker.getTask(), null);
 		}
 	}
-	
+
 	protected boolean shouldRunInternal(){
 		if(getFromTracker().isRunning()){
 			isAlreadyRunning.set(true);
@@ -212,7 +212,7 @@ public abstract class BaseJob implements Job{
 	public Date getLastFired(){
 		return getFromTracker().getLastFired();
 	}
-	
+
 	@Override
 	public String getLastErrorTime() {
 		if(getFromTracker().getLastErrorTime() == null){
@@ -236,16 +236,16 @@ public abstract class BaseJob implements Job{
 		}
 		return " - ";
 	}
-	
+
 	@Override
 	public boolean getIsCustom(){
 		TriggerInfo triggerInfo = getFromTracker();
 		return triggerInfo.isCustom();
 	}
-	
+
 	@Override
 	public double getPercentageOfSuccess(){
-		if(getFromTracker().getNumberOfSuccesses() == 0 
+		if(getFromTracker().getNumberOfSuccesses() == 0
 				&& getFromTracker().getNumberOfErrors() == 0){
 			return 0;
 		}
@@ -254,35 +254,35 @@ public abstract class BaseJob implements Job{
 						+getFromTracker().getNumberOfErrors()))/100;
 		return percentage;
 	}
-	
+
 	@Override
 	public boolean getIsDisabled(){
 		return getFromTracker().isDisabled();
 	}
-	
+
 	@Override
 	public void disableJob(){
 		getFromTracker().setDisabled(true);
 	}
-	
+
 	@Override
 	public void enableJob(){
 		getFromTracker().setDisabled(false);
 	}
-	
+
 	@Override
 	public CronExpression getTrigger(){
 		return getDefaultTrigger();
 	}
-	
+
 	protected TriggerInfo getFromTracker(){
 		return scheduler.getTracker().get(getClass());
 	}
-	
+
 	public String getServerName(){
 		return serverName;
 	}
-	
+
 	@Override
 	public CronExpression getDefaultTrigger() {
 		try {
@@ -291,7 +291,7 @@ public abstract class BaseJob implements Job{
 			throw new IllegalArgumentException(e);
 		}
 	}
-	
+
 	@Override
 	public int compareTo(Job that){
 		if(that==null){ return 1; }
@@ -299,19 +299,19 @@ public abstract class BaseJob implements Job{
 		if(diff != 0){ return diff; }
 		return ComparableTool.nullFirstCompareTo(getClass().getCanonicalName(), that.getClass().getCanonicalName());
 	}
-	
+
 	@Override
 	public LongRunningTaskTracker getLongRunningTaskTracker(){
 		return tracker;
 	}
-	
+
 	@Override
 	public void setTriggerTime(Date triggerTime){
 		this.triggerTime = triggerTime;
 	}
 
 	public void tryRecordException(Exception exception){
-		exceptionRecorder.tryRecordException(exception, exceptionHandlingConfig.getJobErrorNotificationType());
+		exceptionRecorder.tryRecordException(exception, getClass().getName(), exceptionHandlingConfig.getJobErrorNotificationType());
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -56,5 +57,10 @@ public abstract class BaseExecutorGuiceModule extends AbstractModule{
 		NamedThreadFactory namedThreadFactory = new NamedThreadFactory(parentGroup, name, true);
 		logger.info(name + " initialization " + System.identityHashCode(namedThreadFactory));
 		return Executors.newScheduledThreadPool(numThreads, namedThreadFactory);
+	}
+	
+	protected ThreadPoolExecutor newBoundedCachedPool(int max, ThreadGroup threadGroup, String poolName){
+		NamedThreadFactory threadFactory = new NamedThreadFactory(threadGroup, poolName, true);
+		return new ThreadPoolExecutor(0, max, 1, TimeUnit.MINUTES, new SynchronousQueue<Runnable>(), threadFactory);
 	}
 }

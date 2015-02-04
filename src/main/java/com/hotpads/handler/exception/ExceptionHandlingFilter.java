@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.WebAppName;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.exception.analysis.HttpRequestRecord;
@@ -32,6 +33,7 @@ import com.hotpads.notification.ParallelApiCaller;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
+import com.hotpads.profile.count.collection.Counters;
 import com.hotpads.util.core.ExceptionTool;
 import com.hotpads.util.core.collections.Pair;
 
@@ -43,7 +45,8 @@ public class ExceptionHandlingFilter implements Filter {
 	public static final String ATTRIBUTE_REQUEST_RECORD_NODE = "requestRecordNode";
 	public static final String ATTRIBUTE_EXCEPTION_HANDLING_CONFIG = "exceptionHandlingConfig";
 	public static final String ATTRIBUTE_PARALLEL_API_CALLER = "parallelApiCaller";
-	
+	public static final String ATTRIBUTE_WEBAPP_NAME = "webAppName";
+
 	public static final String REQUEST_RECEIVED_AT = "receivedAt";
 
 	public static final String PARAM_DISPLAY_EXCEPTION_INFO = "displayExceptionInfo";
@@ -56,7 +59,9 @@ public class ExceptionHandlingFilter implements Filter {
 	private IndexedSortedMapStorageNode<HttpRequestRecordKey, HttpRequestRecord> httpRequestRecordNode;
 	@Inject
 	private ParallelApiCaller apiCaller;
-	
+	@Inject
+	private WebAppName webAppName;
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException{
@@ -68,6 +73,7 @@ public class ExceptionHandlingFilter implements Filter {
 					.getAttribute(ATTRIBUTE_REQUEST_RECORD_NODE);
 			exceptionHandlingConfig = (ExceptionHandlingConfig)sc.getAttribute(ATTRIBUTE_EXCEPTION_HANDLING_CONFIG);
 			apiCaller = (ParallelApiCaller)sc.getAttribute(ATTRIBUTE_PARALLEL_API_CALLER);
+			webAppName = (WebAppName)sc.getAttribute(ATTRIBUTE_WEBAPP_NAME);
 		}
 	}
 
@@ -75,7 +81,8 @@ public class ExceptionHandlingFilter implements Filter {
 	public void destroy() {}
 
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException {
+	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException{
+		HttpServletResponse response = (HttpServletResponse) res;
 		Date receivedAt = new Date();
 		req.setAttribute(REQUEST_RECEIVED_AT, receivedAt);
 		try {
@@ -89,13 +96,13 @@ public class ExceptionHandlingFilter implements Filter {
 			ExceptionCounters.inc(e.getClass().getName());
 			ExceptionCounters.inc("Filter " + e.getClass().getName());
 			HttpServletRequest request = (HttpServletRequest) req;
-			HttpServletResponse response = (HttpServletResponse) res;
 			logger.warn("ExceptionHandlingFilter caught an exception:", e);
 			writeExceptionToResponseWriter(response, e, request);
 			if(exceptionHandlingConfig.shouldPersistExceptionRecords(request, e)) {
 				recordExceptionAndRequestNotification(request, e, receivedAt);
 			}
 		}
+		Counters.inc(webAppName + " response " + response.getStatus());
 	}
 
 	private static void dumpAllStackTraces() throws IOException{
@@ -139,9 +146,9 @@ public class ExceptionHandlingFilter implements Filter {
 					place,
 					null,
 					lineNumber == null ? -1 : lineNumber,
-					request,
-					"unknown user roles",
-					-1l
+							request,
+							"unknown user roles",
+							-1l
 					);
 			httpRequestRecordNode.put(httpRequestRecord, null);
 			addNotificationRequestToQueue(request, e, exceptionRecord, place);
@@ -240,14 +247,14 @@ public class ExceptionHandlingFilter implements Filter {
 					new NotificationUserId(
 							NotificationUserType.EMAIL,
 							exceptionHandlingConfig.getRecipientEmail()),
-					exceptionHandlingConfig.getServerErrorNotificationType(),
-					exceptionRecord.getKey().getId(),
-					exceptionPlace),
-					exceptionRecord);
+							exceptionHandlingConfig.getServerErrorNotificationType(),
+							exceptionRecord.getKey().getId(),
+							exceptionPlace),
+							exceptionRecord);
 		}
 	}
 
-	private void writeExceptionToResponseWriter(HttpServletResponse response, Exception exception, 
+	private void writeExceptionToResponseWriter(HttpServletResponse response, Exception exception,
 			HttpServletRequest request) {
 		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		response.setContentType("text/html");
