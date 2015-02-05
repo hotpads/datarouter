@@ -95,7 +95,7 @@ public abstract class BaseField<T> implements Field<T>{
 					|| "RentZestimateEntityKey".equals(sampleFieldSet.getClass().getSimpleName())){
 				logger.warn(System.identityHashCode(this)+" cacheReflectionInfo: "+fieldNames+", "+sampleFieldSet
 						.getClass());
-//				logger.warn("", new Exception());
+				logger.warn("", new Exception());
 			}
 			jField = ReflectionTool.getNestedField(sampleFieldSet, fieldNames);
 			jField.setAccessible(true);//redundant
