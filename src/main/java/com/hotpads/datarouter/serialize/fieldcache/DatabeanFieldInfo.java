@@ -96,6 +96,10 @@ public class DatabeanFieldInfo<
 		this.databeanClass = params.getDatabeanClass();
 		this.sampleDatabean = ReflectionTool.create(databeanClass);
 		this.primaryKeyClass = this.sampleDatabean.getKeyClass();
+		if("RentZestimate".equals(databeanClass.getSimpleName())){
+			logger.warn(primaryKeyClass.getCanonicalName());
+//			logger.warn("", new Exception());
+		}
 		this.samplePrimaryKey = ReflectionTool.create(primaryKeyClass);
 		this.keyFieldName = sampleDatabean.getKeyFieldName();
 		this.fielderClass = params.getFielderClass();
@@ -134,11 +138,11 @@ public class DatabeanFieldInfo<
 				this.collation = sampleFielder.getCollation(sampleDatabean);
 				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
 			}
-			if(fieldAware){
-				FieldTool.cacheReflectionInfo(primaryKeyFields, samplePrimaryKey);
-				FieldTool.cacheReflectionInfo(nonKeyFields, sampleDatabean);
-				FieldTool.cacheReflectionInfo(fields, sampleDatabean);
-			}
+//			if(fieldAware){
+//				FieldTool.cacheReflectionInfo(primaryKeyFields, samplePrimaryKey);
+//				FieldTool.cacheReflectionInfo(nonKeyFields, sampleDatabean);
+//				FieldTool.cacheReflectionInfo(fields, sampleDatabean);
+//			}
 			this.sampleScatteringPrefix = ReflectionTool.create(scatteringPrefixClass);
 			this.scatteringPrefixFields = sampleScatteringPrefix.getScatteringPrefixFields(samplePrimaryKey);
 		}catch(Exception probablyNoPkInstantiated){
@@ -161,9 +165,9 @@ public class DatabeanFieldInfo<
 			this.entityKeyFields = sampleEntityPrimaryKey.getEntityKeyFields();
 			this.postEkPkKeyFields = sampleEntityPrimaryKey.getPostEntityKeyFields();
 			if("RentZestimate".equals(databeanClass.getSimpleName())){
-				logger.warn("entityKeyFields:"+entityKeyFields);
-				logger.warn("postEkPkKeyFields:"+postEkPkKeyFields);
-				logger.warn("", new Exception());
+				logger.warn(entityKeyFields.toString());
+				logger.warn(postEkPkKeyFields.toString());
+//				logger.warn("", new Exception());
 			}
 		}
 		
