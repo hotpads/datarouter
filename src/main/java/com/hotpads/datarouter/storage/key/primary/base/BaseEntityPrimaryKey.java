@@ -30,7 +30,7 @@ implements EntityPrimaryKey<EK,PK>
 		if(StringTool.isEmpty(getEntityKeyName())){//Should this logic be in FieldTool.prependPrefixes
 			return getEntityKey().getFields();
 		}
-		return FieldTool.prependPrefixes(getEntityKeyName() ,getEntityKey().getFields());
+		return FieldTool.prependPrefixes(getEntityKeyName(), getEntityKey().getFields());
 	}
 	
 	@Override

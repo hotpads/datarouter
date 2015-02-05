@@ -137,9 +137,9 @@ public class HBaseSubEntityResultParser<
 		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
 		//EK
 		//be sure to get the entity key fields from DatabeanFieldInfo in case the PK overrode the EK field names
-		parseEkFieldsFromBytesToPk(fieldInfo.getEntityKeyFields(), kv, pk);
+		parseEkFieldsFromBytesToPk(kv, pk);
 		//post-EK
-		int fieldNameOffset = parsePostEkFieldsFromBytesToPk(fieldInfo.getPostEkPkKeyFields(), kv, pk);
+		int fieldNameOffset = parsePostEkFieldsFromBytesToPk(kv, pk);
 		//fieldName
 		String fieldName = StringByteTool.fromUtf8BytesOffset(kv.getQualifier(), fieldNameOffset);
 		return Pair.create(pk, fieldName);
@@ -151,18 +151,18 @@ public class HBaseSubEntityResultParser<
 	}
 	
 	//parse the hbase row bytes after the partition offset
-	private int parseEkFieldsFromBytesToPk(List<Field<?>> fields, KeyValue kv, PK targetPk){
+	private int parseEkFieldsFromBytesToPk(KeyValue kv, PK targetPk){
 		int offset = partitioner.getNumPrefixBytes();
 		byte[] fromBytes = kv.getRow();
-		return parseFieldsFromBytesToPk(fields, fromBytes, offset, targetPk);
+		return parseFieldsFromBytesToPk(fieldInfo.getEntityKeyFields(), fromBytes, offset, targetPk);
 	}
 	
 	//parse the hbase qualifier bytes
-	private int parsePostEkFieldsFromBytesToPk(List<Field<?>> fields, KeyValue kv, PK targetPk){
+	private int parsePostEkFieldsFromBytesToPk(KeyValue kv, PK targetPk){
 		byte[] entityColumnPrefixBytes = fieldInfo.getEntityColumnPrefixBytes();
 		int offset = entityColumnPrefixBytes.length;
 		byte[] fromBytes = kv.getQualifier();
-		return parseFieldsFromBytesToPk(fields, fromBytes, offset, targetPk);
+		return parseFieldsFromBytesToPk(fieldInfo.getPostEkPkKeyFields(), fromBytes, offset, targetPk);
 	}
 	
 	private int parseFieldsFromBytesToPk(List<Field<?>> fields, byte[] fromBytes, int offset, PK targetPk){
