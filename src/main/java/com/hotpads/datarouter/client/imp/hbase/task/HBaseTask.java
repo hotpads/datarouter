@@ -92,7 +92,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 				}
 			}
 
-			if(possiblyTarnishedHTable){
+			if(! possiblyTarnishedHTable){
 				if(hTable==null){
 					logger.warn("not checking in HTable because it's null");
 				}
