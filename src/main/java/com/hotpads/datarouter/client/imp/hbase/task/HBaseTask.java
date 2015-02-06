@@ -40,8 +40,8 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	protected MutableString progress;
 
 	//subclasses should use this for easy, safe "close()" handling
-	protected HBaseClient client = null;
-	protected HTable hTable = null;
+	protected HBaseClient client;
+	protected volatile HTable hTable;
 	protected ResultScanner managedResultScanner;
 	
 	/******************** constructor ****************************/
@@ -93,6 +93,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			}
 			if(hTable==null){
 				logger.warn("not checking in HTable because it's null");
+				logger.warn("", new Exception());
 			}else if(client==null){
 				logger.warn("not checking in HTable because client is null");
 			}else{
