@@ -100,7 +100,9 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 					logger.warn("not checking in HTable because client is null");
 				}
 			}
-			client.checkInHTable(hTable, possiblyTarnishedHTable);
+			if(client != null){
+				client.checkInHTable(hTable, possiblyTarnishedHTable);
+			}
 			hTable = null;//reset to null since this HBaseTask will get reused
 			TraceContext.finishSpan();
 			progress.set("ending finally block attemptNumOneBased:"+attemptNumOneBased);
