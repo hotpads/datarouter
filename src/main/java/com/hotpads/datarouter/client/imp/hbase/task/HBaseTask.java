@@ -91,18 +91,16 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 					logger.warn("couldn't close ResultScanner", e);
 				}
 			}
-			if(hTable==null){
-				logger.warn("not checking in HTable because it's null");
-				logger.warn("", new Exception());
-			}else if(client==null){
-				logger.warn("not checking in HTable because client is null");
-				logger.warn("", new Exception());
-			}else{
-				if(possiblyTarnishedHTable){
-					logger.warn("", new Exception());
+
+			if(possiblyTarnishedHTable){
+				if(hTable==null){
+					logger.warn("not checking in HTable because it's null");
 				}
-				client.checkInHTable(hTable, possiblyTarnishedHTable);
+				if(client==null){
+					logger.warn("not checking in HTable because client is null");
+				}
 			}
+			client.checkInHTable(hTable, possiblyTarnishedHTable);
 			hTable = null;//reset to null since this HBaseTask will get reused
 			TraceContext.finishSpan();
 			progress.set("ending finally block attemptNumOneBased:"+attemptNumOneBased);
