@@ -27,6 +27,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.Args;
 
+import com.hotpads.util.http.client.HotPadsHttpClientConfig;
 import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 
 public class HotPadsHttpRequest {
@@ -43,6 +44,7 @@ public class HotPadsHttpRequest {
 	private Map<String, String> headers;
 	private Map<String, String> queryParams;
 	private Map<String, String> postParams;
+	private HotPadsHttpClientConfig config;
 
 	public enum HttpRequestMethod {
 		DELETE, GET, HEAD, PATCH, POST, PUT
@@ -256,6 +258,18 @@ public class HotPadsHttpRequest {
 			}
 		}
 		return params;
+	}
+	
+	public HotPadsHttpClientConfig getRequestConfig(HotPadsHttpClientConfig clientConfig){
+		if(config != null){
+			return config;
+		}
+		return clientConfig;
+	}
+	
+	public HotPadsHttpRequest overrideConfig(HotPadsHttpClientConfig config){
+		this.config = config;
+		return this;
 	}
 
 	public Map<String, String> getHeaders() {

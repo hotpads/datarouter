@@ -169,7 +169,7 @@ public class HotPadsHttpRequestTests {
 		
 		Thing thing = new Thing();
 		
-		client.addDtosToPayload(request, Collections.singleton(thing), Thing.class.getCanonicalName());
+		client.addDtoToPayload(request, Collections.singleton(thing), Thing.class.getCanonicalName());
 		Map<String,String> postParams = request.getPostParams();
 		String dto = postParams.get(DTO_PARAM);
 		String dtoType = postParams.get(DTO_TYPE_PARAM);

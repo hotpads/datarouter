@@ -2,7 +2,6 @@ package com.hotpads.util.http.client;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -178,16 +177,22 @@ public class HotPadsHttpClient {
 			return httpClient.execute(request, context);
 		}
 	}
-
-	public <T> HotPadsHttpClient addDtosToPayload(HotPadsHttpRequest request, Collection<T> dtos, String dtoType) {
-		String serializedDtos = jsonSerializer.serialize(dtos);
+	
+	public <T> HotPadsHttpClient addDtoToPayload(HotPadsHttpRequest request, T dto, String dtoType) {
+		String serializedDto = jsonSerializer.serialize(dto);
 		String dtoTypeNullSafe = dtoType;
-		if (dtoType == null) {
-			dtoTypeNullSafe = dtos.isEmpty() ? "" : dtos.iterator().next().getClass().getCanonicalName();
+		if(dtoType == null) {
+			if(dto instanceof Iterable){
+				Iterable<?> dtos = (Iterable<?>) dto;
+				dtoTypeNullSafe = dtos.iterator().hasNext() ? dtos.iterator().next().getClass().getCanonicalName() : "";
+			}else{
+				dtoTypeNullSafe = dto.getClass().getCanonicalName();
+			}
 		}
-		Map<String, String> params = new HashMap<>();
-		params.put(config.getDtoParameterName(), serializedDtos);
-		params.put(config.getDtoTypeParameterName(), dtoTypeNullSafe);
+		HotPadsHttpClientConfig requestConfig = request.getRequestConfig(config);
+		Map<String,String> params = new HashMap<>();
+		params.put(requestConfig.getDtoParameterName(), serializedDto);
+		params.put(requestConfig.getDtoTypeParameterName(), dtoTypeNullSafe);
 		request.addPostParams(params);
 		return this;
 	}
