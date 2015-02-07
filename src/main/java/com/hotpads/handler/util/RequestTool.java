@@ -176,14 +176,14 @@ public class RequestTool {
 	public static Integer getIntegerAndPut(HttpServletRequest request, String paramName, Integer defaultValue,
 			Mav mav){
 		String stringVal = RequestTool.get(request, paramName, null);
-		Integer ret = NumberTool.getIntegerNullSafe(stringVal, defaultValue);
+		Integer ret = NumberTool.getIntegerPartNullSafe(stringVal, defaultValue);
 		mav.put(paramName, ret);
 		return ret;
 	}
 	
 	public static Integer getInteger(HttpServletRequest request, String paramName, Integer defaultValue){
 		String stringVal = get(request, paramName, null);
-		return NumberTool.getIntegerNullSafe(stringVal,defaultValue);
+		return NumberTool.getIntegerPartNullSafe(stringVal,defaultValue);
 	}
 
 	public static Double getDouble(HttpServletRequest request, String paramName, Double defaultValue){
@@ -231,7 +231,7 @@ public class RequestTool {
 	public static Integer getIntegerParameterNullSafe(HttpServletRequest request, String paramName, 
 			Integer defaultValue){
 		String stringVal = get(request, paramName, null);
-		return NumberTool.getIntegerNullSafe(stringVal,defaultValue);
+		return NumberTool.getIntegerPartNullSafe(stringVal,defaultValue);
 	}
 	
 	public static Integer getIntegerParameterNullSafeCheckOverrideVars(
