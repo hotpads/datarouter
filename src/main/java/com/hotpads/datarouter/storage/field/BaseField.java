@@ -4,6 +4,9 @@ import java.sql.ResultSet;
 import java.util.Comparator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
@@ -11,7 +14,8 @@ import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseField<T> implements Field<T>{
-
+	private static final Logger logger = LoggerFactory.getLogger(BaseField.class);
+	
 	protected java.lang.reflect.Field jField;//ignore in subclasses if more complex structure needed
 	protected String prefix;//ignore if not needed
 	protected String name;//the name of the java field
@@ -66,7 +70,7 @@ public abstract class BaseField<T> implements Field<T>{
 	}
 	
 	@Override
-	public void cacheReflectionInfo(Object sampleFieldSet){
+	public synchronized void cacheReflectionInfo(Object sampleFieldSet){
 //		ObjectTool.checkNotNull(sampleFieldSet);
 //		if(StringTool.notEmpty(prefix)){
 //			java.lang.reflect.Field prefixField = ReflectionTool.getDeclaredFieldFromHierarchy(
@@ -87,6 +91,12 @@ public abstract class BaseField<T> implements Field<T>{
 		}
 		fieldNames.add(name);
 		try{
+			if("RentZestimateKey".equals(sampleFieldSet.getClass().getSimpleName())
+					|| "RentZestimateEntityKey".equals(sampleFieldSet.getClass().getSimpleName())){
+				logger.warn(System.identityHashCode(this)+" cacheReflectionInfo: "+fieldNames+", "+sampleFieldSet
+						.getClass());
+				logger.warn("", new Exception());
+			}
 			jField = ReflectionTool.getNestedField(sampleFieldSet, fieldNames);
 			jField.setAccessible(true);//redundant
 		}catch(IllegalArgumentException e){
