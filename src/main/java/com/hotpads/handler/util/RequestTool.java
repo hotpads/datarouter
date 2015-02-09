@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import com.google.common.base.Joiner;
 import com.hotpads.exception.analysis.HttpHeaders;
+import com.hotpads.handler.Params;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
@@ -172,18 +173,39 @@ public class RequestTool {
 		}
 		throw new IllegalArgumentException("required Integer "+paramName+" is invalid");
 	}
-
+	
+	public static Integer getInteger(HttpServletRequest request, String paramName, Integer defaultValue){
+		String stringVal = get(request, paramName, null);
+		return NumberTool.parseIntegerFromNumberString(stringVal,defaultValue);
+	}
+	
+	/****** getters for Params   ******/
+	public static Integer tryGetIntegerParam(Params params, String fieldName){	
+		Integer value = null;
+		try{
+			value = params.optionalInteger(fieldName, null);			
+		}catch(NumberFormatException e){
+			return value;
+		}
+		return value;
+	}	
+	
+	public static Long tryGetLongParam(Params params, String fieldName){
+		Long value = null;
+		try{
+			value = params.optionalLong(fieldName, null);			
+		}catch(NumberFormatException e){
+			return value;
+		}
+		return value;
+	}
+	
 	public static Integer getIntegerAndPut(HttpServletRequest request, String paramName, Integer defaultValue,
 			Mav mav){
 		String stringVal = RequestTool.get(request, paramName, null);
 		Integer ret = NumberTool.parseIntegerFromNumberString(stringVal, defaultValue);
 		mav.put(paramName, ret);
 		return ret;
-	}
-	
-	public static Integer getInteger(HttpServletRequest request, String paramName, Integer defaultValue){
-		String stringVal = get(request, paramName, null);
-		return NumberTool.parseIntegerFromNumberString(stringVal,defaultValue);
 	}
 
 	public static Double getDouble(HttpServletRequest request, String paramName, Double defaultValue){
@@ -385,15 +407,19 @@ public class RequestTool {
 		return map;
 	}
 	
-	public static boolean checkDouble(Double d, boolean allowNull,  boolean allowNegative){
-		return checkDouble(d,allowNull,allowNegative,false,false);
+	public static boolean checkDouble(Double value, boolean allowNull,  boolean allowNegative){
+		return checkDouble(value,allowNull,allowNegative,false,false);
 	}
 	
-	public static boolean checkDouble(Double d, boolean allowNull, boolean allowNegative, boolean allowInfinity, 
+	public static boolean checkDouble(Double value, boolean allowNull, boolean allowNegative, boolean allowInfinity, 
 			boolean allowNaN){
-		if(d==null) return allowNull;
-		if(Double.isNaN(d)) return allowNaN; 
-		return (allowInfinity || !Double.isInfinite(d))	&& (allowNegative || d>=0);
+		if(value==null){
+			return allowNull;
+		}
+		if(Double.isNaN(value)){
+			return allowNaN;
+		}
+		return (allowInfinity || !Double.isInfinite(value))	&& (allowNegative || value>=0);
 	}
 	
 
@@ -443,7 +469,7 @@ public class RequestTool {
 			return null;
 		}
 		uri = uri.substring(0, uri.length()-1);
-		return getRequestURIWithQueryString(uri, queryString);
+		return getRequestUriWithQueryString(uri, queryString);
 	}
 	
 	/**
@@ -452,9 +478,9 @@ public class RequestTool {
 	 * @return
 	 */
 	public static String getRequestURIWithQueryString(HttpServletRequest request){
-		return getRequestURIWithQueryString(request.getRequestURI(),request.getQueryString());
+		return getRequestUriWithQueryString(request.getRequestURI(),request.getQueryString());
 	}
-	private static String getRequestURIWithQueryString(String uri, String queryString){
+	private static String getRequestUriWithQueryString(String uri, String queryString){
 		return uri + (queryString==null?"":"?"+queryString);
 	}
 	
@@ -555,11 +581,11 @@ public class RequestTool {
 			Assert.assertTrue(checkDouble(Double.NaN,false,false,false,true));
 		}
 		
-		@Test public void testGetRequestURIWithQueryString(){
+		@Test public void testGetRequestUriWithQueryString(){
 			Assert.assertEquals("example.com",
-					getRequestURIWithQueryString("example.com",null));
+					getRequestUriWithQueryString("example.com",null));
 			Assert.assertEquals("example.com?stuff=things",
-					getRequestURIWithQueryString("example.com","stuff=things"));			
+					getRequestUriWithQueryString("example.com","stuff=things"));			
 		}
 		
 		@Test public void testMakeRedirectUriIfTrailingSlash(){ 
