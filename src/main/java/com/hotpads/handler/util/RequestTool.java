@@ -180,7 +180,7 @@ public class RequestTool {
 	}
 	
 	/****** getters for Params   ******/
-	public static Integer tryGetInteger(Params params, String fieldName){	
+	public static Integer tryGetIntegerParam(Params params, String fieldName){	
 		Integer value = null;
 		try{
 			value = params.optionalInteger(fieldName, null);			
