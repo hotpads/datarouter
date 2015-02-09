@@ -173,10 +173,10 @@ public class RequestTool {
 		}
 		throw new IllegalArgumentException("required Integer "+paramName+" is invalid");
 	}
-
+	
 	public static Integer getInteger(HttpServletRequest request, String paramName, Integer defaultValue){
 		String stringVal = get(request, paramName, null);
-		return NumberTool.getIntegerNullSafe(stringVal,defaultValue);
+		return NumberTool.parseIntegerFromNumberString(stringVal,defaultValue);
 	}
 	
 	/****** getters for Params   ******/
@@ -206,11 +206,6 @@ public class RequestTool {
 		Integer ret = NumberTool.parseIntegerFromNumberString(stringVal, defaultValue);
 		mav.put(paramName, ret);
 		return ret;
-	}
-	
-	public static Integer getInteger(HttpServletRequest request, String paramName, Integer defaultValue){
-		String stringVal = get(request, paramName, null);
-		return NumberTool.parseIntegerFromNumberString(stringVal,defaultValue);
 	}
 
 	public static Double getDouble(HttpServletRequest request, String paramName, Double defaultValue){
