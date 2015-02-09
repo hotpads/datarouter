@@ -2,6 +2,8 @@ package com.hotpads.setting.cluster;
 
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -31,6 +33,16 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 		public List<Field<?>> getNonKeyFields(ClusterSetting d){
 			return FieldTool.createList(
 					new StringField(F.value, d.value, MySqlColumnType.MAX_LENGTH_VARCHAR));
+		}
+		
+
+		@Override
+		public MySqlCharacterSet getCharacterSet(ClusterSetting databean){
+			return MySqlCharacterSet.latin1;
+		}
+		@Override
+		public MySqlCollation getCollation(ClusterSetting databean){
+			return MySqlCollation.latin1_swedish_ci;
 		}
 	}
 

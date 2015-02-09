@@ -3,6 +3,8 @@ package com.hotpads.job.record;
 import java.util.Date;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -68,6 +70,15 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 					new StringEnumField<JobExecutionStatus>(JobExecutionStatus.class, F.jobExecutionStatus, d.jobExecutionStatus, DEFAULT_STRING_LENGTH),
 					new StringField(F.triggeredByUserEmail, d.triggeredByUserEmail, DEFAULT_STRING_LENGTH),
 					new IntegerField(F.numItemsProcessed, d.numItemsProcessed));
+		}
+		
+		@Override
+		public MySqlCharacterSet getCharacterSet(LongRunningTask databean){
+			return MySqlCharacterSet.latin1;
+		}
+		@Override
+		public MySqlCollation getCollation(LongRunningTask databean){
+			return MySqlCollation.latin1_swedish_ci;
 		}
 	}
 	

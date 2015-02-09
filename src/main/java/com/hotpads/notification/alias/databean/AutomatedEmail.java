@@ -2,6 +2,8 @@ package com.hotpads.notification.alias.databean;
 
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -63,6 +65,15 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 				new StringField(F.content, d.content, MySqlColumnType.INT_LENGTH_LONGTEXT),
 				new StringField(F.serverName, d.serverName, MySqlColumnType.MAX_LENGTH_VARCHAR),
 				new BooleanField(F.html, d.html));
+		}
+		
+		@Override
+		public MySqlCharacterSet getCharacterSet(AutomatedEmail databean){
+			return MySqlCharacterSet.latin1;
+		}
+		@Override
+		public MySqlCollation getCollation(AutomatedEmail databean){
+			return MySqlCollation.latin1_swedish_ci;
 		}
 
 	}

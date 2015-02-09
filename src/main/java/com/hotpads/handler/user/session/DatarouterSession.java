@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.field.Field;
@@ -72,6 +74,15 @@ implements Serializable {
 			nonKeyFields.add(new DelimitedStringArrayField(F.roles, ",", d.roles));
 			nonKeyFields.add(new DateField(F.userCreated, d.userCreated));
 			return nonKeyFields;
+		}
+		
+		@Override
+		public MySqlCharacterSet getCharacterSet(DatarouterSession databean){
+			return MySqlCharacterSet.latin1;
+		}
+		@Override
+		public MySqlCollation getCollation(DatarouterSession databean){
+			return MySqlCollation.latin1_swedish_ci;
 		}
 	}
 	
