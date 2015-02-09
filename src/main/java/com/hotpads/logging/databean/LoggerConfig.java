@@ -62,6 +62,7 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig> {
 					new DelimitedStringArrayField(F.appendersRef, ",", d.appendersRef));
 		}
 		
+		@Override
 		public MySqlCharacterSet getCharacterSet(LoggerConfig databean){
 			return MySqlCharacterSet.latin1;			
 		}

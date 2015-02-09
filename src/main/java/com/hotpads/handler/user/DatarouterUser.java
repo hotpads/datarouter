@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.persistence.Id;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -90,6 +92,15 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 			indexesByName.put("index_apiKey", new DatarouterUserByApiKeyLookup(null).getFields());
 			indexesByName.put("index_secretKey", new DatarouterUserBySecretKeyLookup(null).getFields());
 			return indexesByName;
+		}
+		
+		@Override
+		public MySqlCharacterSet getCharacterSet(DatarouterUser databean){
+			return MySqlCharacterSet.latin1;
+		}
+		@Override
+		public MySqlCollation getCollation(DatarouterUser databean){
+			return MySqlCollation.latin1_swedish_ci;
 		}
 	}
 

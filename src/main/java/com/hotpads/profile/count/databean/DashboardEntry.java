@@ -55,7 +55,7 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 			return DashboardEntryKey.class;
 		}
 		@Override
-		public List<Field<?>> getNonKeyFields(DashboardEntry d){
+		public List<Field<?>> getNonKeyFields(DashboardEntry d ){
 			return FieldTool.createList(
 					new StringEnumField<DashboardEntryType>(DashboardEntryType.class, F.type, d.type, DEFAULT_STRING_LENGTH),
 					new StringField(F.entry, d.entry, MySqlColumnType.MAX_LENGTH_MEDIUMTEXT),
@@ -68,11 +68,11 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 		}
 		
 		@Override
-		public MySqlCharacterSet getCharacterSet(DashboardEntry d){
+		public MySqlCharacterSet getCharacterSet(DashboardEntry databean){
 			return MySqlCharacterSet.latin1;
 		}
 		@Override
-		public MySqlCollation getCollation(DashboardEntry d){
+		public MySqlCollation getCollation(DashboardEntry databean){
 			return MySqlCollation.latin1_swedish_ci;
 		}
 	}

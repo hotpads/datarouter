@@ -64,6 +64,7 @@ public class Moderator extends BaseDatabean<ModeratorKey,Moderator> {
 				new StringField(F.membershipAuthor, d.membershipAuthor, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 		
+		@Override
 		public MySqlCharacterSet getCharacterSet(Moderator databean){
 			return MySqlCharacterSet.latin1;			
 		}
