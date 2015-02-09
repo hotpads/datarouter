@@ -9,6 +9,8 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.AccessType;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -87,6 +89,15 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 			indexesByName.put(CounterAlertDestinationKey.F.notificationDestination,
 					new CounterAlertDestinationByNotificationDestinationLookup(null).getFields());
 			return indexesByName;
+		}
+		
+		@Override
+		public MySqlCharacterSet getCharacterSet(CounterAlertDestination databean){
+			return MySqlCharacterSet.latin1;
+		}
+		@Override
+		public MySqlCollation getCollation(CounterAlertDestination databean){
+			return MySqlCollation.latin1_swedish_ci;
 		}
 	}
 	

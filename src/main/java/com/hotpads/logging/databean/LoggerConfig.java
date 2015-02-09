@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.apache.logging.log4j.Level;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -59,6 +61,16 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig> {
 					new BooleanField(F.additive, d.additive),
 					new DelimitedStringArrayField(F.appendersRef, ",", d.appendersRef));
 		}
+		
+		public MySqlCharacterSet getCharacterSet(LoggerConfig databean){
+			return MySqlCharacterSet.latin1;			
+		}
+		
+		@Override
+		public MySqlCollation getCollation(LoggerConfig databean){
+			return MySqlCollation.latin1_swedish_ci;
+		}		
+				
 
 	}
 

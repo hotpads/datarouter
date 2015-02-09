@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.persistence.Id;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -51,6 +53,15 @@ public class Dashboard extends BaseDatabean<DashboardKey,Dashboard>{
 					new BooleanField(F.publicAccess, d.publicAccess),
 					new StringField(F.name, d.name, 255),
 					new BooleanField(F.defaultDashboard, d.isDefaultDashboard()));
+		}
+		
+		@Override
+		public MySqlCharacterSet getCharacterSet(Dashboard databean){
+			return MySqlCharacterSet.latin1;
+		}
+		@Override
+		public MySqlCollation getCollation(Dashboard databean){
+			return MySqlCollation.latin1_swedish_ci;
 		}
 	}
 	
