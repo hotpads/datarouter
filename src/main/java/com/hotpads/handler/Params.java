@@ -103,21 +103,21 @@ public class Params{
 	}
 	
 	public Integer tryGetInteger(String key, Integer defaultValue) {
-		Integer value = null;
+		Integer value = defaultValue;
 		try {
 			value = optionalInteger(key, defaultValue);
 		} catch (NumberFormatException e) {
-			value = defaultValue;
+			// no-op
 		}
 		return value;
 	}
 	
 	public Long tryGetLong(String key, Long defaultValue) {
-		Long value = null;
+		Long value = defaultValue;
 		try {
 			value = optionalLong(key, defaultValue);
 		} catch (NumberFormatException e) {
-			value = defaultValue;
+			// no-op
 		}
 		return value;
 	}
