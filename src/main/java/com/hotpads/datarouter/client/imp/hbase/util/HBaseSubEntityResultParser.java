@@ -52,7 +52,7 @@ public class HBaseSubEntityResultParser<
 	public EK getEkFromRowBytes(byte[] rowBytes){
 		EK ek = ReflectionTool.create(entityFieldInfo.getEntityKeyClass());
 		int byteOffset = partitioner.getNumPrefixBytes();
-		for(Field<?> field : fieldInfo.getEntityKeyFields()){
+		for(Field<?> field : fieldInfo.getEkFields()){
 			if(byteOffset==rowBytes.length){ break; }//ran out of bytes.  leave remaining fields blank
 			Object value = field.fromBytesWithSeparatorButDoNotSet(rowBytes, byteOffset);
 			field.setUsingReflection(ek, value);
@@ -154,7 +154,7 @@ public class HBaseSubEntityResultParser<
 	private int parseEkFieldsFromBytesToPk(KeyValue kv, PK targetPk){
 		int offset = partitioner.getNumPrefixBytes();
 		byte[] fromBytes = kv.getRow();
-		return parseFieldsFromBytesToPk(fieldInfo.getEntityKeyFields(), fromBytes, offset, targetPk);
+		return parseFieldsFromBytesToPk(fieldInfo.getEkPkFields(), fromBytes, offset, targetPk);
 	}
 	
 	//parse the hbase qualifier bytes
