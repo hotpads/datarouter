@@ -102,6 +102,26 @@ public class Params{
 		return ListTool.nullSafeLinkedAddAll(null, stringVal.split(delimiter));
 	}
 	
+	public Integer tryGetInteger(String key, Integer defaultValue) {
+		Integer value = defaultValue;
+		try {
+			value = optionalInteger(key, defaultValue);
+		} catch (NumberFormatException e) {
+			// no-op
+		}
+		return value;
+	}
+	
+	public Long tryGetLong(String key, Long defaultValue) {
+		Long value = defaultValue;
+		try {
+			value = optionalLong(key, defaultValue);
+		} catch (NumberFormatException e) {
+			// no-op
+		}
+		return value;
+	}
+	
 	//etc, etc...
 	
 	/**************************** fancier methods *************************/
