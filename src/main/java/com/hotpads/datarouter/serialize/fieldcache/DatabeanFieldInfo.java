@@ -60,7 +60,8 @@ public class DatabeanFieldInfo<
 	private boolean entity = false;
 	private String entityNodePrefix;
 	private byte[] entityNodeColumnPrefixBytes;
-	private List<Field<?>> entityKeyFields;
+	private List<Field<?>> ekFields;//for accessing the EK directly
+	private List<Field<?>> ekPkFields;//for accessing the EK via a PK
 	private List<Field<?>> postEkPkKeyFields;
 	
 	private Class<? extends ScatteringPrefix> scatteringPrefixClass;
@@ -161,11 +162,11 @@ public class DatabeanFieldInfo<
 			this.entityNodeColumnPrefixBytes = ByteTool.concatenate(StringByteTool.getUtf8Bytes(entityNodePrefix), 
 					new byte[]{ENTITY_PREFIX_TERMINATOR});
 			EntityPrimaryKey<?,?> sampleEntityPrimaryKey = (EntityPrimaryKey<?,?>)samplePrimaryKey;
-			//careful to call sampleEntityPrimarykey.getEntityKeyFields vs sampleEntityKey.getFields().  the pk may override the ek
-			this.entityKeyFields = sampleEntityPrimaryKey.getEntityKeyFields();
+			this.ekFields = sampleEntityPrimaryKey.getEntityKey().getFields();
+			this.ekPkFields = sampleEntityPrimaryKey.getEntityKeyFields();
 			this.postEkPkKeyFields = sampleEntityPrimaryKey.getPostEntityKeyFields();
 			if("RentZestimate".equals(databeanClass.getSimpleName())){
-				logger.warn(entityKeyFields.toString());
+				logger.warn(ekFields.toString());
 				logger.warn(postEkPkKeyFields.toString());
 //				logger.warn("", new Exception());
 			}
@@ -450,8 +451,12 @@ public class DatabeanFieldInfo<
 		return entity;
 	}
 	
-	public List<Field<?>> getEntityKeyFields(){
-		return entityKeyFields;
+	public List<Field<?>> getEkFields(){
+		return ekFields;
+	}
+	
+	public List<Field<?>> getEkPkFields(){
+		return ekPkFields;
 	}
 
 	public List<Field<?>> getPostEkPkKeyFields(){
