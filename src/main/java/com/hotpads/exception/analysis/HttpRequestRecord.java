@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Joiner;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -150,7 +150,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 		duration = "duration";
 	}
 
-	public static class HttpRequestRecordFielder extends BaseDatabeanFielder<HttpRequestRecordKey, HttpRequestRecord>{
+	public static class HttpRequestRecordFielder extends BaseLatin1Fielder<HttpRequestRecordKey, HttpRequestRecord>{
 
 		HttpRequestRecordFielder() {}
 
