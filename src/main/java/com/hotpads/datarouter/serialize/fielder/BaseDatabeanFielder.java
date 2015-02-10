@@ -60,12 +60,12 @@ implements DatabeanFielder<PK,D>{
 	
 	@Override
 	public MySqlCollation getCollation(D databean){
-		return databean.getCollation();
+		return MySqlCollation.utf8_bin;
 	}
 	
 	@Override
 	public MySqlCharacterSet getCharacterSet(D databean){
-		return databean.getCharacterSet();
+		return MySqlCharacterSet.utf8;
 	}
 	
 }
