@@ -120,15 +120,6 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey, Notificati
 		this.key = key;
 	}
 
-	public Date getCreated() {
-		return created;
-	}
-
-	public void setCreated(Date created) {
-		this.created = created;
-		key.setCreated(created);
-	}
-
 	public String getType() {
 		return type;
 	}
