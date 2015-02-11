@@ -2,10 +2,8 @@ package com.hotpads.logging.databean;
 
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -42,7 +40,7 @@ public class FileAppender extends BaseDatabean<FileAppenderKey,FileAppender> {
 
 	/** fielder ***************************************************************/
 
-	public static class FileAppenderFielder extends BaseDatabeanFielder<FileAppenderKey,FileAppender>{
+	public static class FileAppenderFielder extends BaseLatin1Fielder<FileAppenderKey,FileAppender>{
 
 		private FileAppenderFielder(){}
 
@@ -58,15 +56,6 @@ public class FileAppender extends BaseDatabean<FileAppenderKey,FileAppender> {
 					new StringField(F.fileName, d.fileName, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 		
-		@Override
-		public MySqlCharacterSet getCharacterSet(FileAppender databean){
-			return MySqlCharacterSet.latin1;
-		}
-		@Override
-		public MySqlCollation getCollation(FileAppender databean){
-			return MySqlCollation.latin1_swedish_ci;
-		}
-
 	}
 
 	/** construct *************************************************************/

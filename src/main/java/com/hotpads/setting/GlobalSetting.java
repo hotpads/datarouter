@@ -2,10 +2,8 @@ package com.hotpads.setting;
 
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -23,7 +21,7 @@ public class GlobalSetting extends BaseDatabean<GlobalSettingKey,GlobalSetting>{
 		public static final String value = "value";
 	}
 
-	public static class GlobalSettingFielder extends BaseDatabeanFielder<GlobalSettingKey,GlobalSetting>{
+	public static class GlobalSettingFielder extends BaseLatin1Fielder<GlobalSettingKey,GlobalSetting>{
 		@Override
 		public Class<GlobalSettingKey> getKeyFielderClass(){
 			return GlobalSettingKey.class;
@@ -33,15 +31,6 @@ public class GlobalSetting extends BaseDatabean<GlobalSettingKey,GlobalSetting>{
 		public List<Field<?>> getNonKeyFields(GlobalSetting d){
 			return FieldTool.createList(
 					new StringField(F.value, d.value, MySqlColumnType.MAX_LENGTH_VARCHAR));
-		}
-		
-		@Override
-		public MySqlCharacterSet getCharacterSet(GlobalSetting databean){
-			return MySqlCharacterSet.latin1;
-		}
-		@Override
-		public MySqlCollation getCollation(GlobalSetting databean){
-			return MySqlCollation.latin1_swedish_ci;
 		}
 	}
 

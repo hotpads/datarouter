@@ -4,9 +4,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.Level;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -45,7 +43,7 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig> {
 
 	/** fielder ***************************************************************/
 
-	public static class LoggerConfigFielder extends BaseDatabeanFielder<LoggerConfigKey, LoggerConfig>{
+	public static class LoggerConfigFielder extends BaseLatin1Fielder<LoggerConfigKey, LoggerConfig>{
 
 		private LoggerConfigFielder(){}
 
@@ -61,17 +59,6 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig> {
 					new BooleanField(F.additive, d.additive),
 					new DelimitedStringArrayField(F.appendersRef, ",", d.appendersRef));
 		}
-		
-		@Override
-		public MySqlCharacterSet getCharacterSet(LoggerConfig databean){
-			return MySqlCharacterSet.latin1;			
-		}
-		
-		@Override
-		public MySqlCollation getCollation(LoggerConfig databean){
-			return MySqlCollation.latin1_swedish_ci;
-		}		
-				
 
 	}
 
