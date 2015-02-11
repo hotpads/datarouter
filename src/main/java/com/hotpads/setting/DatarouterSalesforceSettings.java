@@ -21,14 +21,13 @@ public class DatarouterSalesforceSettings extends SettingNode{
 		super(finder, "datarouter.salesforce.", "datarouter.");
 		register();
 	}
-	
-	private void register() {
-		clientId = register(new StringCachedSetting(finder, getName() + "clientId", ""));
-		clientSecret = register(new StringCachedSetting(finder, getName() + "clientSecret", ""));
-		username = register(new StringCachedSetting(finder, getName() + "username", ""));
-		password = register(new StringCachedSetting(finder, getName() + "password", ""));
-		loginEndpoint = register(new StringCachedSetting(finder, getName() + "loginEndpoint",
-				"https://test.salesforce.com/services/oauth2/token"));
+
+	private void register(){
+		clientId = registerString("clientId", "");
+		clientSecret = registerString("clientSecret", "");
+		username = registerString("username", "");
+		password = registerString("password", "");
+		loginEndpoint = registerString("loginEndpoint", "https://test.salesforce.com/services/oauth2/token");
 	}
 
 	public StringCachedSetting getClientId(){

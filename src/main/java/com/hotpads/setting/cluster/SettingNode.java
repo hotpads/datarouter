@@ -43,7 +43,7 @@ public abstract class SettingNode {
 
 	/*********** methods ***********/
 
-	protected <S extends Setting<?>> S register(S setting){
+	private <S extends Setting<?>> S register(S setting){
 		settings.put(setting.getName(), setting);
 		return setting;
 	}
