@@ -64,8 +64,9 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 	
 	
 	/***************************** MySQL fielder ******************************/	
-	public static class CounterAlertDestinationFielder extends
-	BaseLatin1Fielder<CounterAlertDestinationKey,CounterAlertDestination>{
+	public static class CounterAlertDestinationFielder 
+	extends BaseLatin1Fielder<CounterAlertDestinationKey,CounterAlertDestination>{
+		
 		public CounterAlertDestinationFielder(){}
 		@Override
 		public Class<? extends Fielder<CounterAlertDestinationKey>> getKeyFielderClass(){

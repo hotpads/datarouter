@@ -135,7 +135,7 @@ public class DatabeanFieldInfo<
 				this.nonKeyFields = sampleFielder.getNonKeyFields(sampleDatabean);//only do these if the previous fields succeeded	
 				addNonKeyFieldsToCollections();
 				this.indexes = sampleFielder.getIndexes(sampleDatabean);
-				this.character_set = sampleFielder.getCharacterSet();
+				this.characterSet = sampleFielder.getCharacterSet();
 				this.collation = sampleFielder.getCollation();
 				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
 			}
