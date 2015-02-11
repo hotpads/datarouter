@@ -6,7 +6,7 @@ import java.util.Collection;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.google.inject.Injector;
+import com.hotpads.DatarouterInjector;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.BaseHandler.Handler;
 import com.hotpads.util.core.collections.Pair;
@@ -16,7 +16,7 @@ import com.hotpads.util.core.java.ReflectionTool;
 public class HandlerTypingHelper{
 	
 	@Inject
-	private Injector injector;
+	private DatarouterInjector injector;
 
 	/**
 	 * This methods goes through all methods who are named like methodName and tries to find the one that has the

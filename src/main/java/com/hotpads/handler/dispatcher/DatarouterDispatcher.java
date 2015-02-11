@@ -1,6 +1,6 @@
 package com.hotpads.handler.dispatcher;
 
-import com.google.inject.Injector;
+import com.hotpads.DatarouterInjector;
 import com.hotpads.datarouter.test.TestApiHandler;
 import com.hotpads.handler.BaseDispatcher;
 import com.hotpads.handler.MemoryMonitoringHandler;
@@ -43,7 +43,7 @@ public class DatarouterDispatcher extends BaseDispatcher{
 			MEMORY = "/memory",
 			MEMCACHED = "/memcached";
 
-	public DatarouterDispatcher(Injector injector, String servletContextPath, String urlPrefix){
+	public DatarouterDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
 		super(injector, servletContextPath, urlPrefix);
 		handle(URL_DATAROUTER + "*").withHandler(RoutersHandler.class);
 		handle(URL_DATAROUTER + ROUTERS).withHandler(RoutersHandler.class);
