@@ -78,7 +78,11 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 				Future<V> future = executorService.submit(task);
 				try{
 //					return future.get(timeoutMs, TimeUnit.MILLISECONDS);
-					return future.get();
+					V v;
+					synchronized(task){
+						v = future.get();
+					}
+					return v;
 //				}catch(TimeoutException e){
 //					future.cancel(CANCEL_THREAD_IF_RUNNING);
 //					logger.warn("TimeoutException on task with progress="+task.progress);

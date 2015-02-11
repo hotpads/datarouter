@@ -61,7 +61,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	
 	@Override
 	public V wrappedCall(){
-		clearPreviousAttemptState();
+		//clearPreviousAttemptState();
 		
 		progress.set("starting attemptNumOneBased:"+attemptNumOneBased);
 		boolean possiblyTarnishedHTable = false;
@@ -92,18 +92,19 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 				}
 			}
 
-			if(! possiblyTarnishedHTable){
-				if(hTable==null){
-					logger.warn("not checking in HTable because it's null");
+			if(hTable == null || client == null){
+				if(hTable == null){
+					logger.warn("not checking in HTable because it's null and possiblyTarnishedHTable="
+							+ possiblyTarnishedHTable);
 				}
-				if(client==null){
-					logger.warn("not checking in HTable because client is null");
+				if(client == null){
+					logger.warn("not checking in HTable because client is null and possiblyTarnishedHTable="
+							+ possiblyTarnishedHTable);
 				}
-			}
-			if(client != null){
+			}else{
 				client.checkInHTable(hTable, possiblyTarnishedHTable);
 			}
-			hTable = null;//reset to null since this HBaseTask will get reused
+			//hTable = null;//reset to null since this HBaseTask will get reused
 			TraceContext.finishSpan();
 			progress.set("ending finally block attemptNumOneBased:"+attemptNumOneBased);
 		}
@@ -130,13 +131,13 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	
 	protected void prepClientAndTableEtc(){
 		//get a fresh copy of the client
-		Preconditions.checkState(client==null);//make sure we cleared this from the previous attempt
+		//Preconditions.checkState(client==null);//make sure we cleared this from the previous attempt
 		client = (HBaseClient)drContext.getClientPool().getClient(clientName);//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
 		Preconditions.checkNotNull(client);
 		progress.set("got client attemptNumOneBased:"+attemptNumOneBased);
 		
 		//get a fresh htable
-		Preconditions.checkState(hTable==null);//make sure we cleared this from the previous attempt
+		//Preconditions.checkState(hTable==null);//make sure we cleared this from the previous attempt
 		hTable = client.checkOutHTable(tableName, progress);
 		Preconditions.checkNotNull(hTable);
 		progress.set("got HTable attemptNumOneBased:"+attemptNumOneBased);
@@ -144,7 +145,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		hTable.setOperationTimeout((int)Math.min(timeoutMs, Integer.MAX_VALUE));
 
 		//assert null
-		Preconditions.checkState(managedResultScanner==null);//make sure we cleared this from the previous attempt
+		//Preconditions.checkState(managedResultScanner==null);//make sure we cleared this from the previous attempt
 	}
 	
 	
