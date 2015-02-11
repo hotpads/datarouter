@@ -169,8 +169,8 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<!--<version>5.1.12</version>-->
-			<version>5.1.34</version>
+			<version>5.1.12</version>
+			<!--<version>5.1.34</version> 5.1.34 is causing slow slave database connection acquisitions -->
 		</dependency>
 		<dependency>
 			<groupId>c3p0</groupId>
