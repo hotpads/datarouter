@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.routing;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -17,9 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Nodes;
+import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
+import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.util.ApplicationPaths;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
@@ -168,6 +172,24 @@ public class DatarouterContext{
 			}
 		}
 		return null;
+	}
+	
+	public HashSet<PhysicalNode> getWritableNodes(){
+		HashSet<PhysicalNode> tableSet = new HashSet<>();
+		for(Datarouter router : routers){			
+			for(ClientId clientId : router.getClientIds()){
+				if(!clientId.getWritable()){ continue; }
+				List<? extends PhysicalNode<?,?>> nodes = getNodes().getPhysicalNodesForClient(clientId.getName());
+				for(PhysicalNode<?,?> node : nodes){	
+					if(!(node instanceof SortedStorageWriter<?, ?>)){ continue; }	
+					if(node.getTableName().equals("Server")){ continue; }		
+					if(tableSet.contains(node)) { continue; }				
+					tableSet.add(node);	
+					
+				}
+			}
+		}
+		return tableSet;
 	}
 	
 	/********************* get/set ***************************/
