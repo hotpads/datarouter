@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import org.hibernate.annotations.AccessType;
 import org.quartz.CronExpression;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
@@ -128,6 +130,15 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 			indexesByName.put(F.counterName, new CounterAlertByCounterNameLookup(null).getFields());
 			indexesByName.put(F.creatorEmail, new CounterAlertByCreatorEmailLookup(null).getFields());
 			return indexesByName;
+		}
+		
+		@Override
+		public MySqlCharacterSet getCharacterSet(CounterAlert databean){
+			return MySqlCharacterSet.latin1;
+		}
+		@Override
+		public MySqlCollation getCollation(CounterAlert databean){
+			return MySqlCollation.latin1_swedish_ci;
 		}
 	}
 	

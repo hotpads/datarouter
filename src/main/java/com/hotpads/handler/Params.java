@@ -37,7 +37,9 @@ public class Params{
 	
 	public Boolean optionalBoolean(String key, Boolean defaultValue){
 		String value = request.getParameter(key);
-		if(value==null){ return defaultValue; }
+		if(value==null){ 
+			return defaultValue; 
+		}
 		return BooleanTool.isTrue(value);
 	}
 	
@@ -48,13 +50,17 @@ public class Params{
 	
 	public Long optionalLong(String key, Long defaultValue){
 		String value = request.getParameter(key);
-		if(value==null){ return defaultValue; }
+		if(value==null){ 
+			return defaultValue; 
+		}
 		return Long.valueOf(value);
 	}
 
 	public Long optionalLongEmptySafe(String key, Long defaultValue){
 		String value = request.getParameter(key);
-		if(StringTool.isNullOrEmptyOrWhitespace(value)){ return defaultValue; }
+		if(StringTool.isNullOrEmptyOrWhitespace(value)){ 
+			return defaultValue; 
+		}
 		return Long.valueOf(value);
 	}
 	
@@ -65,13 +71,17 @@ public class Params{
 	
 	public Integer optionalInteger(String key, Integer defaultValue){
 		String value = request.getParameter(key);
-		if(value==null){ return defaultValue; }
+		if(value==null){ 
+			return defaultValue; 
+		}
 		return Integer.valueOf(value);
 	}
 	
 	public Double optionalDouble(String key, Double defaultValue){
 		String value = request.getParameter(key);
-		if(value==null){ return defaultValue; }
+		if(value==null){
+			return defaultValue; 
+		}
 		return Double.valueOf(value);
 	} 
 	
@@ -90,6 +100,26 @@ public class Params{
 			return defaultValue;
 		}
 		return ListTool.nullSafeLinkedAddAll(null, stringVal.split(delimiter));
+	}
+	
+	public Integer tryGetInteger(String key, Integer defaultValue) {
+		Integer value = defaultValue;
+		try {
+			value = optionalInteger(key, defaultValue);
+		} catch (NumberFormatException e) {
+			// no-op
+		}
+		return value;
+	}
+	
+	public Long tryGetLong(String key, Long defaultValue) {
+		Long value = defaultValue;
+		try {
+			value = optionalLong(key, defaultValue);
+		} catch (NumberFormatException e) {
+			// no-op
+		}
+		return value;
 	}
 	
 	//etc, etc...

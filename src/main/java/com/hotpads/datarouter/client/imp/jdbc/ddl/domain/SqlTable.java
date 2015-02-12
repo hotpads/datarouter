@@ -13,8 +13,8 @@ import com.hotpads.util.core.SetTool;
 
 public class SqlTable{
 	
-	private static final MySqlCharacterSet DEFAULT_CHARACTER_SET = MySqlCharacterSet.latin1;
-	private static final MySqlCollation DEFAULT_COLLATION = MySqlCollation.latin1_swedish_ci;
+	private static final MySqlCharacterSet DEFAULT_CHARACTER_SET = MySqlCharacterSet.utf8;
+	private static final MySqlCollation DEFAULT_COLLATION = MySqlCollation.utf8_bin;
 	
 	
 	/***************** fields *****************************/
@@ -34,7 +34,7 @@ public class SqlTable{
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = primaryKey;
-		this.indexes = indexes;
+		this.indexes = indexes;		
 	}
 
 	public SqlTable(String name, List<SqlColumn> columns, SqlIndex primaryKey){

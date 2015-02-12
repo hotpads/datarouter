@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -42,7 +42,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 			type = "type";
 	}
 
-	public static class ExceptionRecordFielder extends BaseDatabeanFielder<ExceptionRecordKey, ExceptionRecord> {
+	public static class ExceptionRecordFielder extends BaseLatin1Fielder<ExceptionRecordKey, ExceptionRecord> {
 
 		ExceptionRecordFielder() {}
 

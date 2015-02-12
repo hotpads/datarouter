@@ -107,8 +107,15 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 		if(elapsedUs > 1000){
 			DRCounters.incSuffixClient(getType(), "connection open > 1ms", getName());
 		}
+		if(elapsedUs > 2000){
+			DRCounters.incSuffixClient(getType(), "connection open > 2ms", getName());
+		}
 		if(elapsedUs > 5000){
+			DRCounters.incSuffixClient(getType(), "connection open > 5ms", getName());
 			logger.warn("slow reserveConnection: "+elapsedUs+"us on "+getName());
+		}
+		if(elapsedUs > 10000){
+			DRCounters.incSuffixClient(getType(), "connection open > 10ms", getName());
 		}
 	}
 

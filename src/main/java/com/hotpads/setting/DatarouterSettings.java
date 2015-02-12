@@ -12,7 +12,7 @@ public class DatarouterSettings extends SettingNode {
 
 	private DatarouterNotificationSettings notificationSettings;
 	private DatarouterSalesforceSettings salesforceSettings;
-	
+
 	private BooleanCachedSetting loggingConfigUpdaterEnabled;
 	private BooleanCachedSetting recordCallsites;
 
@@ -28,8 +28,8 @@ public class DatarouterSettings extends SettingNode {
 	}
 
 	private void registerSettings(){
-		this.loggingConfigUpdaterEnabled = registerBoolean(getName() + "loggingConfigUpdaterEnabled", true);
-		this.recordCallsites = registerBoolean(getName() + "recordCallsites", false);
+		this.loggingConfigUpdaterEnabled = registerBoolean("loggingConfigUpdaterEnabled", true);
+		this.recordCallsites = registerBoolean("recordCallsites", false);
 	}
 
 	public DatarouterNotificationSettings getNotificationSettings() {
@@ -43,7 +43,7 @@ public class DatarouterSettings extends SettingNode {
 	public BooleanCachedSetting getLoggingConfigUpdaterEnabled(){
 		return loggingConfigUpdaterEnabled;
 	}
-	
+
 	public BooleanCachedSetting getRecordCallsites(){
 		return recordCallsites;
 	}

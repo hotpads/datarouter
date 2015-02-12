@@ -4,6 +4,9 @@ import java.sql.ResultSet;
 import java.util.Comparator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
@@ -11,7 +14,8 @@ import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseField<T> implements Field<T>{
-
+	private static final Logger logger = LoggerFactory.getLogger(BaseField.class);
+	
 	protected java.lang.reflect.Field jField;//ignore in subclasses if more complex structure needed
 	protected String prefix;//ignore if not needed
 	protected String name;//the name of the java field
@@ -50,37 +54,13 @@ public abstract class BaseField<T> implements Field<T>{
 		}
 	}
 	
-//	public void setPrefixAndName(String prefixAndName){
-//		String[] tokens = prefixAndName.split(".");
-//		if(tokens.length > 1){
-//			setPrefix(tokens[0]);
-//			setName(tokens[1]);
-//		}else{
-//			setName(tokens[0]);
-//		}
-//	}
-	
 	@Override
 	public boolean isCollection(){
 		return false;
 	}
 	
 	@Override
-	public void cacheReflectionInfo(Object sampleFieldSet){
-//		ObjectTool.checkNotNull(sampleFieldSet);
-//		if(StringTool.notEmpty(prefix)){
-//			java.lang.reflect.Field prefixField = ReflectionTool.getDeclaredFieldFromHierarchy(
-//					sampleFieldSet.getClass(), prefix);
-//			prefixField.setAccessible(true);
-//			if(ReflectionTool.get(prefixField, sampleFieldSet)==null){
-//				ReflectionTool.set(prefixField, sampleFieldSet, ReflectionTool.create(prefixField.getType()));
-//			}
-//			jField = ReflectionTool.getDeclaredFieldFromHierarchy(
-//					prefixField.getType(), name);
-//		}else{
-//			jField = ReflectionTool.getDeclaredFieldFromHierarchy(sampleFieldSet.getClass(), name);
-//		}
-//		jField.setAccessible(true);
+	public synchronized void cacheReflectionInfo(Object sampleFieldSet){
 		List<String> fieldNames = ListTool.createLinkedList();
 		if(StringTool.notEmpty(prefix)){
 			fieldNames = ListTool.createArrayList(prefix.split("\\."));
@@ -107,11 +87,6 @@ public abstract class BaseField<T> implements Field<T>{
 	public byte[] getColumnNameBytes(){
 		return StringByteTool.getUtf8Bytes(columnName);
 	}
-	
-//	@Override
-//	public byte[] getBytes(){
-//		throw new NotImplementedException("still waiting on float and double serialization");	
-//	};
 	
 	@Override
 	public boolean isFixedLength(){
@@ -153,61 +128,13 @@ public abstract class BaseField<T> implements Field<T>{
 		setUsingReflection(targetFieldSet, v);
 	}
 
-//	@Override
-//	public void setUsingReflection(FieldSet<?> targetFieldSet, Object value, boolean ignorePrefix){
-//		try{
-//			//method Field.getDeclaredField(String) allows access to non-public fields
-//			if( ! ignorePrefix && this.getPrefix()!=null){
-//				java.lang.reflect.Field parentField = ReflectionTool.getDeclaredFieldFromHierarchy(
-//						targetFieldSet.getClass(), getPrefix());
-//				parentField.setAccessible(true);
-//				if(parentField.get(targetFieldSet)==null){
-//					parentField.set(targetFieldSet, ReflectionTool.create(parentField.getType()));
-//				}
-//				java.lang.reflect.Field childField = ReflectionTool.getDeclaredFieldFromHierarchy(
-//						parentField.getType(), getName());
-//				childField.setAccessible(true);
-//				childField.set(parentField.get(targetFieldSet), value);
-//			}else{
-//				java.lang.reflect.Field fld = ReflectionTool.getDeclaredFieldFromHierarchy(
-//						targetFieldSet.getClass(), getName());
-//				fld.setAccessible(true);
-//				fld.set(targetFieldSet, value);
-//			}
-//		}catch(Exception e){
-//			throw new DataAccessException(e.getClass().getSimpleName()
-//					+" on "+targetFieldSet.getClass().getSimpleName()+"."+getName());
-//		}
-//	}
-
 	@Override
 	public void setUsingReflection(Object targetFieldSet, Object pValue){
 		try{
-//			//method Field.getDeclaredField(String) allows access to non-public fields
-//			if( ! ignorePrefix && this.getPrefix()!=null){
-//				java.lang.reflect.Field parentField = ReflectionTool.getDeclaredFieldFromHierarchy(
-//						targetFieldSet.getClass(), getPrefix());
-//				parentField.setAccessible(true);
-//				if(parentField.get(targetFieldSet)==null){
-//					parentField.set(targetFieldSet, ReflectionTool.create(parentField.getType()));
-//				}
-//				java.lang.reflect.Field childField = ReflectionTool.getDeclaredFieldFromHierarchy(
-//						parentField.getType(), getName());
-//				childField.setAccessible(true);
-//				childField.set(parentField.get(targetFieldSet), value);
-//			}else{
-//				java.lang.reflect.Field fld = ReflectionTool.getDeclaredFieldFromHierarchy(
-//						targetFieldSet.getClass(), getName());
-//				fld.setAccessible(true);
-//				fld.set(targetFieldSet, value);
-//			}
-			
-			
-//			FieldSet<?> nestedFieldSet = (FieldSet<?>)FieldTool.getNestedFieldSet(targetFieldSet, this);//bad code - does not necessarily return a FieldSet
 			Object nestedFieldSet = FieldTool.getNestedFieldSet(targetFieldSet, this);
-//			java.lang.reflect.Field fld = FieldTool.getReflectionFieldForField(nestedFieldSet, this);
-//			fld.set(nestedFieldSet, value);
-			if(jField==null){ cacheReflectionInfo(targetFieldSet); }//for fromPersistentString (ViewNodeDataController)
+			if(jField==null){ 
+				cacheReflectionInfo(targetFieldSet); 
+			}
 			jField.set(nestedFieldSet, pValue);
 		}catch(Exception e){
 			String message = e.getClass().getSimpleName()

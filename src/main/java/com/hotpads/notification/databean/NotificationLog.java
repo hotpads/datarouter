@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -65,6 +67,15 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey, Notificati
 					new StringField(F.id, d.id, LENGTH_id)));
 			return map;
 		}
+		
+		@Override
+		public MySqlCharacterSet getCharacterSet(NotificationLog databean){
+			return MySqlCharacterSet.latin1;
+		}
+		@Override
+		public MySqlCollation getCollation(NotificationLog databean){
+			return MySqlCollation.latin1_swedish_ci;
+		}
 	}
 
 	public static class NotificationIdLookup extends BaseStringUniqueKey<NotificationLogKey>{
@@ -107,15 +118,6 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey, Notificati
 
 	public void setKey(NotificationLogKey key) {
 		this.key = key;
-	}
-
-	public Date getCreated() {
-		return created;
-	}
-
-	public void setCreated(Date created) {
-		this.created = created;
-		key.setCreated(created);
 	}
 
 	public String getType() {
