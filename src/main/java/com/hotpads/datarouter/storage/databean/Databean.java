@@ -2,8 +2,6 @@ package com.hotpads.datarouter.storage.databean;
 
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -40,8 +38,6 @@ extends Comparable<Databean<?,?>>{
 	String getKeyFieldName();
 	PK getKey();
 	
-	List<Field<?>> getKeyFields();
-	MySqlCollation getCollation();
-	MySqlCharacterSet getCharacterSet();
+	List<Field<?>> getKeyFields();	
 	
 }

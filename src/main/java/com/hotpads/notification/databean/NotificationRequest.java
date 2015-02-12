@@ -3,10 +3,8 @@ package com.hotpads.notification.databean;
 import java.util.Date;
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -37,7 +35,8 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 		sentAtDate = "sentAtDate";
 	}
 
-	public static class NotificationRequestFielder extends BaseDatabeanFielder<NotificationRequestKey, NotificationRequest> {
+	public static class NotificationRequestFielder 
+	extends BaseLatin1Fielder<NotificationRequestKey, NotificationRequest> {
 
 		NotificationRequestFielder() {}
 
@@ -54,16 +53,6 @@ public class NotificationRequest extends BaseDatabean<NotificationRequestKey,Not
 					new StringField(F.channel, d.channel, LENGHT_channel),
 					new DateField(F.sentAtDate, d.sentAtDate));
 		}
-		
-		@Override
-		public MySqlCharacterSet getCharacterSet(NotificationRequest databean){
-			return MySqlCharacterSet.latin1;
-		}
-		@Override
-		public MySqlCollation getCollation(NotificationRequest databean){
-			return MySqlCollation.latin1_swedish_ci;
-		}
-		
 	}
 
 	/************************** construct *************************/

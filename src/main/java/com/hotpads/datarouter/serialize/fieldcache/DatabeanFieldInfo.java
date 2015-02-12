@@ -55,7 +55,7 @@ public class DatabeanFieldInfo<
 	private java.lang.reflect.Field keyJavaField;
 	private Map<String,List<Field<?>>>  indexes;
 	private MySqlCollation collation;
-	private MySqlCharacterSet character_set;
+	private MySqlCharacterSet characterSet;
 	
 	private boolean entity = false;
 	private String entityNodePrefix;
@@ -132,8 +132,8 @@ public class DatabeanFieldInfo<
 				this.nonKeyFields = sampleFielder.getNonKeyFields(sampleDatabean);
 				addNonKeyFieldsToCollections();
 				this.indexes = sampleFielder.getIndexes(sampleDatabean);
-				this.character_set = sampleFielder.getCharacterSet(sampleDatabean);
-				this.collation = sampleFielder.getCollation(sampleDatabean);
+				this.characterSet = sampleFielder.getCharacterSet();
+				this.collation = sampleFielder.getCollation();
 				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
 			}
 //			if(fieldAware){
@@ -375,7 +375,7 @@ public class DatabeanFieldInfo<
 	}
 	
 	public MySqlCharacterSet getCharacterSet(){
-		return character_set;
+		return characterSet;
 	}
 
 	public Map<String,Field<?>> getPrimaryKeyFieldByName(){
@@ -403,7 +403,7 @@ public class DatabeanFieldInfo<
 	}
 
 	public MySqlCharacterSet getCharacter_set(){
-		return character_set;
+		return characterSet;
 	}
 
 	public Class<PrimaryKeyFielder<PK>> getPrimaryKeyFielderClass(){
