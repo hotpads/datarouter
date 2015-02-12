@@ -1,10 +1,11 @@
 package com.hotpads.datarouter.routing;
 
-import java.util.HashSet;
 import java.util.List;
+import java.util.NavigableSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -174,8 +175,8 @@ public class DatarouterContext{
 		return null;
 	}
 	
-	public HashSet<PhysicalNode> getWritableNodes(){
-		HashSet<PhysicalNode> tableSet = new HashSet<>();
+	public NavigableSet<PhysicalNode> getWritableNodes(){
+		NavigableSet<PhysicalNode> writableNodes = new TreeSet<>();
 		for(Datarouter router : routers){			
 			for(ClientId clientId : router.getClientIds()){
 				if(!clientId.getWritable()){ continue; }
@@ -183,13 +184,13 @@ public class DatarouterContext{
 				for(PhysicalNode<?,?> node : nodes){	
 					if(!(node instanceof SortedStorageWriter<?, ?>)){ continue; }	
 					if(node.getTableName().equals("Server")){ continue; }		
-					if(tableSet.contains(node)) { continue; }				
-					tableSet.add(node);	
+					if(writableNodes.contains(node)) { continue; }				
+					writableNodes.add(node);	
 					
 				}
 			}
 		}
-		return tableSet;
+		return writableNodes;
 	}
 	
 	/********************* get/set ***************************/
