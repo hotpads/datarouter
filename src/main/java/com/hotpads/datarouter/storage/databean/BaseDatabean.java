@@ -2,9 +2,6 @@ package com.hotpads.datarouter.storage.databean;
 
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -31,15 +28,6 @@ implements Databean<PK,D>{
 		return DEFAULT_KEY_FIELD_NAME;
 	}
 	
-	@Override
-	public MySqlCharacterSet getCharacterSet(){
-		return SqlTable.getDefaultCharacterSet();
-	}
-	
-	@Override
-	public MySqlCollation getCollation(){
-		return SqlTable.getDefaultCollation();
-	}
 	
 //	@Override
 //	public Class<? extends Fielder<PK>> getKeyFielderClass(){

@@ -3,10 +3,8 @@ package com.hotpads.notification.alias.databean;
 import java.util.Date;
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -47,7 +45,7 @@ public class Subscriber extends BaseDatabean<SubscriberKey,Subscriber> {
 
 	/** fielder ***************************************************************/
 
-	public static class SubscriberFielder extends BaseDatabeanFielder<SubscriberKey,Subscriber>{
+	public static class SubscriberFielder extends BaseLatin1Fielder<SubscriberKey,Subscriber>{
 
 		private SubscriberFielder(){}
 
@@ -61,17 +59,7 @@ public class Subscriber extends BaseDatabean<SubscriberKey,Subscriber> {
 			return FieldTool.createList(
 				new DateField(F.subscriptionDate, d.subscriptionDate),
 				new StringField(F.subscriptionAuthor, d.subscriptionAuthor, MySqlColumnType.MAX_LENGTH_VARCHAR));
-		}
-		
-		@Override
-		public MySqlCharacterSet getCharacterSet(Subscriber databean){
-			return MySqlCharacterSet.latin1;
-		}
-		@Override
-		public MySqlCollation getCollation(Subscriber databean){
-			return MySqlCollation.latin1_swedish_ci;
-		}
-
+		}		
 	}
 
 	/** construct *************************************************************/

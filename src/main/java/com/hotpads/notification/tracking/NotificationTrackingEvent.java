@@ -3,7 +3,7 @@ package com.hotpads.notification.tracking;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -44,8 +44,8 @@ public class NotificationTrackingEvent extends BaseDatabean<NotificationTracking
 
 	/** fielder ***************************************************************/
 
-	public static class NotificationTrackingEventFielder extends
-			BaseDatabeanFielder<NotificationTrackingEventKey,NotificationTrackingEvent>{
+	public static class NotificationTrackingEventFielder 
+	extends BaseLatin1Fielder<NotificationTrackingEventKey,NotificationTrackingEvent>{
 
 		private NotificationTrackingEventFielder(){}
 

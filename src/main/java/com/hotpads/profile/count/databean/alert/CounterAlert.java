@@ -11,10 +11,8 @@ import javax.persistence.Id;
 import org.hibernate.annotations.AccessType;
 import org.quartz.CronExpression;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -101,7 +99,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 	
 	
 	/***************************** MySQL fielder ******************************/	
-	public static class CounterAlertFielder extends BaseDatabeanFielder<CounterAlertKey, CounterAlert>{
+	public static class CounterAlertFielder extends BaseLatin1Fielder<CounterAlertKey, CounterAlert>{
 		public CounterAlertFielder(){}
 		@Override
 		public Class<? extends Fielder<CounterAlertKey>> getKeyFielderClass(){
@@ -131,15 +129,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 			indexesByName.put(F.creatorEmail, new CounterAlertByCreatorEmailLookup(null).getFields());
 			return indexesByName;
 		}
-		
-		@Override
-		public MySqlCharacterSet getCharacterSet(CounterAlert databean){
-			return MySqlCharacterSet.latin1;
-		}
-		@Override
-		public MySqlCollation getCollation(CounterAlert databean){
-			return MySqlCollation.latin1_swedish_ci;
-		}
+				
 	}
 	
 	/******************************** indexes / lookup ******************************/

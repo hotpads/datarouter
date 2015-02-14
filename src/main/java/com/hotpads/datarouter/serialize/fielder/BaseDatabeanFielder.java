@@ -59,13 +59,13 @@ implements DatabeanFielder<PK,D>{
 	}
 	
 	@Override
-	public MySqlCollation getCollation(D databean){
-		return databean.getCollation();
+	public MySqlCollation getCollation(){
+		return MySqlCollation.utf8_bin;
 	}
 	
 	@Override
-	public MySqlCharacterSet getCharacterSet(D databean){
-		return databean.getCharacterSet();
+	public MySqlCharacterSet getCharacterSet(){
+		return MySqlCharacterSet.utf8;
 	}
 	
 }

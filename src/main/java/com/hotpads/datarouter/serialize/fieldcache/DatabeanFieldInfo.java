@@ -55,7 +55,7 @@ public class DatabeanFieldInfo<
 	private java.lang.reflect.Field keyJavaField;
 	private Map<String,List<Field<?>>>  indexes;
 	private MySqlCollation collation;
-	private MySqlCharacterSet character_set;
+	private MySqlCharacterSet characterSet;
 	
 	private boolean entity = false;
 	private String entityNodePrefix;
@@ -97,10 +97,6 @@ public class DatabeanFieldInfo<
 		this.databeanClass = params.getDatabeanClass();
 		this.sampleDatabean = ReflectionTool.create(databeanClass);
 		this.primaryKeyClass = this.sampleDatabean.getKeyClass();
-		if("RentZestimate".equals(databeanClass.getSimpleName())){
-			logger.warn(primaryKeyClass.getCanonicalName());
-//			logger.warn("", new Exception());
-		}
 		this.samplePrimaryKey = ReflectionTool.create(primaryKeyClass);
 		this.keyFieldName = sampleDatabean.getKeyFieldName();
 		this.fielderClass = params.getFielderClass();
@@ -132,11 +128,12 @@ public class DatabeanFieldInfo<
 				Preconditions.checkArgument(fieldAware, nodeName+" specified a Fielder but is not FieldAware");
 				this.fields = sampleFielder.getFields(sampleDatabean);//make sure there is a PK or this will NPE
 				addFieldsToCollections();
-				this.nonKeyFields = sampleFielder.getNonKeyFields(sampleDatabean);//only do these if the previous fields succeeded	
+				//only do these if the previous fields succeeded	
+				this.nonKeyFields = sampleFielder.getNonKeyFields(sampleDatabean);
 				addNonKeyFieldsToCollections();
 				this.indexes = sampleFielder.getIndexes(sampleDatabean);
-				this.character_set = sampleFielder.getCharacterSet(sampleDatabean);
-				this.collation = sampleFielder.getCollation(sampleDatabean);
+				this.characterSet = sampleFielder.getCharacterSet();
+				this.collation = sampleFielder.getCollation();
 				this.scatteringPrefixClass = sampleFielder.getScatteringPrefixClass();
 			}
 //			if(fieldAware){
@@ -153,7 +150,8 @@ public class DatabeanFieldInfo<
 		//entity stuff
 		this.entity = StringTool.notEmpty(params.getEntityNodePrefix());
 		if(entity){
-			//key java field is currently only used for entity keys.  won'y work for databans with a dynamically created PK
+			//key java field is currently only used for entity keys.  won't work for databeans with a dynamically 
+			// created PK
 			this.keyJavaField = ReflectionTool.getDeclaredFieldFromHierarchy(databeanClass, keyFieldName);
 			if(StringTool.isEmpty(params.getEntityNodePrefix())){
 				throw new IllegalArgumentException("must specify entityNodePrefix for entity nodes");
@@ -165,11 +163,6 @@ public class DatabeanFieldInfo<
 			this.ekFields = sampleEntityPrimaryKey.getEntityKey().getFields();
 			this.ekPkFields = sampleEntityPrimaryKey.getEntityKeyFields();
 			this.postEkPkKeyFields = sampleEntityPrimaryKey.getPostEntityKeyFields();
-			if("RentZestimate".equals(databeanClass.getSimpleName())){
-				logger.warn(ekFields.toString());
-				logger.warn(postEkPkKeyFields.toString());
-//				logger.warn("", new Exception());
-			}
 		}
 		
 		//info about PhysicalNodes, the leaf nodes that store the data (as opposed to virtual nodes)
@@ -179,7 +172,8 @@ public class DatabeanFieldInfo<
 			this.tableName = params.getPhysicalName();
 			this.packagedTableName = null;//what to do here
 			this.explicitNodeName = params.getParentName()+"."+databeanClass.getSimpleName()+"."+entityNodePrefix;
-		}else if(StringTool.notEmpty(params.getPhysicalName())){//explicitly set tableName.  do after entity check since that also sets a table name
+		}else if(StringTool.notEmpty(params.getPhysicalName())){
+			//explicitly set tableName.  do after entity check since that also sets a table name
 			this.tableName = params.getPhysicalName();
 			this.packagedTableName = params.getQualifiedPhysicalName();
 			this.explicitNodeName = clientName+"."+tableName;
@@ -188,7 +182,8 @@ public class DatabeanFieldInfo<
 			this.tableName = params.getBaseDatabeanClass().getSimpleName();
 			this.packagedTableName = params.getDatabeanClass().getName();
 			this.baseDatabeanClass = params.getBaseDatabeanClass();
-			logger.info("client:"+clientName+" "+params.getDatabeanClass().getSimpleName()+" in superclass -> "+tableName);
+			logger.info("client:"+clientName+" "+params.getDatabeanClass().getSimpleName()+" in superclass -> "
+					+ tableName);
 		}else{//default to using the databean's name as the table name
 			this.tableName = params.getDatabeanClass().getSimpleName();
 			this.packagedTableName = params.getDatabeanClass().getName();
@@ -380,7 +375,7 @@ public class DatabeanFieldInfo<
 	}
 	
 	public MySqlCharacterSet getCharacterSet(){
-		return character_set;
+		return characterSet;
 	}
 
 	public Map<String,Field<?>> getPrimaryKeyFieldByName(){
@@ -408,7 +403,7 @@ public class DatabeanFieldInfo<
 	}
 
 	public MySqlCharacterSet getCharacter_set(){
-		return character_set;
+		return characterSet;
 	}
 
 	public Class<PrimaryKeyFielder<PK>> getPrimaryKeyFielderClass(){

@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +17,6 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
 public class JdbcLookupOp<
@@ -38,19 +38,32 @@ extends BaseJdbcOp<List<D>>{
 		this.opName = opName;
 		this.lookups = lookups;
 		this.wildcardLastField = wildcardLastField;
-		this.config = config;
+		this.config = Config.nullSafe(config);
 	}
 	
 	@Override
 	public List<D> runOnce(){
-		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
+		if(CollectionTool.isEmpty(lookups)){
+			return new LinkedList<>();
+		}
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		Integer batchSize = config.getLimit();
+		int configuredBatchSize = config.getIterateBatchSizeOverrideNull(JdbcNode.DEFAULT_ITERATE_BATCH_SIZE);
+		if (batchSize == null || batchSize > configuredBatchSize){
+			batchSize = configuredBatchSize;
+		}
 		//TODO undefined behavior on trailing nulls
-		List<D> result = ListTool.create();
-		for(List<? extends Lookup<PK>> batch : new BatchingIterable<>(lookups, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
-			String sql = SqlBuilder.getWithPrefixes(config, node.getTableName(), node.getFieldInfo().getFields(), batch, 
-					wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
+		List<D> result = new ArrayList<>();
+		for (List<? extends Lookup<PK>> batch : new BatchingIterable<>(lookups, batchSize)){
+			String sql = SqlBuilder.getWithPrefixes(config, node.getTableName(), node.getFieldInfo().getFields(),
+					batch, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
 			result.addAll(JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql));
+			if(config.getLimit() != null && result.size() >= config.getLimit()){
+				break;
+			}
+		}
+		if(config.getLimit() != null && result.size() > config.getLimit()){
+			return new ArrayList<>(result.subList(0, config.getLimit()));
 		}
 		return result;
 	}
