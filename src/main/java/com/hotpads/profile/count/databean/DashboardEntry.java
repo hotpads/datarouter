@@ -4,10 +4,8 @@ import java.util.List;
 
 import javax.persistence.Id;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -48,7 +46,7 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 			rollPeriod = "rollPeriod";
 	}
 	
-	public static class DashboardEntryFielder extends BaseDatabeanFielder<DashboardEntryKey,DashboardEntry>{
+	public static class DashboardEntryFielder extends BaseLatin1Fielder<DashboardEntryKey,DashboardEntry>{
 		public DashboardEntryFielder(){}
 		@Override
 		public Class<DashboardEntryKey> getKeyFielderClass(){
@@ -65,15 +63,6 @@ public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntr
 					new StringField(F.webAppName, d.webAppName, DEFAULT_STRING_LENGTH),
 					new StringField(F.frequency, d.getFrequency(), DEFAULT_STRING_LENGTH),
 					new IntegerField(F.rollPeriod, d.rollPeriod));
-		}
-		
-		@Override
-		public MySqlCharacterSet getCharacterSet(DashboardEntry databean){
-			return MySqlCharacterSet.latin1;
-		}
-		@Override
-		public MySqlCollation getCollation(DashboardEntry databean){
-			return MySqlCollation.latin1_swedish_ci;
 		}
 	}
 	

@@ -12,12 +12,12 @@ extends BaseDatabeanFielder<PK,D>
 {
 	
 	@Override
-	public MySqlCollation getCollation(D databean){
+	public MySqlCollation getCollation(){
 		return MySqlCollation.latin1_swedish_ci;
 	}
 	
 	@Override
-	public MySqlCharacterSet getCharacterSet(D databean){
+	public MySqlCharacterSet getCharacterSet(){
 		return MySqlCharacterSet.latin1;
 	}
 	

@@ -3,9 +3,7 @@ package com.hotpads.handler.user.authenticate.api;
 import java.util.Date;
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -26,7 +24,7 @@ public class ApiRequest extends BaseDatabean<ApiRequestKey, ApiRequest>{
 	/** fielder *******************************************************************************************************/
 	
 	public static class ApiRequestFielder 
-	extends BaseDatabeanFielder<ApiRequestKey, ApiRequest> {
+	extends BaseLatin1Fielder<ApiRequestKey, ApiRequest> {
 
 		@Override
 		public Class<ApiRequestKey> getKeyFielderClass(){
@@ -37,16 +35,7 @@ public class ApiRequest extends BaseDatabean<ApiRequestKey, ApiRequest>{
 		public List<Field<?>> getNonKeyFields(ApiRequest d){
 			return FieldTool.createList(
 				new DateField(F.requestDate, d.requestDate));					
-		}	
-		
-		@Override
-		public MySqlCharacterSet getCharacterSet(ApiRequest databean){
-			return MySqlCharacterSet.latin1;
-		}
-		@Override
-		public MySqlCollation getCollation(ApiRequest databean){
-			return MySqlCollation.latin1_swedish_ci;
-		}
+		}			
 	}
 	
 	/** constructors **************************************************************************************************/

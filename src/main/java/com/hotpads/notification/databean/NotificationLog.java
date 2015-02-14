@@ -5,10 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -40,7 +38,7 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey, Notificati
 				id = "id";
 	}
 
-	public static class NotificationLogFielder extends BaseDatabeanFielder<NotificationLogKey, NotificationLog>{
+	public static class NotificationLogFielder extends BaseLatin1Fielder<NotificationLogKey, NotificationLog>{
 
 		private NotificationLogFielder(){}
 
@@ -66,16 +64,7 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey, Notificati
 			map.put("index_notificationId", FieldTool.createList(
 					new StringField(F.id, d.id, LENGTH_id)));
 			return map;
-		}
-		
-		@Override
-		public MySqlCharacterSet getCharacterSet(NotificationLog databean){
-			return MySqlCharacterSet.latin1;
-		}
-		@Override
-		public MySqlCollation getCollation(NotificationLog databean){
-			return MySqlCollation.latin1_swedish_ci;
-		}
+		}		
 	}
 
 	public static class NotificationIdLookup extends BaseStringUniqueKey<NotificationLogKey>{

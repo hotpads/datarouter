@@ -27,7 +27,6 @@ public interface DatabeanFielder<
 	List<Field<?>> getNonKeyFields(D databean);
 	
 	Map<String,List<Field<?>>> getIndexes(D databean);
-	MySqlCollation getCollation(D databean);
-	MySqlCharacterSet getCharacterSet(D databean);
-	
+	MySqlCollation getCollation();
+	MySqlCharacterSet getCharacterSet();
 }

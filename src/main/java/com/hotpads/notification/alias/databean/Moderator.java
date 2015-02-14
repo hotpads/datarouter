@@ -3,10 +3,8 @@ package com.hotpads.notification.alias.databean;
 import java.util.Date;
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -48,7 +46,7 @@ public class Moderator extends BaseDatabean<ModeratorKey,Moderator> {
 	/** fielder ***************************************************************/
 
 	public static class ModeratorFielder
-		extends BaseDatabeanFielder<ModeratorKey, Moderator>{
+		extends BaseLatin1Fielder<ModeratorKey, Moderator>{
 		public ModeratorFielder(){
 		}
 
@@ -62,16 +60,6 @@ public class Moderator extends BaseDatabean<ModeratorKey,Moderator> {
 			return FieldTool.createList(
 				new DateField(F.membershipDate, d.membershipDate),
 				new StringField(F.membershipAuthor, d.membershipAuthor, MySqlColumnType.MAX_LENGTH_VARCHAR));
-		}
-		
-		@Override
-		public MySqlCharacterSet getCharacterSet(Moderator databean){
-			return MySqlCharacterSet.latin1;			
-		}
-		
-		@Override
-		public MySqlCollation getCollation(Moderator databean){
-			return MySqlCollation.latin1_swedish_ci;
 		}		
 
 	}

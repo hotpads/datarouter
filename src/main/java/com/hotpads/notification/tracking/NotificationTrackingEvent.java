@@ -44,8 +44,8 @@ public class NotificationTrackingEvent extends BaseDatabean<NotificationTracking
 
 	/** fielder ***************************************************************/
 
-	public static class NotificationTrackingEventFielder extends
-	BaseLatin1Fielder<NotificationTrackingEventKey,NotificationTrackingEvent>{
+	public static class NotificationTrackingEventFielder 
+	extends BaseLatin1Fielder<NotificationTrackingEventKey,NotificationTrackingEvent>{
 
 		private NotificationTrackingEventFielder(){}
 

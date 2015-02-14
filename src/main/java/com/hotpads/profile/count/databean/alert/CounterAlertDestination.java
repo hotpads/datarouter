@@ -9,9 +9,7 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.AccessType;
 
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
-import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
-import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
+import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -66,8 +64,9 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 	
 	
 	/***************************** MySQL fielder ******************************/	
-	public static class CounterAlertDestinationFielder extends
-			BaseDatabeanFielder<CounterAlertDestinationKey,CounterAlertDestination>{
+	public static class CounterAlertDestinationFielder 
+	extends BaseLatin1Fielder<CounterAlertDestinationKey,CounterAlertDestination>{
+		
 		public CounterAlertDestinationFielder(){}
 		@Override
 		public Class<? extends Fielder<CounterAlertDestinationKey>> getKeyFielderClass(){
@@ -91,14 +90,6 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 			return indexesByName;
 		}
 		
-		@Override
-		public MySqlCharacterSet getCharacterSet(CounterAlertDestination databean){
-			return MySqlCharacterSet.latin1;
-		}
-		@Override
-		public MySqlCollation getCollation(CounterAlertDestination databean){
-			return MySqlCollation.latin1_swedish_ci;
-		}
 	}
 	
 	/******************************** indexes / lookup ******************************/
