@@ -183,7 +183,8 @@ public class DatarouterContext{
 				List<? extends PhysicalNode<?,?>> nodes = getNodes().getPhysicalNodesForClient(clientId.getName());
 				for(PhysicalNode<?,?> node : nodes){	
 					if(!(node instanceof SortedStorageWriter<?, ?>)){ continue; }	
-					if(node.getTableName().equals("Server")){ continue; }		
+					if(node.getTableName().equals("Server")){ System.out.println(node.getTableName()); }		
+				//	if(node.getTableName().equals("Server")){ continue; }		
 					if(writableNodes.contains(node)) { continue; }				
 					writableNodes.add(node);	
 					
