@@ -73,6 +73,7 @@ public class JdbcConnectionPool{
 		}
 		
 		List<String> urlParams = new ArrayList<>();
+		//avoid extra RPC on readOnly connections: http://dev.mysql.com/doc/relnotes/connector-j/en/news-5-1-23.html
 		urlParams.add("useLocalSessionState=true");
 		
 		String urlWithParams = url + "?" + Joiner.on("&").join(urlParams);
