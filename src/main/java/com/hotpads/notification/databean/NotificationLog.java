@@ -13,11 +13,14 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
+import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
+import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
+import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.unique.base.BaseStringUniqueKey;
 
-public class NotificationLog extends BaseDatabean<NotificationLogKey, NotificationLog> {	
+public class NotificationLog extends BaseDatabean<NotificationLogKey, NotificationLog> {
 
-	private static final int 
+	private static final int
 			LENGTH_type = MySqlColumnType.MAX_LENGTH_VARCHAR,
 			LENGTH_channel = MySqlColumnType.MAX_LENGTH_VARCHAR,
 			LENGTH_id = 36; // 32 char + 4 dash
@@ -63,8 +66,34 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey, Notificati
 			Map<String,List<Field<?>>> map = new HashMap<>();
 			map.put("index_notificationId", FieldTool.createList(
 					new StringField(F.id, d.id, LENGTH_id)));
+			map.put("index_reverseCreatedMs", new NotificationLogByReverseCreatedMsLookup().getFields());
 			return map;
-		}		
+		}
+	}
+
+	public static class NotificationLogByReverseCreatedMsLookup extends BaseLookup<NotificationLogKey>{
+
+		private Long reverseCreatedMs;
+
+		NotificationLogByReverseCreatedMsLookup(){
+			this(null);
+		}
+
+		public NotificationLogByReverseCreatedMsLookup(Long reverseCreatedMs){
+			this.reverseCreatedMs = reverseCreatedMs;
+			this.setPrimaryKey(new NotificationLogKey(null, reverseCreatedMs, null));
+		}
+
+		@Override
+		public List<Field<?>> getFields(){
+			return FieldTool.createList(
+					new LongField(NotificationLogKey.F.reverseCreatedMs, getPrimaryKey().getReverseCreatedMs()),
+					new StringEnumField<>(NotificationUserType.class, NotificationLogKey.F.userType, getPrimaryKey().getUserType(), NotificationLogKey.LENGTH_userType),
+					new StringField(NotificationLogKey.F.userId, getPrimaryKey().getUserId(), NotificationLogKey.LENGTH_userId),
+					new StringField(NotificationLogKey.F.template, getPrimaryKey().getTemplate(), NotificationLogKey.LENGTH_template)
+					);
+		}
+
 	}
 
 	public static class NotificationIdLookup extends BaseStringUniqueKey<NotificationLogKey>{
