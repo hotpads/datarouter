@@ -29,6 +29,7 @@ implements Callable<Void>{
 
 	protected String clientName;
 	protected JdbcConnectionPool connectionPool;
+	private String schemaName;
 	private List<String> existingTableNames;
 	protected SchemaUpdateOptions printOptions;
 	protected SchemaUpdateOptions executeOptions;
@@ -44,6 +45,7 @@ implements Callable<Void>{
 			Set<String> updatedTables, List<String> printedSchemaUpdates, PhysicalNode<?,?> physicalNode){
 		this.clientName = clientName;
 		this.connectionPool = connectionPool;
+		this.schemaName = connectionPool.getSchemaName();
 		this.printOptions = printOptions;
 		this.executeOptions = executeOptions;
 		this.updatedTables = updatedTables;
@@ -96,8 +98,7 @@ implements Callable<Void>{
 			if(!exists){
 				System.out.println("========================================== Creating the table " +tableName 
 						+" ============================");
-				String sql = new SqlCreateTableGenerator(requested, JdbcTool.getSchemaName(connectionPool))
-						.generateDdl();
+				String sql = new SqlCreateTableGenerator(requested, schemaName).generateDdl();
 				if(!executeOptions.getCreateTables()){
 					System.out.println("Please execute: "+sql);
 				}
@@ -115,10 +116,10 @@ implements Callable<Void>{
 				
 				//execute the alter table
 				ConnectionSqlTableGenerator executeConstructor = new ConnectionSqlTableGenerator(connection, tableName,
-						JdbcTool.getSchemaName(connectionPool));
+						schemaName);
 				SqlTable executeCurrent = executeConstructor.generate();
 				SqlAlterTableGenerator executeAlterTableGenerator = new SqlAlterTableGenerator(
-						executeOptions, executeCurrent, requested, JdbcTool.getSchemaName(connectionPool));
+						executeOptions, executeCurrent, requested, schemaName);
 				if(executeAlterTableGenerator.willAlterTable()){
 					String alterTableExecuteString = executeAlterTableGenerator.generateDdl();
 					PhaseTimer alterTableTimer = new PhaseTimer();
@@ -133,10 +134,10 @@ implements Callable<Void>{
 				
 				//print the alter table
 				ConnectionSqlTableGenerator prinitConstructor = new ConnectionSqlTableGenerator(connection, tableName, 
-						JdbcTool.getSchemaName(connectionPool));
+						schemaName);
 				SqlTable printCurrent = prinitConstructor.generate();
 				SqlAlterTableGenerator printAlterTableGenerator = new SqlAlterTableGenerator(printOptions,
-						printCurrent, requested, JdbcTool.getSchemaName(connectionPool));
+						printCurrent, requested, schemaName);
 				if(printAlterTableGenerator.willAlterTable()){
 					System.out.println("# ==================== Please Execute SchemaUpdate ==========================");
 					//print it

@@ -13,7 +13,7 @@ import com.hotpads.datarouter.exception.UnavailableException;
 
 public class JdbcConnectionProvider implements ConnectionProvider{
 
-	DataSource dataSource;
+	private DataSource dataSource;
 
 	@Override
 	public void configure(Properties props){
@@ -23,7 +23,8 @@ public class JdbcConnectionProvider implements ConnectionProvider{
 	@Override
 	public Connection getConnection(){
 		try{
-			return dataSource.getConnection();		
+			Connection connection = dataSource.getConnection();
+			return connection;		
 		}catch(Exception e){
 			throw new UnavailableException(e);
 		}
