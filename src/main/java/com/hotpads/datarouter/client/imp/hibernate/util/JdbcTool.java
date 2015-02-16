@@ -246,6 +246,9 @@ public class JdbcTool {
 		}
 	}
 	
+	
+	/********************** tests ***************************/
+	
 	public static class TestJdbcTool{
 		@Test public void showTablesTest(){
 			Connection conn = JdbcTool.openConnection("localhost", 3306, "property", "root", "");
@@ -254,10 +257,7 @@ public class JdbcTool {
 				System.out.println(s);
 			}
 		}
-		}
-
-	public static String getSchemaName(JdbcConnectionPool connectionPool){
-		return StringTool.getStringAfterLastOccurrence('/',connectionPool.getDataSource().getJdbcUrl());
 	}
+
 }
 
