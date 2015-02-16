@@ -3,7 +3,7 @@ package com.hotpads.notification.alias.databean;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -47,7 +47,7 @@ public class AutomatedEmail extends BaseDatabean<AutomatedEmailKey,AutomatedEmai
 
 	/** fielder ***************************************************************/
 
-	public static class AutomatedEmailFielder extends BaseLatin1Fielder<AutomatedEmailKey, AutomatedEmail>{
+	public static class AutomatedEmailFielder extends BaseDatabeanFielder<AutomatedEmailKey, AutomatedEmail>{
 
 		private AutomatedEmailFielder(){}
 
