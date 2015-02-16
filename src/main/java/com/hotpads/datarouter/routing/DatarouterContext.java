@@ -169,7 +169,9 @@ public class DatarouterContext{
 	public Datarouter getRouterForClient(Client client){
 		for(Datarouter router : routers){
 			for(Client c : router.getAllClients()){
-				if(c==client){ return router; }
+				if(c==client){ 
+					return router; 
+				}
 			}
 		}
 		return null;
@@ -186,9 +188,6 @@ public class DatarouterContext{
 
 				for(PhysicalNode<?,?> node : nodes){
 					if(!(node instanceof SortedStorageWriter<?,?>)){
-						continue;
-					}
-					if(node.getTableName().equals("Server")){
 						continue;
 					}
 					if(writableNodes.contains(node)){
