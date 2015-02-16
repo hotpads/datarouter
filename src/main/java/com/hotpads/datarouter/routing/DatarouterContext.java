@@ -175,18 +175,26 @@ public class DatarouterContext{
 		return null;
 	}
 	
-	public NavigableSet<PhysicalNode> getWritableNodes(){
-		NavigableSet<PhysicalNode> writableNodes = new TreeSet<>();
-		for(Datarouter router : routers){			
+	public NavigableSet<PhysicalNode<?,?>> getWritableNodes(){
+		NavigableSet<PhysicalNode<?,?>> writableNodes = new TreeSet<>();
+		for(Datarouter router : routers){
 			for(ClientId clientId : router.getClientIds()){
-				if(!clientId.getWritable()){ continue; }
+				if(!clientId.getWritable()){
+					continue;
+				}
 				List<? extends PhysicalNode<?,?>> nodes = getNodes().getPhysicalNodesForClient(clientId.getName());
-				for(PhysicalNode<?,?> node : nodes){	
-					if(!(node instanceof SortedStorageWriter<?, ?>)){ continue; }	
-					if(node.getTableName().equals("Server")){ continue; }		
-					if(writableNodes.contains(node)) { continue; }				
-					writableNodes.add(node);	
-					
+				for(PhysicalNode<?,?> node : nodes){
+					if(!(node instanceof SortedStorageWriter<?,?>)){
+						continue;
+					}
+					if(node.getTableName().equals("Server")){
+						continue;
+					}
+					if(writableNodes.contains(node)){
+						continue;
+					}
+					writableNodes.add(node);
+
 				}
 			}
 		}
