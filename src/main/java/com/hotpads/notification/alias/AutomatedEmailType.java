@@ -16,4 +16,8 @@ public class AutomatedEmailType{
 		return alias;
 	}
 
+    public String getName(){
+		return name;
+	}
+
 }
