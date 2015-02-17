@@ -105,6 +105,7 @@ public abstract class BaseJob implements Job{
 		try{
 			runInternal();
 		}catch(RuntimeException e){
+			scheduler.getTracker().get(this.getClass()).setRunning(false);
 			getFromTracker().incrementNumberOfErrors();
 			getFromTracker().setLastErrorTime(new Date());
 			baseJobLogger.warn("exception executing "+getClass(), e);
