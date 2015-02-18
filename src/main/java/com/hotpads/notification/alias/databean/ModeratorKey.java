@@ -8,7 +8,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.notification.alias.NotificationAlias;
-import com.hotpads.notification.alias.NotificationAlias.F;
 
 @SuppressWarnings("serial")
 public class ModeratorKey extends BasePrimaryKey<ModeratorKey> {
@@ -29,7 +28,8 @@ public class ModeratorKey extends BasePrimaryKey<ModeratorKey> {
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-			new StringField(F.alias, NotificationAlias.F.name, alias.getName(), MySqlColumnType.MAX_LENGTH_VARCHAR),
+			new StringField(F.alias, NotificationAlias.F.persistentName, alias.getPersistentName(),
+					MySqlColumnType.MAX_LENGTH_VARCHAR).setColumnName(F.alias),
 			new StringField(F.email, email, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 
@@ -43,7 +43,5 @@ public class ModeratorKey extends BasePrimaryKey<ModeratorKey> {
 		this.alias = alias;
 		this.email = email;
 	}
-
-	/** get/set ***************************************************************/
 
 }

@@ -37,7 +37,7 @@ public class NotificationAliasHandler extends BaseHandler{
 	public Mav getRedirectMav(NotificationAlias alias){
 		String aliasUrl = "";
 		if(alias != null){
-			aliasUrl = "/" + alias.getName();
+			aliasUrl = "/" + alias.getPersistentName();
 		}
 		return new Mav(Mav.REDIRECT + servletContext.getContextPath() + DatarouterDispatcher.URL_DATAROUTER
 				+ DatarouterDispatcher.NOTIFICATION_ALIAS + aliasUrl);
@@ -55,7 +55,7 @@ public class NotificationAliasHandler extends BaseHandler{
 			if(RequestTool.isAjax(request)){
 				return details(selectedAlias);
 			}
-			mav.put("preLoadedAlias", selectedAlias.getName());
+			mav.put("preLoadedAlias", selectedAlias.getPersistentName());
 		}
 		List<NotificationAlias> aliases = notificationAliasDao.getAllAliases();
 		mav.put("aliases", aliases);
