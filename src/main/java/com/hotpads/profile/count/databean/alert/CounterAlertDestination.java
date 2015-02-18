@@ -9,7 +9,7 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.AccessType;
 
-import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.Fielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
@@ -65,7 +65,7 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 	
 	/***************************** MySQL fielder ******************************/	
 	public static class CounterAlertDestinationFielder 
-	extends BaseLatin1Fielder<CounterAlertDestinationKey,CounterAlertDestination>{
+	extends BaseDatabeanFielder<CounterAlertDestinationKey,CounterAlertDestination>{
 		
 		public CounterAlertDestinationFielder(){}
 		@Override
