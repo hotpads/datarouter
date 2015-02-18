@@ -55,6 +55,8 @@ extends BaseJdbcOp<Void>{
 	@Override
 	public Void runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), "rows put", node.getClientName(), node.getName(), 
+				CollectionTool.size(databeans));
 		Connection connection = getConnection(node.getClientName());
 		for(D databean : CollectionTool.nullSafe(databeans)){
 			jdbcPutUsingMethod(connection, databean, config, DEFAULT_PUT_METHOD);

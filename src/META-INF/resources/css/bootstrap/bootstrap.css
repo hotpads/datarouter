@@ -744,9 +744,6 @@ h4 small {
 }
 
 .page-header {
-	padding-bottom: 9px;
-	margin: 20px 0 30px;
-	border-bottom: 1px solid #f5f5f5;
 }
 
 ul,ol {
@@ -3923,7 +3920,7 @@ button.btn.btn-mini,input[type="submit"].btn.btn-mini {
 .navbar {
 	*position: relative;
 	*z-index: 2;
-	margin-bottom: 20px;
+	margin-bottom: 10px;
 	overflow: visible;
 }
 
@@ -5673,7 +5670,7 @@ to {
 }
 
 .hero-unit {
-	padding: 60px;
+	padding: 20px;
 	margin-bottom: 30px;
 	font-size: 18px;
 	font-weight: 200;
