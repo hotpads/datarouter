@@ -3,7 +3,7 @@ package com.hotpads.logging.databean;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -40,7 +40,7 @@ public class ConsoleAppender extends BaseDatabean<ConsoleAppenderKey,ConsoleAppe
 
 	/** fielder ***************************************************************/
 
-	public static class ConsoleAppenderFielder extends BaseLatin1Fielder<ConsoleAppenderKey,ConsoleAppender>{
+	public static class ConsoleAppenderFielder extends BaseDatabeanFielder<ConsoleAppenderKey,ConsoleAppender>{
 
 		private ConsoleAppenderFielder(){}
 
