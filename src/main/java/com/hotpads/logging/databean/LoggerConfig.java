@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.Level;
 
-import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -43,7 +43,7 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig> {
 
 	/** fielder ***************************************************************/
 
-	public static class LoggerConfigFielder extends BaseLatin1Fielder<LoggerConfigKey, LoggerConfig>{
+	public static class LoggerConfigFielder extends BaseDatabeanFielder<LoggerConfigKey, LoggerConfig>{
 
 		private LoggerConfigFielder(){}
 

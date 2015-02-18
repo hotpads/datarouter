@@ -8,10 +8,10 @@ import javax.servlet.ServletContext;
 @Singleton
 public class WebAppName{
 
-	private static final String TEST = "test";
-	
+	public static final String TEST = "test";
+
 	private String name;
-	
+
 	@Inject
 	public WebAppName(@Nullable ServletContext servletContext){
 		if(servletContext == null){
