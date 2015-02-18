@@ -10,8 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.common.base.Preconditions;
-import com.google.inject.Injector;
+import com.hotpads.DatarouterInjector;
 import com.hotpads.util.core.ListTool;
 
 @SuppressWarnings("serial")
@@ -19,7 +18,7 @@ import com.hotpads.util.core.ListTool;
 public abstract class DispatcherServlet extends HttpServlet {
 	
 	protected String servletContextPath;
-	protected Injector injector;
+	protected DatarouterInjector injector;
 	
 	protected List<BaseDispatcher> dispatchers = ListTool.createArrayList();
 	//...add more dispatchers
@@ -28,11 +27,12 @@ public abstract class DispatcherServlet extends HttpServlet {
 	@Override
 	public void init() throws ServletException{
 		servletContextPath = getServletContext().getContextPath();
-		injector = Preconditions.checkNotNull(
-				(Injector)getServletContext().getAttribute(Injector.class.getName()));
+		injector = getInjector();
 		registerDispatchers();
 	}
 	
+	protected abstract DatarouterInjector getInjector();
+
 	public abstract void registerDispatchers();
 	
 	@Override
