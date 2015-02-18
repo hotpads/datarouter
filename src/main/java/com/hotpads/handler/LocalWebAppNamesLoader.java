@@ -38,7 +38,9 @@ public class LocalWebAppNamesLoader extends HotPadsWebAppListener{
 				}
 				webApps.put(name, href);
 			}
-		}catch (MalformedObjectNameException e){}
+		}catch(MalformedObjectNameException e){
+			throw new RuntimeException(e);
+		}
 		return webApps;
 	}
 	
