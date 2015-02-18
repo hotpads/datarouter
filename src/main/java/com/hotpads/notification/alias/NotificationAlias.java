@@ -4,17 +4,28 @@ public class NotificationAlias{
 
 	public static class F {
 		public static final String
-			name = "name";
+		persistentName = "persistentName";
 	}
 
-	private String name;
+	private String persistentName;
+	private String displayName;
 
-	public NotificationAlias(String name){
-		this.name = name;
+	public NotificationAlias(String persistentName){
+		this.persistentName = persistentName;
+		this.displayName = persistentName;
 	}
 
-	public String getName(){
-		return name;
+	public NotificationAlias(String persistentName, String displayName){
+		this.persistentName = persistentName;
+		this.displayName = displayName;
+	}
+
+	public String getPersistentName(){
+		return persistentName;
+	}
+
+	public String getDisplayName(){
+		return displayName;
 	}
 
 }
