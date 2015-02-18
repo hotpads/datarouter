@@ -132,7 +132,7 @@ public class ClusterSettingFinder {
 			return null;
 		}
 		return new ClusterSettingKey(name, ClusterSettingScope.serverType, serverType.getPersistentString(),
-				EMPTY_STRING,	EMPTY_STRING);
+				EMPTY_STRING, EMPTY_STRING);
 	}
 
 	private ClusterSettingKey getKeyForInstance(String name){
