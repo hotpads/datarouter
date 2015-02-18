@@ -14,18 +14,18 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 @SuppressWarnings("serial")
 public class NotificationLogKey extends BasePrimaryKey<NotificationLogKey> {
 
-	private static final int 
+	public static final int
 		LENGTH_userType = MySqlColumnType.MAX_LENGTH_VARCHAR,
 		LENGTH_userId = MySqlColumnType.MAX_LENGTH_VARCHAR,
 		LENGTH_template = MySqlColumnType.MAX_LENGTH_VARCHAR;
-	
+
 	private NotificationUserType userType;
 	private String userId;
 	private Long reverseCreatedMs;
 	private String template;
 
-	private static class F {
-		private static final String
+	public static class F {
+		public static final String
 				userType = "userType",
 				userId = "userId",
 				reverseCreatedMs = "reverseCreatedMs",
@@ -33,7 +33,7 @@ public class NotificationLogKey extends BasePrimaryKey<NotificationLogKey> {
 	}
 
 	NotificationLogKey() {}
-	
+
 	public NotificationLogKey(NotificationUserId userId, Date created, String template) {
 		this(userId, getReverseDate(created), template);
 	}
@@ -71,7 +71,7 @@ public class NotificationLogKey extends BasePrimaryKey<NotificationLogKey> {
 		}
 		return Long.MAX_VALUE - date.getTime();
 	}
-	
+
 	/*****************************Getters and Setters**************************/
 
 	public NotificationUserId getNotificationUserId() {
@@ -93,7 +93,11 @@ public class NotificationLogKey extends BasePrimaryKey<NotificationLogKey> {
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
-	
+
+	public Long getReverseCreatedMs(){
+		return reverseCreatedMs;
+	}
+
 	public Date getCreated() {
 		if (reverseCreatedMs == null) {
 			return null;

@@ -3,13 +3,17 @@ package com.hotpads.datarouter.connection;
 import java.beans.PropertyVetoException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
 import com.hotpads.datarouter.util.ApplicationPaths;
+import com.hotpads.util.core.StringTool;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
 
@@ -26,6 +30,7 @@ public class JdbcConnectionPool{
 	private JdbcOptions defaultOptions;
 	protected JdbcOptions options;
 	private boolean writable = false;
+	private String schemaName;
 	
 	
 	public JdbcConnectionPool(ApplicationPaths applicationPaths, String name, Iterable<Properties> multiProperties, 
@@ -51,6 +56,8 @@ public class JdbcConnectionPool{
 		Integer minPoolSize = options.minPoolSize(defaultOptions.minPoolSize(1));
 		Integer maxPoolSize = options.maxPoolSize(defaultOptions.maxPoolSize(20));
 		Boolean logging = options.logging(defaultOptions.logging(false));
+
+		schemaName = StringTool.getStringAfterLastOccurrence('/', url);
 		
 		//configurable props
 		pool = new ComboPooledDataSource();
@@ -65,14 +72,20 @@ public class JdbcConnectionPool{
 		}catch(Exception e){
 		}
 		
+		List<String> urlParams = new ArrayList<>();
+		//avoid extra RPC on readOnly connections: http://dev.mysql.com/doc/relnotes/connector-j/en/news-5-1-23.html
+		urlParams.add("useLocalSessionState=true");
+		
+		String urlWithParams = url + "?" + Joiner.on("&").join(urlParams);
+		
 		try {
 			String jdbcUrl;
 			if(logging){
 				//log4jdbc - see http://code.google.com/p/log4jdbc/
 				pool.setDriverClass(net.sf.log4jdbc.DriverSpy.class.getName());
-				jdbcUrl = "jdbc:log4jdbc:mysql://"+url;
+				jdbcUrl = "jdbc:log4jdbc:mysql://"+urlWithParams;
 			}else{
-				jdbcUrl = "jdbc:mysql://"+url;
+				jdbcUrl = "jdbc:mysql://"+urlWithParams;
 				pool.setDriverClass("com.mysql.jdbc.Driver");
 			}
 			pool.setJdbcUrl(jdbcUrl);
@@ -132,6 +145,10 @@ public class JdbcConnectionPool{
 	
 	public boolean isWritable() {
 		return writable;
+	}
+	
+	public String getSchemaName(){
+		return schemaName;
 	}
 	
 	/*

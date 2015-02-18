@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -45,7 +45,7 @@ public class Subscriber extends BaseDatabean<SubscriberKey,Subscriber> {
 
 	/** fielder ***************************************************************/
 
-	public static class SubscriberFielder extends BaseLatin1Fielder<SubscriberKey,Subscriber>{
+	public static class SubscriberFielder extends BaseDatabeanFielder<SubscriberKey,Subscriber>{
 
 		private SubscriberFielder(){}
 

@@ -3,7 +3,7 @@ package com.hotpads.setting.cluster;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -21,7 +21,7 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 			value = "value";
 	}
 
-	public static class ClusterSettingFielder extends BaseLatin1Fielder<ClusterSettingKey,ClusterSetting>{
+	public static class ClusterSettingFielder extends BaseDatabeanFielder<ClusterSettingKey,ClusterSetting>{
 		public ClusterSettingFielder(){}
 		@Override
 		public Class<ClusterSettingKey> getKeyFielderClass(){
