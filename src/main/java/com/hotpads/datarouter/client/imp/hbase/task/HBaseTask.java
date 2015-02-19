@@ -37,13 +37,6 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 	protected String tableName;
 	protected Config config;
 	
-	protected MutableString progress;
-
-	//subclasses should use this for easy, safe "close()" handling
-	protected HBaseClient client;
-	protected volatile HTable hTable;
-	protected ResultScanner managedResultScanner;
-	
 	/******************** constructor ****************************/
 	
 	public HBaseTask(DatarouterContext drContext, HBaseTaskNameParams names, String taskName, Config config){
@@ -55,27 +48,30 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		//do not set client here.  it is obtained from node in prepClientAndTableEtc(..)
 		this.tableName = names.getTableName();
 		this.config = Config.nullSafe(config);
-		this.progress = new MutableString("");
 	}
 	
 	
 	@Override
 	public V wrappedCall(){
 		//clearPreviousAttemptState();
-		
+		MutableString progress = new MutableString("");
 		progress.set("starting attemptNumOneBased:"+attemptNumOneBased);
+		ResultScanner managedResultScanner = null;
+		HTable hTable = null;
+		HBaseClient client = null;
+
 		boolean possiblyTarnishedHTable = false;
+
 		try{
 			TraceContext.startSpan(nodeName+" "+taskName);
-			recordDetailedTraceInfo();
-			
-			prepClientAndTableEtc();
+			recordDetailedTraceInfo();		
+			prepClientAndTableEtc(progress, hTable, client);
 
 			//do this after prepClientAndTableEtc, because client is set in there (null beforehand)
 			DRCounters.incSuffixClientNode(client.getType(), taskName, client.getName(), nodeName);
 			
 			/******************/
-			return hbaseCall(); //override this method in subclasses
+			return hbaseCall(hTable, client, managedResultScanner); //override this method in subclasses
 			/******************/
 			
 		}catch(Exception e){
@@ -110,10 +106,10 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		}
 	}
 	
-	public abstract V hbaseCall() throws Exception;
+	public abstract V hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception;
 
 	
-	protected void clearPreviousAttemptState(){
+	protected void clearPreviousAttemptState(HTable hTable, HBaseClient client, ResultScanner managedResultScanner){
 		if(attemptNumOneBased == 1){ return; }//first attempt
 		client = null;
 		hTable = null;
@@ -129,7 +125,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		}
 	}
 	
-	protected void prepClientAndTableEtc(){
+	protected void prepClientAndTableEtc(MutableString progress, HTable hTable, HBaseClient client){
 		//get a fresh copy of the client
 		//Preconditions.checkState(client==null);//make sure we cleared this from the previous attempt
 		client = (HBaseClient)drContext.getClientPool().getClient(clientName);//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes

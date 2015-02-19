@@ -7,14 +7,17 @@ import java.util.Map;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
+import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -78,7 +81,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 		if(CollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "putMulti", config){
-				public Void hbaseCall() throws Exception{
+				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 //					PhaseTimer timer = new PhaseTimer();
 					List<Row> actions = ListTool.createArrayList();
 					int numCellsPut = 0, numCellsDeleted = 0;
@@ -144,7 +147,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "deleteAll", config){
-				public Void hbaseCall() throws Exception{
+				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					Scan scan = new Scan();
 					scan.setFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
 					managedResultScanner = hTable.getScanner(scan);
@@ -184,7 +187,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 		if(CollectionTool.isEmpty(keys)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "deleteMulti", config){
-				public Void hbaseCall() throws Exception{
+				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					hTable.setAutoFlush(false);
 					Collection<String> nonKeyColumnNames = fieldInfo.getNonKeyFieldByColumnName().keySet();
 					Map<EK,List<PK>> pksByEk = EntityTool.getPrimaryKeysByEntityKey(keys);

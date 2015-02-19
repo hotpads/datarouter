@@ -3,7 +3,9 @@ package com.hotpads.datarouter.client.imp.hbase.node;
 import java.util.Map;
 
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +73,7 @@ extends BasePhysicalEntityNode<EK,E>{
 		final Config config = Config.nullSafe(pConfig);
 		try{
 			return new HBaseMultiAttemptTask<E>(new HBaseTask<E>(getContext(), getTaskNameParams(), "getEntity", config){
-					public E hbaseCall() throws Exception{
+					public E hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
 						Get get = new Get(rowBytes);
 						Result hBaseResult = hTable.get(get);

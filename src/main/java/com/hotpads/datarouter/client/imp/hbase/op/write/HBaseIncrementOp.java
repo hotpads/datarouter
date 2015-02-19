@@ -3,12 +3,15 @@ package com.hotpads.datarouter.client.imp.hbase.op.write;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Increment;
+import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Row;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
+import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -42,7 +45,7 @@ extends HBaseTask<Void>{
 		this.config = Config.nullSafe(pConfig);
 	}
 	
-	public Void hbaseCall() throws Exception{
+	public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 		if(countByColumnByKey==null){ return null; }
 		List<Row> actions = ListTool.createArrayList();
 		int numCellsIncremented = 0, numRowsIncremented = 0;
