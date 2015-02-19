@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Scan;
 
@@ -15,6 +17,7 @@ import com.hotpads.datarouter.client.imp.hbase.op.write.HBaseIncrementOp;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.util.HBaseResultTool;
+import com.hotpads.datarouter.client.type.HBaseClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
@@ -66,7 +69,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		if(CollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "putMulti", config){
-				public Void hbaseCall() throws Exception{					
+				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{					
 					List<Row> actions = ListTool.createArrayList();
 					int numCellsPut = 0, numCellsDeleted = 0, numRowsPut = 0;;
 					long batchStartTime = System.currentTimeMillis();
@@ -122,7 +125,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	public void deleteAll(final Config pConfig) {
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "deleteAll", config){
-				public Void hbaseCall() throws Exception{
+				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					managedResultScanner = hTable.getScanner(new Scan());
 					List<Row> batchToDelete = ListTool.createArrayList(1000);
 					for(Result row : managedResultScanner){
@@ -155,7 +158,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		if(CollectionTool.isEmpty(keys)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "deleteMulti", config){
-				public Void hbaseCall() throws Exception{
+				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					hTable.setAutoFlush(false);
 					List<Row> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList
 					for(PK key : keys){
