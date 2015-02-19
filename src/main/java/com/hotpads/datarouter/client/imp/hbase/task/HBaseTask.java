@@ -14,6 +14,7 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
 import com.hotpads.util.core.NumberTool;
+import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.datastructs.MutableString;
 
 /*
@@ -65,8 +66,9 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		try{
 			TraceContext.startSpan(nodeName+" "+taskName);
 			recordDetailedTraceInfo();		
-			prepClientAndTableEtc(progress, hTable, client);
-
+			Pair<HTable, HBaseClient> pair = prepClientAndTableEtc(progress);
+			hTable = pair.getLeft();
+			client = pair.getRight();
 			//do this after prepClientAndTableEtc, because client is set in there (null beforehand)
 			DRCounters.incSuffixClientNode(client.getType(), taskName, client.getName(), nodeName);
 			
@@ -125,21 +127,22 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 		}
 	}
 	
-	protected void prepClientAndTableEtc(MutableString progress, HTable hTable, HBaseClient client){
+	protected Pair<HTable, HBaseClient> prepClientAndTableEtc(MutableString progress){
 		//get a fresh copy of the client
 		//Preconditions.checkState(client==null);//make sure we cleared this from the previous attempt
-		client = (HBaseClient)drContext.getClientPool().getClient(clientName);//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
+		HBaseClient client = (HBaseClient)drContext.getClientPool().getClient(clientName);//be sure to get a new client for each attempt/task in case the client was refreshed behind the scenes
 		Preconditions.checkNotNull(client);
 		progress.set("got client attemptNumOneBased:"+attemptNumOneBased);
 		
 		//get a fresh htable
 		//Preconditions.checkState(hTable==null);//make sure we cleared this from the previous attempt
-		hTable = client.checkOutHTable(tableName, progress);
+		HTable hTable = client.checkOutHTable(tableName, progress);
 		Preconditions.checkNotNull(hTable);
 		progress.set("got HTable attemptNumOneBased:"+attemptNumOneBased);
 		
 		hTable.setOperationTimeout((int)Math.min(timeoutMs, Integer.MAX_VALUE));
-
+		
+		return new Pair(hTable, client);
 		//assert null
 		//Preconditions.checkState(managedResultScanner==null);//make sure we cleared this from the previous attempt
 	}
