@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
@@ -63,6 +62,7 @@ public enum MySqlColumnType{
 	/**************************** static **********************************/
 	
 	public static final int 
+		LENGTH_50 = 50,
 		MAX_LENGTH_VARCHAR = (1 << 8) - 1,
 		MAX_LENGTH_TEXT = (1 << 16) - 1,
 		MAX_LENGTH_MEDIUMTEXT = (1 << 24) - 1,
@@ -119,7 +119,7 @@ public enum MySqlColumnType{
 	/************************ main ***********************************************/
 
 	public static void main(String[] args){
-		System.out.println(MAX_LENGTH_VARCHAR + " " + MAX_LENGTH_TEXT + " " + " " + MAX_LENGTH_MEDIUMTEXT + " " + MAX_LENGTH_LONGTEXT);
+		System.out.println(LENGTH_50 + " " +MAX_LENGTH_VARCHAR + " " + MAX_LENGTH_TEXT + " " + " " + MAX_LENGTH_MEDIUMTEXT + " " + MAX_LENGTH_LONGTEXT);
 	}
 	
 }
