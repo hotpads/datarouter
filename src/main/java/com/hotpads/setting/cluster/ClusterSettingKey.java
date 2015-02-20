@@ -12,9 +12,10 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 @SuppressWarnings("serial")
 public class ClusterSettingKey extends BasePrimaryKey<ClusterSettingKey>{
 
-	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_MAX_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int DEFAULT_MEDIUM_STRING_LENGTH = MySqlColumnType.LENGTH_50;
 	public static final int LEN_SCOPE = MySqlColumnType.MAX_LENGTH_VARCHAR;
-	public static final int LEN_SERVER_TYPE = MySqlColumnType.MAX_LENGTH_VARCHAR;
+	public static final int LEN_SERVER_TYPE = MySqlColumnType.LENGTH_50;
 
 	/********************** fields ****************************************/
 
@@ -38,11 +39,11 @@ public class ClusterSettingKey extends BasePrimaryKey<ClusterSettingKey>{
 	@Override
 	public List<Field<?>> getFields() {
 		return FieldTool.createList(
-				new StringField(F.name, name, DEFAULT_STRING_LENGTH),
+				new StringField(F.name, name, DEFAULT_MAX_STRING_LENGTH),
 				new StringEnumField<ClusterSettingScope>(ClusterSettingScope.class, F.scope, scope, LEN_SCOPE),
 				new StringField(F.serverType, serverType, LEN_SERVER_TYPE),
-				new StringField(F.instance, instance, DEFAULT_STRING_LENGTH),
-				new StringField(F.application, application, DEFAULT_STRING_LENGTH));
+				new StringField(F.instance, instance, DEFAULT_MEDIUM_STRING_LENGTH),
+				new StringField(F.application, application, DEFAULT_MEDIUM_STRING_LENGTH));
 	}
 
 	/*************************** constructors *******************************/
