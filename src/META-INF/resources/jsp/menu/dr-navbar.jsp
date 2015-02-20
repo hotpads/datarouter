@@ -44,6 +44,9 @@
 						<a href="${contextPath}/datarouter/memory">Memory</a>
 					</li>
 					<li>
+						<a href="${contextPath}/datarouter/executors">Executors</a>
+					</li>
+					<li>
 						<a href="${contextPath}/datarouter/callsite">Callsite</a>
 					</li>
 					<li class="dropdown">
