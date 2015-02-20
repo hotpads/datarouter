@@ -13,9 +13,9 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 public class ClusterSettingKey extends BasePrimaryKey<ClusterSettingKey>{
 
 	public static final int DEFAULT_MAX_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
-	public static final int DEFAULT_MEDIUM_STRING_LENGTH = MySqlColumnType.MEDIUM_LENGTH_VARCHAR;
+	public static final int DEFAULT_MEDIUM_STRING_LENGTH = MySqlColumnType.LENGTH_50;
 	public static final int LEN_SCOPE = MySqlColumnType.MAX_LENGTH_VARCHAR;
-	public static final int LEN_SERVER_TYPE = MySqlColumnType.MEDIUM_LENGTH_VARCHAR;
+	public static final int LEN_SERVER_TYPE = MySqlColumnType.LENGTH_50;
 
 	/********************** fields ****************************************/
 

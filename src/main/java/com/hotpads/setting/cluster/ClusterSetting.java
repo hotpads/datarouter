@@ -30,7 +30,7 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 		@Override
 		public List<Field<?>> getNonKeyFields(ClusterSetting databean){
 			return FieldTool.createList(
-					new StringField(F.value, databean.value, MySqlColumnType.MEDIUM_LENGTH_VARCHAR));
+					new StringField(F.value, databean.value, MySqlColumnType.MAX_LENGTH_VARCHAR));
 		}
 	}
 
