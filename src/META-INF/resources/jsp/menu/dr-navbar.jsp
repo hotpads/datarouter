@@ -32,19 +32,29 @@
 						</ul>
 					</li>
 					<li>
-						<a href="${contextPath}/datarouter/stackTraces" title="See the strackTraces of this server">StackTraces</a>
-					</li>
-					<li>
 						<a href="${contextPath}/datarouter/databeanGenerator" title="Databean generator">Databean Generator</a>
 					</li>
 					<li>
 						<a href="${contextPath}/datarouter/logging">Logging</a>
 					</li>
-					<li>
-						<a href="${contextPath}/datarouter/memory">Memory</a>
-					</li>
-					<li>
-						<a href="${contextPath}/datarouter/executors">Executors</a>
+					<li class="dropdown">
+						<a href="#" id="monitoring" role="button" class="dropdown-toggle" data-toggle="dropdown">
+							Monitoring
+							<b class="caret"></b>
+						</a>
+						<ul class="dropdown-menu" role="menu" aria-labelledby="monitoring">
+							<li data-role="presentation">
+								<a data-role="menuitem" href="${contextPath}/datarouter/memory">Status</a>
+							</li>
+							<li data-role="presentation">
+								<a data-role="menuitem" href="${contextPath}/datarouter/executors">Executors</a>
+							</li>
+							<li data-role="presentation">
+								<a data-role="menuitem"
+									href="${contextPath}/datarouter/stackTraces"
+									title="See the strackTraces of this server">Stacktraces</a>
+							</li>
+						</ul>
 					</li>
 					<li>
 						<a href="${contextPath}/datarouter/callsite">Callsite</a>

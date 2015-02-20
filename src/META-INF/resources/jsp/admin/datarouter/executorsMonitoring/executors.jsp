@@ -7,6 +7,7 @@
 	<%@ include file="/jsp/generic/head.jsp"%>
 	<%@ include file="/jsp/css/css-import.jspf"%>
 	<script data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
+	<script>require(["bootstrap/bootstrap"]);</script>
 	<style>
 	.executor-details{
 		display: none;
@@ -21,7 +22,6 @@
 	src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}">
 	</script>
 	<script>
-		require([ "bootstrap/bootstrap" ]);
 		google.load('visualization', '1', {packages: ['corechart']});
 		var chartNames = {
 			completedTaskCount: "Completed Tasks",
@@ -51,11 +51,7 @@
 			if(!$('#auto-refresh').is(':checked')){
 				return;
 			}
-			var href = location.href;
-			if(href.slice(-1) != '/'){
-				href += '/';
-			}
-			$.get(href + 'getExecutors', function(executors){
+			$.get('${contextPath}/datarouter/executors/getExecutors', function(executors){
 				$(executors).each(function(){
 					var row = $('#executor-' + this.name).children();
 					row[1].textContent = this.activeCount;
