@@ -43,6 +43,10 @@ public abstract class BaseDispatcher{
 		this.defaultHandlerClass = defaultHandlerClass;
 		return this;
 	}
+	
+	protected DispatchRule handleDir(String regex){
+		return handle(regex + ".*");
+	}
 
 	protected DispatchRule handle(String regex){
 		DispatchRule rule = new DispatchRule(regex);
