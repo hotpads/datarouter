@@ -44,7 +44,8 @@ public abstract class BaseExecutorGuiceModule extends AbstractModule{
 		NamedThreadFactory namedThreadFactory = new NamedThreadFactory(parentGroup, name, true);
 		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(queueSize);
 		logger.info(name + " initialization " + System.identityHashCode(namedThreadFactory));
-		return new ThreadPoolExecutor(minThreadCound, maxThreadCount, 0, TimeUnit.MILLISECONDS, queue, rejectPolicy);
+		return new ThreadPoolExecutor(minThreadCound, maxThreadCount, 0, TimeUnit.MILLISECONDS, queue,
+				namedThreadFactory, rejectPolicy);
 	}
 	
 	protected ExecutorService createFixedPool(ThreadGroup parentGroup, String name, int numThreads){
