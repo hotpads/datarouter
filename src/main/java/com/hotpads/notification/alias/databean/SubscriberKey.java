@@ -28,7 +28,8 @@ public class SubscriberKey extends BasePrimaryKey<SubscriberKey> {
 	@Override
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
-			new StringField(F.alias, NotificationAlias.F.name, alias.getName(), MySqlColumnType.MAX_LENGTH_VARCHAR),
+			new StringField(F.alias, NotificationAlias.F.persistentName, alias.getPersistentName(),
+					MySqlColumnType.MAX_LENGTH_VARCHAR).setColumnName(F.alias),
 			new StringField(F.email, email, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 

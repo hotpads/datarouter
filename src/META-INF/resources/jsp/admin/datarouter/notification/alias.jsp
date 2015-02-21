@@ -78,13 +78,13 @@ function getAliasPanel(aliasName){
 		url:'${contextPath}/datarouter/notification/alias/' + aliasName,
 		dataType : 'json'
 	}).done(function(data){
-		updateHistory(data.alias.name);
+		updateHistory(data.alias.displayName);
 		details.append($('<a>')
 				.text('moderator'.by(data.moderators.length))
 				.addClass('moderator-btn')
 				.attr('data-toggle', 'modal')
 				.attr('data-target', '#moderators'));
-		details.append($('<h4>').text(data.alias.name));
+		details.append($('<h4>').text(data.alias.displayName));
 		fillModeratorsWindow(data.moderators, data.hasAuthorityOnList);
 		$.each(data.subscribers, function(){
 			var form = $('<form>').append($('<span>')
@@ -227,8 +227,8 @@ var endash = decodeURIComponent('%E2%80%93');
 	<ul>
 		<c:forEach items="${aliases}" var="alias">
 			<li>
-				<a href="#details" data-alias-name="${alias.name}">
-					${alias.name}
+				<a href="#details" data-alias-name="${alias.persistentName}">
+					${alias.displayName}
 				</a>
 			</li>
 		</c:forEach>

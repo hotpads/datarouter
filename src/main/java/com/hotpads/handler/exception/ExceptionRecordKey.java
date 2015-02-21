@@ -12,7 +12,7 @@ import com.hotpads.handler.exception.ExceptionRecord.F;
 @SuppressWarnings("serial")
 public class ExceptionRecordKey extends BasePrimaryKey<ExceptionRecordKey> {
 	
-	private static int
+	public static int
 		LENGTH_id = MySqlColumnType.MAX_LENGTH_VARCHAR;
 	
 	private String id;

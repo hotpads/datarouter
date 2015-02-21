@@ -1,12 +1,13 @@
 package com.hotpads.handler.setting;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import com.hotpads.WebAppName;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.dispatcher.DatarouterDispatcher;
 import com.hotpads.handler.mav.Mav;
@@ -14,11 +15,11 @@ import com.hotpads.setting.ServerType;
 import com.hotpads.setting.Setting;
 import com.hotpads.setting.cluster.ClusterSetting;
 import com.hotpads.setting.cluster.ClusterSettingKey;
+import com.hotpads.setting.cluster.ClusterSettingNodes;
 import com.hotpads.setting.cluster.ClusterSettingScope;
 import com.hotpads.setting.cluster.SettingNode;
 import com.hotpads.setting.cluster.SettingRoot;
 import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.StringTool;
 
 public class ClusterSettingsHandler extends BaseHandler {
@@ -40,16 +41,20 @@ public class ClusterSettingsHandler extends BaseHandler {
 		V_currentRootName = "currentRootName",
 
 		URL_settings = DatarouterDispatcher.URL_DATAROUTER + DatarouterDispatcher.SETTING,
-		URL_modify = DatarouterDispatcher.URL_DATAROUTER + DatarouterDispatcher.SETTING + "?submitAction=browseSettings&name=",
+		URL_modify = DatarouterDispatcher.URL_DATAROUTER + DatarouterDispatcher.SETTING
+					+ "?submitAction=browseSettings&name=",
 		JSP_editSettings = "/jsp/admin/datarouter/setting/editSettings.jsp",
-		JSP_browseSettings = "/jsp/admin/datarouter/setting/browseSettings.jsp";
+		JSP_browseSettings = "/jsp/admin/datarouter/setting/browseSettings.jsp"
+		;
 
 	@Inject
 	private SettingRoot settingRoot;
 	@Inject
 	private ServerType anyServerType;
 	@Inject
-	private SortedMapStorageNode<ClusterSettingKey, ClusterSetting> clusterSettingNode;
+	private ClusterSettingNodes clusterSettingNodes;
+	@Inject
+	private WebAppName webAppName;
 
 	@Override
 	protected Mav handleDefault() {
@@ -64,10 +69,10 @@ public class ClusterSettingsHandler extends BaseHandler {
 		String prefix = params.optional(P_prefix, null);
 		if(StringTool.isEmpty(prefix)) {
 //			settings = clusterSettingNode.getAll(null); deprecated
-			settings = ListTool.createArrayList(clusterSettingNode.scan(null, null));
+			settings = ListTool.createArrayList(clusterSettingNodes.clusterSetting().scan(null, null));
 		} else {
 			ClusterSettingKey settingPrefix = new ClusterSettingKey(prefix, null, null, null, null);
-			settings = clusterSettingNode.getWithPrefix(settingPrefix, true, null);
+			settings = clusterSettingNodes.clusterSetting().getWithPrefix(settingPrefix, true, null);
 		}
 		mav.put(V_settings, settings);
 		mav.put("serverTypeOptions", anyServerType.getHTMLSelectOptionsVarNames());
@@ -78,10 +83,11 @@ public class ClusterSettingsHandler extends BaseHandler {
 		ClusterSettingKey settingKey = parseClusterSettingKeyFromParams();
 		String value = params.optional("value", null);
 		ClusterSetting setting = new ClusterSetting(settingKey, value);
-		clusterSettingNode.put(setting, null);
+		clusterSettingNodes.clusterSetting().put(setting, null);
 		String nodeName = params.optional("nodeName", null);
 		if(nodeName != null){
-			return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_modify+nodeName+"#"+settingKey.getName().replaceAll("\\.", "_"));
+			return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_modify + nodeName + "#"
+					+ settingKey.getName().replaceAll("\\.", "_"));
 		}
 		return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_settings);
 	}
@@ -90,10 +96,11 @@ public class ClusterSettingsHandler extends BaseHandler {
 		ClusterSettingKey settingKey = parseClusterSettingKeyFromParams();
 		String value = params.optional("value", null);
 		ClusterSetting setting = new ClusterSetting(settingKey, value);
-		clusterSettingNode.put(setting, null);
+		clusterSettingNodes.clusterSetting().put(setting, null);
 		String nodeName = params.optional("nodeName", null);
 		if(nodeName != null){
-			return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_modify+nodeName+"#"+settingKey.getName().replaceAll("\\.", "_"));
+			return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_modify + nodeName + "#"
+					+ settingKey.getName().replaceAll("\\.", "_"));
 		}
 		return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_settings);
 	}
@@ -102,25 +109,25 @@ public class ClusterSettingsHandler extends BaseHandler {
 		ClusterSettingKey settingKey = parseClusterSettingKeyFromParams();
 		String value = params.optional("value", null);
 		ClusterSetting setting = new ClusterSetting(settingKey, value);
-		clusterSettingNode.put(setting, null);
+		clusterSettingNodes.clusterSetting().put(setting, null);
 		String nodeName = params.required("nodeName");
 		return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_modify+nodeName);
 	}
 
 	@Handler Mav delete() {
 		ClusterSettingKey settingKey = parseClusterSettingKeyFromParams();
-		clusterSettingNode.delete(settingKey, null);
+		clusterSettingNodes.clusterSetting().delete(settingKey, null);
 		String nodeName = params.optional("nodeName", null);
 		if(nodeName != null){
-			return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_modify+nodeName+"#"+settingKey.getName().replaceAll("\\.", "_"));
+			return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_modify + nodeName + "#"
+					+ settingKey.getName().replaceAll("\\.", "_"));
 		}
 		return new Mav(Mav.REDIRECT + request.getServletContext().getContextPath() + URL_settings);
 	}
 
 	@Handler Mav browseSettings(){
 		Mav mav = new Mav(JSP_browseSettings);
-		String context = request.getServletContext().getContextPath().replace("/", "");
-		String nodeName = params.optional(P_name, context + ".");
+		String nodeName = params.optional(P_name, webAppName + ".");
 		if(!nodeName.endsWith(".")){
 			nodeName = nodeName + ".";
 		}
@@ -131,10 +138,11 @@ public class ClusterSettingsHandler extends BaseHandler {
 		mav.put(V_ancestors, settingRoot.getDescendanceByName(nodeName));
 		mav.put(V_children, node.getListChildren());
 		ArrayList<Setting<?>> settingsList = node.getListSettings();
-		Map<String,List<ClusterSetting>> mapListsCustom = MapTool.createHashMap();
+		Map<String,List<ClusterSetting>> mapListsCustom = new HashMap<>();
 		for(Setting<?> setting : settingsList){
 			ClusterSettingKey settingKey = new ClusterSettingKey(setting.getName(), null, null, null, null);
-			List<ClusterSetting> clusterSettings = clusterSettingNode.getWithPrefix(settingKey, false, null);
+			List<ClusterSetting> clusterSettings = clusterSettingNodes.clusterSetting().getWithPrefix(settingKey,
+					false, null);
 			mapListsCustom.put(setting.getName(), clusterSettings);
 		}
 		mav.put(V_listSettings, settingsList);

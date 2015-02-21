@@ -9,7 +9,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.inject.Injector;
+import com.hotpads.DatarouterInjector;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 
@@ -17,13 +17,13 @@ public abstract class BaseDispatcher{
 	
 	public static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
 
-	protected Injector injector;
+	protected DatarouterInjector injector;
 	protected String servletContextPath, urlPrefix, combinedPrefix;
 	protected Map<Pattern, Class<? extends BaseHandler>> handlerByClass;
 	protected Class<? extends BaseHandler> defaultHandlerClass;
 	protected List<DispatchRule> dispatchRules;
 
-	public BaseDispatcher(Injector injector, String servletContextPath, String urlPrefix){
+	public BaseDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
 		this.injector = injector;
 		this.servletContextPath = servletContextPath;
 		this.urlPrefix = urlPrefix;

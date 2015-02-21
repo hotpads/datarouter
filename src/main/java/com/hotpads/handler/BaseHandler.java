@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Injector;
+import com.hotpads.DatarouterInjector;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.mav.Mav;
@@ -42,7 +42,7 @@ public abstract class BaseHandler{
 	@Inject
 	private HandlerTypingHelper handlerTypingHelper;
 	@Inject
-	private Injector injector;
+	private DatarouterInjector injector;
 	
 	//these are available to all handlers without passing them around
 	protected ServletContext servletContext;
@@ -147,7 +147,10 @@ public abstract class BaseHandler{
 		return params.optional(handlerMethodParamName(), getLastPathSegment(params.request.getPathInfo()));
 	}
 	
-	String getLastPathSegment(final String uri) {
+	String getLastPathSegment(String uri) {
+		if(uri == null){
+			return "";
+		}
 		return uri.replaceAll("[^?]*/([^/?]+)[/?]?.*", "$1");
 	}
 	

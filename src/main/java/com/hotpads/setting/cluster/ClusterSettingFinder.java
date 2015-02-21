@@ -1,23 +1,22 @@
 package com.hotpads.setting.cluster;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.quartz.CronExpression;
 
-import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.setting.ClusterSettingFinderConfig;
 import com.hotpads.setting.ServerType;
 import com.hotpads.setting.cached.imp.Duration;
 import com.hotpads.util.core.BooleanTool;
 import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.StringTool;
 
 @Singleton
@@ -30,31 +29,29 @@ public class ClusterSettingFinder {
 	@Inject
 	private ClusterSettingFinderConfig clusterSettingFinderConfig;
 	@Inject
-	private SortedMapStorageNode<ClusterSettingKey,ClusterSetting> clusterSetting;
-	// Spring need these
-	public SortedMapStorageNode<ClusterSettingKey,ClusterSetting> getClusterSetting(){
-		return clusterSetting;
-	}
-
-	public void setClusterSetting(SortedMapStorageNode<ClusterSettingKey,ClusterSetting> clusterSetting){
-		this.clusterSetting = clusterSetting;
-	}
+	private ClusterSettingNodes clusterSettingNodes;
 
 	public Integer getInteger(String name, Integer defaultValue){
 		String valueString = getMostSpecificValue(name);
-		if(valueString==null){ return defaultValue; }
+		if(valueString==null){
+			return defaultValue;
+		}
 		return Integer.valueOf(valueString);
 	}
 
 	public Boolean getBoolean(String name, Boolean defaultValue) {
 		String valueString = getMostSpecificValue(name);
-		if(valueString==null){ return defaultValue; }
+		if(valueString==null){
+			return defaultValue;
+		}
 		return BooleanTool.isTrue(valueString);
 	}
 
 	public String getString(String name, String defaultValue){
 		String valueString = getMostSpecificValue(name);
-		if(valueString==null){ return defaultValue; }
+		if(valueString==null){
+			return defaultValue;
+		}
 		return valueString;
 	}
 
@@ -76,7 +73,9 @@ public class ClusterSettingFinder {
 
 	public Duration getDuration(String name, Duration defaultValue){
 		String valueString = getMostSpecificValue(name);
-		if(valueString==null){ return defaultValue; }
+		if(valueString==null){
+			return defaultValue;
+		}
 		return new Duration(valueString);
 	}
 	
@@ -87,19 +86,21 @@ public class ClusterSettingFinder {
 		//			logger.warn("searching for "+CollectionTool.size(keys)+":");
 		//			for(ClusterSettingKey key : keys){ logger.warn(key); }
 		//		}
-		List<ClusterSetting> settings = clusterSetting.getMulti(keys, null);
+		List<ClusterSetting> settings = clusterSettingNodes.clusterSetting().getMulti(keys, null);
 		//		if(log){
 		//			logger.warn("found "+CollectionTool.size(settings)+":");
 		//			for(ClusterSetting setting : settings){ System.out.println(setting); }
 		//		}
-		if(CollectionTool.isEmpty(settings)){ return null; }
+		if(CollectionTool.isEmpty(settings)){
+			return null;
+		}
 		Collections.sort(settings, new ClusterSettingScopeComparator());
 		return CollectionTool.getFirst(settings).getValue();
 	}
 
 	//TODO should we be making combinations like serverType/instance?
 	private List<ClusterSettingKey> generateKeysForSelection(String name){
-		List<ClusterSettingKey> keys = ListTool.createArrayList();
+		List<ClusterSettingKey> keys = new ArrayList<>();
 
 		//remember to use "" instead of null.  should probably make a new Field type to do that for you
 		keys.add(new ClusterSettingKey(name, ClusterSettingScope.defaultScope, ServerType.UNKNOWN, EMPTY_STRING,
@@ -108,13 +109,19 @@ public class ClusterSettingFinder {
 		keys.add(new ClusterSettingKey(name, ClusterSettingScope.cluster, ServerType.ALL, EMPTY_STRING, EMPTY_STRING));
 
 		ClusterSettingKey serverTypeSetting = getKeyForServerType(name);
-		if(serverTypeSetting != null){ keys.add(serverTypeSetting); }
+		if(serverTypeSetting != null){
+			keys.add(serverTypeSetting);
+		}
 
 		ClusterSettingKey instanceSetting = getKeyForInstance(name);
-		if(instanceSetting != null){ keys.add(instanceSetting); }
+		if(instanceSetting != null){
+			keys.add(instanceSetting);
+		}
 
 		ClusterSettingKey applicationSetting = getKeyForApplication(name);
-		if(applicationSetting != null){ keys.add(applicationSetting); }
+		if(applicationSetting != null){
+			keys.add(applicationSetting);
+		}
 
 		return keys;
 	}
@@ -124,8 +131,8 @@ public class ClusterSettingFinder {
 		if(serverType == null || serverType.getPersistentString().equals(ServerType.UNKNOWN)){
 			return null;
 		}
-		return new ClusterSettingKey(name, ClusterSettingScope.serverType, serverType.getPersistentString(), EMPTY_STRING,
-				EMPTY_STRING);
+		return new ClusterSettingKey(name, ClusterSettingScope.serverType, serverType.getPersistentString(),
+				EMPTY_STRING, EMPTY_STRING);
 	}
 
 	private ClusterSettingKey getKeyForInstance(String name){
@@ -138,7 +145,9 @@ public class ClusterSettingFinder {
 
 	private ClusterSettingKey getKeyForApplication(String name){
 		String application = clusterSettingFinderConfig.getApplication();
-		if(StringTool.isEmpty(application)){ return null; }
+		if(StringTool.isEmpty(application)){
+			return null;
+		}
 		return new ClusterSettingKey(name, ClusterSettingScope.application, ServerType.UNKNOWN, application, 
 				EMPTY_STRING);
 	}

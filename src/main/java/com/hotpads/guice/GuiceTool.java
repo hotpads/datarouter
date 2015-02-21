@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.servlet.ServletContext;
+
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -20,6 +22,10 @@ public class GuiceTool{
 			}
 		}
 		return instances;
+	}
+	
+	public static Injector getInjectorFromServletContext(ServletContext servletContext){
+		return (Injector)servletContext.getAttribute(Injector.class.getName());
 	}
 	
 }

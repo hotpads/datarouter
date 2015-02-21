@@ -12,7 +12,7 @@ public class GuiceDatarouterLoader extends DatarouterLoader{
 
 	@Override
 	protected void init(ServletContext servletContext){
-		this.injector = (Injector)servletContext.getAttribute(Injector.class.getName());
+		this.injector = GuiceTool.getInjectorFromServletContext(servletContext);
 	}
 
 	@Override

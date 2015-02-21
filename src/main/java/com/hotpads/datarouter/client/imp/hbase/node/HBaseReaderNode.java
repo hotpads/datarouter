@@ -7,7 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.slf4j.Logger;
@@ -89,7 +91,7 @@ implements HBasePhysicalNode<PK,D>,
 		if(key==null){ return null; }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<D>(new HBaseTask<D>(getDatarouterContext(), getTaskNameParams(), "get", config){
-				public D hbaseCall() throws Exception{
+				public D hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
 					Result row = hTable.get(new Get(rowBytes));
 					if(row.isEmpty()){ return null; }
@@ -105,7 +107,7 @@ implements HBasePhysicalNode<PK,D>,
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDatarouterContext(), getTaskNameParams(), "getMulti", config){
-				public List<D> hbaseCall() throws Exception{
+				public List<D> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					DRCounters.incSuffixClientNode(client.getType(), "getMulti rows", getClientName(), getNodeName(), 
 							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
@@ -125,7 +127,7 @@ implements HBasePhysicalNode<PK,D>,
 		if(CollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDatarouterContext(), getTaskNameParams(), "getKeys", config){
-				public List<PK> hbaseCall() throws Exception{
+				public List<PK> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					DRCounters.incSuffixClientNode(client.getType(), "getKeys rows", getClientName(), getNodeName(), 
 							CollectionTool.size(keys));
 					List<Get> gets = ListTool.createArrayListWithSize(keys);
@@ -177,7 +179,7 @@ implements HBasePhysicalNode<PK,D>,
 				prefixes, wildcardLastField, config);
 		for(final Scan scan : scanForEachScatteringPartition){
 			new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "getWithPrefixes", config){
-					public Void hbaseCall() throws Exception{
+					public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 						managedResultScanner = hTable.getScanner(scan);
 						for(Result row : managedResultScanner){
 							if(row.isEmpty()){ continue; }
@@ -269,7 +271,7 @@ implements HBasePhysicalNode<PK,D>,
 //		final String scanKeysVsRowsNumCells = "scan " + (keysOnly ? "key" : "row") + " numCells";//need a clean way to get cell count
 		return new HBaseMultiAttemptTask<List<Result>>(new HBaseTask<List<Result>>(getDatarouterContext(), getTaskNameParams(), scanKeysVsRowsNumBatches,
 				config){
-				public List<Result> hbaseCall() throws Exception{
+				public List<Result> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					ByteRange start = range.getStart();
 					if(start!=null && !range.getStartInclusive()){//careful: this may have already been set by scatteringPrefix logic
 						start = new ByteRange(ByteTool.unsignedIncrement(start.toArray()));

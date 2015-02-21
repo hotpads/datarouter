@@ -1,9 +1,11 @@
 package com.hotpads.datarouter.routing;
 
 import java.util.List;
+import java.util.NavigableSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -17,9 +19,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.connection.ConnectionPools;
 import com.hotpads.datarouter.node.Nodes;
+import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
+import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.util.ApplicationPaths;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.IterableTool;
@@ -164,10 +169,37 @@ public class DatarouterContext{
 	public Datarouter getRouterForClient(Client client){
 		for(Datarouter router : routers){
 			for(Client c : router.getAllClients()){
-				if(c==client){ return router; }
+				if(c==client){ 
+					return router; 
+				}
 			}
 		}
 		return null;
+	}
+	
+	public NavigableSet<PhysicalNode<?,?>> getWritableNodes(){
+		NavigableSet<PhysicalNode<?,?>> writableNodes = new TreeSet<>();
+		for(Datarouter router : routers){
+			for(ClientId clientId : router.getClientIds()){
+				if(!clientId.getWritable()){
+					continue;
+				}
+				List<? extends PhysicalNode<?,?>> nodes = getNodes().getPhysicalNodesForClient(clientId.getName());
+
+				for(PhysicalNode<?,?> node : nodes){
+					if(!(node instanceof SortedStorageWriter<?,?>)){
+						continue;
+					}
+					if(writableNodes.contains(node)){
+						continue;
+					}
+					writableNodes.add(node);
+
+
+				}
+			}
+		}
+		return writableNodes;
 	}
 	
 	/********************* get/set ***************************/
