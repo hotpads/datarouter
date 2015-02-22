@@ -18,7 +18,7 @@ import com.hotpads.trace.TraceSpan;
 import com.hotpads.trace.TraceThread;
 import com.hotpads.trace.node.TraceCompoundNode;
 import com.hotpads.trace.node.TraceEntityNode;
-import com.hotpads.trace.node.TraceNodes;
+import com.hotpads.trace.node.TraceSubNodes;
 import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.ObjectTool;
 
@@ -35,12 +35,12 @@ public class TraceEntityTests{
 	}
 	
 	private TraceTestRouter router;
-	private TraceNodes nodes;
+	private TraceSubNodes nodes;
 	
 //	public TraceEntityTests(){//required public no-arg
 //	}
 	
-	public TraceEntityTests(Class<TraceNodes> nodesClass){
+	public TraceEntityTests(Class<TraceSubNodes> nodesClass){
 		Injector injector = new DatarouterTestInjectorProvider().get();
 		this.router = injector.getInstance(TraceTestRouter.class);
 		if(ObjectTool.equals(TraceCompoundNode.class, nodesClass)){
