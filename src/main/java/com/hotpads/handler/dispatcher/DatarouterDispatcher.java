@@ -17,6 +17,7 @@ import com.hotpads.handler.datarouter.ViewNodeDataHandler;
 import com.hotpads.handler.logging.LoggingSettingsHandler;
 import com.hotpads.handler.setting.ClusterSettingsHandler;
 import com.hotpads.notification.alias.NotificationAliasHandler;
+import com.hotpads.trace.TraceHandler;
 
 public class DatarouterDispatcher extends BaseDispatcher{
 
@@ -36,7 +37,8 @@ public class DatarouterDispatcher extends BaseDispatcher{
 			CALLSITE = "/callsite",
 			NODE_BROWSE_DATA = "/nodes/browseData",
 			URL_DATAROUTER_API = "/datarouterApi",
-			EXECUTORS_MONITORING = "/executors"
+			EXECUTORS_MONITORING = "/executors",
+			TRACES = "/traces"
 			;
 
 	private static final String
@@ -59,6 +61,7 @@ public class DatarouterDispatcher extends BaseDispatcher{
 		handle(URL_DATAROUTER + DATABEAN_GENERATOR).withHandler(DatabeanGeneratorHandler.class);
 		handle(URL_DATAROUTER + CALLSITE).withHandler(CallsiteHandler.class);
 		handle(URL_DATAROUTER + EXECUTORS_MONITORING + ANYTHING).withHandler(ExecutorsMonitoringHandler.class);
+		handle(URL_DATAROUTER + TRACES + ANYTHING).withHandler(TraceHandler.class);
 
 		handle(URL_DATAROUTER + CLIENTS + HBASE).withHandler(HBaseHandler.class);
 		handle(URL_DATAROUTER + CLIENTS + HIBERNATE).withHandler(HibernateHandler.class);
