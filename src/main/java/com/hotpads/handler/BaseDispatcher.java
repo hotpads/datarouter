@@ -1,6 +1,8 @@
 package com.hotpads.handler;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -10,38 +12,35 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.hotpads.DatarouterInjector;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 public abstract class BaseDispatcher{
 	
-	public static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
+	private static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
 
-	protected DatarouterInjector injector;
-	protected String servletContextPath, urlPrefix, combinedPrefix;
-	protected Map<Pattern, Class<? extends BaseHandler>> handlerByClass;
-	protected Class<? extends BaseHandler> defaultHandlerClass;
-	protected List<DispatchRule> dispatchRules;
+	private DatarouterInjector injector;
+	private String servletContextPath;
+	private String urlPrefix;
+	private String combinedPrefix;
+	private Map<Pattern, Class<? extends BaseHandler>> handlerByClass;
+	private Class<? extends BaseHandler> defaultHandlerClass;
+	private List<DispatchRule> dispatchRules;
 
 	public BaseDispatcher(DatarouterInjector injector, String servletContextPath, String urlPrefix){
 		this.injector = injector;
 		this.servletContextPath = servletContextPath;
 		this.urlPrefix = urlPrefix;
 		this.combinedPrefix = servletContextPath + urlPrefix;
-		this.handlerByClass = MapTool.createHashMap();
-		this.dispatchRules = ListTool.create();
-	}
-
-	@Deprecated
-	protected BaseDispatcher handle(String regex, Class<? extends BaseHandler> handlerClass){
-		Pattern pattern = Pattern.compile(regex);
-		handlerByClass.put(pattern, handlerClass);
-		return this;
+		this.handlerByClass = new HashMap<>();
+		this.dispatchRules = new ArrayList<>();
 	}
 
 	protected BaseDispatcher handleOthers(Class<? extends BaseHandler> defaultHandlerClass){
 		this.defaultHandlerClass = defaultHandlerClass;
 		return this;
+	}
+	
+	protected DispatchRule handleDir(String regex){
+		return handle(regex + REGEX_ONE_DIRECTORY);
 	}
 
 	protected DispatchRule handle(String regex){
@@ -83,7 +82,6 @@ public abstract class BaseDispatcher{
 			}
 		}
 		
-		Params params = new Params(request, response);
 		handler.setRequest(request);
 		handler.setResponse(response);
 		try{
@@ -92,7 +90,7 @@ public abstract class BaseDispatcher{
 			throw new RuntimeException(e);
 		}
 		handler.setServletContext(servletContext);
-		handler.setParams(params);
+		handler.setParams(new Params(request, response));
 		handler.handleWrapper();
 		return true;
 	}

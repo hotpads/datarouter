@@ -62,6 +62,7 @@ public enum MySqlColumnType{
 	/**************************** static **********************************/
 	
 	public static final int 
+		MAX_KEY_LENGTH = 767,//ERROR 1071 (42000): Specified key was too long; max key length is 767 bytes
 		LENGTH_50 = 50,
 		MAX_LENGTH_VARCHAR = (1 << 8) - 1,
 		MAX_LENGTH_TEXT = (1 << 16) - 1,
