@@ -3,7 +3,7 @@ package com.hotpads.handler.user.authenticate.api;
 import java.util.Date;
 import java.util.List;
 
-import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -24,7 +24,7 @@ public class ApiRequest extends BaseDatabean<ApiRequestKey, ApiRequest>{
 	/** fielder *******************************************************************************************************/
 	
 	public static class ApiRequestFielder 
-	extends BaseLatin1Fielder<ApiRequestKey, ApiRequest> {
+	extends BaseDatabeanFielder<ApiRequestKey, ApiRequest> {
 
 		@Override
 		public Class<ApiRequestKey> getKeyFielderClass(){
