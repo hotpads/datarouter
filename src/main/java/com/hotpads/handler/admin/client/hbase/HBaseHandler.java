@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.inject.Inject;
 
@@ -121,7 +122,9 @@ public class HBaseHandler extends BaseHandler {
 	@Handler
 	protected Mav inspectClient(){
 		initialize();
-		if(routerParams.getClient() == null){ return new MessageMav("Client not found"); }
+		if(routerParams.getClient() == null){
+			return new MessageMav("Client not found");
+		}
 
 		mav.setViewName(PATH_JSP_HBASE + "/hbaseClientSummary.jsp");
 		mav.put("address", hbaseConfig.get(HConstants.ZOOKEEPER_QUORUM));
@@ -129,24 +132,29 @@ public class HBaseHandler extends BaseHandler {
 		try{
 			tables = ListTool.create(routerParams.getClient().getHBaseAdmin().listTables());
 		}catch(IOException e){
-			// TODO Auto-generated catch block
 			throw new RuntimeException(e);
 		}
-		Map<String,Map<String,String>> tableSummaryByName = MapTool.createTreeMap();
-		@SuppressWarnings("unchecked") List<String> tableNamesForClient = routerParams.getNodes()
-				.getTableNamesForRouterAndClient(routerParams.getRouterName(), routerParams.getClientName());
+		Map<String,Map<String,String>> tableSummaryByName = new TreeMap<>();
+		Map<String,Map<String,Map<String,String>>> familySummaryByTableName = new TreeMap<>();
+		@SuppressWarnings("unchecked") 
+		List<String> tableNamesForClient = routerParams.getNodes().getTableNamesForRouterAndClient(routerParams
+				.getRouterName(), routerParams.getClientName());
 		for(HTableDescriptor table : IterableTool.nullSafe(tables)){
 			String tableName = table.getNameAsString();
 			if(!CollectionTool.nullSafe(tableNamesForClient).contains(tableName)){
 				continue;
 			}
-			Map<String,String> attributeByName = parseFamilyAttributeMap(table.getValues());
-			attributeByName.put("maxFileSize", table.getMaxFileSize() + "");
-			attributeByName.put("memStoreFlushSize", table.getMemStoreFlushSize() + "");
-			attributeByName.put("readOnly", table.isReadOnly() + "");
-			tableSummaryByName.put(tableName, attributeByName);
+			Map<String,String> tableAttributeByName = new TreeMap<>();
+			tableAttributeByName.put("maxFileSize", table.getMaxFileSize() + "");
+			tableAttributeByName.put("memStoreFlushSize", table.getMemStoreFlushSize() + "");
+			tableAttributeByName.put("readOnly", table.isReadOnly() + "");
+			tableSummaryByName.put(tableName, tableAttributeByName);
+			Map<String,Map<String,String>> familyAttributeByNameByFamilyName = parseTableAttributeMap(table.getFamilies());
+			familySummaryByTableName.put(table.getNameAsString(), familyAttributeByNameByFamilyName);
+			logger.warn(familySummaryByTableName.toString());
 		}
 		mav.put("tableSummaryByName", tableSummaryByName);
+		mav.put("familySummaryByTableName", familySummaryByTableName);
 		return mav;
 	}
 
@@ -203,7 +211,6 @@ public class HBaseHandler extends BaseHandler {
 		}
 
 		return mav;
-
 	}
 
 	@Handler
@@ -475,8 +482,22 @@ public class HBaseHandler extends BaseHandler {
 		return new MessageMav("Merged HBase table regions ");
 	}
 
+	private static Map<String,Map<String,String>> parseTableAttributeMap(Collection<HColumnDescriptor> families){
+		Map<String,Map<String,String>> familyAttributeByNameByFamilyName = new TreeMap<>();
+		for(HColumnDescriptor family : IterableTool.nullSafe(families)){
+			Map<String,String> familyAttributeByName = new TreeMap<>();
+			familyAttributeByNameByFamilyName.put(family.getNameAsString(), familyAttributeByName);
+			for(Map.Entry<ImmutableBytesWritable,ImmutableBytesWritable> e : family.getValues().entrySet()){
+				String key = Bytes.toString(e.getKey().get());
+				String value = Bytes.toString(e.getValue().get());
+				familyAttributeByName.put(key, value);
+			}
+		}
+		return familyAttributeByNameByFamilyName;
+	}
+
 	private static Map<String,String> parseFamilyAttributeMap(Map<ImmutableBytesWritable,ImmutableBytesWritable> ins){
-		Map<String,String> outs = MapTool.createTreeMap();
+		Map<String,String> outs = new TreeMap<>();
 		for(Map.Entry<ImmutableBytesWritable,ImmutableBytesWritable> entry : MapTool.nullSafe(ins).entrySet()){
 			outs.put(StringByteTool.fromUtf8Bytes(entry.getKey().get()), StringByteTool.fromUtf8Bytes(entry.getValue()
 					.get()));
