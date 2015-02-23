@@ -11,12 +11,6 @@ import org.apache.hadoop.hbase.ServerName;
 import com.hotpads.datarouter.client.imp.hbase.balancer.BalanceLeveler;
 import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
-import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSetTool;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.bytes.ByteRange;
 
 /*
  * assign each partition in full to a server, and hard-level the number of regions

@@ -18,12 +18,11 @@ import com.hotpads.handler.util.node.NodeWrapper;
 public class RoutersHandler extends BaseHandler {
 
 	/************************************** Constants **********************************/
-	private static Logger logger = LoggerFactory.getLogger(RoutersHandler.class);
-
-	public static final String ACTION_listRouters = "listRouters",
-			ACTION_inspectRouter = "inspectRouter",
-			ACTION_inspectClient = "inspectClient";
-
+	public static final String 
+		ACTION_listRouters = "listRouters",
+		ACTION_inspectRouter = "inspectRouter",
+		ACTION_inspectClient = "inspectClient";
+	
 	public static final String PARAM_routerName = "routerName";
 	public static final String PARAM_clientName = "clientName";
 	public static final String PARAM_nodeName = "nodeName";

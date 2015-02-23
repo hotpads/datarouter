@@ -21,9 +21,10 @@ import com.hotpads.trace.key.TraceSpanKey;
 import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.util.core.java.ReflectionTool;
 
+//not currently needed, but a example of an entity built from separate tables
 public class TraceCompoundNode 
 extends BaseEntityNode<TraceEntityKey,TraceEntity>
-implements TraceNodes{
+implements TraceSubNodes{
 	
 //	public static final String
 //			TABLE_Trace = "TestTrace",

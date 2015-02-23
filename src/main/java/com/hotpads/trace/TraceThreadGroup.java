@@ -1,8 +1,10 @@
 package com.hotpads.trace;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
@@ -13,20 +15,18 @@ import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.util.core.CollectionTool;
 import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.NumberFormatter;
 import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
 	
 //wrapper for TraceThread to create a tree structure
 public class TraceThreadGroup{
-	TraceThread thread;
-	TraceThreadGroup parent;
-	SortedSet<TraceThreadGroup> children = Sets.newTreeSet(
+	private TraceThread thread;
+	private TraceThreadGroup parent;
+	private SortedSet<TraceThreadGroup> children = Sets.newTreeSet(
 			Collections.reverseOrder(new TraceThreadGroupSlownessComparator()));
-	SortedMap<TraceThreadKey,SortedSet<TraceSpan>> spansByThreadKey;
+	private SortedMap<TraceThreadKey,SortedSet<TraceSpan>> spansByThreadKey;
 	
 	public TraceThreadGroup(TraceThread thread){
 		this.thread = thread;
@@ -67,14 +67,16 @@ public class TraceThreadGroup{
 		TraceThreadGroup treeClimber = this;
 		int branchesClimbed = 0;
 		while(true){
-			if(treeClimber.isRoot()){ return branchesClimbed; }
+			if(treeClimber.isRoot()){
+				return branchesClimbed;
+			}
 			treeClimber = treeClimber.parent;
 			++branchesClimbed;
 		}
 	}
 	
 	public List<TraceThread> getOrderedThreads(){
-		List<TraceThread> outs = ListTool.create();
+		List<TraceThread> outs = new ArrayList<>();
 		appendGroup(outs, this);
 		return outs;
 	}
@@ -93,9 +95,7 @@ public class TraceThreadGroup{
 		StringBuilder sb = new StringBuilder();
 		sb.append(StringTool.repeat("-", numNestedLevels()));
 		sb.append(thread.getName());
-//			sb.append("{\n");
 		sb.append(children);
-//			sb.append("}");
 		return sb.toString();
 	}
 	
@@ -135,7 +135,7 @@ public class TraceThreadGroup{
 		sb.append("</div>");
 		String divStyle = "margin:0px 0px 5px 80px;";
 		sb.append("<div style=\""+divStyle+"\">");
-		sb.append("<table class=\"data sortable\">");
+		sb.append("<table class=\"table table-striped table-bordered table-collapse sortable\">");
 		for(TraceSpan span : IterableTool.nullSafe(MapTool.nullSafe(spansByThreadKey).get(thread.getKey()))){
 			sb.append("<tr>");
 			sb.append("<td>"+span.getSequence()+"</td>");
@@ -155,17 +155,18 @@ public class TraceThreadGroup{
 		@Override
 		public int compare(TraceThreadGroup a, TraceThreadGroup b){
 			return ComparableTool.nullFirstCompareTo(a.thread.getTotalDuration(), b.thread.getTotalDuration());
-//			return new TraceThreadComparator().compare(a.thread, b.thread);
 		}
 	}
 	
 	public static TraceThreadGroup create(Collection<TraceThread> threads){
 		TraceThreadGroup rootGroup = null;
-		Set<TraceThreadKey> placedThreadKeys = SetTool.createHashSet();
+		Set<TraceThreadKey> placedThreadKeys = new HashSet<>();
 		while(CollectionTool.size(placedThreadKeys) < CollectionTool.size(threads)){
 			boolean placedAtLeastOneThreadInThisLoop = false;
 			for(TraceThread thread : IterableTool.nullSafe(threads)){
-				if(placedThreadKeys.contains(thread.getKey())){ continue; }//already got it
+				if(placedThreadKeys.contains(thread.getKey())){//already got it
+					continue;
+				}
 				boolean added = false;
 				if(rootGroup==null){
 					if(thread.getParentId()==null){
@@ -182,7 +183,6 @@ public class TraceThreadGroup{
 			}
 			if(!placedAtLeastOneThreadInThisLoop){
 				return rootGroup;//won't be complete, but might as well display what we have
-//				throw new RuntimeException("placedAtLeastOneThreadInThisLoop was false");
 			}
 		}
 		return rootGroup;
