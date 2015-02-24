@@ -3,10 +3,6 @@ package com.hotpads.util.core;
 
 public class ObjectTool {
 	
-	public static <T> T checkNotNull(T t){
-		if(t==null){ throw new IllegalArgumentException("cannot be null"); }
-		return t;
-	}
 	
 	public static <T> boolean equals(T a, T b){
 		if(bothNull(a,b)){ return true; }
@@ -61,18 +57,6 @@ public class ObjectTool {
 		return ! nullSafeEquals(a, b);
 	}
 	
-	public static boolean nullSafeEqualsTrimStringNullifyEmptyString(String a, String b){
-		if("".equals(a)){ a = null; }
-		if("".equals(b)){ b = null; }
-		
-		if(a==null && b==null){
-			return true;
-		}else if(a==null || b==null){
-			return false;
-		}else{
-			return a.trim().equals(b.trim());
-		}
-	}
 
 	public static String nullSafeToString(Object object) {
 		return nullSafeToString(object, null);
@@ -101,10 +85,6 @@ public class ObjectTool {
 			}
 		}
 		return false;
-	}
-
-	public static boolean allNull(Object... objects){
-		return ! anyNonNull(objects);
 	}
 
 	public static boolean noNulls(Object ... objects){
