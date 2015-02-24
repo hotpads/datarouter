@@ -40,10 +40,6 @@ public class MapTool {
 		return map==null?0:map.size();
 	}
 	
-	public static boolean hasMultiple(Map<?,?> map) {
-		return size(map) > 1;
-	}
-	
 	
 	/**************************** create **********************************************/
 
@@ -72,60 +68,6 @@ public class MapTool {
 		return new TreeMap<K,V>();
 	}
 
-	@Deprecated
-	public static <K,V> NavigableMap<K,V> createNavigableTreeMap(){
-		return new TreeMap<K,V>();
-	}
-	
-	public static <K,V> Map<K,V> create(K key, V value){
-		return createHashMap(key, value);
-	}
-	
-	public static <K,V> Map<K,V> createHashMap(K key, V value){
-		Map<K,V> map = new HashMap<K,V>();
-		map.put(key, value);
-		return map;
-	}
-	
-	public static <K,V> SortedMap<K,V> createTreeMap(K key, V value){
-		SortedMap<K,V> map = new TreeMap<K,V>();
-		map.put(key, value);
-		return map;
-	}
-	
-	public static <K,V>Map<K,V> filterAccordingToKeyOrValue(Map<K,V> aCounterByName, Predicate<K> predicateKey,
-			Predicate<V> predcateValue){
-		Map<K,V> toReturn = MapTool.create();
-		for(K key : aCounterByName.keySet()){
-			if(predicateKey.apply(key) || predcateValue.apply(aCounterByName.get(key))){
-				toReturn.put(key, aCounterByName.get(key));
-			}
-		}
-		return toReturn;
-	}
-
-	public static <K,V>Map<K,V> createSubMap(Map<K,V> aCounterByName, int offsetResults, int numberResultsToDisplay){
-		Map<K,V> toReturn = MapTool.create();
-
-		List<K> keys = ListTool.createArrayList(aCounterByName.keySet());
-		offsetResults = offsetResults >= 0 && offsetResults < keys.size() ? offsetResults : 0;
-		int endIndex = numberResultsToDisplay >= 0 && numberResultsToDisplay < keys.size() ? numberResultsToDisplay
-				: keys.size();
-		keys = keys.subList(offsetResults, endIndex);
-		for(K k : keys){
-			toReturn.put(k, aCounterByName.get(k));
-		}
-
-		return toReturn;
-	}
-	
-	public static HashMap<String,String> createHashMapFromList(List<String> list){
-		HashMap<String,String> toReturn = MapTool.createHashMap();
-		for(String item : list){
-			toReturn.put(item, item);
-		}
-		return toReturn;
-	}
 	
 	/****************************** null safe ******************************************/
 
@@ -149,119 +91,13 @@ public class MapTool {
 		return in;
 	}
 	
-	public static <K,V> Map<K,V> nullSafeHashPut(Map<K,V> map, K key, V value){
-		map = nullSafeHashMap(map);
-		map.put(key, value);
-		return map;
-	}
 	
-	public static <K,V> Map<K,V> nullSafeTreePut(Map<K,V> map, K key, V value){
-		map = nullSafeTreeMap(map);
-		map.put(key, value);
-		return map;
-	}
-
-	public static <K,V> SortedMap<K,V> nullSafeTreePutAll(SortedMap<K,V> map, Map<K,V> newItems){
-		map = nullSafeTreeMap(map);
-		map.putAll(MapTool.nullSafeHashMap(newItems));
-		return map;
-	}
-	
-	public static <K,V> V putIfAbsentAndGet(Map<K,V> map, K key, V value){
-		if(!map.containsKey(key)){ map.put(key, value); }
-		return map.get(key);
-	}
-	
-	
-	/******************************** empty **********************************/
-	
-	@SuppressWarnings("unchecked") 
-	public static <K,V> Map<K,V> emptyHashMap(){
-		//can't cast unmodifiableMap back to HashMap, only Map interface
-		return (Map<K,V>)EMPTY_HASH_MAP;
-	}
-
-	@SuppressWarnings("unchecked") 
-	public static <K,V> Map<K,V> emptyTreeMap(){
-		return (Map<K,V>)EMPTY_TREE_MAP;
-	}
-
-	@SuppressWarnings("unchecked") 
-	public static <K,V> Map<K,V> emptyNavigableMap(){
-		return (Map<K,V>)EMPTY_TREE_MAP;
-	}
-	
-	/******************************** complex maps *************************/
-	
-	public static <K,V,C extends Collection<V>,M extends Map<K,C>> List<V> getAllValues(M in){
-		List<V> outs = ListTool.createArrayList();
-		for(K k : nullSafe(in).keySet()) {
-			outs.addAll(CollectionTool.nullSafe(in.get(k)));
-		}
-		return outs;
-	}
-	
-	/********************************** printing ****************************/
-
-	public static <K, V>  String toXml(Map<K, V> map, String rootName) {
-		StringBuilder sb = new StringBuilder("<" + rootName + ">");
-		
-		for(Map.Entry<K, V> entry : map.entrySet()){
-			if(Map.class.isInstance(entry.getValue())){
-				sb.append(MapTool.toXml((Map<?,?>)entry.getValue(), entry.getKey().toString()));
-				continue;
-			}
-			sb.append("<" + entry.getKey().toString() + ">");
-
-			if(Collection.class.isInstance(entry.getValue())){
-				for(Object item : ((Collection<?>)entry.getValue())){
-					sb.append(item.toString());
-				}
-			}
-			else{
-				sb.append(entry.getValue().toString());
-			}
-			sb.append("</" + entry.getKey().toString() + ">");
-		}
-		
-		sb.append("</" + rootName + ">");
-		return sb.toString();
-	}
-
-
-	public static <K, V>  String toCsv(Map<K, V> map, String rootName) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(rootName + "[");
-		int numFinished = 0;
-		for(Map.Entry<K, V> entry : map.entrySet()){
-			if(numFinished>0){ sb.append(","); }
-			sb.append(entry.getKey().toString() + "=");
-			sb.append(entry.getValue().toString());
-			++numFinished;
-		}
-		sb.append("]");
-		return sb.toString();
-	}
-
-	public static <K, V> void addAll(Map<K, V> from, Map<K, V> to) {
-		for(Map.Entry<K, V> entry : from.entrySet()){
-			to.put(entry.getKey(), entry.getValue());
-		}
-	}
 	
 	/******************************* counting ***********************************/
 	
 	//convenience method
 	public static <T> Long increment(Map<T,Long> map, T key){
 		return increment(map, key, 1L);
-	}
-	//convenience method
-	public static <T,U> Long increment(Map<T,Map<U,Long>> tMap, T t, U u){
-		return increment(tMap, t, u, 1L);
-	}
-	//convenience method
-	public static <T,U,V> Long increment(Map<T,Map<U,Map<V,Long>>> tMap, T t, U u, V v){
-		return increment(tMap, t, u, v, 1L);
 	}
 
 	
@@ -288,29 +124,9 @@ public class MapTool {
 		return uMap.get(u);
 	}
 
-	//3 levels: Map<T,Map<U,Map<V,Long>>>
-	public static <T,U,V> Long increment(Map<T,Map<U,Map<V,Long>>> tMap, T t, U u, V v, Long delta){
-		if(!tMap.containsKey(t)){ 
-			tMap.put(t, new TreeMap<U,Map<V,Long>>()); 
-		}
-		Map<U,Map<V,Long>> uMap = tMap.get(t);
-		if(!uMap.containsKey(u)){
-			uMap.put(u, new TreeMap<V,Long>());
-		}
-		Map<V,Long> vMap = uMap.get(u);
-		if(!vMap.containsKey(v)){
-			vMap.put(v, 0L);
-		}
-		vMap.put(v, vMap.get(v) + delta);
-		return vMap.get(v);
-	}
 	
 	
 	/************************* string keyed counting ******************************/
-	
-	public static Long incrementStringKey(Map<String,Long> map, Object key){
-		return incrementStringKey(map, key, 1L);
-	}
 
 	public static Long incrementStringKey(Map<String,Long> map, Object key, Long delta){
 		String stringKey = ObjectTool.nullSafeToString(key, "null");
@@ -323,31 +139,7 @@ public class MapTool {
 	}
 
 	
-	/********************* multi-ops *************************/
-	
-	public static <K,V> List<V> getValuesForKeys(Map<K,V> map, Iterable<K> keys){
-		List<V> outs = ListTool.createArrayList();
-		if(isEmpty(map)) {
-			return outs;
-		}
-		for(K key : IterableTool.nullSafe(keys)){
-			V value = map.get(key);
-			if(value==null){ continue; }
-			outs.add(value);
-		}
-		return outs;
-	}
-	
-	
 	/********************** filtering ****************************/
-
-	public static <K,V> V getFirstValue(Map<K,V> map){
-		if(isEmpty(map)){ return null; }
-		for(V value : map.values()){
-			return value;
-		}
-		return null;
-	}
 
 	public static <K,V> K getFirstKeyWhereValueEquals(Map<K,V> map, V value){
 		for(Map.Entry<K,V> entry : nullSafe(map).entrySet()){
@@ -381,16 +173,6 @@ public class MapTool {
 	}
 
 	public static class MapToolTests {
-
-		@Test
-		public void testGetValuesForKeys() {
-			Map<Integer,Integer> fullMap = MapTool.create();
-			for(int i=0; i < 5; ++i) { fullMap.put(i, i % 2 == 0 ? i : null); }
-			Assert.assertEquals(Collections.emptyList(), getValuesForKeys(null, ListTool.create(1,2)));
-			Assert.assertEquals(Collections.emptyList(), getValuesForKeys(new HashMap<Integer,Void>(), ListTool.create(1,2)));
-			Assert.assertEquals(Collections.emptyList(), getValuesForKeys(fullMap, new ArrayList<Integer>()));
-			Assert.assertEquals(ListTool.create(0,4), getValuesForKeys(fullMap, ListTool.create(0,1,4)));
-		}
 		
 		@Test
 		public void getMapFromString() {

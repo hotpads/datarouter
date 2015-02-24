@@ -7,37 +7,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class NumberFormatter {
-
-	public static final DecimalFormat PERCENT_0_DECIMALS = new DecimalFormat("0%");
-	public static final DecimalFormat PERCENT_2_DECIMALS = new DecimalFormat("0.00%");
-	public static final DecimalFormat TWO_DIGIT = new DecimalFormat("##");
-	
-	public static final String getPaddedPositiveDecimal(double input, int preDecimalDigits, int postDecimalDigits){
-		if(input > Math.pow(10, preDecimalDigits)){
-			throw new IllegalArgumentException("input too big to be represented with preDecimalDigits" + preDecimalDigits);
-		}
-		
-		StringBuilder sb = new StringBuilder();
-
-		int preDecimalDivisor = (int)Math.pow(10, preDecimalDigits);
-		for(int i=preDecimalDigits; i > 0; --i){
-			preDecimalDivisor /= 10;
-			int singleDigit = (int)((input % (preDecimalDivisor * 10)) / preDecimalDivisor);
-			sb.append(singleDigit);
-		}
-		
-		if(postDecimalDigits>0){
-			sb.append(".");
-		}
-		
-		for(int i=0; i < postDecimalDigits; ++i){
-			int postDecimalMultiplier = (int)Math.pow(10, i + 1);
-			int singleDigit = (int)((input * postDecimalMultiplier) % 10);
-			sb.append(singleDigit);
-		}
-		
-		return sb.toString();
-	}
 	
 	public static String format(Number n, int numFractionDigits){
 		return format(n, "", "", numFractionDigits);
@@ -60,6 +29,8 @@ public class NumberFormatter {
 		if(pValue==null){ return null; }
 		return new DecimalFormat("###,###,###,###,###,###,###,###.#####################").format(pValue);//biggest is 19 digits
 	}
+	
+	
 	
 	public static class Tests{
 		@Test public void testFormat(){
