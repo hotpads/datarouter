@@ -10,9 +10,6 @@ import com.hotpads.util.core.bytes.IntegerByteTool;
 
 public class ByteTool {
 	
-	public static final byte[]
-		SINGLE_ZERO_BYTE = new byte[]{0};//constant for this error prone case.  don't want: new byte[0]
-	
 	public static final Integer
 		BYTES_PER_POINTER = (int)RuntimeTool.getBytesPerPointer();//do we need to add bytes (4?) for class id?
 	
@@ -51,10 +48,6 @@ public class ByteTool {
 //		if(i < 128){ return (byte)i; } 
 		int ib = i - 128;
 		return (byte)(ib);//subtract 256
-	}
-	
-	public static int fromUnsignedByte(final byte b){
-		return b & 0xff;
 	}
 	
 	//not really sure what this method means anymore
@@ -146,18 +139,7 @@ public class ByteTool {
 		return sb.toString();
 	}
 	
-	public static String getBinaryStringLittleEndian(byte b){
-		return StringTool.reverse(getBinaryStringBigEndian(b));
-	}
-	
 	public static byte[] copyOfRange(byte[] in, int offset, int length){
-		byte[] out = new byte[length];
-		System.arraycopy(in, offset, out, 0, length);
-		return out;
-	}
-	
-	public static byte[] copyOfRangeFromOffset(byte[] in, int offset){
-		int length = in.length - offset;
 		byte[] out = new byte[length];
 		System.arraycopy(in, offset, out, 0, length);
 		return out;
@@ -222,21 +204,6 @@ public class ByteTool {
 	
 	
 	/************************* serialize ****************************************/
-	
-	/*
-	 * uInt7
-	 * 
-	 * first bit must be 0, reject others
-	 */
-	
-	public static byte[] getUInt7Bytes(final byte value){
-		if(value < 0){ throw new IllegalArgumentException("no negatives"); }
-		return new byte[]{value};
-	}
-	
-	public static byte fromUInt7Bytes(final byte[] bytes, int offset){
-		return bytes[offset];
-	}
 
 	public static byte[] getUInt7Bytes(List<Byte> values){
 		if(CollectionTool.isEmpty(values)){ return new byte[0]; }
@@ -245,17 +212,6 @@ public class ByteTool {
 		for(Byte value : values){
 			if(value < 0){ throw new IllegalArgumentException("no negatives"); }
 			out[i] = value;
-			++i;
-		}
-		return out;
-	}
-	
-
-	public static byte[] getUInt7ByteArray(byte[] values){
-		byte[] out = new byte[values.length];
-		for(int i=0; i < values.length; ++i){
-			if(values[i] < 0){ throw new IllegalArgumentException("no negatives"); }
-			out[i] = values[i];
 			++i;
 		}
 		return out;
@@ -278,13 +234,6 @@ public class ByteTool {
 			Assert.assertEquals(1, toUnsignedByte(129));
 			Assert.assertEquals(127, toUnsignedByte(255));
 		}
-		@Test public void testFromUnsignedByte(){
-			Assert.assertEquals(0, fromUnsignedByte((byte)0));
-			Assert.assertEquals(127, fromUnsignedByte((byte)127));
-			Assert.assertEquals(128, fromUnsignedByte((byte)-128));
-			Assert.assertEquals(254, fromUnsignedByte((byte)-2));
-			Assert.assertEquals(255, fromUnsignedByte((byte)-1));
-		}		
 		@Test public void testFromUnsignedInt0To255(){
 			Assert.assertEquals(0, fromUnsignedInt0To255(0));
 			Assert.assertEquals(127, fromUnsignedInt0To255(127));
