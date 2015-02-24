@@ -1,21 +1,12 @@
 package com.hotpads.util.core;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.hotpads.util.core.collections.AppendList;
-import com.hotpads.util.core.collections.Pair;
 
 public class StringTool{
 
