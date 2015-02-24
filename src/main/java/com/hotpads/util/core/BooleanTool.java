@@ -40,17 +40,9 @@ public class BooleanTool {
 		return FALSE_VALUES.contains(input.toLowerCase());
 	}
 	
-	@Deprecated
-	public static boolean nullSafe(Boolean b){
-		return isTrue(b);
-	}
-	
 	public static boolean isTrue(Boolean b){
 		if (b == null) return false;
 		return b;
-	}
-	public static boolean isTrueOrNull(Boolean b){
-		return b==null || b;
 	}
 	
 	public static boolean isFalseOrNull(Boolean b){
@@ -60,39 +52,5 @@ public class BooleanTool {
 	public static boolean isFalse(Boolean b){
 		if (b == null) return false;
 		return ! b;
-	}
-	
-	public static boolean or(Boolean a, Boolean b){
-		return isTrue(a) || isTrue(b);
-	}
-	
-	public static String yesOrNo(Boolean b){
-		return b?"yes":"no";
-	}
-	
-	public static boolean allTrue(boolean... values) {
-		return !anyFalse(values);
-	}
-
-	public static boolean allFalse(boolean... values) {
-		return !anyTrue(values);
-	}
-
-	public static boolean anyTrue(boolean... values) {
-		for (boolean value : values) {
-			if (value == true) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public static boolean anyFalse(boolean... values) {
-		for (boolean value : values) {
-			if (value == false) {
-				return true;
-			}
-		}
-		return false;
 	}
 }
