@@ -5,10 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.SortedMap;
 
 
 public class PropertiesTool {
@@ -23,37 +21,6 @@ public class PropertiesTool {
 			throw new RuntimeException(ioe);
 		}
 		return properties;
-	}
-
-	public static List<Properties> fromClasspath(final Iterable<String> resourcePaths) {
-		List<Properties> multiProperties = new ArrayList<>();
-		for (String resourcePath : resourcePaths) {
-			try {
-				Properties properties = fromClasspath(resourcePath);
-				if (null != properties) {
-					multiProperties.add(properties);
-				}
-			} catch (IOException exception) {
-				continue;
-			}
-		}
-
-		return multiProperties;
-	}
-
-	public static Properties fromClasspath(final String resourcePath) throws FileNotFoundException, IOException {
-		ClassLoader classLoader = PropertiesTool.class.getClassLoader();
-		try {
-			InputStream inputStream = classLoader.getResourceAsStream(resourcePath);
-			Properties properties = new Properties();
-			properties.load(inputStream);
-
-			return properties;
-		} catch (IOException exception) {
-			// Not an issue yet, will try again by reading from a file location
-		}
-
-		return fromFile(resourcePath);
 	}
 
 	public static List<Properties> fromFiles(Iterable<String> paths){
@@ -85,33 +52,6 @@ public class PropertiesTool {
 			}
 		}
 		return properties;
-	}
-
-	public static boolean isEmpty(Properties p){
-		if(p==null){ return true; }
-		return p.isEmpty();
-	}
-
-	public static SortedMap<String,String> getAsSortedMap(Properties p){
-		if(isEmpty(p)){ return null; }
-		SortedMap<String,String> map = MapTool.createTreeMap();
-		for(Object key : CollectionTool.nullSafe(p.keySet())){
-			map.put(key.toString(), p.get(key).toString());
-		}
-		return map;
-	}
-
-	public static String lineByLineString(Properties p){
-		if(isEmpty(p)){ return null; }
-		SortedMap<String,String> map = getAsSortedMap(p);
-		StringBuilder sb = new StringBuilder();
-		boolean didFirst = false;
-		for(String key : map.keySet()){
-			if(didFirst){ sb.append("\n"); }
-			sb.append(key+"="+map.get(key));
-			didFirst=true;
-		}
-		return sb.toString();
 	}
 
 	public static String getFirstOccurrence(Iterable<Properties> multiProperties, String key) {
