@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
-import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,15 +26,6 @@ public class ExceptionTool {
 	public static String getStackTraceAsString(Throwable e){
 		ThrowableProxy proxy = new ThrowableProxy(e);
 		return proxy.getCauseStackTraceAsString();
-	}
-	
-	public static String getStackTraceHeader(Throwable e){
-		return e.getClass().getName() + ": " + e.getMessage();
-	}
-	
-	public static String getStackTraceAsHtmlString(Throwable e){
-		String rawStackTrace = getStackTraceAsString(e);
-		return rawStackTrace.replaceAll("\n", "<br/>\n").replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
 	}
 	
 	public static String getStackTraceStringForHtmlPreBlock(Throwable e){
@@ -77,16 +66,6 @@ public class ExceptionTool {
 		} catch (IOException e) {
 			log.warn("Error building short stack trace", e);
 			return fullStackTrace;
-		}
-	}
-
-	/** tests ****************************************************************/
-	public static class Tests {
-		@Test
-		public void testGetPartialStackTraceAsString(){
-			String message = "a is null";
-			Exception e = new Exception(new NullPointerException(message));
-			Assert.assertEquals(Exception.class.getName() + ": " + e.getMessage(), getStackTraceHeader(e));
 		}
 	}
 
