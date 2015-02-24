@@ -30,11 +30,6 @@ public class SetTool {
 		return new HashSet<T>();
 	}
 
-	@Deprecated
-	public static <T> LinkedHashSet<T> createLinkedHashSet(){
-		return new LinkedHashSet<T>();
-	}
-	
 	public static <T> Set<T> create(Collection<T> in){
 		return createHashSet(in);
 	}
@@ -89,21 +84,6 @@ public class SetTool {
 		return set;
 	}
 
-	public static <T> Set<T> nullSafe(Set<T> in){
-		if(in==null){ return new HashSet<T>(); }
-		return in;
-	}
-	
-	public static <T> Set<T> nullForEmpty(Set<T> in){
-		if(CollectionTool.isEmpty(in)){ return null; }
-		return in;
-	}
-
-	public static <T> Set<T> nullSafeTreeSet(Set<T> in){
-		if(in==null){ return new TreeSet<T>(); }
-		return in;
-	}
-
 	public static <T> SortedSet<T> nullSafeTreeSet(SortedSet<T> in){
 		if(in==null){ return new TreeSet<T>(); }
 		return in;
@@ -118,21 +98,6 @@ public class SetTool {
 		set = nullSafeTreeSet(set);
 		set.addAll(CollectionTool.nullSafe(newItems));
 		return set;
-	}
-
-	public static <T> Set<T> nullSafeHashAddAll(Set<T> set, Collection<T> newItems){
-		set = nullSafeHashSet(set);
-		set.addAll(CollectionTool.nullSafe(newItems));
-		return set;
-	}
-	
-	public static <T> Set<T> addCheckNotContains(Set<T> set, T newElement){
-		Set<T> out = set!=null?set:new HashSet<T>();
-		if(out.contains(newElement)){
-			throw new IllegalArgumentException(newElement+" already exists");
-		}
-		out.add(newElement);
-		return out;
 	}
 	
 	public static <T> boolean containsSameKeys(Set<T> as, Set<T> bs){
