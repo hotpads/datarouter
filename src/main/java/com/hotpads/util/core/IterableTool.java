@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import com.hotpads.util.core.collections.SkipNullIterable;
-
 public class IterableTool {
 
 	public static <T> Iterable<T> nullSafe(Iterable<T> in){
@@ -23,15 +21,6 @@ public class IterableTool {
 		if(i==null){ return null; }
 		return next(i.iterator());
 	}
-
-	public static <T> T last(Iterable<T> i){
-		if(i==null){ return null; }
-		T last = null;
-		for(T t : i){
-			last = t;
-		}
-		return last;
-	}
 	
 	public static <T> Long count(Iterable<T> i){
 		if(i==null){ return 0L; }
@@ -43,14 +32,6 @@ public class IterableTool {
 			++count;
 		}
 		return count;
-	}
-	
-	public static <T> void discard(Iterator<T> iter, int num){
-		if(iter==null){ return; }
-		for(int i=0; i < num; ++i){
-			if(!iter.hasNext()){ return; }
-			iter.next();
-		}
 	}
 
 	public static <T> ArrayList<T> createArrayListFromIterable(Iterable<T> ins){
@@ -77,9 +58,5 @@ public class IterableTool {
 			}
 		}
 		return list;
-	}
-	
-	public static <T> Iterable<T> skipNulls(final Iterable<T> iter) {
-		return new SkipNullIterable<T>(nullSafe(iter));
 	}
 }
