@@ -8,8 +8,8 @@ import com.hotpads.GuiceInjector;
 import com.hotpads.datarouter.util.ApplicationPaths;
 import com.hotpads.datarouter.util.GuiceApplicationPaths;
 import com.hotpads.guice.DatarouterExecutorGuiceModule;
+import com.hotpads.job.noop.NoOpJobConfig;
 import com.hotpads.job.trigger.JobConfigModule;
-import com.hotpads.job.trigger.noop.NoOpJobConfig;
 import com.hotpads.util.http.json.GsonJsonSerializer;
 import com.hotpads.util.http.json.JsonSerializer;
 

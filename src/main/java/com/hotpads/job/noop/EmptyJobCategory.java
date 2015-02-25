@@ -1,4 +1,4 @@
-package com.hotpads.job.trigger.noop;
+package com.hotpads.job.noop;
 
 import java.util.Collections;
 import java.util.List;

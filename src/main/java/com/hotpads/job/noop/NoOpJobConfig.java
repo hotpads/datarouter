@@ -1,6 +1,5 @@
-package com.hotpads.job.trigger.noop;
+package com.hotpads.job.noop;
 
-import com.hotpads.job.record.EmptyLongRunningTaskDao;
 import com.hotpads.job.record.LongRunningTaskDao;
 import com.hotpads.job.trigger.JobConfigModule;
 import com.hotpads.job.trigger.TriggerGroup;
