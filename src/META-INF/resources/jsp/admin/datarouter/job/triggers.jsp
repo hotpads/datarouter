@@ -9,6 +9,7 @@
 <%@ include file="/jsp/css/css-import.jspf" %>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/job.css" />
 <script type="text/javascript" data-main="${contextPath}/js/core-common" src="${contextPath}/js/require-jquery.js"></script>
+<script>require(["bootstrap/bootstrap"]);</script>
 <script type="text/javascript">
 	function confirmRunJob(jobName, shouldRun, serverName) {
 		var displayText = "shouldRun is " + shouldRun +  ". Are you sure you want to run "+jobName+" on "+serverName+"?";
