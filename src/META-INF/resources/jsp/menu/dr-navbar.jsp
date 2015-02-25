@@ -83,6 +83,17 @@
 							</li>
 						</ul>
 					</li>
+					<li class="dropdown">
+						<a href="#" title="Jobs" id="drop" role="button" class="dropdown-toggle" data-toggle="dropdown">
+							Jobs
+							<b class="caret"></b>
+						</a>
+						<ul class="dropdown-menu" role="menu" aria-labelledby="drop">
+							<li data-role="presentation">
+								<a data-role="menuitem" href="${contextPath}/datarouter/triggers" title="Triggers">Triggers</a>
+							</li>
+						</ul>
+					</li>
 					<li>
 						<a href="${contextPath}/datarouter/databeanGenerator" 
 							title="Databean Generator">Databean Generator</a>

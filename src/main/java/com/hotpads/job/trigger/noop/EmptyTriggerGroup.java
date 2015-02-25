@@ -1,7 +1,10 @@
-package com.hotpads.job.trigger;
+package com.hotpads.job.trigger.noop;
 
 import java.util.Collections;
 import java.util.Map;
+
+import com.hotpads.job.trigger.Job;
+import com.hotpads.job.trigger.TriggerGroup;
 
 public class EmptyTriggerGroup implements TriggerGroup{
 

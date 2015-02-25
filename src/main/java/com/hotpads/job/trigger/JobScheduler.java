@@ -15,10 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.DatarouterInjector;
-import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.guice.DatarouterExecutorGuiceModule;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTask;
+import com.hotpads.job.record.LongRunningTaskDao;
 import com.hotpads.job.record.LongRunningTaskKey;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
@@ -31,21 +32,20 @@ public class JobScheduler {
 	private ScheduledExecutorService executor;
 	private TriggerGroup triggerGroup;
 	private TriggerTracker tracker;
-	private IndexedSortedMapStorageNode<LongRunningTaskKey,LongRunningTask> longRunningTaskNode;
+	private IndexedSortedMapStorage<LongRunningTaskKey,LongRunningTask> longRunningTaskNode;
 	private JobSettings jobSettings;
 	
 	@Inject
 	public JobScheduler(DatarouterInjector injector, TriggerGroup triggerGroup, TriggerTracker tracker,
-			IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> node, JobSettings jobSettings,
+			LongRunningTaskDao longRunningTaskDao, JobSettings jobSettings,
 			@Named(DatarouterExecutorGuiceModule.POOL_datarouterJobExecutor) ScheduledExecutorService executor){
 		this.injector = injector;
 		this.triggerGroup = triggerGroup;
 		this.tracker = tracker;
 		this.jobSettings = jobSettings;
 		this.executor = executor;
-		this.longRunningTaskNode = node;
+		this.longRunningTaskNode = longRunningTaskDao.getNode();
 	}
-	
 	
 	/***************methods***************/
 	
