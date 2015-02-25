@@ -53,7 +53,6 @@ public class HotPadsHttpClient {
 	private ExecutorService executor;
 	private int requestTimeoutMs;
 	private long futureTimeoutMs;
-	private Integer retryCount;
 
 	HotPadsHttpClient(HttpClient httpClient, JsonSerializer jsonSerializer, SignatureValidator signatureValidator,
 			CsrfValidator csrfValidator, ApiKeyPredicate apiKeyPredicate, HotPadsHttpClientConfig config,
@@ -68,7 +67,6 @@ public class HotPadsHttpClient {
 		this.requestTimeoutMs = requestTimeoutMs == null ? DEFAULT_REQUEST_TIMEOUT_MS : requestTimeoutMs.intValue();
 		this.futureTimeoutMs = futureTimeoutMs == null ? getFutureTimeoutMs(this.requestTimeoutMs, retryCount)
 				: futureTimeoutMs.longValue();
-		this.retryCount = retryCount;
 	}
 
 	public HotPadsHttpResponse execute(HotPadsHttpRequest request) {
