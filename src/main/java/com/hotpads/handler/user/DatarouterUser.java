@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.persistence.Id;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
-import com.hotpads.datarouter.serialize.fielder.BaseLatin1Fielder;
+import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
@@ -62,11 +62,11 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey, DatarouterUs
 
 	/****************** fielder *****************************/
 
-	public static class DatarouterUserFielder extends BaseLatin1Fielder<DatarouterUserKey,DatarouterUser>{
+	public static class DatarouterUserFielder extends BaseDatabeanFielder<DatarouterUserKey,DatarouterUser>{
 		@Override
 		public Class<DatarouterUserKey> getKeyFielderClass() {
 			return DatarouterUserKey.class;
-		}
+		} 
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterUser d) {
 			return FieldTool.createList(
