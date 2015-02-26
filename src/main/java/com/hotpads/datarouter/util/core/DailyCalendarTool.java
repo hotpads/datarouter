@@ -1,4 +1,4 @@
-package com.hotpads.util.core.date;
+package com.hotpads.datarouter.util.core;
 
 import java.util.Calendar;
 import java.util.Locale;

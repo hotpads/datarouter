@@ -1,4 +1,4 @@
-package com.hotpads.util.core.io;
+package com.hotpads.datarouter.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
