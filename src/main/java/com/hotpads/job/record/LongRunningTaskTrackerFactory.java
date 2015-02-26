@@ -10,11 +10,11 @@ import com.hotpads.setting.Setting;
 public class LongRunningTaskTrackerFactory {
 
 	@Inject
-	private LongRunningTaskDao longRunningTaskDao;
+	private LongRunningTaskNodeProvider longRunningTaskNodeProvider;
 
 	public LongRunningTaskTracker create(String jobClass, String serverName,
 			Setting<Boolean> shouldSaveLongRunningTasks, LongRunningTaskType type){
 		LongRunningTask task = new LongRunningTask(jobClass, serverName, type);
-		return new LongRunningTaskTracker(longRunningTaskDao.getNode(), task, shouldSaveLongRunningTasks);
+		return new LongRunningTaskTracker(longRunningTaskNodeProvider.get(), task, shouldSaveLongRunningTasks);
 	}
 }

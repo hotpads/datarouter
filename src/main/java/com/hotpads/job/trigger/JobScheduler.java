@@ -19,7 +19,7 @@ import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.guice.DatarouterExecutorGuiceModule;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTask;
-import com.hotpads.job.record.LongRunningTaskDao;
+import com.hotpads.job.record.LongRunningTaskNodeProvider;
 import com.hotpads.job.record.LongRunningTaskKey;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.ObjectTool;
@@ -37,14 +37,14 @@ public class JobScheduler {
 	
 	@Inject
 	public JobScheduler(DatarouterInjector injector, TriggerGroup triggerGroup, TriggerTracker tracker,
-			LongRunningTaskDao longRunningTaskDao, JobSettings jobSettings,
+			LongRunningTaskNodeProvider longRunningTaskNodeProvider, JobSettings jobSettings,
 			@Named(DatarouterExecutorGuiceModule.POOL_datarouterJobExecutor) ScheduledExecutorService executor){
 		this.injector = injector;
 		this.triggerGroup = triggerGroup;
 		this.tracker = tracker;
 		this.jobSettings = jobSettings;
 		this.executor = executor;
-		this.longRunningTaskNode = longRunningTaskDao.getNode();
+		this.longRunningTaskNode = longRunningTaskNodeProvider.get();
 	}
 	
 	/***************methods***************/

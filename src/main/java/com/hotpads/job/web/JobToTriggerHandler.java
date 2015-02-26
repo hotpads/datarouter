@@ -19,7 +19,7 @@ import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTask;
-import com.hotpads.job.record.LongRunningTaskDao;
+import com.hotpads.job.record.LongRunningTaskNodeProvider;
 import com.hotpads.job.trigger.Job;
 import com.hotpads.job.trigger.JobScheduler;
 import com.hotpads.job.trigger.TriggerGroup;
@@ -46,7 +46,7 @@ public class JobToTriggerHandler extends BaseHandler {
 	@Inject
 	private DatarouterInjector injector;
 	@Inject
-	private LongRunningTaskDao longRunningTaskDao;
+	private LongRunningTaskNodeProvider longRunningTaskNodeProvider;
 	@Inject
 	private JobScheduler jobScheduler;
 	@Inject
@@ -60,7 +60,7 @@ public class JobToTriggerHandler extends BaseHandler {
 	@Handler Mav list() {
 		Mav mav = new Mav(JSP_triggers);
 		
-		SortedScannerIterable<LongRunningTask> tasks = longRunningTaskDao.getNode().scan(null, Configs.slaveOk());
+		SortedScannerIterable<LongRunningTask> tasks = longRunningTaskNodeProvider.get().scan(null, Configs.slaveOk());
 		Map<String, LongRunningTask> lastCompletions = new HashMap<>();
 		Map<String, LongRunningTask> currentlyRunningTasks = new HashMap<>();
 		for (LongRunningTask task : tasks){

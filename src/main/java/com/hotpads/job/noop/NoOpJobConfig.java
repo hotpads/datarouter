@@ -1,6 +1,6 @@
 package com.hotpads.job.noop;
 
-import com.hotpads.job.record.LongRunningTaskDao;
+import com.hotpads.job.record.LongRunningTaskNodeProvider;
 import com.hotpads.job.trigger.JobConfigModule;
 import com.hotpads.job.trigger.TriggerGroup;
 import com.hotpads.job.web.JobCategory;
@@ -8,8 +8,8 @@ import com.hotpads.job.web.JobCategory;
 public class NoOpJobConfig extends JobConfigModule{
 
 	@Override
-	protected Class<? extends LongRunningTaskDao> getLongRunningTaskDaoClass(){
-		return EmptyLongRunningTaskDao.class;
+	protected Class<? extends LongRunningTaskNodeProvider> getLongRunningTaskNodeProviderClass(){
+		return EmptyLongRunningTaskNodeProvider.class;
 	}
 
 	@Override
