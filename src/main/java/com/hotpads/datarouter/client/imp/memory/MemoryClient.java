@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.client.imp.BaseClient;
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.SetTool;
 
 public class MemoryClient extends BaseClient{
 	protected static Logger logger = LoggerFactory.getLogger(MemoryClient.class);

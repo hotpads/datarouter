@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.ByteTool;
 
 public class FloatByteTool{
 

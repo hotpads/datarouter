@@ -3,7 +3,7 @@ package com.hotpads.datarouter.storage.field;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.field.compare.FieldSetComparator;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
 
 @SuppressWarnings("serial")
 public abstract class BaseFieldSet<F extends FieldSet<F>> 

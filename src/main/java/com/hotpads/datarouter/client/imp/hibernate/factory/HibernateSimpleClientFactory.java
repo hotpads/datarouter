@@ -15,9 +15,9 @@ import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.PropertiesTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.PropertiesTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 

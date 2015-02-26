@@ -11,9 +11,9 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.MapTool;
 
 
 public class Bundle{

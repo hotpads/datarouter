@@ -13,9 +13,9 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.storage.view.index.KeyIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 /*
  * this assumes that only PK fields are changed... it has no way of detecting, for example, if User.email changes

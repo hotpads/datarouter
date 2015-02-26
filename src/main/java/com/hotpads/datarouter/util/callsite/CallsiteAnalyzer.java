@@ -13,10 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.callsite.CallsiteStatX.CallsiteCountComparator;
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.NumberFormatter;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.NumberFormatter;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.util.core.io.ReaderTool;
 import com.hotpads.util.core.iterable.scanner.Scanner;
 

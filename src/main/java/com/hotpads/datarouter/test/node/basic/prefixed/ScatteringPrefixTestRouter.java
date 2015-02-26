@@ -14,7 +14,7 @@ import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean.ScatteringPrefixBeanFielder;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 @Singleton
 public class ScatteringPrefixTestRouter extends BaseDatarouter{

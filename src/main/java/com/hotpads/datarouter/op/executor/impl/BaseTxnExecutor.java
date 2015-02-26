@@ -12,8 +12,8 @@ import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.TxnExecutor;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ExceptionTool;
 
 public abstract class BaseTxnExecutor<T>
 extends BaseClientExecutor<T>

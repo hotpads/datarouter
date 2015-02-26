@@ -22,7 +22,7 @@ import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public class JdbcManagedIndexIntegrationTests{
 	

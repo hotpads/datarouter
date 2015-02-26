@@ -15,8 +15,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DateTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 
 public class DateField extends BasePrimitiveField<Date>{

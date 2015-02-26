@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.SetTool;
 
 public class DRHServerList{
 	Logger logger = LoggerFactory.getLogger(DRHServerList.class);

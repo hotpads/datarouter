@@ -29,7 +29,7 @@ import net.spy.SpyObject;
 import net.spy.memcached.ops.Operation;
 import net.spy.memcached.ops.OperationState;
 
-import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.datarouter.util.core.ExceptionTool;
 import com.hotpads.util.core.collections.Triple;
 
 /**

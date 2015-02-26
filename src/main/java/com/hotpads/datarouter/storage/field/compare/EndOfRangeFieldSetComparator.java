@@ -10,12 +10,12 @@ import org.junit.Test;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
-import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.ClassTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ObjectTool;
 
 /*
  * HBaseEntityReaderNode may return results beyond our endKey.  This happens when we have a multi-Entity scan that stops

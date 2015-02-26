@@ -7,7 +7,7 @@ import java.util.Set;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.util.core.PropertiesTool;
+import com.hotpads.datarouter.util.core.PropertiesTool;
 
 
 public class DatarouterHttpClientFactory implements ClientFactory{

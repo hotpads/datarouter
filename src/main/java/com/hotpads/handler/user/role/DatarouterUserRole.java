@@ -5,8 +5,8 @@ import java.util.Set;
 
 import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.datarouter.util.core.SetTool;
 import com.hotpads.handler.user.DatarouterUser;
-import com.hotpads.util.core.SetTool;
 
 public enum DatarouterUserRole
 implements StringEnum<DatarouterUserRole>{

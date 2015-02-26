@@ -2,7 +2,7 @@ package com.hotpads.datarouter.node.type.partitioned.base;
 
 import java.util.List;
 
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public class PartitionedNodeTool {
 

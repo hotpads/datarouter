@@ -2,8 +2,8 @@ package com.hotpads.profile.count.databean.alert;
 
 import java.util.Date;
 
-import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DateTool;
+import com.hotpads.datarouter.util.core.StringTool;
 
 public class CounterAlertTimeRange{
 	private static final String 

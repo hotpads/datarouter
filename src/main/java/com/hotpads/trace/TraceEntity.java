@@ -3,8 +3,8 @@ package com.hotpads.trace;
 import java.util.ArrayList;
 
 import com.hotpads.datarouter.storage.entity.BaseEntity;
+import com.hotpads.datarouter.util.core.CollectionTool;
 import com.hotpads.trace.key.TraceEntityKey;
-import com.hotpads.util.core.CollectionTool;
 
 public class TraceEntity extends BaseEntity<TraceEntityKey>{
 	

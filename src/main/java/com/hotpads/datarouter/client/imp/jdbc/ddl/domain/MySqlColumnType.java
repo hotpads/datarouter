@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.StringTool;
 
 public enum MySqlColumnType{
 

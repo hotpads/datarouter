@@ -11,11 +11,11 @@ import com.hotpads.datarouter.client.imp.memcached.MemcachedClientImp;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.routing.RouterParams;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.MapTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 public class MemcachedHandler extends BaseHandler {
 

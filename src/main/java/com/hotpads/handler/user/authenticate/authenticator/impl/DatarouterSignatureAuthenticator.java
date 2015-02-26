@@ -6,6 +6,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.hotpads.datarouter.client.imp.http.ApacheHttpClient;
+import com.hotpads.datarouter.util.core.BooleanTool;
+import com.hotpads.datarouter.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByApiKeyLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
@@ -13,9 +16,6 @@ import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthent
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.util.RequestTool;
-import com.hotpads.util.core.BooleanTool;
-import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.exception.InvalidApiCallException;
 
 public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticator{

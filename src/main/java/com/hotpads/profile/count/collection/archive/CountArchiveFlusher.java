@@ -13,9 +13,9 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.util.core.DateTool;
+import com.hotpads.datarouter.util.core.IterableTool;
 import com.hotpads.profile.count.collection.CountMapPeriod;
-import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.IterableTool;
 
 public class CountArchiveFlusher{
 	private final static Logger logger = LoggerFactory.getLogger(CountArchiveFlusher.class);

@@ -7,7 +7,7 @@ import com.hotpads.datarouter.node.type.writebehind.base.BaseWriteBehindNode;
 import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public class WriteBehindSortedStorageWriterMixin<
 		PK extends PrimaryKey<PK>,

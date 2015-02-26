@@ -12,9 +12,9 @@ import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.MapTool;
 import com.hotpads.util.core.bytes.ByteRange;
 
 /*

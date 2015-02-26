@@ -11,10 +11,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.hotpads.datarouter.util.core.ObjectTool;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUsernameLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
-import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 /*

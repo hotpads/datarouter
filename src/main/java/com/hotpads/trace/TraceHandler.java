@@ -9,6 +9,8 @@ import java.util.TreeMap;
 import javax.inject.Inject;
 
 import com.hotpads.datarouter.storage.key.KeyTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.MapTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
@@ -18,8 +20,6 @@ import com.hotpads.trace.key.TraceKey;
 import com.hotpads.trace.key.TraceSpanKey;
 import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.trace.node.TraceNodes;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.MapTool;
 
 public class TraceHandler extends BaseHandler{
 	

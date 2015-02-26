@@ -7,14 +7,14 @@ import java.util.SortedMap;
 
 import javax.inject.Inject;
 
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.MapTool;
 import com.hotpads.setting.Setting;
 import com.hotpads.setting.cached.imp.BooleanCachedSetting;
 import com.hotpads.setting.cached.imp.Duration;
 import com.hotpads.setting.cached.imp.DurationCachedSetting;
 import com.hotpads.setting.cached.imp.IntegerCachedSetting;
 import com.hotpads.setting.cached.imp.StringCachedSetting;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 public abstract class SettingNode {
 

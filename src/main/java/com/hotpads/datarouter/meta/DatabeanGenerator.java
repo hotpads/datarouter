@@ -28,13 +28,13 @@ import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.SetTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.handler.admin.DatabeanGeneratorHandler;
 import com.hotpads.handler.admin.DatabeanGeneratorHandler.UnknownField;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.StringTool;
 
 public class DatabeanGenerator {
 

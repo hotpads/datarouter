@@ -11,8 +11,8 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.EmptyScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.MapTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseDatabeanFielder<

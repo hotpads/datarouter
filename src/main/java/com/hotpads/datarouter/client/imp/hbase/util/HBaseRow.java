@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase.util;
 import java.util.Map;
 import java.util.NavigableMap;
 
-import com.hotpads.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.ArrayTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class HBaseRow{

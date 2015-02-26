@@ -9,9 +9,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.util.core.DateTool;
+import com.hotpads.datarouter.util.core.MapTool;
 import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
-import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.MapTool;
 
 public class AtomicCounter implements CountMapPeriod{
 	static Logger logger = LoggerFactory.getLogger(AtomicCounter.class);

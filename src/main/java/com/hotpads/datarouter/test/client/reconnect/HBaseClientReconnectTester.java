@@ -19,7 +19,7 @@ import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
-import com.hotpads.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.IterableTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 //you must run this manually, starting and stopping hbase to verify it reconnects, at least for now

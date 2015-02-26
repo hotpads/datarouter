@@ -2,9 +2,9 @@ package com.hotpads.profile.count.viewing;
 
 import java.util.List;
 
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.XMLStringTool;
 import com.hotpads.profile.count.viewing.PaddedCountSeriesManipulationException.PaddedCountSeriesTypeException;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.XMLStringTool;
 
 public abstract class AbstractCountSeries{
 	protected String name;

@@ -4,8 +4,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.profile.count.collection.Counters;
-import com.hotpads.util.core.StringTool;
 
 public class ImportCounters {
 	private static final String PREFIX_Import = "Import";

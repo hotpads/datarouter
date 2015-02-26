@@ -8,9 +8,9 @@ import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.client.imp.memory.MemoryClientType;
 import com.hotpads.datarouter.routing.BaseDatarouter;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.properties.TypedProperties;
 

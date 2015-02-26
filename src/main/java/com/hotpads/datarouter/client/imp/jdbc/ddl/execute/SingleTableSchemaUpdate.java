@@ -21,7 +21,7 @@ import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.MapTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class SingleTableSchemaUpdate

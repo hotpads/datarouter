@@ -7,13 +7,13 @@ import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Level;
 
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.logging.databean.ConsoleAppender;
 import com.hotpads.logging.databean.ConsoleAppenderKey;
 import com.hotpads.logging.databean.FileAppender;
 import com.hotpads.logging.databean.FileAppenderKey;
 import com.hotpads.logging.databean.LoggerConfig;
 import com.hotpads.logging.databean.LoggerConfigKey;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.logging.LoggingConfigDao;
 
 @Singleton

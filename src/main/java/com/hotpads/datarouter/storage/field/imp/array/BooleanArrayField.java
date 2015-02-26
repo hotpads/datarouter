@@ -9,8 +9,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseListField;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.util.core.bytes.BooleanByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 

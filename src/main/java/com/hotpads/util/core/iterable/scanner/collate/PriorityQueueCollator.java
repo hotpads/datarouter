@@ -2,7 +2,7 @@ package com.hotpads.util.core.iterable.scanner.collate;
 
 import java.util.PriorityQueue;
 
-import com.hotpads.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.IterableTool;
 import com.hotpads.util.core.iterable.scanner.sorted.BaseSortedScanner;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 

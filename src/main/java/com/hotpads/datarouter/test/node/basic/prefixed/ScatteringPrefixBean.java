@@ -18,7 +18,7 @@ import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt8Field;
 import com.hotpads.datarouter.storage.prefix.BaseScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 
 @SuppressWarnings("serial")

@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.MapTool;
 
 /*
  * I: item

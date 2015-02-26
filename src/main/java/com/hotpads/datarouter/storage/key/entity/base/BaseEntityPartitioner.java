@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
-import com.hotpads.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.ByteTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 
 public abstract class BaseEntityPartitioner<EK extends EntityKey<EK>>

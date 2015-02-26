@@ -9,7 +9,7 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.entity.base.BaseEntityKey;
 import com.hotpads.datarouter.storage.key.entity.base.BaseEntityPartitioner;
 import com.hotpads.datarouter.storage.key.entity.base.NoOpEntityPartitioner;
-import com.hotpads.util.core.HashMethods;
+import com.hotpads.datarouter.util.core.HashMethods;
 
 @SuppressWarnings("serial")
 public class SortedBeanEntityKey 

@@ -7,8 +7,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.util.core.iterable.scanner.imp.ListBackedSortedScanner;
 
 public class BatchingScanner<T> implements Scanner<List<T>>{

@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.StringTool;
 
 public enum UrlScheme {
 	HTTP("http"), 

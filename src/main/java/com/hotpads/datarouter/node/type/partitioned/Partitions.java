@@ -15,10 +15,10 @@ import com.hotpads.datarouter.node.type.partitioned.filter.PartitionedNodePrimar
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.SetTool;
 import com.hotpads.util.core.iterable.scanner.filter.Filter;
 
 public class Partitions<

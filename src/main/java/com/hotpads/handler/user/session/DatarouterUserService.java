@@ -8,12 +8,12 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.authenticate.DatarouterPasswordService;
 import com.hotpads.handler.user.authenticate.DatarouterTokenGenerator;
 import com.hotpads.handler.user.role.DatarouterUserRole;
-import com.hotpads.util.core.ListTool;
 
 public class DatarouterUserService{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterUserService.class);

@@ -10,8 +10,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class CharacterField extends BasePrimitiveField<Character>{

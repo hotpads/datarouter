@@ -6,10 +6,10 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 /*
  * methods for converting ints into bytes

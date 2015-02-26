@@ -12,14 +12,14 @@ import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.util.core.BooleanTool;
+import com.hotpads.datarouter.util.core.ComparableTool;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTaskTracker;
 import com.hotpads.job.record.LongRunningTaskType;
 import com.hotpads.setting.Setting;
-import com.hotpads.util.core.BooleanTool;
-import com.hotpads.util.core.ComparableTool;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 public abstract class BaseJob implements Job{

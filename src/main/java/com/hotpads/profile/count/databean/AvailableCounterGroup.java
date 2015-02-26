@@ -2,7 +2,7 @@ package com.hotpads.profile.count.databean;
 
 import java.util.HashSet;
 
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.SetTool;
 
 public class AvailableCounterGroup{
 

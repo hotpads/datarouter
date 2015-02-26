@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.StringTool;
 
 public enum MySqlTableEngine{
 

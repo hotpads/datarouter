@@ -1,7 +1,7 @@
 package com.hotpads.profile.count.collection.archive;
 
-import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.ClassTool;
+import com.hotpads.datarouter.util.core.ComparableTool;
 
 public abstract class BaseCountArchive implements CountArchive{
 

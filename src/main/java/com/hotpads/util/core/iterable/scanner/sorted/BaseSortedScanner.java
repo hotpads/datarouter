@@ -1,6 +1,6 @@
 package com.hotpads.util.core.iterable.scanner.sorted;
 
-import com.hotpads.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.ComparableTool;
 
 public abstract class BaseSortedScanner<T extends Comparable<? super T>>
 implements SortedScanner<T>{

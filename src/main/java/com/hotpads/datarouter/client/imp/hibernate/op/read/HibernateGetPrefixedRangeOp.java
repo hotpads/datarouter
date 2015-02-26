@@ -17,7 +17,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
 
 public class HibernateGetPrefixedRangeOp<
 		PK extends PrimaryKey<PK>,

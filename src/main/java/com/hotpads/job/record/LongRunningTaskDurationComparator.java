@@ -2,7 +2,7 @@ package com.hotpads.job.record;
 
 import java.util.Comparator;
 
-import com.hotpads.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.ComparableTool;
 
 public class LongRunningTaskDurationComparator implements Comparator<LongRunningTask>{
 

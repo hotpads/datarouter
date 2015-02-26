@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.util.core.FileUtils;
+import com.hotpads.datarouter.util.core.FileUtils;
 
 @Singleton
 public class StaticFileFilter implements Filter {

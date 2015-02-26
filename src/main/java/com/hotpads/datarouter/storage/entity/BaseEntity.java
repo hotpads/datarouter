@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
 
 public abstract class BaseEntity<EK extends EntityKey<EK>>
 implements Entity<EK>{

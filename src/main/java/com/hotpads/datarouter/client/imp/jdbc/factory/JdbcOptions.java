@@ -2,7 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.factory;
 
 import java.util.Properties;
 
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class JdbcOptions extends TypedProperties{

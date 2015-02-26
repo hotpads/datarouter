@@ -13,8 +13,8 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseHBaseRegionBalancer

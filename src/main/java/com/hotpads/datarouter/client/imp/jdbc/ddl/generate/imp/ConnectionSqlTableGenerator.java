@@ -21,8 +21,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 

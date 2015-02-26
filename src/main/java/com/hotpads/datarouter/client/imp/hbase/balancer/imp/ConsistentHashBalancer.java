@@ -11,8 +11,8 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
-import com.hotpads.util.core.HashMethods;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.HashMethods;
+import com.hotpads.datarouter.util.core.MapTool;
 
 public class ConsistentHashBalancer
 extends BaseHBaseRegionBalancer{

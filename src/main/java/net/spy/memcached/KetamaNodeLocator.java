@@ -11,7 +11,7 @@ import java.util.TreeMap;
 import net.spy.SpyObject;
 
 import com.google.common.collect.Lists;
-import com.hotpads.util.core.GenericsFactory;
+import com.hotpads.datarouter.util.core.GenericsFactory;
  
 /**
 * This is an implementation of the Ketama consistent hash strategy from

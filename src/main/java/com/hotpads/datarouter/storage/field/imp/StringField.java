@@ -14,9 +14,9 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.RegexTool;
+import com.hotpads.datarouter.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.RegexTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class StringField extends BaseField<String>{

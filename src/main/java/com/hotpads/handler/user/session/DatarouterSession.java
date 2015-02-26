@@ -14,12 +14,12 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUserKey;
 import com.hotpads.handler.user.authenticate.DatarouterTokenGenerator;
 import com.hotpads.handler.user.role.DatarouterUserRole;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 /*
  * A single user may have multiple sessions via different computers, browsers, tabs, etc.  Create one of these for each

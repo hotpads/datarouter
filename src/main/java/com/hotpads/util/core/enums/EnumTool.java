@@ -11,11 +11,11 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.GenericsFactory;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.GenericsFactory;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.SetTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.util.core.web.HTMLSelectOptionBean;
 
 public class EnumTool {

@@ -20,7 +20,7 @@ import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.MapTool;
 
 public class JdbcClientImp 
 extends BaseClient

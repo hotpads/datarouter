@@ -2,8 +2,8 @@ package com.hotpads.util.core.iterable.scanner.batch.imp;
 
 import java.util.List;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchLoader;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 

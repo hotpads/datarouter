@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.hotpads.datarouter.storage.field.FieldSet;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 /*

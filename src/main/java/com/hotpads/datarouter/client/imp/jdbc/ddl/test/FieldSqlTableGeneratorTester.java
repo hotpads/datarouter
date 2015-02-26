@@ -14,7 +14,7 @@ import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean2;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean2.ManyFieldTypeBean2Fielder;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public class FieldSqlTableGeneratorTester{
 

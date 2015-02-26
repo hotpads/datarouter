@@ -7,9 +7,9 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.handler.CookieTool;
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
-import com.hotpads.util.core.StringTool;
 
 public class DatarouterSessionManager{
 	

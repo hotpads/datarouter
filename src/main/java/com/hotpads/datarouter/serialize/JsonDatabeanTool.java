@@ -24,9 +24,9 @@ import com.hotpads.datarouter.test.node.basic.manyfield.TestEnum;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class JsonDatabeanTool{

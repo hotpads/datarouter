@@ -2,7 +2,7 @@ package com.hotpads.datarouter.client;
 
 import java.util.Map;
 
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.MapTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class DefaultClientTypes{

@@ -11,7 +11,7 @@ import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 
 import com.google.inject.Provider;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.util.core.io.RuntimeIOException;
 
 @Singleton 

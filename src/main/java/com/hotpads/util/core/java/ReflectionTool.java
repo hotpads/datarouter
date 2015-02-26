@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
 
 import com.google.common.collect.Lists;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.GenericsFactory;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.GenericsFactory;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.SetTool;
+import com.hotpads.datarouter.util.core.StringTool;
 
 public class ReflectionTool {
 	private static Logger logger = LoggerFactory.getLogger(ReflectionTool.class);

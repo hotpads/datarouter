@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Joiner;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
 import com.hotpads.datarouter.util.ApplicationPaths;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
 

@@ -9,7 +9,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 import com.hotpads.util.core.iterable.scanner.batch.imp.ListBackedBatchLoader;
 import com.hotpads.util.core.iterable.scanner.sorted.BaseSortedScanner;

@@ -19,7 +19,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.DdlGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTableGenerator;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public class TestSchemaUpdateOptions{
 	static Logger logger = LoggerFactory.getLogger(TestSchemaUpdateOptions.class);

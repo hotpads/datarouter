@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public class DatarouterMemcachedKey<PK extends PrimaryKey<PK>>{
 

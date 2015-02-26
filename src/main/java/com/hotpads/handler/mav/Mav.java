@@ -3,8 +3,8 @@ package com.hotpads.handler.mav;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.hotpads.util.core.BooleanTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.BooleanTool;
+import com.hotpads.datarouter.util.core.StringTool;
 
 public class Mav {
 	

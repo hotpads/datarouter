@@ -10,9 +10,9 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.trace.node.TraceCompoundNode;
 import com.hotpads.trace.node.TraceEntityNode;
-import com.hotpads.util.core.ListTool;
 
 
 @Singleton

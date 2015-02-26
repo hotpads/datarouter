@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.hotpads.datarouter.util.core.DateTool;
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
@@ -23,8 +25,6 @@ import com.hotpads.handler.types.DefaultDecoder;
 import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.P;
 import com.hotpads.handler.types.TypeProvider;
-import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.http.json.GsonJsonSerializer;
 
 public class TestApiHandler extends BaseHandler{

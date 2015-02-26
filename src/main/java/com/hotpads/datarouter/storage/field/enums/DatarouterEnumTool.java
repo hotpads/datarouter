@@ -7,11 +7,11 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.StringTool;
 
 public class DatarouterEnumTool{
 	

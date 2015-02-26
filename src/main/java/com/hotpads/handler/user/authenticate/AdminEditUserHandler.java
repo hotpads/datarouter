@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.ResponseTool;
 import com.hotpads.handler.mav.Mav;
@@ -18,7 +19,6 @@ import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 import com.hotpads.handler.user.role.DatarouterUserRole;
 import com.hotpads.handler.user.session.DatarouterSession;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.number.RandomTool;
 
 public class AdminEditUserHandler extends BaseHandler{

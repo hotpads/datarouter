@@ -15,9 +15,9 @@ import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.NumberTool;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.NumberTool;
 
 public class FutureTool {
 	

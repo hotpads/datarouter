@@ -13,8 +13,8 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.util.UuidTool;
-import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.datarouter.util.core.ClassTool;
+import com.hotpads.datarouter.util.core.ExceptionTool;
 /**
  * The record of an Exception
  */

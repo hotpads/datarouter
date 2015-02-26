@@ -14,9 +14,9 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.util.DatarouterEmailTool;
+import com.hotpads.datarouter.util.core.DateTool;
+import com.hotpads.datarouter.util.core.ExceptionTool;
 import com.hotpads.trace.TracedCallable;
-import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.ExceptionTool;
 
 //consider forming base class with commonalities from MemcachedMultiAttemptTash
 public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{

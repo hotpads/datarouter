@@ -3,9 +3,9 @@ package com.hotpads.datarouter.client;
 import java.util.Collection;
 import java.util.List;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public class ClientId implements Comparable<ClientId>{
 

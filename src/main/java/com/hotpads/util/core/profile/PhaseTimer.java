@@ -8,8 +8,8 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.NumberFormatter;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.NumberFormatter;
 
 
 

@@ -20,9 +20,9 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 public class HibernateGetOp<
 		PK extends PrimaryKey<PK>,

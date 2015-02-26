@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.ComparableTool;
 import com.hotpads.util.core.lang.StackTraceElementTool;
 
 public class LineOfCode implements Comparable<LineOfCode>{

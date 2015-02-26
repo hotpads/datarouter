@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;

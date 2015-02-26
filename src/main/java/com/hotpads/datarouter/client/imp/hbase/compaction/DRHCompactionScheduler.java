@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
-import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.ExceptionTool;
-import com.hotpads.util.core.HashMethods;
+import com.hotpads.datarouter.util.core.DateTool;
+import com.hotpads.datarouter.util.core.ExceptionTool;
+import com.hotpads.datarouter.util.core.HashMethods;
 import com.hotpads.util.core.date.DailyCalendarTool;
 
 public class DRHCompactionScheduler

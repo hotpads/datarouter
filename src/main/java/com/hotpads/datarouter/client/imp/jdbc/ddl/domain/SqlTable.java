@@ -8,8 +8,8 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableDiffGenerator;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.SetTool;
 
 public class SqlTable{
 	

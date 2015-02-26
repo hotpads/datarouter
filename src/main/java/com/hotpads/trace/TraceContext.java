@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.profile.count.collection.Counters;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.StringTool;
 
 
 public class TraceContext {

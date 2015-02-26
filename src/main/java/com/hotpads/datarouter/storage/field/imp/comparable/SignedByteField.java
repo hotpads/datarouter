@@ -9,8 +9,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.StringTool;
 
 //recognizes -128 to -1 using two's complement.  therefore max value is 127
 public class SignedByteField extends BasePrimitiveField<Byte>{

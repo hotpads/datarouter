@@ -24,10 +24,10 @@ import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.NumberFormatter;
-import com.hotpads.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.ClassTool;
+import com.hotpads.datarouter.util.core.NumberFormatter;
+import com.hotpads.datarouter.util.core.ObjectTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class DRHRegionInfo<PK extends PrimaryKey<PK>>

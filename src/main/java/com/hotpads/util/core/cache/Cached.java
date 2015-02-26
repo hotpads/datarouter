@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.ObjectTool;
 
 public abstract class Cached<T>{
 	protected static final Logger logger = LoggerFactory.getLogger(Cached.class);

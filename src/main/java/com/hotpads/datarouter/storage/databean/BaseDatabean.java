@@ -5,7 +5,7 @@ import java.util.List;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ClassTool;
+import com.hotpads.datarouter.util.core.ClassTool;
 
 public abstract class BaseDatabean<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 //extends BaseFieldSet<D>

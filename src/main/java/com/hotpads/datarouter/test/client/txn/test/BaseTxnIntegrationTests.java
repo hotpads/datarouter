@@ -19,8 +19,8 @@ import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
 import com.hotpads.datarouter.test.client.txn.txnapp.TestInsertRollback;
 import com.hotpads.datarouter.test.client.txn.txnapp.TestMultiInsertRollback;
 import com.hotpads.datarouter.test.client.txn.txnapp.TestNestedTxn;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public abstract class BaseTxnIntegrationTests {
 	private static final Logger logger = LoggerFactory.getLogger(BaseTxnIntegrationTests.class);

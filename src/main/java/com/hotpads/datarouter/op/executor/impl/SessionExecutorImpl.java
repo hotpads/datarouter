@@ -14,10 +14,10 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.SessionExecutor;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.StringTool;
 
 public class SessionExecutorImpl<T>
 extends BaseTxnExecutor<T>

@@ -13,7 +13,7 @@ import com.hotpads.datarouter.op.ClientOp;
 import com.hotpads.datarouter.op.executor.ClientExecutor;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
 
 public abstract class BaseClientExecutor<T>
 implements ClientExecutor{

@@ -11,11 +11,11 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.SetTool;
+import com.hotpads.datarouter.util.core.XMLStringTool;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.XMLStringTool;
 
 public class AvailableCounter extends BaseDatabean<AvailableCounterKey,AvailableCounter>{
 

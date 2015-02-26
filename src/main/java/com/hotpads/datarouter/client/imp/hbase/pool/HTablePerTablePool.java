@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.datastructs.MutableString;
 

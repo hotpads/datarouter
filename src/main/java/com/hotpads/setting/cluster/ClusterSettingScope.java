@@ -2,9 +2,9 @@ package com.hotpads.setting.cluster;
 
 import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
+import com.hotpads.datarouter.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.setting.ServerType;
-import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.StringTool;
 
 public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 

@@ -10,9 +10,9 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public class LongArray implements List<Long>, Comparable<List<Long>>{
 	

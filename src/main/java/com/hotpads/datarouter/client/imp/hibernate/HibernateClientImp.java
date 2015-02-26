@@ -19,8 +19,8 @@ import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.client.type.SessionClient;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
-import com.hotpads.util.core.ExceptionTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.ExceptionTool;
+import com.hotpads.datarouter.util.core.MapTool;
 
 public class HibernateClientImp 
 extends JdbcClientImp

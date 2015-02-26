@@ -12,7 +12,7 @@ import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 

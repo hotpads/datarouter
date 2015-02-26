@@ -5,12 +5,12 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.notification.databean.NotificationRequest;
 import com.hotpads.notification.databean.NotificationUserId;
 import com.hotpads.notification.databean.NotificationUserType;
 import com.hotpads.notification.type.NotificationTypeFactory;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.collections.Pair;
 
 @Singleton

@@ -6,8 +6,8 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.ByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
 /*

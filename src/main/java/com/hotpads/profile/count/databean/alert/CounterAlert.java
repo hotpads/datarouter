@@ -21,9 +21,9 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
+import com.hotpads.datarouter.util.core.HashMethods;
+import com.hotpads.datarouter.util.core.MapTool;
 import com.hotpads.profile.count.databean.key.CounterAlertKey;
-import com.hotpads.util.core.HashMethods;
-import com.hotpads.util.core.MapTool;
 
 @SuppressWarnings("serial")
 @Entity()

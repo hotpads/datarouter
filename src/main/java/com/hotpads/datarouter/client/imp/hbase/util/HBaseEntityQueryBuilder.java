@@ -5,7 +5,7 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
-import com.hotpads.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.ByteTool;
 
 public class HBaseEntityQueryBuilder<
 		EK extends EntityKey<EK>,

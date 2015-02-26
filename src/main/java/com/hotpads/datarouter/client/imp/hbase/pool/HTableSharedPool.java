@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.SemaphoreTool;
 import com.hotpads.util.datastructs.MutableString;

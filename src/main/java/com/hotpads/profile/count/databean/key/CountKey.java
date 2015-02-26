@@ -13,7 +13,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.util.core.DateTool;
+import com.hotpads.datarouter.util.core.DateTool;
 
 @SuppressWarnings("serial")
 @Embeddable

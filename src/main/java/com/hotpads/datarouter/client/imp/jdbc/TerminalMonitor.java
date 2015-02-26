@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
-import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.datarouter.util.core.ExceptionTool;
 
 /**
  * Examples 4.4 through 4.6.

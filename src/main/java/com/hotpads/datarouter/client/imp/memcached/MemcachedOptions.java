@@ -4,7 +4,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Properties;
 
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class MemcachedOptions extends TypedProperties{

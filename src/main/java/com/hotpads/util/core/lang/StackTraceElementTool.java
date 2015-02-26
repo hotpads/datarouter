@@ -1,6 +1,6 @@
 package com.hotpads.util.core.lang;
 
-import com.hotpads.util.core.ClassTool;
+import com.hotpads.datarouter.util.core.ClassTool;
 
 public class StackTraceElementTool{
 

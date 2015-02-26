@@ -7,8 +7,8 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.domain.InternetTopLevelDomain;
 

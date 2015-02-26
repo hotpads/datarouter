@@ -18,9 +18,9 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.trace.key.TraceKey;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.StringTool;
 
 @Entity
 @AccessType("field")

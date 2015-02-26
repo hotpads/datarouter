@@ -7,8 +7,8 @@ import org.apache.hadoop.hbase.ServerName;
 
 import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.MapTool;
 
 public class RoundRobinBalancer
 extends BaseHBaseRegionBalancer{

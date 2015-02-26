@@ -2,7 +2,7 @@ package com.hotpads.util.core.iterable.scanner.batch;
 
 import java.util.List;
 
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
 import com.hotpads.util.core.iterable.scanner.sorted.BaseHoldingSortedScanner;
 
 //can store anything in currentBatch.  subclass will translate B -> T later

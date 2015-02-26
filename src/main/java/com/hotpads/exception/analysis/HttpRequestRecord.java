@@ -43,9 +43,9 @@ import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.UuidTool;
+import com.hotpads.datarouter.util.core.MapTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.util.RequestTool;
-import com.hotpads.util.core.MapTool;
 
 public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRequestRecord>{
 

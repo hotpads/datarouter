@@ -39,10 +39,10 @@ import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBeanKey;
 import com.hotpads.datarouter.test.node.basic.backup.BackupTestRouter;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.SetTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 @RunWith(Parameterized.class)

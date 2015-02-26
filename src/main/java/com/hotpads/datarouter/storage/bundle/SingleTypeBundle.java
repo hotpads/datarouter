@@ -5,7 +5,7 @@ import java.util.NavigableSet;
 import java.util.TreeSet;
 
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
 
 public class SingleTypeBundle<D extends Databean<?,?>> {
 

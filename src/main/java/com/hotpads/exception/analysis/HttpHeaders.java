@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Joiner;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.MapTool;
 
 public class HttpHeaders {
 	

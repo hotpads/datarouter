@@ -12,12 +12,12 @@ import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.util.core.BooleanTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.setting.ClusterSettingFinderConfig;
 import com.hotpads.setting.ServerType;
 import com.hotpads.setting.cached.imp.Duration;
-import com.hotpads.util.core.BooleanTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.StringTool;
 
 @Singleton
 public class ClusterSettingFinder {

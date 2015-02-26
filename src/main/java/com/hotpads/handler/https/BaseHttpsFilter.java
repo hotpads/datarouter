@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.StringTool;
 
 public abstract class BaseHttpsFilter implements Filter{
 	protected Logger logger = LoggerFactory.getLogger(getClass());

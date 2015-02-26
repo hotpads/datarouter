@@ -3,7 +3,7 @@ package com.hotpads.job.trigger;
 import java.util.Collections;
 import java.util.Map;
 
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.MapTool;
 
 public class TriggerTracker{
 	

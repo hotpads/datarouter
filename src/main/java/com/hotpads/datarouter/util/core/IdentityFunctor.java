@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 
 public class IdentityFunctor<T> implements Functor<T,T>{

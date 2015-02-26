@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase.cluster;
 import java.util.Set;
 import java.util.SortedSet;
 
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.SetTool;
 
 public class DRHTableSettings{
 	

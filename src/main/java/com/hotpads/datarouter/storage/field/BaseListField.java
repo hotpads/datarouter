@@ -2,7 +2,7 @@ package com.hotpads.datarouter.storage.field;
 
 import java.util.List;
 
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
 
 public abstract class BaseListField<V extends Comparable<V>,L extends List<V>>
 extends BaseField<L>{

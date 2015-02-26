@@ -3,8 +3,8 @@ package com.hotpads.datarouter.storage.field;
 import java.util.Collection;
 import java.util.List;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 @SuppressWarnings("serial")
 public class SimpleFieldSet<F extends FieldSet<F>> 

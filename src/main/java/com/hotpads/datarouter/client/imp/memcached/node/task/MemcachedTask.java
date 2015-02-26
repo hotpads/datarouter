@@ -8,9 +8,9 @@ import com.hotpads.datarouter.client.imp.memcached.node.MemcachedPhysicalNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.NumberTool;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
-import com.hotpads.util.core.NumberTool;
 
 public abstract class MemcachedTask<V> 
 extends TracedCallable<V>{

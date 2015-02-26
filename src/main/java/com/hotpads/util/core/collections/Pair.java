@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Objects;
-import com.hotpads.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.ObjectTool;
 
 
 public class Pair<L,R> implements Serializable{

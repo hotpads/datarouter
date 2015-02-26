@@ -2,7 +2,7 @@ package com.hotpads.util.core.iterable.scanner.batch;
 
 import java.util.List;
 
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
 
 /*
  * this loader also maintains the state of the scanner.  could separate if needed

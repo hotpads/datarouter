@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

@@ -20,10 +20,10 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.BatchTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.BatchTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 public class JdbcGetKeysOp<
 		PK extends PrimaryKey<PK>,

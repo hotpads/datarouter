@@ -5,10 +5,10 @@ import java.util.Map;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.ClassTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.ObjectTool;
 
 public class ContentTool {
 	

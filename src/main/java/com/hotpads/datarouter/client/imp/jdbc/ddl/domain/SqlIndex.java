@@ -8,10 +8,10 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeComparator;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MathTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.MathTool;
 
 public class SqlIndex implements Comparable<SqlIndex>{
 	

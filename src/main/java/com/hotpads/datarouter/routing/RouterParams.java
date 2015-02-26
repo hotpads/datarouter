@@ -6,10 +6,10 @@ import java.util.List;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.Nodes;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.handler.Params;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.util.RequestTool;
-import com.hotpads.util.core.StringTool;
 
 public class RouterParams<C extends Client> {
 

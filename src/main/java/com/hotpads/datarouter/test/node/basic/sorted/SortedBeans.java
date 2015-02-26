@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.SetTool;
 
 public class SortedBeans{
 

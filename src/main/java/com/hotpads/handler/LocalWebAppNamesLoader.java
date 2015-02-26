@@ -11,7 +11,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import com.hotpads.HotPadsWebAppListener;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.StringTool;
 
 @Singleton
 public class LocalWebAppNamesLoader extends HotPadsWebAppListener{

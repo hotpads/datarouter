@@ -3,10 +3,10 @@ package com.hotpads.handler.user.authenticate.authenticator.impl;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthenticator;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionManager;
-import com.hotpads.util.core.StringTool;
 
 public class DatarouterUserTokenAuthenticator extends BaseDatarouterAuthenticator{
 	

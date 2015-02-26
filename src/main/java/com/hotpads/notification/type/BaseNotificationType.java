@@ -3,9 +3,9 @@ package com.hotpads.notification.type;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hotpads.datarouter.util.core.ClassTool;
 import com.hotpads.notification.sender.template.NotificationTemplate;
 import com.hotpads.notification.tracking.TrackingNotificationType;
-import com.hotpads.util.core.ClassTool;
 
 public abstract class BaseNotificationType implements NotificationType {
 

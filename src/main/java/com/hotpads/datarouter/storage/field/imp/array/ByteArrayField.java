@@ -11,8 +11,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.ByteTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 

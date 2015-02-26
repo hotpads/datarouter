@@ -6,8 +6,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import com.google.common.collect.Lists;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.ByteTool;
 
 /**
  * lightweight, reusable class for specifying ranges of byte[]'s

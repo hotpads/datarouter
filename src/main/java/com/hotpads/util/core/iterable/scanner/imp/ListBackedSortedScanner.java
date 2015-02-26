@@ -2,7 +2,7 @@ package com.hotpads.util.core.iterable.scanner.imp;
 
 import java.util.ArrayList;
 
-import com.hotpads.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.IterableTool;
 import com.hotpads.util.core.iterable.scanner.sorted.BaseSortedScanner;
 
 //i think this class was mostly for tests.  i recommend not using

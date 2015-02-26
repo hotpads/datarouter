@@ -4,10 +4,10 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import com.hotpads.datarouter.util.core.ListTool;
 import com.hotpads.trace.Trace;
 import com.hotpads.trace.TraceSpan;
 import com.hotpads.trace.TraceThread;
-import com.hotpads.util.core.ListTool;
 
 public class TraceTestDataGenerator{
 

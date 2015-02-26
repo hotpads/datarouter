@@ -8,7 +8,7 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientType;
 import com.hotpads.datarouter.client.imp.memcached.MemcachedClientType;
 import com.hotpads.datarouter.client.imp.memory.MemoryClientType;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public class DRTestConstants{
 

@@ -2,9 +2,9 @@ package com.hotpads.setting.cached;
 
 import java.util.concurrent.TimeUnit;
 
+import com.hotpads.datarouter.util.core.ObjectTool;
 import com.hotpads.setting.Setting;
 import com.hotpads.setting.cluster.ClusterSettingFinder;
-import com.hotpads.util.core.ObjectTool;
 import com.hotpads.util.core.cache.Cached;
 
 //object hierarchy is weird here.  consider using composition

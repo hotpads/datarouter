@@ -6,10 +6,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ObjectTool;
 
 /* * null compares first
  * * startInclusive defaults to true

@@ -3,7 +3,7 @@ package com.hotpads.util.core.iterable;
 import java.util.Iterator;
 import java.util.List;
 
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 
 public class BatchingIterable<T> implements Iterable<List<T>>{

@@ -2,8 +2,8 @@ package com.hotpads.datarouter.node;
 
 import java.util.List;
 
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public class NodeTool{
 

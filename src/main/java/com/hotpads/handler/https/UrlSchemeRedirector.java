@@ -13,9 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.handler.port.PortIdentifier;
 import com.hotpads.handler.port.PortIdentifier.TestPortIdentifier;
-import com.hotpads.util.core.StringTool;
 
 @Singleton
 public class UrlSchemeRedirector{

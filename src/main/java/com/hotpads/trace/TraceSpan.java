@@ -20,11 +20,11 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.NumberTool;
 import com.hotpads.trace.key.TraceSpanKey;
 import com.hotpads.trace.key.TraceThreadKey;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.NumberTool;
 
 @SuppressWarnings("serial")
 @Entity

@@ -17,8 +17,8 @@ import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.datarouter.test.TestIndexedDatabeanFielder.TestDatabeanByBLookup;
 import com.hotpads.datarouter.test.TestIndexedDatabeanFielder.TestDatabeanByCLookup;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public class LazyReaderIntegrationTests{
 

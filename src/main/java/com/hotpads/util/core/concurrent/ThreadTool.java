@@ -1,6 +1,6 @@
 package com.hotpads.util.core.concurrent;
 
-import com.hotpads.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.ArrayTool;
 
 
 

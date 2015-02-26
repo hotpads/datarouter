@@ -20,7 +20,7 @@ import com.hotpads.datarouter.test.client.insert.PutOpTestBeanKey;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean.PoolTestBeanFielder;
 import com.hotpads.datarouter.test.client.pool.PoolTestBeanKey;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 @Singleton
 public class BasicClientTestRouterImp

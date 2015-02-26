@@ -15,7 +15,7 @@ import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.StringTool;
 
 public class GetWhereTxn<
 		PK extends PrimaryKey<PK>,

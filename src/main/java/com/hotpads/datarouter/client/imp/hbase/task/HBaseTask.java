@@ -11,9 +11,9 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.NumberTool;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
-import com.hotpads.util.core.NumberTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.datastructs.MutableString;
 

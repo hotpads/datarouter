@@ -5,7 +5,7 @@ import java.util.Set;
 import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.SetTool;
 
 public enum PutMethod implements IntegerEnum<PutMethod>, StringEnum<PutMethod>{
 

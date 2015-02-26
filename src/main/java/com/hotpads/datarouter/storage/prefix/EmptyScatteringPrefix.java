@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ListTool;
 
 public class EmptyScatteringPrefix
 extends BaseScatteringPrefix{

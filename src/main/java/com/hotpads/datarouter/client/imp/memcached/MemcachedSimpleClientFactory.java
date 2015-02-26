@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.util.core.PropertiesTool;
+import com.hotpads.datarouter.util.core.PropertiesTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 

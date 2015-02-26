@@ -11,6 +11,7 @@ import javax.inject.Singleton;
 import net.sf.json.JSONObject;
 
 import com.google.gson.Gson;
+import com.hotpads.datarouter.util.core.IterableTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.dispatcher.DatarouterDispatcher;
 import com.hotpads.handler.mav.Mav;
@@ -20,7 +21,6 @@ import com.hotpads.notification.alias.databean.AutomatedEmail;
 import com.hotpads.notification.alias.databean.Moderator;
 import com.hotpads.notification.alias.databean.Subscriber;
 import com.hotpads.notification.databean.NotificationLog;
-import com.hotpads.util.core.IterableTool;
 
 @Singleton
 public class NotificationAliasHandler extends BaseHandler{

@@ -10,10 +10,10 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.ObjectTool;
 import com.hotpads.setting.StandardServerType;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.ObjectTool;
 
 public class ClusterSettingScopeComparator implements Comparator<ClusterSetting> {
 

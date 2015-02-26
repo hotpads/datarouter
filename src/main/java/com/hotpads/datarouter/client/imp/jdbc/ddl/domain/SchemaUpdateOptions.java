@@ -3,9 +3,9 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 import java.util.List;
 import java.util.Properties;
 
-import com.hotpads.util.core.BooleanTool;
-import com.hotpads.util.core.PropertiesTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.BooleanTool;
+import com.hotpads.datarouter.util.core.PropertiesTool;
+import com.hotpads.datarouter.util.core.StringTool;
 
 public class SchemaUpdateOptions{
 	

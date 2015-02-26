@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.DatarouterInjector;
+import com.hotpads.datarouter.util.core.StringTool;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.mav.Mav;
@@ -28,7 +29,6 @@ import com.hotpads.handler.types.DefaultDecoder;
 import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.HandlerTypingHelper;
 import com.hotpads.handler.user.authenticate.AdminEditUserHandler;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.exception.PermissionException;
 import com.hotpads.util.core.java.ReflectionTool;
