@@ -27,7 +27,6 @@ import com.hotpads.datarouter.storage.field.imp.dumb.DumbFloatField;
 import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
-import com.hotpads.datarouter.storage.field.imp.geo.SQuadStringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt15Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
@@ -64,7 +63,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		FIELD_TYPES.add(StringEnumField.class);
 		FIELD_TYPES.add(VarIntEnumField.class);
 		FIELD_TYPES.add(VarIntField.class);
-		FIELD_TYPES.add(SQuadStringField.class);
+//		FIELD_TYPES.add(SQuadStringField.class);
 		FIELD_TYPES.add(UInt15Field.class);
 		FIELD_TYPES.add(UInt31Field.class);
 		FIELD_TYPES.add(UInt63Field.class);

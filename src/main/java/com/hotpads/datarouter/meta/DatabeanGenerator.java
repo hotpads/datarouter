@@ -26,7 +26,6 @@ import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.enums.IntegerEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
-import com.hotpads.datarouter.storage.field.imp.geo.SQuadStringField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.handler.admin.DatabeanGeneratorHandler;
@@ -36,7 +35,6 @@ import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.StringTool;
-import com.hotpads.util.core.map.SQuad;
 
 public class DatabeanGenerator {
 
@@ -806,9 +804,9 @@ public class DatabeanGenerator {
 				containsStringEnum = true;
 			}
 			
-			if(SQuadStringField.class.equals(f.type)){
-				cannonicalClassNames.add(SQuad.class.getCanonicalName());
-			}
+//			if(SQuadStringField.class.equals(f.type)){
+//				cannonicalClassNames.add(SQuad.class.getCanonicalName());
+//			}
 			
 			if(f.type.equals(StringField.class)){
 				cannonicalClassNames.add(MySqlColumnType.class.getCanonicalName());
