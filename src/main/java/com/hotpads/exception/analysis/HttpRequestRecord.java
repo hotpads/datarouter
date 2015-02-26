@@ -43,9 +43,9 @@ import com.hotpads.datarouter.storage.field.imp.custom.LongDateField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.UuidTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.handler.util.RequestTool;
-import com.hotpads.util.core.MapTool;
 
 public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRequestRecord>{
 
@@ -338,7 +338,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	/******* tools *****/
 	public Map<String, String> getHeaders() {
-		Map<String, String> map = MapTool.createTreeMap();
+		Map<String, String> map = DrMapTool.createTreeMap();
 		map.put(ACCEPT_CHARSET, acceptCharset);
 		map.put(ACCEPT_ENCODING, acceptEncoding);
 		map.put(ACCEPT_LANGUAGE, acceptLanguage);
@@ -362,15 +362,15 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 	}
 
 	public Map<String, String> getOtherHeadersMap() {
-		return MapTool.getMapFromString(otherHeaders, ", ", ": ");
+		return DrMapTool.getMapFromString(otherHeaders, ", ", ": ");
 	}
 
 	public Map<String, String> getHttpParamsMap() {
-		return MapTool.getMapFromString(httpParams, ", ", ": ");
+		return DrMapTool.getMapFromString(httpParams, ", ", ": ");
 	}
 
 	public Map<String, String> getCookiesMap() {
-		return MapTool.getMapFromString(cookie, "; ", "=");
+		return DrMapTool.getMapFromString(cookie, "; ", "=");
 	}
 
 	public boolean isFromAjax() {

@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public class ListTool {
+public class DrListTool {
 
 	@Deprecated
 	public static <T> List<T> create(){
@@ -46,7 +46,7 @@ public class ListTool {
 	}
 
 	public static <T> ArrayList<T> createArrayListWithSize(Collection<?> c){
-		return createArrayList(CollectionTool.sizeNullSafe(c));
+		return createArrayList(DrCollectionTool.sizeNullSafe(c));
 	}
 
 	public static <T> ArrayList<T> createArrayListAndInitialize(int size){
@@ -63,7 +63,7 @@ public class ListTool {
 
 	public static <T> LinkedList<T> createLinkedList(T... in){
 		LinkedList<T> out = new LinkedList<T>();
-		if(ArrayTool.isEmpty(in)){
+		if(DrArrayTool.isEmpty(in)){
 			return out;
 		}
 		for(int i=0; i < in.length; ++i){
@@ -73,8 +73,8 @@ public class ListTool {
 	}
 
 	public static <T> ArrayList<T> createArrayList(T... in){
-		ArrayList<T> out = new ArrayList<T>(ArrayTool.nullSafeLength(in));
-		if(ArrayTool.isEmpty(in)){
+		ArrayList<T> out = new ArrayList<T>(DrArrayTool.nullSafeLength(in));
+		if(DrArrayTool.isEmpty(in)){
 			return out;
 		}
 		for(int i=0; i < in.length; ++i){
@@ -85,7 +85,7 @@ public class ListTool {
 
 	public static <T> List<T> createLinkedList(Collection<T> in){
 		List<T> out = new LinkedList<T>();
-		if(CollectionTool.isEmpty(in)){
+		if(DrCollectionTool.isEmpty(in)){
 			return out;
 		}
 		out.addAll(in);
@@ -100,15 +100,15 @@ public class ListTool {
 
 	public static <T> ArrayList<T> createArrayList(Iterable<T> ins){
 		ArrayList<T> outs = new ArrayList<T>();
-		for(T in : IterableTool.nullSafe(ins)) {
+		for(T in : DrIterableTool.nullSafe(ins)) {
 			outs.add(in);
 		}
 		return outs;
 	}
 
 	public static <T> ArrayList<T> createArrayList(Collection<T> in){
-		ArrayList<T> out = new ArrayList<T>(CollectionTool.sizeNullSafe(in));
-		if(CollectionTool.isEmpty(in)){
+		ArrayList<T> out = new ArrayList<T>(DrCollectionTool.sizeNullSafe(in));
+		if(DrCollectionTool.isEmpty(in)){
 			return out;
 		}
 		out.addAll(in);
@@ -142,10 +142,10 @@ public class ListTool {
 	/*********************** concatenate ********************************/
 
 	public static <T> ArrayList<T> concatenate(List<T>... ins){
-		int size = CollectionTool.getTotalSizeOfArrayOfCollections(ins);
-		ArrayList<T> outs = ListTool.createArrayList(size);
+		int size = DrCollectionTool.getTotalSizeOfArrayOfCollections(ins);
+		ArrayList<T> outs = DrListTool.createArrayList(size);
 		for(List<T> in : ins){
-			outs.addAll(ListTool.nullSafe(in));
+			outs.addAll(DrListTool.nullSafe(in));
 		}
 		return outs;
 	}
@@ -159,7 +159,7 @@ public class ListTool {
 		Iterator<T> bi = bs.iterator();
 		for(T a : as){
 			if(!bi.hasNext()){ return 1; } //as are longer than bs
-			int comp = ComparableTool.nullFirstCompareTo(a, bi.next());
+			int comp = DrComparableTool.nullFirstCompareTo(a, bi.next());
 			if(comp!=0){ return comp; }
 		}
 		return bi.hasNext()?-1:0;  //bs are longer than as
@@ -169,7 +169,7 @@ public class ListTool {
 		if(as==null){ return true; }
 		T last = null;
 		for(T a : as){
-			if(ComparableTool.nullFirstCompareTo(last, a) > 0){
+			if(DrComparableTool.nullFirstCompareTo(last, a) > 0){
 				return false;
 			}
 			last = a;
@@ -182,7 +182,7 @@ public class ListTool {
 
 	public static <T> List<T> nullSafeLinkedAddAll(List<T> list, T... newItems){
 		list = nullSafeLinked(list);
-		if(ArrayTool.notEmpty(newItems)){
+		if(DrArrayTool.notEmpty(newItems)){
 			for(int i=0; i < newItems.length; ++i){
 				list.add(newItems[i]);
 			}
@@ -192,13 +192,13 @@ public class ListTool {
 
 	public static <T> List<T> nullSafeArrayAddAll(List<T> list, Collection<? extends T> newItems){
 		list = nullSafeArray(list);
-		list.addAll(CollectionTool.nullSafe(newItems));
+		list.addAll(DrCollectionTool.nullSafe(newItems));
 		return list;
 	}
 
 	public static <T> List<T> copyOfRange(
 			List<T> in, int startInclusive, int endExclusive){
-		if(CollectionTool.isEmpty(in)){ return create(); }
+		if(DrCollectionTool.isEmpty(in)){ return create(); }
 		if(startInclusive >= in.size()
 				|| endExclusive<=startInclusive
 				|| startInclusive<0){
@@ -230,18 +230,18 @@ public class ListTool {
 	 
 	public static class Tests {
 		@Test public void copyOfRange(){
-			List<Integer> a = ListTool.createLinkedList(1,2,3,4,5);
-			List<Integer> b = ListTool.copyOfRange(a, 1, 3);
+			List<Integer> a = DrListTool.createLinkedList(1,2,3,4,5);
+			List<Integer> b = DrListTool.copyOfRange(a, 1, 3);
 			Assert.assertArrayEquals(new Integer[]{2,3}, b.toArray());
-			List<Integer> c = ListTool.copyOfRange(a, 4, 27);
+			List<Integer> c = DrListTool.copyOfRange(a, 4, 27);
 			Assert.assertArrayEquals(new Integer[]{5}, c.toArray());
 
-			List<Integer> one = ListTool.createLinkedList(1);
-			Assert.assertEquals(0,ListTool.copyOfRange(one,0,0).size());
-			Assert.assertEquals(0,ListTool.copyOfRange(one,0,-1).size());
-			Assert.assertEquals(1,ListTool.copyOfRange(one,0,1).size());
-			Assert.assertEquals(1,ListTool.copyOfRange(one,0,2).size());
-			Assert.assertEquals(0,ListTool.copyOfRange(one,-1,2).size());
+			List<Integer> one = DrListTool.createLinkedList(1);
+			Assert.assertEquals(0,DrListTool.copyOfRange(one,0,0).size());
+			Assert.assertEquals(0,DrListTool.copyOfRange(one,0,-1).size());
+			Assert.assertEquals(1,DrListTool.copyOfRange(one,0,1).size());
+			Assert.assertEquals(1,DrListTool.copyOfRange(one,0,2).size());
+			Assert.assertEquals(0,DrListTool.copyOfRange(one,-1,2).size());
 		}
 
 	}

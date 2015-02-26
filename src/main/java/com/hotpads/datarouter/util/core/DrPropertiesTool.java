@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Properties;
 
 
-public class PropertiesTool {
+public class DrPropertiesTool {
 
 	public static Properties parse(String path){
 		Properties properties = new Properties();
@@ -24,8 +24,8 @@ public class PropertiesTool {
 	}
 
 	public static List<Properties> fromFiles(Iterable<String> paths){
-		List<Properties> multiProperties = ListTool.createArrayList();
-		for(String path : IterableTool.nullSafe(paths)) {
+		List<Properties> multiProperties = DrListTool.createArrayList();
+		for(String path : DrIterableTool.nullSafe(paths)) {
 			Properties properties = parse(path);
 			if(properties!=null) { multiProperties.add(properties); }
 		}
@@ -42,7 +42,7 @@ public class PropertiesTool {
 			if ( f.exists() ) {
 				in = new FileInputStream( f );
 			} else { // Try the classpath instead
-				in = PropertiesTool.class.getResourceAsStream(pathToFile);
+				in = DrPropertiesTool.class.getResourceAsStream(pathToFile);
 			}
 			properties.load(in);
 		}
@@ -55,7 +55,7 @@ public class PropertiesTool {
 	}
 
 	public static String getFirstOccurrence(Iterable<Properties> multiProperties, String key) {
-		for(Properties properties : IterableTool.nullSafe(multiProperties)) {
+		for(Properties properties : DrIterableTool.nullSafe(multiProperties)) {
 			if(properties.containsKey(key)) {
 				return properties.getProperty(key);
 			}

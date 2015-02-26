@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import com.google.common.base.Preconditions;
 import com.hotpads.DatarouterInjector;
 import com.hotpads.datarouter.config.Configs;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.dispatcher.DatarouterDispatcher;
 import com.hotpads.handler.mav.Mav;
@@ -23,7 +24,6 @@ import com.hotpads.job.record.LongRunningTaskNodeProvider;
 import com.hotpads.job.trigger.Job;
 import com.hotpads.job.trigger.JobScheduler;
 import com.hotpads.job.trigger.TriggerGroup;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
 public class JobToTriggerHandler extends BaseHandler {
@@ -146,14 +146,14 @@ public class JobToTriggerHandler extends BaseHandler {
 		for(Entry<Class<? extends Job>, String> entry : jobClasses.entrySet()){
 			Job sampleJob = injector.getInstance(entry.getKey());
 			Preconditions.checkNotNull(sampleJob, "injector couldn't find instance of "+entry.getKey().toString());
-			if(StringTool.notEmpty(keyword)
+			if(DrStringTool.notEmpty(keyword)
 					&& !entry.getKey().getSimpleName().toLowerCase().contains(keyword.toLowerCase())) {
 				continue;
 			}
-			boolean defaultOff = StringTool.equalsCaseInsensitive(params.optional(P_default, ""), "");
-			boolean customOff = StringTool.equalsCaseInsensitive(params.optional(P_custom, ""), "");
-			boolean disabledOff = StringTool.equalsCaseInsensitive(params.optional(P_hideDisabledJobs, ""), "");
-			boolean enabledOff = StringTool.equalsCaseInsensitive(params.optional(P_hideEnabledJobs, ""), "");
+			boolean defaultOff = DrStringTool.equalsCaseInsensitive(params.optional(P_default, ""), "");
+			boolean customOff = DrStringTool.equalsCaseInsensitive(params.optional(P_custom, ""), "");
+			boolean disabledOff = DrStringTool.equalsCaseInsensitive(params.optional(P_hideDisabledJobs, ""), "");
+			boolean enabledOff = DrStringTool.equalsCaseInsensitive(params.optional(P_hideEnabledJobs, ""), "");
 			
 			boolean filterConditions = 
 					((defaultOff && !sampleJob.getIsCustom()) || (customOff && sampleJob.getIsCustom())) 
@@ -161,10 +161,10 @@ public class JobToTriggerHandler extends BaseHandler {
 			if(!filterConditions){
 				continue;
 			}
-			if (StringTool.isEmpty(category)
-					|| StringTool.equalsCaseInsensitive(category, defaultJobCategory.getPersistentString())){
+			if (DrStringTool.isEmpty(category)
+					|| DrStringTool.equalsCaseInsensitive(category, defaultJobCategory.getPersistentString())){
 				jobList.add(sampleJob);
-			}else if (StringTool.equalsCaseInsensitive(sampleJob.getJobCategory(), category)){
+			}else if (DrStringTool.equalsCaseInsensitive(sampleJob.getJobCategory(), category)){
 				jobList.add(sampleJob);
 			}
 		}		

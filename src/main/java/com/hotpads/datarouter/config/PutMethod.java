@@ -5,7 +5,7 @@ import java.util.Set;
 import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.IntegerEnum;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 
 public enum PutMethod implements IntegerEnum<PutMethod>, StringEnum<PutMethod>{
 
@@ -20,7 +20,7 @@ public enum PutMethod implements IntegerEnum<PutMethod>, StringEnum<PutMethod>{
 	
 	//need to flush immediately so we can catch insert/update exceptions if they are thrown, 
 	//   otherwise the exception will ruin the whole batch
-	public static Set<PutMethod> METHODS_TO_FLUSH_IMMEDIATELY = SetTool.createHashSet();
+	public static Set<PutMethod> METHODS_TO_FLUSH_IMMEDIATELY = DrSetTool.createHashSet();
 	static{
 		METHODS_TO_FLUSH_IMMEDIATELY.add(UPDATE_OR_INSERT);
 		METHODS_TO_FLUSH_IMMEDIATELY.add(INSERT_OR_UPDATE);

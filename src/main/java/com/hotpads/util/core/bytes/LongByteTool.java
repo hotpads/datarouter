@@ -6,8 +6,8 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
 /*
@@ -104,7 +104,7 @@ public class LongByteTool {
 	}
 
 	public static long[] fromComparableByteArray(final byte[] bytes){
-		if(ArrayTool.isEmpty(bytes)){ return new long[0]; }
+		if(DrArrayTool.isEmpty(bytes)){ return new long[0]; }
 		return fromComparableByteArray(bytes, 0, bytes.length);
 	}
 
@@ -199,7 +199,7 @@ public class LongByteTool {
 	}
 	
 	public static long[] fromUInt63ByteArray(final byte[] bytes){
-		if(ArrayTool.isEmpty(bytes)){ return new long[0]; }
+		if(DrArrayTool.isEmpty(bytes)){ return new long[0]; }
 		return fromUInt63ByteArray(bytes, 0, bytes.length);
 	}
 		
@@ -333,13 +333,13 @@ public class LongByteTool {
 //					System.out.println("hex   "+Long.toHexString(value));
 //					System.out.println("bin   "+Long.toBinaryString(value));
 //					System.out.println("bytes "+ByteTool.getBinaryStringBigEndian(bytes));
-					Assert.assertTrue(ByteTool.bitwiseCompare(lastBytes, bytes) < 0);
+					Assert.assertTrue(DrByteTool.bitwiseCompare(lastBytes, bytes) < 0);
 					Assert.assertEquals(value, roundTripped);
 				}catch(AssertionError e){
 					System.out.println("counter: "+counter);
 					System.out.println(value+" -> "+roundTripped);
-					System.out.println("lastBytes:"+ByteTool.getBinaryStringBigEndian(lastBytes));
-					System.out.println("thisBytes:"+ByteTool.getBinaryStringBigEndian(bytes));
+					System.out.println("lastBytes:"+DrByteTool.getBinaryStringBigEndian(lastBytes));
+					System.out.println("thisBytes:"+DrByteTool.getBinaryStringBigEndian(bytes));
 					throw e;
 				}
 				lastBytes = bytes;

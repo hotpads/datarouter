@@ -14,9 +14,9 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.util.DatarouterEmailTool;
+import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrExceptionTool;
 import com.hotpads.trace.TracedCallable;
-import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.ExceptionTool;
 
 //consider forming base class with commonalities from MemcachedMultiAttemptTash
 public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
@@ -27,7 +27,7 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 	
 	protected static long 
 		THROTTLE_ERROR_EMAIL_MINUTES = 5,
-		THROTTLE_ERROR_EMAIL_MS = THROTTLE_ERROR_EMAIL_MINUTES * DateTool.MILLISECONDS_IN_MINUTE,
+		THROTTLE_ERROR_EMAIL_MS = THROTTLE_ERROR_EMAIL_MINUTES * DrDateTool.MILLISECONDS_IN_MINUTE,
 		LAST_EMAIL_SENT_AT_MS = 0L;
 
 	protected static final AtomicLong NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL = new AtomicLong(0);
@@ -128,8 +128,8 @@ public class HBaseMultiAttemptTask<V> extends TracedCallable<V>{
 		String subject = "HBaseMultiAttempTask failure on "+drContext.getServerName();
 		String body = "Message throttled for "+throttleEmailSeconds+" seconds"
 				+"\n\n"+timeoutMessage
-				+"\n\n"+numFailures+" since last email attempt "+DateTool.getAgoString(LAST_EMAIL_SENT_AT_MS)
-				+"\n\n"+ExceptionTool.getStackTraceAsString(e);
+				+"\n\n"+numFailures+" since last email attempt "+DrDateTool.getAgoString(LAST_EMAIL_SENT_AT_MS)
+				+"\n\n"+DrExceptionTool.getStackTraceAsString(e);
 		DatarouterEmailTool.sendEmail("noreply@hotpads.com", drContext.getAdministratorEmail(), subject, body);
 		LAST_EMAIL_SENT_AT_MS = System.currentTimeMillis();
 		NUM_FAILED_ATTEMPTS_SINCE_LAST_EMAIL.set(0L);

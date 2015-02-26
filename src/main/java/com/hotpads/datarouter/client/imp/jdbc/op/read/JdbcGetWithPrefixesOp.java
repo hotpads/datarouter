@@ -13,7 +13,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class JdbcGetWithPrefixesOp<
 		PK extends PrimaryKey<PK>,
@@ -39,7 +39,7 @@ extends BaseJdbcOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		if(CollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
+		if(DrCollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		String sql = SqlBuilder.getWithPrefixes(config, node.getTableName(), node.getFieldInfo().getFields(),
 				prefixes, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());

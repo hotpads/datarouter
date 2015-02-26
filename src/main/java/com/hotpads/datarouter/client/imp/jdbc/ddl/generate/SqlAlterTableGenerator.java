@@ -8,10 +8,10 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SchemaUpdateOptions;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class SqlAlterTableGenerator implements DdlGenerator{
 
@@ -32,12 +32,12 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	@Override
 	public String generateDdl(){
 		List<SqlAlterTableClause> singleAlters =  generate();
-		if(CollectionTool.isEmpty(singleAlters)){ return null; }
+		if(DrCollectionTool.isEmpty(singleAlters)){ return null; }
 		if(dropTable){
 			String s="";
-			for(SqlAlterTableClause singleAlter : IterableTool.nullSafe(singleAlters)){
+			for(SqlAlterTableClause singleAlter : DrIterableTool.nullSafe(singleAlters)){
 				String alterSql = singleAlter.getAlterTable();
-				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
+				if(DrStringTool.containsCharactersBesidesWhitespace(alterSql)){
 					s += alterSql+ "\n";
 				}
 			}
@@ -46,7 +46,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 		StringBuilder sb = new StringBuilder();
 		sb.append("alter table " +databaseName + "." +current.getName()+"\n");
 		int numAppended = 0;
-		for(SqlAlterTableClause singleAlter : IterableTool.nullSafe(singleAlters)){
+		for(SqlAlterTableClause singleAlter : DrIterableTool.nullSafe(singleAlters)){
 			if(singleAlter!=null /*&& !StringTool.isEmptyOrWhitespace(singleAlter.getAlterTable())*/){
 				if(numAppended>0){ sb.append(",\n"); }
 				sb.append(singleAlter.getAlterTable());
@@ -67,13 +67,13 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	
 	public List<String> getAlterTableStatementsStrings(){
 		List<SqlAlterTableClause> list =  generate();
-		List<String> l = ListTool.createArrayList();
+		List<String> l = DrListTool.createArrayList();
 		String alterSql="";
 		if(dropTable){
 			for(SqlAlterTableClause sqlAT : list){
 				String s="";
 				alterSql = sqlAT.getAlterTable();
-				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
+				if(DrStringTool.containsCharactersBesidesWhitespace(alterSql)){
 					s += alterSql;
 					l.add(s);
 				}
@@ -82,7 +82,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			for(SqlAlterTableClause sqlAT : list){
 				String s = "";
 				alterSql = sqlAT.getAlterTable();
-				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
+				if(DrStringTool.containsCharactersBesidesWhitespace(alterSql)){
 					s += "alter table `" + current.getName() + "` \n";
 					s += alterSql;
 					l.add(s);
@@ -96,13 +96,13 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	
 	public List<SqlAlterTableClause> getAlterTableStatements(){
 		List<SqlAlterTableClause> list =  generate();
-		List<SqlAlterTableClause> l = ListTool.createArrayList();
+		List<SqlAlterTableClause> l = DrListTool.createArrayList();
 		String alterSql="";
 		if(dropTable){
 			for(SqlAlterTableClause sqlAT : list){
 				//sString s="";
 				alterSql = sqlAT.getAlterTable();
-				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
+				if(DrStringTool.containsCharactersBesidesWhitespace(alterSql)){
 					l.add(sqlAT);
 				}
 			}
@@ -110,7 +110,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			for(SqlAlterTableClause sqlAT : list){
 				StringBuilder sb= new StringBuilder();
 				alterSql = sqlAT.getAlterTable();
-				if(StringTool.containsCharactersBesidesWhitespace(alterSql)){
+				if(DrStringTool.containsCharactersBesidesWhitespace(alterSql)){
 					sb.append("alter table `" + current.getName() + "` \n");
 					sb.append(alterSql);
 					sqlAT.setAlterTable(sb.toString());
@@ -124,7 +124,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	}
 	
 	public List<SqlAlterTableClause> generate(){
-		List<SqlAlterTableClause> list = ListTool.createArrayList();
+		List<SqlAlterTableClause> list = DrListTool.createArrayList();
 		// creating the sqlTableDiffGenerator
 		SqlTableDiffGenerator diff = new SqlTableDiffGenerator(current, requested, true);
 		if(!diff.isTableModified()){ return list; }
@@ -148,10 +148,10 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 			list.add(getCreateTableSqlFromListOfColumnsToAdd(colsToAdd));
 			return list;
 		}
-		if(options.getModifyColumns() && CollectionTool.notEmpty(colsToModify)){
+		if(options.getModifyColumns() && DrCollectionTool.notEmpty(colsToModify)){
 			String type_string;
 			MySqlColumnType type ;
-			for(SqlColumn col : IterableTool.nullSafe(colsToModify)){
+			for(SqlColumn col : DrIterableTool.nullSafe(colsToModify)){
 				SqlColumn requestedCol = getColumnByNamefromListOfColumn(col.getName(), requested.getColumns());
 				type = requestedCol.getType();
 				type_string =  type.toString().toLowerCase();
@@ -204,16 +204,16 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	}
 
 	private SqlColumn getColumnByNamefromListOfColumn(String name, List<SqlColumn> columns){
-		for(SqlColumn col : IterableTool.nullSafe(columns)){
+		for(SqlColumn col : DrIterableTool.nullSafe(columns)){
 			if(col.getName().equals(name)) return col;
 		}
 		return null;
 	}
 
 	private List<SqlAlterTableClause> getAlterTableForRemovingIndexes(SortedSet<SqlIndex> indexesToAdd){
-		List<SqlAlterTableClause> list = ListTool.createArrayList();
+		List<SqlAlterTableClause> list = DrListTool.createArrayList();
 		if(!options.getDropIndexes()){ return list; }
-		if(CollectionTool.isEmpty(indexesToAdd)){ return list; }
+		if(DrCollectionTool.isEmpty(indexesToAdd)){ return list; }
 		StringBuilder sb = new StringBuilder();
 		for(SqlIndex index : indexesToAdd){
 			sb.append("drop index "+ index.getName() + ",\n");
@@ -224,9 +224,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	}
 
 	private List<SqlAlterTableClause> getAlterTableForAddingIndexes(SortedSet<SqlIndex> indexesToAdd){
-		List<SqlAlterTableClause> list = ListTool.createArrayList();
+		List<SqlAlterTableClause> list = DrListTool.createArrayList();
 		if(!options.getAddIndexes()){ return list; }
-		if(CollectionTool.isEmpty(indexesToAdd)){ return list; }
+		if(DrCollectionTool.isEmpty(indexesToAdd)){ return list; }
 		StringBuilder sb = new StringBuilder();
 		for(SqlIndex index : indexesToAdd){
 			sb.append("add index " + index.getName() + "(");
@@ -244,7 +244,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	private SqlAlterTableClause getCreateTableSqlFromListOfColumnsToAdd(List<SqlColumn> colsToAdd){
 		//new SqlAlterTable("CREATE TABLE " +current.getName() +";", SqlAlterTableTypes.CREATE_TABLE);
 		StringBuilder sb = new StringBuilder("create table " + current.getName());
-		if(CollectionTool.isEmpty(colsToAdd)){
+		if(DrCollectionTool.isEmpty(colsToAdd)){
 			return new SqlAlterTableClause(sb.toString(), SqlAlterTypes.CREATE_TABLE);
 		}
 		sb.append(" ( ");
@@ -270,7 +270,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 
 	private SqlAlterTableClause getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){
 		if(!options.getAddColumns()){ return null; }
-		if(CollectionTool.isEmpty(colsToAdd)){ return null; }
+		if(DrCollectionTool.isEmpty(colsToAdd)){ return null; }
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("add (");
@@ -298,9 +298,9 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	}
 	
 	private List<SqlAlterTableClause> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove){
-		List<SqlAlterTableClause> list = ListTool.createArrayList();
+		List<SqlAlterTableClause> list = DrListTool.createArrayList();
 		if(!options.getDeleteColumns()){ return list; }
-		if(CollectionTool.isEmpty(colsToRemove)){ return list; }
+		if(DrCollectionTool.isEmpty(colsToRemove)){ return list; }
 		StringBuilder sb = new StringBuilder();
 		for(SqlColumn col:colsToRemove){
 			sb.append("drop column "+ col.getName() + ",\n");

@@ -8,10 +8,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class StringByteTool{
 
@@ -51,8 +51,8 @@ public class StringByteTool{
 	}
 
 	public static List<byte[]> getUtf8ByteArrays(List<String> strings){
-		List<byte[]> byteArrays = ListTool.createArrayListWithSize(strings);
-		for(String s : IterableTool.nullSafe(strings)){
+		List<byte[]> byteArrays = DrListTool.createArrayListWithSize(strings);
+		for(String s : DrIterableTool.nullSafe(strings)){
 			byteArrays.add(getUtf8Bytes(s));
 		}
 		return byteArrays;
@@ -72,10 +72,10 @@ public class StringByteTool{
 	}
 	
 	public static int getNumBytesInMemoryWithPointers(String s){
-		return 2 * ByteTool.BYTES_PER_POINTER //object overhead for string
-				+ ByteTool.BYTES_PER_INTEGER//hash
-				+ ByteTool.BYTES_PER_POINTER //for the pointer to the char[]??
-				+ 3 * ByteTool.BYTES_PER_POINTER //array overhead (object overhead + length)
+		return 2 * DrByteTool.BYTES_PER_POINTER //object overhead for string
+				+ DrByteTool.BYTES_PER_INTEGER//hash
+				+ DrByteTool.BYTES_PER_POINTER //for the pointer to the char[]??
+				+ 3 * DrByteTool.BYTES_PER_POINTER //array overhead (object overhead + length)
 				+ ((String)s).length() * 2; //actual char[] data
 	}
 	
@@ -89,15 +89,15 @@ public class StringByteTool{
 		byte[] aUtf8 = getByteArray(a, StringByteTool.CHARSET_UTF8);
 		
 		String euroFromUsAscii = new String(
-				new byte[]{ByteTool.fromUnsignedInt0To255(128),ByteTool.fromUnsignedInt0To255(128)},
+				new byte[]{DrByteTool.fromUnsignedInt0To255(128),DrByteTool.fromUnsignedInt0To255(128)},
 				StringByteTool.CHARSET_USASCII);
 		
 		String euroFromLatin1 = new String(
-				new byte[]{ByteTool.fromUnsignedInt0To255(128)},
+				new byte[]{DrByteTool.fromUnsignedInt0To255(128)},
 				StringByteTool.CHARSET_LATIN1);
 		
 		String quarterSymbolFromWindows1252 = new String(
-				new byte[]{ByteTool.fromUnsignedInt0To255(128)},
+				new byte[]{DrByteTool.fromUnsignedInt0To255(128)},
 				StringByteTool.CHARSET_WINDOWS1252);
 		
 		Character unknownCharacter = euroFromUsAscii.charAt(0);
@@ -126,23 +126,23 @@ public class StringByteTool{
 			
 			for(int i=0; i <256; ++i){
 				String ascii = new String(
-						new byte[]{ByteTool.fromUnsignedInt0To255(i)},
+						new byte[]{DrByteTool.fromUnsignedInt0To255(i)},
 						StringByteTool.CHARSET_USASCII);
 				
 				String latin1 = new String(
-						new byte[]{ByteTool.fromUnsignedInt0To255(i)},
+						new byte[]{DrByteTool.fromUnsignedInt0To255(i)},
 						StringByteTool.CHARSET_LATIN1);
 
 				String windows1252 = new String(
-						new byte[]{ByteTool.fromUnsignedInt0To255(i)},
+						new byte[]{DrByteTool.fromUnsignedInt0To255(i)},
 						StringByteTool.CHARSET_WINDOWS1252);
 
 				String utf16be = new String(
-						new byte[]{(byte)0, ByteTool.fromUnsignedInt0To255(i)},
+						new byte[]{(byte)0, DrByteTool.fromUnsignedInt0To255(i)},
 						StringByteTool.CHARSET_UTF16BE);
 
 				String utf8 = new String(
-						new byte[]{ByteTool.fromUnsignedInt0To255(i)},
+						new byte[]{DrByteTool.fromUnsignedInt0To255(i)},
 						StringByteTool.CHARSET_UTF8);
 
 //				System.out.print("\n"+StringTool.pad(""+i, ' ', 3));
@@ -160,14 +160,14 @@ public class StringByteTool{
 				}else if(i < 160){
 					Assert.assertEquals(ascii, unknownCharacter.toString());//invalid octet
 					Assert.assertEquals(i, latin1.charAt(0));//valid octet, but not not mapped to any character
-					Assert.assertTrue(StringTool.notEmpty(windows1252));
+					Assert.assertTrue(DrStringTool.notEmpty(windows1252));
 					Assert.assertTrue(latin1.equals(utf16be));
 					Assert.assertTrue( ! windows1252.equals(utf16be));
 					Assert.assertEquals(utf8, unknownCharacter.toString());//utf8 will expect 2 bytes here, so our 1 byte is junk
 				}else{
 					Assert.assertEquals(ascii, unknownCharacter.toString());//invalid octet
-					Assert.assertTrue(StringTool.notEmpty(latin1));
-					Assert.assertTrue(StringTool.notEmpty(windows1252));
+					Assert.assertTrue(DrStringTool.notEmpty(latin1));
+					Assert.assertTrue(DrStringTool.notEmpty(windows1252));
 					Assert.assertEquals(latin1, windows1252);
 					Assert.assertEquals(windows1252, utf16be);
 					Assert.assertEquals(utf8, unknownCharacter.toString());//utf8 will expect 2 bytes here, so our 1 byte is junk

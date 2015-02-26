@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,12 +21,13 @@ import org.junit.Test;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.hotpads.util.core.Predicate;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.number.RandomTool;
 import com.hotpads.util.datastructs.MutableBoolean;
 
 
-public class CollectionTool {
+public class DrCollectionTool {
 	
 	/************************************ null **************************/
 
@@ -110,10 +111,10 @@ public class CollectionTool {
 	public static <T> boolean equalsAllElementsInIteratorOrder(Collection<T> as, Collection<T> bs){
 		if(differentSize(as,bs)){ return false; }
 		if(isEmpty(as)){ return true; }
-		List<T> aList = ListTool.createArrayList(as);
-		List<T> bList = ListTool.createArrayList(bs);
+		List<T> aList = DrListTool.createArrayList(as);
+		List<T> bList = DrListTool.createArrayList(bs);
 		for(int i=0; i < aList.size(); ++i){
-			if(ObjectTool.nullSafeNotEquals(aList.get(i), bList.get(i))){
+			if(DrObjectTool.nullSafeNotEquals(aList.get(i), bList.get(i))){
 				return false; 
 			}
 		}
@@ -145,7 +146,7 @@ public class CollectionTool {
 	}
 	
 	public static <T> T getItemAtIndex(Collection<T> collection, int index){
-		if(CollectionTool.isEmpty(collection)){
+		if(DrCollectionTool.isEmpty(collection)){
 			return null;
 		}
 		int i = 0;
@@ -164,7 +165,7 @@ public class CollectionTool {
 	}
 	
 	public static <T> List<T> removeNulls(Iterable<T> ts) {
-		LinkedList<T> lst = GenericsFactory.makeLinkedList();
+		LinkedList<T> lst = DrGenericsFactory.makeLinkedList();
 		for (T t : ts)
 			if (t != null)
 				lst.add(t);
@@ -183,14 +184,14 @@ public class CollectionTool {
 	/************************* set operations *********************************/
 
 	public static <T> Set<T> minus(final Collection<T> first, final Collection<T> second){
-		Set<T> result = new HashSet<T>(CollectionTool.removeNulls(first));
+		Set<T> result = new HashSet<T>(DrCollectionTool.removeNulls(first));
 		result.removeAll(second);
 		return result;
 	}
 	
 	public static <T> TreeSet<T> minus(final Collection<T> first, final Collection<T> second, Comparator<T> c){
 		TreeSet<T> result = new TreeSet<T>(c);
-		result.addAll(CollectionTool.removeNulls(first));
+		result.addAll(DrCollectionTool.removeNulls(first));
 		result.removeAll(second);
 		return result;
 	}

@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -7,7 +7,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ArrayTool {
+public class DrArrayTool {
 	
 	public static <T> T getFirst(T[] ins){
 		return isEmpty(ins) ? null : ins[0];
@@ -142,7 +142,7 @@ public class ArrayTool {
 	}
 	
 	public static long[] primitiveLongArray(Collection<Long> ins){
-		if(CollectionTool.isEmpty(ins)){ return new long[0]; }
+		if(DrCollectionTool.isEmpty(ins)){ return new long[0]; }
 		long[] array = new long[ins.size()];
 		int index = 0;
 		for(long i : ins){

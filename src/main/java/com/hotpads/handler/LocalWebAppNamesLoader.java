@@ -11,7 +11,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import com.hotpads.HotPadsWebAppListener;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 @Singleton
 public class LocalWebAppNamesLoader extends HotPadsWebAppListener{
@@ -31,7 +31,7 @@ public class LocalWebAppNamesLoader extends HotPadsWebAppListener{
 		try{
 			Set<ObjectName> modules = server.queryNames(new ObjectName("Catalina:j2eeType=WebModule,*"), null);
 			for(ObjectName module : modules){
-				String name = StringTool.getStringAfterLastOccurrence('/', module.getKeyProperty("name"));
+				String name = DrStringTool.getStringAfterLastOccurrence('/', module.getKeyProperty("name"));
 				String href = "/" + name;
 				if(name.equals("")){
 					name = "site";

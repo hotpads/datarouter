@@ -27,11 +27,11 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
-import com.hotpads.util.core.CallableTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrCallableTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class DRHRegionList{
 	private static final Logger logger = LoggerFactory.getLogger(DRHRegionList.class);
@@ -55,7 +55,7 @@ public class DRHRegionList{
 		this.tableName = tableName;
 		this.node = node;
 		this.compactionInfo = compactionInfo;
-		this.regions = ListTool.create();
+		this.regions = DrListTool.create();
 		this.scatteringPrefixClass = node.getFieldInfo().getScatteringPrefixClass();
 		if(node.getFieldInfo().isEntity()){
 			HBaseSubEntityReaderNode subEntityNode = (HBaseSubEntityReaderNode)node;
@@ -66,8 +66,8 @@ public class DRHRegionList{
 		Class<PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
 		Map<HRegionInfo,ServerName> serverNameByHRegionInfo = getServerNameByHRegionInfo(client, config, tableName);
 		//this got reorganized in hbase 0.92... just making quick fix for now
-		Map<String,RegionLoad> regionLoadByName = MapTool.createTreeMap();
-		for(DRHServerInfo server : IterableTool.nullSafe(servers.getServers())){
+		Map<String,RegionLoad> regionLoadByName = DrMapTool.createTreeMap();
+		for(DRHServerInfo server : DrIterableTool.nullSafe(servers.getServers())){
 			HServerLoad serverLoad = server.gethServerLoad();
 			Map<byte[],HServerLoad.RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
 			for(RegionLoad regionLoad : regionsLoad.values()){
@@ -77,7 +77,7 @@ public class DRHRegionList{
 			}
 		}
 		int regionNum = 0;
-		for(HRegionInfo hRegionInfo : MapTool.nullSafe(serverNameByHRegionInfo).keySet()){
+		for(HRegionInfo hRegionInfo : DrMapTool.nullSafe(serverNameByHRegionInfo).keySet()){
 			try{
 				RegionLoad regionLoad = regionLoadByName.get(hRegionInfo.getEncodedName());
 				ServerName serverName = serverNameByHRegionInfo.get(hRegionInfo);
@@ -92,7 +92,7 @@ public class DRHRegionList{
 		}
 		Collections.sort(regions);//ensure sorted for getRegionsSorted
 		this.balancerStrategy = balancerStrategy.init(scatteringPrefixClass, entityPartitioner, servers, this);
-		this.targetServerNameByRegion = CallableTool.callUnchecked(balancerStrategy);
+		this.targetServerNameByRegion = DrCallableTool.callUnchecked(balancerStrategy);
 		balancerStrategy.assertRegionCountsConsistent();
 		for(DRHRegionInfo<?> drhRegionInfo : regions){
 			drhRegionInfo.setBalancerDestinationServer(targetServerNameByRegion.get(drhRegionInfo));
@@ -123,7 +123,7 @@ public class DRHRegionList{
 	
 
 	public SortedSet<String> getServerNames(){
-		SortedSet<String> serverNames = SetTool.createTreeSet();
+		SortedSet<String> serverNames = DrSetTool.createTreeSet();
 		for(DRHRegionInfo<?> region : regions){
 			serverNames.add(region.getServerName());
 		}
@@ -159,7 +159,7 @@ public class DRHRegionList{
 	}
 
 	public SortedMap<String,List<DRHRegionInfo<?>>> getRegionsByServerName(){
-		SortedMap<String,List<DRHRegionInfo<?>>> out = MapTool.createTreeMap();
+		SortedMap<String,List<DRHRegionInfo<?>>> out = DrMapTool.createTreeMap();
 		for(DRHRegionInfo<?> region : regions){
 			String serverName = region.getServerName();
 			if(out.get(serverName) == null){

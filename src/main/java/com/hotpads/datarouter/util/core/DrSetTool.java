@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,7 +13,7 @@ import org.junit.Test;
 
 
 
-public class SetTool {
+public class DrSetTool {
 
 	@Deprecated
 	public static <T> HashSet<T> create(){
@@ -36,7 +36,7 @@ public class SetTool {
 	
 	public static <T> SortedSet<T> createTreeSet(Collection<T> in){
 		SortedSet<T> out = new TreeSet<T>();
-		if(CollectionTool.notEmpty(in)){
+		if(DrCollectionTool.notEmpty(in)){
 			out.addAll(in);
 		}
 		return out;
@@ -44,7 +44,7 @@ public class SetTool {
 	
 	public static <T> Set<T> createHashSet(Collection<T> in){
 		Set<T> out = new HashSet<T>();
-		if(CollectionTool.notEmpty(in)){
+		if(DrCollectionTool.notEmpty(in)){
 			out.addAll(in);
 		}
 		return out;
@@ -55,8 +55,8 @@ public class SetTool {
 	}
 	
 	public static <T> HashSet<T> createHashSet(T... in){
-		HashSet<T> out = new HashSet<T>(ArrayTool.nullSafeLength(in));
-		if(ArrayTool.isEmpty(in)){
+		HashSet<T> out = new HashSet<T>(DrArrayTool.nullSafeLength(in));
+		if(DrArrayTool.isEmpty(in)){
 			return out;
 		}
 		for(int i=0; i < in.length; ++i){
@@ -67,7 +67,7 @@ public class SetTool {
 	
 	public static <T> TreeSet<T> createTreeSet(T... in){
 		TreeSet<T> out = new TreeSet<T>();
-		if(ArrayTool.isEmpty(in)){
+		if(DrArrayTool.isEmpty(in)){
 			return out;
 		}
 		for(int i=0; i < in.length; ++i){
@@ -96,13 +96,13 @@ public class SetTool {
 
 	public static <T> SortedSet<T> nullSafeSortedAddAll(SortedSet<T> set, Collection<T> newItems){
 		set = nullSafeTreeSet(set);
-		set.addAll(CollectionTool.nullSafe(newItems));
+		set.addAll(DrCollectionTool.nullSafe(newItems));
 		return set;
 	}
 	
 	public static <T> boolean containsSameKeys(Set<T> as, Set<T> bs){
-		if(CollectionTool.differentSize(as, bs)){ return false; }
-		if(CollectionTool.isEmpty(as)){ return true; }
+		if(DrCollectionTool.differentSize(as, bs)){ return false; }
+		if(DrCollectionTool.isEmpty(as)){ return true; }
 		for(T a : as) {
 			if( ! bs.contains(a)) { return false; }
 		}
@@ -114,9 +114,9 @@ public class SetTool {
 	public static class Tests {
 		@Test
 		public void testNullSafeAddAllWithEmptySet() {
-			SortedSet<String> set = SetTool.createTreeSet();
+			SortedSet<String> set = DrSetTool.createTreeSet();
 			set.add("b");
-			Set<String> toAdd = SetTool.create();
+			Set<String> toAdd = DrSetTool.create();
 			toAdd.add("a");
 			set = nullSafeSortedAddAll(set, toAdd);
 			set.add("c");
@@ -125,7 +125,7 @@ public class SetTool {
 		@Test
 		public void testNullSafeAddAllWithNullSet() {
 			SortedSet<String> set = null;
-			Set<String> toAdd = SetTool.create();
+			Set<String> toAdd = DrSetTool.create();
 			toAdd.add("a");
 			set = nullSafeSortedAddAll(set, toAdd);
 			set.add("c");

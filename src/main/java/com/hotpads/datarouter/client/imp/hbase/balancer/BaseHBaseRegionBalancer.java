@@ -13,8 +13,8 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseHBaseRegionBalancer
@@ -39,7 +39,7 @@ implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
 		this.drhServerList = drhServerList;
 		this.drhRegionList = drhRegionList;
 		// internal
-		this.serverByRegion = MapTool.createTreeMap();
+		this.serverByRegion = DrMapTool.createTreeMap();
 		if(scatteringPrefixClass != null){
 			this.scatteringPrefix = ReflectionTool.create(scatteringPrefixClass);
 		}
@@ -61,7 +61,7 @@ implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
 		StringBuilder sb = new StringBuilder();
 		for(Map.Entry<DRHRegionInfo<?>,ServerName> entry : serverByRegion.entrySet()){
 			sb.append("\n"
-					+StringTool.pad(i+"", ' ', 3)
+					+DrStringTool.pad(i+"", ' ', 3)
 					+" "+entry.getKey().getRegion().getEncodedName()
 					+", "+entry.getValue());
 			++i;

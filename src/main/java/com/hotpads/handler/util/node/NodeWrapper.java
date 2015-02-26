@@ -8,8 +8,8 @@ import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
 import com.hotpads.datarouter.routing.Datarouter;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class NodeWrapper{
 	public Node<?,?> node;
@@ -23,7 +23,7 @@ public class NodeWrapper{
 	}
 
 	public static List<NodeWrapper> getNodeWrappers(Datarouter router){
-		List<NodeWrapper> outs = ListTool.createArrayList();
+		List<NodeWrapper> outs = DrListTool.createArrayList();
 		Collection<Node<?,?>> topLevelNodes = router.getContext().getNodes().getTopLevelNodesByRouterName().get(
 				router.getName());
 //		SortedSet<Node> topLevelNodes = router.getNodes();
@@ -36,7 +36,7 @@ public class NodeWrapper{
 	public static void addNodeAndChildren(Node<?,?> parentNode, List<NodeWrapper> wrappers, int indent){
 		wrappers.add(new NodeWrapper(parentNode, indent));
 		List<? extends Node<?,?>> childNodes = parentNode.getChildNodes();
-		if(CollectionTool.isEmpty(childNodes)){ return; }
+		if(DrCollectionTool.isEmpty(childNodes)){ return; }
 		for(Node<?,?> node : childNodes){
 			addNodeAndChildren(node, wrappers, indent + 1);
 		}

@@ -13,8 +13,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -24,7 +24,7 @@ public class HBaseResultTool{
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 	List<PK> getPrimaryKeys(List<Result> rows, DatabeanFieldInfo<PK,D,F> fieldInfo){
-		List<PK> results = ListTool.createArrayListWithSize(rows);
+		List<PK> results = DrListTool.createArrayListWithSize(rows);
 		for(Result row : rows){
 			if(row==null || row.isEmpty()){ continue; }
 			PK result = getPrimaryKey(row.getRow(), fieldInfo);
@@ -35,7 +35,7 @@ public class HBaseResultTool{
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> 
 	List<D> getDatabeans(List<Result> rows, DatabeanFieldInfo<PK,D,F> fieldInfo){
-		List<D> results = ListTool.createArrayListWithSize(rows);
+		List<D> results = DrListTool.createArrayListWithSize(rows);
 		for(Result row : rows){
 			if(row==null || row.isEmpty()){ continue; }
 			D result = getDatabean(row, fieldInfo);
@@ -57,7 +57,7 @@ public class HBaseResultTool{
 	PK getPrimaryKeyUnchecked(byte[] rowBytes, DatabeanFieldInfo<?,?,?> fieldInfo){
 		@SuppressWarnings("unchecked")
 		PK primaryKey = (PK)ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
-		if(ArrayTool.isEmpty(rowBytes)){ return primaryKey; }
+		if(DrArrayTool.isEmpty(rowBytes)){ return primaryKey; }
 		
 		byte[] keyBytesWithoutScatteringPrefix = getKeyBytesWithoutScatteringPrefix(fieldInfo, rowBytes);
 		//copied from above
@@ -87,7 +87,7 @@ public class HBaseResultTool{
 				Field<?> field = fieldInfo.getNonKeyFieldByColumnName().get(fieldName);//skip key fields which may have been accidenally inserted
 				if(field==null){ continue; }//skip dummy fields and fields that may have existed in the past
 				//someListener.handleUnmappedColumn(.....
-				if(ArrayTool.isEmpty(latestValue)){ continue; }
+				if(DrArrayTool.isEmpty(latestValue)){ continue; }
 				Object value = field.fromBytesButDoNotSet(latestValue, 0);
 				field.setUsingReflection(databean, value);
 			}

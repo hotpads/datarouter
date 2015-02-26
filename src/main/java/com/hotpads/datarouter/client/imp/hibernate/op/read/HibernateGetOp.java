@@ -20,9 +20,9 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 public class HibernateGetOp<
 		PK extends PrimaryKey<PK>,
@@ -47,11 +47,11 @@ extends BaseHibernateOp<List<D>>{
 	public List<D> runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
-		List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
+		List<? extends Key<PK>> sortedKeys = DrListTool.createArrayList(keys);
 		Collections.sort(sortedKeys);//is this sorting at all beneficial?
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		Disjunction orSeparatedIds = Restrictions.disjunction();
-		for(Key<PK> key : CollectionTool.nullSafe(sortedKeys)){
+		for(Key<PK> key : DrCollectionTool.nullSafe(sortedKeys)){
 			Conjunction possiblyCompoundId = Restrictions.conjunction();
 			List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), 
 					key.getFields());
@@ -64,8 +64,8 @@ extends BaseHibernateOp<List<D>>{
 		List<D> result = criteria.list();
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-				CollectionTool.size(result));
-		TraceContext.appendToSpanInfo("[got "+CollectionTool.size(result)+"/"+CollectionTool.size(keys)+"]");
+				DrCollectionTool.size(result));
+		TraceContext.appendToSpanInfo("[got "+DrCollectionTool.size(result)+"/"+DrCollectionTool.size(keys)+"]");
 		return result;
 	}
 	

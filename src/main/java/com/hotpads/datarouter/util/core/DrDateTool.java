@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,7 +17,7 @@ import com.hotpads.util.core.date.DurationUnit;
 import com.hotpads.util.core.date.DurationWithCarriedUnits;
 
 
-public final class DateTool {
+public final class DrDateTool {
 
 	public static final int
 		MILLISECONDS_IN_WEEK = 7 * 24 * 60 * 60 * 1000,
@@ -316,7 +316,7 @@ public final class DateTool {
 					df.format(parseUserInputDate("November 05, 2008",null)));
 			Assert.assertEquals("07-15-2011",
 					df.format(parseUserInputDate("July 15th, 2011",null)));
-			Assert.assertEquals("07-15-"+DateTool.getYearInteger(),
+			Assert.assertEquals("07-15-"+DrDateTool.getYearInteger(),
 					df.format(parseUserInputDate("July 15th",2000)));
 			Assert.assertEquals("01-01-2008",
 					df.format(parseUserInputDate("1/1/2008",null)));

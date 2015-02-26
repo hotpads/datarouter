@@ -1,7 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.test;
 
 import java.io.BufferedReader;
-
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,13 +15,13 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 @Deprecated
 public class TestParser{
 
 	public static void main(String[] args) throws SQLException, IOException{
 		SqlTable table = new SqlTable("Table");
-		List<SqlColumn> columns = ListTool.createArrayList();
+		List<SqlColumn> columns = DrListTool.createArrayList();
 
 		FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");
 		// Get the object of DataInputStream
@@ -76,7 +75,7 @@ public class TestParser{
 	public static List<String> getKeyColumnsNamesFromKeyDeclaration(String string){
 		int index = string.indexOf("(");
 		String[] sFinal = string.substring(index).split("[`]+");
-		List<String> list = ListTool.createArrayList();
+		List<String> list = DrListTool.createArrayList();
 		for(String s: sFinal){
 			s = removeNonText(s);
 			if(isNotEmpty(s)) list.add(s); 
@@ -122,7 +121,7 @@ public class TestParser{
 	 * @return
 	 */
 	public static SqlTable parseAndCreateTable(String phrase){
-		List<SqlColumn> columns = ListTool.createArrayList();
+		List<SqlColumn> columns = DrListTool.createArrayList();
 		String delims = "[(),]+";					// THE DELIMITERS FOR TOKENIZING
 		String[] tokens = phrase.split(delims);		// TOKENIZING
 		
@@ -285,7 +284,7 @@ public class TestParser{
 		 String columnDefinitionSection = SqlTable.getColumnDefinitionSection(phrase);
 		 //System.out.println("getColumnDefinitionSection : " + columnDefinitionSection);
 		 String [] tokens = getKeyDeclarationFromFullBody(columnDefinitionSection).split("[)]");
-		 List<String> keyDeclarationList = ListTool.createArrayList();
+		 List<String> keyDeclarationList = DrListTool.createArrayList();
 		 for(String s:tokens){
 			 if(isNotEmpty(removeNonText(s))){
 				 keyDeclarationList.add(s);

@@ -14,7 +14,7 @@
  ********************************************************************
  */
 
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -26,7 +26,7 @@ import org.junit.Test;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
-public class HashMethods{
+public class DrHashMethods{
 
 	public static long longDJBHash(String str){
 		long hash = 5381l;
@@ -68,7 +68,7 @@ public class HashMethods{
 			Assert.assertFalse(hash1 == hash2);
 		}
 		@Test public void testMd5() throws NoSuchAlgorithmException{
-			Set<Long> buckets = SetTool.createTreeSet();
+			Set<Long> buckets = DrSetTool.createTreeSet();
 			for(int serverNum = 98; serverNum <= 101; ++serverNum){
 				String serverName = "HadoopNode98:10012:" + serverNum;
 				for(int i = 0; i < 1000; ++i){

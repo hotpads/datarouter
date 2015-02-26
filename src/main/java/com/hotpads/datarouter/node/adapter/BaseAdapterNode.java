@@ -16,11 +16,11 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.callsite.CallsiteRecorder;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.profile.callsite.LineOfCode;
-import com.hotpads.util.core.BooleanTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.cache.Cached;
 
 public abstract class BaseAdapterNode<
@@ -44,7 +44,7 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = SetTool.wrap(getName());
+		Set<String> names = DrSetTool.wrap(getName());
 		names.addAll(backingNode.getAllNames());
 		return names;
 	}
@@ -67,8 +67,8 @@ extends BaseNode<PK,D,F>{
 	@Override
 	public List<String> getClientNames() {
 		SortedSet<String> clientNames = new TreeSet<>();
-		SetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
-		return ListTool.createArrayList(clientNames);
+		DrSetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
+		return DrListTool.createArrayList(clientNames);
 	}
 
 	@Override
@@ -91,7 +91,7 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public List<N> getChildNodes(){
-		return ListTool.wrap(backingNode);
+		return DrListTool.wrap(backingNode);
 	}
 	
 	
@@ -103,11 +103,11 @@ extends BaseNode<PK,D,F>{
 	}
 	
 	public void recordCollectionCallsite(Config config, long startTimeNs, Collection<?> items){
-		recordCallsite(config, startTimeNs, CollectionTool.size(items));
+		recordCallsite(config, startTimeNs, DrCollectionTool.size(items));
 	}
 	
 	public void recordCallsite(Config config, long startNs, int numItems){
-		if(recordCallsites == null || BooleanTool.isFalseOrNull(recordCallsites.get())){ return; }
+		if(recordCallsites == null || DrBooleanTool.isFalseOrNull(recordCallsites.get())){ return; }
 		LineOfCode datarouterMethod = new LineOfCode(2);
 		long durationNs = System.nanoTime() - startNs;
 		CallsiteRecorder.record(backingNode.getName(), datarouterMethod.getMethodName(), config.getCallsite(),

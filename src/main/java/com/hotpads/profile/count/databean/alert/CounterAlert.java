@@ -21,9 +21,9 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
+import com.hotpads.datarouter.util.core.DrHashMethods;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.profile.count.databean.key.CounterAlertKey;
-import com.hotpads.util.core.HashMethods;
-import com.hotpads.util.core.MapTool;
 
 @SuppressWarnings("serial")
 @Entity()
@@ -78,7 +78,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 	
 	/********************* build Id **************************/
 	private void buildId(){
-		setId(HashMethods.longDJBHash(counterName + periodMs + minThreshold + maxThreshold + creatorEmail + alertTimeRange));
+		setId(DrHashMethods.longDJBHash(counterName + periodMs + minThreshold + maxThreshold + creatorEmail + alertTimeRange));
 	}
 	
 	/*************************** databean ****************************************/
@@ -124,7 +124,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		
 		@Override
 		public Map<String,List<Field<?>>> getIndexes(CounterAlert counterAlert){
-			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
+			Map<String,List<Field<?>>> indexesByName = DrMapTool.createTreeMap();
 			indexesByName.put(F.counterName, new CounterAlertByCounterNameLookup(null).getFields());
 			indexesByName.put(F.creatorEmail, new CounterAlertByCreatorEmailLookup(null).getFields());
 			return indexesByName;

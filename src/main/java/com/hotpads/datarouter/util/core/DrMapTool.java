@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +20,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 
 
-public class MapTool {
+public class DrMapTool {
 	
 	protected static final Map<?,?> EMPTY_HASH_MAP = Collections.unmodifiableMap(createHashMap());
 	protected static final Map<?,?> EMPTY_TREE_MAP = Collections.unmodifiableMap(createTreeMap());
@@ -129,7 +129,7 @@ public class MapTool {
 	/************************* string keyed counting ******************************/
 
 	public static Long incrementStringKey(Map<String,Long> map, Object key, Long delta){
-		String stringKey = ObjectTool.nullSafeToString(key, "null");
+		String stringKey = DrObjectTool.nullSafeToString(key, "null");
 		if(!map.containsKey(stringKey)){ 
 			map.put(stringKey, delta); 
 			return delta;
@@ -143,7 +143,7 @@ public class MapTool {
 
 	public static <K,V> K getFirstKeyWhereValueEquals(Map<K,V> map, V value){
 		for(Map.Entry<K,V> entry : nullSafe(map).entrySet()){
-			if(ObjectTool.equals(value, entry.getValue())){ 
+			if(DrObjectTool.equals(value, entry.getValue())){ 
 				return entry.getKey();
 			}
 		}
@@ -159,12 +159,12 @@ public class MapTool {
 	 * @return a {@link Map} 
 	 */
 	public static Map<String, String> getMapFromString(String string, String entrySeperator, String keyValueSeparator) {
-		Map<String, String> map = MapTool.createTreeMap();
-		if (StringTool.isEmpty(string)) {return map;}
+		Map<String, String> map = DrMapTool.createTreeMap();
+		if (DrStringTool.isEmpty(string)) {return map;}
 		String[] entries = string.split(entrySeperator);
 		String[] keyVal;
 		for (String entry : entries) {
-			if (StringTool.notEmpty(entry)) {
+			if (DrStringTool.notEmpty(entry)) {
 				keyVal = entry.split(keyValueSeparator);
 				map.put(keyVal[0], keyVal.length > 1 ? keyVal[1] : null);
 			}
@@ -177,7 +177,7 @@ public class MapTool {
 		@Test
 		public void getMapFromString() {
 			String string = "key1: val1;key2: val2";
-			Map<String, String> res = MapTool.getMapFromString(string, ";", ": ");
+			Map<String, String> res = DrMapTool.getMapFromString(string, ";", ": ");
 			Assert.assertEquals(2, res.size());
 			Assert.assertEquals("val2", res.get("key2"));
 			Assert.assertEquals(string, Joiner.on(";").withKeyValueSeparator(": ").join(res));

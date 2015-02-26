@@ -26,13 +26,13 @@ import com.hotpads.datarouter.node.Nodes;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.util.ApplicationPaths;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.PropertiesTool;
-import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.datarouter.util.core.DrPropertiesTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
 
 /**
@@ -91,9 +91,9 @@ public class DatarouterContext{
 		this.clients = clients;
 		this.nodes = nodes;
 		
-		this.configFilePaths = SetTool.createTreeSet();
-		this.multiProperties = ListTool.createArrayList();
-		this.routers = ListTool.createArrayList();
+		this.configFilePaths = DrSetTool.createTreeSet();
+		this.multiProperties = DrListTool.createArrayList();
+		this.routers = DrListTool.createArrayList();
 //		createDefaultMemoryClient();//do after this.clients and this.nodes have been instantiated
 	}
 	
@@ -117,19 +117,19 @@ public class DatarouterContext{
 		
 		logger.warn("adding datarouter config from "+configPath+", currentRouters:"+routers);
 		configFilePaths.add(configPath);
-		multiProperties.add(PropertiesTool.parse(configPath));
+		multiProperties.add(DrPropertiesTool.parse(configPath));
 		
-		String newServerName = PropertiesTool.getFirstOccurrence(multiProperties, CONFIG_SERVER_NAME);
-		if(StringTool.isEmpty(serverName)){
+		String newServerName = DrPropertiesTool.getFirstOccurrence(multiProperties, CONFIG_SERVER_NAME);
+		if(DrStringTool.isEmpty(serverName)){
 			serverName = newServerName;
-		}else if(ObjectTool.notEquals(serverName, newServerName)){
+		}else if(DrObjectTool.notEquals(serverName, newServerName)){
 			logger.warn("not replacing existing serverName "+serverName+" with "+newServerName+" from "+configPath);
 		}
 		
-		String newAdministratorEmail = PropertiesTool.getFirstOccurrence(multiProperties, CONFIG_ADMINISTRATOR_EMAIL);
-		if(StringTool.isEmpty(administratorEmail)){
+		String newAdministratorEmail = DrPropertiesTool.getFirstOccurrence(multiProperties, CONFIG_ADMINISTRATOR_EMAIL);
+		if(DrStringTool.isEmpty(administratorEmail)){
 			administratorEmail = newAdministratorEmail;
-		}else if(ObjectTool.notEquals(administratorEmail, newAdministratorEmail)){
+		}else if(DrObjectTool.notEquals(administratorEmail, newAdministratorEmail)){
 			logger.warn("not replacing existing administratorEmail "+administratorEmail+" with "+newAdministratorEmail
 					+" from "+configPath);
 		}
@@ -148,7 +148,7 @@ public class DatarouterContext{
 	/********************* methods **********************************/
 
 	public Datarouter getRouter(String name){
-		for(Datarouter router : CollectionTool.nullSafe(this.routers)){
+		for(Datarouter router : DrCollectionTool.nullSafe(this.routers)){
 			if(name.equals(router.getName())){
 				return router;
 			}
@@ -157,13 +157,13 @@ public class DatarouterContext{
 	}
 	
 	public List<Client> getClients(){
-		SortedSet<Client> clients = SetTool.createTreeSet();
-		for(Datarouter router : IterableTool.nullSafe(getRouters())){
-			for(Client client : IterableTool.nullSafe(router.getAllClients())){
+		SortedSet<Client> clients = DrSetTool.createTreeSet();
+		for(Datarouter router : DrIterableTool.nullSafe(getRouters())){
+			for(Client client : DrIterableTool.nullSafe(router.getAllClients())){
 				clients.add(client);
 			}
 		}
-		return ListTool.createArrayList(clients);
+		return DrListTool.createArrayList(clients);
 	}
 	
 	public Datarouter getRouterForClient(Client client){

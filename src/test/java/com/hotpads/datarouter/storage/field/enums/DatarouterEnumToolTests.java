@@ -7,7 +7,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class DatarouterEnumToolTests{
 	private enum SomeType implements StringEnum<SomeType> {
@@ -29,16 +29,16 @@ public class DatarouterEnumToolTests{
 	public void testSomeTypeCsvNames1() {
 		 SomeType[] expected = { SomeType.LARGE, SomeType.CONDO };
 		 List<SomeType> actual = DatarouterEnumTool.uniqueListFromCsvNames( SomeType.values(), "large, funky, condo, dunno", false );
-		 Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(Arrays.asList(expected), actual));
+		 Assert.assertTrue(DrCollectionTool.equalsAllElementsInIteratorOrder(Arrays.asList(expected), actual));
 	}
 
 	@Test
 	public void testSomeTypeCsvNames2() {
 		 SomeType[] expected = { SomeType.RENTAL, SomeType.SALE, SomeType.SUBLET };
 		 List<SomeType> actual = DatarouterEnumTool.uniqueListFromCsvNames( SomeType.values(), "rental, funky, condoo, sale, sublet", false );
-		 Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(Arrays.asList(expected), actual));
+		 Assert.assertTrue(DrCollectionTool.equalsAllElementsInIteratorOrder(Arrays.asList(expected), actual));
 		
 		 actual = DatarouterEnumTool.uniqueListFromCsvNames( SomeType.values(), "ballons", true );
-		 Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(Arrays.asList(SomeType.values()), actual));
+		 Assert.assertTrue(DrCollectionTool.equalsAllElementsInIteratorOrder(Arrays.asList(SomeType.values()), actual));
 	}
 }

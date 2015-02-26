@@ -1,11 +1,11 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 
 
-public class NumberTool {
+public class DrNumberTool {
 	
 	/************************* is this or that methods ************************/
 	
@@ -51,7 +51,7 @@ public class NumberTool {
 			String toDouble, Double alternate, boolean filterInput){
 		if(toDouble==null) return alternate;
 		if(filterInput){
-			toDouble = StringTool.enforceNumeric(toDouble);
+			toDouble = DrStringTool.enforceNumeric(toDouble);
 			if(toDouble==null) return alternate;
 		}
 		try{

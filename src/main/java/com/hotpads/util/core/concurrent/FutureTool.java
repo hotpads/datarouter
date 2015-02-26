@@ -15,9 +15,9 @@ import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.NumberTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrNumberTool;
 
 public class FutureTool {
 	
@@ -49,16 +49,16 @@ public class FutureTool {
 	}
 
 	public static List<Future<?>> submitAllVaried(Collection<Callable<?>> callables, ExecutorService executorService){
-		List<Future<?>> futures = ListTool.create();
-		for(Callable<?> callable : IterableTool.nullSafe(callables)){
+		List<Future<?>> futures = DrListTool.create();
+		for(Callable<?> callable : DrIterableTool.nullSafe(callables)){
 			futures.add(executorService.submit(callable));
 		}
 		return futures;
 	}
 
 	public static List<?> getAllVaried(Collection<Future<?>> ins){
-		List<?> outs = ListTool.createArrayListWithSize(ins);
-		for(Future<?> in : IterableTool.nullSafe(ins)){
+		List<?> outs = DrListTool.createArrayListWithSize(ins);
+		for(Future<?> in : DrIterableTool.nullSafe(ins)){
 			get(in);
 		}
 		return outs;
@@ -73,16 +73,16 @@ public class FutureTool {
 	}
 
 	public static <T>List<Future<T>> submitAll(Collection<? extends Callable<T>> callables, ExecutorService executorService){
-		List<Future<T>> futures = ListTool.create();
-		for(Callable<T> callable : IterableTool.nullSafe(callables)){
+		List<Future<T>> futures = DrListTool.create();
+		for(Callable<T> callable : DrIterableTool.nullSafe(callables)){
 			futures.add(executorService.submit(callable));
 		}
 		return futures;
 	}
 
 	public static <T>List<T> getAll(Collection<Future<T>> ins){
-		List<T> outs = ListTool.createArrayListWithSize(ins);
-		for(Future<T> in : IterableTool.nullSafe(ins)){
+		List<T> outs = DrListTool.createArrayListWithSize(ins);
+		for(Future<T> in : DrIterableTool.nullSafe(ins)){
 			outs.add(get(in));
 		}
 		return outs;
@@ -123,8 +123,8 @@ public class FutureTool {
 			String timeoutMessage, Logger logger){
 		long deadlineAtMs = System.currentTimeMillis() + timeUnit.toMillis(timeoutLength);
 		List<T> results = new ArrayList<>();
-		for(Future<T> future : IterableTool.nullSafe(futures)){
-			long remainingMs = NumberTool.max(0L, deadlineAtMs - System.currentTimeMillis());//guard for negatives
+		for(Future<T> future : DrIterableTool.nullSafe(futures)){
+			long remainingMs = DrNumberTool.max(0L, deadlineAtMs - System.currentTimeMillis());//guard for negatives
 			T result = tryGet(future, remainingMs, TimeUnit.MILLISECONDS, timeoutMessage, logger);
 			if(result != null){
 				results.add(result);
@@ -136,7 +136,7 @@ public class FutureTool {
 	public static <T> T tryGet(Future<T> future, long timeoutLength, TimeUnit units, String timeoutMessage, 
 			Logger logger) {
 		try{
-			long nonNegativeTimeoutLength = NumberTool.max(0L, timeoutLength);//guard for negatives
+			long nonNegativeTimeoutLength = DrNumberTool.max(0L, timeoutLength);//guard for negatives
 			return future.get(nonNegativeTimeoutLength, units);
 		}catch(InterruptedException|ExecutionException|CancellationException e){
 			future.cancel(true);

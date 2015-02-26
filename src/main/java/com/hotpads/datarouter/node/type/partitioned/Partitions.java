@@ -15,10 +15,10 @@ import com.hotpads.datarouter.node.type.partitioned.filter.PartitionedNodePrimar
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.util.core.iterable.scanner.filter.Filter;
 
 public class Partitions<
@@ -28,13 +28,13 @@ public class Partitions<
 	protected static Logger logger = LoggerFactory.getLogger(Partitions.class);
 
 	protected BasePartitionedNode<PK,D,?,N> basePartitionedNode;
-	protected List<N> nodes = ListTool.createArrayList();
-	protected Map<String,N> nodeByName = MapTool.createLinkedHashMap();
-	protected Map<String,List<String>> nodeNamesByClientName = MapTool.createHashMap();
-	protected Map<String,List<String>> clientNamesByNodeName = MapTool.createHashMap();
-	protected SortedSet<String> clientNames = SetTool.createTreeSet();
-	protected Map<N,Filter<PK>> primaryKeyFilterByNode = MapTool.createHashMap();
-	protected Map<N,Filter<D>> databeanFilterByNode = MapTool.createHashMap();
+	protected List<N> nodes = DrListTool.createArrayList();
+	protected Map<String,N> nodeByName = DrMapTool.createLinkedHashMap();
+	protected Map<String,List<String>> nodeNamesByClientName = DrMapTool.createHashMap();
+	protected Map<String,List<String>> clientNamesByNodeName = DrMapTool.createHashMap();
+	protected SortedSet<String> clientNames = DrSetTool.createTreeSet();
+	protected Map<N,Filter<PK>> primaryKeyFilterByNode = DrMapTool.createHashMap();
+	protected Map<N,Filter<D>> databeanFilterByNode = DrMapTool.createHashMap();
 	
 	public Partitions(BasePartitionedNode<PK,D,?,N> basePartitionedNode){
 		this.basePartitionedNode = basePartitionedNode;
@@ -93,9 +93,9 @@ public class Partitions<
 		if(clientName==null){
 			return getAll();
 		}
-		List<N> nodes = ListTool.createLinkedList();
-		List<String> nodeNames = MapTool.nullSafe(nodeNamesByClientName).get(clientName);
-		for(String nodeName : CollectionTool.nullSafe(nodeNames)){
+		List<N> nodes = DrListTool.createLinkedList();
+		List<String> nodeNames = DrMapTool.nullSafe(nodeNamesByClientName).get(clientName);
+		for(String nodeName : DrCollectionTool.nullSafe(nodeNames)){
 			nodes.add(nodeByName.get(nodeName));
 		}
 		return nodes;
@@ -103,15 +103,15 @@ public class Partitions<
 	
 	public List<Class<D>> getTypesForClient(String clientName){
 		Collection<N> nodes = getPhysicalNodesForClient(clientName);
-		List<Class<D>> types = ListTool.createLinkedList();
-		for(N node : CollectionTool.nullSafe(nodes)){
+		List<Class<D>> types = DrListTool.createLinkedList();
+		for(N node : DrCollectionTool.nullSafe(nodes)){
 			types.add(node.getDatabeanType());
 		}
 		return types;
 	}
 	
 	public List<String> getClientNames(){
-		return ListTool.createArrayList(clientNames);
+		return DrListTool.createArrayList(clientNames);
 	}
 	
 	public Filter<PK> getPrimaryKeyFilterForNode(N node){

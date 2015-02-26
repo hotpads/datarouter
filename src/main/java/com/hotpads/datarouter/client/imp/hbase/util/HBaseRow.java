@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase.util;
 import java.util.Map;
 import java.util.NavigableMap;
 
-import com.hotpads.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class HBaseRow{
@@ -26,7 +26,7 @@ public class HBaseRow{
 					String familyName = StringByteTool.fromUtf8Bytes(family.getKey());
 					String columnName = StringByteTool.fromUtf8Bytes(column.getKey());
 					Long version = cell.getKey();
-					int numBytes = ArrayTool.length(cell.getValue());
+					int numBytes = DrArrayTool.length(cell.getValue());
 					String valueString = StringByteTool.fromUtf8Bytes(cell.getValue());
 					sb.append("\t"+version+":"+familyName+":"+columnName+"("+numBytes+"b)="+valueString+"\n");
 				}

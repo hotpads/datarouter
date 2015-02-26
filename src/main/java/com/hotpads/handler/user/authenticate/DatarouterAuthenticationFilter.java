@@ -21,6 +21,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.ResponseTool;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.authenticate.authenticator.DatarouterAuthenticator;
@@ -29,8 +31,6 @@ import com.hotpads.handler.user.role.DatarouterUserRole;
 import com.hotpads.handler.user.session.DatarouterSession;
 import com.hotpads.handler.user.session.DatarouterSessionManager;
 import com.hotpads.handler.util.RequestTool;
-import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.exception.InvalidApiCallException;
 import com.hotpads.util.core.exception.InvalidCredentialsException;
 import com.hotpads.util.core.io.RuntimeIOException;
@@ -97,7 +97,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		}
 
 		// successful login.  redirect 
-		if(ObjectTool.equals(path, signinSubmitPath)){
+		if(DrObjectTool.equals(path, signinSubmitPath)){
 			handleSuccessfulLogin(request, response, targetUrl);
 			return;
 		}
@@ -115,7 +115,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 	
 	private static URL getReferrerUrl(HttpServletRequest request){
 		final String referrerString = request.getHeader("referer"); // misspelled on purpose
-		if(StringTool.isEmpty(referrerString)){ return null; }
+		if(DrStringTool.isEmpty(referrerString)){ return null; }
 		try{
 			return new URL(referrerString);
 		}catch(MalformedURLException e){
@@ -126,7 +126,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private URL getValidTargetUrl(HttpServletRequest request, String signinFormPath){
 		URL targetUrl = sessionManager.getTargetUrlFromCookie(request);
 		if(targetUrl==null){ return null; }
-		if(ObjectTool.equals(signinFormPath, targetUrl.getPath())){
+		if(DrObjectTool.equals(signinFormPath, targetUrl.getPath())){
 			logger.warn("ignoring targetUrl "+targetUrl.getPath());
 			return null; 
 		}
@@ -137,9 +137,9 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private static boolean shouldBounceBack(HttpServletRequest request, String path, String signinFormPath, URL referrer, 
 			URL targetUrl){
 		boolean referredFromThisHost = referrer != null
-				&& ObjectTool.equals(referrer.getHost(), request.getServerName());
+				&& DrObjectTool.equals(referrer.getHost(), request.getServerName());
 		boolean noExplicitTargetUrl = targetUrl == null;
-		boolean displayingLoginForm = ObjectTool.equals(signinFormPath, path);
+		boolean displayingLoginForm = DrObjectTool.equals(signinFormPath, path);
 		return referredFromThisHost && noExplicitTargetUrl && displayingLoginForm;
 	}
 
@@ -171,7 +171,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		}catch(UnsupportedEncodingException e){
 			throw new RuntimeException(e);
 		}
-		String usernameParamAndValue = StringTool.isEmpty(attemptedUsername) ? "" : "&" + usernameParam + "="
+		String usernameParamAndValue = DrStringTool.isEmpty(attemptedUsername) ? "" : "&" + usernameParam + "="
 				+ escapedUsername;
 		String errorParam = "?error=true" + usernameParamAndValue;
 		ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, contextPath + signinFormPath 

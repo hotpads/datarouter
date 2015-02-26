@@ -38,15 +38,15 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DRHTableSettings;
 import com.hotpads.datarouter.client.imp.hbase.compaction.DRHCompactionInfo;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.routing.RouterParams;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.util.RequestTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.ThreadTool;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -106,7 +106,7 @@ public class HBaseHandler extends BaseHandler {
 	private void initializeHBaseParameters(){
 		// TODO don't tie to a specific table
 		encodedRegionNameStrings = RequestTool.getCheckedBoxes(request, PARAM_PREFIX_encodedRegionName_);
-		numRegions = CollectionTool.size(encodedRegionNameStrings);
+		numRegions = DrCollectionTool.size(encodedRegionNameStrings);
 		drhServerList = new DRHServerList(hbaseConfig);
 		if(routerParams.getNode() != null){
 			regionList = new DRHRegionList(routerParams.getClient(), drhServerList, routerParams.getTableName(),
@@ -130,7 +130,7 @@ public class HBaseHandler extends BaseHandler {
 		mav.put("address", hbaseConfig.get(HConstants.ZOOKEEPER_QUORUM));
 		List<HTableDescriptor> tables = null;
 		try{
-			tables = ListTool.create(routerParams.getClient().getHBaseAdmin().listTables());
+			tables = DrListTool.create(routerParams.getClient().getHBaseAdmin().listTables());
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
@@ -139,9 +139,9 @@ public class HBaseHandler extends BaseHandler {
 		@SuppressWarnings("unchecked") 
 		List<String> tableNamesForClient = routerParams.getNodes().getTableNamesForRouterAndClient(routerParams
 				.getRouterName(), routerParams.getClientName());
-		for(HTableDescriptor table : IterableTool.nullSafe(tables)){
+		for(HTableDescriptor table : DrIterableTool.nullSafe(tables)){
 			String tableName = table.getNameAsString();
-			if(!CollectionTool.nullSafe(tableNamesForClient).contains(tableName)){
+			if(!DrCollectionTool.nullSafe(tableNamesForClient).contains(tableName)){
 				continue;
 			}
 			Map<String,String> tableAttributeByName = new TreeMap<>();
@@ -172,8 +172,8 @@ public class HBaseHandler extends BaseHandler {
 			ClusterStatus clusterStatus = master.getClusterStatus();
 			mav.put("clusterStatus", clusterStatus);
 			Collection<ServerName> serverNames = clusterStatus.getServers();
-			List<DRHServerInfo> servers = ListTool.create();
-			for (ServerName serverName : IterableTool.nullSafe(serverNames)) {
+			List<DRHServerInfo> servers = DrListTool.create();
+			for (ServerName serverName : DrIterableTool.nullSafe(serverNames)) {
 				HServerLoad hServerLoad = clusterStatus.getLoad(serverName);
 				servers.add(new DRHServerInfo(serverName, hServerLoad));
 			}
@@ -195,15 +195,15 @@ public class HBaseHandler extends BaseHandler {
 		}
 		if(table != null){
 			// table level settings
-			Map<String,String> tableParamByName = MapTool.createTreeMap();
+			Map<String,String> tableParamByName = DrMapTool.createTreeMap();
 			tableParamByName.put(HBASE_TABLE_PARAM_MAX_FILESIZE, table.getMaxFileSize() / 1024 / 1024 + "");
 			tableParamByName.put(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE, table.getMemStoreFlushSize() / 1024 / 1024 + "");
 			mav.put("tableParamByName", tableParamByName);
 
 			// column family level settings
-			List<HColumnDescriptor> columnFamilies = ListTool.create(table.getColumnFamilies());
-			Map<String,Map<String,String>> columnSummaryByName = MapTool.createTreeMap();
-			for(HColumnDescriptor column : IterableTool.nullSafe(columnFamilies)){
+			List<HColumnDescriptor> columnFamilies = DrListTool.create(table.getColumnFamilies());
+			Map<String,Map<String,String>> columnSummaryByName = DrMapTool.createTreeMap();
+			for(HColumnDescriptor column : DrIterableTool.nullSafe(columnFamilies)){
 				Map<String,String> attributeByName = parseFamilyAttributeMap(column.getValues());
 				columnSummaryByName.put(column.getNameAsString(), attributeByName);
 			}
@@ -281,13 +281,13 @@ public class HBaseHandler extends BaseHandler {
 			HColumnDescriptor column = table.getFamily(columnName.getBytes());
 			try{
 				// validate all settings before disabling table
-				for(String colParam : IterableTool.nullSafe(DRHTableSettings.COLUMN_SETTINGS)){
+				for(String colParam : DrIterableTool.nullSafe(DRHTableSettings.COLUMN_SETTINGS)){
 					String value = RequestTool.get(request, colParam);
 					DRHTableSettings.validateColumnFamilySetting(colParam, value);
 				}
 				admin.disableTable(routerParams.getTableName());
 				logger.warn("table disabled");
-				for(String colParam : IterableTool.nullSafe(DRHTableSettings.COLUMN_SETTINGS)){
+				for(String colParam : DrIterableTool.nullSafe(DRHTableSettings.COLUMN_SETTINGS)){
 					String value = RequestTool.get(request, colParam);
 					column.setValue(colParam, value.trim());
 				}
@@ -345,7 +345,7 @@ public class HBaseHandler extends BaseHandler {
 		String tableName = params.required(PARAM_tableName);
 		String destinationServer = params.required(PARAM_destinationServerName);
 		ServerName serverName = new ServerName(destinationServer);
-		if(CollectionTool.doesNotContain(drhServerList.getServerNames(), serverName)){ 
+		if(DrCollectionTool.doesNotContain(drhServerList.getServerNames(), serverName)){ 
 			throw new IllegalArgumentException(serverName + " not found"); 
 		}
 		for(int i = 0; i < numRegions; ++i){
@@ -484,7 +484,7 @@ public class HBaseHandler extends BaseHandler {
 
 	private static Map<String,Map<String,String>> parseTableAttributeMap(Collection<HColumnDescriptor> families){
 		Map<String,Map<String,String>> familyAttributeByNameByFamilyName = new TreeMap<>();
-		for(HColumnDescriptor family : IterableTool.nullSafe(families)){
+		for(HColumnDescriptor family : DrIterableTool.nullSafe(families)){
 			Map<String,String> familyAttributeByName = new TreeMap<>();
 			familyAttributeByNameByFamilyName.put(family.getNameAsString(), familyAttributeByName);
 			for(Map.Entry<ImmutableBytesWritable,ImmutableBytesWritable> e : family.getValues().entrySet()){
@@ -498,7 +498,7 @@ public class HBaseHandler extends BaseHandler {
 
 	private static Map<String,String> parseFamilyAttributeMap(Map<ImmutableBytesWritable,ImmutableBytesWritable> ins){
 		Map<String,String> outs = new TreeMap<>();
-		for(Map.Entry<ImmutableBytesWritable,ImmutableBytesWritable> entry : MapTool.nullSafe(ins).entrySet()){
+		for(Map.Entry<ImmutableBytesWritable,ImmutableBytesWritable> entry : DrMapTool.nullSafe(ins).entrySet()){
 			outs.put(StringByteTool.fromUtf8Bytes(entry.getKey().get()), StringByteTool.fromUtf8Bytes(entry.getValue()
 					.get()));
 		}
@@ -529,7 +529,7 @@ public class HBaseHandler extends BaseHandler {
 			ACTION_updateHBaseTableAttribute = "updateHBaseTableAttribute",
 			ACTION_updateHBaseColumnAttribute = "updateHBaseColumnAttribute";
 
-	private static final List<String> NEEDS_CLIENT = ListTool.create();
+	private static final List<String> NEEDS_CLIENT = DrListTool.create();
 	static {
 		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
 		NEEDS_CLIENT.add(ACTION_moveRegionsToCorrectServer);
@@ -549,7 +549,7 @@ public class HBaseHandler extends BaseHandler {
 
 	}
 
-	private static final List<String> NEEDS_ROUTER = ListTool.create();
+	private static final List<String> NEEDS_ROUTER = DrListTool.create();
 	static {
 		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
 		NEEDS_ROUTER.add(RoutersHandler.ACTION_inspectRouter);
@@ -557,7 +557,7 @@ public class HBaseHandler extends BaseHandler {
 		NEEDS_ROUTER.add(ACTION_exportNodeToHFile);
 	}
 
-	private static final List<String> NEEDS_NODE = ListTool.create();
+	private static final List<String> NEEDS_NODE = DrListTool.create();
 	static {
 		NEEDS_NODE.add(ACTION_copyHBaseTable);
 		NEEDS_NODE.add(ACTION_exportNodeToHFile);
@@ -569,7 +569,7 @@ public class HBaseHandler extends BaseHandler {
 		NEEDS_NODE.add(ACTION_viewHBaseTableRegions);
 	}
 
-	private static final HashMap<String, List<String>> HBASE_NEEDS = MapTool
+	private static final HashMap<String, List<String>> HBASE_NEEDS = DrMapTool
 			.createHashMap();
 	static {
 		HBASE_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
@@ -582,7 +582,7 @@ public class HBaseHandler extends BaseHandler {
 			HBASE_TABLE_PARAM_MAX_FILESIZE = "MAX_FILESIZE",
 			HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE = "MEMSTORE_FLUSHSIZE";
 
-	private static final List<String> HBASE_TABLE_PARAMS = ListTool.create();
+	private static final List<String> HBASE_TABLE_PARAMS = DrListTool.create();
 	static {
 		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MAX_FILESIZE);
 		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE);

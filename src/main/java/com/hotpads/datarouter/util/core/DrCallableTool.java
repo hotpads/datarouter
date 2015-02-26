@@ -1,8 +1,8 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.concurrent.Callable;
 
-public class CallableTool{
+public class DrCallableTool{
 
 	public static <T> T callUnchecked(Callable<T> callable){
 		try{

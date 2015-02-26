@@ -15,9 +15,9 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 public class MemcachedNode<
 		PK extends PrimaryKey<PK>,
@@ -47,14 +47,14 @@ implements PhysicalMapStorageNode<PK,D>
 	@Override
 	public void put(final D databean, final Config config) {
 		if(databean==null){ return; }
-		putMulti(ListTool.wrap(databean), config);
+		putMulti(DrListTool.wrap(databean), config);
 	}
 
 	
 	//TODO does spy client not do batched puts?
 	@Override
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
-		if(CollectionTool.isEmpty(databeans)){ return; }
+		if(DrCollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		for(D databean : databeans){
 			if( ! fieldInfo.getFieldAware()){ throw new IllegalArgumentException("databeans must be field aware"); }
@@ -84,7 +84,7 @@ implements PhysicalMapStorageNode<PK,D>
 		String opName = "putMulti";
 		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
 		DRCounters.incSuffixClientNode(getClient().getType(), opName+" objects", getClientName(), getName(), databeans.size());
-		TraceContext.appendToSpanInfo(CollectionTool.size(databeans)+"");
+		TraceContext.appendToSpanInfo(DrCollectionTool.size(databeans)+"");
 	}
 	
 	
@@ -96,13 +96,13 @@ implements PhysicalMapStorageNode<PK,D>
 	
 	@Override
 	public void delete(PK key, Config pConfig) {
-		deleteMulti(ListTool.wrap(key), pConfig);
+		deleteMulti(DrListTool.wrap(key), pConfig);
 	}
 
 	
 	@Override
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
-		if(CollectionTool.isEmpty(keys)){ return; }
+		if(DrCollectionTool.isEmpty(keys)){ return; }
 		for(PK key : keys){
 			try {
 				this.getClient().getSpyClient().delete(key.getPersistentString());
@@ -110,7 +110,7 @@ implements PhysicalMapStorageNode<PK,D>
 				logger.error("", e);
 			}
 		}
-		TraceContext.appendToSpanInfo(CollectionTool.size(keys)+"");
+		TraceContext.appendToSpanInfo(DrCollectionTool.size(keys)+"");
 		String opName = "deleteMulti";
 		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
 		DRCounters.incSuffixClientNode(getClient().getType(), opName+" objects", getClientName(), getName(), keys.size());

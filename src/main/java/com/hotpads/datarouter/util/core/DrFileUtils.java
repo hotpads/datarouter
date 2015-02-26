@@ -1,8 +1,8 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.io.File;
 
-public final class FileUtils{
+public final class DrFileUtils{
 
 	public static boolean createFileParents(String path){
 		return createFileParents(new File(path));
@@ -21,7 +21,7 @@ public final class FileUtils{
 	}
 
 	public static void delete(String path){
-		if(StringTool.isEmpty(path) || "/".equals(path)){ throw new IllegalArgumentException(
+		if(DrStringTool.isEmpty(path) || "/".equals(path)){ throw new IllegalArgumentException(
 				"cannot delete empty or root path"); }
 		File file = new File(path);
 		file.delete();

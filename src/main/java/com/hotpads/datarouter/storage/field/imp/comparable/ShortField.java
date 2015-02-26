@@ -9,7 +9,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.ShortByteTool;
 
 public class ShortField extends BasePrimitiveField<Short>{
@@ -33,7 +33,7 @@ public class ShortField extends BasePrimitiveField<Short>{
 	
 	@Override
 	public Short parseStringEncodedValueButDoNotSet(String s){
-		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Short.valueOf(s);
 	}
 	

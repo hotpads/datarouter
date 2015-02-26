@@ -1,15 +1,15 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 
-public class XMLStringTool {
+public class DrXMLStringTool {
 	
 	public static String escapeXml(String input){
 		if(input==null){return null;}
-		input = StringTool.removeNonStandardCharacters(input);
+		input = DrStringTool.removeNonStandardCharacters(input);
 		input = input.replaceAll("&[Aa][Mm][Pp];", "&");
 		input = input.replaceAll("&[Ll][Tt];","<");
 		input = input.replaceAll("&[Gg][Tt];",">");

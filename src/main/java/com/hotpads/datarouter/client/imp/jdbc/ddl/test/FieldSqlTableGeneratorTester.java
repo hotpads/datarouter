@@ -14,17 +14,17 @@ import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean2;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldTypeBean2.ManyFieldTypeBean2Fielder;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class FieldSqlTableGeneratorTester{
 
 	@Test public void testGenerate(){
 		String tableName = "ManyFieldTypeBean";
-		List<Field<?>> primaryKeyFields = ListTool.create();
-		List<Field<?>> primaryKeyFields2 = ListTool.create();
+		List<Field<?>> primaryKeyFields = DrListTool.create();
+		List<Field<?>> primaryKeyFields2 = DrListTool.create();
 
-		List<Field<?>> nonKeyFields = ListTool.createArrayList();
-		List<Field<?>> nonKeyFields2 = ListTool.createArrayList();
+		List<Field<?>> nonKeyFields = DrListTool.createArrayList();
+		List<Field<?>> nonKeyFields2 = DrListTool.createArrayList();
 
 		ManyFieldBean mftBean = new ManyFieldBean();
 		ManyFieldTypeBean2 mftBean2 = new ManyFieldTypeBean2();

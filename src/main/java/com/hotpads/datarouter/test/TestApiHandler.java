@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.encoder.JsonEncoder;
 import com.hotpads.handler.mav.Mav;
@@ -23,8 +25,6 @@ import com.hotpads.handler.types.DefaultDecoder;
 import com.hotpads.handler.types.HandlerDecoder;
 import com.hotpads.handler.types.P;
 import com.hotpads.handler.types.TypeProvider;
-import com.hotpads.util.core.DateTool;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.http.json.GsonJsonSerializer;
 
 public class TestApiHandler extends BaseHandler{
@@ -121,7 +121,7 @@ public class TestApiHandler extends BaseHandler{
 	public Collection<FooBar> bananas(){
 		FooBar dto = new FooBar("hello", 42, Calendar.getInstance().getTime());
 		FooBar otd = new FooBar("world", 24, Calendar.getInstance().getTime());
-		return ListTool.create(dto, otd);
+		return DrListTool.create(dto, otd);
 	}
 	
 	/*
@@ -200,7 +200,7 @@ public class TestApiHandler extends BaseHandler{
 	
 	@Handler(encoder=JsonEncoder.class, decoder=TestApiHandlerDecoder.class)
 	public int year(@P("date") Date date){
-		return DateTool.getYearInteger(date);
+		return DrDateTool.getYearInteger(date);
 	}
 
 }

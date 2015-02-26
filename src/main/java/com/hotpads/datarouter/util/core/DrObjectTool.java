@@ -1,7 +1,7 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 
-public class ObjectTool {
+public class DrObjectTool {
 	
 	
 	public static <T> boolean equals(T a, T b){

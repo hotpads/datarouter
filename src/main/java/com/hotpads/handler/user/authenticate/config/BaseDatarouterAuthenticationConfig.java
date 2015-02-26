@@ -5,8 +5,8 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Preconditions;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.DatarouterCookieKeys;
-import com.hotpads.util.core.StringTool;
 
 public abstract class BaseDatarouterAuthenticationConfig
 implements DatarouterAuthenticationConfig{
@@ -274,7 +274,7 @@ implements DatarouterAuthenticationConfig{
 	}
 	
 	private String addCookiePrefix(String cookieName) {
-		return getCookiePrefix() + StringTool.capitalizeFirstLetter(cookieName);
+		return getCookiePrefix() + DrStringTool.capitalizeFirstLetter(cookieName);
 	}
 	
 	public static String normalizePath(String rawPath){

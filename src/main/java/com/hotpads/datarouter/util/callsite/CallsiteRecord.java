@@ -2,7 +2,7 @@ package com.hotpads.datarouter.util.callsite;
 
 import java.util.Date;
 
-import com.hotpads.util.core.DateTool;
+import com.hotpads.datarouter.util.core.DrDateTool;
 
 
 public class CallsiteRecord{
@@ -43,7 +43,7 @@ public class CallsiteRecord{
 	public static CallsiteRecord fromLogLine(String line){
 		String[] allTokens = line.split(" ");
 		String dateTime = allTokens[0] + " " + allTokens[1];
-		Date timestamp = DateTool.parseUserInputDate(dateTime, 2014);
+		Date timestamp = DrDateTool.parseUserInputDate(dateTime, 2014);
 		
 		String afterThreadName = line.substring(line.indexOf("]") + 1);
 		String[] lineTokens = afterThreadName.split(" ");

@@ -11,7 +11,7 @@ import java.util.TreeMap;
 import net.spy.SpyObject;
 
 import com.google.common.collect.Lists;
-import com.hotpads.util.core.GenericsFactory;
+import com.hotpads.datarouter.util.core.DrGenericsFactory;
  
 /**
 * This is an implementation of the Ketama consistent hash strategy from
@@ -127,7 +127,7 @@ public final class KetamaNodeLocator extends SpyObject implements NodeLocator {
     }
       
     public void moveAllFailedToGood() {
-    	List<ServerInfo> temp = GenericsFactory.makeArrayList();
+    	List<ServerInfo> temp = DrGenericsFactory.makeArrayList();
     	temp.addAll(failedServers);
     	failedServers.clear();
     	goodServers.addAll(temp);

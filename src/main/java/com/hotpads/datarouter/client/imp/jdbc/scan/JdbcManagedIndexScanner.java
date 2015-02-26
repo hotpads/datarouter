@@ -12,7 +12,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
 
@@ -45,7 +45,7 @@ extends BaseBatchingSortedScanner<IE,IE>{
 		IK lastRowOfPreviousBatch = range.getStart();
 		boolean isStartInclusive = range.getStartInclusive();
 		if (currentBatch != null){
-			IE endOfLastBatch = CollectionTool.getLast(currentBatch);
+			IE endOfLastBatch = DrCollectionTool.getLast(currentBatch);
 			if (endOfLastBatch == null){
 				currentBatch = null;
 				return;
@@ -58,7 +58,7 @@ extends BaseBatchingSortedScanner<IE,IE>{
 
 		currentBatch = doLoad(batchRange);
 		
-		if (CollectionTool.size(currentBatch) < BATCH_SIZE_DEFAULT){
+		if (DrCollectionTool.size(currentBatch) < BATCH_SIZE_DEFAULT){
 			noMoreBatches = true;
 		}
 	}

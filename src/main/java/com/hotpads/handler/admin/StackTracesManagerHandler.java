@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.StringMav;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.StringTool;
 import com.hp.gagawa.java.Node;
 import com.hp.gagawa.java.elements.A;
 import com.hp.gagawa.java.elements.Button;
@@ -48,7 +48,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 		counterWating = 0;
 		counterTimedWaiting = 0;
 		counterTerminated = 0;
-		threadStateCounters = MapTool.createHashMap();
+		threadStateCounters = DrMapTool.createHashMap();
 
 		return getStackTraces();
 	}
@@ -75,12 +75,12 @@ public class StackTracesManagerHandler extends BaseHandler{
 				for(StackTraceElement ste : sts.get(thread)){
 					stackTraceBuilder.append(ste.toString() + "<br />");
 				}
-				if(!StringTool.notEmpty(wildcardParam)
+				if(!DrStringTool.notEmpty(wildcardParam)
 						|| stackTraceBuilder.toString().toLowerCase().contains(wildcardParam.toLowerCase())){
 					++counter;
 					String highlightedStackTrace = stackTraceBuilder.toString().replaceAll("hotpads",
 							"<span style='color:red;'>hotpads</span>");
-					if(StringTool.notEmpty(wildcardParam)){
+					if(DrStringTool.notEmpty(wildcardParam)){
 						highlightedStackTrace = highlightedStackTrace.replaceAll(wildcardParam,
 								"<span style='color:blue;'>" + wildcardParam + "</span>");
 					}
@@ -162,7 +162,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 	}
 
 	private List<Node> getAllLinkTypes(){
-		List<Node> toReturn = ListTool.create();
+		List<Node> toReturn = DrListTool.create();
 		for(State state : Thread.State.values()){
 			toReturn.add(getLinkType(state));
 		}
@@ -208,7 +208,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 		wildcard.setCSSClass("span2");
 		wildcard.setId("wildcard");
 		wildcard.setAttribute("placeholder", "Search");
-		if(StringTool.notEmpty(value)){
+		if(DrStringTool.notEmpty(value)){
 			wildcard.setValue(value);
 		}
 		return wildcard;

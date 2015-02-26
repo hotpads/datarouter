@@ -21,9 +21,9 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.BatchTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrBatchTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class HibernateLookupUniqueOp<
 		PK extends PrimaryKey<PK>,
@@ -51,20 +51,20 @@ extends BaseHibernateOp<List<D>>{
 		Session session = getSession(node.getClientName());
 		
 		//i forget why we're doing this sorting.  prob not necessary
-		List<? extends UniqueKey<PK>> sortedKeys = ListTool.createArrayList(uniqueKeys);
+		List<? extends UniqueKey<PK>> sortedKeys = DrListTool.createArrayList(uniqueKeys);
 		Collections.sort(sortedKeys);
 		
 		int batchSize = HibernateNode.DEFAULT_ITERATE_BATCH_SIZE;
 		if(config!=null && config.getIterateBatchSize()!=null){
 			batchSize = config.getIterateBatchSize();
 		}
-		int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
-		List<D> all = ListTool.createArrayList(uniqueKeys.size());
+		int numBatches = DrBatchTool.getNumBatches(sortedKeys.size(), batchSize);
+		List<D> all = DrListTool.createArrayList(uniqueKeys.size());
 		for(int batchNum=0; batchNum < numBatches; ++batchNum){
-			List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
+			List<? extends Key<PK>> keyBatch = DrBatchTool.getBatch(sortedKeys, batchSize, batchNum);
 			Criteria criteria = node.getCriteriaForConfig(config, session);
 			Disjunction orSeparatedIds = Restrictions.disjunction();
-			for(Key<PK> key : CollectionTool.nullSafe(keyBatch)){
+			for(Key<PK> key : DrCollectionTool.nullSafe(keyBatch)){
 				Conjunction possiblyCompoundId = Restrictions.conjunction();
 				List<Field<?>> fields = key.getFields();
 				for(Field<?> field : fields){
@@ -74,7 +74,7 @@ extends BaseHibernateOp<List<D>>{
 			}
 			criteria.add(orSeparatedIds);
 			List<D> batch = criteria.list();
-			all.addAll(CollectionTool.nullSafe(batch));
+			all.addAll(DrCollectionTool.nullSafe(batch));
 		}
 		return all;
 	}

@@ -16,9 +16,9 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.NumberFormatter;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.number.VarLong;
 
@@ -55,17 +55,17 @@ public abstract class BackupRegion<PK extends PrimaryKey<PK>,D extends Databean<
 		Iterable<D> iterable = node.scan(Range.create(startKeyInclusive, true, endKeyExclusive, false), 
 				new Config().setIterateBatchSize(1000).setNumAttempts(30).setTimeout(10, TimeUnit.SECONDS));
 		if( ! node.getFieldInfo().getFieldAware()){ throw new IllegalArgumentException("databeans must be field aware"); }
-		for(D databean : IterableTool.nullSafe(iterable)){
+		for(D databean : DrIterableTool.nullSafe(iterable)){
 			//include zero-length fields in key bytes
 			byte[] bytes = DatabeanTool.getBytes(databean, node.getFieldInfo().getSampleFielder());
-			VarLong length = new VarLong(ArrayTool.length(bytes));
+			VarLong length = new VarLong(DrArrayTool.length(bytes));
 			os.write(length.getBytes());
 			os.write(bytes);
 			++numRecords;
 			rawBytes += length.getValue() + length.getNumBytes();
 			if(numRecords % 10000 == 0){
-				String numRecordsString = NumberFormatter.addCommas(numRecords);
-				String numBytesString = NumberFormatter.addCommas(rawBytes)+"b";
+				String numRecordsString = DrNumberFormatter.addCommas(numRecords);
+				String numBytesString = DrNumberFormatter.addCommas(rawBytes)+"b";
 				logger.warn("exported "+numRecordsString+", "+numBytesString+" from "+node.getName());
 			}
 		}
