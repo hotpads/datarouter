@@ -12,16 +12,19 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		POOL_countArchiveFlushSchedulerMemory = "countArchiveFlushSchedulerMemory",
 		POOL_countArchiveFlushSchedulerDb = "countArchiveFlushSchedulerDb",
 		POOL_countArchiveFlusherMemory = "countArchiveFlusherMemory",
-		POOL_countArchiveFlusherDb = "countArchiveFlusherDb";
+		POOL_countArchiveFlusherDb = "countArchiveFlusherDb"
+		;
 	
 	private static final ThreadGroup
 		datarouter = new ThreadGroup("datarouter"),
-		flushers = new ThreadGroup(datarouter, "flushers");
+		flushers = new ThreadGroup(datarouter, "flushers")
+		;
 	
 	@Override
 	protected void configure(){
-		bindScheduled(datarouter, POOL_datarouterJobExecutor, 10);
-		
+		bind(ScheduledExecutorService.class)
+			.annotatedWith(Names.named(POOL_datarouterJobExecutor))
+			.toInstance(createDatarouterJobExecutor());
 		bind(ScheduledExecutorService.class)
 			.annotatedWith(Names.named(POOL_countArchiveFlushSchedulerMemory))
 			.toInstance(createCountArchiveFlushSchedulerMemory());
@@ -53,4 +56,7 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 		return createScheduled(flushers, POOL_countArchiveFlusherDb, 1);
 	}
 
+	private ScheduledExecutorService createDatarouterJobExecutor(){
+		return createScheduled(datarouter, POOL_datarouterJobExecutor, 10);
+	}
 }

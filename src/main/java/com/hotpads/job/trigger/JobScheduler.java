@@ -14,38 +14,38 @@ import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Injector;
-import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import com.hotpads.DatarouterInjector;
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.guice.DatarouterExecutorGuiceModule;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTask;
 import com.hotpads.job.record.LongRunningTaskKey;
-import com.hotpads.setting.Setting;
+import com.hotpads.job.record.LongRunningTaskNodeProvider;
 
 @Singleton
 public class JobScheduler {
 	private static Logger logger = LoggerFactory.getLogger(JobScheduler.class);
 
-	private Injector injector;
+	private DatarouterInjector injector;
 	private ScheduledExecutorService executor;
 	private TriggerGroup triggerGroup;
 	private TriggerTracker tracker;
-	private IndexedSortedMapStorageNode<LongRunningTaskKey,LongRunningTask> longRunningTaskNode;
-	private Setting<Boolean> scheduleMissedJobsOnStartup;
+	private IndexedSortedMapStorage<LongRunningTaskKey,LongRunningTask> longRunningTaskNode;
+	private JobSettings jobSettings;
 	
 	@Inject
-	public JobScheduler(Injector injector, TriggerGroup triggerGroup, TriggerTracker tracker,
-			IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> node,
+	public JobScheduler(DatarouterInjector injector, TriggerGroup triggerGroup, TriggerTracker tracker,
+			LongRunningTaskNodeProvider longRunningTaskNodeProvider, JobSettings jobSettings,
 			@Named(DatarouterExecutorGuiceModule.POOL_datarouterJobExecutor) ScheduledExecutorService executor){
 		this.injector = injector;
 		this.triggerGroup = triggerGroup;
 		this.tracker = tracker;
+		this.jobSettings = jobSettings;
 		this.executor = executor;
-		this.longRunningTaskNode = node;
+		this.longRunningTaskNode = longRunningTaskNodeProvider.get();
 	}
-	
 	
 	/***************methods***************/
 	
@@ -54,7 +54,7 @@ public class JobScheduler {
 		for(Entry<Class<? extends Job>, String> entry : triggerGroup.getJobClasses().entrySet()){
 			tracker.createNewTriggerInfo(entry.getKey());
 			Job sampleJob = injector.getInstance(entry.getKey());
-			if(!scheduleMissedJobsOnStartup.getValue() || !sampleJob.shouldRun()){
+			if(!jobSettings.getScheduleMissedJobsOnStartup().getValue() || !sampleJob.shouldRun()){
 				sampleJob.scheduleNextRun(false);
 			}else{
 				try {
@@ -121,11 +121,4 @@ public class JobScheduler {
 		return triggerGroup;
 	}
 	
-	public Setting<Boolean> getScheduleMissedJobsOnStartupSetting() {
-		return scheduleMissedJobsOnStartup;
-	}
-
-	public void setScheduleMissedJobsOnStartupSetting(Setting<Boolean> scheduleMissedJobsOnStartup) {
-		this.scheduleMissedJobsOnStartup = scheduleMissedJobsOnStartup;
-	}
 }

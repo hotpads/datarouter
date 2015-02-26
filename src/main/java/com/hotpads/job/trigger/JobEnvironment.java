@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.guice.DatarouterExecutorGuiceModule;
 import com.hotpads.job.record.LongRunningTaskTrackerFactory;
 import com.hotpads.setting.Setting;
@@ -15,17 +16,19 @@ public class JobEnvironment{
 	
 	private JobScheduler scheduler;
 	private ScheduledExecutorService executor;
-	private Setting<Boolean> processJobsSetting;
 	private LongRunningTaskTrackerFactory longRunningTaskTrackerFactory;
-	private String serverName;
-	private Setting<Boolean> shouldSaveLongRunningTasks;
+	private JobSettings jobSettings;
+	private DatarouterContext datarouterContext;
 
 	@Inject
 	public JobEnvironment(JobScheduler jobScheduler, LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
-			@Named(DatarouterExecutorGuiceModule.POOL_datarouterJobExecutor) ScheduledExecutorService executorService){
+			@Named(DatarouterExecutorGuiceModule.POOL_datarouterJobExecutor) ScheduledExecutorService executorService,
+			JobSettings jobSettings, DatarouterContext datarouterContext){
 		this.scheduler = jobScheduler;
 		this.executor = executorService;
 		this.longRunningTaskTrackerFactory = longRunningTaskTrackerFactory;
+		this.jobSettings = jobSettings;
+		this.datarouterContext = datarouterContext;
 	}
 
 	public final JobScheduler getScheduler(){
@@ -37,19 +40,11 @@ public class JobEnvironment{
 	}
 
 	public final Setting<Boolean> getProcessJobsSetting(){
-		return processJobsSetting;
-	}
-	
-	public final void setProcessJobsSetting(Setting<Boolean> setting) {
-		this.processJobsSetting = setting;
+		return jobSettings.getProcessJobs();
 	}
 	
 	public final String getServerName(){
-		return serverName;
-	}
-	
-	public final void setServerName(String serverName) {
-		this.serverName = serverName;
+		return datarouterContext.getServerName();
 	}
 	
 	public final LongRunningTaskTrackerFactory getLongRunningTaskTrackerFactory(){
@@ -57,12 +52,7 @@ public class JobEnvironment{
 	}
 
 	public Setting<Boolean> getShouldSaveLongRunningTasksSetting() {
-		return shouldSaveLongRunningTasks;
+		return jobSettings.getSaveLongRunningTasks();
 	}
-
-	public void setShouldSaveLongRunningTasksSetting(Setting<Boolean> shouldSaveLongRunningTasks) {
-		this.shouldSaveLongRunningTasks = shouldSaveLongRunningTasks;
-	}
-	
 	
 }
