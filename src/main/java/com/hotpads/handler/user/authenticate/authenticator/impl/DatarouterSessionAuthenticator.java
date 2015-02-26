@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.util.core.DateTool;
-import com.hotpads.datarouter.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.authenticate.authenticator.BaseDatarouterAuthenticator;
 import com.hotpads.handler.user.session.DatarouterSession;
@@ -20,7 +20,7 @@ public class DatarouterSessionAuthenticator extends BaseDatarouterAuthenticator{
 	private static Logger logger = LoggerFactory.getLogger(DatarouterSessionAuthenticator.class);
 	
 	public static final Long
-		SESSION_TIMOUT_MS = 30L * DateTool.MILLISECONDS_IN_MINUTE;
+		SESSION_TIMOUT_MS = 30L * DrDateTool.MILLISECONDS_IN_MINUTE;
 			
 	private DatarouterUserNodes userNodes;
 	private DatarouterSessionManager sessionManager;
@@ -46,7 +46,7 @@ public class DatarouterSessionAuthenticator extends BaseDatarouterAuthenticator{
 		
 		//verify session's userToken matches cookie userToken.  if not, delete session to be safe
 		String cookieUserToken = sessionManager.getUserTokenFromCookie(request);
-		if(ObjectTool.notEquals(cookieUserToken, session.getUserToken())){
+		if(DrObjectTool.notEquals(cookieUserToken, session.getUserToken())){
 			logger.warn("session userToken "+session.getUserToken()+" != cookie userToken "+cookieUserToken
 					+", deleting session");
 			userNodes.getSessionNode().delete(session.getKey(), null);

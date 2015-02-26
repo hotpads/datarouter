@@ -11,13 +11,13 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 
 import com.google.common.collect.Sets;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.ComparableTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.MapTool;
-import com.hotpads.datarouter.util.core.NumberFormatter;
-import com.hotpads.datarouter.util.core.ObjectTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
+import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.trace.key.TraceThreadKey;
 	
 //wrapper for TraceThread to create a tree structure
@@ -37,7 +37,7 @@ public class TraceThreadGroup{
 	}
 	
 	public boolean attemptToAddThread(TraceThread newThread){
-		if(ObjectTool.equals(thread.getId(), newThread.getParentId())){
+		if(DrObjectTool.equals(thread.getId(), newThread.getParentId())){
 			TraceThreadGroup childGroup = new TraceThreadGroup(newThread);
 			childGroup.parent = this;
 			children.add(childGroup);
@@ -93,7 +93,7 @@ public class TraceThreadGroup{
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append(StringTool.repeat("-", numNestedLevels()));
+		sb.append(DrStringTool.repeat("-", numNestedLevels()));
 		sb.append(thread.getName());
 		sb.append(children);
 		return sb.toString();
@@ -125,18 +125,18 @@ public class TraceThreadGroup{
 		String floatingDivStyle = "float:right;";
 		sb.append("<div style=\""+floatingDivStyle+"\">");
 		String spanStyle = "float:right;text-align:right;width:100px;";
-		sb.append("<span style=\""+spanStyle+"\">"+NumberFormatter.addCommas(thread.getRunningDuration())+"ms</span>");
-		sb.append("<span style=\""+spanStyle+"\">"+NumberFormatter.addCommas(thread.getQueuedDuration())+"ms</span>");
+		sb.append("<span style=\""+spanStyle+"\">"+DrNumberFormatter.addCommas(thread.getRunningDuration())+"ms</span>");
+		sb.append("<span style=\""+spanStyle+"\">"+DrNumberFormatter.addCommas(thread.getQueuedDuration())+"ms</span>");
 		sb.append("</div>");
 		String threadInfoStyle = "margin:0px 0px 0px 40px;font-weight:normal;";
-		if(StringTool.notEmpty(thread.getInfo())){
+		if(DrStringTool.notEmpty(thread.getInfo())){
 			sb.append("<div class=\"threadInfo\" style=\""+threadInfoStyle+"\">"+thread.getInfo()+"</div>");
 		}
 		sb.append("</div>");
 		String divStyle = "margin:0px 0px 5px 80px;";
 		sb.append("<div style=\""+divStyle+"\">");
 		sb.append("<table class=\"table table-striped table-bordered table-collapse sortable\">");
-		for(TraceSpan span : IterableTool.nullSafe(MapTool.nullSafe(spansByThreadKey).get(thread.getKey()))){
+		for(TraceSpan span : DrIterableTool.nullSafe(DrMapTool.nullSafe(spansByThreadKey).get(thread.getKey()))){
 			sb.append("<tr>");
 			sb.append("<td>"+span.getSequence()+"</td>");
 			sb.append("<td>"+span.getParentSequence()+"</td>");
@@ -154,16 +154,16 @@ public class TraceThreadGroup{
 	public static class TraceThreadGroupSlownessComparator implements Comparator<TraceThreadGroup>{
 		@Override
 		public int compare(TraceThreadGroup a, TraceThreadGroup b){
-			return ComparableTool.nullFirstCompareTo(a.thread.getTotalDuration(), b.thread.getTotalDuration());
+			return DrComparableTool.nullFirstCompareTo(a.thread.getTotalDuration(), b.thread.getTotalDuration());
 		}
 	}
 	
 	public static TraceThreadGroup create(Collection<TraceThread> threads){
 		TraceThreadGroup rootGroup = null;
 		Set<TraceThreadKey> placedThreadKeys = new HashSet<>();
-		while(CollectionTool.size(placedThreadKeys) < CollectionTool.size(threads)){
+		while(DrCollectionTool.size(placedThreadKeys) < DrCollectionTool.size(threads)){
 			boolean placedAtLeastOneThreadInThisLoop = false;
-			for(TraceThread thread : IterableTool.nullSafe(threads)){
+			for(TraceThread thread : DrIterableTool.nullSafe(threads)){
 				if(placedThreadKeys.contains(thread.getKey())){//already got it
 					continue;
 				}

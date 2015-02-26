@@ -19,18 +19,18 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Joiner;
-import com.hotpads.datarouter.util.core.BooleanTool;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.Functor;
-import com.hotpads.datarouter.util.core.GenericsFactory;
-import com.hotpads.datarouter.util.core.IdentityFunctor;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.NumberTool;
-import com.hotpads.datarouter.util.core.Predicate;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrGenericsFactory;
+import com.hotpads.datarouter.util.core.DrIdentityFunctor;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrNumberTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.exception.analysis.HttpHeaders;
 import com.hotpads.handler.Params;
 import com.hotpads.handler.mav.Mav;
+import com.hotpads.util.core.Functor;
+import com.hotpads.util.core.Predicate;
 import com.hotpads.util.core.collections.DefaultableMap;
 import com.hotpads.util.datastructs.DefaultableHashMap;
 
@@ -56,7 +56,7 @@ public class RequestTool {
 	}
 	public static List<String> getSlashedUriParts(String uri){
 		List<String> uriVars = Arrays.asList(uri.split("/"));
-		uriVars = CollectionTool.filter( //get rid of blanks
+		uriVars = DrCollectionTool.filter( //get rid of blanks
 					new Predicate<String>() {
 						public boolean check(String t) {
 							return t != null && !"".equals(t); 
@@ -92,12 +92,12 @@ public class RequestTool {
 		//override if there's something in aux
 		if(overrideVars != null){
 			String override = overrideVars.get(paramName);
-			if( ! StringTool.isEmpty(override)){
+			if( ! DrStringTool.isEmpty(override)){
 				stringVal = override;
 			}
 		}
 		
-		if(StringTool.isEmpty(stringVal)){
+		if(DrStringTool.isEmpty(stringVal)){
 			return defaultValue;
 		}else{
 			return stringVal;
@@ -126,28 +126,28 @@ public class RequestTool {
 	}
 	
 	public static boolean exists(HttpServletRequest request, String paramName){
-		return StringTool.notEmpty(get(request, paramName, null));
+		return DrStringTool.notEmpty(get(request, paramName, null));
 	}
 	
 	public static Boolean getBoolean(HttpServletRequest request, String paramName){
 		String stringVal = request.getParameter(paramName);
 		//checkboxes don't submit anything if unchecked, so assume null is false
 //		if(StringTool.isEmpty(stringVal)){ throw new IllegalArgumentException("missing boolean parameter "+paramName); }
-		return BooleanTool.isTrue(stringVal);
+		return DrBooleanTool.isTrue(stringVal);
 	}
 
 	public static Boolean getBoolean(HttpServletRequest request, String paramName, Boolean defaultValue){
 		String stringVal = get(request, paramName, null);
-		if(StringTool.isEmpty(stringVal)){
+		if(DrStringTool.isEmpty(stringVal)){
 			/* this has to be an explicit if rather than a ternary if to avoid a NPE when defaultValue==null */
 			return defaultValue;
 		}
-		return BooleanTool.isTrue(stringVal);
+		return DrBooleanTool.isTrue(stringVal);
 	}
 	
 	public static Long getLong(HttpServletRequest request, String paramName){
 		String stringVal = get(request, paramName, null);
-		if(StringTool.isEmpty(stringVal)){
+		if(DrStringTool.isEmpty(stringVal)){
 			throw new IllegalArgumentException("required Long "+paramName+" not found");
 		}
 		try{
@@ -159,12 +159,12 @@ public class RequestTool {
 	
 	public static Long getLong(HttpServletRequest request, String paramName, Long defaultValue){
 		String stringVal = get(request, paramName, null);
-		return NumberTool.getLongNullSafe(stringVal,defaultValue);
+		return DrNumberTool.getLongNullSafe(stringVal,defaultValue);
 	}
 	
 	public static Integer getInteger(HttpServletRequest request, String paramName){
 		String stringVal = get(request, paramName, null);
-		if(StringTool.isEmpty(stringVal)){
+		if(DrStringTool.isEmpty(stringVal)){
 			throw new IllegalArgumentException("required Integer "+paramName+" not found");
 		}
 		try{
@@ -176,7 +176,7 @@ public class RequestTool {
 	
 	public static Integer getInteger(HttpServletRequest request, String paramName, Integer defaultValue){
 		String stringVal = get(request, paramName, null);
-		return NumberTool.parseIntegerFromNumberString(stringVal,defaultValue);
+		return DrNumberTool.parseIntegerFromNumberString(stringVal,defaultValue);
 	}
 	
 	/****** getters for Params   ******/
@@ -203,14 +203,14 @@ public class RequestTool {
 	public static Integer getIntegerAndPut(HttpServletRequest request, String paramName, Integer defaultValue,
 			Mav mav){
 		String stringVal = RequestTool.get(request, paramName, null);
-		Integer ret = NumberTool.parseIntegerFromNumberString(stringVal, defaultValue);
+		Integer ret = DrNumberTool.parseIntegerFromNumberString(stringVal, defaultValue);
 		mav.put(paramName, ret);
 		return ret;
 	}
 
 	public static Double getDouble(HttpServletRequest request, String paramName, Double defaultValue){
 		String stringVal = get(request, paramName, null);
-		return NumberTool.getDoubleNullSafe(stringVal,defaultValue);
+		return DrNumberTool.getDoubleNullSafe(stringVal,defaultValue);
 	}
 
 	public static List<String> getCsvList(HttpServletRequest request, String paramName, List<String> defaultValue){
@@ -220,10 +220,10 @@ public class RequestTool {
 	public static List<String> getList(HttpServletRequest request, String paramName, String delimiter, 
 			List<String> defaultValue){
 		String stringVal = request.getParameter(paramName);
-		if(StringTool.isEmpty(stringVal)){
+		if(DrStringTool.isEmpty(stringVal)){
 			return defaultValue;
 		}
-		return ListTool.nullSafeLinkedAddAll(null, stringVal.split(delimiter));
+		return DrListTool.nullSafeLinkedAddAll(null, stringVal.split(delimiter));
 	}
 
 
@@ -238,7 +238,7 @@ public class RequestTool {
 		if(overrideVars != null){
 			//override if there's something in aux
 			String override = overrideVars.get(paramName);
-			if( ! StringTool.isEmpty(override)){
+			if( ! DrStringTool.isEmpty(override)){
 				stringVal = override;
 			}
 		}
@@ -253,7 +253,7 @@ public class RequestTool {
 	public static Integer getIntegerParameterNullSafe(HttpServletRequest request, String paramName, 
 			Integer defaultValue){
 		String stringVal = get(request, paramName, null);
-		return NumberTool.parseIntegerFromNumberString(stringVal,defaultValue);
+		return DrNumberTool.parseIntegerFromNumberString(stringVal,defaultValue);
 	}
 	
 	public static Integer getIntegerParameterNullSafeCheckOverrideVars(
@@ -266,7 +266,7 @@ public class RequestTool {
 		if(overrideVars != null){
 			//override if there's something in aux
 			String override = overrideVars.get(paramName);
-			if( ! StringTool.isEmpty(override)){
+			if( ! DrStringTool.isEmpty(override)){
 				stringVal = override;
 			}
 		}
@@ -298,7 +298,7 @@ public class RequestTool {
 		if(overrideVars != null){
 			//override if there's something in aux
 			String override = overrideVars.get(paramName);
-			if( ! StringTool.isEmpty(override)){
+			if( ! DrStringTool.isEmpty(override)){
 				stringVal = override;
 			}
 		}
@@ -314,11 +314,11 @@ public class RequestTool {
 			Boolean defaultValue){
 		String stringVal = get(request, paramName, null);
 
-		if(StringTool.isEmpty(stringVal)){
+		if(DrStringTool.isEmpty(stringVal)){
 			return defaultValue;
-		}else if(BooleanTool.isFalse(stringVal)){
+		}else if(DrBooleanTool.isFalse(stringVal)){
 			return false;
-		}else if(BooleanTool.isTrue(stringVal)){
+		}else if(DrBooleanTool.isTrue(stringVal)){
 			return true;
 		}else{
 			return defaultValue;
@@ -335,16 +335,16 @@ public class RequestTool {
 		if(overrideVars != null){
 			//override if there's something in aux
 			String override = overrideVars.get(paramName);
-			if( ! StringTool.isEmpty(override)){
+			if( ! DrStringTool.isEmpty(override)){
 				stringVal = override;
 			}
 		}
 		
-		if(StringTool.isEmpty(stringVal)){
+		if(DrStringTool.isEmpty(stringVal)){
 			return defaultValue;
-		}else if(BooleanTool.isFalse(stringVal)){
+		}else if(DrBooleanTool.isFalse(stringVal)){
 			return false;
-		}else if(BooleanTool.isTrue(stringVal)){
+		}else if(DrBooleanTool.isTrue(stringVal)){
 			return true;
 		}else{
 			return defaultValue;
@@ -352,7 +352,7 @@ public class RequestTool {
 	}
 	
 	public static void setAttributes(HttpServletRequest request, Map<String,Object> attributeMap){
-		for(String key : CollectionTool.nullSafe(attributeMap.keySet())){
+		for(String key : DrCollectionTool.nullSafe(attributeMap.keySet())){
 			request.setAttribute(key, attributeMap.get(key));
 		}
 	}
@@ -424,7 +424,7 @@ public class RequestTool {
 	
 
 	public static Map<String,String> getHeader(HttpServletRequest request){
-		Map<String,String> headers = GenericsFactory.makeHashMap();
+		Map<String,String> headers = DrGenericsFactory.makeHashMap();
 		Enumeration<?> headersEnum = request.getHeaderNames();
 		while(headersEnum!=null && headersEnum.hasMoreElements()){
 			String h = (String)headersEnum.nextElement();
@@ -437,12 +437,12 @@ public class RequestTool {
 	}
 	
 	public static List<String> getCheckedBoxes(HttpServletRequest request, String prefix){
-		return getCheckedBoxes(request,prefix,new IdentityFunctor<String>());
+		return getCheckedBoxes(request,prefix,new DrIdentityFunctor<String>());
 	}
 	
 	public static <T> List<T> getCheckedBoxes(HttpServletRequest request, String prefix, Functor<T,String> converter){
 		Enumeration<String> paramNames = request.getParameterNames();
-		List<T> selecteds = ListTool.createArrayList();
+		List<T> selecteds = DrListTool.createArrayList();
 		while(paramNames.hasMoreElements()){
 			String name = paramNames.nextElement();
 			if( ! name.startsWith(prefix)) {
@@ -542,7 +542,7 @@ public class RequestTool {
 			xForwardedFor = xForwards.nextElement();
 		}
 
-		if (!StringTool.isNullOrEmptyOrWhitespace(xForwardedFor)){
+		if (!DrStringTool.isNullOrEmptyOrWhitespace(xForwardedFor)){
 			String[] proxyChain = xForwardedFor.split(", ");
 			String clientIp = proxyChain[proxyChain.length - 1];
 			if (isAValidIpV4(clientIp)) {

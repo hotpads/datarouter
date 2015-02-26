@@ -8,8 +8,8 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableDiffGenerator;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class SqlTable{
 	
@@ -41,21 +41,21 @@ public class SqlTable{
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = primaryKey;
-		this.indexes = SetTool.createTreeSet();
+		this.indexes = DrSetTool.createTreeSet();
 	}
 
 	public SqlTable(String name, List<SqlColumn> columns){
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = new SqlIndex("PRIMARY");
-		this.indexes = SetTool.createTreeSet();
+		this.indexes = DrSetTool.createTreeSet();
 	}
 
 	public SqlTable(String name){
 		this.name = name;
-		this.columns = ListTool.createArrayList();
+		this.columns = DrListTool.createArrayList();
 		this.primaryKey = new SqlIndex("PRIMARY");
-		this.indexes = SetTool.createTreeSet();
+		this.indexes = DrSetTool.createTreeSet();
 	}
 	
 	
@@ -69,7 +69,7 @@ public class SqlTable{
 		for(SqlColumn col : columns){
 			//System.out.println(" col " + col +" pkeyColumnName " + primaryKeyColumnName);
 			if(col.getName().equals(primaryKeyColumnName)){
-				List<SqlColumn> list = ListTool.createArrayList();
+				List<SqlColumn> list = DrListTool.createArrayList();
 				list.add(col);
 				if(primaryKey==null){
 					primaryKey = new SqlIndex(name + "_Primary_Key", list);

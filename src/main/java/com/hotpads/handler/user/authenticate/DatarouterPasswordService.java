@@ -11,7 +11,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.datarouter.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUsernameLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
@@ -39,7 +39,7 @@ public class DatarouterPasswordService{
 	public boolean isPasswordCorrect(DatarouterUser user, String rawPassword){
 		if(user==null || rawPassword==null){ return false; }
 		String passwordDigest = digest(user.getPasswordSalt(), rawPassword);
-		return ObjectTool.equals(user.getPasswordDigest(), passwordDigest);
+		return DrObjectTool.equals(user.getPasswordDigest(), passwordDigest);
 	}
 	
 	public boolean isPasswordCorrect(String email, String rawPassword){

@@ -39,10 +39,10 @@ import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBeanKey;
 import com.hotpads.datarouter.test.node.basic.backup.BackupTestRouter;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.MapTool;
-import com.hotpads.datarouter.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 @RunWith(Parameterized.class)
@@ -51,8 +51,8 @@ public class BackupIntegrationTester{
 	
 	/****************************** client types ***********************************/
 
-	public static List<ClientType> clientTypes = ListTool.create();
-	public static List<Object[]> clientTypeObjectArrays = ListTool.create();
+	public static List<ClientType> clientTypes = DrListTool.create();
+	public static List<Object[]> clientTypeObjectArrays = DrListTool.create();
 	static{
 		clientTypes.add(HibernateClientType.INSTANCE);
 		clientTypes.add(HBaseClientType.INSTANCE);
@@ -63,7 +63,7 @@ public class BackupIntegrationTester{
 	
 	/************************************ routers ***************************************/
 
-	static Map<ClientType,BackupTestRouter> routerByClientType = MapTool.create();
+	static Map<ClientType,BackupTestRouter> routerByClientType = DrMapTool.create();
 	
 	@BeforeClass
 	public static void init() throws IOException{	
@@ -95,16 +95,16 @@ public class BackupIntegrationTester{
 	public static void resetTable(BackupTestRouter routerToReset){	
 		clearTable(routerToReset);
 		
-		List<String> as = ListTool.createArrayList(STRINGS);
-		List<String> bs = ListTool.createArrayList(STRINGS);
-		List<Integer> cs = ListTool.createArrayList(INTEGERS);
-		List<String> ds = ListTool.createArrayList(STRINGS);
+		List<String> as = DrListTool.createArrayList(STRINGS);
+		List<String> bs = DrListTool.createArrayList(STRINGS);
+		List<Integer> cs = DrListTool.createArrayList(INTEGERS);
+		List<String> ds = DrListTool.createArrayList(STRINGS);
 		Collections.shuffle(as);
 		Collections.shuffle(bs);
 		Collections.shuffle(cs);
 		Collections.shuffle(ds);
 		
-		List<BackupBean> toSave = ListTool.createArrayList();
+		List<BackupBean> toSave = DrListTool.createArrayList();
 		for(int a=0; a < NUM_ELEMENTS; ++a){
 			for(int b=0; b < NUM_ELEMENTS; ++b){
 				for(int c=0; c < NUM_ELEMENTS; ++c){
@@ -119,12 +119,12 @@ public class BackupIntegrationTester{
 		}
 		routerToReset.backupBeanNode().putMulti(toSave, 
 				new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
-		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(routerToReset.backupBeanNode().scan(null, null)).intValue());
+		Assert.assertEquals(TOTAL_RECORDS, DrIterableTool.count(routerToReset.backupBeanNode().scan(null, null)).intValue());
 	}
 	
 	public static void clearTable(BackupTestRouter routerToReset){
 		routerToReset.backupBeanNode().deleteAll(null);
-		Assert.assertEquals(0, IterableTool.count(routerToReset.backupBeanNode().scan(null, null)).intValue());
+		Assert.assertEquals(0, DrIterableTool.count(routerToReset.backupBeanNode().scan(null, null)).intValue());
 	}
 	
 	/***************************** fields **************************************/
@@ -157,7 +157,7 @@ public class BackupIntegrationTester{
 			S_ostrich = "ostrich",
 			S_pelican = "pelican";
 	
-	public static final SortedSet<String> STRINGS = SetTool.createTreeSet(
+	public static final SortedSet<String> STRINGS = DrSetTool.createTreeSet(
 			S_aardvark,
 			S_albatross,
 			S_alpaca,
@@ -185,7 +185,7 @@ public class BackupIntegrationTester{
 			RANGE_LENGTH_emu = 4;
 	
 	public static final int NUM_ELEMENTS = STRINGS.size();
-	public static final List<Integer> INTEGERS = ListTool.createArrayList(NUM_ELEMENTS);
+	public static final List<Integer> INTEGERS = DrListTool.createArrayList(NUM_ELEMENTS);
 	static{
 		for(int i=0; i < NUM_ELEMENTS; ++i){
 			INTEGERS.add(i);
@@ -211,7 +211,7 @@ public class BackupIntegrationTester{
 		RestoreRegionFromMemory<BackupBeanKey,BackupBean> restore = new RestoreRegionFromMemory<BackupBeanKey,BackupBean>(
 				backup.getResult(), BackupBean.class, router, node, false);
 		restore.call();
-		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(node.scan(null, null)).intValue());
+		Assert.assertEquals(TOTAL_RECORDS, DrIterableTool.count(node.scan(null, null)).intValue());
 	}
 
 	//basically a debug test
@@ -230,7 +230,7 @@ public class BackupIntegrationTester{
 		RestoreRegionFromMemory<BackupBeanKey,BackupBean> restore = new RestoreRegionFromMemory<BackupBeanKey,BackupBean>(
 				backup.getResult(), BackupBean.class, router, node, true);
 		restore.call();
-		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(node.scan(null, null)).intValue());
+		Assert.assertEquals(TOTAL_RECORDS, DrIterableTool.count(node.scan(null, null)).intValue());
 	}
 
 	//basically a debug test
@@ -259,7 +259,7 @@ public class BackupIntegrationTester{
 		RestoreRegionFromMemory<BackupBeanKey,BackupBean> restore = new RestoreRegionFromMemory<BackupBeanKey,BackupBean>(
 				roundTripped, BackupBean.class, router, node, false);
 		restore.call();
-		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(node.scan(null, null)).intValue());
+		Assert.assertEquals(TOTAL_RECORDS, DrIterableTool.count(node.scan(null, null)).intValue());
 	}
 	
 	//basically a debug test
@@ -312,7 +312,7 @@ public class BackupIntegrationTester{
 		String s3Key = BackupRegionToS3.getS3Key("test", router, node);
 		new RestoreRegionFromS3<BackupBeanKey,BackupBean>(
 				BackupRegionToS3.DEFAULT_BUCKET, s3Key, BackupBean.class, router, node, 100, false, true, gzip, true).call();
-		Assert.assertEquals(TOTAL_RECORDS, IterableTool.count(node.scan(null, null)).intValue());
+		Assert.assertEquals(TOTAL_RECORDS, DrIterableTool.count(node.scan(null, null)).intValue());
 	}
 	
 }

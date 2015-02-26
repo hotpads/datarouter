@@ -16,8 +16,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class HashMapReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -44,7 +44,7 @@ implements MapStorageReader<PK,D>{
 	
 	@Override
 	public List<Node<PK,D>> getChildNodes(){
-		return ListTool.create();
+		return DrListTool.create();
 	}
 	
 	/************************************ MapStorageReader methods ****************************/
@@ -63,8 +63,8 @@ implements MapStorageReader<PK,D>{
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, Config config) {		
-		List<D> result = ListTool.createLinkedList();
-		for(Key<PK> key : CollectionTool.nullSafe(keys)){
+		List<D> result = DrListTool.createLinkedList();
+		for(Key<PK> key : DrCollectionTool.nullSafe(keys)){
 			D value = backingMap.get(key);
 			if(value != null){
 				result.add(value);
@@ -76,8 +76,8 @@ implements MapStorageReader<PK,D>{
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, Config config) {		
-		List<PK> result = ListTool.createLinkedList();
-		for(Key<PK> key : CollectionTool.nullSafe(keys)){
+		List<PK> result = DrListTool.createLinkedList();
+		for(Key<PK> key : DrCollectionTool.nullSafe(keys)){
 			D value = backingMap.get(key);
 			if(value != null){
 				result.add(value.getKey());

@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.hotpads.datarouter.storage.field.FieldSet;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 /*
@@ -23,8 +23,8 @@ implements FieldCache<F,C>{
 	
 	public GenericFieldCache(C cls){
 		this.cls = cls;
-		jFields = ListTool.createArrayList(cls.getDeclaredFields());
-		for(java.lang.reflect.Field jField : IterableTool.nullSafe(jFields)){
+		jFields = DrListTool.createArrayList(cls.getDeclaredFields());
+		for(java.lang.reflect.Field jField : DrIterableTool.nullSafe(jFields)){
 			String jFieldName = jField.getName();
 			jFieldByName.put(jFieldName, jField);
 		}

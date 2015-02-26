@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class FieldSqlTableGenerator implements SqlTableGenerator{
 	
@@ -25,7 +25,7 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 	public FieldSqlTableGenerator(String tableName, List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields){
 		this.tableName = tableName;
 		this.nonKeyFields = nonKeyFields;
-		this.indexes = MapTool.createHashMap();
+		this.indexes = DrMapTool.createHashMap();
 		this.primaryKeyFields = primaryKeyFields;
 	}
 	
@@ -34,7 +34,7 @@ public class FieldSqlTableGenerator implements SqlTableGenerator{
 			MySqlCollation collation, MySqlCharacterSet character_set){
 		this.tableName = tableName;
 		this.nonKeyFields = nonKeyFields;
-		this.indexes = MapTool.createHashMap();
+		this.indexes = DrMapTool.createHashMap();
 		this.primaryKeyFields = primaryKeyFields;
 		this.collation = collation;
 		this.character_set = character_set;

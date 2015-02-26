@@ -17,13 +17,13 @@ import com.hotpads.datarouter.storage.databean.BaseDatabean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.DateTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.NumberTool;
-import com.hotpads.datarouter.util.core.ObjectTool;
-import com.hotpads.datarouter.util.core.XMLStringTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrNumberTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.datarouter.util.core.DrXMLStringTool;
 import com.hotpads.profile.count.databean.key.CountKey;
 
 @SuppressWarnings("serial")
@@ -85,7 +85,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	/********************************* useful ****************************************/
 	
 	public String getTimeString(){
-		String s = DateTool.getYYYYMMDDHHMMSSWithPunctuationNoSpaces(new Date(this.getStartTimeMs()));
+		String s = DrDateTool.getYYYYMMDDHHMMSSWithPunctuationNoSpaces(new Date(this.getStartTimeMs()));
 		return s.replace("_", " ");
 	}
 	
@@ -122,7 +122,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 		}else if("hour".equals(frequencyString)){ 
 			return getValuePerHour(value, periodMs); 
 		}else{
-			Long frequencyInMs = NumberTool.getLongNullSafe(frequencyString, null);
+			Long frequencyInMs = DrNumberTool.getLongNullSafe(frequencyString, null);
 			if(frequencyInMs == null || frequencyInMs < 1L){ 
 				throw new IllegalArgumentException("unknown frequency or bad frequency: " + frequencyString); 
 			}
@@ -143,7 +143,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 	
 	public String getNameHtmlEscaped(){
-		return XMLStringTool.escapeXml(getName());
+		return DrXMLStringTool.escapeXml(getName());
 	}
 	
 	public Long increment(Long value){
@@ -160,9 +160,9 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 	
 	public static List<Count> filterForSource(Collection<Count> ins, String source){
-		List<Count> outs = ListTool.createArrayList();
-		for(Count in : IterableTool.nullSafe(ins)){
-			if(ObjectTool.equals(source, in.getSource())){ outs.add(in); }
+		List<Count> outs = DrListTool.createArrayList();
+		for(Count in : DrIterableTool.nullSafe(ins)){
+			if(DrObjectTool.equals(source, in.getSource())){ outs.add(in); }
 		}
 		return outs;
 	}
@@ -170,15 +170,15 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	public static List<Count> getListWithGapsFilled(String otherName, String otherSourceType, String otherSource,
 			Long periodMs, Iterable<Count> ins, Long startTime, Long endTime){
 		int numPoints = (int)((endTime - startTime) / periodMs);
-		List<Count> outs = ListTool.createArrayList(numPoints + 1);
+		List<Count> outs = DrListTool.createArrayList(numPoints + 1);
 		long intervalStart = startTime;
-		Iterator<Count> iterator = IterableTool.nullSafe(ins).iterator();
-		Count next = IterableTool.next(iterator);
+		Iterator<Count> iterator = DrIterableTool.nullSafe(ins).iterator();
+		Count next = DrIterableTool.next(iterator);
 		// int numMatches=0, numNull=0, numOutOfRange=0;
 		while(intervalStart <= endTime){
 			if(next != null && next.getStartTimeMs().equals(intervalStart)){
-				if(CollectionTool.notEmpty(outs)){
-					Count last = CollectionTool.getLast(outs);
+				if(DrCollectionTool.notEmpty(outs)){
+					Count last = DrCollectionTool.getLast(outs);
 					if(last.getStartTimeMs().equals(next.getStartTimeMs())){
 						last.increment(next.value);
 					}else{
@@ -187,7 +187,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 				}else{
 					outs.add(next);
 				}
-				next = IterableTool.next(iterator);
+				next = DrIterableTool.next(iterator);
 				// ++numMatches;
 			}else{
 				// logger.warn("miss:"+new Date(intervalStart));

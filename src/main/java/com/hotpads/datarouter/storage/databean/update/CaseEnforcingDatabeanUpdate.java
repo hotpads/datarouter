@@ -14,7 +14,7 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBean;
 import com.hotpads.datarouter.test.node.basic.backup.BackupBeanKey;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class CaseEnforcingDatabeanUpdate <PK extends PrimaryKey<PK>, D extends Databean<PK,D> & ContentHolder<PK,D>> 
 extends DatabeanUpdate<PK,D>{
@@ -42,7 +42,7 @@ extends DatabeanUpdate<PK,D>{
 		}
 		for(Field<?> newKeyField : newBean.getKeyFields()){
 			String oldValue = oldStringFieldValues.get(newKeyField.getName());
-			if(StringTool.equalsCaseInsensitiveButNotCaseSensitive(oldValue, newKeyField.getValueString())){
+			if(DrStringTool.equalsCaseInsensitiveButNotCaseSensitive(oldValue, newKeyField.getValueString())){
 				return true;
 			}
 		}

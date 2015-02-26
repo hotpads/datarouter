@@ -5,9 +5,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.datarouter.util.core.ArrayTool;
-import com.hotpads.datarouter.util.core.ByteTool;
-import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 /*
  * methods for converting shorts into bytes
@@ -70,7 +70,7 @@ public class ShortByteTool {
 //	}
 
 	public static byte[] getComparableByteArray(List<Short> values){
-		if(CollectionTool.isEmpty(values)){ return new byte[0]; }
+		if(DrCollectionTool.isEmpty(values)){ return new byte[0]; }
 		byte[] out = new byte[2*values.size()];
 		int index = 0;
 		for(Short value : values){
@@ -90,7 +90,7 @@ public class ShortByteTool {
 	}
 
 	public static short[] fromComparableByteArray(final byte[] bytes){
-		if(ArrayTool.isEmpty(bytes)){ return new short[0]; }
+		if(DrArrayTool.isEmpty(bytes)){ return new short[0]; }
 		short[] out = new short[bytes.length / 2];
 		for(int i=0; i < out.length; ++i){
 			int startIdx = i*2;
@@ -181,8 +181,8 @@ public class ShortByteTool {
 			byte[] p5 = getComparableBytes((short)5);
 			byte[] n3 = getComparableBytes((short)-3);
 			byte[] n7 = getComparableBytes((short)-7);
-			Assert.assertTrue(ByteTool.bitwiseCompare(p5, n3) > 0);
-			Assert.assertTrue(ByteTool.bitwiseCompare(p5, n7) > 0);
+			Assert.assertTrue(DrByteTool.bitwiseCompare(p5, n3) > 0);
+			Assert.assertTrue(DrByteTool.bitwiseCompare(p5, n7) > 0);
 		}
 		
 		@Test public void testRoundTrip(){
@@ -214,7 +214,7 @@ public class ShortByteTool {
 //				System.out.println("bytes "+ByteTool.getBinaryStringBigEndian(bytes));
 				short roundTripped = fromComparableByteArray(bytes)[0];
 				try{
-					Assert.assertTrue(ByteTool.bitwiseCompare(lastBytes, bytes) < 0);
+					Assert.assertTrue(DrByteTool.bitwiseCompare(lastBytes, bytes) < 0);
 					Assert.assertEquals(i, roundTripped);
 				}catch(AssertionError e){
 //					System.out.println(i+" -> "+roundTripped);

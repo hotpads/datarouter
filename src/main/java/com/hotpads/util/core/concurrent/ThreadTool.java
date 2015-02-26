@@ -1,6 +1,6 @@
 package com.hotpads.util.core.concurrent;
 
-import com.hotpads.datarouter.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
 
 
 
@@ -34,6 +34,6 @@ public class ThreadTool {
 	}
 	
 	public static StackTraceElement getTopStackTraceElement(){
-		return ArrayTool.getFirst(getStackTrace());
+		return DrArrayTool.getFirst(getStackTrace());
 	}
 }

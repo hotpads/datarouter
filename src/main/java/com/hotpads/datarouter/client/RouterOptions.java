@@ -8,9 +8,9 @@ import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.client.imp.memory.MemoryClientType;
 import com.hotpads.datarouter.routing.BaseDatarouter;
-import com.hotpads.datarouter.util.core.MapTool;
-import com.hotpads.datarouter.util.core.ObjectTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
@@ -52,13 +52,13 @@ public class RouterOptions extends TypedProperties{
 		String typeNameKey = prependClientPrefix(clientName, "type");
 		String typeName = getString(typeNameKey);
 		if(REQUIRE_CLIENT_TYPE){
-			Preconditions.checkState(StringTool.notEmpty(typeName), "no value found for "+typeNameKey);
+			Preconditions.checkState(DrStringTool.notEmpty(typeName), "no value found for "+typeNameKey);
 		}else{
-			if(StringTool.isEmpty(typeName)){ return CLIENT_TYPE_DEFAULT; }
+			if(DrStringTool.isEmpty(typeName)){ return CLIENT_TYPE_DEFAULT; }
 		}
 		String typeClassNameKey = "clientType."+typeName;
 		String defaultClassNameForType = DefaultClientTypes.CLASS_BY_NAME.get(typeName);
-		String typeClassName = ObjectTool.nullSafe(getString(typeClassNameKey), defaultClassNameForType);
+		String typeClassName = DrObjectTool.nullSafe(getString(typeClassNameKey), defaultClassNameForType);
 		Preconditions.checkNotNull(typeClassName, "no implementation specified for type "+typeClassNameKey);
 		return ReflectionTool.create(typeClassName);
 	}

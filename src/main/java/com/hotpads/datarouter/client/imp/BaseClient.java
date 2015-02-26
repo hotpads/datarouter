@@ -1,7 +1,7 @@
 package com.hotpads.datarouter.client.imp;
 
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
 
 public abstract class BaseClient
 implements Client{
@@ -10,6 +10,6 @@ implements Client{
 	
 	@Override
 	public int compareTo(Client o){
-		return ComparableTool.nullFirstCompareTo(getName(), o.getName());
+		return DrComparableTool.nullFirstCompareTo(getName(), o.getName());
 	}
 }

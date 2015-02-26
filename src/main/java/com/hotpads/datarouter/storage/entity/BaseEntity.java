@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public abstract class BaseEntity<EK extends EntityKey<EK>>
 implements Entity<EK>{
@@ -83,7 +83,7 @@ implements Entity<EK>{
 //		}
 
 		public void addAllAndReSort(Collection<D> toAdd){
-			databeans.addAll(CollectionTool.nullSafe(toAdd));
+			databeans.addAll(DrCollectionTool.nullSafe(toAdd));
 			Collections.sort(databeans);
 		}
 		
@@ -92,11 +92,11 @@ implements Entity<EK>{
 		}
 		
 		public D getFirst(){
-			return CollectionTool.getFirst(databeans);
+			return DrCollectionTool.getFirst(databeans);
 		}
 		
 		public int getNumDatabeans(){
-			return CollectionTool.size(databeans);
+			return DrCollectionTool.size(databeans);
 		}
 		
 	}

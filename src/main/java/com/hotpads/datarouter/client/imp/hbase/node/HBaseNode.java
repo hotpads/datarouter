@@ -29,9 +29,9 @@ import com.hotpads.datarouter.storage.field.imp.comparable.SignedByteField;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.BooleanTool;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class HBaseNode<
 		PK extends PrimaryKey<PK>,
@@ -60,17 +60,17 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	@Override
 	public void put(final D databean, final Config config) {
 		if(databean==null){ return; }
-		putMulti(ListTool.wrap(databean), config);
+		putMulti(DrListTool.wrap(databean), config);
 	}
 
 	
 	@Override
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
-		if(CollectionTool.isEmpty(databeans)){ return; }
+		if(DrCollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "putMulti", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{					
-					List<Row> actions = ListTool.createArrayList();
+					List<Row> actions = DrListTool.createArrayList();
 					int numCellsPut = 0, numCellsDeleted = 0, numRowsPut = 0;;
 					long batchStartTime = System.currentTimeMillis();
 					for(D databean : databeans){//TODO obey Config.commitBatchSize
@@ -83,7 +83,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 						for(Field<?> field : fields){//TODO only put modified fields
 							byte[] fieldBytes = field.getBytes();
 							if(fieldBytes==null){
-								if(BooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
+								if(DrBooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
 									delete.deleteColumn(FAM, field.getColumnNameBytes(), batchStartTime);
 									++numCellsDeleted;
 								}
@@ -104,7 +104,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					DRCounters.incSuffixClientNode(client.getType(), "cells put", getClientName(), getName(), numCellsPut);
 					DRCounters.incSuffixClientNode(client.getType(), "cells delete", getClientName(), getName(), numCellsDeleted);
 					DRCounters.incSuffixClientNode(client.getType(), "rows put", getClientName(), getName(), numRowsPut);
-					if(CollectionTool.notEmpty(actions)){
+					if(DrCollectionTool.notEmpty(actions)){
 						hTable.batch(actions);
 						hTable.flushCommits();
 					}
@@ -127,7 +127,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "deleteAll", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					managedResultScanner = hTable.getScanner(new Scan());
-					List<Row> batchToDelete = ListTool.createArrayList(1000);
+					List<Row> batchToDelete = DrListTool.createArrayList(1000);
 					for(Result row : managedResultScanner){
 						if(row.isEmpty()){ continue; }
 						batchToDelete.add(new Delete(row.getRow()));
@@ -137,7 +137,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 							batchToDelete.clear();
 						}
 					}
-					if(CollectionTool.notEmpty(batchToDelete)){
+					if(DrCollectionTool.notEmpty(batchToDelete)){
 						hTable.batch(batchToDelete);
 						hTable.flushCommits();
 					}
@@ -149,18 +149,18 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	
 	@Override
 	public void delete(PK key, Config pConfig) {
-		deleteMulti(ListTool.wrap(key), pConfig);
+		deleteMulti(DrListTool.wrap(key), pConfig);
 	}
 
 	
 	@Override
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
-		if(CollectionTool.isEmpty(keys)){ return; }
+		if(DrCollectionTool.isEmpty(keys)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "deleteMulti", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					hTable.setAutoFlush(false);
-					List<Row> deletes = ListTool.createArrayListWithSize(keys);//api requires ArrayList
+					List<Row> deletes = DrListTool.createArrayListWithSize(keys);//api requires ArrayList
 					for(PK key : keys){
 						byte[] keyBytes = getKeyBytesWithScatteringPrefix(null, key, false);
 						Delete delete = new Delete(keyBytes);
@@ -181,7 +181,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
 		//TODO need a method getKeysWithPrefix	
 		List<D> databeansToDelete = getWithPrefix(prefix, wildcardLastField, config);
-		if(CollectionTool.notEmpty(databeansToDelete)){
+		if(DrCollectionTool.notEmpty(databeansToDelete)){
 			deleteMulti(KeyTool.getKeys(databeansToDelete), null);
 		}
 	}

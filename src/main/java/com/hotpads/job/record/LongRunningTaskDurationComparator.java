@@ -2,7 +2,7 @@ package com.hotpads.job.record;
 
 import java.util.Comparator;
 
-import com.hotpads.datarouter.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
 
 public class LongRunningTaskDurationComparator implements Comparator<LongRunningTask>{
 
@@ -14,7 +14,7 @@ public class LongRunningTaskDurationComparator implements Comparator<LongRunning
 	
 	@Override
 	public int compare(LongRunningTask a, LongRunningTask b) {
-		int compare = ComparableTool.nullFirstCompareTo(a.getStartTime(), b.getStartTime());
+		int compare = DrComparableTool.nullFirstCompareTo(a.getStartTime(), b.getStartTime());
 		if(ascending){
 			return compare;
 		}

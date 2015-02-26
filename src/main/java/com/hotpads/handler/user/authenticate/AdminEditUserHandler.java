@@ -5,7 +5,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.ResponseTool;
 import com.hotpads.handler.mav.Mav;
@@ -44,7 +44,7 @@ public class AdminEditUserHandler extends BaseHandler{
 	@Handler
 	private Mav viewUsers() {
 		Mav mav = new Mav(authenticationConfig.getViewUsersJsp());
-		List<DatarouterUser> userList = ListTool.createArrayList(userNodes.getUserNode().scan(null, null));
+		List<DatarouterUser> userList = DrListTool.createArrayList(userNodes.getUserNode().scan(null, null));
 		mav.put(AUTHENTICATION_CONFIG, authenticationConfig);
 		mav.put(USER_LIST, userList);
 		return mav;

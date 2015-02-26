@@ -11,7 +11,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class MapCachingMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
@@ -77,7 +77,7 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		if(CollectionTool.isEmpty(databeans)){ return; }
+		if(DrCollectionTool.isEmpty(databeans)){ return; }
 		if(BaseMapCachingNode.useCache(config)){
 			target.updateLastAttemptedContact();
 			if(cacheWrites){

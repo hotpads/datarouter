@@ -7,8 +7,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.iterable.scanner.imp.ListBackedSortedScanner;
 
 public class BatchingScanner<T> implements Scanner<List<T>>{
@@ -19,20 +19,20 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 	
 	public BatchingScanner(Scanner<T> scanner, int batchSize){
 		this.scanner = scanner;
-		this.batch = ListTool.createArrayList();
+		this.batch = DrListTool.createArrayList();
 		this.batchSize = batchSize;
 	}
 	
 	@Override
 	public boolean advance(){
-		batch = ListTool.createArrayList();
+		batch = DrListTool.createArrayList();
 		while( ! fullBatch()){
 			if(!scanner.advance()){
 				break;
 			}
 			batch.add(scanner.getCurrent());
 		}
-		return CollectionTool.notEmpty(batch);
+		return DrCollectionTool.notEmpty(batch);
 	}
 	
 	@Override
@@ -56,7 +56,7 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 		}
 		@Test
 		public void testPartialBatch(){
-			List<Integer> ints = ListTool.createArrayList(0,1);
+			List<Integer> ints = DrListTool.createArrayList(0,1);
 			Scanner<Integer> scanner = new ListBackedSortedScanner<Integer>(ints);
 			BatchingScanner<Integer> batchingScanner = new BatchingScanner<Integer>(scanner, 3);
 			Assert.assertTrue(batchingScanner.advance());
@@ -68,10 +68,10 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 		}
 		@Test
 		public void testMultipleBatches(){
-			List<Integer> ints = ListTool.createArrayList(0,1,2,3,4,5,6,7);
+			List<Integer> ints = DrListTool.createArrayList(0,1,2,3,4,5,6,7);
 			Scanner<Integer> scanner = new ListBackedSortedScanner<Integer>(ints);
 			BatchingScanner<Integer> batchingScanner = new BatchingScanner<Integer>(scanner, 3);
-			List<List<Integer>> batches = ListTool.create();
+			List<List<Integer>> batches = DrListTool.create();
 			while(batchingScanner.advance()){
 				batches.add(batchingScanner.getCurrent());
 			}

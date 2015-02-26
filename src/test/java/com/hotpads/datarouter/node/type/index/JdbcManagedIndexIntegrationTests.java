@@ -22,7 +22,7 @@ import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class JdbcManagedIndexIntegrationTests{
 	
@@ -39,7 +39,7 @@ public class JdbcManagedIndexIntegrationTests{
 		node = router.testDatabeanWithManagedIndex;
 		nodeWithTxnManaged = router.testDatabeanWithTxnManagedIndex;
 		
-		testDatabeans = ListTool.createLinkedList(
+		testDatabeans = DrListTool.createLinkedList(
 				new TestDatabean("un", "alarc'h", "un"),
 				new TestDatabean("alarc'h", "tra", "mor"),
 				new TestDatabean("war", "lein", "tour"),
@@ -81,7 +81,7 @@ public class JdbcManagedIndexIntegrationTests{
 	}
 	
 	private void testLookupMultiUnique(TestDatabeanWithIndexNode node){
-		LinkedList<TestDatabeanWithManagedIndexByBKey> keys = ListTool.createLinkedList(
+		LinkedList<TestDatabeanWithManagedIndexByBKey> keys = DrListTool.createLinkedList(
 				new TestDatabeanWithManagedIndexByBKey("martolod"),
 				new TestDatabeanWithManagedIndexByBKey("kastell"),
 				new TestDatabeanWithManagedIndexByBKey("lein"));
@@ -123,7 +123,7 @@ public class JdbcManagedIndexIntegrationTests{
 	}
 	
 	private void testLookupMultiIndex(TestDatabeanWithIndexNode node){
-		LinkedList<TestDatabeanWithManagedIndexByBKey> keys = ListTool.createLinkedList(
+		LinkedList<TestDatabeanWithManagedIndexByBKey> keys = DrListTool.createLinkedList(
 				new TestDatabeanWithManagedIndexByBKey("martolod"),
 				new TestDatabeanWithManagedIndexByBKey("kastell"),
 				new TestDatabeanWithManagedIndexByBKey("lein"));
@@ -166,7 +166,7 @@ public class JdbcManagedIndexIntegrationTests{
 	}
 	
 	private void testDeleteMultiUnique(TestDatabeanWithIndexNode node){
-		List<TestDatabean> databeans = ListTool.createLinkedList(
+		List<TestDatabean> databeans = DrListTool.createLinkedList(
 				new TestDatabean("tri", "martolod", "yaouank"),
 				new TestDatabean("i vonet", "da", "veajiñ"));
 		List<TestDatabeanKey> keys = KeyTool.getKeys(databeans);
@@ -197,7 +197,7 @@ public class JdbcManagedIndexIntegrationTests{
 		databeans = node.byC.lookupMulti(
 				new TestDatabeanWithManagedIndexByCKey("ed"), true, null);
 		Assert.assertEquals(databeans.size(), 2);
-		List<TestDatabean> expected = ListTool.create(
+		List<TestDatabean> expected = DrListTool.create(
 				new TestDatabean("Neventi vad", "d'ar Vreton", "ed"),
 				new TestDatabean("Ha malloz-ru", "d'ar C'hallaou", "ed"));
 		for(TestDatabean d : databeans){
@@ -212,12 +212,12 @@ public class JdbcManagedIndexIntegrationTests{
 	}
 	
 	private void testLookupMultiMulti(TestDatabeanWithIndexNode node){
-		List<TestDatabeanWithManagedIndexByCKey> keys = ListTool.create(
+		List<TestDatabeanWithManagedIndexByCKey> keys = DrListTool.create(
 				new TestDatabeanWithManagedIndexByCKey("ed"),
 				new TestDatabeanWithManagedIndexByCKey("or"));
 		List<TestDatabean> databeans = node.byC.lookupMultiMulti(keys, true, null);
 		Assert.assertEquals(databeans.size(), 4);
-		List<TestDatabean> expected = ListTool.create(
+		List<TestDatabean> expected = DrListTool.create(
 				new TestDatabean("Neventi vad", "d'ar Vreton", "ed"),
 				new TestDatabean("Ha malloz-ru", "d'ar C'hallaou", "ed"),
 				new TestDatabean("Erru eul lestr", "e pleg ar m", "or"),

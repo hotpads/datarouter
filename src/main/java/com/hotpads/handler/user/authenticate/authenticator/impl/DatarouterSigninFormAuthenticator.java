@@ -5,9 +5,9 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.hotpads.datarouter.util.core.BooleanTool;
-import com.hotpads.datarouter.util.core.ObjectTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByUsernameLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
@@ -38,7 +38,7 @@ public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticat
 	@Override
 	public DatarouterSession getSession(){
 		//the usual case where we're not submitting the login form.  just skip this filter
-		if(ObjectTool.notEquals(request.getServletPath(), authenticationConfig.getSigninSubmitPath())){
+		if(DrObjectTool.notEquals(request.getServletPath(), authenticationConfig.getSigninSubmitPath())){
 			return null; 
 		}
 		
@@ -60,7 +60,7 @@ public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticat
 	
 	
 	private DatarouterUser lookupAndValidateUser(String username, String password){
-		if(StringTool.isEmpty(username)){
+		if(DrStringTool.isEmpty(username)){
 			throw new InvalidCredentialsException("no username specified");
 		}
 		
@@ -69,10 +69,10 @@ public class DatarouterSigninFormAuthenticator extends BaseDatarouterAuthenticat
 		if(user==null){
 			throw new InvalidCredentialsException("user not found ("+username+")");
 		}
-		if(BooleanTool.isFalseOrNull(user.getEnabled())){
+		if(DrBooleanTool.isFalseOrNull(user.getEnabled())){
 			throw new InvalidCredentialsException("user not enabled ("+username+")");
 		}
-		if(StringTool.isEmpty(password)){
+		if(DrStringTool.isEmpty(password)){
 			throw new InvalidCredentialsException("password cannot be empty ("+username+")");
 		}
 		if( ! passwordService.isPasswordCorrect(user, password)){

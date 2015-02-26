@@ -10,12 +10,12 @@ import org.junit.Test;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
-import com.hotpads.datarouter.util.core.ClassTool;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.ComparableTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.DrClassTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 
 /*
  * HBaseEntityReaderNode may return results beyond our endKey.  This happens when we have a multi-Entity scan that stops
@@ -41,8 +41,8 @@ implements Comparator<FS>{
 	
 	public static <FS extends FieldSet<?>> List<FS> filterOnEndOfRange(Iterable<FS> candidates, FS endOfRange, 
 			boolean inclusive){
-		List<FS> matches = ListTool.createArrayList();
-		for(FS candidate : IterableTool.nullSafe(candidates)){
+		List<FS> matches = DrListTool.createArrayList();
+		for(FS candidate : DrIterableTool.nullSafe(candidates)){
 			if(isCandidateIncludedForEndOfRange(candidate, endOfRange, inclusive)){
 				matches.add(candidate);
 			}
@@ -54,7 +54,7 @@ implements Comparator<FS>{
 	public static boolean isCandidateIncludedForEndOfRange(FieldSet<?> candidate, FieldSet<?> endOfRange, 
 			boolean inclusive){
 		if(endOfRange == null){ return true; }
-		if(ObjectTool.noNulls(endOfRange, candidate) && ClassTool.differentClass(endOfRange, candidate)){
+		if(DrObjectTool.noNulls(endOfRange, candidate) && DrClassTool.differentClass(endOfRange, candidate)){
 			throw new IllegalArgumentException("currently expecting same class");//should subclasses be ok?
 		}
 		//if we got past the class checks above, then fields should be the same and arrive in the same order
@@ -65,7 +65,7 @@ implements Comparator<FS>{
 	private static boolean isCandidateIncludedForEndOfRange(List<Field<?>> candidateFields, 
 			List<Field<?>> endOfRangeFields, boolean inclusive){
 		if(endOfRangeFields == null){ return true; }
-		if(CollectionTool.differentSize(endOfRangeFields, candidateFields)){
+		if(DrCollectionTool.differentSize(endOfRangeFields, candidateFields)){
 			throw new IllegalArgumentException("inputs must have identical field count");
 		}
 		//field by field comparison
@@ -85,7 +85,7 @@ implements Comparator<FS>{
 				return true;
 			}else{
 				//neither value should be null at this point
-				int diff = ComparableTool.nullFirstCompareTo(candidateValue, endOfRangeValue);
+				int diff = DrComparableTool.nullFirstCompareTo(candidateValue, endOfRangeValue);
 				if(diff < 0){ return true; }
 				if(diff > 0){ return false; }
 				boolean lastField = counter == endOfRangeFields.size();

@@ -10,22 +10,22 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.setting.StandardServerType;
 
 public class ClusterSettingScopeComparator implements Comparator<ClusterSetting> {
 
 	@Override
 	public int compare(ClusterSetting a, ClusterSetting b) {
-		if(ObjectTool.bothNull(a, b)){ return 0; }
-		if(ObjectTool.isOneNullButNotTheOther(a, b)){ return a==null?-1:1; }
+		if(DrObjectTool.bothNull(a, b)){ return 0; }
+		if(DrObjectTool.isOneNullButNotTheOther(a, b)){ return a==null?-1:1; }
 		
 		ClusterSettingScope aScope = a.getScope();
 		ClusterSettingScope bScope = b.getScope();
-		if(ObjectTool.bothNull(aScope, bScope)){ return 0; }
-		if(ObjectTool.isOneNullButNotTheOther(aScope, bScope)){ return aScope==null?-1:1; }
+		if(DrObjectTool.bothNull(aScope, bScope)){ return 0; }
+		if(DrObjectTool.isOneNullButNotTheOther(aScope, bScope)){ return aScope==null?-1:1; }
 		
 		int c = aScope.getSpecificity() - bScope.getSpecificity();
 		if(c==0){ return 0; }
@@ -38,7 +38,7 @@ public class ClusterSettingScopeComparator implements Comparator<ClusterSetting>
 		private static ClusterSetting joblet1;
 		private static ClusterSetting joblet2;
 		private static ClusterSetting instance1;
-		private static List<ClusterSetting> settings = ListTool.create();
+		private static List<ClusterSetting> settings = DrListTool.create();
 		
 		@BeforeClass 
 		public static void setUpClass() throws IOException{
@@ -63,7 +63,7 @@ public class ClusterSettingScopeComparator implements Comparator<ClusterSetting>
 			for(ClusterSetting c : settings){
 				System.out.println(c.getValue());
 			}
-			Assert.assertTrue(CollectionTool.getFirst(settings).getValue().equals("1"));
+			Assert.assertTrue(DrCollectionTool.getFirst(settings).getValue().equals("1"));
 		}
 	}
 }

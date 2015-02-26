@@ -17,8 +17,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.TraceContext;
 
 public abstract class BaseDatarouter
@@ -143,15 +143,15 @@ implements Datarouter{
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<Client> 
 	getClientsForDatabeanType(Class<D> databeanType){
 		List<String> clientNames = context.getNodes().getClientNamesForDatabeanType(databeanType);
-		if(CollectionTool.isEmpty(clientNames)){ return null; }
+		if(DrCollectionTool.isEmpty(clientNames)){ return null; }
 		return context.getClientPool().getClients(context, clientNames);
 	}
 
 	@Override
 	public <K extends Key<K>>List<Client> getClientsForKeys(Collection<? extends Key<K>> keys){
-		List<Client> clientsForKeys = ListTool.createLinkedList();
+		List<Client> clientsForKeys = DrListTool.createLinkedList();
 		List<String> clientNames = getClientNamesForKeys(keys);
-		for(String clientName : CollectionTool.nullSafe(clientNames)){
+		for(String clientName : DrCollectionTool.nullSafe(clientNames)){
 			Client client = getClient(clientName);
 			clientsForKeys.add(client);
 		}

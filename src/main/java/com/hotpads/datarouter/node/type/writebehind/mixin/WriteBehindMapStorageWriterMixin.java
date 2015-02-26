@@ -9,7 +9,7 @@ import com.hotpads.datarouter.node.type.writebehind.base.BaseWriteBehindNode;
 import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class WriteBehindMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
@@ -25,7 +25,7 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void delete(PK key, Config config){
-		node.getQueue().offer(new WriteWrapper<PK>(OP_delete, ListTool.wrap(key), config));
+		node.getQueue().offer(new WriteWrapper<PK>(OP_delete, DrListTool.wrap(key), config));
 	}
 
 	@Override
@@ -35,12 +35,12 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void deleteAll(Config config){
-		node.getQueue().offer(new WriteWrapper<Object>(OP_deleteAll, ListTool.wrap(new Object()), config));
+		node.getQueue().offer(new WriteWrapper<Object>(OP_deleteAll, DrListTool.wrap(new Object()), config));
 	}
 
 	@Override
 	public void put(D databean, Config config) {
-		node.getQueue().offer(new WriteWrapper<D>(OP_put, ListTool.wrap(databean), config));
+		node.getQueue().offer(new WriteWrapper<D>(OP_put, DrListTool.wrap(databean), config));
 	}
 
 	@Override

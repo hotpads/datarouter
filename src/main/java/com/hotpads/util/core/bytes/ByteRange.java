@@ -6,8 +6,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import com.google.common.collect.Lists;
-import com.hotpads.datarouter.util.core.ArrayTool;
-import com.hotpads.datarouter.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
 
 /**
  * lightweight, reusable class for specifying ranges of byte[]'s
@@ -77,7 +77,7 @@ implements Comparable<ByteRange>{
 	}
 	
 	public byte[] copyToArrayNewArrayAndIncrement(){
-		return ByteTool.unsignedIncrement(toArray());
+		return DrByteTool.unsignedIncrement(toArray());
 	}
 	
 	public ByteRange cloneAndIncrement(){
@@ -117,7 +117,7 @@ implements Comparable<ByteRange>{
 		if(hashCode() != thatObject.hashCode()){ return false; }
 		if(!(thatObject instanceof ByteRange)){ return false; }
 		ByteRange that = (ByteRange)thatObject;
-		return ByteTool.equals(bytes, offset, length, that.bytes, that.offset, that.length);
+		return DrByteTool.equals(bytes, offset, length, that.bytes, that.offset, that.length);
 	}
 
 	@Override
@@ -126,7 +126,7 @@ implements Comparable<ByteRange>{
 	}
 
 	protected void calculateHashCode(){
-		if(ArrayTool.isEmpty(bytes)){
+		if(DrArrayTool.isEmpty(bytes)){
 			hash = 0;
 			return;
 		}
@@ -138,7 +138,7 @@ implements Comparable<ByteRange>{
 
 	@Override
 	public int compareTo(ByteRange other){
-		return ByteTool.bitwiseCompare(bytes, offset, length, 
+		return DrByteTool.bitwiseCompare(bytes, offset, length, 
 				other.bytes, other.offset, other.length);
 	}
 	

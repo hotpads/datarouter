@@ -23,8 +23,8 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.StorageType;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.setting.DatarouterSettings;
 
 @Singleton
@@ -97,8 +97,8 @@ public class MasterSlaveNodeFactory{
 			master = nodeFactory.create(masterClientName, databeanClass, fielderClass, router, false);
 		}
 		
-		List<N> slaves = ListTool.createLinkedList();
-		for(String slaveClientName : CollectionTool.nullSafe(slaveClientNames)){
+		List<N> slaves = DrListTool.createLinkedList();
+		for(String slaveClientName : DrCollectionTool.nullSafe(slaveClientNames)){
 			N slaveNode = nodeFactory.create(slaveClientName, databeanClass, fielderClass, router, false);
 			slaves.add(slaveNode);
 		}

@@ -13,8 +13,8 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.datarouter.util.core.ArrayTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -56,7 +56,7 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 	
 	@Override
 	public E parseStringEncodedValueButDoNotSet(String s){
-		if(StringTool.isEmpty(s)){ return null; }
+		if(DrStringTool.isEmpty(s)){ return null; }
 		return sampleValue.fromPersistentString(s);
 	}
 	
@@ -79,9 +79,9 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 	public byte[] getBytesWithSeparator(){
 		// TODO someday don't put the separator after the last field, but that would break all currently persisted keys
 		byte[] dataBytes = getBytes();
-		if(ArrayTool.containsUnsorted(dataBytes, SEPARATOR)){ throw new IllegalArgumentException(
+		if(DrArrayTool.containsUnsorted(dataBytes, SEPARATOR)){ throw new IllegalArgumentException(
 				"String cannot contain separator byteVal=" + SEPARATOR); }
-		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{SEPARATOR}; }
+		if(DrArrayTool.isEmpty(dataBytes)){ return new byte[]{SEPARATOR}; }
 		byte[] allBytes = new byte[dataBytes.length + 1];
 		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
 		allBytes[allBytes.length - 1] = SEPARATOR;// Ascii "null" will compare first in lexicographical bytes comparison

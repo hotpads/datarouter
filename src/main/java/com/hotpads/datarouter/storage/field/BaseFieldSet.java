@@ -3,7 +3,7 @@ package com.hotpads.datarouter.storage.field;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.field.compare.FieldSetComparator;
-import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 @SuppressWarnings("serial")
 public abstract class BaseFieldSet<F extends FieldSet<F>> 
@@ -30,7 +30,7 @@ implements FieldSet<F>{
 		
 		//but order doesn't matter that much for us
 		int hash = 0;
-		for (Object fieldValue : CollectionTool.nullSafe(getFieldValues())){
+		for (Object fieldValue : DrCollectionTool.nullSafe(getFieldValues())){
 			if(fieldValue != null){
 				hash = hash ^ fieldValue.hashCode();
 			}

@@ -15,7 +15,7 @@ import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class GetWhereTxn<
 		PK extends PrimaryKey<PK>,
@@ -50,7 +50,7 @@ extends BaseHibernateOp<List<D>>{
 		StringBuilder whereClause = new StringBuilder();
 		if(startAfterKey != null){
 			SqlBuilder.addRangeWhereClause(whereClause, startAfterKey, false, null, true);
-			if(StringTool.notEmpty(whereClauseFromUser)){
+			if(DrStringTool.notEmpty(whereClauseFromUser)){
 				whereClause.append(" and ");
 			}
 		}

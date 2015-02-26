@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.SortedSet;
 
 import com.hotpads.datarouter.client.Client;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 
 
 /*
@@ -32,7 +32,7 @@ import com.hotpads.datarouter.util.core.SetTool;
 public abstract class BaseDRH{
 
 	protected DatarouterContext drContext;
-	protected List<Datarouter> routers = ListTool.createArrayList();
+	protected List<Datarouter> routers = DrListTool.createArrayList();
 	
 	
 	/************************ constructors ************************/
@@ -51,7 +51,7 @@ public abstract class BaseDRH{
 	}
 	
 	public Datarouter getRouter(String name){
-		for(Datarouter router : CollectionTool.nullSafe(routers)){
+		for(Datarouter router : DrCollectionTool.nullSafe(routers)){
 			if(name.trim().equals(router.getName())){
 				return router;
 			}
@@ -60,13 +60,13 @@ public abstract class BaseDRH{
 	}
 	
 	public List<Client> getClients(){
-		SortedSet<Client> clients = SetTool.createTreeSet();
-		for(Datarouter router : IterableTool.nullSafe(getRouters())){
-			for(Client client : IterableTool.nullSafe(router.getAllClients())){
+		SortedSet<Client> clients = DrSetTool.createTreeSet();
+		for(Datarouter router : DrIterableTool.nullSafe(getRouters())){
+			for(Client client : DrIterableTool.nullSafe(router.getAllClients())){
 				clients.add(client);
 			}
 		}
-		return ListTool.createArrayList(clients);
+		return DrListTool.createArrayList(clients);
 	}
 	
 	public Datarouter getRouterForClient(Client client){

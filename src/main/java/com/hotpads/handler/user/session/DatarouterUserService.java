@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUserNodes;
 import com.hotpads.handler.user.authenticate.DatarouterPasswordService;
@@ -21,7 +21,7 @@ public class DatarouterUserService{
 	public static final long ADMIN_ID = 1L;
 	private static final String ADMIN_USERNAME =  "admin@hotpads.com";
 	private static final String DEFAULT_PASSWORD = "tempAdminPassword";	
-	private static final List<DatarouterUserRole> DEFAULT_ADMIN_ROLES = ListTool.create(
+	private static final List<DatarouterUserRole> DEFAULT_ADMIN_ROLES = DrListTool.create(
 			DatarouterUserRole.datarouterAdmin, DatarouterUserRole.admin, DatarouterUserRole.user, 
 			DatarouterUserRole.apiUser);
 	

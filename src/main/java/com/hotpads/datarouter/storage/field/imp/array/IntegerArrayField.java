@@ -9,8 +9,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseListField;
-import com.hotpads.datarouter.util.core.ArrayTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
@@ -80,7 +80,7 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 	public List<Integer> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(columnName);
-			if(ArrayTool.isEmpty(bytes)){ return ListTool.create(); }
+			if(DrArrayTool.isEmpty(bytes)){ return DrListTool.create(); }
 			return IntegerByteTool.fromIntegerByteArray(bytes, 0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -100,7 +100,7 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 	/********************* main ************************/
 	
 	public static void main(String[] args){
-		IntegerArrayField testField = new IntegerArrayField("stuff", ListTool.create(new Integer(-51), null, new Integer(2)));
+		IntegerArrayField testField = new IntegerArrayField("stuff", DrListTool.create(new Integer(-51), null, new Integer(2)));
 		for(Integer num : testField.value){
 			System.out.println(num);
 		}

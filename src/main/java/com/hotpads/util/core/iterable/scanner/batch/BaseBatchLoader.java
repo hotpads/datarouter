@@ -2,7 +2,7 @@ package com.hotpads.util.core.iterable.scanner.batch;
 
 import java.util.List;
 
-import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 /*
  * this loader also maintains the state of the scanner.  could separate if needed
@@ -37,11 +37,11 @@ implements BatchLoader<T>{
 		return batchHasBeenLoaded
 				&& batch != null
 				&& currentIndex >= 0 
-				&& currentIndex < CollectionTool.size(batch);
+				&& currentIndex < DrCollectionTool.size(batch);
 	}
 	
 	protected boolean isBatchSmallerThan(int i){
-		return CollectionTool.size(batch) < i;
+		return DrCollectionTool.size(batch) < i;
 	}
 	
 	protected void updateBatch(List<T> batch){
@@ -54,7 +54,7 @@ implements BatchLoader<T>{
 	}
 	
 	protected T getLast(){
-		return CollectionTool.getLast(batch);
+		return DrCollectionTool.getLast(batch);
 	}
 	
 }

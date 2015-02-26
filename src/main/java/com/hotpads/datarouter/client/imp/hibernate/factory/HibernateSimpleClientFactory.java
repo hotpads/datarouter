@@ -15,9 +15,9 @@ import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcSimpleClientFactory;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.PropertiesTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrPropertiesTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 
@@ -45,9 +45,9 @@ extends JdbcSimpleClientFactory{
 		PhaseTimer timer = new PhaseTimer(getClientName());
 
 		// base config file for a SessionFactory
-		String configFileLocation = PropertiesTool.getFirstOccurrence(getMultiProperties(), Clients.PREFIX_client
+		String configFileLocation = DrPropertiesTool.getFirstOccurrence(getMultiProperties(), Clients.PREFIX_client
 				+ getClientName() + PARAM_configLocation);
-		if(StringTool.isEmpty(configFileLocation)){
+		if(DrStringTool.isEmpty(configFileLocation)){
 			configFileLocation = CONFIG_LOCATION_DEFAULT;
 		}
 		AnnotationConfiguration sfConfig = new AnnotationConfiguration();
@@ -62,7 +62,7 @@ extends JdbcSimpleClientFactory{
 		//add all databeanClasses until we're sure that none are using hibernate code (like GetJobletForProcessing)
 		Collection<Class<? extends Databean<?, ?>>> relevantDatabeanTypes = getDrContext().getNodes().getTypesForClient(
 				getClientName());
-		for (Class<? extends Databean<?, ?>> databeanClass : CollectionTool.nullSafe(relevantDatabeanTypes)){
+		for (Class<? extends Databean<?, ?>> databeanClass : DrCollectionTool.nullSafe(relevantDatabeanTypes)){
 		
 			try{
 				sfConfig.addClass(databeanClass);
@@ -103,16 +103,16 @@ extends JdbcSimpleClientFactory{
 	//this one doesn't wanna take
 	private void addShowSqlSetting(AnnotationConfiguration sfConfig){
 		 String showSqlPropertyKey = Clients.PREFIX_client + getClientName() + PARAM_show_sql;
-		 String showSql = PropertiesTool.getFirstOccurrence(getMultiProperties(), showSqlPropertyKey);
-		 if(StringTool.notEmpty(showSql)){
+		 String showSql = DrPropertiesTool.getFirstOccurrence(getMultiProperties(), showSqlPropertyKey);
+		 if(DrStringTool.notEmpty(showSql)){
 			 sfConfig.setProperty("show_sql", showSql);
 		 }
 	}
 	
 	private void addHbm2DdlSetting(AnnotationConfiguration sfConfig){
 		 String hbm2ddlPropertyKey = Clients.PREFIX_client + getClientName() + PARAM_hbm2ddl_auto;
-		 String hbm2ddl = PropertiesTool.getFirstOccurrence(getMultiProperties(), hbm2ddlPropertyKey);
-		 if(StringTool.notEmpty(hbm2ddl)){
+		 String hbm2ddl = DrPropertiesTool.getFirstOccurrence(getMultiProperties(), hbm2ddlPropertyKey);
+		 if(DrStringTool.notEmpty(hbm2ddl)){
 			 sfConfig.setProperty("hibernate.hbm2ddl.auto", hbm2ddl);
 		 }
 	}

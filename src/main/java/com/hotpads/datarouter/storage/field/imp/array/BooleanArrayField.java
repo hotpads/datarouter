@@ -9,8 +9,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseListField;
-import com.hotpads.datarouter.util.core.ArrayTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.BooleanByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
@@ -81,7 +81,7 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 	public List<Boolean> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(columnName);
-			if(ArrayTool.isEmpty(bytes)){ return ListTool.create(); }
+			if(DrArrayTool.isEmpty(bytes)){ return DrListTool.create(); }
 			return BooleanByteTool.fromBooleanByteArray(bytes, 0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -101,7 +101,7 @@ public class BooleanArrayField extends BaseListField<Boolean, List<Boolean>>{
 	/************************** main ***********************/
 	
 	public static void main(String[] args){
-		BooleanArrayField testField = new BooleanArrayField("stuff", ListTool.create(new Boolean(true), null, new Boolean(false)));
+		BooleanArrayField testField = new BooleanArrayField("stuff", DrListTool.create(new Boolean(true), null, new Boolean(false)));
 		for(Boolean num : testField.value){
 			System.out.println(num);
 		}

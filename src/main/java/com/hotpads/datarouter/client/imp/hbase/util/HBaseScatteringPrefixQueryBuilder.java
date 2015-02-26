@@ -21,9 +21,9 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.SimpleFieldSet;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
@@ -37,10 +37,10 @@ public class HBaseScatteringPrefixQueryBuilder {
 	public static List<Scan> getRangeScanners(DatabeanFieldInfo<?,?,?> fieldInfo,
 			final FieldSet<?> startKey, final boolean startInclusive, 
 			final FieldSet<?> endKey, final boolean endInclusive, Config config){
-		List<Scan> outs = ListTool.createArrayList();
+		List<Scan> outs = DrListTool.createArrayList();
 		List<Twin<ByteRange>> ranges = getRangeForEachScatteringPrefix(fieldInfo,
 				startKey, startInclusive, endKey, endInclusive, config);
-		for(Twin<ByteRange> range : IterableTool.nullSafe(ranges)){
+		for(Twin<ByteRange> range : DrIterableTool.nullSafe(ranges)){
 			Scan scan = HBaseQueryBuilder.getScanForRange(range.getLeft(), true, range.getRight(), false, config);
 			outs.add(scan);
 		}
@@ -50,10 +50,10 @@ public class HBaseScatteringPrefixQueryBuilder {
 	public static List<Scan> getPrefixScanners(DatabeanFieldInfo<?,?,?> fieldInfo, FieldSet<?> prefix, 
 			boolean wildcardLastField, Config config){
 		ArrayList<FieldSet<?>> scatteringPrefixesPlusPrefix = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, prefix);
-		if(CollectionTool.isEmpty(scatteringPrefixesPlusPrefix)){ 
-			return ListTool.wrap(HBaseQueryBuilder.getScanForRange(null, true, null, false, config)); 
+		if(DrCollectionTool.isEmpty(scatteringPrefixesPlusPrefix)){ 
+			return DrListTool.wrap(HBaseQueryBuilder.getScanForRange(null, true, null, false, config)); 
 		}
-		List<Scan> outs = ListTool.createArrayList();
+		List<Scan> outs = DrListTool.createArrayList();
 		for(FieldSet<?> fieldSet : scatteringPrefixesPlusPrefix){
 			Twin<ByteRange> byteRange = HBaseQueryBuilder.getStartEndBytesForPrefix(fieldSet.getFields(), wildcardLastField);
 			Range<ByteRange> scanRange = Range.create(byteRange.getLeft(), true, byteRange.getRight(), false);
@@ -65,8 +65,8 @@ public class HBaseScatteringPrefixQueryBuilder {
 	
 	public static List<Scan> getPrefixScanners(DatabeanFieldInfo<?,?,?> fieldInfo, Collection<? extends FieldSet<?>> prefixes, 
 			boolean wildcardLastField, Config config){
-		List<Scan> outs = ListTool.createArrayList();
-		for(FieldSet<?> prefix : IterableTool.nullSafe(prefixes)){
+		List<Scan> outs = DrListTool.createArrayList();
+		for(FieldSet<?> prefix : DrIterableTool.nullSafe(prefixes)){
 			List<Scan> scansForSinglePrefix = getPrefixScanners(fieldInfo, prefix, wildcardLastField, config);
 			outs.addAll(scansForSinglePrefix);
 		}
@@ -81,8 +81,8 @@ public class HBaseScatteringPrefixQueryBuilder {
 		ArrayList<FieldSet<?>> scatteringPrefixesPlusPrefix = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, prefix);
 		ArrayList<FieldSet<?>> scatteringPrefixesPlusStartKey = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, startKey);
 		ArrayList<FieldSet<?>> scatteringPrefixesPlusEndKey = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, endKey);
-		List<Pair<byte[],byte[]>> outs = ListTool.createArrayList();
-		for(int i=0; i < CollectionTool.size(scatteringPrefixesPlusPrefix); ++i){
+		List<Pair<byte[],byte[]>> outs = DrListTool.createArrayList();
+		for(int i=0; i < DrCollectionTool.size(scatteringPrefixesPlusPrefix); ++i){
 			FieldSet<?> scatteringPrefixPlusPrefix = scatteringPrefixesPlusPrefix.get(i);
 			FieldSet<?> scatteringPrefixPlusStartKey = scatteringPrefixesPlusStartKey.get(i);
 			FieldSet<?> scatteringPrefixPlusEndKey = scatteringPrefixesPlusEndKey.get(i);
@@ -107,10 +107,10 @@ public class HBaseScatteringPrefixQueryBuilder {
 	
 	public static ArrayList<FieldSet<?>> getInstanceForAllPossibleScatteringPrefixes(
 			DatabeanFieldInfo<?,?,?> fieldInfo, FieldSet<?> pk){
-		ArrayList<FieldSet<?>> outs = ListTool.createArrayList();
+		ArrayList<FieldSet<?>> outs = DrListTool.createArrayList();
 		List<List<Field<?>>> allScatteringPrefixFields = fieldInfo.getSampleScatteringPrefix().getAllPossibleScatteringPrefixes();
 		for(List<Field<?>> scatteringPrefixFields : allScatteringPrefixFields){
-			if(CollectionTool.isEmpty(scatteringPrefixFields) && pk==null){ 
+			if(DrCollectionTool.isEmpty(scatteringPrefixFields) && pk==null){ 
 				outs.add(null); 
 			}else{
 				SimpleFieldSet<?> scatteringPrefixPlusPk = new SimpleFieldSet(scatteringPrefixFields);
@@ -125,7 +125,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 			final FieldSet<?> startKey, final boolean startInclusive, 
 			final FieldSet<?> endKey, final boolean endInclusive, Config config){
 		
-		List<Twin<ByteRange>> ranges = ListTool.createArrayList();		
+		List<Twin<ByteRange>> ranges = DrListTool.createArrayList();		
 		ArrayList<FieldSet<?>> prefixedStartKeys = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, startKey);
 		ArrayList<FieldSet<?>> prefixedEndKeys = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, endKey);
 		
@@ -150,7 +150,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 			final Config pConfig){
 		List<List<Field<?>>> allScatteringPrefixes = fieldInfo.getSampleScatteringPrefix()
 				.getAllPossibleScatteringPrefixes();
-		ArrayList<BatchingSortedScanner<PK>> scanners = ListTool.createArrayList();
+		ArrayList<BatchingSortedScanner<PK>> scanners = DrListTool.createArrayList();
 		for(List<Field<?>> scatteringPrefix : allScatteringPrefixes){
 			BatchLoader<PK> firstBatchLoaderForPrefix = new HBasePrimaryKeyBatchLoader<PK,D,F>(node, scatteringPrefix, 
 					pkRange, pConfig, 1L);//start the counter at 1
@@ -169,7 +169,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 			final Config pConfig){
 		List<List<Field<?>>> allScatteringPrefixes = fieldInfo.getSampleScatteringPrefix()
 				.getAllPossibleScatteringPrefixes();
-		ArrayList<BatchingSortedScanner<D>> scanners = ListTool.createArrayList();
+		ArrayList<BatchingSortedScanner<D>> scanners = DrListTool.createArrayList();
 		for(List<Field<?>> scatteringPrefix : allScatteringPrefixes){
 //			logger.warn("including scanner for scatteringPrefix:"+scatteringPrefix);
 			BatchLoader<D> firstBatchLoaderForPrefix = new HBaseDatabeanBatchLoader<PK,D,F>(node, scatteringPrefix, 
@@ -188,7 +188,7 @@ public class HBaseScatteringPrefixQueryBuilder {
 			Collection<Pair<byte[],byte[]>> ranges,
 			final Config pConfig){
 			Config config = Config.nullSafe(pConfig);
-		ArrayList<HBaseDatabeanScanner<PK,D>> scanners = ListTool.createArrayList();
+		ArrayList<HBaseDatabeanScanner<PK,D>> scanners = DrListTool.createArrayList();
 		for(Pair<byte[],byte[]> range : ranges){
 			scanners.add(new HBaseDatabeanScanner<PK,D>(node, fieldInfo, range.getLeft(), range.getRight(), config));
 		}

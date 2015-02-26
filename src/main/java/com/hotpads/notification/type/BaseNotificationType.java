@@ -3,7 +3,7 @@ package com.hotpads.notification.type;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hotpads.datarouter.util.core.ClassTool;
+import com.hotpads.datarouter.util.core.DrClassTool;
 import com.hotpads.notification.sender.template.NotificationTemplate;
 import com.hotpads.notification.tracking.TrackingNotificationType;
 
@@ -30,7 +30,7 @@ public abstract class BaseNotificationType implements NotificationType {
 
 	@Override
 	public boolean isMergeableWith(NotificationType that) {
-		return ClassTool.sameClass(this, that);
+		return DrClassTool.sameClass(this, that);
 	}
 
 	@Override

@@ -2,11 +2,11 @@ package com.hotpads.setting.cluster;
 
 import java.util.List;
 
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public abstract class SettingRoot {
 
-	private List<SettingNode> rootNodes = ListTool.create();
+	private List<SettingNode> rootNodes = DrListTool.create();
 
 	public void add(SettingNode settingNode) {
 		rootNodes.add(settingNode);

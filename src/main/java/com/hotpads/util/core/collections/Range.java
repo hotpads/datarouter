@@ -6,10 +6,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.datarouter.util.core.ComparableTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 
 /* * null compares first
  * * startInclusive defaults to true
@@ -97,16 +97,16 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	}
 	
 	public boolean equalsStartEnd(){
-		return ObjectTool.equals(start, end);
+		return DrObjectTool.equals(start, end);
 	}
 	
 	public boolean contains(T t){
-		return ComparableTool.between(start, startInclusive, t, end, endInclusive);
+		return DrComparableTool.between(start, startInclusive, t, end, endInclusive);
 	}
 	
 	public ArrayList<T> filter(Iterable<T> ins){
-		ArrayList<T> outs = ListTool.createArrayList();
-		for(T in : IterableTool.nullSafe(ins)){
+		ArrayList<T> outs = DrListTool.createArrayList();
+		for(T in : DrIterableTool.nullSafe(ins)){
 			if(contains(in)){
 				outs.add(in);
 			}
@@ -166,7 +166,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	
 	public static <T extends Comparable<? super T>> int compareStarts(Range<T> a, Range<T> b){
 		if(a==b){ return 0; }
-		int c = ComparableTool.nullFirstCompareTo(a.start, b.start);
+		int c = DrComparableTool.nullFirstCompareTo(a.start, b.start);
 		if(c!=0){ return c; }
 		if(a.startInclusive){ 
 			return b.startInclusive ? 0 : -1;
@@ -229,20 +229,20 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 			Range<Integer> a = Range.create(null, true, null, true);
 			Assert.assertEquals(0, compareStarts(a, a));
 			Range<Integer> b = Range.create(null, false, null, true);
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(a, b));
+			Assert.assertEquals(-1, DrComparableTool.compareAndAssertReflexive(a, b));
 			Range<Integer> c = Range.create(null, true, 999, true);
-			Assert.assertEquals(0, ComparableTool.compareAndAssertReflexive(a, c));
+			Assert.assertEquals(0, DrComparableTool.compareAndAssertReflexive(a, c));
 			Range<Integer> d = Range.create(3, true, 999, true);
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(a, d));
+			Assert.assertEquals(-1, DrComparableTool.compareAndAssertReflexive(a, d));
 			Range<Integer> e = Range.create(3, false, 999, true);
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(a, d));
+			Assert.assertEquals(-1, DrComparableTool.compareAndAssertReflexive(a, d));
 			Range<Integer> f = Range.create(4, true, 999, true);
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(d, f));
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(e, f));
+			Assert.assertEquals(-1, DrComparableTool.compareAndAssertReflexive(d, f));
+			Assert.assertEquals(-1, DrComparableTool.compareAndAssertReflexive(e, f));
 			Range<Integer> g = Range.create(4, false, 999, true);
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(d, g));
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(e, g));
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(f, g));
+			Assert.assertEquals(-1, DrComparableTool.compareAndAssertReflexive(d, g));
+			Assert.assertEquals(-1, DrComparableTool.compareAndAssertReflexive(e, g));
+			Assert.assertEquals(-1, DrComparableTool.compareAndAssertReflexive(f, g));
 		}
 	}
 	

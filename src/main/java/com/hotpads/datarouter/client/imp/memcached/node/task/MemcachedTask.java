@@ -8,7 +8,7 @@ import com.hotpads.datarouter.client.imp.memcached.node.MemcachedPhysicalNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.NumberTool;
+import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.trace.TraceContext;
 import com.hotpads.trace.TracedCallable;
 
@@ -45,10 +45,10 @@ extends TracedCallable<V>{
 		try{
 			DRCounters.incSuffixClientNode(client.getType(), taskName, client.getName(), node.getName());
 			TraceContext.startSpan(node.getName()+" "+taskName);
-			if(NumberTool.nullSafe(numAttempts) > 1){ 
+			if(DrNumberTool.nullSafe(numAttempts) > 1){ 
 				TraceContext.appendToThreadInfo("[attempt "+attemptNumOneBased+"/"+numAttempts+"]"); 
 			}
-			if( ! NumberTool.isMax(timeoutMs)){ 
+			if( ! DrNumberTool.isMax(timeoutMs)){ 
 				TraceContext.appendToThreadInfo("[timeoutMs="+timeoutMs+"]"); 
 			}
 			return memcachedCall();

@@ -2,8 +2,8 @@ package com.hotpads.setting.cluster;
 
 import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
-import com.hotpads.datarouter.util.core.ObjectTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.setting.ServerType;
 
 public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
@@ -49,14 +49,14 @@ public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 	
 	public static ClusterSettingScope fromParams(ServerType serverType, String instance, String application){
 		String s;
-		if(StringTool.notEmpty(application)){
+		if(DrStringTool.notEmpty(application)){
 			s = "application";
-		}else if(StringTool.notEmpty(instance)){
+		}else if(DrStringTool.notEmpty(instance)){
 			s = "instance";
-		}else if(ObjectTool.notEquals(ServerType.UNKNOWN, serverType.getPersistentString())
-				&& ObjectTool.notEquals(ServerType.ALL, serverType.getPersistentString())){
+		}else if(DrObjectTool.notEquals(ServerType.UNKNOWN, serverType.getPersistentString())
+				&& DrObjectTool.notEquals(ServerType.ALL, serverType.getPersistentString())){
 			s = "serverType";
-		}else if(ObjectTool.equals(ServerType.ALL, serverType.getPersistentString())){
+		}else if(DrObjectTool.equals(ServerType.ALL, serverType.getPersistentString())){
 			s = "cluster";
 		}else{
 			s = "defaultScope";

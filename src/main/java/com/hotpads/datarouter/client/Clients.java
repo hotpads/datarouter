@@ -19,12 +19,12 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.PropertiesTool;
-import com.hotpads.datarouter.util.core.SetTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrPropertiesTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 
 /**
@@ -69,15 +69,15 @@ public class Clients{
 	}
 	
 	public void registerConfigFile(String configFilePath){
-		if(StringTool.notEmpty(configFilePath) && !configFilePaths.contains(configFilePath)){
+		if(DrStringTool.notEmpty(configFilePath) && !configFilePaths.contains(configFilePath)){
 			configFilePaths.add(configFilePath);
-			multiProperties.add(PropertiesTool.parse(configFilePath));
+			multiProperties.add(DrPropertiesTool.parse(configFilePath));
 		}
 	}
 	
 	public void registerClientIds(DatarouterContext context, Collection<ClientId> clientIdsToAdd) {
-		clientIds.addAll(CollectionTool.nullSafe(clientIdsToAdd));
-		for(ClientId clientId : IterableTool.nullSafe(clientIds)) {
+		clientIds.addAll(DrCollectionTool.nullSafe(clientIdsToAdd));
+		for(ClientId clientId : DrIterableTool.nullSafe(clientIds)) {
 			initClientFactoryIfNull(context, clientId.getName());
 		}
 	}
@@ -127,7 +127,7 @@ public class Clients{
 		
 	private List<String> getClientNamesRequiringEagerInitialization(){
 		ClientInitMode forceInitMode = ClientInitMode.fromString(
-				PropertiesTool.getFirstOccurrence(multiProperties, PREFIX_clients+PARAM_forceInitMode), null);
+				DrPropertiesTool.getFirstOccurrence(multiProperties, PREFIX_clients+PARAM_forceInitMode), null);
 		
 		if(forceInitMode != null){
 			if(ClientInitMode.eager.equals(forceInitMode)){
@@ -137,12 +137,12 @@ public class Clients{
 			}
 		}
 		
-		ClientInitMode defaultInitMode = ClientInitMode.fromString(PropertiesTool.getFirstOccurrence(
+		ClientInitMode defaultInitMode = ClientInitMode.fromString(DrPropertiesTool.getFirstOccurrence(
 				multiProperties, PREFIX_client+CLIENT_default+PARAM_initMode), ClientInitMode.lazy);
 		
-		List<String> clientNamesRequiringEagerInitialization = ListTool.createLinkedList();
-		for(String name : CollectionTool.nullSafe(getClientNames())){
-			ClientInitMode mode = ClientInitMode.fromString(PropertiesTool.getFirstOccurrence(multiProperties,
+		List<String> clientNamesRequiringEagerInitialization = DrListTool.createLinkedList();
+		for(String name : DrCollectionTool.nullSafe(getClientNames())){
+			ClientInitMode mode = ClientInitMode.fromString(DrPropertiesTool.getFirstOccurrence(multiProperties,
 					PREFIX_client+name+PARAM_initMode), defaultInitMode);
 			if(ClientInitMode.eager.equals(mode)){
 				clientNamesRequiringEagerInitialization.add(name);
@@ -167,9 +167,9 @@ public class Clients{
 	}
 	
 	public List<Client> getClients(DatarouterContext context, Collection<String> clientNames){
-		List<Client> clients = ListTool.createArrayListWithSize(clientNames);
-		List<LazyClientProvider> providers = ListTool.createLinkedList();//TODO don't create until needed
-		for(String clientName : CollectionTool.nullSafe(clientNames)){
+		List<Client> clients = DrListTool.createArrayListWithSize(clientNames);
+		List<LazyClientProvider> providers = DrListTool.createLinkedList();//TODO don't create until needed
+		for(String clientName : DrCollectionTool.nullSafe(clientNames)){
 			LazyClientProvider provider = lazyClientInitializerByName.get(clientName);
 			if(provider.isInitialized()){
 				clients.add(provider.call());//these can be added immediately (normal code path)
@@ -177,7 +177,7 @@ public class Clients{
 				providers.add(provider);//these must be initialized first
 			}
 		}
-		if(CollectionTool.notEmpty(providers)){
+		if(DrCollectionTool.notEmpty(providers)){
 			clients.addAll(FutureTool.submitAndGetAll(providers, context.getExecutorService()));
 		}
 		return clients;

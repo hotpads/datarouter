@@ -19,10 +19,10 @@ import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean.ScatteringPrefixBeanFielder.ScatteringPrefixBeanScatterer;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBeanKey;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixTestRouter;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.ComparableTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 
 public abstract class BaseScatteringPrefixIntegrationTests{
@@ -52,14 +52,14 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 //	@Test  //called by afterClass
 	public static void testDelete(){
 		router.scatteringPrefixBean().delete(new ScatteringPrefixBeanKey("a", 10L), null);
-		Assert.assertEquals(TOTAL_RECORDS - 1, IterableTool.count(router.scatteringPrefixBean().scan(null, null))
+		Assert.assertEquals(TOTAL_RECORDS - 1, DrIterableTool.count(router.scatteringPrefixBean().scan(null, null))
 				.intValue());
 	}
 	
 	
 	/********************** setup methods *********************************************/
 	
-	public static final List<String> PREFIXES = ListTool.create("a", "b", "c", "d", "e");
+	public static final List<String> PREFIXES = DrListTool.create("a", "b", "c", "d", "e");
 	
 	public static final int 
 		NUM_BATCHES = 2,
@@ -71,9 +71,9 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 	
 	public static void resetTable(){
 		router.scatteringPrefixBean().deleteAll(null);
-		Assert.assertEquals(0, IterableTool.count(router.scatteringPrefixBean().scan(null, null)).intValue());
+		Assert.assertEquals(0, DrIterableTool.count(router.scatteringPrefixBean().scan(null, null)).intValue());
 
-		List<ScatteringPrefixBean> toSave = ListTool.createArrayList();
+		List<ScatteringPrefixBean> toSave = DrListTool.createArrayList();
 		for(int a = 0; a < NUM_BATCHES; ++a){
 			for(int b = 0; b < BATCH_SIZE; ++b){
 				String prefix = PREFIXES.get(b % PREFIXES.size());
@@ -94,10 +94,10 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 		int iterateBatchSize = 2; 
 		Iterable<ScatteringPrefixBeanKey> iter = router.scatteringPrefixBean().scanKeys(
 				null, new Config().setIterateBatchSize(iterateBatchSize));
-		Iterable<ScatteringPrefixBeanKey> all = IterableTool.createArrayListFromIterable(iter);
-		long count = IterableTool.count(all);
+		Iterable<ScatteringPrefixBeanKey> all = DrIterableTool.createArrayListFromIterable(iter);
+		long count = DrIterableTool.count(all);
 		Assert.assertTrue(TOTAL_RECORDS == count);
-		Assert.assertTrue(ComparableTool.isSorted(all));
+		Assert.assertTrue(DrComparableTool.isSorted(all));
 	}
 	
 	@Test
@@ -115,21 +115,21 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 	@Test
 	public void testGetWithPrefix(){
 		//first 3 fields fixed
-		ScatteringPrefixBeanKey prefix1 = new ScatteringPrefixBeanKey(CollectionTool.getFirst(PREFIXES), null);
+		ScatteringPrefixBeanKey prefix1 = new ScatteringPrefixBeanKey(DrCollectionTool.getFirst(PREFIXES), null);
 		List<ScatteringPrefixBean> result1 = router.scatteringPrefixBeanSorted().getWithPrefix(prefix1, false, null);
-		Assert.assertEquals(NUM_OF_EACH_PREFIX, CollectionTool.size(result1));
-		Assert.assertTrue(ListTool.isSorted(result1));
+		Assert.assertEquals(NUM_OF_EACH_PREFIX, DrCollectionTool.size(result1));
+		Assert.assertTrue(DrListTool.isSorted(result1));
 	}
 	
 	@Test
 	public void testGetWithPrefixes(){
-		ScatteringPrefixBeanKey prefix1 = new ScatteringPrefixBeanKey(CollectionTool.getFirst(PREFIXES), null);
+		ScatteringPrefixBeanKey prefix1 = new ScatteringPrefixBeanKey(DrCollectionTool.getFirst(PREFIXES), null);
 		ScatteringPrefixBeanKey prefix2 = new ScatteringPrefixBeanKey(PREFIXES.get(2), null);
-		List<ScatteringPrefixBeanKey> prefixes = ListTool.create(prefix1, prefix2);
+		List<ScatteringPrefixBeanKey> prefixes = DrListTool.create(prefix1, prefix2);
 		List<ScatteringPrefixBean> result = router.scatteringPrefixBeanSorted().getWithPrefixes(prefixes, true, null);
 		int expectedSizeTotal = 2 * NUM_OF_EACH_PREFIX;
-		Assert.assertEquals(expectedSizeTotal, CollectionTool.size(result));
-		Assert.assertTrue(ListTool.isSorted(result));
+		Assert.assertEquals(expectedSizeTotal, DrCollectionTool.size(result));
+		Assert.assertTrue(DrListTool.isSorted(result));
 	}
 	
 //	@Test
@@ -158,14 +158,14 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 		
 		Iterable<ScatteringPrefixBeanKey> scanner0 = router.scatteringPrefixBean().scanKeys(
 				Range.create(a190, true, b6, true), null);
-		List<ScatteringPrefixBeanKey> result0 = ListTool.createArrayList(scanner0);
-		Assert.assertEquals(expectedSize1, CollectionTool.size(result0));
-		Assert.assertTrue(ListTool.isSorted(result0));
+		List<ScatteringPrefixBeanKey> result0 = DrListTool.createArrayList(scanner0);
+		Assert.assertEquals(expectedSize1, DrCollectionTool.size(result0));
+		Assert.assertTrue(DrListTool.isSorted(result0));
 		
 		List<ScatteringPrefixBeanKey> result1 = router.scatteringPrefixBean().getKeysInRange(
 				a190, true, b6, true, null);
-		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
-		Assert.assertTrue(ListTool.isSorted(result1));
+		Assert.assertEquals(expectedSize1, DrCollectionTool.size(result1));
+		Assert.assertTrue(DrListTool.isSorted(result1));
 	}
 	
 	@Test
@@ -175,8 +175,8 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 		List<ScatteringPrefixBean> result1 = router.scatteringPrefixBean().getRange(
 				a190, true, b6, true, null);
 		int expectedSize1 = 4;//confusing... just looked at mysql
-		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
-		Assert.assertTrue(ListTool.isSorted(result1));
+		Assert.assertEquals(expectedSize1, DrCollectionTool.size(result1));
+		Assert.assertTrue(DrListTool.isSorted(result1));
 	}
 	
 	@Test
@@ -184,19 +184,19 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 		ScatteringPrefixBeanKey prefix = new ScatteringPrefixBeanKey("a", null);
 		ScatteringPrefixBeanKey startKey = new ScatteringPrefixBeanKey("a", 173L);
 		int batchSize = 2;
-		List<ScatteringPrefixBean> all = ListTool.create();
+		List<ScatteringPrefixBean> all = DrListTool.create();
 		ScatteringPrefixBeanKey batchStartKey = startKey;
 		while(true){	
-			boolean startInclusive = CollectionTool.isEmpty(all);//only inclusive on first batch
+			boolean startInclusive = DrCollectionTool.isEmpty(all);//only inclusive on first batch
 			List<ScatteringPrefixBean> batch = router.scatteringPrefixBeanSorted().getPrefixedRange(
 					prefix, true, batchStartKey, startInclusive, new Config().setLimit(batchSize));
-			all.addAll(CollectionTool.nullSafe(batch));
-			if(CollectionTool.size(batch) < batchSize){ break; }
-			batchStartKey = CollectionTool.getLast(batch).getKey();
+			all.addAll(DrCollectionTool.nullSafe(batch));
+			if(DrCollectionTool.size(batch) < batchSize){ break; }
+			batchStartKey = DrCollectionTool.getLast(batch).getKey();
 		}
 		int expectedSize1 = 5;//confusing... just looked at mysql
-		Assert.assertEquals(expectedSize1, CollectionTool.size(all));
-		Assert.assertTrue(ListTool.isSorted(all));
+		Assert.assertEquals(expectedSize1, DrCollectionTool.size(all));
+		Assert.assertTrue(DrListTool.isSorted(all));
 	}
 	
 }

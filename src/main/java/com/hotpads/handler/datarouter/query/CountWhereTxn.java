@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class CountWhereTxn 
 extends BaseHibernateOp<Long>{
@@ -32,7 +32,7 @@ extends BaseHibernateOp<Long>{
 	@Override
 	public Long runOncePerClient(Client client){
 		String sql = "select count(*) from "+tableName;
-		if(StringTool.notEmpty(where)){
+		if(DrStringTool.notEmpty(where)){
 			sql += " where " + where;
 		}
 		Session session = getSession(client.getName());

@@ -20,7 +20,7 @@ import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class JdbcClientImp 
 extends BaseClient
@@ -254,8 +254,8 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 	
 	public String getStats(){
 		return "client:"+name+" has "
-		+MapTool.size(handleByThread)+" threadHandles"
-		+","+MapTool.size(connectionByHandle)+" connectionHandles";
+		+DrMapTool.size(handleByThread)+" threadHandles"
+		+","+DrMapTool.size(connectionByHandle)+" connectionHandles";
 	}
 	
 	

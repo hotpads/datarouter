@@ -21,7 +21,7 @@ import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class SingleTableSchemaUpdate
@@ -68,7 +68,7 @@ implements Callable<Void>{
 		DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
 		List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
-		Map<String, List<Field<?>>>  indexes = MapTool.nullSafe(fieldInfo.getIndexes());
+		Map<String, List<Field<?>>>  indexes = DrMapTool.nullSafe(fieldInfo.getIndexes());
 		MySqlCollation collation = fieldInfo.getCollation();
 		MySqlCharacterSet character_set = fieldInfo.getCharacterSet();
 		

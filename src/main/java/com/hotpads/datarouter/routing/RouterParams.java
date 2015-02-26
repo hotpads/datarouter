@@ -6,7 +6,7 @@ import java.util.List;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.Nodes;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.Params;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.util.RequestTool;
@@ -53,7 +53,7 @@ public class RouterParams<C extends Client> {
 		if (needs.get(NEEDS_NODE).contains(action)) {
 			nodeName = params.optional(PARAM_nodeName, null);
 			tableName = params.required(PARAM_tableName);
-			if (StringTool.notEmpty(nodeName)) {
+			if (DrStringTool.notEmpty(nodeName)) {
 				node = datarouterContext.getRouter(routerName).getContext().getNodes().getNode(nodeName);
 			} else {
 				setTableName(params.optional(PARAM_tableName, null));

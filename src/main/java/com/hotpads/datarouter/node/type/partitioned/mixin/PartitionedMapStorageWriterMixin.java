@@ -13,8 +13,8 @@ import com.hotpads.datarouter.node.type.partitioned.base.BasePartitionedNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class PartitionedMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
@@ -41,7 +41,7 @@ implements MapStorageWriter<PK,D>{
 		if(keysByNode==null){ return; }
 		for(N node : keysByNode.keySet()){
 			Collection<PK> keysForNode = keysByNode.get(node);
-			if(CollectionTool.notEmpty(keysForNode)){
+			if(DrCollectionTool.notEmpty(keysForNode)){
 				node.deleteMulti(keysForNode, config);
 			}
 		}
@@ -49,7 +49,7 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void deleteAll(Config config) {
-		for(N node : CollectionTool.nullSafe(target.getPhysicalNodes())){
+		for(N node : DrCollectionTool.nullSafe(target.getPhysicalNodes())){
 			node.deleteAll(config);
 		}
 	}
@@ -66,7 +66,7 @@ implements MapStorageWriter<PK,D>{
 		if(databeansByNode==null){ return; }
 		for(N node : databeansByNode.keySet()){
 			Collection<D> databeansForNode = databeansByNode.get(node);
-			if(CollectionTool.isEmpty(databeansForNode)){ continue; }//shouldn't be needed, but safer
+			if(DrCollectionTool.isEmpty(databeansForNode)){ continue; }//shouldn't be needed, but safer
 			node.putMulti(databeansForNode, config);
 		}
 	}

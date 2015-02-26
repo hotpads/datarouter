@@ -4,10 +4,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.NumberFormatter;
-import com.hotpads.datarouter.util.core.SetTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
+import com.hotpads.datarouter.util.core.DrSetTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 
 /************** CallsiteCount ********************/
@@ -41,15 +41,15 @@ public class CallsiteStatX{
 				"callsite");
 	}
 	
-	private static final Set<String> HIDE_TIME_METHODS = SetTool.createHashSet("scanKeys", "scan");
+	private static final Set<String> HIDE_TIME_METHODS = DrSetTool.createHashSet("scanKeys", "scan");
 	
 	public String getReportLine(){
-		String countString = NumberFormatter.addCommas(count);
+		String countString = DrNumberFormatter.addCommas(count);
 		boolean hideDuration = HIDE_TIME_METHODS.contains(datarouterMethodName);
-		String durationString = hideDuration ? "" : NumberFormatter.addCommas(getDurationUs());
-		String avgCallUsString = hideDuration ? "" : NumberFormatter.addCommas(getDurationUs() / count);
-		String numItemsString = NumberFormatter.addCommas(numItems);
-		String avgItemsString = NumberFormatter.addCommas(numItems / count);
+		String durationString = hideDuration ? "" : DrNumberFormatter.addCommas(getDurationUs());
+		String avgCallUsString = hideDuration ? "" : DrNumberFormatter.addCommas(getDurationUs() / count);
+		String numItemsString = DrNumberFormatter.addCommas(numItems);
+		String avgItemsString = DrNumberFormatter.addCommas(numItems / count);
 		String type = isDaoCallsite() ? "dao" : "";
 		return buildReportLine(countString, durationString, avgCallUsString, numItemsString, avgItemsString, type,
 				nodeName, datarouterMethodName, key.getCallsite());
@@ -57,14 +57,14 @@ public class CallsiteStatX{
 	
 	private static String buildReportLine(String count, String durationUs, String avgCallUs, String numItems,
 			String avgItems, String type, String nodeName, String drMethod, String callsite){
-		return StringTool.pad(count, ' ', 12)
-				+ "  " + StringTool.pad(durationUs, ' ', 15)
-				+ "  " + StringTool.pad(avgCallUs, ' ', 12)
-				+ "  " + StringTool.pad(numItems, ' ', 12)
-				+ "  " + StringTool.pad(avgItems, ' ', 9)
-				+ "  " + StringTool.pad(type, ' ', 6)
+		return DrStringTool.pad(count, ' ', 12)
+				+ "  " + DrStringTool.pad(durationUs, ' ', 15)
+				+ "  " + DrStringTool.pad(avgCallUs, ' ', 12)
+				+ "  " + DrStringTool.pad(numItems, ' ', 12)
+				+ "  " + DrStringTool.pad(avgItems, ' ', 9)
+				+ "  " + DrStringTool.pad(type, ' ', 6)
 //				+ "  " + StringTool.padEnd(nodeName, ' ', 60)
-				+ "  " + StringTool.padEnd(drMethod, ' ', 20)
+				+ "  " + DrStringTool.padEnd(drMethod, ' ', 20)
 				+ "  " + callsite;
 	}
 
@@ -93,8 +93,8 @@ public class CallsiteStatX{
 	
 	@Override
 	public String toString(){
-		String countString = NumberFormatter.addCommas(count);
-		return StringTool.pad(countString, ' ', 8) + "   " + key.getCallsite();
+		String countString = DrNumberFormatter.addCommas(count);
+		return DrStringTool.pad(countString, ' ', 8) + "   " + key.getCallsite();
 	}
 
 	
@@ -135,7 +135,7 @@ public class CallsiteStatX{
 	
 	public static int countDaoCallsites(List<CallsiteStatX> stats){
 		int numDaoCallsites = 0;
-		for(CallsiteStatX stat : IterableTool.nullSafe(stats)){
+		for(CallsiteStatX stat : DrIterableTool.nullSafe(stats)){
 			if(stat.isDaoCallsite()){
 				++numDaoCallsites;
 			}

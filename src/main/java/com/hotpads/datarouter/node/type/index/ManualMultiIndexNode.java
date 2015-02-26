@@ -12,8 +12,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntryTool;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
@@ -54,8 +54,8 @@ implements MultiIndexNode<PK, D, IK, IE>
 	
 	@Override
 	public List<D> lookupMultiMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config){
-		if(CollectionTool.isEmpty(indexKeys)){ return new LinkedList<D>(); }
-		List<IE> indexEntries = ListTool.createLinkedList();
+		if(DrCollectionTool.isEmpty(indexKeys)){ return new LinkedList<D>(); }
+		List<IE> indexEntries = DrListTool.createLinkedList();
 		for(IK indexKey : indexKeys){//TODO fetch all in one call getPrefixedRanges(...
 			indexEntries.addAll(indexNode.getPrefixedRange(indexKey, wildcardLastField, null, true, config));
 		}

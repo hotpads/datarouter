@@ -7,7 +7,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
@@ -44,7 +44,7 @@ extends BaseBatchingSortedScanner<T,Result>{
 		byte[] lastRowOfPreviousBatch = startInclusive;
 		boolean isStartInclusive = true;//only on the first load
 		if(currentBatch != null){
-			Result endOfLastBatch = CollectionTool.getLast(currentBatch);
+			Result endOfLastBatch = DrCollectionTool.getLast(currentBatch);
 			if(endOfLastBatch==null){
 				currentBatch = null;
 				return;
@@ -56,7 +56,7 @@ extends BaseBatchingSortedScanner<T,Result>{
 		Range<ByteRange> range = Range.create(new ByteRange(lastRowOfPreviousBatch), isStartInclusive, new ByteRange(
 				endExclusive), false);
 		currentBatch = node.getResultsInSubRange(range, false, config);
-		if(CollectionTool.size(currentBatch) < config.getIterateBatchSize()){
+		if(DrCollectionTool.size(currentBatch) < config.getIterateBatchSize()){
 			noMoreBatches = true;//tell the advance() method not to call this method again
 		}
 	}

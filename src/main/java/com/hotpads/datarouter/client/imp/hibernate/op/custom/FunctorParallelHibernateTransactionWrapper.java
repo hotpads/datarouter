@@ -7,7 +7,7 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.op.util.ResultMergeTool;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.util.core.Functor;
+import com.hotpads.util.core.Functor;
 
 public class FunctorParallelHibernateTransactionWrapper 
 extends BaseHibernateOp<Integer>{

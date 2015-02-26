@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase.cluster;
 import java.util.Set;
 import java.util.SortedSet;
 
-import com.hotpads.datarouter.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class DRHTableSettings{
 	
@@ -18,7 +18,7 @@ public class DRHTableSettings{
 		TTL = "TTL",
 		VERSIONS = "VERSIONS";
 	
-	public static final SortedSet<String> COLUMN_SETTINGS = SetTool.createTreeSet();
+	public static final SortedSet<String> COLUMN_SETTINGS = DrSetTool.createTreeSet();
 	static {
 		COLUMN_SETTINGS.add(BLOCKCACHE);
 		COLUMN_SETTINGS.add(BLOCKSIZE);
@@ -32,9 +32,9 @@ public class DRHTableSettings{
 	}
 	
 	public static final Set<String>
-		SET_BLOOMFILTER = SetTool.create("NONE", "ROW", "ROWCOL"),
-		SET_COMPRESSION = SetTool.create("NONE", "LZO", "GZ"),
-		SET_DATA_BLOCK_ENCODING = SetTool.create("NONE", "PREFIX", "DIFF", "FAST_DIFF");
+		SET_BLOOMFILTER = DrSetTool.create("NONE", "ROW", "ROWCOL"),
+		SET_COMPRESSION = DrSetTool.create("NONE", "LZO", "GZ"),
+		SET_DATA_BLOCK_ENCODING = DrSetTool.create("NONE", "PREFIX", "DIFF", "FAST_DIFF");
 	
 	public static final String
 		DEFAULT_DATA_BLOCK_ENCODING = "NONE",

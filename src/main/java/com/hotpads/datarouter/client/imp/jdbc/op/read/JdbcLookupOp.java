@@ -16,7 +16,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
 public class JdbcLookupOp<
@@ -43,7 +43,7 @@ extends BaseJdbcOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		if(CollectionTool.isEmpty(lookups)){
+		if(DrCollectionTool.isEmpty(lookups)){
 			return new LinkedList<>();
 		}
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());

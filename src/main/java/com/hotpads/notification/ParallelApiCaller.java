@@ -22,9 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.DatarouterEmailTool;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.ExceptionTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrExceptionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.notification.databean.NotificationRequest;
@@ -82,8 +82,8 @@ public class ParallelApiCaller {
 
 		@Override
 		public void run() {
-			List<Pair<NotificationRequest, ExceptionRecord>> requests = ListTool.createArrayList();
-			while (CollectionTool.notEmpty(queue)) {
+			List<Pair<NotificationRequest, ExceptionRecord>> requests = DrListTool.createArrayList();
+			while (DrCollectionTool.notEmpty(queue)) {
 				if (requests.size() == BATCH_SIZE) {
 					logger.info("Submiting api call attempt with {} notification requet(s)", requests.size());
 					Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
@@ -96,11 +96,11 @@ public class ParallelApiCaller {
 					if(errorRequests.size() > 0){
 						new FailedTester(future, requests, getTimeoutMs(), exceptionHandlingConfig).start();
 					}
-					requests = ListTool.create();
+					requests = DrListTool.create();
 				}
 				requests.add(queue.poll());
 			}
-			if (CollectionTool.notEmpty(requests)) {
+			if (DrCollectionTool.notEmpty(requests)) {
 				logger.info("Submiting api call attempt with {} notification requet(s)", requests.size());
 				Future<Boolean> future = sender.submit(new ApiCallAttempt(requests));
 				new FailedTester(future, requests, getTimeoutMs(), exceptionHandlingConfig).start();
@@ -179,7 +179,7 @@ public class ParallelApiCaller {
 					builder.append("<a href=\"https://" + domain + "/analytics/exception/details?exceptionRecord=" + r.getRight().getKey().getId() + "\">Details</a>");
 					builder.append("</p>");
 					builder.append("<pre>");
-					builder.append(ExceptionTool.getColorized(r.getRight().getStackTrace()));
+					builder.append(DrExceptionTool.getColorized(r.getRight().getStackTrace()));
 					builder.append("</pre>");
 				} else {
 					builder.append("</p>");

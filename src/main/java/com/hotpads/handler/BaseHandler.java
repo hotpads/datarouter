@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.DatarouterInjector;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.encoder.HandlerEncoder;
 import com.hotpads.handler.encoder.MavEncoder;
 import com.hotpads.handler.mav.Mav;
@@ -83,7 +83,7 @@ public abstract class BaseHandler{
 			Object[] args = null;
 			try{
 				String methodName = handlerMethodName();
-				if (!StringTool.isNullOrEmpty(methodName)) {
+				if (!DrStringTool.isNullOrEmpty(methodName)) {
 					Pair<Method, Object[]> pair = handlerTypingHelper.findMethodByName(this, methodName);
 					method = pair.getLeft();
 					args = pair.getRight();

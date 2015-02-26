@@ -14,7 +14,7 @@ import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 @Singleton
 public class ManyFieldTestRouter extends BaseDatarouter{
@@ -38,7 +38,7 @@ public class ManyFieldTestRouter extends BaseDatarouter{
 
 	/********************************** config **********************************/
 
-	public static final List<ClientId> CLIENT_IDS = ListTool.create(
+	public static final List<ClientId> CLIENT_IDS = DrListTool.create(
 			new ClientId(DRTestConstants.CLIENT_drTestJdbc0, true),
 			new ClientId(DRTestConstants.CLIENT_drTestHibernate0, true),
 			new ClientId(DRTestConstants.CLIENT_drTestHBase, true),

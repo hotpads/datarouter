@@ -11,8 +11,8 @@ import com.hotpads.datarouter.storage.content.ContentTool;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 
 public abstract class DatabeanUpdate <PK extends PrimaryKey<PK>, D extends Databean<PK,D> & ContentHolder<PK,D>>{
 
@@ -23,7 +23,7 @@ public abstract class DatabeanUpdate <PK extends PrimaryKey<PK>, D extends Datab
 	
 	public void update(Collection<D> oldBeans, Collection<D> newBeans){
 		SortedMap<PK,D> newBeansByKey = KeyTool.getByKeySorted(newBeans);
-		for(D oldBean : CollectionTool.nullSafe(oldBeans)){
+		for(D oldBean : DrCollectionTool.nullSafe(oldBeans)){
 			D newBean = newBeansByKey.get(oldBean.getKey());
 			if(newBean!=null){
 				update(oldBean,newBean);
@@ -32,7 +32,7 @@ public abstract class DatabeanUpdate <PK extends PrimaryKey<PK>, D extends Datab
 			}
 			newBeansByKey.remove(oldBean.getKey());
 		}
-		storage.putMulti(MapTool.nullSafe(newBeansByKey).values(), Configs.insertOrBust());
+		storage.putMulti(DrMapTool.nullSafe(newBeansByKey).values(), Configs.insertOrBust());
 	}
 	
 	public void update(D oldBean, D newBean){

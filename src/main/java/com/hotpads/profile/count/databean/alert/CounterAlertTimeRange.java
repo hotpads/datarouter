@@ -2,8 +2,8 @@ package com.hotpads.profile.count.databean.alert;
 
 import java.util.Date;
 
-import com.hotpads.datarouter.util.core.DateTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class CounterAlertTimeRange{
 	private static final String 
@@ -19,7 +19,7 @@ public class CounterAlertTimeRange{
 	
 	String alertTimeRangeStr;
 	public static Boolean isInTimeRange(String alertTimeRangeStr, Date date){
-		if(StringTool.isEmpty(alertTimeRangeStr)){
+		if(DrStringTool.isEmpty(alertTimeRangeStr)){
 			return true;
 		}
 		
@@ -28,7 +28,7 @@ public class CounterAlertTimeRange{
 			String [] fromToHours = alertTimeRange[0].split("-");
 			int fromHour = Integer.valueOf(fromToHours[0]);
 			int toHour = Integer.valueOf(fromToHours[1]);
-			int currentHourInt = DateTool.getHourInteger();
+			int currentHourInt = DrDateTool.getHourInteger();
 			if(currentHourInt < fromHour || currentHourInt > toHour){
 				return false;
 			}
@@ -36,25 +36,25 @@ public class CounterAlertTimeRange{
 		
 		if(! ALL_DAYS.equals(alertTimeRange[1])){
 			if(WEEK_DAY.equals(alertTimeRange[1])){
-				return DateTool.isWeekday(date);
+				return DrDateTool.isWeekday(date);
 			}else if(WEEK_END.equals(alertTimeRange[1])){
-				return DateTool.isWeekend(date);
+				return DrDateTool.isWeekend(date);
 			}else{
 				String [] days = alertTimeRange[1].split(",");
 				for(String day : days){
-					if(MONDAY.equals(day) && DateTool.isMonday(date)){
+					if(MONDAY.equals(day) && DrDateTool.isMonday(date)){
 						return true;
 					}
-					if(TUESDAY.equals(day) && DateTool.isTuesday(date)){
+					if(TUESDAY.equals(day) && DrDateTool.isTuesday(date)){
 						return true;
 					}
-					if(WEDNESDAY.equals(day) && DateTool.isWednesday(date)){
+					if(WEDNESDAY.equals(day) && DrDateTool.isWednesday(date)){
 						return true;
 					}
-					if(THURSDAY.equals(day) && DateTool.isThursday(date)){
+					if(THURSDAY.equals(day) && DrDateTool.isThursday(date)){
 						return true;
 					}
-					if(FRIDAY.equals(day) && DateTool.isFriday(date)){
+					if(FRIDAY.equals(day) && DrDateTool.isFriday(date)){
 						return true;
 					}
 				}

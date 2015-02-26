@@ -9,7 +9,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class JdbcIndexDeleteOp<
 		PK extends PrimaryKey<PK>,
@@ -32,7 +32,7 @@ extends BaseJdbcOp<Long>{
 	@Override
 	public Long runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		String sql = SqlBuilder.deleteMulti(config, node.getTableName(), ListTool.wrap(lookup));
+		String sql = SqlBuilder.deleteMulti(config, node.getTableName(), DrListTool.wrap(lookup));
 		long numModified = JdbcTool.update(getConnection(node.getClientName()), sql.toString());
 		return numModified;
 	}

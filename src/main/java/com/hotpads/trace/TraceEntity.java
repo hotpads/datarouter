@@ -3,7 +3,7 @@ package com.hotpads.trace;
 import java.util.ArrayList;
 
 import com.hotpads.datarouter.storage.entity.BaseEntity;
-import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.trace.key.TraceEntityKey;
 
 public class TraceEntity extends BaseEntity<TraceEntityKey>{
@@ -26,7 +26,7 @@ public class TraceEntity extends BaseEntity<TraceEntityKey>{
 	/********************* get databeans ************************/
 	
 	public Trace getTrace(){
-		return CollectionTool.getFirst(getDatabeansForQualifierPrefix(Trace.class, QUALIFIER_PREFIX_Trace));
+		return DrCollectionTool.getFirst(getDatabeansForQualifierPrefix(Trace.class, QUALIFIER_PREFIX_Trace));
 	}
 	
 	public ArrayList<TraceThread> getTraceThreads(){

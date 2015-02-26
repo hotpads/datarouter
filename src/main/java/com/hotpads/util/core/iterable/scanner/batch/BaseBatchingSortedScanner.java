@@ -2,7 +2,7 @@ package com.hotpads.util.core.iterable.scanner.batch;
 
 import java.util.List;
 
-import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.iterable.scanner.sorted.BaseHoldingSortedScanner;
 
 //can store anything in currentBatch.  subclass will translate B -> T later
@@ -41,11 +41,11 @@ extends	BaseHoldingSortedScanner<T>{
 	@Override
 	public boolean advance() {
 		++currentBatchIndex;
-		if(currentBatchIndex >= CollectionTool.size(currentBatch)){//finished this batch
+		if(currentBatchIndex >= DrCollectionTool.size(currentBatch)){//finished this batch
 			if(noMoreBatches){ return false; }
 			loadNextBatch();//let the loadNextBatch method worry about hitting the end
 		}
-		if(CollectionTool.isEmpty(currentBatch)){ return false; }//currentBatch is now the new batch
+		if(DrCollectionTool.isEmpty(currentBatch)){ return false; }//currentBatch is now the new batch
 		B currentResult = currentBatch.get(currentBatchIndex);
 		setCurrentFromResult(currentResult);
 		return true;

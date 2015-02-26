@@ -4,7 +4,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Properties;
 
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.properties.TypedProperties;
 
 public class MemcachedOptions extends TypedProperties{
@@ -21,7 +21,7 @@ public class MemcachedOptions extends TypedProperties{
 	}
 	
 	public InetSocketAddress[] getServers(){
-		List<InetSocketAddress> servers = ListTool.createLinkedList();
+		List<InetSocketAddress> servers = DrListTool.createLinkedList();
 		for(int i=0; i < getNumServers(); ++i){
 			String key = clientPrefix+"server."+i;
 			String hostNameAndPort = getString(key);

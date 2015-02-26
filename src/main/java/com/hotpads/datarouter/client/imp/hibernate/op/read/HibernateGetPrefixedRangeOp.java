@@ -17,7 +17,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class HibernateGetPrefixedRangeOp<
 		PK extends PrimaryKey<PK>,
@@ -55,7 +55,7 @@ extends BaseHibernateOp<List<D>>{
 		if(prefixConjunction != null){
 			criteria.add(prefixConjunction);
 		}		
-		if(start != null && CollectionTool.notEmpty(start.getFields())){
+		if(start != null && DrCollectionTool.notEmpty(start.getFields())){
 			List<Field<?>> startFields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), 
 					start.getFields());
 			int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);

@@ -9,17 +9,17 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.util.core.ByteTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class UInt8Field extends BasePrimitiveField<Byte>{
 
 	public UInt8Field(String name, Integer intValue){
-		super(name, ByteTool.toUnsignedByte(intValue));
+		super(name, DrByteTool.toUnsignedByte(intValue));
 	}
 
 	public UInt8Field(String prefix, String name, Integer intValue){
-		super(prefix, name, ByteTool.toUnsignedByte(intValue));
+		super(prefix, name, DrByteTool.toUnsignedByte(intValue));
 	}
 	
 	/************************ static *********************************/
@@ -49,10 +49,10 @@ public class UInt8Field extends BasePrimitiveField<Byte>{
 	
 	@Override
 	public Byte parseStringEncodedValueButDoNotSet(String s){
-		if(StringTool.isEmpty(s) || s.equals("null")){
+		if(DrStringTool.isEmpty(s) || s.equals("null")){
 			return null; 
 		}
-		return ByteTool.toUnsignedByte(Integer.valueOf(s));
+		return DrByteTool.toUnsignedByte(Integer.valueOf(s));
 	}
 	
 

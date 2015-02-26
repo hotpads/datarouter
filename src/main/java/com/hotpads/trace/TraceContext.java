@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.profile.count.collection.Counters;
 
 
@@ -77,16 +77,16 @@ public class TraceContext {
 		TraceContext ctx = get();
 		if(ctx==null || ctx.getCurrentThread()==null){ return; }
 		TraceThread thread = ctx.getCurrentThread();
-		boolean addSpace = StringTool.notEmpty(thread.getName());
-		thread.setName(StringTool.nullSafe(thread.getName()) + (addSpace ? " " : "") + text);
+		boolean addSpace = DrStringTool.notEmpty(thread.getName());
+		thread.setName(DrStringTool.nullSafe(thread.getName()) + (addSpace ? " " : "") + text);
 	}
 	
 	public static void appendToThreadInfo(String text){
 		TraceContext ctx = get();
 		if(ctx==null || ctx.getCurrentThread()==null){ return; }
 		TraceThread thread = ctx.getCurrentThread();
-		boolean addSpace = StringTool.notEmpty(thread.getInfo());
-		thread.setInfo(StringTool.nullSafe(thread.getInfo()) + (addSpace ? " " : "") + text);
+		boolean addSpace = DrStringTool.notEmpty(thread.getInfo());
+		thread.setInfo(DrStringTool.nullSafe(thread.getInfo()) + (addSpace ? " " : "") + text);
 	}
 	
 	public static void finishThread(){
@@ -106,7 +106,7 @@ public class TraceContext {
 		TraceContext ctx = get();
 		if(ctx==null || ctx.currentThread==null){ return; }
 		Integer parentSequence = null;
-		if(CollectionTool.notEmpty(ctx.getSpanStack())){
+		if(DrCollectionTool.notEmpty(ctx.getSpanStack())){
 			TraceSpan parent = ctx.getSpanStack().get(ctx.getSpanStack().size()-1);
 			parentSequence = parent.getSequence();
 		}
@@ -129,8 +129,8 @@ public class TraceContext {
 		TraceContext ctx = get();
 		if(ctx==null || ctx.getCurrentSpan()==null){ return; }
 		TraceSpan span = ctx.getCurrentSpan();
-		boolean addSpace = StringTool.notEmpty(span.getName());
-		span.setName(StringTool.nullSafe(span.getName()) + (addSpace ? " " : "") + text);
+		boolean addSpace = DrStringTool.notEmpty(span.getName());
+		span.setName(DrStringTool.nullSafe(span.getName()) + (addSpace ? " " : "") + text);
 		Counters.inc(span.getName());//yes, this is double-counting the span
 	}
 	
@@ -138,8 +138,8 @@ public class TraceContext {
 		TraceContext ctx = get();
 		if(ctx==null || ctx.getCurrentSpan()==null){ return; }
 		TraceSpan span = ctx.getCurrentSpan();
-		boolean addSpace = StringTool.notEmpty(span.getInfo());
-		span.setInfo(StringTool.nullSafe(span.getInfo()) + (addSpace ? " " : "") + text);
+		boolean addSpace = DrStringTool.notEmpty(span.getInfo());
+		span.setInfo(DrStringTool.nullSafe(span.getInfo()) + (addSpace ? " " : "") + text);
 	}
 	
 	public static void finishSpan(){
@@ -161,12 +161,12 @@ public class TraceContext {
 	
 	protected TraceSpan getCurrentSpan(){
 		TraceContext ctx = get();
-		if(ctx==null || CollectionTool.isEmpty(ctx.spanStack)){ return null; }
+		if(ctx==null || DrCollectionTool.isEmpty(ctx.spanStack)){ return null; }
 		return ctx.getSpanStack().get(this.spanStack.size()-1);
 	}
 	
 	protected TraceSpan popSpanFromStack(){
-		if(CollectionTool.isEmpty(this.spanStack)){ return null; }
+		if(DrCollectionTool.isEmpty(this.spanStack)){ return null; }
 		TraceSpan span = this.getCurrentSpan();
 		this.spanStack.remove(this.spanStack.size()-1);
 		return span;
@@ -178,8 +178,8 @@ public class TraceContext {
 	public static <V> void collect(TracedCallable<V> callable){
 		TraceContext ctx = get();
 		if(ctx==null || callable==null){ return; }
-		ctx.getThreads().addAll(CollectionTool.nullSafe(callable.getThreads()));
-		ctx.getSpans().addAll(CollectionTool.nullSafe(callable.getSpans()));
+		ctx.getThreads().addAll(DrCollectionTool.nullSafe(callable.getThreads()));
+		ctx.getSpans().addAll(DrCollectionTool.nullSafe(callable.getSpans()));
 //		logger.warn("collected "+CollectionTool.size(ctx.getSpans())+" spans");
 	}
 	

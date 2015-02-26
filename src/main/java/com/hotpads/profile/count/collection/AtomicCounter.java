@@ -9,8 +9,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.util.core.DateTool;
-import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.profile.count.collection.archive.CountPartitionedNode;
 
 public class AtomicCounter implements CountMapPeriod{
@@ -42,7 +42,7 @@ public class AtomicCounter implements CountMapPeriod{
 
 	@Override
 	public String toString(){
-		String time = DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(startTimeMs);
+		String time = DrDateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(startTimeMs);
 		return getClass().getSimpleName()+"["+time+","+CountPartitionedNode.getSuffix(lengthMs)
 				+","+System.identityHashCode(this)+","+createdByThreadId+"]";
 	}
@@ -78,7 +78,7 @@ public class AtomicCounter implements CountMapPeriod{
 	}
 	
 	public void merge(CountMap other){
-		for(Map.Entry<String,AtomicLong> otherEntry : MapTool.nullSafe(other.getCountByKey()).entrySet()){
+		for(Map.Entry<String,AtomicLong> otherEntry : DrMapTool.nullSafe(other.getCountByKey()).entrySet()){
 			AtomicLong existingValue = countByKey.get(otherEntry.getKey());
 			if(existingValue!=null){ existingValue.addAndGet(otherEntry.getValue().longValue()); }
 			else{ countByKey.put(otherEntry.getKey(), new AtomicLong(otherEntry.getValue().longValue())); }
@@ -100,7 +100,7 @@ public class AtomicCounter implements CountMapPeriod{
 	
 	public AtomicCounter deepCopy(){
 		AtomicCounter copy = new AtomicCounter(startTimeMs, lengthMs);
-		for(Map.Entry<String,AtomicLong> entry : MapTool.nullSafe(countByKey).entrySet()){
+		for(Map.Entry<String,AtomicLong> entry : DrMapTool.nullSafe(countByKey).entrySet()){
 			copy.countByKey.put(entry.getKey(), new AtomicLong(entry.getValue().longValue()));
 		}
 		return copy;

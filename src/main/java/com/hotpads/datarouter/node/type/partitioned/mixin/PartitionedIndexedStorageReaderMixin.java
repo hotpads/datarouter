@@ -13,10 +13,10 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class PartitionedIndexedStorageReaderMixin<
 		PK extends PrimaryKey<PK>,
@@ -39,7 +39,7 @@ implements IndexedStorageReader<PK,D>{
 		Long total = 0L;
 		Collection<N> nodes = target.getPhysicalNodesForSecondaryKey(lookup);
 		//TODO randomize node access to avoid drowning first node
-		for(N node : IterableTool.nullSafe(nodes)){
+		for(N node : DrIterableTool.nullSafe(nodes)){
 			total += node.count(lookup, config);//will count records that aren't supposed to be on the node
 		}
 		return total;
@@ -50,7 +50,7 @@ implements IndexedStorageReader<PK,D>{
 		if(uniqueKey==null){ return null; }
 		Collection<N> nodes = target.getPhysicalNodesForSecondaryKey(uniqueKey);
 		//TODO randomize node access to avoid drowning first node
-		for(N node : IterableTool.nullSafe(nodes)){
+		for(N node : DrIterableTool.nullSafe(nodes)){
 			D databean = node.lookupUnique(uniqueKey, config);
 			if(databean != null){ return databean; }
 		}
@@ -60,15 +60,15 @@ implements IndexedStorageReader<PK,D>{
 	
 	@Override
 	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
-		if(CollectionTool.isEmpty(uniqueKeys)){ return null; }
+		if(DrCollectionTool.isEmpty(uniqueKeys)){ return null; }
 		Collection<N> nodes = target.getPhysicalNodesForSecondaryKeys(uniqueKeys);
-		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
+		SortedSet<D> sortedDedupedResults = DrSetTool.createTreeSet();
 		//TODO randomize node access to avoid drowning first node
-		for(N node : IterableTool.nullSafe(nodes)){
+		for(N node : DrIterableTool.nullSafe(nodes)){
 			List<D> singleNodeResults = node.lookupMultiUnique(uniqueKeys, config);
-			sortedDedupedResults.addAll(CollectionTool.nullSafe(singleNodeResults));
+			sortedDedupedResults.addAll(DrCollectionTool.nullSafe(singleNodeResults));
 		}
-		return ListTool.createArrayList(sortedDedupedResults);
+		return DrListTool.createArrayList(sortedDedupedResults);
 	}
 
 	
@@ -76,29 +76,29 @@ implements IndexedStorageReader<PK,D>{
 	public List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
 		if(lookup==null){ return null; }
 		Collection<N> nodes = target.getPhysicalNodesForSecondaryKey(lookup);
-		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
+		SortedSet<D> sortedDedupedResults = DrSetTool.createTreeSet();
 		//TODO randomize node access to avoid drowning first node
-		for(N node : IterableTool.nullSafe(nodes)){
+		for(N node : DrIterableTool.nullSafe(nodes)){
 			List<D> singleNodeResults = node.lookup(lookup, wildcardLastField, config);
-			sortedDedupedResults.addAll(CollectionTool.nullSafe(singleNodeResults));
+			sortedDedupedResults.addAll(DrCollectionTool.nullSafe(singleNodeResults));
 		}
-		return ListTool.createArrayList(sortedDedupedResults);
+		return DrListTool.createArrayList(sortedDedupedResults);
 	}
 	
 	
 	@Override
 	public List<D> lookup(Collection<? extends Lookup<PK>> lookups, Config config) {
-		if(CollectionTool.isEmpty(lookups)){ return null; }
+		if(DrCollectionTool.isEmpty(lookups)){ return null; }
 		Collection<N> nodes = target.getPhysicalNodesForSecondaryKeys(lookups);
-		SortedSet<D> sortedDedupedResults = SetTool.createTreeSet();
+		SortedSet<D> sortedDedupedResults = DrSetTool.createTreeSet();
 		//TODO randomize node access to avoid drowning first node
-		for(N node : IterableTool.nullSafe(nodes)){
+		for(N node : DrIterableTool.nullSafe(nodes)){
 			for(Lookup<PK> lookup : lookups){
 				List<D> singleNodeResults = node.lookup(lookup, false, config);
-				sortedDedupedResults.addAll(CollectionTool.nullSafe(singleNodeResults));
+				sortedDedupedResults.addAll(DrCollectionTool.nullSafe(singleNodeResults));
 			}
 		}
-		return ListTool.createArrayList(sortedDedupedResults);
+		return DrListTool.createArrayList(sortedDedupedResults);
 	}
 	
 }

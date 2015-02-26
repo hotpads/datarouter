@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.storage.entity.BaseEntity;
 import com.hotpads.datarouter.storage.key.entity.base.BaseEntityPartitioner;
-import com.hotpads.datarouter.util.core.HashMethods;
+import com.hotpads.datarouter.util.core.DrHashMethods;
 
 public class SortedBeanEntity extends BaseEntity<SortedBeanEntityKey>{
 

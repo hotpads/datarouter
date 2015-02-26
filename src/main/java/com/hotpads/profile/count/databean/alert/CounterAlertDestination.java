@@ -18,7 +18,7 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
-import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.profile.count.databean.key.CounterAlertDestinationKey;
 
 @SuppressWarnings("serial")
@@ -84,7 +84,7 @@ public class CounterAlertDestination extends BaseDatabean<CounterAlertDestinatio
 		
 		@Override
 		public Map<String,List<Field<?>>> getIndexes(CounterAlertDestination counterAlertDestination){
-			Map<String,List<Field<?>>> indexesByName = MapTool.createTreeMap();
+			Map<String,List<Field<?>>> indexesByName = DrMapTool.createTreeMap();
 			indexesByName.put(CounterAlertDestinationKey.F.notificationDestination,
 					new CounterAlertDestinationByNotificationDestinationLookup(null).getFields());
 			return indexesByName;

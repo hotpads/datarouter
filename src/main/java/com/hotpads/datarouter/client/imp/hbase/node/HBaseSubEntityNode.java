@@ -34,12 +34,12 @@ import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.BooleanTool;
-import com.hotpads.datarouter.util.core.ByteTool;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class HBaseSubEntityNode<
@@ -72,18 +72,18 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	@Override
 	public void put(final D databean, final Config config) {
 		if(databean==null){ return; }
-		putMulti(ListTool.wrap(databean), config);
+		putMulti(DrListTool.wrap(databean), config);
 	}
 
 	
 	@Override
 	public void putMulti(final Collection<D> databeans, final Config pConfig) {
-		if(CollectionTool.isEmpty(databeans)){ return; }
+		if(DrCollectionTool.isEmpty(databeans)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "putMulti", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 //					PhaseTimer timer = new PhaseTimer();
-					List<Row> actions = ListTool.createArrayList();
+					List<Row> actions = DrListTool.createArrayList();
 					int numCellsPut = 0, numCellsDeleted = 0;
 					long batchStartTime = System.currentTimeMillis();
 					Map<EK,List<D>> databeansByEntityKey = EntityTool.getDatabeansByEntityKey(databeans);
@@ -99,11 +99,11 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 							boolean didAtLeastOneField = false;
 							for(Field<?> field : fields){//TODO only put modified fields
 								didAtLeastOneField = true;
-								byte[] fullQualifierBytes = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
+								byte[] fullQualifierBytes = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
 										qualifierPkBytes, field.getColumnNameBytes());
 								byte[] fieldValueBytes = field.getBytes();
 								if(fieldValueBytes==null){
-									if(BooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
+									if(DrBooleanTool.isFalseOrNull(config.getIgnoreNullFields())){
 										delete.deleteColumn(FAM, fullQualifierBytes, batchStartTime);
 										++numCellsDeleted;
 									}
@@ -114,7 +114,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 							}
 							if(!didAtLeastOneField){ 
 								Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
-								byte[] dummyQualifierBytes = ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
+								byte[] dummyQualifierBytes = DrByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(),
 										qualifierPkBytes, dummyField.getColumnNameBytes());
 								put.add(FAM, dummyQualifierBytes, dummyField.getBytes());
 							}
@@ -123,14 +123,14 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 						put.setWriteToWAL(config.getPersistentPut());
 						actions.add(put);
 					}
-					int numEntitiesPut = MapTool.size(databeansByEntityKey);
-					int numDatabeansPut = CollectionTool.getTotalSizeOfMapOfCollections(databeansByEntityKey);
+					int numEntitiesPut = DrMapTool.size(databeansByEntityKey);
+					int numDatabeansPut = DrCollectionTool.getTotalSizeOfMapOfCollections(databeansByEntityKey);
 					DRCounters.incSuffixClientNode(client.getType(), "cells put", getClientName(), getNodeName(), numCellsPut);
 					DRCounters.incSuffixClientNode(client.getType(), "cells delete", getClientName(), getNodeName(), numCellsDeleted);
 					DRCounters.incSuffixClientNode(client.getType(), "databeans put", getClientName(), getNodeName(), numDatabeansPut);
 					DRCounters.incSuffixClientNode(client.getType(), "entities put", getClientName(), getNodeName(), numEntitiesPut);
 //					timer.add("built puts "+CollectionTool.size(actions));
-					if(CollectionTool.notEmpty(actions)){
+					if(DrCollectionTool.notEmpty(actions)){
 						hTable.batch(actions);
 //						timer.add("batch");
 						hTable.flushCommits();
@@ -151,11 +151,11 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 					Scan scan = new Scan();
 					scan.setFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
 					managedResultScanner = hTable.getScanner(scan);
-					List<Row> batchToDelete = ListTool.createArrayList(1000);
+					List<Row> batchToDelete = DrListTool.createArrayList(1000);
 					for(Result row : managedResultScanner){
 						if(row.isEmpty()){ continue; }
 						Delete delete = new Delete(row.getRow());
-						for(KeyValue kv : IterableTool.nullSafe(row.list())){//row.list() can return null
+						for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
 							delete.deleteColumns(kv.getFamily(), kv.getQualifier());
 						}
 						batchToDelete.add(delete);
@@ -165,7 +165,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 							batchToDelete.clear();
 						}
 					}
-					if(CollectionTool.notEmpty(batchToDelete)){
+					if(DrCollectionTool.notEmpty(batchToDelete)){
 						hTable.batch(batchToDelete);
 						hTable.flushCommits();
 					}
@@ -177,21 +177,21 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	
 	@Override
 	public void delete(PK key, Config pConfig) {
-		deleteMulti(ListTool.wrap(key), pConfig);
+		deleteMulti(DrListTool.wrap(key), pConfig);
 	}
 
 	
 	//TODO this only deletes columns known to the current fielder.  could leave orphan columns from an old fielder
 	@Override
 	public void deleteMulti(final Collection<PK> keys, final Config pConfig){
-		if(CollectionTool.isEmpty(keys)){ return; }
+		if(DrCollectionTool.isEmpty(keys)){ return; }
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "deleteMulti", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					hTable.setAutoFlush(false);
 					Collection<String> nonKeyColumnNames = fieldInfo.getNonKeyFieldByColumnName().keySet();
 					Map<EK,List<PK>> pksByEk = EntityTool.getPrimaryKeysByEntityKey(keys);
-					ArrayList<Row> deletes = ListTool.createArrayList();//api requires ArrayList
+					ArrayList<Row> deletes = DrListTool.createArrayList();//api requires ArrayList
 					for(EK ek : pksByEk.keySet()){
 						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
 						for(PK pk : pksByEk.get(ek)){
@@ -217,7 +217,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
 		//TODO need a method getKeysWithPrefix	
 		List<D> databeansToDelete = getWithPrefix(prefix, wildcardLastField, config);
-		if(CollectionTool.notEmpty(databeansToDelete)){
+		if(DrCollectionTool.notEmpty(databeansToDelete)){
 			deleteMulti(KeyTool.getKeys(databeansToDelete), null);
 		}
 	}

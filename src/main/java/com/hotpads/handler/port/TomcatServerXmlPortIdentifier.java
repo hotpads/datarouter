@@ -11,7 +11,7 @@ import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 
 import com.google.inject.Provider;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.io.RuntimeIOException;
 
 @Singleton 
@@ -49,11 +49,11 @@ public class TomcatServerXmlPortIdentifier implements PortIdentifier{
 		String content = getServerXmlContent(severXmlPath);
 		if(content != null){
 			String stringToSearch = " port=\"";
-			content = StringTool.getStringSurroundedWith(content, "<Service", "</Service>");
+			content = DrStringTool.getStringSurroundedWith(content, "<Service", "</Service>");
 			String connectorTag = getConnectorTag(content, stringToSearch);
-			String result = StringTool.getStringSurroundedWith(connectorTag, stringToSearch, "\"");
+			String result = DrStringTool.getStringSurroundedWith(connectorTag, stringToSearch, "\"");
 
-			if(!StringTool.isEmptyOrWhitespace(result) || StringTool.containsOnlyNumbers(result)){ return new Integer(
+			if(!DrStringTool.isEmptyOrWhitespace(result) || DrStringTool.containsOnlyNumbers(result)){ return new Integer(
 					result); }
 		}
 		throw new RuntimeException("No HTTP Port has been identified from " + severXmlPath);
@@ -63,23 +63,23 @@ public class TomcatServerXmlPortIdentifier implements PortIdentifier{
 		String content = getServerXmlContent(severXmlPath);
 		if(content != null){
 			String stringToSearch = " redirectPort=\"";
-			content = StringTool.getStringSurroundedWith(content, "<Service", "</Service>");
+			content = DrStringTool.getStringSurroundedWith(content, "<Service", "</Service>");
 			String connectorTag = getConnectorTag(content, stringToSearch);
-			String result = StringTool.getStringSurroundedWith(connectorTag, stringToSearch, "\"");
+			String result = DrStringTool.getStringSurroundedWith(connectorTag, stringToSearch, "\"");
 
-			if(!StringTool.isEmptyOrWhitespace(result) || StringTool.containsOnlyNumbers(result)){ return new Integer(
+			if(!DrStringTool.isEmptyOrWhitespace(result) || DrStringTool.containsOnlyNumbers(result)){ return new Integer(
 					result); }
 		}
 		throw new RuntimeException("No RedirectPort has been identified from " + severXmlPath);
 	}
 
 	private static String getConnectorTag(String content, String stringToSearch){
-		String connectorTag = StringTool.getStringSurroundedWith(content, "<Connector", "/>");
-		while(!StringTool.isEmptyOrWhitespace(connectorTag)
+		String connectorTag = DrStringTool.getStringSurroundedWith(content, "<Connector", "/>");
+		while(!DrStringTool.isEmptyOrWhitespace(connectorTag)
 				&& (connectorTag.indexOf("compressableMimeType") < 0 || connectorTag.indexOf(stringToSearch) < 0)){
 			content = content + "</Service>";
-			connectorTag = StringTool.getStringSurroundedWith(content, connectorTag, "</Service>");
-			connectorTag = StringTool.getStringSurroundedWith(connectorTag, "<Connector", "/>");
+			connectorTag = DrStringTool.getStringSurroundedWith(content, connectorTag, "</Service>");
+			connectorTag = DrStringTool.getStringSurroundedWith(connectorTag, "<Connector", "/>");
 		}
 		return connectorTag;
 

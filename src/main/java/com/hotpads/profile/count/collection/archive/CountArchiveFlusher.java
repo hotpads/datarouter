@@ -13,8 +13,8 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.util.core.DateTool;
-import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.profile.count.collection.CountMapPeriod;
 
 public class CountArchiveFlusher{
@@ -24,7 +24,7 @@ public class CountArchiveFlusher{
 	
 	private static long 
 		INDIVIDUAL_FLUSH_ATTEMP_TIMEOUT_SECONDS = 10,
-		DISCARD_COUNTS_OLDER_THAN_MS = 5 * DateTool.MILLISECONDS_IN_MINUTE;
+		DISCARD_COUNTS_OLDER_THAN_MS = 5 * DrDateTool.MILLISECONDS_IN_MINUTE;
 	
 	public static final String
 		NAME_MEMORY = "memory";
@@ -83,7 +83,7 @@ public class CountArchiveFlusher{
 					long discardCutOff = System.currentTimeMillis() - DISCARD_COUNTS_OLDER_THAN_MS;
 					if(countMap.getNextStartTimeMs() < discardCutOff){ 
 						logger.warn("flusher:"+flusher.name+" discarded CountMapPeriod starting at "
-								+DateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(countMap.getStartTimeMs()));
+								+DrDateTool.getYYYYMMDDHHMMSSMMMWithPunctuationNoSpaces(countMap.getStartTimeMs()));
 						flusher.flushQueue.poll();//remove it
 						continue; 
 					}
@@ -118,7 +118,7 @@ public class CountArchiveFlusher{
 
 		@Override
 		public void run(){
-			for(CountArchive archive : IterableTool.nullSafe(flusher.archives)){
+			for(CountArchive archive : DrIterableTool.nullSafe(flusher.archives)){
 				//TODO if only some of the tables complete, then we may get double counting on the next loop
 				//... probably unlikely though since all archives in a flusher should be related somehow
 				archive.saveCounts(countMap);

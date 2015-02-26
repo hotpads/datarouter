@@ -9,7 +9,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.FloatByteTool;
 /*
  * "dumb" because doesn't necessarily sort correctly in serialized form.  should prob copy
@@ -36,7 +36,7 @@ public class DumbFloatField extends BasePrimitiveField<Float>{
 	
 	@Override
 	public Float parseStringEncodedValueButDoNotSet(String s){
-		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Float.valueOf(s);
 	}
 	

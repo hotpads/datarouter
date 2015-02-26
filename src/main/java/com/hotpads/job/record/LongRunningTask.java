@@ -13,13 +13,13 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
-import com.hotpads.datarouter.util.core.DateTool;
+import com.hotpads.datarouter.util.core.DrDateTool;
 
 public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunningTask>{
 	
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;
-	public static final long LAST_HEARTBEAT_WARNING_THRESHOLD = 2l * DateTool.MILLISECONDS_IN_SECOND,
-							LAST_HEARTBEAT_STALLED_THRESHOLD = 10l * DateTool.MILLISECONDS_IN_SECOND;
+	public static final long LAST_HEARTBEAT_WARNING_THRESHOLD = 2l * DrDateTool.MILLISECONDS_IN_SECOND,
+							LAST_HEARTBEAT_STALLED_THRESHOLD = 10l * DrDateTool.MILLISECONDS_IN_SECOND;
 	public static final int NULL = 3,
 							OK = 0,
 							WARNING = 1,
@@ -95,21 +95,21 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	/****************** helper methods ************************/
 	
 	public String getDurationString(){
-		return DateTool.getAgoString(startTime);
+		return DrDateTool.getAgoString(startTime);
 	}
 	
 	public String getLastHeartbeatString(){
 		if(heartbeatTime == null){
 			return "";
 		}
-		return DateTool.getAgoString(heartbeatTime);
+		return DrDateTool.getAgoString(heartbeatTime);
 	}
 	
 	public String getFinishTimeString(){
 		if(finishTime == null){
 			return "";
 		}
-		return DateTool.getAgoString(finishTime);
+		return DrDateTool.getAgoString(finishTime);
 	}
 	
 	public int getStatus(){

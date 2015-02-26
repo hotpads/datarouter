@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class NodeId<
 		PK extends PrimaryKey<PK>,
@@ -38,7 +38,7 @@ public class NodeId<
 	
 	public String getName(){
 		//if name is specified
-		if(StringTool.notEmpty(explicitName)){
+		if(DrStringTool.notEmpty(explicitName)){
 			return explicitName;
 		}
 		
@@ -49,8 +49,8 @@ public class NodeId<
 		
 		//for PhysicalNodes that have a specific client.  this can distinguish a databean class between many masters,
 		// slaves, partitions, etc
-		if(StringTool.notEmpty(clientName)){
-			String parentPrefix = StringTool.isEmpty(parentNodeName) ? "" : parentNodeName + ".";
+		if(DrStringTool.notEmpty(clientName)){
+			String parentPrefix = DrStringTool.isEmpty(parentNodeName) ? "" : parentNodeName + ".";
 			return parentPrefix+clientName+"."+databeanClass.getSimpleName();
 		}
 		

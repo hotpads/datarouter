@@ -14,9 +14,9 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.FileUtils;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrFileUtils;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class RestoreRegionFromS3<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 extends RestoreRegion<PK,D>{
@@ -36,8 +36,8 @@ extends RestoreRegion<PK,D>{
 		this.s3Bucket = s3Bucket;
 		this.s3Key = s3Key;
 		this.localPath = BackupRegionToS3.getLocalPath(s3Key);
-		this.fieldByPrefixedName = MapTool.createHashMap();
-		for(Field<?> field : IterableTool.nullSafe(node.getFields())){
+		this.fieldByPrefixedName = DrMapTool.createHashMap();
+		for(Field<?> field : DrIterableTool.nullSafe(node.getFields())){
 			this.fieldByPrefixedName.put(field.getPrefixedName(), field);
 		}
 		this.gzip = gzip;
@@ -62,7 +62,7 @@ extends RestoreRegion<PK,D>{
 			is = new BufferedInputStream(is, 1<<20);
 			importAndCloseInputStream();
 			if(deleteLocalFile){
-				FileUtils.delete(localPath);
+				DrFileUtils.delete(localPath);
 			}
 			logger.warn("completed restore of "+s3Key);
 		}catch(IOException ioe){
@@ -72,7 +72,7 @@ extends RestoreRegion<PK,D>{
 	}
 	
 	protected void downloadFromS3() throws IOException{
-		FileUtils.createFileParents(localPath);
+		DrFileUtils.createFileParents(localPath);
 		File localFile = new File(localPath);
 		S3GetTool.getFile(s3Bucket, s3Key, localFile);
 	}

@@ -4,22 +4,22 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
-import com.hotpads.datarouter.util.core.BooleanTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.PropertiesTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrPropertiesTool;
 
 public class TypedProperties{
 	
 	List<Properties> propertiesList;
 	
 	public TypedProperties(Collection<Properties> propertiesList){
-		this.propertiesList = ListTool.createArrayList(propertiesList);
+		this.propertiesList = DrListTool.createArrayList(propertiesList);
 	}
 	
 	public TypedProperties(String path){
-		Properties properties = PropertiesTool.parse(path);
+		Properties properties = DrPropertiesTool.parse(path);
 		if(properties!=null){ 
-			this.propertiesList = ListTool.wrap(properties); 
+			this.propertiesList = DrListTool.wrap(properties); 
 		}
 	}
 	
@@ -66,7 +66,7 @@ public class TypedProperties{
 	public Boolean getBoolean(String key){
 		String sVal = getString(key);
 		if(sVal==null){ return null; }
-		return BooleanTool.isTrue(sVal);
+		return DrBooleanTool.isTrue(sVal);
 	}
 	
 	public Short getShort(String key){
@@ -110,6 +110,6 @@ public class TypedProperties{
 	/****************** basic ************************************/
 
 	public String getString(String key){
-		return PropertiesTool.getFirstOccurrence(propertiesList, key);
+		return DrPropertiesTool.getFirstOccurrence(propertiesList, key);
 	}
 }

@@ -12,8 +12,8 @@ import org.quartz.CronExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.util.core.BooleanTool;
-import com.hotpads.datarouter.util.core.ComparableTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionRecorder;
 import com.hotpads.job.record.JobExecutionStatus;
@@ -180,7 +180,7 @@ public abstract class BaseJob implements Job{
 			isAlreadyRunning.set(true);
 			return false;
 		}
-		return processJobsSetting.getValue() && shouldRun() && BooleanTool.isFalse(getIsDisabled());
+		return processJobsSetting.getValue() && shouldRun() && DrBooleanTool.isFalse(getIsDisabled());
 	}
 
 	protected void assertBaseServicesSet(){
@@ -296,9 +296,9 @@ public abstract class BaseJob implements Job{
 	@Override
 	public int compareTo(Job that){
 		if(that==null){ return 1; }
-		int diff = ComparableTool.nullFirstCompareTo(getJobCategory(), that.getJobCategory());
+		int diff = DrComparableTool.nullFirstCompareTo(getJobCategory(), that.getJobCategory());
 		if(diff != 0){ return diff; }
-		return ComparableTool.nullFirstCompareTo(getClass().getCanonicalName(), that.getClass().getCanonicalName());
+		return DrComparableTool.nullFirstCompareTo(getClass().getCanonicalName(), that.getClass().getCanonicalName());
 	}
 
 	@Override

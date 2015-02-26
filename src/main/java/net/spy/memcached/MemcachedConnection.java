@@ -29,7 +29,7 @@ import net.spy.SpyObject;
 import net.spy.memcached.ops.Operation;
 import net.spy.memcached.ops.OperationState;
 
-import com.hotpads.datarouter.util.core.ExceptionTool;
+import com.hotpads.datarouter.util.core.DrExceptionTool;
 import com.hotpads.util.core.collections.Triple;
 
 /**
@@ -196,7 +196,7 @@ public final class MemcachedConnection extends SpyObject {
 				try {
 					handleIO(sk);
 				} catch (CancelledKeyException e) {
-					getLogger().error(ExceptionTool.getStackTraceAsString(e));
+					getLogger().error(DrExceptionTool.getStackTraceAsString(e));
 				}
 			} // for each selector
 			selectedKeys.clear();

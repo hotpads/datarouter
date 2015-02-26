@@ -13,8 +13,8 @@ import org.junit.runners.Parameterized.Parameters;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.trace.Trace;
 import com.hotpads.trace.TraceSpan;
 import com.hotpads.trace.TraceThread;
@@ -28,7 +28,7 @@ public class TraceEntityTests{
 
 	@Parameters
 	public static Collection<Object[]> parameters(){
-		List<Object[]> params = ListTool.create();
+		List<Object[]> params = DrListTool.create();
 		params.add(new Object[]{TraceCompoundNode.class});
 		params.add(new Object[]{TraceEntityNode.class});
 		return params;
@@ -43,9 +43,9 @@ public class TraceEntityTests{
 	public TraceEntityTests(Class<TraceSubNodes> nodesClass){
 		Injector injector = new DatarouterTestInjectorProvider().get();
 		this.router = injector.getInstance(TraceTestRouter.class);
-		if(ObjectTool.equals(TraceCompoundNode.class, nodesClass)){
+		if(DrObjectTool.equals(TraceCompoundNode.class, nodesClass)){
 			this.nodes = router.traceCompound();
-		}else if(ObjectTool.equals(TraceEntityNode.class, nodesClass)){
+		}else if(DrObjectTool.equals(TraceEntityNode.class, nodesClass)){
 			this.nodes = router.traceEntity();
 		}else{
 			throw new IllegalArgumentException("unknown nodes class "+nodesClass);
@@ -64,11 +64,11 @@ public class TraceEntityTests{
 	
 	@Test
 	public void testCounts(){
-		List<Trace> traces = ListTool.createArrayList(nodes.trace().scan(null, null));
+		List<Trace> traces = DrListTool.createArrayList(nodes.trace().scan(null, null));
 		Assert.assertEquals(TraceTestDataGenerator.traces.size(), traces.size());
-		List<TraceThread> traceThreads = ListTool.createArrayList(nodes.thread().scan(null, null));
+		List<TraceThread> traceThreads = DrListTool.createArrayList(nodes.thread().scan(null, null));
 		Assert.assertEquals(TraceTestDataGenerator.threads.size(), traceThreads.size());
-		List<TraceSpan> traceSpans = ListTool.createArrayList(nodes.span().scan(null, null));
+		List<TraceSpan> traceSpans = DrListTool.createArrayList(nodes.span().scan(null, null));
 		Assert.assertEquals(TraceTestDataGenerator.spans.size(), traceSpans.size());
 	}
 

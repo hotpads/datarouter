@@ -15,8 +15,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.util.core.DateTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrDateTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 
 public class DateField extends BasePrimitiveField<Date>{
@@ -35,15 +35,15 @@ public class DateField extends BasePrimitiveField<Date>{
 	@Override
 	public String getStringEncodedValue(){
 		if(value==null){ return null; }
-		return DateTool.getInternetDate(value);
+		return DrDateTool.getInternetDate(value);
 	}
 	
 	@Override
 	public Date parseStringEncodedValueButDoNotSet(String s){
-		if(StringTool.isEmpty(s) || s.equals("null")){
+		if(DrStringTool.isEmpty(s) || s.equals("null")){
 			return null; 
 		}
-		return DateTool.parseUserInputDate(s,null);
+		return DrDateTool.parseUserInputDate(s,null);
 	}
 	
 

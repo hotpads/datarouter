@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.CookieTool;
 import com.hotpads.handler.user.authenticate.config.DatarouterAuthenticationConfig;
 
@@ -33,7 +33,7 @@ public class DatarouterSessionManager{
 	
 	public URL getTargetUrlFromCookie(HttpServletRequest request){
 		String targetUrlString = CookieTool.getCookieValue(request, config.getTargetUrlName());
-		if(StringTool.isEmpty(targetUrlString)){ return null; }
+		if(DrStringTool.isEmpty(targetUrlString)){ return null; }
 		try{
 			return new URL(targetUrlString);
 		}catch(MalformedURLException e){

@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public abstract class BaseHttpsFilter implements Filter{
 	protected Logger logger = LoggerFactory.getLogger(getClass());
@@ -35,7 +35,7 @@ public abstract class BaseHttpsFilter implements Filter{
 
 		UrlScheme scheme = urlSchemeHandler.fromRequest(req);
 		String path = request.getServletPath();
-		String pathInfo = StringTool.nullSafe(request.getPathInfo());
+		String pathInfo = DrStringTool.nullSafe(request.getPathInfo());
 
 		/******* catch bogus http requests and redirect if necessary ***********/
 

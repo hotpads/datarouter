@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public enum MySqlTableEngine{
 
@@ -9,7 +9,7 @@ public enum MySqlTableEngine{
 	
 	
 	public static MySqlTableEngine parse(String a){
-		String upperCase = StringTool.nullSafe(a).toUpperCase();
+		String upperCase = DrStringTool.nullSafe(a).toUpperCase();
 		for(MySqlTableEngine type : values()){
 			if(type.toString().equals(upperCase)){
 				return type;

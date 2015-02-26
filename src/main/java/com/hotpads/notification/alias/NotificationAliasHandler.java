@@ -11,7 +11,7 @@ import javax.inject.Singleton;
 import net.sf.json.JSONObject;
 
 import com.google.gson.Gson;
-import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.dispatcher.DatarouterDispatcher;
 import com.hotpads.handler.mav.Mav;
@@ -107,10 +107,10 @@ public class NotificationAliasHandler extends BaseHandler{
 		jsonObject.put("alias", alias);
 
 		Iterable<Subscriber> subscribers = notificationAliasDao.getSubscribers(alias);
-		jsonObject.put("subscribers", gson.toJson(IterableTool.asList(subscribers)));
+		jsonObject.put("subscribers", gson.toJson(DrIterableTool.asList(subscribers)));
 
 		Iterable<Moderator> moderators = notificationAliasDao.getModerators(alias);
-		jsonObject.put("moderators", gson.toJson(IterableTool.asList(moderators)));
+		jsonObject.put("moderators", gson.toJson(DrIterableTool.asList(moderators)));
 		
 		List<AutomatedEmailType> automatedEmails = notificationAliasDao.getAutomatedEmail(alias);
 		jsonObject.put("automatedEmails", gson.toJson(automatedEmails));

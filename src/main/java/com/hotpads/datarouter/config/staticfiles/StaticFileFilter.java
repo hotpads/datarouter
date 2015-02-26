@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.util.core.FileUtils;
+import com.hotpads.datarouter.util.core.DrFileUtils;
 
 @Singleton
 public class StaticFileFilter implements Filter {
@@ -39,7 +39,7 @@ public class StaticFileFilter implements Filter {
 
 		String contextPath = request.getContextPath();
 		String path = request.getRequestURI().substring(contextPath.length());
-		if (FileUtils.hasAStaticFileExtension(path)) {
+		if (DrFileUtils.hasAStaticFileExtension(path)) {
 			Enumeration<String> e = config.getInitParameterNames();
 			while (e.hasMoreElements()) {
 				String headerName = e.nextElement();

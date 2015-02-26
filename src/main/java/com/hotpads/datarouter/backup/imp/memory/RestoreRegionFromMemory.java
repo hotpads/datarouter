@@ -12,8 +12,8 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class RestoreRegionFromMemory<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 extends RestoreRegion<PK,D>{
@@ -25,8 +25,8 @@ extends RestoreRegion<PK,D>{
 		if(gzip){
 			this.is = new BufferedInputStream(new GZIPInputStream(is, BackupRegion.GZIP_BUFFER_BYTES));
 		}
-		this.fieldByPrefixedName = MapTool.createHashMap();
-		for(Field<?> field : IterableTool.nullSafe(node.getFields())){
+		this.fieldByPrefixedName = DrMapTool.createHashMap();
+		for(Field<?> field : DrIterableTool.nullSafe(node.getFields())){
 			this.fieldByPrefixedName.put(field.getPrefixedName(), field);
 		}
 	}

@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
-import com.hotpads.datarouter.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.handler.user.DatarouterUser;
 
 public enum DatarouterUserRole
@@ -31,7 +31,7 @@ implements StringEnum<DatarouterUserRole>{
 	}
 	
 	public static Set<DatarouterUserRole> fromStringArray(String[] userRoles) {
-		Set<DatarouterUserRole> userRolesSet = SetTool.create();
+		Set<DatarouterUserRole> userRolesSet = DrSetTool.create();
 		if (userRoles == null) { return userRolesSet; }
 		
 		for(String role : userRoles) {
@@ -44,7 +44,7 @@ implements StringEnum<DatarouterUserRole>{
 	}
 	
 	public static Set<DatarouterUserRole> getPermissibleRolesForUser(DatarouterUser datarouterUser, boolean isSelf) {
-		Set<DatarouterUserRole> userRoles = SetTool.create(datarouterUser.getRoles());
+		Set<DatarouterUserRole> userRoles = DrSetTool.create(datarouterUser.getRoles());
 		if(isSelf && userRoles.contains(datarouterAdmin)) { return userRoles; }
 		
 		userRoles.remove(datarouterAdmin);

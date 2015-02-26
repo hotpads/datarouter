@@ -19,9 +19,9 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
-import com.hotpads.datarouter.util.core.ArrayTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
@@ -396,7 +396,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 		
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		Assert.assertArrayEquals(ArrayTool.primitiveLongArray(ids), LongByteTool.fromComparableByteArray(roundTripped.getData()));
+		Assert.assertArrayEquals(DrArrayTool.primitiveLongArray(ids), LongByteTool.fromComparableByteArray(roundTripped.getData()));
 		recordKey(bean.getKey());
 	}
 	
@@ -425,7 +425,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 		
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		Assert.assertTrue(0==ListTool.compare(bean.getLongArrayField(), roundTripped.getLongArrayField()));
+		Assert.assertTrue(0==DrListTool.compare(bean.getLongArrayField(), roundTripped.getLongArrayField()));
 		recordKey(bean.getKey());
 	}
 	
@@ -439,7 +439,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 		
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		Assert.assertTrue(0==ListTool.compare(bean.getBooleanArrayField(), roundTripped.getBooleanArrayField()));
+		Assert.assertTrue(0==DrListTool.compare(bean.getBooleanArrayField(), roundTripped.getBooleanArrayField()));
 		recordKey(bean.getKey());
 	}
 	
@@ -453,7 +453,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 		
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		Assert.assertTrue(0==ListTool.compare(bean.getIntegerArrayField(), roundTripped.getIntegerArrayField()));
+		Assert.assertTrue(0==DrListTool.compare(bean.getIntegerArrayField(), roundTripped.getIntegerArrayField()));
 		recordKey(bean.getKey());
 	}
 	
@@ -469,7 +469,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 		
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		Assert.assertTrue(0==ListTool.compare(bean.getDoubleArrayField(), roundTripped.getDoubleArrayField()));
+		Assert.assertTrue(0==DrListTool.compare(bean.getDoubleArrayField(), roundTripped.getDoubleArrayField()));
 		recordKey(bean.getKey());
 	}
 	
@@ -477,7 +477,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void testDelimitedStringArray(){	
 		if(isHibernate()){ return; }
 		ManyFieldBean bean = new ManyFieldBean();
-		List<String> strings = ListTool.create("abc hi!", "xxx's", "bb_3");
+		List<String> strings = DrListTool.create("abc hi!", "xxx's", "bb_3");
 		bean.setDelimitedStringArrayField(strings);
 		mapNode.put(bean, null);
 		
@@ -498,7 +498,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		mapNode.put(bean, null);
 		
 		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
-		Assert.assertTrue(0==ListTool.compare(bean.getLongArrayField(), roundTripped.getLongArrayField()));
+		Assert.assertTrue(0==DrListTool.compare(bean.getLongArrayField(), roundTripped.getLongArrayField()));
 		recordKey(bean.getKey());
 	}
 	
@@ -509,22 +509,22 @@ public abstract class BaseManyFieldIntegrationTests{
 		ManyFieldBean bean = new ManyFieldBean();
 		
 		//increment by 3
-		Map<ManyFieldBeanKey,Map<String,Long>> increments = MapTool.create();
-		MapTool.increment(increments, bean.getKey(), ManyFieldBean.F.incrementField, 3L);
+		Map<ManyFieldBeanKey,Map<String,Long>> increments = DrMapTool.create();
+		DrMapTool.increment(increments, bean.getKey(), ManyFieldBean.F.incrementField, 3L);
 		hBaseNode.increment(increments, null);
 		ManyFieldBean result1 = mapNode.get(bean.getKey(), null);
 		Assert.assertEquals(new Long(3), result1.getIncrementField());
 		
 		//decrement by 11
 		increments.clear();
-		MapTool.increment(increments, bean.getKey(), ManyFieldBean.F.incrementField, -11L);
+		DrMapTool.increment(increments, bean.getKey(), ManyFieldBean.F.incrementField, -11L);
 		hBaseNode.increment(increments, null);
 		ManyFieldBean result2 = mapNode.get(bean.getKey(), null);
 		Assert.assertEquals(new Long(-8), result2.getIncrementField());
 		
 		//increment by 17 (expecting 3 - 11 + 17 => 9)
 		increments.clear();
-		MapTool.increment(increments, bean.getKey(), ManyFieldBean.F.incrementField, 17L);
+		DrMapTool.increment(increments, bean.getKey(), ManyFieldBean.F.incrementField, 17L);
 		hBaseNode.increment(increments, null);
 		ManyFieldBean result3 = mapNode.get(bean.getKey(), null);
 		Assert.assertEquals(new Long(9), result3.getIncrementField());

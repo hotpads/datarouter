@@ -10,10 +10,10 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.collections.Range;
 
 public class SqlBuilder{
@@ -51,7 +51,7 @@ public class SqlBuilder{
 	public static String getMulti(
 			Config config, String tableName, List<Field<?>> selectFields, 
 			Collection<? extends FieldSet<?>> keys){
-		if(CollectionTool.isEmpty(keys)){//getAll() passes null in for keys
+		if(DrCollectionTool.isEmpty(keys)){//getAll() passes null in for keys
 			throw new IllegalArgumentException("no keys provided... use getAll if you want the whole table.");
 		}
 		StringBuilder sql = new StringBuilder();
@@ -63,7 +63,7 @@ public class SqlBuilder{
 	}
 	
 	public static String deleteMulti(Config config, String tableName, Collection<? extends FieldSet<?>> keys){
-		if(CollectionTool.isEmpty(keys)){//getAll() passes null in for keys
+		if(DrCollectionTool.isEmpty(keys)){//getAll() passes null in for keys
 			throw new IllegalArgumentException("no keys provided... use getAll if you want the whole table.");
 		}
 		StringBuilder sql = new StringBuilder();
@@ -149,7 +149,7 @@ public class SqlBuilder{
 	}
 	
 	public static void addWhereClauseWithWhere(StringBuilder sql, String where){
-		if(StringTool.notEmpty(where)){
+		if(DrStringTool.notEmpty(where)){
 			sql.append(" where "+where);
 		}
 	}
@@ -160,7 +160,7 @@ public class SqlBuilder{
 		if(keys.size()>1){
 			sql.append("(");
 		}
-		for(FieldSet<?> key : IterableTool.nullSafe(keys)){
+		for(FieldSet<?> key : DrIterableTool.nullSafe(keys)){
 			if(counter>0){ 
 				sql.append(") or ("); 
 			}
@@ -176,7 +176,7 @@ public class SqlBuilder{
 		int numNonNullFields = FieldSetTool.getNumNonNullLeadingFields(prefix);
 		if(numNonNullFields==0){ return; }
 		int numFullFieldsFinished = 0;
-		for(Field<?> field : CollectionTool.nullSafe(prefix.getFields())){
+		for(Field<?> field : DrCollectionTool.nullSafe(prefix.getFields())){
 			if(numFullFieldsFinished >= numNonNullFields) {
 				break;
 			}
@@ -204,7 +204,7 @@ public class SqlBuilder{
 	public static boolean needsRangeWhereClause(FieldSet<?> start, FieldSet<?> end){
 		if(start==null && end==null){ return false; }
 		if(end!=null){ return true; }
-		List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
+		List<Field<?>> startFields = DrListTool.createArrayList(start.getFields());
 		int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 		if(numNonNullStartFields > 0){ return true; }
 		return false; 
@@ -214,8 +214,8 @@ public class SqlBuilder{
 			FieldSet<?> start, boolean startInclusive, 
 			FieldSet<?> end, boolean endInclusive){
 				
-		if(start != null && CollectionTool.notEmpty(start.getFields())){
-			List<Field<?>> startFields = ListTool.createArrayList(start.getFields());
+		if(start != null && DrCollectionTool.notEmpty(start.getFields())){
+			List<Field<?>> startFields = DrListTool.createArrayList(start.getFields());
 			int numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 			if(numNonNullStartFields > 0){
 				sql.append("(");
@@ -245,8 +245,8 @@ public class SqlBuilder{
 		
 //		select a, b, c, d from SortedBean where ((a>='alp')) and (a<='emu' and b is null and c is null and d is null
 		
-		if(end != null && CollectionTool.notEmpty(end.getFields())){
-			List<Field<?>> endFields = ListTool.createArrayList(end.getFields());
+		if(end != null && DrCollectionTool.notEmpty(end.getFields())){
+			List<Field<?>> endFields = DrListTool.createArrayList(end.getFields());
 			int numNonNullEndFields = FieldTool.countNonNullLeadingFields(endFields);
 			if(numNonNullEndFields > 0){
 				sql.append("(");
@@ -274,7 +274,7 @@ public class SqlBuilder{
 	}
 	
 	public static void addOrderByClause(StringBuilder sql, List<Field<?>> orderByFields){
-		if(CollectionTool.isEmpty(orderByFields)){ return; }
+		if(DrCollectionTool.isEmpty(orderByFields)){ return; }
 		sql.append(" order by ");
 		int counter = 0;
 		for(Field<?> field : orderByFields){

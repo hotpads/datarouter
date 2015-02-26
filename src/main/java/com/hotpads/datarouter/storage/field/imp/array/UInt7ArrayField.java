@@ -10,9 +10,9 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseListField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.util.core.ArrayTool;
-import com.hotpads.datarouter.util.core.ByteTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
@@ -46,7 +46,7 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 
 	@Override
 	public byte[] getBytes(){
-		return this.value==null?null:ByteTool.getUInt7Bytes(this.value);
+		return this.value==null?null:DrByteTool.getUInt7Bytes(this.value);
 	}
 	
 	@Override
@@ -57,13 +57,13 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 	@Override
 	public List<Byte> fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
 		int numBytes = numBytesWithSeparator(bytes, byteOffset) - 4;
-		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset + 4, numBytes));
+		return DrByteTool.getArrayList(DrByteTool.fromUInt7ByteArray(bytes, byteOffset + 4, numBytes));
 	}
 	
 	@Override
 	public List<Byte> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		int numBytes = ArrayTool.length(bytes) - byteOffset;
-		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset, numBytes));
+		int numBytes = DrArrayTool.length(bytes) - byteOffset;
+		return DrByteTool.getArrayList(DrByteTool.fromUInt7ByteArray(bytes, byteOffset, numBytes));
 	}
 	
 
@@ -76,13 +76,13 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 	
 	@Override
 	public int compareTo(Field<List<Byte>> other){
-		return ListTool.compare(this.value, other.getValue());
+		return DrListTool.compare(this.value, other.getValue());
 	}
 	
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			ps.setBytes(parameterIndex, this.value==null?null:ByteTool.getUInt7Bytes(this.value));
+			ps.setBytes(parameterIndex, this.value==null?null:DrByteTool.getUInt7Bytes(this.value));
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
@@ -100,7 +100,7 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
 	public List<Byte> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(columnName);
-			return ByteTool.getArrayList(bytes);
+			return DrByteTool.getArrayList(bytes);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

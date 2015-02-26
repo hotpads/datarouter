@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.profile.count.collection.Counters;
 
 public class ImportCounters {
@@ -63,7 +63,7 @@ public class ImportCounters {
 	private static void incSuffixAction(String importerName, String feedId, String listingType, String action) {
 		incInternal(getKeyForImportAllAction(importerName, action), 1L);
 		incInternal(getKeyForImportFeedAction(importerName, feedId, action), 1L);
-		if (StringTool.notEmpty(listingType)) {
+		if (DrStringTool.notEmpty(listingType)) {
 			incInternal(getKeyForImportListingType(importerName, listingType, action), 1L);
 		}
 	}
@@ -72,7 +72,7 @@ public class ImportCounters {
 			String actionType) {
 		incInternal(getKeyForImportAllAction(importerName, action, actionType), 1L);
 		incInternal(getKeyForImportFeedAction(importerName, feedId, action, actionType), 1L);
-		if (StringTool.notEmpty(listingType)) {
+		if (DrStringTool.notEmpty(listingType)) {
 			incInternal(getKeyForImportListingType(importerName, listingType, action, actionType), 1L);
 		}
 	}

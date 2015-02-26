@@ -9,8 +9,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.util.core.ByteTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 //recognizes -128 to -1 using two's complement.  therefore max value is 127
 public class SignedByteField extends BasePrimitiveField<Byte>{
@@ -34,7 +34,7 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 	
 	@Override
 	public Byte parseStringEncodedValueButDoNotSet(String s){
-		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Byte.valueOf(s);
 	}
 	
@@ -44,7 +44,7 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 	//recognizes -128 to -1 using two's complement.  therefore max value is 127
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:ByteTool.getComparableBytes(value);
+		return value==null?null:DrByteTool.getComparableBytes(value);
 	}
 	
 	@Override
@@ -54,7 +54,7 @@ public class SignedByteField extends BasePrimitiveField<Byte>{
 	
 	@Override
 	public Byte fromBytesButDoNotSet(byte[] bytes, int offset){
-		return ByteTool.getComparableByte(bytes[offset]);
+		return DrByteTool.getComparableByte(bytes[offset]);
 	}
 	
 

@@ -13,7 +13,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 /**
  * see current list of tlds here:
@@ -70,11 +70,11 @@ public enum InternetTopLevelDomain {
 	}
 	
 	public static boolean exists(String tld) {
-		return tlds.contains(StringTool.toLowerCase(tld));
+		return tlds.contains(DrStringTool.toLowerCase(tld));
 	}
 	
 	public static String normalizeTld(String topLevelDomain) {
-		if (StringTool.isEmpty(topLevelDomain)) {
+		if (DrStringTool.isEmpty(topLevelDomain)) {
 			return null;
 		}
 		topLevelDomain = topLevelDomain.toLowerCase();
@@ -92,7 +92,7 @@ public enum InternetTopLevelDomain {
 			}
 		}
 
-		topLevelDomain = StringTool.enforceAlphabetic(topLevelDomain);
+		topLevelDomain = DrStringTool.enforceAlphabetic(topLevelDomain);
 
 		return exists(topLevelDomain) ? topLevelDomain : null;
 	}

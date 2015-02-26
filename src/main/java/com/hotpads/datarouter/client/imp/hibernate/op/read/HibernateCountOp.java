@@ -14,7 +14,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class HibernateCountOp<
 		PK extends PrimaryKey<PK>,
@@ -42,7 +42,7 @@ extends BaseHibernateOp<Long>{
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		criteria.setProjection(Projections.rowCount());
 
-		for(Field<?> field : CollectionTool.nullSafe(lookup.getFields())){
+		for(Field<?> field : DrCollectionTool.nullSafe(lookup.getFields())){
 			criteria.add(Restrictions.eq(field.getPrefixedName(), field.getValue()));
 		}
 		

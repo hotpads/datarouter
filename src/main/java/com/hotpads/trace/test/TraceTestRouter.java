@@ -10,7 +10,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.node.TraceCompoundNode;
 import com.hotpads.trace.node.TraceEntityNode;
 
@@ -35,7 +35,7 @@ public class TraceTestRouter extends BaseDatarouter{
 
 	/********************************** config **********************************/
 
-	public static final List<ClientId> CLIENT_IDS = ListTool.create(
+	public static final List<ClientId> CLIENT_IDS = DrListTool.create(
 			new ClientId(DRTestConstants.CLIENT_drTestHBase, true));
 	
 	@Override

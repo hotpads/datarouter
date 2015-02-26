@@ -8,8 +8,8 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import com.hotpads.WebAppName;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.dispatcher.DatarouterDispatcher;
 import com.hotpads.handler.mav.Mav;
@@ -67,9 +67,9 @@ public class ClusterSettingsHandler extends BaseHandler {
 		Mav mav = new Mav(JSP_editSettings);
 		List<ClusterSetting> settings;
 		String prefix = params.optional(P_prefix, null);
-		if(StringTool.isEmpty(prefix)) {
+		if(DrStringTool.isEmpty(prefix)) {
 //			settings = clusterSettingNode.getAll(null); deprecated
-			settings = ListTool.createArrayList(clusterSettingNodes.clusterSetting().scan(null, null));
+			settings = DrListTool.createArrayList(clusterSettingNodes.clusterSetting().scan(null, null));
 		} else {
 			ClusterSettingKey settingPrefix = new ClusterSettingKey(prefix, null, null, null, null);
 			settings = clusterSettingNodes.clusterSetting().getWithPrefix(settingPrefix, true, null);

@@ -2,7 +2,7 @@ package com.hotpads.util.core.iterable.scanner.collate;
 
 import java.util.PriorityQueue;
 
-import com.hotpads.datarouter.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.util.core.iterable.scanner.sorted.BaseSortedScanner;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
 
@@ -13,7 +13,7 @@ implements Collator<T> {
 	protected PriorityQueue<SortedScanner<T>> pq = new PriorityQueue<SortedScanner<T>>();
 	
 	public PriorityQueueCollator(Iterable<? extends SortedScanner<T>> scanners){
-		for(SortedScanner<T> scanner : IterableTool.nullSafe(scanners)){
+		for(SortedScanner<T> scanner : DrIterableTool.nullSafe(scanners)){
 			if(scanner.getCurrent()==null){
 				if(!scanner.advance()){ continue; }//omit this empty scanner
 			}

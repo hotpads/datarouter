@@ -3,8 +3,8 @@ package com.hotpads.handler.user.authenticate.authenticator.impl;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.hotpads.datarouter.util.core.BooleanTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUser.DatarouterUserByApiKeyLookup;
 import com.hotpads.handler.user.DatarouterUserNodes;
@@ -38,7 +38,7 @@ public class DatarouterApiKeyAuthenticator extends BaseDatarouterAuthenticator {
 	}
 	
 	private DatarouterUser lookupUserByApiKey(String apiKey) {
-		if (StringTool.isNullOrEmpty(apiKey)) {
+		if (DrStringTool.isNullOrEmpty(apiKey)) {
 			throw new InvalidApiCallException("no api key specified");
 		}
 
@@ -47,10 +47,10 @@ public class DatarouterApiKeyAuthenticator extends BaseDatarouterAuthenticator {
 		if (user == null) {
 			throw new InvalidApiCallException("no user found with provided api key");
 		}
-		if (BooleanTool.isFalseOrNull(user.getEnabled())) {
+		if (DrBooleanTool.isFalseOrNull(user.getEnabled())) {
 			throw new InvalidApiCallException("user is not enabled");
 		}
-		if (BooleanTool.isFalseOrNull(user.getApiEnabled())) {
+		if (DrBooleanTool.isFalseOrNull(user.getApiEnabled())) {
 			throw new InvalidApiCallException("user does not have api authorization");
 		}
 

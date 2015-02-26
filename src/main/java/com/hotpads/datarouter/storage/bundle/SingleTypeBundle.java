@@ -5,7 +5,7 @@ import java.util.NavigableSet;
 import java.util.TreeSet;
 
 import com.hotpads.datarouter.storage.databean.Databean;
-import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class SingleTypeBundle<D extends Databean<?,?>> {
 
@@ -17,7 +17,7 @@ public class SingleTypeBundle<D extends Databean<?,?>> {
 	}
 
 	public void add(Collection<D> databeans){
-		for(D databean : CollectionTool.nullSafe(databeans)){
+		for(D databean : DrCollectionTool.nullSafe(databeans)){
 			this.add(databean);
 		}
 	}
@@ -27,7 +27,7 @@ public class SingleTypeBundle<D extends Databean<?,?>> {
 	}
 	
 	public D getFirst(){
-		return CollectionTool.getFirst(this.databeans);
+		return DrCollectionTool.getFirst(this.databeans);
 	}
 	
 }

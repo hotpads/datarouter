@@ -15,8 +15,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.execute.ParallelSchemaUpdate;
 import com.hotpads.datarouter.client.type.JdbcClient;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.util.core.BooleanTool;
-import com.hotpads.datarouter.util.core.PropertiesTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 public class JdbcSimpleClientFactory 
@@ -39,7 +39,7 @@ implements ClientFactory{
 		this.drContext = drContext;
 		this.clientName = clientName;
 		this.configFilePaths = drContext.getConfigFilePaths();
-		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
+		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 	}
 
 	@Override
@@ -72,7 +72,7 @@ implements ClientFactory{
 	}
 	
 	protected boolean doSchemaUpdate(){
-		boolean schemaUpdateEnabled = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+		boolean schemaUpdateEnabled = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				SCHEMA_UPDATE_ENABLE));
 		return isWritableClient() && schemaUpdateEnabled;
 	}

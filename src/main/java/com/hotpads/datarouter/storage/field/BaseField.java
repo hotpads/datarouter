@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.exception.DataAccessException;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -47,7 +47,7 @@ public abstract class BaseField<T> implements Field<T>{
 	
 	@Override
 	public String getPrefixedName(){
-		if(StringTool.isEmpty(prefix)){
+		if(DrStringTool.isEmpty(prefix)){
 			return name;
 		}else{
 			return prefix + "." + name;
@@ -61,9 +61,9 @@ public abstract class BaseField<T> implements Field<T>{
 	
 	@Override
 	public synchronized void cacheReflectionInfo(Object sampleFieldSet){
-		List<String> fieldNames = ListTool.createLinkedList();
-		if(StringTool.notEmpty(prefix)){
-			fieldNames = ListTool.createArrayList(prefix.split("\\."));
+		List<String> fieldNames = DrListTool.createLinkedList();
+		if(DrStringTool.notEmpty(prefix)){
+			fieldNames = DrListTool.createArrayList(prefix.split("\\."));
 		}
 		fieldNames.add(name);
 		try{

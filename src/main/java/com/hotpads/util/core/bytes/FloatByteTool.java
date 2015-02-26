@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.datarouter.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
 
 public class FloatByteTool{
 
@@ -42,7 +42,7 @@ public class FloatByteTool{
 			float bback = fromBytes(bbytes, 0);
 			Assert.assertTrue(b==bback);
 			
-			Assert.assertTrue(ByteTool.bitwiseCompare(abytes, bbytes) < 0);//positives and negatives are reversed
+			Assert.assertTrue(DrByteTool.bitwiseCompare(abytes, bbytes) < 0);//positives and negatives are reversed
 		}
 	}
 }

@@ -19,11 +19,11 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.util.DatarouterEmailTool;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.PropertiesTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrPropertiesTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 
 public class ParallelSchemaUpdate 
@@ -61,7 +61,7 @@ implements Callable<Void>{
 		this.clientName = clientName;
 		this.connectionPool = connectionPool;
 		this.configFilePaths = drContext.getConfigFilePaths();
-		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
+		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.printOptions = new SchemaUpdateOptions(multiProperties, PRINT_PREFIX, true	);
 		this.executeOptions = new SchemaUpdateOptions(multiProperties, EXECUTE_PREFIX, false);
 		this.updatedTables = Collections.synchronizedSet(new TreeSet<String>());
@@ -85,8 +85,8 @@ implements Callable<Void>{
 		
 		//run an update for each PhysicalNode
 		List<? extends PhysicalNode<?, ?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
-		List<Callable<Void>> singleTableUpdates = ListTool.createArrayList();
-		for(PhysicalNode<?, ?> physicalNode : IterableTool.nullSafe(physicalNodes)){
+		List<Callable<Void>> singleTableUpdates = DrListTool.createArrayList();
+		for(PhysicalNode<?, ?> physicalNode : DrIterableTool.nullSafe(physicalNodes)){
 			DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 			if(fieldInfo.getFieldAware()){
 				SingleTableSchemaUpdate singleTableUpdate = new SingleTableSchemaUpdate(clientName,
@@ -103,15 +103,15 @@ implements Callable<Void>{
 
 	
 	private void sendEmail(){
-		if(CollectionTool.isEmpty(printedSchemaUpdates)){ return; }
-		if(StringTool.isEmpty(drContext.getAdministratorEmail()) || StringTool.isEmpty(drContext.getServerName())){ 
+		if(DrCollectionTool.isEmpty(printedSchemaUpdates)){ return; }
+		if(DrStringTool.isEmpty(drContext.getAdministratorEmail()) || DrStringTool.isEmpty(drContext.getServerName())){ 
 			//note: this can be caused by not calling drContext.activate().  need to fix this startup flaw.
 			logger.warn("please set your datarouter administratorEmail and serverName");
 			return; 
 		}
 		String subject = "SchemaUpdate request from "+drContext.getServerName();
 		StringBuilder body = new StringBuilder();
-		for(String update : IterableTool.nullSafe(printedSchemaUpdates)){
+		for(String update : DrIterableTool.nullSafe(printedSchemaUpdates)){
 			body.append(update + "\n\n");
 		}
 		DatarouterEmailTool.sendEmail("noreply@hotpads.com", drContext.getAdministratorEmail(), subject, 

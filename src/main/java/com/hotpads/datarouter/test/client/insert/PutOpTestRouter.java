@@ -11,7 +11,7 @@ import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.insert.PutOpTestBean.PutOpTestBeanFielder;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 @Singleton
 public class PutOpTestRouter
@@ -42,7 +42,7 @@ extends BaseDatarouter
 
 	@Override
 	public List<ClientId> getClientIds(){
-		return ListTool.create(
+		return DrListTool.create(
 				new ClientId(DRTestConstants.CLIENT_drTestJdbc0, true));
 	}
 

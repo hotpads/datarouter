@@ -6,9 +6,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.base.Preconditions;
-import com.hotpads.datarouter.util.core.BooleanTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.user.session.DatarouterSession;
 
 public class Params{
@@ -31,7 +31,7 @@ public class Params{
 	}
 	
 	public Boolean requiredBoolean(String key){
-		return BooleanTool.isTrue(
+		return DrBooleanTool.isTrue(
 				Preconditions.checkNotNull(request.getParameter(key)));
 	}
 	
@@ -40,7 +40,7 @@ public class Params{
 		if(value==null){ 
 			return defaultValue; 
 		}
-		return BooleanTool.isTrue(value);
+		return DrBooleanTool.isTrue(value);
 	}
 	
 	public Long requiredLong(String key){
@@ -58,7 +58,7 @@ public class Params{
 
 	public Long optionalLongEmptySafe(String key, Long defaultValue){
 		String value = request.getParameter(key);
-		if(StringTool.isNullOrEmptyOrWhitespace(value)){ 
+		if(DrStringTool.isNullOrEmptyOrWhitespace(value)){ 
 			return defaultValue; 
 		}
 		return Long.valueOf(value);
@@ -96,10 +96,10 @@ public class Params{
 	
 	public List<String> optionalList(String key, String delimiter, List<String> defaultValue){
 		String stringVal = request.getParameter(key);
-		if(StringTool.isEmpty(stringVal)){
+		if(DrStringTool.isEmpty(stringVal)){
 			return defaultValue;
 		}
-		return ListTool.nullSafeLinkedAddAll(null, stringVal.split(delimiter));
+		return DrListTool.nullSafeLinkedAddAll(null, stringVal.split(delimiter));
 	}
 	
 	public Integer tryGetInteger(String key, Integer defaultValue) {

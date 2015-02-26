@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.ClientFactory;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.util.core.PropertiesTool;
+import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 
@@ -31,7 +31,7 @@ implements ClientFactory{
 	public MemcachedSimpleClientFactory(DatarouterContext drContext, String clientName){
 		this.clientName = clientName;
 		this.configFilePaths = drContext.getConfigFilePaths();
-		this.multiProperties = PropertiesTool.fromFiles(configFilePaths);
+		this.multiProperties = DrPropertiesTool.fromFiles(configFilePaths);
 		this.options = new MemcachedOptions(multiProperties, clientName);
 	}
 	

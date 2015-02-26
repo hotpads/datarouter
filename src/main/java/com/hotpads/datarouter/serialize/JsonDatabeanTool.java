@@ -24,9 +24,9 @@ import com.hotpads.datarouter.test.node.basic.manyfield.TestEnum;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import com.hotpads.datarouter.test.node.basic.sorted.SortedBeanKey;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class JsonDatabeanTool{
@@ -42,7 +42,7 @@ public class JsonDatabeanTool{
 	public static <PK extends PrimaryKey<PK>>
 	JSONArray primaryKeysToJson(Iterable<PK> pks, Fielder<PK> fielder){
 		JSONArray array = new JSONArray();
-		for(PK pk : IterableTool.nullSafe(pks)){
+		for(PK pk : DrIterableTool.nullSafe(pks)){
 			array.add(addFieldsToJsonObject(new JSONObject(), fielder.getFields(pk)));
 		}
 		return array;
@@ -63,7 +63,7 @@ public class JsonDatabeanTool{
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	JSONArray databeansToJson(Iterable<D> databeans, DatabeanFielder<PK,D> fielder){
 		JSONArray array = new JSONArray();
-		for(D databean : IterableTool.nullSafe(databeans)){
+		for(D databean : DrIterableTool.nullSafe(databeans)){
 			array.add(databeanToJson(databean, fielder));
 		}
 		return array;
@@ -94,7 +94,7 @@ public class JsonDatabeanTool{
 	
 	public static <PK extends PrimaryKey<PK>>
 	List<PK> primaryKeysFromJson(Class<PK> pkClass, Fielder<PK> fielder, JSONArray json){
-		List<PK> pks = ListTool.createArrayList();
+		List<PK> pks = DrListTool.createArrayList();
 		if(json==null){ return pks; }
 		Iterator<?> iter = json.iterator();
 		while(iter.hasNext()){
@@ -146,7 +146,7 @@ public class JsonDatabeanTool{
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	List<D> databeansFromJson(Class<D> databeanClass, DatabeanFielder<PK,D> fielder, JSONArray json){
-		List<D> databeans = ListTool.createArrayList();
+		List<D> databeans = DrListTool.createArrayList();
 		if(json==null){ return databeans; }
 		Iterator<?> iter = json.iterator();
 		while(iter.hasNext()){
@@ -186,7 +186,7 @@ public class JsonDatabeanTool{
 	}
 	
 	private static JSONObject addFieldsToJsonObject(JSONObject jsonObject, List<Field<?>> fields){
-		for(Field<?> f : IterableTool.nullSafe(fields)){
+		for(Field<?> f : DrIterableTool.nullSafe(fields)){
 			jsonObject.element(f.getColumnName(), f.getStringEncodedValue());
 		}
 		return jsonObject;
@@ -234,21 +234,21 @@ public class JsonDatabeanTool{
 			SortedBeanKey key0 = new SortedBeanKey("a", "b", 0, "d");
 			SortedBeanKey key1 = new SortedBeanKey("a", "b", 1, "dasdf");
 			SortedBeanKey key2 = new SortedBeanKey("a", "basdf", 2, "sdsdsd");
-			List<SortedBeanKey> keysIn = ListTool.createArrayList(key0, key1, key2);
+			List<SortedBeanKey> keysIn = DrListTool.createArrayList(key0, key1, key2);
 			JSONArray jsonKeys = primaryKeysToJson(keysIn, sortedBeanFielder.getKeyFielder());
 			System.out.println(jsonKeys);
 			List<SortedBeanKey> keysOut = primaryKeysFromJson(SortedBeanKey.class, sortedBeanFielder.getKeyFielder(), 
 					jsonKeys);
-			Assert.assertEquals(3, CollectionTool.size(keysOut));
+			Assert.assertEquals(3, DrCollectionTool.size(keysOut));
 			Assert.assertArrayEquals(keysIn.toArray(), keysOut.toArray());
 			
 			SortedBean bean0 = new SortedBean(key0, "1", 2L, null, 45.67d);
 			SortedBean bean1 = new SortedBean(key1, "ert", -987654L, "cheesetoast", -45.67d);
-			List<SortedBean> databeansIn = ListTool.createArrayList(bean0, bean1);
+			List<SortedBean> databeansIn = DrListTool.createArrayList(bean0, bean1);
 			JSONArray jsonDatabeans = databeansToJson(databeansIn, sortedBeanFielder);
 			System.out.println(jsonDatabeans);
 			List<SortedBean> databeansOut = databeansFromJson(SortedBean.class, sortedBeanFielder, jsonDatabeans);
-			Assert.assertEquals(2, CollectionTool.size(databeansOut));
+			Assert.assertEquals(2, DrCollectionTool.size(databeansOut));
 			Assert.assertArrayEquals(databeansIn.toArray(), databeansOut.toArray());
 			Assert.assertArrayEquals(keysIn.subList(0,2).toArray(), KeyTool.getKeys(databeansOut).toArray());
 			

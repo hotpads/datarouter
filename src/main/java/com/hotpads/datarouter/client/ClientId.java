@@ -3,9 +3,9 @@ package com.hotpads.datarouter.client;
 import java.util.Collection;
 import java.util.List;
 
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.ComparableTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class ClientId implements Comparable<ClientId>{
 
@@ -44,9 +44,9 @@ public class ClientId implements Comparable<ClientId>{
 	
 	@Override
 	public int compareTo(ClientId other){
-		int c = ComparableTool.nullFirstCompareTo(name, other.name);
+		int c = DrComparableTool.nullFirstCompareTo(name, other.name);
 		if(c!=0) { return c; }
-		return ComparableTool.nullFirstCompareTo(writable, other.writable);
+		return DrComparableTool.nullFirstCompareTo(writable, other.writable);
 	}
 	
 	@Override
@@ -55,16 +55,16 @@ public class ClientId implements Comparable<ClientId>{
 	}
 
 	public static List<String> getNames(Collection<ClientId> ids){
-		List<String> names = ListTool.createArrayListWithSize(ids);
-		for(ClientId id : CollectionTool.nullSafe(ids)){
+		List<String> names = DrListTool.createArrayListWithSize(ids);
+		for(ClientId id : DrCollectionTool.nullSafe(ids)){
 			names.add(id.name);
 		}
 		return names;
 	}
 	
 	public static List<String> getWritableNames(Collection<ClientId> ids){
-		List<String> names = ListTool.createArrayListWithSize(ids);
-		for(ClientId id : CollectionTool.nullSafe(ids)){
+		List<String> names = DrListTool.createArrayListWithSize(ids);
+		for(ClientId id : DrCollectionTool.nullSafe(ids)){
 			if(id.writable){ names.add(id.name); }
 		}
 		return names;

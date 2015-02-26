@@ -7,7 +7,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class BooleanByteTool{
 	
@@ -54,7 +54,7 @@ public class BooleanByteTool{
 	
 	public static List<Boolean> fromBooleanByteArray(final byte[] bytes, final int startIdx){
 		int numBooleans = (bytes.length - startIdx);
-		List<Boolean> bools = ListTool.createArrayList();
+		List<Boolean> bools = DrListTool.createArrayList();
 		byte[] arrayToCopy = new byte[1];
 		for(int i = 0; i < numBooleans; i++){
 			System.arraycopy(bytes,  i + startIdx, arrayToCopy, 0, 1);
@@ -81,7 +81,7 @@ public class BooleanByteTool{
 			boolean two =  false;
 			boolean three = false;
 			
-			List<Boolean> booleans = ListTool.create();
+			List<Boolean> booleans = DrListTool.create();
 			booleans.add(one);
 			booleans.add(null);
 			booleans.add(null);

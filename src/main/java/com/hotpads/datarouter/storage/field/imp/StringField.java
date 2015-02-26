@@ -14,9 +14,9 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.util.core.ArrayTool;
-import com.hotpads.datarouter.util.core.ComparableTool;
-import com.hotpads.datarouter.util.core.RegexTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
+import com.hotpads.datarouter.util.core.DrRegexTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class StringField extends BaseField<String>{
@@ -41,7 +41,7 @@ public class StringField extends BaseField<String>{
 	@Override
 	public int compareTo(Field<String> other){
 		if(other==null){ return -1; }
-		return ComparableTool.nullFirstCompareTo(this.getValue(), other.getValue());
+		return DrComparableTool.nullFirstCompareTo(this.getValue(), other.getValue());
 	}
 	
 	
@@ -77,10 +77,10 @@ public class StringField extends BaseField<String>{
 	public byte[] getBytesWithSeparator(){
 		//TODO someday don't put the separator after the last field, but that would break all currently persisted keys
 		byte[] dataBytes = getBytes();
-		if(ArrayTool.containsUnsorted(dataBytes, SEPARATOR)){
+		if(DrArrayTool.containsUnsorted(dataBytes, SEPARATOR)){
 			throw new IllegalArgumentException("String cannot contain separator byteVal="+SEPARATOR);
 		}
-		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{SEPARATOR}; }
+		if(DrArrayTool.isEmpty(dataBytes)){ return new byte[]{SEPARATOR}; }
 		byte[] allBytes = new byte[dataBytes.length+1];
 		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
 		allBytes[allBytes.length-1] = SEPARATOR;//Ascii "null" will compare first in lexicographical bytes comparison
@@ -152,10 +152,10 @@ public class StringField extends BaseField<String>{
 		}
 		String stringValue = s;
 		//replace \ with \\
-		stringValue = RegexTool.BACKSLASH_PATTERN.matcher(stringValue)
+		stringValue = DrRegexTool.BACKSLASH_PATTERN.matcher(stringValue)
 						.replaceAll(Matcher.quoteReplacement("\\\\"));
 		//replace ' with \'
-		stringValue = RegexTool.APOSTROPHE_PATTERN.matcher(stringValue)
+		stringValue = DrRegexTool.APOSTROPHE_PATTERN.matcher(stringValue)
 						.replaceAll(Matcher.quoteReplacement("\\'"));
 		return "'" + stringValue + "'";
 	}

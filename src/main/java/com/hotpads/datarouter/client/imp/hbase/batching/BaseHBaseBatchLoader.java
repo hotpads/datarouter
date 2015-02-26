@@ -13,8 +13,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.ByteTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchLoader;
@@ -75,7 +75,7 @@ extends BaseBatchLoader<T>{
 		//do the RPC
 		List<Result> hBaseRows = node.getResultsInSubRange(byteRange, isKeysOnly(), config);
 		
-		List<T> outs = ListTool.createArrayListWithSize(hBaseRows);
+		List<T> outs = DrListTool.createArrayListWithSize(hBaseRows);
 		for(Result row : hBaseRows){
 			if(row==null || row.isEmpty()){ continue; }
 			if(differentScatteringPrefix(row)){ break; }//we ran into the next scattering prefix partition
@@ -103,7 +103,7 @@ extends BaseBatchLoader<T>{
 	//TODO same as PrimaryKeyBatchLoader.differentScatteringPrefix
 	protected boolean differentScatteringPrefix(Result row){
 		if(scatteringPrefixBytes==null || row==null){ return false; }
-		return ! ByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length, 
+		return ! DrByteTool.equals(scatteringPrefixBytes, 0, scatteringPrefixBytes.length, 
 				row.getRow(), 0, scatteringPrefixBytes.length);
 	}
 }

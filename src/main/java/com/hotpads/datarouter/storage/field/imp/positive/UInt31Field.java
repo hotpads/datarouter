@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
-import com.hotpads.datarouter.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.number.RandomTool;
 
@@ -43,7 +43,7 @@ public class UInt31Field extends BasePrimitiveField<Integer>{
 	
 	@Override
 	public Integer parseStringEncodedValueButDoNotSet(String s){
-		if(StringTool.isEmpty(s) || s.equals("null")){ return null; }
+		if(DrStringTool.isEmpty(s) || s.equals("null")){ return null; }
 		return Integer.valueOf(s);
 	}
 	

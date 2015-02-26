@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
-import com.hotpads.datarouter.util.core.ExceptionTool;
+import com.hotpads.datarouter.util.core.DrExceptionTool;
 
 /**
  * Examples 4.4 through 4.6.
@@ -56,7 +56,7 @@ public class TerminalMonitor {
     try {
       driver = DriverManager.getDriver(url);
     } catch (SQLException e) {
-      System.err.println(ExceptionTool.getStackTraceAsString(e));
+      System.err.println(DrExceptionTool.getStackTraceAsString(e));
       System.err.println("Unable to find a driver for the specified "
           + "URL.");
       System.err.println("Make sure you passed the jdbc.drivers "
@@ -67,7 +67,7 @@ public class TerminalMonitor {
     try {
       required = driver.getPropertyInfo(url, props);
     } catch (SQLException e) {
-      System.err.println(ExceptionTool.getStackTraceAsString(e));
+      System.err.println(DrExceptionTool.getStackTraceAsString(e));
       System.err.println("Unable to get driver property information.");
       return;
     }
@@ -91,7 +91,7 @@ public class TerminalMonitor {
         }
       }
     } catch (IOException e) {
-      System.err.println(ExceptionTool.getStackTraceAsString(e));
+      System.err.println(DrExceptionTool.getStackTraceAsString(e));
       System.err.println("Unable to read property info.");
       return;
     }
@@ -99,7 +99,7 @@ public class TerminalMonitor {
     try {
       connection = DriverManager.getConnection(url, props);
     } catch (SQLException e) {
-      System.err.println(ExceptionTool.getStackTraceAsString(e));
+      System.err.println(DrExceptionTool.getStackTraceAsString(e));
       System.err.println("Unable to connect to the database.");
     }
     connected = true;
@@ -119,7 +119,7 @@ public class TerminalMonitor {
       try {
         tmp = input.readLine();
       } catch (java.io.IOException e) {
-        System.err.println(ExceptionTool.getStackTraceAsString(e));
+        System.err.println(DrExceptionTool.getStackTraceAsString(e));
         return;
       }
       // Get rid of extra space in the command

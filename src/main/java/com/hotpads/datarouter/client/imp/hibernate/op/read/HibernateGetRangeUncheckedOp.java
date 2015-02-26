@@ -18,9 +18,9 @@ import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.CollectionTool;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 
 //TODO this is the jdbc implementation, so extend or abstract it
@@ -62,8 +62,8 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 		CriteriaTool.addRangesToCriteria(criteria, range, node.getFieldInfo());
 		if(keysOnly){
 			List<Object[]> rows = criteria.list();
-			List<PK> result = ListTool.createArrayList(CollectionTool.size(rows));
-			for(Object row : IterableTool.nullSafe(rows)){
+			List<PK> result = DrListTool.createArrayList(DrCollectionTool.size(rows));
+			for(Object row : DrIterableTool.nullSafe(rows)){
 				// hibernate will return a plain Object if it's a single col PK
 				Object[] rowCells;
 				if(row instanceof Object[]){
@@ -76,12 +76,12 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 						rowCells));
 			}
 			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					CollectionTool.size(result));
+					DrCollectionTool.size(result));
 			return result;
 		}else{
 			List<? extends FieldSet<?>> result = (List<? extends FieldSet<?>>)criteria.list();
 			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					CollectionTool.size(result));
+					DrCollectionTool.size(result));
 			return result;
 		}
 	}

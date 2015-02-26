@@ -9,7 +9,7 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.key.entity.base.BaseEntityKey;
 import com.hotpads.datarouter.storage.key.entity.base.BaseEntityPartitioner;
 import com.hotpads.datarouter.storage.key.entity.base.NoOpEntityPartitioner;
-import com.hotpads.datarouter.util.core.HashMethods;
+import com.hotpads.datarouter.util.core.DrHashMethods;
 
 @SuppressWarnings("serial")
 public class SortedBeanEntityKey 
@@ -47,7 +47,7 @@ extends BaseEntityKey<SortedBeanEntityKey>{
 		@Override
 		public int getPartition(SortedBeanEntityKey ek){
 			String hashInput = ek.a + ek.b;
-			long hash = HashMethods.longDJBHash(hashInput) % getNumPartitions();
+			long hash = DrHashMethods.longDJBHash(hashInput) % getNumPartitions();
 			return (int)(hash % getNumPartitions());
 		}
 	}

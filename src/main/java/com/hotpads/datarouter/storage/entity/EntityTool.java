@@ -6,21 +6,21 @@ import java.util.NavigableMap;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.datarouter.util.core.IterableTool;
-import com.hotpads.datarouter.util.core.ListTool;
-import com.hotpads.datarouter.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class EntityTool{
 	
 	public static <EK extends EntityKey<EK>,
 		PK extends EntityPrimaryKey<EK,PK>>
 	NavigableMap<EK,List<PK>> getPrimaryKeysByEntityKey(Iterable<PK> pks){
-		NavigableMap<EK,List<PK>> pksByEntityKey = MapTool.createTreeMap();
-		for(PK pk : IterableTool.nullSafe(pks)){
+		NavigableMap<EK,List<PK>> pksByEntityKey = DrMapTool.createTreeMap();
+		for(PK pk : DrIterableTool.nullSafe(pks)){
 			EK ek = pk.getEntityKey();
 			List<PK> pksForEntity = pksByEntityKey.get(ek);
 			if(pksForEntity==null){
-				pksForEntity = ListTool.createArrayList();
+				pksForEntity = DrListTool.createArrayList();
 				pksByEntityKey.put(ek, pksForEntity);
 			}
 			pksForEntity.add(pk);
@@ -32,14 +32,14 @@ public class EntityTool{
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>>
 	NavigableMap<EK,List<D>> getDatabeansByEntityKey(Iterable<D> databeans){
-		NavigableMap<EK,List<D>> databeansByEntityKey = MapTool.createTreeMap();
-		for(D databean : IterableTool.nullSafe(databeans)){
+		NavigableMap<EK,List<D>> databeansByEntityKey = DrMapTool.createTreeMap();
+		for(D databean : DrIterableTool.nullSafe(databeans)){
 			if(databean==null){ continue; }//seem to be getting some null entries from TraceFlushController?
 			PK pk = databean.getKey();//leave on individual line for NPE trace
 			EK ek = pk.getEntityKey();
 			List<D> databeansForEntity = databeansByEntityKey.get(ek);
 			if(databeansForEntity==null){
-				databeansForEntity = ListTool.createArrayList();
+				databeansForEntity = DrListTool.createArrayList();
 				databeansByEntityKey.put(ek, databeansForEntity);
 			}
 			databeansForEntity.add(databean);

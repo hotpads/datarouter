@@ -13,7 +13,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class HibernatePutOp<
 		PK extends PrimaryKey<PK>,
@@ -41,10 +41,10 @@ extends BaseHibernateOp<Void>{
 	public Void runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		DRCounters.incSuffixClientNode(node.getClient().getType(), "rows put", node.getClientName(), node.getName(), 
-				CollectionTool.size(databeans));
+				DrCollectionTool.size(databeans));
 		Session session = getSession(node.getClientName());
 		final String entityName = node.getPackagedTableName();
-		for(D databean : CollectionTool.nullSafe(databeans)){
+		for(D databean : DrCollectionTool.nullSafe(databeans)){
 			hibernatePutUsingMethod(session, entityName, databean, config, DEFAULT_PUT_METHOD);
 		}
 		return null;
@@ -63,7 +63,7 @@ extends BaseHibernateOp<Void>{
 	 * mirror of of above "putUsingMethod"
 	 */
 	private static boolean shouldAutoCommit(Collection<? extends Databean<?,?>> databeans, final Config config){
-		if(CollectionTool.size(databeans) > 1){ return false; }
+		if(DrCollectionTool.size(databeans) > 1){ return false; }
 		PutMethod putMethod = DEFAULT_PUT_METHOD;
 		if(config!=null && config.getPutMethod()!=null){
 			putMethod = config.getPutMethod();

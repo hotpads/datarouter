@@ -20,7 +20,7 @@ import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.JsonMav;
@@ -75,12 +75,12 @@ implements MapStorageReaderHttpNode<PK,D>{
 	
 	private void authenticate(){
 		String drUsername = params.required(ApacheHttpClient.PARAMS_DR_USERNAME);
-		if(ObjectTool.notEquals(ApacheHttpClient.DR_USERNAME, drUsername)){
+		if(DrObjectTool.notEquals(ApacheHttpClient.DR_USERNAME, drUsername)){
 			throw new IllegalArgumentException("invalid username:"+drUsername);
 		}
 		
 		String drPassword = params.required(ApacheHttpClient.PARAMS_DR_PASSWORD);
-		if(ObjectTool.notEquals(ApacheHttpClient.DR_PASSWORD, drPassword)){
+		if(DrObjectTool.notEquals(ApacheHttpClient.DR_PASSWORD, drPassword)){
 			throw new IllegalArgumentException("invalid password:"+drPassword);
 		}
 		
@@ -89,7 +89,7 @@ implements MapStorageReaderHttpNode<PK,D>{
 			String signature = params.required(ApacheHttpClient.PARAMS_SIGNATURE);
 			Map<String,String> requestParams = RequestTool.getMapOfParameters(params.getRequest());
 			String expectedSignature = ApacheHttpClient.generateSignature(uri, requestParams, ApacheHttpClient.AUTH_SECRET);
-			if(ObjectTool.notEquals(expectedSignature, signature)){
+			if(DrObjectTool.notEquals(expectedSignature, signature)){
 				throw new IllegalArgumentException("expected signature "+expectedSignature+" but received "+signature);
 			}
 		}
