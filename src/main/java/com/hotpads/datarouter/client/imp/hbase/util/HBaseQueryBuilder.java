@@ -10,10 +10,10 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.util.core.BooleanTool;
-import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
@@ -65,14 +65,14 @@ public class HBaseQueryBuilder{
 		if(range.hasStart()){
 			start = range.getStart().toArray();
 			if( ! range.getStartInclusive()){
-				start = ByteTool.unsignedIncrement(start); 
+				start = DrByteTool.unsignedIncrement(start); 
 			}
 		}
 		byte[] end = null;
 		if(range.hasEnd()){
 			end = range.getEnd().toArray();
 			if(range.getEndInclusive()){
-				end = ByteTool.unsignedIncrement(end);
+				end = DrByteTool.unsignedIncrement(end);
 			}
 		}
 		
@@ -87,7 +87,7 @@ public class HBaseQueryBuilder{
 			scan = new Scan();//whole table
 		}
 		scan.setCaching(getIterateBatchSize(config));
-		scan.setCacheBlocks(BooleanTool.isTrue(config.getScannerCaching()));
+		scan.setCacheBlocks(DrBooleanTool.isTrue(config.getScannerCaching()));
 		return scan;
 	}
 
@@ -121,7 +121,7 @@ public class HBaseQueryBuilder{
 		int numNonNullFields = FieldTool.countNonNullLeadingFields(prefix);
 		byte[][] fieldBytes = new byte[numNonNullFields][];
 		int numFullFieldsFinished = 0;
-		for(Field<?> field : CollectionTool.nullSafe(prefix)){
+		for(Field<?> field : DrCollectionTool.nullSafe(prefix)){
 			if(numFullFieldsFinished >= numNonNullFields){ break; }
 			if(field.getValue()==null) {
 				throw new DataAccessException("Prefix query cannot contain intermediate nulls.");
@@ -136,8 +136,8 @@ public class HBaseQueryBuilder{
 			++numFullFieldsFinished;
 			
 		}
-		byte[] startBytes = ByteTool.concatenate(fieldBytes);
-		byte[] endBytes = ByteTool.unsignedIncrementOverflowToNull(startBytes);
+		byte[] startBytes = DrByteTool.concatenate(fieldBytes);
+		byte[] endBytes = DrByteTool.unsignedIncrementOverflowToNull(startBytes);
 		ByteRange startByteRange = startBytes==null ? null : new ByteRange(startBytes);
 		ByteRange endByteRange = endBytes==null ? null : new ByteRange(endBytes);
 		return new Twin<ByteRange>(startByteRange, endByteRange);
@@ -152,17 +152,17 @@ public class HBaseQueryBuilder{
 	}
 	
 	protected static byte[] getGreaterOrNull(byte[] a, byte[] b){
-		int numNulls = ObjectTool.numNulls(a, b);
+		int numNulls = DrObjectTool.numNulls(a, b);
 		if(numNulls==2){ return null; }
 		if(numNulls==1){ return a==null?b:a; }
-		return ByteTool.bitwiseCompare(a, b)>0?a:b;
+		return DrByteTool.bitwiseCompare(a, b)>0?a:b;
 	}
 	
 	protected static byte[] getLesserOrNull(byte[] a, byte[] b){
-		int numNulls = ObjectTool.numNulls(a, b);
+		int numNulls = DrObjectTool.numNulls(a, b);
 		if(numNulls==2){ return null; }
 		if(numNulls==1){ return a==null?b:a; }
-		return ByteTool.bitwiseCompare(a, b)<0?a:b;
+		return DrByteTool.bitwiseCompare(a, b)<0?a:b;
 	}
 	
 	

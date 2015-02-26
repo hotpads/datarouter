@@ -13,8 +13,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseListField;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
@@ -105,7 +105,7 @@ public class DelimitedStringArrayField extends BaseListField<String, List<String
 	/********************* methods ***********************/
 	
 	private static String encode(List<String> inputs, String separator){
-		if(CollectionTool.isEmpty(inputs)){ return null; }
+		if(DrCollectionTool.isEmpty(inputs)){ return null; }
 		for(String input : inputs){
 			if(input==null){ throw new IllegalArgumentException("nulls not supported"); }
 			if(input.contains(separator)){ throw new IllegalArgumentException("strings cannot contain separator"); }
@@ -115,7 +115,7 @@ public class DelimitedStringArrayField extends BaseListField<String, List<String
 	
 	private static List<String> decode(String input, String separator){
 		if(input==null){ return null; }
-		return ListTool.create(input.split(separator));
+		return DrListTool.create(input.split(separator));
 	}
 	
 	/********************* tests ************************/
@@ -123,7 +123,7 @@ public class DelimitedStringArrayField extends BaseListField<String, List<String
 	public static class Tests{
 		@Test
 		public void testRoundTrip(){
-			List<String> inputs = ListTool.createArrayList("abc", "xyz", "def");
+			List<String> inputs = DrListTool.createArrayList("abc", "xyz", "def");
 			String encoded = encode(inputs, ",");
 			Assert.assertEquals("abc,xyz,def", encoded);
 			List<String> decoded = decode(encoded, ",");

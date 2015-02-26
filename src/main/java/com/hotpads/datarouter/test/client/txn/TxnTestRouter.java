@@ -12,7 +12,7 @@ import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.client.txn.TxnBean.TxnBeanFielder;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 @Singleton
 public class TxnTestRouter
@@ -43,7 +43,7 @@ extends BaseDatarouter
 
 	@Override
 	public List<ClientId> getClientIds(){
-		return ListTool.create(
+		return DrListTool.create(
 				new ClientId(DRTestConstants.CLIENT_drTestJdbc0, true),
 				new ClientId(DRTestConstants.CLIENT_drTestHibernate0, true));
 	}

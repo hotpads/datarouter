@@ -20,9 +20,9 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -65,21 +65,21 @@ public class HBaseSubEntityResultParser<
 	/****************** parse multiple hbase rows ********************/
 
 	public List<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result[] rows){
-		List<PK> results = ListTool.createArrayList();
+		List<PK> results = DrListTool.createArrayList();
 		for(Result row : rows){
 			if(row.isEmpty()){ continue; }
 			NavigableSet<PK> pksFromSingleGet = getPrimaryKeysWithMatchingQualifierPrefix(row);
-			results.addAll(CollectionTool.nullSafe(pksFromSingleGet));
+			results.addAll(DrCollectionTool.nullSafe(pksFromSingleGet));
 		}
 		return results;
 	}
 
 	public List<D> getDatabeansWithMatchingQualifierPrefix(Result[] rows){
-		List<D> results = ListTool.createArrayList();
+		List<D> results = DrListTool.createArrayList();
 		for(Result row : rows){
 			if(row.isEmpty()){ continue; }
 			List<D> databeansFromSingleGet = getDatabeansWithMatchingQualifierPrefix(row);
-			results.addAll(CollectionTool.nullSafe(databeansFromSingleGet));
+			results.addAll(DrCollectionTool.nullSafe(databeansFromSingleGet));
 		}
 		return results;
 	}
@@ -90,7 +90,7 @@ public class HBaseSubEntityResultParser<
 	public NavigableSet<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row){
 		if(row==null){ return new TreeSet<>(); }
 		NavigableSet<PK> pks = new TreeSet<>();//unfortunately, we expect a bunch of duplicate PK's, so throw them in a set
-		for(KeyValue kv : IterableTool.nullSafe(row.list())){//row.list() can return null
+		for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
 			if(!matchesNodePrefix(kv)){ continue; }
 			Pair<PK,String> pkAndFieldName = parsePrimaryKeyAndFieldName(kv);
 			PK pk = pkAndFieldName.getLeft();
@@ -100,13 +100,13 @@ public class HBaseSubEntityResultParser<
 	}
 		
 	public List<D> getDatabeansWithMatchingQualifierPrefix(Result row){
-		if(row==null){ return ListTool.createLinkedList(); }
+		if(row==null){ return DrListTool.createLinkedList(); }
 		Map<PK,D> databeanByKey = new TreeMap<>();
-		for(KeyValue kv : IterableTool.nullSafe(row.list())){//row.list() can return null
+		for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
 			if(!matchesNodePrefix(kv)){ continue; }
 			addKeyValueToResultsUnchecked(databeanByKey, kv);
 		}
-		return ListTool.createArrayList(databeanByKey.values());
+		return DrListTool.createArrayList(databeanByKey.values());
 	}	
 	
 	

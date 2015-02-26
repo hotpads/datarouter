@@ -16,13 +16,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Injector;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.guice.DatarouterExecutorGuiceModule;
 import com.hotpads.job.record.JobExecutionStatus;
 import com.hotpads.job.record.LongRunningTask;
 import com.hotpads.job.record.LongRunningTaskKey;
 import com.hotpads.setting.Setting;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.ObjectTool;
 
 @Singleton
 public class JobScheduler {
@@ -79,7 +79,7 @@ public class JobScheduler {
 	}
 	
 	private Map<String, Date> loadJobsLastCompletionFromLongRunningTasks(){
-		Map<String, Date> jobsLastCompletion = MapTool.create();
+		Map<String, Date> jobsLastCompletion = DrMapTool.create();
 		for(LongRunningTask task : longRunningTaskNode.scan(null, null)){
 			if(task.getJobExecutionStatus() == JobExecutionStatus.success){
 				jobsLastCompletion.put(task.getKey().getJobClass(), task.getFinishTime());
@@ -102,7 +102,7 @@ public class JobScheduler {
 		}
 		String defaultCronExpression = sampleJob.getDefaultTrigger().getCronExpression();
 		String thisCronExpression = sampleJob.getTrigger().getCronExpression();
-		boolean isCustom = ObjectTool.notEquals(defaultCronExpression, thisCronExpression);
+		boolean isCustom = DrObjectTool.notEquals(defaultCronExpression, thisCronExpression);
 		tracker.get(jobClass).setCustom(isCustom);
 //		logger.warn("created "+jobClass.getSimpleName()+" "+System.identityHashCode(sampleJob));
 		return sampleJob;

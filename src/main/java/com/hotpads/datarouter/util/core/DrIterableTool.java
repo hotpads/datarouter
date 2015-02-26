@@ -1,11 +1,11 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-public class IterableTool {
+public class DrIterableTool {
 
 	public static <T> Iterable<T> nullSafe(Iterable<T> in){
 		if(in==null){ return new ArrayList<T>(); }
@@ -39,7 +39,7 @@ public class IterableTool {
 	}
 	
 	public static <T> ArrayList<T> createArrayListFromIterable(Iterable<T> ins, int limit){
-		ArrayList<T> outs = ListTool.createArrayList();
+		ArrayList<T> outs = DrListTool.createArrayList();
 		int numAdded = 0;
 		for(T in : nullSafe(ins)){
 			outs.add(in);

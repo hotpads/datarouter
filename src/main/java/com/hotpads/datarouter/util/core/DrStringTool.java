@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class StringTool{
+public class DrStringTool{
 
 
 	public static boolean notEmpty(String input){
@@ -48,13 +48,13 @@ public class StringTool{
 	}
 
 	public static boolean equalsCaseInsensitive(String a, String b){
-		if(ObjectTool.bothNull(a, b)){ return true; }
-		if(ObjectTool.isOneNullButNotTheOther(a, b)){ return false; }
+		if(DrObjectTool.bothNull(a, b)){ return true; }
+		if(DrObjectTool.isOneNullButNotTheOther(a, b)){ return false; }
 		return a.toLowerCase().equals(b.toLowerCase());
 	}
 
 	public static boolean equalsCaseInsensitiveButNotCaseSensitive(String a, String b){
-		return !ObjectTool.nullSafeEquals(a, b) && equalsCaseInsensitive(a, b);
+		return !DrObjectTool.nullSafeEquals(a, b) && equalsCaseInsensitive(a, b);
 	}
 
 	public static boolean containsCharactersBesidesWhitespace(String in){
@@ -65,16 +65,16 @@ public class StringTool{
 	}
 
 	public static ArrayList<String> splitOnCharNoRegex(String input, char c){
-		if(isEmpty(input)){ return ListTool.createArrayList(input); }
-		List<Integer> indexesOfChar = ListTool.createArrayList();
+		if(isEmpty(input)){ return DrListTool.createArrayList(input); }
+		List<Integer> indexesOfChar = DrListTool.createArrayList();
 		for(int i = 0; i < input.length(); ++i){
 			if(input.charAt(i) == c){
 				indexesOfChar.add(i);
 			}
 		}
-		if(indexesOfChar.size() == 0){ return ListTool.createArrayList(input); }
+		if(indexesOfChar.size() == 0){ return DrListTool.createArrayList(input); }
 		indexesOfChar.add(input.length());
-		ArrayList<String> result = ListTool.createArrayList();
+		ArrayList<String> result = DrListTool.createArrayList();
 		for(int i = 0; i < indexesOfChar.size(); ++i){
 			int startIndex;
 			if(i == 0){
@@ -140,8 +140,8 @@ public class StringTool{
 	}
 
 	public static String concatenate(Collection<? extends Object> objects, String delimiter){
-		if(CollectionTool.isEmpty(objects)){ return null; }
-		if(objects.size() == 1){ return CollectionTool.getFirst(objects).toString(); }
+		if(DrCollectionTool.isEmpty(objects)){ return null; }
+		if(objects.size() == 1){ return DrCollectionTool.getFirst(objects).toString(); }
 		StringBuilder sb = new StringBuilder();
 		boolean didFirst = false;
 		for(Object o : objects){
@@ -191,7 +191,7 @@ public class StringTool{
 	}
 
 	public static String replaceCharactersInRange(final String input, int bottom, int top, char replacement){
-		String range = RegexTool.makeCharacterClassFromRange(bottom, top, true);
+		String range = DrRegexTool.makeCharacterClassFromRange(bottom, top, true);
 		return input.replaceAll(range, "" + replacement);
 	}
 
@@ -280,7 +280,7 @@ public class StringTool{
 	}
 
 	public static boolean containsOnlyNumbers(String data){
-		return !StringTool.isEmpty(data) && !StringTool.containsCharactersOutsideRange(data, 48, 57);
+		return !DrStringTool.isEmpty(data) && !DrStringTool.containsCharactersOutsideRange(data, 48, 57);
 	}
 
 	public static String getStringAfterLastOccurrence(char c, String sourceString){
@@ -360,7 +360,7 @@ public class StringTool{
 			String b = "dawGy";
 			String c = "dawGy";
 			Assert.assertTrue(equalsCaseInsensitive(a, b));
-			Assert.assertTrue(!ObjectTool.nullSafeEquals(a, b));
+			Assert.assertTrue(!DrObjectTool.nullSafeEquals(a, b));
 			Assert.assertTrue(equalsCaseInsensitiveButNotCaseSensitive(a, b));
 			Assert.assertTrue(!equalsCaseInsensitiveButNotCaseSensitive(b, c));
 		}

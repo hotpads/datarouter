@@ -6,8 +6,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class DoubleByteTool{
 	
@@ -45,7 +45,7 @@ public class DoubleByteTool{
 	
 	public static List<Double> fromDoubleByteArray(final byte[] bytes, final int startIdx){
 		int numDoubles = (bytes.length - startIdx)/8;
-		List<Double> doubles = ListTool.createArrayList();
+		List<Double> doubles = DrListTool.createArrayList();
 		byte[] arrayToCopy = new byte[8];
 		for(int i = 0; i < numDoubles; i++){
 			System.arraycopy(bytes, i * 8 + startIdx, arrayToCopy, 0, 8);
@@ -76,7 +76,7 @@ public class DoubleByteTool{
 			double bback = fromBytes(bbytes, 0);
 			Assert.assertTrue(b==bback);
 			
-			Assert.assertTrue(ByteTool.bitwiseCompare(abytes, bbytes) < 0);//positives and negatives are reversed
+			Assert.assertTrue(DrByteTool.bitwiseCompare(abytes, bbytes) < 0);//positives and negatives are reversed
 		}
 		
 		@Test
@@ -86,7 +86,7 @@ public class DoubleByteTool{
 			double three = 5;
 			double four = -.0000001;
 			
-			List<Double> doubles = ListTool.create();
+			List<Double> doubles = DrListTool.create();
 			doubles.add(one);
 			doubles.add(two);
 			doubles.add(null);

@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,8 +8,8 @@ import org.apache.logging.log4j.core.impl.ThrowableProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExceptionTool {
-	private static final Logger log = LoggerFactory.getLogger(ExceptionTool.class);
+public class DrExceptionTool {
+	private static final Logger log = LoggerFactory.getLogger(DrExceptionTool.class);
 
 	/**
 	 * This should NOT be used for logging. Instead of this use
@@ -34,7 +34,7 @@ public class ExceptionTool {
 	}
 	
 	public static String getColorized(String stackTrace) {
-		stackTrace = XMLStringTool.escapeXml(stackTrace);
+		stackTrace = DrXMLStringTool.escapeXml(stackTrace);
 		String highlightOpener = "<span style='color:red;font-weight:bold;font-size:1.5em;'>";
 		String highlightCloser = "</span>";
 		return stackTrace.replace("hotpads", highlightOpener + "hotpads" + highlightCloser);

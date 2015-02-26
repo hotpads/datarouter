@@ -20,10 +20,10 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class JdbcTool {
 	
@@ -64,7 +64,7 @@ public class JdbcTool {
 		try {
 			statement = connection.createStatement();
 //			ResultSet resultSet = statement.executeQuery("show tables");
-			List<String> tableNames = ListTool.createArrayList();
+			List<String> tableNames = DrListTool.createArrayList();
 //			while(resultSet.next()){
 //				tableNames.add(resultSet.getString(0));
 //			}
@@ -90,7 +90,7 @@ public class JdbcTool {
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
-			List<PK> primaryKeys = ListTool.createArrayList();
+			List<PK> primaryKeys = DrListTool.createArrayList();
 			while(rs.next()){
 				PK primaryKey = (PK)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rs, true);
@@ -109,7 +109,7 @@ public class JdbcTool {
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
-			List<D> databeans = ListTool.createArrayList();
+			List<D> databeans = DrListTool.createArrayList();
 			while(rs.next()){
 				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
@@ -128,7 +128,7 @@ public class JdbcTool {
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
-			List<PKLookup> lookups = ListTool.createArrayList();
+			List<PKLookup> lookups = DrListTool.createArrayList();
 			while(rs.next()){
 				PKLookup lookup = (PKLookup) FieldSetTool.lookupFromJdbcResultSetUsingReflection(lookupClass,
 						selectedFields, rs, keyClass);
@@ -151,7 +151,7 @@ public class JdbcTool {
 			}
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
-			List<D> databeans = ListTool.createArrayList();
+			List<D> databeans = DrListTool.createArrayList();
 			while(rs.next()){
 				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
@@ -199,11 +199,11 @@ public class JdbcTool {
 	}
 	
 	public static int updateAndInsertIfMissing(Connection conn, List<String> updates, List<String> inserts){
-		if(CollectionTool.isEmpty(updates)){ return 0; }
-		if(CollectionTool.differentSize(updates, inserts)){ throw new IllegalArgumentException("updates vs inserts size mismatch"); }
+		if(DrCollectionTool.isEmpty(updates)){ return 0; }
+		if(DrCollectionTool.differentSize(updates, inserts)){ throw new IllegalArgumentException("updates vs inserts size mismatch"); }
 		
 		int[] updateSuccessFlags = bulkUpdate(conn, updates);
-		List<String> neededInserts = ListTool.createLinkedList();
+		List<String> neededInserts = DrListTool.createLinkedList();
 		int index = -1;
 		for(String insert : inserts){
 			++index;
@@ -216,14 +216,14 @@ public class JdbcTool {
 	}
 
 	public static int[] bulkUpdate(Connection conn, List<String> sql){
-		if(conn==null || CollectionTool.isEmpty(sql)){ return new int[]{}; }
+		if(conn==null || DrCollectionTool.isEmpty(sql)){ return new int[]{}; }
 		return bulkUpdate(conn, sql.toArray(new String[sql.size()]));
 	}
 	
 	public static int[] bulkUpdate(Connection conn, String[] sql){
 		try{
-			if(conn==null || ArrayTool.isEmpty(sql)){ return new int[]{}; }
-			int numStatements = ArrayTool.nullSafeLength(sql);
+			if(conn==null || DrArrayTool.isEmpty(sql)){ return new int[]{}; }
+			int numStatements = DrArrayTool.nullSafeLength(sql);
 			if(numStatements < 1){ return null; }
 			PreparedStatement stmt = conn.prepareStatement(sql[0]);
 			stmt.addBatch();

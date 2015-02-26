@@ -8,8 +8,8 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.NumberFormatter;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
 
 
 
@@ -87,21 +87,21 @@ public class PhaseTimer {
 	
 	public String toString(String delimiter,int showPhasesAtLeastThisMsLong){
 		StringBuilder sb = new StringBuilder();
-		sb.append("[total:"+NumberFormatter.addCommas(
+		sb.append("[total:"+DrNumberFormatter.addCommas(
 				getElapsedTimeBetweenFirstAndLastEvent())+"ms]");
 		if (name != null){ sb.append("<" + name + ">"); }
 		for(int i=0; i < phaseNames.size(); ++i){
 			if(phaseTimes.get(i) < showPhasesAtLeastThisMsLong) continue;
 			sb.append(delimiter+
 					"["+phaseNames.get(i)+":"+
-					NumberFormatter.addCommas(phaseTimes.get(i))+"ms]");
+					DrNumberFormatter.addCommas(phaseTimes.get(i))+"ms]");
 		}
 		return sb.toString();
 	}
 	
 	public Long getElapsedTimeBetweenFirstAndLastEvent(){
 		if(phaseTimes.size() > 0){
-			return CollectionTool.getSumOfLongs(phaseTimes);
+			return DrCollectionTool.getSumOfLongs(phaseTimes);
 		}
 		else{
 			return 0L;

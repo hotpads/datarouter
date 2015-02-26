@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,7 +10,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 
-public class ComparableTool {
+public class DrComparableTool {
 
 	public static boolean lt(Comparable a, Comparable b){
 		int diff = nullFirstCompareTo(a, b);
@@ -62,8 +62,8 @@ public class ComparableTool {
 	
 	//smallest
 	public static <T extends Comparable<T>> T getFirst(Collection<T> c){
-		if(CollectionTool.isEmpty(c)){ return null; }
-		T first = CollectionTool.getFirst(c);
+		if(DrCollectionTool.isEmpty(c)){ return null; }
+		T first = DrCollectionTool.getFirst(c);
 		for(T i : c){
 			if(i.compareTo(first) < 0){
 				first = i;
@@ -74,8 +74,8 @@ public class ComparableTool {
 	
 	//biggest
 	public static  <T extends Comparable<T>> T getLast(Collection<T> c){
-		if(CollectionTool.isEmpty(c)){ return null; }
-		T last = CollectionTool.getFirst(c);
+		if(DrCollectionTool.isEmpty(c)){ return null; }
+		T last = DrCollectionTool.getFirst(c);
 		for(T i : c){
 			if(i.compareTo(last) > 0){
 				last = i;
@@ -131,9 +131,9 @@ public class ComparableTool {
 		@Test public void testIsSorted(){
 			Assert.assertTrue(isSorted(null));
 			Assert.assertTrue(isSorted(new ArrayList<Integer>()));
-			List<Integer> a = ListTool.create(1,2,3,4);
+			List<Integer> a = DrListTool.create(1,2,3,4);
 			Assert.assertTrue(isSorted(a));
-			List<Integer> b = ListTool.create(1,2,55,4);
+			List<Integer> b = DrListTool.create(1,2,55,4);
 			Assert.assertFalse(isSorted(b));
 			
 		}

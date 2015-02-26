@@ -13,8 +13,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -39,7 +39,7 @@ public class HBaseEntityResultParser<
 		entity.setKey(ek);
 		Map<String,Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>>> databeansByQualifierPrefix
 				= getDatabeansByQualifierPrefix(row);
-		for(String qualifierPrefix : MapTool.nullSafe(databeansByQualifierPrefix).keySet()){
+		for(String qualifierPrefix : DrMapTool.nullSafe(databeansByQualifierPrefix).keySet()){
 			Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>> databeanByPk = databeansByQualifierPrefix.get(
 					qualifierPrefix);
 			HBaseSubEntityReaderNode<EK,E,?,?,?> subNode = nodeByQualifierPrefix.get(qualifierPrefix);
@@ -54,7 +54,7 @@ public class HBaseEntityResultParser<
 		if(row==null){ return new HashMap<>(); }
 		Map<String,Map<? extends EntityPrimaryKey<EK,?>,? extends Databean<?,?>>> databeanByPkByQualifierPrefix
 				= new HashMap<>();
-		for(KeyValue kv : IterableTool.nullSafe(row.list())){//row.list() can return null
+		for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
 			if(kv==null){ continue; }
 			String qualifierPrefix = getQualifierPrefix(kv);
 			HBaseSubEntityReaderNode<EK,E,?,?,?> subNode = nodeByQualifierPrefix.get(qualifierPrefix);

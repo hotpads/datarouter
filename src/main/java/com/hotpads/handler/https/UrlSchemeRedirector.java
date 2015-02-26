@@ -13,9 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.port.PortIdentifier;
 import com.hotpads.handler.port.PortIdentifier.TestPortIdentifier;
-import com.hotpads.util.core.StringTool;
 
 @Singleton
 public class UrlSchemeRedirector{
@@ -48,11 +48,11 @@ public class UrlSchemeRedirector{
 		int port = request.getServerPort();
 		String servletContextName = request.getContextPath();
 		String path = request.getServletPath();
-		String pathInfo = StringTool.nullSafe(request.getPathInfo());
-		String queryString = StringTool.nullSafe(request.getQueryString());
+		String pathInfo = DrStringTool.nullSafe(request.getPathInfo());
+		String queryString = DrStringTool.nullSafe(request.getQueryString());
 
 		String contextSpecificPath = path + pathInfo;
-		if(StringTool.notEmpty(queryString)){
+		if(DrStringTool.notEmpty(queryString)){
 			contextSpecificPath += "?" + queryString;
 		}
 

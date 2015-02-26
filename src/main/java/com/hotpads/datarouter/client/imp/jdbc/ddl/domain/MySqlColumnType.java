@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public enum MySqlColumnType{
 
@@ -88,7 +88,7 @@ public enum MySqlColumnType{
 	/************************ static methods ******************************************/
 	
 	public static MySqlColumnType parse(String a){
-		String upperCase = StringTool.nullSafe(a).toUpperCase();
+		String upperCase = DrStringTool.nullSafe(a).toUpperCase();
 		for(MySqlColumnType type : values()){
 			if(type.toString().equals(upperCase)){
 				return type;
@@ -102,7 +102,7 @@ public enum MySqlColumnType{
 	}
 	
 	public static List<String> getAllColumnTypeNames(){
-		ArrayList<String> list = ListTool.createArrayList();
+		ArrayList<String> list = DrListTool.createArrayList();
 		for(MySqlColumnType type : values()){
 			list.add(type.toString());
 		}

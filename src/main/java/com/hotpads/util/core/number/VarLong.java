@@ -9,8 +9,8 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
 
 public class VarLong{
 	
@@ -44,8 +44,8 @@ public class VarLong{
 	}
 	
 	public void set(byte[] bytes){
-		if(ArrayTool.isEmpty(bytes) || bytes.length > 9){
-			throw new IllegalArgumentException("invalid bytes "+ByteTool.getBinaryStringBigEndian(bytes));
+		if(DrArrayTool.isEmpty(bytes) || bytes.length > 9){
+			throw new IllegalArgumentException("invalid bytes "+DrByteTool.getBinaryStringBigEndian(bytes));
 		}
 		value = 0;
 		for(int i=0; i < bytes.length; ++i){

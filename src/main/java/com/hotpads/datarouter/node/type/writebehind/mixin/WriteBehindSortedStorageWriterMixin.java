@@ -7,7 +7,7 @@ import com.hotpads.datarouter.node.type.writebehind.base.BaseWriteBehindNode;
 import com.hotpads.datarouter.node.type.writebehind.base.WriteWrapper;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class WriteBehindSortedStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
@@ -24,7 +24,7 @@ implements SortedStorageWriter<PK,D>{
 	@Override
 	public void deleteRangeWithPrefix(PK prefix, boolean wildcardLastField, Config config){
 		node.getQueue().offer(
-				new WriteWrapper<DeleteRangeWithPrefixWraper<PK>>(OP_deleteRangeWithPrefix, ListTool
+				new WriteWrapper<DeleteRangeWithPrefixWraper<PK>>(OP_deleteRangeWithPrefix, DrListTool
 						.wrap(new DeleteRangeWithPrefixWraper<PK>(prefix, wildcardLastField)), config));
 	}
 

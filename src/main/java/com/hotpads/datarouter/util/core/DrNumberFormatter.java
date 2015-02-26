@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -6,7 +6,7 @@ import java.text.DecimalFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class NumberFormatter {
+public class DrNumberFormatter {
 	
 	public static String format(Number n, int numFractionDigits){
 		return format(n, "", "", numFractionDigits);

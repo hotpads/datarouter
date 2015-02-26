@@ -14,12 +14,12 @@ import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUserKey;
 import com.hotpads.handler.user.authenticate.DatarouterTokenGenerator;
 import com.hotpads.handler.user.role.DatarouterUserRole;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 /*
  * A single user may have multiple sessions via different computers, browsers, tabs, etc.  Create one of these for each
@@ -61,7 +61,7 @@ implements Serializable {
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterSession d){
-			List<Field<?>> nonKeyFields = ListTool.createArrayList();
+			List<Field<?>> nonKeyFields = DrListTool.createArrayList();
 //			fields.add(new DateField(BaseDatarouterSessionDatabean.F.created, getCreated()));
 			nonKeyFields.add(new DateField(BaseDatarouterSessionDatabean.F.updated, d.getUpdated()));
 			
@@ -139,7 +139,7 @@ implements Serializable {
 	}
 	
 	public boolean isAnonymous(){
-		return CollectionTool.isEmpty(roles);
+		return DrCollectionTool.isEmpty(roles);
 	}
 	
 	public boolean isDatarouterAdmin(){

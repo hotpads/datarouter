@@ -17,8 +17,8 @@ import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.datarouter.test.TestIndexedDatabeanFielder.TestDatabeanByBLookup;
 import com.hotpads.datarouter.test.TestIndexedDatabeanFielder.TestDatabeanByCLookup;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class LazyReaderIntegrationTests{
 
@@ -33,7 +33,7 @@ public class LazyReaderIntegrationTests{
 		datarouterContext = injector.getInstance(DatarouterContext.class);
 		router = injector.getInstance(LazyTestRouter.class);
 		
-		databeans = ListTool.create(
+		databeans = DrListTool.create(
 				new TestDatabean("foo", "bar", "baz"),
 				new TestDatabean("baz", "bar", "foo"),
 				new TestDatabean("aaa", "bbb", "ccc"));
@@ -51,11 +51,11 @@ public class LazyReaderIntegrationTests{
 	
 	@Test
 	public void testGet(){
-		TestDatabeanKey key = CollectionTool.getFirst(keyToDatabean.keySet());
+		TestDatabeanKey key = DrCollectionTool.getFirst(keyToDatabean.keySet());
 		TestDatabean fromBlockingNode = router.testDatabean.get(key, null);
 		TestDatabean fromLazyNode = router.lazyTestDatabean.get(key, null).get();
 		Assert.assertEquals(fromBlockingNode, fromLazyNode);
-		Assert.assertEquals(fromBlockingNode, CollectionTool.getFirst(keyToDatabean.values()));
+		Assert.assertEquals(fromBlockingNode, DrCollectionTool.getFirst(keyToDatabean.values()));
 	}
 	
 	@Test
@@ -86,10 +86,10 @@ public class LazyReaderIntegrationTests{
 	
 	@Test
 	public void testLookupMultiUnique(){
-		List<TestDatabeanByCLookup> lookups = ListTool.create(
+		List<TestDatabeanByCLookup> lookups = DrListTool.create(
 				new TestDatabeanByCLookup("baz"),
 				new TestDatabeanByCLookup("foo"));
-		List<TestDatabean> expectedDatabeans = ListTool.create(
+		List<TestDatabean> expectedDatabeans = DrListTool.create(
 				new TestDatabean("foo", "bar", "baz"),
 				new TestDatabean("baz", "bar", "foo"));
 		Collections.sort(expectedDatabeans);
@@ -110,10 +110,10 @@ public class LazyReaderIntegrationTests{
 	
 	@Test
 	public void testLookupMulti(){
-		List<TestDatabeanByCLookup> lookups = ListTool.create(
+		List<TestDatabeanByCLookup> lookups = DrListTool.create(
 				new TestDatabeanByCLookup("baz"),
 				new TestDatabeanByCLookup("foo"));
-		List<TestDatabean> expectedDatabeans = ListTool.create(
+		List<TestDatabean> expectedDatabeans = DrListTool.create(
 				new TestDatabean("foo", "bar", "baz"),
 				new TestDatabean("baz", "bar", "foo"));
 		Collections.sort(expectedDatabeans);
@@ -128,7 +128,7 @@ public class LazyReaderIntegrationTests{
 		TestDatabeanKey fromBlockingNode = router.testDatabean.getFirstKey(null);
 		TestDatabeanKey fromLazyNode = router.lazyTestDatabean.getFirstKey(null).get();
 		Assert.assertEquals(fromBlockingNode, fromLazyNode);
-		Assert.assertEquals(CollectionTool.getFirst(keyToDatabean.keySet()), fromBlockingNode);
+		Assert.assertEquals(DrCollectionTool.getFirst(keyToDatabean.keySet()), fromBlockingNode);
 	}
 	
 	@Test
@@ -136,7 +136,7 @@ public class LazyReaderIntegrationTests{
 		TestDatabean fromBlockingNode = router.testDatabean.getFirst(null);
 		TestDatabean fromLazyNode = router.lazyTestDatabean.getFirst(null).get();
 		Assert.assertEquals(fromBlockingNode, fromLazyNode);
-		Assert.assertEquals(CollectionTool.getFirst(databeans), fromBlockingNode);
+		Assert.assertEquals(DrCollectionTool.getFirst(databeans), fromBlockingNode);
 	}
 	
 	@Test
@@ -151,10 +151,10 @@ public class LazyReaderIntegrationTests{
 	
 	@Test
 	public void testGetWithPrefixes(){
-		List<TestDatabean> expectedDatabeans = ListTool.create(
+		List<TestDatabean> expectedDatabeans = DrListTool.create(
 				new TestDatabean("baz", "bar", "foo"),
 				new TestDatabean("foo", "bar", "baz"));
-		List<TestDatabeanKey> keys = ListTool.create(
+		List<TestDatabeanKey> keys = DrListTool.create(
 				new TestDatabeanKey("ba"),
 				new TestDatabeanKey("f"));
 		List<TestDatabean> fromBlockingNode = router.testDatabean.getWithPrefixes(keys, true, null);

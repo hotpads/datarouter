@@ -1,10 +1,10 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 
-public class LongTool {
+public class DrLongTool {
 	
 	public static final long LONG_ALL_BITS = -1;
 	public static final int INT_ALL_BITS = -1;
@@ -23,7 +23,7 @@ public class LongTool {
 	}
 	
 	public static String toBitString(long a){
-		return StringTool.pad(Long.toBinaryString(a), '0', 64);
+		return DrStringTool.pad(Long.toBinaryString(a), '0', 64);
 	}
 	
 	

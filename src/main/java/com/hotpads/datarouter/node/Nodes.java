@@ -22,12 +22,12 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 /**
@@ -64,17 +64,17 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 
 //	@Inject //spring doesn't like @Inject without params
 	Nodes(){
-		this.topLevelNodes = ListTool.createArrayList();
-		this.allNodes = ListTool.createArrayList();
-		this.allNames = ListTool.createArrayList();
-		this.nodeByName = MapTool.createTreeMap();
-		this.nodesByRouterName = MapTool.createTreeMap();
+		this.topLevelNodes = DrListTool.createArrayList();
+		this.allNodes = DrListTool.createArrayList();
+		this.allNames = DrListTool.createArrayList();
+		this.nodeByName = DrMapTool.createTreeMap();
+		this.nodesByRouterName = DrMapTool.createTreeMap();
 		this.topLevelNodesByRouterName = TreeMultimap.create();
-		this.routerNameByNode = MapTool.createTreeMap();
-		this.physicalNodeByTableNameByClientName = MapTool.createTreeMap();
-		this.nodeByPrimaryKeyType = MapTool.createHashMap();//won't this have collissions?
-		this.nodeByDatabeanType = MapTool.createHashMap();//won't this have collissions?
-		this.clientNamesByDatabeanType = MapTool.createHashMap();
+		this.routerNameByNode = DrMapTool.createTreeMap();
+		this.physicalNodeByTableNameByClientName = DrMapTool.createTreeMap();
+		this.nodeByPrimaryKeyType = DrMapTool.createHashMap();//won't this have collissions?
+		this.nodeByDatabeanType = DrMapTool.createHashMap();//won't this have collissions?
+		this.clientNamesByDatabeanType = DrMapTool.createHashMap();
 	}
 	
 	
@@ -91,7 +91,7 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 		this.topLevelNodes.add(node);
 		this.topLevelNodesByRouterName.put(routerName, node);
 		this.allNodes.addAll(nodeWithDescendants);
-		for(N nodeOrDescendant : IterableTool.nullSafe(nodeWithDescendants)){
+		for(N nodeOrDescendant : DrIterableTool.nullSafe(nodeWithDescendants)){
 			allNames.add(nodeOrDescendant.getName());
 			nodeByName.put(nodeOrDescendant.getName(), nodeOrDescendant);
 			if(nodeOrDescendant instanceof PhysicalNode){
@@ -128,8 +128,8 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	}
 	
 	public Set<Class<D>> getTypesForClient(String clientName){
-		Set<Class<D>> types = SetTool.createHashSet();
-		for(N node : MapTool.nullSafe(nodeByName).values()){
+		Set<Class<D>> types = DrSetTool.createHashSet();
+		for(N node : DrMapTool.nullSafe(nodeByName).values()){
 			if(node.usesClient(clientName)){
 				types.add(node.getDatabeanType());
 			}
@@ -138,10 +138,10 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	}
 	
 	public List<? extends PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName){
-		List<PhysicalNode<PK,D>> physicalNodesForClient = ListTool.createLinkedList();
-		for(N node : IterableTool.nullSafe(topLevelNodes)){
+		List<PhysicalNode<PK,D>> physicalNodesForClient = DrListTool.createLinkedList();
+		for(N node : DrIterableTool.nullSafe(topLevelNodes)){
 			List<? extends PhysicalNode<PK,D>> physicalNodesForNode = node.getPhysicalNodesForClient(clientName);
-			for(PhysicalNode<PK,D> physicalNode : CollectionTool.nullSafe(physicalNodesForNode)){
+			for(PhysicalNode<PK,D> physicalNode : DrCollectionTool.nullSafe(physicalNodesForNode)){
 				physicalNodesForClient.add(physicalNode);
 			}
 		}
@@ -151,8 +151,8 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	
 	public List<String> getTableNamesForClient(String clientName){
 		List<? extends PhysicalNode<PK,D>> physicalNodesForClient = getPhysicalNodesForClient(clientName);
-		List<String> tableNames = ListTool.create();
-		for(PhysicalNode<PK,D> physicalNode : IterableTool.nullSafe(physicalNodesForClient)){
+		List<String> tableNames = DrListTool.create();
+		for(PhysicalNode<PK,D> physicalNode : DrIterableTool.nullSafe(physicalNodesForClient)){
 			tableNames.add(physicalNode.getTableName());
 		}
 		return tableNames;
@@ -160,9 +160,9 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	
 	public List<String> getTableNamesForRouterAndClient(String routerName, String clientName){
 		List<? extends PhysicalNode<PK,D>> physicalNodesForClient = getPhysicalNodesForClient(clientName);
-		List<String> tableNames = ListTool.create();
-		for(PhysicalNode<PK,D> physicalNode : IterableTool.nullSafe(physicalNodesForClient)){
-			if(ObjectTool.equals(routerNameByNode.get(physicalNode), routerName)){
+		List<String> tableNames = DrListTool.create();
+		for(PhysicalNode<PK,D> physicalNode : DrIterableTool.nullSafe(physicalNodesForClient)){
+			if(DrObjectTool.equals(routerNameByNode.get(physicalNode), routerName)){
 				tableNames.add(physicalNode.getTableName());
 			}
 		}
@@ -182,20 +182,20 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	}
 	
 	public List<String> getClientNamesForKeys(Collection<PK> keys){
-		SortedSet<String> clientNames = SetTool.createTreeSet();
-		Map<N,LinkedList<PK>> keysByNode = MapTool.createHashMap();
-		for(PK key : CollectionTool.nullSafe(keys)){
+		SortedSet<String> clientNames = DrSetTool.createTreeSet();
+		Map<N,LinkedList<PK>> keysByNode = DrMapTool.createHashMap();
+		for(PK key : DrCollectionTool.nullSafe(keys)){
 			N node = this.getNode(key);
 			if(keysByNode.get(node)==null){
 				keysByNode.put(node, new LinkedList<PK>());
 			}
 			keysByNode.get(node).add(key);
 		}
-		for(N node : MapTool.nullSafe(keysByNode).keySet()){
+		for(N node : DrMapTool.nullSafe(keysByNode).keySet()){
 			Collection<String> nodeClientNames = node.getClientNamesForPrimaryKeysForSchemaUpdate(keysByNode.get(node));
 			clientNames.addAll(nodeClientNames);
 		}
-		return ListTool.createArrayList(clientNames);
+		return DrListTool.createArrayList(clientNames);
 	}
 
 	public List<String> getClientNamesForDatabeanType(Class<D> databeanType){

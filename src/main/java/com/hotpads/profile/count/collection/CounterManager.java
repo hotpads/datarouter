@@ -9,14 +9,14 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrRuntimeTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.profile.count.collection.archive.CountArchive;
 import com.hotpads.profile.count.collection.archive.CountArchiveFlusher;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.RuntimeTool;
-import com.hotpads.util.core.SetTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 
@@ -36,7 +36,7 @@ public class CounterManager implements CountMap{
 		long now = System.currentTimeMillis();
 		long startTime = now - (now % rollPeriodMs);
 		this.liveCounter = new AtomicCounter(startTime, rollPeriodMs);
-		this.flushers = ListTool.createArrayList();
+		this.flushers = DrListTool.createArrayList();
 		this.checkAndRoll();//init
 		logger.warn("created "+this);
 	}
@@ -81,7 +81,7 @@ public class CounterManager implements CountMap{
 			}
 			//add previous counter to flush queue
 			if(oldCounter!=null){
-				for(CountArchiveFlusher flusher : IterableTool.nullSafe(flushers)){
+				for(CountArchiveFlusher flusher : DrIterableTool.nullSafe(flushers)){
 					flusher.offer(oldCounter);
 				}
 			}
@@ -98,9 +98,9 @@ public class CounterManager implements CountMap{
 		//get the actual values
 		//not sure if these are slow
 		PhaseTimer timer = new PhaseTimer("memOps");
-		long freeMemory = timer.time(RuntimeTool.getFreeMemory(), "freeMemory()");
-		long maxMemory = timer.time(RuntimeTool.getMaxMemory(), "maxMemory()");
-		long totalMemory = timer.time(RuntimeTool.getTotalMemory(), "totalMemory()");
+		long freeMemory = timer.time(DrRuntimeTool.getFreeMemory(), "freeMemory()");
+		long maxMemory = timer.time(DrRuntimeTool.getMaxMemory(), "maxMemory()");
+		long totalMemory = timer.time(DrRuntimeTool.getTotalMemory(), "totalMemory()");
 		int threadCount = timer.time(ManagementFactory.getThreadMXBean().getThreadCount(), "getThreadCount()");
 		long ns = System.nanoTime() - startNs;
 		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > 1){
@@ -159,16 +159,16 @@ public class CounterManager implements CountMap{
 	}
 
 	public SortedSet<CountArchive> getArchives(){
-		SortedSet<CountArchive> archives = SetTool.createTreeSet();
-		for(CountArchiveFlusher flusher : IterableTool.nullSafe(flushers)){
-			archives.addAll(CollectionTool.nullSafe(flusher.getArchives()));
+		SortedSet<CountArchive> archives = DrSetTool.createTreeSet();
+		for(CountArchiveFlusher flusher : DrIterableTool.nullSafe(flushers)){
+			archives.addAll(DrCollectionTool.nullSafe(flusher.getArchives()));
 		}
 		return archives;
 	}
 	
 	public Map<String,CountArchive> getArchiveByName(){
-		Map<String,CountArchive> archiveByName = MapTool.createTreeMap();
-		for(CountArchive ca : IterableTool.nullSafe(getArchives())){//don't forget the primary
+		Map<String,CountArchive> archiveByName = DrMapTool.createTreeMap();
+		for(CountArchive ca : DrIterableTool.nullSafe(getArchives())){//don't forget the primary
 			archiveByName.put(ca.getName(), ca);
 		}
 		return archiveByName;

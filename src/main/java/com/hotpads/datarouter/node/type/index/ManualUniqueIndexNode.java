@@ -12,7 +12,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntryTool;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 
@@ -47,7 +47,7 @@ implements UniqueIndexNode<PK, D, IK, IE>{
 	
 	@Override
 	public List<D> lookupMultiUnique(Collection<IK> uniqueKeys, Config config){
-		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
+		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
 		List<IE> indexEntries = indexNode.getMulti(uniqueKeys, config);
 		List<PK> primaryKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
 		List<D> databeans = mainNode.reader().getMulti(primaryKeys, config);
@@ -68,7 +68,7 @@ implements UniqueIndexNode<PK, D, IK, IE>{
 	
 	@Override
 	public void deleteMultiUnique(Collection<IK> uniqueKeys, Config config){
-		if(CollectionTool.isEmpty(uniqueKeys)){ return; }
+		if(DrCollectionTool.isEmpty(uniqueKeys)){ return; }
 		List<IE> indexEntries = indexNode.getMulti(uniqueKeys, config);
 		List<PK> primaryKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
 		indexNode.deleteMulti(uniqueKeys, config);

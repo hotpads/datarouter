@@ -16,14 +16,14 @@ import com.hotpads.datarouter.node.type.partitioned.PartitionedSortedMapStorageN
 import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.key.Key;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.profile.count.databean.Count;
 import com.hotpads.profile.count.databean.Count.CountFielder;
 import com.hotpads.profile.count.databean.key.CountKey;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.ObjectTool;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.collections.Range;
 
 public class CountPartitionedNode
@@ -39,8 +39,8 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		d = 24*h;
 	
 	public static long getMs(String t){
-		int n = Integer.valueOf(StringTool.retainDigits(t));
-		String units = StringTool.retainLetters(t);
+		int n = Integer.valueOf(DrStringTool.retainDigits(t));
+		String units = DrStringTool.retainLetters(t);
 		if("s".equals(units)){ return n*s; }
 		else if("m".equals(units)){ return n*m; }
 		else if("h".equals(units)){ return n*h; }
@@ -61,7 +61,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	}
 	
 	//recommended Time-to-live's in the comments.  hbase ttl's are ints.  Integer.MAX_VALUE is 63 years
-	public static final List<String> suffixes = ListTool.create(
+	public static final List<String> suffixes = DrListTool.create(
 			"5s",  //    2764800 - that is 552960 records - ttl of 32 days
 			"20s", //   11059200 - same 552960 records
 			"1m",  //   33177600 - etc
@@ -71,11 +71,11 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 			"4h",  // 
 			"1d"); // no ttl
 	
-	public static final List<String> flushPeriods = ListTool.create("5s", "20s", "1m", "5m", "10m",  "30m", "1h", "1h");
+	public static final List<String> flushPeriods = DrListTool.create("5s", "20s", "1m", "5m", "10m",  "30m", "1h", "1h");
 	
-	public static Map<String,Long> msBySuffix = MapTool.createHashMap();
-	public static Map<Long,String> suffixByMs = MapTool.createHashMap();
-	public static Map<Long,Long> flushPeriodByPeriod = MapTool.createHashMap();
+	public static Map<String,Long> msBySuffix = DrMapTool.createHashMap();
+	public static Map<Long,String> suffixByMs = DrMapTool.createHashMap();
+	public static Map<Long,Long> flushPeriodByPeriod = DrMapTool.createHashMap();
 	static{
 		for(int i=0; i < suffixes.size(); ++i){
 			String suffix = suffixes.get(i);
@@ -86,7 +86,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		}
 	}
 	
-	public static final Map<Long,Integer> indexByMs = MapTool.createHashMap();
+	public static final Map<Long,Integer> indexByMs = DrMapTool.createHashMap();
 	static{
 		int index = -1;
 		for(String suffix : suffixes){ indexByMs.put(getMs(suffix), ++index); }
@@ -133,7 +133,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForFirst(){
 		PhysicalSortedMapStorageNode<CountKey,Count> firstNode = partitions.get(0);
 		if(firstNode==null){ return null; }
-		return ListTool.wrap(firstNode);
+		return DrListTool.wrap(firstNode);
 	}
 	
 	@Override
@@ -142,7 +142,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 			throw new IllegalArgumentException("must specify start or end value"); 
 		}
 		if(range.getStart()!=null && range.getEnd()!=null){
-			if(ObjectTool.notEquals(range.getStart().getPeriodMs(), range.getEnd().getPeriodMs())){
+			if(DrObjectTool.notEquals(range.getStart().getPeriodMs(), range.getEnd().getPeriodMs())){
 				throw new IllegalArgumentException("cannot scan across multiple periods through this node");
 			}
 		}
@@ -152,14 +152,14 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		}else{
 			index = indexByMs.get(range.getEnd().getPeriodMs()); 
 		}
-		return ListTool.wrap(partitions.get(index));
+		return DrListTool.wrap(partitions.get(index));
 	}
 	
 	@Override
 	public SortedSetMultimap<PhysicalSortedMapStorageNode<CountKey,Count>,CountKey>
 			getPrefixesByPhysicalNode(Collection<CountKey> prefixes, boolean wildcardLastField){
 		SortedSetMultimap<PhysicalSortedMapStorageNode<CountKey,Count>,CountKey> prefixesByNode = TreeMultimap.create();
-		for(CountKey prefix : IterableTool.nullSafe(prefixes)){
+		for(CountKey prefix : DrIterableTool.nullSafe(prefixes)){
 			int nodeIndex = indexByMs.get(prefix.getPeriodMs());
 			prefixesByNode.put(partitions.get(nodeIndex), prefix);
 		}
@@ -177,8 +177,8 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		CountKey countKey = (CountKey)key;
 		Integer index = indexByMs.get(countKey.getPeriodMs());
 		PhysicalSortedMapStorageNode<CountKey,Count> node = partitions.get(index);
-		if(node==null){ return ListTool.createLinkedList(); }
-		return ListTool.wrap(node);
+		if(node==null){ return DrListTool.createLinkedList(); }
+		return DrListTool.wrap(node);
 	}
 	
 	/************************** helper **************************************/

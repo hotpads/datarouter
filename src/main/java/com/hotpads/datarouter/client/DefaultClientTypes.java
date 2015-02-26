@@ -2,12 +2,12 @@ package com.hotpads.datarouter.client;
 
 import java.util.Map;
 
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class DefaultClientTypes{
 
-	public static final Map<String,String> CLASS_BY_NAME = MapTool.createTreeMap();
+	public static final Map<String,String> CLASS_BY_NAME = DrMapTool.createTreeMap();
 	static{
 		CLASS_BY_NAME.put("hbase", "com.hotpads.datarouter.client.imp.hbase.HBaseClientType");
 		CLASS_BY_NAME.put("hibernate", "com.hotpads.datarouter.client.imp.hibernate.HibernateClientType");

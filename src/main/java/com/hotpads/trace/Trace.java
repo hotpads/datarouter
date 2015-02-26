@@ -18,9 +18,9 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.trace.key.TraceKey;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.StringTool;
 
 @Entity
 @AccessType("field")
@@ -112,7 +112,7 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 	/******************** static ******************************************/
 	
 	public static void trimStringsToFit(Iterable<Trace> traces){
-		for(Trace trace : IterableTool.nullSafe(traces)){
+		for(Trace trace : DrIterableTool.nullSafe(traces)){
 			if(trace==null){ continue; }
 			trace.trimStringsToFit();
 		}
@@ -126,7 +126,7 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 	}
 	
 	public String getRequestString(){
-		return StringTool.nullSafe(context)+"/"+type+"?"+StringTool.nullSafe(params);
+		return DrStringTool.nullSafe(context)+"/"+type+"?"+DrStringTool.nullSafe(params);
 	}
 	
 	public Date getTime(){
@@ -140,16 +140,16 @@ public class Trace extends BaseDatabean<TraceKey,Trace>{
 	/******************** validate *****************************************/
 	
 	public void trimStringsToFit(){
-		if(StringTool.exceedsLength(sessionId, LEN_sessionId)){
+		if(DrStringTool.exceedsLength(sessionId, LEN_sessionId)){
 			sessionId = sessionId.substring(0, LEN_sessionId);
 		}
-		if(StringTool.exceedsLength(context, LEN_context)){
+		if(DrStringTool.exceedsLength(context, LEN_context)){
 			context = context.substring(0, LEN_context);
 		}
-		if(StringTool.exceedsLength(type, LEN_type)){
+		if(DrStringTool.exceedsLength(type, LEN_type)){
 			type = type.substring(0, LEN_type);
 		}
-		if(StringTool.exceedsLength(params, LEN_params)){
+		if(DrStringTool.exceedsLength(params, LEN_params)){
 			params = params.substring(0, LEN_params);
 		}
 	}

@@ -16,10 +16,10 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntryTool;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 public class IndexingIndexedStorageReaderMixin<
@@ -38,8 +38,8 @@ implements IndexedStorageReader<PK,D>{
 	
 	public IndexingIndexedStorageReaderMixin(N mainNode, List<? extends IN> indexNodes){
 		this.mainNode = mainNode;
-		this.indexNodeByClass = MapTool.createHashMap();
-		for(IN indexNode : IterableTool.nullSafe(indexNodes)){
+		this.indexNodeByClass = DrMapTool.createHashMap();
+		for(IN indexNode : DrIterableTool.nullSafe(indexNodes)){
 			indexNodeByClass.put(indexNode.getDatabeanType(), indexNode);
 		}
 	}
@@ -65,15 +65,15 @@ implements IndexedStorageReader<PK,D>{
 	
 	@Override
 	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
-		List<IK> indexPrimaryKeys = ListTool.createArrayListWithSize(uniqueKeys);
+		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
+		List<IK> indexPrimaryKeys = DrListTool.createArrayListWithSize(uniqueKeys);
 		for(UniqueKey<PK> uniqueKey : uniqueKeys){
 			@SuppressWarnings("unchecked")
 			IK indexPrimaryKey = (IK)uniqueKey;
 			indexPrimaryKeys.add(indexPrimaryKey);
 		}
-		IN indexNode = indexNodeByClass.get(CollectionTool.getFirst(indexPrimaryKeys).getClass());
-		if(indexNode==null){ throw new IllegalArgumentException("no index found for type="+CollectionTool.getFirst(indexPrimaryKeys)); }
+		IN indexNode = indexNodeByClass.get(DrCollectionTool.getFirst(indexPrimaryKeys).getClass());
+		if(indexNode==null){ throw new IllegalArgumentException("no index found for type="+DrCollectionTool.getFirst(indexPrimaryKeys)); }
 		List<IE> indexEntries = indexNode.getMulti(indexPrimaryKeys, config);
 		List<PK> primaryKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
 		List<D> databeans = mainNode.getMulti(primaryKeys, config);

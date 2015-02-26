@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.regex.Pattern;
 
@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public class RegexTool {
+public class DrRegexTool {
 	
 	public static final Pattern BACKSLASH_PATTERN = Pattern.compile("\\\\");
 	public static final Pattern APOSTROPHE_PATTERN = Pattern.compile("'");
@@ -15,7 +15,7 @@ public class RegexTool {
 	public static String makeCharacterClassFromRange(int bottom, int top, boolean brackets){
 		String characterClass ="";
 		for(int c=bottom;c<=top;c++){
-			characterClass+=("\\u"+StringTool.pad(Integer.toHexString(c),'0',4));
+			characterClass+=("\\u"+DrStringTool.pad(Integer.toHexString(c),'0',4));
 		}
 		return (brackets?"[":"")+characterClass+(brackets?"]":"");
 	}

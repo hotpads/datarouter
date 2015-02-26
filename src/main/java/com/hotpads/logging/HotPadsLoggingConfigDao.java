@@ -7,13 +7,13 @@ import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Level;
 
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.logging.databean.ConsoleAppender;
 import com.hotpads.logging.databean.ConsoleAppenderKey;
 import com.hotpads.logging.databean.FileAppender;
 import com.hotpads.logging.databean.FileAppenderKey;
 import com.hotpads.logging.databean.LoggerConfig;
 import com.hotpads.logging.databean.LoggerConfigKey;
-import com.hotpads.util.core.ListTool;
 import com.hotpads.util.core.logging.LoggingConfigDao;
 
 @Singleton
@@ -60,9 +60,9 @@ public class HotPadsLoggingConfigDao implements LoggingConfigDao{
 		Iterable<FileAppender> fileAppenders = loggingConfigNodes.getFileAppender().scan(null, null);
 		Iterable<LoggerConfig> loggerConfigs = loggingConfigNodes.getLoggerConfig().scan(null, null);
 		return new LoggingConfig(
-				ListTool.createArrayList(consoleAppenders),
-				ListTool.createArrayList(fileAppenders),
-				ListTool.createArrayList(loggerConfigs));
+				DrListTool.createArrayList(consoleAppenders),
+				DrListTool.createArrayList(fileAppenders),
+				DrListTool.createArrayList(loggerConfigs));
 	}
 
 }

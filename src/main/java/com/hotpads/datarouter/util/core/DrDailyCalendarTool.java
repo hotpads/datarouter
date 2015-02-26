@@ -1,11 +1,11 @@
-package com.hotpads.util.core.date;
+package com.hotpads.datarouter.util.core;
 
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
 
-public class DailyCalendarTool {
+public class DrDailyCalendarTool {
 
 	public static final TimeZone 
 		TIME_ZONE_US_EASTERN = TimeZone.getTimeZone("America/New_York");

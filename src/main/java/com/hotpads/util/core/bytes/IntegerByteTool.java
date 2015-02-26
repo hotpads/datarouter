@@ -6,10 +6,10 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 /*
  * methods for converting ints into bytes
@@ -100,7 +100,7 @@ public class IntegerByteTool {
 //	}
 
 	public static byte[] getComparableByteArray(List<Integer> values){
-		if(CollectionTool.isEmpty(values)){ return new byte[0]; }
+		if(DrCollectionTool.isEmpty(values)){ return new byte[0]; }
 		byte[] out = new byte[4*values.size()];
 		int index = 0;
 		for(Integer value : values){
@@ -112,7 +112,7 @@ public class IntegerByteTool {
 	
 	public static List<Integer> fromIntegerByteArray(final byte[] bytes, final int startIdx){
 		int numIntegers = (bytes.length - startIdx)/4;
-		List<Integer> integers = ListTool.createArrayList();
+		List<Integer> integers = DrListTool.createArrayList();
 		byte[] arrayToCopy = new byte[4];
 		for(int i = 0; i < numIntegers; i++){
 			System.arraycopy(bytes, i*4+startIdx, arrayToCopy, 0, 4);
@@ -139,7 +139,7 @@ public class IntegerByteTool {
 	}
 
 	public static int[] fromComparableByteArray(final byte[] bytes){
-		if(ArrayTool.isEmpty(bytes)){ return new int[0]; }
+		if(DrArrayTool.isEmpty(bytes)){ return new int[0]; }
 		int[] out = new int[bytes.length / 4];
 		for(int i=0; i < out.length; ++i){
 			int startIdx = i*4;
@@ -186,7 +186,7 @@ public class IntegerByteTool {
 	}
 
 	public static byte[] getUInt31ByteArray(List<Integer> values){
-		if(CollectionTool.isEmpty(values)){ return new byte[0]; }
+		if(DrCollectionTool.isEmpty(values)){ return new byte[0]; }
 		byte[] out = new byte[4*values.size()];
 		int i = 0;
 		for(Integer value : values){
@@ -205,7 +205,7 @@ public class IntegerByteTool {
 	}
 
 	public static int[] fromUInt31ByteArray(final byte[] bytes){
-		if(ArrayTool.isEmpty(bytes)){ return new int[0]; }
+		if(DrArrayTool.isEmpty(bytes)){ return new int[0]; }
 		int[] out = new int[bytes.length / 4];
 		for(int i=0; i < out.length; ++i){
 			int startIdx = i*4;
@@ -267,8 +267,8 @@ public class IntegerByteTool {
 			byte[] p5 = getComparableBytes(5);
 			byte[] n3 = getComparableBytes(-3);
 			byte[] n7 = getComparableBytes(-7);
-			Assert.assertTrue(ByteTool.bitwiseCompare(p5, n3) > 0);
-			Assert.assertTrue(ByteTool.bitwiseCompare(p5, n7) > 0);
+			Assert.assertTrue(DrByteTool.bitwiseCompare(p5, n3) > 0);
+			Assert.assertTrue(DrByteTool.bitwiseCompare(p5, n7) > 0);
 		}
 		
 		@Test public void testRoundTrip(){
@@ -301,7 +301,7 @@ public class IntegerByteTool {
 //				System.out.println("bytes "+ByteTool.getBinaryStringBigEndian(bytes));
 				int roundTripped = fromComparableByteArray(bytes)[0];
 				try{
-					Assert.assertTrue(ByteTool.bitwiseCompare(lastBytes, bytes) < 0);
+					Assert.assertTrue(DrByteTool.bitwiseCompare(lastBytes, bytes) < 0);
 					Assert.assertEquals(i, roundTripped);
 				}catch(AssertionError e){
 //					System.out.println(i+" -> "+roundTripped);
@@ -320,7 +320,7 @@ public class IntegerByteTool {
 			int one = -239483;
 			int two = 583;
 			
-			List<Integer> integers = ListTool.create();
+			List<Integer> integers = DrListTool.create();
 			integers.add(one);
 			integers.add(null);
 			integers.add(two);

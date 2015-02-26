@@ -24,19 +24,19 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.datarouter.query.CountWhereTxn;
 import com.hotpads.handler.datarouter.query.GetWhereTxn;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.util.RequestTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.NumberFormatter;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends HibernateReaderNode<PK,D,F>>
@@ -97,14 +97,14 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		long startMs = System.currentTimeMillis() - 1;
 		long batchStartMs = System.currentTimeMillis() - 1;
 		for(PK pk : iterable){
-			if(ComparableTool.lt(pk, last)){
+			if(DrComparableTool.lt(pk, last)){
 				logger.warn(pk+" was < "+last);//shouldn't happen, but seems to once in 10mm times
 			}
 			++count;
 			if(count > 0 && count % printBatchSize == 0){
 				long batchMs = System.currentTimeMillis() - batchStartMs;
 				double batchAvgRps = printBatchSize * 1000 / batchMs;
-				logger.warn(NumberFormatter.addCommas(count) + " " + pk.toString() + " @" + batchAvgRps + "rps");
+				logger.warn(DrNumberFormatter.addCommas(count) + " " + pk.toString() + " @" + batchAvgRps + "rps");
 				batchStartMs = System.currentTimeMillis();
 			}
 			last = pk;
@@ -112,7 +112,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		if(count < 1){ return new MessageMav("no rows found"); }
 		long ms = System.currentTimeMillis() - startMs;
 		double avgRps = count * 1000 / ms;
-		String message = "finished at " + NumberFormatter.addCommas(count) + " " + last.toString() + " @" + avgRps
+		String message = "finished at " + DrNumberFormatter.addCommas(count) + " " + last.toString() + " @" + avgRps
 				+ "rps";
 		logger.warn(message);
 		return new MessageMav(message);
@@ -122,11 +122,11 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 	public Mav countWhere(){
 		preHandle();
 		// assume all table names are the same (they are at the time of writing this)
-		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
+		String tableName = DrCollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
 		String where = params.optional(PARAM_where, null);
 		List<String> clientNames = node.getClientNames();
 		Long count = node.getRouter().run(new CountWhereTxn(drContext, clientNames, tableName, where));
-		Mav mav = new MessageMav("found "+NumberFormatter.addCommas(count)+" rows in "+tableName+" ("+node.getName()+")");
+		Mav mav = new MessageMav("found "+DrNumberFormatter.addCommas(count)+" rows in "+tableName+" ("+node.getName()+")");
 		return mav;
 	}
 
@@ -139,7 +139,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		mav.put("nonFieldAware", "field aware");
 
 		if(fields == null){
-			fields = ListTool.create();
+			fields = DrListTool.create();
 			fields.addAll(node.getFieldInfo().getPrimaryKeyFields());
 			mav.put("nonFieldAware", " non field aware");
 		}
@@ -152,7 +152,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 
 		Config config = new Config().setLimit(limit);
 		PK startAfterKey = null;
-		if(StringTool.notEmpty(startAfterKeyString)){
+		if(DrStringTool.notEmpty(startAfterKeyString)){
 //			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
 			startAfterKey = PrimaryKeyStringConverter.primaryKeyFromString(
 					(Class<PK>)node.getFieldInfo().getPrimaryKeyClass(), //need to use the fielder in the jsp
@@ -180,14 +180,14 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 
 		Config config = new Config().setLimit(limit);
 		PK startAfterKey = null;
-		if(StringTool.notEmpty(startAfterKeyString)){
+		if(DrStringTool.notEmpty(startAfterKeyString)){
 			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
 			startAfterKey.fromPersistentString(startAfterKeyString);
 			mav.put(PARAM_startAfterKey, startAfterKey.getPersistentString());
 		}
 
 		// assume all table names are the same (they are at the time of writing this)
-		String tableName = CollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
+		String tableName = DrCollectionTool.getFirst(node.getPhysicalNodes()).getTableName();
 		String where = RequestTool.getAndPut(request, PARAM_where, null, mav);
 		List<D> databeans = node.getRouter().run(new GetWhereTxn<PK,D,F,N>((N)node, tableName, startAfterKey, where, 
 				config));
@@ -198,10 +198,10 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 	private void addDatabeansToMav(Mav mav, List<D> databeans){
 		mav.put("databeans", databeans);
 
-		List<List<Field<?>>> rowsOfFields = ListTool.create();
+		List<List<Field<?>>> rowsOfFields = DrListTool.create();
 		DatabeanFielder fielder = node.getFieldInfo().getSampleFielder();
 		if(fielder != null){
-			for(Databean<?,?> databean : IterableTool.nullSafe(databeans)){
+			for(Databean<?,?> databean : DrIterableTool.nullSafe(databeans)){
 //				FieldSet<?> fieldSet = (FieldSet<?>)databean;
 				List<Field<?>> rowOfFields = fielder.getFields(databean);
 				rowsOfFields.add(rowOfFields);
@@ -210,8 +210,8 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		}
 
 		mav.put("abbreviatedFieldNameByFieldName", getFieldAbbreviationByFieldName(fielder, databeans));
-		if(CollectionTool.size(databeans) >= limit){
-			mav.put(PARAM_nextKey, CollectionTool.getLast(databeans).getKey().getPersistentString());
+		if(DrCollectionTool.size(databeans) >= limit){
+			mav.put(PARAM_nextKey, DrCollectionTool.getLast(databeans).getKey().getPersistentString());
 		}
 	}
 
@@ -219,30 +219,30 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 
 	private Map<String,String> getFieldAbbreviationByFieldName(DatabeanFielder fielder, 
 			Collection<? extends Databean<?,?>> databeans){
-		if(CollectionTool.isEmpty(databeans)){ return MapTool.create(); }
-		Databean<?,?> first = IterableTool.first(databeans);
+		if(DrCollectionTool.isEmpty(databeans)){ return DrMapTool.create(); }
+		Databean<?,?> first = DrIterableTool.first(databeans);
 		List<String> fieldNames = FieldTool.getFieldNames(fielder.getFields(first));
-		List<Integer> maxLengths = ListTool.createArrayListAndInitialize(fieldNames.size());
+		List<Integer> maxLengths = DrListTool.createArrayListAndInitialize(fieldNames.size());
 		Collections.fill(maxLengths, 0);
 		
-		for(Databean<?,?> d : IterableTool.nullSafe(databeans)){
+		for(Databean<?,?> d : DrIterableTool.nullSafe(databeans)){
 			List<?> values = FieldTool.getFieldValues(fielder.getFields(d));
-			for(int i = 0; i < CollectionTool.size(values); ++i){
-				int length = values.get(i) == null ? 0 : StringTool.length(values.get(i).toString());
+			for(int i = 0; i < DrCollectionTool.size(values); ++i){
+				int length = values.get(i) == null ? 0 : DrStringTool.length(values.get(i).toString());
 				if(length > maxLengths.get(i)){
 					maxLengths.set(i, length);
 				}
 			}
 		}
 		
-		Map<String,String> abbreviatedNames = MapTool.create();
+		Map<String,String> abbreviatedNames = DrMapTool.create();
 		for(int i = 0; i < maxLengths.size(); ++i){
 			int length = maxLengths.get(i);
 			if(length < MIN_FIELD_ABBREVIATION_LENGTH){
 				length = MIN_FIELD_ABBREVIATION_LENGTH;
 			}
 			String abbreviated = fieldNames.get(i);
-			if(length < StringTool.length(fieldNames.get(i))){
+			if(length < DrStringTool.length(fieldNames.get(i))){
 				abbreviated = fieldNames.get(i).substring(0, length);
 			}
 			abbreviatedNames.put(fieldNames.get(i), abbreviated);

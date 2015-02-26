@@ -2,8 +2,8 @@ package com.hotpads.util.core.iterable.scanner.batch.imp;
 
 import java.util.List;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchLoader;
 import com.hotpads.util.core.iterable.scanner.batch.BatchLoader;
 
@@ -21,7 +21,7 @@ public class ListBackedBatchLoader<T> extends BaseBatchLoader<T>{
 
 	@Override
 	public boolean isLastBatch(){
-		 return firstIndex + batchSize >= CollectionTool.size(list);
+		 return firstIndex + batchSize >= DrCollectionTool.size(list);
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class ListBackedBatchLoader<T> extends BaseBatchLoader<T>{
 	@Override
 	public BatchLoader<T> call() throws Exception{
 		int endIndexExclusive = firstIndex + batchSize;
-		List<T> newBatch = ListTool.copyOfRange(list, firstIndex, endIndexExclusive);
+		List<T> newBatch = DrListTool.copyOfRange(list, firstIndex, endIndexExclusive);
 		updateBatch(newBatch);
 		return this;
 	}

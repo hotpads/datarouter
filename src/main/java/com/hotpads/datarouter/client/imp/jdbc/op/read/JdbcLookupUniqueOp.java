@@ -15,8 +15,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class JdbcLookupUniqueOp<
 		PK extends PrimaryKey<PK>,
@@ -40,9 +40,9 @@ extends BaseJdbcOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
+		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		List<? extends UniqueKey<PK>> sortedKeys = ListTool.createArrayList(uniqueKeys);
+		List<? extends UniqueKey<PK>> sortedKeys = DrListTool.createArrayList(uniqueKeys);
 		Collections.sort(sortedKeys);
 		String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), 
 				uniqueKeys);

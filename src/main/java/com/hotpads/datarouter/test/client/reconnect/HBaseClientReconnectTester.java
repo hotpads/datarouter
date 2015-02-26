@@ -19,7 +19,7 @@ import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
-import com.hotpads.util.core.IterableTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 //you must run this manually, starting and stopping hbase to verify it reconnects, at least for now
@@ -50,7 +50,7 @@ public class HBaseClientReconnectTester {
 //		Assert.assertEquals(0, CollectionTool.size(node.getAll(null)));
 		TxnBean txnBean = new TxnBean(testReconnectBeanKey.getId());
 		node.put(txnBean, null);
-		Assert.assertEquals(1, IterableTool.count(node.scan(null, null)).intValue());
+		Assert.assertEquals(1, DrIterableTool.count(node.scan(null, null)).intValue());
 	}
 
 	@Test 

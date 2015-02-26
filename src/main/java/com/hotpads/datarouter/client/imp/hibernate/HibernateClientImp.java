@@ -19,8 +19,8 @@ import com.hotpads.datarouter.client.type.HibernateClient;
 import com.hotpads.datarouter.client.type.SessionClient;
 import com.hotpads.datarouter.connection.ConnectionHandle;
 import com.hotpads.datarouter.connection.JdbcConnectionPool;
-import com.hotpads.util.core.ExceptionTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrExceptionTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class HibernateClientImp 
 extends JdbcClientImp
@@ -87,7 +87,7 @@ implements SessionClient, HibernateClient{
 					rollbackTxn();
 				}catch(Exception e2){
 					logger.warn("TXN ROLLBACK FAILED after flush() threw exception.  handle=" + getExistingHandle());
-					logger.warn(getName() + " has " + MapTool.size(sessionByConnectionHandle) + " sessions");
+					logger.warn(getName() + " has " + DrMapTool.size(sessionByConnectionHandle) + " sessions");
 					logger.warn("", e);
 				}
 				throw new RollbackException(e);
@@ -141,7 +141,7 @@ implements SessionClient, HibernateClient{
 
 	public String getStats(){
 		return super.getStats()
-				+","+MapTool.size(sessionByConnectionHandle)+" sessionHandles";
+				+","+DrMapTool.size(sessionByConnectionHandle)+" sessionHandles";
 	}
 	
 	

@@ -3,9 +3,9 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 import java.util.List;
 import java.util.Properties;
 
-import com.hotpads.util.core.BooleanTool;
-import com.hotpads.util.core.PropertiesTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrBooleanTool;
+import com.hotpads.datarouter.util.core.DrPropertiesTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class SchemaUpdateOptions{
 	
@@ -55,58 +55,58 @@ public class SchemaUpdateOptions{
 	}
 
 	private SchemaUpdateOptions SetSchemaUpdateWithPrintOptions(List<Properties> multiProperties, String prefix){
-		this.createTables = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_createTables));
-		this.dropTables = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.dropTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_dropTables));
-		this.addColumns = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.addColumns = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_addColumns));
-		this.deleteColumns = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.deleteColumns = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_deleteColumns));
 		/*this.printModifyColumnLengths = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_printModifyColumnLengths));*/
-		this.modifyColumns = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyColumns = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_modifyColumns));
-		this.addIndexes = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.addIndexes = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_addIndexes));
-		this.dropIndexes = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.dropIndexes = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_dropIndexes));
-		this.modifyEngine = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyEngine = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_modifyEngine));
-		this.modifyCharacterSet = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyCharacterSet = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_modifyCharacterSet));
-		this.modifyCollation = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyCollation = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_modifyCollation));
 		return this;
 	}
 
 	private SchemaUpdateOptions SetSchemaUpdateWithExecuteOptions(List<Properties> multiProperties, String prefix){
-		this.createTables = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.createTables = DrBooleanTool.isTrueOrNull(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_createTables));
 		this.dropTables = false;
-		this.addColumns = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.addColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_addColumns));
-		this.deleteColumns = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.deleteColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_deleteColumns));
 		/*this.printModifyColumnLengths = BooleanTool.isTrueOrNull(PropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_printModifyColumnLengths));*/
-		this.modifyColumns = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyColumns = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_modifyColumns));
-		this.addIndexes = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.addIndexes = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_addIndexes));
-		this.dropIndexes = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.dropIndexes = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_dropIndexes));
-		this.modifyEngine = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyEngine = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_modifyEngine));
-		this.modifyCharacterSet = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyCharacterSet = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_modifyCharacterSet));
-		this.modifyCollation = BooleanTool.isTrue(PropertiesTool.getFirstOccurrence(multiProperties, 
+		this.modifyCollation = DrBooleanTool.isTrue(DrPropertiesTool.getFirstOccurrence(multiProperties, 
 				prefix+SUFFIX_modifyCollation));
 		String schemaUpdatePrefix = prefix.substring(0, prefix.indexOf('.'));
-		String clientsToIgnore = PropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix + SUFFIX_ignoreClients);
-		this.ignoreClients = StringTool.splitOnCharNoRegex(clientsToIgnore, ',');
-		String tablesToIgnore = PropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix  + SUFFIX_ignoreTables);
-		this.ignoreTables = StringTool.splitOnCharNoRegex(tablesToIgnore, ',');
+		String clientsToIgnore = DrPropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix + SUFFIX_ignoreClients);
+		this.ignoreClients = DrStringTool.splitOnCharNoRegex(clientsToIgnore, ',');
+		String tablesToIgnore = DrPropertiesTool.getFirstOccurrence(multiProperties, schemaUpdatePrefix  + SUFFIX_ignoreTables);
+		this.ignoreTables = DrStringTool.splitOnCharNoRegex(tablesToIgnore, ',');
 		return this;
 	}
 

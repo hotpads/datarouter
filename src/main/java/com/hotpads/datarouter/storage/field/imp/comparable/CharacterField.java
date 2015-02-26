@@ -10,8 +10,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BasePrimitiveField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class CharacterField extends BasePrimitiveField<Character>{
@@ -35,7 +35,7 @@ public class CharacterField extends BasePrimitiveField<Character>{
 	
 	@Override
 	public Character parseStringEncodedValueButDoNotSet(String s){
-		if(StringTool.isEmpty(s)){ return null; }
+		if(DrStringTool.isEmpty(s)){ return null; }
 		return s.charAt(0);
 	}
 	
@@ -50,7 +50,7 @@ public class CharacterField extends BasePrimitiveField<Character>{
 	@Override
 	public byte[] getBytesWithSeparator(){
 		byte[] dataBytes = getBytes();
-		if(ArrayTool.isEmpty(dataBytes)){ return new byte[]{StringField.SEPARATOR}; }
+		if(DrArrayTool.isEmpty(dataBytes)){ return new byte[]{StringField.SEPARATOR}; }
 		byte[] allBytes = new byte[dataBytes.length+1];
 		System.arraycopy(dataBytes, 0, allBytes, 0, dataBytes.length);
 		allBytes[allBytes.length-1] = StringField.SEPARATOR;

@@ -15,9 +15,9 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public abstract class PartitionedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -59,13 +59,13 @@ implements MapStorageReaderNode<PK,D>{
 	public List<D> getMulti(Collection<PK> keys, Config config) {
 		Multimap<N,PK> keysByNode = getPrimaryKeysByPhysicalNode(keys);
 //		logger.warn(keysByNode);
-		List<D> all = ListTool.createArrayList();
+		List<D> all = DrListTool.createArrayList();
 		if(keysByNode==null){ return all; }
 		for(N node : keysByNode.keySet()){
 			Collection<PK> keysForNode = keysByNode.get(node);
-			if(CollectionTool.isEmpty(keysForNode)){ continue; }//should not be empty, but being safer
+			if(DrCollectionTool.isEmpty(keysForNode)){ continue; }//should not be empty, but being safer
 			List<D> databeansFromNode = node.getMulti(keysForNode, config);
-			all.addAll(CollectionTool.nullSafe(databeansFromNode));
+			all.addAll(DrCollectionTool.nullSafe(databeansFromNode));
 		}
 		return all;
 	}
@@ -73,13 +73,13 @@ implements MapStorageReaderNode<PK,D>{
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config) {
 		Multimap<N,PK> keysByNode = getPrimaryKeysByPhysicalNode(keys);
-		List<PK> all = ListTool.createArrayList();
+		List<PK> all = DrListTool.createArrayList();
 		if(keysByNode==null){ return all; }
 		for(N node : keysByNode.keySet()){
 			Collection<PK> keysForNode = keysByNode.get(node);
-			if(CollectionTool.isEmpty(keysForNode)){ continue; }//should not be empty, but being safer
+			if(DrCollectionTool.isEmpty(keysForNode)){ continue; }//should not be empty, but being safer
 			List<PK> pksFromNode = node.getKeys(keysForNode, config);
-			all.addAll(CollectionTool.nullSafe(pksFromNode));
+			all.addAll(DrCollectionTool.nullSafe(pksFromNode));
 		}
 		return all;
 	}

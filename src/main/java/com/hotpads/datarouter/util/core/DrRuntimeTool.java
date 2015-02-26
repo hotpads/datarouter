@@ -1,11 +1,11 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
 
-public class RuntimeTool {
+public class DrRuntimeTool {
 
 	public static boolean isWindows() {
 		return isOS("windows");

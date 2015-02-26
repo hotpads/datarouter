@@ -13,9 +13,9 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.storage.view.index.KeyIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 /*
  * this assumes that only PK fields are changed... it has no way of detecting, for example, if User.email changes
@@ -91,8 +91,8 @@ implements IndexListener<PK,D>{
 	
 	@SuppressWarnings("unchecked")
 	protected List<IE> getIndexEntriesFromPrimaryKeys(Collection<PK> primaryKeys){
-		List<IE> indexEntries = ListTool.createArrayListWithSize(primaryKeys);
-		for(PK key : IterableTool.nullSafe(primaryKeys)){
+		List<IE> indexEntries = DrListTool.createArrayListWithSize(primaryKeys);
+		for(PK key : DrIterableTool.nullSafe(primaryKeys)){
 			IE indexEntry = createIndexEntry();
 			if(indexEntry instanceof UniqueKeyIndexEntry){
 				((UniqueKeyIndexEntry)indexEntry).fromPrimaryKey(key);
@@ -106,12 +106,12 @@ implements IndexListener<PK,D>{
 	
 	protected List<IE> getIndexEntriesFromDatabeans(Collection<D> databeans){
 		IE sampleIndexEntry = createIndexEntry();
-		List<IE> indexEntries = ListTool.createArrayListWithSize(databeans);
-		for(D databean : IterableTool.nullSafe(databeans)){
+		List<IE> indexEntries = DrListTool.createArrayListWithSize(databeans);
+		for(D databean : DrIterableTool.nullSafe(databeans)){
 //			IE indexEntry = createIndexEntry();
 //			indexEntry.fromDatabean(databean);
 			List<IE> indexEntriesFromSingleDatabean = sampleIndexEntry.createFromDatabean(databean);
-			indexEntries.addAll(CollectionTool.nullSafe(indexEntriesFromSingleDatabean));
+			indexEntries.addAll(DrCollectionTool.nullSafe(indexEntriesFromSingleDatabean));
 		}
 		return indexEntries;
 	}

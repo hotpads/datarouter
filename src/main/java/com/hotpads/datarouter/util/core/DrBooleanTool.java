@@ -1,9 +1,9 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class BooleanTool {
+public class DrBooleanTool {
 	
 
 	public static final Set<String> TRUE_VALUES = new HashSet<String>();

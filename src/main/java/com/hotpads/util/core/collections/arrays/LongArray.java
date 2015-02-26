@@ -10,9 +10,9 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class LongArray implements List<Long>, Comparable<List<Long>>{
 	
@@ -37,7 +37,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 	}
 	
 	public LongArray(Collection<Long> elements){
-		this(CollectionTool.size(elements));
+		this(DrCollectionTool.size(elements));
 		for(Long element : elements){
 			this.add(element);
 		}
@@ -91,7 +91,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 
 	@Override
 	public boolean addAll(Collection<? extends Long> values) {
-		for(Long value : CollectionTool.nullSafe(values)){
+		for(Long value : DrCollectionTool.nullSafe(values)){
 			add(value);
 		}
 		return true;
@@ -99,7 +99,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 
 	@Override
 	public boolean addAll(int firstIndex, Collection<? extends Long> values) {
-		int delta = CollectionTool.size(values);
+		int delta = DrCollectionTool.size(values);
 		if(delta==0){ return false; }
 		this.expandIfNecessary(delta);
 		System.arraycopy(this.array, firstIndex, this.array, firstIndex+delta, delta);
@@ -239,7 +239,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 	public boolean removeAll(Collection<?> objects) {
 		//TODO could flag them all and copy/resize at once
 		boolean modified = false;
-		for(Object obj : IterableTool.nullSafe(objects)){
+		for(Object obj : DrIterableTool.nullSafe(objects)){
 			if(this.remove(obj)){ modified = true; }
 		}
 		return modified;
@@ -297,7 +297,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 
 	@Override
 	public int compareTo(List<Long> other) {
-		return ListTool.compare(this, other);//NULL compares before all other longs
+		return DrListTool.compare(this, other);//NULL compares before all other longs
 	}
 	
 	public long[] getPrimitiveArray() {
@@ -424,14 +424,14 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 			Assert.assertTrue(list.get(5).equals(6L));
 			
 			//retain objects
-			List<Long> toRetain = ListTool.create(55L,57L,7L);
+			List<Long> toRetain = DrListTool.create(55L,57L,7L);
 			modified = list.retainAll(toRetain);
 			Assert.assertTrue(modified);
 			Assert.assertEquals(3, list.size());
 			Assert.assertTrue(list.get(0).equals(7L));
 			Assert.assertTrue(list.get(1).equals(55L));
 			Assert.assertTrue(list.get(2).equals(57L));
-			modified = list.retainAll(ListTool.create(55L,57L,7L));
+			modified = list.retainAll(DrListTool.create(55L,57L,7L));
 			Assert.assertFalse(modified);
 			Assert.assertEquals(3, list.size());
 			Assert.assertTrue(list.get(0).equals(7L));
@@ -446,8 +446,8 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 			nullableList.add(-8L); primitiveList.add(-8L);
 			nullableList.add(null); primitiveList.add(null);
 			nullableList.add(Long.MAX_VALUE); primitiveList.add(Long.MAX_VALUE);
-			Assert.assertTrue(5==CollectionTool.size(nullableList));
-			Assert.assertTrue(5==CollectionTool.size(primitiveList));
+			Assert.assertTrue(5==DrCollectionTool.size(nullableList));
+			Assert.assertTrue(5==DrCollectionTool.size(primitiveList));
 			Assert.assertTrue(0==primitiveList.compareTo(nullableList));
 			Assert.assertEquals(null, primitiveList.get(1));
 		}

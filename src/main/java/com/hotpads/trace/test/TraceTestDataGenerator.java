@@ -4,16 +4,16 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.Trace;
 import com.hotpads.trace.TraceSpan;
 import com.hotpads.trace.TraceThread;
-import com.hotpads.util.core.ListTool;
 
 public class TraceTestDataGenerator{
 
-	public static List<Trace> traces = ListTool.createArrayList();
-	public static List<TraceThread> threads = ListTool.createArrayList();
-	public static List<TraceSpan> spans = ListTool.createArrayList();
+	public static List<Trace> traces = DrListTool.createArrayList();
+	public static List<TraceThread> threads = DrListTool.createArrayList();
+	public static List<TraceSpan> spans = DrListTool.createArrayList();
 	
 	static{
 		Trace trace1 = new Trace();

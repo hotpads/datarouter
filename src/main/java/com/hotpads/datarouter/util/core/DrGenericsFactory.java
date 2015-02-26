@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +11,7 @@ import java.util.TreeSet;
 //import com.hotpads.util.core.collections.Twin;
 
 @Deprecated
-public class GenericsFactory {
+public class DrGenericsFactory {
 	
 	public static <K,V> HashMap<K,V> makeHashMap() {
 	    return new HashMap<K,V>();

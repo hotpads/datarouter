@@ -13,7 +13,7 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
 
 public class VarInt{
 	
@@ -62,7 +62,7 @@ public class VarInt{
 	public void set(byte[] bytes, int offset){
 		if(offset >= bytes.length){
 			//TODO check other invalidity conditions
-			throw new IllegalArgumentException("invalid bytes "+ByteTool.getBinaryStringBigEndian(bytes));
+			throw new IllegalArgumentException("invalid bytes "+DrByteTool.getBinaryStringBigEndian(bytes));
 		}
 		value = 0;
 		for(int i=0; ; ++i){

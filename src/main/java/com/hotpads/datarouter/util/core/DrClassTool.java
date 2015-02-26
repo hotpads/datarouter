@@ -1,7 +1,7 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 
-public class ClassTool {
+public class DrClassTool {
 
 	public static boolean sameClass(Object a, Object b){
 		if(a==null && b==null){ return true; }
@@ -22,11 +22,11 @@ public class ClassTool {
 	}
 	
 	public static String getSimpleNameFromCanonicalName(String canonicalClassName){
-		return StringTool.getStringAfterLastOccurrence('.', canonicalClassName);
+		return DrStringTool.getStringAfterLastOccurrence('.', canonicalClassName);
 	}
 	
 	public static String getPackageFromCanonicalName(String canonicalClassName){
-		return StringTool.getStringBeforeLastOccurrence('.', canonicalClassName);
+		return DrStringTool.getStringBeforeLastOccurrence('.', canonicalClassName);
 	}
 	
 }

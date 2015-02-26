@@ -14,10 +14,10 @@ import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.SessionExecutor;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.StringTool;
 
 public class SessionExecutorImpl<T>
 extends BaseTxnExecutor<T>
@@ -46,7 +46,7 @@ implements SessionExecutor<T>, Callable<T>{
 	@Override
 	public T call(){
 		T onceResult = null;
-		Collection<T> clientResults = ListTool.createLinkedList();
+		Collection<T> clientResults = DrListTool.createLinkedList();
 		Collection<Client> clients = getClients();
 		try{
 			startTrace();
@@ -56,7 +56,7 @@ implements SessionExecutor<T>, Callable<T>{
 			
 			//begin user code
 			onceResult = parallelTxnOp.runOnce();
-			for(Client client : CollectionTool.nullSafe(clients)){  //TODO threading
+			for(Client client : DrCollectionTool.nullSafe(clients)){  //TODO threading
 				T clientResult = parallelTxnOp.runOncePerClient(client);
 				clientResults.add(clientResult);
 			}
@@ -102,7 +102,7 @@ implements SessionExecutor<T>, Callable<T>{
 	
 	@Override
 	public void openSessions(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
+		for(Client client : DrCollectionTool.nullSafe(getClients())){
 			if( ! (client instanceof SessionClient) ){ continue; }
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.openSession();
@@ -113,7 +113,7 @@ implements SessionExecutor<T>, Callable<T>{
 	
 	@Override
 	public void flushSessions(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
+		for(Client client : DrCollectionTool.nullSafe(getClients())){
 			if( ! (client instanceof SessionClient) ){ continue; }
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.flushSession();
@@ -124,7 +124,7 @@ implements SessionExecutor<T>, Callable<T>{
 	
 	@Override
 	public void cleanupSessions(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
+		for(Client client : DrCollectionTool.nullSafe(getClients())){
 			if( ! (client instanceof SessionClient) ){ continue; }
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.cleanupSession();
@@ -137,7 +137,7 @@ implements SessionExecutor<T>, Callable<T>{
 	/********************** helper ******************************/
 	
 	private boolean shouldTrace(){
-		return StringTool.notEmpty(traceName);
+		return DrStringTool.notEmpty(traceName);
 	}
 	
 	private void startTrace(){

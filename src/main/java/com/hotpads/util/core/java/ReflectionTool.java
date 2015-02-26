@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
 
 import com.google.common.collect.Lists;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.GenericsFactory;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrGenericsFactory;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class ReflectionTool {
 	private static Logger logger = LoggerFactory.getLogger(ReflectionTool.class);
@@ -100,7 +100,7 @@ public class ReflectionTool {
 	}
 	
 	public static Set<Class<?>> getAllSuperClassesAndInterfaces(Class<?> c){
-		Set<Class<?>> supersAndInterfaces = GenericsFactory.makeHashSet();
+		Set<Class<?>> supersAndInterfaces = DrGenericsFactory.makeHashSet();
 		
 		List<Class<?>> interfaces = Arrays.asList(c.getInterfaces());
 		if(interfaces!=null){
@@ -120,13 +120,13 @@ public class ReflectionTool {
 	
 	public static Set<Class<?>> getAllSubClassesAnd(Class<?> c){
 		Class<?>[] subClass = c.getClasses();
-		return SetTool.create(subClass);
+		return DrSetTool.create(subClass);
 	}
 	
 	/************************** names *******************************/
 	
 	public static List<String> getAllHierarchyFieldNames(Class<?> c){
-		List<String> names = ListTool.create();
+		List<String> names = DrListTool.create();
 		for(Class<?> cls : getAllSuperClassesAndInterfaces(c)){
 			for(Field field : cls.getDeclaredFields()){
 				names.add(field.getName());
@@ -203,11 +203,11 @@ public class ReflectionTool {
 	public static java.lang.reflect.Field getNestedField(
 			Object object, List<String> fieldNames){
 		try{
-			String fieldName = CollectionTool.getFirst(fieldNames);
+			String fieldName = DrCollectionTool.getFirst(fieldNames);
 			java.lang.reflect.Field field = ReflectionTool.getDeclaredFieldFromHierarchy(
 					object.getClass(), fieldName);
 			field.setAccessible(true);
-			if(CollectionTool.size(fieldNames)==1){ return field; }
+			if(DrCollectionTool.size(fieldNames)==1){ return field; }
 			if(field.get(object)==null){//initialize the field
 				field.set(object, ReflectionTool.create(field.getType()));
 			}
@@ -215,14 +215,14 @@ public class ReflectionTool {
 					fieldNames.subList(1, fieldNames.size()));
 		}catch(Exception e){
 			String message = "could not set field: "+object.getClass().getName()+"."
-					+StringTool.concatenate(fieldNames, ".");
+					+DrStringTool.concatenate(fieldNames, ".");
 			throw new RuntimeException(message, e);
 		}
 	}
 	
 	public static List<Field> getAllHierarchyFields(Class<?> c){
 		List<String> allFieldsName = getAllHierarchyFieldNames(c);
-		List<Field> toReturn = ListTool.create();
+		List<Field> toReturn = DrListTool.create();
 		for(String fieldName : allFieldsName){
 			toReturn.add(getDeclaredFieldFromHierarchy(c, fieldName));
 		}
@@ -230,7 +230,7 @@ public class ReflectionTool {
 	}
 	
 	public static List<Field> getAllFields(Class<?> c){
-		return ListTool.create(c.getDeclaredFields());
+		return DrListTool.create(c.getDeclaredFields());
 	}
 	
 	
@@ -256,7 +256,7 @@ public class ReflectionTool {
 	}
 	
 	public static <T> Collection<Method> getDeclaredMethodsWithName(Class<T> c, String methodName){
-		Collection<Method> methods = ListTool.create();
+		Collection<Method> methods = DrListTool.create();
 		Class<?> clazz = c;
 		do{
 			for(Method method : clazz.getDeclaredMethods()){

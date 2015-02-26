@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Objects;
-import com.hotpads.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 
 
 public class Pair<L,R> implements Serializable{
@@ -29,7 +29,7 @@ public class Pair<L,R> implements Serializable{
 	}
 	
 	public boolean areLeftAndRightEqual(){
-		return ObjectTool.equals(left, right);
+		return DrObjectTool.equals(left, right);
 	}
 
 	public L getLeft() {

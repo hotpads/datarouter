@@ -9,6 +9,8 @@ import java.util.TreeMap;
 import javax.inject.Inject;
 
 import com.hotpads.datarouter.storage.key.KeyTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
@@ -18,8 +20,6 @@ import com.hotpads.trace.key.TraceKey;
 import com.hotpads.trace.key.TraceSpanKey;
 import com.hotpads.trace.key.TraceThreadKey;
 import com.hotpads.trace.node.TraceNodes;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.MapTool;
 
 public class TraceHandler extends BaseHandler{
 	
@@ -75,7 +75,7 @@ public class TraceHandler extends BaseHandler{
 		mav.put("trace", trace);
 		
 		//get threads
-		if(CollectionTool.isEmpty(threads)){
+		if(DrCollectionTool.isEmpty(threads)){
 			return new MessageMav("no threads found (yet)");
 		}
 		Map<TraceThreadKey,TraceThread> threadByKey = KeyTool.getByKeySorted(threads);
@@ -87,7 +87,7 @@ public class TraceHandler extends BaseHandler{
 		rootGroup.setSpans(spans);
 		SortedMap<TraceThreadKey,SortedSet<TraceSpan>> spansByThreadKey = TraceSpan.getByThreadKey(spans);
 		SortedMap<TraceThreadKey,Long> missingTimeByThreadKey = new TreeMap<>();
-		for(TraceThreadKey threadKey : MapTool.nullSafe(spansByThreadKey).keySet()){
+		for(TraceThreadKey threadKey : DrMapTool.nullSafe(spansByThreadKey).keySet()){
 			Long spansTime = TraceSpan.totalDurationOfNonChildren(spansByThreadKey.get(threadKey));
 			TraceThread thread = threadByKey.get(threadKey);
 			if(thread==null){ continue; }

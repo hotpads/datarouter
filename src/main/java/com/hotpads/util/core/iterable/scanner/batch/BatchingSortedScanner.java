@@ -9,7 +9,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 import com.hotpads.util.core.iterable.scanner.batch.imp.ListBackedBatchLoader;
 import com.hotpads.util.core.iterable.scanner.sorted.BaseSortedScanner;
@@ -107,7 +107,7 @@ extends	BaseSortedScanner<T>{
 	public static class BatchingSortedScannerTests{
 		private static final int MULTIPLIER = 3;
 		private List<Integer> createTestArray(int numElements){
-			List<Integer> testArray = ListTool.createArrayList();
+			List<Integer> testArray = DrListTool.createArrayList();
 			for(int i=0; i < numElements; ++i){
 				testArray.add(i * MULTIPLIER);//separate the values from the indexes
 			}

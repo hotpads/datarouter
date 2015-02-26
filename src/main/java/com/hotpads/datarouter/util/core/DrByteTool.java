@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,10 +8,10 @@ import org.junit.Test;
 
 import com.hotpads.util.core.bytes.IntegerByteTool;
 
-public class ByteTool {
+public class DrByteTool {
 	
 	public static final Integer
-		BYTES_PER_POINTER = (int)RuntimeTool.getBytesPerPointer();//do we need to add bytes (4?) for class id?
+		BYTES_PER_POINTER = (int)DrRuntimeTool.getBytesPerPointer();//do we need to add bytes (4?) for class id?
 	
 	public static final Integer
 		BYTES_PER_BOOLEAN = 1,
@@ -36,8 +36,8 @@ public class ByteTool {
 				
 	
 	public static ArrayList<Byte> getArrayList(byte[] ins){
-		ArrayList<Byte> outs = ListTool.createArrayList(ArrayTool.length(ins));
-		for(byte in : ArrayTool.nullSafe(ins)){
+		ArrayList<Byte> outs = DrListTool.createArrayList(DrArrayTool.length(ins));
+		for(byte in : DrArrayTool.nullSafe(ins)){
 			outs.add(in);
 		}
 		return outs;
@@ -60,8 +60,8 @@ public class ByteTool {
 	}
 	
 	public static int bitwiseCompare(byte[] a, byte[] b){
-		int aLength = ArrayTool.length(a);
-		int bLength = ArrayTool.length(b);
+		int aLength = DrArrayTool.length(a);
+		int bLength = DrArrayTool.length(b);
 		for(int i = 0, j = 0; i < aLength && j < bLength; ++i, ++j){
 			//need to trick the built in byte comparator which treats 10000000 < 00000000 because it's negative
 			int aByte = a[i] & 0xff;  //boost the "negative" numbers up to 128-255
@@ -130,7 +130,7 @@ public class ByteTool {
 	
 	public static String getBinaryStringBigEndian(byte[] ba){
 		StringBuilder sb = new StringBuilder();
-		int len = ArrayTool.length(ba);
+		int len = DrArrayTool.length(ba);
 		for(int n=0; n < len; ++n){
 			for(int i=7; i >=0; --i){
 				sb.append(((ba[n]>>i) & 1)); 
@@ -146,7 +146,7 @@ public class ByteTool {
 	}
 	
 	public static byte[] unsignedIncrement(final byte[] in){
-		byte[] copy = ArrayTool.clone(in);
+		byte[] copy = DrArrayTool.clone(in);
 		if(copy==null){ throw new IllegalArgumentException("cannot increment null array"); }
 		for(int i=copy.length-1; i >=0; --i){
 			if(copy[i]==-1){//-1 is all 1-bits, which is the unsigned maximum
@@ -164,7 +164,7 @@ public class ByteTool {
 	}
 	
 	public static byte[] unsignedIncrementOverflowToNull(final byte[] in){
-		byte[] out = ArrayTool.clone(in);
+		byte[] out = DrArrayTool.clone(in);
 		for(int i=out.length-1; i >=0; --i){
 			if(out[i]==-1){//-1 is all 1-bits, which is the unsigned maximum
 				out[i] = 0;
@@ -183,7 +183,7 @@ public class ByteTool {
 		if(ins==null){ return new byte[0]; }
 		int totalLength = 0;
 		for(int i=0; i < ins.length; ++i){
-			totalLength+=ArrayTool.length(ins[i]);
+			totalLength+=DrArrayTool.length(ins[i]);
 		}
 		byte[] out = new byte[totalLength];
 		int startIndex=0;
@@ -206,7 +206,7 @@ public class ByteTool {
 	/************************* serialize ****************************************/
 
 	public static byte[] getUInt7Bytes(List<Byte> values){
-		if(CollectionTool.isEmpty(values)){ return new byte[0]; }
+		if(DrCollectionTool.isEmpty(values)){ return new byte[0]; }
 		byte[] out = new byte[values.size()];
 		int i = 0;
 		for(Byte value : values){
@@ -249,10 +249,10 @@ public class ByteTool {
 		@Test public void testEquals(){
 			byte[] a1 = new byte[]{1,-1};
 			byte[] b1 = new byte[]{-3};
-			Assert.assertFalse(ByteTool.equals(a1, 0, a1.length, b1, 0, b1.length));
+			Assert.assertFalse(DrByteTool.equals(a1, 0, a1.length, b1, 0, b1.length));
 			byte[] a2 = new byte[]{0,1,2,3,4,5};
 			byte[] b2 = new byte[]{2,3,4,5,6,7};
-			Assert.assertTrue(ByteTool.equals(a2, 2, 4, b2, 0, 4));
+			Assert.assertTrue(DrByteTool.equals(a2, 2, 4, b2, 0, 4));
 			
 		}
 		@Test public void testGetOrderedBytes(){
@@ -264,12 +264,12 @@ public class ByteTool {
 			
 			byte[] minArray = getComparableBytes(min);
 			byte[] maxArray = getComparableBytes(max);
-			Assert.assertTrue(ByteTool.bitwiseCompare(maxArray, minArray) > 0);
+			Assert.assertTrue(DrByteTool.bitwiseCompare(maxArray, minArray) > 0);
 			
-			System.out.println(ByteTool.getBinaryStringBigEndian(min)+" "
-					+ByteTool.getBinaryStringBigEndian(max)+" "
-					+ByteTool.getBinaryStringBigEndian(minArray)+" "
-					+ByteTool.getBinaryStringBigEndian(maxArray));
+			System.out.println(DrByteTool.getBinaryStringBigEndian(min)+" "
+					+DrByteTool.getBinaryStringBigEndian(max)+" "
+					+DrByteTool.getBinaryStringBigEndian(minArray)+" "
+					+DrByteTool.getBinaryStringBigEndian(maxArray));
 
 			byte negative = -3;
 			byte positive = 5;
@@ -277,12 +277,12 @@ public class ByteTool {
 
 			byte[] negativeArray = getComparableBytes(negative);
 			byte[] positiveArray = getComparableBytes(positive);
-			Assert.assertTrue(ByteTool.bitwiseCompare(positiveArray, negativeArray) > 0);
+			Assert.assertTrue(DrByteTool.bitwiseCompare(positiveArray, negativeArray) > 0);
 			
-			System.out.println(ByteTool.getBinaryStringBigEndian(negative)+" "
-					+ByteTool.getBinaryStringBigEndian(positive)+" "
-					+ByteTool.getBinaryStringBigEndian(negativeArray)+" "
-					+ByteTool.getBinaryStringBigEndian(positiveArray));
+			System.out.println(DrByteTool.getBinaryStringBigEndian(negative)+" "
+					+DrByteTool.getBinaryStringBigEndian(positive)+" "
+					+DrByteTool.getBinaryStringBigEndian(negativeArray)+" "
+					+DrByteTool.getBinaryStringBigEndian(positiveArray));
 		}
 		
 		@Test public void testGetBinaryString(){

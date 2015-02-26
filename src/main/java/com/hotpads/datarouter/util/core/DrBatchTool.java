@@ -1,4 +1,4 @@
-package com.hotpads.util.core;
+package com.hotpads.datarouter.util.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +12,7 @@ import java.util.SortedMap;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class BatchTool {
+public class DrBatchTool {
 	
 
 	public static int getNumBatches(int totalSize, int batchSize){
@@ -51,7 +51,7 @@ public class BatchTool {
 	
 	
 	public static <T> int getNumBatches(Collection<T> collection, int batchSize){
-		if(CollectionTool.isEmpty(collection)){ return 0; }
+		if(DrCollectionTool.isEmpty(collection)){ return 0; }
 		return getNumBatches(collection.size(), batchSize);
 	}
 	
@@ -96,9 +96,9 @@ public class BatchTool {
 			list.add("e");
 			Assert.assertEquals(3, getNumBatches(5,2));
 			Assert.assertEquals(4, getBatchEndIndexExclusive(5,2,1));
-			Assert.assertEquals(ListTool.createArrayList("c","d"), getBatch(list, 2, 1));
-			Assert.assertEquals(GenericsFactory.makeArrayList("a","b"), list.subList(0,2));
-			Assert.assertEquals(GenericsFactory.makeArrayList("c","d"), list.subList(2,4));
+			Assert.assertEquals(DrListTool.createArrayList("c","d"), getBatch(list, 2, 1));
+			Assert.assertEquals(DrGenericsFactory.makeArrayList("a","b"), list.subList(0,2));
+			Assert.assertEquals(DrGenericsFactory.makeArrayList("c","d"), list.subList(2,4));
 		}
 		
 		@Test public void testUnreachableBatches(){

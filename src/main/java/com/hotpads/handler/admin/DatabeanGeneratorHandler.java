@@ -33,16 +33,16 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt7Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt8Field;
 import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.util.RequestTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.StringTool;
 
 public class DatabeanGeneratorHandler extends BaseHandler {
 
-	public static List<Class<?>> FIELD_TYPES = ListTool.create();
+	public static List<Class<?>> FIELD_TYPES = DrListTool.create();
 	static{
 		FIELD_TYPES.add(BooleanArrayField.class);
 		FIELD_TYPES.add(ByteArrayField.class);
@@ -82,7 +82,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 	
 	public static Map<String, String> simpleClassNameToCanonicalClassName;
 	static{
-		simpleClassNameToCanonicalClassName = MapTool.createHashMap();
+		simpleClassNameToCanonicalClassName = DrMapTool.createHashMap();
 		for(Class<?> field : FIELD_TYPES){
 			simpleClassNameToCanonicalClassName.put(field.getSimpleName(), field.getCanonicalName());
 		}
@@ -151,8 +151,8 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 						continue;
 					}
 						
-					g.addKeyField(c, StringTool.lowercaseFirstCharacter(c.getSimpleName()) +"DemoKey", genericType);
-					g.addField(c, StringTool.lowercaseFirstCharacter(c.getSimpleName())+"Demo", genericType);
+					g.addKeyField(c, DrStringTool.lowercaseFirstCharacter(c.getSimpleName()) +"DemoKey", genericType);
+					g.addField(c, DrStringTool.lowercaseFirstCharacter(c.getSimpleName())+"Demo", genericType);
 				}
 				g.addIndex(g.getCsvFieldNames().split(","));
 				g.addIndex(g.getCsvKeyFieldNames().split(","));
@@ -171,12 +171,12 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 
 	private void collectParams(DataBeanParams databeanParams) {
 		String createScript = RequestTool.get(request, PARAM_CREATE_SCRIPT, null);
-		if(StringTool.notEmpty(createScript)){
+		if(DrStringTool.notEmpty(createScript)){
 			collectParamsFromCreateScript(createScript, databeanParams);
 			return;
 		} else {
 		
-			databeanParams.setDataBeanName(StringTool.capitalizeFirstLetter(RequestTool.get(request, PARAM_DATABEAN_NAME, null)));
+			databeanParams.setDataBeanName(DrStringTool.capitalizeFirstLetter(RequestTool.get(request, PARAM_DATABEAN_NAME, null)));
 			databeanParams.setDataBeanPackage(RequestTool.get(request, PARAM_DATABEAN_PACKAGE, null));
 	
 			for (int i = 0; i < MAX_KEYFIELDS; i++) {
@@ -198,7 +198,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 	private void collectParamsFromCreateScript(String createScript, DataBeanParams databeanParams) {
 		boolean isPKField = false;
 		for(String line : createScript.split("\n")){
-			if(StringTool.isEmpty(line)){
+			if(DrStringTool.isEmpty(line)){
 				continue;
 			}
 			line = line.trim();
@@ -219,8 +219,8 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 				databeanParams.setDataBeanPackage(packageName);
 			} else if (isPKField) { //pk field line
 				line = line.replace(",", "");
-				String enumType = StringTool.getStringSurroundedWith(line, "<", ">");
-				if (StringTool.notEmpty(enumType)) {
+				String enumType = DrStringTool.getStringSurroundedWith(line, "<", ">");
+				if (DrStringTool.notEmpty(enumType)) {
 					line = line.replace("<" + enumType + ">", "");
 				}
 				databeanParams.addKeyField(line.split(" ")[1], line.split(" ")[0], enumType);
@@ -233,11 +233,11 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 				return;//this should be last line of the script
 			} else { // non pk field line
 				line = line.replace(",", "").trim();
-				if(StringTool.isEmpty(line)) {
+				if(DrStringTool.isEmpty(line)) {
 					continue;
 				}
-				String enumType = StringTool.getStringSurroundedWith(line, "<", ">");
-				if (StringTool.notEmpty(enumType)) {
+				String enumType = DrStringTool.getStringSurroundedWith(line, "<", ">");
+				if (DrStringTool.notEmpty(enumType)) {
 					line = line.replace("<" + enumType + ">", "");
 				}
 				databeanParams.addField(line.split(" ")[1], line.split(" ")[0], enumType);
@@ -248,18 +248,18 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 	private static class DataBeanParams {
 		String dataBeanName, dataBeanPackage;
 
-		List<String> keyfieldEnumTypes = ListTool.createArrayList();
-		List<String> keyFieldNames = ListTool.createArrayList();
-		List<String> keyFieldTypes = ListTool.createArrayList();
+		List<String> keyfieldEnumTypes = DrListTool.createArrayList();
+		List<String> keyFieldNames = DrListTool.createArrayList();
+		List<String> keyFieldTypes = DrListTool.createArrayList();
 
-		List<String> fieldEnumTypes = ListTool.createArrayList();
-		List<String> fieldNames = ListTool.createArrayList();
-		List<String> fieldTypes = ListTool.createArrayList();
+		List<String> fieldEnumTypes = DrListTool.createArrayList();
+		List<String> fieldNames = DrListTool.createArrayList();
+		List<String> fieldTypes = DrListTool.createArrayList();
 		
-		List<String> indexes = ListTool.createArrayList();
+		List<String> indexes = DrListTool.createArrayList();
 
 		public void addKeyField(String name, String type, String enumType) {
-			if (StringTool.isNull(name) || StringTool.isNull(type) || StringTool.isNull(enumType)) {
+			if (DrStringTool.isNull(name) || DrStringTool.isNull(type) || DrStringTool.isNull(enumType)) {
 				return;
 			}
 			keyfieldEnumTypes.add(enumType);
@@ -268,7 +268,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		}
 
 		public void addField(String name, String type, String enumType) {
-			if (StringTool.isNull(name) || StringTool.isNull(type) || StringTool.isNull(enumType)) {
+			if (DrStringTool.isNull(name) || DrStringTool.isNull(type) || DrStringTool.isNull(enumType)) {
 				return;
 			}
 			fieldEnumTypes.add(enumType);
@@ -300,7 +300,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 			}
 			
 			for(String indexFields : indexes){
-				if(StringTool.isEmpty(indexFields)){
+				if(DrStringTool.isEmpty(indexFields)){
 					continue;
 				}
 				indexFields = indexFields.trim();
@@ -345,7 +345,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		Class<?> cls = null;
 		try {
 			String canonicalName = simpleClassNameToCanonicalClassName.get(name);
-			if(StringTool.isEmpty(canonicalName)){
+			if(DrStringTool.isEmpty(canonicalName)){
 				canonicalName = name;
 			}
 			cls = Class.forName(canonicalName);
