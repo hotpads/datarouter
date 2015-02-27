@@ -83,6 +83,9 @@ public class ExceptionHandlingFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException, ServletException{
 		HttpServletResponse response = (HttpServletResponse) res;
+		HttpServletRequest request = (HttpServletRequest) req;
+		logger.debug(String.valueOf(request.getRequestURI()) + " | " + String.valueOf(request.getParameterMap()));
+
 		Date receivedAt = new Date();
 		req.setAttribute(REQUEST_RECEIVED_AT, receivedAt);
 		try {
@@ -95,7 +98,6 @@ public class ExceptionHandlingFilter implements Filter {
 			ExceptionCounters.inc("Filter");
 			ExceptionCounters.inc(e.getClass().getName());
 			ExceptionCounters.inc("Filter " + e.getClass().getName());
-			HttpServletRequest request = (HttpServletRequest) req;
 			logger.warn("ExceptionHandlingFilter caught an exception:", e);
 			writeExceptionToResponseWriter(response, e, request);
 			if(exceptionHandlingConfig.shouldPersistExceptionRecords(request, e)) {
