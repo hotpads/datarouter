@@ -14,12 +14,14 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 
 public class FutureTool {
+	private static final Logger logger = LoggerFactory.getLogger(FutureTool.class);
 	
 	/******************** sequential ***************************/
 	
@@ -120,12 +122,12 @@ public class FutureTool {
 	}
 	
 	public static <T> List<T> tryGetAllWithinTimeLimit(List<Future<T>> futures, long timeoutLength, TimeUnit timeUnit, 
-			String timeoutMessage, Logger logger){
+			String timeoutMessage){
 		long deadlineAtMs = System.currentTimeMillis() + timeUnit.toMillis(timeoutLength);
 		List<T> results = new ArrayList<>();
 		for(Future<T> future : DrIterableTool.nullSafe(futures)){
 			long remainingMs = DrNumberTool.max(0L, deadlineAtMs - System.currentTimeMillis());//guard for negatives
-			T result = tryGet(future, remainingMs, TimeUnit.MILLISECONDS, timeoutMessage, logger);
+			T result = tryGet(future, remainingMs, TimeUnit.MILLISECONDS, timeoutMessage);
 			if(result != null){
 				results.add(result);
 			}
@@ -133,8 +135,7 @@ public class FutureTool {
 		return results;
 	}
 	
-	public static <T> T tryGet(Future<T> future, long timeoutLength, TimeUnit units, String timeoutMessage, 
-			Logger logger) {
+	public static <T> T tryGet(Future<T> future, long timeoutLength, TimeUnit units, String timeoutMessage) {
 		try{
 			long nonNegativeTimeoutLength = DrNumberTool.max(0L, timeoutLength);//guard for negatives
 			return future.get(nonNegativeTimeoutLength, units);
