@@ -132,42 +132,6 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 		Assert.assertTrue(DrListTool.isSorted(result));
 	}
 	
-//	@Test
-//	public synchronized void testGetKeysInRange(){
-//		ScatteringPrefixBeanKey a190 = new ScatteringPrefixBeanKey("a", 190L);
-//		ScatteringPrefixBeanKey b6 = new ScatteringPrefixBeanKey("b", 6L);
-//		int expectedSize1 = 4;//confusing... just looked at mysql
-//		
-//		Iterable<ScatteringPrefixBeanKey> scanner0 = router.scatteringPrefixBean().scanKeys(
-//				a190, true, b6, true, null);
-//		List<ScatteringPrefixBeanKey> result0 = ListTool.createArrayList(scanner0);
-//		Assert.assertEquals(expectedSize1, CollectionTool.size(result0));
-//		Assert.assertTrue(ListTool.isSorted(result0));
-//		
-//		List<ScatteringPrefixBeanKey> result1 = router.scatteringPrefixBean().getKeysInRange(
-//				a190, true, b6, true, null);
-//		Assert.assertEquals(expectedSize1, CollectionTool.size(result1));
-//		Assert.assertTrue(ListTool.isSorted(result1));
-//	}
-	
-	@Test
-	public void testGetKeysInRange(){
-		ScatteringPrefixBeanKey a190 = new ScatteringPrefixBeanKey("a", 195L);
-		ScatteringPrefixBeanKey b6 = new ScatteringPrefixBeanKey("b", 1L);
-		int expectedSize1 = 2;//confusing... just looked at mysql
-		
-		Iterable<ScatteringPrefixBeanKey> scanner0 = router.scatteringPrefixBean().scanKeys(
-				Range.create(a190, true, b6, true), null);
-		List<ScatteringPrefixBeanKey> result0 = DrListTool.createArrayList(scanner0);
-		Assert.assertEquals(expectedSize1, DrCollectionTool.size(result0));
-		Assert.assertTrue(DrListTool.isSorted(result0));
-		
-		List<ScatteringPrefixBeanKey> result1 = router.scatteringPrefixBean().getKeysInRange(
-				a190, true, b6, true, null);
-		Assert.assertEquals(expectedSize1, DrCollectionTool.size(result1));
-		Assert.assertTrue(DrListTool.isSorted(result1));
-	}
-	
 }
 
 

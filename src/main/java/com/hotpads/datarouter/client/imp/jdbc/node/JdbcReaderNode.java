@@ -178,8 +178,7 @@ implements MapStorageReader<PK,D>,
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 
-	@Deprecated
-	@Override
+	//used by JdbcPrimaryKeyScanner
 	public List<PK> getKeysInRange(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 

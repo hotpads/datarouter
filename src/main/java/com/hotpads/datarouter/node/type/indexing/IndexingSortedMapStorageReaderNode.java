@@ -37,12 +37,6 @@ implements SortedStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<PK> getKeysInRange(PK start, boolean startInclusive, PK end,
-			boolean endInclusive, Config config) {
-		return mainNode.getKeysInRange(start, startInclusive, end, endInclusive, config);
-	}
-
-	@Override
 	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
 		return mainNode.getWithPrefix(prefix,wildcardLastField, config);
 	}

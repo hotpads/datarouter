@@ -150,8 +150,7 @@ implements HBasePhysicalNode<PK,D>,
 	@Override
 	public PK getFirstKey(Config pConfig){
 		Config config = Config.nullSafe(pConfig).setLimit(1);
-		return DrCollectionTool.getFirst(
-				getKeysInRange(null, true, null, true, config));
+		return DrIterableTool.first(scanKeys(null, config));
 	}
 
 	
@@ -192,18 +191,6 @@ implements HBasePhysicalNode<PK,D>,
 				}).call();
 		}
 		sortIfScatteringPrefixExists(results);
-		return results;
-	}
-	
-
-	@Deprecated
-	@Override
-	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		PeekableIterable<PK> iter = scanKeys(Range.create(start, startInclusive, end, endInclusive), pConfig);
-		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
-		List<PK> results = DrIterableTool.createArrayListFromIterable(iter, limit);
 		return results;
 	}
 	

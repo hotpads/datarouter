@@ -38,13 +38,9 @@ extends NodeOps<PK,D>
 
 	PK getFirstKey(Config config);
 	D getFirst(Config config);
-//	
-//	List<Key<D>> getKeysWithPrefix(Key<D> prefix, Config config);
+	
 	List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config);
 	List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config);
-
-	@Deprecated
-	List<PK> getKeysInRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config);
 
 	SortedScannerIterable<PK> scanKeys(final Range<PK> range, final Config config);
 	SortedScannerIterable<D> scan(final Range<PK> range, final Config config);

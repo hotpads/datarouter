@@ -64,20 +64,6 @@ implements SortedMapStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, final PK end,
-			final boolean endInclusive, final Config config){
-		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
-		SortedSet<PK> sortedDedupedResults = DrSetTool.createTreeSet();
-		Collection<N> physicalNodes = getPhysicalNodesForRange(range);
-		for(N node : DrIterableTool.nullSafe(physicalNodes)){
-			List<PK> resultFromSingleNode = node.getKeysInRange(start, startInclusive, end, endInclusive, config);
-			sortedDedupedResults.addAll(DrCollectionTool.nullSafe(resultFromSingleNode));
-		}
-		List<PK> resultList = DrListTool.createArrayList(sortedDedupedResults);
-		return getLimitedCopyOfResultIfNecessary(config, resultList);
-	}
-
-	@Override
 	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config config) {
 		return getWithPrefixes(DrListTool.wrap(prefix), wildcardLastField, config);
 	}

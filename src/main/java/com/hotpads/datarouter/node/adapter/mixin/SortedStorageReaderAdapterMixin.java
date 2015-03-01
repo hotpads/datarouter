@@ -55,18 +55,6 @@ implements SortedStorageReader<PK,D>{
 	}
 
 	@Override
-	public List<PK> getKeysInRange(PK start, boolean startInclusive, PK end,
-			boolean endInclusive, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
-		long startNs = System.nanoTime();
-		try{
-			return backingNode.getKeysInRange(start, startInclusive, end, endInclusive, config);
-		}finally{
-			adapterNode.recordCallsite(config, startNs, 1);
-		}
-	}
-
-	@Override
 	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config pConfig){
 		Config config = Config.nullSafe(pConfig).setCallsite(adapterNode.getCallsite());
 		long startNs = System.nanoTime();

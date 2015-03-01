@@ -42,12 +42,6 @@ implements SortedStorageReaderNode<PK,D>{
 	}
 
 	@Override
-	public List<PK> getKeysInRange(PK start, boolean startInclusive, PK end,
-			boolean endInclusive, Config pConfig){
-		return sortedStorageReaderMixin.getKeysInRange(start, startInclusive, end, endInclusive, pConfig);
-	}
-
-	@Override
 	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config pConfig){
 		return sortedStorageReaderMixin.getWithPrefix(prefix, wildcardLastField, pConfig);
 	}
