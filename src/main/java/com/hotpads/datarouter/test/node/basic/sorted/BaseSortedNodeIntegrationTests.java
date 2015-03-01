@@ -263,18 +263,6 @@ public abstract class BaseSortedNodeIntegrationTests{
 	}
 	
 	@Test
-	public void testPrefixedRange(){
-		if(isHBaseEntity()){ return; }//not implemented
-		SortedBeanKey prefix = new SortedBeanKey(SortedBeans.PREFIX_a, null, null, null);
-		SortedBeanKey al = new SortedBeanKey(SortedBeans.RANGE_al, null, null, null);
-		List<SortedBean> result1 = sortedNode.getPrefixedRange(prefix, true, al, true, null);
-		int expectedSize1 = SortedBeans.RANGE_LENGTH_al_b * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS 
-				* SortedBeans.NUM_ELEMENTS;
-		Assert.assertEquals(expectedSize1, DrCollectionTool.size(result1));
-		Assert.assertTrue(DrListTool.isSorted(result1));
-	}
-	
-	@Test
 	public void testGet(){
 		Iterable<SortedBean> iterable = sortedNode.scan(null, null);
 		for(SortedBean sortedBeanFromScan : iterable){

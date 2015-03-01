@@ -44,14 +44,6 @@ implements SortedMapStorageReaderNode<PK,D>{
 		N node = slaveOk ? chooseSlave(config) : master;
 		return node.getFirstKey(config);
 	}
-	
-	@Override
-	public List<D> getPrefixedRange(PK prefix, boolean wildcardLastField, PK start, boolean startInclusive,
-			Config config){
-		boolean slaveOk = Config.nullSafe(config).getSlaveOk();
-		N node = slaveOk ? chooseSlave(config) : master;
-		return node.getPrefixedRange(prefix, wildcardLastField, start, startInclusive, config);
-	}
 
 	@Override
 	public List<PK> getKeysInRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){

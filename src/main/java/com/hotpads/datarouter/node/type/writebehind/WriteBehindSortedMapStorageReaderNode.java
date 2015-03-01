@@ -35,14 +35,6 @@ implements SortedMapStorageReaderNode<PK,D>{
 	public PK getFirstKey(Config config) {
 		return backingNode.getFirstKey(config);
 	}
-	
-	@Override
-	public List<D> getPrefixedRange(
-			PK prefix, boolean wildcardLastField,
-			PK start, boolean startInclusive, Config config) {
-		return backingNode.getPrefixedRange(
-				prefix, wildcardLastField, start, startInclusive, config);
-	}
 
 	@Override
 	public List<PK> getKeysInRange(PK start, boolean startInclusive, PK end,

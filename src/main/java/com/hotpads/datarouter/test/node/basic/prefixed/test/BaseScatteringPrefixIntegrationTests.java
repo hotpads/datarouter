@@ -179,26 +179,6 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 		Assert.assertTrue(DrListTool.isSorted(result1));
 	}
 	
-	@Test
-	public void testPrefixedRange(){
-		ScatteringPrefixBeanKey prefix = new ScatteringPrefixBeanKey("a", null);
-		ScatteringPrefixBeanKey startKey = new ScatteringPrefixBeanKey("a", 173L);
-		int batchSize = 2;
-		List<ScatteringPrefixBean> all = DrListTool.create();
-		ScatteringPrefixBeanKey batchStartKey = startKey;
-		while(true){	
-			boolean startInclusive = DrCollectionTool.isEmpty(all);//only inclusive on first batch
-			List<ScatteringPrefixBean> batch = router.scatteringPrefixBeanSorted().getPrefixedRange(
-					prefix, true, batchStartKey, startInclusive, new Config().setLimit(batchSize));
-			all.addAll(DrCollectionTool.nullSafe(batch));
-			if(DrCollectionTool.size(batch) < batchSize){ break; }
-			batchStartKey = DrCollectionTool.getLast(batch).getKey();
-		}
-		int expectedSize1 = 5;//confusing... just looked at mysql
-		Assert.assertEquals(expectedSize1, DrCollectionTool.size(all));
-		Assert.assertTrue(DrListTool.isSorted(all));
-	}
-	
 }
 
 

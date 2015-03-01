@@ -249,14 +249,6 @@ implements HBasePhysicalNode<PK,D>,
 		return results;
 		
 	}
-
-	@Deprecated
-	@Override
-	public List<D> getPrefixedRange(final PK prefix, final boolean wildcardLastField, 
-			final PK start, final boolean startInclusive, 
-			final Config pConfig){
-		throw new NotImplementedException("apologies");
-	}
 	
 	@Override
 	public SortedScannerIterable<PK> scanKeys(final Range<PK> pRange, final Config pConfig){

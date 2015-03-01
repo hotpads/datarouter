@@ -220,22 +220,6 @@ implements HBasePhysicalNode<PK,D>,
 		return results;
 		
 	}
-
-	@Override
-	public List<D> getPrefixedRange(final PK prefix, final boolean wildcardLastField, 
-			final PK start, final boolean startInclusive, 
-			final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		List<Pair<byte[],byte[]>> prefixedRanges = HBaseScatteringPrefixQueryBuilder.getPrefixedRanges(fieldInfo,  
-				prefix, wildcardLastField, start, startInclusive, null, true, config);
-		List<HBaseDatabeanScanner<PK,D>> scanners = HBaseScatteringPrefixQueryBuilder
-				.getManualDatabeanScannersForRanges(this, fieldInfo, prefixedRanges, pConfig);
-		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
-		Iterable<D> iterable = new SortedScannerIterable<D>(collator);
-		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
-		List<D> results = DrIterableTool.createArrayListFromIterable(iterable, limit);
-		return results;
-	}
 	
 	@Override
 	public SortedScannerIterable<PK> scanKeys(final Range<PK> pRange, final Config pConfig){

@@ -13,7 +13,6 @@ import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstKeyOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetKeysOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetPrefixedRangeOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetPrimaryKeyRangeOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetRangeOp;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetWithPrefixesOp;
@@ -201,18 +200,6 @@ implements MapStorageReader<PK,D>,
 		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
 		String opName = SortedStorageReader.OP_getRange;
 		JdbcGetRangeOp<PK,D,F> op = new JdbcGetRangeOp<PK,D,F>(this, opName, range, config);
-		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
-	}
-	
-	
-	@Override
-	public List<D> getPrefixedRange(
-			final PK prefix, final boolean wildcardLastField,
-			final PK start, final boolean startInclusive, 
-			final Config config) {
-		String opName = SortedStorageReader.OP_getPrefixedRange;
-		JdbcGetPrefixedRangeOp<PK,D,F> op = new JdbcGetPrefixedRangeOp<PK,D,F>(this, opName, 
-				prefix, wildcardLastField, start, startInclusive, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
