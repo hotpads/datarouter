@@ -43,36 +43,26 @@ implements MultiIndexNode<PK, D, IK, IE>
 	/********************* IndexReader ******************************/
 	
 	@Override
-	public List<D> lookupMulti(IK indexKey, boolean wildcar dLastField, Config config){
+	public List<D> lookupMulti(IK indexKey, Config config){
 		if(indexKey==null){ return new LinkedList<D>(); }
 		//hard-coding startInclusive to true because it will usually be true on the first call, 
 		// but subsequent calls may want false, so consider adding as method param
 		Range<IK> indexKeyRange = new Range<>(indexKey, true, indexKey, true);
 		List<IE> indexEntries = DrListTool.createArrayList(indexNode.scan(indexKeyRange, null));
-//		List<IE> indexEntries = indexNode.getPrefixedRange(indexKey, wildcardLastField, null, true, config);
 		List<PK> primaryKeys = IndexEntryTool.getPrimaryKeys(indexEntries);
 		List<D> databeans = mainNode.reader().getMulti(primaryKeys, config);
 		return databeans;
 	}
 	
-	/*
-	 * 
-	 * 
-	 * 
-	 * breaking compilation until figuring out what to do wtih wildcardLastField
-	 * 
-	 * 
-	 */
 	
 	@Override
-	public List<D> lookupMultiMulti(Collection<IK> indexKeys, boolean wil dcardLastField, Config config){
+	public List<D> lookupMultiMulti(Collection<IK> indexKeys, Config config){
 		if(DrCollectionTool.isEmpty(indexKeys)){ return new LinkedList<D>(); }
 		List<IE> allIndexEntries = new ArrayList<>();
 		for(IK indexKey : indexKeys){
 			Range<IK> indexKeyRange = new Range<>(indexKey, true, indexKey, true);
 			List<IE> indexEntries = DrListTool.createArrayList(indexNode.scan(indexKeyRange, null));
 			allIndexEntries.addAll(DrCollectionTool.nullSafe(indexEntries));
-//			indexEntries.addAll(indexNode.getPrefixedRange(indexKey, wildcardLastField, null, true, config));
 		}
 		List<PK> primaryKeys = IndexEntryTool.getPrimaryKeys(allIndexEntries);
 		List<D> databeans = mainNode.reader().getMulti(primaryKeys, config);

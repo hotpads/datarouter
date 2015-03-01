@@ -192,10 +192,10 @@ public class JdbcManagedIndexIntegrationTests{
 	
 	private void testLookupMulti(TestDatabeanWithIndexNode node){
 		List<TestDatabean> databeans = node.byC.lookupMulti(
-				new TestDatabeanWithManagedIndexByCKey("lala"), true, null);
+				new TestDatabeanWithManagedIndexByCKey("lala"), null);
 		Assert.assertEquals(databeans.size(), 0);
 		databeans = node.byC.lookupMulti(
-				new TestDatabeanWithManagedIndexByCKey("ed"), true, null);
+				new TestDatabeanWithManagedIndexByCKey("ed"), null);
 		Assert.assertEquals(databeans.size(), 2);
 		List<TestDatabean> expected = DrListTool.create(
 				new TestDatabean("Neventi vad", "d'ar Vreton", "ed"),
@@ -215,7 +215,7 @@ public class JdbcManagedIndexIntegrationTests{
 		List<TestDatabeanWithManagedIndexByCKey> keys = DrListTool.create(
 				new TestDatabeanWithManagedIndexByCKey("ed"),
 				new TestDatabeanWithManagedIndexByCKey("or"));
-		List<TestDatabean> databeans = node.byC.lookupMultiMulti(keys, true, null);
+		List<TestDatabean> databeans = node.byC.lookupMultiMulti(keys, null);
 		Assert.assertEquals(databeans.size(), 4);
 		List<TestDatabean> expected = DrListTool.create(
 				new TestDatabean("Neventi vad", "d'ar Vreton", "ed"),
