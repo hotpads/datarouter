@@ -168,17 +168,6 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 		Assert.assertTrue(DrListTool.isSorted(result1));
 	}
 	
-	@Test
-	public void testGetInRange(){
-		ScatteringPrefixBeanKey a190 = new ScatteringPrefixBeanKey("a", 190L);
-		ScatteringPrefixBeanKey b6 = new ScatteringPrefixBeanKey("b", 6L);
-		List<ScatteringPrefixBean> result1 = router.scatteringPrefixBean().getRange(
-				a190, true, b6, true, null);
-		int expectedSize1 = 4;//confusing... just looked at mysql
-		Assert.assertEquals(expectedSize1, DrCollectionTool.size(result1));
-		Assert.assertTrue(DrListTool.isSorted(result1));
-	}
-	
 }
 
 

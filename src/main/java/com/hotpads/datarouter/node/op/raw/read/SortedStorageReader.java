@@ -45,8 +45,6 @@ extends NodeOps<PK,D>
 
 	@Deprecated
 	List<PK> getKeysInRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config);
-	@Deprecated
-	List<D> getRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config);
 
 	SortedScannerIterable<PK> scanKeys(final Range<PK> range, final Config config);
 	SortedScannerIterable<D> scan(final Range<PK> range, final Config config);

@@ -190,9 +190,7 @@ implements MapStorageReader<PK,D>,
 		return new SessionExecutorImpl<List<PK>>(op, getTraceName(opName)).call();
 	}
 	
-
-	@Deprecated
-	@Override
+	//used by JdbcDatabeanScanner
 	public List<D> getRange(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 

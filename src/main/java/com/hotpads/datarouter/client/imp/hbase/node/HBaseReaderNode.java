@@ -158,8 +158,7 @@ implements HBasePhysicalNode<PK,D>,
 	@Override
 	public D getFirst(Config pConfig){
 		Config config = Config.nullSafe(pConfig).setLimit(1);
-		return DrCollectionTool.getFirst(
-				getRange(null, true, null, true, config));
+		return DrIterableTool.first(scan(null, config));
 	}
 	
 	
@@ -206,19 +205,6 @@ implements HBasePhysicalNode<PK,D>,
 		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
 		List<PK> results = DrIterableTool.createArrayListFromIterable(iter, limit);
 		return results;
-	}
-	
-
-	@Deprecated
-	@Override
-	public List<D> getRange(final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		PeekableIterable<D> iter = scan(Range.create(start, startInclusive, end, endInclusive), pConfig);
-		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
-		List<D> results = DrIterableTool.createArrayListFromIterable(iter, limit);
-		return results;
-		
 	}
 	
 	@Override

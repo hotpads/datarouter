@@ -214,9 +214,8 @@ implements MapStorageReader<PK,D>,
 	}
 	
 
-	@Deprecated
+	//used by HibernateDatabeanScanner
 	@SuppressWarnings("unchecked")
-	@Override
 	public List<D> getRange(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 

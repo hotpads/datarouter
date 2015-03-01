@@ -205,30 +205,6 @@ public abstract class BaseSortedNodeIntegrationTests{
 		Assert.assertTrue(DrListTool.isSorted(result2));
 	}
 	
-	@Test
-	public void testGetInRange(){
-		SortedBeanKey alp1 = new SortedBeanKey(SortedBeans.RANGE_alp, null, null, null);
-		SortedBeanKey emu1 = new SortedBeanKey(SortedBeans.RANGE_emu, null, null, null);
-		List<SortedBean> result1 = sortedNode.getRange(alp1, true, emu1, true, null);
-		int expectedSize1 = SortedBeans.RANGE_LENGTH_alp_emu_inc * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS 
-				* SortedBeans.NUM_ELEMENTS;
-		Assert.assertEquals(expectedSize1, DrCollectionTool.size(result1));
-		Assert.assertTrue(DrListTool.isSorted(result1));
-		
-		List<SortedBean> result1b = sortedNode.getRange(alp1, true, emu1, false, null);
-		int expectedSize1b = (SortedBeans.RANGE_LENGTH_alp_emu_inc-1) * SortedBeans.NUM_ELEMENTS 
-				* SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
-		Assert.assertEquals(expectedSize1b, DrCollectionTool.size(result1b));
-		Assert.assertTrue(DrListTool.isSorted(result1b));
-		
-		SortedBeanKey alp2 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.RANGE_alp, null, null);
-		SortedBeanKey emu2 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.RANGE_emu, null, null);
-		List<SortedBean> result2 = sortedNode.getRange(alp2, true, emu2, true, null);
-		int expectedSize2 = SortedBeans.RANGE_LENGTH_alp_emu_inc * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
-		Assert.assertEquals(expectedSize2, DrCollectionTool.size(result2));
-		Assert.assertTrue(DrListTool.isSorted(result2));
-	}
-	
 	@Test //small batch sizes to make sure we're resuming each batch from the correct spot
 	public void testIncrementalScan(){
 		Config smallIterateBatchSize = new Config().setIterateBatchSize(3);
