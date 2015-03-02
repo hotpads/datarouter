@@ -16,6 +16,7 @@ import java.util.concurrent.TimeoutException;
 import javax.inject.Singleton;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -32,6 +33,7 @@ import com.hotpads.util.http.response.exception.HotPadsHttpException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestExecutionException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestFutureTimeoutException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestInterruptedException;
+import com.hotpads.util.http.response.exception.HotPadsHttpResponseException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 import com.hotpads.util.http.security.ApiKeyPredicate;
 import com.hotpads.util.http.security.CsrfValidator;
@@ -123,7 +125,11 @@ public class HotPadsHttpClient {
 			HttpRequestCallable requestCallable = new HttpRequestCallable(httpClient, internalHttpRequest, context);
 			Future<HttpResponse> httpResponseFuture = executor.submit(requestCallable);
 			HttpResponse httpResponse = httpResponseFuture.get(futureTimeoutMs, TimeUnit.MILLISECONDS);
-			return new HotPadsHttpResponse(httpResponse);
+			HotPadsHttpResponse response = new HotPadsHttpResponse(httpResponse);
+			if (response.getStatusCode() >= HttpStatus.SC_BAD_REQUEST) {
+				throw new HotPadsHttpResponseException(response);
+			}
+			return response;
 		} catch (TimeoutException e) {
 			ex = new HotPadsHttpRequestFutureTimeoutException(e, timeoutMs);
 		} catch (CancellationException | InterruptedException e) {
