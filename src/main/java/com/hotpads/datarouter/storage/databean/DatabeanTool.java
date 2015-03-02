@@ -9,7 +9,7 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ArrayTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
 
 
 public class DatabeanTool {	
@@ -49,7 +49,7 @@ public class DatabeanTool {
 		//skip zero-length fields in non-key bytes
 		//TODO should this distinguish between null and empty Strings?
 		byte[] nonKeyBytes = FieldSetTool.getSerializedKeyValues(nonKeyFields, true, true);
-		byte[] allBytes = ArrayTool.concatenate(keyBytes, nonKeyBytes);
+		byte[] allBytes = DrArrayTool.concatenate(keyBytes, nonKeyBytes);
 		return allBytes;
 	}
 	

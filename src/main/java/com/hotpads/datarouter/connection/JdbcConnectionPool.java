@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Joiner;
 import com.hotpads.datarouter.client.imp.jdbc.factory.JdbcOptions;
 import com.hotpads.datarouter.util.ApplicationPaths;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mchange.v2.c3p0.DataSources;
 
@@ -57,7 +57,7 @@ public class JdbcConnectionPool{
 		Integer maxPoolSize = options.maxPoolSize(defaultOptions.maxPoolSize(20));
 		Boolean logging = options.logging(defaultOptions.logging(false));
 
-		schemaName = StringTool.getStringAfterLastOccurrence('/', url);
+		schemaName = DrStringTool.getStringAfterLastOccurrence('/', url);
 		
 		//configurable props
 		pool = new ComboPooledDataSource();

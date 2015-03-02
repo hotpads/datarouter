@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class SortedBeans{
 
@@ -19,7 +19,7 @@ public class SortedBeans{
 			S_ostrich = "ostrich",
 			S_pelican = "pelican";
 	
-	public static final SortedSet<String> STRINGS = SetTool.createTreeSet(
+	public static final SortedSet<String> STRINGS = DrSetTool.createTreeSet(
 			S_aardvark,
 			S_albatross,
 			S_alpaca,
@@ -47,7 +47,7 @@ public class SortedBeans{
 			RANGE_LENGTH_emu = 4;
 	
 	public static final int NUM_ELEMENTS = STRINGS.size();
-	public static final List<Integer> INTEGERS = ListTool.createArrayList(NUM_ELEMENTS);
+	public static final List<Integer> INTEGERS = DrListTool.createArrayList(NUM_ELEMENTS);
 	static{
 		for(int i=0; i < NUM_ELEMENTS; ++i){
 			INTEGERS.add(i);
@@ -57,17 +57,17 @@ public class SortedBeans{
 	public static final int TOTAL_RECORDS = NUM_ELEMENTS*NUM_ELEMENTS*NUM_ELEMENTS*NUM_ELEMENTS;
 	
 	public static List<SortedBean> generatedSortedBeans(){
-		List<String> as = ListTool.createArrayList(STRINGS);
-		List<String> bs = ListTool.createArrayList(STRINGS);
-		List<Integer> cs = ListTool.createArrayList(INTEGERS);
-		List<String> ds = ListTool.createArrayList(STRINGS);
+		List<String> as = DrListTool.createArrayList(STRINGS);
+		List<String> bs = DrListTool.createArrayList(STRINGS);
+		List<Integer> cs = DrListTool.createArrayList(INTEGERS);
+		List<String> ds = DrListTool.createArrayList(STRINGS);
 		//shuffle them for fun.  they should end up sorted in the table
 		Collections.shuffle(as);
 		Collections.shuffle(bs);
 		Collections.shuffle(cs);
 		Collections.shuffle(ds);
 		
-		List<SortedBean> beans = ListTool.createArrayList();//save in periodic batches
+		List<SortedBean> beans = DrListTool.createArrayList();//save in periodic batches
 		for(int a=0; a < NUM_ELEMENTS; ++a){
 			for(int b=0; b < NUM_ELEMENTS; ++b){
 				for(int c=0; c < NUM_ELEMENTS; ++c){

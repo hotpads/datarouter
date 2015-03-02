@@ -19,7 +19,7 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.DdlGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlAlterTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.imp.ConnectionSqlTableGenerator;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class TestSchemaUpdateOptions{
 	static Logger logger = LoggerFactory.getLogger(TestSchemaUpdateOptions.class);
@@ -37,8 +37,8 @@ public class TestSchemaUpdateOptions{
 		SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 		SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 		SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
-		List<SqlColumn> listBC = ListTool.createArrayList();
-		List<SqlColumn> listM = ListTool.createArrayList();
+		List<SqlColumn> listBC = DrListTool.createArrayList();
+		List<SqlColumn> listM = DrListTool.createArrayList();
 		listBC.add(colB);
 		listBC.add(colC);
 		listM.add(colM);
@@ -105,8 +105,8 @@ public class TestSchemaUpdateOptions{
 		SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 		SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
 		List<SqlColumn> 
-			listBC = ListTool.createArrayList(),
-			listM = ListTool.createArrayList();
+			listBC = DrListTool.createArrayList(),
+			listM = DrListTool.createArrayList();
 		listBC.add(colB);
 		listBC.add(colC);
 		listM.add(colM);

@@ -11,7 +11,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchingSortedScanner;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -37,7 +37,7 @@ public class JdbcIndexScanner<PK extends PrimaryKey<PK>, D extends Databean<PK, 
 		PKLookup lastRowOfPreviousBatch = ReflectionTool.create(indexClass, indexClass.getCanonicalName() + " must have a no-arg constructor");
 		boolean isStartInclusive = true;
 		if (currentBatch != null){
-			PKLookup endOfLastBatch = CollectionTool.getLast(currentBatch);
+			PKLookup endOfLastBatch = DrCollectionTool.getLast(currentBatch);
 			if (endOfLastBatch == null){
 				currentBatch = null;
 				return;
@@ -48,7 +48,7 @@ public class JdbcIndexScanner<PK extends PrimaryKey<PK>, D extends Databean<PK, 
 		Range<PKLookup> range = new Range<PKLookup>(lastRowOfPreviousBatch, isStartInclusive);
 
 		currentBatch = doLoad(range);
-		if (CollectionTool.size(currentBatch) < BATCH_SIZE_DEFAULT){
+		if (DrCollectionTool.size(currentBatch) < BATCH_SIZE_DEFAULT){
 			noMoreBatches = true;
 		}
 	}

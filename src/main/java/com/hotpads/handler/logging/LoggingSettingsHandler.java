@@ -19,13 +19,13 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.dispatcher.DatarouterDispatcher;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.JsonMav;
 import com.hotpads.logging.HotPadsLoggingConfigDao;
 import com.hotpads.logging.LoggingConfigUpdaterJob;
-import com.hotpads.util.core.StringTool;
 import com.hotpads.util.core.logging.Log4j2Configurator;
 import com.hotpads.util.core.logging.UtilLog4j2Configuration;
 
@@ -84,7 +84,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 	private Mav testLog(){
 		String loggerName = params.optional("loggerName", "com.hotpads.handler.logging.com.hotpads.handler.logging");
 		String message = params.required("loggerMessage");
-		if(StringTool.isEmpty(message)){
+		if(DrStringTool.isEmpty(message)){
 			message = DEFAULT_TEST_LOG_MESSAGE;
 		}
 		Logger logger = LoggerFactory.getLogger(loggerName);

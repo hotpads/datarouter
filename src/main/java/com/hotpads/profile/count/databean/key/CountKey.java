@@ -13,7 +13,7 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
-import com.hotpads.util.core.DateTool;
+import com.hotpads.datarouter.util.core.DrDateTool;
 
 @SuppressWarnings("serial")
 @Embeddable
@@ -81,7 +81,7 @@ public class CountKey extends BasePrimaryKey<CountKey>{
 
 	@Override
 	public String toString(){
-		String time = startTimeMs==null?"":DateTool.getYYYYMMDDHHMMSSWithPunctuationNoSpaces(startTimeMs);
+		String time = startTimeMs==null?"":DrDateTool.getYYYYMMDDHHMMSSWithPunctuationNoSpaces(startTimeMs);
 		String flushDelaySeconds = startTimeMs==null||created==null?"":(created - startTimeMs) / 1000 + "";
 		return super.toString()+"["+time+"+"+flushDelaySeconds+"s]";
 	}

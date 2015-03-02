@@ -8,32 +8,32 @@ import javax.inject.Inject;
 import com.hotpads.datarouter.client.imp.memory.MemoryClient;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.routing.RouterParams;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 public class MemoryHandler extends BaseHandler {
 	
 	/**************** static **********************/
 
-	private static final List<String> NEEDS_CLIENT = ListTool.create();
+	private static final List<String> NEEDS_CLIENT = DrListTool.create();
 	static{
 		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
 	}
 
-	private static final List<String> NEEDS_ROUTER = ListTool.create();
+	private static final List<String> NEEDS_ROUTER = DrListTool.create();
 	static{
 		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
 		NEEDS_ROUTER.add(RoutersHandler.ACTION_inspectRouter);
 	}
 
-	private static final List<String> NEEDS_NODE = ListTool.create();
+	private static final List<String> NEEDS_NODE = DrListTool.create();
 	static{
 	}
 
-	private static final HashMap<String,List<String>> MEMORY_NEEDS = MapTool.createHashMap();
+	private static final HashMap<String,List<String>> MEMORY_NEEDS = DrMapTool.createHashMap();
 	static{
 		MEMORY_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 		MEMORY_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);

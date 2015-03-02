@@ -7,8 +7,8 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 @SuppressWarnings("serial") 
 public abstract class BaseEntityPrimaryKey<EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>>
@@ -27,7 +27,7 @@ implements EntityPrimaryKey<EK,PK>
 	 */
 	@Override
 	public List<Field<?>> getEntityKeyFields(){
-		if(StringTool.isEmpty(getEntityKeyName())){//Should this logic be in FieldTool.prependPrefixes
+		if(DrStringTool.isEmpty(getEntityKeyName())){//Should this logic be in FieldTool.prependPrefixes
 			return getEntityKey().getFields();
 		}
 		return FieldTool.prependPrefixes(getEntityKeyName(), getEntityKey().getFields());
@@ -37,7 +37,7 @@ implements EntityPrimaryKey<EK,PK>
 	public List<Field<?>> getFields(){
 		List<Field<?>> entityKeyFields = getEntityKeyFields();
 		List<Field<?>> postEntityKeyFields = getPostEntityKeyFields();
-		List<Field<?>> allPkFields = ListTool.concatenate(entityKeyFields, postEntityKeyFields);
+		List<Field<?>> allPkFields = DrListTool.concatenate(entityKeyFields, postEntityKeyFields);
 		return allPkFields;
 	}
 	

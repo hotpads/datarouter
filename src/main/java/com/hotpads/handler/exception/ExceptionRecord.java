@@ -13,8 +13,8 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.DateField;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.util.UuidTool;
-import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.ExceptionTool;
+import com.hotpads.datarouter.util.core.DrClassTool;
+import com.hotpads.datarouter.util.core.DrExceptionTool;
 /**
  * The record of an Exception
  */
@@ -114,11 +114,11 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 	}
 
 	public String getColoredStackTrace() {
-		return ExceptionTool.getColorized(stackTrace);
+		return DrExceptionTool.getColorized(stackTrace);
 	}
 
 	public String getShortStackTrace() {
-		return ExceptionTool.getShortStackTrace(stackTrace);
+		return DrExceptionTool.getShortStackTrace(stackTrace);
 	}
 	public void setStackTrace(String stackTrace) {
 		this.stackTrace = stackTrace;
@@ -139,7 +139,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey, ExceptionR
 
 	@Override
 	public int compareTo(Databean<?, ?> that) {
-		int diff = ClassTool.compareClass(this, that);
+		int diff = DrClassTool.compareClass(this, that);
 		if(diff != 0){ return diff; }
 		return created.compareTo(((ExceptionRecord)that).getCreated());
 	}

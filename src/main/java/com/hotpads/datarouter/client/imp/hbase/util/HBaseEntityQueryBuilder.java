@@ -5,7 +5,7 @@ import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
-import com.hotpads.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
 
 public class HBaseEntityQueryBuilder<
 		EK extends EntityKey<EK>,
@@ -29,7 +29,7 @@ public class HBaseEntityQueryBuilder<
 	
 	public byte[] getRowBytesWithPartition(EK ek){
 		byte[] partitionPrefix = entityFieldInfo.getEntityPartitioner().getPrefix(ek);
-		return ByteTool.concatenate(partitionPrefix, getRowBytes(ek));
+		return DrByteTool.concatenate(partitionPrefix, getRowBytes(ek));
 	}
 	
 }

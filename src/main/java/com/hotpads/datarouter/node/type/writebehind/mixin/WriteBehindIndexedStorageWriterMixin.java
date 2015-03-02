@@ -11,7 +11,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class WriteBehindIndexedStorageWriterMixin<
 	PK extends PrimaryKey<PK>,
@@ -27,12 +27,12 @@ implements IndexedStorageWriter<PK,D>{
 
 	@Override
 	public void delete(Lookup<PK> lookup, Config config) {
-		node.getQueue().offer(new WriteWrapper<Lookup<PK>>(OP_indexDelete, ListTool.wrap(lookup), config));
+		node.getQueue().offer(new WriteWrapper<Lookup<PK>>(OP_indexDelete, DrListTool.wrap(lookup), config));
 	}
 
 	@Override
 	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config) {
-		node.getQueue().offer(new WriteWrapper<UniqueKey<PK>>(OP_deleteUnique, ListTool.wrap(uniqueKey), config));
+		node.getQueue().offer(new WriteWrapper<UniqueKey<PK>>(OP_deleteUnique, DrListTool.wrap(uniqueKey), config));
 	}
 
 	@Override

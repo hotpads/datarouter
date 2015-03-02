@@ -36,8 +36,8 @@ import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.iterable.SortedScannerIterable;
 import com.hotpads.util.core.iterable.scanner.sorted.SortedScanner;
@@ -78,9 +78,9 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public D get(final PK key, final Config config){
 		String opName = MapStorageReader.OP_get;
-		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(this, opName, ListTool.wrap(key), config);
+		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(this, opName, DrListTool.wrap(key), config);
 		List<D> databeans = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();//should only be one
-		return CollectionTool.getFirst(databeans);
+		return DrCollectionTool.getFirst(databeans);
 	}
 	
 	@Override
@@ -112,18 +112,18 @@ implements MapStorageReader<PK,D>,
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
 		String opName = IndexedStorageReader.OP_lookupUnique;
 		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(this, opName, 
-				ListTool.wrap(uniqueKey), config);
+				DrListTool.wrap(uniqueKey), config);
 		List<D> result = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
-		if(CollectionTool.size(result)>1){
+		if(DrCollectionTool.size(result)>1){
 			throw new DataAccessException("found >1 databeans with unique index key="+uniqueKey);
 		}
-		return CollectionTool.getFirst(result);
+		return DrCollectionTool.getFirst(result);
 	}
 
 	@Override
 	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		String opName = IndexedStorageReader.OP_lookupMultiUnique;
-		if(CollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
+		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
 		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(this, opName, uniqueKeys,
 				config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
@@ -133,7 +133,7 @@ implements MapStorageReader<PK,D>,
 	//TODO pay attention to wildcardLastField
 	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config) {
 		String opName = IndexedStorageReader.OP_lookup;
-		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(this, opName, ListTool.wrap(lookup), 
+		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(this, opName, DrListTool.wrap(lookup), 
 				wildcardLastField, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
@@ -142,7 +142,7 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
 		String opName = IndexedStorageReader.OP_lookupMulti;
-		if(CollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
+		if(DrCollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
 		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(this, opName, lookups, false, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
@@ -167,7 +167,7 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public List<D> getWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
-		return getWithPrefixes(ListTool.wrap(prefix),wildcardLastField,config);
+		return getWithPrefixes(DrListTool.wrap(prefix),wildcardLastField,config);
 	}
 
 	@Override

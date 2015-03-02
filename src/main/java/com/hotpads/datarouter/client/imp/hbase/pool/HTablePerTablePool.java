@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.datastructs.MutableString;
 
@@ -106,9 +106,9 @@ public class HTablePerTablePool implements HTablePool{
 	
 	public Integer getTotalPoolSize(){
 		int totalPoolSize = 0;
-		for(String tableName : MapTool.nullSafe(hTablesByName).keySet()){
+		for(String tableName : DrMapTool.nullSafe(hTablesByName).keySet()){
 			List<HTable> hTables = hTablesByName.get(tableName);
-			totalPoolSize += CollectionTool.size(hTables);
+			totalPoolSize += DrCollectionTool.size(hTables);
 		}
 		return totalPoolSize;
 	}

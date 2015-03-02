@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.MapTool;
-import com.hotpads.util.core.NumberFormatter;
+import com.hotpads.datarouter.util.core.DrMapTool;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.SemaphoreTool;
 import com.hotpads.util.datastructs.MutableString;
@@ -52,7 +52,7 @@ public class HTableExecutorServicePool implements HTablePool{
 		this.maxSize = maxSize;
 		this.hTableSemaphore = new Semaphore(maxSize);
 		this.executorServiceQueue = new LinkedBlockingDeque<HTableExecutorService>(maxSize);
-		this.activeHTables = MapTool.createConcurrentHashMap();
+		this.activeHTables = DrMapTool.createConcurrentHashMap();
 		this.primaryKeyClassByName = primaryKeyClassByName;
 	}
 
@@ -185,7 +185,7 @@ public class HTableExecutorServicePool implements HTablePool{
 		SemaphoreTool.acquire(hTableSemaphore);
 		long acquireTimeMs = System.currentTimeMillis() - startAquireMs;
 		if(acquireTimeMs > LOG_SEMAPHORE_ACQUISITIONS_OVER_MS){
-			logger.warn("acquiring semaphore took "+NumberFormatter.addCommas(acquireTimeMs)+"ms");
+			logger.warn("acquiring semaphore took "+DrNumberFormatter.addCommas(acquireTimeMs)+"ms");
 		}
 	}
 

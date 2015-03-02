@@ -11,8 +11,8 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.storage.field.BaseField;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ByteTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
@@ -45,7 +45,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	
 	@Override
 	public byte[] getBytes(){
-		return value==null?null:ByteTool.flipToAndFromComparableByteArray(this.value);
+		return value==null?null:DrByteTool.flipToAndFromComparableByteArray(this.value);
 	}
 	
 	@Override
@@ -58,10 +58,10 @@ public class ByteArrayField extends BaseField<byte[]>{
 		if(this.value==null){ return null; }
 		//prepend the length as a positive integer (not bitwise comparable =( )
 		//TODO replace with varint
-		byte[] dataBytes = ByteTool.flipToAndFromComparableByteArray(value);//TODO write directly to the allBytes array
-		byte[] allBytes = new byte[4+ArrayTool.length(dataBytes)];
+		byte[] dataBytes = DrByteTool.flipToAndFromComparableByteArray(value);//TODO write directly to the allBytes array
+		byte[] allBytes = new byte[4+DrArrayTool.length(dataBytes)];
 		System.arraycopy(IntegerByteTool.getUInt31Bytes(0), 0, allBytes, 4, 4);
-		System.arraycopy(dataBytes, 0, allBytes, 4, ArrayTool.length(dataBytes));
+		System.arraycopy(dataBytes, 0, allBytes, 4, DrArrayTool.length(dataBytes));
 		return allBytes;
 	}
 	
@@ -73,13 +73,13 @@ public class ByteArrayField extends BaseField<byte[]>{
 	@Override
 	public byte[] fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
 		int numBytes = numBytesWithSeparator(bytes, offset) - 4;
-		return ByteTool.flipToAndFromComparableByteArray(bytes, offset + 4, numBytes);
+		return DrByteTool.flipToAndFromComparableByteArray(bytes, offset + 4, numBytes);
 	}
 	
 	@Override
 	public byte[] fromBytesButDoNotSet(byte[] bytes, int byteOffset){
 		int length = bytes.length - byteOffset;
-		return ByteTool.flipToAndFromComparableByteArray(bytes, byteOffset, length);
+		return DrByteTool.flipToAndFromComparableByteArray(bytes, byteOffset, length);
 	}
 	
 
@@ -92,12 +92,12 @@ public class ByteArrayField extends BaseField<byte[]>{
 	
 	@Override
 	public String getValueString(){
-		return ArrayTool.toCsvString(value);
+		return DrArrayTool.toCsvString(value);
 	}
 	
 	@Override
 	public int compareTo(Field<byte[]> other){
-		return ByteTool.bitwiseCompare(this.value, other.getValue());
+		return DrByteTool.bitwiseCompare(this.value, other.getValue());
 	}
 	
 	@Override

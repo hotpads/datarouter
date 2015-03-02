@@ -8,9 +8,9 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.StringTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class SqlCreateTableGenerator implements DdlGenerator{
 
@@ -36,7 +36,7 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 	@Override
 	public String generateDdl(){
 		StringBuilder sb=new StringBuilder("create table " );
-		if(!StringTool.isEmpty(databaseName)){
+		if(!DrStringTool.isEmpty(databaseName)){
 			sb.append(databaseName + ".");
 		}
 		sb.append(table.getName() + " (\n");
@@ -75,15 +75,15 @@ public class SqlCreateTableGenerator implements DdlGenerator{
 			sb.append(")");
 		}
 		
-		int numIndexes = CollectionTool.size(table.getIndexes());
+		int numIndexes = DrCollectionTool.size(table.getIndexes());
 		if(numIndexes > 0){ sb.append(",\n"); }
 		int indexCounter = -1;
-		for(SqlIndex index : IterableTool.nullSafe(table.getIndexes())){
+		for(SqlIndex index : DrIterableTool.nullSafe(table.getIndexes())){
 			++indexCounter;
 			sb.append(" index "+ index.getName() +" (");
-			int numColumns = CollectionTool.size(index.getColumns());
+			int numColumns = DrCollectionTool.size(index.getColumns());
 			int columnCounter = -1;
-			for(SqlColumn column : IterableTool.nullSafe(index.getColumns())){
+			for(SqlColumn column : DrIterableTool.nullSafe(index.getColumns())){
 				++columnCounter;
 				sb.append(column.getName());
 				if(columnCounter != numColumns -1){ sb.append(", "); }

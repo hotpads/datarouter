@@ -20,10 +20,10 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
+import com.hotpads.datarouter.util.core.DrBatchTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.TraceContext;
-import com.hotpads.util.core.BatchTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
 
 public class JdbcGetKeysOp<
 		PK extends PrimaryKey<PK>,
@@ -51,24 +51,24 @@ extends BaseJdbcOp<List<PK>>{
 		if(config!=null && config.getIterateBatchSize()!=null){
 			batchSize = config.getIterateBatchSize();
 		}
-		List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
+		List<? extends Key<PK>> sortedKeys = DrListTool.createArrayList(keys);
 		Collections.sort(sortedKeys);//should prob remove
-		int numBatches = BatchTool.getNumBatches(sortedKeys.size(), batchSize);
-		List<PK> result = ListTool.createArrayList(keys.size());
+		int numBatches = DrBatchTool.getNumBatches(sortedKeys.size(), batchSize);
+		List<PK> result = DrListTool.createArrayList(keys.size());
 		Connection connection = getConnection(node.getClientName());
 		for(int batchNum=0; batchNum < numBatches; ++batchNum){
-			List<? extends Key<PK>> keyBatch = BatchTool.getBatch(sortedKeys, batchSize, batchNum);
+			List<? extends Key<PK>> keyBatch = DrBatchTool.getBatch(sortedKeys, batchSize, batchNum);
 			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), keyBatch);
 			List<PK> batch = JdbcTool.selectPrimaryKeys(connection, node.getFieldInfo(), sql);
 			DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					CollectionTool.size(batch));//count the number of hits (arbitrary decision)
-			if(CollectionTool.notEmpty(batch)){
+					DrCollectionTool.size(batch));//count the number of hits (arbitrary decision)
+			if(DrCollectionTool.notEmpty(batch)){
 				Collections.sort(batch);//should prob remove
 				result.addAll(batch);
 			}
 		}
-		TraceContext.appendToSpanInfo("[got "+CollectionTool.size(result)+"/"+CollectionTool.size(keys)+"]");
+		TraceContext.appendToSpanInfo("[got "+DrCollectionTool.size(result)+"/"+DrCollectionTool.size(keys)+"]");
 		return result;
 	}
 }

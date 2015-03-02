@@ -7,14 +7,14 @@ import java.util.SortedMap;
 
 import javax.inject.Inject;
 
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.setting.Setting;
 import com.hotpads.setting.cached.imp.BooleanCachedSetting;
 import com.hotpads.setting.cached.imp.Duration;
 import com.hotpads.setting.cached.imp.DurationCachedSetting;
 import com.hotpads.setting.cached.imp.IntegerCachedSetting;
 import com.hotpads.setting.cached.imp.StringCachedSetting;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.MapTool;
 
 public abstract class SettingNode {
 
@@ -35,8 +35,8 @@ public abstract class SettingNode {
 	public SettingNode(ClusterSettingFinder finder, String name, String parentName){
 		this.name = name;
 		this.parentName = parentName;
-		this.children = Collections.synchronizedSortedMap(MapTool.<String,SettingNode>createTreeMap());
-		this.settings = Collections.synchronizedSortedMap(MapTool.<String,Setting<?>>createTreeMap());
+		this.children = Collections.synchronizedSortedMap(DrMapTool.<String,SettingNode>createTreeMap());
+		this.settings = Collections.synchronizedSortedMap(DrMapTool.<String,Setting<?>>createTreeMap());
 		this.finder = finder;
 	}
 
@@ -65,7 +65,7 @@ public abstract class SettingNode {
 	}
 
 	public List<SettingNode> getDescendanceByName(String nameParam){
-		ArrayList<SettingNode> list = ListTool.createArrayList();
+		ArrayList<SettingNode> list = DrListTool.createArrayList();
 		if(getName().equals(nameParam)){
 			list.add(this);
 			return list;
@@ -94,7 +94,7 @@ public abstract class SettingNode {
 	}
 
 	public List<SettingNode> getListChildren(){
-		ArrayList<SettingNode> list = ListTool.createArrayList();
+		ArrayList<SettingNode> list = DrListTool.createArrayList();
 		for (String childName : children.keySet()){
 			list.add(children.get(childName));
 		}
@@ -102,7 +102,7 @@ public abstract class SettingNode {
 	}
 
 	public ArrayList<Setting<?>> getListSettings(){
-		return ListTool.createArrayList(settings.values());
+		return DrListTool.createArrayList(settings.values());
 	}
 
 	public String getShortName(){

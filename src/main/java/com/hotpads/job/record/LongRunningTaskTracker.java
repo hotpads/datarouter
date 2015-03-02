@@ -5,6 +5,7 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.setting.Setting;
 import com.hotpads.util.datastructs.MutableBoolean;
@@ -15,13 +16,13 @@ public class LongRunningTaskTracker {
 
 	static long HEARTBEAT_PERSIST_PERIOD_MS = 2000L;
 	
-	private IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> node;
+	private IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> node;
 	private LongRunningTask task;
 	private MutableBoolean interrupted;
 	private Date lastPersistedHeartbeat;
 	private Setting<Boolean> shouldSaveLongRunningTasks;
 	
-	public LongRunningTaskTracker(IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> node,
+	public LongRunningTaskTracker(IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> node,
 			LongRunningTask task, Setting<Boolean> shouldSaveLongRunningTasks){
 		this.node = node;
 		this.task = task;
@@ -75,7 +76,7 @@ public class LongRunningTaskTracker {
 		return this;
 	}
 	
-	public IndexedSortedMapStorageNode<LongRunningTaskKey, LongRunningTask> getNode() {
+	public IndexedSortedMapStorage<LongRunningTaskKey, LongRunningTask> getNode() {
 		return node;
 	}
 

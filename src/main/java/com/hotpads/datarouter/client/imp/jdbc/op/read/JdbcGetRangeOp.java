@@ -12,7 +12,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.collections.Range;
 
 public class JdbcGetRangeOp<
@@ -42,7 +42,7 @@ extends BaseJdbcOp<List<D>>{
 				node.getFieldInfo().getPrimaryKeyFields());
 		List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-				CollectionTool.size(result));
+				DrCollectionTool.size(result));
 		return result;
 	}
 	

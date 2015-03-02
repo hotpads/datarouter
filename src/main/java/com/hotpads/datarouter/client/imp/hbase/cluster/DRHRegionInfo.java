@@ -24,10 +24,10 @@ import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.ClassTool;
-import com.hotpads.util.core.NumberFormatter;
-import com.hotpads.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrClassTool;
+import com.hotpads.datarouter.util.core.DrNumberFormatter;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class DRHRegionInfo<PK extends PrimaryKey<PK>>
@@ -74,7 +74,7 @@ implements Comparable<DRHRegionInfo<?>>{
 	
 	public FieldSet<?> getKey(Class<PK> primaryKeyClass, byte[] bytes){
 		PK sampleKey = ReflectionTool.create(primaryKeyClass);
-		if(ArrayTool.isEmpty(bytes)){ return sampleKey; }
+		if(DrArrayTool.isEmpty(bytes)){ return sampleKey; }
 		if(fieldInfo.isEntity()){
 			HBaseSubEntityReaderNode subEntityNode = (HBaseSubEntityReaderNode)node;
 			EntityKey<?> ek = subEntityNode.getResultParser().getEkFromRowBytes(bytes);
@@ -85,7 +85,7 @@ implements Comparable<DRHRegionInfo<?>>{
 	
 	private Integer calculatePartition(byte[] bytes){
 		if(fieldInfo.isEntity()){
-			if(ArrayTool.isEmpty(bytes)){ return 0; }
+			if(DrArrayTool.isEmpty(bytes)){ return 0; }
 			HBaseSubEntityReaderNode subEntityNode = (HBaseSubEntityReaderNode)node;
 			EntityPartitioner<?> partitioner = subEntityNode.getEntityFieldInfo().getEntityPartitioner();
 			return partitioner.parsePartitionFromBytes(bytes);
@@ -99,7 +99,7 @@ implements Comparable<DRHRegionInfo<?>>{
 	
 	public boolean isOnCorrectServer(){
 		try{
-			return ObjectTool.equals(serverName, balancerDestinationServer);
+			return DrObjectTool.equals(serverName, balancerDestinationServer);
 //					consistentHashHServer.getHostAndPort());
 		}catch(NullPointerException npe){
 			logger.warn("", npe);
@@ -128,7 +128,7 @@ implements Comparable<DRHRegionInfo<?>>{
 	public String getNumKeyValuesWithCompactionPercent(){
 		if(load==null){ return "?"; }
 		long totalKvs = load.getTotalCompactingKVs();
-		String totalKvsString = NumberFormatter.addCommas(totalKvs);
+		String totalKvsString = DrNumberFormatter.addCommas(totalKvs);
 		long compactingKvs = load.getCurrentCompactedKVs();
 		if(totalKvs==compactingKvs){ return totalKvsString; }
 		int percentCompacted = (int)((double)100 * (double)compactingKvs / (double)totalKvs);
@@ -145,9 +145,9 @@ implements Comparable<DRHRegionInfo<?>>{
 	
 	public boolean equals(Object obj){
 		if(this==obj){ return true; }
-		if(ClassTool.differentClass(this, obj)){ return false; }
+		if(DrClassTool.differentClass(this, obj)){ return false; }
 		DRHRegionInfo<PK> that = (DRHRegionInfo<PK>)obj;
-		return ObjectTool.equals(hRegionInfo.getEncodedName(), that.hRegionInfo.getEncodedName());
+		return DrObjectTool.equals(hRegionInfo.getEncodedName(), that.hRegionInfo.getEncodedName());
 	}
 	
 	@Override

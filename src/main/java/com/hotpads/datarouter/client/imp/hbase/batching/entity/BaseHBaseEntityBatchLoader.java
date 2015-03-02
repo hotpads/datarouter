@@ -13,8 +13,8 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.entity.Entity;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.batch.BaseBatchLoader;
 
@@ -57,11 +57,11 @@ extends BaseBatchLoader<T>{
 	public BaseHBaseEntityBatchLoader<EK,E,PK,D,F,T> call(){
 		//do the RPC
 		List<Result> hBaseRows = node.getResultsInSubRange(partition, range, isKeysOnly(), config);
-		List<T> outs = ListTool.createArrayListWithSize(hBaseRows);
+		List<T> outs = DrListTool.createArrayListWithSize(hBaseRows);
 		for(Result row : hBaseRows){
 			if(row==null || row.isEmpty()){ continue; }
 			List<T> results = parseHBaseResult(row);
-			outs.addAll(CollectionTool.nullSafe(results));
+			outs.addAll(DrCollectionTool.nullSafe(results));
 		}
 		updateBatch(outs);
 

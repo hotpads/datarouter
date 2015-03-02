@@ -13,9 +13,9 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.SetTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrSetTool;
 
 public abstract class BaseIndexingNode<
 		PK extends PrimaryKey<PK>,
@@ -32,7 +32,7 @@ extends BaseNode<PK,D,F>{
 				.withFielder((Class<F>)mainNode.getFieldInfo().getFielderClass())
 				.build());
 		this.mainNode = mainNode;
-		this.indexListeners = ListTool.createArrayList();
+		this.indexListeners = DrListTool.createArrayList();
 	}
 	
 	
@@ -46,32 +46,32 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = SetTool.createHashSet();
-		names.addAll(CollectionTool.nullSafe(getName()));
-		names.addAll(CollectionTool.nullSafe(mainNode.getAllNames()));
+		Set<String> names = DrSetTool.createHashSet();
+		names.addAll(DrCollectionTool.nullSafe(getName()));
+		names.addAll(DrCollectionTool.nullSafe(mainNode.getAllNames()));
 		return names;
 	}
 	
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodes(){
-		List<PhysicalNode<PK,D>> all = ListTool.createLinkedList();
-		all.addAll(ListTool.nullSafe(mainNode.getPhysicalNodes()));
+		List<PhysicalNode<PK,D>> all = DrListTool.createLinkedList();
+		all.addAll(DrListTool.nullSafe(mainNode.getPhysicalNodes()));
 		return all;
 	}
 
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
-		List<PhysicalNode<PK,D>> all = ListTool.createLinkedList();
-		all.addAll(ListTool.nullSafe(mainNode.getPhysicalNodesForClient(clientName)));
+		List<PhysicalNode<PK,D>> all = DrListTool.createLinkedList();
+		all.addAll(DrListTool.nullSafe(mainNode.getPhysicalNodesForClient(clientName)));
 		return all;
 	}
 	
 
 	@Override
 	public List<String> getClientNames() {
-		SortedSet<String> clientNames = SetTool.createTreeSet();
-		SetTool.nullSafeSortedAddAll(clientNames, mainNode.getClientNames());
-		return ListTool.createArrayList(clientNames);
+		SortedSet<String> clientNames = DrSetTool.createTreeSet();
+		DrSetTool.nullSafeSortedAddAll(clientNames, mainNode.getClientNames());
+		return DrListTool.createArrayList(clientNames);
 	}
 
 	@Override
@@ -81,14 +81,14 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
-		Set<String> clientNames = SetTool.createHashSet();
-		clientNames.addAll(CollectionTool.nullSafe(mainNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
-		return ListTool.createArrayList(clientNames);
+		Set<String> clientNames = DrSetTool.createHashSet();
+		clientNames.addAll(DrCollectionTool.nullSafe(mainNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
+		return DrListTool.createArrayList(clientNames);
 	}
 	
 	@Override
 	public List<N> getChildNodes(){
-		return ListTool.wrap(mainNode);
+		return DrListTool.wrap(mainNode);
 	}
 	
 	@Override

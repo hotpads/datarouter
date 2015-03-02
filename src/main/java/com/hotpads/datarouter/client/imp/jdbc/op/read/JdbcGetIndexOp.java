@@ -19,7 +19,7 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.iterable.BatchingIterable;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -55,9 +55,9 @@ extends BaseJdbcOp<List<IE>>{
 	public List<IE> runOnce(){
 		DRCounters.incSuffixClientNode(mainNode.getClient().getType(), opName, mainNode.getClientName(), mainNode.getName());
 		Connection connection = getConnection(mainNode.getClientName());
-		List<IE> databeans = ListTool.createArrayList();
+		List<IE> databeans = DrListTool.createArrayList();
 		for(List<IK> batch : new BatchingIterable<>(uniqueKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
-			List<? extends Key<IK>> keys = ListTool.createArrayList(batch);
+			List<? extends Key<IK>> keys = DrListTool.createArrayList(batch);
 			String sql = SqlBuilder.getMulti(config, mainNode.getTableName(), indexFielder.getFields(indexEntry), keys);
 			try{
 				PreparedStatement ps = connection.prepareStatement(sql);

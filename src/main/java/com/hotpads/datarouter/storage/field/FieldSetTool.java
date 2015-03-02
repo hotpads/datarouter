@@ -26,11 +26,11 @@ import com.hotpads.datarouter.storage.field.imp.dumb.DumbDoubleField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.ArrayTool;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
-import com.hotpads.util.core.ObjectTool;
+import com.hotpads.datarouter.util.core.DrArrayTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
+import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
@@ -41,7 +41,7 @@ public class FieldSetTool{
 
 	public static int getNumNonNullLeadingFields(FieldSet<?> prefix){
 		int numNonNullFields = 0;
-		for(Object value : CollectionTool.nullSafe(prefix.getFieldValues())){
+		for(Object value : DrCollectionTool.nullSafe(prefix.getFieldValues())){
 			if(value == null){ break; }
 			++numNonNullFields;
 			
@@ -51,7 +51,7 @@ public class FieldSetTool{
 
 	public static int getNumNonNullFields(FieldSet<?> prefix){
 		int numNonNullFields = 0;
-		for(Object value : CollectionTool.nullSafe(prefix.getFieldValues())){
+		for(Object value : DrCollectionTool.nullSafe(prefix.getFieldValues())){
 			if(value != null){
 				++numNonNullFields;
 			}
@@ -61,9 +61,9 @@ public class FieldSetTool{
 
 	public static void appendWhereClauseDisjunction(StringBuilder sql,
 			Collection<? extends FieldSet<?>> fieldSets){
-		if(CollectionTool.isEmpty(fieldSets)){ return; }
+		if(DrCollectionTool.isEmpty(fieldSets)){ return; }
 		int counter = 0;
-		for(FieldSet<?> fieldSet : IterableTool.nullSafe(fieldSets)){
+		for(FieldSet<?> fieldSet : DrIterableTool.nullSafe(fieldSets)){
 			if(counter > 0){
 				sql.append(" or ");
 			}
@@ -74,8 +74,8 @@ public class FieldSetTool{
 	}
 
 	public static List<String> getPersistentStrings(Collection<? extends FieldSet<?>> keys){
-		List<String> outs = ListTool.createArrayListWithSize(keys);
-		for(FieldSet<?> f : IterableTool.nullSafe(keys)){
+		List<String> outs = DrListTool.createArrayListWithSize(keys);
+		for(FieldSet<?> f : DrIterableTool.nullSafe(keys)){
 			outs.add(f.getPersistentString());
 		}
 		return outs;
@@ -104,8 +104,8 @@ public class FieldSetTool{
 		for (String key : Sets.union(leftMap.keySet(), rightMap.keySet())) {
 			Field<T> leftField = (Field<T>) leftMap.get(key), rightField = (Field<T>) rightMap.get(key);
 
-			if (ObjectTool.isOneNullButNotTheOther(leftField, rightField)
-					|| ObjectTool.notEquals(leftField.getValue(), rightField.getValue())) {
+			if (DrObjectTool.isOneNullButNotTheOther(leftField, rightField)
+					|| DrObjectTool.notEquals(leftField.getValue(), rightField.getValue())) {
 				diffMap.put(key, Pair.create(leftField, rightField));
 			}
 		}
@@ -229,7 +229,7 @@ public class FieldSetTool{
 	
 	public static <F extends FieldSet<?>> F fromConcatenatedValueBytes(Class<F> cls, List<Field<?>> fields, byte[] bytes){
 		F fieldSet = (F)ReflectionTool.create(cls);
-		if(ArrayTool.isEmpty(bytes)){ return fieldSet; }
+		if(DrArrayTool.isEmpty(bytes)){ return fieldSet; }
 		
 		int byteOffset = 0;
 		for(Field<?> field : fields){

@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.ComparableTool;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrComparableTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 
 /*
  * I: item
@@ -26,9 +26,9 @@ public class BalanceLeveler<I,D>{
 	/************** construct ***************************/
 	
 	public BalanceLeveler(Collection<D> allDestinations, SortedMap<I,D> unleveledDestinationByItem){
-		this.allDestinations = CollectionTool.nullSafe(allDestinations);
+		this.allDestinations = DrCollectionTool.nullSafe(allDestinations);
 		this.destinationByItem = new TreeMap<I,D>(unleveledDestinationByItem);
-		this.countByDestination = MapTool.createTreeMap();//sorted easier for debugging
+		this.countByDestination = DrMapTool.createTreeMap();//sorted easier for debugging
 		updateCountByDestination();
 	}
 	
@@ -38,7 +38,7 @@ public class BalanceLeveler<I,D>{
 	public SortedMap<I,D> getBalancedDestinationByItem(){
 		while( ! isBalanced()){
 			D mostLoadedDestination = getMostLoadedDestination();
-			I itemToMove = MapTool.getFirstKeyWhereValueEquals(destinationByItem, mostLoadedDestination);
+			I itemToMove = DrMapTool.getFirstKeyWhereValueEquals(destinationByItem, mostLoadedDestination);
 			D leastLoadedDestination = getLeastLoadedDestination();
 			//overwrite the item's destination, thus moving it
 			destinationByItem.put(itemToMove, leastLoadedDestination);
@@ -53,11 +53,11 @@ public class BalanceLeveler<I,D>{
 	private void updateCountByDestination(){
 		countByDestination.clear();
 		for(Map.Entry<I,D> entry : destinationByItem.entrySet()){
-			MapTool.increment(countByDestination, entry.getValue());
+			DrMapTool.increment(countByDestination, entry.getValue());
 		}
 		ensureAllDestinationsInCountByDestination();
-		this.minAtDestination = ComparableTool.getFirst(countByDestination.values());
-		this.maxAtDestination = ComparableTool.getLast(countByDestination.values());
+		this.minAtDestination = DrComparableTool.getFirst(countByDestination.values());
+		this.maxAtDestination = DrComparableTool.getLast(countByDestination.values());
 //		logger.warn(countByDestination);
 //		logger.warn("minAtDestination"+minAtDestination);
 //		logger.warn("maxAtDestination"+maxAtDestination);

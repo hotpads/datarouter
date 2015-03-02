@@ -18,7 +18,7 @@ import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -57,7 +57,7 @@ extends BaseJdbcOp<List<PKLookup>>{
 
 			@Override
 			public List<Field<?>> getFields(){
-				List<Field<?>> fields = ListTool.create();
+				List<Field<?>> fields = DrListTool.create();
 				fields.addAll(start.getStart().getFields());
 				fields.addAll(start.getStart().getPrimaryKey().getFields());
 				return fields;
@@ -65,7 +65,7 @@ extends BaseJdbcOp<List<PKLookup>>{
 
 		};
 		
-		List<Field<?>> selectableFields = ListTool.createArrayList(selectableFieldSet);
+		List<Field<?>> selectableFields = DrListTool.createArrayList(selectableFieldSet);
 		String sql = SqlBuilder.getInRange(config, node.getTableName(), selectableFields, fullStart,
 				start.getStartInclusive(), start.getEnd(), start.getEndInclusive(), index.getFields());
 		Connection connection = getConnection(node.getClientName());

@@ -23,9 +23,9 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.CollectionTool;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrCollectionTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class HibernateGetKeysOp<
 		PK extends PrimaryKey<PK>,
@@ -50,9 +50,9 @@ extends BaseHibernateOp<List<PK>>{
 	public List<PK> runOnce(){
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
-		List<? extends Key<PK>> sortedKeys = ListTool.createArrayList(keys);
+		List<? extends Key<PK>> sortedKeys = DrListTool.createArrayList(keys);
 		Collections.sort(sortedKeys);//is this sorting at all beneficial?
-		List<PK> result = ListTool.createArrayList(keys.size());
+		List<PK> result = DrListTool.createArrayList(keys.size());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		//projection list
 		ProjectionList projectionList = Projections.projectionList();
@@ -64,7 +64,7 @@ extends BaseHibernateOp<List<PK>>{
 		criteria.setProjection(projectionList);
 		//where clause
 		Disjunction orSeparatedIds = Restrictions.disjunction();
-		for(Key<PK> key : CollectionTool.nullSafe(keys)){
+		for(Key<PK> key : DrCollectionTool.nullSafe(keys)){
 			Conjunction possiblyCompoundId = Restrictions.conjunction();
 			List<Field<?>> fields = FieldTool.prependPrefixes(node.getFieldInfo().getKeyFieldName(), key.getFields());
 			for(Field<?> field : fields){
@@ -74,7 +74,7 @@ extends BaseHibernateOp<List<PK>>{
 		}
 		criteria.add(orSeparatedIds);
 		List<Object[]> rows = criteria.list();
-		for(Object[] row : IterableTool.nullSafe(rows)){
+		for(Object[] row : DrIterableTool.nullSafe(rows)){
 			result.add(FieldSetTool.fieldSetFromHibernateResultUsingReflection(
 					node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), row));
 		}

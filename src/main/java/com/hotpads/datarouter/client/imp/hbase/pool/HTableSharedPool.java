@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.util.core.MapTool;
+import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.SemaphoreTool;
 import com.hotpads.util.datastructs.MutableString;
@@ -49,7 +49,7 @@ public class HTableSharedPool  implements HTablePool{
 		this.clientName = clientName;
 		this.maxSize = maxSize;
 		this.hTableSemaphore = new Semaphore(maxSize);
-		this.activeHTables = MapTool.createConcurrentHashMap();
+		this.activeHTables = DrMapTool.createConcurrentHashMap();
 		this.primaryKeyClassByName = primaryKeyClassByName;
 	}
 

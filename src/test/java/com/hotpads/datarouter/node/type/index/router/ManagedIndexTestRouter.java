@@ -12,7 +12,7 @@ import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithManagedIndexN
 import com.hotpads.datarouter.routing.BaseDatarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 @Singleton
 public class ManagedIndexTestRouter extends BaseDatarouter{
@@ -35,7 +35,7 @@ public class ManagedIndexTestRouter extends BaseDatarouter{
 
 	@Override
 	public List<ClientId> getClientIds(){
-		return ListTool.create(new ClientId(DRTestConstants.CLIENT_drTestJdbc0, true));
+		return DrListTool.create(new ClientId(DRTestConstants.CLIENT_drTestJdbc0, true));
 	}
 
 }

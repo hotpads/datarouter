@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.util.core.IterableTool;
-import com.hotpads.util.core.ListTool;
+import com.hotpads.datarouter.util.core.DrIterableTool;
+import com.hotpads.datarouter.util.core.DrListTool;
 
 public class DatarouterMemcachedKey<PK extends PrimaryKey<PK>>{
 
@@ -30,8 +30,8 @@ public class DatarouterMemcachedKey<PK extends PrimaryKey<PK>>{
 	
 	public static <PK extends PrimaryKey<PK>> List<String> getVersionedKeyStrings(
 			String nodeName, int version, Collection<PK> fieldSets){
-		List<String> outs = ListTool.createArrayListWithSize(fieldSets);
-		for(PK f : IterableTool.nullSafe(fieldSets)){
+		List<String> outs = DrListTool.createArrayListWithSize(fieldSets);
+		for(PK f : DrIterableTool.nullSafe(fieldSets)){
 			outs.add(new DatarouterMemcachedKey<PK>(nodeName, version, f).getVersionedKeyString());
 		}
 		return outs;
