@@ -4,7 +4,7 @@ import java.sql.Connection;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
-import com.hotpads.datarouter.client.imp.jdbc.node.InternalJdbcReaderNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -20,12 +20,12 @@ public class JdbcCountOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<Long>{
 		
-	private InternalJdbcReaderNode<PK,D,F> node;
+	private JdbcReaderNode<PK,D,F> node;
 	private String opName;
 	private Lookup<PK> lookup;
 	private Config config;
 	
-	public JdbcCountOp(InternalJdbcReaderNode<PK,D,F> node, String opName, Lookup<PK> lookup, Config config) {
+	public JdbcCountOp(JdbcReaderNode<PK,D,F> node, String opName, Lookup<PK> lookup, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;

@@ -52,13 +52,13 @@ implements MapStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcReaderNode.class);
 	
-	private InternalJdbcReaderNode<PK,D,F> internalNode;
+	private JdbcReaderOps<PK,D,F> jdbcReaderOps;
 	
 	/******************************* constructors ************************************/
 
 	public JdbcReaderNode(NodeParams<PK,D,F> params){
 		super(params);
-		this.internalNode = new InternalJdbcReaderNode<>(this);
+		this.jdbcReaderOps = new JdbcReaderOps<>(this);
 	}
 	
 	
@@ -75,22 +75,22 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public boolean exists(PK key, Config config) {
-		return internalNode.get(key, config) != null;
+		return jdbcReaderOps.get(key, config) != null;
 	}
 
 	@Override
 	public D get(final PK key, final Config config){
-		return DrCollectionTool.getFirst(internalNode.getMulti(DrListTool.wrap(key), config));
+		return DrCollectionTool.getFirst(jdbcReaderOps.getMulti(DrListTool.wrap(key), config));
 	}
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config config) {
-		return internalNode.getMulti(keys, config);
+		return jdbcReaderOps.getMulti(keys, config);
 	}
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
-		return internalNode.getKeys(keys, config);
+		return jdbcReaderOps.getKeys(keys, config);
 	}
 
 	
@@ -99,29 +99,29 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public Long count(final Lookup<PK> lookup, final Config config) {
-		return internalNode.count(lookup, config);
+		return jdbcReaderOps.count(lookup, config);
 	}
 	
 	@Override
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
-		return internalNode.lookupUnique(uniqueKey, config);
+		return jdbcReaderOps.lookupUnique(uniqueKey, config);
 	}
 
 	@Override
 	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
-		return internalNode.lookupMultiUnique(uniqueKeys, config);
+		return jdbcReaderOps.lookupMultiUnique(uniqueKeys, config);
 	}
 	
 	@Override
 	//TODO pay attention to wildcardLastField
 	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config) {
-		return internalNode.lookup(lookup, wildcardLastField, config);
+		return jdbcReaderOps.lookup(lookup, wildcardLastField, config);
 	}
 	
 	//TODO rename lookupMulti
 	@Override
 	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
-		return internalNode.lookup(lookups, config);
+		return jdbcReaderOps.lookup(lookups, config);
 	}
 	
 	
@@ -129,13 +129,13 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public D getFirst(final Config config) {
-		return internalNode.getFirst(config);
+		return jdbcReaderOps.getFirst(config);
 	}
 
 	
 	@Override
 	public PK getFirstKey(final Config config) {
-		return internalNode.getFirstKey(config);
+		return jdbcReaderOps.getFirstKey(config);
 	}
 
 	@Override
@@ -146,32 +146,32 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
 			final Config config) {
-		return internalNode.getWithPrefixes(prefixes, wildcardLastField, config);
+		return jdbcReaderOps.getWithPrefixes(prefixes, wildcardLastField, config);
 	}
 
 	@Override
 	public SortedScannerIterable<PK> scanKeys(Range<PK> pRange, Config config){
 		Range<PK> range = Range.nullSafe(pRange);
-		SortedScanner<PK> scanner = new JdbcPrimaryKeyScanner<PK,D>(internalNode, fieldInfo, range, config);
+		SortedScanner<PK> scanner = new JdbcPrimaryKeyScanner<PK,D>(jdbcReaderOps, fieldInfo, range, config);
 		return new SortedScannerIterable<PK>(scanner);
 	}
 	
 	@Override
 	public SortedScannerIterable<D> scan(Range<PK> pRange, Config config){
 		Range<PK> range = Range.nullSafe(pRange);
-		SortedScanner<D> scanner = new JdbcDatabeanScanner<PK,D>(internalNode, fieldInfo, range, config);
+		SortedScanner<D> scanner = new JdbcDatabeanScanner<PK,D>(jdbcReaderOps, fieldInfo, range, config);
 		return new SortedScannerIterable<D>(scanner);
 	}
 	
 	public <PKLookup extends BaseLookup<PK>> SortedScannerIterable<PKLookup> scanIndex(Class<PKLookup> indexClass){
-		return internalNode.scanIndex(indexClass);
+		return jdbcReaderOps.scanIndex(indexClass);
 	}
 	
 	
 	/*********************** helper ******************************/
 	
 	protected String getTraceName(String opName){
-		return internalNode.getTraceName(opName);
+		return jdbcReaderOps.getTraceName(opName);
 	}
 	
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
-import com.hotpads.datarouter.client.imp.jdbc.node.InternalJdbcReaderNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -19,11 +19,11 @@ public class JdbcGetFirstOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<D>{
 		
-	private InternalJdbcReaderNode<PK,D,F> node;
+	private JdbcReaderNode<PK,D,F> node;
 	private String opName;
 	private Config config;
 	
-	public JdbcGetFirstOp(InternalJdbcReaderNode<PK,D,F> node, String opName, Config pConfig) {
+	public JdbcGetFirstOp(JdbcReaderNode<PK,D,F> node, String opName, Config pConfig) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;

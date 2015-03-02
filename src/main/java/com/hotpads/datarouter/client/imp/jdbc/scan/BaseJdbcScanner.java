@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.jdbc.scan;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.InternalJdbcReaderNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderOps;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -18,12 +18,12 @@ public abstract class BaseJdbcScanner<
 		T extends Comparable<? super T>>//T should be either PK or D
 extends BaseBatchingSortedScanner<T,T>{
 	
-	protected InternalJdbcReaderNode<PK,D,?> node;
+	protected JdbcReaderOps<PK,D,?> node;
 	protected DatabeanFieldInfo<PK,D,?> fieldInfo;
 	protected Range<PK> range;
 	protected Config config;
 	
-	public BaseJdbcScanner(InternalJdbcReaderNode<PK,D,?> node, DatabeanFieldInfo<PK,D,?> fieldInfo, Range<PK> range,
+	public BaseJdbcScanner(JdbcReaderOps<PK,D,?> node, DatabeanFieldInfo<PK,D,?> fieldInfo, Range<PK> range,
 			Config pConfig){
 		this.node = node;
 		this.fieldInfo = node.getFieldInfo();
