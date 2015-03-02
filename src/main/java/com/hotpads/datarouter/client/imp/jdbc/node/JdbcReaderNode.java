@@ -50,12 +50,15 @@ extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>,
 		SortedStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
-	private static Logger logger = LoggerFactory.getLogger(JdbcReaderNode.class);
+	private static final Logger logger = LoggerFactory.getLogger(JdbcReaderNode.class);
+	
+	private InternalJdbcReaderNode<PK,D,F> internalNode;
 	
 	/******************************* constructors ************************************/
 
 	public JdbcReaderNode(NodeParams<PK,D,F> params){
 		super(params);
+		this.internalNode = new InternalJdbcReaderNode<>(this);
 	}
 	
 	
@@ -72,29 +75,22 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public boolean exists(PK key, Config config) {
-		return get(key, config) != null;
+		return internalNode.get(key, config) != null;
 	}
 
 	@Override
 	public D get(final PK key, final Config config){
-		String opName = MapStorageReader.OP_get;
-		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(this, opName, DrListTool.wrap(key), config);
-		List<D> databeans = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();//should only be one
-		return DrCollectionTool.getFirst(databeans);
+		return DrCollectionTool.getFirst(internalNode.getMulti(DrListTool.wrap(key), config));
 	}
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config config) {
-		String opName = MapStorageReader.OP_getMulti;
-		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(this, opName, keys, config);
-		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
+		return internalNode.getMulti(keys, config);
 	}
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
-		String opName = MapStorageReader.OP_getKeys;
-		JdbcGetKeysOp<PK,D,F> op = new JdbcGetKeysOp<PK,D,F>(this, opName, keys, config);
-		return new SessionExecutorImpl<List<PK>>(op, getTraceName(opName)).call();
+		return internalNode.getKeys(keys, config);
 	}
 
 	
@@ -103,48 +99,29 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public Long count(final Lookup<PK> lookup, final Config config) {
-		String opName = IndexedStorageReader.OP_count;
-		JdbcCountOp<PK,D,F> op = new JdbcCountOp<PK,D,F>(this, opName, lookup, config);
-		return new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
+		return internalNode.count(lookup, config);
 	}
 	
 	@Override
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
-		String opName = IndexedStorageReader.OP_lookupUnique;
-		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(this, opName, 
-				DrListTool.wrap(uniqueKey), config);
-		List<D> result = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
-		if(DrCollectionTool.size(result)>1){
-			throw new DataAccessException("found >1 databeans with unique index key="+uniqueKey);
-		}
-		return DrCollectionTool.getFirst(result);
+		return internalNode.lookupUnique(uniqueKey, config);
 	}
 
 	@Override
 	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
-		String opName = IndexedStorageReader.OP_lookupMultiUnique;
-		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
-		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(this, opName, uniqueKeys,
-				config);
-		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
+		return internalNode.lookupMultiUnique(uniqueKeys, config);
 	}
 	
 	@Override
 	//TODO pay attention to wildcardLastField
 	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config) {
-		String opName = IndexedStorageReader.OP_lookup;
-		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(this, opName, DrListTool.wrap(lookup), 
-				wildcardLastField, config);
-		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
+		return internalNode.lookup(lookup, wildcardLastField, config);
 	}
 	
 	//TODO rename lookupMulti
 	@Override
 	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
-		String opName = IndexedStorageReader.OP_lookupMulti;
-		if(DrCollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
-		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(this, opName, lookups, false, config);
-		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
+		return internalNode.lookup(lookups, config);
 	}
 	
 	
@@ -152,94 +129,49 @@ implements MapStorageReader<PK,D>,
 
 	@Override
 	public D getFirst(final Config config) {
-		String opName = SortedStorageReader.OP_getFirst;
-		JdbcGetFirstOp<PK,D,F> op = new JdbcGetFirstOp<PK,D,F>(this, opName, config);
-		return new SessionExecutorImpl<D>(op, getTraceName(opName)).call();
+		return internalNode.getFirst(config);
 	}
 
 	
 	@Override
 	public PK getFirstKey(final Config config) {
-		String opName = SortedStorageReader.OP_getFirstKey;
-		JdbcGetFirstKeyOp<PK,D,F> op = new JdbcGetFirstKeyOp<PK,D,F>(this, opName, config);
-		return new SessionExecutorImpl<PK>(op, getTraceName(opName)).call();
+		return internalNode.getFirstKey(config);
 	}
 
 	@Override
 	public List<D> getWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
-		return getWithPrefixes(DrListTool.wrap(prefix),wildcardLastField,config);
+		return getWithPrefixes(DrListTool.wrap(prefix), wildcardLastField, config);
 	}
 
 	@Override
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
 			final Config config) {
-		String opName = SortedStorageReader.OP_getWithPrefixes;
-		JdbcGetWithPrefixesOp<PK,D,F> op = new JdbcGetWithPrefixesOp<PK,D,F>(this, opName, prefixes, 
-				wildcardLastField, config);
-		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
+		return internalNode.getWithPrefixes(prefixes, wildcardLastField, config);
 	}
 
-	@Deprecated
-	@Override
-	public List<PK> getKeysInRange(
-			final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, 
-			final Config config) {
-		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
-		String opName = SortedStorageReader.OP_getKeysInRange;
-		JdbcGetPrimaryKeyRangeOp<PK,D,F> op = new JdbcGetPrimaryKeyRangeOp<PK,D,F>(this, opName, range, config);
-		return new SessionExecutorImpl<List<PK>>(op, getTraceName(opName)).call();
-	}
-	
-
-	@Deprecated
-	@Override
-	public List<D> getRange(
-			final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, 
-			final Config config) {
-		Range<PK> range = Range.create(start, startInclusive, end, endInclusive);
-		String opName = SortedStorageReader.OP_getRange;
-		JdbcGetRangeOp<PK,D,F> op = new JdbcGetRangeOp<PK,D,F>(this, opName, range, config);
-		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
-	}
-	
-	
-	@Override
-	public List<D> getPrefixedRange(
-			final PK prefix, final boolean wildcardLastField,
-			final PK start, final boolean startInclusive, 
-			final Config config) {
-		String opName = SortedStorageReader.OP_getPrefixedRange;
-		JdbcGetPrefixedRangeOp<PK,D,F> op = new JdbcGetPrefixedRangeOp<PK,D,F>(this, opName, 
-				prefix, wildcardLastField, start, startInclusive, config);
-		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
-	}
-	
 	@Override
 	public SortedScannerIterable<PK> scanKeys(Range<PK> pRange, Config config){
 		Range<PK> range = Range.nullSafe(pRange);
-		SortedScanner<PK> scanner = new JdbcPrimaryKeyScanner<PK,D>(this, fieldInfo, range, config);
+		SortedScanner<PK> scanner = new JdbcPrimaryKeyScanner<PK,D>(internalNode, fieldInfo, range, config);
 		return new SortedScannerIterable<PK>(scanner);
 	}
 	
 	@Override
 	public SortedScannerIterable<D> scan(Range<PK> pRange, Config config){
 		Range<PK> range = Range.nullSafe(pRange);
-		SortedScanner<D> scanner = new JdbcDatabeanScanner<PK,D>(this, fieldInfo, range, config);
+		SortedScanner<D> scanner = new JdbcDatabeanScanner<PK,D>(internalNode, fieldInfo, range, config);
 		return new SortedScannerIterable<D>(scanner);
 	}
 	
 	public <PKLookup extends BaseLookup<PK>> SortedScannerIterable<PKLookup> scanIndex(Class<PKLookup> indexClass){
-		SortedScanner<PKLookup> scanner = new JdbcIndexScanner<PK, D, F, PKLookup>(this, indexClass, getTraceName("scanIndex"));
-		return new SortedScannerIterable<PKLookup>(scanner);
+		return internalNode.scanIndex(indexClass);
 	}
 	
 	
 	/*********************** helper ******************************/
 	
 	protected String getTraceName(String opName){
-		return getName() + " " + opName;
+		return internalNode.getTraceName(opName);
 	}
-
+	
 }

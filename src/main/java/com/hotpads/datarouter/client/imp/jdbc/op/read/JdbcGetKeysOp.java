@@ -10,7 +10,7 @@ import org.junit.Test;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.InternalJdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
@@ -31,12 +31,12 @@ public class JdbcGetKeysOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<PK>>{
 		
-	private JdbcReaderNode<PK,D,F> node;
+	private InternalJdbcReaderNode<PK,D,F> node;
 	private String opName;
 	private Collection<PK> keys;
 	private Config config;
 	
-	public JdbcGetKeysOp(JdbcReaderNode<PK,D,F> node, String opName, Collection<PK> keys, Config config) {
+	public JdbcGetKeysOp(InternalJdbcReaderNode<PK,D,F> node, String opName, Collection<PK> keys, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
 		this.opName = opName;

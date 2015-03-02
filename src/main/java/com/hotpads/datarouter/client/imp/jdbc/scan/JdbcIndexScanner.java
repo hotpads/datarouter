@@ -2,7 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.scan;
 
 import java.util.List;
 
-import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.InternalJdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcIndexScanOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Configs;
@@ -21,11 +21,11 @@ public class JdbcIndexScanner<PK extends PrimaryKey<PK>, D extends Databean<PK, 
 
 	private static final Integer BATCH_SIZE = 1000;
 	
-	private JdbcReaderNode<PK, D, F> node;
+	private InternalJdbcReaderNode<PK, D, F> node;
 	private Class<PKLookup> indexClass;
 	private String traceName;
 
-	public JdbcIndexScanner(JdbcReaderNode<PK, D, F> node, Class<PKLookup> indexClass, String traceName){
+	public JdbcIndexScanner(InternalJdbcReaderNode<PK, D, F> node, Class<PKLookup> indexClass, String traceName){
 		this.node = node;
 		this.indexClass = indexClass;
 		this.traceName = traceName;

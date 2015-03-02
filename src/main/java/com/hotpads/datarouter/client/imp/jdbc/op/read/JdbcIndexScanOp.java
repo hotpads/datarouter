@@ -7,7 +7,7 @@ import java.util.TreeSet;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
-import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
+import com.hotpads.datarouter.client.imp.jdbc.node.InternalJdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -27,12 +27,12 @@ public class JdbcIndexScanOp
 extends BaseJdbcOp<List<PKLookup>>{
 
 	private Range<PKLookup> start;
-	private JdbcReaderNode<PK, D, F> node;
+	private InternalJdbcReaderNode<PK, D, F> node;
 	private Class<PKLookup> indexClass;
 	private Config config;
 	private String traceName;
 	
-	public JdbcIndexScanOp(JdbcReaderNode<PK, D, F> node, Range<PKLookup> start, Class<PKLookup> indexClass, Config config,
+	public JdbcIndexScanOp(InternalJdbcReaderNode<PK, D, F> node, Range<PKLookup> start, Class<PKLookup> indexClass, Config config,
 			String traceName){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.start = start;
