@@ -124,6 +124,12 @@ public class JdbcReaderOps<
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
+	public <PKLookup extends BaseLookup<PK>> SortedScannerIterable<PKLookup> scanIndex(Class<PKLookup> indexClass){
+		SortedScanner<PKLookup> scanner = new JdbcIndexScanner<PK, D, F, PKLookup>(node, indexClass, getTraceName(
+				"scanIndex"));
+		return new SortedScannerIterable<PKLookup>(scanner);
+	}
+	
 	
 	/************************************ SortedStorageReader methods ****************************/
 
@@ -132,7 +138,6 @@ public class JdbcReaderOps<
 		JdbcGetFirstOp<PK,D,F> op = new JdbcGetFirstOp<PK,D,F>(node, opName, config);
 		return new SessionExecutorImpl<D>(op, getTraceName(opName)).call();
 	}
-
 	
 	public PK getFirstKey(final Config config) {
 		String opName = SortedStorageReader.OP_getFirstKey;
@@ -170,12 +175,6 @@ public class JdbcReaderOps<
 		String opName = SortedStorageReader.OP_getRange;
 		JdbcGetRangeOp<PK,D,F> op = new JdbcGetRangeOp<PK,D,F>(node, opName, range, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
-	}
-	
-	
-	public <PKLookup extends BaseLookup<PK>> SortedScannerIterable<PKLookup> scanIndex(Class<PKLookup> indexClass){
-		SortedScanner<PKLookup> scanner = new JdbcIndexScanner<PK, D, F, PKLookup>(this, indexClass, getTraceName("scanIndex"));
-		return new SortedScannerIterable<PKLookup>(scanner);
 	}
 	
 	

@@ -12,14 +12,17 @@ import com.hotpads.util.core.collections.Range;
 public class JdbcPrimaryKeyScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends BaseJdbcScanner<PK,D,PK>{
 	
-	public JdbcPrimaryKeyScanner(JdbcReaderOps<PK,D,?> node, DatabeanFieldInfo<PK,D,?> fieldInfo, 
+	private final JdbcReaderOps<PK,D,?> jdbcReaderOps;
+	
+	public JdbcPrimaryKeyScanner(JdbcReaderOps<PK,D,?> jdbcReaderOps, DatabeanFieldInfo<PK,D,?> fieldInfo, 
 			Range<PK> range, Config pConfig){
-		super(node, fieldInfo, range, pConfig);
+		super(range, pConfig);
+		this.jdbcReaderOps = jdbcReaderOps;
 	}
 
 	@Override
 	protected List<PK> doLoad(Range<PK> range, Config config){
-		return node.getKeysInRange(range.getStart(), range.getStartInclusive(), range.getEnd(), 
+		return jdbcReaderOps.getKeysInRange(range.getStart(), range.getStartInclusive(), range.getEnd(), 
 				range.getEndInclusive(), config);
 	}
 

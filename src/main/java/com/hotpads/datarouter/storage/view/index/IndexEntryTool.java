@@ -1,12 +1,11 @@
 package com.hotpads.datarouter.storage.view.index;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 public class IndexEntryTool{
 
@@ -14,8 +13,8 @@ public class IndexEntryTool{
 					PK extends PrimaryKey<PK>,
 					D extends Databean<PK,D>,
 					IE extends IndexEntry<IK,IE,PK,D>> 
-	List<PK> getPrimaryKeys(Collection<IE> indexEntries){
-		List<PK> keys = DrListTool.createArrayListWithSize(indexEntries);
+	List<PK> getPrimaryKeys(Iterable<IE> indexEntries){
+		List<PK> keys = new ArrayList<>();
 		for(IE indexEntry : DrIterableTool.nullSafe(indexEntries)){
 			keys.add(indexEntry.getTargetKey());
 		}

@@ -1,35 +1,20 @@
 package com.hotpads.datarouter.client.imp.jdbc.node;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.jdbc.JdbcClientImp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcCountOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstKeyOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetFirstOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetKeysOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetPrefixedRangeOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetPrimaryKeyRangeOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetRangeOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetWithPrefixesOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcLookupOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcLookupUniqueOp;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcDatabeanScanner;
-import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcIndexScanner;
 import com.hotpads.datarouter.client.imp.jdbc.scan.JdbcPrimaryKeyScanner;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
 import com.hotpads.datarouter.node.op.raw.read.SortedStorageReader;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
-import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
@@ -52,7 +37,7 @@ implements MapStorageReader<PK,D>,
 		IndexedStorageReader<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(JdbcReaderNode.class);
 	
-	private JdbcReaderOps<PK,D,F> jdbcReaderOps;
+	private final JdbcReaderOps<PK,D,F> jdbcReaderOps;
 	
 	/******************************* constructors ************************************/
 
@@ -75,7 +60,7 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public boolean exists(PK key, Config config) {
-		return jdbcReaderOps.get(key, config) != null;
+		return null != jdbcReaderOps.get(key, config);
 	}
 
 	@Override
@@ -93,7 +78,6 @@ implements MapStorageReader<PK,D>,
 		return jdbcReaderOps.getKeys(keys, config);
 	}
 
-	
 	
 	/************************************ IndexedStorageReader methods ****************************/
 	
@@ -123,7 +107,12 @@ implements MapStorageReader<PK,D>,
 	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
 		return jdbcReaderOps.lookup(lookups, config);
 	}
-	
+
+	//TODO add to IndexedStorageReader interface
+	//@Override
+	public <PKLookup extends BaseLookup<PK>> SortedScannerIterable<PKLookup> scanIndex(Class<PKLookup> indexClass){
+		return jdbcReaderOps.scanIndex(indexClass);
+	}
 	
 	/************************************ SortedStorageReader methods ****************************/
 
@@ -131,7 +120,6 @@ implements MapStorageReader<PK,D>,
 	public D getFirst(final Config config) {
 		return jdbcReaderOps.getFirst(config);
 	}
-
 	
 	@Override
 	public PK getFirstKey(final Config config) {
@@ -161,10 +149,6 @@ implements MapStorageReader<PK,D>,
 		Range<PK> range = Range.nullSafe(pRange);
 		SortedScanner<D> scanner = new JdbcDatabeanScanner<PK,D>(jdbcReaderOps, fieldInfo, range, config);
 		return new SortedScannerIterable<D>(scanner);
-	}
-	
-	public <PKLookup extends BaseLookup<PK>> SortedScannerIterable<PKLookup> scanIndex(Class<PKLookup> indexClass){
-		return jdbcReaderOps.scanIndex(indexClass);
 	}
 	
 	

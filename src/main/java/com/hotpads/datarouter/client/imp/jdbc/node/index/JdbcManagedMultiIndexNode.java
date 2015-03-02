@@ -30,8 +30,7 @@ implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 		super(node, params, name);
 	}
 	
-	//TODO use wildcardLastField
-	private List<IE> lookupMultiIndexMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config){
+	private List<IE> lookupMultiIndexMulti(Collection<IK> indexKeys, Config config){
 		String opName = ManagedMultiIndexNode.OP_lookupMultiIndexMulti;
 		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, fieldInfo.getDatabeanClass(),
 				fieldInfo.getFielderClass(), indexKeys);
@@ -39,13 +38,13 @@ implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 	}
 
 	@Override
-	public List<D> lookupMulti(IK indexKey, boolean wildcardLastField, Config config){
-		return lookupMultiMulti(Collections.singleton(indexKey), wildcardLastField, config);
+	public List<D> lookupMulti(IK indexKey, Config config){
+		return lookupMultiMulti(Collections.singleton(indexKey), config);
 	}
 
 	@Override
-	public List<D> lookupMultiMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config){
-		List<IE> entries = lookupMultiIndexMulti(indexKeys, wildcardLastField, config);
+	public List<D> lookupMultiMulti(Collection<IK> indexKeys, Config config){
+		List<IE> entries = lookupMultiIndexMulti(indexKeys, config);
 		List<PK> targetKeys = IndexEntryTool.getPrimaryKeys(entries);
 		return node.getMulti(targetKeys, config);
 	}

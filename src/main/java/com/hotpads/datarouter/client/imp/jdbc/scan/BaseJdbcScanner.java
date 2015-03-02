@@ -3,9 +3,7 @@ package com.hotpads.datarouter.client.imp.jdbc.scan;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseReaderNode;
-import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderOps;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -18,15 +16,10 @@ public abstract class BaseJdbcScanner<
 		T extends Comparable<? super T>>//T should be either PK or D
 extends BaseBatchingSortedScanner<T,T>{
 	
-	protected JdbcReaderOps<PK,D,?> node;
-	protected DatabeanFieldInfo<PK,D,?> fieldInfo;
 	protected Range<PK> range;
 	protected Config config;
 	
-	public BaseJdbcScanner(JdbcReaderOps<PK,D,?> node, DatabeanFieldInfo<PK,D,?> fieldInfo, Range<PK> range,
-			Config pConfig){
-		this.node = node;
-		this.fieldInfo = node.getFieldInfo();
+	public BaseJdbcScanner(Range<PK> range, Config pConfig){
 		this.range = range;
 		this.config = pConfig == null ? new Config() : pConfig.getDeepCopy();
 		this.config.setIterateBatchSizeIfNull(HBaseReaderNode.DEFAULT_ITERATE_BATCH_SIZE);//why is this necessary?

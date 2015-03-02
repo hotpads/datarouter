@@ -34,19 +34,6 @@ import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
 public class HBaseScatteringPrefixQueryBuilder {
 	private static Logger logger = LoggerFactory.getLogger(HBaseScatteringPrefixQueryBuilder.class);
 
-	public static List<Scan> getRangeScanners(DatabeanFieldInfo<?,?,?> fieldInfo,
-			final FieldSet<?> startKey, final boolean startInclusive, 
-			final FieldSet<?> endKey, final boolean endInclusive, Config config){
-		List<Scan> outs = DrListTool.createArrayList();
-		List<Twin<ByteRange>> ranges = getRangeForEachScatteringPrefix(fieldInfo,
-				startKey, startInclusive, endKey, endInclusive, config);
-		for(Twin<ByteRange> range : DrIterableTool.nullSafe(ranges)){
-			Scan scan = HBaseQueryBuilder.getScanForRange(range.getLeft(), true, range.getRight(), false, config);
-			outs.add(scan);
-		}
-		return outs;
-	}
-
 	public static List<Scan> getPrefixScanners(DatabeanFieldInfo<?,?,?> fieldInfo, FieldSet<?> prefix, 
 			boolean wildcardLastField, Config config){
 		ArrayList<FieldSet<?>> scatteringPrefixesPlusPrefix = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, prefix);
@@ -69,35 +56,6 @@ public class HBaseScatteringPrefixQueryBuilder {
 		for(FieldSet<?> prefix : DrIterableTool.nullSafe(prefixes)){
 			List<Scan> scansForSinglePrefix = getPrefixScanners(fieldInfo, prefix, wildcardLastField, config);
 			outs.addAll(scansForSinglePrefix);
-		}
-		return outs;
-	}
-
-	public static List<Pair<byte[],byte[]>> getPrefixedRanges(DatabeanFieldInfo<?,?,?> fieldInfo, 
-			FieldSet<?> prefix, boolean wildcardLastField,
-			FieldSet<?> startKey, boolean startInclusive, 
-			FieldSet<?> endKey, boolean endInclusive,
-			Config config){
-		ArrayList<FieldSet<?>> scatteringPrefixesPlusPrefix = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, prefix);
-		ArrayList<FieldSet<?>> scatteringPrefixesPlusStartKey = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, startKey);
-		ArrayList<FieldSet<?>> scatteringPrefixesPlusEndKey = getInstanceForAllPossibleScatteringPrefixes(fieldInfo, endKey);
-		List<Pair<byte[],byte[]>> outs = DrListTool.createArrayList();
-		for(int i=0; i < DrCollectionTool.size(scatteringPrefixesPlusPrefix); ++i){
-			FieldSet<?> scatteringPrefixPlusPrefix = scatteringPrefixesPlusPrefix.get(i);
-			FieldSet<?> scatteringPrefixPlusStartKey = scatteringPrefixesPlusStartKey.get(i);
-			FieldSet<?> scatteringPrefixPlusEndKey = scatteringPrefixesPlusEndKey.get(i);
-			Twin<ByteRange> prefixBounds = HBaseQueryBuilder.getStartEndBytesForPrefix(scatteringPrefixPlusPrefix
-					.getFields(), wildcardLastField);
-			Twin<ByteRange> rangeBounds = HBaseQueryBuilder.getStartEndBytesForRange(
-					scatteringPrefixPlusStartKey, startInclusive, scatteringPrefixPlusEndKey, endInclusive);
-			Pair<byte[],byte[]> prefixBoundsArrays = Pair.create(
-					ByteRange.nullSafeToArray(prefixBounds.getLeft(), false),
-					ByteRange.nullSafeToArray(prefixBounds.getRight(), false));
-			Pair<byte[],byte[]> rangeBoundsArrays = Pair.create(
-					ByteRange.nullSafeToArray(rangeBounds.getLeft(), false),
-					ByteRange.nullSafeToArray(rangeBounds.getRight(), false));
-			Pair<byte[],byte[]> intersection = HBaseQueryBuilder.getRangeIntersection(prefixBoundsArrays, rangeBoundsArrays);
-			outs.add(intersection);
 		}
 		return outs;
 	}
@@ -176,21 +134,6 @@ public class HBaseScatteringPrefixQueryBuilder {
 					pkRange, pConfig, 1L);//start the counter at 1
 			BatchingSortedScanner<D> scanner = new BatchingSortedScanner<D>(executorService, firstBatchLoaderForPrefix);
 			scanners.add(scanner);
-		}
-		return scanners;
-	}
-	
-	//should probably be merged with getManualPrimaryKeyScannerForEachPrefix
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
-	ArrayList<HBaseDatabeanScanner<PK,D>> getManualDatabeanScannersForRanges(
-			HBaseReaderNode<PK,D,?> node,
-			DatabeanFieldInfo<PK,D,?> fieldInfo,
-			Collection<Pair<byte[],byte[]>> ranges,
-			final Config pConfig){
-			Config config = Config.nullSafe(pConfig);
-		ArrayList<HBaseDatabeanScanner<PK,D>> scanners = DrListTool.createArrayList();
-		for(Pair<byte[],byte[]> range : ranges){
-			scanners.add(new HBaseDatabeanScanner<PK,D>(node, fieldInfo, range.getLeft(), range.getRight(), config));
 		}
 		return scanners;
 	}
