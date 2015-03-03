@@ -12,7 +12,7 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
+import com.hotpads.datarouter.test.TestDatarouterInjectorProvider;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
@@ -32,7 +32,7 @@ public abstract class BaseTxnIntegrationTests {
 	
 
 	protected static void setup(String pClientName, boolean useFielder){
-		Injector injector = new DatarouterTestInjectorProvider().get();
+		Injector injector = new TestDatarouterInjectorProvider().get();
 		drContext = injector.getInstance(DatarouterContext.class);
 		clientName = pClientName;
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);

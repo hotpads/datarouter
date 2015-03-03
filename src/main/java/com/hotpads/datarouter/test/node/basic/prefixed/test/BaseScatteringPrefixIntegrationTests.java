@@ -14,7 +14,7 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
+import com.hotpads.datarouter.test.TestDatarouterInjectorProvider;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean.ScatteringPrefixBeanFielder.ScatteringPrefixBeanScatterer;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBeanKey;
@@ -33,7 +33,7 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 	private static ScatteringPrefixTestRouter router;
 	
 	public static void setup(String clientName) throws IOException{	
-		Injector injector = new DatarouterTestInjectorProvider().get();
+		Injector injector = new TestDatarouterInjectorProvider().get();
 		datarouterContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
 		router = new ScatteringPrefixTestRouter(datarouterContext, nodeFactory, clientName);

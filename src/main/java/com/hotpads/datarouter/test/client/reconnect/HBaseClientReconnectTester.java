@@ -15,7 +15,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
-import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
+import com.hotpads.datarouter.test.TestDatarouterInjectorProvider;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
@@ -37,7 +37,7 @@ public class HBaseClientReconnectTester {
 	
 	@BeforeClass
 	public static void beforeClass() throws IOException{
-		Injector injector = new DatarouterTestInjectorProvider().get();
+		Injector injector = new TestDatarouterInjectorProvider().get();
 		datarouterContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
 		router = new TxnTestRouter(datarouterContext, nodeFactory, DRTestConstants.CLIENT_drTestHBase, true);

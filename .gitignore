@@ -12,3 +12,5 @@ target/*
 /bin
 *.iml
 src/main/resources/git.properties
+/test-output
+.factorypath

@@ -11,18 +11,25 @@ import com.google.inject.Module;
 import com.google.inject.Stage;
 import com.hotpads.datarouter.config.DatarouterGuiceModule;
 
-public class DatarouterTestInjectorProvider implements Provider<Injector>{
-	protected List<Module> modules = new ArrayList<>();
-	protected Injector injector;
+/**
+ * @deprecated use DatarouterTestModuleFactory instead
+ * @author cguillaume
+ */
+@Deprecated
+public class TestDatarouterInjectorProvider implements Provider<Injector>{
 
-	public DatarouterTestInjectorProvider(){
-		this.modules.add(new DatarouterGuiceModule());
-		this.modules.add(new DatarouterTestGuiceModule());
+	private Injector injector;
+
+	public TestDatarouterInjectorProvider(){
+		List<Module> modules = new ArrayList<>();
+		modules.add(new DatarouterGuiceModule());
+		modules.add(new DatarouterTestGuiceModule());
 		this.injector = Guice.createInjector(Stage.DEVELOPMENT, modules);
 	}
-	
+
 	@Override
 	public Injector get(){
 		return injector;
 	}
+
 }

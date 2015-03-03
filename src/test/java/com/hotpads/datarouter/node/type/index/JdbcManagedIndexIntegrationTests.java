@@ -19,7 +19,7 @@ import com.hotpads.datarouter.node.type.index.node.TestDatabeanWithTxnManagedInd
 import com.hotpads.datarouter.node.type.index.router.ManagedIndexTestRouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.storage.key.KeyTool;
-import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
+import com.hotpads.datarouter.test.TestDatarouterInjectorProvider;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -33,7 +33,7 @@ public class JdbcManagedIndexIntegrationTests{
 
 	@BeforeClass
 	public static void setUp(){
-		Injector injector = new DatarouterTestInjectorProvider().get();
+		Injector injector = new TestDatarouterInjectorProvider().get();
 		datarouterContext = injector.getInstance(DatarouterContext.class);
 		ManagedIndexTestRouter router = injector.getInstance(ManagedIndexTestRouter.class);
 		node = router.testDatabeanWithManagedIndex;

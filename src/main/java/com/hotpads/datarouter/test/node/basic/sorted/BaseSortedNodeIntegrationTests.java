@@ -16,7 +16,7 @@ import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.storage.key.KeyTool;
-import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
+import com.hotpads.datarouter.test.TestDatarouterInjectorProvider;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -37,7 +37,7 @@ public abstract class BaseSortedNodeIntegrationTests{
 	/***************************** setup/teardown **************************************/
 	
 	protected static void setup(String clientName, boolean useFielder, boolean entity){
-		Injector injector = new DatarouterTestInjectorProvider().get();
+		Injector injector = new TestDatarouterInjectorProvider().get();
 		drContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
 		router = new SortedNodeTestRouter(drContext, nodeFactory, clientName, useFielder, entity);
