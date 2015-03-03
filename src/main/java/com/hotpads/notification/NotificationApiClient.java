@@ -1,20 +1,10 @@
 package com.hotpads.notification;
 
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContextBuilder;
-import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,29 +61,7 @@ public class NotificationApiClient {
 	}
 
 	private void buildClient(Boolean ignoreSsl) {
-		HotPadsHttpClientBuilder httpClientBuilder = null;
-		if (ignoreSsl) {
-			try{
-				SSLContextBuilder builder = new SSLContextBuilder();
-				builder.loadTrustMaterial(null, new TrustStrategy(){
-	
-					@Override
-					public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException{
-						return true;
-					}
-	
-				});
-				SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(),
-						SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-				HttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(sslsf).build();
-				httpClientBuilder = new HotPadsHttpClientBuilder().setCustomHttpClient(httpClient);
-			}catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e){
-				logger.error("",e);
-			}
-		} else {
-			httpClientBuilder = new HotPadsHttpClientBuilder();
-		}
-		client = httpClientBuilder
+		client = new HotPadsHttpClientBuilder().setIgnoreSsl(ignoreSsl)
 				.setSignatureValidator(new SignatureValidator(SALT))
 				.setCsrfValidator(new CsrfValidator(CIPHER_KEY, CIPHER_IV))
 				.setApiKeyPredicate(new DefaultApiKeyPredicate(API_KEY))
