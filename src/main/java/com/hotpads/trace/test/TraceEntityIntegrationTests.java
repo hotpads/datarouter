@@ -20,7 +20,7 @@ import com.hotpads.trace.node.TraceEntityNode;
 import com.hotpads.trace.node.TraceSubNodes;
 
 @Guice(moduleFactory=DatarouterTestModuleFactory.class)
-public class TraceEntityIntegrationTests{//Should it be an integration test ?
+public class TraceEntityIntegrationTests{
 
 	private static final String PARAMETERS = "parameters";
 

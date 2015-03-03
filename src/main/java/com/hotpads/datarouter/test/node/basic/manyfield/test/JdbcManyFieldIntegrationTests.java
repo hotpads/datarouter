@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.test.node.basic.manyfield.test;
 
-import org.junit.BeforeClass;
+import org.testng.annotations.BeforeClass;
 
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.manyfield.BaseManyFieldIntegrationTests;
