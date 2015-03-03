@@ -31,12 +31,12 @@ implements ManagedMultiIndexNode<PK, D, IK, IE, IF>{
 	}
 
 	@Override
-	public List<D> lookupMulti(IK indexKey, boolean wildcardLastField, Config config){
-		return lookupMultiMulti(Collections.singleton(indexKey), wildcardLastField, config);
+	public List<D> lookupMulti(IK indexKey, Config config){
+		return lookupMultiMulti(Collections.singleton(indexKey), config);
 	}
 
 	@Override
-	public List<D> lookupMultiMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config){
+	public List<D> lookupMultiMulti(Collection<IK> indexKeys, Config config){
 		String opName = UniqueIndexReader.OP_lookupMultiUnique;
 		BaseJdbcOp<List<D>> op = new JdbcGetByIndexOp<>(node, indexKeys, false, opName, config);
 		return new SessionExecutorImpl<List<D>>(op, opName).call();

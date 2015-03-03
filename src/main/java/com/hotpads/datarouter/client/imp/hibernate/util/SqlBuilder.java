@@ -114,27 +114,6 @@ public class SqlBuilder{
 		return sql.toString();
 	}
 	
-	public static String getWithPrefixInRange(
-			Config config, String tableName, List<Field<?>> selectFields, 
-			FieldSet<?> prefix, boolean wildcardLastField,
-			FieldSet<?> start, boolean startInclusive, 
-			FieldSet<?> end, boolean endInclusive, List<Field<?>> orderByFields){
-		StringBuilder sql = new StringBuilder();
-		addSelectFromClause(sql, tableName, selectFields);
-		sql.append(" where ");
-		sql.append("(");
-		addPrefixWhereClause(sql, prefix, wildcardLastField);
-		sql.append(")");
-		if(needsRangeWhereClause(start,end)){ 
-			sql.append(" and (");
-			addRangeWhereClause(sql, start, startInclusive, end, endInclusive);
-			sql.append(")");
-		}
-		addOrderByClause(sql, orderByFields);
-		addLimitOffsetClause(sql, config);
-		return sql.toString();
-	}
-	
 	
 	/*************************** secondary methods ***************************************/
 

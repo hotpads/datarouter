@@ -19,7 +19,6 @@ import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstKeyO
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetFirstOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetKeysOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetOp;
-import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetPrefixedRangeOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetRangeUncheckedOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateGetWithPrefixesOp;
 import com.hotpads.datarouter.client.imp.hibernate.op.read.HibernateLookupOp;
@@ -203,9 +202,8 @@ implements MapStorageReader<PK,D>,
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 
-	@Deprecated
+	//used by HibernatePrimaryKeyScanner
 	@SuppressWarnings("unchecked")
-	@Override
 	public List<PK> getKeysInRange(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
@@ -215,9 +213,8 @@ implements MapStorageReader<PK,D>,
 	}
 	
 
-	@Deprecated
+	//used by HibernateDatabeanScanner
 	@SuppressWarnings("unchecked")
-	@Override
 	public List<D> getRange(
 			final PK start, final boolean startInclusive, 
 			final PK end, final boolean endInclusive, 
@@ -236,18 +233,6 @@ implements MapStorageReader<PK,D>,
 		return new SessionExecutorImpl<List<? extends FieldSet<?>>>(op, getTraceName(opName)).call();
 	}
 
-	
-	@Override
-	public List<D> getPrefixedRange(
-			final PK prefix, final boolean wildcardLastField,
-			final PK start, final boolean startInclusive, 
-			final Config config) {
-		String opName = SortedStorageReader.OP_getPrefixedRange;
-		HibernateGetPrefixedRangeOp<PK,D,F> op = new HibernateGetPrefixedRangeOp<PK,D,F>(this, opName, 
-				prefix, wildcardLastField, start, startInclusive, config);
-		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
-	}
-	
 	@Override
 	public SortedScannerIterable<PK> scanKeys(Range<PK> pRange, Config config){
 		Range<PK> range = Range.nullSafe(pRange);

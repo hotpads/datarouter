@@ -40,25 +40,6 @@ implements SortedStorageReaderNode<PK,D>{
 	public PK getFirstKey(Config pConfig){
 		return sortedStorageReaderMixin.getFirstKey(pConfig);
 	}
-	
-	@Override
-	public List<D> getPrefixedRange(
-			PK prefix, boolean wildcardLastField,
-			PK start, boolean startInclusive, Config pConfig){
-		return sortedStorageReaderMixin.getPrefixedRange(prefix, wildcardLastField, start, startInclusive, pConfig);
-	}
-
-	@Override
-	public List<PK> getKeysInRange(PK start, boolean startInclusive, PK end,
-			boolean endInclusive, Config pConfig){
-		return sortedStorageReaderMixin.getKeysInRange(start, startInclusive, end, endInclusive, pConfig);
-	}
-
-	@Override
-	public List<D> getRange(PK start, boolean startInclusive, PK end,
-			boolean endInclusive, Config pConfig){
-		return sortedStorageReaderMixin.getRange(start, startInclusive, end, endInclusive, pConfig);
-	}
 
 	@Override
 	public List<D> getWithPrefix(PK prefix, boolean wildcardLastField, Config pConfig){
