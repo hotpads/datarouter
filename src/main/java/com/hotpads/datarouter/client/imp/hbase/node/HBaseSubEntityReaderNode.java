@@ -36,7 +36,6 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.exception.NotImplementedException;
 import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
@@ -149,16 +148,14 @@ implements HBasePhysicalNode<PK,D>,
 	@Override
 	public PK getFirstKey(Config pConfig){
 		Config config = Config.nullSafe(pConfig).setLimit(1);
-		return DrCollectionTool.getFirst(
-				getKeysInRange(null, true, null, true, config));
+		return DrIterableTool.first(scanKeys(null, config));
 	}
 
 	
 	@Override
 	public D getFirst(Config pConfig){
 		Config config = Config.nullSafe(pConfig).setLimit(1);
-		return DrCollectionTool.getFirst(
-				getRange(null, true, null, true, config));
+		return DrIterableTool.first(scan(null, config));
 	}
 	
 	
@@ -223,39 +220,6 @@ implements HBasePhysicalNode<PK,D>,
 		List<D> allResults = DrListTool.concatenate(singleEntityResults, multiEntityResults);
 		Collections.sort(allResults);
 		return allResults;
-	}
-	
-
-	@Deprecated
-	@Override
-	public List<PK> getKeysInRange(final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		PeekableIterable<PK> iter = scanKeys(Range.create(start, startInclusive, end, endInclusive), pConfig);
-		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
-		List<PK> results = DrIterableTool.createArrayListFromIterable(iter, limit);
-		return results;
-	}
-	
-
-	@Deprecated
-	@Override
-	public List<D> getRange(final PK start, final boolean startInclusive, 
-			final PK end, final boolean endInclusive, final Config pConfig){
-		final Config config = Config.nullSafe(pConfig);
-		PeekableIterable<D> iter = scan(Range.create(start, startInclusive, end, endInclusive), pConfig);
-		int limit = config.getLimitOrUse(Integer.MAX_VALUE);
-		List<D> results = DrIterableTool.createArrayListFromIterable(iter, limit);
-		return results;
-		
-	}
-
-	@Deprecated
-	@Override
-	public List<D> getPrefixedRange(final PK prefix, final boolean wildcardLastField, 
-			final PK start, final boolean startInclusive, 
-			final Config pConfig){
-		throw new NotImplementedException("apologies");
 	}
 	
 	@Override

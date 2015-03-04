@@ -32,8 +32,8 @@ public interface MultiIndexReader<
 		IK extends PrimaryKey<IK>,
 		IE extends MultiIndexEntry<IK, IE, PK, D>>{
 
-	List<D> lookupMulti(IK indexKey, boolean wildcardLastField, Config config);
-	List<D> lookupMultiMulti(Collection<IK> indexKeys, boolean wildcardLastField, Config config);
+	List<D> lookupMulti(IK indexKey, Config config);
+	List<D> lookupMultiMulti(Collection<IK> indexKeys, Config config);
 	
 	SortedScannerIterable<IE> scan(Range<IK> range, Config config);
 	SortedScannerIterable<IK> scanKeys(Range<IK> range, Config config);

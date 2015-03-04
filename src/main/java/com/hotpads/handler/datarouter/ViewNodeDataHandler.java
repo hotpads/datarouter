@@ -8,8 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import junit.framework.Assert;
-
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.Node;
@@ -21,7 +19,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.serialize.fielder.PrimaryKeyFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
@@ -37,6 +34,7 @@ import com.hotpads.handler.datarouter.query.GetWhereTxn;
 import com.hotpads.handler.mav.Mav;
 import com.hotpads.handler.mav.imp.MessageMav;
 import com.hotpads.handler.util.RequestTool;
+import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends HibernateReaderNode<PK,D,F>>
@@ -162,7 +160,8 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		}
 
 		boolean startInclusive = true;
-		List<D> databeans = sortedNode.getRange((PK)startAfterKey, startInclusive, null, true, config);
+		List<D> databeans = DrListTool.createArrayList(sortedNode.scan(new Range<>((PK)startAfterKey, startInclusive, 
+				null, true), config));
 
 		addDatabeansToMav(mav, databeans);
 		return mav;

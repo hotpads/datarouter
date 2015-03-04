@@ -86,22 +86,6 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK, D>> impl
 	}
 
 	@Override
-	public List<PK> getKeysInRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
-		return Collections.emptyList();
-	}
-
-	@Override
-	public List<D> getRange(PK start, boolean startInclusive, PK end, boolean endInclusive, Config config){
-		return Collections.emptyList();
-	}
-
-	@Override
-	public List<D> getPrefixedRange(PK prefix, boolean wildcardLastField, PK start, boolean startInclusive,
-			Config config){
-		return Collections.emptyList();
-	}
-
-	@Override
 	public SortedScannerIterable<PK> scanKeys(Range<PK> range, Config config){
 		return new EmptySortedScannerIterable<>();
 	}
