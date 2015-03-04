@@ -5,16 +5,17 @@ import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
-
-import com.hotpads.util.http.response.exception.HotPadsHttpException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is an abstraction over the HttpResponse that handles several of the expected HTTP failures
  */
 public class HotPadsHttpResponse {
+	private static final Logger logger = LoggerFactory.getLogger(HotPadsHttpResponse.class);
+	
 	private int statusCode;
 	private String entity;
-	private HotPadsHttpException exception;
 	
 	public HotPadsHttpResponse(HttpResponse response) {
 		if(response != null) {
@@ -25,7 +26,8 @@ public class HotPadsHttpResponse {
 			if(httpEntity != null) {
 				try{
 					this.entity = EntityUtils.toString(httpEntity);
-				} catch (final IOException ignore) {
+				} catch (final IOException e) {
+					logger.error("Exception occurred while reading HTTP response entity", e);
 				} finally {
 					EntityUtils.consumeQuietly(httpEntity);
 				}
@@ -39,13 +41,5 @@ public class HotPadsHttpResponse {
 	
 	public String getEntity() {
 		return entity;
-	}
-	
-	public boolean isSuccessful() {
-		return exception == null && statusCode < 300;
-	}
-	
-	public HotPadsHttpException getException() {
-		return exception;
 	}
 }

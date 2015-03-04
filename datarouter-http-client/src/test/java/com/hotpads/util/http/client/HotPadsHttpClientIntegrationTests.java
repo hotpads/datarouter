@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import org.apache.http.HttpStatus;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -23,6 +24,7 @@ import com.hotpads.util.http.response.exception.HotPadsHttpConnectionAbortedExce
 import com.hotpads.util.http.response.exception.HotPadsHttpException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestExecutionException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestFutureTimeoutException;
+import com.hotpads.util.http.response.exception.HotPadsHttpResponseException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 import com.hotpads.util.http.security.CsrfValidator;
 import com.hotpads.util.http.security.DefaultApiKeyPredicate;
@@ -33,7 +35,6 @@ public class HotPadsHttpClientIntegrationTests {
 	private static final Logger logger = LoggerFactory.getLogger(HotPadsHttpClientIntegrationTests.class);
 	private static final int PORT = 9091;
 	private static final String URL = "http://localhost:" + PORT + "/";
-	private static final int[] STATUSES = new int[] { 200, 403, 404, 408, 500, 503 };
 	private static final Random RANDOM = new Random(115509410414623L);
 	private static SimpleHttpResponseServer server;
 
@@ -155,8 +156,8 @@ public class HotPadsHttpClientIntegrationTests {
 	}
 
 	@Test
-	public void testSuccessfulRequest() {
-		int status = STATUSES[RANDOM.nextInt(STATUSES.length)];
+	public void testSuccessfulRequests() {
+		int status = HttpStatus.SC_OK;
 		String expectedResponse = UUID.randomUUID().toString();
 		server.setResponse(status, expectedResponse);
 		HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
@@ -164,6 +165,42 @@ public class HotPadsHttpClientIntegrationTests {
 		HotPadsHttpResponse response = client.execute(request);
 		Assert.assertEquals(expectedResponse, response.getEntity());
 		Assert.assertEquals(status, response.getStatusCode());
+	}
+	
+	@Test(expected = HotPadsHttpResponseException.class)
+	public void testBadRequestFailure() throws HotPadsHttpException {
+		try {
+			int status = HttpStatus.SC_BAD_REQUEST;
+			String expectedResponse = UUID.randomUUID().toString();
+			server.setResponse(status, expectedResponse);
+			HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
+			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
+			client.executeChecked(request);
+		} catch (HotPadsHttpResponseException e) {
+			Assert.assertTrue(e.isClientError());
+			HotPadsHttpResponse response = e.getResponse();
+			Assert.assertNotNull(response);
+			Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCode());
+			throw e;
+		}
+	}
+
+	@Test(expected = HotPadsHttpResponseException.class)
+	public void testServiceUnavailableFailure() throws HotPadsHttpException {
+		try {
+			int status = HttpStatus.SC_SERVICE_UNAVAILABLE;
+			String expectedResponse = UUID.randomUUID().toString();
+			server.setResponse(status, expectedResponse);
+			HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
+			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
+			client.executeChecked(request);
+		} catch (HotPadsHttpResponseException e) {
+			Assert.assertTrue(e.isServerError());
+			HotPadsHttpResponse response = e.getResponse();
+			Assert.assertNotNull(response);
+			Assert.assertEquals(HttpStatus.SC_SERVICE_UNAVAILABLE, response.getStatusCode());
+			throw e;
+		}
 	}
 
 	@Test
@@ -191,8 +228,7 @@ public class HotPadsHttpClientIntegrationTests {
 		params.put("3", "Everything is awesome! Everything is cool when you're part of a team!");
 
 		String expectedResponse = Arrays.toString(params.entrySet().toArray());
-		int status = STATUSES[RANDOM.nextInt(STATUSES.length)];
-		server.setResponse(status, expectedResponse);
+		server.setResponse(HttpStatus.SC_ACCEPTED, expectedResponse);
 
 		// GET request cannot be signed
 		request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false).addPostParams(params);
