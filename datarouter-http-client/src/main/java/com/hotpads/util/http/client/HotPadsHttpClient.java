@@ -28,13 +28,12 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.util.http.json.JsonSerializer;
 import com.hotpads.util.http.request.HotPadsHttpRequest;
 import com.hotpads.util.http.response.HotPadsHttpResponse;
-import com.hotpads.util.http.response.exception.HotPadsHttp4xxResponseException;
-import com.hotpads.util.http.response.exception.HotPadsHttp5xxResponseException;
 import com.hotpads.util.http.response.exception.HotPadsHttpConnectionAbortedException;
 import com.hotpads.util.http.response.exception.HotPadsHttpException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestExecutionException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestFutureTimeoutException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestInterruptedException;
+import com.hotpads.util.http.response.exception.HotPadsHttpResponseException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 import com.hotpads.util.http.security.ApiKeyPredicate;
 import com.hotpads.util.http.security.CsrfValidator;
@@ -125,11 +124,8 @@ public class HotPadsHttpClient {
 			Future<HttpResponse> httpResponseFuture = executor.submit(requestCallable);
 			HttpResponse httpResponse = httpResponseFuture.get(futureTimeoutMs, TimeUnit.MILLISECONDS);
 			HotPadsHttpResponse response = new HotPadsHttpResponse(httpResponse);
-			if (response.getStatusCode() >= HttpStatus.SC_INTERNAL_SERVER_ERROR) {
-				throw new HotPadsHttp5xxResponseException(response);
-			}
 			if (response.getStatusCode() >= HttpStatus.SC_BAD_REQUEST) {
-				throw new HotPadsHttp4xxResponseException(response);
+				throw new HotPadsHttpResponseException(response);
 			}
 			return response;
 		} catch (TimeoutException e) {

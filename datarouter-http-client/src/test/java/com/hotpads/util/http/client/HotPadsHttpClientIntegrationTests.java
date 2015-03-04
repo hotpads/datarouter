@@ -20,12 +20,11 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.util.http.request.HotPadsHttpRequest;
 import com.hotpads.util.http.request.HotPadsHttpRequest.HttpRequestMethod;
 import com.hotpads.util.http.response.HotPadsHttpResponse;
-import com.hotpads.util.http.response.exception.HotPadsHttp4xxResponseException;
-import com.hotpads.util.http.response.exception.HotPadsHttp5xxResponseException;
 import com.hotpads.util.http.response.exception.HotPadsHttpConnectionAbortedException;
 import com.hotpads.util.http.response.exception.HotPadsHttpException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestExecutionException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRequestFutureTimeoutException;
+import com.hotpads.util.http.response.exception.HotPadsHttpResponseException;
 import com.hotpads.util.http.response.exception.HotPadsHttpRuntimeException;
 import com.hotpads.util.http.security.CsrfValidator;
 import com.hotpads.util.http.security.DefaultApiKeyPredicate;
@@ -168,24 +167,38 @@ public class HotPadsHttpClientIntegrationTests {
 		Assert.assertEquals(status, response.getStatusCode());
 	}
 	
-	@Test(expected = HotPadsHttp4xxResponseException.class)
+	@Test(expected = HotPadsHttpResponseException.class)
 	public void testBadRequestFailure() throws HotPadsHttpException {
-		int status = HttpStatus.SC_BAD_REQUEST;
-		String expectedResponse = UUID.randomUUID().toString();
-		server.setResponse(status, expectedResponse);
-		HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
-		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
-		client.executeChecked(request);
+		try {
+			int status = HttpStatus.SC_BAD_REQUEST;
+			String expectedResponse = UUID.randomUUID().toString();
+			server.setResponse(status, expectedResponse);
+			HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
+			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
+			client.executeChecked(request);
+		} catch (HotPadsHttpResponseException e) {
+			HotPadsHttpResponse response = e.getResponse();
+			Assert.assertNotNull(response);
+			Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCode());
+			throw e;
+		}
 	}
-	
-	@Test(expected = HotPadsHttp5xxResponseException.class)
+
+	@Test(expected = HotPadsHttpResponseException.class)
 	public void testServiceUnavailableFailure() throws HotPadsHttpException {
-		int status = HttpStatus.SC_SERVICE_UNAVAILABLE;
-		String expectedResponse = UUID.randomUUID().toString();
-		server.setResponse(status, expectedResponse);
-		HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
-		HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
-		client.executeChecked(request);
+		try {
+			int status = HttpStatus.SC_SERVICE_UNAVAILABLE;
+			String expectedResponse = UUID.randomUUID().toString();
+			server.setResponse(status, expectedResponse);
+			HotPadsHttpClient client = new HotPadsHttpClientBuilder().build();
+			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
+			client.executeChecked(request);
+		} catch (HotPadsHttpResponseException e) {
+			HotPadsHttpResponse response = e.getResponse();
+			Assert.assertNotNull(response);
+			Assert.assertEquals(HttpStatus.SC_SERVICE_UNAVAILABLE, response.getStatusCode());
+			throw e;
+		}
 	}
 
 	@Test
