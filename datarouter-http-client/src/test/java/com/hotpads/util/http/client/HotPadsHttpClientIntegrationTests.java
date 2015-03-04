@@ -177,6 +177,7 @@ public class HotPadsHttpClientIntegrationTests {
 			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
 			client.executeChecked(request);
 		} catch (HotPadsHttpResponseException e) {
+			Assert.assertTrue(e.isClientError());
 			HotPadsHttpResponse response = e.getResponse();
 			Assert.assertNotNull(response);
 			Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusCode());
@@ -194,6 +195,7 @@ public class HotPadsHttpClientIntegrationTests {
 			HotPadsHttpRequest request = new HotPadsHttpRequest(HttpRequestMethod.GET, URL, false);
 			client.executeChecked(request);
 		} catch (HotPadsHttpResponseException e) {
+			Assert.assertTrue(e.isServerError());
 			HotPadsHttpResponse response = e.getResponse();
 			Assert.assertNotNull(response);
 			Assert.assertEquals(HttpStatus.SC_SERVICE_UNAVAILABLE, response.getStatusCode());
