@@ -2,7 +2,7 @@ package com.hotpads.datarouter.test.node.basic.prefixed.test;
 
 import java.io.IOException;
 
-import org.junit.BeforeClass;
+import org.testng.annotations.BeforeClass;
 
 import com.hotpads.datarouter.test.DRTestConstants;
 

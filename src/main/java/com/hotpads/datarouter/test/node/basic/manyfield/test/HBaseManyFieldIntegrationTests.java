@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.test.node.basic.manyfield.test;
 
-import org.junit.BeforeClass;
+import org.testng.annotations.BeforeClass;
 
 import com.hotpads.datarouter.test.DRTestConstants;
 import com.hotpads.datarouter.test.node.basic.manyfield.BaseManyFieldIntegrationTests;
@@ -11,7 +11,7 @@ public class HBaseManyFieldIntegrationTests extends BaseManyFieldIntegrationTest
 	public static void beforeClass(){
 		setup(DRTestConstants.CLIENT_drTestHBase, true);
 	}
-	
+
 	@Override
 	public boolean isHBase(){
 		return true;

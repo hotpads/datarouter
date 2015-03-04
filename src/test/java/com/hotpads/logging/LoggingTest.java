@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Injector;
-import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
+import com.hotpads.datarouter.test.TestDatarouterInjectorProvider;
 import com.hotpads.logging.ClassA.Class1;
 import com.hotpads.logging.ClassA.Class1.Class11;
 import com.hotpads.logging.ClassA.Class2;
@@ -30,7 +30,7 @@ public class LoggingTest{
 		File f = new File(UtilLog4j2Configuration.testFileName);
 		f.delete();
 	}
-	
+
 	/*
 	 * The config that make this test succeed is in TestDatarouterLog4j2Configuration
 	 */
@@ -47,10 +47,10 @@ public class LoggingTest{
 		int i = getNumberOfLineInLogFile();
 		Assert.assertEquals(5, i);
 	}
-	
+
 	@Test
 	public void dynamiqueTest(){
-		Injector injector = new DatarouterTestInjectorProvider().get();
+		Injector injector = new TestDatarouterInjectorProvider().get();
 		Log4j2Configurator log4j2Configurator = injector.getInstance(Log4j2Configurator.class);
 		logOneOfEachLevel();
 		log4j2Configurator.getRootLoggerConfig().setLevel(Level.DEBUG);
