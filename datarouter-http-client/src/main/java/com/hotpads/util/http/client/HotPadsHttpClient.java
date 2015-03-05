@@ -118,25 +118,26 @@ public class HotPadsHttpClient {
 		long futureTimeoutMs = request.getFutureTimeoutMs() == null ? this.futureTimeoutMs : request
 				.getFutureTimeoutMs().longValue();
 		HttpRequestBase internalHttpRequest = null;
+		HttpRequestCallable requestCallable = null;
 		try {
 			internalHttpRequest = request.getRequest();
-			HttpRequestCallable requestCallable = new HttpRequestCallable(httpClient, internalHttpRequest, context);
+			requestCallable = new HttpRequestCallable(httpClient, internalHttpRequest, context);
 			Future<HttpResponse> httpResponseFuture = executor.submit(requestCallable);
 			HttpResponse httpResponse = httpResponseFuture.get(futureTimeoutMs, TimeUnit.MILLISECONDS);
 			HotPadsHttpResponse response = new HotPadsHttpResponse(httpResponse);
 			if (response.getStatusCode() >= HttpStatus.SC_BAD_REQUEST) {
-				throw new HotPadsHttpResponseException(response);
+				throw new HotPadsHttpResponseException(response, requestCallable.getRequestStartTimeMs());
 			}
 			return response;
 		} catch (TimeoutException e) {
 			ex = new HotPadsHttpRequestFutureTimeoutException(e, timeoutMs);
 		} catch (CancellationException | InterruptedException e) {
-			ex = new HotPadsHttpRequestInterruptedException(e);
+			ex = new HotPadsHttpRequestInterruptedException(e, requestCallable.getRequestStartTimeMs());
 		} catch (ExecutionException e) {
 			if (e.getCause() instanceof IOException) {
-				ex = new HotPadsHttpConnectionAbortedException(e);
+				ex = new HotPadsHttpConnectionAbortedException(e, requestCallable.getRequestStartTimeMs());
 			} else {
-				ex = new HotPadsHttpRequestExecutionException(e);
+				ex = new HotPadsHttpRequestExecutionException(e, requestCallable.getRequestStartTimeMs());
 			}
 		}
 		if (ex != null && internalHttpRequest != null) {
@@ -169,6 +170,7 @@ public class HotPadsHttpClient {
 		private HttpClient httpClient;
 		private HttpUriRequest request;
 		private HttpContext context;
+		private long requestStartTimeMs;
 
 		HttpRequestCallable(HttpClient httpClient, HttpUriRequest request, HttpContext context) {
 			this.httpClient = httpClient;
@@ -178,7 +180,12 @@ public class HotPadsHttpClient {
 
 		@Override
 		public HttpResponse call() throws IOException {
+			requestStartTimeMs = System.currentTimeMillis();
 			return httpClient.execute(request, context);
+		}
+
+		public long getRequestStartTimeMs() {
+			return requestStartTimeMs;
 		}
 	}
 	
