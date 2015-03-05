@@ -9,9 +9,9 @@ public class HotPadsHttpResponseException extends HotPadsHttpException {
 
 	private HotPadsHttpResponse response;
 	
-	public HotPadsHttpResponseException(HotPadsHttpResponse response, long requestExecutedMs) {
+	public HotPadsHttpResponseException(HotPadsHttpResponse response, long requestStartTimeMs) {
 		super("HTTP response returned with status code " + response.getStatusCode() + " after "
-				+ (System.currentTimeMillis() - requestExecutedMs) + "ms with entity:\n" + response.getEntity(), null);
+				+ (System.currentTimeMillis() - requestStartTimeMs) + "ms with entity:\n" + response.getEntity(), null);
 		this.response = response;
 	}
 	
