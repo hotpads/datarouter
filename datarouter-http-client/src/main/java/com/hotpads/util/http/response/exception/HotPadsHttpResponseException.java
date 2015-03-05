@@ -10,7 +10,7 @@ public class HotPadsHttpResponseException extends HotPadsHttpException {
 	private HotPadsHttpResponse response;
 	
 	public HotPadsHttpResponseException(HotPadsHttpResponse response) {
-		super("HTTP response returned with status code " + response.getStatusCode(), null);
+		super("HTTP response returned with status code " + response.getStatusCode() + "\n" + response.getEntity(), null);
 		this.response = response;
 	}
 	
