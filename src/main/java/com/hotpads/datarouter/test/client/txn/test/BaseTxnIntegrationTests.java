@@ -1,10 +1,10 @@
 package com.hotpads.datarouter.test.client.txn.test;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.Test;
 
 import com.google.inject.Injector;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
@@ -12,7 +12,7 @@ import com.hotpads.datarouter.config.Isolation;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
+import com.hotpads.datarouter.test.TestDatarouterInjectorProvider;
 import com.hotpads.datarouter.test.client.txn.TxnBean;
 import com.hotpads.datarouter.test.client.txn.TxnBeanKey;
 import com.hotpads.datarouter.test.client.txn.TxnTestRouter;
@@ -29,51 +29,51 @@ public abstract class BaseTxnIntegrationTests {
 	private static String clientName;
 	private static TxnTestRouter router;
 	private static SortedMapStorageNode<TxnBeanKey,TxnBean> node;
-	
+
 
 	protected static void setup(String pClientName, boolean useFielder){
-		Injector injector = new DatarouterTestInjectorProvider().get();
+		Injector injector = new TestDatarouterInjectorProvider().get();
 		drContext = injector.getInstance(DatarouterContext.class);
 		clientName = pClientName;
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
 		router = new TxnTestRouter(drContext, nodeFactory, clientName, useFielder);
 		node = router.txnBean();
 	}
-	
+
 	@AfterClass
 	public static void afterClass(){
 		drContext.shutdown();
 	}
-	
+
 	protected static void resetTable(){
 		router.txnBean().deleteAll(null);
-		Assert.assertEquals(0, DrIterableTool.count(node.scan(null, null)).intValue());
+		AssertJUnit.assertEquals(0, DrIterableTool.count(node.scan(null, null)).intValue());
 	}
-	
+
 	/***************** override these in subclasses **************/
-	
+
 	protected boolean hasSession(){
 		return false;
 	}
-	
+
 
 	/************ InsertRollback *********************/
-	
-	@Test 
-	public void testInsertRollbackNoFlush(){	
+
+	@Test
+	public void testInsertRollbackNoFlush(){
 		int numExceptions = 0;
 		String beanPrefix = "a";
 		try{
-			router.run(new TestInsertRollback(drContext, DrListTool.wrap(clientName), Isolation.readCommitted, 
+			router.run(new TestInsertRollback(drContext, DrListTool.wrap(clientName), Isolation.readCommitted,
 					router, false, beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
-		Assert.assertEquals(1, numExceptions);
-		Assert.assertFalse(node.exists(new TxnBeanKey(beanPrefix + "1"), null));
+		AssertJUnit.assertEquals(1, numExceptions);
+		AssertJUnit.assertFalse(node.exists(new TxnBeanKey(beanPrefix + "1"), null));
 	}
-	
-	@Test 
+
+	@Test
 	public void testInsertRollbackWithFlush(){
 		if(!hasSession()){ return; }//can't flush without a session
 		int numExceptions = 0;
@@ -86,64 +86,64 @@ public abstract class BaseTxnIntegrationTests {
 			logger.warn("", re);
 			++numExceptions;
 		}
-		Assert.assertEquals(1, numExceptions);
-		Assert.assertFalse(node.exists(new TxnBeanKey(beanPrefix + "1"), null));
+		AssertJUnit.assertEquals(1, numExceptions);
+		AssertJUnit.assertFalse(node.exists(new TxnBeanKey(beanPrefix + "1"), null));
 	}
 
-	
+
 	/************ MultiInsertRollback *********************/
-	
-	@Test 
-	public void testMoreComplexInsertRollbackNoFlush(){		
+
+	@Test
+	public void testMoreComplexInsertRollbackNoFlush(){
 		int numExceptions = 0;
 		String beanPrefix = "c";
 		TxnBean b = new TxnBean(beanPrefix + "1");
 		node.put(b, null);
-		Assert.assertTrue(router.txnBean().exists(b.getKey(), null));
+		AssertJUnit.assertTrue(router.txnBean().exists(b.getKey(), null));
 		try{
-			router.run(new TestMultiInsertRollback(drContext, DrListTool.wrap(clientName), 
+			router.run(new TestMultiInsertRollback(drContext, DrListTool.wrap(clientName),
 					Isolation.readCommitted, router, false, beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
-		Assert.assertEquals(1, numExceptions);
-		Assert.assertTrue(router.txnBean().exists(b.getKey(), null));
+		AssertJUnit.assertEquals(1, numExceptions);
+		AssertJUnit.assertTrue(router.txnBean().exists(b.getKey(), null));
 	}
-	
-	@Test 
-	public void testMoreComplexInsertRollbackWithFlush(){	
-		if(!hasSession()){ return; }//can't flush without a session	
+
+	@Test
+	public void testMoreComplexInsertRollbackWithFlush(){
+		if(!hasSession()){ return; }//can't flush without a session
 		int numExceptions = 0;
 		String beanPrefix = "d";
 		TxnBean b = new TxnBean(beanPrefix + "1");
 		node.put(b, null);
-		Assert.assertTrue(router.txnBean().exists(b.getKey(), null));
+		AssertJUnit.assertTrue(router.txnBean().exists(b.getKey(), null));
 		try{
-			router.run(new TestMultiInsertRollback(drContext, DrListTool.wrap(clientName), 
+			router.run(new TestMultiInsertRollback(drContext, DrListTool.wrap(clientName),
 					Isolation.readCommitted, router, true, beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
-		Assert.assertEquals(1, numExceptions);
-		Assert.assertTrue(router.txnBean().exists(b.getKey(), null));
-		Assert.assertFalse(router.txnBean().exists(new TxnBeanKey(beanPrefix + "2"), null));
-		Assert.assertFalse(router.txnBean().exists(new TxnBeanKey(beanPrefix + "3"), null));
+		AssertJUnit.assertEquals(1, numExceptions);
+		AssertJUnit.assertTrue(router.txnBean().exists(b.getKey(), null));
+		AssertJUnit.assertFalse(router.txnBean().exists(new TxnBeanKey(beanPrefix + "2"), null));
+		AssertJUnit.assertFalse(router.txnBean().exists(new TxnBeanKey(beanPrefix + "3"), null));
 	}
 
-	
+
 	/************ NestedTxn *********************/
-	
-	@Test 
+
+	@Test
 	public void testNestedTxn(){
 		int numExceptions = 0;
 		try{
-			router.run(new TestNestedTxn(drContext, DrListTool.wrap(clientName), 
+			router.run(new TestNestedTxn(drContext, DrListTool.wrap(clientName),
 					Isolation.readCommitted, false, router, false));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
-		Assert.assertEquals(1, numExceptions);
-		Assert.assertFalse(router.txnBean().exists(new TxnBeanKey("outer"), null));
+		AssertJUnit.assertEquals(1, numExceptions);
+		AssertJUnit.assertFalse(router.txnBean().exists(new TxnBeanKey("outer"), null));
 	}
 }
 

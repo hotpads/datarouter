@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.google.inject.Injector;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.storage.key.KeyTool;
-import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
+import com.hotpads.datarouter.test.TestDatarouterInjectorProvider;
 import com.hotpads.datarouter.test.TestDatabean;
 import com.hotpads.datarouter.test.TestDatabeanKey;
 import com.hotpads.datarouter.test.TestIndexedDatabeanFielder.TestDatabeanByBLookup;
@@ -29,7 +29,7 @@ public class LazyReaderIntegrationTests{
 
 	@BeforeClass
 	public static void setUp(){
-		Injector injector = new DatarouterTestInjectorProvider().get();
+		Injector injector = new TestDatarouterInjectorProvider().get();
 		datarouterContext = injector.getInstance(DatarouterContext.class);
 		router = injector.getInstance(LazyTestRouter.class);
 		

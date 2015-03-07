@@ -11,7 +11,7 @@ import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.test.DRTestConstants;
-import com.hotpads.datarouter.test.DatarouterTestInjectorProvider;
+import com.hotpads.datarouter.test.TestDatarouterInjectorProvider;
 import com.hotpads.util.core.collections.Pair;
 
 public class PutOpIntegrationTests{
@@ -21,7 +21,7 @@ public class PutOpIntegrationTests{
 	
 	@BeforeClass
 	public static void beforeClass(){
-		Injector injector = new DatarouterTestInjectorProvider().get();
+		Injector injector = new TestDatarouterInjectorProvider().get();
 		datarouterContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
 		router = new PutOpTestRouter(datarouterContext, nodeFactory, DRTestConstants.CLIENT_drTestJdbc0);
