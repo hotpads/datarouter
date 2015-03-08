@@ -28,11 +28,10 @@ public /*abstract*/ class BaseAdapterNode<
 		N extends Node<PK,D>> 
 implements Node<PK,D>{
 	
-	protected N backingNode;
-	private Cached<Boolean> recordCallsites;
+	protected final N backingNode;
+	private final Cached<Boolean> recordCallsites;
 	
 	public BaseAdapterNode(NodeParams<PK,D,F> params, N backingNode){
-//		super(params);
 		this.backingNode = backingNode;
 		this.recordCallsites = params.getRecordCallsites();
 	}
