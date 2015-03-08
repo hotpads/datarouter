@@ -3,6 +3,7 @@ package com.hotpads.datarouter.client.imp.jdbc.op.read;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -53,9 +54,10 @@ extends BaseJdbcOp<List<IE>>{
 
 	@Override
 	public List<IE> runOnce(){
-		DRCounters.incSuffixClientNode(mainNode.getClient().getType(), opName, mainNode.getClientName(), mainNode.getName());
+		DRCounters.incSuffixClientNode(mainNode.getClient().getType(), opName, mainNode.getClientName(), mainNode
+				.getName());
 		Connection connection = getConnection(mainNode.getClientName());
-		List<IE> databeans = DrListTool.createArrayList();
+		List<IE> databeans = new ArrayList<>();
 		for(List<IK> batch : new BatchingIterable<>(uniqueKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			List<? extends Key<IK>> keys = DrListTool.createArrayList(batch);
 			String sql = SqlBuilder.getMulti(config, mainNode.getTableName(), indexFielder.getFields(indexEntry), keys);
@@ -64,7 +66,8 @@ extends BaseJdbcOp<List<IE>>{
 				ps.execute();
 				ResultSet rs = ps.getResultSet();
 				while(rs.next()){
-					IE databean = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(indexEntryClass, indexFielder.getFields(indexEntry), rs, false);
+					IE databean = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(indexEntryClass, indexFielder
+							.getFields(indexEntry), rs, false);
 					databeans.add(databean);
 				}
 			}catch(Exception e){

@@ -10,7 +10,6 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class JdbcGetFirstOp<
@@ -20,13 +19,11 @@ public class JdbcGetFirstOp<
 extends BaseJdbcOp<D>{
 		
 	private final JdbcReaderNode<PK,D,F> node;
-	private final String opName;
 	private final Config config;
 	
-	public JdbcGetFirstOp(JdbcReaderNode<PK,D,F> node, String opName, Config pConfig) {
+	public JdbcGetFirstOp(JdbcReaderNode<PK,D,F> node, Config pConfig) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
-		this.opName = opName;
 		this.config = Config.nullSafe(pConfig);
 	}
 	

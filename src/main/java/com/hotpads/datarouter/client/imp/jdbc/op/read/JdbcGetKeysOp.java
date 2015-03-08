@@ -42,7 +42,6 @@ extends BaseJdbcOp<List<PK>>{
 	
 	@Override
 	public List<PK> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		int batchSize = JdbcNode.DEFAULT_ITERATE_BATCH_SIZE;
 		if(config!=null && config.getIterateBatchSize()!=null){
 			batchSize = config.getIterateBatchSize();
@@ -54,11 +53,11 @@ extends BaseJdbcOp<List<PK>>{
 		Connection connection = getConnection(node.getClientName());
 		for(int batchNum=0; batchNum < numBatches; ++batchNum){
 			List<? extends Key<PK>> keyBatch = DrBatchTool.getBatch(sortedKeys, batchSize, batchNum);
-			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), keyBatch);
+			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), 
+					keyBatch);
 			List<PK> batch = JdbcTool.selectPrimaryKeys(connection, node.getFieldInfo(), sql);
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					DrCollectionTool.size(batch));//count the number of hits (arbitrary decision)
+			DRCounters.incSuffixClientNode(node.getClient().getType(), opName + " selects", node.getClientName(), node
+					.getName());
 			if(DrCollectionTool.notEmpty(batch)){
 				Collections.sort(batch);//should prob remove
 				result.addAll(batch);

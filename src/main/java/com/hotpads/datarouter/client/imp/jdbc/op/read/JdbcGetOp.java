@@ -57,8 +57,6 @@ extends BaseJdbcOp<List<D>>{
 			List<D> batch = JdbcTool.selectDatabeans(connection, node.getFieldInfo(), sql);
 			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" selects", node.getClientName(), 
 					node.getName());
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					DrCollectionTool.size(batch));//count the number of hits (arbitrary decision)
 			if(DrCollectionTool.notEmpty(batch)){
 				Collections.sort(batch);//should prob remove
 				result.addAll(batch);

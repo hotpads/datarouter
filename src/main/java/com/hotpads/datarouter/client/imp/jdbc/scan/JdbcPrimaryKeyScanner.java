@@ -22,8 +22,7 @@ extends BaseJdbcScanner<PK,D,PK>{
 
 	@Override
 	protected List<PK> doLoad(Range<PK> range, Config config){
-		return jdbcReaderOps.getKeysInRange(range.getStart(), range.getStartInclusive(), range.getEnd(), 
-				range.getEndInclusive(), config);
+		return jdbcReaderOps.getKeysInRange(range, config);
 	}
 
 	@Override
