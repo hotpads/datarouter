@@ -40,7 +40,6 @@ extends BaseJdbcOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		if(DrCollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		String sql = SqlBuilder.getWithPrefixes(config, node.getTableName(), node.getFieldInfo().getFields(),
 				prefixes, wildcardLastField, node.getFieldInfo().getPrimaryKeyFields());
 		List<D> result = JdbcTool.selectDatabeans(getConnection(node.getClientName()), node.getFieldInfo(), sql);

@@ -36,7 +36,6 @@ extends BaseJdbcOp<List<PK>>{
 	
 	@Override
 	public List<PK> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		List<Field<?>> fieldsToSelect = node.getFieldInfo().getPrimaryKeyFields();
 		String sql = SqlBuilder.getInRange(config, node.getTableName(), fieldsToSelect, range, 
 				node.getFieldInfo().getPrimaryKeyFields());

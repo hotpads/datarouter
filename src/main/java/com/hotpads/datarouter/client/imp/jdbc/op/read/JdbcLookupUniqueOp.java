@@ -41,7 +41,6 @@ extends BaseJdbcOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		List<? extends UniqueKey<PK>> sortedKeys = DrListTool.createArrayList(uniqueKeys);
 		Collections.sort(sortedKeys);
 		String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), 

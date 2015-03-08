@@ -35,7 +35,6 @@ extends BaseJdbcOp<Long>{
 	
 	@Override
 	public Long runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Connection connection = getConnection(node.getClientName());
 		String sql = SqlBuilder.getCount(config, node.getTableName(), node.getFieldInfo().getFields(), 
 				DrListTool.wrap(lookup));

@@ -46,7 +46,6 @@ extends BaseJdbcOp<List<D>>{
 		if(DrCollectionTool.isEmpty(lookups)){
 			return new LinkedList<>();
 		}
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Integer batchSize = config.getLimit();
 		int configuredBatchSize = config.getIterateBatchSizeOverrideNull(JdbcNode.DEFAULT_ITERATE_BATCH_SIZE);
 		if (batchSize == null || batchSize > configuredBatchSize){

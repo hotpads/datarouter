@@ -32,7 +32,6 @@ extends BaseJdbcOp<D>{
 	
 	@Override
 	public D runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		config.setLimit(1);
 		String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getFields(), null, 
 				node.getFieldInfo().getPrimaryKeyFields());
