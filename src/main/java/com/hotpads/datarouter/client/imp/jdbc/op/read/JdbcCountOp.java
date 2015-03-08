@@ -20,10 +20,10 @@ public class JdbcCountOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<Long>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Lookup<PK> lookup;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Lookup<PK> lookup;
+	private final Config config;
 	
 	public JdbcCountOp(JdbcReaderNode<PK,D,F> node, String opName, Lookup<PK> lookup, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);

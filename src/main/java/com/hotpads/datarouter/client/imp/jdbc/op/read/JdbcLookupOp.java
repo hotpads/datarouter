@@ -25,11 +25,11 @@ public class JdbcLookupOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<D>>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Collection<? extends Lookup<PK>> lookups;
-	private boolean wildcardLastField;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Collection<? extends Lookup<PK>> lookups;
+	private final boolean wildcardLastField;
+	private final Config config;
 	
 	public JdbcLookupOp(JdbcReaderNode<PK,D,F> node, String opName, 
 			Collection<? extends Lookup<PK>> lookups, boolean wildcardLastField, Config config) {

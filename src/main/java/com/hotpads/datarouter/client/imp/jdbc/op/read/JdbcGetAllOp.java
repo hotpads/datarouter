@@ -18,9 +18,9 @@ public class JdbcGetAllOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<D>>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Config config;
 	
 	public JdbcGetAllOp(JdbcReaderNode<PK,D,F> node, String opName, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
@@ -31,7 +31,6 @@ extends BaseJdbcOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		String sql = SqlBuilder.getAll(config, node.getTableName(), node.getFieldInfo().getFields(), null, 
 				node.getFieldInfo().getPrimaryKeyFields());

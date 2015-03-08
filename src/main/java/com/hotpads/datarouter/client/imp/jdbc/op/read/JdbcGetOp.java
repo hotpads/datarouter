@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
-import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderOps;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
@@ -28,10 +27,10 @@ public class JdbcGetOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<D>>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Collection<PK> keys;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Collection<PK> keys;
+	private final Config config;
 	
 	public JdbcGetOp(JdbcReaderNode<PK,D,F> node, String opName, Collection<PK> keys, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);

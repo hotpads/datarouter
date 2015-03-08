@@ -19,9 +19,9 @@ public class JdbcGetFirstKeyOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<PK>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Config config;
 	
 	public JdbcGetFirstKeyOp(JdbcReaderNode<PK,D,F> node, String opName, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);

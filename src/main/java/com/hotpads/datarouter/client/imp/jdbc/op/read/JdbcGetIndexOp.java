@@ -31,13 +31,13 @@ public class JdbcGetIndexOp
 		IF extends DatabeanFielder<IK,IE>>
 extends BaseJdbcOp<List<IE>>{
 	
-	private Config config;
-	private PhysicalNode<PK, D> mainNode;
-	private Class<IE> indexEntryClass;
-	private DatabeanFielder<IK, IE> indexFielder;
-	private IE indexEntry;
-	private Collection<IK> uniqueKeys;
-	private String opName;
+	private final Config config;
+	private final PhysicalNode<PK, D> mainNode;
+	private final Class<IE> indexEntryClass;
+	private final DatabeanFielder<IK, IE> indexFielder;
+	private final IE indexEntry;
+	private final Collection<IK> uniqueKeys;
+	private final String opName;
 
 	public JdbcGetIndexOp(PhysicalNode<PK, D> node, String opName, Config config, Class<IE> indexEntryClass,
 			Class<IF> indexFielderClass, Collection<IK> uniqueKeys){

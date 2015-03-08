@@ -25,11 +25,11 @@ public class JdbcManagedIndexScanOp
 	IF extends DatabeanFielder<IK, IE>>
 extends BaseJdbcOp<List<IE>>{
 
-	private Range<IK> range;
-	private PhysicalNode<PK, D> node;
-	private Config config;
-	private String traceName;
-	private DatabeanFieldInfo<IK, IE, IF> fieldInfo;
+	private final Range<IK> range;
+	private final PhysicalNode<PK, D> node;
+	private final Config config;
+	private final String traceName;
+	private final DatabeanFieldInfo<IK, IE, IF> fieldInfo;
 	
 	public JdbcManagedIndexScanOp(PhysicalNode<PK, D> node, ManagedNode<IK, IE, IF> managedNode, Range<IK> range,
 			Config config, String traceName){

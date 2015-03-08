@@ -27,10 +27,10 @@ public class JdbcGetKeysOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<PK>>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Collection<PK> keys;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Collection<PK> keys;
+	private final Config config;
 	
 	public JdbcGetKeysOp(JdbcReaderNode<PK,D,F> node, String opName, Collection<PK> keys, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);

@@ -21,11 +21,11 @@ public class JdbcGetWithPrefixesOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<D>>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Collection<PK> prefixes;
-	private boolean wildcardLastField;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Collection<PK> prefixes;
+	private final boolean wildcardLastField;
+	private final Config config;
 	
 	public JdbcGetWithPrefixesOp(JdbcReaderNode<PK,D,F> node, String opName, 
 			Collection<PK> prefixes, boolean wildcardLastField, Config config) {

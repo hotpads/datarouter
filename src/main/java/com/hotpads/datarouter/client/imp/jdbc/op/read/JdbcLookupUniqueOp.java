@@ -24,10 +24,10 @@ public class JdbcLookupUniqueOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<D>>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Collection<? extends UniqueKey<PK>> uniqueKeys;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Collection<? extends UniqueKey<PK>> uniqueKeys;
+	private final Config config;
 	
 	public JdbcLookupUniqueOp(JdbcReaderNode<PK,D,F> node, String opName, 
 			Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {

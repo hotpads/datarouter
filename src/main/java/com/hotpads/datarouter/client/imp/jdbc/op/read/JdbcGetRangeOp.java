@@ -21,10 +21,10 @@ public class JdbcGetRangeOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<D>>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Range<PK> range;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Range<PK> range;
+	private final Config config;
 	
 	public JdbcGetRangeOp(JdbcReaderNode<PK,D,F> node, String opName, Range<PK> range, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
