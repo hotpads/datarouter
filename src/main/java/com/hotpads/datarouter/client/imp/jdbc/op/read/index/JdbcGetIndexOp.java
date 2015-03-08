@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.op.read;
+package com.hotpads.datarouter.client.imp.jdbc.op.read.index;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
