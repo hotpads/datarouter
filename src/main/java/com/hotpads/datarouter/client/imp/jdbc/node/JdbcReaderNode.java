@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.node;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ implements MapStorageReader<PK,D>,
 	
 	@Override
 	public boolean exists(PK key, Config config) {
-		return null != jdbcReaderOps.get(key, config);
+		return DrCollectionTool.notEmpty(jdbcReaderOps.getMulti(Collections.singleton(key), config));
 	}
 
 	@Override

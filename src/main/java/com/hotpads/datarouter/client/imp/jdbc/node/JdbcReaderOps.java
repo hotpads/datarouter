@@ -42,6 +42,9 @@ public class JdbcReaderOps<
 		F extends DatabeanFielder<PK,D>> 
 {
 	private static final Logger logger = LoggerFactory.getLogger(JdbcReaderOps.class);
+
+	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
+	
 	
 	private final JdbcReaderNode<PK,D,F> node;
 	
@@ -55,18 +58,6 @@ public class JdbcReaderOps<
 	
 	/************************************ MapStorageReader methods ****************************/
 	
-	public static final int DEFAULT_ITERATE_BATCH_SIZE = 1000;
-	
-	public boolean exists(PK key, Config config) {
-		return get(key, config) != null;
-	}
-
-	public D get(final PK key, final Config config){
-		String opName = MapStorageReader.OP_get;
-		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(node, opName, DrListTool.wrap(key), config);
-		List<D> databeans = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();//should only be one
-		return DrCollectionTool.getFirst(databeans);
-	}
 	
 	public List<D> getMulti(final Collection<PK> keys, final Config config) {
 		String opName = MapStorageReader.OP_getMulti;
@@ -143,10 +134,6 @@ public class JdbcReaderOps<
 		String opName = SortedStorageReader.OP_getFirstKey;
 		JdbcGetFirstKeyOp<PK,D,F> op = new JdbcGetFirstKeyOp<PK,D,F>(node, opName, config);
 		return new SessionExecutorImpl<PK>(op, getTraceName(opName)).call();
-	}
-
-	public List<D> getWithPrefix(final PK prefix, final boolean wildcardLastField, final Config config) {
-		return getWithPrefixes(DrListTool.wrap(prefix),wildcardLastField,config);
 	}
 
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
