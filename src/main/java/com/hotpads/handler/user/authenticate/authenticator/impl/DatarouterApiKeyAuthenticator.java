@@ -33,7 +33,7 @@ public class DatarouterApiKeyAuthenticator extends BaseDatarouterAuthenticator {
 		String apiKey = request.getParameter(authenticationConfig.getApiKeyParam());
 		DatarouterUser user = lookupUserByApiKey(apiKey);
 		DatarouterSession session = DatarouterSession.createFromUser(user);
-		session.setIncludeSessionCookie(false);
+		session.setPersistent(false);
 		return session;
 	}
 	

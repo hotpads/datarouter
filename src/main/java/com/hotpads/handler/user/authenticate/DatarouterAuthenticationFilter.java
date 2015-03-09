@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.ResponseTool;
@@ -150,7 +151,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 			DatarouterSession session = authenticator.getSession();
 			if(session != null){
 				sessionManager.addToRequest(request, session);
-				if(session.getIncludeSessionCookies()) {
+				if(DrBooleanTool.isTrue(session.getPersistent())) {
 					sessionManager.addUserTokenCookie(response, session.getUserToken());
 					sessionManager.addSessionTokenCookie(response, session.getSessionToken());
 					userNodes.getSessionNode().put(session, null);

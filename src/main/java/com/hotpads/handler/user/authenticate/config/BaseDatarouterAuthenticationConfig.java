@@ -1,7 +1,6 @@
 package com.hotpads.handler.user.authenticate.config;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Preconditions;
@@ -62,7 +61,7 @@ implements DatarouterAuthenticationConfig{
 	}
 	
 	@Override
-	public String getKeepalivePath() {
+	public String getKeepAlivePath() {
 		return PATH_keepalive;
 	}
 	

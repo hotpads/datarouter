@@ -73,7 +73,7 @@ public class DatarouterSignatureWithNonceAuthenticator extends BaseDatarouterAut
 		apiRequest.setRequestDate(new Date());
 		userNodes.getApiRequestNode().put(apiRequest, null);
 		DatarouterSession session = DatarouterSession.createFromUser(user);
-		session.setIncludeSessionCookie(false);
+		session.setPersistent(false);
 		
 		return session;
 	}

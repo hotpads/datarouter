@@ -40,7 +40,7 @@ implements Serializable {
 	private String username;
 	private Date userCreated;
 	private List<String> roles;
-	private Boolean includeSessionCookies = true;
+	private Boolean persistent = true;
 	
 	public class F {
 		public static final String
@@ -209,11 +209,11 @@ implements Serializable {
 		this.userCreated = userCreated;
 	}
 
-	public boolean getIncludeSessionCookies() {
-		return includeSessionCookies;
+	public Boolean getPersistent() {
+		return persistent;
 	}
 	
-	public void setIncludeSessionCookie(Boolean includeSessionCookies) {
-		this.includeSessionCookies = includeSessionCookies;
+	public void setPersistent(Boolean persistent) {
+		this.persistent = persistent;
 	}
 }

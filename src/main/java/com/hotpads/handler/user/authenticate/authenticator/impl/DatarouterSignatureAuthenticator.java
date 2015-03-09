@@ -53,7 +53,7 @@ public class DatarouterSignatureAuthenticator extends BaseDatarouterAuthenticato
 			throw new InvalidApiCallException("invalid signature specified");
 		}
 		DatarouterSession session = DatarouterSession.createFromUser(user);
-		session.setIncludeSessionCookie(false);
+		session.setPersistent(false);
 		
 		return session;
 	}
