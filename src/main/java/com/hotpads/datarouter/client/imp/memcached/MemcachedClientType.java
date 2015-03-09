@@ -10,9 +10,8 @@ import com.hotpads.datarouter.client.imp.memcached.node.MemcachedNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.MapStorageAdapterNode;
-import com.hotpads.datarouter.node.adapter.SortedMapStorageAdapterNode;
+import com.hotpads.datarouter.node.adapter.counter.MapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
-import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
@@ -40,7 +39,7 @@ public class MemcachedClientType extends BaseClientType{
 	
 	@Override
 	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
-		return new MemcachedNode(nodeParams);
+		return new MapStorageCounterAdapter(new MemcachedNode(nodeParams));
 	}
 	
 	//ignore the entityNodeParams

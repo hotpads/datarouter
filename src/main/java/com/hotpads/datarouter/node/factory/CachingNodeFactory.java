@@ -11,6 +11,7 @@ import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.adapter.MapStorageAdapterNode;
+import com.hotpads.datarouter.node.adapter.counter.MapStorageCounterAdapter;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.caching.map.MapCachingMapStorageNode;
 import com.hotpads.datarouter.routing.Datarouter;
@@ -49,6 +50,7 @@ public class CachingNodeFactory{
 		Preconditions.checkNotNull(clientType, "clientType not found for clientName:"+clientName);
 		MapStorageNode<PK,D> node = new MapCachingMapStorageNode<PK,D,F,N>(cacheNode, backingNode, cacheReads,
 				cacheWrites);
+		node = new MapStorageCounterAdapter(node);
 		if(addAdapter){
 			node = new MapStorageAdapterNode<PK,D,F,N>(params, (N)node);
 		}

@@ -23,7 +23,7 @@ implements PhysicalNode<PK,D>{
 	protected final N backingNode;
 	
 	public BaseCounterPhysicalAdapter(NodeParams<PK,D,F> params, N backingNode){
-		super(params, backingNode);
+		super(backingNode);
 		this.backingNode = backingNode;
 	}
 

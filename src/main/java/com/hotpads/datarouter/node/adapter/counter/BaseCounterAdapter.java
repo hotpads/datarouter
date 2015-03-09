@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.hotpads.datarouter.node.Node;
-import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
@@ -25,7 +24,7 @@ implements Node<PK,D>{
 	
 	protected final N backingNode;
 	
-	public BaseCounterAdapter(NodeParams<PK,D,F> params, N backingNode){
+	public BaseCounterAdapter(N backingNode){
 		this.backingNode = backingNode;
 	}
 

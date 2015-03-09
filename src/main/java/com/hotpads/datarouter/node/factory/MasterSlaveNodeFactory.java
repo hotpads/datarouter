@@ -13,6 +13,7 @@ import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.adapter.IndexedSortedMapStorageAdapterNode;
 import com.hotpads.datarouter.node.adapter.MapStorageAdapterNode;
 import com.hotpads.datarouter.node.adapter.SortedMapStorageAdapterNode;
+import com.hotpads.datarouter.node.adapter.counter.MapStorageCounterAdapter;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
@@ -115,7 +116,8 @@ public class MasterSlaveNodeFactory{
 					= new MasterSlaveMapStorageNode<PK,D,F,MapStorageNode<PK,D>>(
 					databeanClass, router, 
 					(MapStorageNode<PK,D>)master, (List<MapStorageNode<PK,D>>)slaves);
-			return new MapStorageAdapterNode(nodeParams, backingNode);
+			MapStorageCounterAdapter counterAdapter = new MapStorageCounterAdapter(backingNode);
+			return new MapStorageAdapterNode(nodeParams, counterAdapter);
 		}else if(StorageType.sortedMap == storageType){
 			MasterSlaveSortedMapStorageNode<PK,D,F,SortedMapStorageNode<PK,D>> backingNode 
 					= new MasterSlaveSortedMapStorageNode<PK,D,F,SortedMapStorageNode<PK,D>>(

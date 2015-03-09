@@ -10,6 +10,7 @@ import com.hotpads.datarouter.client.imp.memory.node.HashMapNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.MapStorageAdapterNode;
+import com.hotpads.datarouter.node.adapter.counter.MapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -38,7 +39,7 @@ public class MemoryClientType extends BaseClientType{
 	
 	@Override
 	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
-		return new HashMapNode(nodeParams);
+		return new MapStorageCounterAdapter(new HashMapNode(nodeParams));
 	}
 	
 	//ignore the entityNodeParams
