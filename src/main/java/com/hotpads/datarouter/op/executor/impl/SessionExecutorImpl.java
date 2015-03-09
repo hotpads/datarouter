@@ -107,7 +107,7 @@ implements SessionExecutor<T>, Callable<T>{
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.openSession();
 //			logger.warn("opened session on "+sessionClient.getExistingHandle());
-			DRCounters.incSuffixClient(sessionClient.getType(), "openSession", sessionClient.getName());
+			DRCounters.incClient(sessionClient.getType(), "openSession", sessionClient.getName());
 		}
 	}
 	
@@ -118,7 +118,7 @@ implements SessionExecutor<T>, Callable<T>{
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.flushSession();
 //			logger.warn("flushSession on "+sessionClient.getExistingHandle());
-			DRCounters.incSuffixClient(sessionClient.getType(), "flushSession", sessionClient.getName());
+			DRCounters.incClient(sessionClient.getType(), "flushSession", sessionClient.getName());
 		}
 	}
 	
@@ -129,7 +129,7 @@ implements SessionExecutor<T>, Callable<T>{
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.cleanupSession();
 //			logger.warn("cleanupSession on "+sessionClient.getExistingHandle());
-			DRCounters.incSuffixClient(sessionClient.getType(), "cleanupSession", sessionClient.getName());
+			DRCounters.incClient(sessionClient.getType(), "cleanupSession", sessionClient.getName());
 		}
 	}
 	

@@ -3,6 +3,7 @@ package com.hotpads.datarouter.node.adapter.counter;
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.adapter.counter.formatter.NodeCounterFormatter;
 import com.hotpads.datarouter.node.adapter.counter.mixin.MapStorageWriterCounterAdapterMixin;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -21,7 +22,9 @@ implements MapStorageNode<PK,D>{
 
 	public MapStorageCounterAdapter(N backingNode){		
 		super(backingNode);
-		this.mapStorageWriterMixin = new MapStorageWriterCounterAdapterMixin<PK,D,F,N>(this, backingNode);
+		NodeCounterFormatter<PK,D,F,N> nodeCounterFormatter = new NodeCounterFormatter<PK,D,F,N>(backingNode);
+		this.mapStorageWriterMixin = new MapStorageWriterCounterAdapterMixin<PK,D,F,N>(nodeCounterFormatter, 
+				backingNode);
 	}
 	
 	

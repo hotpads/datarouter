@@ -31,7 +31,7 @@ public class JdbcUniqueIndexDeleteOp<PK extends PrimaryKey<PK>, D extends Databe
 	
 	@Override
 	public Long runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		String sql = SqlBuilder.deleteMulti(config, node.getTableName(), uniqueKeys);
 		long numModified = JdbcTool.update(getConnection(node.getClientName()), sql.toString());
 		return numModified;

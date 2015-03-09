@@ -54,7 +54,7 @@ extends BaseJdbcOp<List<IE>>{
 
 	@Override
 	public List<IE> runOnce(){
-		DRCounters.incSuffixClientNode(mainNode.getClient().getType(), opName, mainNode.getClientName(), mainNode
+		DRCounters.incClientNodeCustom(mainNode.getClient().getType(), opName, mainNode.getClientName(), mainNode
 				.getName());
 		Connection connection = getConnection(mainNode.getClientName());
 		List<IE> databeans = new ArrayList<>();

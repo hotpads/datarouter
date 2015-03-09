@@ -39,8 +39,8 @@ extends BaseHibernateOp<Void>{
 	
 	@Override
 	public Void runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		DRCounters.incSuffixClientNode(node.getClient().getType(), "rows put", node.getClientName(), node.getName(), 
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), "rows put", node.getClientName(), node.getName(), 
 				DrCollectionTool.size(databeans));
 		Session session = getSession(node.getClientName());
 		final String entityName = node.getPackagedTableName();

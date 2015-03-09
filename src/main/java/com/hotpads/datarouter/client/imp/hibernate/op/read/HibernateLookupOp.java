@@ -46,7 +46,7 @@ extends BaseHibernateOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		if(DrCollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		//TODO undefined behavior on trailing nulls
 		Criteria criteria = node.getCriteriaForConfig(config, session);

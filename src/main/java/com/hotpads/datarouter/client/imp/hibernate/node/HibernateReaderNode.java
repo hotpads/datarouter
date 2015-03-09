@@ -94,7 +94,7 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config pConfig){
 		String opName = MapStorageReader.OP_getMulti;
-		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
+		DRCounters.incClientNodeCustom(getClient().getType(), opName, getClientName(), getName());
 		List<D> result = DrListTool.createArrayListWithSize(keys);
 		Config config = Config.nullSafe(pConfig);
 		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
@@ -109,7 +109,7 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, final Config pConfig){
 		String opName = MapStorageReader.OP_getKeys;
-		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
+		DRCounters.incClientNodeCustom(getClient().getType(), opName, getClientName(), getName());
 		Config config = Config.nullSafe(pConfig);
 		int batchSize = config.getIterateBatchSizeOverrideNull(DEFAULT_GET_MULTI_BATCH_SIZE);
 		List<PK> result = DrListTool.createArrayListWithSize(keys);

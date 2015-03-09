@@ -43,7 +43,7 @@ extends BaseJdbcOp<List<IE>>{
 	
 	@Override
 	public List<IE> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), traceName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), traceName, node.getClientName(), node.getName());
 		
 		String sql = SqlBuilder.getInRange(config, node.getTableName(), fieldInfo.getFields(), range.getStart(),
 				range.getStartInclusive(), range.getEnd(), range.getEndInclusive(), fieldInfo.getPrimaryKeyFields());

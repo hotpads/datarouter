@@ -34,7 +34,7 @@ extends BaseHibernateOp<PK>{
 	
 	@Override
 	public PK runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		String entityName = node.getPackagedTableName();
 		Criteria criteria = session.createCriteria(entityName);

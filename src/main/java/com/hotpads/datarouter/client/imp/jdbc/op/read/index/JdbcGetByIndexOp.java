@@ -36,7 +36,7 @@ extends BaseJdbcOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		List<D> result = new ArrayList<>();
 		for(List<IK> batch : new BatchingIterable<>(entryKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			String sql = SqlBuilder.getWithPrefixes(config, node.getTableName(), node.getFieldInfo().getFields(), batch, 

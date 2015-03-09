@@ -46,7 +46,7 @@ extends BaseHibernateOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		if(DrCollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		Disjunction prefixesDisjunction = Restrictions.disjunction();

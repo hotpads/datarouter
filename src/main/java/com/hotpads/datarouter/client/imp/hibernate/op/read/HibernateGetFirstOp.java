@@ -30,7 +30,7 @@ extends BaseHibernateOp<D>{
 	
 	@Override
 	public D runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		criteria.setMaxResults(1);

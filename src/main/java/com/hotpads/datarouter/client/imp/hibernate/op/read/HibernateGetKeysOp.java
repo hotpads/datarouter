@@ -48,7 +48,7 @@ extends BaseHibernateOp<List<PK>>{
 	
 	@Override
 	public List<PK> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		List<? extends Key<PK>> sortedKeys = DrListTool.createArrayList(keys);
 		Collections.sort(sortedKeys);//is this sorting at all beneficial?

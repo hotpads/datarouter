@@ -82,8 +82,8 @@ implements PhysicalMapStorageNode<PK,D>
 			}
 		}
 		String opName = "putMulti";
-		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
-		DRCounters.incSuffixClientNode(getClient().getType(), opName+" objects", getClientName(), getName(), databeans.size());
+		DRCounters.incClientNodeCustom(getClient().getType(), opName, getClientName(), getName());
+		DRCounters.incClientNodeCustom(getClient().getType(), opName+" objects", getClientName(), getName(), databeans.size());
 		TraceContext.appendToSpanInfo(DrCollectionTool.size(databeans)+"");
 	}
 	
@@ -112,8 +112,8 @@ implements PhysicalMapStorageNode<PK,D>
 		}
 		TraceContext.appendToSpanInfo(DrCollectionTool.size(keys)+"");
 		String opName = "deleteMulti";
-		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
-		DRCounters.incSuffixClientNode(getClient().getType(), opName+" objects", getClientName(), getName(), keys.size());
+		DRCounters.incClientNodeCustom(getClient().getType(), opName, getClientName(), getName());
+		DRCounters.incClientNodeCustom(getClient().getType(), opName+" objects", getClientName(), getName(), keys.size());
 	}
 	
 	

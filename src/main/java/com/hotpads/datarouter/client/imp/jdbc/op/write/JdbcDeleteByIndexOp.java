@@ -33,7 +33,7 @@ public class JdbcDeleteByIndexOp<PK extends PrimaryKey<PK>, D extends Databean<P
 	
 	@Override
 	public Long runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		long numModified = 0;
 		for(List<IK> batch : new BatchingIterable<IK>(entryKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			String sql = SqlBuilder.deleteMulti(config, node.getTableName(), batch);

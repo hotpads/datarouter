@@ -48,7 +48,7 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 	
 	@Override
 	public List<? extends FieldSet<?>> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		if(keysOnly){
@@ -75,12 +75,12 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 						node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), 
 						rowCells));
 			}
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
+			DRCounters.incClientNodeCustom(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
 					DrCollectionTool.size(result));
 			return result;
 		}else{
 			List<? extends FieldSet<?>> result = (List<? extends FieldSet<?>>)criteria.list();
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
+			DRCounters.incClientNodeCustom(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
 					DrCollectionTool.size(result));
 			return result;
 		}

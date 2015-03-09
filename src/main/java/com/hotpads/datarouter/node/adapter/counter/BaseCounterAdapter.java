@@ -135,24 +135,4 @@ implements Node<PK,D>{
 	}
 	
 	
-	/******************** count ************************/
-	
-	public String getTraceName(String opName){
-		return backingNode.getName() + " " + opName;
-	}
-	
-	public void count(String key){
-		count(key, 1);
-	}
-	
-	//overriden in BaseCounterPhysicalAdapter
-	public void count(String key, long delta){
-		DRCounters.incSuffixNode(key, backingNode.getName(), delta);
-	}
-
-	
-	
-	
-	
-	
 }

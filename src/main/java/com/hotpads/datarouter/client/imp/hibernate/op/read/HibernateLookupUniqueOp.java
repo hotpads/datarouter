@@ -47,7 +47,7 @@ extends BaseHibernateOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		
 		//i forget why we're doing this sorting.  prob not necessary

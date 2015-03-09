@@ -32,9 +32,9 @@ extends BaseHibernateOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		List<D> databeans = criteria.list();
 		return databeans;//assume they come back sorted due to innodb

@@ -37,7 +37,7 @@ extends BaseHibernateOp<Long>{
 	
 	@Override
 	public Long runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		criteria.setProjection(Projections.rowCount());

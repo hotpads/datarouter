@@ -45,7 +45,7 @@ extends BaseHibernateOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		List<? extends Key<PK>> sortedKeys = DrListTool.createArrayList(keys);
 		Collections.sort(sortedKeys);//is this sorting at all beneficial?
@@ -62,8 +62,8 @@ extends BaseHibernateOp<List<D>>{
 		}
 		criteria.add(orSeparatedIds);
 		List<D> result = criteria.list();
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
 				DrCollectionTool.size(result));
 		TraceContext.appendToSpanInfo("[got "+DrCollectionTool.size(result)+"/"+DrCollectionTool.size(keys)+"]");
 		return result;

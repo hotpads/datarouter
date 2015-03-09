@@ -29,7 +29,7 @@ extends BaseJdbcOp<Long>{
 	
 	@Override
 	public Long runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		String sql = SqlBuilder.deleteAll(config, node.getTableName());
 		long numModified = JdbcTool.update(getConnection(node.getClientName()), sql.toString());
 		return numModified;

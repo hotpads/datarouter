@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
+import com.hotpads.datarouter.node.adapter.counter.formatter.NodeCounterFormatter;
 import com.hotpads.datarouter.node.adapter.counter.mixin.MapStorageReaderCounterAdapterMixin;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -22,7 +23,9 @@ implements MapStorageReaderNode<PK,D>{
 	
 	public MapStorageReaderCounterAdapter(N backingNode){		
 		super(backingNode);
-		this.mapStorageReaderMixin = new MapStorageReaderCounterAdapterMixin<PK,D,F,N>(this, backingNode);
+		NodeCounterFormatter<PK,D,F,N> nodeCounterFormatter = new NodeCounterFormatter<PK,D,F,N>(backingNode);
+		this.mapStorageReaderMixin = new MapStorageReaderCounterAdapterMixin<PK,D,F,N>(nodeCounterFormatter, 
+				backingNode);
 	}
 
 	

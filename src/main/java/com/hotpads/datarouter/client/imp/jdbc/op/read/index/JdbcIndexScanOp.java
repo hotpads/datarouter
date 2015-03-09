@@ -44,7 +44,7 @@ extends BaseJdbcOp<List<PKLookup>>{
 	
 	@Override
 	public List<PKLookup> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), traceName, node.getClientName(), node.getName());
+		DRCounters.incClientNodeCustom(node.getClient().getType(), traceName, node.getClientName(), node.getName());
 		
 		PKLookup index = ReflectionTool.create(indexClass, indexClass.getCanonicalName() + " must have a no-arg constructor");
 		

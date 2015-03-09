@@ -12,6 +12,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
 import com.hotpads.datarouter.util.DRCounters;
 
+@Deprecated //don't think we need this after all
 public /*abstract*/ class BaseCounterPhysicalAdapter<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
@@ -72,14 +73,5 @@ implements PhysicalNode<PK,D>{
 		return backingNode.getManagedNodes();
 	}
 	
-	
-	/******************* counter ************************/
-
-	//override to count PhysicalNode stuff
-	@Override
-	public void count(String key, long delta){
-		DRCounters.incSuffixClientNode(backingNode.getClient().getType(), key, backingNode.getClientName(), 
-				backingNode.getName(), delta);
-	}
 	
 }

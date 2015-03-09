@@ -188,7 +188,7 @@ public class JdbcReaderOps<
 	}
 	
 	protected void count(String key, long delta){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), key, node.getClientName(), node.getName(), delta);
+		DRCounters.incClientNodeCustom(node.getClient().getType(), key, node.getClientName(), node.getName(), delta);
 	}
 
 }
