@@ -40,7 +40,7 @@ implements MapStorageWriter<PK,D>{
 		String opName = MapStorageWriter.OP_putMulti;
 		counter.count(opName);
 		backingNode.putMulti(databeans, pConfig);
-		counter.count(opName + " rows", DrCollectionTool.size(databeans));
+		counter.count(opName + " databeans", DrCollectionTool.size(databeans));
 	}
 
 	@Override
@@ -55,7 +55,7 @@ implements MapStorageWriter<PK,D>{
 		String opName = MapStorageWriter.OP_deleteMulti;
 		counter.count(opName);
 		backingNode.deleteMulti(keys, pConfig);
-		counter.count(opName + " rows", DrCollectionTool.size(keys));
+		counter.count(opName + " keys", DrCollectionTool.size(keys));
 	}
 
 	@Override

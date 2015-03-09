@@ -13,8 +13,12 @@ public class NodeCounterFormatter<
 		F extends DatabeanFielder<PK,D>,
 		N extends Node<PK,D>>{
 
+	
 	private final N node;
 	private final PhysicalNode<PK,D> physicalNode;//may be null
+	
+	
+	/******************* construct *************************/
 	
 	public NodeCounterFormatter(N node){
 		this.node = node;
@@ -26,16 +30,12 @@ public class NodeCounterFormatter<
 	}
 	
 	
-
-	public String getTraceName(String opName){
-		return node.getName() + " " + opName;
-	}
+	/********************** methods *****************************/
 	
 	public void count(String key){
 		count(key, 1);
 	}
 	
-	//overridden in PhysicalNodeCounterFormatter
 	public void count(String key, long delta){
 		if(physicalNode == null){
 			DRCounters.incNode(key, node.getName(), delta);
