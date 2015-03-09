@@ -62,19 +62,15 @@ public class JdbcReaderOps<
 	
 	public List<D> getMulti(final Collection<PK> keys, final Config config) {
 		String opName = MapStorageReader.OP_getMulti;
-		count(opName);
 		JdbcGetOp<PK,D,F> op = new JdbcGetOp<PK,D,F>(node, opName, keys, config);
 		List<D> results = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
-		count(opName + " rows", DrCollectionTool.size(results));
 		return results;
 	}
 	
 	public List<PK> getKeys(final Collection<PK> keys, final Config config) {
 		String opName = MapStorageReader.OP_getKeys;
-		count(opName);
 		JdbcGetKeysOp<PK,D,F> op = new JdbcGetKeysOp<PK,D,F>(node, opName, keys, config);
 		List<PK> results = new SessionExecutorImpl<List<PK>>(op, getTraceName(opName)).call();
-		count(opName + " rows", DrCollectionTool.size(results));
 		return results;
 	}
 
