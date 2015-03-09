@@ -19,7 +19,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.TraceContext;
@@ -31,21 +30,18 @@ public class HibernateGetOp<
 extends BaseHibernateOp<List<D>>{
 		
 	private HibernateReaderNode<PK,D,F> node;
-	private String opName;
 	private Collection<PK> keys;
 	private Config config;
 	
-	public HibernateGetOp(HibernateReaderNode<PK,D,F> node, String opName, Collection<PK> keys, Config config) {
+	public HibernateGetOp(HibernateReaderNode<PK,D,F> node, Collection<PK> keys, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
-		this.opName = opName;
 		this.keys = keys;
 		this.config = config;
 	}
 	
 	@Override
 	public List<D> runOnce(){
-		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		List<? extends Key<PK>> sortedKeys = DrListTool.createArrayList(keys);
 		Collections.sort(sortedKeys);//is this sorting at all beneficial?
@@ -62,9 +58,6 @@ extends BaseHibernateOp<List<D>>{
 		}
 		criteria.add(orSeparatedIds);
 		List<D> result = criteria.list();
-		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		DRCounters.incClientNodeCustom(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-				DrCollectionTool.size(result));
 		TraceContext.appendToSpanInfo("[got "+DrCollectionTool.size(result)+"/"+DrCollectionTool.size(keys)+"]");
 		return result;
 	}

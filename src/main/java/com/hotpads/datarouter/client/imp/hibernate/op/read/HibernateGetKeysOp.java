@@ -22,7 +22,6 @@ import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -34,21 +33,18 @@ public class HibernateGetKeysOp<
 extends BaseHibernateOp<List<PK>>{
 		
 	private HibernateReaderNode<PK,D,F> node;
-	private String opName;
 	private Collection<PK> keys;
 	private Config config;
 	
-	public HibernateGetKeysOp(HibernateReaderNode<PK,D,F> node, String opName, Collection<PK> keys, Config config) {
+	public HibernateGetKeysOp(HibernateReaderNode<PK,D,F> node, Collection<PK> keys, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
-		this.opName = opName;
 		this.keys = keys;
 		this.config = config;
 	}
 	
 	@Override
 	public List<PK> runOnce(){
-		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		List<? extends Key<PK>> sortedKeys = DrListTool.createArrayList(keys);
 		Collections.sort(sortedKeys);//is this sorting at all beneficial?
