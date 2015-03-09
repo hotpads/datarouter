@@ -103,7 +103,6 @@ implements PhysicalSortedMapStorageNode<PK,D>
 					}
 					DRCounters.incClientNodeCustom(client.getType(), "cells put", getClientName(), getName(), numCellsPut);
 					DRCounters.incClientNodeCustom(client.getType(), "cells delete", getClientName(), getName(), numCellsDeleted);
-					DRCounters.incClientNodeCustom(client.getType(), "rows put", getClientName(), getName(), numRowsPut);
 					if(DrCollectionTool.notEmpty(actions)){
 						hTable.batch(actions);
 						hTable.flushCommits();
