@@ -11,7 +11,7 @@ import com.hotpads.handler.user.role.DatarouterUserRole;
 public interface DatarouterAuthenticationConfig{
 
 	String getHomePath();
-	String getKeepalivePath();
+	String getKeepAlivePath();
 	String getDatarouterPath();
 	
 	String getApiPath();
