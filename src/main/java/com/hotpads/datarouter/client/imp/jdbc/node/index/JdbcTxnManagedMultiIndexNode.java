@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcGetByIndexOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcGetByIndexOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.op.index.UniqueIndexReader;

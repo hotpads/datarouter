@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.jdbc.scan;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
-import com.hotpads.datarouter.client.imp.jdbc.op.read.JdbcManagedIndexScanOp;
+import com.hotpads.datarouter.client.imp.jdbc.op.read.index.JdbcManagedIndexScanOp;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.type.index.ManagedNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
