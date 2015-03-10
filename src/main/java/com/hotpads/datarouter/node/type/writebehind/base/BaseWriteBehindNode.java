@@ -48,7 +48,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	public BaseWriteBehindNode(Class<D> databeanClass, Datarouter router, N backingNode){
 		super(new NodeParamsBuilder<>(router, databeanClass).build());
 		if(backingNode==null){
-			throw new IllegalArgumentException("backingNode cannont be null.");
+			throw new IllegalArgumentException("backingNode cannot be null.");
 		}
 		this.backingNode = backingNode;
 
