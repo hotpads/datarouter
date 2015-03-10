@@ -11,19 +11,15 @@ import com.hotpads.setting.cluster.SettingNode;
 public class DatarouterSettings extends SettingNode {
 
 	private DatarouterNotificationSettings notificationSettings;
-	private DatarouterSalesforceSettings salesforceSettings;
 
 	private BooleanCachedSetting loggingConfigUpdaterEnabled;
 	private BooleanCachedSetting recordCallsites;
 
 	@Inject
-	public DatarouterSettings(ClusterSettingFinder finder, DatarouterNotificationSettings notificationSettings,
-			DatarouterSalesforceSettings salesforceSettings){
+	public DatarouterSettings(ClusterSettingFinder finder, DatarouterNotificationSettings notificationSettings){
 		super(finder, "datarouter.", "");
 		this.notificationSettings = notificationSettings;
-		this.salesforceSettings = salesforceSettings;
 		children.put(notificationSettings.getName(), notificationSettings);
-		children.put(salesforceSettings.getName(), salesforceSettings);
 		registerSettings();
 	}
 
@@ -34,10 +30,6 @@ public class DatarouterSettings extends SettingNode {
 
 	public DatarouterNotificationSettings getNotificationSettings() {
 		return notificationSettings;
-	}
-
-	public DatarouterSalesforceSettings getSalesforceSettings(){
-		return salesforceSettings;
 	}
 
 	public BooleanCachedSetting getLoggingConfigUpdaterEnabled(){
