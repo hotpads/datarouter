@@ -147,14 +147,14 @@ implements HBasePhysicalNode<PK,D>,
 	
 	@Override
 	public PK getFirstKey(Config pConfig){
-		Config config = Config.nullSafe(pConfig).setLimit(1);
+		Config config = Config.nullSafe(pConfig).setIterateBatchSize(1);
 		return DrIterableTool.first(scanKeys(null, config));
 	}
 
 	
 	@Override
 	public D getFirst(Config pConfig){
-		Config config = Config.nullSafe(pConfig).setLimit(1);
+		Config config = Config.nullSafe(pConfig).setIterateBatchSize(1);
 		return DrIterableTool.first(scan(null, config));
 	}
 	
