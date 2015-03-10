@@ -94,8 +94,8 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 		for(N nodeOrDescendant : DrIterableTool.nullSafe(nodeWithDescendants)){
 			allNames.add(nodeOrDescendant.getName());
 			nodeByName.put(nodeOrDescendant.getName(), nodeOrDescendant);
-			if(nodeOrDescendant instanceof PhysicalNode){
-				PhysicalNode<PK,D> physicalNode = (PhysicalNode<PK,D>)nodeOrDescendant;
+			if(nodeOrDescendant.isPhysicalNodeOrWrapper()){
+				PhysicalNode<PK,D> physicalNode = nodeOrDescendant.getPhysicalNodeIfApplicable();
 				String clientName = physicalNode.getClientName();
 				String tableName = physicalNode.getTableName();
 				if(physicalNodeByTableNameByClientName.get(clientName)==null){
@@ -213,7 +213,8 @@ public class Nodes<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends 
 	
 	public PhysicalNode<PK,D> getPhyiscalNodeForClientAndTable(String clientName, String tableName){
 		try{
-			return physicalNodeByTableNameByClientName.get(clientName).get(tableName);
+			Map<String,PhysicalNode<PK,D>> physicalNodeByTableName = physicalNodeByTableNameByClientName.get(clientName);
+			return physicalNodeByTableName.get(tableName);
 		}catch(NullPointerException e){
 			return null;
 		}

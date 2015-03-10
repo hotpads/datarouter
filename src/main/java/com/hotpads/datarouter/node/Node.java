@@ -28,6 +28,9 @@ extends Comparable<Node<PK,D>>{
 	DatarouterContext getDatarouterContext();
 	Datarouter getRouter();
 
+	boolean isPhysicalNodeOrWrapper();
+	PhysicalNode<PK,D> getPhysicalNodeIfApplicable();
+	
 	String getName();
 	Class<PK> getPrimaryKeyType();
 	Class<D> getDatabeanType();
