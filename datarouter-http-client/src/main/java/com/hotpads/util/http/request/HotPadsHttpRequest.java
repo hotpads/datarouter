@@ -12,8 +12,10 @@ import java.util.Map.Entry;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -45,7 +47,8 @@ public class HotPadsHttpRequest {
 	private Map<String, String> queryParams;
 	private Map<String, String> postParams;
 	private HotPadsHttpClientConfig config;
-
+	private HttpHost proxy;
+	
 	public enum HttpRequestMethod {
 		DELETE, GET, HEAD, PATCH, POST, PUT
 	}
@@ -111,9 +114,16 @@ public class HotPadsHttpRequest {
 		if (entity != null && canHaveEntity()) {
 			((HttpEntityEnclosingRequest) request).setEntity(entity);
 		}
-		if (timeoutMs != null) {
-			RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(timeoutMs)
-					.setConnectionRequestTimeout(timeoutMs).setSocketTimeout(timeoutMs).build();
+		if (timeoutMs != null || proxy != null) {
+			Builder builder = RequestConfig.custom();
+			if(timeoutMs != null){
+				builder.setConnectTimeout(timeoutMs).setConnectionRequestTimeout(timeoutMs).setSocketTimeout(timeoutMs);
+			}
+			if(proxy != null){
+				builder.setProxy(proxy);
+			}
+						
+			RequestConfig requestConfig = builder.build();
 			request.setConfig(requestConfig);
 		}
 		return request;
@@ -303,6 +313,15 @@ public class HotPadsHttpRequest {
 
 	public HotPadsHttpRequest setFutureTimeoutMs(Long futureTimeoutMs) {
 		this.futureTimeoutMs = futureTimeoutMs;
+		return this;
+	}
+
+	public HttpHost getProxy() {
+		return proxy;
+	}
+
+	public HotPadsHttpRequest setProxy(HttpHost proxy) {
+		this.proxy = proxy;
 		return this;
 	}
 
