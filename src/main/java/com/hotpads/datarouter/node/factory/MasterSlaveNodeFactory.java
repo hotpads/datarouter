@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.hotpads.datarouter.node.BaseNode;
+import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
 import com.hotpads.datarouter.node.adapter.IndexedSortedMapStorageAdapterNode;
@@ -42,7 +43,7 @@ public class MasterSlaveNodeFactory{
 
 	//no Fielder
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	BaseNode<PK,D,?> 
+	Node<PK,D> 
 	create(Datarouter router, StorageType storageType, Class<D> databeanClass, String masterClientName,
 			Collection<String> slaveClientNames){
 		return createInternal(router, storageType, databeanClass, null, masterClientName, slaveClientNames);
@@ -87,8 +88,8 @@ public class MasterSlaveNodeFactory{
 	private <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
-			N extends BaseNode<PK,D,F>>
-	BaseNode<PK,D,F> createInternal(Datarouter router, StorageType storageType, Class<D> databeanClass,
+			N extends Node<PK,D>>
+	Node<PK,D> createInternal(Datarouter router, StorageType storageType, Class<D> databeanClass,
 			Class<F> fielderClass, String masterClientName, Collection<String> slaveClientNames){
 		
 		//create the backing nodes

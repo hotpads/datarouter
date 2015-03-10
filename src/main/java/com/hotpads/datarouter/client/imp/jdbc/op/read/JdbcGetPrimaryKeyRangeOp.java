@@ -11,8 +11,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.collections.Range;
 
 public class JdbcGetPrimaryKeyRangeOp<
@@ -21,28 +19,23 @@ public class JdbcGetPrimaryKeyRangeOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<PK>>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Range<PK> range;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final Range<PK> range;
+	private final Config config;
 	
-	public JdbcGetPrimaryKeyRangeOp(JdbcReaderNode<PK,D,F> node, String opName, Range<PK> range, Config config) {
+	public JdbcGetPrimaryKeyRangeOp(JdbcReaderNode<PK,D,F> node, Range<PK> range, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
-		this.opName = opName;
 		this.range = range;
 		this.config = config;
 	}
 	
 	@Override
 	public List<PK> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		List<Field<?>> fieldsToSelect = node.getFieldInfo().getPrimaryKeyFields();
 		String sql = SqlBuilder.getInRange(config, node.getTableName(), fieldsToSelect, range, 
 				node.getFieldInfo().getPrimaryKeyFields());
 		List<PK> result = JdbcTool.selectPrimaryKeys(getConnection(node.getClientName()), node.getFieldInfo(), sql);
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-				DrCollectionTool.size(result));
 		return result;
 	}
 	
