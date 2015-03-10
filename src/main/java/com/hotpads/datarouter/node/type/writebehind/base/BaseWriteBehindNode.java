@@ -12,7 +12,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -43,8 +42,6 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	protected long timeoutMs;//TODO also limit by queue length
 	protected Queue<OutstandingWriteWrapper> outstandingWrites;
 	private ExecutorService writeExecutor;
-	private ScheduledExecutorService cancelExecutor;
-	private ScheduledExecutorService flushScheduler;
 	private Queue<WriteWrapper<?>> queue;
 
 
@@ -60,11 +57,10 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		this.timeoutMs = DEFAULT_TIMEOUT_MS;//1 min default
 		this.outstandingWrites = new ConcurrentLinkedQueue<>();
 
-		this.cancelExecutor = router.getContext().getWriteBehindScheduler();
-		this.cancelExecutor.scheduleWithFixedDelay(new OverdueWriteCanceller(this), 0, 1000, TimeUnit.MILLISECONDS);
-
-		this.flushScheduler = router.getContext().getWriteBehindScheduler();
-		this.flushScheduler.scheduleWithFixedDelay(new QueueFlusher(), 500, 500, TimeUnit.MILLISECONDS);
+		router.getContext().getWriteBehindScheduler()
+				.scheduleWithFixedDelay(new OverdueWriteCanceller(this), 0, 1000, TimeUnit.MILLISECONDS);
+		router.getContext().getWriteBehindScheduler()
+				.scheduleWithFixedDelay(new QueueFlusher(), 500, 500, TimeUnit.MILLISECONDS);
 
 		queue = new LinkedBlockingQueue<>();
 	}

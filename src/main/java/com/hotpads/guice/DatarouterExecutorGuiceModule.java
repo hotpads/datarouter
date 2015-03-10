@@ -3,8 +3,6 @@ package com.hotpads.guice;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 
 import com.google.inject.name.Names;
 import com.hotpads.util.core.concurrent.NamedThreadFactory;
@@ -78,15 +76,14 @@ public class DatarouterExecutorGuiceModule extends BaseExecutorGuiceModule{
 	}
 	
 	private ScheduledExecutorService createWriteBehindScheduler(){
-		return new ScheduledThreadPoolExecutor(0, new NamedThreadFactory(datarouter, POOL_writeBehindScheduler, true));
+		return createScheduled(datarouter, POOL_writeBehindScheduler, 10);
 	}
 	
 	private ExecutorService createWriteBehindExecutor(){
-		return new ScheduledThreadPoolExecutor(0, new NamedThreadFactory(datarouter, POOL_writeBehindExecutor, true));
+		return Executors.newCachedThreadPool(new NamedThreadFactory(datarouter, POOL_writeBehindExecutor, true));
 	}
 	
 	private ExecutorService createDatarouterContextExecutor(){
-		ThreadFactory threadFactory = new NamedThreadFactory(datarouter, POOL_datarouterContextExecutor, true);
-		return Executors.newCachedThreadPool(threadFactory);
+		return Executors.newCachedThreadPool(new NamedThreadFactory(datarouter, POOL_datarouterContextExecutor, true));
 	}
 }
