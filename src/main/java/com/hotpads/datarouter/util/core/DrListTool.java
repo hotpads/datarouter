@@ -103,7 +103,7 @@ public class DrListTool {
 	}
 
 	public static <T> ArrayList<T> createArrayList(Iterable<T> ins, int limit){
-		ArrayList<T> outs = new ArrayList<T>();
+		ArrayList<T> outs = new ArrayList<T>();//don't pre-size array in case limit is huge
 		for(T in : DrIterableTool.nullSafe(ins)) {
 			outs.add(in);
 			if(outs.size() >= limit){
