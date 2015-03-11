@@ -104,7 +104,7 @@ public class SqlTableDiffGenerator{
 	 */
 	private static SortedSet<SqlIndex> minusIndexes(SqlTable tableA, SqlTable tableB){
 		if(tableA == null || tableB == null){
-			return DrSetTool.createTreeSet();
+			return new TreeSet<>();
 		}
 		SortedSet<SqlIndex> tableAIndexes = tableA.getIndexes();
 		SortedSet<SqlIndex> tableBIndexes = tableB.getIndexes();

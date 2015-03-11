@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -65,7 +66,7 @@ public class ResultMergeTool {
 	}
 	
 	public static <T,C extends Collection<T>> SortedSet<T> addAllSorted(C a, Collection<? extends C> bs){
-		SortedSet<T> out = DrSetTool.createTreeSet();
+		SortedSet<T> out = new TreeSet<>();
 		out.addAll(DrCollectionTool.nullSafe(a));
 		for(C b : DrCollectionTool.nullSafe(bs)){
 			out.addAll(DrCollectionTool.nullSafe(b));

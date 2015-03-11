@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.config.Config;
@@ -16,7 +17,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
@@ -41,7 +41,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 	
 	@Override
 	public D getFirst(Config config){
-		SortedSet<D> firstFromEachNode = DrSetTool.createTreeSet();
+		SortedSet<D> firstFromEachNode = new TreeSet<>();
 		Collection<N> physicalNodes = getPhysicalNodesForFirst();
 		for(N node : DrIterableTool.nullSafe(physicalNodes)){
 			D databean = node.getFirst(config);
@@ -53,7 +53,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 
 	@Override
 	public PK getFirstKey(Config config){
-		SortedSet<PK> firstFromEachNode = DrSetTool.createTreeSet();
+		SortedSet<PK> firstFromEachNode = new TreeSet<>();
 		Collection<N> physicalNodes = getPhysicalNodesForFirst();
 		for(N node : DrIterableTool.nullSafe(physicalNodes)){
 			PK key = node.getFirstKey(config);

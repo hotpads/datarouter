@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hadoop.conf.Configuration;
@@ -46,7 +47,6 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
@@ -72,7 +72,7 @@ implements ClientFactory{
 	protected DatarouterContext drContext;
 //	protected List<PhysicalNode<?,?>> physicalNodes = ListTool.createArrayList();
 	protected String clientName;
-	protected Set<String> configFilePaths = DrSetTool.createTreeSet();
+	protected Set<String> configFilePaths = new TreeSet<>();
 	protected List<Properties> multiProperties = DrListTool.createArrayList();
 	protected HBaseOptions options;
 	protected volatile HBaseClient client;//volatile for double checked locking

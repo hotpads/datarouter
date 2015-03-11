@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -68,7 +69,7 @@ public class DatabeanGenerator {
 		Set<String> sortedFieldNames;
 		public IndexDefinition(){
 			fields = DrListTool.createLinkedList();
-			sortedFieldNames = DrSetTool.createTreeSet();
+			sortedFieldNames = new TreeSet<>();
 		}
 		public String toString(){
 			return getCreateScriptString();

@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,7 +10,6 @@ import org.junit.Test;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableDiffGenerator;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class SqlTable{
 	
@@ -41,21 +41,21 @@ public class SqlTable{
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = primaryKey;
-		this.indexes = DrSetTool.createTreeSet();
+		this.indexes = new TreeSet<>();
 	}
 
 	public SqlTable(String name, List<SqlColumn> columns){
 		this.name = name;
 		this.columns = columns;
 		this.primaryKey = new SqlIndex("PRIMARY");
-		this.indexes = DrSetTool.createTreeSet();
+		this.indexes = new TreeSet<>();
 	}
 
 	public SqlTable(String name){
 		this.name = name;
 		this.columns = DrListTool.createArrayList();
 		this.primaryKey = new SqlIndex("PRIMARY");
-		this.indexes = DrSetTool.createTreeSet();
+		this.indexes = new TreeSet<>();
 	}
 	
 	

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.hotpads.datarouter.config.Config;
@@ -80,7 +81,7 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public List<String> getClientNames() {
-		SortedSet<String> clientNames = DrSetTool.createTreeSet();
+		SortedSet<String> clientNames = new TreeSet<>();
 		DrSetTool.nullSafeSortedAddAll(clientNames, this.master.getClientNames());
 		for(N slave : this.slaves){
 			DrSetTool.nullSafeSortedAddAll(clientNames, slave.getClientNames());

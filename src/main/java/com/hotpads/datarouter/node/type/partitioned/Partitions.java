@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.util.core.iterable.scanner.filter.Filter;
 
 public class Partitions<
@@ -32,7 +32,7 @@ public class Partitions<
 	protected Map<String,N> nodeByName = DrMapTool.createLinkedHashMap();
 	protected Map<String,List<String>> nodeNamesByClientName = DrMapTool.createHashMap();
 	protected Map<String,List<String>> clientNamesByNodeName = DrMapTool.createHashMap();
-	protected SortedSet<String> clientNames = DrSetTool.createTreeSet();
+	protected SortedSet<String> clientNames = new TreeSet<>();
 	protected Map<N,Filter<PK>> primaryKeyFilterByNode = DrMapTool.createHashMap();
 	protected Map<N,Filter<D>> databeanFilterByNode = DrMapTool.createHashMap();
 	

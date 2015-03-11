@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.hbase.cluster;
 
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.hotpads.datarouter.util.core.DrSetTool;
 
@@ -18,7 +19,7 @@ public class DRHTableSettings{
 		TTL = "TTL",
 		VERSIONS = "VERSIONS";
 	
-	public static final SortedSet<String> COLUMN_SETTINGS = DrSetTool.createTreeSet();
+	public static final SortedSet<String> COLUMN_SETTINGS = new TreeSet<>();
 	static {
 		COLUMN_SETTINGS.add(BLOCKCACHE);
 		COLUMN_SETTINGS.add(BLOCKSIZE);

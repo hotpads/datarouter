@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +79,7 @@ implements PhysicalNode<PK,D>
 
 	@Override
 	public List<String> getClientNames() {
-		SortedSet<String> clientNames = DrSetTool.createTreeSet();
+		SortedSet<String> clientNames = new TreeSet<>();
 		clientNames.add(getClientName());
 		return DrListTool.createArrayList(clientNames);
 	}

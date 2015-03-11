@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HRegionInfo;
@@ -31,7 +32,6 @@ import com.hotpads.datarouter.util.core.DrCallableTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class DRHRegionList{
 	private static final Logger logger = LoggerFactory.getLogger(DRHRegionList.class);
@@ -123,7 +123,7 @@ public class DRHRegionList{
 	
 
 	public SortedSet<String> getServerNames(){
-		SortedSet<String> serverNames = DrSetTool.createTreeSet();
+		SortedSet<String> serverNames = new TreeSet<>();
 		for(DRHRegionInfo<?> region : regions){
 			serverNames.add(region.getServerName());
 		}

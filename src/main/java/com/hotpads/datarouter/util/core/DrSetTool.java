@@ -2,8 +2,6 @@ package com.hotpads.datarouter.util.core;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -18,11 +16,6 @@ public class DrSetTool {
 	@Deprecated
 	public static <T> HashSet<T> create(){
 		return createHashSet();
-	}
-
-	@Deprecated
-	public static <T> TreeSet<T> createTreeSet(){
-		return new TreeSet<T>();
 	}
 
 	@Deprecated
@@ -114,7 +107,7 @@ public class DrSetTool {
 	public static class Tests {
 		@Test
 		public void testNullSafeAddAllWithEmptySet() {
-			SortedSet<String> set = DrSetTool.createTreeSet();
+			SortedSet<String> set = new TreeSet<>();
 			set.add("b");
 			Set<String> toAdd = DrSetTool.create();
 			toAdd.add("a");

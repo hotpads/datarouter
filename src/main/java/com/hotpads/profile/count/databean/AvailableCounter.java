@@ -3,6 +3,7 @@ package com.hotpads.profile.count.databean;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.persistence.Id;
 
@@ -13,7 +14,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.datarouter.util.core.DrXMLStringTool;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
 
@@ -78,7 +78,7 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey,Available
 	/********************************** static *****************************************/
 
 	public static SortedSet<String> getAllSources(Collection<AvailableCounter> counters){
-		SortedSet<String> outs = DrSetTool.createTreeSet();
+		SortedSet<String> outs = new TreeSet<>();
 		for(AvailableCounter counter : DrIterableTool.nullSafe(counters)){
 			String source = counter.getSource();
 			if(source == null) continue;

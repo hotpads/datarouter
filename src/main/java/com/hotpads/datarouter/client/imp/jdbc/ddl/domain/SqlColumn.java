@@ -247,7 +247,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			Assert.assertFalse(a2==a);
 			
 			//test adding to SortedSet to test compareTo method
-			SortedSet<SqlColumn> columns = DrSetTool.createTreeSet();
+			SortedSet<SqlColumn> columns = new TreeSet<>();
 			columns.add(b);
 			columns.add(a);//should keep this version of a/a2 since it was added first
 			columns.add(a2);

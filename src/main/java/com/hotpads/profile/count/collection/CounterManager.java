@@ -4,6 +4,7 @@ import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -14,7 +15,6 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrRuntimeTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.profile.count.collection.archive.CountArchive;
 import com.hotpads.profile.count.collection.archive.CountArchiveFlusher;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -159,7 +159,7 @@ public class CounterManager implements CountMap{
 	}
 
 	public SortedSet<CountArchive> getArchives(){
-		SortedSet<CountArchive> archives = DrSetTool.createTreeSet();
+		SortedSet<CountArchive> archives = new TreeSet<>();
 		for(CountArchiveFlusher flusher : DrIterableTool.nullSafe(flushers)){
 			archives.addAll(DrCollectionTool.nullSafe(flusher.getArchives()));
 		}

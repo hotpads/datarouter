@@ -3,6 +3,7 @@ package com.hotpads.datarouter.node.type.partitioned.mixin;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.raw.read.IndexedStorageReader;
@@ -16,7 +17,6 @@ import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class PartitionedIndexedStorageReaderMixin<
 		PK extends PrimaryKey<PK>,
@@ -62,7 +62,7 @@ implements IndexedStorageReader<PK,D>{
 	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
 		if(DrCollectionTool.isEmpty(uniqueKeys)){ return null; }
 		Collection<N> nodes = target.getPhysicalNodesForSecondaryKeys(uniqueKeys);
-		SortedSet<D> sortedDedupedResults = DrSetTool.createTreeSet();
+		SortedSet<D> sortedDedupedResults = new TreeSet<>();
 		//TODO randomize node access to avoid drowning first node
 		for(N node : DrIterableTool.nullSafe(nodes)){
 			List<D> singleNodeResults = node.lookupMultiUnique(uniqueKeys, config);
@@ -76,7 +76,7 @@ implements IndexedStorageReader<PK,D>{
 	public List<D> lookup(Lookup<PK> lookup, boolean wildcardLastField, Config config) {
 		if(lookup==null){ return null; }
 		Collection<N> nodes = target.getPhysicalNodesForSecondaryKey(lookup);
-		SortedSet<D> sortedDedupedResults = DrSetTool.createTreeSet();
+		SortedSet<D> sortedDedupedResults = new TreeSet<>();
 		//TODO randomize node access to avoid drowning first node
 		for(N node : DrIterableTool.nullSafe(nodes)){
 			List<D> singleNodeResults = node.lookup(lookup, wildcardLastField, config);
@@ -90,7 +90,7 @@ implements IndexedStorageReader<PK,D>{
 	public List<D> lookup(Collection<? extends Lookup<PK>> lookups, Config config) {
 		if(DrCollectionTool.isEmpty(lookups)){ return null; }
 		Collection<N> nodes = target.getPhysicalNodesForSecondaryKeys(lookups);
-		SortedSet<D> sortedDedupedResults = DrSetTool.createTreeSet();
+		SortedSet<D> sortedDedupedResults = new TreeSet<>();
 		//TODO randomize node access to avoid drowning first node
 		for(N node : DrIterableTool.nullSafe(nodes)){
 			for(Lookup<PK> lookup : lookups){
