@@ -31,6 +31,7 @@ public class TestParser{
 		while((str = br.readLine()) != null){
 			phrase += str;
 		}
+		br.close();
 
 		for(String s:getColumns(getBody(phrase))){
 			if(isNotEmpty(s)){

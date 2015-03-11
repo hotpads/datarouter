@@ -96,6 +96,7 @@ public class NotificationLog extends BaseDatabean<NotificationLogKey, Notificati
 
 	}
 
+	@SuppressWarnings("serial")
 	public static class NotificationIdLookup extends BaseStringUniqueKey<NotificationLogKey>{
 
 		public NotificationIdLookup(String key){

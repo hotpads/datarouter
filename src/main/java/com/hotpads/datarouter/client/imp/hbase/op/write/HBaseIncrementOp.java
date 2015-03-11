@@ -56,7 +56,7 @@ extends HBaseTask<Void>{
 				String columnName = columnCount.getKey();
 				assertColumnIsUInt63Field(columnName);
 				byte[] columnNameBytes = StringByteTool.getUtf8Bytes(columnName);
-				increment.addColumn(node.FAM, columnNameBytes, columnCount.getValue());
+				increment.addColumn(HBaseNode.FAM, columnNameBytes, columnCount.getValue());
 				++numCellsIncremented;
 			}
 			increment.setWriteToWAL(config.getPersistentPut());
