@@ -572,7 +572,6 @@ public class DatabeanGenerator {
 		
 		JSONArray pk = new JSONArray();
 		for(FieldDefinition<?> kf : keyFieldDefinitions){
-			String type = kf.getSuperClassGenericParameterString();
 			JSONObject pkField = new JSONObject();
 			pkField .accumulate("name", kf.name);
 			pkField.accumulate("type", kf.type.getCanonicalName());
@@ -582,7 +581,6 @@ public class DatabeanGenerator {
 
 		JSONArray fields = new JSONArray();
 		for(FieldDefinition<?> f : fieldDefinitions){
-			String type = f.getSuperClassGenericParameterString();
 			JSONObject field = new JSONObject();
 			field .accumulate("name", f.name);
 			field.accumulate("type", f.type.getCanonicalName());
@@ -785,7 +783,6 @@ public class DatabeanGenerator {
 			cannonicalClassNames.add(c.getCanonicalName());
 		}
 		
-		String fieldImpPackage = StringField.class.getPackage().getName();
 		boolean containsStringEnum = false;
 		for(FieldDefinition<?> f 
 				: Iterables.concat(DrCollectionTool.nullSafe(fs),
@@ -855,7 +852,7 @@ public class DatabeanGenerator {
 
 		g.setPackageName("com.hotpads.marius");
 		
-		for(Class c: DatabeanGeneratorHandler.FIELD_TYPES){
+		for(Class<?> c: DatabeanGeneratorHandler.FIELD_TYPES){
 			String genericType = null;
 			if(INTEGER_ENUM_FIELDS.contains(c)){
 				genericType = "com.hotpads.databean.search.feed.enums.FeedReportFormat";

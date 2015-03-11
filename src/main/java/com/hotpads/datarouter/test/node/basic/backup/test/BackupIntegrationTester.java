@@ -68,9 +68,7 @@ public class BackupIntegrationTester{
 	static Map<ClientType,BackupTestRouter> routerByClientType = new HashMap<>();
 	
 	@BeforeClass
-	public static void init() throws IOException{	
-		Class<?> cls = BackupIntegrationTester.class;
-
+	public static void init() throws IOException{
 		Injector injector = new TestDatarouterInjectorProvider().get();
 		DatarouterContext drContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
