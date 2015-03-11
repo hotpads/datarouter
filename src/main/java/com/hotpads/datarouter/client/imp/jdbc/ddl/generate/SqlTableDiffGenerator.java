@@ -8,7 +8,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
@@ -110,7 +109,7 @@ public class SqlTableDiffGenerator{
 		SortedSet<SqlIndex> tableBIndexes = tableB.getIndexes();
 		TreeSet<SqlIndex> indexesToRemove = DrCollectionTool.minus(tableAIndexes, tableBIndexes,
 				new SqlIndexNameComparator());
-		return DrSetTool.createTreeSet(indexesToRemove);
+		return new TreeSet<>(indexesToRemove);
 	}
 	
 	/********************* helper methods *******************************/
@@ -126,8 +125,8 @@ public class SqlTableDiffGenerator{
 	public boolean isTableModified(){
 		if(isPrimaryKeyModified()){ return true; }
 				//TODO too much on one line.  extract the sets into their own variables
-		SortedSet<SqlColumn> currentColumns = DrSetTool.createTreeSet(current.getColumns());
-		SortedSet<SqlColumn> requestedColumns = DrSetTool.createTreeSet(requested.getColumns());
+		SortedSet<SqlColumn> currentColumns = new TreeSet<>(current.getColumns());
+		SortedSet<SqlColumn> requestedColumns = new TreeSet<>(requested.getColumns());
 		if(! DrSetTool.containsSameKeys(currentColumns, requestedColumns)){ return true; }
 		if(isIndexesModified()){ return true; }
 		if(isEngineModified()){ return true; }
@@ -155,8 +154,8 @@ public class SqlTableDiffGenerator{
 	}
 
 	public boolean isIndexesModified(){
-		SortedSet<SqlIndex> currentIndexes = DrSetTool.createTreeSet(current.getIndexes());
-		SortedSet<SqlIndex> requestedIndexes = DrSetTool.createTreeSet(requested.getIndexes());
+		SortedSet<SqlIndex> currentIndexes = new TreeSet<>(current.getIndexes());
+		SortedSet<SqlIndex> requestedIndexes = new TreeSet<>(requested.getIndexes());
 		return !DrSetTool.containsSameKeys(currentIndexes, requestedIndexes);
 	}
 

@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.node.type.indexing.base;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -47,7 +48,7 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = DrSetTool.createHashSet();
+		Set<String> names = new HashSet<>();
 		names.addAll(DrCollectionTool.nullSafe(getName()));
 		names.addAll(DrCollectionTool.nullSafe(mainNode.getAllNames()));
 		return names;
@@ -82,7 +83,7 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
-		Set<String> clientNames = DrSetTool.createHashSet();
+		Set<String> clientNames = new HashSet<>();
 		clientNames.addAll(DrCollectionTool.nullSafe(mainNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
 		return DrListTool.createArrayList(clientNames);
 	}

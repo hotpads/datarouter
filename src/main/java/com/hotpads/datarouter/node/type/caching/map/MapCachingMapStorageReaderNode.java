@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.node.type.caching.map;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +17,6 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class MapCachingMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -96,8 +96,8 @@ implements MapStorageReaderNode<PK,D>{
 			return backingNode.getMulti(keys, config);
 		}
 		countHits(resultBuilder);
-		Set<PK> cachedKeys = DrSetTool.createHashSet(KeyTool.getKeys(resultBuilder));
-		Set<PK> uncachedKeys = DrSetTool.createHashSet();
+		Set<PK> cachedKeys = new HashSet<>(KeyTool.getKeys(resultBuilder));
+		Set<PK> uncachedKeys = new HashSet<>();
 		for(PK key : DrIterableTool.nullSafe(keys)){
 			if(!cachedKeys.contains(key)){ uncachedKeys.add(key); }
 		}
@@ -130,8 +130,8 @@ implements MapStorageReaderNode<PK,D>{
 			return backingNode.getKeys(keys, config);
 		}
 		countHits(resultBuilder);
-		Set<PK> cachedKeys = DrSetTool.createHashSet(resultBuilder);
-		Set<PK> uncachedKeys = DrSetTool.createHashSet();
+		Set<PK> cachedKeys = new HashSet<>(resultBuilder);
+		Set<PK> uncachedKeys = new HashSet<>();
 		for(PK key : DrIterableTool.nullSafe(keys)){
 			if(!cachedKeys.contains(key)){ uncachedKeys.add(key); }
 		}

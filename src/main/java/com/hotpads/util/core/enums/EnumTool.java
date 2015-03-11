@@ -186,7 +186,7 @@ public class EnumTool {
 		if (NO.matcher(freeText).find()) {
 			return DrListTool.createLinkedList();
 		}
-		Set<T> types = DrSetTool.createHashSet();
+		Set<T> types = new HashSet<>();
 		String[] splitFreeText = freeText.split("\\s+");
 		for (T a : values) {
 			for (String alt : a.getAlternates()) {

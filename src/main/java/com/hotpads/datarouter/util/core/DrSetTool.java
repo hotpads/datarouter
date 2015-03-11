@@ -12,78 +12,19 @@ import org.junit.Test;
 
 
 public class DrSetTool {
-
-	@Deprecated
-	public static <T> HashSet<T> create(){
-		return createHashSet();
-	}
-
-	@Deprecated
-	public static <T> HashSet<T> createHashSet(){
-		return new HashSet<T>();
-	}
-
-	public static <T> Set<T> create(Collection<T> in){
-		return createHashSet(in);
-	}
 	
-	public static <T> SortedSet<T> createTreeSet(Collection<T> in){
-		SortedSet<T> out = new TreeSet<T>();
-		if(DrCollectionTool.notEmpty(in)){
-			out.addAll(in);
-		}
-		return out;
-	}
-	
-	public static <T> Set<T> createHashSet(Collection<T> in){
-		Set<T> out = new HashSet<T>();
-		if(DrCollectionTool.notEmpty(in)){
-			out.addAll(in);
-		}
-		return out;
-	}
-	
-	public static <T> HashSet<T> create(T... in){
-		return createHashSet(in);
-	}
-	
-	public static <T> HashSet<T> createHashSet(T... in){
-		HashSet<T> out = new HashSet<T>(DrArrayTool.nullSafeLength(in));
-		if(DrArrayTool.isEmpty(in)){
-			return out;
-		}
-		for(int i=0; i < in.length; ++i){
-			out.add(in[i]);
-		}
-		return out;
-	}
-	
-	public static <T> TreeSet<T> createTreeSet(T... in){
-		TreeSet<T> out = new TreeSet<T>();
-		if(DrArrayTool.isEmpty(in)){
-			return out;
-		}
-		for(int i=0; i < in.length; ++i){
-			out.add(in[i]);
-		}
-		return out;
-	}
-	
-	public static <T> Set<T> wrap(T t){
+	public static <T> Set<T> wrap(T element){
 		Set<T> set = new HashSet<T>();
-		if(t!=null){
-			set.add(t);
+		if(element!=null){
+			set.add(element);
 		}
 		return set;
 	}
 
-	public static <T> SortedSet<T> nullSafeTreeSet(SortedSet<T> in){
-		if(in==null){ return new TreeSet<T>(); }
-		return in;
-	}
-	
-	public static <T> Set<T> nullSafeHashSet(Set<T> in){
-		if(in==null){ return new HashSet<T>(); }
+	private static <T> SortedSet<T> nullSafeTreeSet(SortedSet<T> in){
+		if(in==null){
+			return new TreeSet<T>();
+		}
 		return in;
 	}
 
@@ -94,10 +35,16 @@ public class DrSetTool {
 	}
 	
 	public static <T> boolean containsSameKeys(Set<T> as, Set<T> bs){
-		if(DrCollectionTool.differentSize(as, bs)){ return false; }
-		if(DrCollectionTool.isEmpty(as)){ return true; }
+		if(DrCollectionTool.differentSize(as, bs)){
+			return false;
+		}
+		if(DrCollectionTool.isEmpty(as)){
+			return true;
+		}
 		for(T a : as) {
-			if( ! bs.contains(a)) { return false; }
+			if( ! bs.contains(a)) {
+				return false;
+			}
 		}
 		return true;
 	}
@@ -109,7 +56,7 @@ public class DrSetTool {
 		public void testNullSafeAddAllWithEmptySet() {
 			SortedSet<String> set = new TreeSet<>();
 			set.add("b");
-			Set<String> toAdd = DrSetTool.create();
+			Set<String> toAdd = new HashSet<>();
 			toAdd.add("a");
 			set = nullSafeSortedAddAll(set, toAdd);
 			set.add("c");
@@ -118,7 +65,7 @@ public class DrSetTool {
 		@Test
 		public void testNullSafeAddAllWithNullSet() {
 			SortedSet<String> set = null;
-			Set<String> toAdd = DrSetTool.create();
+			Set<String> toAdd = new HashSet<>();
 			toAdd.add("a");
 			set = nullSafeSortedAddAll(set, toAdd);
 			set.add("c");

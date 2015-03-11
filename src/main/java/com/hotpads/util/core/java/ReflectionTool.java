@@ -20,7 +20,6 @@ import sun.misc.Unsafe;
 import com.google.common.collect.Lists;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class ReflectionTool {
@@ -120,7 +119,7 @@ public class ReflectionTool {
 	
 	public static Set<Class<?>> getAllSubClassesAnd(Class<?> c){
 		Class<?>[] subClass = c.getClasses();
-		return DrSetTool.create(subClass);
+		return new HashSet<>(Arrays.asList(subClass));
 	}
 	
 	/************************** names *******************************/

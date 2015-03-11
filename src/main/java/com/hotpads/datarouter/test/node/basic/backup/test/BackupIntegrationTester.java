@@ -3,11 +3,13 @@ package com.hotpads.datarouter.test.node.basic.backup.test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -42,7 +44,6 @@ import com.hotpads.datarouter.test.node.basic.backup.BackupTestRouter;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 @RunWith(Parameterized.class)
@@ -157,7 +158,7 @@ public class BackupIntegrationTester{
 			S_ostrich = "ostrich",
 			S_pelican = "pelican";
 	
-	public static final SortedSet<String> STRINGS = DrSetTool.createTreeSet(
+	public static final SortedSet<String> STRINGS = new TreeSet<>(Arrays.asList(
 			S_aardvark,
 			S_albatross,
 			S_alpaca,
@@ -165,7 +166,7 @@ public class BackupIntegrationTester{
 			S_emu,
 			S_gopher,
 			S_ostrich,
-			S_pelican);
+			S_pelican));
 
 	public static final String PREFIX_a = "a";
 	public static final int NUM_PREFIX_a = 3;

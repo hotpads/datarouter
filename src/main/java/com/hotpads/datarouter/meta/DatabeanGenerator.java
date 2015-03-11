@@ -3,6 +3,7 @@ package com.hotpads.datarouter.meta;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +33,6 @@ import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.admin.DatabeanGeneratorHandler;
 import com.hotpads.handler.admin.DatabeanGeneratorHandler.UnknownField;
@@ -49,16 +49,16 @@ public class DatabeanGenerator {
 	private Map<String, FieldDefinition<?>> nonKeyFieldNameToFieldDefinition;
 	private Map<String, FieldDefinition<?>> keyFieldNameToFieldDefinition;
 	
-	public static Set<Class<?>> INTEGER_ENUM_FIELDS = DrSetTool.createHashSet();
+	public static Set<Class<?>> INTEGER_ENUM_FIELDS = new HashSet<>();
 	static {
 		INTEGER_ENUM_FIELDS.add(IntegerEnumField.class);
 		INTEGER_ENUM_FIELDS.add(VarIntEnumField.class);
 	}
-	public static Set<Class<?>> STRING_ENUM_FIELDS = DrSetTool.createHashSet();
+	public static Set<Class<?>> STRING_ENUM_FIELDS = new HashSet<>();
 	static{
 		STRING_ENUM_FIELDS.add(StringEnumField.class);
 	}
-	private static Set<Class<?>> ENUM_FIELDS = DrSetTool.createHashSet();
+	private static Set<Class<?>> ENUM_FIELDS = new HashSet<>();
 	static{
 		ENUM_FIELDS.addAll(INTEGER_ENUM_FIELDS);
 		ENUM_FIELDS.addAll(STRING_ENUM_FIELDS);

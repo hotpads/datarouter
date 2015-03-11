@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.node.type.partitioned.base;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -131,7 +132,7 @@ extends BaseNode<PK,D,F>{
 	/************ common partitioning logic relying on the abstract methods above **********/
 	
 	public List<N> getPhysicalNodesForSecondaryKeys(Collection<? extends Key<PK>> keys){
-		Set<N> nodes = DrSetTool.createHashSet();
+		Set<N> nodes = new HashSet<>();
 		for(Key<PK> key : DrIterableTool.nullSafe(keys)){
 			nodes.addAll(getPhysicalNodesForSecondaryKey(key));
 		}
