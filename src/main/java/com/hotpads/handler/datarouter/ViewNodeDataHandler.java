@@ -2,6 +2,7 @@ package com.hotpads.handler.datarouter;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +26,6 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
@@ -219,7 +219,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 
 	private Map<String,String> getFieldAbbreviationByFieldName(DatabeanFielder fielder, 
 			Collection<? extends Databean<?,?>> databeans){
-		if(DrCollectionTool.isEmpty(databeans)){ return DrMapTool.create(); }
+		if(DrCollectionTool.isEmpty(databeans)){ return new HashMap<>(); }
 		Databean<?,?> first = DrIterableTool.first(databeans);
 		List<String> fieldNames = FieldTool.getFieldNames(fielder.getFields(first));
 		List<Integer> maxLengths = DrListTool.createArrayListAndInitialize(fieldNames.size());
@@ -235,7 +235,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 			}
 		}
 		
-		Map<String,String> abbreviatedNames = DrMapTool.create();
+		Map<String,String> abbreviatedNames = new HashMap<>();
 		for(int i = 0; i < maxLengths.size(); ++i){
 			int length = maxLengths.get(i);
 			if(length < MIN_FIELD_ABBREVIATION_LENGTH){

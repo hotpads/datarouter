@@ -2,17 +2,16 @@ package com.hotpads.datarouter.client.imp.hbase.balancer.imp;
 
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.hadoop.hbase.ServerName;
 
 import com.hotpads.datarouter.client.imp.hbase.balancer.BalanceLeveler;
 import com.hotpads.datarouter.client.imp.hbase.balancer.BaseHBaseRegionBalancer;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionInfo;
-import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerInfo;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
 import com.hotpads.datarouter.util.core.DrHashMethods;
-import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class ConsistentHashBalancer
 extends BaseHBaseRegionBalancer{
@@ -45,7 +44,7 @@ extends BaseHBaseRegionBalancer{
 	}
 	
 	public static SortedMap<Long,ServerName> buildServerHashRing(DRHServerList servers, int numBucketsPerNode){
-		SortedMap<Long,ServerName> consistentHashRing = DrMapTool.createTreeMap();
+		SortedMap<Long,ServerName> consistentHashRing = new TreeMap<>();
 		for(DRHServerInfo server : servers.getServers()){
 			for(int i = 0; i < numBucketsPerNode; ++i){
 				long bucketPosition = DrHashMethods.longMD5DJBHash(server.getServerName().getHostAndPort() + i);

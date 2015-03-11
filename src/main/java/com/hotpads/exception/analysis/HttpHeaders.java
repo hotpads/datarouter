@@ -1,13 +1,13 @@
 package com.hotpads.exception.analysis;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Joiner;
-import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class HttpHeaders {
 	
@@ -56,7 +56,7 @@ public class HttpHeaders {
 		X_REQUESTED_WITH
 	};
 	
-	private Map<String, String> headerMap = DrMapTool.create();
+	private Map<String, String> headerMap = new HashMap<>();
 	
 	public HttpHeaders(HttpServletRequest request) {
 		Joiner listJoiner = Joiner.on(", ");

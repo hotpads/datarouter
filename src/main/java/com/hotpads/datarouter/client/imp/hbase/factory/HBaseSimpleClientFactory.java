@@ -2,10 +2,12 @@ package com.hotpads.datarouter.client.imp.hbase.factory;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,7 +47,6 @@ import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
@@ -154,8 +155,8 @@ implements ClientFactory{
 	
 	protected Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> initTables(){
 		List<String> tableNames = DrListTool.create();
-		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = DrMapTool.create();
-		Map<String,PhysicalNode<?,?>> nodeByTableName = DrMapTool.createTreeMap();
+		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = new HashMap<>();
+		Map<String,PhysicalNode<?,?>> nodeByTableName = new TreeMap<>();
 		Collection<PhysicalNode<?,?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
 		for(PhysicalNode<?,?> node : physicalNodes){
 			tableNames.add(node.getTableName());

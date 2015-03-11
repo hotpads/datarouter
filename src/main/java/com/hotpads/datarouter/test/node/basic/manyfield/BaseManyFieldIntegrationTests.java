@@ -2,6 +2,7 @@ package com.hotpads.datarouter.test.node.basic.manyfield;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -509,7 +510,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		ManyFieldBean bean = new ManyFieldBean();
 
 		//increment by 3
-		Map<ManyFieldBeanKey,Map<String,Long>> increments = DrMapTool.create();
+		Map<ManyFieldBeanKey,Map<String,Long>> increments = new HashMap<>();
 		DrMapTool.increment(increments, bean.getKey(), ManyFieldBean.F.incrementField, 3L);
 		hBaseNode.increment(increments, null);
 		ManyFieldBean result1 = mapNode.get(bean.getKey(), null);

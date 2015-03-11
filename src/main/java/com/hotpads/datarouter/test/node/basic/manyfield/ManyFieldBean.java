@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,7 +41,6 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
@@ -190,7 +190,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		}
 		@Override
 		public Map<String,List<Field<?>>> getIndexes(ManyFieldBean d){
-			Map<String,List<Field<?>>> indexesByName = DrMapTool.createTreeMap();
+			Map<String,List<Field<?>>> indexesByName = new TreeMap<>();
 			indexesByName.put("index_shortInt", FieldTool.createList(
 					new ShortField(F.shortField, d.shortField),
 					new IntegerField(F.integerField, d.integerField)));

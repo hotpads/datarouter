@@ -48,7 +48,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 		counterWating = 0;
 		counterTimedWaiting = 0;
 		counterTerminated = 0;
-		threadStateCounters = DrMapTool.createHashMap();
+		threadStateCounters = new HashMap<>();
 
 		return getStackTraces();
 	}

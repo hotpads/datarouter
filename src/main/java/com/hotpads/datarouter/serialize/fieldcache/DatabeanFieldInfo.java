@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.serialize.fieldcache;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +28,6 @@ import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -83,14 +83,14 @@ public class DatabeanFieldInfo<
 	private List<Field<?>> fields;//PK fields will have prefixes in this Collection
 	
 
-	private Map<String,Field<?>> primaryKeyFieldByName = DrMapTool.createHashMap();
-	private Map<String,Field<?>> nonKeyFieldByColumnName = DrMapTool.createHashMap();
-	private Map<String,Field<?>> fieldByColumnName = DrMapTool.createHashMap();
-	private Map<String,Field<?>> fieldByPrefixedName = DrMapTool.createHashMap();
+	private Map<String,Field<?>> primaryKeyFieldByName = new HashMap<>();
+	private Map<String,Field<?>> nonKeyFieldByColumnName = new HashMap<>();
+	private Map<String,Field<?>> fieldByColumnName = new HashMap<>();
+	private Map<String,Field<?>> fieldByPrefixedName = new HashMap<>();
 	
 	private List<String> fieldNames = DrListTool.createArrayList();
 	private List<java.lang.reflect.Field> reflectionFields = DrListTool.createArrayList();
-	private Map<String,java.lang.reflect.Field> reflectionFieldByName = DrMapTool.createHashMap();
+	private Map<String,java.lang.reflect.Field> reflectionFieldByName = new HashMap<>();
 	
 	
 	public DatabeanFieldInfo(String nodeName, NodeParams<PK,D,F> params){

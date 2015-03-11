@@ -2,20 +2,20 @@ package com.hotpads.datarouter.storage.entity;
 
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class EntityTool{
 	
 	public static <EK extends EntityKey<EK>,
 		PK extends EntityPrimaryKey<EK,PK>>
 	NavigableMap<EK,List<PK>> getPrimaryKeysByEntityKey(Iterable<PK> pks){
-		NavigableMap<EK,List<PK>> pksByEntityKey = DrMapTool.createTreeMap();
+		NavigableMap<EK,List<PK>> pksByEntityKey = new TreeMap<>();
 		for(PK pk : DrIterableTool.nullSafe(pks)){
 			EK ek = pk.getEntityKey();
 			List<PK> pksForEntity = pksByEntityKey.get(ek);
@@ -32,7 +32,7 @@ public class EntityTool{
 		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>>
 	NavigableMap<EK,List<D>> getDatabeansByEntityKey(Iterable<D> databeans){
-		NavigableMap<EK,List<D>> databeansByEntityKey = DrMapTool.createTreeMap();
+		NavigableMap<EK,List<D>> databeansByEntityKey = new TreeMap<>();
 		for(D databean : DrIterableTool.nullSafe(databeans)){
 			if(databean==null){ continue; }//seem to be getting some null entries from TraceFlushController?
 			PK pk = databean.getKey();//leave on individual line for NPE trace

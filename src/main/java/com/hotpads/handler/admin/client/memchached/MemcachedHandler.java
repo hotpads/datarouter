@@ -12,7 +12,6 @@ import com.hotpads.datarouter.client.imp.memcached.MemcachedStateException;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
@@ -62,8 +61,7 @@ public class MemcachedHandler extends BaseHandler {
 	static {
 	}
 
-	private static final HashMap<String, List<String>> MEMCHACHED_NEEDS = DrMapTool
-			.createHashMap();
+	private static final HashMap<String, List<String>> MEMCHACHED_NEEDS = new HashMap<>();
 	static {
 		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 		MEMCHACHED_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);

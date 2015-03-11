@@ -8,7 +8,6 @@ import com.hotpads.datarouter.client.imp.hibernate.HibernateClientImp;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.routing.RouterParams;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
@@ -65,8 +64,7 @@ public class HibernateHandler extends BaseHandler {
 		NEEDS_NODE.add(ACTION_moveRegionsToCorrectServer);
 	}
 
-	private static final HashMap<String, List<String>> HIBERNATE_NEEDS = DrMapTool
-			.createHashMap();
+	private static final HashMap<String, List<String>> HIBERNATE_NEEDS = new HashMap<>();
 	static {
 		HIBERNATE_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 		HIBERNATE_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);

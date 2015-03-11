@@ -1,20 +1,19 @@
 package com.hotpads.datarouter.client.imp.hbase.pool;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
-
-import org.junit.Assert;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HConnection;
 import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.SemaphoreTool;
 import com.hotpads.util.datastructs.MutableString;
@@ -49,7 +48,7 @@ public class HTableSharedPool  implements HTablePool{
 		this.clientName = clientName;
 		this.maxSize = maxSize;
 		this.hTableSemaphore = new Semaphore(maxSize);
-		this.activeHTables = DrMapTool.createConcurrentHashMap();
+		this.activeHTables = new ConcurrentHashMap<>();
 		this.primaryKeyClassByName = primaryKeyClassByName;
 	}
 

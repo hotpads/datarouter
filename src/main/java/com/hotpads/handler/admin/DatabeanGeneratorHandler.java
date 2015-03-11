@@ -2,6 +2,7 @@ package com.hotpads.handler.admin;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +35,6 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt7Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt8Field;
 import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
@@ -82,7 +82,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 	
 	public static Map<String, String> simpleClassNameToCanonicalClassName;
 	static{
-		simpleClassNameToCanonicalClassName = DrMapTool.createHashMap();
+		simpleClassNameToCanonicalClassName = new HashMap<>();
 		for(Class<?> field : FIELD_TYPES){
 			simpleClassNameToCanonicalClassName.put(field.getSimpleName(), field.getCanonicalName());
 		}

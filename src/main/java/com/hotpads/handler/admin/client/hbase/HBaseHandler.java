@@ -194,14 +194,14 @@ public class HBaseHandler extends BaseHandler {
 		}
 		if(table != null){
 			// table level settings
-			Map<String,String> tableParamByName = DrMapTool.createTreeMap();
+			Map<String,String> tableParamByName = new TreeMap<>();
 			tableParamByName.put(HBASE_TABLE_PARAM_MAX_FILESIZE, table.getMaxFileSize() / 1024 / 1024 + "");
 			tableParamByName.put(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE, table.getMemStoreFlushSize() / 1024 / 1024 + "");
 			mav.put("tableParamByName", tableParamByName);
 
 			// column family level settings
 			List<HColumnDescriptor> columnFamilies = DrListTool.create(table.getColumnFamilies());
-			Map<String,Map<String,String>> columnSummaryByName = DrMapTool.createTreeMap();
+			Map<String,Map<String,String>> columnSummaryByName = new TreeMap<>();
 			for(HColumnDescriptor column : DrIterableTool.nullSafe(columnFamilies)){
 				Map<String,String> attributeByName = parseFamilyAttributeMap(column.getValues());
 				columnSummaryByName.put(column.getNameAsString(), attributeByName);
@@ -568,8 +568,7 @@ public class HBaseHandler extends BaseHandler {
 		NEEDS_NODE.add(ACTION_viewHBaseTableRegions);
 	}
 
-	private static final HashMap<String, List<String>> HBASE_NEEDS = DrMapTool
-			.createHashMap();
+	private static final HashMap<String, List<String>> HBASE_NEEDS = new HashMap<>();
 	static {
 		HBASE_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 		HBASE_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.hadoop.conf.Configuration;
@@ -66,7 +67,7 @@ public class DRHRegionList{
 		Class<PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
 		Map<HRegionInfo,ServerName> serverNameByHRegionInfo = getServerNameByHRegionInfo(client, config, tableName);
 		//this got reorganized in hbase 0.92... just making quick fix for now
-		Map<String,RegionLoad> regionLoadByName = DrMapTool.createTreeMap();
+		Map<String,RegionLoad> regionLoadByName = new TreeMap<>();
 		for(DRHServerInfo server : DrIterableTool.nullSafe(servers.getServers())){
 			HServerLoad serverLoad = server.gethServerLoad();
 			Map<byte[],HServerLoad.RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
@@ -159,7 +160,7 @@ public class DRHRegionList{
 	}
 
 	public SortedMap<String,List<DRHRegionInfo<?>>> getRegionsByServerName(){
-		SortedMap<String,List<DRHRegionInfo<?>>> out = DrMapTool.createTreeMap();
+		SortedMap<String,List<DRHRegionInfo<?>>> out = new TreeMap<>();
 		for(DRHRegionInfo<?> region : regions){
 			String serverName = region.getServerName();
 			if(out.get(serverName) == null){

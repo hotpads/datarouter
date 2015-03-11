@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.storage.bundle;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,13 +14,11 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.test.client.pool.PoolTestBean;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 
 
 public class Bundle{
 
-	protected Map<String,SingleTypeBundle<? extends Databean<?,?>>> bundleByType 
-		= DrMapTool.createHashMap();
+	protected Map<String,SingleTypeBundle<? extends Databean<?,?>>> bundleByType = new HashMap<>();
 	
 	protected <D extends Databean<?,?>> Bundle add(D databean){
 		if(databean==null){ return this; }

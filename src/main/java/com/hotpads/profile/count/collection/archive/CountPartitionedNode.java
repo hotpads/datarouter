@@ -1,6 +1,7 @@
 package com.hotpads.profile.count.collection.archive;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,6 @@ import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.profile.count.databean.Count;
@@ -73,9 +73,9 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	
 	public static final List<String> flushPeriods = DrListTool.create("5s", "20s", "1m", "5m", "10m",  "30m", "1h", "1h");
 	
-	public static Map<String,Long> msBySuffix = DrMapTool.createHashMap();
-	public static Map<Long,String> suffixByMs = DrMapTool.createHashMap();
-	public static Map<Long,Long> flushPeriodByPeriod = DrMapTool.createHashMap();
+	public static Map<String,Long> msBySuffix = new HashMap<>();
+	public static Map<Long,String> suffixByMs = new HashMap<>();
+	public static Map<Long,Long> flushPeriodByPeriod = new HashMap<>();
 	static{
 		for(int i=0; i < suffixes.size(); ++i){
 			String suffix = suffixes.get(i);
@@ -86,7 +86,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		}
 	}
 	
-	public static final Map<Long,Integer> indexByMs = DrMapTool.createHashMap();
+	public static final Map<Long,Integer> indexByMs = new HashMap<>();
 	static{
 		int index = -1;
 		for(String suffix : suffixes){ indexByMs.put(getMs(suffix), ++index); }

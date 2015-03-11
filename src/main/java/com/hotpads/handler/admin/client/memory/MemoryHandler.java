@@ -33,7 +33,7 @@ public class MemoryHandler extends BaseHandler {
 	static{
 	}
 
-	private static final HashMap<String,List<String>> MEMORY_NEEDS = DrMapTool.createHashMap();
+	private static final HashMap<String,List<String>> MEMORY_NEEDS = new HashMap<>();
 	static{
 		MEMORY_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 		MEMORY_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);

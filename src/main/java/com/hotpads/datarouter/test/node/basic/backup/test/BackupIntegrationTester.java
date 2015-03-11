@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -43,7 +44,6 @@ import com.hotpads.datarouter.test.node.basic.backup.BackupBeanKey;
 import com.hotpads.datarouter.test.node.basic.backup.BackupTestRouter;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 @RunWith(Parameterized.class)
@@ -64,7 +64,7 @@ public class BackupIntegrationTester{
 	
 	/************************************ routers ***************************************/
 
-	static Map<ClientType,BackupTestRouter> routerByClientType = DrMapTool.create();
+	static Map<ClientType,BackupTestRouter> routerByClientType = new HashMap<>();
 	
 	@BeforeClass
 	public static void init() throws IOException{	

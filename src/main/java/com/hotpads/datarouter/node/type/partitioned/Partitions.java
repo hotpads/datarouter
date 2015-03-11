@@ -1,6 +1,8 @@
 package com.hotpads.datarouter.node.type.partitioned;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -29,12 +31,12 @@ public class Partitions<
 
 	protected BasePartitionedNode<PK,D,?,N> basePartitionedNode;
 	protected List<N> nodes = DrListTool.createArrayList();
-	protected Map<String,N> nodeByName = DrMapTool.createLinkedHashMap();
-	protected Map<String,List<String>> nodeNamesByClientName = DrMapTool.createHashMap();
-	protected Map<String,List<String>> clientNamesByNodeName = DrMapTool.createHashMap();
+	protected Map<String,N> nodeByName = new LinkedHashMap<>();
+	protected Map<String,List<String>> nodeNamesByClientName = new HashMap<>();
+	protected Map<String,List<String>> clientNamesByNodeName = new HashMap<>();
 	protected SortedSet<String> clientNames = new TreeSet<>();
-	protected Map<N,Filter<PK>> primaryKeyFilterByNode = DrMapTool.createHashMap();
-	protected Map<N,Filter<D>> databeanFilterByNode = DrMapTool.createHashMap();
+	protected Map<N,Filter<PK>> primaryKeyFilterByNode = new HashMap<>();
+	protected Map<N,Filter<D>> databeanFilterByNode = new HashMap<>();
 	
 	public Partitions(BasePartitionedNode<PK,D,?,N> basePartitionedNode){
 		this.basePartitionedNode = basePartitionedNode;

@@ -2,6 +2,7 @@ package com.hotpads.datarouter.serialize.fielder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCollation;
@@ -12,7 +13,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.EmptyScatteringPrefix;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
 public abstract class BaseDatabeanFielder<
@@ -55,7 +55,7 @@ implements DatabeanFielder<PK,D>{
 	
 	@Override
 	public Map<String,List<Field<?>>> getIndexes(D databean){
-		return DrMapTool.createTreeMap();
+		return new TreeMap<>();
 	}
 	
 	@Override

@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.http.node;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class HttpReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -88,7 +88,7 @@ implements MapStorageReader<PK,D>{
 //		logger.warn("client get:"+key);
 		if(key==null){ return null; }
 		
-		Map<String,String> params = DrMapTool.createHashMap();
+		Map<String,String> params = new HashMap<>();
 		params.put(METHOD_get_PARAM_key, JsonDatabeanTool.primaryKeyToJson(key, 
 				fieldInfo.getSampleFielder().getKeyFielder()).toString());
 		addConfigParam(params, config);
@@ -104,7 +104,7 @@ implements MapStorageReader<PK,D>{
 	public List<D> getMulti(final Collection<PK> keys, final Config config){
 		if(DrCollectionTool.isEmpty(keys)){ return new LinkedList<D>(); }
 		
-		Map<String,String> params = DrMapTool.createHashMap();
+		Map<String,String> params = new HashMap<>();
 		params.put(METHOD_getMulti_PARAM_keys, JsonDatabeanTool.primaryKeysToJson(keys, 
 				fieldInfo.getSampleFielder().getKeyFielder()).toString());
 		addConfigParam(params, config);
@@ -120,7 +120,7 @@ implements MapStorageReader<PK,D>{
 	public List<PK> getKeys(final Collection<PK> keys, final Config config) {	
 		if(DrCollectionTool.isEmpty(keys)){ return new LinkedList<PK>(); }
 		
-		Map<String,String> params = DrMapTool.createHashMap();
+		Map<String,String> params = new HashMap<>();
 		params.put(METHOD_getKeys_PARAM_keys, JsonDatabeanTool.primaryKeysToJson(keys, 
 				fieldInfo.getSampleFielder().getKeyFielder()).toString());
 		addConfigParam(params, config);

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.hadoop.conf.Configuration;
@@ -19,7 +20,6 @@ import com.hotpads.datarouter.client.imp.hbase.factory.HBaseSimpleClientFactory;
 import com.hotpads.datarouter.exception.DataAccessException;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class DRHServerList{
 	Logger logger = LoggerFactory.getLogger(DRHServerList.class);
@@ -36,7 +36,7 @@ public class DRHServerList{
 			serverNames = DrListTool.createArrayList(clusterStatus.getServers());
 			Collections.sort(serverNames);
 			this.servers = DrListTool.createArrayListWithSize(serverNames);
-			this.drhServerInfoByServerName = DrMapTool.createTreeMap();
+			this.drhServerInfoByServerName = new TreeMap<>();
 			for(ServerName serverName : DrIterableTool.nullSafe(serverNames)){
 				DRHServerInfo info = new DRHServerInfo(serverName, clusterStatus.getLoad(serverName));
 				this.servers.add(info);
