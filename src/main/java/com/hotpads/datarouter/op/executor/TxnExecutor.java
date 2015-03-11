@@ -3,7 +3,7 @@ package com.hotpads.datarouter.op.executor;
 import com.hotpads.datarouter.config.Isolation;
 
 
-public interface TxnExecutor<T>{
+public interface TxnExecutor{
 
 	Isolation getIsolation();
 	void beginTxns();
