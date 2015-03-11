@@ -9,7 +9,6 @@ import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
-@SuppressWarnings("serial")
 public abstract class BaseUniqueKeyIndexEntry<
 		IK extends PrimaryKey<IK>,
 		IE extends Databean<IK,IE>,

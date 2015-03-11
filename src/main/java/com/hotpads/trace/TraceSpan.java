@@ -26,7 +26,6 @@ import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.trace.key.TraceSpanKey;
 import com.hotpads.trace.key.TraceThreadKey;
 
-@SuppressWarnings("serial")
 @Entity
 @AccessType("field")
 public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{

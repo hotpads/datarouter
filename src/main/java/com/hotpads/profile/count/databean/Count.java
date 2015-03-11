@@ -8,9 +8,9 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import org.hibernate.annotations.AccessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -26,7 +26,6 @@ import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrXMLStringTool;
 import com.hotpads.profile.count.databean.key.CountKey;
 
-@SuppressWarnings("serial")
 @Entity
 @AccessType("field")
 public class Count extends BaseDatabean<CountKey,Count>{

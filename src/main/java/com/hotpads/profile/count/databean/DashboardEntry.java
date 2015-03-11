@@ -14,7 +14,6 @@ import com.hotpads.datarouter.storage.field.imp.comparable.IntegerField;
 import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.profile.count.databean.key.DashboardEntryKey;
 
-@SuppressWarnings("serial")
 public class DashboardEntry extends BaseDatabean<DashboardEntryKey,DashboardEntry>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;

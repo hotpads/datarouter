@@ -136,7 +136,6 @@ public class HBaseHandler extends BaseHandler {
 		}
 		Map<String,Map<String,String>> tableSummaryByName = new TreeMap<>();
 		Map<String,Map<String,Map<String,String>>> familySummaryByTableName = new TreeMap<>();
-		@SuppressWarnings("unchecked") 
 		List<String> tableNamesForClient = routerParams.getNodes().getTableNamesForRouterAndClient(routerParams
 				.getRouterName(), routerParams.getClientName());
 		for(HTableDescriptor table : DrIterableTool.nullSafe(tables)){

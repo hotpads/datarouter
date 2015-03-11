@@ -33,7 +33,6 @@ import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
-@SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
 public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldBeanKey,ManyFieldTypeBean2>{

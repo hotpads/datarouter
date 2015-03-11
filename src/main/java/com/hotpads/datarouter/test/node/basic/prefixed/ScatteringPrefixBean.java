@@ -21,7 +21,6 @@ import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrListTool;
 
 
-@SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
 public class ScatteringPrefixBean extends BaseDatabean<ScatteringPrefixBeanKey,ScatteringPrefixBean>{

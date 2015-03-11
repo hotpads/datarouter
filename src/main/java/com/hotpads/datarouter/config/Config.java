@@ -16,7 +16,6 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.profile.callsite.LineOfCode;
 
 
-@SuppressWarnings("serial")
 public class Config
 extends BaseDatabean<ConfigKey,Config>
 implements Cloneable{
