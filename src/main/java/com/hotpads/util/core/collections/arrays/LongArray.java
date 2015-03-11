@@ -290,7 +290,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>{
 	@Override
 	public <T> T[] toArray(T[] wrapperArray) {
 		for(int i=0; i < this.size; ++i){
-			wrapperArray[i] = (T)(Long)(this.array[i]==NULL?null:this.array[i]);
+			wrapperArray[i] = (T)(this.array[i]==NULL?null:this.array[i]);
 		}
 		return wrapperArray;
 	}

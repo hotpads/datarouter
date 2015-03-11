@@ -20,10 +20,10 @@ public class FloatByteTool{
 
 	public static float fromBytes(final byte[] bytes, final int startIdx){
 		int bits = 
-		  ((bytes[startIdx    ] & (int)0xff) << 24)
-		| ((bytes[startIdx + 1] & (int)0xff) << 16)
-		| ((bytes[startIdx + 2] & (int)0xff) <<  8)
-		|  (bytes[startIdx + 3] & (int)0xff);
+		  ((bytes[startIdx    ] & 0xff) << 24)
+		| ((bytes[startIdx + 1] & 0xff) << 16)
+		| ((bytes[startIdx + 2] & 0xff) <<  8)
+		|  (bytes[startIdx + 3] & 0xff);
 		return Float.intBitsToFloat(bits);
 	}
 	

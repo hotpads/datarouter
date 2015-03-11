@@ -25,7 +25,7 @@ implements UniqueKeyIndexEntry<IK,IE,PK,D>{
 
 	@SuppressWarnings("unchecked")
 	public List<IE> createFromDatabean(D target){
-		BaseUniqueKeyIndexEntry<IK,IE,PK,D> indexEntry = (BaseUniqueKeyIndexEntry<IK,IE,PK,D>)ReflectionTool.create(getClass());
+		BaseUniqueKeyIndexEntry<IK,IE,PK,D> indexEntry = ReflectionTool.create(getClass());
 		indexEntry.fromPrimaryKey(target.getKey());
 		return (List<IE>)DrListTool.wrap(indexEntry);
 	}

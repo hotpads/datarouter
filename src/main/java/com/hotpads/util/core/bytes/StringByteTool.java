@@ -76,7 +76,7 @@ public class StringByteTool{
 				+ DrByteTool.BYTES_PER_INTEGER//hash
 				+ DrByteTool.BYTES_PER_POINTER //for the pointer to the char[]??
 				+ 3 * DrByteTool.BYTES_PER_POINTER //array overhead (object overhead + length)
-				+ ((String)s).length() * 2; //actual char[] data
+				+ s.length() * 2; //actual char[] data
 	}
 	
 	

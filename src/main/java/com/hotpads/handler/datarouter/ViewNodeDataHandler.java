@@ -160,7 +160,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 
 		boolean startInclusive = true;
 		Config config = new Config().setIterateBatchSize(limit);//setLimit not currently valid for scanners
-		Iterable<D> databeanIterable = sortedNode.scan(new Range<>((PK)startAfterKey, startInclusive, null, true),
+		Iterable<D> databeanIterable = sortedNode.scan(new Range<>(startAfterKey, startInclusive, null, true),
 				config);
 		List<D> databeans = DrListTool.createArrayList(databeanIterable, limit);
 

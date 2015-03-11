@@ -182,7 +182,7 @@ public class DrStringTool{
 		String result = input;
 
 		for(int i = 0; i < result.length(); ++i){ // careful about strings being immutable
-			if(((int)result.charAt(i)) > 126){
+			if((result.charAt(i)) > 126){
 				result = result.replace(result.charAt(i), replacement);
 			}
 		}
@@ -198,7 +198,7 @@ public class DrStringTool{
 	public static boolean containsCharactersOutsideRange(final String input, int bottom, int top){
 		char[] chars = input.toCharArray();
 		for(int i = 0; i < chars.length; i++){
-			if(((int)chars[i]) > top || ((int)chars[i]) < bottom){ return true; }
+			if((chars[i]) > top || (chars[i]) < bottom){ return true; }
 		}
 		return false;
 	}

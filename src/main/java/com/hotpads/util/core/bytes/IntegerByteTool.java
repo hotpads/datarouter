@@ -44,10 +44,10 @@ public class IntegerByteTool {
 	
 	public static int fromRawBytes(final byte[] bytes, final int offset){
 		return (
-				  ((bytes[offset    ] & (int)0xff) << 24)
-				| ((bytes[offset + 1] & (int)0xff) << 16)
-				| ((bytes[offset + 2] & (int)0xff) <<  8)
-				|  (bytes[offset + 3] & (int)0xff)      
+				  ((bytes[offset    ] & 0xff) << 24)
+				| ((bytes[offset + 1] & 0xff) << 16)
+				| ((bytes[offset + 2] & 0xff) <<  8)
+				|  (bytes[offset + 3] & 0xff)      
 			);
 	}	
 	
@@ -153,10 +153,10 @@ public class IntegerByteTool {
 			
 			//more compact
 			out[i] = Integer.MIN_VALUE ^ (
-						  ((bytes[startIdx    ] & (int)0xff) << 24)
-						| ((bytes[startIdx + 1] & (int)0xff) << 16)
-						| ((bytes[startIdx + 2] & (int)0xff) <<  8)
-						|  (bytes[startIdx + 3] & (int)0xff));
+						  ((bytes[startIdx    ] & 0xff) << 24)
+						| ((bytes[startIdx + 1] & 0xff) << 16)
+						| ((bytes[startIdx + 2] & 0xff) <<  8)
+						|  (bytes[startIdx + 3] & 0xff));
 		}
 		return out;
 	}
@@ -179,10 +179,10 @@ public class IntegerByteTool {
 	
 	public static int fromUInt31Bytes(final byte[] bytes, final int startIdx){
 		return 
-		  ((bytes[startIdx    ] & (int)0xff) << 24)
-		| ((bytes[startIdx + 1] & (int)0xff) << 16)
-		| ((bytes[startIdx + 2] & (int)0xff) <<  8)
-		|  (bytes[startIdx + 3] & (int)0xff);
+		  ((bytes[startIdx    ] & 0xff) << 24)
+		| ((bytes[startIdx + 1] & 0xff) << 16)
+		| ((bytes[startIdx + 2] & 0xff) <<  8)
+		|  (bytes[startIdx + 3] & 0xff);
 	}
 
 	public static byte[] getUInt31ByteArray(List<Integer> values){
@@ -218,10 +218,10 @@ public class IntegerByteTool {
 			 */
 			
 			//more compact
-			out[i] =      ((bytes[startIdx    ] & (int)0xff) << 24)
-						| ((bytes[startIdx + 1] & (int)0xff) << 16)
-						| ((bytes[startIdx + 2] & (int)0xff) <<  8)
-						|  (bytes[startIdx + 3] & (int)0xff);
+			out[i] =      ((bytes[startIdx    ] & 0xff) << 24)
+						| ((bytes[startIdx + 1] & 0xff) << 16)
+						| ((bytes[startIdx + 2] & 0xff) <<  8)
+						|  (bytes[startIdx + 3] & 0xff);
 			
 		}
 		return out;
@@ -233,11 +233,11 @@ public class IntegerByteTool {
 		//verify that -128 in bytes gets converted to -128 long.  Bitwise cast would be +128
 		@Test public void testCasting(){
 			byte b0=0,b1=1,b127=127,bn128=-128,bn1=-1;
-			Assert.assertEquals(0L, (long)b0);
-			Assert.assertEquals(1L, (long)b1);
-			Assert.assertEquals(127L, (long)b127);
-			Assert.assertEquals(-128L, (long)bn128);
-			Assert.assertEquals(-1L, (long)bn1);
+			Assert.assertEquals(0L, b0);
+			Assert.assertEquals(1L, b1);
+			Assert.assertEquals(127L, b127);
+			Assert.assertEquals(-128L, bn128);
+			Assert.assertEquals(-1L, bn1);
 		}
 		@Test public void testGetOrderedBytes(){
 			int a = Integer.MIN_VALUE;

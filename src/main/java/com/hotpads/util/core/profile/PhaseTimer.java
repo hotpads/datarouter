@@ -112,7 +112,7 @@ public class PhaseTimer {
 		long elapsedTime = getElapsedTimeBetweenFirstAndLastEvent();
 		if(elapsedTime < 1){ elapsedTime = 1; }
 		float seconds = (float)elapsedTime/(float)1000;
-		return (float)numItems/(float)seconds;
+		return numItems/seconds;
 	}
 	
 	public Map<String,Long> asMap(){

@@ -103,7 +103,7 @@ public class EmailAttachment implements Serializable, Comparable<EmailAttachment
 				if ( ' ' <= b && b <= '~' ) {
 					sb.append( (char) b );
 				} else {
-					sb.append("{").append( (int) b ).append("}");
+					sb.append("{").append( b ).append("}");
 				}
 			}
 		}

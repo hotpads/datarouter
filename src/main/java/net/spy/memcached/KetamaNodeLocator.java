@@ -63,7 +63,7 @@ public final class KetamaNodeLocator extends SpyObject implements NodeLocator {
         ketamaNodes = new TreeMap<Long, ServerInfo>();
  
         for (ServerInfo sinfo : goodServers) {
-            double percent = (double) sinfo.weight / total_weight;
+            double percent = sinfo.weight / total_weight;
             // the tiny fudge fraction is added to counteract float errors.
             int item_weight = (int) (percent * total_servers * nodes_per_server + 0.0000000001);
             for (int k = 0; k < item_weight; k++) {

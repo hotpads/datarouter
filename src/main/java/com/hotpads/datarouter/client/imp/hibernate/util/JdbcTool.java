@@ -92,7 +92,7 @@ public class JdbcTool {
 			ResultSet rs = ps.getResultSet();
 			List<PK> primaryKeys = DrListTool.createArrayList();
 			while(rs.next()){
-				PK primaryKey = (PK)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
+				PK primaryKey = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rs, true);
 				primaryKeys.add(primaryKey);
 			}
@@ -111,7 +111,7 @@ public class JdbcTool {
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = DrListTool.createArrayList();
 			while(rs.next()){
-				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
+				D databean = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
 				databeans.add(databean);
 			}
@@ -130,7 +130,7 @@ public class JdbcTool {
 			ResultSet rs = ps.getResultSet();
 			List<PKLookup> lookups = DrListTool.createArrayList();
 			while(rs.next()){
-				PKLookup lookup = (PKLookup) FieldSetTool.lookupFromJdbcResultSetUsingReflection(lookupClass,
+				PKLookup lookup = FieldSetTool.lookupFromJdbcResultSetUsingReflection(lookupClass,
 						selectedFields, rs, keyClass);
 				lookups.add(lookup);
 			}
@@ -153,7 +153,7 @@ public class JdbcTool {
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = DrListTool.createArrayList();
 			while(rs.next()){
-				D databean = (D)FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
+				D databean = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
 				databeans.add(databean);
 			}

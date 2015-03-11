@@ -131,15 +131,15 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 
 	public static double getValuePerSecond(double value, Long periodMs){
-		return ((double)value) * 1000 / periodMs;
+		return (value) * 1000 / periodMs;
 	}
 
 	public static double getValuePerMinute(double value, Long periodMs){
-		return ((double)value) * 60000 / periodMs;
+		return (value) * 60000 / periodMs;
 	}
 
 	public static double getValuePerHour(double value, Long periodMs){
-		return ((double)value) * 3600000 / periodMs;
+		return (value) * 3600000 / periodMs;
 	}
 	
 	public String getNameHtmlEscaped(){

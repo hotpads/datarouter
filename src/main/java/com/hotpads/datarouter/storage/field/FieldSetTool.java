@@ -228,7 +228,7 @@ public class FieldSetTool{
 	}
 	
 	public static <F extends FieldSet<?>> F fromConcatenatedValueBytes(Class<F> cls, List<Field<?>> fields, byte[] bytes){
-		F fieldSet = (F)ReflectionTool.create(cls);
+		F fieldSet = ReflectionTool.create(cls);
 		if(DrArrayTool.isEmpty(bytes)){ return fieldSet; }
 		
 		int byteOffset = 0;
