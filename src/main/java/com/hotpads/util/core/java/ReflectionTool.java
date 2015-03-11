@@ -15,8 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.misc.Unsafe;
-
 import com.google.common.collect.Lists;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -308,28 +306,6 @@ public class ReflectionTool {
 	public static Object getObjectValueUsingGetterMethod( Object objectInstance,Method getter){
 				return ReflectionTool.getValueFromMethod(getter, objectInstance);
 	}
-	
-	/************************ for experiments only ******************************/
-	
-	//need to do this stuff to avoid getting a SecurityException
-	//  from: http://www.thatsjava.com/java-programming/43398/
-	public static Unsafe getUnsafe(){
-		Unsafe unsafe = null;
-		try{
-			Class<Unsafe> uc = Unsafe.class;
-			Field[] fields = uc.getDeclaredFields();
-			for (int i = 0; i < fields.length; i++) {
-				if (fields[i].getName().equals("theUnsafe")) {
-					fields[i].setAccessible(true);
-					unsafe = (Unsafe) fields[i].get(uc);
-					break;
-				}
-			}
-		}catch (Exception ignore){
-		}
-		return unsafe;
-	}
-	
 	
 	/*************************** main ********************************************/
 		
