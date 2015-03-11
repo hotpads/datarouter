@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,7 +19,6 @@ import sun.misc.Unsafe;
 
 import com.google.common.collect.Lists;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrGenericsFactory;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -100,7 +100,7 @@ public class ReflectionTool {
 	}
 	
 	public static Set<Class<?>> getAllSuperClassesAndInterfaces(Class<?> c){
-		Set<Class<?>> supersAndInterfaces = DrGenericsFactory.makeHashSet();
+		Set<Class<?>> supersAndInterfaces = new HashSet<>();
 		
 		List<Class<?>> interfaces = Arrays.asList(c.getInterfaces());
 		if(interfaces!=null){

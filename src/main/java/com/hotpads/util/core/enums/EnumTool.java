@@ -2,6 +2,7 @@ package com.hotpads.util.core.enums;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -12,7 +13,6 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrGenericsFactory;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
@@ -129,7 +129,7 @@ public class EnumTool {
 	}
 	
 	public static <T extends HpEnum> Set<T> decodeEnums(int codedEnums, T[] values){
-		Set<T> enums = DrGenericsFactory.makeHashSet();
+		Set<T> enums = new HashSet<>();;
 		for(T e:values){
 			int i = e.getInteger();
 			int mask = (int)Math.pow(2,i);
@@ -243,7 +243,7 @@ public class EnumTool {
 		
 		@Test
 		public void testEncoding(){
-			List<TestEnum> ts = DrGenericsFactory.makeArrayList();
+			List<TestEnum> ts = new ArrayList<>();
 			ts.add(TestEnum.RENTAL);
 			ts.add(TestEnum.SUBLET);
 			ts.add(TestEnum.ASSISTED);

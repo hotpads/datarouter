@@ -1,13 +1,10 @@
 package com.hotpads.datarouter.util.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedMap;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -97,8 +94,8 @@ public class DrBatchTool {
 			Assert.assertEquals(3, getNumBatches(5,2));
 			Assert.assertEquals(4, getBatchEndIndexExclusive(5,2,1));
 			Assert.assertEquals(DrListTool.createArrayList("c","d"), getBatch(list, 2, 1));
-			Assert.assertEquals(DrGenericsFactory.makeArrayList("a","b"), list.subList(0,2));
-			Assert.assertEquals(DrGenericsFactory.makeArrayList("c","d"), list.subList(2,4));
+			Assert.assertEquals(Arrays.asList("a","b"), list.subList(0,2));
+			Assert.assertEquals(Arrays.asList("c","d"), list.subList(2,4));
 		}
 		
 		@Test public void testUnreachableBatches(){

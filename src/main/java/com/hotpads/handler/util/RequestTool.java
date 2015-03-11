@@ -21,7 +21,6 @@ import org.junit.Test;
 import com.google.common.base.Joiner;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrGenericsFactory;
 import com.hotpads.datarouter.util.core.DrIdentityFunctor;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
@@ -424,7 +423,7 @@ public class RequestTool {
 	
 
 	public static Map<String,String> getHeader(HttpServletRequest request){
-		Map<String,String> headers = DrGenericsFactory.makeHashMap();
+		Map<String,String> headers = new HashMap<>();
 		Enumeration<?> headersEnum = request.getHeaderNames();
 		while(headersEnum!=null && headersEnum.hasMoreElements()){
 			String h = (String)headersEnum.nextElement();
