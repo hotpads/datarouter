@@ -174,24 +174,22 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		if(DrStringTool.notEmpty(createScript)){
 			collectParamsFromCreateScript(createScript, databeanParams);
 			return;
-		} else {
-		
-			databeanParams.setDataBeanName(DrStringTool.capitalizeFirstLetter(RequestTool.get(request, PARAM_DATABEAN_NAME, null)));
-			databeanParams.setDataBeanPackage(RequestTool.get(request, PARAM_DATABEAN_PACKAGE, null));
-	
-			for (int i = 0; i < MAX_KEYFIELDS; i++) {
-				String keyFieldName = RequestTool.get(request, PARAM_KEYFIELD_NAME + i, null);
-				String keyFieldType = RequestTool.get(request, PARAM_KEYFIELD_TYPE + i, null);
-				String keyFieldEnumType = RequestTool.get(request, PARAM_KEYFIELD_ENUM_TYPE + i, null);
-				databeanParams.addKeyField(keyFieldName, keyFieldType, keyFieldEnumType);
-			}
-	
-			for (int i = 0; i < MAX_FIELDS; i++) {
-				String fieldName = RequestTool.get(request, PARAM_FIELD_NAME + i, null);
-				String fieldType = RequestTool.get(request, PARAM_FIELD_TYPE + i, null);
-				String fieldEnumType = RequestTool.get(request, PARAM_FIELD_ENUM_TYPE + i, null);
-				databeanParams.addField(fieldName, fieldType, fieldEnumType);
-			}
+		}
+		databeanParams.setDataBeanName(DrStringTool.capitalizeFirstLetter(RequestTool.get(request, PARAM_DATABEAN_NAME, null)));
+		databeanParams.setDataBeanPackage(RequestTool.get(request, PARAM_DATABEAN_PACKAGE, null));
+
+		for (int i = 0; i < MAX_KEYFIELDS; i++) {
+			String keyFieldName = RequestTool.get(request, PARAM_KEYFIELD_NAME + i, null);
+			String keyFieldType = RequestTool.get(request, PARAM_KEYFIELD_TYPE + i, null);
+			String keyFieldEnumType = RequestTool.get(request, PARAM_KEYFIELD_ENUM_TYPE + i, null);
+			databeanParams.addKeyField(keyFieldName, keyFieldType, keyFieldEnumType);
+		}
+
+		for (int i = 0; i < MAX_FIELDS; i++) {
+			String fieldName = RequestTool.get(request, PARAM_FIELD_NAME + i, null);
+			String fieldType = RequestTool.get(request, PARAM_FIELD_TYPE + i, null);
+			String fieldEnumType = RequestTool.get(request, PARAM_FIELD_ENUM_TYPE + i, null);
+			databeanParams.addField(fieldName, fieldType, fieldEnumType);
 		}
 	}
 

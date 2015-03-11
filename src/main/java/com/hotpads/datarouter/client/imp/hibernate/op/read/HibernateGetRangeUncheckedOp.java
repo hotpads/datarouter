@@ -78,12 +78,11 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
 					DrCollectionTool.size(result));
 			return result;
-		}else{
-			List<? extends FieldSet<?>> result = criteria.list();
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					DrCollectionTool.size(result));
-			return result;
 		}
+		List<? extends FieldSet<?>> result = criteria.list();
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
+				DrCollectionTool.size(result));
+		return result;
 	}
 	
 }

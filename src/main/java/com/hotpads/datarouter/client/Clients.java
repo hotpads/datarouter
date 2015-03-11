@@ -10,20 +10,17 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.hibernate.HibernateClientType;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 
@@ -132,9 +129,8 @@ public class Clients{
 		if(forceInitMode != null){
 			if(ClientInitMode.eager.equals(forceInitMode)){
 				return getClientNames();
-			}else{
-				return null;
 			}
+			return null;
 		}
 		
 		ClientInitMode defaultInitMode = ClientInitMode.fromString(DrPropertiesTool.getFirstOccurrence(

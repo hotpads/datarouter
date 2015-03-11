@@ -54,9 +54,8 @@ public class DrByteTool {
 	public static byte fromUnsignedInt0To255(int u){
 		if(u > 127){
 			return (byte)(u - 0x100);//subtract 256
-		}else{
-			return (byte)u;
 		}
+		return (byte)u;
 	}
 	
 	public static int bitwiseCompare(byte[] a, byte[] b){
@@ -94,17 +93,15 @@ public class DrByteTool {
 	public static byte[] getComparableBytes(byte value){
 		if(value >= 0){
 			return new byte[]{(byte) (value + Byte.MIN_VALUE) };
-		}else{
-			return new byte[]{(byte) (value - Byte.MIN_VALUE) };
 		}
+		return new byte[]{(byte) (value - Byte.MIN_VALUE) };
 	}
 
 	public static byte getComparableByte(byte value){
 		if(value >= 0){
 			return (byte) (value + Byte.MIN_VALUE);
-		}else{
-			return (byte) (value - Byte.MIN_VALUE);
 		}
+		return (byte) (value - Byte.MIN_VALUE);
 	}
 	
 	public static byte[] flipToAndFromComparableByteArray(byte[] ins){

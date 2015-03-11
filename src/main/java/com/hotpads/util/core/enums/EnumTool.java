@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.web.HTMLSelectOptionBean;
 
@@ -198,9 +197,8 @@ public class EnumTool {
 						types.add(a);
 						if (exhaustive) {
 							break;
-						} else {
-							return DrListTool.createLinkedList(types);
 						}
+						return DrListTool.createLinkedList(types);
 					}
 				}
 			}

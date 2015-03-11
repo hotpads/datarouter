@@ -275,9 +275,8 @@ public class TestParser{
 		    index = phrase.substring(firstIndex+1).toUpperCase().indexOf("KEY");
 		    if(index>0){
 		    	return phrase.substring(firstIndex).substring(index+1);
-		    }else{
-		    	return "";
 		    }
+			return "";
 	 }
 	 
 	 public static List<String> getKeyDeclarationsFromFullBody(String phrase){

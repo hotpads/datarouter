@@ -98,9 +98,8 @@ public class RequestTool {
 		
 		if(DrStringTool.isEmpty(stringVal)){
 			return defaultValue;
-		}else{
-			return stringVal;
 		}
+		return stringVal;
 	}
 	
 	public static String get(HttpServletRequest request, String paramName){
@@ -546,16 +545,14 @@ public class RequestTool {
 			String clientIp = proxyChain[proxyChain.length - 1];
 			if (isAValidIpV4(clientIp)) {
 				return clientIp;
-			} else {
-				return request.getRemoteAddr();
 			}
-		} else {
-			String remoteAddr = request.getRemoteAddr();
-			if ("127.0.0.1".equals(remoteAddr)) {//dev server
-				remoteAddr = "98.204.67.1"; //FIXME why this adresse ?
-			}
-			return remoteAddr;
+			return request.getRemoteAddr();
 		}
+		String remoteAddr = request.getRemoteAddr();
+		if ("127.0.0.1".equals(remoteAddr)) {//dev server
+			remoteAddr = "98.204.67.1"; //FIXME why this adresse ?
+		}
+		return remoteAddr;
 	}
 
 	public static boolean isAValidIpV4(String dottedDecimal){

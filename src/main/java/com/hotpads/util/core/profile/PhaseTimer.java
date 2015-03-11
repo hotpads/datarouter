@@ -103,9 +103,7 @@ public class PhaseTimer {
 		if(phaseTimes.size() > 0){
 			return DrCollectionTool.getSumOfLongs(phaseTimes);
 		}
-		else{
-			return 0L;
-		}
+		return 0L;
 	}
 	
 	public float getItemsPerSecond(int numItems){

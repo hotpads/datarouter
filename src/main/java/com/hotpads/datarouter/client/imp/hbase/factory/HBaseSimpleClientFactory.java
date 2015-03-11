@@ -118,10 +118,9 @@ implements ClientFactory{
 				String log = "couldn't open connection because hBaseAdmin.getConnection().isClosed()";
 				logger.warn(log);
 				throw new UnavailableException(log);
-			}else{//yay, the connection is open
-				CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
-				ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
 			}
+			CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
+			ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
 	
 			//databean config
 			Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> result = initTables();

@@ -49,9 +49,8 @@ public abstract class BaseField<T> implements Field<T>{
 	public String getPrefixedName(){
 		if(DrStringTool.isEmpty(prefix)){
 			return name;
-		}else{
-			return prefix + "." + name;
 		}
+		return prefix + "." + name;
 	}
 	
 	@Override

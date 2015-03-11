@@ -54,10 +54,9 @@ public class SqlTableDiffGenerator{
 		Set<SqlColumn> tableBColumns = new TreeSet<SqlColumn>(c);
 		if(tableA==null || tableB==null){
 			return DrListTool.createArrayList();
-		}else{
-			tableAColumns.addAll(tableA.getColumns());
-			tableBColumns.addAll(tableB.getColumns());
 		}
+		tableAColumns.addAll(tableA.getColumns());
+		tableBColumns.addAll(tableB.getColumns());
 		return DrListTool.createArrayList(DrCollectionTool.minus(tableAColumns, tableBColumns, c));		
 	}
 	
@@ -67,10 +66,9 @@ public class SqlTableDiffGenerator{
 		Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);
 		if(requested==null || current==null){
 			return DrListTool.createArrayList();
-		}else{
-			requestedColumns.addAll(requested.getColumns());
-			currentColumns.addAll(current.getColumns());
 		}
+		requestedColumns.addAll(requested.getColumns());
+		currentColumns.addAll(current.getColumns());
 				//TODO too much on one line.  extract the sets into their own variables
 		return getColumnsToModifyAfterAddingColumns(requestedColumns,currentColumns,getColumnsToAdd(),c);
 	}

@@ -62,9 +62,8 @@ public class FieldTool{
 		if(numFields==1){
 			if(trailingSeparatorAfterEndingString){
 				return DrCollectionTool.getFirst(fields).getBytesWithSeparator();
-			}else{
-				return DrCollectionTool.getFirst(fields).getBytes();
 			}
+			return DrCollectionTool.getFirst(fields).getBytes();
 		}
 		byte[][] fieldArraysWithSeparators = new byte[DrCollectionTool.size(fields)][];
 		int fieldIdx=-1;

@@ -38,17 +38,15 @@ public class DrCollectionTool {
 	public static <T> boolean isEmpty(Collection<T> collection){
 		if(collection == null || collection.isEmpty()){
 			return true;
-		}else{
-			return false;
 		}
+		return false;
 	}
 
 	public static <T> boolean notEmpty(Collection<T> collection){
 		if(collection == null || collection.isEmpty()){
 			return false;
-		}else{
-			return true;
 		}
+		return true;
 	}
 	
 	/****************************** size **************************************/

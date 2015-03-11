@@ -3,7 +3,6 @@ package com.hotpads.util.core.collections;
 import java.util.ArrayList;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 import com.hotpads.datarouter.util.core.DrComparableTool;
@@ -170,9 +169,8 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		if(c!=0){ return c; }
 		if(a.startInclusive){ 
 			return b.startInclusive ? 0 : -1;
-		}else{
-			return b.startInclusive ? 1 : 0;
 		}
+		return b.startInclusive ? 1 : 0;
 	}
 	
 	@Override

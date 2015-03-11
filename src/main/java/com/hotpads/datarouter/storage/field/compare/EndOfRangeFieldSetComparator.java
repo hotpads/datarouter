@@ -83,15 +83,14 @@ implements Comparator<FS>{
 			Comparable endOfRangeValue = (Comparable)endOfRangeIterator.next().getValue();
 			if(endOfRangeValue == null){
 				return true;
-			}else{
-				//neither value should be null at this point
-				int diff = DrComparableTool.nullFirstCompareTo(candidateValue, endOfRangeValue);
-				if(diff < 0){ return true; }
-				if(diff > 0){ return false; }
-				boolean lastField = counter == endOfRangeFields.size();
-				if(diff == 0 && lastField){
-					return inclusive;
-				}
+			}
+			//neither value should be null at this point
+			int diff = DrComparableTool.nullFirstCompareTo(candidateValue, endOfRangeValue);
+			if(diff < 0){ return true; }
+			if(diff > 0){ return false; }
+			boolean lastField = counter == endOfRangeFields.size();
+			if(diff == 0 && lastField){
+				return inclusive;
 			}
 		}
 		throw new IllegalStateException("shouldn't get here");

@@ -141,9 +141,8 @@ public class DrListTool {
 		if(coll == null){ return new LinkedList<>(); }
 		if(coll instanceof List){
 			return (List<T>)coll;
-		}else{
-			return new LinkedList<>(coll);
 		}
+		return new LinkedList<>(coll);
 	}
 
 	/*********************** concatenate ********************************/

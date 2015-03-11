@@ -18,32 +18,29 @@ public class DrBatchTool {
 		int numLeftover = totalSize % batchSize;
 		if(numLeftover == 0){
 			return numFullBatches;
-		}else{
-			return 1 + numFullBatches;
 		}
+		return 1 + numFullBatches;
 	}
 	
 	public static int getBatchStartIndex(int totalSize, int batchSize, int batchNumZeroBased){
 		if(totalSize == 0){
 			return 0;
-		}else{
-			return batchNumZeroBased*batchSize;
 		}
+		return batchNumZeroBased*batchSize;
 	}
 	
 	public static int getBatchEndIndexExclusive(int totalSize, int batchSize, int batchNumZeroBased){
 		if(totalSize == 0){
 			return 0;
-		}else{
-			int numBatches = getNumBatches(totalSize, batchSize);
-			int endIndex;
-			if(batchNumZeroBased == (numBatches-1)){
-				endIndex = totalSize - 1;
-			}else{
-				endIndex = batchNumZeroBased * batchSize + batchSize - 1;
-			}
-			return endIndex + 1;
 		}
+		int numBatches = getNumBatches(totalSize, batchSize);
+		int endIndex;
+		if(batchNumZeroBased == (numBatches-1)){
+			endIndex = totalSize - 1;
+		}else{
+			endIndex = batchNumZeroBased * batchSize + batchSize - 1;
+		}
+		return endIndex + 1;
 	}
 	
 	
@@ -55,15 +52,14 @@ public class DrBatchTool {
 	public static <T> List<T> getBatch(List<T> list, int batchSize, int batchNumZeroBased){
 		if(list == null || list.size() == 0){
 			return new ArrayList<T>();
-		}else{
-			int startIndex = getBatchStartIndex(list.size(), batchSize, batchNumZeroBased);
-			int endIndex = getBatchEndIndexExclusive(list.size(), batchSize, batchNumZeroBased);
-			if(startIndex >= list.size() || endIndex > list.size()){
-				return new ArrayList<T>();
-			}
-			List<T> batch = list.subList(startIndex, endIndex);
-			return batch;
 		}
+		int startIndex = getBatchStartIndex(list.size(), batchSize, batchNumZeroBased);
+		int endIndex = getBatchEndIndexExclusive(list.size(), batchSize, batchNumZeroBased);
+		if(startIndex >= list.size() || endIndex > list.size()){
+			return new ArrayList<T>();
+		}
+		List<T> batch = list.subList(startIndex, endIndex);
+		return batch;
 	}
 	
 	public static <T> List<List<T>> getBatches(Collection<T> all, int batchSize){
