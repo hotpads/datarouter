@@ -18,6 +18,7 @@ public class NotificationDestinationKey extends BasePrimaryKey<NotificationDesti
 	private NotificationUserType notificationUserType;
 	private String app;
 	private String token;
+	private String deviceId;
 
 	/** columns ***************************************************************/
 
@@ -25,6 +26,7 @@ public class NotificationDestinationKey extends BasePrimaryKey<NotificationDesti
 		public static final String
 			notificationUserType = "notificationUserType",
 			app = "app",
+			deviceId = "deviceId",
 			token = "token";
 	}
 
@@ -33,44 +35,13 @@ public class NotificationDestinationKey extends BasePrimaryKey<NotificationDesti
 		return FieldTool.createList(
 			new StringEnumField<>(NotificationUserType.class, F.notificationUserType, notificationUserType, MySqlColumnType.MAX_LENGTH_VARCHAR),
 			new StringField(F.app, app, MySqlColumnType.MAX_LENGTH_VARCHAR),
-			new StringField(F.token, token, MySqlColumnType.MAX_LENGTH_VARCHAR));
+			new StringField(F.token, token, MySqlColumnType.MAX_LENGTH_VARCHAR),
+			new StringField(F.deviceId, deviceId, MySqlColumnType.MAX_LENGTH_VARCHAR));
 	}
 
 	/** construct *************************************************************/
 
 	NotificationDestinationKey(){
-	}
-
-	public NotificationDestinationKey(NotificationUserType notificationUserType, String app, String token){
-		this.notificationUserType = notificationUserType;
-		this.app = app;
-		this.token = token;
-	}
-
-	/** get/set ***************************************************************/
-
-	public NotificationUserType getNotificationUserType(){
-		return notificationUserType;
-	}
-
-	public void setNotificationUserType(NotificationUserType notificationUserType){
-		this.notificationUserType = notificationUserType;
-	}
-
-	public String getApp(){
-		return app;
-	}
-
-	public void setApp(String app){
-		this.app = app;
-	}
-
-	public String getToken(){
-		return token;
-	}
-
-	public void setToken(String token){
-		this.token = token;
 	}
 
 }
