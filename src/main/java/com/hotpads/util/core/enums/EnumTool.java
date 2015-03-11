@@ -3,6 +3,7 @@ package com.hotpads.util.core.enums;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -179,11 +180,11 @@ public class EnumTool {
 	private static <T extends AlternateNamedEnum> List<T> getFromFreeText(T[] values, String freeText,
 			boolean exhaustive) {
 		if (DrStringTool.isEmpty(freeText)) {
-			return DrListTool.createLinkedList();
+			return new LinkedList<>();
 		}
 		freeText = freeText.toLowerCase();
 		if (NO.matcher(freeText).find()) {
-			return DrListTool.createLinkedList();
+			return new LinkedList<>();
 		}
 		Set<T> types = new HashSet<>();
 		String[] splitFreeText = freeText.split("\\s+");

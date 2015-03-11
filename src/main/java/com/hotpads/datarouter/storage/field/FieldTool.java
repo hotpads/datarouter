@@ -3,6 +3,7 @@ package com.hotpads.datarouter.storage.field;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -166,7 +167,7 @@ public class FieldTool{
 
 	public static List<String> getCsvColumnNamesList(Iterable<Field<?>> fields,
 			Map<String, String> columnNameToCsvHeaderName) {
-		List<String> csvRow = DrListTool.createLinkedList();
+		List<String> csvRow = new LinkedList<>();
 		for (Field<?> field : DrIterableTool.nullSafe(fields)) {
 			String columnName = field.getColumnName();
 			if (columnNameToCsvHeaderName != null && columnNameToCsvHeaderName.containsKey(field.getColumnName())) {
@@ -200,7 +201,7 @@ public class FieldTool{
 
 	public static List<String> getCsvValuesList(Iterable<Field<?>> fields,
 			Map<String, Functor<String, Object>> columnNameToCsvValueFunctor, boolean emptyForNullValue) {
-		List<String> csvRow = DrListTool.createLinkedList();
+		List<String> csvRow = new LinkedList<>();
 		for (Field<?> field : DrIterableTool.nullSafe(fields)) {
 			String value = DrObjectTool.nullSafeToString(field.getValue());
 			if (columnNameToCsvValueFunctor != null && columnNameToCsvValueFunctor.containsKey(field.getColumnName())) {
@@ -215,7 +216,7 @@ public class FieldTool{
 	}
 
 	public static List<String> getFieldNames(List<Field<?>> fields){
-		List<String> fieldNames = DrListTool.createLinkedList();
+		List<String> fieldNames = new LinkedList<>();
 		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			fieldNames.add(field.getName());
 		}
@@ -223,7 +224,7 @@ public class FieldTool{
 	}
 
 	public static List<?> getFieldValues(List<Field<?>> fields){
-		List<Object> fieldValues = DrListTool.createLinkedList();
+		List<Object> fieldValues = new LinkedList<>();
 		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			fieldValues.add(field.getValue());
 		}
@@ -296,7 +297,7 @@ public class FieldTool{
 //	}
 	
 	public static Object getNestedFieldSet(Object object, Field<?> field){
-		List<String> fieldNames = DrListTool.createLinkedList();
+		List<String> fieldNames = new LinkedList<>();
 		if(DrStringTool.notEmpty(field.getPrefix())){
 			fieldNames = DrListTool.createArrayList(field.getPrefix().split("\\."));
 		}
@@ -310,7 +311,7 @@ public class FieldTool{
 	}
 	
 	public static java.lang.reflect.Field getReflectionFieldForField(Object object, Field<?> field){
-		List<String> fieldNames = DrListTool.createLinkedList();
+		List<String> fieldNames = new LinkedList<>();
 		if(DrStringTool.notEmpty(field.getPrefix())){
 			fieldNames = DrListTool.createArrayList(field.getPrefix().split("\\."));
 		}
@@ -322,7 +323,7 @@ public class FieldTool{
 	/**************************** sql ******************/
 
 	public static List<String> getSqlValuesEscaped(List<Field<?>> fields){
-		List<String> sql = DrListTool.createLinkedList();
+		List<String> sql = new LinkedList<>();
 		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			sql.add(field.getSqlEscaped());
 		}
@@ -330,7 +331,7 @@ public class FieldTool{
 	}
 
 	public static List<String> getSqlNameValuePairsEscaped(Collection<Field<?>> fields){
-		List<String> sql = DrListTool.createLinkedList();
+		List<String> sql = new LinkedList<>();
 		for(Field<?> field : DrIterableTool.nullSafe(fields)){
 			sql.add(field.getSqlNameValuePairEscaped());
 		}

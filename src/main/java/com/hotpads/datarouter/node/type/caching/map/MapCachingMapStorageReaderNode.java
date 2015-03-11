@@ -2,6 +2,7 @@ package com.hotpads.datarouter.node.type.caching.map;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -86,7 +87,7 @@ implements MapStorageReaderNode<PK,D>{
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, Config config) {
 		if(!useCache(config)){ return backingNode.getMulti(keys, config); }
-		List<D> resultBuilder = DrListTool.createLinkedList();
+		List<D> resultBuilder = new LinkedList<>();
 		try{
 			updateLastAttemptedContact();
 			resultBuilder.addAll(cachingNode.getMulti(keys, CACHE_CONFIG));
@@ -120,7 +121,7 @@ implements MapStorageReaderNode<PK,D>{
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config) {
 		if(!useCache(config)){ return backingNode.getKeys(keys, config); }
-		List<PK> resultBuilder = DrListTool.createLinkedList();
+		List<PK> resultBuilder = new LinkedList<>();
 		try{
 			updateLastAttemptedContact();
 			resultBuilder.addAll(cachingNode.getKeys(keys, CACHE_CONFIG));

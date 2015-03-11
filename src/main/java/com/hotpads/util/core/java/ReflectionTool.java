@@ -123,7 +123,7 @@ public class ReflectionTool {
 	/************************** names *******************************/
 	
 	public static List<String> getAllHierarchyFieldNames(Class<?> c){
-		List<String> names = DrListTool.create();
+		List<String> names = new ArrayList<>();
 		for(Class<?> cls : getAllSuperClassesAndInterfaces(c)){
 			for(Field field : cls.getDeclaredFields()){
 				names.add(field.getName());
@@ -219,7 +219,7 @@ public class ReflectionTool {
 	
 	public static List<Field> getAllHierarchyFields(Class<?> c){
 		List<String> allFieldsName = getAllHierarchyFieldNames(c);
-		List<Field> toReturn = DrListTool.create();
+		List<Field> toReturn = new ArrayList<>();
 		for(String fieldName : allFieldsName){
 			toReturn.add(getDeclaredFieldFromHierarchy(c, fieldName));
 		}
@@ -253,7 +253,7 @@ public class ReflectionTool {
 	}
 	
 	public static <T> Collection<Method> getDeclaredMethodsWithName(Class<T> c, String methodName){
-		Collection<Method> methods = DrListTool.create();
+		Collection<Method> methods = new ArrayList<>();
 		Class<?> clazz = c;
 		do{
 			for(Method method : clazz.getDeclaredMethods()){

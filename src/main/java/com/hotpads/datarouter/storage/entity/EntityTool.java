@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.storage.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -8,7 +9,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.entity.EntityKey;
 import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 public class EntityTool{
 	
@@ -20,7 +20,7 @@ public class EntityTool{
 			EK ek = pk.getEntityKey();
 			List<PK> pksForEntity = pksByEntityKey.get(ek);
 			if(pksForEntity==null){
-				pksForEntity = DrListTool.createArrayList();
+				pksForEntity = new ArrayList<>();
 				pksByEntityKey.put(ek, pksForEntity);
 			}
 			pksForEntity.add(pk);
@@ -39,7 +39,7 @@ public class EntityTool{
 			EK ek = pk.getEntityKey();
 			List<D> databeansForEntity = databeansByEntityKey.get(ek);
 			if(databeansForEntity==null){
-				databeansForEntity = DrListTool.createArrayList();
+				databeansForEntity = new ArrayList<>();
 				databeansByEntityKey.put(ek, databeansForEntity);
 			}
 			databeansForEntity.add(databean);

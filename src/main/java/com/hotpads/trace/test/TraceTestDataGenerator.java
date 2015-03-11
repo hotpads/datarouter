@@ -1,19 +1,19 @@
 package com.hotpads.trace.test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
 
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.Trace;
 import com.hotpads.trace.TraceSpan;
 import com.hotpads.trace.TraceThread;
 
 public class TraceTestDataGenerator{
 
-	public static List<Trace> traces = DrListTool.createArrayList();
-	public static List<TraceThread> threads = DrListTool.createArrayList();
-	public static List<TraceSpan> spans = DrListTool.createArrayList();
+	public static List<Trace> traces = new ArrayList<>();
+	public static List<TraceThread> threads = new ArrayList<>();
+	public static List<TraceSpan> spans = new ArrayList<>();
 	
 	static{
 		Trace trace1 = new Trace();

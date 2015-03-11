@@ -104,7 +104,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	}
 	
 	public ArrayList<T> filter(Iterable<T> ins){
-		ArrayList<T> outs = DrListTool.createArrayList();
+		ArrayList<T> outs = new ArrayList<>();
 		for(T in : DrIterableTool.nullSafe(ins)){
 			if(contains(in)){
 				outs.add(in);

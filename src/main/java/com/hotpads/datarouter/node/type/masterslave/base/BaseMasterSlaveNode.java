@@ -2,6 +2,7 @@ package com.hotpads.datarouter.node.type.masterslave.base;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -60,7 +61,7 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodes() {
-		List<PhysicalNode<PK,D>> all = DrListTool.createLinkedList();
+		List<PhysicalNode<PK,D>> all = new LinkedList<>();
 		all.addAll(this.master.getPhysicalNodes());
 		for(N slave : DrCollectionTool.nullSafe(this.slaves)){
 			all.addAll(DrListTool.nullSafe(slave.getPhysicalNodes()));
@@ -70,7 +71,7 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
-		List<PhysicalNode<PK,D>> all = DrListTool.createLinkedList();
+		List<PhysicalNode<PK,D>> all = new LinkedList<>();
 		all.addAll(this.master.getPhysicalNodesForClient(clientName));
 		for(N slave : DrCollectionTool.nullSafe(this.slaves)){
 			all.addAll(DrListTool.nullSafe(slave.getPhysicalNodesForClient(clientName)));

@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.partitioned;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -30,7 +31,7 @@ public class Partitions<
 	protected static Logger logger = LoggerFactory.getLogger(Partitions.class);
 
 	protected BasePartitionedNode<PK,D,?,N> basePartitionedNode;
-	protected List<N> nodes = DrListTool.createArrayList();
+	protected List<N> nodes = new ArrayList<>();
 	protected Map<String,N> nodeByName = new LinkedHashMap<>();
 	protected Map<String,List<String>> nodeNamesByClientName = new HashMap<>();
 	protected Map<String,List<String>> clientNamesByNodeName = new HashMap<>();
@@ -95,7 +96,7 @@ public class Partitions<
 		if(clientName==null){
 			return getAll();
 		}
-		List<N> nodes = DrListTool.createLinkedList();
+		List<N> nodes = new LinkedList<>();
 		List<String> nodeNames = DrMapTool.nullSafe(nodeNamesByClientName).get(clientName);
 		for(String nodeName : DrCollectionTool.nullSafe(nodeNames)){
 			nodes.add(nodeByName.get(nodeName));
@@ -105,7 +106,7 @@ public class Partitions<
 	
 	public List<Class<D>> getTypesForClient(String clientName){
 		Collection<N> nodes = getPhysicalNodesForClient(clientName);
-		List<Class<D>> types = DrListTool.createLinkedList();
+		List<Class<D>> types = new LinkedList<>();
 		for(N node : DrCollectionTool.nullSafe(nodes)){
 			types.add(node.getDatabeanType());
 		}

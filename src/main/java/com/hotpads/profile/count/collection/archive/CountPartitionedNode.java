@@ -2,6 +2,7 @@ package com.hotpads.profile.count.collection.archive;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -177,7 +178,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		CountKey countKey = (CountKey)key;
 		Integer index = indexByMs.get(countKey.getPeriodMs());
 		PhysicalSortedMapStorageNode<CountKey,Count> node = partitions.get(index);
-		if(node==null){ return DrListTool.createLinkedList(); }
+		if(node==null){ return new LinkedList<>(); }
 		return DrListTool.wrap(node);
 	}
 	

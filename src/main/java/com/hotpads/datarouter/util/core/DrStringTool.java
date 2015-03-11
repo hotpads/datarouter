@@ -66,7 +66,7 @@ public class DrStringTool{
 
 	public static ArrayList<String> splitOnCharNoRegex(String input, char c){
 		if(isEmpty(input)){ return DrListTool.createArrayList(input); }
-		List<Integer> indexesOfChar = DrListTool.createArrayList();
+		List<Integer> indexesOfChar = new ArrayList<>();
 		for(int i = 0; i < input.length(); ++i){
 			if(input.charAt(i) == c){
 				indexesOfChar.add(i);
@@ -74,7 +74,7 @@ public class DrStringTool{
 		}
 		if(indexesOfChar.size() == 0){ return DrListTool.createArrayList(input); }
 		indexesOfChar.add(input.length());
-		ArrayList<String> result = DrListTool.createArrayList();
+		ArrayList<String> result = new ArrayList<>();
 		for(int i = 0; i < indexesOfChar.size(); ++i){
 			int startIndex;
 			if(i == 0){

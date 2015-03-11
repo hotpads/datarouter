@@ -1,5 +1,6 @@
 package com.hotpads.profile.count.databean;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -159,7 +160,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 	
 	public static List<Count> filterForSource(Collection<Count> ins, String source){
-		List<Count> outs = DrListTool.createArrayList();
+		List<Count> outs = new ArrayList<>();
 		for(Count in : DrIterableTool.nullSafe(ins)){
 			if(DrObjectTool.equals(source, in.getSource())){ outs.add(in); }
 		}
@@ -169,7 +170,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	public static List<Count> getListWithGapsFilled(String otherName, String otherSourceType, String otherSource,
 			Long periodMs, Iterable<Count> ins, Long startTime, Long endTime){
 		int numPoints = (int)((endTime - startTime) / periodMs);
-		List<Count> outs = DrListTool.createArrayList(numPoints + 1);
+		List<Count> outs = new ArrayList<>(numPoints + 1);
 		long intervalStart = startTime;
 		Iterator<Count> iterator = DrIterableTool.nullSafe(ins).iterator();
 		Count next = DrIterableTool.next(iterator);

@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -22,8 +24,6 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class JdbcTool {
 	
@@ -64,7 +64,7 @@ public class JdbcTool {
 		try {
 			statement = connection.createStatement();
 //			ResultSet resultSet = statement.executeQuery("show tables");
-			List<String> tableNames = DrListTool.createArrayList();
+			List<String> tableNames = new ArrayList<>();
 //			while(resultSet.next()){
 //				tableNames.add(resultSet.getString(0));
 //			}
@@ -90,7 +90,7 @@ public class JdbcTool {
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
-			List<PK> primaryKeys = DrListTool.createArrayList();
+			List<PK> primaryKeys = new ArrayList<>();
 			while(rs.next()){
 				PK primaryKey = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getPrimaryKeyClass(), fieldInfo.getPrimaryKeyFields(), rs, true);
@@ -109,7 +109,7 @@ public class JdbcTool {
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
-			List<D> databeans = DrListTool.createArrayList();
+			List<D> databeans = new ArrayList<>();
 			while(rs.next()){
 				D databean = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
@@ -128,7 +128,7 @@ public class JdbcTool {
 			PreparedStatement ps = connection.prepareStatement(sql.toString());
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
-			List<PKLookup> lookups = DrListTool.createArrayList();
+			List<PKLookup> lookups = new ArrayList<>();
 			while(rs.next()){
 				PKLookup lookup = FieldSetTool.lookupFromJdbcResultSetUsingReflection(lookupClass,
 						selectedFields, rs, keyClass);
@@ -151,7 +151,7 @@ public class JdbcTool {
 			}
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
-			List<D> databeans = DrListTool.createArrayList();
+			List<D> databeans = new ArrayList<>();
 			while(rs.next()){
 				D databean = FieldSetTool.fieldSetFromJdbcResultSetUsingReflection(
 						fieldInfo.getDatabeanClass(), fieldInfo.getFields(), rs, false);
@@ -203,7 +203,7 @@ public class JdbcTool {
 		if(DrCollectionTool.differentSize(updates, inserts)){ throw new IllegalArgumentException("updates vs inserts size mismatch"); }
 		
 		int[] updateSuccessFlags = bulkUpdate(conn, updates);
-		List<String> neededInserts = DrListTool.createLinkedList();
+		List<String> neededInserts = new LinkedList<>();
 		int index = -1;
 		for(String insert : inserts){
 			++index;

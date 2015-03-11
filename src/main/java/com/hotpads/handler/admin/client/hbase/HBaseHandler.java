@@ -1,6 +1,7 @@
 package com.hotpads.handler.admin.client.hbase;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -171,7 +172,7 @@ public class HBaseHandler extends BaseHandler {
 			ClusterStatus clusterStatus = master.getClusterStatus();
 			mav.put("clusterStatus", clusterStatus);
 			Collection<ServerName> serverNames = clusterStatus.getServers();
-			List<DRHServerInfo> servers = DrListTool.create();
+			List<DRHServerInfo> servers = new ArrayList<>();
 			for (ServerName serverName : DrIterableTool.nullSafe(serverNames)) {
 				HServerLoad hServerLoad = clusterStatus.getLoad(serverName);
 				servers.add(new DRHServerInfo(serverName, hServerLoad));
@@ -528,7 +529,7 @@ public class HBaseHandler extends BaseHandler {
 			ACTION_updateHBaseTableAttribute = "updateHBaseTableAttribute",
 			ACTION_updateHBaseColumnAttribute = "updateHBaseColumnAttribute";
 
-	private static final List<String> NEEDS_CLIENT = DrListTool.create();
+	private static final List<String> NEEDS_CLIENT = new ArrayList<>();
 	static {
 		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
 		NEEDS_CLIENT.add(ACTION_moveRegionsToCorrectServer);
@@ -548,7 +549,7 @@ public class HBaseHandler extends BaseHandler {
 
 	}
 
-	private static final List<String> NEEDS_ROUTER = DrListTool.create();
+	private static final List<String> NEEDS_ROUTER = new ArrayList<>();
 	static {
 		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
 		NEEDS_ROUTER.add(RoutersHandler.ACTION_inspectRouter);
@@ -556,7 +557,7 @@ public class HBaseHandler extends BaseHandler {
 		NEEDS_ROUTER.add(ACTION_exportNodeToHFile);
 	}
 
-	private static final List<String> NEEDS_NODE = DrListTool.create();
+	private static final List<String> NEEDS_NODE = new ArrayList<>();
 	static {
 		NEEDS_NODE.add(ACTION_copyHBaseTable);
 		NEEDS_NODE.add(ACTION_exportNodeToHFile);
@@ -580,7 +581,7 @@ public class HBaseHandler extends BaseHandler {
 			HBASE_TABLE_PARAM_MAX_FILESIZE = "MAX_FILESIZE",
 			HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE = "MEMSTORE_FLUSHSIZE";
 
-	private static final List<String> HBASE_TABLE_PARAMS = DrListTool.create();
+	private static final List<String> HBASE_TABLE_PARAMS = new ArrayList<>();
 	static {
 		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MAX_FILESIZE);
 		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE);

@@ -2,6 +2,7 @@ package com.hotpads.handler;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Singleton;
@@ -11,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.hotpads.DatarouterInjector;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 @SuppressWarnings("serial")
 @Singleton
@@ -20,7 +20,7 @@ public abstract class DispatcherServlet extends HttpServlet {
 	protected String servletContextPath;
 	protected DatarouterInjector injector;
 	
-	protected List<BaseDispatcher> dispatchers = DrListTool.createArrayList();
+	protected List<BaseDispatcher> dispatchers = new ArrayList<>();
 	//...add more dispatchers
 	
 	

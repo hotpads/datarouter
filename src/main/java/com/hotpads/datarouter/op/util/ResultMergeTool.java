@@ -48,7 +48,7 @@ public class ResultMergeTool {
 	
 	public static <T,C extends Collection<T>> List<T> append(C a, Collection<? extends C> bs){
 		int size = DrCollectionTool.sizeNullSafe(a) + DrCollectionTool.getTotalSizeOfCollectionOfCollections(bs);
-		List<T> out = DrListTool.createArrayList(size);
+		List<T> out = new ArrayList<>(size);
 		out.addAll(DrCollectionTool.nullSafe(a));
 		for(C b : DrCollectionTool.nullSafe(bs)){
 			out.addAll(DrCollectionTool.nullSafe(b));
@@ -76,7 +76,7 @@ public class ResultMergeTool {
 	
 	public static <T extends Comparable<? super T>,C extends Collection<T>> 
 	ArrayList<T> mergeIntoListAndSort(C a, Collection<? extends C> bs){
-		ArrayList<T> out = DrListTool.createArrayList();
+		ArrayList<T> out = new ArrayList<>();
 		out.addAll(DrCollectionTool.nullSafe(a));
 		for(C b : DrCollectionTool.nullSafe(bs)){
 			out.addAll(DrCollectionTool.nullSafe(b));

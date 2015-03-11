@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
@@ -15,13 +16,12 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
-import com.hotpads.datarouter.util.core.DrListTool;
 @Deprecated
 public class TestParser{
 
 	public static void main(String[] args) throws SQLException, IOException{
 		SqlTable table = new SqlTable("Table");
-		List<SqlColumn> columns = DrListTool.createArrayList();
+		List<SqlColumn> columns = new ArrayList<>();
 
 		FileInputStream fis = new FileInputStream("src/com/hotpads/datarouter/client/imp/jdbc/ddl/test3.txt");
 		// Get the object of DataInputStream
@@ -76,7 +76,7 @@ public class TestParser{
 	public static List<String> getKeyColumnsNamesFromKeyDeclaration(String string){
 		int index = string.indexOf("(");
 		String[] sFinal = string.substring(index).split("[`]+");
-		List<String> list = DrListTool.createArrayList();
+		List<String> list = new ArrayList<>();
 		for(String s: sFinal){
 			s = removeNonText(s);
 			if(isNotEmpty(s)) list.add(s); 
@@ -122,7 +122,7 @@ public class TestParser{
 	 * @return
 	 */
 	public static SqlTable parseAndCreateTable(String phrase){
-		List<SqlColumn> columns = DrListTool.createArrayList();
+		List<SqlColumn> columns = new ArrayList<>();
 		String delims = "[(),]+";					// THE DELIMITERS FOR TOKENIZING
 		String[] tokens = phrase.split(delims);		// TOKENIZING
 		
@@ -284,7 +284,7 @@ public class TestParser{
 		 String columnDefinitionSection = SqlTable.getColumnDefinitionSection(phrase);
 		 //System.out.println("getColumnDefinitionSection : " + columnDefinitionSection);
 		 String [] tokens = getKeyDeclarationFromFullBody(columnDefinitionSection).split("[)]");
-		 List<String> keyDeclarationList = DrListTool.createArrayList();
+		 List<String> keyDeclarationList = new ArrayList<>();
 		 for(String s:tokens){
 			 if(isNotEmpty(removeNonText(s))){
 				 keyDeclarationList.add(s);

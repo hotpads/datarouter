@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -440,7 +441,7 @@ public class RequestTool {
 	
 	public static <T> List<T> getCheckedBoxes(HttpServletRequest request, String prefix, Functor<T,String> converter){
 		Enumeration<String> paramNames = request.getParameterNames();
-		List<T> selecteds = DrListTool.createArrayList();
+		List<T> selecteds = new ArrayList<>();
 		while(paramNames.hasMoreElements()){
 			String name = paramNames.nextElement();
 			if( ! name.startsWith(prefix)) {

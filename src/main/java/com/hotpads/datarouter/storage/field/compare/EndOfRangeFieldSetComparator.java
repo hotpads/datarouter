@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.storage.field.compare;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -14,7 +15,6 @@ import com.hotpads.datarouter.util.core.DrClassTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 
 /*
@@ -41,7 +41,7 @@ implements Comparator<FS>{
 	
 	public static <FS extends FieldSet<?>> List<FS> filterOnEndOfRange(Iterable<FS> candidates, FS endOfRange, 
 			boolean inclusive){
-		List<FS> matches = DrListTool.createArrayList();
+		List<FS> matches = new ArrayList<>();
 		for(FS candidate : DrIterableTool.nullSafe(candidates)){
 			if(isCandidateIncludedForEndOfRange(candidate, endOfRange, inclusive)){
 				matches.add(candidate);

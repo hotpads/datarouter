@@ -85,7 +85,7 @@ implements Callable<Void>{
 		
 		//run an update for each PhysicalNode
 		List<? extends PhysicalNode<?, ?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
-		List<Callable<Void>> singleTableUpdates = DrListTool.createArrayList();
+		List<Callable<Void>> singleTableUpdates = new ArrayList<>();
 		for(PhysicalNode<?, ?> physicalNode : DrIterableTool.nullSafe(physicalNodes)){
 			DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
 			if(fieldInfo.getFieldAware()){

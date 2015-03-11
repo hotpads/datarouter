@@ -1,5 +1,6 @@
 package com.hotpads.profile.count.databean;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
@@ -13,7 +14,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrXMLStringTool;
 import com.hotpads.profile.count.databean.key.AvailableCounterKey;
 
@@ -88,7 +88,7 @@ public class AvailableCounter extends BaseDatabean<AvailableCounterKey,Available
 	}
 
 	public static List<AvailableCounter> filterOutArrayServers(Collection<AvailableCounter> ins){
-		List<AvailableCounter> outs = DrListTool.createArrayList();
+		List<AvailableCounter> outs = new ArrayList<>();
 		for(AvailableCounter in : DrIterableTool.nullSafe(ins)){
 			if(in.getSource().contains("#")){
 				continue;

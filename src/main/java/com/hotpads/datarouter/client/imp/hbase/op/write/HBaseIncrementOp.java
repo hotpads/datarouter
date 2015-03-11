@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.op.write;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +22,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrClassTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 
@@ -47,7 +47,7 @@ extends HBaseTask<Void>{
 	
 	public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 		if(countByColumnByKey==null){ return null; }
-		List<Row> actions = DrListTool.createArrayList();
+		List<Row> actions = new ArrayList<>();
 		int numCellsIncremented = 0, numRowsIncremented = 0;
 		for(Map.Entry<PK,Map<String,Long>> row : countByColumnByKey.entrySet()){//TODO obey Config.commitBatchSize
 			byte[] keyBytes = node.getKeyBytesWithScatteringPrefix(null, row.getKey(), false);

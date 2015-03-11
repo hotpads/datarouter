@@ -1,5 +1,6 @@
 package com.hotpads.handler.datarouter;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -137,7 +138,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		mav.put("nonFieldAware", "field aware");
 
 		if(fields == null){
-			fields = DrListTool.create();
+			fields = new ArrayList<>();
 			fields.addAll(node.getFieldInfo().getPrimaryKeyFields());
 			mav.put("nonFieldAware", " non field aware");
 		}
@@ -198,7 +199,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 	private void addDatabeansToMav(Mav mav, List<D> databeans){
 		mav.put("databeans", databeans);
 
-		List<List<Field<?>>> rowsOfFields = DrListTool.create();
+		List<List<Field<?>>> rowsOfFields = new ArrayList<>();
 		DatabeanFielder fielder = node.getFieldInfo().getSampleFielder();
 		if(fielder != null){
 			for(Databean<?,?> databean : DrIterableTool.nullSafe(databeans)){

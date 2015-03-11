@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.partitioned;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +71,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 
 	@Override
 	public List<D> getWithPrefixes(Collection<PK> prefixes, boolean wildcardLastField, Config config) {
-		List<D> all = DrListTool.createArrayList();
+		List<D> all = new ArrayList<>();
 		Multimap<N,PK>	prefixesByNode = getPrefixesByPhysicalNode(prefixes, wildcardLastField);
 		for(N node : prefixesByNode.keySet()){
 			Collection<PK> prefixesForNode = prefixesByNode.get(node);
@@ -85,7 +86,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public SortedScannerIterable<PK> scanKeys(Range<PK> pRange, Config config){
 		Range<PK> range = Range.nullSafe(pRange);
-		List<SortedScanner<PK>> subScanners = DrListTool.createArrayList();
+		List<SortedScanner<PK>> subScanners = new ArrayList<>();
 		List<N> nodes = getPhysicalNodesForRange(range);
 		for(N node : DrIterableTool.nullSafe(nodes)){
 			SortedScannerIterable<PK> iterable = node.scanKeys(range, config);
@@ -100,7 +101,7 @@ implements SortedMapStorageReaderNode<PK,D>{
 	@Override
 	public SortedScannerIterable<D> scan(Range<PK> pRange, Config config){
 		Range<PK> range = Range.nullSafe(pRange);
-		List<SortedScanner<D>> subScanners = DrListTool.createArrayList();
+		List<SortedScanner<D>> subScanners = new ArrayList<>();
 		List<N> nodes = getPhysicalNodesForRange(range);
 		for(N node : DrIterableTool.nullSafe(nodes)){
 			//the scanners are wrapped in a SortedScannerIterable, so we need to unwrap them for the collator

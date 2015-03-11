@@ -1,6 +1,7 @@
 package com.hotpads.profile.count.collection;
 
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -13,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrRuntimeTool;
 import com.hotpads.profile.count.collection.archive.CountArchive;
 import com.hotpads.profile.count.collection.archive.CountArchiveFlusher;
@@ -36,7 +36,7 @@ public class CounterManager implements CountMap{
 		long now = System.currentTimeMillis();
 		long startTime = now - (now % rollPeriodMs);
 		this.liveCounter = new AtomicCounter(startTime, rollPeriodMs);
-		this.flushers = DrListTool.createArrayList();
+		this.flushers = new ArrayList<>();
 		this.checkAndRoll();//init
 		logger.warn("created "+this);
 	}

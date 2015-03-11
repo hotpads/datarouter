@@ -2,6 +2,7 @@ package com.hotpads.datarouter.storage.field;
 
 import java.sql.ResultSet;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public abstract class BaseField<T> implements Field<T>{
 	
 	@Override
 	public synchronized void cacheReflectionInfo(Object sampleFieldSet){
-		List<String> fieldNames = DrListTool.createLinkedList();
+		List<String> fieldNames = new LinkedList<>();
 		if(DrStringTool.notEmpty(prefix)){
 			fieldNames = DrListTool.createArrayList(prefix.split("\\."));
 		}

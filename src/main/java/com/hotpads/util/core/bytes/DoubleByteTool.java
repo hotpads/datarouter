@@ -1,13 +1,12 @@
 package com.hotpads.util.core.bytes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 import com.hotpads.datarouter.util.core.DrByteTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 public class DoubleByteTool{
 	
@@ -45,7 +44,7 @@ public class DoubleByteTool{
 	
 	public static List<Double> fromDoubleByteArray(final byte[] bytes, final int startIdx){
 		int numDoubles = (bytes.length - startIdx)/8;
-		List<Double> doubles = DrListTool.createArrayList();
+		List<Double> doubles = new ArrayList<>();
 		byte[] arrayToCopy = new byte[8];
 		for(int i = 0; i < numDoubles; i++){
 			System.arraycopy(bytes, i * 8 + startIdx, arrayToCopy, 0, 8);
@@ -86,7 +85,7 @@ public class DoubleByteTool{
 			double three = 5;
 			double four = -.0000001;
 			
-			List<Double> doubles = DrListTool.create();
+			List<Double> doubles = new ArrayList<>();
 			doubles.add(one);
 			doubles.add(two);
 			doubles.add(null);

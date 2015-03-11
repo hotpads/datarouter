@@ -1,5 +1,6 @@
 package com.hotpads.util.core.bytes;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -9,7 +10,6 @@ import org.junit.Test;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 /*
  * methods for converting ints into bytes
@@ -112,7 +112,7 @@ public class IntegerByteTool {
 	
 	public static List<Integer> fromIntegerByteArray(final byte[] bytes, final int startIdx){
 		int numIntegers = (bytes.length - startIdx)/4;
-		List<Integer> integers = DrListTool.createArrayList();
+		List<Integer> integers = new ArrayList<>();
 		byte[] arrayToCopy = new byte[4];
 		for(int i = 0; i < numIntegers; i++){
 			System.arraycopy(bytes, i*4+startIdx, arrayToCopy, 0, 4);
@@ -320,7 +320,7 @@ public class IntegerByteTool {
 			int one = -239483;
 			int two = 583;
 			
-			List<Integer> integers = DrListTool.create();
+			List<Integer> integers = new ArrayList<>();
 			integers.add(one);
 			integers.add(null);
 			integers.add(two);

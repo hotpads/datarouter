@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.caching.map.base;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -92,7 +93,7 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public List<? extends Node<PK,D>> getChildNodes(){
-		if(backingNode==null){ return DrListTool.create(); }
+		if(backingNode==null){ return new ArrayList<>(); }
 		return DrListTool.wrap(backingNode);
 	}
 

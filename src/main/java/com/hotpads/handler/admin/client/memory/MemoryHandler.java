@@ -1,5 +1,6 @@
 package com.hotpads.handler.admin.client.memory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -8,8 +9,6 @@ import javax.inject.Inject;
 import com.hotpads.datarouter.client.imp.memory.MemoryClient;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.routing.RouterParams;
-import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.admin.RoutersHandler;
 import com.hotpads.handler.mav.Mav;
@@ -18,18 +17,18 @@ public class MemoryHandler extends BaseHandler {
 	
 	/**************** static **********************/
 
-	private static final List<String> NEEDS_CLIENT = DrListTool.create();
+	private static final List<String> NEEDS_CLIENT = new ArrayList<>();
 	static{
 		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
 	}
 
-	private static final List<String> NEEDS_ROUTER = DrListTool.create();
+	private static final List<String> NEEDS_ROUTER = new ArrayList<>();
 	static{
 		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
 		NEEDS_ROUTER.add(RoutersHandler.ACTION_inspectRouter);
 	}
 
-	private static final List<String> NEEDS_NODE = DrListTool.create();
+	private static final List<String> NEEDS_NODE = new ArrayList<>();
 	static{
 	}
 

@@ -3,6 +3,7 @@ package com.hotpads.datarouter.test.node.basic.backup.test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,8 +53,8 @@ public class BackupIntegrationTester{
 	
 	/****************************** client types ***********************************/
 
-	public static List<ClientType> clientTypes = DrListTool.create();
-	public static List<Object[]> clientTypeObjectArrays = DrListTool.create();
+	public static List<ClientType> clientTypes = new ArrayList<>();
+	public static List<Object[]> clientTypeObjectArrays = new ArrayList<>();
 	static{
 		clientTypes.add(HibernateClientType.INSTANCE);
 		clientTypes.add(HBaseClientType.INSTANCE);
@@ -105,7 +106,7 @@ public class BackupIntegrationTester{
 		Collections.shuffle(cs);
 		Collections.shuffle(ds);
 		
-		List<BackupBean> toSave = DrListTool.createArrayList();
+		List<BackupBean> toSave = new ArrayList<>();
 		for(int a=0; a < NUM_ELEMENTS; ++a){
 			for(int b=0; b < NUM_ELEMENTS; ++b){
 				for(int c=0; c < NUM_ELEMENTS; ++c){
@@ -186,7 +187,7 @@ public class BackupIntegrationTester{
 			RANGE_LENGTH_emu = 4;
 	
 	public static final int NUM_ELEMENTS = STRINGS.size();
-	public static final List<Integer> INTEGERS = DrListTool.createArrayList(NUM_ELEMENTS);
+	public static final List<Integer> INTEGERS = new ArrayList<>(NUM_ELEMENTS);
 	static{
 		for(int i=0; i < NUM_ELEMENTS; ++i){
 			INTEGERS.add(i);

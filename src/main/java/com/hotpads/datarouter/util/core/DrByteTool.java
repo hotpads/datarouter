@@ -36,7 +36,7 @@ public class DrByteTool {
 				
 	
 	public static ArrayList<Byte> getArrayList(byte[] ins){
-		ArrayList<Byte> outs = DrListTool.createArrayList(DrArrayTool.length(ins));
+		ArrayList<Byte> outs = new ArrayList<>(DrArrayTool.length(ins));
 		for(byte in : DrArrayTool.nullSafe(ins)){
 			outs.add(in);
 		}

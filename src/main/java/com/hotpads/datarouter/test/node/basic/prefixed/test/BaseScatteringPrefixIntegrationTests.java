@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.test.node.basic.prefixed.test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.AssertJUnit;
@@ -66,7 +67,7 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 		router.scatteringPrefixBean().deleteAll(null);
 		AssertJUnit.assertEquals(0, DrIterableTool.count(router.scatteringPrefixBean().scan(null, null)).intValue());
 
-		List<ScatteringPrefixBean> toSave = DrListTool.createArrayList();
+		List<ScatteringPrefixBean> toSave = new ArrayList<>();
 		for(int a = 0; a < NUM_BATCHES; ++a){
 			for(int b = 0; b < BATCH_SIZE; ++b){
 				String prefix = PREFIXES.get(b % PREFIXES.size());

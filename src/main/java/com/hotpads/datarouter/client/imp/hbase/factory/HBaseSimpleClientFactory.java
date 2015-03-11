@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.factory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +47,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
@@ -74,13 +74,13 @@ implements ClientFactory{
 //	protected List<PhysicalNode<?,?>> physicalNodes = ListTool.createArrayList();
 	protected String clientName;
 	protected Set<String> configFilePaths = new TreeSet<>();
-	protected List<Properties> multiProperties = DrListTool.createArrayList();
+	protected List<Properties> multiProperties = new ArrayList<>();
 	protected HBaseOptions options;
 	protected volatile HBaseClient client;//volatile for double checked locking
 	protected Configuration hBaseConfig;
 	protected HBaseAdmin hBaseAdmin;
 	
-	protected List<String> historicClientIds = DrListTool.createArrayList();
+	protected List<String> historicClientIds = new ArrayList<>();
 
 	
 	public HBaseSimpleClientFactory(
@@ -153,7 +153,7 @@ implements ClientFactory{
 	public static final String DUMMY_COL_NAME = new String(new byte[]{0});
 	
 	protected Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> initTables(){
-		List<String> tableNames = DrListTool.create();
+		List<String> tableNames = new ArrayList<>();
 		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = new HashMap<>();
 		Map<String,PhysicalNode<?,?>> nodeByTableName = new TreeMap<>();
 		Collection<PhysicalNode<?,?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
@@ -257,7 +257,7 @@ implements ClientFactory{
 			if(sampleScatteringPrefix==null){ return null; }
 			List<List<Field<?>>> allPrefixes = sampleScatteringPrefix.getAllPossibleScatteringPrefixes();
 			int counter = 0;
-			List<byte[]> splitPoints = DrListTool.create();
+			List<byte[]> splitPoints = new ArrayList<>();
 			for(List<Field<?>> prefixFields : allPrefixes){
 				++counter;
 				Twin<ByteRange> range = HBaseQueryBuilder.getStartEndBytesForPrefix(prefixFields, false);

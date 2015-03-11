@@ -1,5 +1,6 @@
 package com.hotpads.profile.count.collection.archive.imp;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -94,7 +95,7 @@ public class MemoryCountArchive extends BaseCountArchive{
 		if(getEarliestAvailableTime() > startMs){
 			startIndex = getIndexForMs(getEarliestAvailableTime());
 		}
-		List<Count> counts = DrListTool.createArrayList();
+		List<Count> counts = new ArrayList<>();
 		int i = startIndex;
 		while(true){
 			CountMapPeriod period = archive[i];
@@ -125,7 +126,7 @@ public class MemoryCountArchive extends BaseCountArchive{
 			if(getEarliestAvailableTime() > startMs){
 				startIndex = getIndexForMs(getEarliestAvailableTime());
 			}
-			List<Count> counts = DrListTool.createArrayList();
+			List<Count> counts = new ArrayList<>();
 			int i = startIndex;
 			while(true){
 				CountMapPeriod period = archive[i];

@@ -1,6 +1,8 @@
 package com.hotpads.datarouter.serialize.fieldcache;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +29,6 @@ import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.java.ReflectionTool;
@@ -88,8 +89,8 @@ public class DatabeanFieldInfo<
 	private Map<String,Field<?>> fieldByColumnName = new HashMap<>();
 	private Map<String,Field<?>> fieldByPrefixedName = new HashMap<>();
 	
-	private List<String> fieldNames = DrListTool.createArrayList();
-	private List<java.lang.reflect.Field> reflectionFields = DrListTool.createArrayList();
+	private List<String> fieldNames = new ArrayList<>();
+	private List<java.lang.reflect.Field> reflectionFields = new ArrayList<>();
 	private Map<String,java.lang.reflect.Field> reflectionFieldByName = new HashMap<>();
 	
 	
@@ -200,7 +201,7 @@ public class DatabeanFieldInfo<
 	}
 	
 	public List<Field<?>> getKeyFieldsWithScatteringPrefix(PK key){
-		List<Field<?>> fields = DrListTool.createLinkedList();
+		List<Field<?>> fields = new LinkedList<>();
 		fields.addAll(sampleScatteringPrefix.getScatteringPrefixFields(key));
 		if(key==null){ return fields; }
 		fields.addAll(key.getFields());

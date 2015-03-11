@@ -3,6 +3,7 @@ package com.hotpads.datarouter.storage.field.imp.array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
@@ -82,7 +83,7 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 	public List<Double> fromJdbcResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(columnName);
-			if(DrArrayTool.isEmpty(bytes)){ return DrListTool.create(); }
+			if(DrArrayTool.isEmpty(bytes)){ return new ArrayList<>(); }
 			return DoubleByteTool.fromDoubleByteArray(bytes, 0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

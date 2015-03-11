@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -9,7 +10,6 @@ import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlCreateTableGenerator;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableDiffGenerator;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 public class SqlTable{
 	
@@ -53,7 +53,7 @@ public class SqlTable{
 
 	public SqlTable(String name){
 		this.name = name;
-		this.columns = DrListTool.createArrayList();
+		this.columns = new ArrayList<>();
 		this.primaryKey = new SqlIndex("PRIMARY");
 		this.indexes = new TreeSet<>();
 	}
@@ -69,7 +69,7 @@ public class SqlTable{
 		for(SqlColumn col : columns){
 			//System.out.println(" col " + col +" pkeyColumnName " + primaryKeyColumnName);
 			if(col.getName().equals(primaryKeyColumnName)){
-				List<SqlColumn> list = DrListTool.createArrayList();
+				List<SqlColumn> list = new ArrayList<>();
 				list.add(col);
 				if(primaryKey==null){
 					primaryKey = new SqlIndex(name + "_Primary_Key", list);

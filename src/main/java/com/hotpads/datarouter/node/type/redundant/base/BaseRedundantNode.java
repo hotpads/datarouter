@@ -3,6 +3,7 @@ package com.hotpads.datarouter.node.type.redundant.base;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -56,7 +57,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodes(){
-		List<PhysicalNode<PK,D>> all = DrListTool.createLinkedList();
+		List<PhysicalNode<PK,D>> all = new LinkedList<>();
 		for(N backingNode : DrCollectionTool.nullSafe(writeNodes)){
 			all.addAll(DrListTool.nullSafe(backingNode.getPhysicalNodes()));
 		}
@@ -65,7 +66,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
-		List<PhysicalNode<PK,D>> all = DrListTool.createLinkedList();
+		List<PhysicalNode<PK,D>> all = new LinkedList<>();
 		for(N backingNode : DrCollectionTool.nullSafe(writeNodes)){
 			all.addAll(DrListTool.nullSafe(backingNode.getPhysicalNodesForClient(clientName)));
 		}

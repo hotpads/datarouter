@@ -4,6 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +32,6 @@ import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.primary.BasePrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.admin.DatabeanGeneratorHandler;
@@ -68,7 +68,7 @@ public class DatabeanGenerator {
 		List<FieldDefinition<?>> fields; 
 		Set<String> sortedFieldNames;
 		public IndexDefinition(){
-			fields = DrListTool.createLinkedList();
+			fields = new LinkedList<>();
 			sortedFieldNames = new TreeSet<>();
 		}
 		public String toString(){
@@ -85,7 +85,7 @@ public class DatabeanGenerator {
 				return null;
 			StringBuilder sb = new StringBuilder();
 			sb.append("index(");
-			List<String> indexedFields = DrListTool.createLinkedList();
+			List<String> indexedFields = new LinkedList<>();
 			for(FieldDefinition<?> field : fields){
 				indexedFields.add(field.name);
 			}
@@ -263,7 +263,7 @@ public class DatabeanGenerator {
 	}
 	
 	private List<String> getFieldsNames(Collection<FieldDefinition<?>> fieldDefinitions){
-		List<String> fieldName = DrListTool.createLinkedList();
+		List<String> fieldName = new LinkedList<>();
 		for(FieldDefinition<?> fieldDefinition: fieldDefinitions){
 			fieldName.add(fieldDefinition.name);
 		}

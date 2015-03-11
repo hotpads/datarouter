@@ -65,7 +65,7 @@ public abstract class SettingNode {
 	}
 
 	public List<SettingNode> getDescendanceByName(String nameParam){
-		ArrayList<SettingNode> list = DrListTool.createArrayList();
+		ArrayList<SettingNode> list = new ArrayList<>();
 		if(getName().equals(nameParam)){
 			list.add(this);
 			return list;
@@ -94,7 +94,7 @@ public abstract class SettingNode {
 	}
 
 	public List<SettingNode> getListChildren(){
-		ArrayList<SettingNode> list = DrListTool.createArrayList();
+		ArrayList<SettingNode> list = new ArrayList<>();
 		for (String childName : children.keySet()){
 			list.add(children.get(childName));
 		}

@@ -39,7 +39,7 @@ public class DrIterableTool {
 	}
 	
 	public static <T> ArrayList<T> createArrayListFromIterable(Iterable<T> ins, int limit){
-		ArrayList<T> outs = DrListTool.createArrayList();
+		ArrayList<T> outs = new ArrayList<>();
 		int numAdded = 0;
 		for(T in : nullSafe(ins)){
 			outs.add(in);

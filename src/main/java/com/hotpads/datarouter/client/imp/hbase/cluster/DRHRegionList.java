@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.cluster;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -31,7 +32,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrCallableTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class DRHRegionList{
@@ -56,7 +56,7 @@ public class DRHRegionList{
 		this.tableName = tableName;
 		this.node = node;
 		this.compactionInfo = compactionInfo;
-		this.regions = DrListTool.create();
+		this.regions = new ArrayList<>();
 		this.scatteringPrefixClass = node.getFieldInfo().getScatteringPrefixClass();
 		if(node.getFieldInfo().isEntity()){
 			HBaseSubEntityReaderNode subEntityNode = (HBaseSubEntityReaderNode)node;

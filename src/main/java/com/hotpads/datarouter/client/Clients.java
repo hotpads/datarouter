@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -136,7 +137,7 @@ public class Clients{
 		ClientInitMode defaultInitMode = ClientInitMode.fromString(DrPropertiesTool.getFirstOccurrence(
 				multiProperties, PREFIX_client+CLIENT_default+PARAM_initMode), ClientInitMode.lazy);
 		
-		List<String> clientNamesRequiringEagerInitialization = DrListTool.createLinkedList();
+		List<String> clientNamesRequiringEagerInitialization = new LinkedList<>();
 		for(String name : DrCollectionTool.nullSafe(getClientNames())){
 			ClientInitMode mode = ClientInitMode.fromString(DrPropertiesTool.getFirstOccurrence(multiProperties,
 					PREFIX_client+name+PARAM_initMode), defaultInitMode);
@@ -164,7 +165,7 @@ public class Clients{
 	
 	public List<Client> getClients(DatarouterContext context, Collection<String> clientNames){
 		List<Client> clients = DrListTool.createArrayListWithSize(clientNames);
-		List<LazyClientProvider> providers = DrListTool.createLinkedList();//TODO don't create until needed
+		List<LazyClientProvider> providers = new LinkedList<>();//TODO don't create until needed
 		for(String clientName : DrCollectionTool.nullSafe(clientNames)){
 			LazyClientProvider provider = lazyClientInitializerByName.get(clientName);
 			if(provider.isInitialized()){

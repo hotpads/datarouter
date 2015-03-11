@@ -2,6 +2,7 @@ package com.hotpads.datarouter.test.node.basic.manyfield;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -29,7 +30,6 @@ import com.hotpads.datarouter.storage.field.imp.enums.StringEnumField;
 import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
@@ -103,7 +103,7 @@ public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldBeanKey,ManyFieldT
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(ManyFieldTypeBean2 d){
-			List<Field<?>> fields = DrListTool.createLinkedList();
+			List<Field<?>> fields = new LinkedList<>();
 			fields.add(new DumbDoubleField(F.doubleField, d.doubleField));
 			//fields.add(new LongDateField(F.longDateField, d.longDateField));
 			//fields.add(new ByteField(F.byteField, d.byteField));
@@ -153,7 +153,7 @@ public class ManyFieldTypeBean2 extends BaseDatabean<ManyFieldBeanKey,ManyFieldT
 	/***************************** static methods *****************************/
 	
 	public static List<ManyFieldTypeBean2> filterForStringValue(Collection<ManyFieldTypeBean2> ins, String value){
-		List<ManyFieldTypeBean2> outs = DrListTool.createLinkedList();
+		List<ManyFieldTypeBean2> outs = new LinkedList<>();
 		for(ManyFieldTypeBean2 in : DrIterableTool.nullSafe(ins)){
 			if(DrObjectTool.equals(in.getStringField(), value)){
 				outs.add(in);

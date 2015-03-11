@@ -1,5 +1,6 @@
 package com.hotpads.handler.admin;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -34,7 +35,6 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt7Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt8Field;
 import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
@@ -42,7 +42,7 @@ import com.hotpads.handler.util.RequestTool;
 
 public class DatabeanGeneratorHandler extends BaseHandler {
 
-	public static List<Class<?>> FIELD_TYPES = DrListTool.create();
+	public static List<Class<?>> FIELD_TYPES = new ArrayList<>();
 	static{
 		FIELD_TYPES.add(BooleanArrayField.class);
 		FIELD_TYPES.add(ByteArrayField.class);
@@ -246,15 +246,15 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 	private static class DataBeanParams {
 		String dataBeanName, dataBeanPackage;
 
-		List<String> keyfieldEnumTypes = DrListTool.createArrayList();
-		List<String> keyFieldNames = DrListTool.createArrayList();
-		List<String> keyFieldTypes = DrListTool.createArrayList();
+		List<String> keyfieldEnumTypes = new ArrayList<>();
+		List<String> keyFieldNames = new ArrayList<>();
+		List<String> keyFieldTypes = new ArrayList<>();
 
-		List<String> fieldEnumTypes = DrListTool.createArrayList();
-		List<String> fieldNames = DrListTool.createArrayList();
-		List<String> fieldTypes = DrListTool.createArrayList();
+		List<String> fieldEnumTypes = new ArrayList<>();
+		List<String> fieldNames = new ArrayList<>();
+		List<String> fieldTypes = new ArrayList<>();
 		
-		List<String> indexes = DrListTool.createArrayList();
+		List<String> indexes = new ArrayList<>();
 
 		public void addKeyField(String name, String type, String enumType) {
 			if (DrStringTool.isNull(name) || DrStringTool.isNull(type) || DrStringTool.isNull(enumType)) {

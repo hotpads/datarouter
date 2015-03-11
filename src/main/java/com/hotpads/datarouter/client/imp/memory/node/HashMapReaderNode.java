@@ -1,6 +1,8 @@
 package com.hotpads.datarouter.client.imp.memory.node;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,7 +19,6 @@ import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 public class HashMapReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -44,7 +45,7 @@ implements MapStorageReader<PK,D>{
 	
 	@Override
 	public List<Node<PK,D>> getChildNodes(){
-		return DrListTool.create();
+		return new ArrayList<>();
 	}
 	
 	/************************************ MapStorageReader methods ****************************/
@@ -63,7 +64,7 @@ implements MapStorageReader<PK,D>{
 	
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, Config config) {		
-		List<D> result = DrListTool.createLinkedList();
+		List<D> result = new LinkedList<>();
 		for(Key<PK> key : DrCollectionTool.nullSafe(keys)){
 			D value = backingMap.get(key);
 			if(value != null){
@@ -76,7 +77,7 @@ implements MapStorageReader<PK,D>{
 	
 	@Override
 	public List<PK> getKeys(final Collection<PK> keys, Config config) {		
-		List<PK> result = DrListTool.createLinkedList();
+		List<PK> result = new LinkedList<>();
 		for(Key<PK> key : DrCollectionTool.nullSafe(keys)){
 			D value = backingMap.get(key);
 			if(value != null){

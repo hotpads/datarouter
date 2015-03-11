@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.routing;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -32,7 +33,7 @@ import com.hotpads.datarouter.util.core.DrListTool;
 public abstract class BaseDRH{
 
 	protected DatarouterContext drContext;
-	protected List<Datarouter> routers = DrListTool.createArrayList();
+	protected List<Datarouter> routers = new ArrayList<>();
 	
 	
 	/************************ constructors ************************/
