@@ -2,7 +2,7 @@ package com.hotpads.datarouter.client.imp.hbase.cluster;
 
 import java.util.Random;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.HServerLoad;

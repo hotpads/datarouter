@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 import java.util.Comparator;
 import java.util.List;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

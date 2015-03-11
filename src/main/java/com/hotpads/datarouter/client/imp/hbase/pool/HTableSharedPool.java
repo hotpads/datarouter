@@ -3,7 +3,7 @@ package com.hotpads.datarouter.client.imp.hbase.pool;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HConnection;

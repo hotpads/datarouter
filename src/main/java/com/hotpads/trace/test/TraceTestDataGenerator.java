@@ -2,7 +2,7 @@ package com.hotpads.trace.test;
 
 import java.util.List;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.Trace;

@@ -12,7 +12,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

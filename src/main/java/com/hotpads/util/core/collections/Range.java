@@ -2,7 +2,7 @@ package com.hotpads.util.core.collections;
 
 import java.util.ArrayList;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
