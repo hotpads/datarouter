@@ -2,8 +2,6 @@ package com.hotpads.datarouter.node.type.writebehind;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.reader.IndexedSortedMapStorageReader.IndexedSortedMapStorageReaderNode;
@@ -20,9 +18,8 @@ public class WriteBehindIndexedMapStorageReaderNode <
 extends WriteBehindSortedMapStorageReaderNode<PK, D, N>
 implements IndexedSortedMapStorageReaderNode<PK, D> {
 
-	public WriteBehindIndexedMapStorageReaderNode(Class<D> databeanClass, Datarouter router, N backingNode,
-			ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
-		super(databeanClass, router, backingNode, writeExecutor, cancelExecutor);
+	public WriteBehindIndexedMapStorageReaderNode(Class<D> databeanClass, Datarouter router, N backingNode) {
+		super(databeanClass, router, backingNode);
 	}
 
 	@Override
