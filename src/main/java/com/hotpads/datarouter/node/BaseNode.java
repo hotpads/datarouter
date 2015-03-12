@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fieldcache.DatabeanFieldInfo;
@@ -55,6 +56,16 @@ implements Node<PK,D>{
 	@Override
 	public Class<D> getDatabeanType() {
 		return this.fieldInfo.getDatabeanClass();
+	}
+	
+	@Override
+	public boolean isPhysicalNodeOrWrapper(){
+		return false;
+	}
+	
+	@Override
+	public PhysicalNode<PK,D> getPhysicalNodeIfApplicable(){
+		return null;//let actual PhysicalNodes override this
 	}
 
 	@Override

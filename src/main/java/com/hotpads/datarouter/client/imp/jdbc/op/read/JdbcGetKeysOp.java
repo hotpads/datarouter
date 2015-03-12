@@ -5,16 +5,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
-
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
 import com.hotpads.datarouter.client.imp.hibernate.util.SqlBuilder;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcNode;
 import com.hotpads.datarouter.client.imp.jdbc.node.JdbcReaderNode;
 import com.hotpads.datarouter.client.imp.jdbc.op.BaseJdbcOp;
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
-import com.hotpads.datarouter.op.executor.impl.SessionExecutorImpl;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
@@ -31,10 +27,10 @@ public class JdbcGetKeysOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<PK>>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Collection<PK> keys;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Collection<PK> keys;
+	private final Config config;
 	
 	public JdbcGetKeysOp(JdbcReaderNode<PK,D,F> node, String opName, Collection<PK> keys, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
@@ -46,7 +42,6 @@ extends BaseJdbcOp<List<PK>>{
 	
 	@Override
 	public List<PK> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		int batchSize = JdbcNode.DEFAULT_ITERATE_BATCH_SIZE;
 		if(config!=null && config.getIterateBatchSize()!=null){
 			batchSize = config.getIterateBatchSize();
@@ -58,11 +53,11 @@ extends BaseJdbcOp<List<PK>>{
 		Connection connection = getConnection(node.getClientName());
 		for(int batchNum=0; batchNum < numBatches; ++batchNum){
 			List<? extends Key<PK>> keyBatch = DrBatchTool.getBatch(sortedKeys, batchSize, batchNum);
-			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), keyBatch);
+			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), 
+					keyBatch);
 			List<PK> batch = JdbcTool.selectPrimaryKeys(connection, node.getFieldInfo(), sql);
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					DrCollectionTool.size(batch));//count the number of hits (arbitrary decision)
+			DRCounters.incSuffixClientNode(node.getClient().getType(), opName + " selects", node.getClientName(), node
+					.getName());
 			if(DrCollectionTool.notEmpty(batch)){
 				Collections.sort(batch);//should prob remove
 				result.addAll(batch);

@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.client.imp.jdbc.op.read;
+package com.hotpads.datarouter.client.imp.jdbc.op.read.index;
 
 import java.sql.Connection;
 import java.util.List;
@@ -26,11 +26,11 @@ public class JdbcIndexScanOp
 <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,PKLookup extends BaseLookup<PK>>
 extends BaseJdbcOp<List<PKLookup>>{
 
-	private Range<PKLookup> start;
-	private JdbcReaderNode<PK, D, F> node;
-	private Class<PKLookup> indexClass;
-	private Config config;
-	private String traceName;
+	private final JdbcReaderNode<PK, D, F> node;
+	private final Range<PKLookup> start;
+	private final Class<PKLookup> indexClass;
+	private final Config config;
+	private final String traceName;
 	
 	public JdbcIndexScanOp(JdbcReaderNode<PK, D, F> node, Range<PKLookup> start, Class<PKLookup> indexClass, Config config,
 			String traceName){

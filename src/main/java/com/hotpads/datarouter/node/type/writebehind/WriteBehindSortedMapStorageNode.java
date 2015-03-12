@@ -1,8 +1,6 @@
 package com.hotpads.datarouter.node.type.writebehind;
 
 import java.util.Collection;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -24,11 +22,10 @@ implements SortedMapStorageNode<PK,D>{
 	protected WriteBehindMapStorageWriterMixin<PK,D,N> mixinMapWriteOps;
 	protected WriteBehindSortedStorageWriterMixin<PK,D,N> mixinSortedWriteOps;
 	
-	public WriteBehindSortedMapStorageNode(Class<D> databeanClass, Datarouter router,
-			N backingNode, ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
-		super(databeanClass, router, backingNode, writeExecutor, cancelExecutor);
-		this.mixinMapWriteOps = new WriteBehindMapStorageWriterMixin<PK,D,N>(this);
-		this.mixinSortedWriteOps = new WriteBehindSortedStorageWriterMixin<PK,D,N>(this);
+	public WriteBehindSortedMapStorageNode(Class<D> databeanClass, Datarouter router, N backingNode){
+		super(databeanClass, router, backingNode);
+		this.mixinMapWriteOps = new WriteBehindMapStorageWriterMixin<>(this);
+		this.mixinSortedWriteOps = new WriteBehindSortedStorageWriterMixin<>(this);
 	}
 	
 	
@@ -70,7 +67,9 @@ implements SortedMapStorageNode<PK,D>{
 	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean handleWriteWrapperInternal(WriteWrapper<?> writeWrapper){
-		if(super.handleWriteWrapperInternal(writeWrapper)){ return true; }
+		if(super.handleWriteWrapperInternal(writeWrapper)){
+			return true;
+		}
 		if(writeWrapper.getOp().equals(OP_put)){
 			backingNode.putMulti((Collection<D>)writeWrapper.getObjects(), writeWrapper.getConfig());
 		}else if(writeWrapper.getOp().equals(OP_delete)){
@@ -78,8 +77,8 @@ implements SortedMapStorageNode<PK,D>{
 		}else if(writeWrapper.getOp().equals(OP_deleteAll)){
 			backingNode.deleteAll(writeWrapper.getConfig());
 		}else if(writeWrapper.getOp().equals(OP_deleteRangeWithPrefix)){
-			Collection<DeleteRangeWithPrefixWraper<PK>> deleteRangeWithPrefixWrapers = (Collection<DeleteRangeWithPrefixWraper<PK>>)writeWrapper
-					.getObjects();
+			Collection<DeleteRangeWithPrefixWraper<PK>> deleteRangeWithPrefixWrapers =
+					(Collection<DeleteRangeWithPrefixWraper<PK>>)writeWrapper.getObjects();
 			for(DeleteRangeWithPrefixWraper<PK> deleteRangeWithPrefixWraper : deleteRangeWithPrefixWrapers){
 				backingNode.deleteRangeWithPrefix(deleteRangeWithPrefixWraper.getPrefix(), deleteRangeWithPrefixWraper
 						.isWildcardLastField(), writeWrapper.getConfig());

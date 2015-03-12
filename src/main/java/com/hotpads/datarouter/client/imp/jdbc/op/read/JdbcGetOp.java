@@ -27,10 +27,10 @@ public class JdbcGetOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<List<D>>{
 		
-	private JdbcReaderNode<PK,D,F> node;
-	private String opName;
-	private Collection<PK> keys;
-	private Config config;
+	private final JdbcReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Collection<PK> keys;
+	private final Config config;
 	
 	public JdbcGetOp(JdbcReaderNode<PK,D,F> node, String opName, Collection<PK> keys, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
@@ -42,7 +42,6 @@ extends BaseJdbcOp<List<D>>{
 	
 	@Override
 	public List<D> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		int batchSize = JdbcNode.DEFAULT_ITERATE_BATCH_SIZE;
 		if(config!=null && config.getIterateBatchSize()!=null){
 			batchSize = config.getIterateBatchSize();
@@ -56,9 +55,8 @@ extends BaseJdbcOp<List<D>>{
 			List<? extends Key<PK>> keyBatch = DrBatchTool.getBatch(sortedKeys, batchSize, batchNum);
 			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getFields(), keyBatch);
 			List<D> batch = JdbcTool.selectDatabeans(connection, node.getFieldInfo(), sql);
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					DrCollectionTool.size(batch));//count the number of hits (arbitrary decision)
+			DRCounters.incSuffixClientNode(node.getClient().getType(), opName+" selects", node.getClientName(), 
+					node.getName());
 			if(DrCollectionTool.notEmpty(batch)){
 				Collections.sort(batch);//should prob remove
 				result.addAll(batch);

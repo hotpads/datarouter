@@ -148,7 +148,6 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		mav.put(PARAM_backKey, backKeyString);
 		String startAfterKeyString = RequestTool.get(request, PARAM_startAfterKey, null);
 
-		Config config = new Config().setLimit(limit);
 		PK startAfterKey = null;
 		if(DrStringTool.notEmpty(startAfterKeyString)){
 //			startAfterKey = (PK)ReflectionTool.create(node.getPrimaryKeyType());
@@ -160,8 +159,10 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		}
 
 		boolean startInclusive = true;
-		List<D> databeans = DrListTool.createArrayList(sortedNode.scan(new Range<>((PK)startAfterKey, startInclusive, 
-				null, true), config));
+		Config config = new Config().setIterateBatchSize(limit);//setLimit not currently valid for scanners
+		Iterable<D> databeanIterable = sortedNode.scan(new Range<>((PK)startAfterKey, startInclusive, null, true),
+				config);
+		List<D> databeans = DrListTool.createArrayList(databeanIterable, limit);
 
 		addDatabeansToMav(mav, databeans);
 		return mav;

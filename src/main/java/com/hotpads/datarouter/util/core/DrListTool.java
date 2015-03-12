@@ -99,9 +99,16 @@ public class DrListTool {
 	}
 
 	public static <T> ArrayList<T> createArrayList(Iterable<T> ins){
-		ArrayList<T> outs = new ArrayList<T>();
+		return createArrayList(ins, Integer.MAX_VALUE);
+	}
+
+	public static <T> ArrayList<T> createArrayList(Iterable<T> ins, int limit){
+		ArrayList<T> outs = new ArrayList<T>();//don't pre-size array in case limit is huge
 		for(T in : DrIterableTool.nullSafe(ins)) {
 			outs.add(in);
+			if(outs.size() >= limit){
+				break;
+			}
 		}
 		return outs;
 	}

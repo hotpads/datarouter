@@ -51,6 +51,16 @@ implements PhysicalNode<PK,D>
 	/****************************** node methods ********************************/
 	
 	@Override
+	public boolean isPhysicalNodeOrWrapper(){
+		return true;
+	}
+	
+	@Override
+	public PhysicalNode<PK,D> getPhysicalNodeIfApplicable(){
+		return this;
+	}
+	
+	@Override
 	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
 		return DrListTool.createLinkedList(fieldInfo.getClientName());
 	}
