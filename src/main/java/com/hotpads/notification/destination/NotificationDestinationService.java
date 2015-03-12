@@ -1,12 +1,12 @@
 package com.hotpads.notification.destination;
 
+import java.util.Collection;
 import java.util.List;
-
-import com.hotpads.notification.databean.NotificationUserType;
 
 public interface NotificationDestinationService{
 
-	List<NotificationDestination> getActiveDestinations(NotificationUserType userType, String userToken);
+	public List<NotificationDestination> getActiveDestinations(String userToken,
+			Collection<NotificationDestinationApp> apps);
 
 	void registerDestinatination(NotificationDestination destination);
 
