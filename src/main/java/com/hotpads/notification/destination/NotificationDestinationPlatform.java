@@ -4,8 +4,8 @@ import com.hotpads.datarouter.storage.field.enums.DatarouterEnumTool;
 import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
 public enum NotificationDestinationPlatform implements StringEnum<NotificationDestinationPlatform>{
-	GCM("gcm"),
-	ANS("ans"),
+	GCM("gcm"),// Google Cloud Messaging
+	APNS("apns"),// Apple Push Notification Service
 	SMS("sms"),
 	EMAIL("email"),
 	;
