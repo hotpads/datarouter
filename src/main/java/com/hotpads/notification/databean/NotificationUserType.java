@@ -5,19 +5,18 @@ import com.hotpads.datarouter.storage.field.enums.StringEnum;
 
 public enum NotificationUserType implements StringEnum<NotificationUserType> {
 
-	TOKEN("token"),
+	HOTPADS_TOKEN("token"),
 	EMAIL("email"),
 	PHONE("phone"),
-	ANDROID("android"),
 	ALIAS("alias"),
 	;
 
 	private String name;
-	
+
 	private NotificationUserType(String name) {
 		this.name = name;
 	}
-	
+
 	@Override
 	public String getPersistentString() {
 		return name;
