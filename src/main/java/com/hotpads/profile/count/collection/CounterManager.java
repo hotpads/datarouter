@@ -1,9 +1,12 @@
 package com.hotpads.profile.count.collection;
 
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -11,10 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrRuntimeTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.profile.count.collection.archive.CountArchive;
 import com.hotpads.profile.count.collection.archive.CountArchiveFlusher;
 import com.hotpads.util.core.profile.PhaseTimer;
@@ -36,7 +36,7 @@ public class CounterManager implements CountMap{
 		long now = System.currentTimeMillis();
 		long startTime = now - (now % rollPeriodMs);
 		this.liveCounter = new AtomicCounter(startTime, rollPeriodMs);
-		this.flushers = DrListTool.createArrayList();
+		this.flushers = new ArrayList<>();
 		this.checkAndRoll();//init
 		logger.warn("created "+this);
 	}
@@ -159,7 +159,7 @@ public class CounterManager implements CountMap{
 	}
 
 	public SortedSet<CountArchive> getArchives(){
-		SortedSet<CountArchive> archives = DrSetTool.createTreeSet();
+		SortedSet<CountArchive> archives = new TreeSet<>();
 		for(CountArchiveFlusher flusher : DrIterableTool.nullSafe(flushers)){
 			archives.addAll(DrCollectionTool.nullSafe(flusher.getArchives()));
 		}
@@ -167,7 +167,7 @@ public class CounterManager implements CountMap{
 	}
 	
 	public Map<String,CountArchive> getArchiveByName(){
-		Map<String,CountArchive> archiveByName = DrMapTool.createTreeMap();
+		Map<String,CountArchive> archiveByName = new TreeMap<>();
 		for(CountArchive ca : DrIterableTool.nullSafe(getArchives())){//don't forget the primary
 			archiveByName.put(ca.getName(), ca);
 		}

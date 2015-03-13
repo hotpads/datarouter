@@ -1,7 +1,9 @@
 package com.hotpads.profile.count.collection.archive.imp;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.util.core.DrByteTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.profile.count.collection.AtomicCounter;
 import com.hotpads.profile.count.collection.CountMapPeriod;
@@ -61,7 +62,7 @@ public class MemoryCountArchive extends BaseCountArchive{
 
 	@Override
 	public List<AvailableCounter> getAvailableCounters(String nameLike){
-		Set<AvailableCounter> unsorted = DrSetTool.createHashSet();
+		Set<AvailableCounter> unsorted = new HashSet<>();
 		for(int i=0; i < archive.length; ++i){
 			if(archive[i]!=null){
 				Map<String,AtomicLong> map = DrMapTool.nullSafe(archive[i].getCountByKey());
@@ -94,7 +95,7 @@ public class MemoryCountArchive extends BaseCountArchive{
 		if(getEarliestAvailableTime() > startMs){
 			startIndex = getIndexForMs(getEarliestAvailableTime());
 		}
-		List<Count> counts = DrListTool.createArrayList();
+		List<Count> counts = new ArrayList<>();
 		int i = startIndex;
 		while(true){
 			CountMapPeriod period = archive[i];
@@ -125,7 +126,7 @@ public class MemoryCountArchive extends BaseCountArchive{
 			if(getEarliestAvailableTime() > startMs){
 				startIndex = getIndexForMs(getEarliestAvailableTime());
 			}
-			List<Count> counts = DrListTool.createArrayList();
+			List<Count> counts = new ArrayList<>();
 			int i = startIndex;
 			while(true){
 				CountMapPeriod period = archive[i];

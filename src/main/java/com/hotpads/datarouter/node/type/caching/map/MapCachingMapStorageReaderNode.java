@@ -1,6 +1,8 @@
 package com.hotpads.datarouter.node.type.caching.map;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +18,6 @@ import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class MapCachingMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -86,7 +87,7 @@ implements MapStorageReaderNode<PK,D>{
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, Config config) {
 		if(!useCache(config)){ return backingNode.getMulti(keys, config); }
-		List<D> resultBuilder = DrListTool.createLinkedList();
+		List<D> resultBuilder = new LinkedList<>();
 		try{
 			updateLastAttemptedContact();
 			resultBuilder.addAll(cachingNode.getMulti(keys, CACHE_CONFIG));
@@ -96,8 +97,8 @@ implements MapStorageReaderNode<PK,D>{
 			return backingNode.getMulti(keys, config);
 		}
 		countHits(resultBuilder);
-		Set<PK> cachedKeys = DrSetTool.createHashSet(KeyTool.getKeys(resultBuilder));
-		Set<PK> uncachedKeys = DrSetTool.createHashSet();
+		Set<PK> cachedKeys = new HashSet<>(KeyTool.getKeys(resultBuilder));
+		Set<PK> uncachedKeys = new HashSet<>();
 		for(PK key : DrIterableTool.nullSafe(keys)){
 			if(!cachedKeys.contains(key)){ uncachedKeys.add(key); }
 		}
@@ -120,7 +121,7 @@ implements MapStorageReaderNode<PK,D>{
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config) {
 		if(!useCache(config)){ return backingNode.getKeys(keys, config); }
-		List<PK> resultBuilder = DrListTool.createLinkedList();
+		List<PK> resultBuilder = new LinkedList<>();
 		try{
 			updateLastAttemptedContact();
 			resultBuilder.addAll(cachingNode.getKeys(keys, CACHE_CONFIG));
@@ -130,8 +131,8 @@ implements MapStorageReaderNode<PK,D>{
 			return backingNode.getKeys(keys, config);
 		}
 		countHits(resultBuilder);
-		Set<PK> cachedKeys = DrSetTool.createHashSet(resultBuilder);
-		Set<PK> uncachedKeys = DrSetTool.createHashSet();
+		Set<PK> cachedKeys = new HashSet<>(resultBuilder);
+		Set<PK> uncachedKeys = new HashSet<>();
 		for(PK key : DrIterableTool.nullSafe(keys)){
 			if(!cachedKeys.contains(key)){ uncachedKeys.add(key); }
 		}

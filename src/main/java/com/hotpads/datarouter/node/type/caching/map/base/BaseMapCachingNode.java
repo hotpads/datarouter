@@ -1,9 +1,12 @@
 package com.hotpads.datarouter.node.type.caching.map.base;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.BaseNode;
@@ -67,7 +70,7 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public List<String> getClientNames() {
-		SortedSet<String> clientNames = DrSetTool.createTreeSet();
+		SortedSet<String> clientNames = new TreeSet<>();
 		DrSetTool.nullSafeSortedAddAll(clientNames, cachingNode.getClientNames());
 		DrSetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
 		return DrListTool.createArrayList(clientNames);
@@ -90,7 +93,7 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public List<? extends Node<PK,D>> getChildNodes(){
-		if(backingNode==null){ return DrListTool.create(); }
+		if(backingNode==null){ return new ArrayList<>(); }
 		return DrListTool.wrap(backingNode);
 	}
 
@@ -101,7 +104,7 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = DrSetTool.createHashSet();
+		Set<String> names = new HashSet<>();
 		names.add(getName());
 		names.addAll(DrCollectionTool.nullSafe(cachingNode.getAllNames()));
 		names.addAll(DrCollectionTool.nullSafe(backingNode.getAllNames()));

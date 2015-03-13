@@ -1,13 +1,14 @@
 package com.hotpads.datarouter.routing;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 
 
 /*
@@ -32,7 +33,7 @@ import com.hotpads.datarouter.util.core.DrSetTool;
 public abstract class BaseDRH{
 
 	protected DatarouterContext drContext;
-	protected List<Datarouter> routers = DrListTool.createArrayList();
+	protected List<Datarouter> routers = new ArrayList<>();
 	
 	
 	/************************ constructors ************************/
@@ -60,7 +61,7 @@ public abstract class BaseDRH{
 	}
 	
 	public List<Client> getClients(){
-		SortedSet<Client> clients = DrSetTool.createTreeSet();
+		SortedSet<Client> clients = new TreeSet<>();
 		for(Datarouter router : DrIterableTool.nullSafe(getRouters())){
 			for(Client client : DrIterableTool.nullSafe(router.getAllClients())){
 				clients.add(client);

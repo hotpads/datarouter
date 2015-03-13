@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -22,7 +23,6 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.generate.SqlTableGenerator;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.test.node.basic.manyfield.ManyFieldBean;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 
@@ -68,8 +68,8 @@ public class ConnectionSqlTableGenerator implements SqlTableGenerator{
 			
 			DatabaseMetaData dbmd = connection.getMetaData();
 			ResultSet indexList = dbmd.getIndexInfo(null, null, tableName, false, false);
-			List<String> listOfIndexNames = DrListTool.createArrayList();
-			List<SqlIndex> listOfIndexes = DrListTool.createArrayList();
+			List<String> listOfIndexNames = new ArrayList<>();
+			List<SqlIndex> listOfIndexes = new ArrayList<>();
 			
 			while(indexList.next()){
 				String indexName = indexList.getString("INDEX_NAME");

@@ -1,6 +1,8 @@
 package com.hotpads.profile.count.collection.archive.imp;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -136,7 +138,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 		AtomicCounter oldAggregator = aggregator;
 		long periodStart = DrDateTool.getPeriodStart(countMap.getStartTimeMs(), periodMs);
 		aggregator = new AtomicCounter(periodStart, periodMs);
-		List<Count> toSave = DrListTool.create();
+		List<Count> toSave = new ArrayList<>();
 		for(Map.Entry<String,AtomicLong> entry : DrMapTool.nullSafe(oldAggregator.getCountByKey()).entrySet()){
 			if(entry.getValue() == null || entry.getValue().equals(0L)){
 				continue;
@@ -155,7 +157,7 @@ public class DatabeanCountArchive extends BaseCountArchive{
 	}
 
 	protected void flushAvailableCounters(Map<String,AtomicLong> countByKey){
-		List<AvailableCounter> toSave = DrListTool.createLinkedList();
+		List<AvailableCounter> toSave = new LinkedList<>();
 		for(Map.Entry<String,AtomicLong> entry : DrMapTool.nullSafe(countByKey).entrySet()){
 			toSave.add(new AvailableCounter(webApp, periodMs, entry.getKey(), source, System.currentTimeMillis()));
 		}

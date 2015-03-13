@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,7 +16,6 @@ import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hotpads.datarouter.client.imp.hbase.scan.HBaseDatabeanScanner;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseMultiAttemptTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTask;
 import com.hotpads.datarouter.client.imp.hbase.task.HBaseTaskNameParams;
@@ -39,9 +39,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.bytes.ByteRange;
-import com.hotpads.util.core.collections.Pair;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
@@ -172,7 +170,7 @@ implements HBasePhysicalNode<PK,D>,
 			final Config pConfig){
 		if(DrCollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
-		final List<D> results = DrListTool.createArrayList();
+		final List<D> results = new ArrayList<>();
 		List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder.getPrefixScanners(fieldInfo, 
 				prefixes, wildcardLastField, config);
 		for(final Scan scan : scanForEachScatteringPartition){
@@ -240,7 +238,7 @@ implements HBasePhysicalNode<PK,D>,
 					Scan scan = HBaseQueryBuilder.getScanForRange(scanRange, config);
 					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }
 					managedResultScanner = hTable.getScanner(scan);
-					List<Result> results = DrListTool.createArrayList();
+					List<Result> results = new ArrayList<>();
 					for(Result row : managedResultScanner){
 						if(row.isEmpty()){ continue; }
 						results.add(row);
@@ -266,7 +264,7 @@ implements HBasePhysicalNode<PK,D>,
 		}
 		
 		//else return scatteringPrefix bytes + keyBytes + (maybe) trailing separator
-		List<Field<?>> scatteringPrefixFields = DrListTool.createLinkedList();
+		List<Field<?>> scatteringPrefixFields = new LinkedList<>();
 		if(DrCollectionTool.notEmpty(overrideScatteringPrefixFields)){
 			scatteringPrefixFields.addAll(overrideScatteringPrefixFields);
 		}else{

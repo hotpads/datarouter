@@ -1,13 +1,13 @@
 package com.hotpads.datarouter.storage.content;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrClassTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 
 public class ContentTool {
@@ -16,7 +16,7 @@ public class ContentTool {
 					D extends Databean<PK,D>,
 					C extends ContentHolder<PK,D>> 
 	Map<PK,C> getByKey(Collection<C> in){
-		Map<PK,C> out = DrMapTool.createHashMap();
+		Map<PK,C> out = new HashMap<>();
 		for(C contentHolder : DrCollectionTool.nullSafe(in)){
 			out.put(contentHolder.getKey(), contentHolder);
 		}

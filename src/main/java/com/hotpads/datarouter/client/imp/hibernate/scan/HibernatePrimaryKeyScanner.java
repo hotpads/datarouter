@@ -30,6 +30,6 @@ extends BaseHibernateScanner<PK,D,PK>{
 	
 	@Override
 	protected void setCurrentFromResult(PK result) {
-		current = (PK)result;
+		current = result;
 	}
 }

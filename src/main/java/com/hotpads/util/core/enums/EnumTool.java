@@ -2,6 +2,8 @@ package com.hotpads.util.core.enums;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -12,9 +14,7 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrGenericsFactory;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.web.HTMLSelectOptionBean;
 
@@ -129,7 +129,7 @@ public class EnumTool {
 	}
 	
 	public static <T extends HpEnum> Set<T> decodeEnums(int codedEnums, T[] values){
-		Set<T> enums = DrGenericsFactory.makeHashSet();
+		Set<T> enums = new HashSet<>();;
 		for(T e:values){
 			int i = e.getInteger();
 			int mask = (int)Math.pow(2,i);
@@ -180,13 +180,13 @@ public class EnumTool {
 	private static <T extends AlternateNamedEnum> List<T> getFromFreeText(T[] values, String freeText,
 			boolean exhaustive) {
 		if (DrStringTool.isEmpty(freeText)) {
-			return DrListTool.createLinkedList();
+			return new LinkedList<>();
 		}
 		freeText = freeText.toLowerCase();
 		if (NO.matcher(freeText).find()) {
-			return DrListTool.createLinkedList();
+			return new LinkedList<>();
 		}
-		Set<T> types = DrSetTool.createHashSet();
+		Set<T> types = new HashSet<>();
 		String[] splitFreeText = freeText.split("\\s+");
 		for (T a : values) {
 			for (String alt : a.getAlternates()) {
@@ -198,9 +198,8 @@ public class EnumTool {
 						types.add(a);
 						if (exhaustive) {
 							break;
-						} else {
-							return DrListTool.createLinkedList(types);
 						}
+						return DrListTool.createLinkedList(types);
 					}
 				}
 			}
@@ -243,7 +242,7 @@ public class EnumTool {
 		
 		@Test
 		public void testEncoding(){
-			List<TestEnum> ts = DrGenericsFactory.makeArrayList();
+			List<TestEnum> ts = new ArrayList<>();
 			ts.add(TestEnum.RENTAL);
 			ts.add(TestEnum.SUBLET);
 			ts.add(TestEnum.ASSISTED);

@@ -1,5 +1,6 @@
 package com.hotpads.profile.count.databean;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -8,9 +9,9 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import org.hibernate.annotations.AccessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.serialize.fielder.BaseDatabeanFielder;
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
@@ -26,7 +27,6 @@ import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrXMLStringTool;
 import com.hotpads.profile.count.databean.key.CountKey;
 
-@SuppressWarnings("serial")
 @Entity
 @AccessType("field")
 public class Count extends BaseDatabean<CountKey,Count>{
@@ -131,15 +131,15 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 
 	public static double getValuePerSecond(double value, Long periodMs){
-		return ((double)value) * 1000 / periodMs;
+		return (value) * 1000 / periodMs;
 	}
 
 	public static double getValuePerMinute(double value, Long periodMs){
-		return ((double)value) * 60000 / periodMs;
+		return (value) * 60000 / periodMs;
 	}
 
 	public static double getValuePerHour(double value, Long periodMs){
-		return ((double)value) * 3600000 / periodMs;
+		return (value) * 3600000 / periodMs;
 	}
 	
 	public String getNameHtmlEscaped(){
@@ -160,7 +160,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	}
 	
 	public static List<Count> filterForSource(Collection<Count> ins, String source){
-		List<Count> outs = DrListTool.createArrayList();
+		List<Count> outs = new ArrayList<>();
 		for(Count in : DrIterableTool.nullSafe(ins)){
 			if(DrObjectTool.equals(source, in.getSource())){ outs.add(in); }
 		}
@@ -170,7 +170,7 @@ public class Count extends BaseDatabean<CountKey,Count>{
 	public static List<Count> getListWithGapsFilled(String otherName, String otherSourceType, String otherSource,
 			Long periodMs, Iterable<Count> ins, Long startTime, Long endTime){
 		int numPoints = (int)((endTime - startTime) / periodMs);
-		List<Count> outs = DrListTool.createArrayList(numPoints + 1);
+		List<Count> outs = new ArrayList<>(numPoints + 1);
 		long intervalStart = startTime;
 		Iterator<Count> iterator = DrIterableTool.nullSafe(ins).iterator();
 		Count next = DrIterableTool.next(iterator);

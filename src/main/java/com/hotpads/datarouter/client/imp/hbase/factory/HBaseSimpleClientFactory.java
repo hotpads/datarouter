@@ -1,11 +1,15 @@
 package com.hotpads.datarouter.client.imp.hbase.factory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hadoop.conf.Configuration;
@@ -43,10 +47,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.util.core.bytes.ByteRange;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.Pair;
@@ -72,14 +73,14 @@ implements ClientFactory{
 	protected DatarouterContext drContext;
 //	protected List<PhysicalNode<?,?>> physicalNodes = ListTool.createArrayList();
 	protected String clientName;
-	protected Set<String> configFilePaths = DrSetTool.createTreeSet();
-	protected List<Properties> multiProperties = DrListTool.createArrayList();
+	protected Set<String> configFilePaths = new TreeSet<>();
+	protected List<Properties> multiProperties = new ArrayList<>();
 	protected HBaseOptions options;
 	protected volatile HBaseClient client;//volatile for double checked locking
 	protected Configuration hBaseConfig;
 	protected HBaseAdmin hBaseAdmin;
 	
-	protected List<String> historicClientIds = DrListTool.createArrayList();
+	protected List<String> historicClientIds = new ArrayList<>();
 
 	
 	public HBaseSimpleClientFactory(
@@ -117,10 +118,9 @@ implements ClientFactory{
 				String log = "couldn't open connection because hBaseAdmin.getConnection().isClosed()";
 				logger.warn(log);
 				throw new UnavailableException(log);
-			}else{//yay, the connection is open
-				CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
-				ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
 			}
+			CONFIG_BY_ZK_QUORUM.put(zkQuorum, hBaseConfig);
+			ADMIN_BY_CONFIG.put(hBaseConfig, hBaseAdmin);
 	
 			//databean config
 			Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> result = initTables();
@@ -153,9 +153,9 @@ implements ClientFactory{
 	public static final String DUMMY_COL_NAME = new String(new byte[]{0});
 	
 	protected Pair<HTablePool,Map<String,Class<PrimaryKey<?>>>> initTables(){
-		List<String> tableNames = DrListTool.create();
-		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = DrMapTool.create();
-		Map<String,PhysicalNode<?,?>> nodeByTableName = DrMapTool.createTreeMap();
+		List<String> tableNames = new ArrayList<>();
+		Map<String,Class<PrimaryKey<?>>> primaryKeyClassByName = new HashMap<>();
+		Map<String,PhysicalNode<?,?>> nodeByTableName = new TreeMap<>();
 		Collection<PhysicalNode<?,?>> physicalNodes = drContext.getNodes().getPhysicalNodesForClient(clientName);
 		for(PhysicalNode<?,?> node : physicalNodes){
 			tableNames.add(node.getTableName());
@@ -257,7 +257,7 @@ implements ClientFactory{
 			if(sampleScatteringPrefix==null){ return null; }
 			List<List<Field<?>>> allPrefixes = sampleScatteringPrefix.getAllPossibleScatteringPrefixes();
 			int counter = 0;
-			List<byte[]> splitPoints = DrListTool.create();
+			List<byte[]> splitPoints = new ArrayList<>();
 			for(List<Field<?>> prefixFields : allPrefixes){
 				++counter;
 				Twin<ByteRange> range = HBaseQueryBuilder.getStartEndBytesForPrefix(prefixFields, false);

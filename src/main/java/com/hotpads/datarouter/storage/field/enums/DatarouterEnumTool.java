@@ -78,7 +78,7 @@ public class DatarouterEnumTool{
 	/***************  multiple values ****************/
 	
 	public static <E extends StringEnum<E>> List<String> getPersistentStrings(Collection<E> enums){
-		List<String> strings = DrListTool.createArrayList();
+		List<String> strings = new ArrayList<>();
 		for(E stringEnum : DrCollectionTool.nullSafe(enums)){
 			strings.add(stringEnum.getPersistentString());
 		}
@@ -87,7 +87,7 @@ public class DatarouterEnumTool{
 	
 	public static <E extends StringEnum<E>> List<E> fromPersistentStrings(E enumInstance, 
 			Collection<String> persistentStrings){
-		List<E> enums = DrListTool.createArrayList();
+		List<E> enums = new ArrayList<>();
 		for(String persistentString : DrCollectionTool.nullSafe(persistentStrings)){
 			enums.add(enumInstance.fromPersistentString(persistentString));
 		}

@@ -1,5 +1,6 @@
 package com.hotpads.handler.user.role;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ implements StringEnum<DatarouterUserRole>{
 	}
 	
 	public static Set<DatarouterUserRole> fromStringArray(String[] userRoles) {
-		Set<DatarouterUserRole> userRolesSet = DrSetTool.create();
+		Set<DatarouterUserRole> userRolesSet = new HashSet<>();
 		if (userRoles == null) { return userRolesSet; }
 		
 		for(String role : userRoles) {
@@ -44,7 +45,7 @@ implements StringEnum<DatarouterUserRole>{
 	}
 	
 	public static Set<DatarouterUserRole> getPermissibleRolesForUser(DatarouterUser datarouterUser, boolean isSelf) {
-		Set<DatarouterUserRole> userRoles = DrSetTool.create(datarouterUser.getRoles());
+		Set<DatarouterUserRole> userRoles = new HashSet<>(datarouterUser.getRoles());
 		if(isSelf && userRoles.contains(datarouterAdmin)) { return userRoles; }
 		
 		userRoles.remove(datarouterAdmin);

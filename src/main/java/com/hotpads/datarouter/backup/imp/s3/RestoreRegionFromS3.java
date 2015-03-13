@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
 
 import com.hotpads.datarouter.backup.BackupRegion;
@@ -16,7 +17,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrFileUtils;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class RestoreRegionFromS3<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> 
 extends RestoreRegion<PK,D>{
@@ -36,7 +36,7 @@ extends RestoreRegion<PK,D>{
 		this.s3Bucket = s3Bucket;
 		this.s3Key = s3Key;
 		this.localPath = BackupRegionToS3.getLocalPath(s3Key);
-		this.fieldByPrefixedName = DrMapTool.createHashMap();
+		this.fieldByPrefixedName = new HashMap<>();
 		for(Field<?> field : DrIterableTool.nullSafe(node.getFields())){
 			this.fieldByPrefixedName.put(field.getPrefixedName(), field);
 		}

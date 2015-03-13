@@ -35,8 +35,8 @@ public class ShortByteTool {
 	
 	public static short fromRawBytes(final byte[] bytes, final int startIdx){
 		return (short)(
-				  ((bytes[startIdx    ] & (int)0xff) << 8)
-				|  (bytes[startIdx + 1] & (int)0xff)      
+				  ((bytes[startIdx    ] & 0xff) << 8)
+				|  (bytes[startIdx + 1] & 0xff)      
 			);
 	}	
 		
@@ -104,8 +104,8 @@ public class ShortByteTool {
 			
 			//more compact
 			out[i] = (short)(Short.MIN_VALUE ^ (
-						  ((bytes[startIdx    ] & (int)0xff) << 8)
-						|  (bytes[startIdx + 1] & (int)0xff)      
+						  ((bytes[startIdx    ] & 0xff) << 8)
+						|  (bytes[startIdx + 1] & 0xff)      
 					));
 			
 		}
@@ -130,8 +130,8 @@ public class ShortByteTool {
 	
 	public static short fromUInt15Bytes(final byte[] bytes, final int startIdx){
 		return (short)(
-			  ((bytes[startIdx + 0] & (int)0xff) <<  8)
-			|  (bytes[startIdx + 1] & (int)0xff));
+			  ((bytes[startIdx + 0] & 0xff) <<  8)
+			|  (bytes[startIdx + 1] & 0xff));
 	}
 	
 	//TODO copy array methods from IntegerByteTool

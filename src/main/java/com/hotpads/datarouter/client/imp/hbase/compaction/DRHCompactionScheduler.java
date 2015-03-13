@@ -92,7 +92,7 @@ implements DRHCompactionInfo{
 		}
 
 		//calculate an offset into the current period
-		Double offsetIntoCompactionPeriodPct = 1d * (double)regionHash / (double)Long.MAX_VALUE;
+		Double offsetIntoCompactionPeriodPct = 1d * (double)regionHash / Long.MAX_VALUE;
 		Long offsetIntoCompactionPeriodMs = (long)(offsetIntoCompactionPeriodPct * getPeriodMs());
 		nextCompactTimeMs = periodStartSeekerMs + offsetIntoCompactionPeriodMs;
 		if(nextCompactTimeMs < windowStartMs){ nextCompactTimeMs += regionCompactionPeriodMs; }

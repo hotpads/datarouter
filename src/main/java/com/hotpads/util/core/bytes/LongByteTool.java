@@ -241,7 +241,7 @@ public class LongByteTool {
 			l |= (byte)-2;
 //			System.out.println(LongTool.toBitString(l));
 			Assert.assertEquals(-2, l);
-			l = (l << 8) + (int)(-2+128);
+			l = (l << 8) + (-2+128);
 //			System.out.println(LongTool.toBitString(l));
 		}
 		
@@ -320,7 +320,7 @@ public class LongByteTool {
 			++value;
 			int counter = 0;
 			long stopAt = Long.MAX_VALUE-2*(long)Integer.MAX_VALUE;
-			Assert.assertTrue(stopAt > (long)Integer.MAX_VALUE);
+			Assert.assertTrue(stopAt > Integer.MAX_VALUE);
 			do{
 				if(counter < 1000){
 					Assert.assertTrue(value < 0);

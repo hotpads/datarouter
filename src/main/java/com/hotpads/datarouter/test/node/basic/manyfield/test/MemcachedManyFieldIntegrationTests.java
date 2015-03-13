@@ -8,7 +8,7 @@ import com.hotpads.datarouter.test.node.basic.manyfield.BaseManyFieldIntegration
 public class MemcachedManyFieldIntegrationTests extends BaseManyFieldIntegrationTests{
 
 	@BeforeClass
-	public static void beforeClass(){
+	public void beforeClass(){
 		setup(DRTestConstants.CLIENT_drTestMemcached, true);
 	}
 

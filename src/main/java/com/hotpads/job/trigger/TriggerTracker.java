@@ -1,9 +1,8 @@
 package com.hotpads.job.trigger;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-
-import com.hotpads.datarouter.util.core.DrMapTool;
 
 public class TriggerTracker{
 	
@@ -15,7 +14,7 @@ public class TriggerTracker{
 	/******************constructors******************/
 	
 	public TriggerTracker(){
-		this.map = Collections.synchronizedMap(DrMapTool.<Class<? extends Job>,TriggerInfo>createHashMap());
+		this.map = Collections.synchronizedMap(new HashMap<Class<? extends Job>,TriggerInfo>());
 	}
 
 	

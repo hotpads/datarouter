@@ -1,6 +1,6 @@
 package com.hotpads.datarouter.util.core;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

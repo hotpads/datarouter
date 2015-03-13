@@ -1,16 +1,16 @@
 package com.hotpads.datarouter.storage.field;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 @SuppressWarnings("serial")
 public class SimpleFieldSet<F extends FieldSet<F>> 
 extends BaseFieldSet<F>{
 
-	protected List<Field<?>> fields = DrListTool.createArrayList();
+	protected List<Field<?>> fields = new ArrayList<>();
 	
 	public SimpleFieldSet(){
 	}

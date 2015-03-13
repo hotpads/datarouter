@@ -102,7 +102,7 @@ public enum MySqlColumnType{
 	}
 	
 	public static List<String> getAllColumnTypeNames(){
-		ArrayList<String> list = DrListTool.createArrayList();
+		ArrayList<String> list = new ArrayList<>();
 		for(MySqlColumnType type : values()){
 			list.add(type.toString());
 		}

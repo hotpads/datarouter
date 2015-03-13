@@ -1,18 +1,20 @@
 package com.hotpads.datarouter.test.node.basic.prefixed.test;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import com.google.inject.Injector;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.test.TestDatarouterInjectorProvider;
+import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBean.ScatteringPrefixBeanFielder.ScatteringPrefixBeanScatterer;
 import com.hotpads.datarouter.test.node.basic.prefixed.ScatteringPrefixBeanKey;
@@ -23,15 +25,17 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 
+@Guice(moduleFactory=DatarouterTestModuleFactory.class)
 public abstract class BaseScatteringPrefixIntegrationTests{
 
-	private static DatarouterContext datarouterContext;
-	private static ScatteringPrefixTestRouter router;
+	@Inject
+	private DatarouterContext datarouterContext;
+	@Inject
+	private NodeFactory nodeFactory;
+	
+	private ScatteringPrefixTestRouter router;
 
-	public static void setup(String clientName) throws IOException{
-		Injector injector = new TestDatarouterInjectorProvider().get();
-		datarouterContext = injector.getInstance(DatarouterContext.class);
-		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
+	public void setup(String clientName){
 		router = new ScatteringPrefixTestRouter(datarouterContext, nodeFactory, clientName);
 
 		resetTable();
@@ -39,12 +43,12 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 
 
 	@AfterClass
-	public static void afterClass(){
+	public void afterClass(){
 		testDelete();
 		datarouterContext.shutdown();
 	}
 
-	public static void testDelete(){
+	public void testDelete(){
 		router.scatteringPrefixBean().delete(new ScatteringPrefixBeanKey("a", 10L), null);
 		AssertJUnit.assertEquals(TOTAL_RECORDS - 1, DrIterableTool.count(router.scatteringPrefixBean().scan(null, null))
 				.intValue());
@@ -62,11 +66,11 @@ public abstract class BaseScatteringPrefixIntegrationTests{
 
 	public static final int TOTAL_RECORDS = NUM_BATCHES * BATCH_SIZE;
 
-	public static void resetTable(){
+	public void resetTable(){
 		router.scatteringPrefixBean().deleteAll(null);
 		AssertJUnit.assertEquals(0, DrIterableTool.count(router.scatteringPrefixBean().scan(null, null)).intValue());
 
-		List<ScatteringPrefixBean> toSave = DrListTool.createArrayList();
+		List<ScatteringPrefixBean> toSave = new ArrayList<>();
 		for(int a = 0; a < NUM_BATCHES; ++a){
 			for(int b = 0; b < BATCH_SIZE; ++b){
 				String prefix = PREFIXES.get(b % PREFIXES.size());

@@ -15,7 +15,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 
 
-@SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
 public class BackupRecord extends BaseDatabean<BackupRecordKey,BackupRecord>{

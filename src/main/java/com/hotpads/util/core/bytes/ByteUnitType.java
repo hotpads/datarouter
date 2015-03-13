@@ -99,9 +99,8 @@ public enum ByteUnitType {
 		}
 		if (ByteUnitSystem.DECIMAL == byteUnitSystem) {
 			return DEC_SORTED_DESC;
-		} else {
-			return BIN_SORTED_DESC;
 		}
+		return BIN_SORTED_DESC;
 	}
 
 	public static ByteUnitType[] getAscValues(ByteUnitSystem byteUnitSystem) {
@@ -110,9 +109,8 @@ public enum ByteUnitType {
 		}
 		if (ByteUnitSystem.DECIMAL == byteUnitSystem) {
 			return DEC_SORTED_ASC;
-		} else {
-			return BIN_SORTED_ASC;
 		}
+		return BIN_SORTED_ASC;
 	}
 
 	public static String getNumBytesDisplay(long value, ByteUnitType toByteUnit) {

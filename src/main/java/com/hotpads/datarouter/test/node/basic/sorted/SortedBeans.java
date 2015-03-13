@@ -1,11 +1,13 @@
 package com.hotpads.datarouter.test.node.basic.sorted;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class SortedBeans{
 
@@ -19,7 +21,7 @@ public class SortedBeans{
 			S_ostrich = "ostrich",
 			S_pelican = "pelican";
 	
-	public static final SortedSet<String> STRINGS = DrSetTool.createTreeSet(
+	public static final SortedSet<String> STRINGS = new TreeSet<>(Arrays.asList(
 			S_aardvark,
 			S_albatross,
 			S_alpaca,
@@ -27,7 +29,7 @@ public class SortedBeans{
 			S_emu,
 			S_gopher,
 			S_ostrich,
-			S_pelican);
+			S_pelican));
 
 	public static final String PREFIX_a = "a";
 	public static final int NUM_PREFIX_a = 3;
@@ -47,7 +49,7 @@ public class SortedBeans{
 			RANGE_LENGTH_emu = 4;
 	
 	public static final int NUM_ELEMENTS = STRINGS.size();
-	public static final List<Integer> INTEGERS = DrListTool.createArrayList(NUM_ELEMENTS);
+	public static final List<Integer> INTEGERS = new ArrayList<>(NUM_ELEMENTS);
 	static{
 		for(int i=0; i < NUM_ELEMENTS; ++i){
 			INTEGERS.add(i);
@@ -67,7 +69,7 @@ public class SortedBeans{
 		Collections.shuffle(cs);
 		Collections.shuffle(ds);
 		
-		List<SortedBean> beans = DrListTool.createArrayList();//save in periodic batches
+		List<SortedBean> beans = new ArrayList<>();//save in periodic batches
 		for(int a=0; a < NUM_ELEMENTS; ++a){
 			for(int b=0; b < NUM_ELEMENTS; ++b){
 				for(int c=0; c < NUM_ELEMENTS; ++c){

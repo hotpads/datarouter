@@ -101,7 +101,7 @@ public enum InternetTopLevelDomain {
 	private static void generateEnum(PrintStream out) throws IOException {
 		URL url = new URL("http://data.iana.org/TLD/tlds-alpha-by-domain.txt");
 		URLConnection conn = url.openConnection();
-		BufferedReader br = new BufferedReader(new InputStreamReader((InputStream) conn.getInputStream()));
+		BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 		String line = null;
 		StringBuilder outLine = new StringBuilder();
 		boolean first = true;

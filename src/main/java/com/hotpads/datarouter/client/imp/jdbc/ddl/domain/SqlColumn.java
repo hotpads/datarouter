@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,14 +9,12 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class SqlColumn implements Comparable<SqlColumn>{
@@ -247,7 +246,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			Assert.assertFalse(a2==a);
 			
 			//test adding to SortedSet to test compareTo method
-			SortedSet<SqlColumn> columns = DrSetTool.createTreeSet();
+			SortedSet<SqlColumn> columns = new TreeSet<>();
 			columns.add(b);
 			columns.add(a);//should keep this version of a/a2 since it was added first
 			columns.add(a2);
@@ -259,7 +258,7 @@ public class SqlColumn implements Comparable<SqlColumn>{
 			Assert.assertTrue(b==columnList.get(1));
 			
 			//test list sorting
-			List<SqlColumn> sortedList = DrListTool.createArrayList();
+			List<SqlColumn> sortedList = new ArrayList<>();
 			sortedList.add(b);
 			sortedList.add(a);
 			Assert.assertTrue(b==sortedList.get(0));

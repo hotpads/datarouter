@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.generate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -10,7 +11,6 @@ import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlIndex;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlTable;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class SqlAlterTableGenerator implements DdlGenerator{
@@ -67,7 +67,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	
 	public List<String> getAlterTableStatementsStrings(){
 		List<SqlAlterTableClause> list =  generate();
-		List<String> l = DrListTool.createArrayList();
+		List<String> l = new ArrayList<>();
 		String alterSql="";
 		if(dropTable){
 			for(SqlAlterTableClause sqlAT : list){
@@ -96,7 +96,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	
 	public List<SqlAlterTableClause> getAlterTableStatements(){
 		List<SqlAlterTableClause> list =  generate();
-		List<SqlAlterTableClause> l = DrListTool.createArrayList();
+		List<SqlAlterTableClause> l = new ArrayList<>();
 		String alterSql="";
 		if(dropTable){
 			for(SqlAlterTableClause sqlAT : list){
@@ -124,7 +124,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	}
 	
 	public List<SqlAlterTableClause> generate(){
-		List<SqlAlterTableClause> list = DrListTool.createArrayList();
+		List<SqlAlterTableClause> list = new ArrayList<>();
 		// creating the sqlTableDiffGenerator
 		SqlTableDiffGenerator diff = new SqlTableDiffGenerator(current, requested, true);
 		if(!diff.isTableModified()){ return list; }
@@ -211,7 +211,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	}
 
 	private List<SqlAlterTableClause> getAlterTableForRemovingIndexes(SortedSet<SqlIndex> indexesToAdd){
-		List<SqlAlterTableClause> list = DrListTool.createArrayList();
+		List<SqlAlterTableClause> list = new ArrayList<>();
 		if(!options.getDropIndexes()){ return list; }
 		if(DrCollectionTool.isEmpty(indexesToAdd)){ return list; }
 		StringBuilder sb = new StringBuilder();
@@ -224,7 +224,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	}
 
 	private List<SqlAlterTableClause> getAlterTableForAddingIndexes(SortedSet<SqlIndex> indexesToAdd){
-		List<SqlAlterTableClause> list = DrListTool.createArrayList();
+		List<SqlAlterTableClause> list = new ArrayList<>();
 		if(!options.getAddIndexes()){ return list; }
 		if(DrCollectionTool.isEmpty(indexesToAdd)){ return list; }
 		StringBuilder sb = new StringBuilder();
@@ -298,7 +298,7 @@ public class SqlAlterTableGenerator implements DdlGenerator{
 	}
 	
 	private List<SqlAlterTableClause> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove){
-		List<SqlAlterTableClause> list = DrListTool.createArrayList();
+		List<SqlAlterTableClause> list = new ArrayList<>();
 		if(!options.getDeleteColumns()){ return list; }
 		if(DrCollectionTool.isEmpty(colsToRemove)){ return list; }
 		StringBuilder sb = new StringBuilder();

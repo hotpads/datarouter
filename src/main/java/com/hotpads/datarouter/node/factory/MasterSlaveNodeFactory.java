@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.node.factory;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -25,7 +26,6 @@ import com.hotpads.datarouter.storage.StorageType;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.setting.DatarouterSettings;
 
 @Singleton
@@ -98,7 +98,7 @@ public class MasterSlaveNodeFactory{
 			master = nodeFactory.create(masterClientName, databeanClass, fielderClass, router, false);
 		}
 		
-		List<N> slaves = DrListTool.createLinkedList();
+		List<N> slaves = new LinkedList<>();
 		for(String slaveClientName : DrCollectionTool.nullSafe(slaveClientNames)){
 			N slaveNode = nodeFactory.create(slaveClientName, databeanClass, fielderClass, router, false);
 			slaves.add(slaveNode);

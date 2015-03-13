@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -22,7 +23,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.util.core.DrHashMethods;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.profile.count.databean.key.CounterAlertKey;
 
 @SuppressWarnings("serial")
@@ -124,7 +124,7 @@ public class CounterAlert extends BaseDatabean<CounterAlertKey,CounterAlert>{
 		
 		@Override
 		public Map<String,List<Field<?>>> getIndexes(CounterAlert counterAlert){
-			Map<String,List<Field<?>>> indexesByName = DrMapTool.createTreeMap();
+			Map<String,List<Field<?>>> indexesByName = new TreeMap<>();
 			indexesByName.put(F.counterName, new CounterAlertByCounterNameLookup(null).getFields());
 			indexesByName.put(F.creatorEmail, new CounterAlertByCreatorEmailLookup(null).getFields());
 			return indexesByName;

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.inject.Inject;
 
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.setting.Setting;
 import com.hotpads.setting.cached.imp.BooleanCachedSetting;
 import com.hotpads.setting.cached.imp.Duration;
@@ -35,8 +35,8 @@ public abstract class SettingNode {
 	public SettingNode(ClusterSettingFinder finder, String name, String parentName){
 		this.name = name;
 		this.parentName = parentName;
-		this.children = Collections.synchronizedSortedMap(DrMapTool.<String,SettingNode>createTreeMap());
-		this.settings = Collections.synchronizedSortedMap(DrMapTool.<String,Setting<?>>createTreeMap());
+		this.children = Collections.synchronizedSortedMap(new TreeMap<String,SettingNode>());
+		this.settings = Collections.synchronizedSortedMap(new TreeMap<String,Setting<?>>());
 		this.finder = finder;
 	}
 
@@ -65,7 +65,7 @@ public abstract class SettingNode {
 	}
 
 	public List<SettingNode> getDescendanceByName(String nameParam){
-		ArrayList<SettingNode> list = DrListTool.createArrayList();
+		ArrayList<SettingNode> list = new ArrayList<>();
 		if(getName().equals(nameParam)){
 			list.add(this);
 			return list;
@@ -94,7 +94,7 @@ public abstract class SettingNode {
 	}
 
 	public List<SettingNode> getListChildren(){
-		ArrayList<SettingNode> list = DrListTool.createArrayList();
+		ArrayList<SettingNode> list = new ArrayList<>();
 		for (String childName : children.keySet()){
 			list.add(children.get(childName));
 		}

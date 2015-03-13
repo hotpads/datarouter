@@ -2,22 +2,21 @@ package com.hotpads.datarouter.client.imp.hbase.pool;
 
 import java.util.Map;
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
-
-import junit.framework.Assert;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HConnection;
 import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.hadoop.hbase.client.HTable;
+import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.client.imp.hbase.HBaseClientType;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.concurrent.SemaphoreTool;
@@ -52,7 +51,7 @@ public class HTableExecutorServicePool implements HTablePool{
 		this.maxSize = maxSize;
 		this.hTableSemaphore = new Semaphore(maxSize);
 		this.executorServiceQueue = new LinkedBlockingDeque<HTableExecutorService>(maxSize);
-		this.activeHTables = DrMapTool.createConcurrentHashMap();
+		this.activeHTables = new ConcurrentHashMap<>();
 		this.primaryKeyClassByName = primaryKeyClassByName;
 	}
 

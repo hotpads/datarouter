@@ -7,7 +7,7 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.op.aware.DatarouterContextAware;
 
 public interface ClientOp<T>
-extends DatarouterContextAware<T>{
+extends DatarouterContextAware{
 
 	List<String> getClientNames();	
 	T runOnce();

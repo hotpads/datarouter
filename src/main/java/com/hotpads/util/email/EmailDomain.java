@@ -241,7 +241,7 @@ public enum EmailDomain implements StringEnum<EmailDomain>{
 		while(domain.length()>0 && domain.endsWith(".")){
 			domain = domain.substring(0, domain.length()-1);
 		}
-		int tld = domain.lastIndexOf((int) '.');
+		int tld = domain.lastIndexOf('.');
 		if (tld <= 0) {
 			return null;// localhost email domain fails here
 		}

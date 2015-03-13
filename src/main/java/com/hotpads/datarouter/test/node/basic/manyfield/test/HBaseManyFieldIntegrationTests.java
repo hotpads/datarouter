@@ -8,7 +8,7 @@ import com.hotpads.datarouter.test.node.basic.manyfield.BaseManyFieldIntegration
 public class HBaseManyFieldIntegrationTests extends BaseManyFieldIntegrationTests{
 
 	@BeforeClass
-	public static void beforeClass(){
+	public void beforeClass(){
 		setup(DRTestConstants.CLIENT_drTestHBase, true);
 	}
 

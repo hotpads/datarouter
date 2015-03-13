@@ -3,11 +3,15 @@ package com.hotpads.datarouter.test.node.basic.backup.test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -41,8 +45,6 @@ import com.hotpads.datarouter.test.node.basic.backup.BackupBeanKey;
 import com.hotpads.datarouter.test.node.basic.backup.BackupTestRouter;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.util.core.profile.PhaseTimer;
 
 @RunWith(Parameterized.class)
@@ -51,8 +53,8 @@ public class BackupIntegrationTester{
 	
 	/****************************** client types ***********************************/
 
-	public static List<ClientType> clientTypes = DrListTool.create();
-	public static List<Object[]> clientTypeObjectArrays = DrListTool.create();
+	public static List<ClientType> clientTypes = new ArrayList<>();
+	public static List<Object[]> clientTypeObjectArrays = new ArrayList<>();
 	static{
 		clientTypes.add(HibernateClientType.INSTANCE);
 		clientTypes.add(HBaseClientType.INSTANCE);
@@ -63,12 +65,10 @@ public class BackupIntegrationTester{
 	
 	/************************************ routers ***************************************/
 
-	static Map<ClientType,BackupTestRouter> routerByClientType = DrMapTool.create();
+	static Map<ClientType,BackupTestRouter> routerByClientType = new HashMap<>();
 	
 	@BeforeClass
-	public static void init() throws IOException{	
-		Class<?> cls = BackupIntegrationTester.class;
-
+	public static void init() throws IOException{
 		Injector injector = new TestDatarouterInjectorProvider().get();
 		DatarouterContext drContext = injector.getInstance(DatarouterContext.class);
 		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
@@ -104,7 +104,7 @@ public class BackupIntegrationTester{
 		Collections.shuffle(cs);
 		Collections.shuffle(ds);
 		
-		List<BackupBean> toSave = DrListTool.createArrayList();
+		List<BackupBean> toSave = new ArrayList<>();
 		for(int a=0; a < NUM_ELEMENTS; ++a){
 			for(int b=0; b < NUM_ELEMENTS; ++b){
 				for(int c=0; c < NUM_ELEMENTS; ++c){
@@ -157,7 +157,7 @@ public class BackupIntegrationTester{
 			S_ostrich = "ostrich",
 			S_pelican = "pelican";
 	
-	public static final SortedSet<String> STRINGS = DrSetTool.createTreeSet(
+	public static final SortedSet<String> STRINGS = new TreeSet<>(Arrays.asList(
 			S_aardvark,
 			S_albatross,
 			S_alpaca,
@@ -165,7 +165,7 @@ public class BackupIntegrationTester{
 			S_emu,
 			S_gopher,
 			S_ostrich,
-			S_pelican);
+			S_pelican));
 
 	public static final String PREFIX_a = "a";
 	public static final int NUM_PREFIX_a = 3;
@@ -185,7 +185,7 @@ public class BackupIntegrationTester{
 			RANGE_LENGTH_emu = 4;
 	
 	public static final int NUM_ELEMENTS = STRINGS.size();
-	public static final List<Integer> INTEGERS = DrListTool.createArrayList(NUM_ELEMENTS);
+	public static final List<Integer> INTEGERS = new ArrayList<>(NUM_ELEMENTS);
 	static{
 		for(int i=0; i < NUM_ELEMENTS; ++i){
 			INTEGERS.add(i);

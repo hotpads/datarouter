@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
  */
 public class PrivateAccessor {
 
-	public static Field getPrivateField (Class c, String fieldName) {
+	public static Field getPrivateField (Class<?> c, String fieldName) {
 		if(c==null || fieldName==null) return null;
 		final Field[] fields = c.getDeclaredFields();
 		for (int i = 0; i < fields.length; ++i) {
@@ -22,7 +22,7 @@ public class PrivateAccessor {
 		return null;
 	}
 	
-	public static Method getPrivateMethod (Class c, String methodName) {
+	public static Method getPrivateMethod (Class<?> c, String methodName) {
 		if(c==null || methodName==null) return null;
 		final Method[] methods = c.getDeclaredMethods();
 		for (int i = 0; i < methods.length; ++i) {
