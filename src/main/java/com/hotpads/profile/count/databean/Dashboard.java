@@ -15,7 +15,6 @@ import com.hotpads.datarouter.storage.field.imp.comparable.BooleanField;
 import com.hotpads.datarouter.storage.field.imp.comparable.LongField;
 import com.hotpads.profile.count.databean.key.DashboardKey;
 
-@SuppressWarnings("serial")
 public class Dashboard extends BaseDatabean<DashboardKey,Dashboard>{
 
 	/************************ fields ********************************/

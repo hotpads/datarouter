@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.storage.prefix;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.hotpads.datarouter.storage.field.Field;
@@ -10,7 +11,7 @@ public class EmptyScatteringPrefix
 extends BaseScatteringPrefix{
 
 	public static final EmptyScatteringPrefix REUSABLE_PREFIX = new EmptyScatteringPrefix();
-	public static final List<Field<?>> EMPTY_LIST = DrListTool.create();
+	public static final List<Field<?>> EMPTY_LIST = new ArrayList<>();
 	
 	//this should have one empty FieldSet representing the normal, non-prefixed table
 	public static final List<List<Field<?>>> EMPTY_LIST_LIST = DrListTool.wrap(EMPTY_LIST);

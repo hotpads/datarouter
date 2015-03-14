@@ -1,9 +1,8 @@
 package com.hotpads.util.core.iterable;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.hotpads.datarouter.util.core.DrListTool;
 
 
 public class BatchingIterable<T> implements Iterable<List<T>>{
@@ -36,7 +35,7 @@ public class BatchingIterable<T> implements Iterable<List<T>>{
 		
 		private BatchingIterator(Iterator<T> iter, int batchSize){
 			this.iter = iter;
-			this.batch = DrListTool.createArrayList();
+			this.batch = new ArrayList<>();
 			this.batchSize = batchSize;
 		}
 		
@@ -50,7 +49,7 @@ public class BatchingIterable<T> implements Iterable<List<T>>{
 			while(true){
 				if(!iter.hasNext() || batch.size() >= batchSize){
 					List<T> result = batch;
-					batch = DrListTool.createArrayList();
+					batch = new ArrayList<>();
 					return result;
 				}
 				batch.add(iter.next());

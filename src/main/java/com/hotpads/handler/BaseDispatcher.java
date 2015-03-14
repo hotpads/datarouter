@@ -77,9 +77,8 @@ public abstract class BaseDispatcher{
 		if (handler == null){
 			if (defaultHandlerClass == null){
 				return false;// url not found
-			}else{
-				handler = injector.getInstance(defaultHandlerClass);
 			}
+			handler = injector.getInstance(defaultHandlerClass);
 		}
 		
 		handler.setRequest(request);

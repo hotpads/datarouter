@@ -1,6 +1,7 @@
 package com.hotpads.handler.admin.client.hbase;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -136,7 +137,6 @@ public class HBaseHandler extends BaseHandler {
 		}
 		Map<String,Map<String,String>> tableSummaryByName = new TreeMap<>();
 		Map<String,Map<String,Map<String,String>>> familySummaryByTableName = new TreeMap<>();
-		@SuppressWarnings("unchecked") 
 		List<String> tableNamesForClient = routerParams.getNodes().getTableNamesForRouterAndClient(routerParams
 				.getRouterName(), routerParams.getClientName());
 		for(HTableDescriptor table : DrIterableTool.nullSafe(tables)){
@@ -172,7 +172,7 @@ public class HBaseHandler extends BaseHandler {
 			ClusterStatus clusterStatus = master.getClusterStatus();
 			mav.put("clusterStatus", clusterStatus);
 			Collection<ServerName> serverNames = clusterStatus.getServers();
-			List<DRHServerInfo> servers = DrListTool.create();
+			List<DRHServerInfo> servers = new ArrayList<>();
 			for (ServerName serverName : DrIterableTool.nullSafe(serverNames)) {
 				HServerLoad hServerLoad = clusterStatus.getLoad(serverName);
 				servers.add(new DRHServerInfo(serverName, hServerLoad));
@@ -195,14 +195,14 @@ public class HBaseHandler extends BaseHandler {
 		}
 		if(table != null){
 			// table level settings
-			Map<String,String> tableParamByName = DrMapTool.createTreeMap();
+			Map<String,String> tableParamByName = new TreeMap<>();
 			tableParamByName.put(HBASE_TABLE_PARAM_MAX_FILESIZE, table.getMaxFileSize() / 1024 / 1024 + "");
 			tableParamByName.put(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE, table.getMemStoreFlushSize() / 1024 / 1024 + "");
 			mav.put("tableParamByName", tableParamByName);
 
 			// column family level settings
 			List<HColumnDescriptor> columnFamilies = DrListTool.create(table.getColumnFamilies());
-			Map<String,Map<String,String>> columnSummaryByName = DrMapTool.createTreeMap();
+			Map<String,Map<String,String>> columnSummaryByName = new TreeMap<>();
 			for(HColumnDescriptor column : DrIterableTool.nullSafe(columnFamilies)){
 				Map<String,String> attributeByName = parseFamilyAttributeMap(column.getValues());
 				columnSummaryByName.put(column.getNameAsString(), attributeByName);
@@ -529,7 +529,7 @@ public class HBaseHandler extends BaseHandler {
 			ACTION_updateHBaseTableAttribute = "updateHBaseTableAttribute",
 			ACTION_updateHBaseColumnAttribute = "updateHBaseColumnAttribute";
 
-	private static final List<String> NEEDS_CLIENT = DrListTool.create();
+	private static final List<String> NEEDS_CLIENT = new ArrayList<>();
 	static {
 		NEEDS_CLIENT.add(RoutersHandler.ACTION_inspectClient);
 		NEEDS_CLIENT.add(ACTION_moveRegionsToCorrectServer);
@@ -549,7 +549,7 @@ public class HBaseHandler extends BaseHandler {
 
 	}
 
-	private static final List<String> NEEDS_ROUTER = DrListTool.create();
+	private static final List<String> NEEDS_ROUTER = new ArrayList<>();
 	static {
 		NEEDS_ROUTER.addAll(NEEDS_CLIENT);
 		NEEDS_ROUTER.add(RoutersHandler.ACTION_inspectRouter);
@@ -557,7 +557,7 @@ public class HBaseHandler extends BaseHandler {
 		NEEDS_ROUTER.add(ACTION_exportNodeToHFile);
 	}
 
-	private static final List<String> NEEDS_NODE = DrListTool.create();
+	private static final List<String> NEEDS_NODE = new ArrayList<>();
 	static {
 		NEEDS_NODE.add(ACTION_copyHBaseTable);
 		NEEDS_NODE.add(ACTION_exportNodeToHFile);
@@ -569,8 +569,7 @@ public class HBaseHandler extends BaseHandler {
 		NEEDS_NODE.add(ACTION_viewHBaseTableRegions);
 	}
 
-	private static final HashMap<String, List<String>> HBASE_NEEDS = DrMapTool
-			.createHashMap();
+	private static final HashMap<String, List<String>> HBASE_NEEDS = new HashMap<>();
 	static {
 		HBASE_NEEDS.put(RouterParams.NEEDS_CLIENT, NEEDS_CLIENT);
 		HBASE_NEEDS.put(RouterParams.NEEDS_ROUTER, NEEDS_ROUTER);
@@ -582,7 +581,7 @@ public class HBaseHandler extends BaseHandler {
 			HBASE_TABLE_PARAM_MAX_FILESIZE = "MAX_FILESIZE",
 			HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE = "MEMSTORE_FLUSHSIZE";
 
-	private static final List<String> HBASE_TABLE_PARAMS = DrListTool.create();
+	private static final List<String> HBASE_TABLE_PARAMS = new ArrayList<>();
 	static {
 		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MAX_FILESIZE);
 		HBASE_TABLE_PARAMS.add(HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE);

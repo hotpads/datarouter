@@ -3,8 +3,6 @@ package com.hotpads.handler.datarouter.query;
 import java.util.Collection;
 import java.util.List;
 
-import org.hibernate.Session;
-
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
 import com.hotpads.datarouter.client.imp.hibernate.util.JdbcTool;
@@ -35,8 +33,7 @@ extends BaseHibernateOp<Long>{
 		if(DrStringTool.notEmpty(where)){
 			sql += " where " + where;
 		}
-		Session session = getSession(client.getName());
-		return JdbcTool.count(session.connection(), sql);
+		return JdbcTool.count(getConnection(client.getName()), sql);
 	}
 	
 }

@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.serialize;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -94,7 +95,7 @@ public class JsonDatabeanTool{
 	
 	public static <PK extends PrimaryKey<PK>>
 	List<PK> primaryKeysFromJson(Class<PK> pkClass, Fielder<PK> fielder, JSONArray json){
-		List<PK> pks = DrListTool.createArrayList();
+		List<PK> pks = new ArrayList<>();
 		if(json==null){ return pks; }
 		Iterator<?> iter = json.iterator();
 		while(iter.hasNext()){
@@ -146,7 +147,7 @@ public class JsonDatabeanTool{
 	
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	List<D> databeansFromJson(Class<D> databeanClass, DatabeanFielder<PK,D> fielder, JSONArray json){
-		List<D> databeans = DrListTool.createArrayList();
+		List<D> databeans = new ArrayList<>();
 		if(json==null){ return databeans; }
 		Iterator<?> iter = json.iterator();
 		while(iter.hasNext()){

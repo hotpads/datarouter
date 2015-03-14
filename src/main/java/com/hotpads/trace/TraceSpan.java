@@ -3,6 +3,7 @@ package com.hotpads.trace;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.persistence.Column;
@@ -21,12 +22,10 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt31Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
 import com.hotpads.trace.key.TraceSpanKey;
 import com.hotpads.trace.key.TraceThreadKey;
 
-@SuppressWarnings("serial")
 @Entity
 @AccessType("field")
 public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
@@ -121,7 +120,7 @@ public class TraceSpan extends BaseDatabean<TraceSpanKey,TraceSpan>{
 	
 	public static SortedMap<TraceThreadKey,SortedSet<TraceSpan>> getByThreadKey(
 			Iterable<TraceSpan> spans){
-		SortedMap<TraceThreadKey,SortedSet<TraceSpan>> out = DrMapTool.createTreeMap();
+		SortedMap<TraceThreadKey,SortedSet<TraceSpan>> out = new TreeMap<>();
 		for(TraceSpan s : DrIterableTool.nullSafe(spans)){
 			TraceThreadKey threadKey = s.getThreadKey();
 			if(out.get(threadKey)==null){ out.put(threadKey, new TreeSet<TraceSpan>()); }

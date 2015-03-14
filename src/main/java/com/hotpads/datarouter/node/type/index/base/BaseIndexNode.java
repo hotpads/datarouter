@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.index.base;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -67,7 +68,7 @@ extends BaseNode<IK,IE,DatabeanFielder<IK,IE>>{
 	
 	@Override
 	public List<? extends Node<IK,IE>> getChildNodes(){
-		if(indexNode==null){ return DrListTool.create(); }
+		if(indexNode==null){ return new ArrayList<>(); }
 		return DrListTool.wrap(indexNode);
 	}
 

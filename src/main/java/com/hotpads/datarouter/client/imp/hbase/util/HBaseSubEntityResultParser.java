@@ -1,5 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.util;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -65,7 +67,7 @@ public class HBaseSubEntityResultParser<
 	/****************** parse multiple hbase rows ********************/
 
 	public List<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result[] rows){
-		List<PK> results = DrListTool.createArrayList();
+		List<PK> results = new ArrayList<>();
 		for(Result row : rows){
 			if(row.isEmpty()){ continue; }
 			NavigableSet<PK> pksFromSingleGet = getPrimaryKeysWithMatchingQualifierPrefix(row);
@@ -75,7 +77,7 @@ public class HBaseSubEntityResultParser<
 	}
 
 	public List<D> getDatabeansWithMatchingQualifierPrefix(Result[] rows){
-		List<D> results = DrListTool.createArrayList();
+		List<D> results = new ArrayList<>();
 		for(Result row : rows){
 			if(row.isEmpty()){ continue; }
 			List<D> databeansFromSingleGet = getDatabeansWithMatchingQualifierPrefix(row);
@@ -100,7 +102,7 @@ public class HBaseSubEntityResultParser<
 	}
 		
 	public List<D> getDatabeansWithMatchingQualifierPrefix(Result row){
-		if(row==null){ return DrListTool.createLinkedList(); }
+		if(row==null){ return new LinkedList<>(); }
 		Map<PK,D> databeanByKey = new TreeMap<>();
 		for(KeyValue kv : DrIterableTool.nullSafe(row.list())){//row.list() can return null
 			if(!matchesNodePrefix(kv)){ continue; }

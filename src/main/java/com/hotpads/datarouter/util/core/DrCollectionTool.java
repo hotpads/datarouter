@@ -2,29 +2,19 @@ package com.hotpads.datarouter.util.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Random;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.hotpads.util.core.Predicate;
-import com.hotpads.util.core.collections.Pair;
-import com.hotpads.util.core.number.RandomTool;
-import com.hotpads.util.datastructs.MutableBoolean;
 
 
 public class DrCollectionTool {
@@ -48,17 +38,15 @@ public class DrCollectionTool {
 	public static <T> boolean isEmpty(Collection<T> collection){
 		if(collection == null || collection.isEmpty()){
 			return true;
-		}else{
-			return false;
 		}
+		return false;
 	}
 
 	public static <T> boolean notEmpty(Collection<T> collection){
 		if(collection == null || collection.isEmpty()){
 			return false;
-		}else{
-			return true;
 		}
+		return true;
 	}
 	
 	/****************************** size **************************************/
@@ -165,7 +153,7 @@ public class DrCollectionTool {
 	}
 	
 	public static <T> List<T> removeNulls(Iterable<T> ts) {
-		LinkedList<T> lst = DrGenericsFactory.makeLinkedList();
+		LinkedList<T> lst = new LinkedList<>();
 		for (T t : ts)
 			if (t != null)
 				lst.add(t);

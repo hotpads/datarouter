@@ -1,6 +1,7 @@
 package com.hotpads.notification;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.util.DatarouterEmailTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrExceptionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.handler.exception.ExceptionHandlingConfig;
 import com.hotpads.handler.exception.ExceptionRecord;
 import com.hotpads.notification.databean.NotificationRequest;
@@ -82,7 +82,7 @@ public class ParallelApiCaller {
 
 		@Override
 		public void run() {
-			List<Pair<NotificationRequest, ExceptionRecord>> requests = DrListTool.createArrayList();
+			List<Pair<NotificationRequest, ExceptionRecord>> requests = new ArrayList<>();
 			while (DrCollectionTool.notEmpty(queue)) {
 				if (requests.size() == BATCH_SIZE) {
 					logger.info("Submiting api call attempt with {} notification requet(s)", requests.size());
@@ -96,7 +96,7 @@ public class ParallelApiCaller {
 					if(errorRequests.size() > 0){
 						new FailedTester(future, requests, getTimeoutMs(), exceptionHandlingConfig).start();
 					}
-					requests = DrListTool.create();
+					requests = new ArrayList<>();
 				}
 				requests.add(queue.poll());
 			}

@@ -28,7 +28,7 @@ public class BalanceLeveler<I,D>{
 	public BalanceLeveler(Collection<D> allDestinations, SortedMap<I,D> unleveledDestinationByItem){
 		this.allDestinations = DrCollectionTool.nullSafe(allDestinations);
 		this.destinationByItem = new TreeMap<I,D>(unleveledDestinationByItem);
-		this.countByDestination = DrMapTool.createTreeMap();//sorted easier for debugging
+		this.countByDestination = new TreeMap<>();//sorted easier for debugging
 		updateCountByDestination();
 	}
 	

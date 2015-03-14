@@ -14,7 +14,7 @@ public class AvailableCounterGroup{
 		super();
 		this.availableCounter = availableCounter;
 		this.name = availableCounter.getName();
-		this.servers = DrSetTool.createHashSet();
+		this.servers = new HashSet<>();
 		this.servers.add(availableCounter.getSource());
 	}
 
@@ -22,7 +22,7 @@ public class AvailableCounterGroup{
 		super();
 		this.availableCounter = new AvailableCounter();
 		this.availableCounter.setName(availableCounterName);
-		this.servers = DrSetTool.createHashSet();
+		this.servers = new HashSet<>();
 		this.servers.add(availableCounter.getSource());
 	}
 

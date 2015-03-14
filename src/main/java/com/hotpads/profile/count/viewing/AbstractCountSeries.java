@@ -1,8 +1,8 @@
 package com.hotpads.profile.count.viewing;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrXMLStringTool;
 import com.hotpads.profile.count.viewing.PaddedCountSeriesManipulationException.PaddedCountSeriesTypeException;
 
@@ -54,7 +54,7 @@ public abstract class AbstractCountSeries{
 	}
 
 	protected List<Long> fillWithZero(){
-		List<Long> toReturn = DrListTool.createArrayList(numPeriods + 1);
+		List<Long> toReturn = new ArrayList<>(numPeriods + 1);
 		for(int index = 0; index <= numPeriods; index++){
 			toReturn.add(new Long(0));
 		}

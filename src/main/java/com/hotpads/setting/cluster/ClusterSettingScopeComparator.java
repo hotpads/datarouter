@@ -1,6 +1,7 @@
 package com.hotpads.setting.cluster;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -11,7 +12,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.setting.StandardServerType;
 
@@ -38,7 +38,7 @@ public class ClusterSettingScopeComparator implements Comparator<ClusterSetting>
 		private static ClusterSetting joblet1;
 		private static ClusterSetting joblet2;
 		private static ClusterSetting instance1;
-		private static List<ClusterSetting> settings = DrListTool.create();
+		private static List<ClusterSetting> settings = new ArrayList<>();
 		
 		@BeforeClass 
 		public static void setUpClass() throws IOException{

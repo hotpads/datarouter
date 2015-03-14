@@ -19,13 +19,10 @@ import com.hotpads.datarouter.storage.field.FieldTool;
 import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.util.core.DrComparableTool;
-import com.hotpads.profile.count.databean.Count;
-import com.hotpads.profile.count.databean.key.CountKey;
 import com.hotpads.trace.key.TraceThreadKey;
 
 @Entity
 @AccessType("field")
-@SuppressWarnings("serial")
 public class TraceThread extends BaseDatabean<TraceThreadKey,TraceThread>{
 
 	public static final int DEFAULT_STRING_LENGTH = MySqlColumnType.MAX_LENGTH_VARCHAR;

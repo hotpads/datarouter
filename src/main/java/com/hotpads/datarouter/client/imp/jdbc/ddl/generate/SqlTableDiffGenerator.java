@@ -7,8 +7,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlCharacterSet;
@@ -54,11 +53,10 @@ public class SqlTableDiffGenerator{
 		Set<SqlColumn> tableAColumns = new TreeSet<SqlColumn>(c);
 		Set<SqlColumn> tableBColumns = new TreeSet<SqlColumn>(c);
 		if(tableA==null || tableB==null){
-			return DrListTool.createArrayList();
-		}else{
-			tableAColumns.addAll(tableA.getColumns());
-			tableBColumns.addAll(tableB.getColumns());
+			return new ArrayList<>();
 		}
+		tableAColumns.addAll(tableA.getColumns());
+		tableBColumns.addAll(tableB.getColumns());
 		return DrListTool.createArrayList(DrCollectionTool.minus(tableAColumns, tableBColumns, c));		
 	}
 	
@@ -67,11 +65,10 @@ public class SqlTableDiffGenerator{
 		Set<SqlColumn> requestedColumns = new TreeSet<SqlColumn>(c);
 		Set<SqlColumn> currentColumns = new TreeSet<SqlColumn>(c);
 		if(requested==null || current==null){
-			return DrListTool.createArrayList();
-		}else{
-			requestedColumns.addAll(requested.getColumns());
-			currentColumns.addAll(current.getColumns());
+			return new ArrayList<>();
 		}
+		requestedColumns.addAll(requested.getColumns());
+		currentColumns.addAll(current.getColumns());
 				//TODO too much on one line.  extract the sets into their own variables
 		return getColumnsToModifyAfterAddingColumns(requestedColumns,currentColumns,getColumnsToAdd(),c);
 	}
@@ -104,13 +101,13 @@ public class SqlTableDiffGenerator{
 	 */
 	private static SortedSet<SqlIndex> minusIndexes(SqlTable tableA, SqlTable tableB){
 		if(tableA == null || tableB == null){
-			return DrSetTool.createTreeSet();
+			return new TreeSet<>();
 		}
 		SortedSet<SqlIndex> tableAIndexes = tableA.getIndexes();
 		SortedSet<SqlIndex> tableBIndexes = tableB.getIndexes();
 		TreeSet<SqlIndex> indexesToRemove = DrCollectionTool.minus(tableAIndexes, tableBIndexes,
 				new SqlIndexNameComparator());
-		return DrSetTool.createTreeSet(indexesToRemove);
+		return new TreeSet<>(indexesToRemove);
 	}
 	
 	/********************* helper methods *******************************/
@@ -126,8 +123,8 @@ public class SqlTableDiffGenerator{
 	public boolean isTableModified(){
 		if(isPrimaryKeyModified()){ return true; }
 				//TODO too much on one line.  extract the sets into their own variables
-		SortedSet<SqlColumn> currentColumns = DrSetTool.createTreeSet(current.getColumns());
-		SortedSet<SqlColumn> requestedColumns = DrSetTool.createTreeSet(requested.getColumns());
+		SortedSet<SqlColumn> currentColumns = new TreeSet<>(current.getColumns());
+		SortedSet<SqlColumn> requestedColumns = new TreeSet<>(requested.getColumns());
 		if(! DrSetTool.containsSameKeys(currentColumns, requestedColumns)){ return true; }
 		if(isIndexesModified()){ return true; }
 		if(isEngineModified()){ return true; }
@@ -155,8 +152,8 @@ public class SqlTableDiffGenerator{
 	}
 
 	public boolean isIndexesModified(){
-		SortedSet<SqlIndex> currentIndexes = DrSetTool.createTreeSet(current.getIndexes());
-		SortedSet<SqlIndex> requestedIndexes = DrSetTool.createTreeSet(requested.getIndexes());
+		SortedSet<SqlIndex> currentIndexes = new TreeSet<>(current.getIndexes());
+		SortedSet<SqlIndex> requestedIndexes = new TreeSet<>(requested.getIndexes());
 		return !DrSetTool.containsSameKeys(currentIndexes, requestedIndexes);
 	}
 
@@ -221,8 +218,8 @@ public class SqlTableDiffGenerator{
 		
 		@Test public void isTableModifiedTest(){
 					//TODO don't reuse declaration types anywhere
-			List<SqlColumn> listA = DrListTool.createArrayList();
-			List<SqlColumn> listA2 = DrListTool.createArrayList();
+			List<SqlColumn> listA = new ArrayList<>();
+			List<SqlColumn> listA2 = new ArrayList<>();
 					//listB = ListTool.createArrayList();
 			SqlTable tableA = new SqlTable("A", listA, primaryKey1);
 			// SqlTable tableB = new SqlTable("B", listB, primaryKey1);
@@ -247,8 +244,8 @@ public class SqlTableDiffGenerator{
 		}
 
 		@Test public void isPrimaryKeyModifiedTest(){
-			List<SqlColumn> list1 = DrListTool.createArrayList();
-			List<SqlColumn> list2 = DrListTool.createArrayList();
+			List<SqlColumn> list1 = new ArrayList<>();
+			List<SqlColumn> list2 = new ArrayList<>();
 			SqlColumn idCol = new SqlColumn("id", MySqlColumnType.BIGINT);
 			SqlColumn col = new SqlColumn("id", MySqlColumnType.BIGINT);
 			
@@ -278,8 +275,8 @@ public class SqlTableDiffGenerator{
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
 			List<SqlColumn> 
-					listBC = DrListTool.createArrayList(),
-					listM = DrListTool.createArrayList();
+					listBC = new ArrayList<>(),
+					listM = new ArrayList<>();
 			
 			listBC.add(colB);
 			listBC.add(colC);
@@ -317,8 +314,8 @@ public class SqlTableDiffGenerator{
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
-			List<SqlColumn> listBC = DrListTool.createArrayList();
-			List<SqlColumn> listM = DrListTool.createArrayList();
+			List<SqlColumn> listBC = new ArrayList<>();
+			List<SqlColumn> listM = new ArrayList<>();
 	
 			listBC.add(colB);
 			listBC.add(colC);
@@ -350,8 +347,8 @@ public class SqlTableDiffGenerator{
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
-			List<SqlColumn> listBC = DrListTool.createArrayList();
-			List<SqlColumn> listM = DrListTool.createArrayList();
+			List<SqlColumn> listBC = new ArrayList<>();
+			List<SqlColumn> listM = new ArrayList<>();
 			
 			listBC.add(colB);
 			listBC.add(colC);
@@ -385,8 +382,8 @@ public class SqlTableDiffGenerator{
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
-			List<SqlColumn> listBC = DrListTool.createArrayList();
-			List<SqlColumn> listM = DrListTool.createArrayList();
+			List<SqlColumn> listBC = new ArrayList<>();
+			List<SqlColumn> listM = new ArrayList<>();
 			
 			listBC.add(colB);
 			listBC.add(colC);
@@ -422,8 +419,8 @@ public class SqlTableDiffGenerator{
 			SqlColumn colB = new SqlColumn("B", MySqlColumnType.BINARY);
 			SqlColumn colC = new SqlColumn("C", MySqlColumnType.BOOLEAN);
 			SqlColumn colM = new SqlColumn("M", MySqlColumnType.VARCHAR);
-			List<SqlColumn> listBC = DrListTool.createArrayList();
-			List<SqlColumn> listM = DrListTool.createArrayList();
+			List<SqlColumn> listBC = new ArrayList<>();
+			List<SqlColumn> listM = new ArrayList<>();
 			
 			listBC.add(colB);
 			listBC.add(colC);

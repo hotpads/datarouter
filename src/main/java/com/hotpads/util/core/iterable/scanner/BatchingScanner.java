@@ -3,7 +3,7 @@ package com.hotpads.util.core.iterable.scanner;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
@@ -19,13 +19,13 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 	
 	public BatchingScanner(Scanner<T> scanner, int batchSize){
 		this.scanner = scanner;
-		this.batch = DrListTool.createArrayList();
+		this.batch = new ArrayList<>();
 		this.batchSize = batchSize;
 	}
 	
 	@Override
 	public boolean advance(){
-		batch = DrListTool.createArrayList();
+		batch = new ArrayList<>();
 		while( ! fullBatch()){
 			if(!scanner.advance()){
 				break;
@@ -71,7 +71,7 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 			List<Integer> ints = DrListTool.createArrayList(0,1,2,3,4,5,6,7);
 			Scanner<Integer> scanner = new ListBackedSortedScanner<Integer>(ints);
 			BatchingScanner<Integer> batchingScanner = new BatchingScanner<Integer>(scanner, 3);
-			List<List<Integer>> batches = DrListTool.create();
+			List<List<Integer>> batches = new ArrayList<>();
 			while(batchingScanner.advance()){
 				batches.add(batchingScanner.getCurrent());
 			}

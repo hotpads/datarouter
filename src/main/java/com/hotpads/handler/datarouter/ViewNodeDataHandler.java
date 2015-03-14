@@ -1,7 +1,9 @@
 package com.hotpads.handler.datarouter;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +27,6 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
@@ -137,7 +138,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 		mav.put("nonFieldAware", "field aware");
 
 		if(fields == null){
-			fields = DrListTool.create();
+			fields = new ArrayList<>();
 			fields.addAll(node.getFieldInfo().getPrimaryKeyFields());
 			mav.put("nonFieldAware", " non field aware");
 		}
@@ -160,7 +161,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 
 		boolean startInclusive = true;
 		Config config = new Config().setIterateBatchSize(limit);//setLimit not currently valid for scanners
-		Iterable<D> databeanIterable = sortedNode.scan(new Range<>((PK)startAfterKey, startInclusive, null, true),
+		Iterable<D> databeanIterable = sortedNode.scan(new Range<>(startAfterKey, startInclusive, null, true),
 				config);
 		List<D> databeans = DrListTool.createArrayList(databeanIterable, limit);
 
@@ -198,7 +199,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 	private void addDatabeansToMav(Mav mav, List<D> databeans){
 		mav.put("databeans", databeans);
 
-		List<List<Field<?>>> rowsOfFields = DrListTool.create();
+		List<List<Field<?>>> rowsOfFields = new ArrayList<>();
 		DatabeanFielder fielder = node.getFieldInfo().getSampleFielder();
 		if(fielder != null){
 			for(Databean<?,?> databean : DrIterableTool.nullSafe(databeans)){
@@ -219,7 +220,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 
 	private Map<String,String> getFieldAbbreviationByFieldName(DatabeanFielder fielder, 
 			Collection<? extends Databean<?,?>> databeans){
-		if(DrCollectionTool.isEmpty(databeans)){ return DrMapTool.create(); }
+		if(DrCollectionTool.isEmpty(databeans)){ return new HashMap<>(); }
 		Databean<?,?> first = DrIterableTool.first(databeans);
 		List<String> fieldNames = FieldTool.getFieldNames(fielder.getFields(first));
 		List<Integer> maxLengths = DrListTool.createArrayListAndInitialize(fieldNames.size());
@@ -235,7 +236,7 @@ public class ViewNodeDataHandler<PK extends PrimaryKey<PK>,D extends Databean<PK
 			}
 		}
 		
-		Map<String,String> abbreviatedNames = DrMapTool.create();
+		Map<String,String> abbreviatedNames = new HashMap<>();
 		for(int i = 0; i < maxLengths.size(); ++i){
 			int length = maxLengths.get(i);
 			if(length < MIN_FIELD_ABBREVIATION_LENGTH){

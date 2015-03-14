@@ -2,9 +2,11 @@ package com.hotpads.datarouter.node.type.physical.base;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +80,7 @@ implements PhysicalNode<PK,D>
 
 	@Override
 	public List<String> getClientNames() {
-		SortedSet<String> clientNames = DrSetTool.createTreeSet();
+		SortedSet<String> clientNames = new TreeSet<>();
 		clientNames.add(getClientName());
 		return DrListTool.createArrayList(clientNames);
 	}
@@ -95,19 +97,19 @@ implements PhysicalNode<PK,D>
 	
 	@Override
 	public List<Node<PK,D>> getChildNodes(){
-		return DrListTool.create();
+		return new ArrayList<>();
 	}
 		
 	@Override
 	public List<? extends PhysicalNode<PK,D>> getPhysicalNodes() {
-		List<PhysicalNode<PK,D>> physicalNodes = DrListTool.createLinkedList();
+		List<PhysicalNode<PK,D>> physicalNodes = new LinkedList<>();
 		physicalNodes.add(this);
 		return physicalNodes;
 	}
 
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
-		List<PhysicalNode<PK,D>> physicalNodes = DrListTool.createLinkedList();
+		List<PhysicalNode<PK,D>> physicalNodes = new LinkedList<>();
 		if(clientName.equals(getClientName())){
 			physicalNodes.add(this);
 		}

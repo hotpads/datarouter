@@ -24,6 +24,9 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.entity.Entity;
+import com.hotpads.datarouter.storage.key.entity.EntityKey;
+import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.multi.MultiIndexEntry;
 import com.hotpads.datarouter.storage.view.index.unique.UniqueIndexEntry;
@@ -47,23 +50,29 @@ public class JdbcClientType extends BaseClientType{
 	}
 	
 	@Override
-	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
-		return new JdbcNode(nodeParams);
+	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
+	Node<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
+		return new JdbcNode<PK,D,F>(nodeParams);
 	}
 	
 	//ignore the entityNodeParams
 	@Override
-	public Node<?,?> createSubEntityNode(EntityNodeParams<?,?> entityNodeParams, NodeParams<?,?,?> nodeParams){
+	public <EK extends EntityKey<EK>,
+			E extends Entity<EK>,
+			PK extends EntityPrimaryKey<EK,PK>,
+			D extends Databean<PK, D>,
+			F extends DatabeanFielder<PK, D>>
+	Node<PK,D> createSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> nodeParams){
 		return createNode(nodeParams);
 	}
 	
 	@Override
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends Node<PK,D>> 
+			F extends DatabeanFielder<PK,D>> 
 	IndexedSortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
-		return new IndexedSortedMapStorageAdapterNode(nodeParams, (IndexedSortedMapStorageNode<PK,D>)backingNode);
+		return new IndexedSortedMapStorageAdapterNode<PK, D, F, IndexedSortedMapStorageNode<PK, D>>(nodeParams,
+				(IndexedSortedMapStorageNode<PK, D>) backingNode);
 	}
 	
 	@Override

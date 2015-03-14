@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.read;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +50,7 @@ extends BaseJdbcOp<List<D>>{
 		List<? extends Key<PK>> sortedKeys = DrListTool.createArrayList(keys);
 		Collections.sort(sortedKeys);//should prob remove
 		int numBatches = DrBatchTool.getNumBatches(sortedKeys.size(), batchSize);
-		List<D> result = DrListTool.createArrayList(keys.size());
+		List<D> result = new ArrayList<>(keys.size());
 		Connection connection = getConnection(node.getClientName());
 		for(int batchNum=0; batchNum < numBatches; ++batchNum){
 			List<? extends Key<PK>> keyBatch = DrBatchTool.getBatch(sortedKeys, batchSize, batchNum);

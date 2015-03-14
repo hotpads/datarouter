@@ -2,6 +2,7 @@ package com.hotpads.job.trigger;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import com.hotpads.DatarouterInjector;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.guice.DatarouterExecutorGuiceModule;
 import com.hotpads.job.record.JobExecutionStatus;
@@ -79,7 +79,7 @@ public class JobScheduler {
 	}
 	
 	private Map<String, Date> loadJobsLastCompletionFromLongRunningTasks(){
-		Map<String, Date> jobsLastCompletion = DrMapTool.create();
+		Map<String, Date> jobsLastCompletion = new HashMap<>();
 		for(LongRunningTask task : longRunningTaskNode.scan(null, null)){
 			if(task.getJobExecutionStatus() == JobExecutionStatus.success){
 				jobsLastCompletion.put(task.getKey().getJobClass(), task.getFinishTime());

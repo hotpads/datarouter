@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.hadoop.hbase.ServerName;
 
@@ -14,7 +15,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrByteTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.bytes.ByteRange;
 
 /*
@@ -40,7 +40,7 @@ extends BaseHBaseRegionBalancer{
 				ConsistentHashBalancer.BUCKETS_PER_NODE);
 		
 		//calculate each prefix's position in the ring and store it
-		SortedMap<ByteRange,ServerName> serverByPrefix = DrMapTool.createTreeMap();
+		SortedMap<ByteRange,ServerName> serverByPrefix = new TreeMap<>();
 		for(ByteRange prefix : regionsByPrefix.keySet()){
 			byte[] consistentHashInput = prefix.copyToNewArray();
 			ServerName serverName = ConsistentHashBalancer.calcServerNameForItem(consistentHashRing, consistentHashInput);
@@ -66,7 +66,7 @@ extends BaseHBaseRegionBalancer{
 	
 	
 	private void initRegionByPrefixMap(){
-		regionsByPrefix = DrMapTool.createTreeMap();
+		regionsByPrefix = new TreeMap<>();
 		for(List<Field<?>> prefixFields : scatteringPrefix.getAllPossibleScatteringPrefixes()){
 			ByteRange prefix = new ByteRange(FieldSetTool.getConcatenatedValueBytes(prefixFields, false, false));
 			regionsByPrefix.put(prefix, new ArrayList<DRHRegionInfo<?>>()); 

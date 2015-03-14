@@ -9,7 +9,7 @@ import com.hotpads.datarouter.test.DRTestConstants;
 public class HBaseScatteringPrefixIntegrationTests extends BaseScatteringPrefixIntegrationTests{
 
 	@BeforeClass
-	public static void beforeClass() throws IOException{
+	public void beforeClass() throws IOException{
 		setup(DRTestConstants.CLIENT_drTestHBase);
 	}
 

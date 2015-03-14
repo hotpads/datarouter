@@ -2,9 +2,12 @@ package com.hotpads.datarouter.node.type.redundant.base;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
@@ -43,7 +46,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = DrSetTool.createHashSet();
+		Set<String> names = new HashSet<>();
 		names.add(getName());
 		names.addAll(DrCollectionTool.nullSafe(readNode.getAllNames()));
 		for(N backingNode : DrIterableTool.nullSafe(writeNodes)){
@@ -54,7 +57,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 	
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodes(){
-		List<PhysicalNode<PK,D>> all = DrListTool.createLinkedList();
+		List<PhysicalNode<PK,D>> all = new LinkedList<>();
 		for(N backingNode : DrCollectionTool.nullSafe(writeNodes)){
 			all.addAll(DrListTool.nullSafe(backingNode.getPhysicalNodes()));
 		}
@@ -63,7 +66,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
-		List<PhysicalNode<PK,D>> all = DrListTool.createLinkedList();
+		List<PhysicalNode<PK,D>> all = new LinkedList<>();
 		for(N backingNode : DrCollectionTool.nullSafe(writeNodes)){
 			all.addAll(DrListTool.nullSafe(backingNode.getPhysicalNodesForClient(clientName)));
 		}
@@ -73,7 +76,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	@Override
 	public List<String> getClientNames() {
-		SortedSet<String> clientNames = DrSetTool.createTreeSet();
+		SortedSet<String> clientNames = new TreeSet<>();
 		for(N backingNode : writeNodes){
 			DrSetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
 		}
@@ -90,7 +93,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	@Override
 	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
-		Set<String> clientNames = DrSetTool.createHashSet();
+		Set<String> clientNames = new HashSet<>();
 		for(N backingNode : writeNodes){
 			clientNames.addAll(DrCollectionTool.nullSafe(backingNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
 		}

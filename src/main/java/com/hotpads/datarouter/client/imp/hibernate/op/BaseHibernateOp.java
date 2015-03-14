@@ -13,7 +13,7 @@ import com.hotpads.datarouter.routing.DatarouterContext;
 
 public abstract class BaseHibernateOp<T>
 extends BaseJdbcOp<T> 
-implements SessionAware<T> {
+implements SessionAware {
 	
 	public BaseHibernateOp(DatarouterContext drContext, List<String> clientNames) {
 		this(drContext, clientNames, Isolation.DEFAULT, false);
@@ -27,7 +27,9 @@ implements SessionAware<T> {
 	@Override
 	public Session getSession(String clientName){
 		Client client = getDatarouterContext().getClientPool().getClient(clientName);
-		if(client==null){ return null; }
+		if(client==null){
+			return null;
+		}
 		if(client instanceof HibernateClient){
 			HibernateClient hibernateSessionClient = (HibernateClient)client;
 			Session session = hibernateSessionClient.getExistingSession();

@@ -3,8 +3,6 @@ package com.hotpads.handler.datarouter.query;
 import java.util.Collection;
 import java.util.List;
 
-import org.hibernate.Session;
-
 import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.client.imp.hibernate.node.HibernateReaderNode;
 import com.hotpads.datarouter.client.imp.hibernate.op.BaseHibernateOp;
@@ -57,8 +55,7 @@ extends BaseHibernateOp<List<D>>{
 		whereClause.append(" "+whereClauseFromUser);
 		String sql = SqlBuilder.getAll(config, tableName, node.getFieldInfo().getFields(), whereClause.toString(), 
 				node.getFieldInfo().getPrimaryKeyFields());
-		Session session = getSession(client.getName());
-		return JdbcTool.selectDatabeans(session.connection(), node.getFieldInfo(), sql);
+		return JdbcTool.selectDatabeans(getConnection(client.getName()), node.getFieldInfo(), sql);
 	}
 	
 }

@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.partitioned;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,8 +17,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 public abstract class PartitionedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -59,7 +58,7 @@ implements MapStorageReaderNode<PK,D>{
 	public List<D> getMulti(Collection<PK> keys, Config config) {
 		Multimap<N,PK> keysByNode = getPrimaryKeysByPhysicalNode(keys);
 //		logger.warn(keysByNode);
-		List<D> all = DrListTool.createArrayList();
+		List<D> all = new ArrayList<>();
 		if(keysByNode==null){ return all; }
 		for(N node : keysByNode.keySet()){
 			Collection<PK> keysForNode = keysByNode.get(node);
@@ -73,7 +72,7 @@ implements MapStorageReaderNode<PK,D>{
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config) {
 		Multimap<N,PK> keysByNode = getPrimaryKeysByPhysicalNode(keys);
-		List<PK> all = DrListTool.createArrayList();
+		List<PK> all = new ArrayList<>();
 		if(keysByNode==null){ return all; }
 		for(N node : keysByNode.keySet()){
 			Collection<PK> keysForNode = keysByNode.get(node);

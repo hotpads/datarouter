@@ -1,5 +1,6 @@
 package com.hotpads.handler.util.node;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -9,7 +10,6 @@ import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
 import com.hotpads.datarouter.routing.Datarouter;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 public class NodeWrapper{
 	public Node<?,?> node;
@@ -23,7 +23,7 @@ public class NodeWrapper{
 	}
 
 	public static List<NodeWrapper> getNodeWrappers(Datarouter router){
-		List<NodeWrapper> outs = DrListTool.createArrayList();
+		List<NodeWrapper> outs = new ArrayList<>();
 		Collection<Node<?,?>> topLevelNodes = router.getContext().getNodes().getTopLevelNodesByRouterName().get(
 				router.getName());
 //		SortedSet<Node> topLevelNodes = router.getNodes();

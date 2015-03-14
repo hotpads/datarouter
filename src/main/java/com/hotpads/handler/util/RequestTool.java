@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -21,7 +22,6 @@ import org.junit.Test;
 import com.google.common.base.Joiner;
 import com.hotpads.datarouter.util.core.DrBooleanTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrGenericsFactory;
 import com.hotpads.datarouter.util.core.DrIdentityFunctor;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberTool;
@@ -99,9 +99,8 @@ public class RequestTool {
 		
 		if(DrStringTool.isEmpty(stringVal)){
 			return defaultValue;
-		}else{
-			return stringVal;
 		}
+		return stringVal;
 	}
 	
 	public static String get(HttpServletRequest request, String paramName){
@@ -424,7 +423,7 @@ public class RequestTool {
 	
 
 	public static Map<String,String> getHeader(HttpServletRequest request){
-		Map<String,String> headers = DrGenericsFactory.makeHashMap();
+		Map<String,String> headers = new HashMap<>();
 		Enumeration<?> headersEnum = request.getHeaderNames();
 		while(headersEnum!=null && headersEnum.hasMoreElements()){
 			String h = (String)headersEnum.nextElement();
@@ -442,7 +441,7 @@ public class RequestTool {
 	
 	public static <T> List<T> getCheckedBoxes(HttpServletRequest request, String prefix, Functor<T,String> converter){
 		Enumeration<String> paramNames = request.getParameterNames();
-		List<T> selecteds = DrListTool.createArrayList();
+		List<T> selecteds = new ArrayList<>();
 		while(paramNames.hasMoreElements()){
 			String name = paramNames.nextElement();
 			if( ! name.startsWith(prefix)) {
@@ -547,16 +546,14 @@ public class RequestTool {
 			String clientIp = proxyChain[proxyChain.length - 1];
 			if (isAValidIpV4(clientIp)) {
 				return clientIp;
-			} else {
-				return request.getRemoteAddr();
 			}
-		} else {
-			String remoteAddr = request.getRemoteAddr();
-			if ("127.0.0.1".equals(remoteAddr)) {//dev server
-				remoteAddr = "98.204.67.1"; //FIXME why this adresse ?
-			}
-			return remoteAddr;
+			return request.getRemoteAddr();
 		}
+		String remoteAddr = request.getRemoteAddr();
+		if ("127.0.0.1".equals(remoteAddr)) {//dev server
+			remoteAddr = "98.204.67.1"; //FIXME why this adresse ?
+		}
+		return remoteAddr;
 	}
 
 	public static boolean isAValidIpV4(String dottedDecimal){

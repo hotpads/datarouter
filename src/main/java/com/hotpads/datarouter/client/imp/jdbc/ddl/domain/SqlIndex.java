@@ -1,16 +1,15 @@
 package com.hotpads.datarouter.client.imp.jdbc.ddl.domain;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn.SqlColumnNameTypeComparator;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMathTool;
 
 public class SqlIndex implements Comparable<SqlIndex>{
@@ -30,7 +29,7 @@ public class SqlIndex implements Comparable<SqlIndex>{
 
 	public SqlIndex(String name){
 		this.name = name;
-		this.columns=DrListTool.createArrayList();
+		this.columns=new ArrayList<>();
 	}
 
 	
