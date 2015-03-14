@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hotpads.datarouter.util.core.DrClassTool;
-import com.hotpads.notification.sender.template.NotificationTemplate;
+import com.hotpads.notification.destination.NotificationDestinationApp;
 import com.hotpads.notification.tracking.TrackingNotificationType;
 
 public abstract class BaseNotificationType implements NotificationType {
@@ -13,8 +13,6 @@ public abstract class BaseNotificationType implements NotificationType {
 		public static final String
 			name = "name";
 	}
-
-	private List<Class<? extends NotificationTemplate>> templates = new ArrayList<>();
 
 	private String name = getClass().getName();
 
@@ -34,12 +32,8 @@ public abstract class BaseNotificationType implements NotificationType {
 	}
 
 	@Override
-	public List<Class<? extends NotificationTemplate>> getTemplates() {
-		return templates;
-	}
-
-	protected void addTemplate(Class<? extends NotificationTemplate> template) {
-		templates.add(template);
+	public List<NotificationDestinationApp> getDestinationApps() {
+		return new ArrayList<>(getTemplateForApp().keySet());
 	}
 
 	public static TrackingNotificationType createEmptyInstance(){

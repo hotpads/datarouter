@@ -44,4 +44,8 @@ public class NotificationDestinationKey extends BasePrimaryKey<NotificationDesti
 		return app;
 	}
 
+	public String getDeviceId(){
+		return deviceId;
+	}
+
 }

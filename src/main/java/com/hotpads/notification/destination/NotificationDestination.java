@@ -60,6 +60,11 @@ public class NotificationDestination extends BaseDatabean<NotificationDestinatio
 		this.key = new NotificationDestinationKey();
 	}
 
+	public NotificationDestination(String token, NotificationDestinationAppEnum app, String deviceId){
+		this.key = new NotificationDestinationKey(token, app, deviceId);
+		this.active = true;
+	}
+
 	@Override
 	public Class<NotificationDestinationKey> getKeyClass() {
 		return NotificationDestinationKey.class;
