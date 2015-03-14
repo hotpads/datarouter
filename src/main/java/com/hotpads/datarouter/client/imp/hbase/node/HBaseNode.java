@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		final Config config = Config.nullSafe(pConfig);
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "putMulti", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{					
-					List<Row> actions = DrListTool.createArrayList();
+					List<Row> actions = new ArrayList<>();
 					int numCellsPut = 0, numCellsDeleted = 0, numRowsPut = 0;;
 					long batchStartTime = System.currentTimeMillis();
 					for(D databean : databeans){//TODO obey Config.commitBatchSize
@@ -126,7 +127,7 @@ implements PhysicalSortedMapStorageNode<PK,D>
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "deleteAll", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 					managedResultScanner = hTable.getScanner(new Scan());
-					List<Row> batchToDelete = DrListTool.createArrayList(1000);
+					List<Row> batchToDelete = new ArrayList<>(1000);
 					for(Result row : managedResultScanner){
 						if(row.isEmpty()){ continue; }
 						batchToDelete.add(new Delete(row.getRow()));

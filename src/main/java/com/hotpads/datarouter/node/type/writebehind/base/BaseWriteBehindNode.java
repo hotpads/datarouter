@@ -1,17 +1,17 @@
 package com.hotpads.datarouter.node.type.writebehind.base;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -36,66 +36,31 @@ public abstract class BaseWriteBehindNode<
 extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	private static final int FLUSH_BATCH_SIZE = 100;
-
-	public static final int DEFAULT_WRITE_BEHIND_THREADS = 1;
-	public static final long DEFAULT_TIMEOUT_MS = 60*1000;
+	private static final long DEFAULT_TIMEOUT_MS = 60*1000;
 
 	protected N backingNode;
-	protected ExecutorService writeExecutor;
 	protected long timeoutMs;//TODO also limit by queue length
 	protected Queue<OutstandingWriteWrapper> outstandingWrites;
-	protected ScheduledExecutorService cancelExecutor;
-	private ScheduledExecutorService flushScheduler;
+	private ExecutorService writeExecutor;
 	private Queue<WriteWrapper<?>> queue;
 
 
-	public BaseWriteBehindNode(Class<D> databeanClass, Datarouter router,
-			N backingNode, ExecutorService writeExecutor, ScheduledExecutorService cancelExecutor) {
+	public BaseWriteBehindNode(Class<D> databeanClass, Datarouter router, N backingNode){
 		super(new NodeParamsBuilder<>(router, databeanClass).build());
-		if(backingNode==null){ throw new IllegalArgumentException("backingNode cannont be null."); }
+		if(backingNode==null){
+			throw new IllegalArgumentException("backingNode cannot be null.");
+		}
 		this.backingNode = backingNode;
 
-		if(writeExecutor!=null){
-			this.writeExecutor = writeExecutor;
-		}else{
-			this.writeExecutor = Executors.newFixedThreadPool(DEFAULT_WRITE_BEHIND_THREADS);
-			this.writeExecutor.submit(new Callable<Void>(){
-				@Override
-				public Void call(){
-					Thread.currentThread().setName("NonBlockingWriteNode flusher:"+getName());
-					return null;
-				}
-			});
-		}
+		this.writeExecutor = router.getContext().getWriteBehindExecutor();
 
 		this.timeoutMs = DEFAULT_TIMEOUT_MS;//1 min default
 		this.outstandingWrites = new ConcurrentLinkedQueue<>();
 
-		if(cancelExecutor!=null){
-			this.cancelExecutor = cancelExecutor;
-			this.cancelExecutor.scheduleWithFixedDelay(new OverdueWriteCanceller(this), 0, 1000, TimeUnit.MILLISECONDS);
-		}else{
-			this.cancelExecutor = Executors.newSingleThreadScheduledExecutor();
-			this.cancelExecutor.scheduleWithFixedDelay(new OverdueWriteCanceller(this), 0, 1000, TimeUnit.MILLISECONDS);
-			this.cancelExecutor.submit(new Callable<Void>(){
-				@Override
-				public Void call(){
-					Thread.currentThread().setName("NonBlockingWriteNode canceller:"+getName());
-					return null;
-				}
-			});
-		}
-
-
-		this.flushScheduler = Executors.newSingleThreadScheduledExecutor();
-		this.flushScheduler.scheduleWithFixedDelay(new QueueFlusher(), 500, 500, TimeUnit.MILLISECONDS);
-		this.flushScheduler.submit(new Callable<Void>(){
-			@Override
-			public Void call(){
-				Thread.currentThread().setName("NonBlockingWriteNode writer:"+getName());
-				return null;
-			}
-		});
+		router.getContext().getWriteBehindScheduler()
+				.scheduleWithFixedDelay(new OverdueWriteCanceller(this), 0, 1000, TimeUnit.MILLISECONDS);
+		router.getContext().getWriteBehindScheduler()
+				.scheduleWithFixedDelay(new QueueFlusher(), 500, 500, TimeUnit.MILLISECONDS);
 
 		queue = new LinkedBlockingQueue<>();
 	}
@@ -105,7 +70,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	@Override
 	public Set<String> getAllNames(){
-		Set<String> names = DrSetTool.createHashSet();
+		Set<String> names = new HashSet<>();
 		names.addAll(DrCollectionTool.nullSafe(getName()));
 		names.addAll(DrCollectionTool.nullSafe(backingNode.getAllNames()));
 		return names;
@@ -113,21 +78,21 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodes(){
-		List<PhysicalNode<PK,D>> all = DrListTool.createLinkedList();
+		List<PhysicalNode<PK,D>> all = new LinkedList<>();
 		all.addAll(DrListTool.nullSafe(backingNode.getPhysicalNodes()));
 		return all;
 	}
 
 	@Override
 	public List<PhysicalNode<PK,D>> getPhysicalNodesForClient(String clientName) {
-		List<PhysicalNode<PK,D>> all = DrListTool.createLinkedList();
+		List<PhysicalNode<PK,D>> all = new LinkedList<>();
 		all.addAll(DrListTool.nullSafe(backingNode.getPhysicalNodesForClient(clientName)));
 		return all;
 	}
 
 	@Override
 	public List<String> getClientNames() {
-		SortedSet<String> clientNames = DrSetTool.createTreeSet();
+		SortedSet<String> clientNames = new TreeSet<>();
 		DrSetTool.nullSafeSortedAddAll(clientNames, backingNode.getClientNames());
 		return DrListTool.createArrayList(clientNames);
 	}
@@ -139,7 +104,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 
 	@Override
 	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
-		Set<String> clientNames = DrSetTool.createHashSet();
+		Set<String> clientNames = new HashSet<>();
 		clientNames.addAll(DrCollectionTool.nullSafe(backingNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
 		return DrListTool.createArrayList(clientNames);
 	}
@@ -162,7 +127,7 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		return backingNode;
 	}
 
-	public class QueueFlusher implements Runnable{
+	private class QueueFlusher implements Runnable{
 		private final Logger logger = LoggerFactory.getLogger(BaseWriteBehindNode.QueueFlusher.class);
 
 		private WriteWrapper<Object> previousWriteWrapper;
@@ -198,10 +163,10 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 					if(previousWriteWrapper.getObjects().size() == FLUSH_BATCH_SIZE){
 						handlePrevious();
 					}
-					int i = 1;
-					while(i * FLUSH_BATCH_SIZE - previousSize < list.size()){
-						int beginning = i * FLUSH_BATCH_SIZE - previousSize;
-						end = Math.min(++i * FLUSH_BATCH_SIZE - previousSize, list.size());
+					int counter = 1;
+					while(counter * FLUSH_BATCH_SIZE - previousSize < list.size()){
+						int beginning = counter * FLUSH_BATCH_SIZE - previousSize;
+						end = Math.min(++counter * FLUSH_BATCH_SIZE - previousSize, list.size());
 						if(previousWriteWrapper == null){
 							previousWriteWrapper = new WriteWrapper<>(writeWrapper.getOp(), new LinkedList<>(), null);
 						}
@@ -223,8 +188,11 @@ extends BaseNode<PK,D,DatabeanFielder<PK,D>>{
 		}
 
 		private void handleWriteWrapper(WriteWrapper<?> writeWrapper){
-			if(DrCollectionTool.isEmpty(writeWrapper.getObjects())){ return; }
-			final WriteWrapper<?> writeWrapperClone = new WriteWrapper<>(writeWrapper); // cloning to prevent from concurrency issues
+			if(DrCollectionTool.isEmpty(writeWrapper.getObjects())){
+				return;
+			}
+			// cloning to prevent from concurrency issues
+			final WriteWrapper<?> writeWrapperClone = new WriteWrapper<>(writeWrapper);
 			outstandingWrites.add(new OutstandingWriteWrapper(System.currentTimeMillis(), writeExecutor
 					.submit(new Callable<Void>(){
 

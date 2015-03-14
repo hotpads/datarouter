@@ -19,8 +19,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
  * 
  * @author mcorgan
  * 
- * @param <PK>
- * @param <D>
  */
 public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends Comparable<Node<PK,D>>{
@@ -28,13 +26,17 @@ extends Comparable<Node<PK,D>>{
 	DatarouterContext getDatarouterContext();
 	Datarouter getRouter();
 
+	boolean isPhysicalNodeOrWrapper();
+	PhysicalNode<PK,D> getPhysicalNodeIfApplicable();
+	
 	String getName();
 	Class<PK> getPrimaryKeyType();
 	Class<D> getDatabeanType();
-	DatabeanFieldInfo<PK,D,?> getFieldInfo();//wildcard the Fielder type so we don't have to put it in the Node's generics (at least for now)
+	//wildcard the Fielder type so we don't have to put it in the Node's generics (at least for now)
+	DatabeanFieldInfo<PK,D,?> getFieldInfo();
 	List<Field<?>> getFields();
 	
-	List<Field<?>> getNonKeyFields(D d);
+	List<Field<?>> getNonKeyFields(D databean);
 	
 	Set<String> getAllNames();
 	List<String> getClientNames();

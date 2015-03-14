@@ -1,7 +1,6 @@
 package com.hotpads.handler.user.session;
 
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
@@ -9,11 +8,7 @@ import javax.persistence.MappedSuperclass;
 import org.hibernate.annotations.AccessType;
 
 import com.hotpads.datarouter.storage.databean.BaseDatabean;
-import com.hotpads.datarouter.storage.field.Field;
-import com.hotpads.datarouter.storage.field.FieldTool;
-import com.hotpads.datarouter.storage.field.imp.DateField;
 
-@SuppressWarnings("serial")
 @MappedSuperclass 
 @AccessType("field")
 public abstract class BaseDatarouterSessionDatabean<

@@ -56,7 +56,18 @@ implements Node<PK,D>{
 		return backingNode.getRouter();
 	}
 
+	
+	@Override
+	public boolean isPhysicalNodeOrWrapper(){
+		return backingNode.isPhysicalNodeOrWrapper();
+	}
+	
+	@Override
+	public PhysicalNode<PK,D> getPhysicalNodeIfApplicable(){
+		return backingNode.getPhysicalNodeIfApplicable();
+	}
 
+	
 	@Override
 	public String getName(){
 		return backingNode.getName();

@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.hbase.cluster;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -8,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HRegionInfo;
@@ -29,9 +32,7 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
 import com.hotpads.datarouter.util.core.DrCallableTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class DRHRegionList{
 	private static final Logger logger = LoggerFactory.getLogger(DRHRegionList.class);
@@ -55,7 +56,7 @@ public class DRHRegionList{
 		this.tableName = tableName;
 		this.node = node;
 		this.compactionInfo = compactionInfo;
-		this.regions = DrListTool.create();
+		this.regions = new ArrayList<>();
 		this.scatteringPrefixClass = node.getFieldInfo().getScatteringPrefixClass();
 		if(node.getFieldInfo().isEntity()){
 			HBaseSubEntityReaderNode subEntityNode = (HBaseSubEntityReaderNode)node;
@@ -66,7 +67,7 @@ public class DRHRegionList{
 		Class<PrimaryKey<?>> primaryKeyClass = client.getPrimaryKeyClass(tableName);
 		Map<HRegionInfo,ServerName> serverNameByHRegionInfo = getServerNameByHRegionInfo(client, config, tableName);
 		//this got reorganized in hbase 0.92... just making quick fix for now
-		Map<String,RegionLoad> regionLoadByName = DrMapTool.createTreeMap();
+		Map<String,RegionLoad> regionLoadByName = new TreeMap<>();
 		for(DRHServerInfo server : DrIterableTool.nullSafe(servers.getServers())){
 			HServerLoad serverLoad = server.gethServerLoad();
 			Map<byte[],HServerLoad.RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
@@ -123,7 +124,7 @@ public class DRHRegionList{
 	
 
 	public SortedSet<String> getServerNames(){
-		SortedSet<String> serverNames = DrSetTool.createTreeSet();
+		SortedSet<String> serverNames = new TreeSet<>();
 		for(DRHRegionInfo<?> region : regions){
 			serverNames.add(region.getServerName());
 		}
@@ -159,7 +160,7 @@ public class DRHRegionList{
 	}
 
 	public SortedMap<String,List<DRHRegionInfo<?>>> getRegionsByServerName(){
-		SortedMap<String,List<DRHRegionInfo<?>>> out = DrMapTool.createTreeMap();
+		SortedMap<String,List<DRHRegionInfo<?>>> out = new TreeMap<>();
 		for(DRHRegionInfo<?> region : regions){
 			String serverName = region.getServerName();
 			if(out.get(serverName) == null){

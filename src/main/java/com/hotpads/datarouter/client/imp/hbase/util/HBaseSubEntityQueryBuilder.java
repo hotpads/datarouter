@@ -141,7 +141,7 @@ extends HBaseEntityQueryBuilder<EK,E>
 	/********************* single row prefix **********************/
 	
 	public List<Get> getPrefixGets(Collection<PK> prefixes, boolean wildcardLastField, Config config){
-		List<Get> gets = DrListTool.createArrayList();
+		List<Get> gets = new ArrayList<>();
 		for(PK prefix : prefixes){
 			gets.add(getPrefixGet(prefix, wildcardLastField, config));
 		}

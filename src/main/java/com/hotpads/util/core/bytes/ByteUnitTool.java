@@ -40,9 +40,8 @@ public class ByteUnitTool {
 		
 		if (ByteUnitSystem.BINARY == byteUnitSystem) {
 			return ByteUnitType.PiB.getNumBytesDisplay(sizeInBytes);
-		} else {
-			return ByteUnitType.PB.getNumBytesDisplay(sizeInBytes);
 		}
+		return ByteUnitType.PB.getNumBytesDisplay(sizeInBytes);
 	}
 	
 	public static void main(String[] args) {

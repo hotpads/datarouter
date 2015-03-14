@@ -2,6 +2,7 @@ package com.hotpads.datarouter.client.imp.hbase.balancer;
 
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
 import org.apache.hadoop.hbase.ServerName;
@@ -13,7 +14,6 @@ import com.hotpads.datarouter.client.imp.hbase.cluster.DRHRegionList;
 import com.hotpads.datarouter.client.imp.hbase.cluster.DRHServerList;
 import com.hotpads.datarouter.storage.key.entity.EntityPartitioner;
 import com.hotpads.datarouter.storage.prefix.ScatteringPrefix;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.util.core.java.ReflectionTool;
 
@@ -39,7 +39,7 @@ implements Callable<Map<DRHRegionInfo<?>,ServerName>>{
 		this.drhServerList = drhServerList;
 		this.drhRegionList = drhRegionList;
 		// internal
-		this.serverByRegion = DrMapTool.createTreeMap();
+		this.serverByRegion = new TreeMap<>();
 		if(scatteringPrefixClass != null){
 			this.scatteringPrefix = ReflectionTool.create(scatteringPrefixClass);
 		}

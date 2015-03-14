@@ -1,12 +1,13 @@
 package com.hotpads.datarouter.util.callsite;
 
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 
@@ -41,7 +42,7 @@ public class CallsiteStatX{
 				"callsite");
 	}
 	
-	private static final Set<String> HIDE_TIME_METHODS = DrSetTool.createHashSet("scanKeys", "scan");
+	private static final Set<String> HIDE_TIME_METHODS = new HashSet<>(Arrays.asList("scanKeys", "scan"));
 	
 	public String getReportLine(){
 		String countString = DrNumberFormatter.addCommas(count);

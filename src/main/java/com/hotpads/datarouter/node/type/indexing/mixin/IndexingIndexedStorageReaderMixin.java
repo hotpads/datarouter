@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.node.type.indexing.mixin;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,6 @@ import com.hotpads.datarouter.storage.view.index.unique.UniqueKeyIndexEntry;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 public class IndexingIndexedStorageReaderMixin<
@@ -38,7 +38,7 @@ implements IndexedStorageReader<PK,D>{
 	
 	public IndexingIndexedStorageReaderMixin(N mainNode, List<? extends IN> indexNodes){
 		this.mainNode = mainNode;
-		this.indexNodeByClass = DrMapTool.createHashMap();
+		this.indexNodeByClass = new HashMap<>();
 		for(IN indexNode : DrIterableTool.nullSafe(indexNodes)){
 			indexNodeByClass.put(indexNode.getDatabeanType(), indexNode);
 		}

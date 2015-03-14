@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hibernate.op.read;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -20,7 +21,6 @@ import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 
 //TODO this is the jdbc implementation, so extend or abstract it
@@ -62,7 +62,7 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 		CriteriaTool.addRangesToCriteria(criteria, range, node.getFieldInfo());
 		if(keysOnly){
 			List<Object[]> rows = criteria.list();
-			List<PK> result = DrListTool.createArrayList(DrCollectionTool.size(rows));
+			List<PK> result = new ArrayList<>(DrCollectionTool.size(rows));
 			for(Object row : DrIterableTool.nullSafe(rows)){
 				// hibernate will return a plain Object if it's a single col PK
 				Object[] rowCells;
@@ -78,12 +78,11 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 			DRCounters.incClientNodeCustom(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
 					DrCollectionTool.size(result));
 			return result;
-		}else{
-			List<? extends FieldSet<?>> result = (List<? extends FieldSet<?>>)criteria.list();
-			DRCounters.incClientNodeCustom(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
-					DrCollectionTool.size(result));
-			return result;
 		}
+		List<? extends FieldSet<?>> result = criteria.list();
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName+" rows", node.getClientName(), node.getName(), 
+				DrCollectionTool.size(result));
+		return result;
 	}
 	
 }

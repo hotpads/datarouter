@@ -1,7 +1,7 @@
 package com.hotpads.datarouter.op.executor;
 
 
-public interface SessionExecutor<T>{
+public interface SessionExecutor{
 	
 	void openSessions();
 	void flushSessions();

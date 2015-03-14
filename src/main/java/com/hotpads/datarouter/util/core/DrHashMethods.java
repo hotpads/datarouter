@@ -19,11 +19,11 @@ package com.hotpads.datarouter.util.core;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 
 public class DrHashMethods{
@@ -68,7 +68,7 @@ public class DrHashMethods{
 			Assert.assertFalse(hash1 == hash2);
 		}
 		@Test public void testMd5() throws NoSuchAlgorithmException{
-			Set<Long> buckets = DrSetTool.createTreeSet();
+			Set<Long> buckets = new TreeSet<>();
 			for(int serverNum = 98; serverNum <= 101; ++serverNum){
 				String serverName = "HadoopNode98:10012:" + serverNum;
 				for(int i = 0; i < 1000; ++i){

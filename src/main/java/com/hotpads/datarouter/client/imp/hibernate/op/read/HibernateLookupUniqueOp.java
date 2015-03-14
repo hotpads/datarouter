@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hibernate.op.read;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -59,7 +60,7 @@ extends BaseHibernateOp<List<D>>{
 			batchSize = config.getIterateBatchSize();
 		}
 		int numBatches = DrBatchTool.getNumBatches(sortedKeys.size(), batchSize);
-		List<D> all = DrListTool.createArrayList(uniqueKeys.size());
+		List<D> all = new ArrayList<>(uniqueKeys.size());
 		for(int batchNum=0; batchNum < numBatches; ++batchNum){
 			List<? extends Key<PK>> keyBatch = DrBatchTool.getBatch(sortedKeys, batchSize, batchNum);
 			Criteria criteria = node.getCriteriaForConfig(config, session);

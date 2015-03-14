@@ -1,15 +1,14 @@
 package com.hotpads.util.core.iterable.scanner.batch;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.concurrent.FutureTool;
 import com.hotpads.util.core.iterable.scanner.batch.imp.ListBackedBatchLoader;
 import com.hotpads.util.core.iterable.scanner.sorted.BaseSortedScanner;
@@ -107,7 +106,7 @@ extends	BaseSortedScanner<T>{
 	public static class BatchingSortedScannerTests{
 		private static final int MULTIPLIER = 3;
 		private List<Integer> createTestArray(int numElements){
-			List<Integer> testArray = DrListTool.createArrayList();
+			List<Integer> testArray = new ArrayList<>();
 			for(int i=0; i < numElements; ++i){
 				testArray.add(i * MULTIPLIER);//separate the values from the indexes
 			}

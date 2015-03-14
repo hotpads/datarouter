@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hibernate.op.read;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -48,7 +49,7 @@ extends BaseHibernateOp<List<PK>>{
 		Session session = getSession(node.getClientName());
 		List<? extends Key<PK>> sortedKeys = DrListTool.createArrayList(keys);
 		Collections.sort(sortedKeys);//is this sorting at all beneficial?
-		List<PK> result = DrListTool.createArrayList(keys.size());
+		List<PK> result = new ArrayList<>(keys.size());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		//projection list
 		ProjectionList projectionList = Projections.projectionList();

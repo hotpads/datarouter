@@ -4,16 +4,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 
 public class ResultMergeTool {
 
@@ -47,7 +48,7 @@ public class ResultMergeTool {
 	
 	public static <T,C extends Collection<T>> List<T> append(C a, Collection<? extends C> bs){
 		int size = DrCollectionTool.sizeNullSafe(a) + DrCollectionTool.getTotalSizeOfCollectionOfCollections(bs);
-		List<T> out = DrListTool.createArrayList(size);
+		List<T> out = new ArrayList<>(size);
 		out.addAll(DrCollectionTool.nullSafe(a));
 		for(C b : DrCollectionTool.nullSafe(bs)){
 			out.addAll(DrCollectionTool.nullSafe(b));
@@ -56,7 +57,7 @@ public class ResultMergeTool {
 	}
 	
 	public static <T,C extends Collection<T>> Set<T> addAll(C a, Collection<? extends C> bs){
-		Set<T> out = DrSetTool.createHashSet();
+		Set<T> out = new HashSet<>();
 		out.addAll(DrCollectionTool.nullSafe(a));
 		for(C b : DrCollectionTool.nullSafe(bs)){
 			out.addAll(DrCollectionTool.nullSafe(b));
@@ -65,7 +66,7 @@ public class ResultMergeTool {
 	}
 	
 	public static <T,C extends Collection<T>> SortedSet<T> addAllSorted(C a, Collection<? extends C> bs){
-		SortedSet<T> out = DrSetTool.createTreeSet();
+		SortedSet<T> out = new TreeSet<>();
 		out.addAll(DrCollectionTool.nullSafe(a));
 		for(C b : DrCollectionTool.nullSafe(bs)){
 			out.addAll(DrCollectionTool.nullSafe(b));
@@ -75,7 +76,7 @@ public class ResultMergeTool {
 	
 	public static <T extends Comparable<? super T>,C extends Collection<T>> 
 	ArrayList<T> mergeIntoListAndSort(C a, Collection<? extends C> bs){
-		ArrayList<T> out = DrListTool.createArrayList();
+		ArrayList<T> out = new ArrayList<>();
 		out.addAll(DrCollectionTool.nullSafe(a));
 		for(C b : DrCollectionTool.nullSafe(bs)){
 			out.addAll(DrCollectionTool.nullSafe(b));

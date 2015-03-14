@@ -3,7 +3,7 @@ package com.hotpads.datarouter.node.type.partitioned.mixin;
 import java.util.Collection;
 import java.util.Map;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import com.google.common.collect.Multimap;
 import com.hotpads.datarouter.config.Config;

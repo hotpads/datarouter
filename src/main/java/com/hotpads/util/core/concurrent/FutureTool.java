@@ -51,7 +51,7 @@ public class FutureTool {
 	}
 
 	public static List<Future<?>> submitAllVaried(Collection<Callable<?>> callables, ExecutorService executorService){
-		List<Future<?>> futures = DrListTool.create();
+		List<Future<?>> futures = new ArrayList<>();
 		for(Callable<?> callable : DrIterableTool.nullSafe(callables)){
 			futures.add(executorService.submit(callable));
 		}
@@ -75,7 +75,7 @@ public class FutureTool {
 	}
 
 	public static <T>List<Future<T>> submitAll(Collection<? extends Callable<T>> callables, ExecutorService executorService){
-		List<Future<T>> futures = DrListTool.create();
+		List<Future<T>> futures = new ArrayList<>();
 		for(Callable<T> callable : DrIterableTool.nullSafe(callables)){
 			futures.add(executorService.submit(callable));
 		}

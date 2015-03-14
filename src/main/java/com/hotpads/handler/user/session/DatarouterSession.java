@@ -1,6 +1,7 @@
 package com.hotpads.handler.user.session;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -15,7 +16,6 @@ import com.hotpads.datarouter.storage.field.imp.StringField;
 import com.hotpads.datarouter.storage.field.imp.array.DelimitedStringArrayField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.handler.user.DatarouterUser;
 import com.hotpads.handler.user.DatarouterUserKey;
 import com.hotpads.handler.user.authenticate.DatarouterTokenGenerator;
@@ -40,7 +40,7 @@ implements Serializable {
 	private String username;
 	private Date userCreated;
 	private List<String> roles;
-	private Boolean includeSessionCookies = true;
+	private Boolean persistent = true;
 	
 	public class F {
 		public static final String
@@ -61,7 +61,7 @@ implements Serializable {
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterSession d){
-			List<Field<?>> nonKeyFields = DrListTool.createArrayList();
+			List<Field<?>> nonKeyFields = new ArrayList<>();
 //			fields.add(new DateField(BaseDatarouterSessionDatabean.F.created, getCreated()));
 			nonKeyFields.add(new DateField(BaseDatarouterSessionDatabean.F.updated, d.getUpdated()));
 			
@@ -209,11 +209,11 @@ implements Serializable {
 		this.userCreated = userCreated;
 	}
 
-	public boolean getIncludeSessionCookies() {
-		return includeSessionCookies;
+	public Boolean getPersistent() {
+		return persistent;
 	}
 	
-	public void setIncludeSessionCookie(Boolean includeSessionCookies) {
-		this.includeSessionCookies = includeSessionCookies;
+	public void setPersistent(Boolean persistent) {
+		this.persistent = persistent;
 	}
 }

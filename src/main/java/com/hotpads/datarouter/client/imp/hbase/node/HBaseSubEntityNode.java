@@ -83,7 +83,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 		new HBaseMultiAttemptTask<Void>(new HBaseTask<Void>(getDatarouterContext(), getTaskNameParams(), "putMulti", config){
 				public Void hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
 //					PhaseTimer timer = new PhaseTimer();
-					List<Row> actions = DrListTool.createArrayList();
+					List<Row> actions = new ArrayList<>();
 					int numCellsPut = 0, numCellsDeleted = 0;
 					long batchStartTime = System.currentTimeMillis();
 					Map<EK,List<D>> databeansByEntityKey = EntityTool.getDatabeansByEntityKey(databeans);
@@ -151,7 +151,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 					Scan scan = new Scan();
 					scan.setFilter(new ColumnPrefixFilter(fieldInfo.getEntityColumnPrefixBytes()));
 					managedResultScanner = hTable.getScanner(scan);
-					List<Row> batchToDelete = DrListTool.createArrayList(1000);
+					List<Row> batchToDelete = new ArrayList<>(1000);
 					for(Result row : managedResultScanner){
 						if(row.isEmpty()){ continue; }
 						Delete delete = new Delete(row.getRow());
@@ -191,7 +191,7 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 					hTable.setAutoFlush(false);
 					Collection<String> nonKeyColumnNames = fieldInfo.getNonKeyFieldByColumnName().keySet();
 					Map<EK,List<PK>> pksByEk = EntityTool.getPrimaryKeysByEntityKey(keys);
-					ArrayList<Row> deletes = DrListTool.createArrayList();//api requires ArrayList
+					ArrayList<Row> deletes = new ArrayList<>();//api requires ArrayList
 					for(EK ek : pksByEk.keySet()){
 						byte[] rowBytes = queryBuilder.getRowBytesWithPartition(ek);
 						for(PK pk : pksByEk.get(ek)){

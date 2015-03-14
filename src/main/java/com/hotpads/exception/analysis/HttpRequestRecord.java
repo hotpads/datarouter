@@ -338,7 +338,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey, HttpRe
 
 	/******* tools *****/
 	public Map<String, String> getHeaders() {
-		Map<String, String> map = DrMapTool.createTreeMap();
+		Map<String, String> map = new TreeMap<>();
 		map.put(ACCEPT_CHARSET, acceptCharset);
 		map.put(ACCEPT_ENCODING, acceptEncoding);
 		map.put(ACCEPT_LANGUAGE, acceptLanguage);

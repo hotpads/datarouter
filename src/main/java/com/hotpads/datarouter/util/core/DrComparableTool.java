@@ -5,23 +5,21 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 
 public class DrComparableTool {
 
-	public static boolean lt(Comparable a, Comparable b){
+	public static <T extends Comparable<? super T>> boolean lt(T a, T b){
 		int diff = nullFirstCompareTo(a, b);
 		return diff < 0;
 	}
 	
-
 	/**
 	 * is a > b
 	 */
-	public static boolean gt(Comparable a, Comparable b){
+	public static <T extends Comparable<? super T>> boolean gt(T a, T b){
 		int diff = nullFirstCompareTo(a, b);
 		return diff > 0;
 	}

@@ -2,23 +2,24 @@ package com.hotpads.datarouter.test.node.basic.manyfield;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.inject.Inject;
+
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import com.google.inject.Injector;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.node.factory.NodeFactory;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
-import com.hotpads.datarouter.test.TestDatarouterInjectorProvider;
+import com.hotpads.datarouter.test.DatarouterTestModuleFactory;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
@@ -26,30 +27,31 @@ import com.hotpads.util.core.bytes.LongByteTool;
 import com.hotpads.util.core.bytes.StringByteTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
+@Guice(moduleFactory=DatarouterTestModuleFactory.class)
 public abstract class BaseManyFieldIntegrationTests{
-	private static Logger logger = LoggerFactory.getLogger(BaseManyFieldIntegrationTests.class);
-
+	
 	/***************************** fields **************************************/
 
-	private static DatarouterContext datarouterContext;
-	private static MapStorageNode<ManyFieldBeanKey,ManyFieldBean> mapNode;
+	@Inject
+	private DatarouterContext datarouterContext;
+	@Inject
+	private NodeFactory nodeFactory;
+	
+	private MapStorageNode<ManyFieldBeanKey,ManyFieldBean> mapNode;
 
 	@Deprecated //currently unused, but not ready to delete
 	private List<ManyFieldBeanKey> allKeys = new ArrayList<>();
 
 	/***************************** constructors **************************************/
 
-	public static void setup(String clientName, boolean useFielder){
-		Injector injector = new TestDatarouterInjectorProvider().get();
-		datarouterContext = injector.getInstance(DatarouterContext.class);
-		NodeFactory nodeFactory = injector.getInstance(NodeFactory.class);
+	public void setup(String clientName, boolean useFielder){
 		ManyFieldTestRouter router = new ManyFieldTestRouter(datarouterContext, nodeFactory, clientName, useFielder);
 		mapNode = router.manyFieldTypeBean();
 
 		resetTable();
 	}
 
-	private static void resetTable(){
+	private void resetTable(){
 		try{
 			mapNode.deleteAll(null);
 		}catch(UnsupportedOperationException e){
@@ -59,7 +61,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	@AfterClass
-	public static void afterClass(){
+	public void afterClass(){
 		datarouterContext.shutdown();
 	}
 
@@ -505,11 +507,12 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Test
 	public void testIncrement(){
 		if(!isHBase()){ return; }
-		HBaseNode hBaseNode = (HBaseNode)mapNode;
+		@SuppressWarnings("unchecked")
+		HBaseNode<ManyFieldBeanKey, ManyFieldBean, ?> hBaseNode = (HBaseNode<ManyFieldBeanKey,ManyFieldBean,?>)mapNode;
 		ManyFieldBean bean = new ManyFieldBean();
 
 		//increment by 3
-		Map<ManyFieldBeanKey,Map<String,Long>> increments = DrMapTool.create();
+		Map<ManyFieldBeanKey,Map<String,Long>> increments = new HashMap<>();
 		DrMapTool.increment(increments, bean.getKey(), ManyFieldBean.F.incrementField, 3L);
 		hBaseNode.increment(increments, null);
 		ManyFieldBean result1 = mapNode.get(bean.getKey(), null);

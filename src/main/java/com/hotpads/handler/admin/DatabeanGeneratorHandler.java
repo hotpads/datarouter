@@ -1,7 +1,9 @@
 package com.hotpads.handler.admin;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,8 +35,6 @@ import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt7Field;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt8Field;
 import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
-import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
@@ -42,7 +42,7 @@ import com.hotpads.handler.util.RequestTool;
 
 public class DatabeanGeneratorHandler extends BaseHandler {
 
-	public static List<Class<?>> FIELD_TYPES = DrListTool.create();
+	public static List<Class<?>> FIELD_TYPES = new ArrayList<>();
 	static{
 		FIELD_TYPES.add(BooleanArrayField.class);
 		FIELD_TYPES.add(ByteArrayField.class);
@@ -82,7 +82,7 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 	
 	public static Map<String, String> simpleClassNameToCanonicalClassName;
 	static{
-		simpleClassNameToCanonicalClassName = DrMapTool.createHashMap();
+		simpleClassNameToCanonicalClassName = new HashMap<>();
 		for(Class<?> field : FIELD_TYPES){
 			simpleClassNameToCanonicalClassName.put(field.getSimpleName(), field.getCanonicalName());
 		}
@@ -174,24 +174,22 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 		if(DrStringTool.notEmpty(createScript)){
 			collectParamsFromCreateScript(createScript, databeanParams);
 			return;
-		} else {
-		
-			databeanParams.setDataBeanName(DrStringTool.capitalizeFirstLetter(RequestTool.get(request, PARAM_DATABEAN_NAME, null)));
-			databeanParams.setDataBeanPackage(RequestTool.get(request, PARAM_DATABEAN_PACKAGE, null));
-	
-			for (int i = 0; i < MAX_KEYFIELDS; i++) {
-				String keyFieldName = RequestTool.get(request, PARAM_KEYFIELD_NAME + i, null);
-				String keyFieldType = RequestTool.get(request, PARAM_KEYFIELD_TYPE + i, null);
-				String keyFieldEnumType = RequestTool.get(request, PARAM_KEYFIELD_ENUM_TYPE + i, null);
-				databeanParams.addKeyField(keyFieldName, keyFieldType, keyFieldEnumType);
-			}
-	
-			for (int i = 0; i < MAX_FIELDS; i++) {
-				String fieldName = RequestTool.get(request, PARAM_FIELD_NAME + i, null);
-				String fieldType = RequestTool.get(request, PARAM_FIELD_TYPE + i, null);
-				String fieldEnumType = RequestTool.get(request, PARAM_FIELD_ENUM_TYPE + i, null);
-				databeanParams.addField(fieldName, fieldType, fieldEnumType);
-			}
+		}
+		databeanParams.setDataBeanName(DrStringTool.capitalizeFirstLetter(RequestTool.get(request, PARAM_DATABEAN_NAME, null)));
+		databeanParams.setDataBeanPackage(RequestTool.get(request, PARAM_DATABEAN_PACKAGE, null));
+
+		for (int i = 0; i < MAX_KEYFIELDS; i++) {
+			String keyFieldName = RequestTool.get(request, PARAM_KEYFIELD_NAME + i, null);
+			String keyFieldType = RequestTool.get(request, PARAM_KEYFIELD_TYPE + i, null);
+			String keyFieldEnumType = RequestTool.get(request, PARAM_KEYFIELD_ENUM_TYPE + i, null);
+			databeanParams.addKeyField(keyFieldName, keyFieldType, keyFieldEnumType);
+		}
+
+		for (int i = 0; i < MAX_FIELDS; i++) {
+			String fieldName = RequestTool.get(request, PARAM_FIELD_NAME + i, null);
+			String fieldType = RequestTool.get(request, PARAM_FIELD_TYPE + i, null);
+			String fieldEnumType = RequestTool.get(request, PARAM_FIELD_ENUM_TYPE + i, null);
+			databeanParams.addField(fieldName, fieldType, fieldEnumType);
 		}
 	}
 
@@ -248,15 +246,15 @@ public class DatabeanGeneratorHandler extends BaseHandler {
 	private static class DataBeanParams {
 		String dataBeanName, dataBeanPackage;
 
-		List<String> keyfieldEnumTypes = DrListTool.createArrayList();
-		List<String> keyFieldNames = DrListTool.createArrayList();
-		List<String> keyFieldTypes = DrListTool.createArrayList();
+		List<String> keyfieldEnumTypes = new ArrayList<>();
+		List<String> keyFieldNames = new ArrayList<>();
+		List<String> keyFieldTypes = new ArrayList<>();
 
-		List<String> fieldEnumTypes = DrListTool.createArrayList();
-		List<String> fieldNames = DrListTool.createArrayList();
-		List<String> fieldTypes = DrListTool.createArrayList();
+		List<String> fieldEnumTypes = new ArrayList<>();
+		List<String> fieldNames = new ArrayList<>();
+		List<String> fieldTypes = new ArrayList<>();
 		
-		List<String> indexes = DrListTool.createArrayList();
+		List<String> indexes = new ArrayList<>();
 
 		public void addKeyField(String name, String type, String enumType) {
 			if (DrStringTool.isNull(name) || DrStringTool.isNull(type) || DrStringTool.isNull(enumType)) {

@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.client.imp.hbase.node;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -165,7 +166,7 @@ implements HBasePhysicalNode<PK,D>,
 			final Config pConfig){
 		if(DrCollectionTool.isEmpty(prefixes)){ return new LinkedList<D>(); }
 		final Config config = Config.nullSafe(pConfig);
-		final List<D> results = DrListTool.createArrayList();
+		final List<D> results = new ArrayList<>();
 		List<Scan> scanForEachScatteringPartition = HBaseScatteringPrefixQueryBuilder.getPrefixScanners(fieldInfo, 
 				prefixes, wildcardLastField, config);
 		for(final Scan scan : scanForEachScatteringPartition){
@@ -233,7 +234,7 @@ implements HBasePhysicalNode<PK,D>,
 					Scan scan = HBaseQueryBuilder.getScanForRange(scanRange, config);
 					if(keysOnly){ scan.setFilter(new FirstKeyOnlyFilter()); }
 					managedResultScanner = hTable.getScanner(scan);
-					List<Result> results = DrListTool.createArrayList();
+					List<Result> results = new ArrayList<>();
 					for(Result row : managedResultScanner){
 						if(row.isEmpty()){ continue; }
 						results.add(row);
@@ -259,7 +260,7 @@ implements HBasePhysicalNode<PK,D>,
 		}
 		
 		//else return scatteringPrefix bytes + keyBytes + (maybe) trailing separator
-		List<Field<?>> scatteringPrefixFields = DrListTool.createLinkedList();
+		List<Field<?>> scatteringPrefixFields = new LinkedList<>();
 		if(DrCollectionTool.notEmpty(overrideScatteringPrefixFields)){
 			scatteringPrefixFields.addAll(overrideScatteringPrefixFields);
 		}else{

@@ -19,6 +19,9 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
+import com.hotpads.datarouter.storage.entity.Entity;
+import com.hotpads.datarouter.storage.key.entity.EntityKey;
+import com.hotpads.datarouter.storage.key.primary.EntityPrimaryKey;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
 @Singleton
@@ -45,21 +48,27 @@ public class HBaseClientType extends BaseClientType{
 	}
 	
 	@Override
-	public Node<?,?> createNode(NodeParams<?,?,?> nodeParams){
-		return new SortedMapStorageCounterAdapter(new HBaseNode(nodeParams));
+	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
+	Node<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
+		return new SortedMapStorageCounterAdapter(new HBaseNode<PK,D,F>(nodeParams));
 	}
 	
 	@Override
-	public Node<?,?> createSubEntityNode(EntityNodeParams<?,?> entityNodeParams, NodeParams<?,?,?> nodeParams){
-		return new SortedMapStorageCounterAdapter(new HBaseSubEntityNode(entityNodeParams, nodeParams));
+	public <EK extends EntityKey<EK>,
+			E extends Entity<EK>,
+			PK extends EntityPrimaryKey<EK,PK>,
+			D extends Databean<PK, D>,
+			F extends DatabeanFielder<PK, D>>
+	Node<PK,D> createSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> nodeParams){
+		return new HBaseSubEntityNode<EK, E, PK, D, F>(entityNodeParams, nodeParams);
 	}
 	
 	@Override
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends Node<PK,D>> 
+			F extends DatabeanFielder<PK,D>> 
 	SortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
-		return new SortedMapStorageAdapterNode(nodeParams, (SortedMapStorageNode<PK,D>)backingNode);
+		return new SortedMapStorageAdapterNode<PK, D, F, SortedMapStorageNode<PK, D>>(nodeParams,
+				(SortedMapStorageNode<PK, D>) backingNode);
 	}
 }

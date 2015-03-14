@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.routing;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.Properties;
@@ -7,12 +8,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
@@ -31,9 +30,8 @@ import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
-import com.hotpads.util.core.concurrent.NamedThreadFactory;
+import com.hotpads.guice.DatarouterExecutorGuiceModule;
 
 /**
  * DatarouterContext is the top-level scope through which various components can share things like clients,
@@ -55,13 +53,13 @@ public class DatarouterContext{
 	/*************************** fields *****************************/
 
 	//injected
-	private ApplicationPaths applicationPaths;
-	private ConnectionPools connectionPools;
-	private Clients clients;
-	private Nodes nodes;
-	
-	//not injected
-	private ExecutorService executorService;//for async client init and monitoring
+	private final ApplicationPaths applicationPaths;
+	private final ConnectionPools connectionPools;
+	private final Clients clients;
+	private final Nodes nodes;
+	private final ExecutorService executorService;//for async client init and monitoring
+	private final ScheduledExecutorService writeBehindScheduler;
+	private final ExecutorService writeBehindExecutor;
 
 	private List<Datarouter> routers;
 	private Set<String> configFilePaths;
@@ -71,29 +69,28 @@ public class DatarouterContext{
 	
 
 	/************************** constructors ***************************/
-	
-	/*
-	 * for some reason, trying to inject an ExecutorService throws guice into an endless loop of ComputationExceptions.
-	 * Google doesn't turn up many questions about it.
-	 */
-	@Inject
-	public DatarouterContext(/*@DatarouterExecutorService ExecutorService executorService,*/
-			ApplicationPaths applicationPaths, ConnectionPools connectionPools, Clients clients, Nodes nodes){
-		int id = System.identityHashCode(this);
-		ThreadGroup threadGroup = new ThreadGroup("Datarouter-ThreadGroup-"+id);
-		ThreadFactory threadFactory = new NamedThreadFactory(threadGroup, "Datarouter-ThreadFactory-"+id, true);
-		this.executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
-	            new SynchronousQueue<Runnable>(), threadFactory);
 
-//		this.executorService = executorService;
+	@Inject
+	public DatarouterContext(
+			ApplicationPaths applicationPaths,
+			ConnectionPools connectionPools,
+			Clients clients,
+			Nodes nodes,
+			@Named(DatarouterExecutorGuiceModule.POOL_datarouterContextExecutor) ExecutorService executorService,
+			@Named(DatarouterExecutorGuiceModule.POOL_writeBehindExecutor) ExecutorService writeBehindExecutor,
+			@Named(DatarouterExecutorGuiceModule.POOL_writeBehindScheduler) ScheduledExecutorService 
+				writeBehindScheduler){
+		this.executorService = executorService;
 		this.applicationPaths = applicationPaths;
 		this.connectionPools = connectionPools;
 		this.clients = clients;
 		this.nodes = nodes;
+		this.writeBehindExecutor = writeBehindExecutor;
+		this.writeBehindScheduler = writeBehindScheduler;
 		
-		this.configFilePaths = DrSetTool.createTreeSet();
-		this.multiProperties = DrListTool.createArrayList();
-		this.routers = DrListTool.createArrayList();
+		this.configFilePaths = new TreeSet<>();
+		this.multiProperties = new ArrayList<>();
+		this.routers = new ArrayList<>();
 //		createDefaultMemoryClient();//do after this.clients and this.nodes have been instantiated
 	}
 	
@@ -113,7 +110,9 @@ public class DatarouterContext{
 	
 	private void addConfigIfNew(Datarouter router){
 		String configPath = router.getConfigLocation();
-		if(configFilePaths.contains(configPath)){ return; }
+		if(configFilePaths.contains(configPath)){
+			return;
+		}
 		
 		logger.warn("adding datarouter config from "+configPath+", currentRouters:"+routers);
 		configFilePaths.add(configPath);
@@ -157,7 +156,7 @@ public class DatarouterContext{
 	}
 	
 	public List<Client> getClients(){
-		SortedSet<Client> clients = DrSetTool.createTreeSet();
+		SortedSet<Client> clients = new TreeSet<>();
 		for(Datarouter router : DrIterableTool.nullSafe(getRouters())){
 			for(Client client : DrIterableTool.nullSafe(router.getAllClients())){
 				clients.add(client);
@@ -224,6 +223,14 @@ public class DatarouterContext{
 		return executorService;
 	}
 
+	public ExecutorService getWriteBehindExecutor(){
+		return writeBehindExecutor;
+	}
+	
+	public ScheduledExecutorService getWriteBehindScheduler(){
+		return writeBehindScheduler;
+	}
+	
 	public Set<String> getConfigFilePaths(){
 		return configFilePaths;
 	}

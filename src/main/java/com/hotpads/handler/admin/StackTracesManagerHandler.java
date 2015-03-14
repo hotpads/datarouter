@@ -1,16 +1,13 @@
 package com.hotpads.handler.admin;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.Thread.State;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.handler.BaseHandler;
 import com.hotpads.handler.mav.Mav;
@@ -48,7 +45,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 		counterWating = 0;
 		counterTimedWaiting = 0;
 		counterTerminated = 0;
-		threadStateCounters = DrMapTool.createHashMap();
+		threadStateCounters = new HashMap<>();
 
 		return getStackTraces();
 	}
@@ -162,7 +159,7 @@ public class StackTracesManagerHandler extends BaseHandler{
 	}
 
 	private List<Node> getAllLinkTypes(){
-		List<Node> toReturn = DrListTool.create();
+		List<Node> toReturn = new ArrayList<>();
 		for(State state : Thread.State.values()){
 			toReturn.add(getLinkType(state));
 		}

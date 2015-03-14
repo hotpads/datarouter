@@ -2,6 +2,7 @@ package com.hotpads.datarouter.connection;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -21,7 +22,6 @@ import com.hotpads.datarouter.client.ClientId;
 import com.hotpads.datarouter.client.Clients;
 import com.hotpads.datarouter.util.ApplicationPaths;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrPropertiesTool;
 
@@ -87,7 +87,7 @@ public class ConnectionPools {
 	}
 	
 	public List<JdbcConnectionPool> getConnectionPools(Collection<String> connectionPoolNames){
-		List<JdbcConnectionPool> connectionPools = DrListTool.createLinkedList();
+		List<JdbcConnectionPool> connectionPools = new LinkedList<>();
 		for(String connectionPoolName : DrCollectionTool.nullSafe(connectionPoolNames)){
 			connectionPools.add(this.getConnectionPool(connectionPoolName));
 		}

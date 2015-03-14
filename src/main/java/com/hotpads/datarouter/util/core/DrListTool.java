@@ -13,21 +13,6 @@ import org.junit.Test;
 
 public class DrListTool {
 
-	@Deprecated
-	public static <T> List<T> create(){
-		return createArrayList();
-	}
-
-	@Deprecated
-	public static <T> LinkedList<T> createLinkedList(){
-		return new LinkedList<T>();
-	}
-
-	@Deprecated
-	public static <T> ArrayList<T> createArrayList(){
-		return new ArrayList<T>();
-	}
-
 	public static <T> List<T> nullSafeWrap(T t){
 		List<T> list = new LinkedList<T>();
 		if(t!=null){
@@ -40,13 +25,8 @@ public class DrListTool {
 		return nullSafeWrap(t);
 	}
 
-	@Deprecated
-	public static <T> ArrayList<T> createArrayList(int size){
-		return new ArrayList<T>(size);
-	}
-
 	public static <T> ArrayList<T> createArrayListWithSize(Collection<?> c){
-		return createArrayList(DrCollectionTool.sizeNullSafe(c));
+		return new ArrayList<>(DrCollectionTool.sizeNullSafe(c));
 	}
 
 	public static <T> ArrayList<T> createArrayListAndInitialize(int size){
@@ -93,15 +73,22 @@ public class DrListTool {
 	}
 
 	public static <T> ArrayList<T> createArrayList(Iterator<T> ins){
-		ArrayList<T> outs = createArrayList();
+		ArrayList<T> outs = new ArrayList<>();
 		while(ins.hasNext()){ outs.add(ins.next()); }
 		return outs;
 	}
 
 	public static <T> ArrayList<T> createArrayList(Iterable<T> ins){
-		ArrayList<T> outs = new ArrayList<T>();
+		return createArrayList(ins, Integer.MAX_VALUE);
+	}
+
+	public static <T> ArrayList<T> createArrayList(Iterable<T> ins, int limit){
+		ArrayList<T> outs = new ArrayList<T>();//don't pre-size array in case limit is huge
 		for(T in : DrIterableTool.nullSafe(ins)) {
 			outs.add(in);
+			if(outs.size() >= limit){
+				break;
+			}
 		}
 		return outs;
 	}
@@ -134,16 +121,15 @@ public class DrListTool {
 		if(coll == null){ return new LinkedList<>(); }
 		if(coll instanceof List){
 			return (List<T>)coll;
-		}else{
-			return new LinkedList<>(coll);
 		}
+		return new LinkedList<>(coll);
 	}
 
 	/*********************** concatenate ********************************/
 
 	public static <T> ArrayList<T> concatenate(List<T>... ins){
 		int size = DrCollectionTool.getTotalSizeOfArrayOfCollections(ins);
-		ArrayList<T> outs = DrListTool.createArrayList(size);
+		ArrayList<T> outs = new ArrayList<>(size);
 		for(List<T> in : ins){
 			outs.addAll(DrListTool.nullSafe(in));
 		}

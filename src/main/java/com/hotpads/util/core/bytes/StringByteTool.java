@@ -4,7 +4,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
@@ -76,7 +76,7 @@ public class StringByteTool{
 				+ DrByteTool.BYTES_PER_INTEGER//hash
 				+ DrByteTool.BYTES_PER_POINTER //for the pointer to the char[]??
 				+ 3 * DrByteTool.BYTES_PER_POINTER //array overhead (object overhead + length)
-				+ ((String)s).length() * 2; //actual char[] data
+				+ s.length() * 2; //actual char[] data
 	}
 	
 	

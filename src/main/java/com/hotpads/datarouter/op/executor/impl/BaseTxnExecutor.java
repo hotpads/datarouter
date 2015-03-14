@@ -13,11 +13,10 @@ import com.hotpads.datarouter.op.executor.TxnExecutor;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrExceptionTool;
 
 public abstract class BaseTxnExecutor<T>
 extends BaseClientExecutor<T>
-implements TxnExecutor<T>{
+implements TxnExecutor{
 	private static Logger logger = LoggerFactory.getLogger(BaseTxnExecutor.class);
 
 	private TxnOp<T> parallelTxnOp;
@@ -37,7 +36,9 @@ implements TxnExecutor<T>{
 	@Override
 	public void beginTxns(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof TxnClient) ){ continue; }
+			if( ! (client instanceof TxnClient) ){
+				continue;
+			}
 			TxnClient txnClient = (TxnClient)client;
 			ConnectionHandle connectionHandle = txnClient.getExistingHandle();
 			if(connectionHandle.isOutermostHandle()){
@@ -51,7 +52,9 @@ implements TxnExecutor<T>{
 	@Override
 	public void commitTxns(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof TxnClient) ){ continue; }
+			if( ! (client instanceof TxnClient) ){
+				continue;
+			}
 			TxnClient txnClient = (TxnClient)client;
 			ConnectionHandle connectionHandle = txnClient.getExistingHandle();
 			if(connectionHandle.isOutermostHandle()){
@@ -65,7 +68,9 @@ implements TxnExecutor<T>{
 	@Override
 	public void rollbackTxns(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof TxnClient) ){ continue; }
+			if( ! (client instanceof TxnClient) ){
+				continue;
+			}
 			TxnClient txnClient = (TxnClient)client;
 			try{
 				txnClient.rollbackTxn();

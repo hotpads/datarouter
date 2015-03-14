@@ -2,8 +2,7 @@ package com.hotpads.util.core.collections;
 
 import java.util.ArrayList;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.hotpads.datarouter.util.core.DrComparableTool;
@@ -105,7 +104,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	}
 	
 	public ArrayList<T> filter(Iterable<T> ins){
-		ArrayList<T> outs = DrListTool.createArrayList();
+		ArrayList<T> outs = new ArrayList<>();
 		for(T in : DrIterableTool.nullSafe(ins)){
 			if(contains(in)){
 				outs.add(in);
@@ -170,9 +169,8 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		if(c!=0){ return c; }
 		if(a.startInclusive){ 
 			return b.startInclusive ? 0 : -1;
-		}else{
-			return b.startInclusive ? 1 : 0;
 		}
+		return b.startInclusive ? 1 : 0;
 	}
 	
 	@Override

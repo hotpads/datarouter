@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.client.imp.http;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -16,7 +15,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 import org.apache.commons.codec.binary.Base64;
@@ -134,10 +132,9 @@ public class ApacheHttpClient{
 		if(!Strings.isNullOrEmpty(jsonString)){
 			T json = (T) JSONSerializer.toJSON(jsonString);
 			return json;
-		}else{
-			logger.error("Server returned empty/null json object: '" + jsonString + "'");
-			return ReflectionTool.create(returnType);
 		}
+		logger.error("Server returned empty/null json object: '" + jsonString + "'");
+		return ReflectionTool.create(returnType);
 	}
 
 	/**

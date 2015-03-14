@@ -1,9 +1,12 @@
 package com.hotpads.datarouter.test.node.basic.manyfield;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,13 +42,10 @@ import com.hotpads.datarouter.storage.field.imp.enums.VarIntEnumField;
 import com.hotpads.datarouter.storage.field.imp.positive.UInt63Field;
 import com.hotpads.datarouter.storage.field.imp.positive.VarIntField;
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrMapTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.util.core.collections.arrays.LongArray;
 
 
-@SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
 public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
@@ -163,7 +163,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(ManyFieldBean d){
-			List<Field<?>> fields = DrListTool.createArrayList();
+			List<Field<?>> fields = new ArrayList<>();
 			fields.add(new BooleanField(F.booleanField, d.booleanField));
 			fields.add(new SignedByteField(F.byteField, d.byteField));
 			fields.add(new ShortField(F.shortField, d.shortField));
@@ -191,7 +191,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		}
 		@Override
 		public Map<String,List<Field<?>>> getIndexes(ManyFieldBean d){
-			Map<String,List<Field<?>>> indexesByName = DrMapTool.createTreeMap();
+			Map<String,List<Field<?>>> indexesByName = new TreeMap<>();
 			indexesByName.put("index_shortInt", FieldTool.createList(
 					new ShortField(F.shortField, d.shortField),
 					new IntegerField(F.integerField, d.integerField)));
@@ -235,7 +235,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	/***************************** static methods *****************************/
 	
 	public static List<ManyFieldBean> filterForStringValue(Collection<ManyFieldBean> ins, String value){
-		List<ManyFieldBean> outs = DrListTool.createLinkedList();
+		List<ManyFieldBean> outs = new LinkedList<>();
 		for(ManyFieldBean in : DrIterableTool.nullSafe(ins)){
 			if(DrObjectTool.equals(in.getStringField(), value)){
 				outs.add(in);
@@ -254,25 +254,25 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	}
 
 	public List<Boolean> appendToBooleanArrayField(Boolean val){
-		if(booleanArrayField==null){ booleanArrayField = DrListTool.create(); }
+		if(booleanArrayField==null){ booleanArrayField = new ArrayList<>(); }
 		booleanArrayField.add(val);
 		return booleanArrayField;
 	}
 	
 	public List<Double> appendToDoubleArrayField(Double val){
-		if(doubleArrayField==null){ doubleArrayField = DrListTool.create(); }
+		if(doubleArrayField==null){ doubleArrayField = new ArrayList<>(); }
 		doubleArrayField.add(val);
 		return doubleArrayField;
 	}
 	
 	public List<Integer> appendToIntegerArrayField(Integer val){
-		if(integerArrayField==null){ integerArrayField = DrListTool.create(); }
+		if(integerArrayField==null){ integerArrayField = new ArrayList<>(); }
 		integerArrayField.add(val);
 		return integerArrayField;
 	}
 	
 	public List<String> appendToDelimitedStringArrayField(String val){
-		if(delimitedStringArrayField==null){ delimitedStringArrayField = DrListTool.create(); }
+		if(delimitedStringArrayField==null){ delimitedStringArrayField = new ArrayList<>(); }
 		delimitedStringArrayField.add(val);
 		return delimitedStringArrayField;
 	}

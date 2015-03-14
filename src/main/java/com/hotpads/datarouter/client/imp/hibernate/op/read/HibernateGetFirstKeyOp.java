@@ -52,7 +52,7 @@ extends BaseHibernateOp<PK>{
 		if(numFields==1){
 			rows = new Object[]{rows};
 		}
-		PK pk = (PK)FieldSetTool.fieldSetFromHibernateResultUsingReflection(
+		PK pk = FieldSetTool.fieldSetFromHibernateResultUsingReflection(
 				node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), rows);
 		return pk;
 	}

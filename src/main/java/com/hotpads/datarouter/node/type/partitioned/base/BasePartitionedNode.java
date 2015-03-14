@@ -1,6 +1,9 @@
 package com.hotpads.datarouter.node.type.partitioned.base;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -82,7 +85,7 @@ extends BaseNode<PK,D,F>{
 	@Override
 	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys) {
 		ArrayListMultimap<N,PK> keysByPhysicalNode = getPrimaryKeysByPhysicalNode(keys);
-		List<String> clientNames = DrListTool.createLinkedList();
+		List<String> clientNames = new LinkedList<>();
 		if(keysByPhysicalNode==null){ return clientNames; }
 		for(PhysicalNode<PK,D> node : DrIterableTool.nullSafe(keysByPhysicalNode.keySet())){
 			String clientName = node.getClientName();
@@ -131,7 +134,7 @@ extends BaseNode<PK,D,F>{
 	/************ common partitioning logic relying on the abstract methods above **********/
 	
 	public List<N> getPhysicalNodesForSecondaryKeys(Collection<? extends Key<PK>> keys){
-		Set<N> nodes = DrSetTool.createHashSet();
+		Set<N> nodes = new HashSet<>();
 		for(Key<PK> key : DrIterableTool.nullSafe(keys)){
 			nodes.addAll(getPhysicalNodesForSecondaryKey(key));
 		}
@@ -140,7 +143,7 @@ extends BaseNode<PK,D,F>{
 	
 	//used when a physicalNode has keys that don't belong on it.  need to filter them out when they come back
 	public List<D> filterDatabeansForPhysicalNode(Collection<D> databeans, N targetNode){
-		List<D> filteredDatabeans = DrListTool.createArrayList();
+		List<D> filteredDatabeans = new ArrayList<>();
 		for(D databean : DrIterableTool.nullSafe(databeans)){
 			if(partitions.getPrimaryKeyFilterForNode(targetNode).include(databean.getKey())){
 				filteredDatabeans.add(databean);

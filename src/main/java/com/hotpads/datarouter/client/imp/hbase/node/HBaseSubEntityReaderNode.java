@@ -36,7 +36,6 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
-import com.hotpads.util.core.iterable.PeekableIterable;
 import com.hotpads.util.core.iterable.scanner.batch.BatchingSortedScanner;
 import com.hotpads.util.core.iterable.scanner.collate.Collator;
 import com.hotpads.util.core.iterable.scanner.collate.PriorityQueueCollator;
@@ -147,14 +146,14 @@ implements HBasePhysicalNode<PK,D>,
 	
 	@Override
 	public PK getFirstKey(Config pConfig){
-		Config config = Config.nullSafe(pConfig).setLimit(1);
+		Config config = Config.nullSafe(pConfig).setIterateBatchSize(1);
 		return DrIterableTool.first(scanKeys(null, config));
 	}
 
 	
 	@Override
 	public D getFirst(Config pConfig){
-		Config config = Config.nullSafe(pConfig).setLimit(1);
+		Config config = Config.nullSafe(pConfig).setIterateBatchSize(1);
 		return DrIterableTool.first(scan(null, config));
 	}
 	
@@ -235,11 +234,10 @@ implements HBasePhysicalNode<PK,D>,
 					return DrListTool.createArrayList(resultParser.getPrimaryKeysWithMatchingQualifierPrefix(result));	
 				}}).call();
 			return new SortedScannerIterable<PK>(new ListBackedSortedScanner<PK>(pks));
-		}else{
-			List<BatchingSortedScanner<PK>> scanners = queryBuilder.getPkScanners(this, range, pConfig);
-			Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
-			return new SortedScannerIterable<PK>(collator);
 		}
+		List<BatchingSortedScanner<PK>> scanners = queryBuilder.getPkScanners(this, range, pConfig);
+		Collator<PK> collator = new PriorityQueueCollator<PK>(scanners);
+		return new SortedScannerIterable<PK>(collator);
 	}
 	
 	@Override
@@ -255,11 +253,10 @@ implements HBasePhysicalNode<PK,D>,
 					return resultParser.getDatabeansWithMatchingQualifierPrefix(result);	
 				}}).call();
 			return new SortedScannerIterable<D>(new ListBackedSortedScanner<D>(databeans));
-		}else{
-			List<BatchingSortedScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, range, pConfig);
-			Collator<D> collator = new PriorityQueueCollator<D>(scanners);
-			return new SortedScannerIterable<D>(collator);
 		}
+		List<BatchingSortedScanner<D>> scanners = queryBuilder.getDatabeanScanners(this, range, pConfig);
+		Collator<D> collator = new PriorityQueueCollator<D>(scanners);
+		return new SortedScannerIterable<D>(collator);
 	}
 		
 	

@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.op.executor.impl;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
 import javax.persistence.RollbackException;
@@ -15,13 +16,12 @@ import com.hotpads.datarouter.op.TxnOp;
 import com.hotpads.datarouter.op.executor.SessionExecutor;
 import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 import com.hotpads.trace.TraceContext;
 
 public class SessionExecutorImpl<T>
 extends BaseTxnExecutor<T>
-implements SessionExecutor<T>, Callable<T>{
+implements SessionExecutor, Callable<T>{
 	private static Logger logger = LoggerFactory.getLogger(SessionExecutorImpl.class);
 
 	public static final boolean EAGER_SESSION_FLUSH = true;
@@ -46,7 +46,7 @@ implements SessionExecutor<T>, Callable<T>{
 	@Override
 	public T call(){
 		T onceResult = null;
-		Collection<T> clientResults = DrListTool.createLinkedList();
+		Collection<T> clientResults = new LinkedList<>();
 		Collection<Client> clients = getClients();
 		try{
 			startTrace();
@@ -103,7 +103,9 @@ implements SessionExecutor<T>, Callable<T>{
 	@Override
 	public void openSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof SessionClient) ){ continue; }
+			if( ! (client instanceof SessionClient) ){
+				continue;
+			}
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.openSession();
 //			logger.warn("opened session on "+sessionClient.getExistingHandle());
@@ -114,7 +116,9 @@ implements SessionExecutor<T>, Callable<T>{
 	@Override
 	public void flushSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof SessionClient) ){ continue; }
+			if( ! (client instanceof SessionClient) ){
+				continue;
+			}
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.flushSession();
 //			logger.warn("flushSession on "+sessionClient.getExistingHandle());
@@ -125,7 +129,9 @@ implements SessionExecutor<T>, Callable<T>{
 	@Override
 	public void cleanupSessions(){
 		for(Client client : DrCollectionTool.nullSafe(getClients())){
-			if( ! (client instanceof SessionClient) ){ continue; }
+			if( ! (client instanceof SessionClient) ){
+				continue;
+			}
 			SessionClient sessionClient = (SessionClient)client;
 			sessionClient.cleanupSession();
 //			logger.warn("cleanupSession on "+sessionClient.getExistingHandle());
@@ -141,11 +147,15 @@ implements SessionExecutor<T>, Callable<T>{
 	}
 	
 	private void startTrace(){
-		if(shouldTrace()){ TraceContext.startSpan(traceName); }
+		if(shouldTrace()){
+			TraceContext.startSpan(traceName);
+		}
 	}
 	
 	private void finishTrace(){
-		if(shouldTrace()){ TraceContext.finishSpan(); }
+		if(shouldTrace()){
+			TraceContext.finishSpan();
+		}
 	}
 	
 }

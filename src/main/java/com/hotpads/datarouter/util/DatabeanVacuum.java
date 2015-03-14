@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -8,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrNumberFormatter;
 import com.hotpads.util.core.Predicate;
 
@@ -38,7 +38,7 @@ public class DatabeanVacuum<PK extends PrimaryKey<PK>, D extends Databean<PK, D>
 	public Void run() {
 		int deletionCount = 0;
 		int scanCount = 0;
-		List<PK> pkBatch = DrListTool.create();
+		List<PK> pkBatch = new ArrayList<>();
 		for(D databean : storage.scan(null, null)) {
 			scanCount++;
 //			if(isInterrupted()) { return; }
@@ -50,7 +50,7 @@ public class DatabeanVacuum<PK extends PrimaryKey<PK>, D extends Databean<PK, D>
 				deletionCount += pkBatch.size();
 				logger.warn("DatabeanVacuum deleted " + DrNumberFormatter.addCommas(deletionCount) + " of "
 						+ DrNumberFormatter.addCommas(scanCount) + " " + storage.getDatabeanType().getSimpleName());
-				pkBatch = DrListTool.create();
+				pkBatch = new ArrayList<>();
 			}
 		}
 		storage.deleteMulti(pkBatch, null);

@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,13 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.misc.Unsafe;
-
 import com.google.common.collect.Lists;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
-import com.hotpads.datarouter.util.core.DrGenericsFactory;
 import com.hotpads.datarouter.util.core.DrListTool;
-import com.hotpads.datarouter.util.core.DrSetTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public class ReflectionTool {
@@ -100,7 +97,7 @@ public class ReflectionTool {
 	}
 	
 	public static Set<Class<?>> getAllSuperClassesAndInterfaces(Class<?> c){
-		Set<Class<?>> supersAndInterfaces = DrGenericsFactory.makeHashSet();
+		Set<Class<?>> supersAndInterfaces = new HashSet<>();
 		
 		List<Class<?>> interfaces = Arrays.asList(c.getInterfaces());
 		if(interfaces!=null){
@@ -120,13 +117,13 @@ public class ReflectionTool {
 	
 	public static Set<Class<?>> getAllSubClassesAnd(Class<?> c){
 		Class<?>[] subClass = c.getClasses();
-		return DrSetTool.create(subClass);
+		return new HashSet<>(Arrays.asList(subClass));
 	}
 	
 	/************************** names *******************************/
 	
 	public static List<String> getAllHierarchyFieldNames(Class<?> c){
-		List<String> names = DrListTool.create();
+		List<String> names = new ArrayList<>();
 		for(Class<?> cls : getAllSuperClassesAndInterfaces(c)){
 			for(Field field : cls.getDeclaredFields()){
 				names.add(field.getName());
@@ -222,7 +219,7 @@ public class ReflectionTool {
 	
 	public static List<Field> getAllHierarchyFields(Class<?> c){
 		List<String> allFieldsName = getAllHierarchyFieldNames(c);
-		List<Field> toReturn = DrListTool.create();
+		List<Field> toReturn = new ArrayList<>();
 		for(String fieldName : allFieldsName){
 			toReturn.add(getDeclaredFieldFromHierarchy(c, fieldName));
 		}
@@ -256,7 +253,7 @@ public class ReflectionTool {
 	}
 	
 	public static <T> Collection<Method> getDeclaredMethodsWithName(Class<T> c, String methodName){
-		Collection<Method> methods = DrListTool.create();
+		Collection<Method> methods = new ArrayList<>();
 		Class<?> clazz = c;
 		do{
 			for(Method method : clazz.getDeclaredMethods()){
@@ -309,28 +306,6 @@ public class ReflectionTool {
 	public static Object getObjectValueUsingGetterMethod( Object objectInstance,Method getter){
 				return ReflectionTool.getValueFromMethod(getter, objectInstance);
 	}
-	
-	/************************ for experiments only ******************************/
-	
-	//need to do this stuff to avoid getting a SecurityException
-	//  from: http://www.thatsjava.com/java-programming/43398/
-	public static Unsafe getUnsafe(){
-		Unsafe unsafe = null;
-		try{
-			Class<Unsafe> uc = Unsafe.class;
-			Field[] fields = uc.getDeclaredFields();
-			for (int i = 0; i < fields.length; i++) {
-				if (fields[i].getName().equals("theUnsafe")) {
-					fields[i].setAccessible(true);
-					unsafe = (Unsafe) fields[i].get(uc);
-					break;
-				}
-			}
-		}catch (Exception ignore){
-		}
-		return unsafe;
-	}
-	
 	
 	/*************************** main ********************************************/
 		

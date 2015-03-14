@@ -1,14 +1,14 @@
 package com.hotpads.datarouter.node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.hotpads.datarouter.util.core.DrIterableTool;
-import com.hotpads.datarouter.util.core.DrListTool;
 
 public class NodeTool{
 
 	public static List<Node<?,?>> getNodeAndDescendants(Node<?,?> parent){
-		List<Node<?,?>> nodes = DrListTool.createArrayList();
+		List<Node<?,?>> nodes = new ArrayList<>();
 		addNodeAndDescendants(nodes, parent);
 		return nodes;
 	}

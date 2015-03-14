@@ -1,6 +1,7 @@
 package com.hotpads.datarouter.client.imp.jdbc.op.read.index;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -57,7 +58,7 @@ extends BaseJdbcOp<List<PKLookup>>{
 
 			@Override
 			public List<Field<?>> getFields(){
-				List<Field<?>> fields = DrListTool.create();
+				List<Field<?>> fields = new ArrayList<>();
 				fields.addAll(start.getStart().getFields());
 				fields.addAll(start.getStart().getPrimaryKey().getFields());
 				return fields;

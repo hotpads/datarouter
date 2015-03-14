@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
@@ -140,11 +140,11 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
 		@Test public void testByteAware(){
 			LongArray a1 = new LongArray();
 			a1.add(Long.MAX_VALUE);
-			a1.add((long)Integer.MAX_VALUE);
-			a1.add((long)Short.MAX_VALUE);
-			a1.add((long)Byte.MAX_VALUE);
-			a1.add((long)5);
-			a1.add((long)0);
+			a1.add(Integer.MAX_VALUE);
+			a1.add(Short.MAX_VALUE);
+			a1.add(Byte.MAX_VALUE);
+			a1.add(5);
+			a1.add(0);
 			UInt63ArrayField field = new UInt63ArrayField("", a1);
 			byte[] bytesNoPrefix = field.getBytes();
 			Assert.assertEquals(a1.size()*8, DrArrayTool.length(bytesNoPrefix));

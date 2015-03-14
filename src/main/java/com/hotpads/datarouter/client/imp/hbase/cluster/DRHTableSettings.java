@@ -1,9 +1,10 @@
 package com.hotpads.datarouter.client.imp.hbase.cluster;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
-
-import com.hotpads.datarouter.util.core.DrSetTool;
+import java.util.TreeSet;
 
 public class DRHTableSettings{
 	
@@ -18,7 +19,7 @@ public class DRHTableSettings{
 		TTL = "TTL",
 		VERSIONS = "VERSIONS";
 	
-	public static final SortedSet<String> COLUMN_SETTINGS = DrSetTool.createTreeSet();
+	public static final SortedSet<String> COLUMN_SETTINGS = new TreeSet<>();
 	static {
 		COLUMN_SETTINGS.add(BLOCKCACHE);
 		COLUMN_SETTINGS.add(BLOCKSIZE);
@@ -32,9 +33,9 @@ public class DRHTableSettings{
 	}
 	
 	public static final Set<String>
-		SET_BLOOMFILTER = DrSetTool.create("NONE", "ROW", "ROWCOL"),
-		SET_COMPRESSION = DrSetTool.create("NONE", "LZO", "GZ"),
-		SET_DATA_BLOCK_ENCODING = DrSetTool.create("NONE", "PREFIX", "DIFF", "FAST_DIFF");
+		SET_BLOOMFILTER = new HashSet<>(Arrays.asList("NONE", "ROW", "ROWCOL")),
+		SET_COMPRESSION = new HashSet<>(Arrays.asList("NONE", "LZO", "GZ")),
+		SET_DATA_BLOCK_ENCODING = new HashSet<>(Arrays.asList("NONE", "PREFIX", "DIFF", "FAST_DIFF"));
 	
 	public static final String
 		DEFAULT_DATA_BLOCK_ENCODING = "NONE",

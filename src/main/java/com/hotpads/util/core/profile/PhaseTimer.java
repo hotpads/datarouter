@@ -103,16 +103,14 @@ public class PhaseTimer {
 		if(phaseTimes.size() > 0){
 			return DrCollectionTool.getSumOfLongs(phaseTimes);
 		}
-		else{
-			return 0L;
-		}
+		return 0L;
 	}
 	
 	public float getItemsPerSecond(int numItems){
 		long elapsedTime = getElapsedTimeBetweenFirstAndLastEvent();
 		if(elapsedTime < 1){ elapsedTime = 1; }
 		float seconds = (float)elapsedTime/(float)1000;
-		return (float)numItems/(float)seconds;
+		return numItems/seconds;
 	}
 	
 	public Map<String,Long> asMap(){

@@ -20,7 +20,6 @@ import com.hotpads.datarouter.storage.field.FieldTool;
  * Currently used by the HBaseDynamicClientFactory
  * 
  */
-@SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
 public class KeepAlive extends BaseDatabean<KeepAliveKey,KeepAlive>{

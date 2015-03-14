@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -24,7 +25,7 @@ public class DrPropertiesTool {
 	}
 
 	public static List<Properties> fromFiles(Iterable<String> paths){
-		List<Properties> multiProperties = DrListTool.createArrayList();
+		List<Properties> multiProperties = new ArrayList<>();
 		for(String path : DrIterableTool.nullSafe(paths)) {
 			Properties properties = parse(path);
 			if(properties!=null) { multiProperties.add(properties); }

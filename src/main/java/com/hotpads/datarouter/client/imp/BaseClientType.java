@@ -16,7 +16,7 @@ public abstract class BaseClientType implements ClientType{
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, IK extends PrimaryKey<IK>, 
 	IE extends UniqueIndexEntry<IK, IE, PK, D>, IF extends DatabeanFielder<IK, IE>>
-	ManagedUniqueIndexNode<PK, D, IK, IE, IF> createManagedUniqueIndexNode(PhysicalMapStorageNode<PK, D> backingMapNode, 
+	ManagedUniqueIndexNode<PK, D, IK, IE, IF> createManagedUniqueIndexNode(PhysicalMapStorageNode<PK, D> backingMapNode,
 			NodeParams<IK, IE, IF> params, String indexName, boolean manageTxn){
 		throw new UnsupportedOperationException(getClass() + " does not support managed indexes");
 	}

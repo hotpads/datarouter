@@ -13,7 +13,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldTool;
 
 
-@SuppressWarnings("serial")
 @Entity()
 @AccessType("field")
 public class PoolTestBean extends BaseDatabean<PoolTestBeanKey,PoolTestBean>{
