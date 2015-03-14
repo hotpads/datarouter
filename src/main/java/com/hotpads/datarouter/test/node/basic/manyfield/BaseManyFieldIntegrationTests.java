@@ -508,7 +508,8 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void testIncrement(){
 		if(!isHBase()){ return; }
 		@SuppressWarnings("unchecked")
-		HBaseNode<ManyFieldBeanKey, ManyFieldBean, ?> hBaseNode = (HBaseNode<ManyFieldBeanKey,ManyFieldBean,?>)mapNode;
+		HBaseNode<ManyFieldBeanKey, ManyFieldBean, ?> hBaseNode = (HBaseNode<ManyFieldBeanKey,ManyFieldBean,?>)mapNode
+				.getPhysicalNodeIfApplicable();
 		ManyFieldBean bean = new ManyFieldBean();
 
 		//increment by 3
