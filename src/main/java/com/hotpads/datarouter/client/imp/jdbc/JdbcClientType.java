@@ -15,7 +15,7 @@ import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedUniqueInd
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.IndexedSortedMapStorageAdapterNode;
-import com.hotpads.datarouter.node.adapter.counter.SortedMapStorageCounterAdapter;
+import com.hotpads.datarouter.node.adapter.counter.IndexedSortedMapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
@@ -53,7 +53,7 @@ public class JdbcClientType extends BaseClientType{
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
 	Node<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
-		return new SortedMapStorageCounterAdapter(new JdbcNode<PK,D,F>(nodeParams));
+		return new IndexedSortedMapStorageCounterAdapter(new JdbcNode<PK,D,F>(nodeParams));
 	}
 	
 	//ignore the entityNodeParams
