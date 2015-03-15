@@ -7,7 +7,7 @@ import com.hotpads.profile.count.collection.Counters;
 public class DRCounters{
 	
 	public static final String
-		PREFIX = "DataRouter",
+		PREFIX = "Datarouter",
 		
 		CLIENT_TYPE_virtual = "virtual",
 		
