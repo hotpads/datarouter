@@ -30,11 +30,11 @@ public class HibernateGetRangeUncheckedOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 		
-	private HibernateReaderNode<PK,D,F> node;
-	private String opName;
-	private Range<PK> range;
-	private boolean keysOnly;
-	private Config config;
+	private final HibernateReaderNode<PK,D,F> node;
+	private final String opName;
+	private final Range<PK> range;
+	private final boolean keysOnly;
+	private final Config config;
 	
 	public HibernateGetRangeUncheckedOp(HibernateReaderNode<PK,D,F> node, String opName, Range<PK> range, 
 			boolean keysOnly, Config config) {
@@ -48,7 +48,6 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 	
 	@Override
 	public List<? extends FieldSet<?>> runOnce(){
-		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		if(keysOnly){

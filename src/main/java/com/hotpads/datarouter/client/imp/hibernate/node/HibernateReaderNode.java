@@ -124,14 +124,14 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public Long count(final Lookup<PK> lookup, final Config config) {
 		String opName = IndexedStorageReader.OP_count;
-		HibernateCountOp<PK,D,F> op = new HibernateCountOp<PK,D,F>(this, opName, lookup, config);
+		HibernateCountOp<PK,D,F> op = new HibernateCountOp<PK,D,F>(this, lookup, config);
 		return new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
 	@Override
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
 		String opName = IndexedStorageReader.OP_lookupUnique;
-		HibernateLookupUniqueOp<PK,D,F> op = new HibernateLookupUniqueOp<PK,D,F>(this, opName, 
+		HibernateLookupUniqueOp<PK,D,F> op = new HibernateLookupUniqueOp<PK,D,F>(this, 
 				DrListTool.wrap(uniqueKey), config);
 		List<D> result = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 		if(DrCollectionTool.size(result)>1){
@@ -144,7 +144,7 @@ implements MapStorageReader<PK,D>,
 	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		String opName = IndexedStorageReader.OP_lookupMultiUnique;
 		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
-		HibernateLookupUniqueOp<PK,D,F> op = new HibernateLookupUniqueOp<PK,D,F>(this, opName, uniqueKeys,
+		HibernateLookupUniqueOp<PK,D,F> op = new HibernateLookupUniqueOp<PK,D,F>(this, uniqueKeys,
 				config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
@@ -153,7 +153,7 @@ implements MapStorageReader<PK,D>,
 	//TODO pay attention to wildcardLastField
 	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config) {
 		String opName = IndexedStorageReader.OP_lookup;
-		HibernateLookupOp<PK,D,F> op = new HibernateLookupOp<PK,D,F>(this, opName, DrListTool.wrap(lookup), 
+		HibernateLookupOp<PK,D,F> op = new HibernateLookupOp<PK,D,F>(this, DrListTool.wrap(lookup), 
 				wildcardLastField, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
@@ -163,7 +163,7 @@ implements MapStorageReader<PK,D>,
 	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
 		String opName = IndexedStorageReader.OP_lookupMulti;
 		if(DrCollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
-		HibernateLookupOp<PK,D,F> op = new HibernateLookupOp<PK,D,F>(this, opName, lookups, false, config);
+		HibernateLookupOp<PK,D,F> op = new HibernateLookupOp<PK,D,F>(this, lookups, false, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}
 	
@@ -173,7 +173,7 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public D getFirst(final Config config) {
 		String opName = SortedStorageReader.OP_getFirst;
-		HibernateGetFirstOp<PK,D,F> op = new HibernateGetFirstOp<PK,D,F>(this, opName, config);
+		HibernateGetFirstOp<PK,D,F> op = new HibernateGetFirstOp<PK,D,F>(this, config);
 		return new SessionExecutorImpl<D>(op, getTraceName(opName)).call();
 	}
 
@@ -181,7 +181,7 @@ implements MapStorageReader<PK,D>,
 	@Override
 	public PK getFirstKey(final Config config) {
 		String opName = SortedStorageReader.OP_getFirstKey;
-		HibernateGetFirstKeyOp<PK,D,F> op = new HibernateGetFirstKeyOp<PK,D,F>(this, opName, config);
+		HibernateGetFirstKeyOp<PK,D,F> op = new HibernateGetFirstKeyOp<PK,D,F>(this);
 		return new SessionExecutorImpl<PK>(op, getTraceName(opName)).call();
 	}
 
@@ -194,7 +194,7 @@ implements MapStorageReader<PK,D>,
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
 			final Config config) {
 		String opName = SortedStorageReader.OP_getWithPrefixes;
-		HibernateGetWithPrefixesOp<PK,D,F> op = new HibernateGetWithPrefixesOp<PK,D,F>(this, opName, prefixes, 
+		HibernateGetWithPrefixesOp<PK,D,F> op = new HibernateGetWithPrefixesOp<PK,D,F>(this, prefixes, 
 				wildcardLastField, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
 	}

@@ -47,7 +47,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	@Override
 	public void put(final D databean, final Config config) {
 		String opName = MapStorageWriter.OP_put;
-		HibernatePutOp<PK,D,F> op = new HibernatePutOp<PK,D,F>(this, opName, DrListTool.wrap(databean), config);
+		HibernatePutOp<PK,D,F> op = new HibernatePutOp<PK,D,F>(this, DrListTool.wrap(databean), config);
 		new SessionExecutorImpl<Void>(op, getTraceName(opName)).call();
 	}
 
@@ -56,7 +56,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D>
 	public void putMulti(Collection<D> databeans, final Config config) {
 		String opName = MapStorageWriter.OP_putMulti;
 		if(DrCollectionTool.isEmpty(databeans)){ return; }//avoid starting txn
-		HibernatePutOp<PK,D,F> op = new HibernatePutOp<PK,D,F>(this, opName, databeans, config);
+		HibernatePutOp<PK,D,F> op = new HibernatePutOp<PK,D,F>(this, databeans, config);
 		new SessionExecutorImpl<Void>(op, getTraceName(opName)).call();
 	}
 	

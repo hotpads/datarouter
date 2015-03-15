@@ -13,7 +13,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
 
 public class HibernateGetFirstKeyOp<
 		PK extends PrimaryKey<PK>,
@@ -21,20 +20,15 @@ public class HibernateGetFirstKeyOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseHibernateOp<PK>{
 		
-	private HibernateReaderNode<PK,D,F> node;
-	private String opName;
-	private Config config;
+	private final HibernateReaderNode<PK,D,F> node;
 	
-	public HibernateGetFirstKeyOp(HibernateReaderNode<PK,D,F> node, String opName, Config config) {
+	public HibernateGetFirstKeyOp(HibernateReaderNode<PK,D,F> node) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
-		this.opName = opName;
-		this.config = config;
 	}
 	
 	@Override
 	public PK runOnce(){
-		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		String entityName = node.getPackagedTableName();
 		Criteria criteria = session.createCriteria(entityName);
@@ -52,8 +46,8 @@ extends BaseHibernateOp<PK>{
 		if(numFields==1){
 			rows = new Object[]{rows};
 		}
-		PK pk = FieldSetTool.fieldSetFromHibernateResultUsingReflection(
-				node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo().getPrimaryKeyFields(), rows);
+		PK pk = FieldSetTool.fieldSetFromHibernateResultUsingReflection(node.getFieldInfo().getPrimaryKeyClass(), node
+				.getFieldInfo().getPrimaryKeyFields(), rows);
 		return pk;
 	}
 	

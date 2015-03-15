@@ -21,7 +21,6 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrBatchTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -32,23 +31,20 @@ public class HibernateLookupUniqueOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseHibernateOp<List<D>>{
 		
-	private HibernateReaderNode<PK,D,F> node;
-	private String opName;
-	private Collection<? extends UniqueKey<PK>> uniqueKeys;
-	private Config config;
+	private final HibernateReaderNode<PK,D,F> node;
+	private final Collection<? extends UniqueKey<PK>> uniqueKeys;
+	private final Config config;
 	
-	public HibernateLookupUniqueOp(HibernateReaderNode<PK,D,F> node, String opName, 
-			Collection<? extends UniqueKey<PK>> uniqueKeys, Config config) {
+	public HibernateLookupUniqueOp(HibernateReaderNode<PK,D,F> node, Collection<? extends UniqueKey<PK>> uniqueKeys, 
+			Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
-		this.opName = opName;
 		this.uniqueKeys = uniqueKeys;
 		this.config = config;
 	}
 	
 	@Override
 	public List<D> runOnce(){
-		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		
 		//i forget why we're doing this sorting.  prob not necessary

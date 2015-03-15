@@ -13,7 +13,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class HibernateCountOp<
@@ -22,22 +21,19 @@ public class HibernateCountOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseHibernateOp<Long>{
 		
-	private HibernateReaderNode<PK,D,F> node;
-	private String opName;
-	private Lookup<PK> lookup;
-	private Config config;
+	private final HibernateReaderNode<PK,D,F> node;
+	private final Lookup<PK> lookup;
+	private final Config config;
 	
-	public HibernateCountOp(HibernateReaderNode<PK,D,F> node, String opName, Lookup<PK> lookup, Config config) {
+	public HibernateCountOp(HibernateReaderNode<PK,D,F> node, Lookup<PK> lookup, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
-		this.opName = opName;
 		this.lookup = lookup;
 		this.config = config;
 	}
 	
 	@Override
 	public Long runOnce(){
-		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		criteria.setProjection(Projections.rowCount());

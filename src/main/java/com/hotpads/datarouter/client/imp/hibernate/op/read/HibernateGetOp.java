@@ -29,9 +29,9 @@ public class HibernateGetOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseHibernateOp<List<D>>{
 		
-	private HibernateReaderNode<PK,D,F> node;
-	private Collection<PK> keys;
-	private Config config;
+	private final HibernateReaderNode<PK,D,F> node;
+	private final Collection<PK> keys;
+	private final Config config;
 	
 	public HibernateGetOp(HibernateReaderNode<PK,D,F> node, Collection<PK> keys, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
