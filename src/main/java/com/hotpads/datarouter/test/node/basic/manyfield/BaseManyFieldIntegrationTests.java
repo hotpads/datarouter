@@ -52,11 +52,8 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	private void resetTable(){
-		try{
+		if(!isMemcached()){
 			mapNode.deleteAll(null);
-		}catch(UnsupportedOperationException e){
-			//swallow memcached unsupported op.  should probably take deleteAll out of the MapStorage interface
-			//too bad i can't call the isMemcached method from this static method
 		}
 	}
 
