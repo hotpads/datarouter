@@ -10,7 +10,6 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class JdbcDeleteOp<
@@ -19,24 +18,19 @@ public class JdbcDeleteOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<Long>{
 		
-	private PhysicalNode<PK,D> node;
-	private String opName;
-	private Collection<PK> keys;
-	private Config config;
+	private final PhysicalNode<PK,D> node;
+	private final Collection<PK> keys;
+	private final Config config;
 	
-	public JdbcDeleteOp(PhysicalNode<PK,D> node, String opName, Collection<PK> keys, Config config) {
+	public JdbcDeleteOp(PhysicalNode<PK,D> node, Collection<PK> keys, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, shouldAutoCommit(keys));
 		this.node = node;
-		this.opName = opName;
 		this.keys = keys;
 		this.config = config;
 	}
 	
 	@Override
 	public Long runOnce(){
-		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
-		DRCounters.incClientNodeCustom(node.getClient().getType(), "rows deleted", node.getClientName(), node.getName(), 
-				DrCollectionTool.size(keys));
 		String sql = SqlBuilder.deleteMulti(config, node.getTableName(), keys);
 		long numModified = JdbcTool.update(getConnection(node.getClientName()), sql.toString());
 		return numModified;

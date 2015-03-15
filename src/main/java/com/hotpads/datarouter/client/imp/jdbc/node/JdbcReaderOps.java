@@ -79,14 +79,12 @@ public class JdbcReaderOps<
 	
 	public Long count(final Lookup<PK> lookup, final Config config) {
 		String opName = IndexedStorageReader.OP_count;
-		count(opName);
 		JdbcCountOp<PK,D,F> op = new JdbcCountOp<PK,D,F>(node, lookup, config);
 		return new SessionExecutorImpl<Long>(op, getTraceName(opName)).call();
 	}
 	
 	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
 		String opName = IndexedStorageReader.OP_lookupUnique;
-		count(opName);
 		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(node, DrListTool.wrap(uniqueKey), 
 				config);
 		List<D> result = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
@@ -98,7 +96,6 @@ public class JdbcReaderOps<
 
 	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
 		String opName = IndexedStorageReader.OP_lookupMultiUnique;
-		count(opName);
 		if(DrCollectionTool.isEmpty(uniqueKeys)){ return new LinkedList<D>(); }
 		JdbcLookupUniqueOp<PK,D,F> op = new JdbcLookupUniqueOp<PK,D,F>(node, uniqueKeys, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
@@ -107,7 +104,6 @@ public class JdbcReaderOps<
 	//TODO pay attention to wildcardLastField
 	public List<D> lookup(final Lookup<PK> lookup, final boolean wildcardLastField, final Config config) {
 		String opName = IndexedStorageReader.OP_lookup;
-		count(opName);
 		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(node, DrListTool.wrap(lookup), wildcardLastField, 
 				config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
@@ -116,7 +112,6 @@ public class JdbcReaderOps<
 	//TODO rename lookupMulti
 	public List<D> lookup(final Collection<? extends Lookup<PK>> lookups, final Config config) {
 		String opName = IndexedStorageReader.OP_lookupMulti;
-		count(opName);
 		if(DrCollectionTool.isEmpty(lookups)){ return new LinkedList<D>(); }
 		JdbcLookupOp<PK,D,F> op = new JdbcLookupOp<PK,D,F>(node, lookups, false, config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
@@ -133,14 +128,12 @@ public class JdbcReaderOps<
 
 	public D getFirst(final Config config) {
 		String opName = SortedStorageReader.OP_getFirst;
-		count(opName);
 		JdbcGetFirstOp<PK,D,F> op = new JdbcGetFirstOp<PK,D,F>(node, config);
 		return new SessionExecutorImpl<D>(op, getTraceName(opName)).call();
 	}
 	
 	public PK getFirstKey(final Config config) {
 		String opName = SortedStorageReader.OP_getFirstKey;
-		count(opName);
 		JdbcGetFirstKeyOp<PK,D,F> op = new JdbcGetFirstKeyOp<PK,D,F>(node, config);
 		return new SessionExecutorImpl<PK>(op, getTraceName(opName)).call();
 	}
@@ -148,7 +141,6 @@ public class JdbcReaderOps<
 	public List<D> getWithPrefixes(final Collection<PK> prefixes, final boolean wildcardLastField, 
 			final Config config) {
 		String opName = SortedStorageReader.OP_getWithPrefixes;
-		count(opName);
 		JdbcGetWithPrefixesOp<PK,D,F> op = new JdbcGetWithPrefixesOp<PK,D,F>(node, prefixes, wildcardLastField, 
 				config);
 		return new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
@@ -156,19 +148,15 @@ public class JdbcReaderOps<
 
 	public List<PK> getKeysInRange(Range<PK> range, final Config config) {
 		String opName = SortedStorageReader.OP_getKeysInRange;
-		count(opName);
 		JdbcGetPrimaryKeyRangeOp<PK,D,F> op = new JdbcGetPrimaryKeyRangeOp<PK,D,F>(node, range, config);
 		List<PK> result = new SessionExecutorImpl<List<PK>>(op, getTraceName(opName)).call();
-		count(opName+" rows", DrCollectionTool.size(result));
 		return result;
 	}
 	
 	public List<D> getRange(final Range<PK> range, final Config config) {
 		String opName = SortedStorageReader.OP_getRange;
-		count(opName);
 		JdbcGetRangeOp<PK,D,F> op = new JdbcGetRangeOp<PK,D,F>(node, range, config);
 		List<D> result = new SessionExecutorImpl<List<D>>(op, getTraceName(opName)).call();
-		count(opName+" rows", DrCollectionTool.size(result));
 		return result;
 	}
 	
@@ -177,14 +165,6 @@ public class JdbcReaderOps<
 	
 	protected String getTraceName(String opName){
 		return node.getName() + " " + opName;
-	}
-	
-	protected void count(String key){
-		count(key, 1);
-	}
-	
-	protected void count(String key, long delta){
-		DRCounters.incClientNodeCustom(node.getClient().getType(), key, node.getClientName(), node.getName(), delta);
 	}
 
 }

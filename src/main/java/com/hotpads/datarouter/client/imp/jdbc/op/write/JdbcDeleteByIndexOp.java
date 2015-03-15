@@ -11,7 +11,6 @@ import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.util.core.iterable.BatchingIterable;
 
@@ -21,19 +20,16 @@ public class JdbcDeleteByIndexOp<PK extends PrimaryKey<PK>, D extends Databean<P
 	private final PhysicalNode<PK, D> node;
 	private final Config config;
 	private final Collection<IK> entryKeys;
-	private final String opName;
 
-	public JdbcDeleteByIndexOp(PhysicalNode<PK, D> node, Collection<IK> entryKeys, Config config, String opName){
+	public JdbcDeleteByIndexOp(PhysicalNode<PK, D> node, Collection<IK> entryKeys, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, shouldAutoCommit(entryKeys));
 		this.node = node;
 		this.entryKeys = entryKeys;
 		this.config = config;
-		this.opName = opName;
 	}
 	
 	@Override
 	public Long runOnce(){
-		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		long numModified = 0;
 		for(List<IK> batch : new BatchingIterable<IK>(entryKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			String sql = SqlBuilder.deleteMulti(config, node.getTableName(), batch);

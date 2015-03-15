@@ -11,7 +11,6 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
-import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class IndexedStorageWriterAdapterMixin<
 		PK extends PrimaryKey<PK>,

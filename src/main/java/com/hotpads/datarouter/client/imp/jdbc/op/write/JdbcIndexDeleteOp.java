@@ -8,7 +8,6 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrListTool;
 
 public class JdbcIndexDeleteOp<
@@ -16,22 +15,19 @@ public class JdbcIndexDeleteOp<
 		D extends Databean<PK,D>>
 extends BaseJdbcOp<Long>{
 		
-	private PhysicalNode<PK,D> node;
-	private String opName;
-	private Lookup<PK> lookup;
-	private Config config;
+	private final PhysicalNode<PK,D> node;
+	private final Lookup<PK> lookup;
+	private final Config config;
 	
-	public JdbcIndexDeleteOp(PhysicalNode<PK,D> node, String opName, Lookup<PK> lookup, Config config){
+	public JdbcIndexDeleteOp(PhysicalNode<PK,D> node, Lookup<PK> lookup, Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
-		this.opName = opName;
 		this.lookup = lookup;
 		this.config = config;
 	}
 	
 	@Override
 	public Long runOnce(){
-		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		String sql = SqlBuilder.deleteMulti(config, node.getTableName(), DrListTool.wrap(lookup));
 		long numModified = JdbcTool.update(getConnection(node.getClientName()), sql.toString());
 		return numModified;

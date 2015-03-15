@@ -14,37 +14,32 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.util.core.collections.Range;
 
-public class JdbcManagedIndexScanOp
-	<PK extends PrimaryKey<PK>,
-	D extends Databean<PK,D>,
-	IK extends PrimaryKey<IK>,
-	IE extends IndexEntry<IK, IE, PK, D>,
-	IF extends DatabeanFielder<IK, IE>>
+public class JdbcManagedIndexScanOp<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		IK extends PrimaryKey<IK>,
+		IE extends IndexEntry<IK, IE, PK, D>,
+		IF extends DatabeanFielder<IK, IE>>
 extends BaseJdbcOp<List<IE>>{
 
 	private final Range<IK> range;
 	private final PhysicalNode<PK, D> node;
 	private final Config config;
-	private final String traceName;
 	private final DatabeanFieldInfo<IK, IE, IF> fieldInfo;
 	
 	public JdbcManagedIndexScanOp(PhysicalNode<PK, D> node, ManagedNode<IK, IE, IF> managedNode, Range<IK> range,
-			Config config, String traceName){
+			Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.range = range;
 		this.node = node;
 		this.config = config;
-		this.traceName = traceName;
 		this.fieldInfo = managedNode.getFieldInfo();
 	}
 	
 	@Override
 	public List<IE> runOnce(){
-		DRCounters.incClientNodeCustom(node.getClient().getType(), traceName, node.getClientName(), node.getName());
-		
 		String sql = SqlBuilder.getInRange(config, node.getTableName(), fieldInfo.getFields(), range.getStart(),
 				range.getStartInclusive(), range.getEnd(), range.getEndInclusive(), fieldInfo.getPrimaryKeyFields());
 		Connection connection = getConnection(node.getClientName());
