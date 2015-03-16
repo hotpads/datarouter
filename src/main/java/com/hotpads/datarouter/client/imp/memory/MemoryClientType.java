@@ -10,7 +10,7 @@ import com.hotpads.datarouter.client.imp.memory.node.HashMapNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.adapter.MapStorageAdapterNode;
-import com.hotpads.datarouter.node.adapter.counter.MapStorageCounterAdapter;
+import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalMapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
@@ -42,9 +42,8 @@ public class MemoryClientType extends BaseClientType{
 	
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
-	Node<PK,D> createNode(NodeParams<PK, D, F> nodeParams){
-		//TODO fix generics
-		return new MapStorageCounterAdapter(new HashMapNode<PK,D,F>(nodeParams));
+	PhysicalNode<PK,D> createNode(NodeParams<PK, D, F> nodeParams){
+		return new PhysicalMapStorageCounterAdapter<PK,D,F,HashMapNode<PK,D,F>>(new HashMapNode<PK,D,F>(nodeParams));
 	}
 
 	//ignore the entityNodeParams
