@@ -37,6 +37,11 @@ implements Node<PK,D>{
 	}
 	
 	
+	@Override
+	public String toString(){
+		return "CallsiteAdapter[" + backingNode.toString() + "]";
+	}
+	
 	/*************************** node methods *************************/
 	
 	@Override

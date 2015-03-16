@@ -28,6 +28,12 @@ implements Node<PK,D>{
 	}
 
 
+	@Override
+	public String toString(){
+		return "CounterAdapter[" + backingNode.toString() + "]";
+	}
+	
+
 	/**************** Comparable ************************/
 	
 	@Override
