@@ -19,6 +19,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.core.DrClassTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -47,7 +48,7 @@ extends BaseNode<PK,D,F>{
 				.withFielder(fielderClass)
 				.build());
 		this.partitions = new Partitions<PK,D,N>(this);
-		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), null, null, null));
+		this.setId(new NodeId<PK,D,F>(DrClassTool.getClass(this), databeanClass, router.getName(), null, null, null));
 	}
 
 	/*************************** node methods *************************/

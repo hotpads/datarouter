@@ -13,6 +13,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.core.DrClassTool;
 import com.hotpads.datarouter.util.core.DrComparableTool;
 
 public abstract class BaseNode<
@@ -40,7 +41,7 @@ implements Node<PK,D>{
 					"instantiated in the databean constructor.", probablyNoPkInstantiated);
 		}
 		//this default id is frequently overridden
-		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params, fieldInfo.getExplicitNodeName()));
+		this.setId(new NodeId<PK,D,F>(DrClassTool.getClass(this), params, fieldInfo.getExplicitNodeName()));
 	}
 	
 	@Override
