@@ -1,11 +1,11 @@
-package com.hotpads.datarouter.node.adapter;
+package com.hotpads.datarouter.node.adapter.callsite;
 
 import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.adapter.mixin.IndexedStorageReaderAdapterMixin;
+import com.hotpads.datarouter.node.adapter.callsite.mixin.IndexedStorageReaderCallsiteAdapterMixin;
 import com.hotpads.datarouter.node.op.combo.reader.IndexedSortedMapStorageReader.IndexedSortedMapStorageReaderNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -13,19 +13,19 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
-public class IndexedSortedMapStorageReaderAdapterNode<
+public class IndexedSortedMapStorageReaderCallsiteAdapter<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends IndexedSortedMapStorageReaderNode<PK,D>>
-extends SortedMapStorageReaderAdapterNode<PK,D,F,N>
+extends SortedMapStorageReaderCallsiteAdapter<PK,D,F,N>
 implements IndexedSortedMapStorageReaderNode<PK,D>{
 	
-	private IndexedStorageReaderAdapterMixin<PK,D,F,N> indexedStorageReaderMixin;
+	private IndexedStorageReaderCallsiteAdapterMixin<PK,D,F,N> indexedStorageReaderMixin;
 	
-	public IndexedSortedMapStorageReaderAdapterNode(NodeParams<PK,D,F> params, N backingNode){		
+	public IndexedSortedMapStorageReaderCallsiteAdapter(NodeParams<PK,D,F> params, N backingNode){		
 		super(params, backingNode);
-		this.indexedStorageReaderMixin = new IndexedStorageReaderAdapterMixin<PK,D,F,N>(this, backingNode);
+		this.indexedStorageReaderMixin = new IndexedStorageReaderCallsiteAdapterMixin<PK,D,F,N>(this, backingNode);
 	}
 	
 

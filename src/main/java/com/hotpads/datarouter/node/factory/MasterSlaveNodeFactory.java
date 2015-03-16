@@ -11,9 +11,9 @@ import com.hotpads.datarouter.node.BaseNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
-import com.hotpads.datarouter.node.adapter.IndexedSortedMapStorageAdapterNode;
-import com.hotpads.datarouter.node.adapter.MapStorageAdapterNode;
-import com.hotpads.datarouter.node.adapter.SortedMapStorageAdapterNode;
+import com.hotpads.datarouter.node.adapter.callsite.IndexedSortedMapStorageCallsiteAdapter;
+import com.hotpads.datarouter.node.adapter.callsite.MapStorageCallsiteAdapter;
+import com.hotpads.datarouter.node.adapter.callsite.SortedMapStorageCallsiteAdapter;
 import com.hotpads.datarouter.node.adapter.counter.MapStorageCounterAdapter;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -117,19 +117,19 @@ public class MasterSlaveNodeFactory{
 					databeanClass, router, 
 					(MapStorageNode<PK,D>)master, (List<MapStorageNode<PK,D>>)slaves);
 			MapStorageCounterAdapter counterAdapter = new MapStorageCounterAdapter(backingNode);
-			return new MapStorageAdapterNode(nodeParams, counterAdapter);
+			return new MapStorageCallsiteAdapter(nodeParams, counterAdapter);
 		}else if(StorageType.sortedMap == storageType){
 			MasterSlaveSortedMapStorageNode<PK,D,F,SortedMapStorageNode<PK,D>> backingNode 
 					= new MasterSlaveSortedMapStorageNode<PK,D,F,SortedMapStorageNode<PK,D>>(
 					databeanClass, router, 
 					(SortedMapStorageNode<PK,D>)master, (List<SortedMapStorageNode<PK,D>>)slaves);
-			return new SortedMapStorageAdapterNode(nodeParams, backingNode);
+			return new SortedMapStorageCallsiteAdapter(nodeParams, backingNode);
 		}else if(StorageType.indexed == storageType){
 			MasterSlaveIndexedSortedMapStorageNode<PK,D,F,IndexedSortedMapStorageNode<PK,D>> backingNode 
 					= new MasterSlaveIndexedSortedMapStorageNode<PK,D,F,IndexedSortedMapStorageNode<PK,D>>(
 					databeanClass, router, 
 					(IndexedSortedMapStorageNode<PK,D>)master, (List<IndexedSortedMapStorageNode<PK,D>>)slaves);
-			return new IndexedSortedMapStorageAdapterNode(nodeParams, backingNode);
+			return new IndexedSortedMapStorageCallsiteAdapter(nodeParams, backingNode);
 		}else{
 			throw new IllegalArgumentException("StorageType "+storageType+" not supported");
 		}

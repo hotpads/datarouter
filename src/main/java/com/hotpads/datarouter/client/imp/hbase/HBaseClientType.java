@@ -11,7 +11,7 @@ import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.adapter.SortedMapStorageAdapterNode;
+import com.hotpads.datarouter.node.adapter.callsite.SortedMapStorageCallsiteAdapter;
 import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalSortedMapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -68,7 +68,7 @@ public class HBaseClientType extends BaseClientType{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>> 
 	SortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
-		return new SortedMapStorageAdapterNode<PK, D, F, SortedMapStorageNode<PK, D>>(nodeParams,
+		return new SortedMapStorageCallsiteAdapter<PK, D, F, SortedMapStorageNode<PK, D>>(nodeParams,
 				(SortedMapStorageNode<PK, D>) backingNode);
 	}
 }

@@ -14,7 +14,7 @@ import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedMultiInde
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.adapter.IndexedSortedMapStorageAdapterNode;
+import com.hotpads.datarouter.node.adapter.callsite.IndexedSortedMapStorageCallsiteAdapter;
 import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
@@ -73,7 +73,7 @@ public class JdbcClientType extends BaseClientType{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>> 
 	IndexedSortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
-		return new IndexedSortedMapStorageAdapterNode<PK, D, F, IndexedSortedMapStorageNode<PK, D>>(nodeParams,
+		return new IndexedSortedMapStorageCallsiteAdapter<PK, D, F, IndexedSortedMapStorageNode<PK, D>>(nodeParams,
 				(IndexedSortedMapStorageNode<PK, D>) backingNode);
 	}
 	

@@ -1,31 +1,31 @@
-package com.hotpads.datarouter.node.adapter;
+package com.hotpads.datarouter.node.adapter.callsite;
 
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.adapter.mixin.MapStorageWriterAdapterMixin;
-import com.hotpads.datarouter.node.adapter.mixin.SortedStorageWriterAdapterMixin;
+import com.hotpads.datarouter.node.adapter.callsite.mixin.MapStorageWriterCallsiteAdapterMixin;
+import com.hotpads.datarouter.node.adapter.callsite.mixin.SortedStorageWriterCallsiteAdapterMixin;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public class SortedMapStorageAdapterNode<
+public class SortedMapStorageCallsiteAdapter<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends SortedMapStorageNode<PK,D>>
-extends SortedMapStorageReaderAdapterNode<PK,D,F,N>
+extends SortedMapStorageReaderCallsiteAdapter<PK,D,F,N>
 implements SortedMapStorageNode<PK,D>{
 
-	private MapStorageWriterAdapterMixin<PK,D,F,N> mapStorageWritermixin;
-	private SortedStorageWriterAdapterMixin<PK,D,F,N> sortedStorageWriterMixin;
+	private MapStorageWriterCallsiteAdapterMixin<PK,D,F,N> mapStorageWritermixin;
+	private SortedStorageWriterCallsiteAdapterMixin<PK,D,F,N> sortedStorageWriterMixin;
 	
-	public SortedMapStorageAdapterNode(NodeParams<PK,D,F> params, N backingNode){		
+	public SortedMapStorageCallsiteAdapter(NodeParams<PK,D,F> params, N backingNode){		
 		super(params, backingNode);
-		this.mapStorageWritermixin = new MapStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);
-		this.sortedStorageWriterMixin = new SortedStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);
+		this.mapStorageWritermixin = new MapStorageWriterCallsiteAdapterMixin<PK,D,F,N>(this, backingNode);
+		this.sortedStorageWriterMixin = new SortedStorageWriterCallsiteAdapterMixin<PK,D,F,N>(this, backingNode);
 	}
 
 	

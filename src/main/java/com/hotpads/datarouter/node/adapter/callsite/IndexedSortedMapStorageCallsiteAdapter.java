@@ -1,12 +1,12 @@
-package com.hotpads.datarouter.node.adapter;
+package com.hotpads.datarouter.node.adapter.callsite;
 
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.adapter.mixin.IndexedStorageWriterAdapterMixin;
-import com.hotpads.datarouter.node.adapter.mixin.MapStorageWriterAdapterMixin;
-import com.hotpads.datarouter.node.adapter.mixin.SortedStorageWriterAdapterMixin;
+import com.hotpads.datarouter.node.adapter.callsite.mixin.IndexedStorageWriterCallsiteAdapterMixin;
+import com.hotpads.datarouter.node.adapter.callsite.mixin.MapStorageWriterCallsiteAdapterMixin;
+import com.hotpads.datarouter.node.adapter.callsite.mixin.SortedStorageWriterCallsiteAdapterMixin;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -14,24 +14,24 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
-public class IndexedSortedMapStorageAdapterNode<
+public class IndexedSortedMapStorageCallsiteAdapter<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends IndexedSortedMapStorageNode<PK,D>>
-extends IndexedSortedMapStorageReaderAdapterNode<PK,D,F,N>
+extends IndexedSortedMapStorageReaderCallsiteAdapter<PK,D,F,N>
 implements IndexedSortedMapStorageNode<PK,D>{
 
-	private MapStorageWriterAdapterMixin<PK,D,F,N> mapStorageWriterMixin;
-	private SortedStorageWriterAdapterMixin<PK,D,F,N> sortedStorageWriterMixin;
-	private IndexedStorageWriterAdapterMixin<PK,D,F,N> indexedStorageWriterMixin;
+	private MapStorageWriterCallsiteAdapterMixin<PK,D,F,N> mapStorageWriterMixin;
+	private SortedStorageWriterCallsiteAdapterMixin<PK,D,F,N> sortedStorageWriterMixin;
+	private IndexedStorageWriterCallsiteAdapterMixin<PK,D,F,N> indexedStorageWriterMixin;
 	
 	
-	public IndexedSortedMapStorageAdapterNode(NodeParams<PK,D,F> params, N backingNode){		
+	public IndexedSortedMapStorageCallsiteAdapter(NodeParams<PK,D,F> params, N backingNode){		
 		super(params, backingNode);
-		this.mapStorageWriterMixin = new MapStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);
-		this.sortedStorageWriterMixin = new SortedStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);
-		this.indexedStorageWriterMixin = new IndexedStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);
+		this.mapStorageWriterMixin = new MapStorageWriterCallsiteAdapterMixin<PK,D,F,N>(this, backingNode);
+		this.sortedStorageWriterMixin = new SortedStorageWriterCallsiteAdapterMixin<PK,D,F,N>(this, backingNode);
+		this.indexedStorageWriterMixin = new IndexedStorageWriterCallsiteAdapterMixin<PK,D,F,N>(this, backingNode);
 	}
 	
 

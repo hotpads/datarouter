@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 import com.hotpads.datarouter.client.ClientType;
 import com.hotpads.datarouter.node.NodeParams;
 import com.hotpads.datarouter.node.NodeParams.NodeParamsBuilder;
-import com.hotpads.datarouter.node.adapter.MapStorageAdapterNode;
+import com.hotpads.datarouter.node.adapter.callsite.MapStorageCallsiteAdapter;
 import com.hotpads.datarouter.node.adapter.counter.MapStorageCounterAdapter;
 import com.hotpads.datarouter.node.op.raw.MapStorage.MapStorageNode;
 import com.hotpads.datarouter.node.type.caching.map.MapCachingMapStorageNode;
@@ -52,7 +52,7 @@ public class CachingNodeFactory{
 				cacheWrites);
 		node = new MapStorageCounterAdapter(node);
 		if(addAdapter){
-			node = new MapStorageAdapterNode<PK,D,F,N>(params, (N)node);
+			node = new MapStorageCallsiteAdapter<PK,D,F,N>(params, (N)node);
 		}
 		return Preconditions.checkNotNull(node, "cannot build Node for clientType="+clientType);
 	}

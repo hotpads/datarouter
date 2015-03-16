@@ -1,4 +1,4 @@
-package com.hotpads.datarouter.node.adapter;
+package com.hotpads.datarouter.node.adapter.callsite;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,7 +21,7 @@ import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.profile.callsite.LineOfCode;
 import com.hotpads.util.core.cache.Cached;
 
-public /*abstract*/ class BaseAdapterNode<
+public /*abstract*/ class BaseCallsiteAdapter<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
@@ -31,7 +31,7 @@ implements Node<PK,D>{
 	protected final N backingNode;
 	private final Cached<Boolean> recordCallsites;
 	
-	public BaseAdapterNode(NodeParams<PK,D,F> params, N backingNode){
+	public BaseCallsiteAdapter(NodeParams<PK,D,F> params, N backingNode){
 		this.backingNode = backingNode;
 		this.recordCallsites = params.getRecordCallsites();
 	}

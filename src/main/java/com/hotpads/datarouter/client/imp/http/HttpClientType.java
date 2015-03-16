@@ -9,7 +9,7 @@ import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.http.node.HttpReaderNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.adapter.MapStorageReaderAdapterNode;
+import com.hotpads.datarouter.node.adapter.callsite.MapStorageReaderCallsiteAdapter;
 import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalMapStorageReaderCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
@@ -63,7 +63,7 @@ public class HttpClientType extends BaseClientType{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>> 
 	MapStorageReaderNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
-		return new MapStorageReaderAdapterNode<PK, D, F, MapStorageReaderNode<PK, D>>(nodeParams,
+		return new MapStorageReaderCallsiteAdapter<PK, D, F, MapStorageReaderNode<PK, D>>(nodeParams,
 				(MapStorageReaderNode<PK, D>) backingNode);
 	}
 }
