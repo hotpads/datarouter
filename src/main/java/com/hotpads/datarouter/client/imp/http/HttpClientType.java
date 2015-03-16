@@ -9,10 +9,11 @@ import com.hotpads.datarouter.client.imp.BaseClientType;
 import com.hotpads.datarouter.client.imp.http.node.HttpReaderNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.adapter.callsite.MapStorageReaderCallsiteAdapter;
+import com.hotpads.datarouter.node.adapter.callsite.physical.PhysicalMapStorageReaderCallsiteAdapter;
 import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalMapStorageReaderCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
+import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.PhysicalMapStorageReaderNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -63,7 +64,7 @@ public class HttpClientType extends BaseClientType{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>> 
 	MapStorageReaderNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
-		return new MapStorageReaderCallsiteAdapter<PK, D, F, MapStorageReaderNode<PK, D>>(nodeParams,
-				(MapStorageReaderNode<PK, D>) backingNode);
+		return new PhysicalMapStorageReaderCallsiteAdapter<PK,D,F,PhysicalMapStorageReaderNode<PK,D>>(nodeParams,
+				(PhysicalMapStorageReaderNode<PK,D>)backingNode);
 	}
 }

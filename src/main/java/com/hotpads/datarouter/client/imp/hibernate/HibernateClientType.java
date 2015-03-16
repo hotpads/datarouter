@@ -18,7 +18,7 @@ import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedMultiInde
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.adapter.callsite.IndexedSortedMapStorageCallsiteAdapter;
+import com.hotpads.datarouter.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
 import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
@@ -87,8 +87,8 @@ public class HibernateClientType extends BaseClientType{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>> 
 	IndexedSortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
-		return new IndexedSortedMapStorageCallsiteAdapter<PK, D, F, IndexedSortedMapStorageNode<PK, D>>(nodeParams,
-				(IndexedSortedMapStorageNode<PK, D>) backingNode);
+		return new PhysicalIndexedSortedMapStorageCallsiteAdapter<PK,D,F,PhysicalIndexedSortedMapStorageNode<PK,D>>(
+				nodeParams, (PhysicalIndexedSortedMapStorageNode<PK,D>)backingNode);
 	}
 	
 	@Override
@@ -99,7 +99,7 @@ public class HibernateClientType extends BaseClientType{
 			IF extends DatabeanFielder<IK, IE>> ManagedUniqueIndexNode<PK, D, IK, IE, IF> createManagedUniqueIndexNode(
 			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn){
-		if(!(backingMapNode instanceof JdbcNode)){
+		if(!(backingMapNode.getPhysicalNodeIfApplicable() instanceof JdbcNode)){
 			super.createManagedUniqueIndexNode(backingMapNode, params, indexName, manageTxn);
 		}
 		if(manageTxn){
@@ -116,7 +116,7 @@ public class HibernateClientType extends BaseClientType{
 			IF extends DatabeanFielder<IK, IE>> ManagedMultiIndexNode<PK, D, IK, IE, IF> createManagedMultiIndexNode(
 			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn){
-		if(!(backingMapNode instanceof JdbcNode)){
+		if(!(backingMapNode.getPhysicalNodeIfApplicable() instanceof JdbcNode)){
 			super.createManagedMultiIndexNode(backingMapNode, params, indexName, manageTxn);
 		}
 		if(manageTxn){
