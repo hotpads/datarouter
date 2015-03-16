@@ -1,6 +1,5 @@
 package com.hotpads.datarouter.node.type.partitioned.base;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -28,7 +27,7 @@ import com.hotpads.util.core.collections.Range;
 
 /*
  * current assumption is that partition can always be determined by the PrimaryKey.  should probably create a
- * new implemenatation in the more obscure case that non-PK fields determine the partition.
+ * new implementation in the more obscure case that non-PK fields determine the partition.
  */
 public abstract class BasePartitionedNode<
 		PK extends PrimaryKey<PK>,
@@ -56,7 +55,7 @@ extends BaseNode<PK,D,F>{
 	@Override
 	public Set<String> getAllNames(){
 		Set<String> names = DrSetTool.wrap(getName());
-		for(N physicalNode : DrIterableTool.nullSafe(partitions.getAll())){
+		for(N physicalNode : DrIterableTool.nullSafe(partitions.getAllNodes())){
 			names.addAll(physicalNode.getAllNames());
 		}
 		return names;
@@ -69,7 +68,7 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public List<? extends Node<PK,D>> getChildNodes(){
-		return partitions.getAll();
+		return partitions.getAllNodes();
 	}
 
 	@Override
@@ -97,13 +96,13 @@ extends BaseNode<PK,D,F>{
 	/************************ virtual node methods ***************************/
 	
 	public N register(N physicalNode){
-		partitions.add(physicalNode);
+		partitions.addNode(physicalNode);
 		return physicalNode;
 	}
 	
 	@Override
 	public List<N> getPhysicalNodes() {
-		return partitions.getAll();
+		return partitions.getAllNodes();
 	}
 	
 	@Override
