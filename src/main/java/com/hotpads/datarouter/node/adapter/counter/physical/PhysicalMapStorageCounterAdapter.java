@@ -6,7 +6,6 @@ import com.hotpads.datarouter.client.Client;
 import com.hotpads.datarouter.node.adapter.counter.MapStorageCounterAdapter;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedNode;
-import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -18,7 +17,7 @@ public class PhysicalMapStorageCounterAdapter<
 		F extends DatabeanFielder<PK,D>,
 		PN extends PhysicalMapStorageNode<PK,D>>
 extends MapStorageCounterAdapter<PK,D,F,PN>
-implements PhysicalNode<PK,D>{
+implements PhysicalMapStorageNode<PK,D>{
 
 	
 	public PhysicalMapStorageCounterAdapter(PN backingNode){		

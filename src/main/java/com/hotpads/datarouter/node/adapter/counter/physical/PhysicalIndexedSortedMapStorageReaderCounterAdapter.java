@@ -3,9 +3,9 @@ package com.hotpads.datarouter.node.adapter.counter.physical;
 import java.util.List;
 
 import com.hotpads.datarouter.client.Client;
+import com.hotpads.datarouter.node.adapter.counter.IndexedSortedMapStorageReaderCounterAdapter;
 import com.hotpads.datarouter.node.op.combo.reader.IndexedSortedMapStorageReader.PhysicalIndexedSortedMapStorageReaderNode;
 import com.hotpads.datarouter.node.type.index.ManagedNode;
-import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
@@ -16,8 +16,8 @@ public class PhysicalIndexedSortedMapStorageReaderCounterAdapter<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		PN extends PhysicalIndexedSortedMapStorageReaderNode<PK,D>>
-extends PhysicalSortedMapStorageReaderCounterAdapter<PK,D,F,PN>
-implements PhysicalNode<PK,D>{
+extends IndexedSortedMapStorageReaderCounterAdapter<PK,D,F,PN>
+implements PhysicalIndexedSortedMapStorageReaderNode<PK,D>{
 
 	
 	public PhysicalIndexedSortedMapStorageReaderCounterAdapter(PN backingNode){		
