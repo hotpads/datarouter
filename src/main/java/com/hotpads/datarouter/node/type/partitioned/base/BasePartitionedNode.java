@@ -106,10 +106,6 @@ extends BaseNode<PK,D,F>{
 		return partitions.getAll();
 	}
 	
-	public N getPhysicalNode(String name){
-		return partitions.get(name);
-	}
-	
 	@Override
 	public List<N> getPhysicalNodesForClient(String clientName) {
 		return partitions.getPhysicalNodesForClient(clientName);
@@ -142,15 +138,15 @@ extends BaseNode<PK,D,F>{
 	}
 	
 	//used when a physicalNode has keys that don't belong on it.  need to filter them out when they come back
-	public List<D> filterDatabeansForPhysicalNode(Collection<D> databeans, N targetNode){
-		List<D> filteredDatabeans = new ArrayList<>();
-		for(D databean : DrIterableTool.nullSafe(databeans)){
-			if(partitions.getPrimaryKeyFilterForNode(targetNode).include(databean.getKey())){
-				filteredDatabeans.add(databean);
-			}
-		}
-		return filteredDatabeans;
-	}
+//	public List<D> filterDatabeansForPhysicalNode(Collection<D> databeans, N targetNode){
+//		List<D> filteredDatabeans = new ArrayList<>();
+//		for(D databean : DrIterableTool.nullSafe(databeans)){
+//			if(partitions.getPrimaryKeyFilterForNode(targetNode).include(databean.getKey())){
+//				filteredDatabeans.add(databean);
+//			}
+//		}
+//		return filteredDatabeans;
+//	}
 	
 	public ArrayListMultimap<N,PK> getPrimaryKeysByPhysicalNode(Collection<PK> pks){
 		ArrayListMultimap<N,PK> primaryKeysByPhysicalNode = ArrayListMultimap.create();
