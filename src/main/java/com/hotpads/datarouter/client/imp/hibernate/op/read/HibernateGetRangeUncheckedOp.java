@@ -48,6 +48,7 @@ extends BaseHibernateOp<List<? extends FieldSet<?>>>{
 	
 	@Override
 	public List<? extends FieldSet<?>> runOnce(){
+		DRCounters.incClientNodeCustom(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		Session session = getSession(node.getClientName());
 		Criteria criteria = node.getCriteriaForConfig(config, session);
 		if(keysOnly){
