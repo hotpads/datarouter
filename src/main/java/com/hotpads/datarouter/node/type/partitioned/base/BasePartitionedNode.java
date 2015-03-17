@@ -1,5 +1,6 @@
 package com.hotpads.datarouter.node.type.partitioned.base;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -19,7 +20,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.core.DrClassTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrIterableTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -28,7 +28,7 @@ import com.hotpads.util.core.collections.Range;
 
 /*
  * current assumption is that partition can always be determined by the PrimaryKey.  should probably create a
- * new implementation in the more obscure case that non-PK fields determine the partition.
+ * new implemenatation in the more obscure case that non-PK fields determine the partition.
  */
 public abstract class BasePartitionedNode<
 		PK extends PrimaryKey<PK>,
@@ -48,7 +48,7 @@ extends BaseNode<PK,D,F>{
 				.withFielder(fielderClass)
 				.build());
 		this.partitions = new Partitions<PK,D,N>(this);
-		this.setId(new NodeId<PK,D,F>(DrClassTool.getClass(this), databeanClass, router.getName(), null, null, null));
+		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), databeanClass, router.getName(), null, null, null));
 	}
 
 	/*************************** node methods *************************/
@@ -56,7 +56,7 @@ extends BaseNode<PK,D,F>{
 	@Override
 	public Set<String> getAllNames(){
 		Set<String> names = DrSetTool.wrap(getName());
-		for(N physicalNode : DrIterableTool.nullSafe(partitions.getAllNodes())){
+		for(N physicalNode : DrIterableTool.nullSafe(partitions.getAll())){
 			names.addAll(physicalNode.getAllNames());
 		}
 		return names;
@@ -69,7 +69,7 @@ extends BaseNode<PK,D,F>{
 	
 	@Override
 	public List<? extends Node<PK,D>> getChildNodes(){
-		return partitions.getAllNodes();
+		return partitions.getAll();
 	}
 
 	@Override
@@ -97,13 +97,17 @@ extends BaseNode<PK,D,F>{
 	/************************ virtual node methods ***************************/
 	
 	public N register(N physicalNode){
-		partitions.addNode(physicalNode);
+		partitions.add(physicalNode);
 		return physicalNode;
 	}
 	
 	@Override
 	public List<N> getPhysicalNodes() {
-		return partitions.getAllNodes();
+		return partitions.getAll();
+	}
+	
+	public N getPhysicalNode(String name){
+		return partitions.get(name);
 	}
 	
 	@Override
@@ -138,15 +142,15 @@ extends BaseNode<PK,D,F>{
 	}
 	
 	//used when a physicalNode has keys that don't belong on it.  need to filter them out when they come back
-//	public List<D> filterDatabeansForPhysicalNode(Collection<D> databeans, N targetNode){
-//		List<D> filteredDatabeans = new ArrayList<>();
-//		for(D databean : DrIterableTool.nullSafe(databeans)){
-//			if(partitions.getPrimaryKeyFilterForNode(targetNode).include(databean.getKey())){
-//				filteredDatabeans.add(databean);
-//			}
-//		}
-//		return filteredDatabeans;
-//	}
+	public List<D> filterDatabeansForPhysicalNode(Collection<D> databeans, N targetNode){
+		List<D> filteredDatabeans = new ArrayList<>();
+		for(D databean : DrIterableTool.nullSafe(databeans)){
+			if(partitions.getPrimaryKeyFilterForNode(targetNode).include(databean.getKey())){
+				filteredDatabeans.add(databean);
+			}
+		}
+		return filteredDatabeans;
+	}
 	
 	public ArrayListMultimap<N,PK> getPrimaryKeysByPhysicalNode(Collection<PK> pks){
 		ArrayListMultimap<N,PK> primaryKeysByPhysicalNode = ArrayListMultimap.create();

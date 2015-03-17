@@ -70,7 +70,7 @@ public abstract class HBaseTask<V> extends TracedCallable<V>{
 			hTable = pair.getLeft();
 			client = pair.getRight();
 			//do this after prepClientAndTableEtc, because client is set in there (null beforehand)
-			DRCounters.incClientNodeCustom(client.getType(), taskName, client.getName(), nodeName);
+			DRCounters.incSuffixClientNode(client.getType(), taskName, client.getName(), nodeName);
 			
 			/******************/
 			return hbaseCall(hTable, client, managedResultScanner); //override this method in subclasses

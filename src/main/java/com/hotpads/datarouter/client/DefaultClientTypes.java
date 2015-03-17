@@ -3,8 +3,6 @@ package com.hotpads.datarouter.client;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.testng.annotations.Test;
-
 import com.hotpads.util.core.java.ReflectionTool;
 
 public class DefaultClientTypes{
@@ -21,17 +19,5 @@ public class DefaultClientTypes{
 	
 	public static ClientType create(String name){
 		return ReflectionTool.create(CLASS_BY_NAME.get(name));
-	}
-	
-	
-	/************************ tests *********************************/
-	
-	public static class DefaultClientTypeTests{
-		@Test
-		public void testFragileStrings(){
-			for(String className : CLASS_BY_NAME.keySet()){
-				create(className);
-			}
-		}
 	}
 }

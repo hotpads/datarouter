@@ -63,8 +63,8 @@ extends HBaseTask<Void>{
 			actions.add(increment);
 			++numRowsIncremented;
 		}
-		DRCounters.incClientNodeCustom(client.getType(), "cells incremented", node.getClientName(), node.getName(), numCellsIncremented);
-		DRCounters.incClientNodeCustom(client.getType(), "rows incremented", node.getClientName(), node.getName(), numRowsIncremented);
+		DRCounters.incSuffixClientNode(client.getType(), "cells incremented", node.getClientName(), node.getName(), numCellsIncremented);
+		DRCounters.incSuffixClientNode(client.getType(), "rows incremented", node.getClientName(), node.getName(), numRowsIncremented);
 		if(DrCollectionTool.notEmpty(actions)){
 			hTable.batch(actions);
 			hTable.flushCommits();

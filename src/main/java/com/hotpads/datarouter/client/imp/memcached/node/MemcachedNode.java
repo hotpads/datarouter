@@ -14,6 +14,7 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.databean.DatabeanTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.trace.TraceContext;
@@ -80,6 +81,9 @@ implements PhysicalMapStorageNode<PK,D>
 				logger.error("memached error on " + key,e);
 			}
 		}
+		String opName = "putMulti";
+		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
+		DRCounters.incSuffixClientNode(getClient().getType(), opName+" objects", getClientName(), getName(), databeans.size());
 		TraceContext.appendToSpanInfo(DrCollectionTool.size(databeans)+"");
 	}
 	
@@ -107,6 +111,9 @@ implements PhysicalMapStorageNode<PK,D>
 			}
 		}
 		TraceContext.appendToSpanInfo(DrCollectionTool.size(keys)+"");
+		String opName = "deleteMulti";
+		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
+		DRCounters.incSuffixClientNode(getClient().getType(), opName+" objects", getClientName(), getName(), keys.size());
 	}
 	
 	

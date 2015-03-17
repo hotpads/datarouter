@@ -70,12 +70,12 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 
 	@Override
 	public ConnectionHandle reserveConnection(){
-		DRCounters.incClient(getType(), "connection open", getName());
+		DRCounters.incSuffixClient(getType(), "connection open", getName());
 		try {
 			ConnectionHandle existingHandle = getExistingHandle();
 			if(existingHandle != null){
 //				logger.warn("got existing connection:"+existingHandle);
-				DRCounters.incClient(getType(), "connection open existing", getName());
+				DRCounters.incSuffixClient(getType(), "connection open existing", getName());
 				//Assert connection exists for handle
 				existingHandle.incrementNumTickets();
 				return existingHandle;
@@ -94,10 +94,10 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 			}
 			connectionByHandle.put(handle, newConnection);
 //			logger.warn("new connection:"+handle);
-			DRCounters.incClient(getType(), "connection open new", getName());
+			DRCounters.incSuffixClient(getType(), "connection open new", getName());
 			return handle;
 		}catch(SQLException e){
-			DRCounters.incClient(getType(), "connection open "+e.getClass().getSimpleName(), getName());
+			DRCounters.incSuffixClient(getType(), "connection open "+e.getClass().getSimpleName(), getName());
 			throw new DataAccessException(e);
 		}
 	}
@@ -105,17 +105,17 @@ implements JdbcConnectionClient, TxnClient, SessionClient, JdbcClient{
 	protected void logIfSlowReserveConnection(long requestTimeNs){
 		long elapsedUs = (System.nanoTime() - requestTimeNs) / 1000;
 		if(elapsedUs > 1000){
-			DRCounters.incClient(getType(), "connection open > 1ms", getName());
+			DRCounters.incSuffixClient(getType(), "connection open > 1ms", getName());
 		}
 		if(elapsedUs > 2000){
-			DRCounters.incClient(getType(), "connection open > 2ms", getName());
+			DRCounters.incSuffixClient(getType(), "connection open > 2ms", getName());
 		}
 		if(elapsedUs > 5000){
-			DRCounters.incClient(getType(), "connection open > 5ms", getName());
+			DRCounters.incSuffixClient(getType(), "connection open > 5ms", getName());
 			logger.warn("slow reserveConnection: "+elapsedUs+"us on "+getName());
 		}
 		if(elapsedUs > 10000){
-			DRCounters.incClient(getType(), "connection open > 10ms", getName());
+			DRCounters.incSuffixClient(getType(), "connection open > 10ms", getName());
 		}
 	}
 

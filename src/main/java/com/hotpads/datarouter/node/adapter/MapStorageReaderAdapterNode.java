@@ -1,29 +1,29 @@
-package com.hotpads.datarouter.node.adapter.callsite;
+package com.hotpads.datarouter.node.adapter;
 
 import java.util.Collection;
 import java.util.List;
 
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.adapter.callsite.mixin.MapStorageReaderCallsiteAdapterMixin;
+import com.hotpads.datarouter.node.adapter.mixin.MapStorageReaderAdapterMixin;
 import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public class MapStorageReaderCallsiteAdapter<
+public class MapStorageReaderAdapterNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageReaderNode<PK,D>>
-extends BaseCallsiteAdapter<PK,D,F,N>
+extends BaseAdapterNode<PK,D,F,N>
 implements MapStorageReaderNode<PK,D>{
 
-	private MapStorageReaderCallsiteAdapterMixin<PK,D,F,N> mapStorageReaderMixin;
+	private MapStorageReaderAdapterMixin<PK,D,F,N> mapStorageReaderMixin;
 	
-	public MapStorageReaderCallsiteAdapter(NodeParams<PK,D,F> params, N backingNode){		
+	public MapStorageReaderAdapterNode(NodeParams<PK,D,F> params, N backingNode){		
 		super(params, backingNode);
-		this.mapStorageReaderMixin = new MapStorageReaderCallsiteAdapterMixin<PK,D,F,N>(this, backingNode);
+		this.mapStorageReaderMixin = new MapStorageReaderAdapterMixin<PK,D,F,N>(this, backingNode);
 	}
 
 	

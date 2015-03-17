@@ -52,7 +52,7 @@ public class HTablePerTablePool implements HTablePool{
 	
 	@Override
 	public HTable checkOut(String name, MutableString progress){
-		DRCounters.incOp(HBaseClientType.INSTANCE, "connection getHTable "+name);
+		DRCounters.incSuffixOp(HBaseClientType.INSTANCE, "connection getHTable "+name);
 		LinkedList<HTable> queue = hTablesByName.get(name);
 		HTable hTable;
 		synchronized(queue){
@@ -63,7 +63,7 @@ public class HTablePerTablePool implements HTablePool{
 				String counterName = "connection create HTable "+name;
 				hTable = new HTable(this.hBaseConfiguration, name);
 				logger.warn(counterName+", size="+queue.size());
-				DRCounters.incOp(HBaseClientType.INSTANCE, counterName);
+				DRCounters.incSuffixOp(HBaseClientType.INSTANCE, counterName);
 			}catch(IOException ioe){
 				throw new RuntimeException(ioe);
 			}
@@ -84,20 +84,20 @@ public class HTablePerTablePool implements HTablePool{
 		if(possiblyTarnished){
 			addedBackToPool = false;
 			logger.warn("HTable possibly tarnished, discarding.  table:"+name);
-			DRCounters.incOp(HBaseClientType.INSTANCE, "HTable possibly tarnished "+name);	
+			DRCounters.incSuffixOp(HBaseClientType.INSTANCE, "HTable possibly tarnished "+name);	
 		}
 		synchronized(queue){
 			if(queue.size() < maxPerTableSize){
 				queue.add(hTable);
 				addedBackToPool = true;
-				DRCounters.incOp(HBaseClientType.INSTANCE, "connection HTable returned to pool "+name);
+				DRCounters.incSuffixOp(HBaseClientType.INSTANCE, "connection HTable returned to pool "+name);
 			}
 		}
 		if(!addedBackToPool){
 			try {
 				logger.warn("checkIn HTable but queue already full or possibly tarnished, so close and discard, table="+name);
 				hTable.close();//flushes write buffer, and calls ExecutorService.shutdown()
-				DRCounters.incOp(HBaseClientType.INSTANCE, "connection HTable closed "+name);
+				DRCounters.incSuffixOp(HBaseClientType.INSTANCE, "connection HTable closed "+name);
 			} catch (IOException e) {
 				logger.warn("", e);
 			}				

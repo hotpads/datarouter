@@ -27,6 +27,7 @@ import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.KeyTool;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrArrayTool;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 import com.hotpads.datarouter.util.core.DrListTool;
@@ -84,8 +85,12 @@ implements MemcachedPhysicalNode<PK,D>,
 				logger.error("", e);
 			}
 			
+			String opName = "get";
+			DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
+			
 			if(DrArrayTool.isEmpty(bytes)){ 
 				TraceContext.appendToSpanInfo("miss");
+				DRCounters.incSuffixClientNode(getClient().getType(), opName+" miss", getClientName(), getName());
 				return null; 
 			}
 //					System.out.println(StringByteTool.fromUtf8Bytes(bytes));
@@ -93,6 +98,7 @@ implements MemcachedPhysicalNode<PK,D>,
 			try {
 				D databean = FieldSetTool.fieldSetFromByteStreamKnownLength(getDatabeanType(), 
 						fieldInfo.getFieldByPrefixedName(), is, bytes.length);
+				DRCounters.incSuffixClientNode(getClient().getType(), opName+" hit", getClientName(), getName());
 				return databean;
 			} catch (IOException e) {
 				logger.error("", e);
@@ -138,6 +144,16 @@ implements MemcachedPhysicalNode<PK,D>,
 			}
 		}
 		TraceContext.appendToSpanInfo("[got "+DrCollectionTool.size(databeans)+"/"+DrCollectionTool.size(keys)+"]");
+
+		String opName = "getMulti";
+		DRCounters.incSuffixClientNode(getClient().getType(), opName, getClientName(), getName());
+		int requested = keys.size();
+		int hit = databeans.size();
+		int miss = requested - hit;
+		DRCounters.incSuffixClientNode(getClient().getType(), opName+" requested", getClientName(), getName(), requested);
+		DRCounters.incSuffixClientNode(getClient().getType(), opName+" hit", getClientName(), getName(), hit);
+		DRCounters.incSuffixClientNode(getClient().getType(), opName+" miss", getClientName(), getName(), miss);
+				
 		return databeans;
 	}
 	

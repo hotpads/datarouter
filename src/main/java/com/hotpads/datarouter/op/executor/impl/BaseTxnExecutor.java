@@ -45,7 +45,7 @@ implements TxnExecutor{
 				txnClient.beginTxn(getIsolation(), parallelTxnOp.isAutoCommit());
 			}
 //			logger.warn("beginTxn for "+txnClient.getExistingHandle());
-			DRCounters.incClient(txnClient.getType(), "beginTxn", txnClient.getName());
+			DRCounters.incSuffixClient(txnClient.getType(), "beginTxn", txnClient.getName());
 		}
 	}
 	
@@ -61,7 +61,7 @@ implements TxnExecutor{
 				txnClient.commitTxn();
 			}
 //			logger.warn("commitTxn for "+txnClient.getExistingHandle());
-			DRCounters.incClient(txnClient.getType(), "commitTxn", txnClient.getName());
+			DRCounters.incSuffixClient(txnClient.getType(), "commitTxn", txnClient.getName());
 		}
 	}
 	
@@ -75,7 +75,7 @@ implements TxnExecutor{
 			try{
 				txnClient.rollbackTxn();
 //				logger.warn("rollbackTxn for "+txnClient.getExistingHandle());
-				DRCounters.incClient(txnClient.getType(), "rollbackTxn", txnClient.getName());
+				DRCounters.incSuffixClient(txnClient.getType(), "rollbackTxn", txnClient.getName());
 			}catch(Exception e){
 				logger.warn("", e);
 				throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:"
