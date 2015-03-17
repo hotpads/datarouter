@@ -89,19 +89,19 @@ public class CookieTool{
 		response.addCookie(cookieToKill);
 	}
 
-	public static Map<String, String> getCookieMap(HttpServletRequest request){
-		Map<String, String> map = new HashMap<String, String>();
-		Cookie[] cookies = request.getCookies();
-		if (cookies != null) {
-			Cookie cookie;
-			for (int i = 0; i < cookies.length; i++) {
-				cookie = cookies[i];
-				if(cookie==null || cookie.getName()==null){ 
-					continue;
-				}
-				map.put(cookie.getName(), cookie.getValue());
-			}
-		}
-		return map;
-	}
+//	public static Map<String, String> getCookieMap(HttpServletRequest request){
+//		Map<String, String> map = new HashMap<String, String>();
+//		Cookie[] cookies = request.getCookies();
+//		if (cookies != null) {
+//			Cookie cookie;
+//			for (int i = 0; i < cookies.length; i++) {
+//				cookie = cookies[i];
+//				if(cookie==null || cookie.getName()==null){ 
+//					continue;
+//				}
+//				map.put(cookie.getName(), cookie.getValue());
+//			}
+//		}
+//		return map;
+//	}
 }
