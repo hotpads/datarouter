@@ -1,31 +1,34 @@
-package com.hotpads.datarouter.node.adapter;
+package com.hotpads.datarouter.node.adapter.counter;
 
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.adapter.mixin.MapStorageWriterAdapterMixin;
-import com.hotpads.datarouter.node.adapter.mixin.SortedStorageWriterAdapterMixin;
+import com.hotpads.datarouter.node.adapter.counter.formatter.NodeCounterFormatter;
+import com.hotpads.datarouter.node.adapter.counter.mixin.MapStorageWriterCounterAdapterMixin;
+import com.hotpads.datarouter.node.adapter.counter.mixin.SortedStorageWriterCounterAdapterMixin;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
-public class SortedMapStorageAdapterNode<
+public class SortedMapStorageCounterAdapter<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends SortedMapStorageNode<PK,D>>
-extends SortedMapStorageReaderAdapterNode<PK,D,F,N>
+extends SortedMapStorageReaderCounterAdapter<PK,D,F,N>
 implements SortedMapStorageNode<PK,D>{
 
-	private MapStorageWriterAdapterMixin<PK,D,F,N> mapStorageWritermixin;
-	private SortedStorageWriterAdapterMixin<PK,D,F,N> sortedStorageWriterMixin;
+	private MapStorageWriterCounterAdapterMixin<PK,D,F,N> mapStorageWritermixin;
+	private SortedStorageWriterCounterAdapterMixin<PK,D,F,N> sortedStorageWriterMixin;
 	
-	public SortedMapStorageAdapterNode(NodeParams<PK,D,F> params, N backingNode){		
-		super(params, backingNode);
-		this.mapStorageWritermixin = new MapStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);
-		this.sortedStorageWriterMixin = new SortedStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);
+	public SortedMapStorageCounterAdapter(N backingNode){		
+		super(backingNode);
+		NodeCounterFormatter<PK,D,F,N> nodeCounterFormatter = new NodeCounterFormatter<PK,D,F,N>(backingNode);
+		this.mapStorageWritermixin = new MapStorageWriterCounterAdapterMixin<PK,D,F,N>(nodeCounterFormatter, 
+				backingNode);
+		this.sortedStorageWriterMixin = new SortedStorageWriterCounterAdapterMixin<PK,D,F,N>(nodeCounterFormatter, 
+				backingNode);
 	}
 
 	

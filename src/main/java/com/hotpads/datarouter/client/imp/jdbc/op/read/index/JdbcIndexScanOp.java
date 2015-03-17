@@ -18,36 +18,35 @@ import com.hotpads.datarouter.storage.field.Field;
 import com.hotpads.datarouter.storage.field.FieldSet;
 import com.hotpads.datarouter.storage.key.multi.BaseLookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.collections.Range;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class JdbcIndexScanOp
-<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,PKLookup extends BaseLookup<PK>>
+public class JdbcIndexScanOp<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
+		PKLookup extends BaseLookup<PK>>
 extends BaseJdbcOp<List<PKLookup>>{
 
 	private final JdbcReaderNode<PK, D, F> node;
 	private final Range<PKLookup> start;
 	private final Class<PKLookup> indexClass;
 	private final Config config;
-	private final String traceName;
 	
-	public JdbcIndexScanOp(JdbcReaderNode<PK, D, F> node, Range<PKLookup> start, Class<PKLookup> indexClass, Config config,
-			String traceName){
+	public JdbcIndexScanOp(JdbcReaderNode<PK, D, F> node, Range<PKLookup> start, Class<PKLookup> indexClass, 
+			Config config){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.start = start;
 		this.node = node;
 		this.config = config;
 		this.indexClass = indexClass;
-		this.traceName = traceName;
 	}
 	
 	@Override
 	public List<PKLookup> runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), traceName, node.getClientName(), node.getName());
-		
-		PKLookup index = ReflectionTool.create(indexClass, indexClass.getCanonicalName() + " must have a no-arg constructor");
+		PKLookup index = ReflectionTool.create(indexClass, indexClass.getCanonicalName() 
+				+ " must have a no-arg constructor");
 		
 		Set<Field<?>> selectableFieldSet = new TreeSet<Field<?>>(new FieldColumnNameComparator());
 		selectableFieldSet.addAll(node.getFieldInfo().getPrefixedPrimaryKeyFields());
@@ -70,7 +69,8 @@ extends BaseJdbcOp<List<PKLookup>>{
 		String sql = SqlBuilder.getInRange(config, node.getTableName(), selectableFields, fullStart,
 				start.getStartInclusive(), start.getEnd(), start.getEndInclusive(), index.getFields());
 		Connection connection = getConnection(node.getClientName());
-		List<PKLookup> result = JdbcTool.selectLookups(connection, selectableFields, indexClass, sql, node.getFieldInfo().getPrimaryKeyClass());
+		List<PKLookup> result = JdbcTool.selectLookups(connection, selectableFields, indexClass, sql, node
+				.getFieldInfo().getPrimaryKeyClass());
 		return result;
 	}
 
