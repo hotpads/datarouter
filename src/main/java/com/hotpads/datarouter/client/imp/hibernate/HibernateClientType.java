@@ -18,11 +18,9 @@ import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedMultiInde
 import com.hotpads.datarouter.client.imp.jdbc.node.index.JdbcTxnManagedUniqueIndexNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
-import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
+import com.hotpads.datarouter.node.adapter.IndexedSortedMapStorageAdapterNode;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
-import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import com.hotpads.datarouter.node.type.index.ManagedMultiIndexNode;
 import com.hotpads.datarouter.node.type.index.ManagedUniqueIndexNode;
@@ -58,15 +56,13 @@ public class HibernateClientType extends BaseClientType{
 	
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
-	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
-		PhysicalIndexedSortedMapStorageNode<PK,D> node;
+	Node<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
+		Node<PK,D> node;
 		if(nodeParams.getFielderClass() == null){
-			node = new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,HibernateNode<PK,D,F>>(
-					new HibernateNode<PK,D,F>(nodeParams));
+			node = new HibernateNode<PK,D,F>(nodeParams);
 			logger.warn("creating HibernateNode "+node);
 		}else{
-			node = new PhysicalIndexedSortedMapStorageCounterAdapter<PK,D,F,JdbcNode<PK,D,F>>(
-					new JdbcNode<PK,D,F>(nodeParams));
+			node = new JdbcNode<PK,D,F>(nodeParams);
 		}
 		return node;
 	}
@@ -87,8 +83,8 @@ public class HibernateClientType extends BaseClientType{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>> 
 	IndexedSortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
-		return new PhysicalIndexedSortedMapStorageCallsiteAdapter<PK,D,F,PhysicalIndexedSortedMapStorageNode<PK,D>>(
-				nodeParams, (PhysicalIndexedSortedMapStorageNode<PK,D>)backingNode);
+		return new IndexedSortedMapStorageAdapterNode<PK, D, F, IndexedSortedMapStorageNode<PK, D>>(nodeParams,
+				(IndexedSortedMapStorageNode<PK, D>) backingNode);
 	}
 	
 	@Override
@@ -99,7 +95,7 @@ public class HibernateClientType extends BaseClientType{
 			IF extends DatabeanFielder<IK, IE>> ManagedUniqueIndexNode<PK, D, IK, IE, IF> createManagedUniqueIndexNode(
 			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn){
-		if(!(backingMapNode.getPhysicalNodeIfApplicable() instanceof JdbcNode)){
+		if(!(backingMapNode instanceof JdbcNode)){
 			super.createManagedUniqueIndexNode(backingMapNode, params, indexName, manageTxn);
 		}
 		if(manageTxn){
@@ -116,7 +112,7 @@ public class HibernateClientType extends BaseClientType{
 			IF extends DatabeanFielder<IK, IE>> ManagedMultiIndexNode<PK, D, IK, IE, IF> createManagedMultiIndexNode(
 			PhysicalMapStorageNode<PK, D> backingMapNode, NodeParams<IK, IE, IF> params, String indexName, 
 			boolean manageTxn){
-		if(!(backingMapNode.getPhysicalNodeIfApplicable() instanceof JdbcNode)){
+		if(!(backingMapNode instanceof JdbcNode)){
 			super.createManagedMultiIndexNode(backingMapNode, params, indexName, manageTxn);
 		}
 		if(manageTxn){

@@ -11,10 +11,8 @@ import com.hotpads.datarouter.client.imp.hbase.node.HBaseNode;
 import com.hotpads.datarouter.client.imp.hbase.node.HBaseSubEntityNode;
 import com.hotpads.datarouter.node.Node;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.adapter.callsite.physical.PhysicalSortedMapStorageCallsiteAdapter;
-import com.hotpads.datarouter.node.adapter.counter.physical.PhysicalSortedMapStorageCounterAdapter;
+import com.hotpads.datarouter.node.adapter.SortedMapStorageAdapterNode;
 import com.hotpads.datarouter.node.entity.EntityNodeParams;
-import com.hotpads.datarouter.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import com.hotpads.datarouter.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.routing.DatarouterContext;
@@ -50,8 +48,8 @@ public class HBaseClientType extends BaseClientType{
 	
 	@Override
 	public <PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
-	PhysicalNode<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
-		return new PhysicalSortedMapStorageCounterAdapter<PK,D,F,HBaseNode<PK,D,F>>(new HBaseNode<PK,D,F>(nodeParams));
+	Node<PK, D> createNode(NodeParams<PK, D, F> nodeParams){
+		return new HBaseNode<PK,D,F>(nodeParams);
 	}
 	
 	@Override
@@ -69,7 +67,7 @@ public class HBaseClientType extends BaseClientType{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>> 
 	SortedMapStorageNode<PK,D> createAdapter(NodeParams<PK,D,F> nodeParams, Node<PK,D> backingNode){
-		return new PhysicalSortedMapStorageCallsiteAdapter<PK, D, F, PhysicalSortedMapStorageNode<PK, D>>(nodeParams,
-				(PhysicalSortedMapStorageNode<PK, D>) backingNode);
+		return new SortedMapStorageAdapterNode<PK, D, F, SortedMapStorageNode<PK, D>>(nodeParams,
+				(SortedMapStorageNode<PK, D>) backingNode);
 	}
 }

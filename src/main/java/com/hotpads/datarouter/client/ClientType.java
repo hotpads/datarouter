@@ -28,7 +28,7 @@ public interface ClientType{
 			List<PhysicalNode<?,?>> physicalNodes);
 	
 	<PK extends PrimaryKey<PK>, D extends Databean<PK, D>, F extends DatabeanFielder<PK, D>>
-	PhysicalNode<PK,D> createNode(NodeParams<PK, D, F> nodeParams);
+	Node<PK,D> createNode(NodeParams<PK, D, F> nodeParams);
 
 	<EK extends EntityKey<EK>,
 			E extends Entity<EK>,

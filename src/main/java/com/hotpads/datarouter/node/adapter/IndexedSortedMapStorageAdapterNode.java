@@ -1,12 +1,12 @@
-package com.hotpads.datarouter.node.adapter.counter;
+package com.hotpads.datarouter.node.adapter;
 
 import java.util.Collection;
 
 import com.hotpads.datarouter.config.Config;
-import com.hotpads.datarouter.node.adapter.counter.formatter.NodeCounterFormatter;
-import com.hotpads.datarouter.node.adapter.counter.mixin.IndexedStorageWriterCounterAdapterMixin;
-import com.hotpads.datarouter.node.adapter.counter.mixin.MapStorageWriterCounterAdapterMixin;
-import com.hotpads.datarouter.node.adapter.counter.mixin.SortedStorageWriterCounterAdapterMixin;
+import com.hotpads.datarouter.node.NodeParams;
+import com.hotpads.datarouter.node.adapter.mixin.IndexedStorageWriterAdapterMixin;
+import com.hotpads.datarouter.node.adapter.mixin.MapStorageWriterAdapterMixin;
+import com.hotpads.datarouter.node.adapter.mixin.SortedStorageWriterAdapterMixin;
 import com.hotpads.datarouter.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
@@ -14,28 +14,24 @@ import com.hotpads.datarouter.storage.key.multi.Lookup;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.key.unique.UniqueKey;
 
-public class IndexedSortedMapStorageCounterAdapter<
+public class IndexedSortedMapStorageAdapterNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends IndexedSortedMapStorageNode<PK,D>>
-extends IndexedSortedMapStorageReaderCounterAdapter<PK,D,F,N>
+extends IndexedSortedMapStorageReaderAdapterNode<PK,D,F,N>
 implements IndexedSortedMapStorageNode<PK,D>{
 
-	private MapStorageWriterCounterAdapterMixin<PK,D,F,N> mapStorageWriterMixin;
-	private SortedStorageWriterCounterAdapterMixin<PK,D,F,N> sortedStorageWriterMixin;
-	private IndexedStorageWriterCounterAdapterMixin<PK,D,F,N> indexedStorageWriterMixin;
+	private MapStorageWriterAdapterMixin<PK,D,F,N> mapStorageWriterMixin;
+	private SortedStorageWriterAdapterMixin<PK,D,F,N> sortedStorageWriterMixin;
+	private IndexedStorageWriterAdapterMixin<PK,D,F,N> indexedStorageWriterMixin;
 	
 	
-	public IndexedSortedMapStorageCounterAdapter(N backingNode){		
-		super(backingNode);
-		NodeCounterFormatter<PK,D,F,N> nodeCounterFormatter = new NodeCounterFormatter<PK,D,F,N>(backingNode);
-		this.mapStorageWriterMixin = new MapStorageWriterCounterAdapterMixin<PK,D,F,N>(nodeCounterFormatter, 
-				backingNode);
-		this.sortedStorageWriterMixin = new SortedStorageWriterCounterAdapterMixin<PK,D,F,N>(nodeCounterFormatter, 
-				backingNode);
-		this.indexedStorageWriterMixin = new IndexedStorageWriterCounterAdapterMixin<PK,D,F,N>(nodeCounterFormatter, 
-				backingNode);
+	public IndexedSortedMapStorageAdapterNode(NodeParams<PK,D,F> params, N backingNode){		
+		super(params, backingNode);
+		this.mapStorageWriterMixin = new MapStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);
+		this.sortedStorageWriterMixin = new SortedStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);
+		this.indexedStorageWriterMixin = new IndexedStorageWriterAdapterMixin<PK,D,F,N>(this, backingNode);
 	}
 	
 

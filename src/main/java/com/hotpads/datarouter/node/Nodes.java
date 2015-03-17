@@ -61,7 +61,7 @@ public class Nodes{
 		for(Node<?,?> nodeOrDescendant : DrIterableTool.nullSafe(nodeWithDescendants)){
 			nodeByName.put(nodeOrDescendant.getName(), nodeOrDescendant);
 			if(nodeOrDescendant.isPhysicalNodeOrWrapper()){
-				PhysicalNode<?, ?> physicalNode = (PhysicalNode<?,?>)nodeOrDescendant;
+				PhysicalNode<?, ?> physicalNode = nodeOrDescendant.getPhysicalNodeIfApplicable();
 				String clientName = physicalNode.getClientName();
 				String tableName = physicalNode.getTableName();
 				if(physicalNodeByTableNameByClientName.get(clientName)==null){

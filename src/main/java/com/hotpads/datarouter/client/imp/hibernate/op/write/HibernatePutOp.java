@@ -12,6 +12,7 @@ import com.hotpads.datarouter.config.PutMethod;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
+import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrCollectionTool;
 
 public class HibernatePutOp<
@@ -22,20 +23,25 @@ extends BaseHibernateOp<Void>{
 	
 	public static final PutMethod DEFAULT_PUT_METHOD = PutMethod.SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY;
 	
-	private final HibernateNode<PK,D,F> node;
-	private final Collection<D> databeans;
-	private final Config config;
+	private HibernateNode<PK,D,F> node;
+	private String opName;
+	private Collection<D> databeans;
+	private Config config;
 	
-	public HibernatePutOp(HibernateNode<PK,D,F> node, Collection<D> databeans, Config config) {
+	public HibernatePutOp(HibernateNode<PK,D,F> node, String opName, Collection<D> databeans, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), getIsolation(config), 
 				shouldAutoCommit(databeans, config));
 		this.node = node;
+		this.opName = opName;
 		this.databeans = databeans;
 		this.config = config;
 	}
 	
 	@Override
 	public Void runOnce(){
+		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
+		DRCounters.incSuffixClientNode(node.getClient().getType(), "rows put", node.getClientName(), node.getName(), 
+				DrCollectionTool.size(databeans));
 		Session session = getSession(node.getClientName());
 		final String entityName = node.getPackagedTableName();
 		for(D databean : DrCollectionTool.nullSafe(databeans)){

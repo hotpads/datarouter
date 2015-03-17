@@ -21,7 +21,6 @@ import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
-import com.hotpads.datarouter.util.core.DrClassTool;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrObjectTool;
 import com.hotpads.datarouter.util.core.DrSetTool;
@@ -47,7 +46,7 @@ implements PhysicalNode<PK,D>
 	public BasePhysicalNode(NodeParams<PK,D,F> params){
 		super(params);
 		managedNodes = new ArrayList<>();
-		this.setId(new NodeId<PK,D,F>(DrClassTool.getClass(this), params, fieldInfo.getExplicitNodeName()));
+		this.setId(new NodeId<PK,D,F>((Class<Node<PK,D>>)getClass(), params, fieldInfo.getExplicitNodeName()));
 	}
 	
 

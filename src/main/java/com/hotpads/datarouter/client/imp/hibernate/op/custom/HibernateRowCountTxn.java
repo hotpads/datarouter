@@ -16,9 +16,9 @@ import com.hotpads.datarouter.routing.DatarouterContext;
 
 public class HibernateRowCountTxn extends BaseHibernateOp<Integer>{
 
-	private final Class<?> bean;
-	private final String colToCount;
-	private final Criterion restriction;
+	private Class<?> bean;
+	private String colToCount;
+	private Criterion restriction;
 	
 	public HibernateRowCountTxn(DatarouterContext drContext, List<String> clientNames, Class<?> bean,
 			String colToCount, Criterion restriction){

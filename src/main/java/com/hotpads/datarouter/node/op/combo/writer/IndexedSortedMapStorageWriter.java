@@ -5,6 +5,7 @@ import com.hotpads.datarouter.node.op.combo.writer.SortedMapStorageWriter.Sorted
 import com.hotpads.datarouter.node.op.raw.write.IndexedStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.MapStorageWriter;
 import com.hotpads.datarouter.node.op.raw.write.SortedStorageWriter;
+import com.hotpads.datarouter.node.op.raw.write.IndexedStorageWriter.PhysicalIndexedStorageWriterNode;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 
@@ -17,8 +18,7 @@ extends MapStorageWriter<PK,D>, SortedStorageWriter<PK,D>, IndexedStorageWriter<
 	{
 	}
 	public interface PhysicalIndexedSortedMapStorageWriterNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	extends IndexedSortedMapStorageWriterNode<PK,D>,
-			PhysicalMapStorageWriterNode<PK,D>, PhysicalSortedStorageWriterNode<PK,D>, PhysicalIndexedStorageWriterNode<PK,D>,
+	extends PhysicalMapStorageWriterNode<PK,D>, PhysicalSortedStorageWriterNode<PK,D>, PhysicalIndexedStorageWriterNode<PK,D>,
 			PhysicalSortedMapStorageWriterNode<PK,D>
 	{
 	}
