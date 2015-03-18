@@ -57,7 +57,7 @@ extends BaseJdbcOp<List<PK>>{
 			String sql = SqlBuilder.getMulti(config, node.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), 
 					keyBatch);
 			List<PK> batch = JdbcTool.selectPrimaryKeys(connection, node.getFieldInfo(), sql);
-			DRCounters.incSuffixClientNode(node.getClient().getType(), opName + " selects", node.getClientName(), node
+			DRCounters.incClientNodeCustom(node.getClient().getType(), opName + " selects", node.getClientName(), node
 					.getName());
 			if(DrCollectionTool.notEmpty(batch)){
 				Collections.sort(batch);//should prob remove

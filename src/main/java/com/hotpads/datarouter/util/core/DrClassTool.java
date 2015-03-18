@@ -3,6 +3,12 @@ package com.hotpads.datarouter.util.core;
 
 public class DrClassTool {
 
+	//add generics support to java's Object.getClass() method
+	@SuppressWarnings("unchecked")
+	public static <T> Class<T> getClass(T object){
+		return (Class<T>)object.getClass();
+	}
+	
 	public static boolean sameClass(Object a, Object b){
 		if(a==null && b==null){ return true; }
 		if(a==null && b!=null){ return false; }

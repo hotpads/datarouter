@@ -30,7 +30,7 @@ import com.hotpads.util.core.concurrent.FutureTool;
  * them for the life of the application. This class also provides a lazy-initialization feature that defers connection
  * creation, authentication, and connection pool warm-up until an application request triggers it.
  * 
- * This class can be used for DatarouterManagement, such as displaying a web page listing all clients.
+ * This class can be used for Datarouter management, such as displaying a web page listing all clients.
  * 
  * @author mcorgan
  * 

@@ -127,12 +127,12 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 	
 	@Override
 	public PhysicalSortedMapStorageNode<CountKey,Count> getPhysicalNode(CountKey pk){
-		return partitions.get(indexByMs.get(pk.getPeriodMs()));
+		return partitions.getNodeAtIndex(indexByMs.get(pk.getPeriodMs()));
 	}
 	
 	@Override
 	public List<PhysicalSortedMapStorageNode<CountKey,Count>> getPhysicalNodesForFirst(){
-		PhysicalSortedMapStorageNode<CountKey,Count> firstNode = partitions.get(0);
+		PhysicalSortedMapStorageNode<CountKey,Count> firstNode = partitions.getNodeAtIndex(0);
 		if(firstNode==null){ return null; }
 		return DrListTool.wrap(firstNode);
 	}
@@ -153,7 +153,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		}else{
 			index = indexByMs.get(range.getEnd().getPeriodMs()); 
 		}
-		return DrListTool.wrap(partitions.get(index));
+		return DrListTool.wrap(partitions.getNodeAtIndex(index));
 	}
 	
 	@Override
@@ -162,7 +162,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		SortedSetMultimap<PhysicalSortedMapStorageNode<CountKey,Count>,CountKey> prefixesByNode = TreeMultimap.create();
 		for(CountKey prefix : DrIterableTool.nullSafe(prefixes)){
 			int nodeIndex = indexByMs.get(prefix.getPeriodMs());
-			prefixesByNode.put(partitions.get(nodeIndex), prefix);
+			prefixesByNode.put(partitions.getNodeAtIndex(nodeIndex), prefix);
 		}
 		return prefixesByNode;
 	}
@@ -177,7 +177,7 @@ extends PartitionedSortedMapStorageNode<CountKey,Count,CountFielder,PhysicalSort
 		if(!isSecondaryKeyPartitionAware(key)){ return getPhysicalNodes(); }
 		CountKey countKey = (CountKey)key;
 		Integer index = indexByMs.get(countKey.getPeriodMs());
-		PhysicalSortedMapStorageNode<CountKey,Count> node = partitions.get(index);
+		PhysicalSortedMapStorageNode<CountKey,Count> node = partitions.getNodeAtIndex(index);
 		if(node==null){ return new LinkedList<>(); }
 		return DrListTool.wrap(node);
 	}

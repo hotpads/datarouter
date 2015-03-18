@@ -26,7 +26,9 @@ extends Comparable<Node<PK,D>>{
 	DatarouterContext getDatarouterContext();
 	Datarouter getRouter();
 
+	@Deprecated //maybe we should remove this as it's only used once in Nodes.java
 	boolean isPhysicalNodeOrWrapper();
+	//used by a couple places that need access to methods on the wrapped node
 	PhysicalNode<PK,D> getPhysicalNodeIfApplicable();
 	
 	String getName();

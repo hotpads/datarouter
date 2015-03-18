@@ -53,7 +53,7 @@ implements ClientExecutor{
 			ConnectionClient connectionClient = (ConnectionClient)client;
 			ConnectionHandle handle = connectionClient.reserveConnection();
 //			logger.warn("reserveConnection "+handle);
-			DRCounters.incSuffixClient(connectionClient.getType(), "reserveConnection", connectionClient.getName());
+			DRCounters.incClient(connectionClient.getType(), "reserveConnection", connectionClient.getName());
 		}
 	}
 
@@ -65,7 +65,7 @@ implements ClientExecutor{
 			try{
 				ConnectionHandle handle = connectionClient.releaseConnection();
 //				logger.warn("releaseConnection "+handle);
-				DRCounters.incSuffixClient(connectionClient.getType(), "releaseConnection", connectionClient.getName());
+				DRCounters.incClient(connectionClient.getType(), "releaseConnection", connectionClient.getName());
 			}catch(Exception e){
 				logger.warn("", e);
 				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF SINGLE CONNECTION, handle now=:"

@@ -8,7 +8,6 @@ import com.hotpads.datarouter.node.type.physical.PhysicalNode;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
 import com.hotpads.datarouter.storage.databean.Databean;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
-import com.hotpads.datarouter.util.DRCounters;
 
 public class JdbcDeleteAllOp<
 		PK extends PrimaryKey<PK>,
@@ -16,20 +15,17 @@ public class JdbcDeleteAllOp<
 		F extends DatabeanFielder<PK,D>> 
 extends BaseJdbcOp<Long>{
 		
-	private PhysicalNode<PK,D> node;
-	private String opName;
-	private Config config;
+	private final PhysicalNode<PK,D> node;
+	private final Config config;
 	
-	public JdbcDeleteAllOp(PhysicalNode<PK,D> node, String opName, Config config) {
+	public JdbcDeleteAllOp(PhysicalNode<PK,D> node, Config config) {
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.node = node;
-		this.opName = opName;
 		this.config = config;
 	}
 	
 	@Override
 	public Long runOnce(){
-		DRCounters.incSuffixClientNode(node.getClient().getType(), opName, node.getClientName(), node.getName());
 		String sql = SqlBuilder.deleteAll(config, node.getTableName());
 		long numModified = JdbcTool.update(getConnection(node.getClientName()), sql.toString());
 		return numModified;

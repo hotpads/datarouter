@@ -11,7 +11,7 @@ public class NodeId<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>{
 
-	private Class<Node<PK,D>> nodeClass;
+	private Class<? extends Node<PK,D>> nodeClass;
 	private NodeParams<PK,D,F> nodeParams;
 	private Class<D> databeanClass;
 	private String routerName;
@@ -20,13 +20,13 @@ public class NodeId<
 	private String explicitName;
 	
 
-	public NodeId(Class<Node<PK,D>> nodeClass, NodeParams<PK,D,F> nodeParams, String explicitName){
+	public NodeId(Class<? extends Node<PK,D>> nodeClass, NodeParams<PK,D,F> nodeParams, String explicitName){
 		this(nodeClass, nodeParams.getDatabeanClass(), nodeParams.getRouter().getName(), 
 				nodeParams.getClientName(), nodeParams.getParentName(), explicitName);
 		this.nodeParams = nodeParams;
 	}
 	
-	public NodeId(Class<Node<PK,D>> nodeClass, Class<D> databeanClass, String routerName, String clientName, 
+	public NodeId(Class<? extends Node<PK,D>> nodeClass, Class<D> databeanClass, String routerName, String clientName, 
 			String parentNodeName, String explicitName){
 		this.nodeClass = Preconditions.checkNotNull(nodeClass);
 		this.databeanClass = Preconditions.checkNotNull(databeanClass);

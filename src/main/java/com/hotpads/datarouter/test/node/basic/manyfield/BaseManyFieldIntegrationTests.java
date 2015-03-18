@@ -52,11 +52,8 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	private void resetTable(){
-		try{
+		if(!isMemcached()){
 			mapNode.deleteAll(null);
-		}catch(UnsupportedOperationException e){
-			//swallow memcached unsupported op.  should probably take deleteAll out of the MapStorage interface
-			//too bad i can't call the isMemcached method from this static method
 		}
 	}
 
@@ -508,7 +505,8 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void testIncrement(){
 		if(!isHBase()){ return; }
 		@SuppressWarnings("unchecked")
-		HBaseNode<ManyFieldBeanKey, ManyFieldBean, ?> hBaseNode = (HBaseNode<ManyFieldBeanKey,ManyFieldBean,?>)mapNode;
+		HBaseNode<ManyFieldBeanKey, ManyFieldBean, ?> hBaseNode = (HBaseNode<ManyFieldBeanKey,ManyFieldBean,?>)mapNode
+				.getPhysicalNodeIfApplicable();
 		ManyFieldBean bean = new ManyFieldBean();
 
 		//increment by 3

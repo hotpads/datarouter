@@ -1,17 +1,12 @@
 package com.hotpads.datarouter.node.type.partitioned;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.hotpads.datarouter.node.type.partitioned.base.BasePartitionedNode;
 import com.hotpads.datarouter.node.type.partitioned.filter.PartitionedNodeDatabeanFilter;
@@ -27,28 +22,35 @@ import com.hotpads.util.core.iterable.scanner.filter.Filter;
 public class Partitions<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		N extends PhysicalNode<PK,D>> {
-	protected static Logger logger = LoggerFactory.getLogger(Partitions.class);
+		N extends PhysicalNode<PK,D>>{
 
-	protected BasePartitionedNode<PK,D,?,N> basePartitionedNode;
-	protected List<N> nodes = new ArrayList<>();
-	protected Map<String,N> nodeByName = new LinkedHashMap<>();
-	protected Map<String,List<String>> nodeNamesByClientName = new HashMap<>();
-	protected Map<String,List<String>> clientNamesByNodeName = new HashMap<>();
-	protected SortedSet<String> clientNames = new TreeSet<>();
-	protected Map<N,Filter<PK>> primaryKeyFilterByNode = new HashMap<>();
-	protected Map<N,Filter<D>> databeanFilterByNode = new HashMap<>();
+	private final BasePartitionedNode<PK,D,?,N> basePartitionedNode;//ugly circular reference
+	private final SortedSet<String> clientNames;
+	private final List<N> nodes;
+	private final Map<String,N> nodeByName;
+	private final Map<String,List<String>> nodeNamesByClientName;
+	private final Map<String,List<String>> clientNamesByNodeName;
+	private final Map<N,Filter<PK>> primaryKeyFilterByNode;
+	private final Map<N,Filter<D>> databeanFilterByNode;
 	
 	public Partitions(BasePartitionedNode<PK,D,?,N> basePartitionedNode){
 		this.basePartitionedNode = basePartitionedNode;
+		this.clientNames = new TreeSet<>();
+		this.nodes = new ArrayList<>();
+		this.nodeByName = new LinkedHashMap<>();
+		this.nodeNamesByClientName = new HashMap<>();
+		this.clientNamesByNodeName = new HashMap<>();
+		this.primaryKeyFilterByNode = new HashMap<>();
+		this.databeanFilterByNode = new HashMap<>();
 	}
 	
-	public void add(N node){		
+	public void addNode(N node){		
 		String nodeName = node.getName();
 		if(nodeByName.keySet().contains(nodeName)){//enforce global node name uniqueness
 			throw new IllegalArgumentException("node already exists:"+nodeName);
 		}
 		String clientName = node.getClientName();
+		clientNames.add(clientName);
 		
 		//array list
 		nodes.add(node);
@@ -58,59 +60,44 @@ public class Partitions<
 		
 		//nodeNamesByClientName
 		if(nodeNamesByClientName.get(clientName)==null){
-			nodeNamesByClientName.put(clientName, new LinkedList<String>());
+			nodeNamesByClientName.put(clientName, new ArrayList<String>());
 		}
 		nodeNamesByClientName.get(clientName).add(nodeName);
 		
 		//clientNamesByNodeName
 		if(clientNamesByNodeName.get(nodeName)==null){
-			clientNamesByNodeName.put(nodeName, new LinkedList<String>());
+			clientNamesByNodeName.put(nodeName, new ArrayList<String>());
 		}
-		clientNamesByNodeName.get(nodeName).add(node.getClientName());
-		
-		clientNames.add(node.getClientName());
+		clientNamesByNodeName.get(nodeName).add(clientName);
 		
 		primaryKeyFilterByNode.put(node, new PartitionedNodePrimaryKeyFilter<PK,D,N>(basePartitionedNode, node));
 		databeanFilterByNode.put(node, new PartitionedNodeDatabeanFilter<PK,D,N>(basePartitionedNode, node));
 	}
 
-	public void add(Partitions<PK,D,N> nodes){
+	public void addNodes(Partitions<PK,D,N> nodes){
 		for(N node : nodes.nodeByName.values()){
-			add(node);
+			addNode(node);
 		}
 	}
 	
-	public N get(int index){
+	public N getNodeAtIndex(int index){
 		return nodes.get(index);
 	}
 	
-	public N get(String name){
-		return nodeByName.get(name);
-	}
-	
-	public List<N> getAll(){
+	public List<N> getAllNodes(){
 		return nodes;
 	}
 	
 	public List<N> getPhysicalNodesForClient(String clientName){
 		if(clientName==null){
-			return getAll();
+			return getAllNodes();
 		}
-		List<N> nodes = new LinkedList<>();
+		List<N> nodes = new ArrayList<>();
 		List<String> nodeNames = DrMapTool.nullSafe(nodeNamesByClientName).get(clientName);
 		for(String nodeName : DrCollectionTool.nullSafe(nodeNames)){
 			nodes.add(nodeByName.get(nodeName));
 		}
 		return nodes;
-	}
-	
-	public List<Class<D>> getTypesForClient(String clientName){
-		Collection<N> nodes = getPhysicalNodesForClient(clientName);
-		List<Class<D>> types = new LinkedList<>();
-		for(N node : DrCollectionTool.nullSafe(nodes)){
-			types.add(node.getDatabeanType());
-		}
-		return types;
 	}
 	
 	public List<String> getClientNames(){
