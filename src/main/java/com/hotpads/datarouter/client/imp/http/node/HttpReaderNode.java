@@ -16,7 +16,7 @@ import com.hotpads.datarouter.client.imp.http.DatarouterHttpClient;
 import com.hotpads.datarouter.config.Config;
 import com.hotpads.datarouter.config.Config.ConfigFielder;
 import com.hotpads.datarouter.node.NodeParams;
-import com.hotpads.datarouter.node.op.raw.read.MapStorageReader;
+import com.hotpads.datarouter.node.op.raw.read.MapStorageReader.PhysicalMapStorageReaderNode;
 import com.hotpads.datarouter.node.type.physical.base.BasePhysicalNode;
 import com.hotpads.datarouter.serialize.JsonDatabeanTool;
 import com.hotpads.datarouter.serialize.fielder.DatabeanFielder;
@@ -29,8 +29,8 @@ public class HttpReaderNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>> 
 extends BasePhysicalNode<PK,D,F>
-implements MapStorageReader<PK,D>{
-	protected static Logger logger = LoggerFactory.getLogger(HttpReaderNode.class);
+implements PhysicalMapStorageReaderNode<PK,D>{
+	private static final Logger logger = LoggerFactory.getLogger(HttpReaderNode.class);
 	
 	/******************** static ****************************/
 	

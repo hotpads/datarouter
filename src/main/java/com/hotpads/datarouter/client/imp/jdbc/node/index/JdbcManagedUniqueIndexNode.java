@@ -35,7 +35,7 @@ implements ManagedUniqueIndexNode<PK, D, IK, IE, IF>{
 	@Override
 	public List<IE> getMulti(Collection<IK> uniqueKeys, final Config config){
 		String opName = ManagedUniqueIndexNode.OP_lookupMultiUniqueIndex;
-		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, opName, config, fieldInfo.getDatabeanClass(),
+		BaseJdbcOp<List<IE>> op = new JdbcGetIndexOp<>(node, config, fieldInfo.getDatabeanClass(),
 				fieldInfo.getFielderClass(), uniqueKeys);
 		return new SessionExecutorImpl<List<IE>>(op, opName).call();
 	}

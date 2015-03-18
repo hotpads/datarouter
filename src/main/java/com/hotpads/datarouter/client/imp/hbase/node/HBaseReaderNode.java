@@ -106,8 +106,6 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDatarouterContext(), getTaskNameParams(), "getMulti", config){
 				public List<D> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-					DRCounters.incSuffixClientNode(client.getType(), "getMulti rows", getClientName(), getNodeName(), 
-							DrCollectionTool.size(keys));
 					List<Get> gets = DrListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
 						byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
@@ -126,8 +124,6 @@ implements HBasePhysicalNode<PK,D>,
 		final Config config = Config.nullSafe(pConfig);
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDatarouterContext(), getTaskNameParams(), "getKeys", config){
 				public List<PK> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-					DRCounters.incSuffixClientNode(client.getType(), "getKeys rows", getClientName(), getNodeName(), 
-							DrCollectionTool.size(keys));
 					List<Get> gets = DrListTool.createArrayListWithSize(keys);
 					for(PK key : keys){
 						byte[] rowBytes = getKeyBytesWithScatteringPrefix(null, key, false);
@@ -246,7 +242,7 @@ implements HBasePhysicalNode<PK,D>,
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}
 					managedResultScanner.close();
-					DRCounters.incSuffixClientNode(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),  
+					DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),  
 							DrCollectionTool.size(results));
 					return results;
 				}
