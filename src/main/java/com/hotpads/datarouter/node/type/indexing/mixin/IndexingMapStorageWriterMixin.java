@@ -54,6 +54,9 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void put(D databean, Config config) {
+		if(databean==null){ 
+			throw new IllegalArgumentException("trying to save a null") ; 
+		}
 		for(IndexListener<PK,D> indexNode : indexNodes){
 			indexNode.onPut(databean, config);
 		}
@@ -62,6 +65,9 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config) {
+		if(databeans.contains(null)){
+			throw new IllegalArgumentException("trying to save a null databean") ;
+		}
 		for(IndexListener<PK,D> indexNode : indexNodes){
 			indexNode.onPutMulti(databeans, config);
 		}
