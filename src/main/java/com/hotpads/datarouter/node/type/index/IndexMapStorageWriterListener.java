@@ -93,6 +93,9 @@ implements IndexListener<PK,D>{
 	protected List<IE> getIndexEntriesFromPrimaryKeys(Collection<PK> primaryKeys){
 		List<IE> indexEntries = DrListTool.createArrayListWithSize(primaryKeys);
 		for(PK key : DrIterableTool.nullSafe(primaryKeys)){
+			if(key == null){
+				throw new IllegalArgumentException("invalid null key") ;
+			}
 			IE indexEntry = createIndexEntry();
 			if(indexEntry instanceof UniqueKeyIndexEntry){
 				((UniqueKeyIndexEntry)indexEntry).fromPrimaryKey(key);
@@ -108,8 +111,9 @@ implements IndexListener<PK,D>{
 		IE sampleIndexEntry = createIndexEntry();
 		List<IE> indexEntries = DrListTool.createArrayListWithSize(databeans);
 		for(D databean : DrIterableTool.nullSafe(databeans)){
-//			IE indexEntry = createIndexEntry();
-//			indexEntry.fromDatabean(databean);
+			if(databean == null){
+				throw new IllegalArgumentException("invalid null databean") ;
+			}
 			List<IE> indexEntriesFromSingleDatabean = sampleIndexEntry.createFromDatabean(databean);
 			indexEntries.addAll(DrCollectionTool.nullSafe(indexEntriesFromSingleDatabean));
 		}
