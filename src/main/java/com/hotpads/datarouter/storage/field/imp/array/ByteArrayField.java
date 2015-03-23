@@ -6,6 +6,8 @@ import java.sql.SQLException;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.codec.binary.Hex;
+
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
 import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.SqlColumn;
 import com.hotpads.datarouter.exception.DataAccessException;
@@ -91,7 +93,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
 		if(size <= MySqlColumnType.MAX_LENGTH_VARBINARY){
-			return new SqlColumn(columnName, MySqlColumnType.VARBINARY, Integer.MAX_VALUE , nullable, false);
+			return new SqlColumn(columnName, MySqlColumnType.VARBINARY, size , nullable, false);
 		}
 		else if(size <= MySqlColumnType.MAX_LENGTH_LONGBLOB){
 			return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , nullable, false);
@@ -136,8 +138,8 @@ public class ByteArrayField extends BaseField<byte[]>{
 	}
 	
 	@Override
-	public String getSqlEscaped(){
-		throw new NotImplementedException();
+	public String getSqlEscaped(){	
+		return "'"+Hex.encodeHexString(value)+"'";		
 	}
 
 }
