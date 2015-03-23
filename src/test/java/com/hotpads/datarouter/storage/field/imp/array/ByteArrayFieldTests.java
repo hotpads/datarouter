@@ -9,8 +9,8 @@ public class ByteArrayFieldTests{
 
 	@Test
 	public void stringEncodedValue(){
-		byte[] value;
-		value = new byte[]{
+		byte[] value =
+				new byte[]{
 				0x1,
 				0x5,
 				-0x8,
@@ -20,7 +20,7 @@ public class ByteArrayFieldTests{
 				-0x80,
 				-0x12
 		};
-		ByteArrayField byteArrayField = new ByteArrayField("testField", value,MySqlColumnType.MAX_LENGTH_LONGBLOB);
+		ByteArrayField byteArrayField = new ByteArrayField("testField", value, MySqlColumnType.MAX_LENGTH_LONGBLOB);
 		byte[] encodedDecodedValue = byteArrayField.parseStringEncodedValueButDoNotSet(byteArrayField
 				.getStringEncodedValue());
 		Assert.assertArrayEquals(value, encodedDecodedValue);
