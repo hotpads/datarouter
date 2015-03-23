@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.datarouter.util.core.DrStringTool;
 
 public enum MySqlColumnType{
@@ -65,6 +64,8 @@ public enum MySqlColumnType{
 		MAX_KEY_LENGTH = 767,//ERROR 1071 (42000): Specified key was too long; max key length is 767 bytes
 		LENGTH_50 = 50,
 		MAX_LENGTH_VARCHAR = (1 << 8) - 1,
+		MAX_LENGTH_VARBINARY = 767,
+		MAX_LENGTH_LONGBLOB = (1 << 24) - 1,
 		MAX_LENGTH_TEXT = (1 << 16) - 1,
 		MAX_LENGTH_MEDIUMTEXT = (1 << 24) - 1,
 		INT_LENGTH_LONGTEXT = Integer.MAX_VALUE;//use this to get schema-update to create a LONGTEXT field

@@ -45,8 +45,8 @@ public class BackupRecordKey extends BasePrimaryKey<BackupRecordKey>{
 	public List<Field<?>> getFields(){
 		return FieldTool.createList(
 				new StringField(COL_node, node, MySqlColumnType.MAX_LENGTH_VARCHAR),
-				new ByteArrayField(COL_startKey, startKey),
-				new ByteArrayField(COL_endKey, endKey),
+				new ByteArrayField(COL_startKey, startKey, MySqlColumnType.MAX_LENGTH_LONGBLOB),
+				new ByteArrayField(COL_endKey, endKey, MySqlColumnType.MAX_LENGTH_LONGBLOB),
 				new LongDateField(COL_created, created));
 	}
 

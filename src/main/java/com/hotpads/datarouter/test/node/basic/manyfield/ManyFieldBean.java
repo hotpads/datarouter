@@ -178,8 +178,8 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			fields.add(new IntegerEnumField<TestEnum>(TestEnum.class, F.intEnumField, d.intEnumField));
 			fields.add(new VarIntEnumField<TestEnum>(TestEnum.class, F.varIntEnumField, d.varIntEnumField));
 			fields.add(new StringEnumField<TestEnum>(TestEnum.class, F.stringEnumField, d.stringEnumField, LEN_STRING_ENUM_FIELD));
-			fields.add(new ByteArrayField(F.stringByteField, d.stringByteField));
-			fields.add(new ByteArrayField(F.data, d.data));
+			fields.add(new ByteArrayField(F.stringByteField, d.stringByteField, MySqlColumnType.MAX_LENGTH_LONGBLOB));
+			fields.add(new ByteArrayField(F.data, d.data, MySqlColumnType.MAX_LENGTH_LONGBLOB));
 			fields.add(new UInt63ArrayField(F.longArrayField, d.longArrayField));
 			fields.add(new BooleanArrayField(F.booleanArrayField, d.booleanArrayField));
 			fields.add(new IntegerArrayField(F.integerArrayField, d.integerArrayField));

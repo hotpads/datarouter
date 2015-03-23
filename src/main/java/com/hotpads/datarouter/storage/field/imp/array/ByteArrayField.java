@@ -17,9 +17,12 @@ import com.hotpads.util.core.bytes.IntegerByteTool;
 import com.hotpads.util.core.exception.NotImplementedException;
 
 public class ByteArrayField extends BaseField<byte[]>{
+	
+	private int size = 0;
 
-	public ByteArrayField(String name, byte[] value){
+	public ByteArrayField(String name, byte[] value, int size){
 		super(name, value);
+		this.size = size;
 	}
 
 	public ByteArrayField(String prefix, String name, byte[] value){
@@ -87,7 +90,13 @@ public class ByteArrayField extends BaseField<byte[]>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(){
-		return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , nullable, false);
+		if(size <= MySqlColumnType.MAX_LENGTH_VARBINARY){
+			return new SqlColumn(columnName, MySqlColumnType.VARBINARY, Integer.MAX_VALUE , nullable, false);
+		}
+		else if(size <= MySqlColumnType.MAX_LENGTH_LONGBLOB){
+			return new SqlColumn(columnName, MySqlColumnType.LONGBLOB, Integer.MAX_VALUE , nullable, false);
+		}
+		throw new IllegalArgumentException("Unknown size:"+size);		
 	}
 	
 	@Override

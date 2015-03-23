@@ -3,6 +3,8 @@ package com.hotpads.datarouter.storage.field.imp.array;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.hotpads.datarouter.client.imp.jdbc.ddl.domain.MySqlColumnType;
+
 public class ByteArrayFieldTests{
 
 	@Test
@@ -18,7 +20,7 @@ public class ByteArrayFieldTests{
 				-0x80,
 				-0x12
 		};
-		ByteArrayField byteArrayField = new ByteArrayField("testField", value);
+		ByteArrayField byteArrayField = new ByteArrayField("testField", value,MySqlColumnType.MAX_LENGTH_LONGBLOB);
 		byte[] encodedDecodedValue = byteArrayField.parseStringEncodedValueButDoNotSet(byteArrayField
 				.getStringEncodedValue());
 		Assert.assertArrayEquals(value, encodedDecodedValue);
