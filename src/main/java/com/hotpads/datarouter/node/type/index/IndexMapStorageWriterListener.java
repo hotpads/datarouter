@@ -73,6 +73,9 @@ implements IndexListener<PK,D>{
 
 	@Override
 	public void onPut(D databean, Config config) {
+		if(databean==null){
+			throw new IllegalArgumentException("invalid null key");
+		}
 		IE sampleIndexEntry = createIndexEntry();
 		List<IE> indexEntries = sampleIndexEntry.createFromDatabean(databean);
 		indexNode.putMulti(indexEntries, config);
