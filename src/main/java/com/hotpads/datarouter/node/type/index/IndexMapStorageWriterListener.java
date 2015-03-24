@@ -45,13 +45,15 @@ implements IndexListener<PK,D>{
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void onDelete(PK key, Config config) {
+	public void onDelete(PK key, Config config){
+		if(key==null){
+			throw new IllegalArgumentException("invalid null key");
+		}
 		IE indexEntry = createIndexEntry();
 		if(indexEntry instanceof KeyIndexEntry){
 			((KeyIndexEntry)indexEntry).fromPrimaryKey(key);
 			indexNode.delete(indexEntry.getKey(), config);
-		}
-		else{
+		}else{
 			//there is currently no way to delete an index entry whose PK can't be calculated from the target PK.
 			// options:
 			//  1) read the databean before deleting
@@ -61,20 +63,23 @@ implements IndexListener<PK,D>{
 	}
 
 	@Override
-	public void onDeleteAll(Config config) {
+	public void onDeleteAll(Config config){
 		indexNode.deleteAll(config);
 	}
 
 	@Override
-	public void onDeleteMulti(Collection<PK> keys, Config config) {
+	public void onDeleteMulti(Collection<PK> keys, Config config){
+		if(DrCollectionTool.nullSafe(keys).contains(null)){
+			throw new IllegalArgumentException("invalid null key");
+		}
 		List<IE> indexEntries = getIndexEntriesFromPrimaryKeys(keys);
 		indexNode.deleteMulti(KeyTool.getKeys(indexEntries), config);
 	}
 
 	@Override
-	public void onPut(D databean, Config config) {
+	public void onPut(D databean, Config config){
 		if(databean==null){
-			throw new IllegalArgumentException("invalid null key");
+			throw new IllegalArgumentException("invalid null databean");
 		}
 		IE sampleIndexEntry = createIndexEntry();
 		List<IE> indexEntries = sampleIndexEntry.createFromDatabean(databean);
@@ -84,7 +89,10 @@ implements IndexListener<PK,D>{
 	}
 
 	@Override
-	public void onPutMulti(Collection<D> databeans, Config config) {
+	public void onPutMulti(Collection<D> databeans, Config config){
+		if(DrCollectionTool.nullSafe(databeans).contains(null)){
+			throw new IllegalArgumentException("invalid null databean");
+		}
 		List<IE> indexEntries = getIndexEntriesFromDatabeans(databeans);
 		indexNode.putMulti(indexEntries, config);
 	}
@@ -96,9 +104,6 @@ implements IndexListener<PK,D>{
 	protected List<IE> getIndexEntriesFromPrimaryKeys(Collection<PK> primaryKeys){
 		List<IE> indexEntries = DrListTool.createArrayListWithSize(primaryKeys);
 		for(PK key : DrIterableTool.nullSafe(primaryKeys)){
-			if(key == null){
-				throw new IllegalArgumentException("invalid null key") ;
-			}
 			IE indexEntry = createIndexEntry();
 			if(indexEntry instanceof UniqueKeyIndexEntry){
 				((UniqueKeyIndexEntry)indexEntry).fromPrimaryKey(key);
@@ -114,9 +119,6 @@ implements IndexListener<PK,D>{
 		IE sampleIndexEntry = createIndexEntry();
 		List<IE> indexEntries = DrListTool.createArrayListWithSize(databeans);
 		for(D databean : DrIterableTool.nullSafe(databeans)){
-			if(databean == null){
-				throw new IllegalArgumentException("invalid null databean") ;
-			}
 			List<IE> indexEntriesFromSingleDatabean = sampleIndexEntry.createFromDatabean(databean);
 			indexEntries.addAll(DrCollectionTool.nullSafe(indexEntriesFromSingleDatabean));
 		}
