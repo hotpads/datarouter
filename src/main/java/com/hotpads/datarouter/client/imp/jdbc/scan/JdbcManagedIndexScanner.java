@@ -71,7 +71,7 @@ extends BaseBatchingSortedScanner<IE,IE>{
 	private List<IE> doLoad(Range<IK> range){
 		config = Config.nullSafe(config).setIterateBatchSizeIfNull(JdbcNode.DEFAULT_ITERATE_BATCH_SIZE);
 		JdbcManagedIndexScanOp<PK, D, IK, IE, IF> op = new JdbcManagedIndexScanOp<>(node, managedNode, range,
-				config, traceName);
+				config);
 		return new SessionExecutorImpl<List<IE>>(op, traceName).call();
 	}
 	

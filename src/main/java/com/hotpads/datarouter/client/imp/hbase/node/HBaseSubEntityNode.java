@@ -125,10 +125,10 @@ implements SubEntitySortedMapStorageNode<EK,PK,D,F>,
 					}
 					int numEntitiesPut = DrMapTool.size(databeansByEntityKey);
 					int numDatabeansPut = DrCollectionTool.getTotalSizeOfMapOfCollections(databeansByEntityKey);
-					DRCounters.incSuffixClientNode(client.getType(), "cells put", getClientName(), getNodeName(), numCellsPut);
-					DRCounters.incSuffixClientNode(client.getType(), "cells delete", getClientName(), getNodeName(), numCellsDeleted);
-					DRCounters.incSuffixClientNode(client.getType(), "databeans put", getClientName(), getNodeName(), numDatabeansPut);
-					DRCounters.incSuffixClientNode(client.getType(), "entities put", getClientName(), getNodeName(), numEntitiesPut);
+					DRCounters.incClientNodeCustom(client.getType(), "cells put", getClientName(), getNodeName(), numCellsPut);
+					DRCounters.incClientNodeCustom(client.getType(), "cells delete", getClientName(), getNodeName(), numCellsDeleted);
+					DRCounters.incClientNodeCustom(client.getType(), "databeans put", getClientName(), getNodeName(), numDatabeansPut);
+					DRCounters.incClientNodeCustom(client.getType(), "entities put", getClientName(), getNodeName(), numEntitiesPut);
 //					timer.add("built puts "+CollectionTool.size(actions));
 					if(DrCollectionTool.notEmpty(actions)){
 						hTable.batch(actions);

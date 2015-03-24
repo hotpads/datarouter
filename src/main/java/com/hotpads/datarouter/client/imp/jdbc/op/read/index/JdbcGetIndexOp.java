@@ -19,13 +19,12 @@ import com.hotpads.datarouter.storage.field.FieldSetTool;
 import com.hotpads.datarouter.storage.key.Key;
 import com.hotpads.datarouter.storage.key.primary.PrimaryKey;
 import com.hotpads.datarouter.storage.view.index.IndexEntry;
-import com.hotpads.datarouter.util.DRCounters;
 import com.hotpads.datarouter.util.core.DrListTool;
 import com.hotpads.util.core.iterable.BatchingIterable;
 import com.hotpads.util.core.java.ReflectionTool;
 
-public class JdbcGetIndexOp
-		<PK extends PrimaryKey<PK>,
+public class JdbcGetIndexOp<
+		PK extends PrimaryKey<PK>,
 		D extends Databean<PK, D>,
 		IK extends PrimaryKey<IK>,
 		IE extends IndexEntry<IK, IE, PK, D>,
@@ -38,13 +37,11 @@ extends BaseJdbcOp<List<IE>>{
 	private final DatabeanFielder<IK, IE> indexFielder;
 	private final IE indexEntry;
 	private final Collection<IK> uniqueKeys;
-	private final String opName;
 
-	public JdbcGetIndexOp(PhysicalNode<PK, D> node, String opName, Config config, Class<IE> indexEntryClass,
+	public JdbcGetIndexOp(PhysicalNode<PK, D> node, Config config, Class<IE> indexEntryClass,
 			Class<IF> indexFielderClass, Collection<IK> uniqueKeys){
 		super(node.getDatarouterContext(), node.getClientNames(), Config.DEFAULT_ISOLATION, true);
 		this.mainNode = node;
-		this.opName = opName;
 		this.config = config;
 		this.indexEntryClass = indexEntryClass;
 		this.uniqueKeys = uniqueKeys;
@@ -54,8 +51,6 @@ extends BaseJdbcOp<List<IE>>{
 
 	@Override
 	public List<IE> runOnce(){
-		DRCounters.incSuffixClientNode(mainNode.getClient().getType(), opName, mainNode.getClientName(), mainNode
-				.getName());
 		Connection connection = getConnection(mainNode.getClientName());
 		List<IE> databeans = new ArrayList<>();
 		for(List<IK> batch : new BatchingIterable<>(uniqueKeys, JdbcNode.DEFAULT_ITERATE_BATCH_SIZE)){

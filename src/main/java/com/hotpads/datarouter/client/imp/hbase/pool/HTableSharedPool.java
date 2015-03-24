@@ -59,7 +59,7 @@ public class HTableSharedPool  implements HTablePool{
 		setProgress(progress, "passed semaphore");
 		HTable hTable = null;
 		try{
-			DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "connection getHTable", clientName, tableName);
+			DRCounters.incClientTable(HBaseClientType.INSTANCE, "connection getHTable", clientName, tableName);
 
 			HConnection hConnection = HConnectionManager.getConnection(hBaseConfiguration);
 			setProgress(progress, "got hConnection "+hConnection==null?"null":"");
@@ -102,7 +102,7 @@ public class HTableSharedPool  implements HTablePool{
 			hTable.getWriteBuffer().clear();
 			if(hTableExecutorService==null){
 				logWithPoolInfo("HTable returned to pool but HTableExecutorService not found", tableName);
-				DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "HTable returned to pool but HTableExecutorService not found", 
+				DRCounters.incClientTable(HBaseClientType.INSTANCE, "HTable returned to pool but HTableExecutorService not found", 
 						clientName, tableName);
 				//don't release the semaphore
 				return;
@@ -115,19 +115,19 @@ public class HTableSharedPool  implements HTablePool{
 			hTableExecutorService.purge();
 			if(possiblyTarnished){//discard
 				logWithPoolInfo("ThreadPoolExecutor possibly tarnished, discarding", tableName);
-				DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "HTable executor possiblyTarnished", clientName, tableName);
+				DRCounters.incClientTable(HBaseClientType.INSTANCE, "HTable executor possiblyTarnished", clientName, tableName);
 				//hTableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else if(hTableExecutorService.isDyingOrDead(tableName)){//discard
 				logWithPoolInfo("ThreadPoolExecutor not reusable, discarding", tableName);
-				DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "HTable executor isDyingOrDead", clientName, tableName);
+				DRCounters.incClientTable(HBaseClientType.INSTANCE, "HTable executor isDyingOrDead", clientName, tableName);
 				//hTableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else if(!hTableExecutorService.isTaskQueueEmpty()){//discard
 				logWithPoolInfo("ThreadPoolExecutor taskQueue not empty, discarding", tableName);
-				DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "HTable executor taskQueue not empty", clientName, tableName);
+				DRCounters.incClientTable(HBaseClientType.INSTANCE, "HTable executor taskQueue not empty", clientName, tableName);
 				//hTableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}else if(!hTableExecutorService.waitForActiveThreadsToSettle(tableName)){//discard
 				logWithPoolInfo("active thread count would not settle to 0", tableName);
-				DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "HTable executor pool active threads won't quit", clientName, tableName);
+				DRCounters.incClientTable(HBaseClientType.INSTANCE, "HTable executor pool active threads won't quit", clientName, tableName);
 				//hTableExecutorService.terminateAndBlockUntilFinished(tableName);
 			}
 		}finally{
@@ -156,7 +156,7 @@ public class HTableSharedPool  implements HTablePool{
 	protected void recordSlowCheckout(long checkOutDurationMs, String tableName){
 		if(!LOG_ACTIONS) { return; }
 		if(checkOutDurationMs > 1){
-			DRCounters.incSuffixClientTable(HBaseClientType.INSTANCE, "connection open > 1ms", clientName, tableName);
+			DRCounters.incClientTable(HBaseClientType.INSTANCE, "connection open > 1ms", clientName, tableName);
 //			logger.warn("slow reserveConnection:"+checkOutDurationMs+"ms on "+clientName);
 		}
 	}

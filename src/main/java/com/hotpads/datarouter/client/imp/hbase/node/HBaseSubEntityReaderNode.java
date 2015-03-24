@@ -109,12 +109,12 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<List<D>>(new HBaseTask<List<D>>(getDatarouterContext(), getTaskNameParams(), 
 				"getMulti", config){
 				public List<D> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-					DRCounters.incSuffixClientNode(client.getType(), "getMulti requested", getClientName(), getNodeName(), 
+					DRCounters.incClientNodeCustom(client.getType(), "getMulti requested", getClientName(), getNodeName(), 
 							DrCollectionTool.size(pks));
 					List<Get> gets = queryBuilder.getGets(pks, false);
 					Result[] hBaseResults = hTable.get(gets);
 					List<D> databeans = resultParser.getDatabeansWithMatchingQualifierPrefix(hBaseResults);
-					DRCounters.incSuffixClientNode(client.getType(), "getMulti found", getClientName(), getNodeName(), 
+					DRCounters.incClientNodeCustom(client.getType(), "getMulti found", getClientName(), getNodeName(), 
 							DrCollectionTool.size(pks));
 					return databeans;
 				}
@@ -129,12 +129,12 @@ implements HBasePhysicalNode<PK,D>,
 		return new HBaseMultiAttemptTask<List<PK>>(new HBaseTask<List<PK>>(getDatarouterContext(), getTaskNameParams(), 
 				"getKeys", config){
 				public List<PK> hbaseCall(HTable hTable, HBaseClient client, ResultScanner managedResultScanner) throws Exception{
-					DRCounters.incSuffixClientNode(client.getType(), "getKeys requested", getClientName(), getNodeName(), 
+					DRCounters.incClientNodeCustom(client.getType(), "getKeys requested", getClientName(), getNodeName(), 
 							DrCollectionTool.size(pks));
 					List<Get> gets = queryBuilder.getGets(pks, true);
 					Result[] hBaseResults = hTable.get(gets);
 					List<PK> pks = resultParser.getPrimaryKeysWithMatchingQualifierPrefix(hBaseResults);
-					DRCounters.incSuffixClientNode(client.getType(), "getKeys found", getClientName(), getNodeName(), 
+					DRCounters.incClientNodeCustom(client.getType(), "getKeys found", getClientName(), getNodeName(), 
 							DrCollectionTool.size(pks));
 					return pks;
 				}
@@ -288,7 +288,7 @@ implements HBasePhysicalNode<PK,D>,
 						if(config.getLimit()!=null && results.size()>=config.getLimit()){ break; }
 					}
 					managedResultScanner.close();
-					DRCounters.incSuffixClientNode(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),  
+					DRCounters.incClientNodeCustom(client.getType(), scanKeysVsRowsNumRows, getClientName(), getNodeName(),  
 							DrCollectionTool.size(results));
 					return results;
 				}
