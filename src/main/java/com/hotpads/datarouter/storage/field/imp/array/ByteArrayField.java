@@ -49,7 +49,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	/*********************** ByteEncodedField ***********************/
 	
 	@Override
-	public byte[] getBytes(){
+	public byte[] getBytes(){	
 		return value==null?null:DrByteTool.flipToAndFromComparableByteArray(this.value);
 	}
 	
@@ -102,8 +102,8 @@ public class ByteArrayField extends BaseField<byte[]>{
 	}
 	
 	@Override
-	public String getValueString(){
-		return DrArrayTool.toCsvString(value);
+	public String getValueString(){	
+		return Hex.encodeHexString(value);
 	}
 	
 	@Override
@@ -113,15 +113,15 @@ public class ByteArrayField extends BaseField<byte[]>{
 	
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
-		try{
-			ps.setBytes(parameterIndex, this.value==null?null:this.value);
+		try{			
+			ps.setBytes(parameterIndex, this.value==null?null:this.value);			
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
 	}
 
 	@Override
-	public byte[] parseJdbcValueButDoNotSet(Object obj){
+	public byte[] parseJdbcValueButDoNotSet(Object obj){		
 		throw new NotImplementedException("code needs testing");
 //		if(obj==null){ return null; }
 //		byte[] bytes = (byte[])obj;
@@ -129,7 +129,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 	}
 	
 	@Override
-	public byte[] fromJdbcResultSetButDoNotSet(ResultSet rs){
+	public byte[] fromJdbcResultSetButDoNotSet(ResultSet rs){	
 		try{
 			return rs.getBytes(columnName);
 		}catch(SQLException e){
